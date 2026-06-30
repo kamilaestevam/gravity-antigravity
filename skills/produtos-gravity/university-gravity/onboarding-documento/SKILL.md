@@ -177,9 +177,12 @@ Após "aprovado" ou equivalente do usuário:
 Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES`):
 
 1. **Ler ONBOARDING-DOCUMENTO.md §9** antes de escrever parágrafos ou passos visuais.
-2. **Corpo:** `0.9rem` + `MANUAL_CORPO_70` (70% de `--ws-text`). Não usar `MANUAL_TIPO.corpo` legado em texto novo.
-3. **Passos:** rótulo `PASSO NN` em `12px` `#818cf8`; título do passo em `0.92rem` 100%; parágrafos via `ManualParagrafo`.
-4. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
-5. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
-6. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
-7. **Intro de fluxo:** um parágrafo resumido na seção; detalhes nos `passosVisuais`.
+2. **Sumário (§9.6):** `titulo` e `tituloSumario` em **frase** — só primeira palavra e nomes próprios em maiúscula (padrão Login: `A tela de acesso`, `Fluxo 1: Criar sua conta`). ❌ Title Case (`Seus Produtos Gravity`).
+3. **Corpo:** `0.9rem` + `MANUAL_CORPO_70` (70% de `--ws-text`). Não usar `MANUAL_TIPO.corpo` legado em texto novo.
+4. **Espaço entre parágrafos:** **12px** (`MANUAL_ESPACO_PARAGRAFO_PX`) via `manualMargemParagrafo(i, total)`; **0** no último parágrafo de cada bloco — ver ONBOARDING-DOCUMENTO.md **§9.1.1** e `manual-tipografia.ts`.
+5. **Alinhamento:** corpo narrativo **justificado** (`MANUAL_ALINHAMENTO_CORPO`) em parágrafos e callouts — ver **§9.1.2**; títulos e rótulos ficam à esquerda.
+6. **Passos:** rótulo `PASSO NN` em `12px` `#818cf8`; título do passo em `0.92rem` 100%; parágrafos via `ManualParagrafo`.
+7. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
+8. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
+9. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
+10. **Intro de fluxo:** um parágrafo resumido na seção; detalhes nos `passosVisuais`.

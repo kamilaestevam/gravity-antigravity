@@ -30,11 +30,39 @@ export interface DocPassoVisual {
   titulo: string
   paragrafos: string[]
   imagem?: string
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
-  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }[]
+  /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
+  ocultarRotuloPasso?: boolean
+  /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
+  ocultarTituloPasso?: boolean
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }[]
   tooltipsKpi?: DocTooltipKpi[]
   galeriaTelas?: { legenda: string; imagem: string }[]
   linkCapitulo?: { texto: string; href: string }
+  /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
+  /** Duas telas lado a lado na coluna direita (comparativo sem × com). */
+  galeriaComparacao?: { legenda: string; imagem: string }[]
+  /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
+  imagemAbaixoTexto?: boolean
+  /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
+  tooltipsKpiAposImagem?: boolean
+  /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
+  calloutAoLadoTexto?: boolean
+  /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
+  dicaAoLadoImagem?: {
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+    imagem: string
+    legenda?: string
+  }
+}
+
+export interface DocFiguraAposParagrafo {
+  indice: number
+  imagem: string
+  legenda?: string
+  /** Recortes estreitos (menu lateral etc.) — evita esticar na coluna de texto. */
+  larguraMaxima?: number
 }
 
 export interface DocOrigemDados {
@@ -49,11 +77,30 @@ export interface DocOrigemDados {
 
 export interface DocFluxo {
   titulo: string
-  /** Rótulo curto no sumário (ex.: "Criar workspace"). Se omitido, usa `titulo`. */
+  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver ONBOARDING-DOCUMENTO.md §9.6. Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean
   mostrarInfograficoPapeisFornecedor?: boolean
+  /** Manual Navegação §03 — mapa Hub/Store × produto × Configurador. */
+  mostrarInfograficoMenuLateral?: boolean
+  /** Manual Navegação §02 — barra de referência + grade dos 8 atalhos do menu superior. */
+  mostrarInfograficoIconesMenuSuperior?: boolean
+  /** Com `mostrarInfograficoIconesMenuSuperior`, renderiza o infográfico após os passos visuais. */
+  infograficoIconesMenuSuperiorAposPassos?: boolean
+  /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
+  mostrarInfograficoTiposUsuario?: boolean
+  /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
+  modoCenarios?: boolean
+  /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
+  cenariosLadoALado?: boolean
+  /** Com `cenariosLadoALado`, textos em cima e figuras alinhadas na linha de baixo. */
+  cenariosImagensAlinhadas?: boolean
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  /** Exibe o callout do fluxo depois dos passos visuais (ex.: Dica abaixo de screenshot). */
+  calloutAposPassos?: boolean
+  /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
   passosVisuais: DocPassoVisual[]
 }
 
@@ -71,7 +118,35 @@ export interface DocSecao {
   mostrarInfograficoOrganizacao?: boolean
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  mostrarInfograficoHubTelas?: boolean
+  /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
+  mostrarInfograficoMapaNavegacaoGravity?: boolean
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  /** Dica/aviso logo após o parágrafo de índice `indice` (só em layout texto+imagem lateral). */
+  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string } }
+  /** Dica compacta à esquerda e screenshot à direita (intro com layout lateral). */
+  dicaAoLadoImagem?: {
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+    imagem: string
+    legenda?: string
+  }
+  /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
+  /** Duas ou mais figuras lado a lado após um parágrafo (ex.: menu superior × menu lateral). */
+  galeriaComparacaoAposParagrafo?: {
+    indice: number
+    telas: { legenda: string; imagem: string }[]
+  }[]
+  /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
+  topicosImagemLateral?: DocTopicoImagemLateral[]
+}
+
+export interface DocTopicoImagemLateral {
+  titulo: string
+  texto: string
+  imagem: string
+  /** Recorte estreito ou sidebar — evita esticar na coluna direita. */
+  larguraMaxima?: number
 }
 
 const DOCS_BASE = '/university-gravity/docs/configurador'
@@ -82,70 +157,70 @@ export const CONFIGURADOR_MANUAL_ITENS: ConfiguradorManualItem[] = [
     label: 'Visão geral',
     secaoNum: 1,
     rotaApp: '/configurador',
-    subtitulo: 'Mapa do Configurador: organização, workspaces, usuários, assinaturas e demais áreas de gestão da conta Gravity.',
+    subtitulo: 'Configurador principal da plataforma',
   },
   {
     pathSeg: 'organizacao',
     label: 'Organização',
     secaoNum: 2,
     rotaApp: '/configurador/organizacao',
-    subtitulo: 'A empresa que contrata o Gravity — criada no signup e onboarding, com dados cadastrais e identidade da conta.',
+    subtitulo: 'Empresa contratante: Dados cadastrais da conta',
   },
   {
     pathSeg: 'workspaces',
     label: 'Workspaces',
     secaoNum: 3,
     rotaApp: '/configurador/workspaces',
-    subtitulo: 'Filiais, empresas do grupo ou clientes do despachante: cada workspace isola dados e produtos dentro da organização.',
+    subtitulo: 'Filiais, clientes e unidades operacionais',
   },
   {
     pathSeg: 'usuarios',
     label: 'Usuários',
     secaoNum: 4,
     rotaApp: '/configurador/usuarios',
-    subtitulo: 'Convites, patentes (Master, Standard, Fornecedor) e permissões por área do Configurador.',
+    subtitulo: 'Convites, patentes e permissões da organização',
   },
   {
     pathSeg: 'fornecedores',
     label: 'Fornecedores',
     secaoNum: 5,
     rotaApp: '/configurador/fornecedores',
-    subtitulo: 'Terceiros COMEX da organização: exportador na importação, importador na exportação, agente, despachante e demais papéis.',
+    subtitulo: 'Terceiros COMEX: Exportador, importador e agentes',
   },
   {
     pathSeg: 'assinaturas',
     label: 'Assinaturas',
     secaoNum: 6,
     rotaApp: '/configurador/assinaturas',
-    subtitulo: 'Produtos contratados, planos e ciclo de cobrança da organização.',
+    subtitulo: 'Produtos contratados na Store e ciclo de cobrança',
   },
   {
     pathSeg: 'financeiro',
     label: 'Financeiro',
     secaoNum: 7,
     rotaApp: '/configurador/financeiro',
-    subtitulo: 'Faturas, métodos de pagamento e histórico financeiro da conta.',
+    subtitulo: 'Faturas, pagamentos e histórico da conta',
   },
   {
     pathSeg: 'api-cockpit',
     label: 'API Cockpit',
     secaoNum: 8,
     rotaApp: '/configurador/api-cockpit',
-    subtitulo: 'Tokens de API, webhooks e integrações com ERPs e sistemas externos.',
+    subtitulo: 'Tokens, webhooks e integrações com ERPs',
   },
   {
     pathSeg: 'taxas-moeda',
     label: 'Taxas e moeda',
     secaoNum: 9,
     rotaApp: '/configurador/taxas-moeda',
-    subtitulo: 'Câmbio, moedas operacionais e taxas usadas nos produtos da organização.',
+    subtitulo: 'Câmbio operacional: PTAX atual e projeção Focus',
   },
   {
     pathSeg: 'historico',
     label: 'Histórico',
     secaoNum: 10,
     rotaApp: '/configurador/historico-organizacao',
-    subtitulo: 'Auditoria de alterações sensíveis na organização e nos workspaces.',
+    subtitulo: 'Auditoria de alterações na organização',
   },
 ]
 
@@ -154,6 +229,7 @@ const SLUGS_VALIDOS = new Set<string>(CONFIGURADOR_MANUAL_ITENS.map(i => i.pathS
 const SCREENSHOT_ABRIR_CONFIGURADOR = '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 /** Única tela em que o botão Ampliar fica abaixo da imagem (evita sobrepor o FAB do Hub). */
 export const SCREENSHOT_HUB_ACESSO_CONFIGURADOR = '/university/screenshots/configurador-hub-acesso-configurador.png'
+const SCREENSHOT_CONFIGURADOR_MENU_LATERAL = '/university/screenshots/configurador-tela-menu-lateral.png'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -169,8 +245,8 @@ const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Visão geral',
     descricao: 'Quantidade total de unidades cadastradas na organização.',
     detalhes: [
-      'Total cadastradas — todas as filiais e clientes',
-      'Adicionadas hoje — workspaces criados no dia',
+      'Total cadastradas: Todas as filiais e clientes',
+      'Adicionadas hoje: Workspaces criados no dia',
     ],
   },
   {
@@ -178,9 +254,9 @@ const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Atividade',
     descricao: 'Comparativo entre workspaces em operação e suspensos.',
     detalhes: [
-      'Ativas — acesso liberado para usuários vinculados',
-      'Suspensas — bloqueadas até reativação',
-      'Taxa de atividade — percentual de workspaces ativos',
+      'Ativas: Acesso liberado para usuários vinculados',
+      'Suspensas: Bloqueadas até reativação',
+      'Taxa de atividade: Percentual de workspaces ativos',
     ],
   },
   {
@@ -200,8 +276,8 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Visão geral',
     descricao: 'Quantidade de pessoas cadastradas ou convidadas na organização.',
     detalhes: [
-      'Total de registros — ativos, inativos e convidados pendentes',
-      'Novos hoje — usuários adicionados no dia',
+      'Total de registros: Ativos, inativos e convidados pendentes',
+      'Novos hoje: Usuários adicionados no dia',
     ],
   },
   {
@@ -209,8 +285,8 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Vínculos de acesso',
     descricao: 'Soma de todas as ligações usuário ↔ workspace na organização.',
     detalhes: [
-      'Total de acessos — cada workspace marcado para um usuário conta um vínculo',
-      'Master não precisa de vínculo explícito — acessa todos automaticamente',
+      'Total de acessos: Cada workspace marcado para um usuário conta um vínculo',
+      'Master não precisa de vínculo explícito: Acessa todos automaticamente',
     ],
   },
   {
@@ -218,7 +294,7 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Distribuição média',
     descricao: 'Média de workspaces por usuário ativo na organização.',
     detalhes: [
-      'Média geral — ajuda a identificar contas com pouco ou muito alcance',
+      'Média geral: Ajuda a identificar contas com pouco ou muito alcance',
     ],
   },
   {
@@ -226,14 +302,14 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Densidade e distribuição',
     descricao: 'Gráfico comparando usuários com e sem acesso a algum workspace.',
     detalhes: [
-      'Com acesso — pelo menos um workspace habilitado (ou tipo Master)',
-      'Sem acesso — ainda sem workspace vinculado',
+      'Com acesso: Pelo menos um workspace habilitado (ou tipo Master)',
+      'Sem acesso: Ainda sem workspace vinculado',
       'Tooltip repete totais de usuários, workspaces e média por pessoa',
     ],
   },
 ]
 
-/** Screenshots com tooltip aberto — Drive: 3. Usuarios/tela_configurador_usuarios_cards_tooltip_N.png */
+/** Screenshots com tooltip aberto: Drive: 3. Usuarios/tela_configurador_usuarios_cards_tooltip_N.png */
 const USUARIOS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
   'Total de Usuários': '/university/screenshots/configurador-usuarios-cards-tooltip-1.png',
   'Acessos Concedidos': '/university/screenshots/configurador-usuarios-cards-tooltip-2.png',
@@ -242,7 +318,7 @@ const USUARIOS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
 
 function criarPassosTooltipKpiUsuario(): PassoSemNumero[] {
   return USUARIOS_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip — ${tooltip.card}`,
+    titulo: `Tooltip: ${tooltip.card}`,
     imagem: USUARIOS_TOOLTIP_KPI_IMAGENS[tooltip.card],
     paragrafos: [
       `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
@@ -257,9 +333,9 @@ const FORNECEDORES_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Visão geral',
     descricao: 'Quantidade de terceiros cadastrados na organização.',
     detalhes: [
-      'Ativas — disponíveis em dropdowns operacionais',
-      'Inativas — ocultas em novos pedidos e processos',
-      'Total — soma de ativas e inativas',
+      'Ativas: Disponíveis em dropdowns operacionais',
+      'Inativas: Ocultas em novos pedidos e processos',
+      'Total: Soma de ativas e inativas',
     ],
   },
   {
@@ -267,8 +343,8 @@ const FORNECEDORES_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Disponibilidade',
     descricao: 'Parceiros que podem ser selecionados nos produtos.',
     detalhes: [
-      'Ativas — aparecem em cotações, pedidos e processos',
-      'Inativas — histórico preservado, sem uso em novas operações',
+      'Ativas: Aparecem em cotações, pedidos e processos',
+      'Inativas: Histórico preservado, sem uso em novas operações',
     ],
   },
   {
@@ -288,16 +364,16 @@ const FORNECEDORES_GALERIA_TOOLTIPS_KPI = [
   { legenda: '3 · Distribuição por tipo', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-3.png' },
 ] as const
 
-/** Screenshots com tooltip aberto — Drive: 5. Assinaturas/tela_configurador_assinaturas_cards_tooltip_N.png */
+/** Screenshots com tooltip aberto: Drive: 5. Assinaturas/tela_configurador_assinaturas_cards_tooltip_N.png */
 const ASSINATURAS_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
     card: 'Produtos Ativos',
     tituloTooltip: 'STATUS DAS ASSINATURAS',
     descricao: 'Resumo de quantos produtos Gravity estão contratados e em uso na organização.',
     detalhes: [
-      'Ativas — produto contratado e operacional',
-      'Em Teste — período de trial manual antes do fechamento',
-      'Suspensas — acesso bloqueado temporariamente pelo administrador',
+      'Ativas: Produto contratado e operacional',
+      'Em Teste: Período de trial manual antes do fechamento',
+      'Suspensas: Acesso bloqueado temporariamente pelo administrador',
     ],
   },
   {
@@ -305,16 +381,16 @@ const ASSINATURAS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'PERÍODO DE TESTE',
     descricao: 'Produtos em avaliação antes da contratação definitiva.',
     detalhes: [
-      'Em trial — status atribuído manualmente pelo Master',
+      'Em trial: Status atribuído manualmente pelo Master',
       'Não conta no card Produtos Ativos até virar Ativa',
     ],
   },
   {
     card: 'Acessos Suspensos',
     tituloTooltip: 'ATENÇÃO',
-    descricao: 'Assinaturas com acesso bloqueado — requerem ação do administrador.',
+    descricao: 'Assinaturas com acesso bloqueado: Requerem ação do administrador.',
     detalhes: [
-      'Assinaturas suspensas — usuários perdem acesso ao produto',
+      'Assinaturas suspensas: Usuários perdem acesso ao produto',
       'Reative pelo ícone de pausa/play na linha da tabela',
     ],
   },
@@ -328,7 +404,7 @@ const ASSINATURAS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
 
 function criarPassosTooltipKpiAssinaturas(): PassoSemNumero[] {
   return ASSINATURAS_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip — ${tooltip.card}`,
+    titulo: `Tooltip: ${tooltip.card}`,
     imagem: ASSINATURAS_TOOLTIP_KPI_IMAGENS[tooltip.card],
     paragrafos: [
       `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
@@ -343,9 +419,9 @@ const FINANCEIRO_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'DETALHES DA FATURA',
     descricao: 'Data e valor da fatura em aberto com vencimento mais próximo.',
     detalhes: [
-      'Fatura Nº — identificador legível da cobrança',
-      'Valor esperado — total a pagar naquela fatura',
-      'Competência — mês/ano de referência do serviço',
+      'Fatura Nº: Identificador legível da cobrança',
+      'Valor esperado: Total a pagar naquela fatura',
+      'Competência: Mês/ano de referência do serviço',
     ],
   },
   {
@@ -353,8 +429,8 @@ const FINANCEIRO_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'COMPOSIÇÃO DO VALOR',
     descricao: 'Soma de todas as faturas ainda não quitadas na organização.',
     detalhes: [
-      'Faturas pendentes — emitidas ou enviadas, aguardando pagamento',
-      'Faturas atrasadas — vencidas (status Em atraso)',
+      'Faturas pendentes: Emitidas ou enviadas, aguardando pagamento',
+      'Faturas atrasadas: Vencidas (status Em atraso)',
     ],
   },
   {
@@ -362,13 +438,13 @@ const FINANCEIRO_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'SITUAÇÃO GERAL',
     descricao: 'Panorama do histórico de cobrança da conta Gravity.',
     detalhes: [
-      'Total lançadas — todas as faturas já geradas',
-      'Faturas pagas — quitadas com sucesso',
+      'Total lançadas: Todas as faturas já geradas',
+      'Faturas pagas: Quitadas com sucesso',
     ],
   },
 ]
 
-/** Screenshots com tooltip aberto — Drive: 6. Financeiro/tela_financeiro_tela_principal_tootip_N.png */
+/** Screenshots com tooltip aberto: Drive: 6. Financeiro/tela_financeiro_tela_principal_tootip_N.png */
 const FINANCEIRO_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
   'Próximo Vencimento': '/university/screenshots/configurador-financeiro-cards-tooltip-1.png',
   'Valor a Pagar': '/university/screenshots/configurador-financeiro-cards-tooltip-2.png',
@@ -377,7 +453,7 @@ const FINANCEIRO_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
 
 function criarPassosTooltipKpiFinanceiro(): PassoSemNumero[] {
   return FINANCEIRO_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip — ${tooltip.card}`,
+    titulo: `Tooltip: ${tooltip.card}`,
     imagem: FINANCEIRO_TOOLTIP_KPI_IMAGENS[tooltip.card],
     paragrafos: [
       `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
@@ -392,9 +468,9 @@ const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'DÓLAR AMERICANO · COTAÇÃO ATUAL',
     descricao: 'Última PTAX armazenada para o dólar americano.',
     detalhes: [
-      'Compra e Venda — taxas do boletim BCB/PTAX',
-      'Data e hora — referência do boletim sincronizado',
-      'Fonte — BCB/PTAX',
+      'Compra e Venda: Taxas do boletim BCB/PTAX',
+      'Data e hora: Referência do boletim sincronizado',
+      'Fonte: BCB/PTAX',
     ],
   },
   {
@@ -402,9 +478,9 @@ const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'EURO · COTAÇÃO ATUAL',
     descricao: 'Última PTAX armazenada para o euro.',
     detalhes: [
-      'Compra e Venda — taxas do boletim BCB/PTAX',
-      'Data e hora — referência do boletim sincronizado',
-      'Fonte — BCB/PTAX',
+      'Compra e Venda: Taxas do boletim BCB/PTAX',
+      'Data e hora: Referência do boletim sincronizado',
+      'Fonte: BCB/PTAX',
     ],
   },
   {
@@ -412,9 +488,9 @@ const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'SITUAÇÃO POR MOEDA',
     descricao: 'Quantas das sete moedas suportadas já possuem cotação armazenada.',
     detalhes: [
-      'USD, EUR, GBP, CHF, CNY, JPY, CAD — lista completa no tooltip',
-      'Sem dado — moeda ainda não sincronizada nesta organização',
-      'Total ativas — contagem usada no valor do card',
+      'USD, EUR, GBP, CHF, CNY, JPY, CAD: Lista completa no tooltip',
+      'Sem dado: Moeda ainda não sincronizada nesta organização',
+      'Total ativas: Contagem usada no valor do card',
     ],
   },
 ]
@@ -427,7 +503,7 @@ const TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
 
 function criarPassosTooltipKpiTaxasMoeda(): PassoSemNumero[] {
   return TAXAS_MOEDA_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip — ${tooltip.card}`,
+    titulo: `Tooltip: ${tooltip.card}`,
     imagem: TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS[tooltip.card],
     paragrafos: [
       `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
@@ -450,10 +526,10 @@ function passosComAcessoPadrao(
   const passoHub: DocPassoVisual[] = comPassoHub
     ? [{
         num: 1,
-        titulo: 'No Hub — menu do usuário',
+        titulo: 'Em qualquer tela da plataforma: Menu do usuário',
         imagem: SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
         paragrafos: [
-          'De qualquer lugar da plataforma — Hub ou produto Gravity — clique no ícone do usuário no canto superior direito, como indicado pela seta na imagem.',
+          'Em qualquer tela da plataforma, clique no **ícone do usuário** no canto superior direito, como indicado pela seta na imagem.',
         ],
       }]
     : []
@@ -515,7 +591,6 @@ export function metadadosConfiguradorPagina(slug: ConfiguradorManualSlug): { rot
     { rotulo: 'Produto', valor: 'Configurador' },
     { rotulo: 'URL de acesso', valor: `https://usegravity.com.br${rota}`, href: true },
     { rotulo: 'Rota base', valor: rota },
-    { rotulo: 'Componente', valor: 'WorkspaceLayout' },
   ]
 }
 
@@ -523,46 +598,46 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 1,
     titulo: 'Visão geral do Configurador',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-hub-acesso-configurador.png',
     paragrafos: [
-      'O Configurador é o painel de gestão da sua conta Gravity. A partir dele você administra a organização (empresa contratante), os workspaces (filiais ou clientes), usuários, assinaturas de produtos e integrações.',
-      'Use o menu abaixo para ir direto ao capítulo de cada área. Cada página deste manual descreve uma tela do Configurador com passos visuais e screenshots.',
+      'O **Configurador** é o painel de gestão da sua conta **Gravity**. A partir dele você administra a **organização** (empresa contratante), os **workspaces** (filiais ou clientes), **usuários**, **assinaturas** de produtos e **integrações**.',
+      'No **Configurador**, o **menu lateral** à esquerda concentra **Organização**, **Workspaces**, **Usuários**, **Assinaturas** e as demais áreas de gestão da conta (exemplo abaixo).',
     ],
-    lista: [
-      `– {{link:${DOCS_BASE}/organizacao|Organização}}: dados da empresa contratante — nasce no signup e onboarding`,
-      `– {{link:${DOCS_BASE}/workspaces|Workspaces}}: matriz, filiais ou clientes do despachante`,
-      `– {{link:${DOCS_BASE}/usuarios|Usuários}}: convites, patentes e permissões`,
-      `– {{link:${DOCS_BASE}/fornecedores|Fornecedores}}: terceiros COMEX — exportador na importação, importador na exportação, agente, despachante`,
-      `– {{link:${DOCS_BASE}/assinaturas|Assinaturas}}: produtos e planos contratados`,
-      `– {{link:${DOCS_BASE}/financeiro|Financeiro}}: faturas e pagamentos`,
-      `– {{link:${DOCS_BASE}/api-cockpit|API Cockpit}}: tokens, webhooks e ERP`,
-      `– {{link:${DOCS_BASE}/taxas-moeda|Taxas e moeda}}: câmbio operacional`,
-      `– {{link:${DOCS_BASE}/historico|Histórico}}: auditoria da organização`,
+    figurasAposParagrafo: [
+      {
+        indice: 1,
+        imagem: SCREENSHOT_CONFIGURADOR_MENU_LATERAL,
+        legenda: 'Menu lateral do Configurador',
+        larguraMaxima: 220,
+      },
     ],
   },
   {
     num: 2,
     titulo: 'Organização',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-organizacao-tela.png',
     mostrarInfograficoOrganizacao: true,
     paragrafos: [
-      'A Organização é a empresa que contrata o Gravity — o tenant principal da conta.',
-      'No infográfico abaixo, veja de onde ela nasce. Os dados cadastrais que aparecem em Configurador → Organização vêm desse fluxo — depois do onboarding, você só revisa e mantém a identidade legal da conta.',
+      'A **Organização** é a empresa que contrata o **Gravity**.',
     ],
     origemDados: {
       paragrafos: [
-        'As telas abaixo são o passo Onboarding do fluxo acima — é aqui que nome e CNPJ são informados pela primeira vez e viram a organização na plataforma.',
+        'As telas abaixo são os passos do **onboarding** do fluxo acima: É aqui que **nome** e **CNPJ** são informados pela primeira vez e viram a **organização** na plataforma.',
       ],
       etapas: [
         {
           legenda: '1 · Nome da empresa',
           paragrafos: [
-            'No primeiro acesso após criar a conta, o wizard pede o nome da empresa contratante. Esse nome vira o rótulo inicial da organização.',
+            'No primeiro acesso após criar a conta, o wizard pede o nome da empresa contratante. Esse nome vira o **nome da Organização**.',
           ],
           imagem: '/university/screenshots/onboarding-nome-preenchido.png',
         },
         {
           legenda: '2 · CNPJ',
           paragrafos: [
-            'Na etapa seguinte, informe o CNPJ. Com nome e CNPJ validados, a organização é criada e você segue para o {{link:/university-gravity/docs/hub|Hub}}.',
+            'Na etapa seguinte, informe o **CNPJ da Organização**. Com nome e CNPJ validados, a **organização** é criada e você segue para o {{link:/university-gravity/docs/hub|Hub}}.',
           ],
           imagem: '/university/screenshots/onboarding-cnpj-preenchido.png',
         },
@@ -570,7 +645,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Organização',
+        titulo: 'Fluxo 1: Acessar organização',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e revisar os dados cadastrais da organização.',
         ],
@@ -581,7 +656,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           true,
           [
             'No menu lateral do Configurador, clique em Organização. A tela abre com os dados cadastrais da empresa contratante.',
-            'Nome da empresa e CNPJ são definidos no onboarding e ficam bloqueados (ícone de cadeado). Somente dados meramente informativos podem ser alterados aqui: estado, cidade, segmento e tipo de empresa. Clique em Salvar para confirmar as mudanças.',
+            'Nome da empresa e CNPJ são definidos no onboarding e ficam bloqueados (ícone de cadeado). Somente dados meramente informativos podem ser alterados aqui: Estado, cidade, segmento e tipo de empresa. Clique em Salvar para confirmar as mudanças.',
           ],
         ),
       },
@@ -590,27 +665,40 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 3,
     titulo: 'Workspaces',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-workspaces-acesso-tela.png',
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
-      'Uma organização pode ter um ou vários workspaces. Cada workspace representa uma unidade operacional: filial do importador/exportador, empresa do grupo ou cliente atendido por um despachante.',
-      'No Configurador → Workspaces você cria, edita, ativa ou suspende workspaces. Usuários Standard e Fornecedor só enxergam os workspaces aos quais foram vinculados.',
+      '**Workspaces** são as unidades operacionais da organização — cada unidade opera com dados, usuários e registros isolados.',
     ],
+    calloutAposParagrafo: {
+      indice: 0,
+      callout: {
+        tipo: 'dica',
+        texto: 'Usuários **Standard** e **Fornecedor** só enxergam os workspaces aos quais foram vinculados.',
+      },
+    },
+    callout: {
+      tipo: 'dica',
+      texto: 'O **CNPJ do workspace** identifica a empresa que concentra pedidos, processos e cotações daquela unidade.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Workspaces',
+        titulo: 'Acessar workspaces',
+        tituloSumario: 'Acessar workspaces',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Workspaces.',
         ],
         passosVisuais: passosComAcessoPadrao(
           'Workspaces',
-          [],
-          '/university/screenshots/configurador-workspaces-acesso-tela.png',
-          true,
-          undefined,
-          {
+          [{
+            titulo: 'Tela de Workspaces',
+            imagem: '/university/screenshots/configurador-workspaces-cards-selecao.png',
+            imagemAbaixoTexto: true,
+            tooltipsKpiAposImagem: true,
             paragrafos: [
-              'No menu lateral do Configurador, clique em Workspaces. A tela abre com a listagem e os três cards de resumo no topo.',
-              'Passe o mouse no ícone (i) de cada card para abrir o tooltip — veja abaixo o que cada indicador mostra:',
+              'A tela abre com a listagem de workspaces e os três cards de resumo no topo.',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
             ],
             tooltipsKpi: WORKSPACES_TOOLTIPS_KPI,
             galeriaTelas: [
@@ -618,15 +706,17 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               { legenda: '2 · Workspaces Ativos', imagem: '/university/screenshots/configurador-workspaces-cards-tooltip-2.png' },
               { legenda: '3 · Status dos Workspaces', imagem: '/university/screenshots/configurador-workspaces-cards-tooltip-3.png' },
             ],
-          },
+          }],
+          '/university/screenshots/configurador-workspaces-acesso-tela.png',
+          true,
+          [
+            'No menu lateral do Configurador, clique em **Workspaces**, como indicado pela seta na imagem.',
+          ],
         ),
       },
       {
-        titulo: 'Fluxo 2 — criar workspace',
+        titulo: 'Criar workspace',
         tituloSumario: 'Criar workspace',
-        paragrafos: [
-          'Na tela de Workspaces você cadastra filiais ou clientes como novas unidades operacionais da organização.',
-        ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Iniciar criação de workspace',
@@ -638,7 +728,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             titulo: 'Preencher e salvar o novo workspace',
             paragrafos: [
-              'Informe nome, subdomínio e demais campos obrigatórios. Após salvar, o workspace aparece na listagem pronto para ativação.',
+              'Informe nome e demais campos obrigatórios. Após salvar, o workspace aparece na listagem pronto para ativação.',
             ],
             galeriaTelas: [
               { legenda: '1 · Modal vazio', imagem: '/university/screenshots/configurador-workspaces-novo-modal.png' },
@@ -649,28 +739,35 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3 — editar workspace',
+        titulo: 'Editar workspace',
         tituloSumario: 'Editar workspace',
         paragrafos: [
-          'Altere nome, subdomínio ou demais dados de um workspace já cadastrado.',
+          'Altere nome ou demais dados de um workspace já cadastrado.',
         ],
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Editar um workspace existente',
+            titulo: 'Abrir edição do workspace',
+            imagem: '/university/screenshots/configurador-workspaces-editar-seta.png',
+            paragrafos: [
+              'Na tela de Workspaces, clique no ícone **Editar** no card do workspace, como indicado pela seta na imagem.',
+            ],
+          },
+          {
+            titulo: 'Editar dados no modal',
             imagem: '/university/screenshots/configurador-workspaces-modal-editar.png',
             paragrafos: [
-              'Use a ação Editar no card do workspace para alterar nome, subdomínio ou demais dados. As mudanças refletem imediatamente no seletor de workspace do Hub.',
-              'No modal, preencha o CNPJ da unidade operacional com atenção: ele identifica a empresa que concentra os registros do workspace na plataforma.',
+              'No modal, altere nome ou demais dados do workspace. As mudanças refletem imediatamente no seletor de workspace do Hub.',
+              'Preencha o **CNPJ** da unidade operacional com atenção: Ele identifica a empresa que concentra os registros do workspace na plataforma.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'O CNPJ do workspace é muito importante. Ele representa a empresa principal daquela unidade — é sobre ela que serão emitidos pedidos, processos, cotações de frete, DUIMP e demais operações COMEX vinculadas ao workspace.',
+              texto: 'O **CNPJ do workspace** é muito importante. Ele representa a empresa principal daquela unidade: É sobre ela que serão emitidos pedidos, processos, cotações de frete, DUIMP e demais operações COMEX vinculadas ao workspace.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 4 — ativar e suspender workspace',
+        titulo: 'Ativar e suspender workspace',
         tituloSumario: 'Ativar e suspender workspace',
         paragrafos: [
           'Controle o acesso operacional de cada workspace sem apagá-lo. Ativar libera o ambiente para usuários vinculados; suspender bloqueia temporariamente.',
@@ -680,7 +777,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Ativar um workspace suspenso',
             imagem: '/university/screenshots/configurador-workspaces-ativar-seta.png',
             paragrafos: [
-              'Na listagem, localize o workspace com status Suspenso. No menu de ações da linha, clique no ícone de ativar — como indicado pela seta na imagem.',
+              'Na listagem, localize o workspace com status Suspenso. No menu de ações da linha, clique no ícone de ativar: Como indicado pela seta na imagem.',
             ],
           },
           {
@@ -707,10 +804,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5 — excluir workspace',
+        titulo: 'Excluir workspace',
         tituloSumario: 'Excluir workspace',
         paragrafos: [
-          'Remova permanentemente um workspace que não será mais utilizado. A operação é irreversível — use apenas quando não houver dados operacionais a preservar.',
+          'Remova permanentemente um workspace que não será mais utilizado. A operação é irreversível: Use apenas quando não houver dados operacionais a preservar.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -724,7 +821,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Confirmar no modal',
             imagem: '/university/screenshots/configurador-workspaces-excluir-modal.png',
             paragrafos: [
-              'O sistema pede confirmação antes de apagar. Revise o nome do workspace — a exclusão remove o acesso de todos os usuários vinculados.',
+              'O sistema pede confirmação antes de apagar. Revise o nome do workspace: A exclusão remove o acesso de todos os usuários vinculados.',
             ],
           },
           {
@@ -741,12 +838,37 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 4,
     titulo: 'Usuários',
-    mostrarInfograficoTiposUsuario: true,
-    paragrafos: [],
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-usuarios-tela.png',
+    paragrafos: [
+      '**Usuários** é a tela do **Configurador** onde você gerencia quem acessa a organização: convites, edições de cadastro, permissões por produto e vínculo com **workspaces**.',
+      'Na listagem aparecem nome, e-mail, tipo de usuário, status e workspaces habilitados de cada pessoa. Os fluxos seguintes mostram como convidar, liberar acesso e desativar cadastros.',
+    ],
+    calloutAposParagrafo: {
+      indice: 1,
+      callout: {
+        tipo: 'dica',
+        texto: 'Somente **Master** convida pessoas e altera patentes, permissões e workspaces de outros usuários.',
+      },
+    },
+    callout: {
+      tipo: 'aviso',
+      texto: 'Usuários não são excluídos da plataforma. Para bloquear acesso, **desative** o cadastro e preserve o histórico de auditoria.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Usuários',
-        tituloSumario: 'Acessar Usuários',
+        titulo: 'Tipos de usuário',
+        tituloSumario: 'Tipos de usuário',
+        mostrarInfograficoTiposUsuario: true,
+        paragrafos: [
+          'No Gravity existem três patentes na organização: **Master**, **Standard** e **Fornecedor**. A patente define quanto da plataforma cada pessoa pode ver e operar.',
+          '**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: workspaces habilitados e permissões granulares em cada produto.',
+        ],
+        passosVisuais: [],
+      },
+      {
+        titulo: 'Acessar usuários',
+        tituloSumario: 'Acessar usuários',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Usuários.'],
         passosVisuais: passosComAcessoPadrao(
           'Usuários',
@@ -754,7 +876,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           '/university/screenshots/configurador-usuarios-seta-menu.png',
           true,
           [
-            'No menu lateral do Configurador, clique em Usuários — como indicado pela seta na imagem. A tela abre com a listagem e os quatro cards de resumo no topo.',
+            'No menu lateral do Configurador, clique em Usuários: Como indicado pela seta na imagem. A tela abre com a listagem e os quatro cards de resumo no topo.',
             'A tabela lista nome, e-mail, tipo, status e workspaces habilitados. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
           ],
           undefined,
@@ -762,7 +884,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2 — convidar usuário',
+        titulo: 'Convidar usuário',
         tituloSumario: 'Convidar usuário',
         paragrafos: [
           'Envie um convite por e-mail para incluir Master, Standard ou Fornecedor na organização. O convidado completa o cadastro pelo link recebido.',
@@ -772,7 +894,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Iniciar o convite',
             imagem: '/university/screenshots/configurador-usuarios-convidar-seta.png',
             paragrafos: [
-              'Na tela de Usuários, clique em "Convidar usuário" no canto superior direito — como indicado pela seta na imagem. O modal de convite abre sobre a listagem.',
+              'Na tela de Usuários, clique em "Convidar usuário" no canto superior direito: Como indicado pela seta na imagem. O modal de convite abre sobre a listagem.',
             ],
           },
           {
@@ -804,19 +926,19 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3 — permissões do usuário',
-        tituloSumario: 'Permissões Usuários',
+        titulo: 'Permissões do usuário',
+        tituloSumario: 'Permissões do usuário',
         mostrarInfograficoPermissoesUsuario: true,
         paragrafos: [
-          'As permissões granulares valem somente para Standard e Fornecedor — o Master define o que cada um pode ver e editar em cada produto.',
-          'Master não passa por essa grade: tem acesso total à organização, a todos os workspaces e a todas as áreas do Configurador.',
+          'As permissões granulares valem somente para Standard e Fornecedor: O Master define o que cada um pode ver e editar em cada produto.',
+          'Master não passa por essa grade: Tem acesso total à organização, a todos os workspaces e a todas as áreas do Configurador.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Marcar permissões no convite',
             imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
             paragrafos: [
-              'No modal de convite, escolha Standard ou Fornecedor e role até a seção de permissões — como indicado pela seta na imagem.',
+              'No modal de convite, escolha Standard ou Fornecedor e role até a seção de permissões: Como indicado pela seta na imagem.',
               'Para cada Produto Gravity contratado, marque Ver ou Editar nas linhas que a pessoa precisa usar. Se o tipo for Master, ignore esta etapa.',
             ],
             callout: {
@@ -828,7 +950,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Ajustar em usuário existente',
             imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
             paragrafos: [
-              'Para Standard ou Fornecedor já cadastrado, clique no ícone de chave na linha ou abra Editar → aba Permissões. A grade é a mesma do convite: produto, visualização padrão e colunas Ver / Editar.',
+              'Para Standard ou Fornecedor já cadastrado, clique no ícone de chave na linha ou abra Editar → aba Permissões. A grade é a mesma do convite: Produto, visualização padrão e colunas Ver / Editar.',
               'Use Todo ou Limpar no cabeçalho de cada produto para marcar ou desmarcar todas as linhas de uma vez. As mudanças valem na próxima sessão.',
             ],
             callout: {
@@ -840,45 +962,45 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Habilitar cotação de frete internacional',
             imagem: '/university/screenshots/configurador-usuarios-permissoes-cotar-frete.png',
             paragrafos: [
-              'Para fornecedores que atuam como agente de carga, existe a permissão específica Pode cotar frete internacional — no bloco do produto BID Frete Internacional.',
-              'Ao marcar, o usuário Fornecedor acessa a visão de parceiro: responder cotações, enviar propostas e operar o painel BID Frete Internacional - Fornecedor.',
+              'Para fornecedores que atuam como agente de carga, existe a permissão específica Pode cotar frete internacional: No bloco do produto BID Frete Internacional.',
+              'Ao marcar, o usuário Fornecedor acessa a visão de parceiro: Responder cotações, enviar propostas e operar o painel BID Frete Internacional, Fornecedor.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'O convidado precisa ser tipo Fornecedor, com empresa fornecedora vinculada (ex.: Agente de carga) em Configurador → Fornecedores, e status Ativo — não apenas Convidado.',
+              texto: 'O convidado precisa ser tipo Fornecedor, com empresa fornecedora vinculada (ex.: Agente de carga) em Configurador → Fornecedores, e status Ativo: Não apenas Convidado.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 4 — workspaces do usuário',
-        tituloSumario: 'Workspaces do Usuário',
+        titulo: 'Workspaces do usuário',
+        tituloSumario: 'Workspaces do usuário',
         paragrafos: [
           'Vincule Standard e Fornecedor aos workspaces em que poderão operar. Master acessa todos automaticamente, sem marcação individual.',
-          'Somente os workspaces selecionados ficam disponíveis para o usuário: no Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.',
+          'Somente os workspaces selecionados ficam disponíveis para o usuário: No Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Selecionar workspaces no convite',
             imagem: '/university/screenshots/configurador-usuarios-convite-workspaces-todos.png',
             paragrafos: [
-              'No modal de convite, marque os workspaces habilitados para o convidado — filial, empresa do grupo ou cliente de despachante.',
+              'No modal de convite, marque os workspaces habilitados para o convidado: Filial, empresa do grupo ou cliente de despachante.',
               'Apenas os itens com checkbox ativo entram no acesso. O convidado não enxerga nem opera nas demais unidades da organização.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Sem nenhum workspace marcado, Standard e Fornecedor ficam sem unidade operacional — mesmo com permissões de produto liberadas na etapa anterior.',
+              texto: 'Sem nenhum workspace marcado, Standard e Fornecedor ficam sem unidade operacional: Mesmo com permissões de produto liberadas na etapa anterior.',
             },
           },
           {
             titulo: 'Opção todos os workspaces',
             imagem: '/university/screenshots/configurador-usuarios-convite-workspaces-todos.png',
             paragrafos: [
-              'Para Standard, você pode habilitar todos os workspaces de uma vez quando a pessoa precisa operar em toda a organização. Revise antes de confirmar — o acesso fica amplo.',
+              'Para Standard, você pode habilitar todos os workspaces de uma vez quando a pessoa precisa operar em toda a organização. Revise antes de confirmar: O acesso fica amplo.',
             ],
             callout: {
               tipo: 'dica',
-              texto: 'Master não precisa de vínculo explícito: a coluna Workspaces habilitados exibe "Todos os workspaces" automaticamente.',
+              texto: 'Master não precisa de vínculo explícito: A coluna Workspaces habilitados exibe "Todos os workspaces" automaticamente.',
             },
           },
           {
@@ -886,35 +1008,35 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: '/university/screenshots/configurador-usuarios-editar-workspaces-vinculados.png',
             paragrafos: [
               'Em usuário já cadastrado, abra Editar e vá à aba Workspaces Vinculados para incluir ou remover unidades sem reenviar convite.',
-              'Ao desmarcar um workspace, o acesso some na próxima sessão — a pessoa deixa de ver aquela unidade no Hub e nos produtos.',
+              'Ao desmarcar um workspace, o acesso some na próxima sessão: A pessoa deixa de ver aquela unidade no Hub e nos produtos.',
             ],
           },
         ]),
       },
       {
-        titulo: 'Fluxo 5 — desativar e ativar usuário',
-        tituloSumario: 'Desativar e Ativar Usuário',
+        titulo: 'Desativar e ativar usuário',
+        tituloSumario: 'Desativar e ativar usuário',
         paragrafos: [
           'Suspenda quem não deve mais entrar na plataforma, reative quando necessário ou gerencie convites ainda pendentes.',
-          'Usuários não podem ser excluídos: o Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
+          'Usuários não podem ser excluídos: O Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Desativar um usuário ativo',
             imagem: '/university/screenshots/configurador-usuarios-desativar-seta.png',
             paragrafos: [
-              'Na linha de um usuário com status Ativo, clique no ícone de pausa — como indicado pela seta na imagem. O acesso é suspenso imediatamente: o status muda para Inativo e novos logins são bloqueados.',
+              'Na linha de um usuário com status Ativo, clique no ícone de pausa: Como indicado pela seta na imagem. O acesso é suspenso imediatamente: O status muda para Inativo e novos logins são bloqueados.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Não existe exclusão de usuário na plataforma. Se alguém não deve mais entrar, desative — assim o Master mantém auditoria e histórico das ações que essa pessoa realizou quando estava ativa.',
+              texto: 'Não existe exclusão de usuário na plataforma. Se alguém não deve mais entrar, desative: Assim o Master mantém auditoria e histórico das ações que essa pessoa realizou quando estava ativa.',
             },
           },
           {
             titulo: 'Reativar um usuário inativo',
             imagem: '/university/screenshots/configurador-usuarios-reativar-seta.png',
             paragrafos: [
-              'Na mesma linha, com status Inativo, clique no ícone de play — como indicado pela seta na imagem — para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
+              'Na mesma linha, com status Inativo, clique no ícone de play: Como indicado pela seta na imagem: Para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
             ],
           },
           {
@@ -925,7 +1047,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Cancelar convite remove a pessoa da lista. Desativar um usuário Ativo preserva o histórico — apenas bloqueia novos logins até reativação.',
+              texto: 'Cancelar convite remove a pessoa da lista. Desativar um usuário Ativo preserva o histórico: Apenas bloqueia novos logins até reativação.',
             },
           },
         ]),
@@ -935,14 +1057,21 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 5,
     titulo: 'Fornecedores',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-fornecedores-tela-principal.png',
     mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      'Fornecedores são terceiros COMEX cadastrados na organização — fabricantes, compradores, vendedores, agentes de carga, despachantes e demais parceiros que participam de pedidos, processos e cotações.',
-      'O infográfico abaixo explica a diferença entre Exportador na importação e Importador na exportação: o papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+      '**Fornecedores** cadastra terceiros COMEX da organização: Fabricantes, compradores, agentes de carga, despachantes e demais parceiros de pedidos, processos e cotações.',
+      'O infográfico abaixo explica a diferença entre **Exportador na importação** e **Importador na exportação**: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+    ],
+    lista: [
+      '**Exportador na importação**: Vendedor no exterior quando você importa',
+      '**Importador na exportação**: Comprador no exterior quando você exporta',
+      '**Despachante / Agente / Armador**: Parceiros logísticos e aduaneiros',
     ],
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Fornecedores',
+        titulo: 'Fluxo 1: Acessar fornecedores',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Fornecedores.',
         ],
@@ -955,7 +1084,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             paragrafos: [
               'No menu lateral do Configurador, clique em Fornecedores. A tela abre com a listagem e os cards de resumo no topo.',
-              'Passe o mouse no ícone (i) de cada card para abrir o tooltip — veja abaixo o que cada indicador mostra:',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
             ],
             tooltipsKpi: FORNECEDORES_TOOLTIPS_KPI,
             galeriaTelas: [...FORNECEDORES_GALERIA_TOOLTIPS_KPI],
@@ -963,10 +1092,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2 — criar fornecedor',
+        titulo: 'Fluxo 2: Criar fornecedor',
         tituloSumario: 'Criar fornecedor',
         paragrafos: [
-          'Todo cadastro passa pelo modal Novo Fornecedor em três abas: dados gerais, papéis COMEX e contato.',
+          'Todo cadastro passa pelo modal Novo Fornecedor em três abas: Dados gerais, papéis COMEX e contato.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -977,17 +1106,17 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
           },
           {
-            titulo: 'Aba 1 — Dados gerais',
+            titulo: 'Aba 1: Dados gerais',
             imagem: '/university/screenshots/configurador-fornecedores-novo-modal-1.png',
             paragrafos: [
               'Informe razão social, país, CNPJ ou TIN e endereço. Fornecedores brasileiros usam CNPJ; estrangeiros usam TIN.',
             ],
           },
           {
-            titulo: 'Aba 2 — Papéis COMEX',
+            titulo: 'Aba 2: Papéis COMEX',
             imagem: '/university/screenshots/configurador-fornecedores-novo-modal-2.png',
             paragrafos: [
-              'Marque um ou mais papéis que o terceiro pode desempenhar. Exportador e Importador são os mais comuns — veja os fluxos 3 e 4 para entender quando usar cada um.',
+              'Marque um ou mais papéis que o terceiro pode desempenhar. Exportador e Importador são os mais comuns: Veja os fluxos 3 e 4 para entender quando usar cada um.',
             ],
             callout: {
               tipo: 'dica',
@@ -995,19 +1124,19 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             },
           },
           {
-            titulo: 'Aba 3 — Contato e salvar',
+            titulo: 'Aba 3: Contato e salvar',
             imagem: '/university/screenshots/configurador-fornecedores-novo-modal-3.png',
             paragrafos: [
-              'Preencha e-mail, telefone e WhatsApp. Clique em Salvar — o fornecedor entra na listagem com status Ativa.',
+              'Preencha e-mail, telefone e WhatsApp. Clique em Salvar: O fornecedor entra na listagem com status Ativa.',
             ],
           },
         ]),
       },
       {
-        titulo: 'Fluxo 3 — exportador na importação',
+        titulo: 'Fluxo 3: Exportador na importação',
         tituloSumario: 'Exportador na importação',
         paragrafos: [
-          'Quando sua empresa importa, o vendedor no exterior é cadastrado como fornecedor com papel Exportador — ele exporta a mercadoria para você.',
+          'Quando sua empresa importa, o vendedor no exterior é cadastrado como fornecedor com papel Exportador: Ele exporta a mercadoria para você.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -1045,10 +1174,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 4 — importador na exportação',
+        titulo: 'Fluxo 4: Importador na exportação',
         tituloSumario: 'Importador na exportação',
         paragrafos: [
-          'Quando sua empresa exporta, o comprador no exterior é cadastrado como fornecedor com papel Importador — ele importa a mercadoria que você vende.',
+          'Quando sua empresa exporta, o comprador no exterior é cadastrado como fornecedor com papel Importador: Ele importa a mercadoria que você vende.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -1059,7 +1188,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: '/university/screenshots/configurador-fornecedores-importador-exportacao-passo-1.png',
             callout: {
               tipo: 'aviso',
-              texto: 'Importador na exportação = o parceiro estrangeiro que compra de você. Não é o workspace da sua empresa (que é quem exporta). É um fornecedor — como diz o subtítulo da tela: em exportação, o importador pode atuar como cliente na operação.',
+              texto: 'Importador na exportação = o parceiro estrangeiro que compra de você. Não é o workspace da sua empresa (que é quem exporta). É um fornecedor: Como diz o subtítulo da tela: Em exportação, o importador pode atuar como cliente na operação.',
             },
           },
           {
@@ -1079,11 +1208,11 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5 — outros tipos de fornecedor',
+        titulo: 'Fluxo 5: Outros tipos de fornecedor',
         tituloSumario: 'Outros tipos de fornecedor',
         mostrarInfograficoPapeisFornecedor: true,
         paragrafos: [
-          'Além de Importador e Exportador, cadastre despachantes aduaneiros, agentes de carga, armadores, companhias aéreas, transportadoras, armazéns, bancos e seguradoras — cada papel define onde o terceiro aparece na plataforma.',
+          'Além de Importador e Exportador, cadastre despachantes aduaneiros, agentes de carga, armadores, companhias aéreas, transportadoras, armazéns, bancos e seguradoras: Cada papel define onde o terceiro aparece na plataforma.',
           'A mesma empresa pode acumular vários papéis (ex.: Despachante + Agente de Carga). O cadastro correto alimenta comunicações, cotações de frete e câmbio, acessos de usuários tipo Fornecedor e registros em Pedido, Processo e DUIMP.',
         ],
         passosVisuais: renumerarPassos([
@@ -1115,7 +1244,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 6 — editar fornecedor',
+        titulo: 'Fluxo 6: Editar fornecedor',
         tituloSumario: 'Editar fornecedor',
         paragrafos: [
           'Altere dados cadastrais, papéis COMEX ou contato de um fornecedor existente.',
@@ -1139,7 +1268,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Revisar papéis COMEX',
             imagem: '/university/screenshots/configurador-fornecedores-editar-modal-2.png',
             paragrafos: [
-              'Adicione ou remova papéis conforme a relação comercial evolui — por exemplo, um exportador que passa a ser também fabricante.',
+              'Adicione ou remova papéis conforme a relação comercial evolui: Por exemplo, um exportador que passa a ser também fabricante.',
             ],
           },
           {
@@ -1152,7 +1281,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 7 — ativar e desativar fornecedor',
+        titulo: 'Fluxo 7: Ativar e desativar fornecedor',
         tituloSumario: 'Ativar e desativar',
         paragrafos: [
           'Desative temporariamente um fornecedor sem apagar o cadastro. Fornecedores inativos não aparecem em novos dropdowns operacionais.',
@@ -1162,7 +1291,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Desativar fornecedor',
             imagem: '/university/screenshots/configurador-fornecedores-suspender-seta.png',
             paragrafos: [
-              'Na linha do fornecedor ativo, clique no ícone de desativar — como indicado pela seta na imagem.',
+              'Na linha do fornecedor ativo, clique no ícone de desativar: Como indicado pela seta na imagem.',
             ],
           },
           {
@@ -1193,15 +1322,26 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 6,
     titulo: 'Assinaturas',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-assinaturas-tela.png',
     paragrafos: [
-      'Assinaturas reúne os Produtos Gravity que a organização contratou na **Gravity Store**: cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
-      'Somente usuários Master gerenciam assinaturas — suspender, editar, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado para eles nos produtos.',
-      'Status possíveis: **Ativa** (em uso), **Em Teste** (trial manual antes do contrato), **Suspensa** (acesso bloqueado temporariamente) e **Cancelada** (encerrada — some da listagem; o produto volta para "Disponíveis para contratar").',
+      '**Assinaturas** reúne os Produtos Gravity que a organização contratou na **Gravity Store**: Cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
+      'Somente usuários **Master** gerenciam assinaturas: Suspender, consultar contrato, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado nos produtos.',
     ],
+    lista: [
+      '**Ativa**: Módulo em uso normalmente',
+      '**Em Teste**: Trial manual antes do contrato',
+      '**Suspensa**: Acesso bloqueado temporariamente',
+      '**Cancelada**: Encerrada, some da listagem',
+    ],
+    callout: {
+      tipo: 'dica',
+      texto: 'O modal **Editar assinatura** é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Assinaturas',
-        tituloSumario: 'Acessar Assinaturas',
+        titulo: 'Fluxo 1: Acessar assinaturas',
+        tituloSumario: 'Acessar assinaturas',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Assinaturas.'],
         passosVisuais: passosComAcessoPadrao(
           'Assinaturas',
@@ -1209,8 +1349,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           '/university/screenshots/configurador-assinaturas-seta-menu.png',
           true,
           [
-            'No menu lateral do Configurador, clique em Assinaturas — como indicado pela seta na imagem. A tela abre com os três cards de resumo e a tabela Produtos Contratados.',
-            'Em **Produtos Contratados** aparecem somente os módulos que a organização assinou pela **Gravity Store** — contratos feitos na vitrine de produtos da plataforma.',
+            'No menu lateral do Configurador, clique em Assinaturas: Como indicado pela seta na imagem. A tela abre com os três cards de resumo e a tabela Produtos Contratados.',
+            'Em **Produtos Contratados** aparecem somente os módulos que a organização assinou pela **Gravity Store**: Contratos feitos na vitrine de produtos da plataforma.',
             'A tabela lista produto, tipo de cobrança (SaaS, Uso ou Setup), valor, renovação, workspaces habilitados e status. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
           ],
           undefined,
@@ -1218,10 +1358,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2 — consultar assinatura',
+        titulo: 'Fluxo 2: Consultar assinatura',
         tituloSumario: 'Consultar assinatura',
         paragrafos: [
-          'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store — uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
+          'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store: Uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
           'Todas as abas são **somente leitura**, exceto Workspaces, onde você pode alterar em quais unidades o produto está habilitado (ou use o Fluxo 3 na tabela).',
         ],
         passosVisuais: renumerarPassos([
@@ -1229,21 +1369,21 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Abrir detalhes da assinatura',
             imagem: '/university/screenshots/configurador-assinaturas-editar-seta.png',
             paragrafos: [
-              'Na linha do produto, clique no ícone de lápis (Editar assinatura). O modal Configurar Assinatura abre com uma aba por tema do contrato — todas em modo consulta, exceto Workspaces.',
+              'Na linha do produto, clique no ícone de lápis (Editar assinatura). O modal Configurar Assinatura abre com uma aba por tema do contrato: Todas em modo consulta, exceto Workspaces.',
             ],
           },
           {
             titulo: 'Aba Dados',
             imagem: '/university/screenshots/configurador-assinaturas-modal-geral.png',
             paragrafos: [
-              'Identificação do Produto Gravity contratado: nome, descrição, status da assinatura e datas relevantes do contrato. Somente leitura.',
+              'Identificação do Produto Gravity contratado: Nome, descrição, status da assinatura e datas relevantes do contrato. Somente leitura.',
             ],
           },
           {
             titulo: 'Aba Setup',
             imagem: '/university/screenshots/configurador-assinaturas-modal-setup.png',
             paragrafos: [
-              'Alguns produtos Gravity têm custo referente a **implantação**, **treinamento** e **configurações iniciais**. Esta aba mostra se o plano inclui setup e qual o valor previsto — sem edição nesta tela.',
+              'Alguns produtos Gravity têm custo referente a **implantação**, **treinamento** e **configurações iniciais**. Esta aba mostra se o plano inclui setup e qual o valor previsto: Sem edição nesta tela.',
             ],
           },
           {
@@ -1254,7 +1394,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             paragrafos: [
               'Descritivo do valor do Produto Gravity contratado. A cobrança pode ser **mensalidade fixa**, **por documento**, **por leitura**, **por DUIMP**, **por processo** ou outro modelo definido no catálogo.',
-              'Aqui você encontra o **detalhamento completo unitário** — faixas de volume, quantidades e preço por unidade, conforme fechado na Gravity Store.',
+              'Aqui você encontra o **detalhamento completo unitário**: Faixas de volume, quantidades e preço por unidade, conforme fechado na Gravity Store.',
             ],
           },
           {
@@ -1282,36 +1422,36 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Aba Acordos',
             imagem: '/university/screenshots/configurador-assinaturas-modal-acordos-especiais.png',
             paragrafos: [
-              '**Acordos especiais** de valores negociados para a organização — em geral por **alta quantidade** de uso ou condições comerciais diferenciadas fechadas com o time Gravity.',
+              '**Acordos especiais** de valores negociados para a organização: Em geral por **alta quantidade** de uso ou condições comerciais diferenciadas fechadas com o time Gravity.',
             ],
           },
           {
             titulo: 'Aba Workspaces',
             imagem: '/university/screenshots/configurador-assinaturas-modal-workspaces.png',
             paragrafos: [
-              'Lista os **workspaces vinculados** a esta assinatura do Produto Gravity — em quais filiais ou unidades o módulo está habilitado.',
+              'Lista os **workspaces vinculados** a esta assinatura do Produto Gravity: Em quais filiais ou unidades o módulo está habilitado.',
               'É a única aba do modal onde você pode **alterar** a distribuição (marcar ou desmarcar unidades). A mesma operação pode ser feita na tabela, no Fluxo 3.',
             ],
             callout: {
               tipo: 'dica',
-              texto: 'Preço, limites, suporte, tokens e acordos não são editados aqui — vêm do contrato na Gravity Store ou do comercial. Neste modal você consulta; para workspaces na tabela, use o Fluxo 3.',
+              texto: 'Preço, limites, suporte, tokens e acordos não são editados aqui: Vêm do contrato na Gravity Store ou do comercial. Neste modal você consulta; para workspaces na tabela, use o Fluxo 3.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 3 — workspaces do produto',
-        tituloSumario: 'Workspaces do Produto',
+        titulo: 'Fluxo 3: Workspaces do produto',
+        tituloSumario: 'Workspaces do produto',
         paragrafos: [
           'Cada assinatura pode estar ativa em um ou mais workspaces. Expanda a linha na tabela para ver e alterar em quais unidades o produto está habilitado.',
-          'Marque ou desmarque workspaces, use Habilitar/Bloquear em lote e clique em Salvar alterações — as mudanças valem na próxima sessão dos usuários daquela unidade.',
+          'Marque ou desmarque workspaces, use Habilitar/Bloquear em lote e clique em Salvar alterações: As mudanças valem na próxima sessão dos usuários daquela unidade.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Expandir a linha do produto',
             imagem: '/university/screenshots/configurador-assinaturas-workspaces-expandido.png',
             paragrafos: [
-              'Clique na seta à esquerda da linha do produto para abrir a subtabela de workspaces vinculados — nome do workspace, status do produto e ações por unidade.',
+              'Clique na seta à esquerda da linha do produto para abrir a subtabela de workspaces vinculados: Nome do workspace, status do produto e ações por unidade.',
             ],
           },
           {
@@ -1335,24 +1475,24 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Se nenhum workspace estiver habilitado, o produto não fica acessível na organização — mesmo com assinatura Ativa.',
+              texto: 'Se nenhum workspace estiver habilitado, o produto não fica acessível na organização: Mesmo com assinatura Ativa.',
             },
           },
           {
             titulo: 'Salvar alterações pendentes',
             imagem: '/university/screenshots/configurador-assinaturas-workspaces-salvar-pendente.png',
             paragrafos: [
-              'Enquanto houver mudanças em rascunho, o badge de alterações pendentes aparece. Clique em Salvar alterações para persistir — ou Descartar para voltar ao estado anterior.',
+              'Enquanto houver mudanças em rascunho, o badge de alterações pendentes aparece. Clique em Salvar alterações para persistir: Ou Descartar para voltar ao estado anterior.',
             ],
           },
         ]),
       },
       {
-        titulo: 'Fluxo 4 — suspender e reativar',
-        tituloSumario: 'Suspender e Reativar',
+        titulo: 'Fluxo 4: Suspender e reativar',
+        tituloSumario: 'Suspender e reativar',
         paragrafos: [
-          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play — o bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
-          '**Não confunda com cancelar.** A cobrança da Gravity **não é pró-rata**: se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: contratação em 05/02 com vigência até 05/03 — cancelamento solicitado em 20/02 só passa a valer em 05/03.',
+          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play: O bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
+          '**Não confunda com cancelar.** A cobrança da Gravity **não é pró rata**: Se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03: Cancelamento solicitado em 20/02 só passa a valer em 05/03.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -1363,7 +1503,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use o ícone de lixeira na linha — com efeito no vencimento, sem pró-rata.',
+              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use o ícone de lixeira na linha: Com efeito no vencimento, sem pró rata.',
             },
           },
           {
@@ -1394,15 +1534,24 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 7,
     titulo: 'Financeiro',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
     paragrafos: [
-      'O Financeiro concentra o histórico de faturas da organização na Gravity, os documentos de cobrança (boleto e NF-e) e a tabela de Produtos × Valores do catálogo contratado.',
-      'Somente usuários Master acessam esta área no Configurador. Standard e Fornecedor não veem faturas nem preços — a cobrança é responsabilidade do administrador da conta.',
+      '**Financeiro** concentra faturas da organização na Gravity, documentos de cobrança (boleto e NF-e) e a tabela de **Produtos × Valores** do catálogo contratado.',
       'Status de fatura: **Emitida** e **Enviada** (em aberto), **Paga**, **Em atraso**, **Anulada** e **Incobrável**. Os cards do topo resumem vencimento, valor pendente e quantidade em aberto.',
     ],
+    lista: [
+      '**Histórico de Faturas**: Cobranças, vencimentos, boleto e NF-e',
+      '**Produtos & Valores**: Preços, franquias e negociações do catálogo',
+    ],
+    callout: {
+      tipo: 'aviso',
+      texto: 'Somente usuários **Master** acessam esta área. Standard e Fornecedor não veem faturas nem preços.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Financeiro',
-        tituloSumario: 'Acessar Financeiro',
+        titulo: 'Fluxo 1: Acessar financeiro',
+        tituloSumario: 'Acessar financeiro',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Financeiro.'],
         passosVisuais: passosComAcessoPadrao(
           'Financeiro',
@@ -1410,7 +1559,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           '/university/screenshots/configurador-financeiro-seta-menu.png',
           true,
           [
-            'No menu lateral do Configurador, clique em Financeiro — como indicado pela seta na imagem. A tela abre com os três cards de resumo e a aba Histórico de Faturas ativa por padrão.',
+            'No menu lateral do Configurador, clique em Financeiro: Como indicado pela seta na imagem. A tela abre com os três cards de resumo e a aba Histórico de Faturas ativa por padrão.',
             'Use as abas Histórico de Faturas e Produtos & Valores para alternar entre cobranças e tabela de preços. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
           ],
           undefined,
@@ -1418,8 +1567,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2 — histórico de faturas',
-        tituloSumario: 'Histórico de Faturas',
+        titulo: 'Fluxo 2: Histórico de faturas',
+        tituloSumario: 'Histórico de faturas',
         paragrafos: [
           'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
         ],
@@ -1435,7 +1584,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Expandir detalhamento da fatura',
             imagem: '/university/screenshots/configurador-financeiro-fatura-expandir-seta.png',
             paragrafos: [
-              'Clique na seta à esquerda da linha — como indicado na imagem — para abrir o detalhamento inline.',
+              'Clique na seta à esquerda da linha: Como indicado na imagem: Para abrir o detalhamento inline.',
             ],
           },
           {
@@ -1449,11 +1598,11 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Baixar boleto',
             imagem: '/university/screenshots/configurador-financeiro-boleto-seta.png',
             paragrafos: [
-              'Na coluna de ações, clique no ícone de download do boleto — como indicado pela seta. O documento abre em nova aba quando já foi anexado pela Gravity.',
+              'Na coluna de ações, clique no ícone de download do boleto: Como indicado pela seta. O documento abre em nova aba quando já foi anexado pela Gravity.',
             ],
             callout: {
               tipo: 'dica',
-              texto: 'Se o ícone estiver desabilitado, o boleto ainda não foi disponibilizado — aguarde a emissão ou contate financeiro@gravity.com.br.',
+              texto: 'Se o ícone estiver desabilitado, o boleto ainda não foi disponibilizado: Aguarde a emissão ou contate financeiro@gravity.com.br.',
             },
           },
           {
@@ -1464,14 +1613,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Segunda via — os downloads abrem o arquivo direto do provedor de cobrança configurado. Dúvidas: financeiro@gravity.com.br.',
+              texto: 'Segunda via: Os downloads abrem o arquivo direto do provedor de cobrança configurado. Dúvidas: Financeiro@gravity.com.br.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 3 — produtos e valores',
-        tituloSumario: 'Produtos & Valores',
+        titulo: 'Fluxo 3: Produtos e valores',
+        tituloSumario: 'Produtos e valores',
         paragrafos: [
           'A segunda aba exibe o catálogo de produtos Gravity com tipo de cobrança, franquia inclusa, limites de usuários, help desk e eventuais negociações especiais da organização.',
         ],
@@ -1480,7 +1629,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Abrir a aba Produtos & Valores',
             imagem: '/university/screenshots/configurador-financeiro-aba-produtos.png',
             paragrafos: [
-              'Clique na aba Produtos & Valores — como indicado pela seta na imagem. A tabela mostra preço unitário, franquia free e status de negociação especial por produto.',
+              'Clique na aba Produtos & Valores: Como indicado pela seta na imagem. A tabela mostra preço unitário, franquia free e status de negociação especial por produto.',
             ],
             callout: {
               tipo: 'dica',
@@ -1491,14 +1640,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Ver detalhes do produto',
             imagem: '/university/screenshots/configurador-financeiro-produtos-ver-detalhes-seta.png',
             paragrafos: [
-              'Na coluna de ações, clique no ícone de olho (Ver detalhes) — como indicado pela seta. O modal abre em modo somente leitura com as abas do catálogo Gravity.',
+              'Na coluna de ações, clique no ícone de olho (Ver detalhes): Como indicado pela seta. O modal abre em modo somente leitura com as abas do catálogo Gravity.',
             ],
           },
           {
             titulo: 'Modal de detalhes (Dados Básicos)',
             imagem: '/university/screenshots/configurador-financeiro-modal-produto-dados.png',
             paragrafos: [
-              'Percorra Dados Básicos, Setup, Valor do Produto, Usuários, Help Desk e Negociação para entender como cada produto é cobrado. Feche com o X quando terminar — não há edição nesta tela.',
+              'Percorra Dados Básicos, Setup, Valor do Produto, Usuários, Help Desk e Negociação para entender como cada produto é cobrado. Feche com o X quando terminar: Não há edição nesta tela.',
             ],
           },
         ]),
@@ -1509,35 +1658,54 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     num: 8,
     titulo: 'API Cockpit',
     paragrafos: [
-      'O API Cockpit centraliza tokens de integração, playground de requisições, webhooks e conectores com ERPs.',
+      '**API Cockpit** centraliza tokens de integração, playground de requisições, webhooks e conectores com ERPs.',
     ],
+    lista: [
+      '**Tokens**: Credenciais para integrações REST',
+      '**Playground**: Testar requisições antes de publicar',
+      '**Webhooks**: Notificações de eventos para sistemas externos',
+    ],
+    callout: {
+      tipo: 'dica',
+      texto: 'Capítulos detalhados com screenshots serão publicados em breve. Use o Fluxo 1 para chegar à tela no Configurador.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar API Cockpit',
+        titulo: 'Fluxo 1: Acessar API Cockpit',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar ao API Cockpit.'],
         passosVisuais: passosComAcessoPadrao('API Cockpit', []),
       },
-      fluxoEmBreve('Fluxo 2 — configurar integrações', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      fluxoEmBreve('Fluxo 2: Configurar integrações', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
     ],
   },
   {
     num: 9,
     titulo: 'Taxas e moeda',
+    layoutTextoImagemLateral: true,
+    imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
     paragrafos: [
-      'Taxas e moeda concentra o câmbio operacional da organização em duas abas: **Cotação Atual** (PTAX do Banco Central) e **Cotação Futura** (projeções do BACEN Focus).',
+      '**Taxas e moeda** concentra o câmbio operacional da organização em duas abas, cada uma com sincronização, agendamento e consulta próprios.',
       'Os produtos Gravity consomem essas taxas para conversões, simulações e documentos fiscais. A sincronização PTAX roda automaticamente **4 vezes por dia** em dias úteis (10h03 / 11h03 / 12h03 / 13h03 BRT); o Focus é atualizado **semanalmente** (terça 22h BRT).',
-      'Somente usuários **Master** acessam esta área. Use **Sincronizar PTAX** ou **Sincronizar Focus** para forçar atualização fora do cron, e **Agendamento** para ligar ou desligar a sincronização automática por aba.',
+      'Use **Sincronizar PTAX** ou **Sincronizar Focus** para forçar atualização fora do cron, e **Agendamento** para ligar ou desligar a sincronização automática por aba.',
     ],
+    lista: [
+      '**Cotação Atual**: PTAX do Banco Central, compra e venda das sete moedas suportadas (USD, EUR, GBP, CHF, CNY, JPY, CAD)',
+      '**Cotação Futura**: Projeções do BACEN Focus para planejamento de câmbio',
+    ],
+    callout: {
+      tipo: 'aviso',
+      texto: 'Somente usuários **Master** acessam esta área do Configurador.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Taxas e moeda',
+        titulo: 'Fluxo 1: Acessar Taxas e moeda',
         tituloSumario: 'Acessar Taxas e moeda',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Taxas e moeda.'],
         passosVisuais: passosComAcessoPadrao(
           'Taxas e moeda',
           [
             {
-              titulo: 'Tela principal — Cotação Atual',
+              titulo: 'Tela principal: Cotação Atual',
               imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
               paragrafos: [
                 'A aba Cotação Atual abre por padrão. No topo, três cards resumem USD, EUR e quantas moedas já possuem PTAX armazenada.',
@@ -1549,13 +1717,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           '/university/screenshots/configurador-taxas-moeda-acesso-seta.png',
           true,
           [
-            'No menu lateral do Configurador, clique em Taxas e moeda — como indicado pela seta na imagem. A tela abre na aba Cotação Atual.',
+            'No menu lateral do Configurador, clique em Taxas e moeda: Como indicado pela seta na imagem. A tela abre na aba Cotação Atual.',
             'Alterne para Cotação Futura quando precisar consultar projeções do BACEN Focus. Nos passos seguintes, a tabela principal e cada tooltip dos cards são explicados separadamente.',
           ],
         ),
       },
       {
-        titulo: 'Fluxo 2 — sincronizar PTAX',
+        titulo: 'Fluxo 2: Sincronizar PTAX',
         tituloSumario: 'Sincronizar PTAX',
         paragrafos: [
           'Dispare manualmente a busca dos boletins PTAX no BCB. Útil fora dos horários do cron automático ou para recuperar moeda que falhou na última rodada.',
@@ -1565,18 +1733,18 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Iniciar sincronização',
             imagem: '/university/screenshots/configurador-taxas-moeda-sincronizar-seta.png',
             paragrafos: [
-              'Na aba Cotação Atual, clique em **Sincronizar PTAX** — como indicado pela seta na imagem. O botão fica ao lado de Agendamento, no canto superior direito.',
+              'Na aba Cotação Atual, clique em **Sincronizar PTAX**: Como indicado pela seta na imagem. O botão fica ao lado de Agendamento, no canto superior direito.',
             ],
             callout: {
               tipo: 'dica',
-              texto: 'O cron da Gravity já sincroniza PTAX 4× por dia em dias úteis. O botão manual não substitui o agendamento — apenas força uma rodada imediata.',
+              texto: 'O cron da Gravity já sincroniza PTAX 4× por dia em dias úteis. O botão manual não substitui o agendamento: Apenas força uma rodada imediata.',
             },
           },
           {
             titulo: 'Sincronização em andamento',
             imagem: '/university/screenshots/configurador-taxas-moeda-sincronizando.png',
             paragrafos: [
-              'Enquanto o serviço consulta o BCB, o botão exibe **Sincronizando…** com ícone girando. Aguarde a conclusão — não feche a aba.',
+              'Enquanto o serviço consulta o BCB, o botão exibe **Sincronizando…** com ícone girando. Aguarde a conclusão: Não feche a aba.',
             ],
           },
           {
@@ -1593,29 +1761,29 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3 — agendamento automático',
+        titulo: 'Fluxo 3: Agendamento automático',
         tituloSumario: 'Agendamento automático',
         paragrafos: [
-          'Configure se a sincronização automática fica ativa para a aba em que você está — PTAX na Cotação Atual, Focus na Cotação Futura. O modal segue o mesmo padrão visual do painel Admin › Testes.',
+          'Configure se a sincronização automática fica ativa para a aba em que você está: PTAX na Cotação Atual, Focus na Cotação Futura. O modal segue o mesmo padrão visual do painel Admin › Testes.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Abrir o modal de agendamento',
             imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-seta.png',
             paragrafos: [
-              'Clique no botão **Agendamento** — como indicado pela seta. A pill **Ativo** (verde) ou **Inativo** (cinza) indica o estado atual da aba aberta.',
+              'Clique no botão **Agendamento**: Como indicado pela seta. A pill **Ativo** (verde) ou **Inativo** (cinza) indica o estado atual da aba aberta.',
             ],
           },
           {
-            titulo: 'Modal — configuração (aba Geral)',
+            titulo: 'Modal: Configuração (aba Geral)',
             imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-1.png',
             paragrafos: [
               'Em **Agendamento automático**, escolha Ativado ou Desativado. Para PTAX, a frequência padrão é **Diário (4 boletins PTAX)** com horários fixos do BCB.',
-              'Para Focus, use frequência **Semanal** — o cron padrão da Gravity é terça-feira às 22h BRT.',
+              'Para Focus, use frequência **Semanal**: O cron padrão da Gravity é terça-feira às 22h BRT.',
             ],
           },
           {
-            titulo: 'Modal — horários e alertas',
+            titulo: 'Modal: Horários e alertas',
             imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-2.png',
             paragrafos: [
               'Na aba Horários, confira os slots PTAX (10h03 / 11h03 / 12h03 / 13h03) ou o horário semanal do Focus. A aba Alertas permite cadastrar e-mails para notificação de falha.',
@@ -1623,34 +1791,34 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'dica',
-              texto: 'PTAX e Focus têm agendamentos independentes — configure cada um na aba correspondente antes de abrir o modal.',
+              texto: 'PTAX e Focus têm agendamentos independentes: Configure cada um na aba correspondente antes de abrir o modal.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 4 — cotação futura (BACEN Focus)',
-        tituloSumario: 'Cotação Futura',
+        titulo: 'Fluxo 4: Cotação futura (BACEN Focus)',
+        tituloSumario: 'Cotação futura',
         paragrafos: [
-          'A segunda aba exibe projeções de mercado do BACEN Focus para USD/BRL — **não são cotações negociadas**. Use para planejamento; o erro de previsão cresce com o horizonte.',
+          'A segunda aba exibe projeções de mercado do BACEN Focus para USD/BRL: **não são cotações negociadas**. Use para planejamento; o erro de previsão cresce com o horizonte.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Abrir a aba Cotação Futura',
             imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura.png',
             paragrafos: [
-              'Clique na aba **Cotação Futura** — como indicado na imagem. Os cards do topo mudam para USD próximo mês, USD horizonte e Publicação Focus.',
+              'Clique na aba **Cotação Futura**: Como indicado na imagem. Os cards do topo mudam para USD próximo mês, USD horizonte e Publicação Focus.',
               'A tabela lista até quatro meses de projeção por padrão, com moeda, mês previsto, valor mediano, data de publicação e fonte BACEN/Focus.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Projeções do Focus são indicativas. Não use como taxa de fechamento de contrato ou documento fiscal — para isso, utilize a PTAX da aba Cotação Atual.',
+              texto: 'Projeções do Focus são indicativas. Não use como taxa de fechamento de contrato ou documento fiscal: Para isso, utilize a PTAX da aba Cotação Atual.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 5 — sincronizar Focus',
+        titulo: 'Fluxo 5: Sincronizar Focus',
         tituloSumario: 'Sincronizar Focus',
         paragrafos: [
           'Busque manualmente a última rodada de expectativas de mercado publicada pelo BACEN. O cron semanal já faz isso automaticamente quando o agendamento está ativo.',
@@ -1660,7 +1828,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Iniciar sincronização Focus',
             imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-seta.png',
             paragrafos: [
-              'Com a aba Cotação Futura ativa, clique em **Sincronizar Focus** — como indicado pela seta na imagem.',
+              'Com a aba Cotação Futura ativa, clique em **Sincronizar Focus**: Como indicado pela seta na imagem.',
             ],
           },
           {
@@ -1671,14 +1839,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
           },
           {
-            titulo: 'Resultado — visão geral',
+            titulo: 'Resultado: Visão geral',
             imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-1.png',
             paragrafos: [
               'Após a conclusão, os cards e a tabela exibem mediana, mês previsto e data de publicação da rodada importada.',
             ],
           },
           {
-            titulo: 'Resultado — detalhe das projeções',
+            titulo: 'Resultado: Detalhe das projeções',
             imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-2.png',
             paragrafos: [
               'Confira linha a linha os meses carregados e o valor mediano de cada projeção. Um toast confirma quantos meses foram gravados para USD.',
@@ -1692,15 +1860,24 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     num: 10,
     titulo: 'Histórico',
     paragrafos: [
-      'O Histórico registra alterações sensíveis na organização e nos workspaces — convites, mudanças de permissão e eventos de auditoria.',
+      '**Histórico** registra alterações sensíveis na organização e nos workspaces: Convites, mudanças de permissão e eventos de auditoria.',
     ],
+    lista: [
+      '**Auditoria**: Quem fez o quê e quando',
+      '**Organização**: Eventos da conta contratante',
+      '**Workspaces**: Alterações por unidade operacional',
+    ],
+    callout: {
+      tipo: 'dica',
+      texto: 'Screenshots e fluxos detalhados desta tela serão adicionados em breve.',
+    },
     fluxos: [
       {
-        titulo: 'Fluxo 1 — acessar Histórico',
+        titulo: 'Fluxo 1: Acessar histórico',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Histórico.'],
         passosVisuais: passosComAcessoPadrao('Histórico', []),
       },
-      fluxoEmBreve('Fluxo 2 — consultar auditoria', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      fluxoEmBreve('Fluxo 2: Consultar auditoria', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
     ],
   },
 ]

@@ -2,203 +2,193 @@ import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
+/** SSOT: arquivos em public/university/screenshots/ */
+const SCREENSHOT_HUB_SEM_PRODUTO_PUZZLES_OPACO = '/university/screenshots/hub-puzzles-opaco-sem-produto.png'
+const SCREENSHOT_HUB_COM_PRODUTO_PUZZLES_ATIVOS = '/university/screenshots/hub-puzzles-ativos-com-produto.png'
+const SCREENSHOT_HUB_INTRO_COM_SETA = '/university/screenshots/hub-tela-principal-com-seta.png'
+const SCREENSHOT_HUB_MENU_SUPERIOR = '/university/screenshots/hub-menu-superior-seta-hub.png'
+const SCREENSHOT_HUB_PUZZLES = '/university/screenshots/hub-puzzles-produtos-gravity.png'
+const SCREENSHOT_HUB_ACESSO_STORE_123 = '/university/screenshots/hub-acesso-gravity-store-numeros-1-2-3.png'
+const SCREENSHOT_HUB_MENU_USUARIO_STORE = '/university/screenshots/hub-menu-usuario-ir-gravity-store.png'
+const SCREENSHOT_HUB_AGUARDANDO_ACAO = '/university/screenshots/hub-destaque-aguardando-acao.png'
+const SCREENSHOT_HUB_CARROSSEL_VITRINE = '/university/screenshots/hub-carrossel-vitrine-gravity-store.png'
+const SCREENSHOT_HUB_GABI_DESTAQUE = '/university/screenshots/hub-gabi-insights-destaque.png'
+
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
 
 export const DOC_HUB_SUBTITULO =
-  'Painel principal da plataforma: produtos contratados, operações em andamento, Gravity Store e insights da GABI.'
+  'Tela principal: Produtos Gravity, Store e Gabi Insights'
 
 export const DOC_HUB_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.0' },
   { rotulo: 'Atualizado em', valor: 'junho 2026' },
   { rotulo: 'Produto', valor: 'Hub' },
   { rotulo: 'URL de acesso', valor: 'https://usegravity.com.br/hub', href: true },
-  { rotulo: 'Rota base', valor: '/hub' },
-  { rotulo: 'Componente', valor: 'SelecionarWorkspace' },
 ]
 
 export const DOC_HUB_SECAO: DocSecao = {
   num: 1,
-  titulo: 'Hub — painel principal da plataforma',
+  titulo: 'Hub: tela principal da plataforma',
+  layoutTextoImagemLateral: true,
+  imagem: SCREENSHOT_HUB_INTRO_COM_SETA,
   paragrafos: [
-    'O **Hub** é a tela inicial da Gravity após o login. Você pode voltar a ela a qualquer momento pelo atalho **Hub** na barra superior de qualquer produto ou pela rota `/hub`.',
-    'De um único lugar você escolhe o **workspace**, abre **produtos contratados**, acompanha **processos COMEX**, descobre novos módulos na **Gravity Store** e lê **insights da GABI** sobre a operação.',
-    'O porteiro pós-login (`GET /api/v1/me`) envia usuários com organização ativa para o Hub. Usuários **Fornecedor** ou sem workspace preferido podem ver a seleção de workspace antes do painel completo.',
+    'O **Hub** é a **tela principal da plataforma Gravity**, o painel central para onde você vai após o login e para onde pode voltar a qualquer momento pelo **ícone Hub** no menu superior das telas.',
+    'Por meio do Hub você **acessa qualquer produto Gravity** que a organização tenha contratado e habilitado no workspace. Pedido, Processo, Smart Docs, BID Frete, Simula Custo e demais módulos aparecem na seção **Seus Produtos Gravity**: Basta clicar no módulo para abrir o produto no workspace selecionado.',
   ],
+  figurasAposParagrafo: [
+    {
+      indice: 0,
+      imagem: SCREENSHOT_HUB_MENU_SUPERIOR,
+      legenda: 'Ícone Hub no menu superior',
+    },
+    {
+      indice: 1,
+      imagem: SCREENSHOT_HUB_PUZZLES,
+      legenda: 'Seção Seus Produtos Gravity',
+    },
+  ],
+  mostrarInfograficoHubTelas: true,
   fluxos: [
     {
-      titulo: 'Fluxo 1 — visão geral do Hub',
-      tituloSumario: 'Visão geral',
+      titulo: 'Seus produtos Gravity',
+      tituloSumario: 'Seus produtos Gravity',
+      modoCenarios: true,
       paragrafos: [
-        'A faixa superior mostra saudação, resumo do workspace e contadores de processos. Abaixo vêm, nesta ordem: **Seus Produtos Gravity**, **Operações em andamento**, **Gravity Store** (vitrine) e **GABI AI** (insights).',
+        'Aqui no **Hub** são exibidos **todos os produtos Gravity** na plataforma, **comprados e não comprados** pela organização.',
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Hub sem produto contratado',
-          imagem: '/university/screenshots/hub-tela-sem-produto-contratado.png',
+          titulo: 'Sem produto contratado',
           paragrafos: [
-            'Quando nenhum módulo está ativo no workspace, o puzzle exibe as peças em prévia (cinza) e um banner convida a **Ativar na Gravity Store**.',
-            'Ainda assim você já vê a estrutura do Hub — operações, vitrine e GABI — pronta para quando o primeiro produto for contratado.',
+            'Quando nenhum **Produto Gravity** está contratado, os **ícones dos produtos** aparecem em prévia (cinza) e um banner convida a **Ativar na Gravity Store**.',
           ],
+          imagem: SCREENSHOT_HUB_SEM_PRODUTO_PUZZLES_OPACO,
+          imagemAbaixoTexto: true,
           callout: {
             tipo: 'dica',
-            texto: 'Contrate e habilite produtos em Configurador → Assinaturas e, por workspace, em Assinaturas → Workspaces por produto.',
+            texto: 'Assim que entrar no Hub, vá até a {{link:/university-gravity/docs/store|Gravity Store}} e contrate seu primeiro produto para iniciar na plataforma.',
           },
         },
         {
-          titulo: 'Hub com produtos ativos',
-          imagem: '/university/screenshots/hub-tela-com-produto-contratado.png',
+          titulo: 'Com produto contratado',
           paragrafos: [
-            'Com assinaturas ativas, as peças **contratadas** ficam iluminadas e clicáveis — abrem o produto no workspace selecionado.',
-            'O hero resume: nome do workspace, processos em andamento, itens aguardando ação e quantidade de produtos no puzzle.',
-            'Use o seletor de workspace no topo para trocar de filial/cliente sem sair do Hub.',
+            'Com assinaturas **ativas**, os **Produtos Gravity contratados** ficam iluminados e clicáveis e abrem o produto no workspace selecionado.',
           ],
+          imagem: SCREENSHOT_HUB_COM_PRODUTO_PUZZLES_ATIVOS,
+          imagemAbaixoTexto: true,
         },
       ]),
     },
     {
-      titulo: 'Fluxo 2 — Seus Produtos Gravity',
-      tituloSumario: 'Seus Produtos',
+      titulo: 'Acesso à Gravity Store',
+      tituloSumario: 'Acesso à Gravity Store',
       paragrafos: [
-        'A seção **Seus Produtos Gravity** usa o mesmo puzzle visual da Gravity Store. Aqui aparecem **somente produtos com status ATIVO no catálogo** — a prévia do ecossistema completo.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Peças contratadas × disponíveis × em breve',
-          imagem: '/university/screenshots/hub-tela-com-produto-contratado.png',
-          paragrafos: [
-            '**Contratado e ativo (owned)** — assinatura ativa na organização **e** produto habilitado no workspace. Peça colorida (`gs-piece--on`): clique abre o módulo (Pedido, Processo, Smart Docs, etc.).',
-            '**Disponível para contratar (available)** — no catálogo ATIVO, mas sem assinatura ativa. Peça mais discreta (`gs-piece--compravel-hub`): clique leva à {{link:/university-gravity/docs/store|Gravity Store}}.',
-            '**Em breve (soon)** — status `EM_BREVE` no catálogo Admin. Peça com selo “Em breve”; não é clicável para operação.',
-            'O medidor à direita mostra **X de Y** — quantas peças você já possui versus o total do puzzle oficial.',
-          ],
-          callout: {
-            tipo: 'aviso',
-            texto: 'Produto contratado na organização mas desabilitado no workspace não aparece como “owned” clicável — revise Assinaturas → Workspaces por produto no Configurador.',
-          },
-        },
-        {
-          titulo: 'Atalho Gravity Store no cabeçalho da seção',
-          paragrafos: [
-            'O botão **Gravity Store** (pill com ícone de sacola) no canto superior direito da seção abre a vitrine completa em `/store`.',
-          ],
-        },
-      ]),
-    },
-    {
-      titulo: 'Fluxo 3 — acesso à Gravity Store',
-      tituloSumario: 'Acesso à Store',
-      paragrafos: [
-        'A Gravity Store é o catálogo de módulos Gravity. No Hub existem **quatro caminhos** principais até ela.',
+        'A Gravity Store é o catálogo de produtos Gravity. No Hub existem **três caminhos** principais até ela.',
       ],
       passosVisuais: renumerarPassos([
         {
           titulo: 'Caminhos para abrir a Store',
-          imagem: '/university/screenshots/hub-tela-sem-produto-contratado.png',
           paragrafos: [
-            '1. **Banner “Ative seu primeiro módulo”** — CTA primário quando não há peça owned.',
-            '2. **Link Gravity Store** no cabeçalho de Seus Produtos Gravity.',
-            '3. **Painel Gravity Store** na faixa inferior (card em carrossel — ver Fluxo 5).',
-            '4. **Menu do usuário** (canto superior direito) → item Marketplace / Gravity Store.',
+            '1. **Botão “Ir para Gravity Store”**: aparece **apenas no primeiro acesso** ou enquanto a organização **não tiver nenhum Produto Gravity contratado**, como indicado pelo **1** na imagem.',
+            '2. **Link “Gravity Store” (2 na imagem)** no cabeçalho de **Seus Produtos Gravity**. Este atalho fica **disponível de forma permanente**.',
+            '3. **Painel Gravity Store** na faixa inferior (card em carrossel; ver seção **Vitrine Store**), **3** na imagem.',
           ],
-          linkCapitulo: {
-            texto: 'Manual completo da Gravity Store',
-            href: '/university-gravity/docs/store',
+          figurasAposParagrafo: [
+            {
+              indice: 2,
+              imagem: SCREENSHOT_HUB_ACESSO_STORE_123,
+              legenda: 'Caminhos 1, 2 e 3 na tela do Hub',
+            },
+          ],
+          dicaAoLadoImagem: {
+            callout: {
+              tipo: 'dica',
+              texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha **Ir para Gravity Store**.',
+            },
+            imagem: SCREENSHOT_HUB_MENU_USUARIO_STORE,
+            legenda: 'Menu do usuário — Ir para Gravity Store',
           },
         },
       ]),
     },
     {
-      titulo: 'Fluxo 4 — Aguardando ação',
+      titulo: 'Aguardando ação',
       tituloSumario: 'Aguardando ação',
       paragrafos: [
-        'O card **Aguardando ação** fica na faixa **Operações em andamento**, junto com Processos em andamento e NFs de importação. O valor vem de `GET /api/v1/hub/operacoes`.',
+        'O card **Aguardando ação** reúne **pendências e alertas** do usuário nos **produtos contratados**, um panorama rápido do que precisa de ação no workspace.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'Aqui é só o **resumo**. Para **controle total**, use o **dashboard de cada produto**.',
+      },
+      calloutAposPassos: true,
+      passosVisuais: [
+        {
+          num: 1,
+          titulo: 'Card Aguardando ação',
+          ocultarRotuloPasso: true,
+          ocultarTituloPasso: true,
+          imagem: SCREENSHOT_HUB_AGUARDANDO_ACAO,
+          imagemAbaixoTexto: true,
+          paragrafos: [],
+        },
+      ],
+    },
+    {
+      titulo: 'Vitrine Gravity Store no Hub',
+      tituloSumario: 'Vitrine Gravity Store no Hub',
+      modoCenarios: true,
+      paragrafos: [
+        'O painel inferior esquerdo **Gravity Store** é uma vitrine dos Produtos Gravity que você **ainda não contratou**.',
+        'Cada card exibe um **selo de status** no canto superior:',
+        '**Disponível** (verde): o produto já pode ser **contratado na Store**. Clique no card para abrir a vitrine.',
+        '**Em breve** (âmbar): o produto já aparece no ecossistema, mas a **contratação ainda não foi liberada**. O card é só para conhecer o que vem aí.',
+      ],
+      figurasAposParagrafo: [
+        {
+          indice: 3,
+          imagem: SCREENSHOT_HUB_CARROSSEL_VITRINE,
+          legenda: 'Vitrine Gravity Store no Hub',
+        },
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'O que entra na contagem',
-          imagem: '/university/screenshots/hub-tela-com-produto-contratado.png',
+          titulo: 'Carrossel da vitrine',
           paragrafos: [
-            'O número é a **soma de pendências humanas** nos produtos **contratados e ativos** que você pode acessar:',
-            '– **Pedido** — pedidos atrasados + pedidos sem exportador vinculado',
-            '– **BID Frete Internacional** — alertas de cotação (vence hoje, resposta, aprovação, fora do prazo)',
-            '– **BID Câmbio** — operações com vencimento nos próximos 30 dias',
-            '– **Simula Custo** — simulações inviáveis ou em atenção',
-            '– **LPCO** — licenças com status suspensa',
-          ],
-          callout: {
-            tipo: 'dica',
-            texto: 'Notas fiscais pendentes têm card próprio (NFs de importação) — não entram em Aguardando ação.',
-          },
-        },
-        {
-          titulo: 'O que você vê na tela',
-          paragrafos: [
-            '**Valor numérico** — total de pendências. Enquanto carrega, aparece **—**.',
-            '**Tag amarela ⚠ N pendentes** — só quando o contador é maior que zero.',
-            '**Aviso cinza** — quando nenhum produto contratado alimenta o KPI ou o serviço ainda não respondeu.',
-            '**Reordenação** — com alertas, o Hub pode trazer este card para a primeira posição da linha de KPIs.',
+            'O carrossel mostra somente produtos **disponíveis** ou **em breve**, os que você já contratou não aparecem aqui.',
+            'A vitrine **gira automaticamente a cada 3,5 segundos**; ao passar o mouse, a rotação **pausa**.',
+            'Use as **setas** e as **bolinhas** para navegar manualmente. Clique no card para abrir a {{link:/university-gravity/docs/store|Gravity Store}}.',
           ],
         },
       ]),
     },
     {
-      titulo: 'Fluxo 5 — vitrine Gravity Store no Hub',
-      tituloSumario: 'Vitrine Store',
-      paragrafos: [
-        'O painel inferior esquerdo **Gravity Store** é uma vitrine dos módulos que você **ainda não contratou**.',
+      titulo: 'Gabi Insights',
+      tituloSumario: 'Gabi Insights',
+      callout: {
+        tipo: 'dica',
+        texto: 'Assim como **Aguardando ação**, os insights são um **resumo no Hub**. Para análise completa, abra o **dashboard do produto** indicado no card.',
+      },
+      calloutAposPassos: true,
+      passosVisuais: [
+        {
+          num: 1,
+          titulo: 'Painel Gabi Insights',
+          ocultarRotuloPasso: true,
+          ocultarTituloPasso: true,
+          imagem: SCREENSHOT_HUB_GABI_DESTAQUE,
+          paragrafos: [
+            'O painel **Gabi Insights** (faixa inferior direita do Hub) mostra **alertas e dicas** sobre a sua operação nos **Produtos Gravity contratados**, um resumo do que merece atenção agora.',
+            'A Gabi cruza indicadores de **Pedido**, **BID Frete**, **BID Câmbio**, **Simula Custo**, **LPCO**, **NF de Importação** e demais produtos **ativos na sua organização**. Só entram insights dos produtos que você pode acessar.',
+            'Cada página mostra **até três cards**. O painel **avança sozinho a cada 5 segundos**; passe o mouse para pausar. O selo **AO VIVO** (ponto verde) indica que o conteúdo está atualizado.',
+            'Use as **setas** e as **bolinhas** para mudar de página manualmente.',
+            'Em cada card você vê **de qual produto vem o insight** (ex.: «PEDIDO · Atrasos»), a **mensagem em linguagem clara**, um **número de apoio** quando fizer sentido e um **atalho** para abrir o produto e agir (ex.: «Corrigir agora»).',
+            'Cards em destaque **âmbar** sinalizam **pendências**; os demais trazem **oportunidades** ou **dicas de uso da plataforma**.',
+          ],
+        },
       ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Carrossel automático',
-          imagem: '/university/screenshots/hub-tela-com-produto-contratado.png',
-          paragrafos: [
-            'Lista apenas produtos **available** ou **soon** (não mostra os já owned).',
-            'O carrossel **gira a cada 3,5 segundos**. Ao passar o mouse, a rotação **pausa**.',
-            'Setas e **bolinhas** permitem navegar manualmente. Clique no card para abrir `/store`.',
-          ],
-        },
-        {
-          titulo: 'Badges do card',
-          paragrafos: [
-            '**Disponível** — badge verde; módulo pronto para contratação.',
-            '**Em breve** — badge âmbar; produto anunciado mas ainda não liberado.',
-          ],
-        },
-      ]),
-    },
-    {
-      titulo: 'Fluxo 6 — Insights da GABI',
-      tituloSumario: 'Insights GABI',
-      paragrafos: [
-        'O painel **GABI AI** exibe até **três insights por página**, gerados a partir dos KPIs dos produtos ativos.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'De onde vêm os insights',
-          imagem: '/university/screenshots/hub-tela-com-produto-contratado.png',
-          paragrafos: [
-            'O frontend chama `GET /api/v1/hub/insights`. O backend agrega dashboards de **Pedido, BID Câmbio, BID Frete, Simula Custo, LPCO e NF Importação** — somente produtos com assinatura ativa e acesso do usuário.',
-            'Cada insight recebe **score** ponderado pelo **papel** (`tipo_usuario`). O motor mistura ~**90% alertas operacionais** e ~**10% dicas de plataforma** (mínimo 4, máximo 12 cards). Cache **5 min** por organização+usuário.',
-          ],
-        },
-        {
-          titulo: 'Rotação e navegação',
-          paragrafos: [
-            '**3 insights por página** — auto-avanço **a cada 5 segundos**; pausa com o mouse sobre o painel.',
-            'Badge **AO VIVO** (ponto verde). Setas ◀ ▶ e bolinhas trocam a página.',
-          ],
-        },
-        {
-          titulo: 'Anatomia de cada card',
-          paragrafos: [
-            '**Tag** — origem (ex.: “PEDIDO · Atrasos”). Ícone foguete (default) ou aviso (warn).',
-            '**Variante default** — destaque índigo; **warn** — destaque âmbar para pendências.',
-            '**Texto** — achado objetivo. **Stat** opcional no rodapé. **Link** abre o produto quando há `rota`.',
-          ],
-        },
-      ]),
     },
   ],
 }

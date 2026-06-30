@@ -5,15 +5,20 @@
     "badge": { "em_breve": "Em Breve", "restrito": "Restrito", "nova_empresa": "Nova empresa", "convidar_usuario": "Convidar usuário" },
     "produto": {
       "login": "Login",
+      "navegacao": "Navegação",
       "admin": "Admin",
       "configurador": "Configurador",
-      "hub": "HUB",
+      "hub": "Hub",
       "store": "Gravity Store",
       "pedido": "Pedido",
       "smart_read": "Smart Docs",
       "bid_frete": "BID Frete Internacional",
       "bid_cambio": "BID Câmbio",
       "processo": "Processo"
+    },
+    "manual": {
+      "titulo_produto": "Manual do {{produto}}",
+      "titulo_navegacao": "Manual de Navegação da Plataforma"
     },
     "banner": {
       "em_construcao": "Em construção",

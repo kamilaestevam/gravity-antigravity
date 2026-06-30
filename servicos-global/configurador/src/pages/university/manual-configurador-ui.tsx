@@ -2335,29 +2335,12 @@ function ManualInfograficoTiposUsuario() {
         <ManualTabelaComparativaTiposUsuario />
       </div>
 
-      <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', padding: '12px 16px',
-        borderRadius: 14,
-        background: 'rgba(148,163,184,.04)',
-        border: '1px dashed rgba(148,163,184,.15)',
-      }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#818cf8' }}>
-          <Buildings size={13} weight="duotone" /> 1ª camada: workspaces habilitados
-        </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#34d399' }}>
-          <Key size={13} weight="duotone" /> 2ª camada: permissões granulares
-        </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#fbbf24' }}>
-          <Crown size={13} weight="duotone" /> Master = sem camadas, acesso total
-        </span>
-      </div>
+      <ManualBlocoFornecedorInteracao />
 
       <ManualParagrafo
         texto="O **Master** configura cada **Standard** e **Fornecedor** em três passos: quais **workspaces** a pessoa acessa, quais **permissões** (telas e ações) tem nesses ambientes e qual ou quais **produtos Gravity** ficam liberados."
         marginBottom={0}
       />
-
-      <ManualBlocoFornecedorInteracao />
 
       <ManualCamadaAcessoFluxo />
     </div>

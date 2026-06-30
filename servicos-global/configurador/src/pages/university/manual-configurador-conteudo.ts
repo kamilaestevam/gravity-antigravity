@@ -861,7 +861,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Tipos de usuário',
         mostrarInfograficoTiposUsuario: true,
         paragrafos: [
-          'No Gravity existem três patentes na organização: **Master**, **Standard** e **Fornecedor**. A patente define quanto da plataforma cada pessoa pode ver e operar.',
+          'No Gravity existem três tipos de usuário: **Master**, **Standard** e **Fornecedor**. Cada tipo define quanto da plataforma cada pessoa pode ver e operar.',
           '**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: workspaces habilitados e permissões granulares em cada produto.',
         ],
         passosVisuais: [],

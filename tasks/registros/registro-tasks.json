@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 399,
+  "proximo_numero": 403,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1882,6 +1882,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000401.json"
+    },
+    {
+      "referencia": "TASK-000402",
+      "ordinal": 126,
+      "titulo_canonico": "CONFIG-MENU-LATERAL-BUG-REMOVER-SMART-DOCS-DUPLICADO-SELETOR-PRODUTO",
+      "titulo_exibicao": "TASK-000402 | [Configurador] Menu lateral | BUG — Remover Smart Docs duplicado no seletor de produtos",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "MENU-LATERAL",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "REMOVER-SMART-DOCS-DUPLICADO-SELETOR-PRODUTO",
+      "data_criacao": "2026-06-30T23:55:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000402.json"
     }
   ]
 }

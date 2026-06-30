@@ -147,3 +147,103 @@ export async function estatisticasLogRequisicaoApiOrganizacao(opcoes: {
       : {}),
   }
 }
+
+export async function listarWebhooksOrganizacao(idOrganizacao: string) {
+  const prisma = getPrismaOrganizacao()
+  const webhooks = await prisma.webhookConfiguracao.findMany({
+    where: { id_organizacao: idOrganizacao },
+    select: {
+      id_webhook_configuracao: true,
+      id_organizacao: true,
+      id_produto_gravity: true,
+      id_usuario: true,
+      url_webhook_configuracao: true,
+      eventos_webhook_configuracao: true,
+      ativo_webhook_configuracao: true,
+      data_criacao_webhook_configuracao: true,
+      data_atualizacao_webhook_configuracao: true,
+    },
+    orderBy: { data_criacao_webhook_configuracao: 'desc' },
+  })
+  return { webhooks }
+}
+
+export async function listarLogsRequisicaoApiOrganizacao(opcoes: {
+  id_organizacao?: string
+  id_produto_gravity?: string
+  codigo_resposta_http_minimo?: number
+  codigo_resposta_http_maximo?: number
+  pagina?: number
+  limite?: number
+}) {
+  const prisma = getPrismaOrganizacao()
+  const pagina = Math.max(1, opcoes.pagina ?? 1)
+  const limite = Math.min(100, Math.max(1, opcoes.limite ?? 50))
+
+  const where: {
+    id_organizacao?: string
+    id_produto_gravity?: string
+    codigo_resposta_http_log_requisicao_api?: { gte?: number; lte?: number }
+  } = {}
+
+  if (opcoes.id_organizacao) where.id_organizacao = opcoes.id_organizacao
+
+  if (opcoes.id_produto_gravity) where.id_produto_gravity = opcoes.id_produto_gravity
+  if (
+    opcoes.codigo_resposta_http_minimo !== undefined ||
+    opcoes.codigo_resposta_http_maximo !== undefined
+  ) {
+    where.codigo_resposta_http_log_requisicao_api = {
+      ...(opcoes.codigo_resposta_http_minimo !== undefined
+        ? { gte: opcoes.codigo_resposta_http_minimo }
+        : {}),
+      ...(opcoes.codigo_resposta_http_maximo !== undefined
+        ? { lte: opcoes.codigo_resposta_http_maximo }
+        : {}),
+    }
+  }
+
+  const [total, rows] = await Promise.all([
+    prisma.logRequisicaoApi.count({ where }),
+    prisma.logRequisicaoApi.findMany({
+      where,
+      orderBy: { data_criacao_log_requisicao_api: 'desc' },
+      skip: (pagina - 1) * limite,
+      take: limite,
+    }),
+  ])
+
+  const logs = rows.map((e) => {
+    const iso = e.data_criacao_log_requisicao_api.toISOString()
+    const tIdx = iso.indexOf('T')
+    const data = tIdx >= 0 ? iso.slice(0, tIdx) : iso
+    const hora = tIdx >= 0 ? iso.slice(tIdx + 1, tIdx + 9) : ''
+    const status = e.codigo_resposta_http_log_requisicao_api
+    return {
+      id_log_requisicao_api: e.id_log_requisicao_api,
+      id_organizacao: e.id_organizacao,
+      id_produto_gravity: e.id_produto_gravity,
+      id_usuario: e.id_usuario,
+      id_correlacao: e.id_correlacao,
+      endpoint_log_requisicao_api: e.endpoint_log_requisicao_api,
+      metodo_http_log_requisicao_api: e.metodo_http_log_requisicao_api,
+      codigo_resposta_http_log_requisicao_api: status,
+      latencia_ms_log_requisicao_api: e.latencia_ms_log_requisicao_api,
+      data_criacao_log_requisicao_api: iso,
+      data_log_requisicao_api: data,
+      hora_log_requisicao_api: hora,
+      resultado_log_requisicao_api:
+        status < 400 ? 'SUCESSO' : status < 500 ? 'ERRO_CLIENTE' : 'ERRO_SERVIDOR',
+    }
+  })
+
+  return {
+    logs,
+    paginacao: {
+      pagina,
+      limite,
+      total,
+      paginas: Math.ceil(total / limite),
+    },
+  }
+}

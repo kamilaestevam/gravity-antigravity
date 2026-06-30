@@ -30,7 +30,10 @@ import { prisma } from '../lib/prisma.js'
 import {
   listarApiTokensOrganizacao,
   estatisticasLogRequisicaoApiOrganizacao,
+  listarWebhooksOrganizacao,
+  listarLogsRequisicaoApiOrganizacao,
 } from '../lib/api-cockpit-leitura-local.js'
+import { executarSaudeServicosInventario } from '../lib/api-cockpit-saude-servicos-local.js'
 
 function getApiCockpitUrl(): string {
   const url = process.env.API_COCKPIT_SERVICE_URL || 'http://127.0.0.1:8016'
@@ -46,6 +49,20 @@ function getChaveInterna(): string {
 }
 function isDev(): boolean {
   return process.env.NODE_ENV !== 'production'
+}
+
+/** Injeta id_organizacao sem enviar id_usuario null (Zod do sidecar rejeita null). */
+function montarBodyCockpitComOrganizacao(
+  body: unknown,
+  idOrganizacao: string,
+  idUsuario?: string,
+): Record<string, unknown> {
+  const base = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>
+  return {
+    ...base,
+    id_organizacao: idOrganizacao,
+    ...(idUsuario ? { id_usuario: idUsuario } : {}),
+  }
 }
 
 export const apiCockpitRouter = Router()
@@ -110,8 +127,16 @@ apiCockpitRouter.use(rateLimitPresets.internal(), requireAuth)
 
 apiCockpitRouter.get('/saude-servicos', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/servicos')
-    res.json(data)
+    try {
+      const data = await proxyToCockpit('/servicos')
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /saude-servicos — fallback inventario BFF:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(await executarSaudeServicosInventario())
+    }
   } catch (err) {
     res.json({ servicos: [], error: maskError(err, 'GET /saude-servicos') })
   }
@@ -124,15 +149,36 @@ apiCockpitRouter.get('/log-requisicao-api', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
-    const data = await proxyToCockpit('/logs', {
-      id_organizacao:              idOrganizacao,
-      id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
-      codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
-      codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
-      pagina:                      (req.query.pagina as string) || '1',
-      limite:                      (req.query.limite as string) || '50',
-    })
-    res.json(data)
+    try {
+      const data = await proxyToCockpit('/logs', {
+        id_organizacao:              idOrganizacao,
+        id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
+        codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
+        codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
+        pagina:                      (req.query.pagina as string) || '1',
+        limite:                      (req.query.limite as string) || '50',
+      })
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /log-requisicao-api — fallback leitura local ORGANIZACAO:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(
+        await listarLogsRequisicaoApiOrganizacao({
+          id_organizacao: idOrganizacao,
+          id_produto_gravity: (req.query.id_produto_gravity as string) || undefined,
+          codigo_resposta_http_minimo: req.query.codigo_resposta_http_minimo
+            ? Number(req.query.codigo_resposta_http_minimo)
+            : undefined,
+          codigo_resposta_http_maximo: req.query.codigo_resposta_http_maximo
+            ? Number(req.query.codigo_resposta_http_maximo)
+            : undefined,
+          pagina: Number((req.query.pagina as string) || '1'),
+          limite: Number((req.query.limite as string) || '50'),
+        }),
+      )
+    }
   } catch (err) {
     res.json({ ...LOGS_FALLBACK, error: maskError(err, 'GET /log-requisicao-api') })
   }
@@ -229,11 +275,7 @@ apiCockpitRouter.post('/api-tokens', requireConfiguradorMutation, async (req, re
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
-    const body = {
-      ...(req.body || {}),
-      id_organizacao: idOrganizacao,
-      id_usuario:     idUsuario,
-    }
+    const body = montarBodyCockpitComOrganizacao(req.body, idOrganizacao, idUsuario)
     const { status, data } = await proxyToTokens('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
@@ -291,8 +333,19 @@ apiCockpitRouter.get('/webhooks', async (req, res) => {
   try {
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
-    const { status, data } = await proxyToWebhooks('GET', '/', undefined, { id_organizacao: idOrganizacao })
-    res.status(status).json(data)
+    try {
+      const { status, data } = await proxyToWebhooks('GET', '/', undefined, {
+        id_organizacao: idOrganizacao,
+      })
+      if (status >= 400) throw new Error(`webhooks listar ${status}`)
+      res.status(status).json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /webhooks — fallback leitura local ORGANIZACAO:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(await listarWebhooksOrganizacao(idOrganizacao))
+    }
   } catch (err) {
     res.json({ webhooks: [], error: maskError(err, 'GET /webhooks') })
   }
@@ -303,7 +356,7 @@ apiCockpitRouter.post('/webhooks', requireConfiguradorMutation, async (req, res)
     const idOrganizacao = req.auth?.id_organizacao
     const idUsuario     = req.auth?.id_usuario
     if (!idOrganizacao) return res.status(401).json({ error: 'JWT sem id_organizacao' })
-    const body = { ...(req.body || {}), id_organizacao: idOrganizacao, id_usuario: idUsuario }
+    const body = montarBodyCockpitComOrganizacao(req.body, idOrganizacao, idUsuario)
     const { status, data } = await proxyToWebhooks('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
@@ -400,8 +453,16 @@ apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityA
 
 apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
   try {
-    const data = await proxyToCockpit('/servicos')
-    res.json(data)
+    try {
+      const data = await proxyToCockpit('/servicos')
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /admin/saude-servicos — fallback inventario BFF:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(await executarSaudeServicosInventario())
+    }
   } catch (err) {
     res.json({ servicos: [], error: maskError(err, 'GET /admin/saude-servicos') })
   }
@@ -409,15 +470,37 @@ apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
 
 apiCockpitAdminRouter.get('/log-requisicao-api', async (req, res) => {
   try {
-    const data = await proxyToCockpit('/logs', {
-      id_organizacao:              (req.query.id_organizacao as string) || '',
-      id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
-      codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
-      codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
-      pagina:                      (req.query.pagina as string) || '1',
-      limite:                      (req.query.limite as string) || '50',
-    })
-    res.json(data)
+    const idOrganizacao = (req.query.id_organizacao as string) || undefined
+    try {
+      const data = await proxyToCockpit('/logs', {
+        id_organizacao:              idOrganizacao ?? '',
+        id_produto_gravity:          (req.query.id_produto_gravity as string) || '',
+        codigo_resposta_http_minimo: (req.query.codigo_resposta_http_minimo as string) || '',
+        codigo_resposta_http_maximo: (req.query.codigo_resposta_http_maximo as string) || '',
+        pagina:                      (req.query.pagina as string) || '1',
+        limite:                      (req.query.limite as string) || '50',
+      })
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /admin/log-requisicao-api — fallback leitura local:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(
+        await listarLogsRequisicaoApiOrganizacao({
+          id_organizacao: idOrganizacao || undefined,
+          id_produto_gravity: (req.query.id_produto_gravity as string) || undefined,
+          codigo_resposta_http_minimo: req.query.codigo_resposta_http_minimo
+            ? Number(req.query.codigo_resposta_http_minimo)
+            : undefined,
+          codigo_resposta_http_maximo: req.query.codigo_resposta_http_maximo
+            ? Number(req.query.codigo_resposta_http_maximo)
+            : undefined,
+          pagina: Number((req.query.pagina as string) || '1'),
+          limite: Number((req.query.limite as string) || '50'),
+        }),
+      )
+    }
   } catch (err) {
     res.json({ ...LOGS_FALLBACK, error: maskError(err, 'GET /admin/log-requisicao-api') })
   }
@@ -496,11 +579,7 @@ apiCockpitAdminRouter.post('/api-tokens', async (req, res) => {
     }
     if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const idUsuario = req.auth?.id_usuario  // admin que executou a acao
-    const body = {
-      ...(req.body || {}),
-      id_organizacao: idOrganizacao,
-      id_usuario:     idUsuario,
-    }
+    const body = montarBodyCockpitComOrganizacao(req.body, idOrganizacao, idUsuario)
     const { status, data } = await proxyToTokens('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
@@ -558,7 +637,7 @@ apiCockpitAdminRouter.post('/webhooks', async (req, res) => {
     }
     if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
     const idUsuario = req.auth?.id_usuario
-    const body = { ...(req.body || {}), id_organizacao: idOrganizacao, id_usuario: idUsuario }
+    const body = montarBodyCockpitComOrganizacao(req.body, idOrganizacao, idUsuario)
     const { status, data } = await proxyToWebhooks('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {

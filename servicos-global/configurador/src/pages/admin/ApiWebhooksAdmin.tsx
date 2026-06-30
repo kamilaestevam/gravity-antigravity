@@ -9,6 +9,12 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { extrairMensagemErroApi } from '../../utils/extrair-mensagem-erro-api'
+import {
+  EXEMPLO_URL_WEBHOOK,
+  HINT_URL_WEBHOOK,
+  validarUrlWebhookConfiguracao,
+} from '../../utils/validar-url-webhook-configuracao'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 import { ApiCockpitAdminKpis } from './ApiCockpitAdminKpis'
@@ -91,6 +97,7 @@ export function ApiWebhooksAdmin() {
 
   // Modal — erro local (visivel dentro do modal)
   const [erroCriar, setErroCriar] = useState<string | null>(null)
+  const [erroUrl, setErroUrl] = useState<string | null>(null)
 
   // Modal — exibicao do segredo (uma vez so)
   const [webhookCriado, setWebhookCriado] = useState<CriarWebhookResponse | null>(null)
@@ -141,6 +148,7 @@ export function ApiWebhooksAdmin() {
     setNovaUrl('')
     setNovosEventos([])
     setErroCriar(null)
+    setErroUrl(null)
   }
 
   const toggleEvento = (evento: string) => {
@@ -151,6 +159,13 @@ export function ApiWebhooksAdmin() {
 
   const handleCriar = async () => {
     if (!novaUrl.trim() || novosEventos.length === 0 || !idOrganizacao) return
+
+    const msgUrl = validarUrlWebhookConfiguracao(novaUrl)
+    if (msgUrl) {
+      setErroUrl(msgUrl)
+      return
+    }
+
     setCriando(true)
     setErroCriar(null)
     try {
@@ -166,7 +181,7 @@ export function ApiWebhooksAdmin() {
       })
       const raw = await res.json()
       if (!res.ok) {
-        throw new Error(raw?.erro || raw?.error || `Falha ao criar webhook: ${res.status}`)
+        throw new Error(extrairMensagemErroApi(raw, `Falha ao criar webhook: ${res.status}`))
       }
       const parsed = criarWebhookResponseSchema.safeParse(raw)
       if (!parsed.success) throw new Error('Resposta de criacao invalida')
@@ -196,7 +211,7 @@ export function ApiWebhooksAdmin() {
       )
       if (!res.ok && res.status !== 204) {
         const raw = await res.json().catch(() => ({}))
-        throw new Error(raw?.erro || raw?.error || `Falha ao excluir: ${res.status}`)
+        throw new Error(extrairMensagemErroApi(raw, `Falha ao excluir: ${res.status}`))
       }
       await carregar()
     } catch (err) {
@@ -405,6 +420,7 @@ export function ApiWebhooksAdmin() {
         subtitulo="O segredo HMAC sera exibido apenas uma vez. Copie e guarde em local seguro."
         tamanho="md"
         altura="auto"
+        modoCriacao
         dirty={!!novaUrl.trim() || novosEventos.length > 0}
         podesSalvar={!!novaUrl.trim() && novosEventos.length > 0}
         carregando={criando}
@@ -420,14 +436,28 @@ export function ApiWebhooksAdmin() {
               {erroCriar}
             </div>
           )}
-          <CampoGeralGlobal label="URL do Webhook" htmlFor="url-webhook-admin" obrigatorio>
+          <CampoGeralGlobal
+            label="URL do Webhook"
+            htmlFor="url-webhook-admin"
+            obrigatorio
+            hint={HINT_URL_WEBHOOK}
+            erro={erroUrl ?? undefined}
+          >
             <input
               id="url-webhook-admin"
               type="url"
               style={INPUT_STYLE}
               value={novaUrl}
-              onChange={(e) => setNovaUrl(e.target.value)}
-              placeholder="https://exemplo.com/webhooks"
+              onChange={(e) => {
+                setNovaUrl(e.target.value)
+                setErroCriar(null)
+                setErroUrl(null)
+              }}
+              onBlur={() => {
+                if (!novaUrl.trim()) return
+                setErroUrl(validarUrlWebhookConfiguracao(novaUrl))
+              }}
+              placeholder={EXEMPLO_URL_WEBHOOK}
             />
           </CampoGeralGlobal>
 

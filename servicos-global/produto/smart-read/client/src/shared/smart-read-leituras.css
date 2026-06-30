@@ -302,45 +302,6 @@ body.light-theme .sr-linha-documento {
   text-decoration: underline;
 }
 
-.sr-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(15, 23, 42, 0.72);
-}
-
-.sr-modal {
-  width: min(420px, 100%);
-  padding: 1.25rem 1.5rem;
-  border-radius: 12px;
-  background: var(--ws-surface, #1e293b);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
-}
-
-.sr-modal-titulo {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.sr-modal-descricao {
-  margin: 0 0 1.25rem;
-  font-size: 0.875rem;
-  color: var(--ws-muted, #94a3b8);
-  line-height: 1.45;
-}
-
-.sr-modal-acoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
 .sr-segmento-tabs {
   display: inline-flex;
   gap: 0;

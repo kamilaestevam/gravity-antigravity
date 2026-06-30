@@ -35,6 +35,8 @@ export const SCREENSHOT_NAVEGACAO_SHELL_MODULOS =
 export const SCREENSHOT_NAVEGACAO_SHELL_MENU_RECOLHIDO =
   '/university/screenshots/navegacao-shell-menu-recolhido.png'
 
+export const SCREENSHOT_NAVEGACAO_ACESSO_UNIVERSITY_TELA =
+  '/university/screenshots/navegacao-university-tela-inicial.png'
 export const SCREENSHOT_NAVEGACAO_UNIVERSITY_ONBOARDING =
   '/university/screenshots/navegacao-university-onboarding.png'
 export const SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS =
@@ -84,6 +86,7 @@ export const NAVEGACAO_PRINTS_CHECKLIST = [
   'navegacao-shell-modulos-produto.png',
   'navegacao-shell-menu-recolhido.png',
   'navegacao-university-onboarding.png',
+  'navegacao-university-tela-inicial.png',
   'navegacao-university-manuais-videos.png',
   'navegacao-menu-superior-acesso-configurador.png',
   'navegacao-produto-menu-lateral-exemplo.png',
@@ -314,11 +317,11 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Menu lateral — Configuração',
       tituloSumario: 'Menu lateral — Configuração',
       paragrafos: [
-        'O **Configurador da Plataforma** tem **menu lateral próprio**. Ele organiza a **gestão e configuração da conta**: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro e demais capítulos.',
+        'O **Configurador da Plataforma** tem **menu lateral próprio**. Ele organiza a **gestão e configuração da conta**: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro e demais abas.',
       ],
       callout: {
         tipo: 'dica',
-        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de capítulo — só mudam o item destacado e o conteúdo à direita.',
+        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba** — só mudam o item destacado e o conteúdo à direita.',
       },
       calloutAposPassos: true,
       passosVisuais: renumerarPassos([
@@ -349,17 +352,34 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
         {
           titulo: 'Menu lateral de gestão',
           paragrafos: [
-            'No **Configurador**, o menu lateral concentra **Organização**, **Workspaces**, **Usuários**, **Fornecedores**, **Assinaturas**, **Financeiro** e demais capítulos de configuração.',
+            'No **Configurador**, o menu lateral concentra **Organização**, **Workspaces**, **Usuários**, **Fornecedores**, **Assinaturas**, **Financeiro** e demais abas de configuração.',
           ],
           imagem: SCREENSHOT_NAVEGACAO_CONFIGURADOR_MENU_LATERAL,
           imagemAbaixoTexto: true,
         },
+      ]),
+    },
+    {
+      titulo: 'Como acessar a Gravity University',
+      tituloSumario: 'Como acessar a Gravity University',
+      paragrafos: [
+        'A **Gravity University** fica a um clique no **menu superior** — ícone de **chapéu de formatura**, terceiro atalho à direita (após **Hub** e **Localizar**). Vale em **qualquer tela** autenticada: Hub, produtos, Store ou Configurador.',
+      ],
+      passosVisuais: renumerarPassos([
         {
-          titulo: 'Navegação entre capítulos',
+          titulo: 'Ícone Gravity University no menu superior',
           paragrafos: [
-            'Ao trocar de capítulo (ex.: **Usuários**), o menu lateral **permanece** com a mesma estrutura — mudam apenas o item destacado e o conteúdo à direita.',
+            'Clique no ícone **Gravity University** (chapéu de formatura) na faixa do **menu superior**, à direita.',
           ],
-          imagem: SCREENSHOT_NAVEGACAO_CONFIGURADOR_MENU_MODULOS,
+          imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Tela da Gravity University',
+          paragrafos: [
+            'A **sidebar esquerda** abre com **Onboarding**, **Manuais e Vídeos**, **Builders** e **Minha Jornada**. Este manual está em **Manuais e Vídeos → Navegação**.',
+          ],
+          imagem: SCREENSHOT_NAVEGACAO_ACESSO_UNIVERSITY_TELA,
           imagemAbaixoTexto: true,
         },
       ]),
@@ -371,7 +391,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       cenariosLadoALado: true,
       cenariosImagensAlinhadas: true,
       paragrafos: [
-        'Na **Gravity University**, a **sidebar esquerda** organiza trilhas de aprendizado, manuais por produto e builders futuros. Este manual que você está lendo fica em **Manuais e Vídeos → Navegação**.',
+        'Na **sidebar**, os principais blocos de conteúdo são:',
       ],
       passosVisuais: renumerarPassos([
         {

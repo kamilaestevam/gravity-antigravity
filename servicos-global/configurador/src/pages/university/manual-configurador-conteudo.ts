@@ -59,6 +59,16 @@ export interface DocPassoVisual {
     imagem: string
     legenda?: string
   }
+  /** Grade de cards (colunas da tabela). */
+  colunasTabela?: DocColunaTabela[]
+}
+
+export interface DocColunaTabela {
+  coluna: string
+  tituloColuna?: string
+  descricao: string
+  detalhes?: string[]
+  imagem?: string
 }
 
 export interface DocGaleriaTela {

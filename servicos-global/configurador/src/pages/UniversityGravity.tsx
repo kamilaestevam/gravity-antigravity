@@ -35,8 +35,10 @@ import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './uni
 import { DocConfiguradorManual, iconeConfiguradorManual, MANUAL_ESTILO_ACORDEON_SECAO, useManualSumarioScroll } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
+import { DOC_STORE_SUBTITULO } from './university/manual-store-conteudo'
 import { DocNavegacaoManual } from './university/manual-navegacao-ui'
 import { DocHubManual } from './university/manual-hub-ui'
+import { DocStoreManual } from './university/manual-store-ui'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
 
@@ -1462,6 +1464,7 @@ export function UniversityGravity() {
     docsProdutoSlug === 'login' ||
     docsProdutoSlug === 'navegacao' ||
     docsProdutoSlug === 'hub' ||
+    docsProdutoSlug === 'store' ||
     (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
   )
 
@@ -1597,7 +1600,6 @@ export function UniversityGravity() {
           children: CONFIGURADOR_MANUAL_ITENS.map(item => {
             const badgeEmBreveCapitulo: Partial<Record<typeof item.pathSeg, typeof badgeEmBreve>> = {
               'api-cockpit': badgeEmBreve,
-              historico: badgeEmBreve,
             }
             return {
               to: `/university-gravity/docs/configurador/${item.pathSeg}`,
@@ -1776,6 +1778,8 @@ export function UniversityGravity() {
                   ? <Compass weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'hub'
                   ? <SquaresFour weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'store'
+                  ? <ShoppingBag weight="duotone" size={22} />
                 : secao === 'docs' && docsConfiguradorPagina
                   ? iconeConfiguradorManual(docsConfiguradorPagina, 22)
                   : <GraduationCap weight="duotone" size={22} />}
@@ -1793,6 +1797,9 @@ export function UniversityGravity() {
               )}
               {secao === 'docs' && docsProdutoSlug === 'hub' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_HUB_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'store' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_STORE_SUBTITULO}</span>
               )}
               {secao === 'docs' && configuradorManualItem && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{configuradorManualItem.subtitulo}</span>
@@ -2048,11 +2055,15 @@ export function UniversityGravity() {
             <DocHubManual />
           )}
 
+          {secao === 'docs' && docsProdutoSlug === 'store' && (
+            <DocStoreManual />
+          )}
+
           {secao === 'docs' && docsConfiguradorPagina && (
             <DocConfiguradorManual paginaSlug={docsConfiguradorPagina} />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

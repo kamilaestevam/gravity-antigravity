@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Gear, Crown, Buildings, Users, Handshake, CreditCard, Receipt, Pulse,
   CurrencyCircleDollar, ClockCounterClockwise, ArrowsOut, CaretDown,
@@ -78,26 +78,42 @@ function numeroSecaoDeHashManual(hash: string | undefined): number | null {
 
 function ManualLinkInterno({ href, rotulo }: { href: string; rotulo: string }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const scrollToSecao = useContext(ManualScrollSecaoContext)
-  const [pathname, hashPart] = href.split('#')
-  const secaoNum = numeroSecaoDeHashManual(hashPart ? `#${hashPart}` : undefined)
+  const hashIdx = href.indexOf('#')
+  const pathname = (hashIdx >= 0 ? href.slice(0, hashIdx) : href).replace(/\/$/, '')
+  const hash = hashIdx >= 0 ? href.slice(hashIdx) : ''
+  const secaoNum = numeroSecaoDeHashManual(hash || undefined)
   const pathnameAtual = location.pathname.replace(/\/$/, '')
-  const pathnameLink = pathname.replace(/\/$/, '')
-  const mesmaPagina = pathnameAtual === pathnameLink
+  const mesmaPagina = pathnameAtual === pathname
+
+  const estiloBotaoLink: React.CSSProperties = {
+    ...MANUAL_LINK_STYLE,
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    font: 'inherit',
+  }
 
   if (secaoNum != null && scrollToSecao && mesmaPagina) {
     return (
       <button
         type="button"
         onClick={() => scrollToSecao(secaoNum)}
-        style={{
-          ...MANUAL_LINK_STYLE,
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
-          font: 'inherit',
-        }}
+        style={estiloBotaoLink}
+      >
+        {rotulo}
+      </button>
+    )
+  }
+
+  if (secaoNum != null) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate({ pathname, hash })}
+        style={estiloBotaoLink}
       >
         {rotulo}
       </button>
@@ -206,6 +222,14 @@ function ManualTextoRichLinha({ texto }: { texto: string }) {
   return <>{partes}</>
 }
 
+function splitLabelDescListaManual(item: string): { label: string; desc: string } {
+  const cleaned = item.replace(/^[-–]\s*/, '').trim()
+  const re = /^((?:[^{]|(?:\{\{link:[^}]+\}\}))+):\s*(.*)$/s
+  const match = cleaned.match(re)
+  if (!match) return { label: cleaned, desc: '' }
+  return { label: match[1].trim(), desc: match[2].trim() }
+}
+
 function ManualParagrafo({
   texto,
   marginBottom,
@@ -230,7 +254,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '26'
+const MANUAL_SCREENSHOT_CACHE_KEY = '34'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -970,7 +994,12 @@ export function rolarParaSecaoManual(idSecao: string, behavior: ScrollBehavior =
     const elRect = el.getBoundingClientRect()
     const containerRect = container.getBoundingClientRect()
     const top = elRect.top - containerRect.top + container.scrollTop - margem
-    container.scrollTo({ top: Math.max(0, top), behavior })
+    const topFinal = Math.max(0, top)
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({ top: topFinal, behavior })
+    } else {
+      container.scrollTop = topFinal
+    }
   } else {
     el.scrollIntoView({ behavior, block: 'start' })
   }
@@ -1093,7 +1122,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           <ManualInfograficoTiposUsuario />
         </div>
       )}
-      {fluxo.modoCenarios && fluxo.cenariosLadoALado && fluxo.passosVisuais.length > 0 ? (
+      {fluxo.modoCenarios && fluxo.cenariosLadoALado && (fluxo.passosVisuais?.length ?? 0) > 0 ? (
         fluxo.cenariosImagensAlinhadas ? (
           <>
             <div style={{
@@ -1150,7 +1179,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           </div>
         )
       ) : (
-        fluxo.passosVisuais.map(passo => (
+        (fluxo.passosVisuais ?? []).map(passo => (
           <React.Fragment key={passo.num}>
             <ManualBlocoPassoVisual
               passo={passo}
@@ -1166,6 +1195,11 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
       {fluxo.mostrarInfograficoIconesMenuSuperior && fluxo.infograficoIconesMenuSuperiorAposPassos && (
         <div style={{ marginTop: 20, marginBottom: 4 }}>
           <ManualInfograficoIconesMenuSuperior />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoHubTelas && fluxo.infograficoHubTelasAposPassos && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoHubTelas />
         </div>
       )}
     </>
@@ -1521,8 +1555,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
           marginTop: 20,
         }}>
           {secao.lista.map((item, i) => {
-            const [label, ...rest] = item.replace(/^[-–]\s*/, '').split(':')
-            const desc = rest.join(':').trim()
+            const { label, desc } = splitLabelDescListaManual(item)
             return (
               <div key={i} style={{
                 background: 'rgba(148,163,184,.05)', border: '1px solid rgba(148,163,184,.12)',
@@ -3029,6 +3062,7 @@ export function DocManualUmaSecao({
   /** Seções expandidas ao carregar (padrão: só a intro §01). */
   secoesAbertasInicial?: number[]
 }) {
+  const location = useLocation()
   const itensSumario = montarItensSumarioManual(secao)
   const todosNums = itensSumario.map(i => i.num)
   const [abertos, setAbertos] = useState<number[]>(secoesAbertasInicial ?? [1])
@@ -3038,9 +3072,9 @@ export function DocManualUmaSecao({
   const scrollTo = useManualSumarioScroll(abertos, setAbertos)
 
   useEffect(() => {
-    const secaoNum = numeroSecaoDeHashManual(window.location.hash)
+    const secaoNum = numeroSecaoDeHashManual(location.hash)
     if (secaoNum != null) scrollTo(secaoNum)
-  }, [scrollTo])
+  }, [scrollTo, location.pathname, location.hash])
 
   return (
     <ManualScrollSecaoContext.Provider value={scrollTo}>
@@ -3107,7 +3141,7 @@ export function DocManualUmaSecao({
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', lineHeight: 1.4,
                   color: '#818cf8',
-                  fontWeight: item.num === 1 ? 700 : 400,
+                  fontWeight: 400,
                 }}
               >
                 {item.titulo}

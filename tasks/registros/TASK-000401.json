@@ -4,8 +4,8 @@
   "id_transcript": null,
   "titulo_canonico": "CONFIG-API-COCKPIT-MEL-MODAL-REVOGAR-TOKEN-PADRAO-SISTEMA",
   "titulo_exibicao": "TASK-000401 | [Configurador] API Cockpit Tokens | MEL — Modal revogar token no padrão do sistema",
-  "status": "ABR",
-  "status_descricao": "Aberta — confirmação de revogar token usa dialog nativo do navegador",
+  "status": "VAL",
+  "status_descricao": "Validação em produção — código mergeado (PR #565); deploy Railway pendente após build quebrado no merge inicial",
   "area": "CONFIG",
   "area_descricao": "Configurador — auth, billing, permissões e módulos internos (API Cockpit em servicos-global/configurador)",
   "subarea": "API-COCKPIT",
@@ -29,9 +29,22 @@
   "tokens_estimados_total": null,
   "mensagens_usuario": null,
   "mensagens_agente": null,
-  "fases_concluidas": [],
-  "checklist_encerramento": {},
-  "checklist_alertas": [],
-  "entregas": [],
-  "notas": "Reportado com screenshot — confirm() nativo do browser na revogação de token API Cockpit."
+  "fases_concluidas": ["implementacao", "pr_merge"],
+  "checklist_encerramento": {
+    "deploy_producao": false,
+    "validacao_tokens_revogar": false,
+    "validacao_webhooks_excluir": false
+  },
+  "checklist_alertas": [
+    "Merge #565 em 2026-06-30 falhou deploy Railway (imports WIP manual University); corrigido em #568; master atual builda com vite."
+  ],
+  "entregas": [
+    {
+      "tipo": "pull_request",
+      "referencia": "https://github.com/dmmltda/gravity-antigravity/pull/565",
+      "merge_commit": "2bd0e54ed",
+      "descricao": "ModalConfirmarExcluirGlobal (tokens/webhooks), ModalFormularioGlobal (teste webhook), TooltipGlobal"
+    }
+  ],
+  "notas": "Código em master desde PR #565. PR de redeploy dispara novo build Railway após fix #568. Validar: revogar token e excluir webhook exibem modal escuro Gravity (não «usegravity.com.br diz»)."
 }

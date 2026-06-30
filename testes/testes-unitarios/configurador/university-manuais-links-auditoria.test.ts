@@ -117,7 +117,8 @@ describe('University — auditoria de links Manuais e Vídeos', () => {
 
     expect(rotas.length).toBeGreaterThan(0)
     for (const rota of rotas) {
-      expect(ROTAS_MANUAIS_PUBLICADOS.has(rota), `rota inválida: ${rota}`).toBe(true)
+      const rotaBase = rota.split('#')[0]
+      expect(ROTAS_MANUAIS_PUBLICADOS.has(rotaBase), `rota inválida: ${rota}`).toBe(true)
     }
   })
 })

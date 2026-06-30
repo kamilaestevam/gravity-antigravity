@@ -258,11 +258,15 @@ const SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_1 =
   '/university/screenshots/configurador-usuarios-permissao-por-workspace-1.png'
 const SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_2 =
   '/university/screenshots/configurador-usuarios-permissao-por-workspace-2.png'
+const SCREENSHOT_USUARIOS_STATUS_CONVIDADO_ATIVO =
+  '/university/screenshots/configurador-usuarios-ativado.png'
 const SCREENSHOT_CONFIGURADOR_MENU_LATERAL = '/university/screenshots/configurador-tela-menu-lateral.png'
 
 const LINK_MANUAL_WORKSPACES = '{{link:/university-gravity/docs/configurador/workspaces|workspaces}}'
 const LINK_MANUAL_WORKSPACES_CAP = '{{link:/university-gravity/docs/configurador/workspaces|Workspaces}}'
 const LINK_MANUAL_WORKSPACE = '{{link:/university-gravity/docs/configurador/workspaces|workspace}}'
+/** Sumário §05 do manual Usuários — fluxo «Permissões do usuário». */
+export const LINK_MANUAL_PERMISSOES = '{{link:/university-gravity/docs/configurador/usuarios#doc-sec-5|permissões}}'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -316,7 +320,7 @@ const USUARIOS_GALERIA_TOOLTIPS_KPI = [
 ] as const
 
 const USUARIOS_JORNADA_FRASE_APOS_LINK =
-  'A partir daqui, o usuário cria sua senha e entra no **Hub** de acordo com as permissões e acessos concedidos (se **Standard** ou **Fornecedor**) ou com acesso completo se for novo usuário **Master**.'
+  `A partir daqui, o usuário cria sua senha e entra no **Hub** de acordo com as ${LINK_MANUAL_PERMISSOES} e acessos concedidos (se **Standard** ou **Fornecedor**) ou com acesso completo se for novo usuário **Master**.`
 
 /** Sequência pós-envio — jornada do convidado (Drive: 3. Usuarios/tela_configurador_convite_usuario_* e login_*). */
 const USUARIOS_GALERIA_JORNADA_CONVIDADO: DocGaleriaTela[] = [
@@ -867,13 +871,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-usuarios-tela.png',
     paragrafos: [
-      `O controle dos **Usuários** fica localizado no menu lateral do **Configurador** (item **Usuários**), onde você gerencia quem acessa a organização: convites, edições de cadastro, permissões por produto e vínculo com ${LINK_MANUAL_WORKSPACES}.`,
+      `O controle dos **Usuários** fica localizado no menu lateral do **Configurador** (item **Usuários**), onde você gerencia quem acessa a organização: convites, edições de cadastro, ${LINK_MANUAL_PERMISSOES} por produto e vínculo com ${LINK_MANUAL_WORKSPACES}.`,
     ],
     calloutAposParagrafo: {
       indice: 0,
       callout: {
         tipo: 'dica',
-        texto: `Somente **Master** convida pessoas e altera patentes, permissões e ${LINK_MANUAL_WORKSPACES} de outros usuários.`,
+        texto: `Somente **Master** convida pessoas e altera patentes, ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} de outros usuários.`,
       },
     },
     callout: {
@@ -887,7 +891,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         mostrarInfograficoTiposUsuario: true,
         paragrafos: [
           'No Gravity existem três tipos de usuário: **Master**, **Standard** e **Fornecedor**. Cada tipo define quanto da plataforma cada pessoa pode ver e operar.',
-          `**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: ${LINK_MANUAL_WORKSPACES} habilitados e permissões granulares em cada produto.`,
+          `**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: ${LINK_MANUAL_WORKSPACES} habilitados e ${LINK_MANUAL_PERMISSOES} granulares em cada produto.`,
         ],
         passosVisuais: [],
       },
@@ -919,9 +923,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       {
         titulo: 'Convidar usuário',
         tituloSumario: 'Convidar usuário',
-        paragrafos: [
-          'Envie um convite por e-mail para incluir Master, Standard ou Fornecedor na organização. O convidado completa o cadastro pelo link recebido.',
-        ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Iniciar o convite',
@@ -933,8 +934,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             titulo: 'Preencher dados e enviar',
             paragrafos: [
-              `Informe o e-mail do convidado e escolha o tipo de usuário. Master tem acesso total na organização; Standard e Fornecedor dependem das permissões e ${LINK_MANUAL_WORKSPACES} definidos nos fluxos seguintes.`,
-              `Revise permissões e ${LINK_MANUAL_WORKSPACES} no modal e clique em **Enviar convite**. O convidado entra na lista com badge Convidado (amarelo) até concluir o cadastro.`,
+              `Informe o e-mail do convidado e escolha o tipo de usuário. Master tem acesso total na organização; Standard e Fornecedor dependem das ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} definidos nos fluxos seguintes.`,
+              `Revise ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} no modal e clique em **Enviar convite**. O convidado entra na lista com badge Convidado (amarelo) até concluir o cadastro.`,
             ],
             galeriaTelas: [
               { legenda: '1 · Modal vazio', imagem: '/university/screenshots/configurador-usuarios-convite-modal-vazio.png' },
@@ -957,6 +958,16 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               tipo: 'dica',
               texto: 'Cada link de convite é de uso único. Se expirar ou for perdido, reenvie ou cancele o convite pela lista de Usuários.',
             },
+          },
+          {
+            titulo: 'Status Convidado e Ativo na listagem',
+            ocultarRotuloPasso: true,
+            ocultarTituloPasso: true,
+            paragrafos: [
+              'Depois que o convite é enviado, o status do usuário permanece como **Convidado** na listagem. Quando o convidado aceita o link e conclui o cadastro, o status é alterado para **Ativo**.',
+            ],
+            imagem: SCREENSHOT_USUARIOS_STATUS_CONVIDADO_ATIVO,
+            imagemAbaixoTexto: true,
           },
         ]),
       },
@@ -1052,7 +1063,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: `Sem nenhum ${LINK_MANUAL_WORKSPACE} marcado, Standard e Fornecedor ficam sem unidade operacional: Mesmo com permissões de produto liberadas na etapa anterior.`,
+              texto: `Sem nenhum ${LINK_MANUAL_WORKSPACE} marcado, Standard e Fornecedor ficam sem unidade operacional: Mesmo com ${LINK_MANUAL_PERMISSOES} de produto liberadas na etapa anterior.`,
             },
           },
           {
@@ -1081,7 +1092,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Desativar e ativar usuário',
         tituloSumario: 'Desativar e ativar usuário',
         paragrafos: [
-          'Suspenda quem não deve mais entrar na plataforma, reative quando necessário ou gerencie convites ainda pendentes.',
+          'Suspenda quem não deve mais entrar na plataforma e reative quando necessário.',
           'Usuários não podem ser excluídos: O Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
         ],
         passosVisuais: renumerarPassos([
@@ -1116,16 +1127,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
                 imagem: '/university/screenshots/configurador-usuarios-ativado.png',
               },
             ],
-          },
-          {
-            titulo: 'Convite pendente',
-            paragrafos: [
-              'Usuários com status Convidado ainda não concluíram o cadastro. Use Reenviar Convite (ícone de seta circular) para mandar um novo e-mail ou cancele o convite se o acesso não for mais necessário.',
-            ],
-            callout: {
-              tipo: 'aviso',
-              texto: 'Cancelar convite remove a pessoa da lista. Desativar um usuário Ativo preserva o histórico: Apenas bloqueia novos logins até reativação.',
-            },
           },
         ]),
       },
@@ -1863,43 +1864,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               tipo: 'aviso',
               texto: 'Projeções do Focus são indicativas. Não use como taxa de fechamento de contrato ou documento fiscal: Para isso, utilize a PTAX da aba Cotação Atual.',
             },
-          },
-        ]),
-      },
-      {
-        titulo: 'Sincronizar Focus',
-        tituloSumario: 'Sincronizar Focus',
-        paragrafos: [
-          'Busque manualmente a última rodada de expectativas de mercado publicada pelo BACEN. O cron semanal já faz isso automaticamente quando o agendamento está ativo.',
-        ],
-        passosVisuais: renumerarPassos([
-          {
-            titulo: 'Iniciar sincronização Focus',
-            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-seta.png',
-            paragrafos: [
-              'Com a aba Cotação Futura ativa, clique em **Sincronizar Focus**: Como indicado pela seta na imagem.',
-            ],
-          },
-          {
-            titulo: 'Sincronização em andamento',
-            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizando.png',
-            paragrafos: [
-              'O botão exibe **Sincronizando…** enquanto o serviço consulta o BACEN Focus. A operação atualiza apenas a série USD/BRL.',
-            ],
-          },
-          {
-            titulo: 'Resultado: Visão geral',
-            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-1.png',
-            paragrafos: [
-              'Após a conclusão, os cards e a tabela exibem mediana, mês previsto e data de publicação da rodada importada.',
-            ],
-          },
-          {
-            titulo: 'Resultado: Detalhe das projeções',
-            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-2.png',
-            paragrafos: [
-              'Confira linha a linha os meses carregados e o valor mediano de cada projeção. Um toast confirma quantos meses foram gravados para USD.',
-            ],
           },
         ]),
       },

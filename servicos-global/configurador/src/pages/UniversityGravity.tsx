@@ -540,7 +540,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Permissões',
         imagem: '/university/screenshots/login-convite-passo-06-permissoes.png',
         paragrafos: [
-          'Marque as {{link:/university-gravity/docs/configurador/usuarios|permissões}} que o convidado terá em cada área do **Configurador**. Só libere o que essa pessoa realmente precisa usar.',
+          'Marque as {{link:/university-gravity/docs/configurador/usuarios#doc-sec-5|permissões}} que o convidado terá em cada área do **Configurador**. Só libere o que essa pessoa realmente precisa usar.',
         ],
       },
       {

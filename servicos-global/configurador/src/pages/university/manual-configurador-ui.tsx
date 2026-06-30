@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Gear, Crown, Buildings, Users, Handshake, CreditCard, Receipt, Pulse,
   CurrencyCircleDollar, ClockCounterClockwise, ArrowsOut, CaretDown,
@@ -25,6 +25,7 @@ import {
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
   SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
   SCREENSHOT_USUARIOS_PERMISSAO_MODAL,
+  LINK_MANUAL_PERMISSOES,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
@@ -64,6 +65,51 @@ const MANUAL_LINK_STYLE: React.CSSProperties = {
 }
 
 const LINK_DOC_WORKSPACES = '/university-gravity/docs/configurador/workspaces'
+
+const ManualScrollSecaoContext = createContext<((n: number) => void) | null>(null)
+
+function numeroSecaoDeHashManual(hash: string | undefined): number | null {
+  if (!hash) return null
+  const m = /^#?doc-sec-(\d+)$/.exec(hash)
+  if (!m) return null
+  const n = Number(m[1])
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+function ManualLinkInterno({ href, rotulo }: { href: string; rotulo: string }) {
+  const location = useLocation()
+  const scrollToSecao = useContext(ManualScrollSecaoContext)
+  const [pathname, hashPart] = href.split('#')
+  const secaoNum = numeroSecaoDeHashManual(hashPart ? `#${hashPart}` : undefined)
+  const pathnameAtual = location.pathname.replace(/\/$/, '')
+  const pathnameLink = pathname.replace(/\/$/, '')
+  const mesmaPagina = pathnameAtual === pathnameLink
+
+  if (secaoNum != null && scrollToSecao && mesmaPagina) {
+    return (
+      <button
+        type="button"
+        onClick={() => scrollToSecao(secaoNum)}
+        style={{
+          ...MANUAL_LINK_STYLE,
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          font: 'inherit',
+        }}
+      >
+        {rotulo}
+      </button>
+    )
+  }
+
+  return (
+    <Link to={href} style={MANUAL_LINK_STYLE}>
+      {rotulo}
+    </Link>
+  )
+}
 
 function textoComLinkWorkspaces(texto: string): string {
   return texto.replace(/\bworkspaces?\b/gi, (m) => `{{link:${LINK_DOC_WORKSPACES}|${m}}}`)
@@ -149,9 +195,7 @@ function ManualTextoRichLinha({ texto }: { texto: string }) {
       )
     } else if (match[2] !== undefined) {
       partes.push(
-        <Link key={match.index} to={match[2]} style={MANUAL_LINK_STYLE}>
-          {match[3]}
-        </Link>,
+        <ManualLinkInterno key={match.index} href={match[2]} rotulo={match[3]} />,
       )
     }
     ultimo = re.lastIndex
@@ -186,7 +230,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '22'
+const MANUAL_SCREENSHOT_CACHE_KEY = '25'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -2342,7 +2386,7 @@ function ManualBlocoFornecedorInteracao() {
             </p>
             <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
               O Master convida um usuário tipo Fornecedor. A pessoa acessa as telas liberadas
-              {' '}(<ManualTextoRichLinha texto={textoComLinkWorkspaces('workspaces e permissões granulares')} />).
+              {' '}(<ManualTextoRichLinha texto={`{{link:/university-gravity/docs/configurador/workspaces|workspaces}} e ${LINK_MANUAL_PERMISSOES} granulares`} />).
             </p>
           </div>
         </div>
@@ -2993,7 +3037,13 @@ export function DocManualUmaSecao({
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
   const scrollTo = useManualSumarioScroll(abertos, setAbertos)
 
+  useEffect(() => {
+    const secaoNum = numeroSecaoDeHashManual(window.location.hash)
+    if (secaoNum != null) scrollTo(secaoNum)
+  }, [scrollTo])
+
   return (
+    <ManualScrollSecaoContext.Provider value={scrollTo}>
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
       <span style={{
         display: 'inline-block', background: 'rgba(99,102,241,.12)', color: '#818cf8',
@@ -3163,6 +3213,7 @@ export function DocManualUmaSecao({
         })}
       </div>
     </div>
+    </ManualScrollSecaoContext.Provider>
   )
 }
 

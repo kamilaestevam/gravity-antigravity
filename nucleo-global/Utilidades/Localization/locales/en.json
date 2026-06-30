@@ -2,12 +2,16 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": { "academy": "Onboarding", "minha_jornada": "My Journey", "docs": "Manuals and Videos", "builders": "Builders" },
+    "academy": {
+      "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."
+    },
     "badge": { "em_breve": "Coming Soon", "restrito": "Restricted", "nova_empresa": "New company", "convidar_usuario": "Invite user" },
     "produto": {
       "login": "Login",
       "navegacao": "Navigation",
       "admin": "Admin",
       "configurador": "Configurador",
+      "gabi": "Gabi IA",
       "hub": "Hub",
       "store": "Gravity Store",
       "pedido": "Pedido",

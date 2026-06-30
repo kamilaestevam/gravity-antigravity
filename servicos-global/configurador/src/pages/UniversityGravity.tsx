@@ -165,6 +165,7 @@ const ICON_MAP = {
   navegacao:    Compass,
   admin:        ShieldStar,
   configurador: Gear,
+  gabi:         Sparkle,
   hub:          SquaresFour,
   store:        ShoppingBag,
   pedido:       Package,
@@ -1437,9 +1438,13 @@ export function UniversityGravity() {
     : pathname.includes('/minha-jornada') ? 'jornada'
     : 'academy'
 
-  const partes = pathname.replace('/university-gravity/academy', '').split('/').filter(Boolean)
-  const produtoSlug = (partes[0] ?? null) as ProdutoSlug | null
-  const faseSlug = partes[1] ?? null
+  const academyPathSuffix = secao === 'academy'
+    ? pathname.replace(/^\/university-gravity(?:\/academy)?\/?/, '')
+    : ''
+  const partesAcademy = academyPathSuffix.split('/').filter(Boolean)
+  const produtoSlugBruto = (partesAcademy[0] ?? null) as ProdutoSlug | null
+  const produtoSlug = produtoSlugBruto && produtoSlugBruto in ICON_MAP ? produtoSlugBruto : null
+  const faseSlug = produtoSlug ? (partesAcademy[1] ?? null) : null
 
   const docsPathPartes = secao === 'docs'
     ? pathname.replace('/university-gravity/docs', '').split('/').filter(Boolean)
@@ -1552,22 +1557,31 @@ export function UniversityGravity() {
       : <IconComp weight="duotone" size={size} />
   }
 
+  const badgeEmBreve = { badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const }
+  const badgeAdminOnboarding = {
+    badge: t('university.badge.restrito'),
+    badgeSecundario: t('university.badge.em_breve'),
+    badgeVariant: 'muted' as const,
+  }
+
   const navItems = [
     {
       to: '/university-gravity/academy',
       label: t('university.nav.academy'),
       icon: <Books weight="duotone" size={18} />,
+      ...badgeEmBreve,
       children: [
-        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login') },
-        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
-        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador') },
-        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub') },
-        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store') },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read') },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete') },
-        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio') },
-        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo') },
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        ...badgeEmBreve },
+        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        ...badgeAdminOnboarding },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), ...badgeEmBreve },
+        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         ...badgeEmBreve },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          ...badgeEmBreve },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        ...badgeEmBreve },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       ...badgeEmBreve },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   ...badgeEmBreve },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    ...badgeEmBreve },
+        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   ...badgeEmBreve },
+        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     ...badgeEmBreve },
       ],
     },
     {
@@ -1577,25 +1591,25 @@ export function UniversityGravity() {
       children: [
         { to: '/university-gravity/docs/login',        label: t('university.produto.login'),        icon: produtoIconManual('login') },
         { to: '/university-gravity/docs/navegacao',    label: t('university.produto.navegacao'),    icon: produtoIconManual('navegacao') },
-        { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIconManual('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
+        { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIconManual('admin'),        ...badgeAdminOnboarding },
         {
           to: '/university-gravity/docs/configurador',
           label: t('university.produto.configurador'),
           icon: produtoIconManual('configurador'),
           children: CONFIGURADOR_MANUAL_ITENS.map(item => {
-            const badgePorCapitulo: Partial<Record<typeof item.pathSeg, { badge: string; badgeVariant: 'accent' }>> = {
-              workspaces: { badge: t('university.badge.nova_empresa'), badgeVariant: 'accent' },
-              usuarios: { badge: t('university.badge.convidar_usuario'), badgeVariant: 'accent' },
+            const badgeEmBreveCapitulo: Partial<Record<typeof item.pathSeg, typeof badgeEmBreve>> = {
+              'api-cockpit': badgeEmBreve,
+              historico: badgeEmBreve,
             }
-            const badge = badgePorCapitulo[item.pathSeg]
             return {
               to: `/university-gravity/docs/configurador/${item.pathSeg}`,
               label: item.label,
               icon: iconeConfiguradorManual(item.pathSeg, 16),
-              ...(badge ?? {}),
+              ...(badgeEmBreveCapitulo[item.pathSeg] ?? {}),
             }
           }),
         },
+        { to: '/university-gravity/docs/gabi',         label: t('university.produto.gabi'),         icon: produtoIconManual('gabi'),         ...badgeEmBreve },
         { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIconManual('hub') },
         { to: '/university-gravity/docs/store',        label: t('university.produto.store'),        icon: produtoIconManual('store') },
         { to: '/university-gravity/docs/pedido',       label: t('university.produto.pedido'),       icon: produtoIconManual('pedido') },
@@ -1606,7 +1620,7 @@ export function UniversityGravity() {
       ],
     },
     { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
-    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} /> },
+    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
   ]
 
   const tituloSecao = secao === 'docs'
@@ -1770,6 +1784,9 @@ export function UniversityGravity() {
             </span>
             <div style={UNI_ESTILO_PAGE_TITLES}>
               <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
+              {secao === 'academy' && !produtoSlug && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{t('university.academy.subtitulo')}</span>
+              )}
               {secao === 'docs' && docsProdutoSlug === 'login' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_LOGIN_SUBTITULO}</span>
               )}

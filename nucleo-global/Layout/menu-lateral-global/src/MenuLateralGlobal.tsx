@@ -32,8 +32,10 @@ export interface NavItem {
   icon: React.ReactNode
   children?: NavItem[]
   disabled?: boolean
-  /** Texto de badge exibido à direita do label (ex: "Contratar", "Em Breve") */
+  /** Texto de badge exibido abaixo do label (ex: "Contratar", "Em Breve") */
   badge?: string
+  /** Segundo badge abaixo do primeiro (ex: Admin com "Restrito" + "Em Breve") */
+  badgeSecundario?: string
   /** Cor do badge — padrão: accent para "Contratar", muted para "Em Breve" */
   badgeVariant?: 'accent' | 'muted'
   /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
@@ -275,6 +277,20 @@ export function MenuLateralGlobal({
     '--mlg-accent-border': `${moduleColor}33`,
   } as React.CSSProperties
 
+  const renderNavLabelWithBadges = (item: NavItem) => {
+    if (!item.badge) return <span className="mlg-nav-text">{item.label}</span>
+    const variantClass = item.badgeVariant === 'accent' ? 'mlg-nav-badge--accent' : 'mlg-nav-badge--muted'
+    return (
+      <div className="mlg-nav-content">
+        <span className="mlg-nav-text">{item.label}</span>
+        <span className={`mlg-nav-badge ${variantClass}`}>{item.badge}</span>
+        {item.badgeSecundario ? (
+          <span className="mlg-nav-badge mlg-nav-badge--muted">{item.badgeSecundario}</span>
+        ) : null}
+      </div>
+    )
+  }
+
   const renderNavItem = (item: NavItem, isSubmenu = false) => {
     // ── Divisor de seção ──
     if (item.sectionDivider) {
@@ -294,13 +310,14 @@ export function MenuLateralGlobal({
       return (
         <div key={item.label} className={`mlg-nav-group ${isExpanded ? 'active' : ''}`}>
           <button 
-            className={`mlg-nav-item mlg-nav-parent ${isExpanded ? 'expanded' : ''}`}
+            type="button"
+            className={`mlg-nav-item mlg-nav-parent ${isSubmenu ? 'mlg-submenu-item' : ''} ${isExpanded ? 'expanded' : ''}`}
             onClick={() => toggleSubmenu(item.label, isExpanded as boolean)}
           >
             <div className="mlg-nav-icon">{item.icon}</div>
             {!isCollapsed && (
               <>
-                <span className="mlg-nav-text">{item.label}</span>
+                {renderNavLabelWithBadges(item)}
                 <CaretDown className={`mlg-nav-chevron ${isExpanded ? 'open' : ''}`} size={14} weight="bold" />
               </>
             )}
@@ -319,19 +336,7 @@ export function MenuLateralGlobal({
       )
     }
 
-    // Conteúdo de texto (nome + badge opcional em coluna)
-    const textContent = !isCollapsed ? (
-      item.badge ? (
-        <div className="mlg-nav-content">
-          <span className="mlg-nav-text">{item.label}</span>
-          <span className={`mlg-nav-badge ${item.badgeVariant === 'accent' ? 'mlg-nav-badge--accent' : 'mlg-nav-badge--muted'}`}>
-            {item.badge}
-          </span>
-        </div>
-      ) : (
-        <span className="mlg-nav-text">{item.label}</span>
-      )
-    ) : null
+    const textContent = !isCollapsed ? renderNavLabelWithBadges(item) : null
 
     // Item normal (link) — navegação nativa via <a href> força reload completo (F5).
     // Evita race conditions de SPA entre Clerk/Zustand/API ao trocar de tela.

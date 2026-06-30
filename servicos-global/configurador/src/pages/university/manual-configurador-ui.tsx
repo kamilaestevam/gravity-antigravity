@@ -13,10 +13,12 @@ import {
   type ConfiguradorManualSlug,
   type DocTooltipKpi,
   type DocColunaTabela,
+  type DocFiguraAposParagrafo,
   type DocFluxo,
   type DocOrigemDados,
   type DocPassoVisual,
   type DocSecao,
+  type DocTopicoImagemLateral,
   metadadosConfiguradorPagina,
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
   secaoConfiguradorPorSlug,
@@ -24,6 +26,8 @@ import {
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
+import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
+import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
 
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
@@ -63,6 +67,7 @@ const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
 }
 
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
+  destaque: { bg: 'rgba(251,191,36,.1)', borda: 'rgba(251,191,36,.38)', label: 'Bom saber', cor: '#fbbf24' },
   aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso', cor: '#f87171' },
   exemplo: { bg: 'rgba(148,163,184,.08)', borda: 'rgba(148,163,184,.25)', label: 'Exemplo', cor: '#94a3b8' },
   dica: { bg: 'rgba(99,102,241,.08)', borda: 'rgba(129,140,248,.35)', label: 'Dica', cor: '#818cf8' },
@@ -297,7 +302,7 @@ function ManualFiguraScreenshot({
 }
 
 function ManualCalloutBloco({ callout, marginTop = 12 }: {
-  callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
   marginTop?: number
 }) {
   const c = CALLOUT_STYLE[callout.tipo]
@@ -389,11 +394,11 @@ function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
         >
           <p style={{
             fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
-            color: '#818cf8', margin: '0 0 4px',
+            color: '#818cf8', margin: '0 0 10px',
           }}>
             {tooltip.card}
           </p>
-          <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 6px' }}>
+          <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 10px' }}>
             Tooltip: {tooltip.tituloTooltip}
           </p>
           <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 8px', lineHeight: 1.45 }}>
@@ -413,7 +418,7 @@ function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
 function figurasAposParagrafoPasso(
   passo: DocPassoVisual,
   indice: number,
-): { imagem: string; legenda?: string }[] {
+): DocFiguraAposParagrafo[] {
   return (passo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
@@ -421,19 +426,31 @@ function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
   emGradeCenarios = false,
+  cenarioParte = 'completo',
 }: {
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
   emGradeCenarios?: boolean
+  /** Com grade lado a lado + imagens alinhadas: `texto` ou `figuras` em linhas separadas. */
+  cenarioParte?: 'completo' | 'texto' | 'figuras'
 }) {
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso
+  const omitirFigurasNoTexto = cenarioParte === 'texto'
   const blocoBase: React.CSSProperties = emGradeCenarios
-    ? { paddingTop: 0, marginTop: 18 }
+    ? { paddingTop: 0, marginTop: cenarioParte === 'figuras' ? 0 : 18 }
     : {
       paddingTop: passo.num === 1 ? 8 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
       borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
       marginTop: passo.num === 1 ? 18 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
     }
+
+  const calloutsLista = passo.dicaAoLadoImagem
+    ? []
+    : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
+
+  const blocoCallouts = calloutsLista.map((callout, i) => (
+    <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 0 : 8} />
+  ))
 
   const blocoTexto = (
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)', width: '100%', minWidth: 0 }}>
@@ -451,15 +468,17 @@ function ManualBlocoPassoVisual({
             texto={p}
             marginBottom={manualMargemParagrafo(i, passo.paragrafos.length)}
           />
-          {figurasAposParagrafoPasso(passo, i).map((fig) => (
-            <div key={fig.imagem} style={{ margin: '12px 0 16px' }}>
-              <ManualFiguraScreenshot
-                src={fig.imagem}
-                alt={fig.legenda ?? passo.titulo}
-                larguraMaxima={fig.larguraMaxima}
-              />
-            </div>
-          ))}
+          {omitirFigurasNoTexto
+            ? null
+            : figurasAposParagrafoPasso(passo, i).map((fig) => (
+              <div key={fig.imagem} style={{ margin: '12px 0 16px' }}>
+                <ManualFiguraScreenshot
+                  src={fig.imagem}
+                  alt={fig.legenda ?? passo.titulo}
+                  larguraMaxima={fig.larguraMaxima}
+                />
+              </div>
+            ))}
         </div>
       ))}
       {passo.linkCapitulo && (
@@ -469,15 +488,16 @@ function ManualBlocoPassoVisual({
           </Link>
         </p>
       )}
-      {passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
+      {passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && !passo.tooltipsKpiAposImagem && (
         <ManualTooltipsKpi tooltips={passo.tooltipsKpi} />
       )}
       {(passo.dicaAoLadoImagem
         ? (passo.callouts ?? [])
-        : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
+        : []
       ).map((callout, i) => (
         <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 12 : 8} />
       ))}
+      {!passo.calloutAoLadoTexto && blocoCallouts}
     </div>
   )
 
@@ -530,12 +550,47 @@ function ManualBlocoPassoVisual({
   ) : null
 
   if (passo.imagemAbaixoTexto && passo.imagem) {
+    const galeriaAbaixo = passo.galeriaTelas?.length ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+        gap: 14,
+        marginTop: 20,
+      }}>
+        {passo.galeriaTelas.map((tela) => (
+          <div key={tela.legenda}>
+            <p style={{
+              fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+              marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+            }}>{tela.legenda}</p>
+            <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+          </div>
+        ))}
+      </div>
+    ) : null
+
     return (
       <div style={blocoBase}>
-        {blocoTexto}
+        {passo.calloutAoLadoTexto && calloutsLista.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
+            gap: 20,
+            alignItems: 'center',
+          }}>
+            {blocoTexto}
+            <div>{blocoCallouts}</div>
+          </div>
+        ) : blocoTexto}
         <div style={{ marginTop: 20 }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
+        {passo.tooltipsKpiAposImagem && passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
+          <div style={{ marginTop: 20 }}>
+            <ManualTooltipsKpi tooltips={passo.tooltipsKpi} />
+          </div>
+        )}
+        {galeriaAbaixo}
         {gradeColunas}
       </div>
     )
@@ -614,6 +669,32 @@ function ManualBlocoPassoVisual({
           {blocoTexto}
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
+        {gradeColunas}
+      </div>
+    )
+  }
+
+  if (cenarioParte === 'figuras') {
+    const figuras = passo.figurasAposParagrafo ?? []
+    return (
+      <div style={blocoBase}>
+        {figuras.map((fig) => (
+          <div key={fig.imagem} style={{ margin: 0 }}>
+            <ManualFiguraScreenshot
+              src={fig.imagem}
+              alt={fig.legenda ?? passo.titulo}
+              larguraMaxima={fig.larguraMaxima}
+            />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (cenarioParte === 'texto' && !passo.imagem && !passo.galeriaComparacao?.length && !passo.galeriaTelas?.length) {
+    return (
+      <div style={blocoBase}>
+        {blocoTexto}
         {gradeColunas}
       </div>
     )
@@ -700,23 +781,72 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           <ManualInfograficoMenuLateral />
         </div>
       )}
-      {fluxo.modoCenarios && fluxo.cenariosLadoALado && fluxo.passosVisuais.length > 0 ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gap: 24,
-          alignItems: 'start',
-          marginTop: 18,
-        }}>
-          {fluxo.passosVisuais.map(passo => (
-            <ManualBlocoPassoVisual
-              key={passo.num}
-              passo={passo}
-              ocultarRotuloPasso
-              emGradeCenarios
-            />
-          ))}
+      {fluxo.mostrarInfograficoIconesMenuSuperior && !fluxo.infograficoIconesMenuSuperiorAposPassos && (
+        <div style={{ marginTop: 8, marginBottom: 4 }}>
+          <ManualInfograficoIconesMenuSuperior />
         </div>
+      )}
+      {fluxo.mostrarInfograficoTiposUsuario && (
+        <div style={{ marginTop: 12, marginBottom: 8 }}>
+          <ManualInfograficoTiposUsuario />
+        </div>
+      )}
+      {fluxo.modoCenarios && fluxo.cenariosLadoALado && fluxo.passosVisuais.length > 0 ? (
+        fluxo.cenariosImagensAlinhadas ? (
+          <>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: 24,
+              alignItems: 'start',
+              marginTop: 18,
+            }}>
+              {fluxo.passosVisuais.map(passo => (
+                <ManualBlocoPassoVisual
+                  key={`${passo.num}-texto`}
+                  passo={passo}
+                  ocultarRotuloPasso
+                  emGradeCenarios
+                  cenarioParte="texto"
+                />
+              ))}
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: 24,
+              alignItems: 'start',
+              marginTop: 16,
+            }}>
+              {fluxo.passosVisuais.map(passo => (
+                <ManualBlocoPassoVisual
+                  key={`${passo.num}-figuras`}
+                  passo={passo}
+                  ocultarRotuloPasso
+                  emGradeCenarios
+                  cenarioParte="figuras"
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: 24,
+            alignItems: 'start',
+            marginTop: 18,
+          }}>
+            {fluxo.passosVisuais.map(passo => (
+              <ManualBlocoPassoVisual
+                key={passo.num}
+                passo={passo}
+                ocultarRotuloPasso
+                emGradeCenarios
+              />
+            ))}
+          </div>
+        )
       ) : (
         fluxo.passosVisuais.map(passo => (
           <ManualBlocoPassoVisual
@@ -728,6 +858,11 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
       )}
       {fluxo.callout && fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
+      )}
+      {fluxo.mostrarInfograficoIconesMenuSuperior && fluxo.infograficoIconesMenuSuperiorAposPassos && (
+        <div style={{ marginTop: 20, marginBottom: 4 }}>
+          <ManualInfograficoIconesMenuSuperior />
+        </div>
       )}
     </>
   )
@@ -795,10 +930,131 @@ function figurasAposParagrafo(
   return (secao.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
+function galeriaComparacaoAposParagrafoSecao(secao: DocSecao, indice: number) {
+  return (secao.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
+}
+
+function ManualGaleriaComparacaoIntro({
+  telas,
+}: {
+  telas: { legenda: string; imagem: string }[]
+}) {
+  if (telas.length === 0) return null
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(${Math.min(telas.length, 2)}, minmax(0, 1fr))`,
+      gap: 16,
+      margin: '16px 0 22px',
+      alignItems: 'start',
+    }}>
+      {telas.map((tela) => (
+        <div key={tela.legenda}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+            marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
+          }}>
+            {tela.legenda}
+          </p>
+          <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ManualTopicoImagemLateralTexto({
+  topico,
+  indice,
+}: {
+  topico: DocTopicoImagemLateral
+  indice: number
+}) {
+  return (
+    <div style={{
+      padding: '2px 0 0 18px',
+      borderLeft: '3px solid rgba(99,102,241,.45)',
+      minWidth: 0,
+    }}>
+      <p style={{
+        ...MANUAL_ESTILO_PASSO_TITULO,
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 10,
+        marginBottom: 8,
+      }}>
+        <span style={{
+          fontSize: '.72rem', fontWeight: 800, color: '#818cf8', flexShrink: 0,
+        }}>
+          {String(indice + 1).padStart(2, '0')}
+        </span>
+        {topico.titulo}
+      </p>
+      <ManualParagrafo texto={topico.texto} marginBottom={0} />
+    </div>
+  )
+}
+
+function ManualTopicosImagemLateral({ topicos }: { topicos: DocTopicoImagemLateral[] }) {
+  if (topicos.length === 0) return null
+
+  if (topicos.length > 1) {
+    return (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
+        columnGap: 28,
+        rowGap: 28,
+        marginTop: 20,
+        alignItems: 'start',
+      }}>
+        {topicos.map((topico, i) => (
+          <React.Fragment key={topico.titulo}>
+            <div style={{ gridColumn: 1, gridRow: i + 1 }}>
+              <ManualTopicoImagemLateralTexto topico={topico} indice={i} />
+            </div>
+            <div style={{ gridColumn: 2, gridRow: i + 1, width: '100%', minWidth: 0 }}>
+              <ManualFiguraScreenshot
+                src={topico.imagem}
+                alt={topico.titulo}
+                larguraMaxima={topico.larguraMaxima}
+              />
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    )
+  }
+
+  const topico = topicos[0]
+  return (
+    <ul style={{
+      listStyle: 'none', margin: '20px 0 0', padding: 0,
+    }}>
+      <li>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
+          gap: 28,
+          alignItems: 'start',
+        }}>
+          <ManualTopicoImagemLateralTexto topico={topico} indice={0} />
+          <ManualFiguraScreenshot
+            src={topico.imagem}
+            alt={topico.titulo}
+            larguraMaxima={topico.larguraMaxima}
+          />
+        </div>
+      </li>
+    </ul>
+  )
+}
+
 function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
   return (
     <div style={{ padding: '4px 0 8px' }}>
-      {secao.layoutTextoImagemLateral && secao.imagem ? (
+      {secao.layoutTextoImagemLateral && (secao.imagem || secao.dicaAoLadoImagem) ? (
+        <>
         <div style={{
           display: 'grid',
           gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
@@ -822,13 +1078,36 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                     />
                   </div>
                 ))}
+                {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
+                  <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
+                ))}
+                {secao.calloutAposParagrafo?.indice === i && (
+                  <ManualCalloutBloco callout={secao.calloutAposParagrafo.callout} marginTop={12} />
+                )}
               </div>
             ))}
           </div>
-          <ManualFiguraScreenshot src={secao.imagem} alt={secao.titulo} />
+          {secao.dicaAoLadoImagem ? (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(200px, 34%) minmax(0, 1fr)',
+              gap: 20,
+              alignItems: 'start',
+            }}>
+              <ManualCalloutBloco callout={secao.dicaAoLadoImagem.callout} marginTop={0} />
+              <ManualFiguraScreenshot
+                src={secao.dicaAoLadoImagem.imagem}
+                alt={secao.dicaAoLadoImagem.legenda ?? secao.titulo}
+              />
+            </div>
+          ) : (
+            <ManualFiguraScreenshot src={secao.imagem!} alt={secao.titulo} />
+          )}
         </div>
-      ) : secao.mostrarInfograficoTiposUsuario ? (
-        <ManualIntroUsuarios />
+        {secao.topicosImagemLateral && secao.topicosImagemLateral.length > 0 && (
+          <ManualTopicosImagemLateral topicos={secao.topicosImagemLateral} />
+        )}
+        </>
       ) : (
         <>
           {secao.paragrafos.map((p, i) => (
@@ -850,8 +1129,18 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   />
                 </div>
               ))}
+              {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
+                <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
+              ))}
+              {secao.calloutAposParagrafo?.indice === i && (
+                <ManualCalloutBloco callout={secao.calloutAposParagrafo.callout} marginTop={12} />
+              )}
             </div>
           ))}
+
+          {secao.topicosImagemLateral && secao.topicosImagemLateral.length > 0 && (
+            <ManualTopicosImagemLateral topicos={secao.topicosImagemLateral} />
+          )}
 
           {secao.imagem && !secao.fluxos?.length && (
             <div style={{ marginTop: 20 }}>
@@ -878,13 +1167,6 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         </div>
       )}
 
-      {secao.mostrarInfograficoTiposUsuario && (
-        <div style={{ marginTop: 24, marginBottom: 8 }}>
-          <ManualInfograficoTiposUsuario />
-          <ManualTabelaComparativaTiposUsuario />
-        </div>
-      )}
-
       {secao.mostrarInfograficoFornecedoresComex && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoFornecedoresComex />
@@ -894,6 +1176,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.mostrarInfograficoHubTelas && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoHubTelas />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoMapaNavegacaoGravity && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoMapaNavegacaoGravity />
         </div>
       )}
 
@@ -973,6 +1261,9 @@ const INFO_WS: React.CSSProperties = {
   color: '#e2e8f0',
   fontSize: '.72rem',
   fontWeight: 500,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 }
 
 const INFO_ETAPA: React.CSSProperties = {
@@ -1141,6 +1432,21 @@ function ManualInfograficoOrganizacaoConta() {
 }
 
 export function ManualInfograficoOrganizacaoWorkspaces() {
+  const definicoesWorkspace = [
+    {
+      cor: '#818cf8',
+      bg: 'rgba(99,102,241,.08)',
+      borda: 'rgba(99,102,241,.22)',
+      rotulo: 'Matriz e filial do importador e exportador',
+    },
+    {
+      cor: '#34d399',
+      bg: 'rgba(52,211,153,.08)',
+      borda: 'rgba(52,211,153,.22)',
+      rotulo: 'Clientes importadores e exportadores de despachantes, agentes, etc.',
+    },
+  ] as const
+
   return (
     <div style={{
       background: 'rgba(148,163,184,.04)',
@@ -1148,6 +1454,58 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
       borderRadius: 16,
       padding: '22px 24px 26px',
     }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: '0 0 14px',
+      }}>
+        O que é um workspace
+      </p>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gap: 12,
+        marginBottom: 22,
+      }}>
+        {definicoesWorkspace.map((item) => (
+          <div
+            key={item.rotulo}
+            style={{
+              background: item.bg,
+              border: `1px solid ${item.borda}`,
+              borderRadius: 12,
+              padding: '14px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              gap: 8,
+            }}
+          >
+            <Buildings size={18} weight="duotone" style={{ color: item.cor, flexShrink: 0 }} />
+            <p style={{
+              margin: 0,
+              fontSize: '.78rem',
+              fontWeight: 600,
+              color: '#e2e8f0',
+              lineHeight: 1.45,
+            }}>
+              {item.rotulo}
+            </p>
+            <p style={{
+              margin: 0,
+              fontSize: '.72rem',
+              fontWeight: 800,
+              letterSpacing: '.06em',
+              textTransform: 'uppercase',
+              color: item.cor,
+            }}>
+              = Workspace
+            </p>
+          </div>
+        ))}
+      </div>
+
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: MANUAL_TIPO.meta, margin: '0 0 18px',
@@ -1176,15 +1534,23 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
               <div style={INFO_WS}>
                 <Buildings size={14} weight="duotone" style={{ marginBottom: 4, color: '#94a3b8' }} />
-                Workspace<br />Matriz SP
+                <div>
+                  Workspace
+                  <br />
+                  Matriz SP
+                </div>
               </div>
               <div style={INFO_WS}>
                 <Buildings size={14} weight="duotone" style={{ marginBottom: 4, color: '#94a3b8' }} />
-                Workspace<br />Filial RJ
+                <div>
+                  Workspace
+                  <br />
+                  Filial RJ
+                </div>
               </div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
-              Matriz e filiais que importam ou exportam: cada unidade opera com dados isolados.
+              Cada matriz ou filial que importa ou exporta é um workspace com dados isolados.
             </p>
           </div>
         </div>
@@ -1209,15 +1575,23 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
               <div style={INFO_WS}>
                 <Buildings size={14} weight="duotone" style={{ marginBottom: 4, color: '#94a3b8' }} />
-                Workspace<br />Importador A
+                <div>
+                  Workspace
+                  <br />
+                  Importador A
+                </div>
               </div>
               <div style={INFO_WS}>
                 <Buildings size={14} weight="duotone" style={{ marginBottom: 4, color: '#94a3b8' }} />
-                Workspace<br />Exportador B
+                <div>
+                  Workspace
+                  <br />
+                  Exportador B
+                </div>
               </div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
-              O despachante é a organização; cada cliente importador ou exportador vira um workspace separado.
+              Cada cliente importador ou exportador atendido vira um workspace separado.
             </p>
           </div>
         </div>
@@ -1345,138 +1719,6 @@ function ManualInfograficoFornecedoresComex() {
           <Handshake size={13} weight="duotone" /> Terceiro cadastrado em Fornecedores
         </span>
       </div>
-    </div>
-  )
-}
-
-function ManualIntroUsuarios() {
-  const [hoverMaster, setHoverMaster] = useState(false)
-  const [hoverRestrito, setHoverRestrito] = useState(false)
-
-  const cardBase: React.CSSProperties = {
-    borderRadius: 14,
-    padding: '18px 20px',
-    transition: 'transform .22s ease, box-shadow .22s ease, border-color .22s ease',
-  }
-
-  const itemLista: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 8,
-    fontSize: '.78rem',
-    color: MANUAL_CORPO_70,
-    lineHeight: 1.5,
-    margin: 0,
-  }
-
-  return (
-    <div style={{ marginBottom: 4 }}>
-      <p style={{ ...MANUAL_ESTILO_CORPO, margin: '0 0 18px', maxWidth: 640 }}>
-        Em Configurador → Usuários você convida pessoas e define a patente de cada uma.
-        No Gravity existem três tipos de usuário com acessos e permissões diferentes: Master, Standard e Fornecedor.
-        Veja o resumo:
-      </p>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: 14,
-        marginBottom: 6,
-      }}>
-        <div
-          onMouseEnter={() => setHoverMaster(true)}
-          onMouseLeave={() => setHoverMaster(false)}
-          style={{
-            ...cardBase,
-            background: 'linear-gradient(145deg, rgba(251,191,36,.12) 0%, rgba(251,191,36,.04) 100%)',
-            border: `1px solid ${hoverMaster ? 'rgba(251,191,36,.55)' : 'rgba(251,191,36,.28)'}`,
-            boxShadow: hoverMaster ? '0 12px 32px rgba(251,191,36,.12)' : '0 4px 16px rgba(0,0,0,.12)',
-            transform: hoverMaster ? 'translateY(-2px)' : 'none',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <span style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'rgba(251,191,36,.18)', border: '1px solid rgba(251,191,36,.35)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Crown size={20} weight="duotone" color="#fbbf24" />
-            </span>
-            <div>
-              <p style={{ margin: 0, fontWeight: 800, fontSize: '.92rem', color: '#fde68a' }}>Master</p>
-              <p style={{ margin: '2px 0 0', fontSize: '.68rem', color: MANUAL_CORPO_70 }}>Administrador da Empresa e todos os Workspaces</p>
-            </div>
-          </div>
-          <p style={{ ...itemLista, marginBottom: 8 }}>
-            <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
-            Acesso total: organização, workspaces e Produtos Gravity
-          </p>
-          <p style={itemLista}>
-            <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
-            Sem marcação de workspace ou permissão granular
-          </p>
-        </div>
-
-        <div
-          onMouseEnter={() => setHoverRestrito(true)}
-          onMouseLeave={() => setHoverRestrito(false)}
-          style={{
-            ...cardBase,
-            background: 'linear-gradient(145deg, rgba(99,102,241,.1) 0%, rgba(52,211,153,.05) 100%)',
-            border: `1px solid ${hoverRestrito ? 'rgba(129,140,248,.45)' : 'rgba(99,102,241,.22)'}`,
-            boxShadow: hoverRestrito ? '0 12px 32px rgba(99,102,241,.14)' : '0 4px 16px rgba(0,0,0,.12)',
-            transform: hoverRestrito ? 'translateY(-2px)' : 'none',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <span style={{ display: 'flex', gap: 4 }}>
-              <span style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: 'rgba(99,102,241,.15)', border: '1px solid rgba(129,140,248,.3)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <User size={16} weight="duotone" color="#818cf8" />
-              </span>
-              <span style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: 'rgba(52,211,153,.12)', border: '1px solid rgba(52,211,153,.28)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Handshake size={16} weight="duotone" color="#34d399" />
-              </span>
-            </span>
-            <div>
-              <p style={{ margin: 0, fontWeight: 800, fontSize: '.92rem', color: '#e2e8f0' }}>Standard e Fornecedor</p>
-              <p style={{ margin: '2px 0 0', fontSize: '.68rem', color: MANUAL_CORPO_70 }}>Acesso definido pelo Master</p>
-            </div>
-          </div>
-          <p style={{ ...itemLista, marginBottom: 6 }}>
-            <span style={{
-              flexShrink: 0, width: 18, height: 18, borderRadius: 999,
-              background: 'rgba(99,102,241,.2)', color: '#a5b4fc',
-              fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>1</span>
-            <span><strong style={{ color: '#c7d2fe' }}>Workspaces</strong>: quais unidades pode entrar (sim ou não por filial/cliente)</span>
-          </p>
-          <p style={itemLista}>
-            <span style={{
-              flexShrink: 0, width: 18, height: 18, borderRadius: 999,
-              background: 'rgba(52,211,153,.18)', color: '#6ee7b7',
-              fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>2</span>
-            <span><strong style={{ color: '#a7f3d0' }}>Permissões</strong>: dentro de cada produto, o que pode Ver e Editar</span>
-          </p>
-        </div>
-      </div>
-
-      <p style={{
-        fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '14px 0 0', lineHeight: 1.55,
-        padding: '10px 14px', borderRadius: 10,
-        background: 'rgba(148,163,184,.05)', border: '1px dashed rgba(148,163,184,.18)',
-      }}>
-        Sem workspace marcado, a pessoa não opera naquela unidade: mesmo com permissão de produto.
-        Nos fluxos abaixo: convidar, permissões, workspaces e ativar/desativar.
-      </p>
     </div>
   )
 }
@@ -1971,22 +2213,21 @@ function ManualInfograficoTiposUsuario() {
   ] as const
 
   return (
-    <div style={{
-      background: 'rgba(148,163,184,.04)',
-      border: '1px solid rgba(148,163,184,.14)',
-      borderRadius: 16,
-      padding: '22px 24px 26px',
-    }}>
-      <ManualCamadaAcessoFluxo />
-
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{
+        background: 'rgba(148,163,184,.04)',
+        border: '1px solid rgba(148,163,184,.14)',
+        borderRadius: 16,
+        padding: '22px 24px 26px',
       }}>
-        Tipos de usuário na organização
-      </p>
+        <p style={{
+          fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+          color: MANUAL_TIPO.meta, margin: '0 0 18px',
+        }}>
+          Tipos de usuário na organização
+        </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
         <div style={{
           background: 'rgba(251,191,36,.05)',
           border: '1px solid rgba(251,191,36,.18)',
@@ -2014,11 +2255,19 @@ function ManualInfograficoTiposUsuario() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
               <div style={INFO_WS}>
                 <User size={14} weight="duotone" style={{ marginBottom: 4, color: '#818cf8' }} />
-                Standard<br />Equipe interna
+                <div>
+                  Standard
+                  <br />
+                  Equipe interna
+                </div>
               </div>
               <div style={INFO_WS}>
                 <Handshake size={14} weight="duotone" style={{ marginBottom: 4, color: '#34d399' }} />
-                Fornecedor<br />Parceiro externo
+                <div>
+                  Fornecedor
+                  <br />
+                  Parceiro externo
+                </div>
               </div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
@@ -2083,11 +2332,14 @@ function ManualInfograficoTiposUsuario() {
         </div>
       </div>
 
-      <ManualBlocoFornecedorInteracao />
+        <ManualTabelaComparativaTiposUsuario />
+      </div>
 
       <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 16, paddingTop: 12,
-        borderTop: '1px dashed rgba(148,163,184,.15)',
+        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', padding: '12px 16px',
+        borderRadius: 14,
+        background: 'rgba(148,163,184,.04)',
+        border: '1px dashed rgba(148,163,184,.15)',
       }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#818cf8' }}>
           <Buildings size={13} weight="duotone" /> 1ª camada: workspaces habilitados
@@ -2099,6 +2351,15 @@ function ManualInfograficoTiposUsuario() {
           <Crown size={13} weight="duotone" /> Master = sem camadas, acesso total
         </span>
       </div>
+
+      <ManualParagrafo
+        texto="O **Master** configura cada **Standard** e **Fornecedor** em três passos: quais **workspaces** a pessoa acessa, quais **permissões** (telas e ações) tem nesses ambientes e qual ou quais **produtos Gravity** ficam liberados."
+        marginBottom={0}
+      />
+
+      <ManualBlocoFornecedorInteracao />
+
+      <ManualCamadaAcessoFluxo />
     </div>
   )
 }
@@ -2274,18 +2535,18 @@ function ManualTabelaComparativaTiposUsuario() {
 const COMPARATIVO_ORG_WS: { criterio: string; organizacao: string; workspace: string }[] = [
   {
     criterio: 'O que é',
-    organizacao: 'Empresa que contrata o Gravity (tenant da conta)',
-    workspace: 'Unidade operacional: pode ser importador, exportador, filial ou cliente',
+    organizacao: 'Empresa que contrata o Gravity',
+    workspace: 'Matriz e filial do importador/exportador, ou cliente de despachante e agente',
   },
   {
     criterio: 'Quantidade',
     organizacao: 'Uma por contrato / conta Gravity',
-    workspace: 'Uma ou várias por organização',
+    workspace: 'Uma ou várias por organização — o usuário Master decide quantas criar',
   },
   {
     criterio: 'Como nasce',
-    organizacao: 'Signup + onboarding (nome e CNPJ)',
-    workspace: 'Configurador → Workspaces (criação manual)',
+    organizacao: 'Primeiro acesso do usuário Master: no onboarding, informa nome da empresa e CNPJ',
+    workspace: 'Usuário Master cria novo workspace em Configurador → Workspaces',
   },
   {
     criterio: 'Identidade legal',
@@ -2429,13 +2690,16 @@ export interface DocManualMetadado {
 export function DocManualUmaSecao({
   secao,
   metadados,
+  secoesAbertasInicial,
 }: {
   secao: DocSecao
   metadados: DocManualMetadado[]
+  /** Seções expandidas ao carregar (padrão: só a intro §01). */
+  secoesAbertasInicial?: number[]
 }) {
   const itensSumario = montarItensSumario(secao)
   const todosNums = itensSumario.map(i => i.num)
-  const [abertos, setAbertos] = useState<number[]>([1])
+  const [abertos, setAbertos] = useState<number[]>(secoesAbertasInicial ?? [1])
   const todosAbertos = todosNums.length > 0 && todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
@@ -2626,4 +2890,4 @@ export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: Configurador
   return <DocManualUmaSecao secao={secao} metadados={metadados} />
 }
 
-export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi, DocColunaTabela }
+export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi, DocColunaTabela, DocTopicoImagemLateral }

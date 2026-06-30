@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { bidFreteQueryClient } from './shared/bid-frete-query-client'
-import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
+import { useShellStore, ToastContainer, useMeSync, urlCriarWorkspace, urlGerenciarWorkspaces } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
@@ -352,8 +352,8 @@ function AppInner() {
         definirEscopoWorkspaces([id])
         window.location.reload()
       }}
-      onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
-      onManageWorkspace={() => { window.location.href = '/configurador/workspace' }}
+      onCreateWorkspace={() => { window.location.href = urlCriarWorkspace('5181') }}
+      onManageWorkspace={() => { window.location.href = urlGerenciarWorkspaces('5181') }}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}

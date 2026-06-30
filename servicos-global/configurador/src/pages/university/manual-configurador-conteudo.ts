@@ -34,8 +34,8 @@ export interface DocPassoVisual {
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
-  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }[]
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }[]
   tooltipsKpi?: DocTooltipKpi[]
   galeriaTelas?: { legenda: string; imagem: string }[]
   linkCapitulo?: { texto: string; href: string }
@@ -45,9 +45,13 @@ export interface DocPassoVisual {
   galeriaComparacao?: { legenda: string; imagem: string }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
   imagemAbaixoTexto?: boolean
+  /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
+  tooltipsKpiAposImagem?: boolean
+  /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
+  calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
   dicaAoLadoImagem?: {
-    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
     imagem: string
     legenda?: string
   }
@@ -80,11 +84,19 @@ export interface DocFluxo {
   mostrarInfograficoPapeisFornecedor?: boolean
   /** Manual Navegação §03 — mapa Hub/Store × produto × Configurador. */
   mostrarInfograficoMenuLateral?: boolean
+  /** Manual Navegação §02 — barra de referência + grade dos 8 atalhos do menu superior. */
+  mostrarInfograficoIconesMenuSuperior?: boolean
+  /** Com `mostrarInfograficoIconesMenuSuperior`, renderiza o infográfico após os passos visuais. */
+  infograficoIconesMenuSuperiorAposPassos?: boolean
+  /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
+  mostrarInfograficoTiposUsuario?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
   cenariosLadoALado?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  /** Com `cenariosLadoALado`, textos em cima e figuras alinhadas na linha de baixo. */
+  cenariosImagensAlinhadas?: boolean
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
   /** Exibe o callout do fluxo depois dos passos visuais (ex.: Dica abaixo de screenshot). */
   calloutAposPassos?: boolean
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
@@ -107,9 +119,34 @@ export interface DocSecao {
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
   mostrarInfograficoHubTelas?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
+  mostrarInfograficoMapaNavegacaoGravity?: boolean
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  /** Dica/aviso logo após o parágrafo de índice `indice` (só em layout texto+imagem lateral). */
+  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string } }
+  /** Dica compacta à esquerda e screenshot à direita (intro com layout lateral). */
+  dicaAoLadoImagem?: {
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+    imagem: string
+    legenda?: string
+  }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
+  /** Duas ou mais figuras lado a lado após um parágrafo (ex.: menu superior × menu lateral). */
+  galeriaComparacaoAposParagrafo?: {
+    indice: number
+    telas: { legenda: string; imagem: string }[]
+  }[]
+  /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
+  topicosImagemLateral?: DocTopicoImagemLateral[]
+}
+
+export interface DocTopicoImagemLateral {
+  titulo: string
+  texto: string
+  imagem: string
+  /** Recorte estreito ou sidebar — evita esticar na coluna direita. */
+  larguraMaxima?: number
 }
 
 const DOCS_BASE = '/university-gravity/docs/configurador'
@@ -632,34 +669,36 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-workspaces-acesso-tela.png',
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
-      '**Workspaces** são as unidades operacionais da organização: Filial do importador/exportador, empresa do grupo ou cliente atendido por um despachante.',
-      'No **Configurador → Workspaces** você cria, edita, ativa ou suspende ambientes. Usuários **Standard** e **Fornecedor** só enxergam os workspaces aos quais foram vinculados.',
+      '**Workspaces** são as unidades operacionais da organização — cada unidade opera com dados, usuários e registros isolados.',
     ],
-    lista: [
-      '**Criar**: Cadastrar nova filial ou cliente com nome e subdomínio',
-      '**Editar**: Ajustar CNPJ e dados da unidade operacional',
-      '**Ativar / Suspender**: Liberar ou bloquear acesso sem apagar o cadastro',
-    ],
+    calloutAposParagrafo: {
+      indice: 0,
+      callout: {
+        tipo: 'dica',
+        texto: 'Usuários **Standard** e **Fornecedor** só enxergam os workspaces aos quais foram vinculados.',
+      },
+    },
     callout: {
       tipo: 'dica',
       texto: 'O **CNPJ do workspace** identifica a empresa que concentra pedidos, processos e cotações daquela unidade.',
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar workspaces',
+        titulo: 'Acessar workspaces',
+        tituloSumario: 'Acessar workspaces',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Workspaces.',
         ],
         passosVisuais: passosComAcessoPadrao(
           'Workspaces',
-          [],
-          '/university/screenshots/configurador-workspaces-acesso-tela.png',
-          true,
-          undefined,
-          {
+          [{
+            titulo: 'Tela de Workspaces',
+            imagem: '/university/screenshots/configurador-workspaces-cards-selecao.png',
+            imagemAbaixoTexto: true,
+            tooltipsKpiAposImagem: true,
             paragrafos: [
-              'No menu lateral do Configurador, clique em Workspaces. A tela abre com a listagem e os três cards de resumo no topo.',
-              'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
+              'A tela abre com a listagem de workspaces e os três cards de resumo no topo.',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
             ],
             tooltipsKpi: WORKSPACES_TOOLTIPS_KPI,
             galeriaTelas: [
@@ -667,15 +706,17 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               { legenda: '2 · Workspaces Ativos', imagem: '/university/screenshots/configurador-workspaces-cards-tooltip-2.png' },
               { legenda: '3 · Status dos Workspaces', imagem: '/university/screenshots/configurador-workspaces-cards-tooltip-3.png' },
             ],
-          },
+          }],
+          '/university/screenshots/configurador-workspaces-acesso-tela.png',
+          true,
+          [
+            'No menu lateral do Configurador, clique em **Workspaces**, como indicado pela seta na imagem.',
+          ],
         ),
       },
       {
-        titulo: 'Fluxo 2: Criar workspace',
+        titulo: 'Criar workspace',
         tituloSumario: 'Criar workspace',
-        paragrafos: [
-          'Na tela de Workspaces você cadastra filiais ou clientes como novas unidades operacionais da organização.',
-        ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Iniciar criação de workspace',
@@ -687,7 +728,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             titulo: 'Preencher e salvar o novo workspace',
             paragrafos: [
-              'Informe nome, subdomínio e demais campos obrigatórios. Após salvar, o workspace aparece na listagem pronto para ativação.',
+              'Informe nome e demais campos obrigatórios. Após salvar, o workspace aparece na listagem pronto para ativação.',
             ],
             galeriaTelas: [
               { legenda: '1 · Modal vazio', imagem: '/university/screenshots/configurador-workspaces-novo-modal.png' },
@@ -698,28 +739,35 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3: Editar workspace',
+        titulo: 'Editar workspace',
         tituloSumario: 'Editar workspace',
         paragrafos: [
-          'Altere nome, subdomínio ou demais dados de um workspace já cadastrado.',
+          'Altere nome ou demais dados de um workspace já cadastrado.',
         ],
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Editar um workspace existente',
+            titulo: 'Abrir edição do workspace',
+            imagem: '/university/screenshots/configurador-workspaces-editar-seta.png',
+            paragrafos: [
+              'Na tela de Workspaces, clique no ícone **Editar** no card do workspace, como indicado pela seta na imagem.',
+            ],
+          },
+          {
+            titulo: 'Editar dados no modal',
             imagem: '/university/screenshots/configurador-workspaces-modal-editar.png',
             paragrafos: [
-              'Use a ação Editar no card do workspace para alterar nome, subdomínio ou demais dados. As mudanças refletem imediatamente no seletor de workspace do Hub.',
-              'No modal, preencha o CNPJ da unidade operacional com atenção: Ele identifica a empresa que concentra os registros do workspace na plataforma.',
+              'No modal, altere nome ou demais dados do workspace. As mudanças refletem imediatamente no seletor de workspace do Hub.',
+              'Preencha o **CNPJ** da unidade operacional com atenção: Ele identifica a empresa que concentra os registros do workspace na plataforma.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'O CNPJ do workspace é muito importante. Ele representa a empresa principal daquela unidade: É sobre ela que serão emitidos pedidos, processos, cotações de frete, DUIMP e demais operações COMEX vinculadas ao workspace.',
+              texto: 'O **CNPJ do workspace** é muito importante. Ele representa a empresa principal daquela unidade: É sobre ela que serão emitidos pedidos, processos, cotações de frete, DUIMP e demais operações COMEX vinculadas ao workspace.',
             },
           },
         ]),
       },
       {
-        titulo: 'Fluxo 4: Ativar e suspender workspace',
+        titulo: 'Ativar e suspender workspace',
         tituloSumario: 'Ativar e suspender workspace',
         paragrafos: [
           'Controle o acesso operacional de cada workspace sem apagá-lo. Ativar libera o ambiente para usuários vinculados; suspender bloqueia temporariamente.',
@@ -756,7 +804,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5: Excluir workspace',
+        titulo: 'Excluir workspace',
         tituloSumario: 'Excluir workspace',
         paragrafos: [
           'Remova permanentemente um workspace que não será mais utilizado. A operação é irreversível: Use apenas quando não houver dados operacionais a preservar.',
@@ -792,23 +840,34 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     titulo: 'Usuários',
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-usuarios-tela.png',
-    mostrarInfograficoTiposUsuario: true,
     paragrafos: [
-      '**Usuários** concentra convites, patentes e permissões: Quem acessa a organização, quais produtos cada pessoa opera e em quais workspaces.',
-      '**Master** convida e gerencia todos os cadastros. **Standard** e **Fornecedor** seguem as permissões e workspaces definidos pelo administrador.',
+      '**Usuários** é a tela do **Configurador** onde você gerencia quem acessa a organização: convites, edições de cadastro, permissões por produto e vínculo com **workspaces**.',
+      'Na listagem aparecem nome, e-mail, tipo de usuário, status e workspaces habilitados de cada pessoa. Os fluxos seguintes mostram como convidar, liberar acesso e desativar cadastros.',
     ],
-    lista: [
-      '**Master**: Acesso total à organização e ao Configurador',
-      '**Standard**: Opera produtos conforme permissões e workspaces vinculados',
-      '**Fornecedor**: Parceiro externo com acesso restrito (ex.: Cotar frete)',
-    ],
+    calloutAposParagrafo: {
+      indice: 1,
+      callout: {
+        tipo: 'dica',
+        texto: 'Somente **Master** convida pessoas e altera patentes, permissões e workspaces de outros usuários.',
+      },
+    },
     callout: {
       tipo: 'aviso',
       texto: 'Usuários não são excluídos da plataforma. Para bloquear acesso, **desative** o cadastro e preserve o histórico de auditoria.',
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar usuários',
+        titulo: 'Tipos de usuário',
+        tituloSumario: 'Tipos de usuário',
+        mostrarInfograficoTiposUsuario: true,
+        paragrafos: [
+          'No Gravity existem três patentes na organização: **Master**, **Standard** e **Fornecedor**. A patente define quanto da plataforma cada pessoa pode ver e operar.',
+          '**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: workspaces habilitados e permissões granulares em cada produto.',
+        ],
+        passosVisuais: [],
+      },
+      {
+        titulo: 'Acessar usuários',
         tituloSumario: 'Acessar usuários',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Usuários.'],
         passosVisuais: passosComAcessoPadrao(
@@ -825,7 +884,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2: Convidar usuário',
+        titulo: 'Convidar usuário',
         tituloSumario: 'Convidar usuário',
         paragrafos: [
           'Envie um convite por e-mail para incluir Master, Standard ou Fornecedor na organização. O convidado completa o cadastro pelo link recebido.',
@@ -867,7 +926,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3: Permissões do usuário',
+        titulo: 'Permissões do usuário',
         tituloSumario: 'Permissões do usuário',
         mostrarInfograficoPermissoesUsuario: true,
         paragrafos: [
@@ -914,7 +973,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 4: Workspaces do usuário',
+        titulo: 'Workspaces do usuário',
         tituloSumario: 'Workspaces do usuário',
         paragrafos: [
           'Vincule Standard e Fornecedor aos workspaces em que poderão operar. Master acessa todos automaticamente, sem marcação individual.',
@@ -955,7 +1014,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5: Desativar e ativar usuário',
+        titulo: 'Desativar e ativar usuário',
         tituloSumario: 'Desativar e ativar usuário',
         paragrafos: [
           'Suspenda quem não deve mais entrar na plataforma, reative quando necessário ou gerencie convites ainda pendentes.',

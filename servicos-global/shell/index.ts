@@ -49,6 +49,7 @@ export {
   resolverSlugMetaProduto,
   slugsProdutoEquivalentes,
 } from './utils/resolver-rota-produto'
+export { urlCriarWorkspace, urlGerenciarWorkspaces } from './utils/urls-deep-link-configurador-workspace'
 export type {
   ShellState,
   CurrentUser,

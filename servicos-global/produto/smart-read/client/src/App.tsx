@@ -7,7 +7,7 @@
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useShellStore, ToastContainer, useMeSync, TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
+import { useShellStore, ToastContainer, useMeSync, TelaProdutoComOrganizacaoOverride, urlCriarWorkspace, urlGerenciarWorkspaces } from '@gravity/shell'
 import { useClerk } from '@clerk/clerk-react'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import {
@@ -193,8 +193,8 @@ export default function App() {
         if (ws) sessionStorage.setItem('gravity_company_name', ws.nome_workspace)
         window.location.reload()
       }}
-      onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
-      onManageWorkspace={() => { window.location.href = '/configurador/workspace' }}
+      onCreateWorkspace={() => { window.location.href = urlCriarWorkspace('5185') }}
+      onManageWorkspace={() => { window.location.href = urlGerenciarWorkspaces('5185') }}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}

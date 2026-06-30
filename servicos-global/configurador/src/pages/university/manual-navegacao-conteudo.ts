@@ -8,8 +8,6 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
  */
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO =
   '/university/screenshots/navegacao-menu-superior-visao-geral.png'
-export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_ICONES_DIREITA =
-  '/university/screenshots/navegacao-menu-superior-icones-direita.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR =
   '/university/screenshots/navegacao-menu-superior-icone-localizar.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY =
@@ -25,6 +23,9 @@ export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_CONFIGURADOR =
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_USUARIO =
   '/university/screenshots/navegacao-menu-superior-menu-usuario.png'
 
+export const SCREENSHOT_NAVEGACAO_INTRO_MENU_LATERAL =
+  '/university/screenshots/navegacao-intro-exemplo-menu-lateral.png'
+
 export const SCREENSHOT_NAVEGACAO_SHELL_VISAO =
   '/university/screenshots/navegacao-shell-produto-visao-geral.png'
 export const SCREENSHOT_NAVEGACAO_SHELL_TROCA_PRODUTO =
@@ -34,21 +35,10 @@ export const SCREENSHOT_NAVEGACAO_SHELL_MODULOS =
 export const SCREENSHOT_NAVEGACAO_SHELL_MENU_RECOLHIDO =
   '/university/screenshots/navegacao-shell-menu-recolhido.png'
 
-export const SCREENSHOT_NAVEGACAO_UNIVERSITY_SIDEBAR =
-  '/university/screenshots/navegacao-university-sidebar-completa.png'
+export const SCREENSHOT_NAVEGACAO_UNIVERSITY_ONBOARDING =
+  '/university/screenshots/navegacao-university-onboarding.png'
 export const SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS =
   '/university/screenshots/navegacao-university-manuais-videos.png'
-export const SCREENSHOT_NAVEGACAO_UNIVERSITY_CONFIGURADOR_SUB =
-  '/university/screenshots/navegacao-university-submenu-configurador.png'
-export const SCREENSHOT_NAVEGACAO_UNIVERSITY_ACADEMY_DOCS =
-  '/university/screenshots/navegacao-university-academy-vs-docs.png'
-
-export const SCREENSHOT_NAVEGACAO_ATALHOS_MAPA =
-  '/university/screenshots/navegacao-atalhos-mapa-global.png'
-export const SCREENSHOT_NAVEGACAO_ATALHOS_HUB =
-  '/university/screenshots/navegacao-atalhos-voltar-hub.png'
-export const SCREENSHOT_NAVEGACAO_ATALHOS_STORE_CONFIG =
-  '/university/screenshots/navegacao-atalhos-store-configurador.png'
 
 /** Reutiliza prints já publicados no manual Hub / Configurador */
 export const SCREENSHOT_NAVEGACAO_HUB_SEM_MENU_LATERAL =
@@ -63,11 +53,25 @@ export const SCREENSHOT_NAVEGACAO_STORE_SEM_MENU_LATERAL =
   '/university/screenshots/navegacao-store-sem-menu-lateral.png'
 export const SCREENSHOT_NAVEGACAO_PRODUTO_COM_MENU_LATERAL =
   '/university/screenshots/navegacao-produto-menu-lateral-exemplo.png'
+export const SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_NOME_PRODUTO =
+  '/university/screenshots/navegacao-menu-lateral-seta-nome-produto.png'
+export const SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_PRODUTO_ABERTO =
+  '/university/screenshots/navegacao-menu-lateral-troca-produto-aberto.png'
+export const SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_WORKSPACES =
+  '/university/screenshots/navegacao-menu-lateral-seta-workspaces.png'
+export const SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_WORKSPACE_ABERTO =
+  '/university/screenshots/navegacao-menu-lateral-troca-workspace-aberto.png'
+export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_SUPERIOR =
+  '/university/screenshots/navegacao-menu-superior-acesso-configurador.png'
+export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_USUARIO =
+  '/university/screenshots/configurador-hub-acesso-configurador.png'
+export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_OPCAO_MENU =
+  '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 
 /** Checklist para o dono — nomes dos arquivos PNG esperados em `public/university/screenshots/`. */
 export const NAVEGACAO_PRINTS_CHECKLIST = [
   'navegacao-menu-superior-visao-geral.png',
-  'navegacao-menu-superior-icones-direita.png',
+  'navegacao-intro-exemplo-menu-lateral.png',
   'navegacao-menu-superior-icone-localizar.png',
   'navegacao-menu-superior-icone-university.png',
   'navegacao-menu-superior-icone-notificacoes.png',
@@ -79,23 +83,102 @@ export const NAVEGACAO_PRINTS_CHECKLIST = [
   'navegacao-shell-troca-produto.png',
   'navegacao-shell-modulos-produto.png',
   'navegacao-shell-menu-recolhido.png',
-  'navegacao-university-sidebar-completa.png',
+  'navegacao-university-onboarding.png',
   'navegacao-university-manuais-videos.png',
-  'navegacao-university-submenu-configurador.png',
-  'navegacao-university-academy-vs-docs.png',
-  'navegacao-atalhos-mapa-global.png',
-  'navegacao-atalhos-voltar-hub.png',
-  'navegacao-atalhos-store-configurador.png',
-  'navegacao-store-sem-menu-lateral.png',
+  'navegacao-menu-superior-acesso-configurador.png',
   'navegacao-produto-menu-lateral-exemplo.png',
+  'navegacao-menu-lateral-seta-nome-produto.png',
+  'navegacao-menu-lateral-troca-produto-aberto.png',
+  'navegacao-menu-lateral-seta-workspaces.png',
+  'navegacao-menu-lateral-troca-workspace-aberto.png',
 ] as const
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
 
+export type IconeMenuSuperiorSlug =
+  | 'hub'
+  | 'localizar'
+  | 'university'
+  | 'notificacoes'
+  | 'tooltip'
+  | 'idioma'
+  | 'configurador'
+  | 'usuario'
+
+export interface IconeMenuSuperiorManual {
+  ordem: number
+  slug: IconeMenuSuperiorSlug
+  titulo: string
+  resumo: string
+  detalhe?: string
+  dica?: string
+}
+
+/** SSOT — textos dos 8 atalhos do menu superior à direita (infográfico §03). */
+export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
+  {
+    ordem: 1,
+    slug: 'hub',
+    titulo: 'Hub',
+    resumo: 'Volta à tela principal da plataforma a partir de qualquer módulo aberto.',
+    detalhe: 'No Hub você escolhe produtos, acessa a Store e retoma o centro da operação. O botão some quando você já está no Hub.',
+  },
+  {
+    ordem: 2,
+    slug: 'localizar',
+    titulo: 'Localizar',
+    resumo: 'Busca e filtra o conteúdo da tela atual — listas, registros e campos visíveis.',
+    detalhe: 'Clique na lupa, digite o termo e use Esc ou × para fechar sem sair da página.',
+  },
+  {
+    ordem: 3,
+    slug: 'university',
+    titulo: 'Gravity University',
+    resumo: 'Atalho para manuais, trilhas de onboarding e documentação por produto.',
+    detalhe: 'Este manual está em Manuais e Vídeos → Navegação dentro da University.',
+  },
+  {
+    ordem: 4,
+    slug: 'notificacoes',
+    titulo: 'Notificações',
+    resumo: 'Quadro de avisos, alertas e pendências da organização nos produtos contratados.',
+    detalhe: 'O ponto laranja no sininho indica itens não lidos ou novas mensagens.',
+  },
+  {
+    ordem: 5,
+    slug: 'tooltip',
+    titulo: 'Tooltip',
+    resumo: 'Liga ou desliga as dicas que aparecem ao passar o mouse na interface.',
+    detalhe: 'Ícone preenchido em azul = dicas ativas; contorno cinza = desativadas.',
+    dica: 'Controla os tooltips globalmente — vale para Hub, produtos, Store e Configurador.',
+  },
+  {
+    ordem: 6,
+    slug: 'idioma',
+    titulo: 'Idioma',
+    resumo: 'Troca a interface entre português, inglês e espanhol com um clique.',
+    detalhe: 'A sigla no botão (ex.: BR) mostra o idioma ativo na sessão.',
+  },
+  {
+    ordem: 7,
+    slug: 'configurador',
+    titulo: 'Atalho ao Configurador',
+    resumo: 'Abre a gestão da organização: workspaces, usuários, assinaturas e financeiro.',
+    detalhe: 'Caminho direto para configurar a conta sem passar pelo menu do usuário.',
+  },
+  {
+    ordem: 8,
+    slug: 'usuario',
+    titulo: 'Menu via usuário',
+    resumo: 'Perfil, tema claro/escuro, Gravity Store, Configurador e encerrar sessão.',
+    detalhe: 'Masters e admins veem também Painel Admin e Trocar organização, quando habilitado.',
+  },
+]
+
 export const DOC_NAVEGACAO_SUBTITULO =
-  'Menu superior, menu lateral e atalhos globais'
+  'Menu superior, menu lateral e Gravity University'
 
 export const DOC_NAVEGACAO_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.0' },
@@ -109,156 +192,172 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
   num: 1,
   titulo: 'Navegação na plataforma Gravity',
   paragrafos: [
-    'Este manual explica **como se orientar em qualquer tela** da Gravity: o **menu superior** (Hub, produtos, Store, University), o **menu lateral** (só após abrir um produto ou no Configurador), a **sidebar da Gravity University** e os **atalhos globais** entre áreas.',
-    'Use o **sumário** abaixo para ir direto a cada tema. O capítulo **Menu lateral** mostra em quais telas ele aparece — e em quais **não** aparece.',
+    'A Gravity organiza a navegação em **dois tipos de menus**:',
   ],
-  fluxos: [
+  topicosImagemLateral: [
     {
-      titulo: 'Menu superior global',
-      tituloSumario: 'Menu superior',
-      paragrafos: [
-        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas — Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
-        'É o principal ponto de retorno ao **Hub**, de acesso à **conta**, troca de **idioma** e demais atalhos transversais da plataforma.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Visão geral do menu superior',
-          ocultarRotuloPasso: true,
-          imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'O **menu superior** é a faixa fixa no topo. À **esquerda** ficam o título da tela atual; à **direita**, o atalho **Hub** e os **sete ícones globais** descritos no capítulo seguinte — sempre na **mesma ordem**.',
-            'A imagem mostra a tela **Pedido — Insights**, mas o menu é **idêntico** em qualquer produto ou área — você já o viu no Hub ao entrar na plataforma. O destaque aponta o botão **Hub**, usado para voltar à tela principal.',
-          ],
-        },
-      ]),
-    },
-    {
-      titulo: 'Ícones do menu superior',
-      tituloSumario: 'Ícones do menu',
-      modoCenarios: true,
-      paragrafos: [
-        'À direita do botão **Hub**, estes **sete ícones** acompanham **todas** as telas autenticadas. Passe o mouse para ver a dica rápida; clique para executar a ação. A ordem **nunca muda** — da esquerda para a direita: **Localizar**, **Gravity University**, **Notificações**, **Tooltip**, **Idioma**, **Atalho ao Configurador** e **Menu via usuário**.',
-      ],
-      figurasAposParagrafo: [
-        {
-          indice: 0,
-          imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_ICONES_DIREITA,
-          legenda: 'Ícones à direita do Hub — mesma ordem em Hub, produtos, Store, Configurador e University',
-        },
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Localizar',
-          paragrafos: [
-            'Ícone de **lupa** — abre a **busca na tela**. Em produtos e listas, o campo expande no próprio menu e filtra registros, colunas e conteúdo visível conforme você digita. Pressione **Esc** ou clique no **×** para fechar sem sair da página.',
-            'Use quando precisar achar um pedido, processo ou item em uma tabela longa sem rolar a tela inteira.',
-          ],
-        },
-        {
-          titulo: 'Gravity University',
-          paragrafos: [
-            'Ícone de **capelo** — atalho fixo para a **Gravity University**, a central de aprendizado da plataforma. Abre manuais, trilhas de onboarding e documentação por produto **a partir de qualquer tela**, sem precisar voltar ao Hub.',
-            'Este manual de Navegação que você está lendo fica em **Manuais e Vídeos → Navegação** dentro da University.',
-          ],
-        },
-        {
-          titulo: 'Notificações',
-          paragrafos: [
-            'Ícone de **sininho** — abre o **quadro de avisos** da organização: alertas, pendências e mensagens internas que exigem sua atenção nos produtos contratados.',
-            'O **ponto laranja** no canto do ícone indica itens **não lidos** ou novas notificações. Sem pendências, o sininho aparece sem destaque.',
-          ],
-        },
-        {
-          titulo: 'Tooltip',
-          paragrafos: [
-            'Ícone **i** (informação) — **liga ou desliga** as dicas explicativas que aparecem ao passar o mouse sobre botões, cards, campos e indicadores em toda a plataforma.',
-            'Quando as dicas estão **ativas**, o ícone fica **preenchido em azul**. Desativadas, volta ao contorno cinza — útil quando você já conhece a tela e quer menos ruído visual.',
-          ],
-          callout: {
-            tipo: 'dica',
-            texto: 'As dicas são as mesmas “tooltips” citadas nos manuais de produto — este botão controla se elas aparecem ou não, **globalmente**, em qualquer módulo.',
-          },
-        },
-        {
-          titulo: 'Idioma',
-          paragrafos: [
-            'Botão com a **sigla do idioma atual** (ex.: **BR** para português) — troca a interface entre **português**, **inglês** e **espanhol** com um clique.',
-            'A escolha vale para **toda** a plataforma na sessão atual: menus, rótulos, manuais traduzidos e mensagens do sistema seguem o idioma selecionado.',
-          ],
-        },
-        {
-          titulo: 'Atalho ao Configurador',
-          paragrafos: [
-            'Ícone de **engrenagem** — abre o **Configurador da organização**: gestão de workspaces, usuários, fornecedores, assinaturas, financeiro e demais ajustes da conta.',
-            'É o caminho mais rápido para **configurar a operação** sem passar pelo menu do usuário — a engrenagem leva direto à área de gestão, independente do produto que você estava usando.',
-          ],
-        },
-        {
-          titulo: 'Menu via usuário',
-          paragrafos: [
-            '**Avatar** com suas iniciais (ou foto) — abre o menu de **conta e preferências**: nome, e-mail, patente no workspace, **tema claro/escuro**, atalhos para **Gravity Store** e **Configurador**, e **encerrar sessão**.',
-            'Usuários com perfil **Master** ou **Admin** veem opções extras, como **Painel Admin** e **Trocar organização** (quando habilitado). O traço vertical antes do avatar separa os atalhos globais do bloco de identidade.',
-          ],
-        },
-      ]),
+      titulo: 'Menu superior',
+      texto: 'Faixa fixa no topo, presente em **todas as telas autenticadas**.',
+      imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO,
+      larguraMaxima: 480,
     },
     {
       titulo: 'Menu lateral',
-      tituloSumario: 'Menu lateral',
-      modoCenarios: true,
+      texto: 'Coluna à esquerda: para **Produtos Gravity** e no **Configurador**.',
+      imagem: SCREENSHOT_NAVEGACAO_INTRO_MENU_LATERAL,
+      larguraMaxima: 480,
+    },
+  ],
+  fluxos: [
+    {
+      titulo: 'Menu superior',
+      tituloSumario: 'Menu superior',
       paragrafos: [
-        'O **menu lateral esquerdo** só existe **depois** que você escolhe um **Produto Gravity** no Hub (Pedido, Smart Docs, BID Frete, Processo, etc.). Enquanto você está no **Hub** ou na **Gravity Store**, a tela usa **apenas o menu superior** — **não há menu lateral**.',
-        'O **Configurador da organização** é outra área com **menu lateral próprio**: gestão de Organização, Usuários, Workspaces, Assinaturas e demais capítulos. Você entra pelo **menu do usuário**, não ao clicar um produto no Hub.',
+        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas — Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
       ],
-      mostrarInfograficoMenuLateral: true,
       callout: {
         tipo: 'dica',
-        texto: '**Regra rápida:** Hub e Store = só menu superior. Produto aberto no Hub = menu lateral do produto. Configurador = menu lateral de gestão (independente dos produtos).',
+        texto: 'É o principal ponto de retorno ao **Hub**, de acesso à **conta**, troca de **idioma** e demais atalhos transversais da plataforma.',
       },
+      calloutAposPassos: true,
+      mostrarInfograficoIconesMenuSuperior: true,
+      passosVisuais: [],
+    },
+    {
+      titulo: 'Menu lateral — Produtos Gravity',
+      tituloSumario: 'Menu lateral — Produtos Gravity',
+      modoCenarios: true,
+      paragrafos: [
+        'Todos os **Produtos Gravity** — Pedido, Smart Read, BID Frete, BID Câmbio e demais — possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'Enquanto você está no **Hub** ou na **Gravity Store**, a tela usa **apenas o menu superior** — **não há menu lateral**.',
+      },
+      calloutAposPassos: true,
+      figurasAposParagrafo: [
+        {
+          indice: 0,
+          imagem: SCREENSHOT_NAVEGACAO_PRODUTO_COM_MENU_LATERAL,
+          legenda: 'Menu lateral em um Produto Gravity',
+        },
+      ],
+      passosVisuais: [],
+    },
+    {
+      titulo: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
+      tituloSumario: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
+      paragrafos: [
+        'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub — desde que o workspace atual tenha **mais de um produto** habilitado para você.',
+        'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca **Buscar produto…**. O produto aberto fica marcado com ✓.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'Trocar aqui **mantém o workspace** selecionado e abre o outro produto no mesmo contexto. Para escolher um produto pela primeira vez na sessão, você também pode usar o **Hub**.',
+      },
+      calloutAposPassos: true,
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Hub — sem menu lateral',
+          titulo: 'Onde clicar para trocar de produto',
           paragrafos: [
-            'No **Hub**, a área central mostra produtos, vitrine da Store e painéis de resumo. A navegação é pelo **menu superior** e pelos **cards e ícones** da própria tela — não há coluna de módulos à esquerda.',
+            'Clique no **nome do produto** (ex.: **Pedido by Gravity**) ou na **seta** ao lado do logo, no topo do menu lateral.',
           ],
-          imagem: SCREENSHOT_NAVEGACAO_HUB_SEM_MENU_LATERAL,
+          imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_NOME_PRODUTO,
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Gravity Store — sem menu lateral',
+          titulo: 'Lista de Produtos Gravity',
           paragrafos: [
-            'Na **Gravity Store**, o catálogo de contratação também usa **somente o menu superior**. Os produtos aparecem em cards e abas da vitrine — o layout é parecido com o Hub nesse aspecto.',
-            'Screenshot previsto: `navegacao-store-sem-menu-lateral.png` (tela completa da Store).',
+            'O painel lista os **Produtos Gravity** disponíveis no workspace. O produto aberto fica marcado com **✓**; escolha outro para trocar sem voltar ao Hub.',
           ],
+          imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_PRODUTO_ABERTO,
+          imagemAbaixoTexto: true,
         },
+      ]),
+    },
+    {
+      titulo: 'Menu lateral — Acesso rápido troca de workspaces',
+      tituloSumario: 'Menu lateral — Acesso rápido troca de workspaces',
+      paragrafos: [
+        'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces** — filiais ou unidades em que você opera dentro da organização.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'No rodapé do painel: **+ Criar workspace** e **Gerenciar workspace** levam ao Configurador para cadastrar ou editar filiais.',
+      },
+      calloutAposPassos: true,
+      passosVisuais: renumerarPassos([
         {
-          titulo: 'Escolher o produto no Hub',
+          titulo: 'Onde clicar para trocar de workspace',
           paragrafos: [
-            'Para ver o menu lateral, volte ao **Hub** e clique no **ícone do Produto Gravity** que deseja usar (na seção **Seus produtos Gravity**). Só então a plataforma abre o **shell do produto** com a coluna de módulos à esquerda.',
+            'Clique no **nome do workspace** ativo (avatar + nome + seta), logo **abaixo** do seletor de produto no menu lateral.',
           ],
-          imagem: SCREENSHOT_NAVEGACAO_HUB_ESCOLHER_PRODUTO,
+          imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_WORKSPACES,
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Produto Gravity — com menu lateral',
+          titulo: 'Lista de workspaces',
           paragrafos: [
-            'Dentro do produto, o **menu lateral** lista os módulos daquele Produto Gravity (ex.: Lista, Insights, Dashboard — conforme o produto contratado).',
-            'Screenshot previsto: `navegacao-produto-menu-lateral-exemplo.png` (ex.: Pedido ou Smart Docs com menu à esquerda).',
+            'O painel lista os **workspaces** disponíveis para você. No modo **único** (padrão), ao escolher outro workspace a tela **recarrega** no novo contexto. No modo **múltiplo** (ex.: **Pedido**), use as caixas de seleção e os atalhos **Selecionar tudo** / **Desmarcar tudo**. Com mais de quatro itens, use **Buscar workspace…** no topo.',
           ],
+          callout: {
+            tipo: 'destaque',
+            texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (**Selecionar tudo**). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
+          },
+          calloutAoLadoTexto: true,
+          imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_WORKSPACE_ABERTO,
+          imagemAbaixoTexto: true,
+        },
+      ]),
+    },
+    {
+      titulo: 'Menu lateral — Configuração',
+      tituloSumario: 'Menu lateral — Configuração',
+      paragrafos: [
+        'O **Configurador da Plataforma** tem **menu lateral próprio**. Ele organiza a **gestão e configuração da conta**: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro e demais capítulos.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de capítulo — só mudam o item destacado e o conteúdo à direita.',
+      },
+      calloutAposPassos: true,
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Caminho 1 — ícone no menu superior',
+          paragrafos: [
+            'Em **qualquer tela** autenticada (Hub, produto, Store ou University), clique no **ícone Configurador** (engrenagem) na faixa do **menu superior**, à direita.',
+          ],
+          imagem: SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_SUPERIOR,
+          imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Configurador — menu lateral de gestão',
+          titulo: 'Caminho 2 — abrir o menu do usuário',
           paragrafos: [
-            'No **Configurador**, o menu lateral é **fixo** e organiza a gestão da conta: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro, etc. É independente do menu de um produto operacional.',
+            'Alternativa: clique no **ícone do usuário** no canto superior direito, como indicado pela seta na imagem.',
+          ],
+          imagem: SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_USUARIO,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Escolher Configurador no menu',
+          paragrafos: [
+            'No menu que abrir, selecione **Configurador**. A tela de gestão da organização carrega com o **menu lateral** à esquerda.',
+          ],
+          imagem: SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_OPCAO_MENU,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Menu lateral de gestão',
+          paragrafos: [
+            'No **Configurador**, o menu lateral concentra **Organização**, **Workspaces**, **Usuários**, **Fornecedores**, **Assinaturas**, **Financeiro** e demais capítulos de configuração.',
           ],
           imagem: SCREENSHOT_NAVEGACAO_CONFIGURADOR_MENU_LATERAL,
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Outros capítulos do Configurador',
+          titulo: 'Navegação entre capítulos',
           paragrafos: [
-            'Ao trocar de capítulo (ex.: **Usuários**), o menu lateral **permanece** com a mesma estrutura — mudam apenas os itens destacados e o conteúdo à direita.',
+            'Ao trocar de capítulo (ex.: **Usuários**), o menu lateral **permanece** com a mesma estrutura — mudam apenas o item destacado e o conteúdo à direita.',
           ],
           imagem: SCREENSHOT_NAVEGACAO_CONFIGURADOR_MENU_MODULOS,
           imagemAbaixoTexto: true,
@@ -268,66 +367,39 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
     {
       titulo: 'Navegação na Gravity University',
       tituloSumario: 'Navegação na Gravity University',
+      modoCenarios: true,
+      cenariosLadoALado: true,
+      cenariosImagensAlinhadas: true,
       paragrafos: [
         'Na **Gravity University**, a **sidebar esquerda** organiza trilhas de aprendizado, manuais por produto e builders futuros. Este manual que você está lendo fica em **Manuais e Vídeos → Navegação**.',
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Sidebar completa',
+          titulo: 'Onboarding',
           paragrafos: [
-            'Visão da árvore: Organização, Onboarding, Manuais e Vídeos, Builders, Minha Jornada.',
-            'Screenshot pendente: navegacao-university-sidebar-completa.png.',
+            'A seção **Onboarding** concentra a trilha de **primeiros passos** na plataforma.',
+          ],
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_ONBOARDING,
+              legenda: 'Sidebar — Onboarding',
+              larguraMaxima: 240,
+            },
           ],
         },
         {
-          titulo: 'Seção Manuais e Vídeos',
+          titulo: 'Manuais e Vídeos',
           paragrafos: [
-            'Login, Navegação, Admin (restrito), Configurador e futuros manuais de produto.',
-            'Screenshot pendente: navegacao-university-manuais-videos.png.',
+            'Em **Manuais e Vídeos** ficam **Login**, **Navegação**, Admin restrito e o submenu **Configurador** (Hub, Store, Pedido, Smart Docs, BID Frete, BID Câmbio, Processo…).',
           ],
-        },
-        {
-          titulo: 'Submenu Configurador',
-          paragrafos: [
-            'Capítulos Hub, Store, Pedido, Smart Docs, BID Frete, BID Câmbio, Processo, etc.',
-            'Screenshot pendente: navegacao-university-submenu-configurador.png.',
-          ],
-        },
-        {
-          titulo: 'Academy vs Manuais',
-          paragrafos: [
-            'Diferença entre trilhas gamificadas (**Academy**) e documentação descritiva (**Manuais**).',
-            'Screenshot pendente: navegacao-university-academy-vs-docs.png.',
-          ],
-        },
-      ]),
-    },
-    {
-      titulo: 'Atalhos globais',
-      tituloSumario: 'Atalhos globais',
-      paragrafos: [
-        'Além dos menus, existem **caminhos recorrentes** entre Hub, **Gravity Store**, **Configurador da organização** e produtos — pelo menu do usuário, cards do Hub ou links internos nos manuais.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Mapa de atalhos entre áreas',
-          paragrafos: [
-            'Diagrama ou screenshot anotado ligando Hub ↔ Store ↔ Configurador ↔ Produtos.',
-            'Screenshot pendente: navegacao-atalhos-mapa-global.png.',
-          ],
-        },
-        {
-          titulo: 'Voltar ao Hub',
-          paragrafos: [
-            'Todos os caminhos principais para retornar à tela inicial após abrir um produto.',
-            'Screenshot pendente: navegacao-atalhos-voltar-hub.png.',
-          ],
-        },
-        {
-          titulo: 'Store e Configurador',
-          paragrafos: [
-            'Atalhos pelo menu do usuário, Hub e University para gestão da conta e contratação.',
-            'Screenshot pendente: navegacao-atalhos-store-configurador.png.',
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS,
+              legenda: 'Sidebar — Manuais e Vídeos',
+              larguraMaxima: 240,
+            },
           ],
         },
       ]),

@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 395,
+  "proximo_numero": 396,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1831,6 +1831,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000394.json"
+    },
+    {
+      "referencia": "TASK-000395",
+      "ordinal": 119,
+      "titulo_canonico": "CONFIG-WORKSPACE-BUG-LINKS-CRIAR-GERENCIAR-404",
+      "titulo_exibicao": "TASK-000395 | [Configurador] Workspace | BUG — Criar e Gerenciar workspace retornam 404",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "WORKSPACE",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "LINKS-CRIAR-GERENCIAR-WORKSPACE-404",
+      "data_criacao": "2026-06-30T00:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000395.json"
     }
   ]
 }

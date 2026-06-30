@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Gear, Crown, Buildings, Users, Handshake, CreditCard, Receipt, Pulse,
@@ -21,10 +21,13 @@ import {
   type DocSecao,
   type DocTopicoImagemLateral,
   metadadosConfiguradorPagina,
+  montarItensSumarioManual,
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
+  SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
+  SCREENSHOT_USUARIOS_PERMISSAO_MODAL,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
@@ -46,7 +49,7 @@ const MANUAL_ESTILO_PASSO_ROTULO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
-  fontWeight: 700, fontSize: '.92rem', color: MANUAL_TITULO_COR, margin: '0 0 10px',
+  fontWeight: 700, fontSize: '.92rem', color: MANUAL_TITULO_COR, margin: `0 0 ${MANUAL_ESPACO_PARAGRAFO_PX}px`,
 }
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
@@ -58,6 +61,19 @@ const MANUAL_LINK_STYLE: React.CSSProperties = {
   color: '#818cf8',
   textDecoration: 'underline',
   textUnderlineOffset: 2,
+}
+
+const LINK_DOC_WORKSPACES = '/university-gravity/docs/configurador/workspaces'
+
+function textoComLinkWorkspaces(texto: string): string {
+  return texto.replace(/\bworkspaces?\b/gi, (m) => `{{link:${LINK_DOC_WORKSPACES}|${m}}}`)
+}
+
+function gridColunasGaleriaTelas(quantidade: number): string {
+  if (quantidade <= 1) return '1fr'
+  if (quantidade === 2) return 'repeat(2, minmax(0, 1fr))'
+  if (quantidade >= 4) return `repeat(${quantidade}, minmax(0, 1fr))`
+  return 'repeat(3, minmax(0, 1fr))'
 }
 
 const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
@@ -72,6 +88,7 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
   aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso', cor: '#f87171' },
   exemplo: { bg: 'rgba(148,163,184,.08)', borda: 'rgba(148,163,184,.25)', label: 'Exemplo', cor: '#94a3b8' },
   dica: { bg: 'rgba(99,102,241,.08)', borda: 'rgba(129,140,248,.35)', label: 'Dica', cor: '#818cf8' },
+  lembrete: { bg: 'rgba(251,191,36,.08)', borda: 'rgba(251,191,36,.32)', label: 'Lembrete', cor: '#fbbf24' },
   seguranca: { bg: 'rgba(52,211,153,.08)', borda: 'rgba(52,211,153,.35)', label: 'Segurança', cor: '#34d399' },
 }
 
@@ -168,6 +185,14 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
   cursor: 'pointer',
 }
 
+/** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
+const MANUAL_SCREENSHOT_CACHE_KEY = '22'
+
+function urlScreenshotManual(src: string): string {
+  const sep = src.includes('?') ? '&' : '?'
+  return `${src}${sep}ssv=${MANUAL_SCREENSHOT_CACHE_KEY}`
+}
+
 function ManualFiguraScreenshot({
   src,
   alt,
@@ -180,9 +205,15 @@ function ManualFiguraScreenshot({
   larguraTotal?: boolean
 }) {
   const [telaCheia, setTelaCheia] = useState(false)
+  const [erroCarregamento, setErroCarregamento] = useState(false)
+  const srcEfetivo = urlScreenshotManual(src)
   const ampliarAbaixo = src === SCREENSHOT_HUB_ACESSO_CONFIGURADOR
   const compacta = larguraMaxima != null
   const larguraCheia = ampliarAbaixo || compacta || larguraTotal
+
+  useEffect(() => {
+    setErroCarregamento(false)
+  }, [src])
 
   useEffect(() => {
     if (!telaCheia) return
@@ -210,37 +241,44 @@ function ManualFiguraScreenshot({
             : undefined
       }>
         <figure
-          role="button"
-          tabIndex={0}
-          aria-label={`${alt}: abrir em tela cheia`}
-          onClick={abrirTelaCheia}
-          onKeyDown={(e) => {
+          role={erroCarregamento ? undefined : 'button'}
+          tabIndex={erroCarregamento ? undefined : 0}
+          aria-label={erroCarregamento ? undefined : `${alt}: abrir em tela cheia`}
+          onClick={erroCarregamento ? undefined : abrirTelaCheia}
+          onKeyDown={erroCarregamento ? undefined : (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               abrirTelaCheia()
             }
           }}
           style={{
-            margin: 0, borderRadius: 14, overflow: 'hidden', cursor: 'zoom-in',
+            margin: 0, borderRadius: 14, overflow: 'hidden',
+            cursor: erroCarregamento ? 'default' : 'zoom-in',
             border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
             background: 'rgba(8,12,24,.55)', position: 'relative',
             width: larguraCheia ? '100%' : undefined,
             maxWidth: larguraMaxima,
           }}
         >
-          <img
-            src={src}
-            alt={alt}
-            style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
-            onError={(e) => {
-              const el = e.currentTarget.parentElement!
-              el.style.maxHeight = 'unset'
-              el.style.cursor = 'default'
-              el.removeAttribute('role')
-              el.innerHTML = `<div style="padding:48px;text-align:center;color:#475569;font-size:.8rem;background:rgba(148,163,184,.04)">📸 Salve o screenshot em<br/><code style="color:#818cf8;font-size:.75rem">${src}</code></div>`
-            }}
-          />
-          {!ampliarAbaixo && (
+          {erroCarregamento ? (
+            <div style={{
+              padding: 48, textAlign: 'center', color: '#475569', fontSize: '.8rem',
+              background: 'rgba(148,163,184,.04)',
+            }}>
+              📸 Salve o screenshot em
+              <br />
+              <code style={{ color: '#818cf8', fontSize: '.75rem' }}>{src}</code>
+            </div>
+          ) : (
+            <img
+              key={srcEfetivo}
+              src={srcEfetivo}
+              alt={alt}
+              style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
+              onError={() => setErroCarregamento(true)}
+            />
+          )}
+          {!ampliarAbaixo && !erroCarregamento && (
             <span style={{
               position: 'absolute', top: 10, right: 10,
               ...ESTILO_BOTAO_AMPLIAR,
@@ -290,7 +328,7 @@ function ManualFiguraScreenshot({
             Fechar ✕
           </button>
           <img
-            src={src}
+            src={srcEfetivo}
             alt={alt}
             onClick={(e) => e.stopPropagation()}
             style={{
@@ -305,15 +343,136 @@ function ManualFiguraScreenshot({
   )
 }
 
-function ManualCalloutBloco({ callout, marginTop = 12 }: {
-  callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
+  return (
+    <div>
+      {tela.paragrafoAntes ? (
+        <div style={{ marginBottom: 10, textAlign: 'left' }}>
+          <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
+        </div>
+      ) : null}
+      {tela.tooltipKpi ? (
+        <div style={{ marginBottom: 12 }}>
+          <ManualTooltipKpiCard tooltip={tela.tooltipKpi} />
+        </div>
+      ) : null}
+      <p style={{
+        fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+        marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+      }}>{tela.legenda}</p>
+      <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+      {tela.paragrafoDepois ? (
+        <div style={{ marginTop: 10, textAlign: 'left' }}>
+          <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function ManualGaleriaTelaImagemCelula({ tela }: { tela: DocGaleriaTela }) {
+  return (
+    <div style={{ width: '100%' }}>
+      <p style={{
+        fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+        marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+        minHeight: '2.25rem',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}>{tela.legenda}</p>
+      <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} larguraTotal />
+    </div>
+  )
+}
+
+function ManualGaleriaTelasBloco({
+  telas,
+  fraseAposIndice,
+}: {
+  telas: DocGaleriaTela[]
+  fraseAposIndice?: { indice: number; texto: string }
+}) {
+  if (telas.length === 0) return null
+
+  const gradeTelas = (items: DocGaleriaTela[], marginTop: number) => {
+    const alinharCards = items.length > 0 && items.every((tela) => tela.tooltipKpi != null)
+
+    if (alinharCards) {
+      return (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: gridColunasGaleriaTelas(items.length),
+          gap: 14,
+          marginTop,
+          alignItems: 'stretch',
+        }}>
+          {items.map((tela) => (
+            <ManualTooltipKpiCard
+              key={`card-${tela.legenda}`}
+              tooltip={tela.tooltipKpi!}
+              preencherAltura
+            />
+          ))}
+          {items.map((tela) => (
+            <ManualGaleriaTelaImagemCelula key={`img-${tela.legenda}`} tela={tela} />
+          ))}
+        </div>
+      )
+    }
+
+    return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: gridColunasGaleriaTelas(items.length),
+      gap: 14,
+      marginTop,
+    }}>
+      {items.map((tela) => (
+        <div key={tela.legenda}>
+          <ManualGaleriaTelaCelula tela={tela} />
+        </div>
+      ))}
+    </div>
+    )
+  }
+
+  if (
+    !fraseAposIndice
+    || fraseAposIndice.indice < 0
+    || fraseAposIndice.indice >= telas.length - 1
+  ) {
+    return gradeTelas(telas, 20)
+  }
+
+  const antes = telas.slice(0, fraseAposIndice.indice + 1)
+  const depois = telas.slice(fraseAposIndice.indice + 1)
+
+  return (
+    <>
+      {gradeTelas(antes, 20)}
+      <div style={{
+        marginTop: 16,
+        padding: '2px 0 0 18px',
+        borderLeft: '3px solid rgba(99,102,241,.45)',
+      }}>
+        <ManualParagrafo texto={fraseAposIndice.texto} marginBottom={0} />
+      </div>
+      {gradeTelas(depois, 16)}
+    </>
+  )
+}
+
+function ManualCalloutBloco({ callout, marginTop = 12, marginBottom = 0 }: {
+  callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   marginTop?: number
+  marginBottom?: number
 }) {
   const c = CALLOUT_STYLE[callout.tipo]
   return (
     <div style={{
       background: c.bg, border: `1px solid ${c.borda}`, borderRadius: 8,
-      padding: '12px 16px', marginTop,
+      padding: '12px 16px', marginTop, marginBottom,
     }}>
       <p style={{
         fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5,
@@ -408,76 +567,13 @@ function ManualTooltipKpiCard({
         Tooltip: {tooltip.tituloTooltip}
       </p>
       <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 8px', lineHeight: 1.45 }}>
-        {tooltip.descricao}
+        <ManualTextoRich texto={tooltip.descricao} />
       </p>
       <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
         {tooltip.detalhes.map((item) => (
-          <li key={item} style={{ marginBottom: 3 }}>{item}</li>
+          <li key={item} style={{ marginBottom: 3 }}><ManualTextoRichLinha texto={item} /></li>
         ))}
       </ul>
-    </div>
-  )
-}
-
-function ManualGaleriaTelaImagemCelula({ tela }: { tela: DocGaleriaTela }) {
-  return (
-    <div style={{ width: '100%' }}>
-      <p style={{
-        fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-        marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
-        minHeight: '2.25rem',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      }}>{tela.legenda}</p>
-      <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} larguraTotal />
-    </div>
-  )
-}
-
-function ManualGaleriaTelasGrid({ telas, marginTop }: { telas: DocGaleriaTela[]; marginTop: number }) {
-  const colunas = telas.length <= 1 ? '1fr' : telas.length === 2 ? 'repeat(2, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))'
-  const comCardsKpi = telas.length > 0 && telas.every((tela) => tela.tooltipKpi != null)
-
-  if (comCardsKpi) {
-    return (
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: colunas,
-        gap: 14,
-        marginTop,
-        alignItems: 'stretch',
-      }}>
-        {telas.map((tela) => (
-          <ManualTooltipKpiCard
-            key={`card-${tela.legenda}`}
-            tooltip={tela.tooltipKpi!}
-            preencherAltura
-          />
-        ))}
-        {telas.map((tela) => (
-          <ManualGaleriaTelaImagemCelula key={`img-${tela.legenda}`} tela={tela} />
-        ))}
-      </div>
-    )
-  }
-
-  return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: colunas,
-      gap: 14,
-      marginTop,
-    }}>
-      {telas.map((tela) => (
-        <div key={tela.legenda}>
-          <p style={{
-            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-            marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
-          }}>{tela.legenda}</p>
-          <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-        </div>
-      ))}
     </div>
   )
 }
@@ -532,7 +628,11 @@ function ManualBlocoPassoVisual({
     : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
 
   const blocoCallouts = calloutsLista.map((callout, i) => (
-    <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 0 : 8} />
+    <ManualCalloutBloco
+      key={i}
+      callout={callout}
+      marginTop={i === 0 ? ((passo.paragrafos?.length ?? 0) > 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 0) : 8}
+    />
   ))
 
   const blocoTexto = (
@@ -545,11 +645,11 @@ function ManualBlocoPassoVisual({
       {!passo.ocultarTituloPasso && (
         <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
       )}
-      {passo.paragrafos.map((p, i) => (
+      {passo.paragrafos?.map((p, i) => (
         <div key={i}>
           <ManualParagrafo
             texto={p}
-            marginBottom={manualMargemParagrafo(i, passo.paragrafos.length)}
+            marginBottom={manualMargemParagrafo(i, passo.paragrafos?.length ?? 0)}
           />
           {omitirFigurasNoTexto
             ? null
@@ -634,7 +734,10 @@ function ManualBlocoPassoVisual({
 
   if (passo.imagemAbaixoTexto && passo.imagem) {
     const galeriaAbaixo = passo.galeriaTelas?.length ? (
-      <ManualGaleriaTelasGrid telas={passo.galeriaTelas} marginTop={20} />
+      <ManualGaleriaTelasBloco
+        telas={passo.galeriaTelas}
+        fraseAposIndice={passo.galeriaFraseAposIndice}
+      />
     ) : null
 
     return (
@@ -650,9 +753,20 @@ function ManualBlocoPassoVisual({
             <div>{blocoCallouts}</div>
           </div>
         ) : blocoTexto}
-        <div style={{ marginTop: 20 }}>
+        <div style={{ marginTop: calloutsLista.length > 0 ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20 }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
+        {passo.paragrafosAposImagem && passo.paragrafosAposImagem.length > 0 && (
+          <div style={{ marginTop: 20 }}>
+            {passo.paragrafosAposImagem.map((p, i) => (
+              <ManualParagrafo
+                key={p}
+                texto={p}
+                marginBottom={i < passo.paragrafosAposImagem!.length - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0}
+              />
+            ))}
+          </div>
+        )}
         {passo.tooltipsKpiAposImagem && passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
           <div style={{ marginTop: 20 }}>
             <ManualTooltipsKpi tooltips={passo.tooltipsKpi} />
@@ -682,7 +796,10 @@ function ManualBlocoPassoVisual({
 
   if (passo.galeriaTelas?.length || (passo.colunasTabela?.length && !passo.imagem)) {
     const galeria = passo.galeriaTelas?.length ? (
-      <ManualGaleriaTelasGrid telas={passo.galeriaTelas} marginTop={20} />
+      <ManualGaleriaTelasBloco
+        telas={passo.galeriaTelas}
+        fraseAposIndice={passo.galeriaFraseAposIndice}
+      />
     ) : null
 
     if (passo.imagem) {
@@ -781,12 +898,70 @@ const MANUAL_ESTILO_SECAO_NUMERO: React.CSSProperties = {
   color: '#818cf8', fontSize: '.85rem', fontWeight: 700, flexShrink: 0, minWidth: 28,
 }
 
-function montarItensSumario(secao: DocSecao): { num: number; titulo: string }[] {
-  const itens: { num: number; titulo: string }[] = [{ num: 1, titulo: secao.titulo }]
-  secao.fluxos?.forEach((fluxo, i) => {
-    itens.push({ num: i + 2, titulo: fluxo.tituloSumario ?? fluxo.titulo })
-  })
-  return itens
+const MANUAL_SCROLL_MARGEM_TOPO_PX = 32
+
+export const MANUAL_ESTILO_ACORDEON_SECAO: React.CSSProperties = {
+  scrollMarginTop: MANUAL_SCROLL_MARGEM_TOPO_PX,
+}
+
+function encontrarContainerScrollManual(el: HTMLElement): HTMLElement | null {
+  const marcado = document.querySelector<HTMLElement>('[data-manual-scroll-root]')
+  if (marcado) return marcado
+  let atual: HTMLElement | null = el.parentElement
+  while (atual) {
+    const { overflowY } = getComputedStyle(atual)
+    if (overflowY === 'auto' || overflowY === 'scroll') return atual
+    atual = atual.parentElement
+  }
+  return null
+}
+
+/** Rola até seção do manual dentro do container scrollável da University (não o `window`). */
+export function rolarParaSecaoManual(idSecao: string, behavior: ScrollBehavior = 'smooth'): boolean {
+  const el = document.getElementById(idSecao)
+  if (!el) return false
+  const container = encontrarContainerScrollManual(el)
+  const margem = MANUAL_SCROLL_MARGEM_TOPO_PX
+  if (container) {
+    const elRect = el.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+    const top = elRect.top - containerRect.top + container.scrollTop - margem
+    container.scrollTo({ top: Math.max(0, top), behavior })
+  } else {
+    el.scrollIntoView({ behavior, block: 'start' })
+  }
+  return true
+}
+
+export function useManualSumarioScroll(
+  abertos: number[],
+  setAbertos: React.Dispatch<React.SetStateAction<number[]>>,
+) {
+  const [pendenteScroll, setPendenteScroll] = useState<number | null>(null)
+
+  const scrollTo = useCallback((n: number) => {
+    const id = `doc-sec-${n}`
+    if (!abertos.includes(n)) {
+      setAbertos(prev => (prev.includes(n) ? prev : [...prev, n]))
+      setPendenteScroll(n)
+    } else {
+      rolarParaSecaoManual(id)
+    }
+  }, [abertos, setAbertos])
+
+  useEffect(() => {
+    if (pendenteScroll == null || !abertos.includes(pendenteScroll)) return
+    const id = `doc-sec-${pendenteScroll}`
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        rolarParaSecaoManual(id)
+        setPendenteScroll(null)
+      })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [abertos, pendenteScroll])
+
+  return scrollTo
 }
 
 function figurasAposParagrafoFluxo(
@@ -796,6 +971,19 @@ function figurasAposParagrafoFluxo(
   return (fluxo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
+function ManualInfograficoPermissoesUsuarioEmbutido({ fluxo, aposPassoNum }: {
+  fluxo: DocFluxo
+  aposPassoNum: number
+}) {
+  if (!fluxo.mostrarInfograficoPermissoesUsuario) return null
+  if (fluxo.infograficoPermissoesUsuarioAposPasso !== aposPassoNum) return null
+  return (
+    <div style={{ marginTop: 20, marginBottom: 20 }}>
+      <ManualInfograficoPermissoesUsuario />
+    </div>
+  )
+}
+
 function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
   return (
     <>
@@ -803,8 +991,25 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
         <div key={i}>
           <ManualParagrafo
             texto={p}
-            marginBottom={manualMargemParagrafo(i, fluxo.paragrafos?.length ?? 0)}
+            marginBottom={manualMargemParagrafoAntesCallout(
+              i,
+              fluxo.paragrafos?.length ?? 0,
+              fluxo.calloutAposParagrafo?.indice,
+            )}
           />
+          {fluxo.calloutAposParagrafo?.indice === i && (() => {
+            const margens = manualMargemCalloutAposParagrafo(
+              i,
+              fluxo.paragrafos?.length ?? 0,
+            )
+            return (
+              <ManualCalloutBloco
+                callout={fluxo.calloutAposParagrafo.callout}
+                marginTop={margens.marginTop}
+                marginBottom={margens.marginBottom}
+              />
+            )
+          })()}
           {figurasAposParagrafoFluxo(fluxo, i).map((fig) => (
             <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
               <ManualFiguraScreenshot
@@ -819,8 +1024,8 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
       {fluxo.callout && !fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
       )}
-      {fluxo.mostrarInfograficoPermissoesUsuario && (
-        <div style={{ marginTop: 8, marginBottom: 20 }}>
+      {fluxo.mostrarInfograficoPermissoesUsuario && fluxo.infograficoPermissoesUsuarioAposPasso == null && (
+        <div style={{ marginTop: 20, marginBottom: 20 }}>
           <ManualInfograficoPermissoesUsuario />
         </div>
       )}
@@ -902,11 +1107,13 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
         )
       ) : (
         fluxo.passosVisuais.map(passo => (
-          <ManualBlocoPassoVisual
-            key={passo.num}
-            passo={passo}
-            ocultarRotuloPasso={fluxo.modoCenarios}
-          />
+          <React.Fragment key={passo.num}>
+            <ManualBlocoPassoVisual
+              passo={passo}
+              ocultarRotuloPasso={fluxo.modoCenarios}
+            />
+            <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
+          </React.Fragment>
         ))
       )}
       {fluxo.callout && fluxo.calloutAposPassos && (
@@ -1120,7 +1327,11 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
               <div key={i}>
                 <ManualParagrafo
                   texto={p}
-                  marginBottom={manualMargemParagrafo(i, secao.paragrafos.length)}
+                  marginBottom={manualMargemParagrafoAntesCallout(
+                    i,
+                    secao.paragrafos.length,
+                    secao.calloutAposParagrafo?.indice,
+                  )}
                 />
                 {figurasAposParagrafo(secao, i).map((fig) => (
                   <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
@@ -1134,9 +1345,16 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                 {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
                   <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
                 ))}
-                {secao.calloutAposParagrafo?.indice === i && (
-                  <ManualCalloutBloco callout={secao.calloutAposParagrafo.callout} marginTop={12} />
-                )}
+                {secao.calloutAposParagrafo?.indice === i && (() => {
+                  const margens = manualMargemCalloutAposParagrafo(i, secao.paragrafos.length)
+                  return (
+                    <ManualCalloutBloco
+                      callout={secao.calloutAposParagrafo.callout}
+                      marginTop={margens.marginTop}
+                      marginBottom={margens.marginBottom}
+                    />
+                  )
+                })()}
               </div>
             ))}
           </div>
@@ -1168,9 +1386,15 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
               <ManualParagrafo
                 texto={p}
                 marginBottom={
-                  i === secao.paragrafos.length - 1 && !secao.fluxos?.length
+                  secao.calloutAposParagrafo?.indice === i
                     ? 0
-                    : manualMargemParagrafo(i, secao.paragrafos.length)
+                    : i === secao.paragrafos.length - 1 && !secao.fluxos?.length
+                      ? 0
+                      : manualMargemParagrafoAntesCallout(
+                        i,
+                        secao.paragrafos.length,
+                        secao.calloutAposParagrafo?.indice,
+                      )
                 }
               />
               {figurasAposParagrafo(secao, i).map((fig) => (
@@ -1185,9 +1409,16 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
               {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
                 <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
               ))}
-              {secao.calloutAposParagrafo?.indice === i && (
-                <ManualCalloutBloco callout={secao.calloutAposParagrafo.callout} marginTop={12} />
-              )}
+              {secao.calloutAposParagrafo?.indice === i && (() => {
+                const margens = manualMargemCalloutAposParagrafo(i, secao.paragrafos.length)
+                return (
+                  <ManualCalloutBloco
+                    callout={secao.calloutAposParagrafo.callout}
+                    marginTop={margens.marginTop}
+                    marginBottom={margens.marginBottom}
+                  />
+                )
+              })()}
             </div>
           ))}
 
@@ -1902,7 +2133,9 @@ function ManualCamadaAcessoFluxo() {
                 )}
                 <Icone size={20} weight="duotone" style={{ marginBottom: 8, color: passo.cor }} />
                 <div style={{ fontWeight: 700, marginBottom: 5, color: '#e2e8f0', fontSize: '.74rem' }}>{passo.titulo}</div>
-                <div style={{ fontSize: '.66rem', color: MANUAL_CORPO_70 }}>{passo.descricao}</div>
+                <div style={{ fontSize: '.66rem', color: MANUAL_CORPO_70 }}>
+                  <ManualTextoRichLinha texto={textoComLinkWorkspaces(passo.descricao)} />
+                </div>
               </div>
               {i < passos.length - 1 && (
                 <div style={{
@@ -1974,12 +2207,12 @@ function ManualInfograficoPermissoesUsuario() {
         Por linha, você define se o usuário só consulta ou também altera dados naquela visualização.
       </p>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 12,
-        marginBottom: 18,
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 20,
+        }}>
         <div style={{
           ...cardBase,
           background: 'linear-gradient(145deg, rgba(99,102,241,.1) 0%, rgba(99,102,241,.03) 100%)',
@@ -2021,13 +2254,12 @@ function ManualInfograficoPermissoesUsuario() {
             Marque só onde a operação exige mudança de dados.
           </p>
         </div>
-      </div>
+        </div>
 
-      <div style={{
-        ...cardBase,
-        marginBottom: 14,
-        background: 'rgba(148,163,184,.04)',
-      }}>
+        <div style={{
+          ...cardBase,
+          background: 'rgba(148,163,184,.04)',
+        }}>
         <p style={{
           margin: '0 0 12px', fontSize: '.72rem', fontWeight: 800, letterSpacing: '.05em',
           textTransform: 'uppercase', color: '#94a3b8',
@@ -2051,32 +2283,12 @@ function ManualInfograficoPermissoesUsuario() {
             </span>
           ))}
         </div>
-      </div>
-
-      <div style={{
-        ...cardBase,
-        background: 'linear-gradient(145deg, rgba(129,140,248,.1) 0%, rgba(52,211,153,.05) 100%)',
-        borderColor: 'rgba(129,140,248,.3)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <span style={{
-            width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-            background: 'rgba(129,140,248,.15)', border: '1px solid rgba(129,140,248,.35)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Truck size={20} weight="duotone" color="#818cf8" />
-          </span>
-          <div>
-            <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '.84rem', color: '#e2e8f0' }}>
-              Permissão especial: Pode cotar frete internacional
-            </p>
-            <p style={{ margin: 0, fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
-              Para habilitar fornecedores como agentes de carga, marque esta opção no produto
-              BID Frete Internacional. Libera a visão de parceiro: responder cotações, enviar propostas
-              e acessar o painel BID Frete Internacional, Fornecedor. Vale para usuários tipo Fornecedor
-              com empresa vinculada (ex.: Agente de carga).
-            </p>
-          </div>
+        <div style={{ marginTop: 16 }}>
+          <ManualFiguraScreenshot
+            src={SCREENSHOT_USUARIOS_PERMISSAO_MODAL}
+            alt="Modal Editar usuário — aba Permissões com colunas Ver e Editar"
+          />
+        </div>
         </div>
       </div>
     </div>
@@ -2130,7 +2342,7 @@ function ManualBlocoFornecedorInteracao() {
             </p>
             <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
               O Master convida um usuário tipo Fornecedor. A pessoa acessa as telas liberadas
-              (workspaces e permissões granulares).
+              {' '}(<ManualTextoRichLinha texto={textoComLinkWorkspaces('workspaces e permissões granulares')} />).
             </p>
           </div>
         </div>
@@ -2304,7 +2516,35 @@ function ManualInfograficoTiposUsuario() {
                 Primeiro usuário da organização: sempre Master
               </div>
             </div>
-            <div style={{ color: '#64748b', fontSize: '.75rem' }}>↓ convida e define acesso</div>
+            <div
+              role="presentation"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+                gap: 5,
+                padding: '4px 0 2px',
+              }}
+            >
+              <div style={{
+                width: 1,
+                height: 14,
+                borderRadius: 1,
+                background: 'linear-gradient(180deg, rgba(251,191,36,.35), rgba(251,191,36,.08))',
+              }} />
+              <span style={{
+                fontSize: '.72rem',
+                fontWeight: 600,
+                color: '#e7d4a8',
+                letterSpacing: '.01em',
+                lineHeight: 1.4,
+                textAlign: 'center',
+              }}>
+                convida e define acesso
+              </span>
+              <ArrowDown size={13} weight="bold" color="rgba(251, 191, 36, 0.45)" aria-hidden />
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
               <div style={INFO_WS}>
                 <User size={14} weight="duotone" style={{ marginBottom: 4, color: '#818cf8' }} />
@@ -2324,7 +2564,9 @@ function ManualInfograficoTiposUsuario() {
               </div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
-              Só o Master convida pessoas e altera patentes, permissões e workspaces de outros usuários.
+              Só o Master convida pessoas e altera patentes, permissões e{' '}
+              <Link to={LINK_DOC_WORKSPACES} style={MANUAL_LINK_STYLE}>workspaces</Link>
+              {' '}de outros usuários.
             </p>
           </div>
         </div>
@@ -2362,7 +2604,9 @@ function ManualInfograficoTiposUsuario() {
                   <Icone size={16} weight="duotone" style={{ color: cor, flexShrink: 0 }} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '.82rem', color: '#e2e8f0' }}>{titulo}</div>
-                    <div style={{ fontSize: '.68rem', color: MANUAL_CORPO_70 }}>{subtitulo}</div>
+                    <div style={{ fontSize: '.68rem', color: MANUAL_CORPO_70 }}>
+                      <ManualTextoRichLinha texto={textoComLinkWorkspaces(subtitulo)} />
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -2372,7 +2616,7 @@ function ManualInfograficoTiposUsuario() {
                       fontSize: '.66rem',
                       padding: '4px 8px',
                     }}>
-                      {texto}
+                      <ManualTextoRichLinha texto={textoComLinkWorkspaces(texto)} />
                     </span>
                   ))}
                 </div>
@@ -2391,7 +2635,7 @@ function ManualInfograficoTiposUsuario() {
       <ManualBlocoFornecedorInteracao />
 
       <ManualParagrafo
-        texto="O **Master** configura cada **Standard** e **Fornecedor** em três passos: quais **workspaces** a pessoa acessa, quais **permissões** (telas e ações) tem nesses ambientes e qual ou quais **produtos Gravity** ficam liberados."
+        texto={`O **Master** configura cada **Standard** e **Fornecedor** em três passos: quais ${textoComLinkWorkspaces('workspaces')} a pessoa acessa, quais **permissões** (telas e ações) tem nesses ambientes e qual ou quais **produtos Gravity** ficam liberados.`}
         marginBottom={0}
       />
 
@@ -2555,10 +2799,18 @@ function ManualTabelaComparativaTiposUsuario() {
                 key={linha.criterio}
                 style={{ background: i % 2 === 0 ? 'rgba(8,12,24,.15)' : 'transparent' }}
               >
-                <td style={{ ...tdBase, fontWeight: 600, color: '#94a3b8' }}>{linha.criterio}</td>
-                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(251,191,36,.04)' }}>{linha.master}</td>
-                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(99,102,241,.04)' }}>{linha.standard}</td>
-                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(52,211,153,.03)' }}>{linha.fornecedor}</td>
+                <td style={{ ...tdBase, fontWeight: 600, color: '#94a3b8' }}>
+                  <ManualTextoRichLinha texto={textoComLinkWorkspaces(linha.criterio)} />
+                </td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(251,191,36,.04)' }}>
+                  <ManualTextoRichLinha texto={textoComLinkWorkspaces(linha.master)} />
+                </td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(99,102,241,.04)' }}>
+                  <ManualTextoRichLinha texto={textoComLinkWorkspaces(linha.standard)} />
+                </td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(52,211,153,.03)' }}>
+                  <ManualTextoRichLinha texto={textoComLinkWorkspaces(linha.fornecedor)} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -2733,16 +2985,13 @@ export function DocManualUmaSecao({
   /** Seções expandidas ao carregar (padrão: só a intro §01). */
   secoesAbertasInicial?: number[]
 }) {
-  const itensSumario = montarItensSumario(secao)
+  const itensSumario = montarItensSumarioManual(secao)
   const todosNums = itensSumario.map(i => i.num)
   const [abertos, setAbertos] = useState<number[]>(secoesAbertasInicial ?? [1])
   const todosAbertos = todosNums.length > 0 && todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
-  const scrollTo = (n: number) => {
-    if (!abertos.includes(n)) setAbertos(prev => [...prev, n])
-    setTimeout(() => document.getElementById(`doc-sec-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
-  }
+  const scrollTo = useManualSumarioScroll(abertos, setAbertos)
 
   return (
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
@@ -2807,7 +3056,7 @@ export function DocManualUmaSecao({
                 onClick={() => scrollTo(item.num)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', lineHeight: 1.4,
-                  color: item.num === 1 ? MANUAL_TITULO_COR : '#818cf8',
+                  color: '#818cf8',
                   fontWeight: item.num === 1 ? 700 : 400,
                 }}
               >
@@ -2845,6 +3094,7 @@ export function DocManualUmaSecao({
         <div
           id="doc-sec-1"
           style={{
+            ...MANUAL_ESTILO_ACORDEON_SECAO,
             border: `1px solid ${abertos.includes(1) ? 'rgba(99,102,241,.25)' : 'rgba(148,163,184,.12)'}`,
             borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s',
           }}
@@ -2878,9 +3128,10 @@ export function DocManualUmaSecao({
           const aberto = abertos.includes(num)
           return (
             <div
-              key={fluxo.titulo}
+              key={`${num}-${fluxo.titulo}`}
               id={`doc-sec-${num}`}
               style={{
+                ...MANUAL_ESTILO_ACORDEON_SECAO,
                 border: `1px solid ${aberto ? 'rgba(99,102,241,.25)' : 'rgba(148,163,184,.12)'}`,
                 borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s',
               }}

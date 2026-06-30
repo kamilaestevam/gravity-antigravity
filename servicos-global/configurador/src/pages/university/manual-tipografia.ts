@@ -29,3 +29,24 @@ export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
 export function manualMargemParagrafo(indice: number, total: number): number {
   return indice < total - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0
 }
+
+/** Parágrafo seguido de callout no mesmo índice: sem margin-bottom (o callout define o respiro). */
+export function manualMargemParagrafoAntesCallout(
+  indice: number,
+  total: number,
+  indiceCallout?: number,
+): number {
+  if (indiceCallout === indice) return 0
+  return manualMargemParagrafo(indice, total)
+}
+
+/** Callout entre parágrafos: 12px acima e abaixo quando há parágrafo depois. */
+export function manualMargemCalloutAposParagrafo(indiceCallout: number, totalParagrafos: number): {
+  marginTop: number
+  marginBottom: number
+} {
+  return {
+    marginTop: MANUAL_ESPACO_PARAGRAFO_PX,
+    marginBottom: indiceCallout < totalParagrafos - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0,
+  }
+}

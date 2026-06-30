@@ -15,6 +15,7 @@ import {
   aoHabilitarProdutoNoWorkspace,
   aoDesabilitarProdutoNoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
+import { slugCatalogoExibicaoAssinaturaSmartDocs } from '../lib/resolver-produto-smart-docs-catalogo.js'
 
 export const companyProductsRouter = Router({ mergeParams: true })
 
@@ -110,13 +111,25 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
     // DTO: ProdutoGravityWorkspace rename → contrato legado
-    const products = companyProducts.map(cp => ({
+    const productsBrutos = companyProducts.map(cp => ({
       id: cp.id_produto_gravity_workspace,
       product_key: cp.produto.slug_produto_gravity,
       is_active: cp.ativo_produto_gravity_workspace,
       activated_at: cp.data_contratacao_produto_gravity_workspace,
       catalog: catalogMap.get(cp.produto.slug_produto_gravity) ?? null,
     }))
+
+    // Uma entrada por produto lógico (ex.: smart-read + smart-read- / smart-docs__arquivado__* → Smart Docs).
+    const slugsLogicosVistos = new Set<string>()
+    const products = productsBrutos.filter(p => {
+      const chave = slugCatalogoExibicaoAssinaturaSmartDocs(
+        p.product_key,
+        p.catalog?.name ?? undefined,
+      )
+      if (slugsLogicosVistos.has(chave)) return false
+      slugsLogicosVistos.add(chave)
+      return true
+    })
 
     res.json({ products })
   } catch (err) {

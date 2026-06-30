@@ -21,9 +21,9 @@ import type {
   GTPreferencias,
   GTVirtualHandle,
 } from '@nucleo/tabela-virtual-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { BotaoNovoListaSmartRead } from './botao-novo-lista-smart-read'
 import { SmartReadListaPainelBar } from './SmartReadListaPainelBar'
-import { ModalExcluirLeiturasSmartRead } from './modal-excluir-leituras-smart-read'
 import { ModalNovaLeituraSmartRead } from './nova-leitura-smart-read/modal-nova-leitura-smart-read'
 import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-lista-smart-read'
 import {
@@ -320,12 +320,28 @@ export function TabelaTransacoesLeituraSmartRead({
             ? falhas[0].reason.message
             : 'Não foi possível excluir uma ou mais leituras.'
         addNotification({ type: 'error', message: mensagem })
+        if (sucesso === 0) {
+          throw new Error(mensagem)
+        }
       }
-      setModalExcluirAberto(false)
     } finally {
       setExcluindo(false)
     }
   }, [addNotification, leiturasSelecionadas, onRecarregar])
+
+  const exclusaoModalTitulo = useMemo(() => {
+    const quantidade = leiturasSelecionadas.length
+    return quantidade === 1
+      ? 'Excluir 1 leitura selecionada?'
+      : `Excluir ${quantidade} leituras selecionadas?`
+  }, [leiturasSelecionadas.length])
+
+  const exclusaoModalNomeItem = useMemo(() => {
+    if (leiturasSelecionadas.length === 0) return undefined
+    return leiturasSelecionadas
+      .map((item) => item.nome_leitura?.trim() || `Leitura ${item.id_leitura}`)
+      .join(', ')
+  }, [leiturasSelecionadas])
 
   const abrirNovaLeitura = useCallback((arquivos: File[] = []) => {
     setIdLeituraExistente(null)
@@ -483,12 +499,13 @@ export function TabelaTransacoesLeituraSmartRead({
         onConcluido={() => void onRecarregar()}
       />
 
-      <ModalExcluirLeiturasSmartRead
+      <ModalConfirmarExcluirGlobal
         aberto={modalExcluirAberto}
-        quantidade={leiturasSelecionadas.length}
-        excluindo={excluindo}
-        onConfirmar={() => void handleConfirmarExclusao()}
-        onCancelar={() => {
+        titulo={exclusaoModalTitulo}
+        descricao={`Remove a leitura e os documentos processados no ${NOME_PRODUTO_EXIBICAO}.`}
+        nomeItem={exclusaoModalNomeItem}
+        aoConfirmar={handleConfirmarExclusao}
+        aoCancelar={() => {
           if (!excluindo) setModalExcluirAberto(false)
         }}
       />

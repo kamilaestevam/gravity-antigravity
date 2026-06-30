@@ -2805,7 +2805,11 @@ export function DocManualUmaSecao({
               <button
                 type="button"
                 onClick={() => scrollTo(item.num)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818cf8', padding: 0, textAlign: 'left', lineHeight: 1.4 }}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', lineHeight: 1.4,
+                  color: item.num === 1 ? MANUAL_TITULO_COR : '#818cf8',
+                  fontWeight: item.num === 1 ? 700 : 400,
+                }}
               >
                 {item.titulo}
               </button>

@@ -432,55 +432,6 @@ function criarPassosTooltipKpiAssinaturas(): PassoSemNumero[] {
   }))
 }
 
-const FINANCEIRO_TOOLTIPS_KPI: DocTooltipKpi[] = [
-  {
-    card: 'Próximo Vencimento',
-    tituloTooltip: 'DETALHES DA FATURA',
-    descricao: 'Data e valor da fatura em aberto com vencimento mais próximo.',
-    detalhes: [
-      'Fatura Nº: Identificador legível da cobrança',
-      'Valor esperado: Total a pagar naquela fatura',
-      'Competência: Mês/ano de referência do serviço',
-    ],
-  },
-  {
-    card: 'Valor a Pagar',
-    tituloTooltip: 'COMPOSIÇÃO DO VALOR',
-    descricao: 'Soma de todas as faturas ainda não quitadas na organização.',
-    detalhes: [
-      'Faturas pendentes: Emitidas ou enviadas, aguardando pagamento',
-      'Faturas atrasadas: Vencidas (status Em atraso)',
-    ],
-  },
-  {
-    card: 'Faturas em Aberto',
-    tituloTooltip: 'SITUAÇÃO GERAL',
-    descricao: 'Panorama do histórico de cobrança da conta Gravity.',
-    detalhes: [
-      'Total lançadas: Todas as faturas já geradas',
-      'Faturas pagas: Quitadas com sucesso',
-    ],
-  },
-]
-
-/** Screenshots com tooltip aberto: Drive: 6. Financeiro/tela_financeiro_tela_principal_tootip_N.png */
-const FINANCEIRO_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
-  'Próximo Vencimento': '/university/screenshots/configurador-financeiro-cards-tooltip-1.png',
-  'Valor a Pagar': '/university/screenshots/configurador-financeiro-cards-tooltip-2.png',
-  'Faturas em Aberto': '/university/screenshots/configurador-financeiro-cards-tooltip-3.png',
-}
-
-function criarPassosTooltipKpiFinanceiro(): PassoSemNumero[] {
-  return FINANCEIRO_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip: ${tooltip.card}`,
-    imagem: FINANCEIRO_TOOLTIP_KPI_IMAGENS[tooltip.card],
-    paragrafos: [
-      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
-    ],
-    tooltipsKpi: [tooltip],
-  }))
-}
-
 const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
     card: 'USD / BRL',
@@ -1553,15 +1504,21 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 7,
     titulo: 'Financeiro',
-    layoutTextoImagemLateral: true,
-    imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
     paragrafos: [
-      '**Financeiro** concentra faturas da organização na Gravity, documentos de cobrança (boleto e NF-e) e a tabela de **Produtos × Valores** do catálogo contratado.',
-      'Status de fatura: **Emitida** e **Enviada** (em aberto), **Paga**, **Em atraso**, **Anulada** e **Incobrável**. Os cards do topo resumem vencimento, valor pendente e quantidade em aberto.',
+      '**Financeiro** é onde a empresa que contratou a plataforma Gravity gerencia todos os dados de **cobrança**, **pagamentos**, **valores**, **produtos**, **boletos** e **notas** da relação comercial entre a organização e a Gravity.',
+      'Consulte faturas, baixe documentos de cobrança e acompanhe a tabela de **Produtos × Valores** do catálogo contratado. Status de fatura: **Emitida** e **Enviada** (em aberto), **Paga**, **Em atraso**, **Anulada** e **Incobrável**. Os cards do topo resumem vencimento, valor pendente e quantidade em aberto.',
+    ],
+    figurasAposParagrafo: [
+      {
+        indice: 0,
+        imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
+        legenda: 'Tela principal do Financeiro',
+      },
     ],
     lista: [
       '**Histórico de Faturas**: Cobranças, vencimentos, boleto e NF-e',
       '**Produtos & Valores**: Preços, franquias e negociações do catálogo',
+      '**Bid Frete Internacional**: Cotação de frete por processo na tabela de preços',
     ],
     callout: {
       tipo: 'aviso',
@@ -1569,36 +1526,38 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar financeiro',
+        titulo: 'Acessar financeiro',
         tituloSumario: 'Acessar financeiro',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Financeiro.'],
         passosVisuais: passosComAcessoPadrao(
           'Financeiro',
-          criarPassosTooltipKpiFinanceiro(),
+          [],
           '/university/screenshots/configurador-financeiro-seta-menu.png',
           true,
-          [
-            'No menu lateral do Configurador, clique em Financeiro: Como indicado pela seta na imagem. A tela abre com os três cards de resumo e a aba Histórico de Faturas ativa por padrão.',
-            'Use as abas Histórico de Faturas e Produtos & Valores para alternar entre cobranças e tabela de preços. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
-          ],
           undefined,
+          {
+            paragrafos: [
+              'No menu lateral do Configurador, clique em Financeiro, como indicado pela seta na imagem.',
+            ],
+          },
           '/university/screenshots/configurador-financeiro-acesso-atalho.png',
         ),
       },
       {
-        titulo: 'Fluxo 2: Histórico de faturas',
+        titulo: 'Histórico de faturas',
         tituloSumario: 'Histórico de faturas',
         paragrafos: [
           'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
+          '**Visão geral da aba Faturas** — A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
+        ],
+        figurasAposParagrafo: [
+          {
+            indice: 1,
+            imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
+            legenda: 'Visão geral da aba Faturas',
+          },
         ],
         passosVisuais: renumerarPassos([
-          {
-            titulo: 'Visão geral da aba Faturas',
-            imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
-            paragrafos: [
-              'A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
-            ],
-          },
           {
             titulo: 'Expandir detalhamento da fatura',
             imagem: '/university/screenshots/configurador-financeiro-fatura-expandir-seta.png',
@@ -1638,7 +1597,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3: Produtos e valores',
+        titulo: 'Produtos e valores',
         tituloSumario: 'Produtos e valores',
         paragrafos: [
           'A segunda aba exibe o catálogo de produtos Gravity com tipo de cobrança, franquia inclusa, limites de usuários, help desk e eventuais negociações especiais da organização.',

@@ -15,6 +15,7 @@ import {
   type DocColunaTabela,
   type DocFiguraAposParagrafo,
   type DocFluxo,
+  type DocGaleriaTela,
   type DocOrigemDados,
   type DocPassoVisual,
   type DocSecao,
@@ -171,14 +172,17 @@ function ManualFiguraScreenshot({
   src,
   alt,
   larguraMaxima,
+  larguraTotal,
 }: {
   src: string
   alt: string
   larguraMaxima?: number
+  larguraTotal?: boolean
 }) {
   const [telaCheia, setTelaCheia] = useState(false)
   const ampliarAbaixo = src === SCREENSHOT_HUB_ACESSO_CONFIGURADOR
   const compacta = larguraMaxima != null
+  const larguraCheia = ampliarAbaixo || compacta || larguraTotal
 
   useEffect(() => {
     if (!telaCheia) return
@@ -201,7 +205,7 @@ function ManualFiguraScreenshot({
       <div style={
         ampliarAbaixo
           ? { display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }
-          : compacta
+          : compacta || larguraTotal
             ? { maxWidth: larguraMaxima, width: '100%' }
             : undefined
       }>
@@ -220,7 +224,7 @@ function ManualFiguraScreenshot({
             margin: 0, borderRadius: 14, overflow: 'hidden', cursor: 'zoom-in',
             border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
             background: 'rgba(8,12,24,.55)', position: 'relative',
-            width: ampliarAbaixo || compacta ? '100%' : undefined,
+            width: larguraCheia ? '100%' : undefined,
             maxWidth: larguraMaxima,
           }}
         >
@@ -373,6 +377,111 @@ function ManualColunasTabela({ colunas }: { colunas: DocColunaTabela[] }) {
   )
 }
 
+function ManualTooltipKpiCard({
+  tooltip,
+  preencherAltura = false,
+}: {
+  tooltip: DocTooltipKpi
+  preencherAltura?: boolean
+}) {
+  return (
+    <div
+      style={{
+        background: 'rgba(99,102,241,.06)',
+        border: '1px solid rgba(99,102,241,.18)',
+        borderRadius: 10,
+        padding: '12px 14px',
+        ...(preencherAltura ? {
+          height: '100%',
+          width: '100%',
+          boxSizing: 'border-box',
+        } : {}),
+      }}
+    >
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
+        color: '#818cf8', margin: '0 0 10px',
+      }}>
+        {tooltip.card}
+      </p>
+      <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 10px' }}>
+        Tooltip: {tooltip.tituloTooltip}
+      </p>
+      <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 8px', lineHeight: 1.45 }}>
+        {tooltip.descricao}
+      </p>
+      <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
+        {tooltip.detalhes.map((item) => (
+          <li key={item} style={{ marginBottom: 3 }}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function ManualGaleriaTelaImagemCelula({ tela }: { tela: DocGaleriaTela }) {
+  return (
+    <div style={{ width: '100%' }}>
+      <p style={{
+        fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+        marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+        minHeight: '2.25rem',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}>{tela.legenda}</p>
+      <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} larguraTotal />
+    </div>
+  )
+}
+
+function ManualGaleriaTelasGrid({ telas, marginTop }: { telas: DocGaleriaTela[]; marginTop: number }) {
+  const colunas = telas.length <= 1 ? '1fr' : telas.length === 2 ? 'repeat(2, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))'
+  const comCardsKpi = telas.length > 0 && telas.every((tela) => tela.tooltipKpi != null)
+
+  if (comCardsKpi) {
+    return (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: colunas,
+        gap: 14,
+        marginTop,
+        alignItems: 'stretch',
+      }}>
+        {telas.map((tela) => (
+          <ManualTooltipKpiCard
+            key={`card-${tela.legenda}`}
+            tooltip={tela.tooltipKpi!}
+            preencherAltura
+          />
+        ))}
+        {telas.map((tela) => (
+          <ManualGaleriaTelaImagemCelula key={`img-${tela.legenda}`} tela={tela} />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: colunas,
+      gap: 14,
+      marginTop,
+    }}>
+      {telas.map((tela) => (
+        <div key={tela.legenda}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+            marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+          }}>{tela.legenda}</p>
+          <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
   const umaColuna = tooltips.length === 1
   return (
@@ -383,33 +492,7 @@ function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
       gap: 10,
     }}>
       {tooltips.map((tooltip) => (
-        <div
-          key={tooltip.card}
-          style={{
-            background: 'rgba(99,102,241,.06)',
-            border: '1px solid rgba(99,102,241,.18)',
-            borderRadius: 10,
-            padding: '12px 14px',
-          }}
-        >
-          <p style={{
-            fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
-            color: '#818cf8', margin: '0 0 10px',
-          }}>
-            {tooltip.card}
-          </p>
-          <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 10px' }}>
-            Tooltip: {tooltip.tituloTooltip}
-          </p>
-          <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 8px', lineHeight: 1.45 }}>
-            {tooltip.descricao}
-          </p>
-          <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
-            {tooltip.detalhes.map((item) => (
-              <li key={item} style={{ marginBottom: 3 }}>{item}</li>
-            ))}
-          </ul>
-        </div>
+        <ManualTooltipKpiCard key={tooltip.card} tooltip={tooltip} />
       ))}
     </div>
   )
@@ -551,22 +634,7 @@ function ManualBlocoPassoVisual({
 
   if (passo.imagemAbaixoTexto && passo.imagem) {
     const galeriaAbaixo = passo.galeriaTelas?.length ? (
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-        gap: 14,
-        marginTop: 20,
-      }}>
-        {passo.galeriaTelas.map((tela) => (
-          <div key={tela.legenda}>
-            <p style={{
-              fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-              marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
-            }}>{tela.legenda}</p>
-            <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-          </div>
-        ))}
-      </div>
+      <ManualGaleriaTelasGrid telas={passo.galeriaTelas} marginTop={20} />
     ) : null
 
     return (
@@ -614,22 +682,7 @@ function ManualBlocoPassoVisual({
 
   if (passo.galeriaTelas?.length || (passo.colunasTabela?.length && !passo.imagem)) {
     const galeria = passo.galeriaTelas?.length ? (
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-        gap: 14,
-        marginTop: 20,
-      }}>
-        {passo.galeriaTelas.map((tela) => (
-          <div key={tela.legenda}>
-            <p style={{
-              fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-              marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
-            }}>{tela.legenda}</p>
-            <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-          </div>
-        ))}
-      </div>
+      <ManualGaleriaTelasGrid telas={passo.galeriaTelas} marginTop={20} />
     ) : null
 
     if (passo.imagem) {

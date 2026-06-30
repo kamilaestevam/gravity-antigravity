@@ -10,6 +10,11 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 import {
+  HISTORICO_CATALOGO_SECOES,
+  type HistoricoCatalogoSecao,
+} from './manual-historico-catalogo'
+import { DOC_API_COCKPIT_SECAO } from './manual-api-cockpit-conteudo'
+import {
   type ConfiguradorManualSlug,
   type DocTooltipKpi,
   type DocColunaTabela,
@@ -30,6 +35,7 @@ import {
 } from './manual-configurador-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
@@ -254,7 +260,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '34'
+const MANUAL_SCREENSHOT_CACHE_KEY = '39'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -281,7 +287,7 @@ function ManualFiguraScreenshot({
 
   useEffect(() => {
     setErroCarregamento(false)
-  }, [src])
+  }, [srcEfetivo])
 
   useEffect(() => {
     if (!telaCheia) return
@@ -1189,6 +1195,9 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           </React.Fragment>
         ))
       )}
+      {fluxo.mostrarCatalogoHistoricoCompleto && (
+        <ManualCatalogoHistoricoCompleto />
+      )}
       {fluxo.callout && fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
       )}
@@ -1538,6 +1547,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.mostrarInfograficoHubTelas && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoHubTelas />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoSmartDocsDocumentos && (
+        <div style={{ marginBottom: 8 }}>
+          <ManualInfograficoSmartDocsDocumentos />
         </div>
       )}
 
@@ -2721,6 +2736,123 @@ function ManualInfograficoTiposUsuario() {
   )
 }
 
+const HISTORICO_TABELA_TH: React.CSSProperties = {
+  padding: '11px 14px',
+  textAlign: 'left',
+  fontSize: '.66rem',
+  fontWeight: 700,
+  letterSpacing: '.06em',
+  textTransform: 'uppercase',
+  borderBottom: '1px solid rgba(148,163,184,.15)',
+}
+
+const HISTORICO_TABELA_TD: React.CSSProperties = {
+  padding: '11px 14px',
+  fontSize: '.76rem',
+  lineHeight: 1.45,
+  verticalAlign: 'top',
+  borderBottom: '1px solid rgba(148,163,184,.08)',
+  color: '#e2e8f0',
+}
+
+function ManualHistoricoTabelaSecao({ secao }: { secao: HistoricoCatalogoSecao }) {
+  const minWidth = Math.max(480, secao.colunas.length * 110)
+
+  return (
+    <div style={{
+      marginTop: 18,
+      borderRadius: 14,
+      border: '1px solid rgba(148,163,184,.14)',
+      background: 'linear-gradient(145deg, rgba(99,102,241,.06) 0%, rgba(148,163,184,.04) 50%, rgba(52,211,153,.04) 100%)',
+      boxShadow: '0 8px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04)',
+      overflow: 'hidden',
+    }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: 0, padding: '14px 16px 12px',
+        borderBottom: '1px solid rgba(148,163,184,.1)',
+      }}>
+        {secao.titulo}
+      </p>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {secao.colunas.map((col) => (
+                <th
+                  key={col.chave}
+                  style={{
+                    ...HISTORICO_TABELA_TH,
+                    width: col.largura,
+                    color: col.destaque ? '#a5b4fc' : '#94a3b8',
+                    background: col.destaque ? 'rgba(99,102,241,.08)' : 'transparent',
+                  }}
+                >
+                  {col.rotulo}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {secao.linhas.map((linha, i) => (
+              <tr
+                key={`${secao.titulo}-${i}`}
+                style={{ background: i % 2 === 0 ? 'rgba(8,12,24,.15)' : 'transparent' }}
+              >
+                {secao.colunas.map((col) => {
+                  const valor = linha[col.chave] ?? ''
+                  const ehNum = col.chave === 'num'
+                  const ehTecnico = col.chave === 'acao' || col.chave === 'campo' || col.chave === 'gatilho' || col.chave === 'prefixo'
+                  const ehUsuario = col.chave === 'traducao'
+                  return (
+                    <td
+                      key={col.chave}
+                      style={{
+                        ...HISTORICO_TABELA_TD,
+                        fontWeight: ehNum || col.destaque || ehUsuario ? 600 : 400,
+                        color: ehNum ? '#94a3b8' : '#e2e8f0',
+                        background: col.destaque ? 'rgba(99,102,241,.04)' : undefined,
+                        fontFamily: ehTecnico
+                          ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+                          : undefined,
+                        fontSize: ehTecnico ? '.7rem' : '.76rem',
+                      }}
+                    >
+                      <ManualTextoRich texto={valor} />
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {secao.notaRodape && (
+        <p style={{
+          margin: 0,
+          padding: '10px 16px 14px',
+          fontSize: '.72rem',
+          lineHeight: 1.5,
+          color: MANUAL_CORPO_70,
+          borderTop: '1px solid rgba(148,163,184,.08)',
+        }}>
+          <ManualTextoRich texto={secao.notaRodape} />
+        </p>
+      )}
+    </div>
+  )
+}
+
+function ManualCatalogoHistoricoCompleto() {
+  return (
+    <div style={{ marginTop: 8, marginBottom: 8 }}>
+      {HISTORICO_CATALOGO_SECOES.map((secao) => (
+        <ManualHistoricoTabelaSecao key={secao.titulo} secao={secao} />
+      ))}
+    </div>
+  )
+}
+
 const COMPARATIVO_TIPOS_USUARIO: {
   criterio: string
   master: string
@@ -3252,7 +3384,9 @@ export function DocManualUmaSecao({
 }
 
 export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: ConfiguradorManualSlug }) {
-  const secao = secaoConfiguradorPorSlug(paginaSlug)
+  const secao = paginaSlug === 'api-cockpit'
+    ? DOC_API_COCKPIT_SECAO
+    : secaoConfiguradorPorSlug(paginaSlug)
   const metadados = metadadosConfiguradorPagina(paginaSlug)
 
   if (!secao) {
@@ -3263,7 +3397,13 @@ export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: Configurador
     )
   }
 
-  return <DocManualUmaSecao secao={secao} metadados={metadados} />
+  return (
+    <DocManualUmaSecao
+      secao={secao}
+      metadados={metadados}
+      secoesAbertasInicial={paginaSlug === 'api-cockpit' ? [1, 2] : undefined}
+    />
+  )
 }
 
 export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi, DocColunaTabela, DocTopicoImagemLateral }

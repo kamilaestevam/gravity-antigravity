@@ -117,6 +117,8 @@ export interface DocFluxo {
   infograficoIconesMenuSuperiorAposPassos?: boolean
   /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
   mostrarInfograficoTiposUsuario?: boolean
+  /** Manual Histórico §04 — catálogo completo de eventos (tabelas). */
+  mostrarCatalogoHistoricoCompleto?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -148,6 +150,8 @@ export interface DocSecao {
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
   mostrarInfograficoHubTelas?: boolean
+  /** Manual Smart Docs §01 — cards dos tipos de documento lidos pela IA. */
+  mostrarInfograficoSmartDocsDocumentos?: boolean
   /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
   mostrarInfograficoMapaNavegacaoGravity?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
@@ -235,7 +239,7 @@ export const CONFIGURADOR_MANUAL_ITENS: ConfiguradorManualItem[] = [
     label: 'API Cockpit',
     secaoNum: 8,
     rotaApp: '/configurador/api-cockpit',
-    subtitulo: 'Tokens, webhooks e integrações com ERPs',
+    subtitulo: 'Servidores, tokens, webhooks e consumo de API',
   },
   {
     pathSeg: 'taxas-moeda',
@@ -271,6 +275,10 @@ const SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_2 =
 const SCREENSHOT_USUARIOS_STATUS_CONVIDADO_ATIVO =
   '/university/screenshots/configurador-usuarios-ativado.png'
 const SCREENSHOT_CONFIGURADOR_MENU_LATERAL = '/university/screenshots/configurador-tela-menu-lateral.png'
+const SCREENSHOT_HISTORICO_SETA_CONFIGURADOR =
+  '/university/screenshots/configurador-historico-seta-configurador-menu.png'
+const SCREENSHOT_HISTORICO_SETA_PRODUTO =
+  '/university/screenshots/configurador-historico-seta-produto.png'
 
 const LINK_MANUAL_WORKSPACES = '{{link:/university-gravity/docs/configurador/workspaces|workspaces}}'
 const LINK_MANUAL_WORKSPACES_CAP = '{{link:/university-gravity/docs/configurador/workspaces|Workspaces}}'
@@ -535,6 +543,76 @@ const TAXAS_MOEDA_GALERIA_TOOLTIPS_KPI: DocGaleriaTela[] = [
   },
 ]
 
+const HISTORICO_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'Total de eventos',
+    tituloTooltip: 'Visão geral',
+    descricao: 'Quantidade de registros carregados na página atual da auditoria.',
+    detalhes: [
+      'Paginação: 25 eventos por página',
+      'Use Anterior/Próxima para percorrer o histórico completo',
+    ],
+  },
+  {
+    card: 'Últimos 7 dias',
+    tituloTooltip: 'Atividade recente',
+    descricao: 'Eventos registrados na última semana entre os registros carregados.',
+    detalhes: ['% do total: Proporção em relação à página atual'],
+  },
+  {
+    card: 'Status dos eventos',
+    tituloTooltip: 'Distribuição por resultado',
+    descricao: 'Proporção de Sucesso, Falha e Parcial nos eventos da página.',
+    detalhes: [
+      'Sucesso: Ação concluída sem erro',
+      'Falha: Ação bloqueada ou com erro',
+      'Parcial: Conclusão incompleta ou com ressalvas',
+    ],
+  },
+]
+
+const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
+  {
+    coluna: 'Data/Hora',
+    descricao: 'Momento em que o evento foi gravado (fuso da organização).',
+    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+  },
+  {
+    coluna: 'Ação',
+    descricao: 'O que aconteceu — ex.: **Convidou**, **Atualizou**, **Excluiu**.',
+  },
+  {
+    coluna: 'Local',
+    descricao: 'Tela ou módulo — ex.: Configurador | Usuários, Pedido | Lista.',
+  },
+  {
+    coluna: 'Usuário',
+    descricao: 'Quem fez: nome e e-mail quando o ator é pessoa.',
+  },
+  {
+    coluna: 'Detalhes',
+    descricao: 'Resumo do que mudou — permissão, convite, número do pedido, etc.',
+  },
+]
+
+const HISTORICO_GALERIA_TOOLTIPS_KPI: DocGaleriaTela[] = [
+  {
+    legenda: '1 · Total de eventos',
+    imagem: '/university/screenshots/configurador-historico-cards-tooltip-1.png',
+    tooltipKpi: HISTORICO_TOOLTIPS_KPI[0],
+  },
+  {
+    legenda: '2 · Últimos 7 dias',
+    imagem: '/university/screenshots/configurador-historico-cards-tooltip-2.png',
+    tooltipKpi: HISTORICO_TOOLTIPS_KPI[1],
+  },
+  {
+    legenda: '3 · Status dos eventos',
+    imagem: '/university/screenshots/configurador-historico-cards-tooltip-3.png',
+    tooltipKpi: HISTORICO_TOOLTIPS_KPI[2],
+  },
+]
+
 /** Aceita um parágrafo único (string) ou lista — evita crash quando `paragrafosAcessoArea` é string. */
 function paragrafosPasso(valor?: string | string[]): string[] | undefined {
   if (valor == null) return undefined
@@ -542,7 +620,7 @@ function paragrafosPasso(valor?: string | string[]): string[] | undefined {
 }
 
 /** Passos padrão de acesso: opcional Hub → menu do usuário → Configurador → área no menu lateral. */
-function passosComAcessoPadrao(
+export function passosComAcessoPadrao(
   areaMenu: string,
   passosEspecificos: PassoSemNumero[],
   imagemArea?: string,
@@ -593,7 +671,7 @@ function passosComAcessoPadrao(
   ]
 }
 
-function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
+export function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
 
@@ -1791,30 +1869,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
   },
   {
-    num: 8,
-    titulo: 'API Cockpit',
-    paragrafos: [
-      '**API Cockpit** centraliza tokens de integração, playground de requisições, webhooks e conectores com ERPs.',
-    ],
-    lista: [
-      '**Tokens**: Credenciais para integrações REST',
-      '**Playground**: Testar requisições antes de publicar',
-      '**Webhooks**: Notificações de eventos para sistemas externos',
-    ],
-    callout: {
-      tipo: 'dica',
-      texto: 'Capítulos detalhados com screenshots serão publicados em breve. Use o Fluxo 1 para chegar à tela no Configurador.',
-    },
-    fluxos: [
-      {
-        titulo: 'Fluxo 1: Acessar API Cockpit',
-        paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar ao API Cockpit.'],
-        passosVisuais: passosComAcessoPadrao('API Cockpit', []),
-      },
-      fluxoEmBreve('Fluxo 2: Configurar integrações', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
-    ],
-  },
-  {
     num: 9,
     titulo: 'Taxas e moeda',
     paragrafos: [
@@ -1883,24 +1937,127 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     num: 10,
     titulo: 'Histórico',
     paragrafos: [
-      '**Histórico** registra alterações sensíveis na organização e nos workspaces: Convites, mudanças de permissão e eventos de auditoria.',
+      `**Histórico** registra alterações sensíveis na organização e nos ${LINK_MANUAL_WORKSPACES}: Convites, mudanças de ${LINK_MANUAL_PERMISSOES}, workspaces, assinaturas e eventos de segurança.`,
+      'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando — sem alterar registros.',
+    ],
+    figurasAposParagrafo: [
+      {
+        indice: 1,
+        imagem: '/university/screenshots/configurador-historico-tela-principal.png',
+        legenda: 'Visão geral — cards de resumo e tabela de auditoria',
+      },
     ],
     lista: [
       '**Auditoria**: Quem fez o quê e quando',
       '**Organização**: Eventos da conta contratante',
-      '**Workspaces**: Alterações por unidade operacional',
+      `${LINK_MANUAL_WORKSPACES_CAP}: Alterações por unidade operacional`,
+      '**Segurança**: Bloqueios, falhas de login e tentativas cross-tenant',
     ],
     callout: {
       tipo: 'dica',
-      texto: 'Screenshots e fluxos detalhados desta tela serão adicionados em breve.',
+      texto: `**Master** vê toda a organização. **Padrão** e **Fornecedor** só veem linhas em que são ator ou alvo. O acesso à tela exige **historico:ver** em ${LINK_MANUAL_PERMISSOES}.`,
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar histórico',
-        paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Histórico.'],
-        passosVisuais: passosComAcessoPadrao('Histórico', []),
+        titulo: 'Acessar histórico',
+        tituloSumario: 'Acessar histórico',
+        paragrafos: [
+          'Siga os passos abaixo para abrir o Configurador e chegar à tela de **Histórico**.',
+        ],
+        passosVisuais: passosComAcessoPadrao(
+          'Histórico',
+          [
+            {
+              titulo: 'Tela de Histórico',
+              imagem: '/university/screenshots/configurador-historico-tela-principal.png',
+              imagemAbaixoTexto: true,
+              paragrafos: [
+                'A tela abre com os **três cards de resumo** no topo e a **tabela de auditoria** abaixo.',
+                'Passe o mouse no ícone **(i)** de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
+              ],
+              galeriaTelas: [...HISTORICO_GALERIA_TOOLTIPS_KPI],
+            },
+            {
+              titulo: 'Caminho alternativo: pelo produto',
+              imagem: SCREENSHOT_HISTORICO_SETA_PRODUTO,
+              paragrafos: [
+                'Sem passar pelo Configurador, cada **produto Gravity** (Pedido, Smart Docs, etc.) traz **Histórico** no menu lateral inferior — como na imagem.',
+                'Esse atalho abre os eventos **daquele módulo**, não o histórico geral da organização.',
+              ],
+              callout: {
+                tipo: 'dica',
+                texto: '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do produto** — operações do módulo.',
+              },
+            },
+          ],
+          SCREENSHOT_HISTORICO_SETA_CONFIGURADOR,
+          true,
+          ['No menu lateral do Configurador, clique em **Histórico** (último item da lista).'],
+        ),
       },
-      fluxoEmBreve('Fluxo 2: Consultar auditoria', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      {
+        titulo: 'Consultar auditoria',
+        tituloSumario: 'Consultar auditoria',
+        paragrafos: [
+          'Use a tabela para investigar eventos. Os **cards do topo** refletem só a **página atual** (25 registros); a paginação abaixo percorre o histórico completo.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Entender as colunas',
+            imagem: '/university/screenshots/configurador-historico-tabela.png',
+            imagemAbaixoTexto: true,
+            paragrafos: ['Cada linha é um evento gravado automaticamente. As cinco colunas resumem o que aconteceu:'],
+            colunasTabela: [...HISTORICO_COLUNAS_AUDITORIA],
+          },
+          {
+            titulo: 'Filtrar e localizar',
+            imagem: '/university/screenshots/configurador-historico-filtros.png',
+            paragrafos: [
+              'Use os filtros no cabeçalho de cada coluna para restringir por período, **Ação**, **Local** ou **Usuário**.',
+              'A busca textual percorre **Detalhes**, nome do ator e tipo de recurso.',
+            ],
+          },
+          {
+            titulo: 'Exportar registros',
+            imagem: '/university/screenshots/configurador-historico-exportar.png',
+            paragrafos: [
+              'No menu de exportação, baixe os registros **visíveis na página** em Excel, CSV, TXT, XML, PDF ou JSON.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'A exportação reflete o recorte atual (filtros + página).',
+            },
+          },
+          {
+            titulo: 'Navegar entre páginas',
+            paragrafos: [
+              'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'O que o histórico registra',
+        tituloSumario: 'O que o histórico registra',
+        paragrafos: [
+          'Nesta tela do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo).',
+          'Abaixo, a tabela com todos os eventos que o histórico registra na plataforma.',
+        ],
+        calloutAposParagrafo: {
+          indice: 1,
+          callout: {
+            tipo: 'dica',
+            texto: 'Nos produtos prontos (**Pedido**, **BID Frete**, **Smart Docs**) o histórico **não grava cada clique** — só **alterações que salvam no servidor** e operações especiais (duplicar, transferir, aprovar cotação, etc.).',
+          },
+        },
+        mostrarCatalogoHistoricoCompleto: true,
+        callout: {
+          tipo: 'lembrete',
+          texto: 'Algumas rotas podem gerar **dois** registros (ex.: alteração de permissão: evento de segurança + captura automática). Isso é esperado.',
+        },
+        calloutAposPassos: true,
+        passosVisuais: [],
+      },
     ],
   },
 ]
@@ -1908,5 +2065,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
 export function secaoConfiguradorPorSlug(slug: ConfiguradorManualSlug): DocSecao | undefined {
   const item = CONFIGURADOR_MANUAL_ITENS.find(i => i.pathSeg === slug)
   if (!item) return undefined
+  if (item.secaoNum === 8) return undefined
   return DOC_CONFIGURADOR_SECOES.find(s => s.num === item.secaoNum)
 }

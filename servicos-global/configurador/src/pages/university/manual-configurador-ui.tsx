@@ -13,7 +13,6 @@ import {
   HISTORICO_CATALOGO_SECOES,
   type HistoricoCatalogoSecao,
 } from './manual-historico-catalogo'
-import { DOC_API_COCKPIT_SECAO } from './manual-api-cockpit-conteudo'
 import {
   type ConfiguradorManualSlug,
   type DocTooltipKpi,
@@ -35,7 +34,6 @@ import {
 } from './manual-configurador-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
-import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
@@ -1547,12 +1545,6 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.mostrarInfograficoHubTelas && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoHubTelas />
-        </div>
-      )}
-
-      {secao.mostrarInfograficoSmartDocsDocumentos && (
-        <div style={{ marginBottom: 8 }}>
-          <ManualInfograficoSmartDocsDocumentos />
         </div>
       )}
 
@@ -3384,9 +3376,7 @@ export function DocManualUmaSecao({
 }
 
 export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: ConfiguradorManualSlug }) {
-  const secao = paginaSlug === 'api-cockpit'
-    ? DOC_API_COCKPIT_SECAO
-    : secaoConfiguradorPorSlug(paginaSlug)
+  const secao = secaoConfiguradorPorSlug(paginaSlug)
   const metadados = metadadosConfiguradorPagina(paginaSlug)
 
   if (!secao) {
@@ -3397,13 +3387,7 @@ export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: Configurador
     )
   }
 
-  return (
-    <DocManualUmaSecao
-      secao={secao}
-      metadados={metadados}
-      secoesAbertasInicial={paginaSlug === 'api-cockpit' ? [1, 2] : undefined}
-    />
-  )
+  return <DocManualUmaSecao secao={secao} metadados={metadados} />
 }
 
 export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi, DocColunaTabela, DocTopicoImagemLateral }

@@ -23,6 +23,10 @@ import { PrismaClient } from '../../../../generated/index.js'
 import { z } from 'zod'
 import { generateWebhookSecret, generateHMACSignature } from '../crypto'
 import { requireInternalKey } from '../middleware/requireInternalKey'
+import {
+  urlWebhookConfiguracaoSchema,
+  mensagemErroValidacaoZod,
+} from '../lib/validar-url-webhook-configuracao'
 
 export const webhooksRouter = Router()
 const prisma = new PrismaClient()
@@ -37,17 +41,17 @@ const listarWebhooksQuerySchema = z.object({
 
 const criarWebhookSchema = z.object({
   id_organizacao:               z.string().min(1, 'id_organizacao obrigatorio'),
-  id_produto_gravity:           z.string().optional(),
-  id_usuario:                   z.string().optional(),
-  url_webhook_configuracao:     z.string().url('URL invalida'),
-  eventos_webhook_configuracao: z.array(z.string()).min(1, 'Pelo menos 1 evento obrigatorio'),
+  id_produto_gravity:           z.string().nullish(),
+  id_usuario:                   z.string().nullish(),
+  url_webhook_configuracao:     urlWebhookConfiguracaoSchema,
+  eventos_webhook_configuracao: z.array(z.string()).min(1, 'Selecione pelo menos um evento para receber.'),
   ativo_webhook_configuracao:   z.boolean().optional(),
 })
 
 const atualizarWebhookSchema = z.object({
   id_organizacao:               z.string().min(1, 'id_organizacao obrigatorio'),
-  url_webhook_configuracao:     z.string().url('URL invalida').optional(),
-  eventos_webhook_configuracao: z.array(z.string()).min(1).optional(),
+  url_webhook_configuracao:     urlWebhookConfiguracaoSchema.optional(),
+  eventos_webhook_configuracao: z.array(z.string()).min(1, 'Selecione pelo menos um evento.').optional(),
   ativo_webhook_configuracao:   z.boolean().optional(),
 })
 
@@ -85,7 +89,10 @@ webhooksRouter.post('/', async (req: Request, res: Response, next: NextFunction)
   try {
     const parsed = criarWebhookSchema.safeParse(req.body)
     if (!parsed.success) {
-      return res.status(400).json({ erro: 'Body invalido', issues: parsed.error.issues })
+      return res.status(400).json({
+        erro: mensagemErroValidacaoZod(parsed.error),
+        issues: parsed.error.issues,
+      })
     }
 
     const segredo = generateWebhookSecret()
@@ -122,7 +129,10 @@ webhooksRouter.put('/:id_webhook_configuracao', async (req: Request, res: Respon
 
     const parsed = atualizarWebhookSchema.safeParse(req.body)
     if (!parsed.success) {
-      return res.status(400).json({ erro: 'Body invalido', issues: parsed.error.issues })
+      return res.status(400).json({
+        erro: mensagemErroValidacaoZod(parsed.error),
+        issues: parsed.error.issues,
+      })
     }
 
     const existente = await prisma.webhookConfiguracao.findFirst({

@@ -7,6 +7,12 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
+import { extrairMensagemErroApi } from '../../utils/extrair-mensagem-erro-api'
+import {
+  EXEMPLO_URL_WEBHOOK,
+  HINT_URL_WEBHOOK,
+  validarUrlWebhookConfiguracao,
+} from '../../utils/validar-url-webhook-configuracao'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
@@ -63,6 +69,15 @@ const INPUT_STYLE: React.CSSProperties = {
   fontSize: '0.875rem',
 }
 
+const ALERTA_ERRO_STYLE: React.CSSProperties = {
+  padding: '0.75rem 1rem',
+  borderRadius: '8px',
+  background: 'rgba(248,113,113,0.1)',
+  border: '1px solid rgba(248,113,113,0.3)',
+  color: '#f87171',
+  fontSize: '0.875rem',
+}
+
 // Eventos canonicos disponiveis no Gravity
 const EVENTOS_DISPONIVEIS = [
   'simulacao.criada',
@@ -84,6 +99,8 @@ export function ApiWebhooks() {
   const [novaUrl, setNovaUrl] = useState('')
   const [novosEventos, setNovosEventos] = useState<string[]>([])
   const [criando, setCriando] = useState(false)
+  const [erroCriar, setErroCriar] = useState<string | null>(null)
+  const [erroUrl, setErroUrl] = useState<string | null>(null)
 
   // Modal — exibicao do segredo (uma vez so)
   const [webhookCriado, setWebhookCriado] = useState<CriarWebhookResponse | null>(null)
@@ -122,9 +139,17 @@ export function ApiWebhooks() {
   const resetForm = () => {
     setNovaUrl('')
     setNovosEventos([])
+    setErroCriar(null)
+    setErroUrl(null)
+  }
+
+  const abrirModalCriar = () => {
+    resetForm()
+    setModalCriarAberto(true)
   }
 
   const toggleEvento = (evento: string) => {
+    setErroCriar(null)
     setNovosEventos((prev) =>
       prev.includes(evento) ? prev.filter((e) => e !== evento) : [...prev, evento],
     )
@@ -132,8 +157,16 @@ export function ApiWebhooks() {
 
   const handleCriar = async () => {
     if (!novaUrl.trim() || novosEventos.length === 0) return
+
+    const msgUrl = validarUrlWebhookConfiguracao(novaUrl)
+    if (msgUrl) {
+      setErroUrl(msgUrl)
+      return
+    }
+
     setCriando(true)
     setErro(null)
+    setErroCriar(null)
     try {
       const res = await requisicaoAutenticada('/api/v1/api-cockpit/webhooks', {
         method:  'POST',
@@ -146,7 +179,7 @@ export function ApiWebhooks() {
       })
       const raw = await res.json()
       if (!res.ok) {
-        throw new Error(raw?.erro || raw?.error || `Falha ao criar webhook: ${res.status}`)
+        throw new Error(extrairMensagemErroApi(raw, `Falha ao criar webhook: ${res.status}`))
       }
       const parsed = criarWebhookResponseSchema.safeParse(raw)
       if (!parsed.success) throw new Error('Resposta de criacao invalida')
@@ -155,7 +188,9 @@ export function ApiWebhooks() {
       resetForm()
       await carregar()
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Falha ao criar webhook')
+      const msg = err instanceof Error ? err.message : 'Falha ao criar webhook'
+      setErroCriar(msg)
+      setErro(msg)
     } finally {
       setCriando(false)
     }
@@ -170,7 +205,7 @@ export function ApiWebhooks() {
       )
       if (!res.ok && res.status !== 204) {
         const raw = await res.json().catch(() => ({}))
-        throw new Error(raw?.erro || raw?.error || `Falha ao excluir: ${res.status}`)
+        throw new Error(extrairMensagemErroApi(raw, `Falha ao excluir: ${res.status}`))
       }
       await carregar()
     } catch (err) {
@@ -185,7 +220,7 @@ export function ApiWebhooks() {
         { method: 'POST', headers: { 'Content-Type': 'application/json' } },
       )
       const raw = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(raw?.erro || raw?.error || `Falha ao disparar: ${res.status}`)
+      if (!res.ok) throw new Error(extrairMensagemErroApi(raw, `Falha ao disparar: ${res.status}`))
       const sucesso = raw?.sucesso === true
       const codigo = raw?.codigo_resposta_http_webhook_log ?? '?'
       window.alert(sucesso
@@ -310,7 +345,7 @@ export function ApiWebhooks() {
           <ApiCockpitTabs />
           <BotaoGlobal
             variante="primario"
-            onClick={() => setModalCriarAberto(true)}
+            onClick={abrirModalCriar}
             icone={<Plus size={16} />}
           >
             Novo Webhook
@@ -337,19 +372,40 @@ export function ApiWebhooks() {
         subtitulo="O segredo HMAC sera exibido apenas uma vez. Copie e guarde em local seguro."
         tamanho="md"
         altura="auto"
+        modoCriacao
+        carregando={criando}
         dirty={!!novaUrl.trim() || novosEventos.length > 0}
         podesSalvar={!!novaUrl.trim() && novosEventos.length > 0 && !criando}
         textoSalvar={criando ? 'Cadastrando...' : 'Cadastrar Webhook'}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem 1.5rem' }}>
-          <CampoGeralGlobal label="URL do Webhook" htmlFor="url-webhook" obrigatorio>
+          {erroCriar && (
+            <div role="alert" style={ALERTA_ERRO_STYLE}>
+              {erroCriar}
+            </div>
+          )}
+          <CampoGeralGlobal
+            label="URL do Webhook"
+            htmlFor="url-webhook"
+            obrigatorio
+            hint={HINT_URL_WEBHOOK}
+            erro={erroUrl ?? undefined}
+          >
             <input
               id="url-webhook"
               type="url"
               style={INPUT_STYLE}
               value={novaUrl}
-              onChange={(e) => setNovaUrl(e.target.value)}
-              placeholder="https://exemplo.com/webhooks"
+              onChange={(e) => {
+                setNovaUrl(e.target.value)
+                setErroCriar(null)
+                setErroUrl(null)
+              }}
+              onBlur={() => {
+                if (!novaUrl.trim()) return
+                setErroUrl(validarUrlWebhookConfiguracao(novaUrl))
+              }}
+              placeholder={EXEMPLO_URL_WEBHOOK}
             />
           </CampoGeralGlobal>
 

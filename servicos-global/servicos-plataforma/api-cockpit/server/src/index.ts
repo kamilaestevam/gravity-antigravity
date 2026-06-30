@@ -1,4 +1,11 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const __dir = dirname(fileURLToPath(import.meta.url))
+// Mesmo padrão do Configurador — PM2/tsx watch pode reiniciar sem re-aplicar --env-file
+dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
+dotenv.config({ path: resolve(__dir, '../../.env') })
 
 // Detectar se estamos rodando como sidecar do Configurador
 const API_COCKPIT_SIDECAR = process.env.API_COCKPIT_SIDECAR === '1'
@@ -12,8 +19,9 @@ if (!process.env.CHAVE_INTERNA_SERVICO) {
   }
 }
 if (!process.env.ENCRYPTION_KEY) {
-  if (API_COCKPIT_SIDECAR) {
-    console.warn('[API-Cockpit] ENCRYPTION_KEY ausente — sidecar pode falhar em rotas de criptografia')
+  const emDev = process.env.NODE_ENV !== 'production'
+  if (API_COCKPIT_SIDECAR || emDev) {
+    console.warn('[API-Cockpit] ENCRYPTION_KEY ausente — rotas de criptografia (criar token) falharão')
   } else {
     throw new Error('[API-Cockpit] Variavel de ambiente obrigatoria ausente: ENCRYPTION_KEY')
   }

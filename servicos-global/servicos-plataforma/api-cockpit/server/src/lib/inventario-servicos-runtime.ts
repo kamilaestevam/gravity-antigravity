@@ -107,8 +107,10 @@ function resolverUrlHealth(entrada: EntradaInventarioServico): string {
   }
   if (entrada.nome_servico_plataforma === 'configurador') {
     const configuradorUrl =
+      process.env.CONFIGURADOR_BASE_URL?.trim() ||
+      process.env.CONFIGURADOR_SERVICE_URL?.trim() ||
       process.env.CONFIGURADOR_URL?.trim() ||
-      process.env.CONFIGURADOR_BASE_URL?.trim()
+      (process.env.PORT?.trim() ? `http://127.0.0.1:${process.env.PORT.trim()}` : undefined)
     if (configuradorUrl) return configuradorUrl.replace(/\/$/, '')
   }
   return `http://127.0.0.1:${entrada.porta_loopback_padrao}`

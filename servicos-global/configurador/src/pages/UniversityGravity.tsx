@@ -32,7 +32,7 @@ import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
-import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
+import { DocConfiguradorManual, iconeConfiguradorManual, MANUAL_ESTILO_ACORDEON_SECAO, useManualSumarioScroll } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
 import { DocNavegacaoManual } from './university/manual-navegacao-ui'
@@ -1124,10 +1124,7 @@ function DocLoginManual() {
   const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
-  const scrollTo = (n: number) => {
-    if (!abertos.includes(n)) setAbertos(prev => [...prev, n])
-    setTimeout(() => document.getElementById(`doc-sec-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
-  }
+  const scrollTo = useManualSumarioScroll(abertos, setAbertos)
 
   return (
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
@@ -1229,6 +1226,7 @@ function DocLoginManual() {
           const aberto = abertos.includes(s.num)
           return (
             <div key={s.num} id={`doc-sec-${s.num}`} style={{
+              ...MANUAL_ESTILO_ACORDEON_SECAO,
               border: `1px solid ${aberto ? 'rgba(99,102,241,.25)' : 'rgba(148,163,184,.12)'}`,
               borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s',
             }}>
@@ -1764,7 +1762,7 @@ export function UniversityGravity() {
 
         {/* ══ Resto das views (overview, jornada, docs, builders) ══ */}
         {!(secao === 'academy' && faseSlug) && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }} data-manual-scroll-root>
 
           {/* ── Cabeçalho (padrão MenuTopoGlobal: Insights) ── */}
           <div style={UNI_ESTILO_PAGE_HEADER}>

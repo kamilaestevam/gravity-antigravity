@@ -34,10 +34,12 @@ export interface DocPassoVisual {
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
-  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }[]
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }[]
   tooltipsKpi?: DocTooltipKpi[]
   galeriaTelas?: DocGaleriaTela[]
+  /** Frase em largura total entre duas linhas da galeria (`indice` = último item da 1ª linha, 0-based). */
+  galeriaFraseAposIndice?: { indice: number; texto: string }
   linkCapitulo?: { texto: string; href: string }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
@@ -47,11 +49,13 @@ export interface DocPassoVisual {
   imagemAbaixoTexto?: boolean
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
+  /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
+  paragrafosAposImagem?: string[]
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
   dicaAoLadoImagem?: {
-    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
     imagem: string
     legenda?: string
   }
@@ -62,6 +66,10 @@ export interface DocGaleriaTela {
   imagem: string
   /** Card explicativo do tooltip KPI renderizado acima da legenda e do screenshot. */
   tooltipKpi?: DocTooltipKpi
+  /** Texto explicativo acima da legenda e do screenshot (ex.: transição na jornada do convidado). */
+  paragrafoAntes?: string
+  /** Texto explicativo abaixo do screenshot, na mesma coluna da tela. */
+  paragrafoDepois?: string
 }
 
 export interface DocFiguraAposParagrafo {
@@ -88,6 +96,8 @@ export interface DocFluxo {
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean
+  /** Com `mostrarInfograficoPermissoesUsuario`, renderiza o infográfico após o passo visual de número `N` (em vez de antes dos passos). */
+  infograficoPermissoesUsuarioAposPasso?: number
   mostrarInfograficoPapeisFornecedor?: boolean
   /** Manual Navegação §03 — mapa Hub/Store × produto × Configurador. */
   mostrarInfograficoMenuLateral?: boolean
@@ -103,7 +113,9 @@ export interface DocFluxo {
   cenariosLadoALado?: boolean
   /** Com `cenariosLadoALado`, textos em cima e figuras alinhadas na linha de baixo. */
   cenariosImagensAlinhadas?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Dica/lembrete logo após o parágrafo de índice `indice` (antes do infográfico ou dos passos). */
+  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
   /** Exibe o callout do fluxo depois dos passos visuais (ex.: Dica abaixo de screenshot). */
   calloutAposPassos?: boolean
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
@@ -128,12 +140,12 @@ export interface DocSecao {
   mostrarInfograficoHubTelas?: boolean
   /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
   mostrarInfograficoMapaNavegacaoGravity?: boolean
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/aviso logo após o parágrafo de índice `indice` (só em layout texto+imagem lateral). */
-  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string } }
+  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
   /** Dica compacta à esquerda e screenshot à direita (intro com layout lateral). */
   dicaAoLadoImagem?: {
-    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
     imagem: string
     legenda?: string
   }
@@ -236,7 +248,21 @@ const SLUGS_VALIDOS = new Set<string>(CONFIGURADOR_MANUAL_ITENS.map(i => i.pathS
 const SCREENSHOT_ABRIR_CONFIGURADOR = '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 /** Única tela em que o botão Ampliar fica abaixo da imagem (evita sobrepor o FAB do Hub). */
 export const SCREENSHOT_HUB_ACESSO_CONFIGURADOR = '/university/screenshots/configurador-hub-acesso-configurador.png'
+export const SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE =
+  '/university/screenshots/configurador-usuarios-permissoes-cotar-frete.png'
+export const SCREENSHOT_USUARIOS_PERMISSAO_MODAL =
+  '/university/screenshots/configurador-usuarios-permissoes-modal.png'
+const SCREENSHOT_USUARIOS_SETA_ACESSO =
+  '/university/screenshots/configurador-usuarios-seta-acesso.png'
+const SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_1 =
+  '/university/screenshots/configurador-usuarios-permissao-por-workspace-1.png'
+const SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_2 =
+  '/university/screenshots/configurador-usuarios-permissao-por-workspace-2.png'
 const SCREENSHOT_CONFIGURADOR_MENU_LATERAL = '/university/screenshots/configurador-tela-menu-lateral.png'
+
+const LINK_MANUAL_WORKSPACES = '{{link:/university-gravity/docs/configurador/workspaces|workspaces}}'
+const LINK_MANUAL_WORKSPACES_CAP = '{{link:/university-gravity/docs/configurador/workspaces|Workspaces}}'
+const LINK_MANUAL_WORKSPACE = '{{link:/university-gravity/docs/configurador/workspaces|workspace}}'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -244,6 +270,10 @@ interface PassoAreaExtras {
   paragrafos?: string[]
   tooltipsKpi?: DocTooltipKpi[]
   galeriaTelas?: DocGaleriaTela[]
+  /** Texto em cima, screenshot em largura total abaixo; tooltips/galeria depois da imagem. */
+  imagemAbaixoTexto?: boolean
+  tooltipsKpiAposImagem?: boolean
+  paragrafosAposImagem?: string[]
 }
 
 const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
@@ -277,6 +307,31 @@ const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
   },
 ]
 
+/** Screenshots com tooltip aberto — Drive 3. Usuarios: tooltip_1, tooltip_2, 3…tooltip_2 (média), 3…tooltip_4 */
+const USUARIOS_GALERIA_TOOLTIPS_KPI = [
+  { legenda: '1 · Total de Usuários', imagem: '/university/screenshots/configurador-usuarios-cards-tooltip-1.png' },
+  { legenda: '2 · Acessos Concedidos', imagem: '/university/screenshots/configurador-usuarios-cards-tooltip-2.png' },
+  { legenda: '3 · Média de Acessos Concedidos', imagem: '/university/screenshots/configurador-usuarios-cards-tooltip-3.png' },
+  { legenda: '4 · Total Workspaces', imagem: '/university/screenshots/configurador-usuarios-cards-tooltip-4.png' },
+] as const
+
+const USUARIOS_JORNADA_FRASE_APOS_LINK =
+  'A partir daqui, o usuário cria sua senha e entra no **Hub** de acordo com as permissões e acessos concedidos (se **Standard** ou **Fornecedor**) ou com acesso completo se for novo usuário **Master**.'
+
+/** Sequência pós-envio — jornada do convidado (Drive: 3. Usuarios/tela_configurador_convite_usuario_* e login_*). */
+const USUARIOS_GALERIA_JORNADA_CONVIDADO: DocGaleriaTela[] = [
+  { legenda: '1 · Convite enviado', imagem: '/university/screenshots/configurador-usuarios-convite-enviado-aviso.png' },
+  { legenda: '2 · Link no e-mail', imagem: '/university/screenshots/configurador-usuarios-convite-email-recebido-seta.png' },
+  {
+    legenda: '3 · Primeiro acesso',
+    imagem: '/university/screenshots/configurador-usuarios-convite-login-preenchido.png',
+  },
+  {
+    legenda: '4 · Hub',
+    imagem: '/university/screenshots/configurador-usuarios-convite-login-primeiro-acesso.png',
+  },
+]
+
 const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
     card: 'Total de Usuários',
@@ -292,14 +347,14 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
     tituloTooltip: 'Vínculos de acesso',
     descricao: 'Soma de todas as ligações usuário ↔ workspace na organização.',
     detalhes: [
-      'Total de acessos: Cada workspace marcado para um usuário conta um vínculo',
+      `Total de acessos: Cada ${LINK_MANUAL_WORKSPACE} marcado para um usuário conta um vínculo`,
       'Master não precisa de vínculo explícito: Acessa todos automaticamente',
     ],
   },
   {
     card: 'Média de Acessos Concedidos',
     tituloTooltip: 'Distribuição média',
-    descricao: 'Média de workspaces por usuário ativo na organização.',
+    descricao: `Média de ${LINK_MANUAL_WORKSPACES} por usuário ativo na organização.`,
     detalhes: [
       'Média geral: Ajuda a identificar contas com pouco ou muito alcance',
     ],
@@ -307,32 +362,14 @@ const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
     card: 'Total Workspaces',
     tituloTooltip: 'Densidade e distribuição',
-    descricao: 'Gráfico comparando usuários com e sem acesso a algum workspace.',
+    descricao: `Gráfico comparando usuários com e sem acesso a algum ${LINK_MANUAL_WORKSPACE}.`,
     detalhes: [
-      'Com acesso: Pelo menos um workspace habilitado (ou tipo Master)',
-      'Sem acesso: Ainda sem workspace vinculado',
-      'Tooltip repete totais de usuários, workspaces e média por pessoa',
+      `Com acesso: Pelo menos um ${LINK_MANUAL_WORKSPACE} habilitado (ou tipo Master)`,
+      `Sem acesso: Ainda sem ${LINK_MANUAL_WORKSPACE} vinculado`,
+      `Tooltip repete totais de usuários, ${LINK_MANUAL_WORKSPACES} e média por pessoa`,
     ],
   },
 ]
-
-/** Screenshots com tooltip aberto: Drive: 3. Usuarios/tela_configurador_usuarios_cards_tooltip_N.png */
-const USUARIOS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
-  'Total de Usuários': '/university/screenshots/configurador-usuarios-cards-tooltip-1.png',
-  'Acessos Concedidos': '/university/screenshots/configurador-usuarios-cards-tooltip-2.png',
-  'Total Workspaces': '/university/screenshots/configurador-usuarios-cards-tooltip-3.png',
-}
-
-function criarPassosTooltipKpiUsuario(): PassoSemNumero[] {
-  return USUARIOS_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip: ${tooltip.card}`,
-    imagem: USUARIOS_TOOLTIP_KPI_IMAGENS[tooltip.card],
-    paragrafos: [
-      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
-    ],
-    tooltipsKpi: [tooltip],
-  }))
-}
 
 const FORNECEDORES_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
@@ -415,22 +452,23 @@ const ASSINATURAS_TOOLTIPS_KPI: DocTooltipKpi[] = [
   },
 ]
 
-const ASSINATURAS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
-  'Produtos Ativos': '/university/screenshots/configurador-assinaturas-cards-tooltip-1.png',
-  'Em Teste': '/university/screenshots/configurador-assinaturas-cards-tooltip-2.png',
-  'Acessos Suspensos': '/university/screenshots/configurador-assinaturas-cards-tooltip-3.png',
-}
-
-function criarPassosTooltipKpiAssinaturas(): PassoSemNumero[] {
-  return ASSINATURAS_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip: ${tooltip.card}`,
-    imagem: ASSINATURAS_TOOLTIP_KPI_IMAGENS[tooltip.card],
-    paragrafos: [
-      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
-    ],
-    tooltipsKpi: [tooltip],
-  }))
-}
+const ASSINATURAS_GALERIA_TOOLTIPS_KPI: DocGaleriaTela[] = [
+  {
+    legenda: '1 · Produtos Ativos',
+    imagem: '/university/screenshots/configurador-assinaturas-cards-tooltip-1.png',
+    tooltipKpi: ASSINATURAS_TOOLTIPS_KPI[0],
+  },
+  {
+    legenda: '2 · Em Teste',
+    imagem: '/university/screenshots/configurador-assinaturas-cards-tooltip-2.png',
+    tooltipKpi: ASSINATURAS_TOOLTIPS_KPI[1],
+  },
+  {
+    legenda: '3 · Acessos Suspensos',
+    imagem: '/university/screenshots/configurador-assinaturas-cards-tooltip-3.png',
+    tooltipKpi: ASSINATURAS_TOOLTIPS_KPI[2],
+  },
+]
 
 const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
@@ -465,21 +503,28 @@ const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
   },
 ]
 
-const TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
-  'USD / BRL': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-1.png',
-  'EUR / BRL': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-2.png',
-  'Moedas ativas': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-3.png',
-}
+const TAXAS_MOEDA_GALERIA_TOOLTIPS_KPI: DocGaleriaTela[] = [
+  {
+    legenda: '1 · USD / BRL',
+    imagem: '/university/screenshots/configurador-taxas-moeda-cards-tooltip-1.png',
+    tooltipKpi: TAXAS_MOEDA_TOOLTIPS_KPI[0],
+  },
+  {
+    legenda: '2 · EUR / BRL',
+    imagem: '/university/screenshots/configurador-taxas-moeda-cards-tooltip-2.png',
+    tooltipKpi: TAXAS_MOEDA_TOOLTIPS_KPI[1],
+  },
+  {
+    legenda: '3 · Moedas ativas',
+    imagem: '/university/screenshots/configurador-taxas-moeda-cards-tooltip-3.png',
+    tooltipKpi: TAXAS_MOEDA_TOOLTIPS_KPI[2],
+  },
+]
 
-function criarPassosTooltipKpiTaxasMoeda(): PassoSemNumero[] {
-  return TAXAS_MOEDA_TOOLTIPS_KPI.map((tooltip) => ({
-    titulo: `Tooltip: ${tooltip.card}`,
-    imagem: TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS[tooltip.card],
-    paragrafos: [
-      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
-    ],
-    tooltipsKpi: [tooltip],
-  }))
+/** Aceita um parágrafo único (string) ou lista — evita crash quando `paragrafosAcessoArea` é string. */
+function paragrafosPasso(valor?: string | string[]): string[] | undefined {
+  if (valor == null) return undefined
+  return Array.isArray(valor) ? valor : [valor]
 }
 
 /** Passos padrão de acesso: opcional Hub → menu do usuário → Configurador → área no menu lateral. */
@@ -488,7 +533,7 @@ function passosComAcessoPadrao(
   passosEspecificos: PassoSemNumero[],
   imagemArea?: string,
   comPassoHub = false,
-  paragrafosAcessoArea?: string[],
+  paragrafosAcessoArea?: string | string[],
   extrasArea?: PassoAreaExtras,
   imagemAbrirConfigurador?: string,
 ): DocPassoVisual[] {
@@ -517,11 +562,14 @@ function passosComAcessoPadrao(
       num: 2 + offset,
       titulo: `Acessar ${areaMenu}`,
       imagem: imagemArea,
-      paragrafos: extrasArea?.paragrafos ?? paragrafosAcessoArea ?? [
+      paragrafos: extrasArea?.paragrafos ?? paragrafosPasso(paragrafosAcessoArea) ?? [
         `No menu lateral do Configurador, clique em ${areaMenu}. A tela correspondente abre com os dados da sua organização.`,
       ],
       tooltipsKpi: extrasArea?.tooltipsKpi,
       galeriaTelas: extrasArea?.galeriaTelas,
+      imagemAbaixoTexto: extrasArea?.imagemAbaixoTexto,
+      tooltipsKpiAposImagem: extrasArea?.tooltipsKpiAposImagem,
+      paragrafosAposImagem: extrasArea?.paragrafosAposImagem,
     },
   ]
   return [
@@ -543,6 +591,14 @@ function fluxoEmBreve(tituloFluxo: string, texto: string): DocFluxo {
       paragrafos: [texto],
     }]),
   }
+}
+
+export function montarItensSumarioManual(secao: DocSecao): { num: number; titulo: string }[] {
+  const itens: { num: number; titulo: string }[] = [{ num: 1, titulo: secao.titulo }]
+  secao.fluxos?.forEach((fluxo, i) => {
+    itens.push({ num: i + 2, titulo: fluxo.tituloSumario ?? fluxo.titulo })
+  })
+  return itens
 }
 
 export function resolverConfiguradorManualSlug(pathSeg: string | undefined): ConfiguradorManualSlug {
@@ -811,14 +867,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-usuarios-tela.png',
     paragrafos: [
-      '**Usuários** é a tela do **Configurador** onde você gerencia quem acessa a organização: convites, edições de cadastro, permissões por produto e vínculo com **workspaces**.',
-      'Na listagem aparecem nome, e-mail, tipo de usuário, status e workspaces habilitados de cada pessoa. Os fluxos seguintes mostram como convidar, liberar acesso e desativar cadastros.',
+      `O controle dos **Usuários** fica localizado no menu lateral do **Configurador** (item **Usuários**), onde você gerencia quem acessa a organização: convites, edições de cadastro, permissões por produto e vínculo com ${LINK_MANUAL_WORKSPACES}.`,
     ],
     calloutAposParagrafo: {
-      indice: 1,
+      indice: 0,
       callout: {
         tipo: 'dica',
-        texto: 'Somente **Master** convida pessoas e altera patentes, permissões e workspaces de outros usuários.',
+        texto: `Somente **Master** convida pessoas e altera patentes, permissões e ${LINK_MANUAL_WORKSPACES} de outros usuários.`,
       },
     },
     callout: {
@@ -832,7 +887,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         mostrarInfograficoTiposUsuario: true,
         paragrafos: [
           'No Gravity existem três tipos de usuário: **Master**, **Standard** e **Fornecedor**. Cada tipo define quanto da plataforma cada pessoa pode ver e operar.',
-          '**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: workspaces habilitados e permissões granulares em cada produto.',
+          `**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: ${LINK_MANUAL_WORKSPACES} habilitados e permissões granulares em cada produto.`,
         ],
         passosVisuais: [],
       },
@@ -842,14 +897,22 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Usuários.'],
         passosVisuais: passosComAcessoPadrao(
           'Usuários',
-          criarPassosTooltipKpiUsuario(),
+          [],
           '/university/screenshots/configurador-usuarios-seta-menu.png',
           true,
-          [
-            'No menu lateral do Configurador, clique em Usuários: Como indicado pela seta na imagem. A tela abre com a listagem e os quatro cards de resumo no topo.',
-            'A tabela lista nome, e-mail, tipo, status e workspaces habilitados. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
-          ],
           undefined,
+          {
+            paragrafos: [
+              'No menu lateral do Configurador, clique em Usuários. A tela abre com a listagem e os quatro cards de resumo no topo.',
+            ],
+            paragrafosAposImagem: [
+              'Cada card possui ícone (i) com tooltip explicativo — passe o mouse para ver o significado de cada indicador. Veja abaixo o que cada indicador mostra:',
+            ],
+            imagemAbaixoTexto: true,
+            tooltipsKpiAposImagem: true,
+            tooltipsKpi: USUARIOS_TOOLTIPS_KPI,
+            galeriaTelas: [...USUARIOS_GALERIA_TOOLTIPS_KPI],
+          },
           '/university/screenshots/configurador-usuarios-acesso-atalho.png',
         ),
       },
@@ -868,9 +931,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
           },
           {
-            titulo: 'Preencher dados básicos',
+            titulo: 'Preencher dados e enviar',
             paragrafos: [
-              'Informe o e-mail do convidado e escolha o tipo de usuário. Master tem acesso total na organização; Standard e Fornecedor dependem das permissões e workspaces definidos nos fluxos seguintes.',
+              `Informe o e-mail do convidado e escolha o tipo de usuário. Master tem acesso total na organização; Standard e Fornecedor dependem das permissões e ${LINK_MANUAL_WORKSPACES} definidos nos fluxos seguintes.`,
+              `Revise permissões e ${LINK_MANUAL_WORKSPACES} no modal e clique em **Enviar convite**. O convidado entra na lista com badge Convidado (amarelo) até concluir o cadastro.`,
             ],
             galeriaTelas: [
               { legenda: '1 · Modal vazio', imagem: '/university/screenshots/configurador-usuarios-convite-modal-vazio.png' },
@@ -882,15 +946,16 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             },
           },
           {
-            titulo: 'Confirmar envio',
-            imagem: '/university/screenshots/configurador-usuarios-convite-enviado.png',
+            titulo: 'O que acontece depois do envio',
+            ocultarRotuloPasso: true,
             paragrafos: [
-              'Após revisar permissões e workspaces, envie o convite. O convidado aparece na lista com badge Convidado (amarelo) até concluir o cadastro pelo e-mail.',
-              'O fluxo do convidado (senha, termos e verificação) está no {{link:/university-gravity/docs/login|Manual de Login}}, seção Fluxo 4.',
+              'Esta sequência mostra o que o **convidado** vê depois que você envia o convite — não é um passo para você repetir, apenas o fluxo que acontece automaticamente.',
             ],
+            galeriaTelas: [...USUARIOS_GALERIA_JORNADA_CONVIDADO],
+            galeriaFraseAposIndice: { indice: 1, texto: USUARIOS_JORNADA_FRASE_APOS_LINK },
             callout: {
               tipo: 'dica',
-              texto: 'Cada link de convite é de uso único. Se expirar ou for perdido, reenvie ou cancele o convite pela mesma lista.',
+              texto: 'Cada link de convite é de uso único. Se expirar ou for perdido, reenvie ou cancele o convite pela lista de Usuários.',
             },
           },
         ]),
@@ -899,41 +964,55 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Permissões do usuário',
         tituloSumario: 'Permissões do usuário',
         mostrarInfograficoPermissoesUsuario: true,
+        infograficoPermissoesUsuarioAposPasso: 6,
         paragrafos: [
-          'As permissões granulares valem somente para Standard e Fornecedor: O Master define o que cada um pode ver e editar em cada produto.',
-          'Master não passa por essa grade: Tem acesso total à organização, a todos os workspaces e a todas as áreas do Configurador.',
+          'As permissões granulares **valem somente para Standard e Fornecedor**.',
         ],
+        calloutAposParagrafo: {
+          indice: 0,
+          callout: {
+            tipo: 'lembrete',
+            texto: `Master não passa por essa grade: Tem acesso total à organização, a todos os ${LINK_MANUAL_WORKSPACES} e a todas as áreas do Configurador.`,
+          },
+        },
         passosVisuais: renumerarPassos([
-          {
-            titulo: 'Marcar permissões no convite',
-            imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
-            paragrafos: [
-              'No modal de convite, escolha Standard ou Fornecedor e role até a seção de permissões: Como indicado pela seta na imagem.',
-              'Para cada Produto Gravity contratado, marque Ver ou Editar nas linhas que a pessoa precisa usar. Se o tipo for Master, ignore esta etapa.',
+          ...passosComAcessoPadrao(
+            'Usuários',
+            [
+              {
+                titulo: 'Selecionar o usuário',
+                imagem: '/university/screenshots/configurador-usuarios-lista-selecionar.png',
+                paragrafos: [
+                  'Na listagem de Usuários, clique na linha da pessoa **Standard** ou **Fornecedor** que você vai configurar.',
+                ],
+              },
+              {
+                titulo: 'Abrir permissões',
+                imagem: '/university/screenshots/configurador-usuarios-seta-permissoes-chave.png',
+                paragrafos: [
+                  'Na coluna de ações, clique no **ícone de chave** (permissões), como indicado pela seta na imagem.',
+                ],
+              },
+              {
+                titulo: 'Entrar na grade de permissões',
+                imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
+                paragrafos: [
+                  'O modal **Editar usuário** abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
+                ],
+              },
             ],
-            callout: {
-              tipo: 'dica',
-              texto: 'A grade de permissões aparece para Standard e Fornecedor. Master ignora essas marcações e opera com acesso irrestrito na organização.',
-            },
-          },
-          {
-            titulo: 'Ajustar em usuário existente',
-            imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
-            paragrafos: [
-              'Para Standard ou Fornecedor já cadastrado, clique no ícone de chave na linha ou abra Editar → aba Permissões. A grade é a mesma do convite: Produto, visualização padrão e colunas Ver / Editar.',
-              'Use Todo ou Limpar no cabeçalho de cada produto para marcar ou desmarcar todas as linhas de uma vez. As mudanças valem na próxima sessão.',
-            ],
-            callout: {
-              tipo: 'seguranca',
-              texto: 'Só Master pode alterar permissões de outras pessoas. Standard e Fornecedor não editam a lista de usuários nem as patentes de colegas.',
-            },
-          },
+            '/university/screenshots/configurador-usuarios-seta-menu.png',
+            true,
+            'No menu lateral do Configurador, clique em **Usuários**. A listagem abre com os cards de resumo no topo.',
+            undefined,
+            '/university/screenshots/configurador-usuarios-acesso-atalho.png',
+          ).map(({ num: _n, ...passo }) => passo),
           {
             titulo: 'Habilitar cotação de frete internacional',
-            imagem: '/university/screenshots/configurador-usuarios-permissoes-cotar-frete.png',
+            imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
+            imagemAbaixoTexto: true,
             paragrafos: [
-              'Para fornecedores que atuam como agente de carga, existe a permissão específica Pode cotar frete internacional: No bloco do produto BID Frete Internacional.',
-              'Ao marcar, o usuário Fornecedor acessa a visão de parceiro: Responder cotações, enviar propostas e operar o painel BID Frete Internacional, Fornecedor.',
+              '**Permissão especial: Pode cotar frete internacional** — Para habilitar fornecedores como agentes de carga, marque esta opção no produto **BID Frete Internacional**. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e **acessar o painel BID Frete Internacional, Fornecedor**. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -946,39 +1025,54 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Workspaces do usuário',
         tituloSumario: 'Workspaces do usuário',
         paragrafos: [
-          'Vincule Standard e Fornecedor aos workspaces em que poderão operar. Master acessa todos automaticamente, sem marcação individual.',
-          'Somente os workspaces selecionados ficam disponíveis para o usuário: No Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.',
+          `Vincule **Standard** e **Fornecedor** aos ${LINK_MANUAL_WORKSPACES} em que poderão operar.`,
+          `Somente os ${LINK_MANUAL_WORKSPACES} selecionados ficam disponíveis para o usuário: No Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.`,
         ],
+        calloutAposParagrafo: {
+          indice: 0,
+          callout: {
+            tipo: 'lembrete',
+            texto: '**Master** acessa todos automaticamente, sem marcação individual.',
+          },
+        },
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Selecionar workspaces no convite',
-            imagem: '/university/screenshots/configurador-usuarios-convite-workspaces-todos.png',
+            titulo: 'Abrir o cadastro do usuário',
+            imagem: SCREENSHOT_USUARIOS_SETA_ACESSO,
             paragrafos: [
-              'No modal de convite, marque os workspaces habilitados para o convidado: Filial, empresa do grupo ou cliente de despachante.',
-              'Apenas os itens com checkbox ativo entram no acesso. O convidado não enxerga nem opera nas demais unidades da organização.',
+              'Na listagem de **Usuários**, clique no **ícone de lupa** na coluna **Ações** da pessoa que você vai configurar.',
+            ],
+          },
+          {
+            titulo: 'Selecionar workspace na grade',
+            imagem: SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_1,
+            paragrafos: [
+              `Na aba **Permissões**, é possível definir permissões diferentes para cada ${LINK_MANUAL_WORKSPACE} habilitado. Use o seletor **Workspace** no topo da grade e escolha a unidade em que vai marcar **Ver** ou **Editar**.`,
+              `Repita para cada unidade quando a pessoa precisar de conjuntos distintos de acesso por filial.`,
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Sem nenhum workspace marcado, Standard e Fornecedor ficam sem unidade operacional: Mesmo com permissões de produto liberadas na etapa anterior.',
+              texto: `Sem nenhum ${LINK_MANUAL_WORKSPACE} marcado, Standard e Fornecedor ficam sem unidade operacional: Mesmo com permissões de produto liberadas na etapa anterior.`,
             },
           },
           {
-            titulo: 'Opção todos os workspaces',
-            imagem: '/university/screenshots/configurador-usuarios-convite-workspaces-todos.png',
+            titulo: 'Aplicar a todos os workspaces',
+            imagem: SCREENSHOT_USUARIOS_PERMISSAO_POR_WORKSPACE_2,
             paragrafos: [
-              'Para Standard, você pode habilitar todos os workspaces de uma vez quando a pessoa precisa operar em toda a organização. Revise antes de confirmar: O acesso fica amplo.',
+              `Quando o mesmo conjunto de **Ver** e **Editar** vale para todas as unidades, clique em **Aplicar a todos os workspaces**.`,
+              `Revise antes de salvar: O acesso fica amplo em todos os ${LINK_MANUAL_WORKSPACES} vinculados ao usuário.`,
             ],
             callout: {
               tipo: 'dica',
-              texto: 'Master não precisa de vínculo explícito: A coluna Workspaces habilitados exibe "Todos os workspaces" automaticamente.',
+              texto: `Master não precisa de vínculo explícito: A coluna ${LINK_MANUAL_WORKSPACES_CAP} habilitados exibe "Todos os ${LINK_MANUAL_WORKSPACES}" automaticamente.`,
             },
           },
           {
             titulo: 'Alterar vínculos depois',
             imagem: '/university/screenshots/configurador-usuarios-editar-workspaces-vinculados.png',
             paragrafos: [
-              'Em usuário já cadastrado, abra Editar e vá à aba Workspaces Vinculados para incluir ou remover unidades sem reenviar convite.',
-              'Ao desmarcar um workspace, o acesso some na próxima sessão: A pessoa deixa de ver aquela unidade no Hub e nos produtos.',
+              `Em usuário já cadastrado, abra Editar e vá à aba ${LINK_MANUAL_WORKSPACES_CAP} Vinculados para incluir ou remover unidades sem reenviar convite.`,
+              `Ao desmarcar um ${LINK_MANUAL_WORKSPACE}, o acesso some na próxima sessão: A pessoa deixa de ver aquela unidade no Hub e nos produtos.`,
             ],
           },
         ]),
@@ -994,8 +1088,15 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             titulo: 'Desativar um usuário ativo',
             imagem: '/university/screenshots/configurador-usuarios-desativar-seta.png',
+            imagemAbaixoTexto: true,
             paragrafos: [
-              'Na linha de um usuário com status Ativo, clique no ícone de pausa: Como indicado pela seta na imagem. O acesso é suspenso imediatamente: O status muda para Inativo e novos logins são bloqueados.',
+              'Na linha de um usuário com status Ativo, clique no ícone de pausa na coluna **Ações**. O acesso é suspenso imediatamente e novos logins são bloqueados.',
+            ],
+            galeriaTelas: [
+              {
+                legenda: 'Status Inativo na lista',
+                imagem: '/university/screenshots/configurador-usuarios-desativado.png',
+              },
             ],
             callout: {
               tipo: 'aviso',
@@ -1004,14 +1105,20 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Reativar um usuário inativo',
-            imagem: '/university/screenshots/configurador-usuarios-reativar-seta.png',
+            imagem: '/university/screenshots/configurador-usuarios-ativar-seta.png',
+            imagemAbaixoTexto: true,
             paragrafos: [
-              'Na mesma linha, com status Inativo, clique no ícone de play: Como indicado pela seta na imagem: Para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
+              'Na mesma linha, com status Inativo, clique no ícone de play na coluna **Ações** para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
+            ],
+            galeriaTelas: [
+              {
+                legenda: 'Status Ativo na lista',
+                imagem: '/university/screenshots/configurador-usuarios-ativado.png',
+              },
             ],
           },
           {
             titulo: 'Convite pendente',
-            imagem: '/university/screenshots/configurador-usuarios-convite-pendente-lista.png',
             paragrafos: [
               'Usuários com status Convidado ainda não concluíram o cadastro. Use Reenviar Convite (ícone de seta circular) para mandar um novo e-mail ou cancele o convite se o acesso não for mais necessário.',
             ],
@@ -1106,12 +1213,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Exportador na importação',
         tituloSumario: 'Exportador na importação',
         paragrafos: [
-          'Quando sua empresa importa, o vendedor no exterior é cadastrado como fornecedor com papel Exportador: Ele exporta a mercadoria para você.',
+          'Quando sua **empresa importa**, o vendedor no exterior é **cadastrado como fornecedor** com papel **Exportador**: Ele exporta a mercadoria para você.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Marcar papel Exportador',
             imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-modal.png',
+            imagemAbaixoTexto: true,
             paragrafos: [
               'Na aba Papéis COMEX, ative Exportador. Esse terceiro figurará como vendedor/exportador nas suas operações de importação.',
             ],
@@ -1124,7 +1232,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Preencher dados do exportador',
             imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-passo-1.png',
             paragrafos: [
-              'Informe razão social, país e TIN do fabricante ou trading company no exterior. Esses dados alimentam invoices, processos e DUIMP.',
+              'Informe razão social, país e TIN do fabricante ou trading company no exterior. **Esses dados podem alimentar** invoices, processos e DUIMP.',
             ],
           },
           {
@@ -1147,11 +1255,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Importador na exportação',
         tituloSumario: 'Importador na exportação',
         paragrafos: [
-          'Quando sua empresa exporta, o comprador no exterior é cadastrado como fornecedor com papel Importador: Ele importa a mercadoria que você vende.',
+          'Quando sua **empresa exporta**, o comprador no exterior é **cadastrado como fornecedor** com papel **Importador**: Ele importa a mercadoria que você vende.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Marcar papel Importador',
+            imagemAbaixoTexto: true,
             paragrafos: [
               'Na aba Papéis COMEX do modal, ative Importador. Esse terceiro figurará como cliente/comprador nas suas operações de exportação.',
             ],
@@ -1165,7 +1274,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Preencher dados do importador',
             imagem: '/university/screenshots/configurador-fornecedores-importador-exportacao-passo-2.png',
             paragrafos: [
-              'Cadastre razão social, país e documento fiscal do comprador no destino. Esses dados vinculam o cliente às suas vendas internacionais.',
+              'Cadastre razão social, país e documento fiscal do comprador no destino. **Esses dados podem alimentar** invoices, processos e DUIMP.',
             ],
           },
           {
@@ -1310,25 +1419,29 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar assinaturas',
+        titulo: 'Acessar assinaturas',
         tituloSumario: 'Acessar assinaturas',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Assinaturas.'],
         passosVisuais: passosComAcessoPadrao(
           'Assinaturas',
-          criarPassosTooltipKpiAssinaturas(),
+          [],
           '/university/screenshots/configurador-assinaturas-seta-menu.png',
           true,
           [
-            'No menu lateral do Configurador, clique em Assinaturas: Como indicado pela seta na imagem. A tela abre com os três cards de resumo e a tabela Produtos Contratados.',
-            'Em **Produtos Contratados** aparecem somente os módulos que a organização assinou pela **Gravity Store**: Contratos feitos na vitrine de produtos da plataforma.',
-            'A tabela lista produto, tipo de cobrança (SaaS, Uso ou Setup), valor, renovação, workspaces habilitados e status. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
+            'Esta é a tela onde é feita a gestão dos produtos Gravity contratados pela organização: Produto, tipo de cobrança, valor, renovação, status, boletos, nota fiscal e demais informações do contrato.',
           ],
-          undefined,
+          {
+            paragrafos: [
+              'Em **Produtos Contratados** aparecem somente os módulos assinados pela **Gravity Store**. A tabela centraliza cobrança, renovação, workspaces habilitados e status de cada plano.',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
+            ],
+            galeriaTelas: [...ASSINATURAS_GALERIA_TOOLTIPS_KPI],
+          },
           '/university/screenshots/configurador-assinaturas-acesso-atalho.png',
         ),
       },
       {
-        titulo: 'Fluxo 2: Consultar assinatura',
+        titulo: 'Consultar assinatura',
         tituloSumario: 'Consultar assinatura',
         paragrafos: [
           'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store: Uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
@@ -1410,18 +1523,18 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3: Workspaces do produto',
+        titulo: 'Workspaces do produto',
         tituloSumario: 'Workspaces do produto',
         paragrafos: [
-          'Cada assinatura pode estar ativa em um ou mais workspaces. Expanda a linha na tabela para ver e alterar em quais unidades o produto está habilitado.',
-          'Marque ou desmarque workspaces, use Habilitar/Bloquear em lote e clique em Salvar alterações: As mudanças valem na próxima sessão dos usuários daquela unidade.',
+          `Cada assinatura pode estar **ativa em um ou mais** ${LINK_MANUAL_WORKSPACES}. Expanda a linha na tabela para ver e alterar em quais ${LINK_MANUAL_WORKSPACES} o produto está habilitado.`,
+          `Marque ou desmarque ${LINK_MANUAL_WORKSPACES}, use Habilitar/Bloquear em lote e clique em Salvar alterações: As mudanças valem na próxima sessão dos usuários daquela unidade.`,
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Expandir a linha do produto',
             imagem: '/university/screenshots/configurador-assinaturas-workspaces-expandido.png',
             paragrafos: [
-              'Clique na seta à esquerda da linha do produto para abrir a subtabela de workspaces vinculados: Nome do workspace, status do produto e ações por unidade.',
+              `Clique na **seta** à esquerda da linha do produto para **abrir a** **subtabela de** ${LINK_MANUAL_WORKSPACES} **vinculados**: Nome do ${LINK_MANUAL_WORKSPACE}, status do produto e ações por unidade.`,
             ],
           },
           {
@@ -1431,7 +1544,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               { legenda: '2 · Workspace bloqueado', imagem: '/university/screenshots/configurador-assinaturas-workspaces-bloqueado.png' },
             ],
             paragrafos: [
-              'Selecione um ou mais workspaces e use Bloquear para remover o acesso ao produto naquela unidade. O status muda para bloqueado até você reabilitar.',
+              `Selecione um ou mais ${LINK_MANUAL_WORKSPACES} e use Bloquear para remover o acesso ao produto naquela unidade. O status muda para bloqueado até você reabilitar.`,
             ],
           },
           {
@@ -1441,11 +1554,11 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               { legenda: '2 · Workspace reabilitado', imagem: '/university/screenshots/configurador-assinaturas-workspaces-reabilitado.png' },
             ],
             paragrafos: [
-              'Com workspaces selecionados, clique em Habilitar para restaurar o acesso. O produto volta a aparecer no Hub e nos seletores daquela unidade.',
+              `Com ${LINK_MANUAL_WORKSPACES} selecionados, clique em Habilitar para restaurar o acesso. O produto volta a aparecer no Hub e nos seletores daquela unidade.`,
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Se nenhum workspace estiver habilitado, o produto não fica acessível na organização: Mesmo com assinatura Ativa.',
+              texto: `Se nenhum ${LINK_MANUAL_WORKSPACE} estiver habilitado, o produto não fica acessível na organização: Mesmo com assinatura Ativa.`,
             },
           },
           {
@@ -1458,43 +1571,77 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 4: Suspender e reativar',
+        titulo: 'Suspender e reativar',
         tituloSumario: 'Suspender e reativar',
         paragrafos: [
-          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play: O bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
-          '**Não confunda com cancelar.** A cobrança da Gravity **não é pró rata**: Se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03: Cancelamento solicitado em 20/02 só passa a valer em 05/03.',
+          'Suspenda **temporariamente** o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de **pausa/play**: O bloqueio é imediato, mas o plano continua contratado.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Suspender assinatura',
             imagem: '/university/screenshots/configurador-assinaturas-suspender-seta.png',
             paragrafos: [
-              'Na coluna de ações, clique no ícone de pausa (Suspender). O status muda para Suspensa e o card Acessos Suspensos é atualizado.',
+              'Na coluna de **ações**, clique no **ícone de pausa (Suspender)**. O status muda para **Suspensa** e o card **Acessos Suspensos** é atualizado.',
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use o ícone de lixeira na linha: Com efeito no vencimento, sem pró rata.',
+              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use o fluxo **Cancelar assinatura**.',
             },
           },
           {
             titulo: 'Confirmar status suspenso',
             imagem: '/university/screenshots/configurador-assinaturas-suspenso.png',
             paragrafos: [
-              'A linha exibe o badge Suspensa. Usuários perdem acesso ao produto até a reativação.',
+              'A linha exibe o **badge Suspensa**. Usuários perdem acesso ao produto até a reativação.',
             ],
           },
           {
             titulo: 'Reativar assinatura',
             imagem: '/university/screenshots/configurador-assinaturas-reativar-seta.png',
             paragrafos: [
-              'Com status Suspensa, o ícone vira play (Reativar). Clique para voltar o produto ao status Ativa.',
+              'Com status **Suspensa**, o ícone vira **play (Reativar)**. Clique para voltar o produto ao status **Ativa**.',
             ],
           },
           {
             titulo: 'Confirmar reativação',
             imagem: '/university/screenshots/configurador-assinaturas-reativado.png',
             paragrafos: [
-              'O status volta para Ativa e o acesso é restaurado nos workspaces habilitados.',
+              `O status volta para **Ativa** e o acesso é restaurado nos ${LINK_MANUAL_WORKSPACES} habilitados.`,
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Cancelar assinatura',
+        tituloSumario: 'Cancelar assinatura',
+        paragrafos: [
+          'Encerre definitivamente o contrato de um produto Gravity. Diferente de **suspender**, o cancelamento é **irreversível**: A assinatura sai de **Produtos Contratados** e o módulo pode voltar a aparecer em **Produtos Disponíveis para Contratação** se a organização quiser reassinar.',
+          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03 — cancelamento em 20/02 só passa a valer em 05/03.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Iniciar cancelamento',
+            imagem: '/university/screenshots/configurador-assinaturas-cancelar-seta.png',
+            paragrafos: [
+              'Na coluna **Ações** da linha do produto, clique no ícone de lixeira (**Cancelar assinatura**), como indicado pela seta na imagem.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Somente usuários **Master** podem cancelar. A operação não pode ser desfeita nesta tela — para voltar a usar o produto, será necessário contratar novamente.',
+            },
+          },
+          {
+            titulo: 'Confirmar no modal',
+            imagem: '/university/screenshots/configurador-assinaturas-cancelar-modal.png',
+            paragrafos: [
+              'O modal **Cancelar Assinatura** exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
+            ],
+          },
+          {
+            titulo: 'Concluir cancelamento',
+            imagem: '/university/screenshots/configurador-assinaturas-cancelar-confirmacao.png',
+            paragrafos: [
+              'Clique em confirmar no modal. A linha desaparece de **Produtos Contratados** e uma notificação confirma o cancelamento. O produto passa a constar entre os disponíveis para nova contratação, se desejado.',
             ],
           },
         ]),
@@ -1659,12 +1806,16 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 9,
     titulo: 'Taxas e moeda',
-    layoutTextoImagemLateral: true,
-    imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
     paragrafos: [
       '**Taxas e moeda** concentra o câmbio operacional da organização em duas abas, cada uma com sincronização, agendamento e consulta próprios.',
-      'Os produtos Gravity consomem essas taxas para conversões, simulações e documentos fiscais. A sincronização PTAX roda automaticamente **4 vezes por dia** em dias úteis (10h03 / 11h03 / 12h03 / 13h03 BRT); o Focus é atualizado **semanalmente** (terça 22h BRT).',
-      'Use **Sincronizar PTAX** ou **Sincronizar Focus** para forçar atualização fora do cron, e **Agendamento** para ligar ou desligar a sincronização automática por aba.',
+      'Produtos como **BID Frete Internacional**, **BID Câmbio**, **Pedido**, **Smart Docs** e outros módulos Gravity consomem essas taxas para conversões, simulações e documentos fiscais. A sincronização PTAX roda automaticamente **4 vezes por dia** em dias úteis (10h03 / 11h03 / 12h03 / 13h03 BRT); o Focus é atualizado **semanalmente** (terça 22h BRT).',
+    ],
+    figurasAposParagrafo: [
+      {
+        indice: 0,
+        imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
+        legenda: 'Tela principal — aba Cotação Atual',
+      },
     ],
     lista: [
       '**Cotação Atual**: PTAX do Banco Central, compra e venda das sete moedas suportadas (USD, EUR, GBP, CHF, CNY, JPY, CAD)',
@@ -1676,107 +1827,27 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Taxas e moeda',
+        titulo: 'Acessar Taxas e moeda',
         tituloSumario: 'Acessar Taxas e moeda',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Taxas e moeda.'],
         passosVisuais: passosComAcessoPadrao(
           'Taxas e moeda',
-          [
-            {
-              titulo: 'Tela principal: Cotação Atual',
-              imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
-              paragrafos: [
-                'A aba Cotação Atual abre por padrão. No topo, três cards resumem USD, EUR e quantas moedas já possuem PTAX armazenada.',
-                'A tabela lista as sete moedas suportadas (USD, EUR, GBP, CHF, CNY, JPY, CAD) com compra, venda, data, hora, fonte e data de armazenamento. Use Buscar para filtrar; Exportar gera planilha da listagem.',
-              ],
-            },
-            ...criarPassosTooltipKpiTaxasMoeda(),
-          ],
-          '/university/screenshots/configurador-taxas-moeda-acesso-seta.png',
+          [],
+          '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
           true,
-          [
-            'No menu lateral do Configurador, clique em Taxas e moeda: Como indicado pela seta na imagem. A tela abre na aba Cotação Atual.',
-            'Alterne para Cotação Futura quando precisar consultar projeções do BACEN Focus. Nos passos seguintes, a tabela principal e cada tooltip dos cards são explicados separadamente.',
-          ],
+          undefined,
+          {
+            paragrafos: [
+              'No menu lateral do Configurador, clique em Taxas e moeda. A tela abre na aba Cotação Atual, com os cards de resumo no topo.',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
+            ],
+            galeriaTelas: [...TAXAS_MOEDA_GALERIA_TOOLTIPS_KPI],
+          },
         ),
       },
       {
-        titulo: 'Fluxo 2: Sincronizar PTAX',
-        tituloSumario: 'Sincronizar PTAX',
-        paragrafos: [
-          'Dispare manualmente a busca dos boletins PTAX no BCB. Útil fora dos horários do cron automático ou para recuperar moeda que falhou na última rodada.',
-        ],
-        passosVisuais: renumerarPassos([
-          {
-            titulo: 'Iniciar sincronização',
-            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizar-seta.png',
-            paragrafos: [
-              'Na aba Cotação Atual, clique em **Sincronizar PTAX**: Como indicado pela seta na imagem. O botão fica ao lado de Agendamento, no canto superior direito.',
-            ],
-            callout: {
-              tipo: 'dica',
-              texto: 'O cron da Gravity já sincroniza PTAX 4× por dia em dias úteis. O botão manual não substitui o agendamento: Apenas força uma rodada imediata.',
-            },
-          },
-          {
-            titulo: 'Sincronização em andamento',
-            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizando.png',
-            paragrafos: [
-              'Enquanto o serviço consulta o BCB, o botão exibe **Sincronizando…** com ícone girando. Aguarde a conclusão: Não feche a aba.',
-            ],
-          },
-          {
-            titulo: 'Sincronização concluída',
-            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizado.png',
-            paragrafos: [
-              'Ao terminar, um toast confirma quantas moedas foram atualizadas e o horário da última sincronização aparece ao lado do relógio. Os cards e a tabela refletem os novos valores de compra e venda.',
-            ],
-            callout: {
-              tipo: 'aviso',
-              texto: 'Se nenhuma moeda for atualizada, verifique se o sidecar taxas-moeda está online ou tente novamente em horário de publicação do BCB (dias úteis, após 10h BRT).',
-            },
-          },
-        ]),
-      },
-      {
-        titulo: 'Fluxo 3: Agendamento automático',
-        tituloSumario: 'Agendamento automático',
-        paragrafos: [
-          'Configure se a sincronização automática fica ativa para a aba em que você está: PTAX na Cotação Atual, Focus na Cotação Futura. O modal segue o mesmo padrão visual do painel Admin › Testes.',
-        ],
-        passosVisuais: renumerarPassos([
-          {
-            titulo: 'Abrir o modal de agendamento',
-            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-seta.png',
-            paragrafos: [
-              'Clique no botão **Agendamento**: Como indicado pela seta. A pill **Ativo** (verde) ou **Inativo** (cinza) indica o estado atual da aba aberta.',
-            ],
-          },
-          {
-            titulo: 'Modal: Configuração (aba Geral)',
-            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-1.png',
-            paragrafos: [
-              'Em **Agendamento automático**, escolha Ativado ou Desativado. Para PTAX, a frequência padrão é **Diário (4 boletins PTAX)** com horários fixos do BCB.',
-              'Para Focus, use frequência **Semanal**: O cron padrão da Gravity é terça-feira às 22h BRT.',
-            ],
-          },
-          {
-            titulo: 'Modal: Horários e alertas',
-            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-2.png',
-            paragrafos: [
-              'Na aba Horários, confira os slots PTAX (10h03 / 11h03 / 12h03 / 13h03) ou o horário semanal do Focus. A aba Alertas permite cadastrar e-mails para notificação de falha.',
-              'Clique em **Salvar** para gravar. O badge do botão Agendamento na tela principal muda para Ativo quando a configuração está ligada.',
-            ],
-            callout: {
-              tipo: 'dica',
-              texto: 'PTAX e Focus têm agendamentos independentes: Configure cada um na aba correspondente antes de abrir o modal.',
-            },
-          },
-        ]),
-      },
-      {
-        titulo: 'Fluxo 4: Cotação futura (BACEN Focus)',
-        tituloSumario: 'Cotação futura',
+        titulo: 'Cotação futura (BACEN Focus)',
+        tituloSumario: 'Cotação futura (BACEN Focus)',
         paragrafos: [
           'A segunda aba exibe projeções de mercado do BACEN Focus para USD/BRL: **não são cotações negociadas**. Use para planejamento; o erro de previsão cresce com o horizonte.',
         ],
@@ -1796,7 +1867,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5: Sincronizar Focus',
+        titulo: 'Sincronizar Focus',
         tituloSumario: 'Sincronizar Focus',
         paragrafos: [
           'Busque manualmente a última rodada de expectativas de mercado publicada pelo BACEN. O cron semanal já faz isso automaticamente quando o agendamento está ativo.',

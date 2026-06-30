@@ -46,6 +46,8 @@ Menu: `[ 📄 Documentação] [ 🔑 Tokens] [ 🧪 Playground] [ 🪝 Webhooks]
 
 > ⚠️ **REGRA ABSOLUTA:** Ver [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md) para hash SHA-256, prefixos `gv_live_sk_`/`gv_test_sk_`, exibição única e revogação imediata.
 
+**Confirmação de revogação (UX):** usar `ModalConfirmarExcluirGlobal` — **proibido** `window.confirm`. Telas: `ApiTokens.tsx` e `ApiTokensAdmin.tsx` (paridade workspace/admin).
+
 ### Tela 2 — Documentação (Swagger/Redoc)
 
 Documentação gerada automaticamente a partir dos **schemas Zod** de cada rota:
@@ -85,6 +87,16 @@ Eventos:
 ```
 
 > ⚠️ **REGRA ABSOLUTA:** Ver [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md) para HMAC-SHA256, header `X-Gravity-Signature` e retry exponencial.
+
+**Confirmações e feedback (UX — TASK-000401):**
+
+| Ação | Componente | Proibido |
+|:---|:---|:---|
+| Excluir webhook | `ModalConfirmarExcluirGlobal` | `window.confirm` |
+| Resultado do disparo de teste | `ModalFormularioGlobal` (sucesso/erro + HTTP) | `window.alert` |
+| Tooltips dos botões ícone (Testar, Histórico, Excluir) | `TooltipGlobal` com trigger em `<span style={{ display: 'inline-flex' }}>` | atributo `title` nativo |
+
+Telas: `ApiWebhooks.tsx` e `ApiWebhooksAdmin.tsx` (paridade workspace/admin).
 
 **Histórico de disparos:**
 
@@ -257,6 +269,7 @@ POST   /api/v1/api-cockpit/erp/query            ← executar query OData/SQL
 - [ ] API Cockpit acessível dentro de cada produto?
 - [ ] Central de APIs consolidada no Configurador (workspace)?
 - [ ] Tokens, webhooks e credenciais ERP conforme [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md)?
+- [ ] Confirmações destrutivas e feedback de teste em Tokens/Webhooks usam modais do núcleo (sem `confirm`/`alert` nativos)?
 - [ ] Documentação gerada automaticamente a partir dos schemas Zod?
 - [ ] Playground com execução ao vivo e exportar como cURL/código?
 - [ ] Fluxo Gabi → query OData → resultado em linguagem natural?
@@ -266,5 +279,6 @@ POST   /api/v1/api-cockpit/erp/query            ← executar query OData/SQL
 
 ## Histórico
 
+- **2026-06-30 (TASK-000401)** — Modais Gravity em Tokens/Webhooks: `ModalConfirmarExcluirGlobal` (revogar/excluir), `ModalFormularioGlobal` (resultado teste), `TooltipGlobal` nas ações da tabela.
 - **2026-06-29 (TASK-000395)** — Boot confiável do sidecar `:8016`, preflight dev/prod, `sidecarListenReady` compartilhado (gabi `:8009`, taxas-moeda `:8032`), logs `[api-cockpit proxy]` no BFF. Ver `API-COCKPIT-SIDECAR-BOOT.md`.
 - **2026-05-04** — Refatoração DDD final aplicada: 5 models criados no banco (`api_token`, `webhook_configuracao`, `webhook_log`, `log_consumo`, `api_integracao_erp`), backend e telas migrados para nomenclatura canônica. Antes do commit `8f0e041d`, o `fragment.prisma` era órfão (nunca composto, nunca migrado, backend rodava in-memory).

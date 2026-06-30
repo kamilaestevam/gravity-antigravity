@@ -37,7 +37,7 @@ export interface DocPassoVisual {
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }
   callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque'; texto: string }[]
   tooltipsKpi?: DocTooltipKpi[]
-  galeriaTelas?: { legenda: string; imagem: string }[]
+  galeriaTelas?: DocGaleriaTela[]
   linkCapitulo?: { texto: string; href: string }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
@@ -55,6 +55,13 @@ export interface DocPassoVisual {
     imagem: string
     legenda?: string
   }
+}
+
+export interface DocGaleriaTela {
+  legenda: string
+  imagem: string
+  /** Card explicativo do tooltip KPI renderizado acima da legenda e do screenshot. */
+  tooltipKpi?: DocTooltipKpi
 }
 
 export interface DocFiguraAposParagrafo {
@@ -236,7 +243,7 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 interface PassoAreaExtras {
   paragrafos?: string[]
   tooltipsKpi?: DocTooltipKpi[]
-  galeriaTelas?: { legenda: string; imagem: string }[]
+  galeriaTelas?: DocGaleriaTela[]
 }
 
 const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
@@ -358,11 +365,23 @@ const FORNECEDORES_TOOLTIPS_KPI: DocTooltipKpi[] = [
   },
 ]
 
-const FORNECEDORES_GALERIA_TOOLTIPS_KPI = [
-  { legenda: '1 · Total de fornecedores', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-1.png' },
-  { legenda: '2 · Fornecedores ativos', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-2.png' },
-  { legenda: '3 · Distribuição por tipo', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-3.png' },
-] as const
+const FORNECEDORES_GALERIA_TOOLTIPS_KPI: DocGaleriaTela[] = [
+  {
+    legenda: '1 · Total de fornecedores',
+    imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-1.png',
+    tooltipKpi: FORNECEDORES_TOOLTIPS_KPI[0],
+  },
+  {
+    legenda: '2 · Fornecedores ativos',
+    imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-2.png',
+    tooltipKpi: FORNECEDORES_TOOLTIPS_KPI[1],
+  },
+  {
+    legenda: '3 · Distribuição por tipo',
+    imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-3.png',
+    tooltipKpi: FORNECEDORES_TOOLTIPS_KPI[2],
+  },
+]
 
 /** Screenshots com tooltip aberto: Drive: 5. Assinaturas/tela_configurador_assinaturas_cards_tooltip_N.png */
 const ASSINATURAS_TOOLTIPS_KPI: DocTooltipKpi[] = [
@@ -1061,8 +1080,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-fornecedores-tela-principal.png',
     mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      '**Fornecedores** cadastra terceiros COMEX da organização: Fabricantes, compradores, agentes de carga, despachantes e demais parceiros de pedidos, processos e cotações.',
-      'O infográfico abaixo explica a diferença entre **Exportador na importação** e **Importador na exportação**: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+      '**Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
+      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
     ],
     lista: [
       '**Exportador na importação**: Vendedor no exterior quando você importa',
@@ -1071,7 +1090,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar fornecedores',
+        titulo: 'Acessar fornecedores',
+        tituloSumario: 'Acessar fornecedores',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Fornecedores.',
         ],
@@ -1086,13 +1106,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               'No menu lateral do Configurador, clique em Fornecedores. A tela abre com a listagem e os cards de resumo no topo.',
               'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
             ],
-            tooltipsKpi: FORNECEDORES_TOOLTIPS_KPI,
             galeriaTelas: [...FORNECEDORES_GALERIA_TOOLTIPS_KPI],
           },
         ),
       },
       {
-        titulo: 'Fluxo 2: Criar fornecedor',
+        titulo: 'Criar fornecedor',
         tituloSumario: 'Criar fornecedor',
         paragrafos: [
           'Todo cadastro passa pelo modal Novo Fornecedor em três abas: Dados gerais, papéis COMEX e contato.',
@@ -1133,7 +1152,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 3: Exportador na importação',
+        titulo: 'Exportador na importação',
         tituloSumario: 'Exportador na importação',
         paragrafos: [
           'Quando sua empresa importa, o vendedor no exterior é cadastrado como fornecedor com papel Exportador: Ele exporta a mercadoria para você.',
@@ -1174,7 +1193,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 4: Importador na exportação',
+        titulo: 'Importador na exportação',
         tituloSumario: 'Importador na exportação',
         paragrafos: [
           'Quando sua empresa exporta, o comprador no exterior é cadastrado como fornecedor com papel Importador: Ele importa a mercadoria que você vende.',
@@ -1208,7 +1227,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 5: Outros tipos de fornecedor',
+        titulo: 'Outros tipos de fornecedor',
         tituloSumario: 'Outros tipos de fornecedor',
         mostrarInfograficoPapeisFornecedor: true,
         paragrafos: [
@@ -1244,7 +1263,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 6: Editar fornecedor',
+        titulo: 'Editar fornecedor',
         tituloSumario: 'Editar fornecedor',
         paragrafos: [
           'Altere dados cadastrais, papéis COMEX ou contato de um fornecedor existente.',
@@ -1281,7 +1300,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ]),
       },
       {
-        titulo: 'Fluxo 7: Ativar e desativar fornecedor',
+        titulo: 'Ativar e desativar fornecedor',
         tituloSumario: 'Ativar e desativar',
         paragrafos: [
           'Desative temporariamente um fornecedor sem apagar o cadastro. Fornecedores inativos não aparecem em novos dropdowns operacionais.',

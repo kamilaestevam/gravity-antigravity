@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 396,
+  "proximo_numero": 398,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1848,6 +1848,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000395.json"
+    },
+    {
+      "referencia": "TASK-000397",
+      "ordinal": 121,
+      "titulo_canonico": "CFG-UNIVERSITY-GRAVITY-MEL-AJUSTES-MANUAL-GRAVITY-4",
+      "titulo_exibicao": "TASK-000397 | [University] Manuais | MEL — Continuar ajustes manual Gravity (branch ajustes-manual-gravity-4, :8001)",
+      "status": "ABR",
+      "area": "CFG",
+      "subarea": "UNIVERSITY-GRAVITY",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "AJUSTES-MANUAL-GRAVITY-4",
+      "data_criacao": "2026-06-30T14:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000397.json"
     }
   ]
 }

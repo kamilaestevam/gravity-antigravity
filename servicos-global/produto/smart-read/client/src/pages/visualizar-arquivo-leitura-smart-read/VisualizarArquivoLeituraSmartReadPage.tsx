@@ -1,12 +1,13 @@
 /**
- * VisualizarArquivoLeituraSmartReadPage — nova aba com PDF/imagem (paridade DATI).
- * Fetch autenticado via smartReadApi; não usar URL direta do BFF (sem x-id-organizacao).
+ * VisualizarArquivoLeituraSmartReadPage — fallback para URL direta /visualizar-arquivo/...
+ * Aguarda /me antes do fetch (x-id-usuario obrigatório no BFF).
  */
 
+import { useShellStore } from '@gravity/shell'
 import { CircleNotch } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { smartReadApi } from '../../shared/api'
+import { setApiContext, smartReadApi } from '../../shared/api'
 import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 import { criarObjectUrlArquivoLeitura } from '../../shared/url-blob-arquivo-leitura-smart-read'
 import './visualizar-arquivo-leitura-smart-read.css'
@@ -28,11 +29,15 @@ export default function VisualizarArquivoLeituraSmartReadPage() {
   const [searchParams] = useSearchParams()
   const nomeArquivo = searchParams.get('nome')?.trim() || 'documento'
 
+  const meStatus = useShellStore((s) => s.meStatus)
+  const currentUser = useShellStore((s) => s.currentUser)
+
   const [url, setUrl] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
 
   const modo = useMemo(() => resolverModoPreview(nomeArquivo), [nomeArquivo])
+  const sessaoPronta = meStatus === 'success' && Boolean(currentUser?.id)
 
   useEffect(() => {
     if (!idLeitura || !idArquivo) {
@@ -40,6 +45,21 @@ export default function VisualizarArquivoLeituraSmartReadPage() {
       setCarregando(false)
       return
     }
+
+    if (meStatus === 'loading' || meStatus === 'idle') {
+      return
+    }
+
+    if (!sessaoPronta) {
+      setErro('Sessão não carregada. Feche esta aba, volte ao Smart Docs e tente novamente.')
+      setCarregando(false)
+      return
+    }
+
+    setApiContext({
+      idOrganizacao: currentUser!.idOrganizacao ?? '',
+      idUsuario: currentUser!.id,
+    })
 
     let objectUrl: string | null = null
     let cancelado = false
@@ -64,7 +84,7 @@ export default function VisualizarArquivoLeituraSmartReadPage() {
       cancelado = true
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [idArquivo, idLeitura, nomeArquivo])
+  }, [currentUser, idArquivo, idLeitura, meStatus, nomeArquivo, sessaoPronta])
 
   if (carregando) {
     return (

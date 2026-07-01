@@ -23,4 +23,4 @@ export function navegarAbaDocumento(aba: Window, url: string): void {
 }
 
 export const MENSAGEM_POPUP_BLOQUEADO_SMART_READ =
-  'Não foi possível abrir nova aba. Permita pop-ups para este site ou use o preview na tela.'
+  'Não foi possível abrir nova aba. Permita pop-ups para este site nas configurações do navegador.'

@@ -112,7 +112,7 @@ export function BotaoCompletoExportar({ acoes }: BotaoCompletoExportarProps) {
       {aberto && posicao && createPortal(
         <div
           ref={menuRef}
-          className="gtv-export-menu"
+          className="gtv-export-menu--portal"
           style={{ top: `${posicao.top}px`, right: `${posicao.right}px` }}
         >
           {acoes.map((acao) => (

@@ -98,7 +98,9 @@ export function consolidarLeituraDeArquivosLocais(itens: ArquivoLocalNovaLeitura
   return { ...base, arquivos: arquivos.length > 0 ? arquivos : base.arquivos }
 }
 
-function resolverArquivoApiLeitura(item: ArquivoLocalNovaLeitura): Leitura['arquivos'][number] | null {
+export function resolverArquivoApiLeitura(
+  item: ArquivoLocalNovaLeitura,
+): Leitura['arquivos'][number] | null {
   const arquivos = item.leitura?.arquivos
   if (!arquivos?.length) return null
 
@@ -119,14 +121,52 @@ function rotuloTipoDocumento(tipo: string | null | undefined, indice: number): s
   return `Documento ${indice + 1}`
 }
 
+function montarRotulosDocumentosSidebar(
+  extracao: Array<{ tipo_documento: string | null | undefined }>,
+): string[] {
+  const bases = extracao.map((doc, indice) => rotuloTipoDocumento(doc.tipo_documento, indice))
+  const totais = new Map<string, number>()
+  for (const rotulo of bases) {
+    totais.set(rotulo, (totais.get(rotulo) ?? 0) + 1)
+  }
+  const sequencia = new Map<string, number>()
+  return bases.map((rotulo) => {
+    if ((totais.get(rotulo) ?? 0) <= 1) return rotulo
+    const n = (sequencia.get(rotulo) ?? 0) + 1
+    sequencia.set(rotulo, n)
+    return `${rotulo} ${n}`
+  })
+}
+
+/** Evita re-render no polling quando status e quantidade de documentos não mudaram. */
+export function pollAtualizacaoArquivoEquivalente(
+  atual: ArquivoLocalNovaLeitura,
+  patch: Partial<ArquivoLocalNovaLeitura>,
+): boolean {
+  const statusNovo = patch.status_arquivo_local ?? atual.status_arquivo_local
+  if (statusNovo !== atual.status_arquivo_local) return false
+  if (patch.mensagem_erro !== undefined && patch.mensagem_erro !== atual.mensagem_erro) return false
+  if (patch.expandido !== undefined && patch.expandido !== atual.expandido) return false
+  if (!patch.leitura) return true
+
+  if (atual.leitura?.status_leitura !== patch.leitura.status_leitura) return false
+
+  const extracaoAtual = resolverArquivoApiLeitura(atual)?.resultado_extracao?.length ?? 0
+  const extracaoNova =
+    resolverArquivoApiLeitura({ ...atual, leitura: patch.leitura })?.resultado_extracao?.length ?? 0
+  return extracaoAtual === extracaoNova
+}
+
 export function extrairDocumentosArquivoLocal(item: ArquivoLocalNovaLeitura): DocumentoExtraidoArquivoLocal[] {
   const arquivoApi = resolverArquivoApiLeitura(item)
   const extracao = arquivoApi?.resultado_extracao
   if (!extracao?.length) return []
 
+  const rotulos = montarRotulosDocumentosSidebar(extracao)
+
   return extracao.map((doc, indice) => ({
     id_documento: `${item.id_arquivo_local}:${indice}`,
-    tipo_documento: rotuloTipoDocumento(doc.tipo_documento, indice),
+    tipo_documento: rotulos[indice] ?? rotuloTipoDocumento(doc.tipo_documento, indice),
     indice,
   }))
 }

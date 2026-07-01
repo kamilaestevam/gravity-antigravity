@@ -119,6 +119,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
             <p className="sr-conf-vazio">Aguardando análise dos arquivos.</p>
           ) : arquivoAtual ? (
             <ConferenciaCamposNovaLeituraSmartRead
+              key={`${arquivoAtual.id_arquivo_local}:${indiceDocumento}`}
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
               onCompararArquivo={onCompararArquivo}
@@ -129,8 +130,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
         </>
       )}
 
-      {arquivosCompletos.length > 0 && (
-        <div className="sr-conf-tab-panel" hidden={aba !== 'qa'}>
+      {aba === 'qa' && arquivosCompletos.length > 0 && (
+        <div className="sr-conf-tab-panel">
           <ConferenciaQaNovaLeituraSmartRead
             arquivoConferencia={arquivoAtual ?? null}
             indiceDocumentoConferencia={indiceDocumento}
@@ -143,8 +144,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
         </div>
       )}
 
-      {arquivosCompletos.length > 0 && (
-        <div className="sr-conf-tab-panel" hidden={aba !== 'riscos'}>
+      {aba === 'riscos' && arquivosCompletos.length > 0 && (
+        <div className="sr-conf-tab-panel">
           <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
             arquivos={arquivosCompletos}
             arquivoConferencia={arquivoAtual ?? null}

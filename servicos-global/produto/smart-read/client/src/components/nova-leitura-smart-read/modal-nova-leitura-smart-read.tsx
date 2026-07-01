@@ -35,6 +35,7 @@ import {
   todosArquivosAnaliseCompleta,
   algumArquivoEmAnalise,
   todosArquivosProcessamentoFinalizado,
+  pollAtualizacaoArquivoEquivalente,
 
   type ArquivoLocalNovaLeitura,
 
@@ -419,7 +420,11 @@ export function ModalNovaLeituraSmartRead({
 
       setArquivos((prev) =>
 
-        prev.map((item) => (item.id_arquivo_local === id ? { ...item, ...patch } : item)),
+        prev.map((item) => {
+          if (item.id_arquivo_local !== id) return item
+          if (pollAtualizacaoArquivoEquivalente(item, patch)) return item
+          return { ...item, ...patch }
+        }),
 
       )
 
@@ -574,13 +579,10 @@ export function ModalNovaLeituraSmartRead({
 
 
   const visualizarDocumento = useCallback((id: string, indice: number) => {
-
-    if (passo === 3) {
+    if (passo >= 2) {
       setConferenciaSelecao({ idArquivoLocal: id, indiceDocumento: indice })
     }
-
     visualizarArquivo(id)
-
   }, [visualizarArquivo, passo])
 
   const selecionarDocumentoConferencia = useCallback((id: string, indice: number) => {
@@ -1229,10 +1231,10 @@ export function ModalNovaLeituraSmartRead({
 
           onVisualizarDocumento={visualizarDocumento}
 
-          selecaoConferencia={passo === 3 ? conferenciaSelecao : null}
+          selecaoConferencia={passo >= 2 ? conferenciaSelecao : null}
 
           onSelecionarDocumentoConferencia={
-            passo === 3 ? selecionarDocumentoConferencia : undefined
+            passo >= 2 ? selecionarDocumentoConferencia : undefined
           }
 
           onEnviar={() => void enviarArquivos()}

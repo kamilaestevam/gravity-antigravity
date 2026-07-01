@@ -99,4 +99,55 @@ describe('Smart Read — extrair seções conferência', () => {
     expect(importador?.campos).toHaveLength(2)
     expect(importador?.campos.filter((c) => c.preenchido)).toHaveLength(1)
   })
+
+  it('usa titulo da section legado (Item 1) e ignora placeholder ncm', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      sections: [
+        {
+          title: 'Item 1',
+          fields: [
+            { key: 'items[0].partNumber', label: 'Part Number', value: '3100N025201DK19' },
+            { key: 'items[0].ncm', label: 'NCM', value: '8413.9100' },
+          ],
+        },
+      ],
+      items: [{ partNumber: '3100N025201DK19', ncm: 'ncm' }],
+    })
+
+    const item1 = secoes.find((s) => s.titulo === 'Item 1')
+    expect(item1).toBeDefined()
+    expect(item1?.campos.find((c) => c.rotulo === 'NCM')?.valor).toBe('8413.9100')
+  })
+
+  it('exibe NCM a partir de hsCode quando ncm ausente', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      items: [{ partNumber: '3100N025201DK19', hsCode: '8413.9100' }],
+    })
+    const item1 = secoes.find((s) => s.titulo === 'Item 1')
+    expect(item1?.campos.find((c) => c.chave === 'items[0].ncm')?.valor).toBe('8413.9100')
+  })
+
+  it('cria seções Item 1 e Item 2 com campos distintos (paridade DATI)', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      document: { documentNumber: '2250090' },
+      items: [
+        { partNumber: '3100N025201DK19', ncm: '8413.9100', itemQuantity: '3,00' },
+        { partNumber: 'GDG000001012A99', ncm: '8413.9100', itemQuantity: '2,00' },
+      ],
+    })
+
+    const item1 = secoes.find((s) => s.titulo === 'Item 1')
+    const item2 = secoes.find((s) => s.titulo === 'Item 2')
+    expect(item1).toBeDefined()
+    expect(item2).toBeDefined()
+    expect(item1?.campos.find((c) => c.chave === 'items[0].partNumber')?.valor).toBe('3100N025201DK19')
+    expect(item2?.campos.find((c) => c.chave === 'items[1].partNumber')?.valor).toBe('GDG000001012A99')
+    expect(item1?.campos.find((c) => c.chave === 'items[0].ncm')?.valor).toBe('8413.9100')
+    expect(item2?.campos.find((c) => c.chave === 'items[1].ncm')?.valor).toBe('8413.9100')
+
+    const camposMercadoria = secoes
+      .filter((s) => s.titulo === 'Mercadoria')
+      .flatMap((s) => s.campos)
+    expect(camposMercadoria.some((c) => c.chave.includes('partNumber'))).toBe(false)
+  })
 })

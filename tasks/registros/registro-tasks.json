@@ -1916,6 +1916,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000402.json"
+    },
+    {
+      "referencia": "TASK-000399",
+      "ordinal": 123,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-TIMER-SELECAO-INVOICE-PERFORMANCE",
+      "titulo_exibicao": "TASK-000399 | [Smart Docs] Nova Leitura | BUG — Timer falso 100%, seleção INVOICE e lentidão passos 2/3",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "TIMER-SELECAO-INVOICE-PERFORMANCE",
+      "data_criacao": "2026-07-01T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000399.json"
     }
   ]
 }

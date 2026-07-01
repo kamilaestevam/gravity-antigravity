@@ -4,6 +4,10 @@
  */
 
 import { mapearRotuloCampoLegadoConferencia, ordenarSecoesConferencia } from './mapear-rotulo-campo-legado-conferencia-smart-read'
+import {
+  prepararDadosConferenciaLeitura,
+  valorCampoExtracaoLegadoPreenchido,
+} from '../../../shared/mesclar-dados-extracao-legado-smart-read'
 
 export type CampoConferenciaLeitura = {
   chave: string
@@ -31,6 +35,10 @@ type CampoLegado = {
   label?: string
   field?: string
   value?: unknown
+  text?: unknown
+  displayValue?: unknown
+  extractedValue?: unknown
+  val?: unknown
   section?: string
   group?: string
   sectionName?: string
@@ -50,10 +58,7 @@ function slugSecao(titulo: string, indice: number): string {
 }
 
 export function valorPreenchidoConferencia(valor: unknown): boolean {
-  if (valor === null || valor === undefined || valor === '') return false
-  if (Array.isArray(valor)) return valor.length > 0
-  if (typeof valor === 'object') return Object.keys(valor as Record<string, unknown>).length > 0
-  return true
+  return valorCampoExtracaoLegadoPreenchido(valor)
 }
 
 export function valorTextoConferencia(valor: unknown): string | null {
@@ -82,6 +87,70 @@ function adicionarCampo(mapa: Map<string, CampoConferenciaLeitura[]>, secao: str
   mapa.set(titulo, lista)
 }
 
+function mapaJaTemSecoesItem(mapa: Map<string, CampoConferenciaLeitura[]>): boolean {
+  return [...mapa.keys()].some((titulo) => /^Item \d+$/i.test(titulo.trim()))
+}
+
+function tituloSecaoItem(indice: number): string {
+  return `Item ${indice + 1}`
+}
+
+/** Achata um item de invoice em seção própria (paridade DATI — Item 1, Item 2…). */
+function achatarLinhaItemConferencia(
+  mapa: Map<string, CampoConferenciaLeitura[]>,
+  item: Record<string, unknown>,
+  indiceItem: number,
+  prefixoItems: string,
+) {
+  const tituloSecao = tituloSecaoItem(indiceItem)
+  const prefixo = `${prefixoItems}[${indiceItem}]`
+
+  const percorrer = (obj: Record<string, unknown>, pref: string) => {
+    for (const [chave, valor] of Object.entries(obj)) {
+      if (CHAVES_IGNORADAS.has(chave)) continue
+
+      const caminho = `${pref}.${chave}`
+      const caminhoCanonico = caminho.replace(/\[\d+\]/g, '[]')
+
+      if (Array.isArray(valor)) {
+        valor.forEach((sub, j) => {
+          if (sub !== null && typeof sub === 'object' && !Array.isArray(sub)) {
+            percorrer(sub as Record<string, unknown>, `${caminho}[${j}]`)
+          } else {
+            const { label_tela } = mapearRotuloCampoLegadoConferencia(caminhoCanonico)
+            adicionarCampo(mapa, tituloSecao, criarCampo(caminho, label_tela, sub))
+          }
+        })
+        continue
+      }
+
+      if (valor !== null && typeof valor === 'object') {
+        percorrer(valor as Record<string, unknown>, caminho)
+        continue
+      }
+
+      const { label_tela } = mapearRotuloCampoLegadoConferencia(caminhoCanonico)
+      adicionarCampo(mapa, tituloSecao, criarCampo(caminho, label_tela, valor))
+    }
+  }
+
+  percorrer(item, prefixo)
+}
+
+function processarArrayItemsInvoice(
+  mapa: Map<string, CampoConferenciaLeitura[]>,
+  items: unknown[],
+  prefixoItems = 'items',
+) {
+  if (mapaJaTemSecoesItem(mapa)) return
+
+  items.forEach((bruto, indice) => {
+    if (bruto !== null && typeof bruto === 'object' && !Array.isArray(bruto)) {
+      achatarLinhaItemConferencia(mapa, bruto as Record<string, unknown>, indice, prefixoItems)
+    }
+  })
+}
+
 function achatarDadosConferencia(
   mapa: Map<string, CampoConferenciaLeitura[]>,
   dados: Record<string, unknown>,
@@ -89,6 +158,7 @@ function achatarDadosConferencia(
 ) {
   for (const [chave, valor] of Object.entries(dados)) {
     if (CHAVES_IGNORADAS.has(chave)) continue
+    if (!prefixo && chave === 'items') continue
 
     const caminho = prefixo ? `${prefixo}.${chave}` : chave
     const caminhoCanonico = caminho.replace(/\[\d+\]/g, '[]')
@@ -115,7 +185,24 @@ function achatarDadosConferencia(
   }
 }
 
-function processarListaCampos(mapa: Map<string, CampoConferenciaLeitura[]>, campos: CampoLegado[]) {
+function resolverValorCampoLegado(item: CampoLegado): unknown {
+  const bruto = item as Record<string, unknown>
+  return (
+    item.value ??
+    item.text ??
+    item.displayValue ??
+    item.extractedValue ??
+    item.val ??
+    bruto.content ??
+    bruto.display_value
+  )
+}
+
+function processarListaCampos(
+  mapa: Map<string, CampoConferenciaLeitura[]>,
+  campos: CampoLegado[],
+  secaoPadrao?: string,
+) {
   for (const item of campos) {
     const chave = String(item.key ?? item.name ?? item.field ?? item.label ?? 'campo')
     const rotulo = item.label ?? item.name ?? mapearRotuloCampoLegadoConferencia(chave).label_tela
@@ -124,8 +211,9 @@ function processarListaCampos(mapa: Map<string, CampoConferenciaLeitura[]>, camp
       item.sectionName ??
       item.group ??
       item.groupName ??
+      secaoPadrao ??
       mapearRotuloCampoLegadoConferencia(chave).secao_tela
-    adicionarCampo(mapa, secao, criarCampo(chave, rotulo, item.value))
+    adicionarCampo(mapa, secao, criarCampo(chave, rotulo, resolverValorCampoLegado(item)))
   }
 }
 
@@ -141,7 +229,7 @@ function processarSecoesLegado(mapa: Map<string, CampoConferenciaLeitura[]>, sec
 
     const camposBrutos = sec.fields ?? sec.campos ?? sec.items
     if (Array.isArray(camposBrutos)) {
-      processarListaCampos(mapa, camposBrutos as CampoLegado[])
+      processarListaCampos(mapa, camposBrutos as CampoLegado[], titulo)
       return
     }
 
@@ -152,22 +240,33 @@ function processarSecoesLegado(mapa: Map<string, CampoConferenciaLeitura[]>, sec
 }
 
 export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> | null | undefined): SecaoConferenciaLeitura[] {
-  if (!dados || typeof dados !== 'object') return []
+  const dadosPreparados = prepararDadosConferenciaLeitura(dados)
+  if (!dadosPreparados || typeof dadosPreparados !== 'object') return []
 
   const mapa = new Map<string, CampoConferenciaLeitura[]>()
 
-  const secoesLegado = dados.sections ?? dados.groups ?? dados.categories ?? dados.fieldGroups
+  const secoesLegado =
+    dadosPreparados.sections ??
+    dadosPreparados.groups ??
+    dadosPreparados.categories ??
+    dadosPreparados.fieldGroups
   if (Array.isArray(secoesLegado)) {
     processarSecoesLegado(mapa, secoesLegado)
   }
 
-  const listaCampos = dados.fields ?? dados.campos
+  const listaCampos = dadosPreparados.fields ?? dadosPreparados.campos
   if (Array.isArray(listaCampos)) {
     processarListaCampos(mapa, listaCampos as CampoLegado[])
   }
 
   if (mapa.size === 0) {
-    achatarDadosConferencia(mapa, dados)
+    const { items, ...restante } = dadosPreparados
+    achatarDadosConferencia(mapa, restante)
+    if (Array.isArray(items)) {
+      processarArrayItemsInvoice(mapa, items)
+    }
+  } else if (Array.isArray(dadosPreparados.items)) {
+    processarArrayItemsInvoice(mapa, dadosPreparados.items)
   }
 
   return ordenarSecoesConferencia(

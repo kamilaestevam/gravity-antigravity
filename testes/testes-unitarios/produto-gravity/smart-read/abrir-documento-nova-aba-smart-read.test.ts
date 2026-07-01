@@ -11,6 +11,7 @@ import {
   navegarAbaDocumento,
   reservarAbaDocumento,
 } from '../../../../servicos-global/produto/smart-read/client/src/shared/abrir-documento-nova-aba-smart-read'
+import { montarUrlApiArquivoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/client/src/shared/url-api-arquivo-leitura-smart-read'
 
 describe('abrir-documento-nova-aba-smart-read', () => {
   let openSpy: ReturnType<typeof vi.spyOn>
@@ -42,5 +43,11 @@ describe('abrir-documento-nova-aba-smart-read', () => {
     const aba = { location: { replace: vi.fn() }, close: vi.fn() } as unknown as Window
     navegarAbaDocumento(aba, 'blob:https://example/doc')
     expect(aba.location.replace).toHaveBeenCalledWith('blob:https://example/doc')
+  })
+
+  it('montarUrlApiArquivoLeituraSmartRead monta rota do BFF', () => {
+    expect(montarUrlApiArquivoLeituraSmartRead('leit-1', 'arq-2')).toBe(
+      '/api/v1/smart-read/leituras/leit-1/arquivos/arq-2',
+    )
   })
 })

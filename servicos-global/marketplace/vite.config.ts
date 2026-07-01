@@ -4,6 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.NODE_ENV === 'production' ? '/vitrine/' : '/',
   resolve: {
     // Prioriza source (.ts/.tsx) sobre compilados (.js) para evitar version skew
     // com artefatos stale em nucleo-global (ver commit 6d6eeda).
@@ -20,7 +21,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8001,
+    port: 5010,
     host: true,
     fs: {
       allow: [

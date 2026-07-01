@@ -122,6 +122,14 @@ cd servicos-global/configurador
 npx vite build
 cd ../..
 
+# 3a. Build marketplace (vitrine pública — servida em usegravity.com.br/)
+echo "[build-site] Building marketplace vitrine..."
+cd servicos-global/marketplace
+# Garantir deps locais (react-i18next e outros vêm do root, mas vite precisa do node_modules local)
+npm ci --prefer-offline 2>/dev/null || npm install --prefer-offline || true
+NODE_ENV=production npx vite build
+cd ../..
+
 # 4. Fix Vite nested index.html
 # When root=monorepoRoot, Vite preserves the input path structure in outDir.
 # Move index.html from nested path to dist root where Express expects it.

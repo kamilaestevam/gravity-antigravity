@@ -4,7 +4,7 @@
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { middlewareServirPrintEmt } from './lib/servir-print-emt.js'
 import { dirArtefatosEmtPersistente } from './lib/emt-artifacts.js'
@@ -631,6 +631,37 @@ app.use('/api/v1/gabi/admin', requireAuth, requireGravityAdmin, (req, res) => {
 app.use('/api/v1/gabi', requireAuth, (req, res) => {
   proxyGabi(req, res)
 })
+
+// ─── Vitrine pública (servicos-global/marketplace/) ──────────────────────────
+// Servida em produção na raiz "/" e rotas de marketing.
+// Assets com base "/vitrine/" para não colidir com os assets do Configurador (/assets/*).
+const marketplaceDistDir = resolve(monorepoRoot, 'servicos-global/marketplace/dist')
+app.use('/vitrine', express.static(marketplaceDistDir, {
+  index: false,
+  setHeaders(res, filePath) {
+    const normalizado = filePath.replace(/\\/g, '/')
+    if (normalizado.endsWith('/index.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+    } else if (normalizado.includes('/assets/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  },
+}))
+
+const _marketplaceHtml = resolve(marketplaceDistDir, 'index.html')
+function servirVitrine(_req: Parameters<express.RequestHandler>[0], res: Parameters<express.RequestHandler>[1], next: Parameters<express.RequestHandler>[2]) {
+  if (!existsSync(_marketplaceHtml)) return next()
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  res.sendFile(_marketplaceHtml)
+}
+
+// Rotas de marketing servem o index.html da vitrine; app interno continua nas suas rotas
+app.get('/', servirVitrine)
+app.get('/produtos', servirVitrine)
+app.get('/produtos/*', servirVitrine)
+app.get('/precos', servirVitrine)
+app.get('/trial', servirVitrine)
+app.get('/checkout', servirVitrine)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')

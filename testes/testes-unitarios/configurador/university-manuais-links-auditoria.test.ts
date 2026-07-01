@@ -86,7 +86,7 @@ function auditarArquivosManuaisNoDisco(): string[] {
   return [...new Set(rotas)]
 }
 
-describe('University — auditoria de links Manuais e Vídeos', () => {
+describe('University — auditoria de links Manuais', () => {
   it('sumário do manual Usuários inclui Permissões do usuário no item 5', () => {
     const secao = DOC_CONFIGURADOR_SECOES.find(s => s.titulo === 'Usuários')
     expect(secao).toBeDefined()

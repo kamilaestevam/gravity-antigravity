@@ -37,4 +37,9 @@ describe('resolver-rota-produto', () => {
     expect(resolverRotaProdutoGravity('smart-read-')).toBe(ROTA_ENTRADA_SMART_READ)
     expect(slugsProdutoEquivalentes('smart-read', 'smart-read-')).toBe(true)
   })
+
+  it('colapsa slugs arquivados de Smart Docs no seletor de produtos', () => {
+    expect(resolverSlugMetaProduto('smart-docs__arquivado__abc12345')).toBe('smart-read')
+    expect(slugsProdutoEquivalentes('smart-read', 'smart-docs__arquivado__abc12345')).toBe(true)
+  })
 })

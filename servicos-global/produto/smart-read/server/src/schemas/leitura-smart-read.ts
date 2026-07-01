@@ -6,6 +6,7 @@
 
 import { z } from 'zod'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
+import { mesclarDadosExtracaoLegado } from '../../../shared/mesclar-dados-extracao-legado-smart-read.js'
 
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
@@ -206,22 +207,23 @@ export function parearResultadoExtracaoLegado(arquivo: {
   if (!finais || finais.length === 0) return null
 
   const originais = arquivo.processingResult ?? []
-  const houveConferencia =
-    arquivo.finalProcessingResult != null && arquivo.processingResult != null
 
   return finais.map((itemFinal, indice) => {
-    const dados = itemFinal.data ?? {}
-    const itemOriginal = houveConferencia
-      ? resolverItemOriginalPareado(originais, itemFinal, indice)
-      : undefined
+    const dadosBrutosFinal = itemFinal.data ?? {}
+    const itemOriginal =
+      originais.length > 0 ? resolverItemOriginalPareado(originais, itemFinal, indice) : undefined
     const dadosOriginal = itemOriginal?.data
+    const dados =
+      dadosOriginal != null
+        ? mesclarDadosExtracaoLegado(dadosBrutosFinal, dadosOriginal)
+        : dadosBrutosFinal
 
     const base = {
       tipo_documento: itemFinal.fileType ?? itemOriginal?.fileType ?? null,
       dados,
     }
 
-    if (dadosOriginal && dadosDistintos(dadosOriginal, dados)) {
+    if (dadosOriginal && dadosDistintos(dadosOriginal, dadosBrutosFinal)) {
       return { ...base, dados_original: dadosOriginal }
     }
 

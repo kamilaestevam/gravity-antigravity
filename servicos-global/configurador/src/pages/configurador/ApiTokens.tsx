@@ -5,6 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -72,6 +73,9 @@ export function ApiTokens() {
   // Modal — exibicao do valor em claro (uma vez so)
   const [tokenCriado, setTokenCriado] = useState<CriarTokenResponse | null>(null)
 
+  // Modal — revogar
+  const [tokenRevogar, setTokenRevogar] = useState<ApiToken | null>(null)
+
   const carregar = useCallback(async () => {
     try {
       setLoading(true)
@@ -138,21 +142,18 @@ export function ApiTokens() {
     }
   }
 
-  const handleRevogar = async (id_api_token: string) => {
-    if (!window.confirm('Revogar este token? Aplicações que o usam pararão de funcionar imediatamente.')) return
-    try {
-      const res = await requisicaoAutenticada(
-        `/api/v1/api-cockpit/api-tokens/${encodeURIComponent(id_api_token)}`,
-        { method: 'DELETE' },
-      )
-      if (!res.ok && res.status !== 204) {
-        const raw = await res.json().catch(() => ({}))
-        throw new Error(raw?.erro || raw?.error || `Falha ao revogar: ${res.status}`)
-      }
-      await carregar()
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Falha ao revogar token')
+  const handleConfirmarRevogacao = async () => {
+    if (!tokenRevogar) return
+    const res = await requisicaoAutenticada(
+      `/api/v1/api-cockpit/api-tokens/${encodeURIComponent(tokenRevogar.id_api_token)}`,
+      { method: 'DELETE' },
+    )
+    if (!res.ok && res.status !== 204) {
+      const raw = await res.json().catch(() => ({}))
+      throw new Error(raw?.erro || raw?.error || `Falha ao revogar: ${res.status}`)
     }
+    setTokenRevogar(null)
+    await carregar()
   }
 
   const handleCopiar = async (texto: string) => {
@@ -221,11 +222,11 @@ export function ApiTokens() {
       label: 'Acoes',
       tipo: 'texto',
       align: 'center',
-      render: (val) => (
+      render: (val, item) => (
         <BotaoGlobal
           variante="perigo"
           tamanho="pequeno"
-          onClick={() => handleRevogar(val as string)}
+          onClick={() => setTokenRevogar(item)}
           icone={<Trash size={14} />}
           aria-label="Revogar token"
         >
@@ -408,6 +409,15 @@ export function ApiTokens() {
           </div>
         )}
       </ModalFormularioGlobal>
+
+      <ModalConfirmarExcluirGlobal
+        aberto={!!tokenRevogar}
+        titulo="Revogar token?"
+        descricao="Aplicacoes que usam este token param de funcionar imediatamente"
+        nomeItem={tokenRevogar?.nome_api_token}
+        aoConfirmar={handleConfirmarRevogacao}
+        aoCancelar={() => setTokenRevogar(null)}
+      />
     </PaginaGlobal>
   )
 }

@@ -34,7 +34,9 @@ export async function executarDownloadExportacaoLeituraSmartRead(params: {
   const { id_tarefa } = await smartReadApi.criarExportacaoLeitura(idLeitura, ids_arquivo)
 
   const inicio = Date.now()
+  let polls = 0
   while (Date.now() - inicio < TIMEOUT_POLL_MS) {
+    polls += 1
     const status = await smartReadApi.obterStatusExportacaoLeitura(id_tarefa)
     if (status.status_tarefa === 'failed') {
       throw new Error(status.mensagem_erro ?? 'Falha ao gerar exportação no legado DATI')
@@ -46,5 +48,14 @@ export async function executarDownloadExportacaoLeituraSmartRead(params: {
     await aguardar(INTERVALO_POLL_MS)
   }
 
+  // Rastro estruturado ÚNICO (só no timeout, nunca por poll): o DATI aceitou a
+  // tarefa mas nunca gerou o resultado dentro do limite — indício de falha real
+  // no worker GENERATE_READING_DOWNLOAD do legado, não do 404 transitório normal.
+  console.warn('[smart-read] timeout aguardando pacote de exportação DATI', {
+    id_leitura: idLeitura,
+    id_tarefa,
+    polls,
+    tempo_decorrido_ms: Date.now() - inicio,
+  })
   throw new Error('Tempo esgotado aguardando o pacote de exportação do legado DATI')
 }

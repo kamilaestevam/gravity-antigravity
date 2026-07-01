@@ -1,0 +1,50 @@
+﻿{
+  "referencia": "TASK-000401",
+  "ordinal": 122,
+  "id_transcript": null,
+  "titulo_canonico": "CONFIG-API-COCKPIT-MEL-MODAL-REVOGAR-TOKEN-PADRAO-SISTEMA",
+  "titulo_exibicao": "TASK-000401 | [Configurador] API Cockpit Tokens | MEL — Modal revogar token no padrão do sistema",
+  "status": "VAL",
+  "status_descricao": "Validação em produção — código mergeado (PR #565); deploy Railway pendente após build quebrado no merge inicial",
+  "area": "CONFIG",
+  "area_descricao": "Configurador — auth, billing, permissões e módulos internos (API Cockpit em servicos-global/configurador)",
+  "subarea": "API-COCKPIT",
+  "subarea_descricao": "Módulo API Cockpit — gestão de tokens, playground e integrações",
+  "visualizacao": null,
+  "visualizacao_descricao": "Não aplicável — tela de Tokens de API (lista + ação Revogar), não é LISTA/KANBAN de produto",
+  "tipo_entrega": "MEL",
+  "tipo_entrega_descricao": "Melhoria de UX — alinhar modal de confirmação ao design system Gravity",
+  "resumo": "MODAL-REVOGAR-TOKEN-PADRAO-SISTEMA",
+  "resumo_descricao": "Substituir confirm() nativo por AlertDialog do sistema ao revogar token",
+  "resumo_detalhado": "No API Cockpit do Configurador (tokens e webhooks), substituir dialogs nativos do navegador (confirm/alert) pelo design system Gravity: ModalConfirmarExcluirGlobal para revogar token e excluir webhook; ModalFormularioGlobal para resultado do disparo de teste; TooltipGlobal nos botoes de acao da lista de webhooks.",
+  "data_criacao": "2026-06-30T22:30:00.000Z",
+  "data_encerramento": null,
+  "duracao_horas": null,
+  "tempo_bruto_horas": null,
+  "tempo_agente_horas": null,
+  "tempo_dono_horas": null,
+  "tempo_liquido_horas": null,
+  "tokens_estimados_entrada": null,
+  "tokens_estimados_saida": null,
+  "tokens_estimados_total": null,
+  "mensagens_usuario": null,
+  "mensagens_agente": null,
+  "fases_concluidas": ["implementacao", "pr_merge"],
+  "checklist_encerramento": {
+    "deploy_producao": false,
+    "validacao_tokens_revogar": false,
+    "validacao_webhooks_excluir": false
+  },
+  "checklist_alertas": [
+    "Merge #565 em 2026-06-30 falhou deploy Railway (imports WIP manual University); corrigido em #568; master atual builda com vite."
+  ],
+  "entregas": [
+    {
+      "tipo": "pull_request",
+      "referencia": "https://github.com/dmmltda/gravity-antigravity/pull/565",
+      "merge_commit": "2bd0e54ed",
+      "descricao": "ModalConfirmarExcluirGlobal (tokens/webhooks), ModalFormularioGlobal (teste webhook), TooltipGlobal"
+    }
+  ],
+  "notas": "Código em master desde PR #565. PR de redeploy dispara novo build Railway após fix #568. Validar: revogar token e excluir webhook exibem modal escuro Gravity (não «usegravity.com.br diz»)."
+}

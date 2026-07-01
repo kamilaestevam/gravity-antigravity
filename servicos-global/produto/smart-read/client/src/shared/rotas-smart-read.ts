@@ -13,3 +13,14 @@ export type SmartReadVisualizacaoId = 'insights' | 'lista' | 'dashboard' | 'kanb
 export function rotaSmartRead(segmento: SmartReadVisualizacaoId): string {
   return `/smart-read/${segmento}`
 }
+
+/** Nova aba — SPA busca o arquivo com headers de org (BFF exige x-id-organizacao). */
+export function rotaVisualizarArquivoLeituraSmartRead(
+  idLeitura: string,
+  idArquivo: string,
+  nomeArquivo?: string,
+): string {
+  const base = `/smart-read/visualizar-arquivo/${encodeURIComponent(idLeitura)}/${encodeURIComponent(idArquivo)}`
+  const nome = nomeArquivo?.trim()
+  return nome ? `${base}?nome=${encodeURIComponent(nome)}` : base
+}

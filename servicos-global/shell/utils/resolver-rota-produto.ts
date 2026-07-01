@@ -15,10 +15,18 @@ const ROTA_CANONICA_POR_SLUG: Record<string, string> = {
   'smart-read-': ROTA_ENTRADA_SMART_READ,
 }
 
+/** Slugs legados/arquivados que representam o mesmo produto Smart Docs no catálogo. */
+function ehSlugSmartDocsCanonico(slug: string): boolean {
+  const bruto = slug.trim().toLowerCase()
+  if (!bruto) return false
+  if (bruto === 'smart-read' || bruto === 'smart-read-') return true
+  return bruto.includes('smart-read') || bruto.includes('smart-docs')
+}
+
 /** Slug usado em getProdutoMeta (@nucleo/logo-produtos). */
 export function resolverSlugMetaProduto(slug: string): string {
   if (slug === 'bid-frete-internacional') return 'bid-frete'
-  if (slug === 'smart-read-') return 'smart-read'
+  if (ehSlugSmartDocsCanonico(slug)) return 'smart-read'
   return slug
 }
 

@@ -28,7 +28,6 @@ import { ModalNovaLeituraSmartRead } from './nova-leitura-smart-read/modal-nova-
 import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-lista-smart-read'
 import {
   COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
-  CAMPOS_EDITAVEIS_PAI_LISTA_SMART_READ,
   criarColunasListaLeituraSmartRead,
   criarMapaColunasDocumentoLeitura,
   formatarValorExportColunaLeituraSmartRead,
@@ -42,11 +41,6 @@ import {
   type DocumentoLeituraLista,
 } from '../shared/montar-documentos-leitura-smart-read'
 import { CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ } from '../shared/column-behavior-lista-smart-read'
-import {
-  buscarColunaCatalogoDocumentoSmartRead,
-  normalizarValorSalvarColunaListaSmartRead,
-} from '../shared/formatacao-coluna-lista-smart-read'
-import { useMoedasSmartRead } from '../shared/use-moedas-smart-read'
 import { parseIdDocumentoLeituraLista } from '../../../shared/lista-edicao-espelhada-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
@@ -60,57 +54,6 @@ import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
 
 const ITENS_POR_PAGINA = 50
-const PLACEHOLDER_DATA_LISTA_SMART_READ = 'DD/MM/AAAA'
-
-type OverlayColunasPaiLeitura = {
-  numeros_documento?: string | null
-  valores_colunas: Record<string, string>
-}
-
-function normalizarValorCampoListaSmartRead(campo: string, valor: unknown): string {
-  if (campo === 'numeros_documento') {
-    return valor == null ? '' : String(valor).trim()
-  }
-  const coluna = buscarColunaCatalogoDocumentoSmartRead(campo)
-  if (coluna) {
-    return normalizarValorSalvarColunaListaSmartRead(coluna, valor)
-  }
-  return valor == null ? '' : String(valor).trim()
-}
-
-function extrairOverlayPaiDeDocumentos(
-  documentos: DocumentoLeituraLista[],
-): OverlayColunasPaiLeitura {
-  const numeros = [
-    ...new Set(
-      documentos
-        .map((doc) => doc.numero_documento?.trim())
-        .filter((numero): numero is string => Boolean(numero)),
-    ),
-  ]
-  const valores_colunas: Record<string, string> = {}
-  const referencia = documentos[0]
-  if (referencia) {
-    for (const [chave, valor] of Object.entries(referencia.valores_colunas)) {
-      if (valor?.trim()) valores_colunas[chave] = valor
-    }
-  }
-  return {
-    numeros_documento: numeros.length > 0 ? numeros.join(' · ') : null,
-    valores_colunas,
-  }
-}
-
-function documentoListaParaFilho(
-  doc: DocumentoLeituraLista,
-): DocumentoLeituraLista {
-  return {
-    ...doc,
-    status_documento: doc.status_documento ?? 'COMPLETED',
-    media_acertos: doc.media_acertos ?? null,
-    data_envio: doc.data_envio ?? null,
-  }
-}
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -180,9 +123,6 @@ export function TabelaTransacoesLeituraSmartRead({
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [resetCacheFilhos, setResetCacheFilhos] = useState(0)
-  const [overlayColunasPai, setOverlayColunasPai] = useState<Record<string, OverlayColunasPaiLeitura>>({})
-
-  const { moedasOpcoes } = useMoedasSmartRead()
 
   const handleExpandidosMudar = useCallback((count: number) => {
     setTemExpandido(count > 0)
@@ -275,17 +215,9 @@ export function TabelaTransacoesLeituraSmartRead({
     setModalNovaLeituraAberto(true)
   }, [])
 
-  const getValorCatalogoPai = useCallback(
-    (item: TransacaoLeitura, key: string) => overlayColunasPai[item.id_leitura]?.valores_colunas[key],
-    [overlayColunasPai],
-  )
-
   const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead(
-      (item) => abrirLeituraExistente(item.id_leitura),
-      { opcoesMoedas: moedasOpcoes, getValorCatalogoPai },
-    ),
-    [abrirLeituraExistente, moedasOpcoes, getValorCatalogoPai],
+    () => criarColunasListaLeituraSmartRead((item) => abrirLeituraExistente(item.id_leitura)),
+    [abrirLeituraExistente],
   )
   const mapaColunasFilho = useMemo(
     () => criarMapaColunasDocumentoLeitura((item) => abrirLeituraExistente(item.id_leitura)),
@@ -297,43 +229,10 @@ export function TabelaTransacoesLeituraSmartRead({
     [transacoes, filtrosAtivosLista],
   )
 
-  const transacoesExibicao = useMemo(
-    () => transacoesFiltradas.map((item) => {
-      const overlay = overlayColunasPai[item.id_leitura]
-      if (!overlay) return item
-      return {
-        ...item,
-        numeros_documento: overlay.numeros_documento ?? item.numeros_documento,
-      }
-    }),
-    [transacoesFiltradas, overlayColunasPai],
-  )
-
   const totalArquivosRodape = useMemo(
-    () => transacoesExibicao.reduce((soma, item) => soma + (item.total_arquivos ?? 0), 0),
-    [transacoesExibicao],
+    () => transacoesFiltradas.reduce((soma, item) => soma + (item.total_arquivos ?? 0), 0),
+    [transacoesFiltradas],
   )
-
-  const aplicarOverlayAposEdicao = useCallback((
-    idLeitura: string,
-    documentosAtualizados: DocumentoLeituraLista[],
-  ) => {
-    if (documentosAtualizados.length === 0) return
-    const overlay = extrairOverlayPaiDeDocumentos(documentosAtualizados)
-    setOverlayColunasPai((prev) => ({
-      ...prev,
-      [idLeitura]: {
-        numeros_documento: overlay.numeros_documento,
-        valores_colunas: {
-          ...(prev[idLeitura]?.valores_colunas ?? {}),
-          ...overlay.valores_colunas,
-        },
-      },
-    }))
-    if (documentosAtualizados.length > 1) {
-      setResetCacheFilhos((valor) => valor + 1)
-    }
-  }, [])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
@@ -385,12 +284,12 @@ export function TabelaTransacoesLeituraSmartRead({
       colunas,
       preferencias,
       colunasPadrao: [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ],
-      dados: transacoesExibicao,
+      dados: transacoesFiltradas,
       formatValorExport: formatarValorExportColunaLeituraSmartRead,
       nomeArquivo: 'smart-read-leituras',
       titulo: `Lista ${tituloPainel} — ${NOME_PRODUTO_EXIBICAO}`,
     }),
-    [colunas, preferencias, transacoesExibicao, tituloPainel],
+    [colunas, preferencias, transacoesFiltradas, tituloPainel],
   )
 
   const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
@@ -408,7 +307,7 @@ export function TabelaTransacoesLeituraSmartRead({
       throw new Error('Documento inválido para edição na lista')
     }
 
-    const valorTexto = normalizarValorCampoListaSmartRead(campo, valor)
+    const valorTexto = valor == null ? '' : String(valor)
     const resposta = await smartReadApi.editarCampoDocumentoLista(
       parseado.id_leitura,
       {
@@ -419,54 +318,21 @@ export function TabelaTransacoesLeituraSmartRead({
       },
     )
 
-    aplicarOverlayAposEdicao(parseado.id_leitura, resposta.documentos_atualizados)
+    setResetCacheFilhos((v) => v + 1)
+    onRecarregar()
 
     const atualizado = resposta.documentos_atualizados.find((d) => d.id_documento_leitura === idDocumento)
     if (!atualizado) {
       throw new Error('Documento não retornado após salvar')
     }
 
-    return documentoListaParaFilho(atualizado)
-  }, [aplicarOverlayAposEdicao])
-
-  const handleEditarPai = useCallback(async (
-    idLeitura: string,
-    campo: string,
-    valor: unknown,
-  ): Promise<TransacaoLeitura> => {
-    const leituraAtual = transacoesExibicao.find((item) => item.id_leitura === idLeitura)
-    if (!leituraAtual) {
-      throw new Error('Leitura não encontrada na página atual')
-    }
-
-    const detalhe = await smartReadApi.obterLeitura(idLeitura)
-    const documentos = montarDocumentosLeituraLista(detalhe)
-    const primeiroDocumento = documentos[0]
-    if (!primeiroDocumento) {
-      throw new Error('Nenhum documento disponível para editar nesta leitura')
-    }
-
-    const parseado = parseIdDocumentoLeituraLista(primeiroDocumento.id_documento_leitura)
-    if (!parseado || parseado.indice_extracao == null) {
-      throw new Error('Documento inválido para edição na lista')
-    }
-
-    const valorTexto = normalizarValorCampoListaSmartRead(campo, valor)
-    const resposta = await smartReadApi.editarCampoDocumentoLista(idLeitura, {
-      id_arquivo: parseado.id_arquivo,
-      indice_documento: parseado.indice_extracao,
-      campo_coluna: campo,
-      valor: valorTexto,
-    })
-
-    aplicarOverlayAposEdicao(idLeitura, resposta.documentos_atualizados)
-
-    const overlay = extrairOverlayPaiDeDocumentos(resposta.documentos_atualizados)
     return {
-      ...leituraAtual,
-      numeros_documento: overlay.numeros_documento ?? leituraAtual.numeros_documento,
+      ...atualizado,
+      status_documento: atualizado.status_documento ?? 'COMPLETED',
+      media_acertos: atualizado.media_acertos ?? null,
+      data_envio: atualizado.data_envio ?? null,
     }
-  }, [aplicarOverlayAposEdicao, transacoesExibicao])
+  }, [onRecarregar])
 
   const handleConfirmarExclusao = useCallback(async () => {
     if (leiturasSelecionadas.length === 0) return
@@ -619,19 +485,16 @@ export function TabelaTransacoesLeituraSmartRead({
 
         <TabelaVirtualGlobal<TransacaoLeitura, DocumentoLeituraLista>
         imperativeRef={tabelaRef}
-        dados={transacoesExibicao}
+        dados={transacoesFiltradas}
         colunas={colunas}
         itemId={itemId}
         mapaColunasFilho={mapaColunasFilho}
         onCarregarFilhos={handleCarregarFilhos}
         onExpandidosMudar={handleExpandidosMudar}
         filhoId={filhoId}
-        camposEditaveis={CAMPOS_EDITAVEIS_PAI_LISTA_SMART_READ}
-        onEditar={handleEditarPai}
         camposEditaveisFilhos={CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ}
         onEditarFilho={handleEditarFilho}
         resetCacheFilhos={resetCacheFilhos}
-        placeholderData={PLACEHOLDER_DATA_LISTA_SMART_READ}
         onErroAoSalvar={(mensagem) => addNotification({ type: 'error', message: mensagem })}
         onSalvoComSucesso={() => addNotification({
           type: 'success',
@@ -640,7 +503,7 @@ export function TabelaTransacoesLeituraSmartRead({
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
         itensPorPagina={ITENS_POR_PAGINA}
-        totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesExibicao.length : total}
+        totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
         onMudarPagina={onPaginaChange}

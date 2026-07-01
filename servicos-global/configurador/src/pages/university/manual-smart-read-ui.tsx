@@ -6,7 +6,7 @@ export function DocSmartReadManual() {
     <DocManualUmaSecao
       secao={DOC_SMART_READ_SECAO}
       metadados={DOC_SMART_READ_METADADOS}
-      secoesAbertasInicial={[1, 2, 3, 4, 5]}
+      secoesAbertasInicial={[1, 2, 3, 4, 5, 6]}
     />
   )
 }

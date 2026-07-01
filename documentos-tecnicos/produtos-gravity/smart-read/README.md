@@ -11,6 +11,7 @@
 | Documento | Conte�do |
 |-----------|----------|
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extra��o); Postgres Gravity = snapshot, progresso, pain�is |
+| [REQUISITOS-TECNICOS.md](./REQUISITOS-TECNICOS.md) | **Rate limit (100 req/min)**, chamadas HTTP no mount da Lista, upload 50 MB, pagina��o, erro 429 � SSOT limites e API |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor respons�vel, contrato BFF, rankings |
 | [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/pagina��o/pain�is, BFF leituras, progresso por usu�rio, nome do wizard, **KPI cards �13**, **status de fluxo �14** (funda��o + wiring pendente) |
 | [ANALISE-DE-RISCOS-TECNICO.md](./ANALISE-DE-RISCOS-TECNICO.md) | **Aba An�lise de Riscos:** V1 determin�stico, piloto LLM (V2), fundamenta��o NCM/lei/RAG (V3) |

@@ -18,7 +18,6 @@ import {
 } from '../lib/cliente-legado-smart-read.js'
 import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
 import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
-import { tentarRecuperarVinculoLeituraWorkspaceSmartRead } from '../lib/assegurar-vinculo-leitura-workspace-smart-read.js'
 import {
   leituraVinculadaAoWorkspaceSmartRead,
   resolverIdWorkspaceLeituraSmartRead,
@@ -36,6 +35,8 @@ import {
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
   CriarLeituraRespostaSchema,
+  EditarCampoDocumentoListaRequestSchema,
+  EditarCampoDocumentoListaRespostaSchema,
   LeituraSchema,
   ListarTransacoesRespostaSchema,
   MetricaLeituraRespostaSchema,
@@ -47,7 +48,7 @@ import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.
 import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 import { qaLeituraSmartReadRouter } from './qa-leitura-smart-read.js'
 import { tokensUsoLlmLeituraSmartReadRouter } from './tokens-uso-llm-leitura-smart-read.js'
-import { exportacoesLeituraSmartReadRouter } from './exportacoes-leitura-smart-read.js'
+import { editarCampoDocumentoListaSmartRead } from '../lib/editar-campo-documento-lista-smart-read.js'
 
 const router = Router()
 
@@ -170,21 +171,13 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     })
 
     if (req.prisma) {
-      try {
-        await registrarVinculoLeituraUsuarioSmartRead({
-          prisma: req.prisma,
-          idOrganizacao,
-          idUsuario,
-          idWorkspace,
-          idLeitura,
-        })
-      } catch (erro) {
-        console.error('[smart-read][vinculo] POST criou leitura no legado mas vínculo Postgres falhou — GET heal-on-read', {
-          idLeitura,
-          idWorkspace,
-          erro,
-        })
-      }
+      await registrarVinculoLeituraUsuarioSmartRead({
+        prisma: req.prisma,
+        idOrganizacao,
+        idUsuario,
+        idWorkspace,
+        idLeitura,
+      })
     }
 
     const resposta = CriarLeituraRespostaSchema.parse({
@@ -201,42 +194,74 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
 router.use('/analise-riscos', analiseRiscosLeituraSmartReadRouter)
 router.use('/qa', qaLeituraSmartReadRouter)
 router.use('/tokens', tokensUsoLlmLeituraSmartReadRouter)
-router.use(exportacoesLeituraSmartReadRouter)
 
 router.use('/:id_leitura/progresso', progressoLeituraSmartReadRouter)
+
+router.patch(
+  '/:id_leitura/campo-documento',
+  async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+    try {
+      const prisma = req.prisma
+      if (!prisma) {
+        throw new AppError(
+          'Banco Smart Docs indisponivel — configure SMART_READ_DATABASE_URL',
+          503,
+          'DATABASE_UNAVAILABLE',
+        )
+      }
+      const idOrganizacao = organizacaoDaRequisicao(req)
+      const idUsuario = idUsuarioDaRequisicao(req)
+      const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+      const { id_leitura } = IdLeituraSchema.parse(req.params)
+      const corpo = EditarCampoDocumentoListaRequestSchema.parse(req.body)
+
+      const resultado = await editarCampoDocumentoListaSmartRead({
+        prisma,
+        idOrganizacao,
+        idUsuario,
+        idWorkspace,
+        idLeitura: id_leitura,
+        idArquivo: corpo.id_arquivo,
+        indiceDocumento: corpo.indice_documento,
+        campoColuna: corpo.campo_coluna,
+        valor: corpo.valor,
+      })
+
+      res.json(
+        EditarCampoDocumentoListaRespostaSchema.parse({
+          documentos_atualizados: resultado.documentos_atualizados,
+        }),
+      )
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        next(new AppError(err.errors.map((e) => e.message).join('; '), 400, 'VALIDACAO'))
+        return
+      }
+      next(err)
+    }
+  },
+)
 
 router.get(
   '/:id_leitura/arquivos/:id_arquivo',
   async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
     try {
       const idOrganizacao = organizacaoDaRequisicao(req)
-      const idUsuario = idUsuarioDaRequisicao(req)
+      idUsuarioDaRequisicao(req)
       const { id_leitura, id_arquivo } = IdArquivoLeituraSchema.parse(req.params)
       const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
-
-      const companyId = await resolverCompanyLegado(idOrganizacao)
 
       if (req.prisma) {
         const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
         if (!doSnapshot) {
-          try {
-            await obterLeituraLegado(companyId, id_leitura)
-            await tentarRecuperarVinculoLeituraWorkspaceSmartRead({
-              prisma: req.prisma,
-              idOrganizacao,
-              idUsuario,
-              idWorkspace,
-              idLeitura: id_leitura,
-              leituraExisteNoLegado: true,
-            })
-          } catch {
-            const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
-            if (!vinculada) {
-              throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
-            }
+          const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
+          if (!vinculada) {
+            throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
           }
         }
       }
+
+      const companyId = await resolverCompanyLegado(idOrganizacao)
       const arquivo = await obterArquivoLegado(companyId, id_leitura, id_arquivo)
 
       res.setHeader('Content-Type', arquivo.contentType)
@@ -260,21 +285,16 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     const idUsuario = idUsuarioDaRequisicao(req)
     const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
 
+    if (req.prisma) {
+      const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
+      if (!vinculada) {
+        throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
+      }
+    }
+
     const companyId = await resolverCompanyLegado(idOrganizacao)
     try {
       const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
-
-      if (req.prisma) {
-        await tentarRecuperarVinculoLeituraWorkspaceSmartRead({
-          prisma: req.prisma,
-          idOrganizacao,
-          idUsuario,
-          idWorkspace,
-          idLeitura: id_leitura,
-          leituraExisteNoLegado: true,
-        })
-      }
-
       let leitura = normalizarLeitura(leituraLegado)
       let doSnapshot: Awaited<ReturnType<typeof obterLeituraDoSnapshot>> = null
 

@@ -521,10 +521,23 @@ export async function obterStatusTarefaDownloadLegado(
     registrarUsoMockLegado()
     return obterTarefaDownloadMockLegado(taskId)
   }
-  const corpo = await chamarLegado(`/download-tasks/${taskId}`, {
-    method: 'GET',
-    headers: cabecalhosExportacaoLegadoGravity(companyId),
-  })
+  let corpo: unknown
+  try {
+    corpo = await chamarLegado(`/download-tasks/${taskId}`, {
+      method: 'GET',
+      headers: cabecalhosExportacaoLegadoGravity(companyId),
+    })
+  } catch (erro) {
+    // O DATI responde 404 «Task result data not found» enquanto o worker
+    // GENERATE_READING_DOWNLOAD ainda gera o ZIP — a tarefa existe, so o
+    // resultado nao ficou pronto. Nao e falha: e «ainda processando». O poll
+    // do front (limite de tempo proprio) prossegue ate completed ou timeout.
+    // Qualquer outro erro (incl. «Task not found») continua ruidoso (Mand. 08).
+    if (erro instanceof AppError && erro.statusCode === 404 && /result data/i.test(erro.message)) {
+      return { taskId, status: 'processing' }
+    }
+    throw erro
+  }
   return StatusTarefaDownloadLegadoSchema.parse(corpo)
 }
 

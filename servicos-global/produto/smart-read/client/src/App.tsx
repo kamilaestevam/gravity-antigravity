@@ -23,6 +23,9 @@ import { SmartReadMultiView } from './components/SmartReadMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 const ConfiguracoesSmartRead = lazy(() => import('./pages/configuracoes-smart-read/ConfiguracoesSmartRead'))
+const VisualizarArquivoLeituraSmartReadPage = lazy(
+  () => import('./pages/visualizar-arquivo-leitura-smart-read/VisualizarArquivoLeituraSmartReadPage'),
+)
 
 const smartReadVisualizacoesElement = <SmartReadMultiView />
 
@@ -177,6 +180,24 @@ export default function App() {
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
   const workspacesSidebar = workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
+
+  const ehPaginaVisualizarArquivo = relSegments[0] === 'visualizar-arquivo'
+
+  if (ehPaginaVisualizarArquivo) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route
+              path="visualizar-arquivo/:id_leitura/:id_arquivo"
+              element={<VisualizarArquivoLeituraSmartReadPage />}
+            />
+          </Routes>
+        </Suspense>
+      </>
+    )
+  }
 
   return (
     <TelaProdutoComOrganizacaoOverride

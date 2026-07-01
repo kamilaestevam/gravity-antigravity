@@ -11,7 +11,7 @@ import {
   navegarAbaDocumento,
   reservarAbaDocumento,
 } from '../../../../servicos-global/produto/smart-read/client/src/shared/abrir-documento-nova-aba-smart-read'
-import { montarUrlApiArquivoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/client/src/shared/url-api-arquivo-leitura-smart-read'
+import { rotaVisualizarArquivoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/client/src/shared/rotas-smart-read'
 
 describe('abrir-documento-nova-aba-smart-read', () => {
   let openSpy: ReturnType<typeof vi.spyOn>
@@ -45,9 +45,12 @@ describe('abrir-documento-nova-aba-smart-read', () => {
     expect(aba.location.replace).toHaveBeenCalledWith('blob:https://example/doc')
   })
 
-  it('montarUrlApiArquivoLeituraSmartRead monta rota do BFF', () => {
-    expect(montarUrlApiArquivoLeituraSmartRead('leit-1', 'arq-2')).toBe(
-      '/api/v1/smart-read/leituras/leit-1/arquivos/arq-2',
+  it('rotaVisualizarArquivoLeituraSmartRead monta rota da SPA com nome opcional', () => {
+    expect(rotaVisualizarArquivoLeituraSmartRead('leit-1', 'arq-2')).toBe(
+      '/smart-read/visualizar-arquivo/leit-1/arq-2',
+    )
+    expect(rotaVisualizarArquivoLeituraSmartRead('leit-1', 'arq-2', 'INVOICE.pdf')).toBe(
+      '/smart-read/visualizar-arquivo/leit-1/arq-2?nome=INVOICE.pdf',
     )
   })
 })

@@ -58,10 +58,8 @@ import {
 } from '../../shared/cache-sessao-arquivo-leitura-smart-read'
 
 import { criarObjectUrlArquivoLeitura } from '../../shared/url-blob-arquivo-leitura-smart-read'
-import {
-  montarUrlApiArquivoLeituraSmartRead,
-  urlVisualizacaoEhBlobRevogavel,
-} from '../../shared/url-api-arquivo-leitura-smart-read'
+import { urlVisualizacaoEhBlobRevogavel } from '../../shared/url-api-arquivo-leitura-smart-read'
+import { rotaVisualizarArquivoLeituraSmartRead } from '../../shared/rotas-smart-read'
 import {
   abrirDocumentoNovaAba,
   navegarAbaDocumento,
@@ -556,11 +554,44 @@ export function ModalNovaLeituraSmartRead({
         item.id_leitura ?? idLeituraExistente ?? item.leitura?.id_leitura ?? null
       const idArquivo = item.id_arquivo
 
-      // Paridade DATI: URL estável do BFF (mesma origem + sessão) — evita blob: inválido em nova aba
+      // Paridade DATI: nova aba na SPA (fetch com x-id-organizacao) — BFF não aceita GET direto sem header
       if (idLeitura && idArquivo) {
-        const urlApi = montarUrlApiArquivoLeituraSmartRead(idLeitura, idArquivo)
-        if (!abrirDocumentoNovaAba(urlApi)) {
-          abrirPreviewModalFallback(id, nomeArquivo, urlApi, evidencia ?? null, false, null)
+        const urlRota = rotaVisualizarArquivoLeituraSmartRead(idLeitura, idArquivo, nomeArquivo)
+        if (abrirDocumentoNovaAba(urlRota)) {
+          return
+        }
+        try {
+          abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, true, null)
+          const resultado = await resolverUrlVisualizacaoArquivoLeituraSmartRead(
+            item,
+            idLeituraExistente,
+          )
+          if (!resultado.ok) {
+            abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, false, resultado.mensagem)
+            return
+          }
+          if (urlVisualizacaoEhBlobRevogavel(resultado.url)) {
+            urlsBlob.current.set(id, resultado.url)
+          }
+          if (resultado.arquivoAtualizado) {
+            setArquivos((prev) =>
+              prev.map((arquivoItem) =>
+                arquivoItem.id_arquivo_local === id
+                  ? { ...arquivoItem, arquivo: resultado.arquivoAtualizado! }
+                  : arquivoItem,
+              ),
+            )
+          }
+          abrirPreviewModalFallback(id, nomeArquivo, resultado.url, evidencia ?? null, false, null)
+        } catch (excecao) {
+          abrirPreviewModalFallback(
+            id,
+            nomeArquivo,
+            null,
+            evidencia ?? null,
+            false,
+            mensagemDeExcecao(excecao, 'Não foi possível carregar o documento.'),
+          )
         }
         return
       }

@@ -123,7 +123,7 @@ const ZONAS: NoMapa[] = [
     borda: 'rgba(192,132,252,.35)',
     fundo: 'rgba(192,132,252,.1)',
     menu: 'lateral-university',
-    itens: ['Onboarding', 'Manuais e Vídeos', 'Minha Jornada'],
+    itens: ['Onboarding', 'Manuais', 'Minha Jornada'],
     href: '/university-gravity/docs/navegacao',
   },
 ]

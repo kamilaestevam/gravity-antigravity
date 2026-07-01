@@ -1597,17 +1597,11 @@ export function UniversityGravity() {
           to: '/university-gravity/docs/configurador',
           label: t('university.produto.configurador'),
           icon: produtoIconManual('configurador'),
-          children: CONFIGURADOR_MANUAL_ITENS.map(item => {
-            const badgeEmBreveCapitulo: Partial<Record<typeof item.pathSeg, typeof badgeEmBreve>> = {
-              'api-cockpit': badgeEmBreve,
-            }
-            return {
-              to: `/university-gravity/docs/configurador/${item.pathSeg}`,
-              label: item.label,
-              icon: iconeConfiguradorManual(item.pathSeg, 16),
-              ...(badgeEmBreveCapitulo[item.pathSeg] ?? {}),
-            }
-          }),
+          children: CONFIGURADOR_MANUAL_ITENS.map(item => ({
+            to: `/university-gravity/docs/configurador/${item.pathSeg}`,
+            label: item.label,
+            icon: iconeConfiguradorManual(item.pathSeg, 16),
+          })),
         },
         { to: '/university-gravity/docs/gabi',         label: t('university.produto.gabi'),         icon: produtoIconManual('gabi'),         ...badgeEmBreve },
         { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIconManual('hub') },

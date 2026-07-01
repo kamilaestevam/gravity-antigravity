@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 404,
+  "proximo_numero": 405,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000404",
+      "ordinal": 128,
+      "titulo_canonico": "SMTRD-MEL-ANEXO-ABRIR-NOVA-ABA-PARIDADE-DATI",
+      "titulo_exibicao": "TASK-000404 | [Smart Docs] | MEL — Anexos abrem em nova aba (paridade DATI para conferência)",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": null,
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "ANEXO-ABRIR-NOVA-ABA-PARIDADE-DATI",
+      "data_criacao": "2026-07-01T18:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000404.json"
+    },
     {
       "referencia": "TASK-000403",
       "ordinal": 127,

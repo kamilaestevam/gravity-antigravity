@@ -1,5 +1,5 @@
 /**
- * ModalVisualizarArquivoNovaLeituraSmartRead — preview in-app do arquivo original (PDF/imagem).
+ * ModalVisualizarArquivoNovaLeituraSmartRead — fallback in-app quando pop-up é bloqueado.
  */
 
 import { useEffect, useState } from 'react'

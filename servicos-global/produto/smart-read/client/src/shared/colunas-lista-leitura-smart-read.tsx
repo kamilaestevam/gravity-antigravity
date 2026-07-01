@@ -1,9 +1,7 @@
-import type { ReactNode } from 'react'
 import type { GTColuna, GTMapaColunasFilho, GTTipo } from '@nucleo/tabela-virtual-global'
 import { PillStatusLeitura } from '../components/pill-status-leitura-smart-read'
 import {
   CATALOGO_COLUNAS_DOCUMENTO_SMART_READ,
-  type ColunaDocumentoCatalogoSmartRead,
 } from './catalogo-colunas-documento-smart-read'
 import {
   formatarDataLeitura,
@@ -12,24 +10,8 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from './formatacao-leitura-smart-read'
-import {
-  classeMoedaBadgeListaSmartRead,
-  formatarValorCelulaCatalogoSmartRead,
-  tipoColunaCatalogoSmartRead,
-} from './formatacao-coluna-lista-smart-read'
 import type { DocumentoLeituraLista } from './montar-documentos-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
-import {
-  CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ,
-  getEditavelFilhoListaSmartRead,
-} from './column-behavior-lista-smart-read'
-import {
-  resolverCasasDecimaisColunaListaSmartRead,
-  resolverTipoColunaListaSmartRead,
-} from '../../../shared/tipo-coluna-lista-smart-read'
-import { normalizarValorDataConferenciaParaIso } from './data-campo-conferencia-leitura-smart-read'
-
-export { CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ }
 
 /** Colunas da linha pai (leitura) visíveis por padrão — métricas da leitura, não campos extraídos do documento. */
 export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
@@ -54,113 +36,36 @@ export const CHAVES_COLUNAS_PAI_LISTA_LEITURA_SMART_READ = COLUNAS_PADRAO_VISIVE
 
 const CHAVES_CATALOGO = new Set(CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((c) => c.key))
 
-/** Lista Smart Read: métricas do pai somente leitura; campos de documento espelham editabilidade dos filhos. */
+/** Lista Smart Read não tem edição inline — só o nome abre a leitura (link). */
 const COLUNA_SOMENTE_LEITURA = { editavel: false as const }
 const COLUNA_NOME_LINK = { editavel: false as const, celulaInterativa: true as const }
 const MAPA_FILHO_SOMENTE_LEITURA = { editavel: false as const }
-
-export type OpcaoMoedaListaSmartRead = { valor: string; label: string }
-
-export type OpcoesColunasListaLeituraSmartRead = {
-  opcoesMoedas?: OpcaoMoedaListaSmartRead[]
-  /** Valor exibido/editável na linha pai para colunas do catálogo de documento. */
-  getValorCatalogoPai?: (item: TransacaoLeitura, key: string) => string | null | undefined
-}
-
-/** Mesmas colunas editáveis no pai e no filho (paridade Pedido). */
-export const CAMPOS_EDITAVEIS_PAI_LISTA_SMART_READ = CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ
-
-function resolverGtvTipoColunaCatalogo(
-  cat: ColunaDocumentoCatalogoSmartRead,
-): { tipo: GTTipo; casasDecimais?: number; opcoes?: OpcaoMoedaListaSmartRead[] } {
-  const tipoInterno = resolverTipoColunaListaSmartRead(cat)
-  if (tipoInterno === 'periodo') return { tipo: 'periodo' }
-  if (tipoInterno === 'select_moeda') return { tipo: 'select' }
-  if (tipoInterno === 'numero') {
-    return { tipo: 'numero', casasDecimais: resolverCasasDecimaisColunaListaSmartRead(cat.key) }
-  }
-  return { tipo: 'texto' }
-}
-
-function renderCelulaCatalogoDocumento(
-  cat: ColunaDocumentoCatalogoSmartRead,
-  valor: string | null | undefined,
-): ReactNode {
-  const texto = formatarValorCelulaCatalogoSmartRead(cat, valor)
-  if (texto === '—') return texto
-  if (tipoColunaCatalogoSmartRead(cat) === 'select_moeda') {
-    return (
-      <span className="gtv-celula-moeda">
-        <span className={classeMoedaBadgeListaSmartRead(texto)}>{texto}</span>
-      </span>
-    )
-  }
-  if (tipoColunaCatalogoSmartRead(cat) === 'numero') {
-    return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{texto}</span>
-  }
-  return texto
-}
-
-function getValorEditarCatalogoDocumento(
-  cat: ColunaDocumentoCatalogoSmartRead,
-  valor: string | null | undefined,
-): unknown {
-  const bruto = valor?.trim()
-  if (!bruto) return ''
-  if (tipoColunaCatalogoSmartRead(cat) === 'periodo') {
-    return normalizarValorDataConferenciaParaIso(bruto) ?? bruto
-  }
-  if (tipoColunaCatalogoSmartRead(cat) === 'select_moeda') {
-    return bruto.toUpperCase()
-  }
-  if (tipoColunaCatalogoSmartRead(cat) === 'numero') {
-    const br = bruto.replace(/\./g, '').replace(',', '.')
-    const num = Number.parseFloat(br)
-    return Number.isFinite(num) ? num : bruto
-  }
-  return bruto
-}
 
 export function ehColunaCatalogoDocumentoSmartRead(key: string): boolean {
   return CHAVES_CATALOGO.has(key)
 }
 
-function criarColunasCatalogoDocumento(
-  opcoes: OpcoesColunasListaLeituraSmartRead = {},
-): GTColuna<TransacaoLeitura>[] {
-  const { opcoesMoedas, getValorCatalogoPai } = opcoes
-  return CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((cat) => {
-    const gtv = resolverGtvTipoColunaCatalogo(cat)
-    return {
-      key: cat.key,
-      label: cat.label,
-      grupo: cat.secao,
-      oculta: true,
-      filtravel: false,
-      sortavel: false,
-      editavel: getEditavelFilhoListaSmartRead(cat.key),
-      tipo: gtv.tipo,
-      casasDecimais: gtv.casasDecimais,
-      opcoes: gtv.tipo === 'select' ? opcoesMoedas : undefined,
-      render: (_valor, item) =>
-        renderCelulaCatalogoDocumento(cat, getValorCatalogoPai?.(item, cat.key)),
-      findDisplay: (item) =>
-        formatarValorCelulaCatalogoSmartRead(cat, getValorCatalogoPai?.(item, cat.key)),
-      getValorEditar: (item) =>
-        getValorEditarCatalogoDocumento(cat, getValorCatalogoPai?.(item, cat.key) ?? null),
-    }
-  })
+function criarColunasCatalogoDocumento(): GTColuna<TransacaoLeitura>[] {
+  return CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((cat) => ({
+    key: cat.key,
+    label: cat.label,
+    grupo: cat.secao,
+    oculta: true,
+    filtravel: false,
+    sortavel: false,
+    editavel: false,
+    render: () => '—',
+    findDisplay: () => '',
+  }))
 }
 
 function criarMapaColunasCatalogoDocumento(): Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> {
   const mapa: Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> = {}
   for (const cat of CATALOGO_COLUNAS_DOCUMENTO_SMART_READ) {
     mapa[cat.key] = {
-      editavel: getEditavelFilhoListaSmartRead(cat.key),
-      render: (item) => renderCelulaCatalogoDocumento(cat, item.valores_colunas[cat.key]),
-      findDisplay: (item) => formatarValorCelulaCatalogoSmartRead(cat, item.valores_colunas[cat.key]),
-      getValorEditar: (item) =>
-        getValorEditarCatalogoDocumento(cat, item.valores_colunas[cat.key] ?? null),
+      editavel: false,
+      render: (item) => item.valores_colunas[cat.key]?.trim() || '—',
+      findDisplay: (item) => item.valores_colunas[cat.key] ?? '',
     }
   }
   return mapa
@@ -172,7 +77,6 @@ function criarMapaColunasCatalogoDocumento(): Record<string, GTMapaColunasFilho<
  */
 export function criarColunasListaLeituraSmartRead(
   onAbrirLeitura: (item: TransacaoLeitura) => void,
-  opcoes: OpcoesColunasListaLeituraSmartRead = {},
 ): GTColuna<TransacaoLeitura>[] {
   const colunasPai: GTColuna<TransacaoLeitura>[] = [
     {
@@ -210,10 +114,9 @@ export function criarColunasListaLeituraSmartRead(
       label: 'Nº documento',
       filtravel: true,
       sortavel: false,
-      tipo: 'texto' as GTTipo,
-      editavel: getEditavelFilhoListaSmartRead('numeros_documento'),
-      render: (_valor, item) => item.numeros_documento?.trim() || '—',
-      findDisplay: (item) => item.numeros_documento ?? '',
+      ...COLUNA_SOMENTE_LEITURA,
+      render: () => '—',
+      findDisplay: () => '',
     },
     {
       key: 'status_leitura',
@@ -334,7 +237,7 @@ export function criarColunasListaLeituraSmartRead(
     },
   ]
 
-  return [...colunasPai, ...criarColunasCatalogoDocumento(opcoes)]
+  return [...colunasPai, ...criarColunasCatalogoDocumento()]
 }
 
 /**
@@ -396,10 +299,8 @@ export function criarMapaColunasDocumentoLeitura(
       render: (item) => item.tipo_documento ?? '—',
     },
     numeros_documento: {
-      editavel: getEditavelFilhoListaSmartRead('numeros_documento'),
-      render: (item) => item.numero_documento?.trim() || '—',
-      findDisplay: (item) => item.numero_documento ?? '',
-      getValorEditar: (item) => item.numero_documento ?? '',
+      ...MAPA_FILHO_SOMENTE_LEITURA,
+      render: (item) => item.numero_documento ?? '—',
     },
     tempo_extracao_ia_ms: {
       ...MAPA_FILHO_SOMENTE_LEITURA,
@@ -448,7 +349,7 @@ export function formatarValorExportColunaLeituraSmartRead(
     case 'tipos_documento':
       return item.tipos_documento ?? ''
     case 'numeros_documento':
-      return item.numeros_documento ?? ''
+      return ''
     case 'tempo_extracao_ia_ms':
       return formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms)
     case 'tempo_processo_total_ms':

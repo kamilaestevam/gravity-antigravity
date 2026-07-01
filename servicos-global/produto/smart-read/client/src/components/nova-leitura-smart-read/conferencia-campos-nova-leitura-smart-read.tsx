@@ -26,7 +26,11 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
-import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import {
+  contarDocumentosArquivoLocal,
+  extrairDocumentosArquivoLocal,
+  resolverArquivoApiLeitura,
+} from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   calcularEstatisticasConferencia,
   extrairSecoesConferenciaLeitura,
@@ -94,7 +98,7 @@ function iconeSecao(titulo: string) {
   if (t.includes('origem') || t.includes('destino') || t.includes('routing') || t.includes('shipment')) {
     return <GlobeHemisphereWest weight="duotone" size={18} />
   }
-  if (t.includes('mercadoria') || t.includes('goods') || t.includes('items')) {
+  if (t.includes('mercadoria') || t.includes('goods') || t.includes('items') || /^item \d+$/i.test(t)) {
     return <Package weight="duotone" size={18} />
   }
   if (t.includes('container') || t.includes('embarque')) return <Anchor weight="duotone" size={18} />
@@ -138,9 +142,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
 
   const documentos = extrairDocumentosArquivoLocal(arquivo)
   const documentoAtual = documentos[indiceDocumento]
-  const arquivoApi =
-    arquivo.leitura?.arquivos.find((a) => a.id_arquivo === arquivo.id_arquivo) ??
-    arquivo.leitura?.arquivos[0]
+  const arquivoApi = resolverArquivoApiLeitura(arquivo)
   const extracao = arquivoApi?.resultado_extracao?.[indiceDocumento]
   const secoes = useMemo(
     () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),

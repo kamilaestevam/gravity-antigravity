@@ -769,6 +769,18 @@
 
 
 
+.sr-wizard-card-documentos-scroll {
+  margin: 0.625rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  padding-top: 0.5rem;
+}
+
+.sr-wizard-card-documentos--virtual {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .sr-wizard-card-documentos {
 
   list-style: none;

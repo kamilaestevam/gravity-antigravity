@@ -19,6 +19,10 @@ import {
   LinkMetodologiaSavingInsightsSmartRead,
   ProvedorMetodologiaSavingInsightsSmartRead,
 } from '../../pages/insights-smart-read/metodologia-saving-insights-smart-read'
+import {
+  calcularProgressoEtapasAnaliseNovaLeituraSmartRead,
+  type EtapaAnaliseProgresso,
+} from '../../shared/calcular-progresso-etapas-analise-nova-leitura-smart-read'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
@@ -28,65 +32,13 @@ type Props = {
   tempoAnaliseSegundos: number | null
 }
 
-type EtapaAnalise = {
-  id: number
-  rotulo: string
-  progresso: number
-  status: 'pendente' | 'andamento' | 'completo'
-}
+type EtapaAnalise = EtapaAnaliseProgresso
 
 function formatarTempo(totalSegundos: number): string {
   const horas = Math.floor(totalSegundos / 3600)
   const minutos = Math.floor((totalSegundos % 3600) / 60)
   const segundos = totalSegundos % 60
   return [horas, minutos, segundos].map((n) => String(n).padStart(2, '0')).join(' : ')
-}
-
-function calcularProgressoEtapas(
-  elapsedSegundos: number,
-  analiseCompleta: boolean,
-  processamentoComErro: boolean,
-): EtapaAnalise[] {
-  if (processamentoComErro) {
-    return [
-      { id: 1, rotulo: 'Primeira análise', progresso: 0, status: 'pendente' },
-      { id: 2, rotulo: 'Segunda análise', progresso: 0, status: 'pendente' },
-      { id: 3, rotulo: 'Terceira análise', progresso: 0, status: 'pendente' },
-    ]
-  }
-
-  if (analiseCompleta) {
-    return [
-      { id: 1, rotulo: 'Primeira análise', progresso: 100, status: 'completo' },
-      { id: 2, rotulo: 'Segunda análise', progresso: 100, status: 'completo' },
-      { id: 3, rotulo: 'Terceira análise', progresso: 100, status: 'completo' },
-    ]
-  }
-
-  const p1 = Math.min(100, Math.round((elapsedSegundos / 6) * 100))
-  const p2 = elapsedSegundos > 4 ? Math.min(100, Math.round(((elapsedSegundos - 4) / 8) * 100)) : 0
-  const p3 = elapsedSegundos > 10 ? Math.min(100, Math.round(((elapsedSegundos - 10) / 6) * 100)) : 0
-
-  return [
-    {
-      id: 1,
-      rotulo: 'Primeira análise',
-      progresso: p1,
-      status: p1 >= 100 ? 'completo' : 'andamento',
-    },
-    {
-      id: 2,
-      rotulo: 'Segunda análise',
-      progresso: p2,
-      status: p2 >= 100 ? 'completo' : p2 > 0 ? 'andamento' : 'pendente',
-    },
-    {
-      id: 3,
-      rotulo: 'Terceira análise',
-      progresso: p3,
-      status: p3 >= 100 ? 'completo' : p3 > 0 ? 'andamento' : 'pendente',
-    },
-  ]
 }
 
 export function DashboardAnaliseNovaLeituraSmartRead({
@@ -118,7 +70,11 @@ export function DashboardAnaliseNovaLeituraSmartRead({
     return 0
   }, [agora, inicioAnalise, tempoAnaliseSegundos])
   const etapas = useMemo(() => {
-    const brutas = calcularProgressoEtapas(elapsedSegundos, analiseCompleta, processamentoComErro)
+    const brutas = calcularProgressoEtapasAnaliseNovaLeituraSmartRead(
+      elapsedSegundos,
+      analiseCompleta,
+      processamentoComErro,
+    )
     if (analiseCompleta || processamentoComErro) {
       return brutas
     }
@@ -130,8 +86,7 @@ export function DashboardAnaliseNovaLeituraSmartRead({
       return {
         ...etapa,
         progresso,
-        status:
-          progresso >= 100 ? ('completo' as const) : progresso > 0 ? ('andamento' as const) : ('pendente' as const),
+        status: progresso > 0 ? ('andamento' as const) : ('pendente' as const),
       }
     })
     progressoMaximoRef.current = [

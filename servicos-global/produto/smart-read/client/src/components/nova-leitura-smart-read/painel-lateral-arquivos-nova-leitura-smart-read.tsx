@@ -75,7 +75,7 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
             item={item}
             passo={passo}
             selecaoConferencia={
-              passo === 3 &&
+              passo >= 2 &&
               selecaoConferencia?.idArquivoLocal === item.id_arquivo_local
                 ? selecaoConferencia.indiceDocumento
                 : null
@@ -85,7 +85,7 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
             onVisualizarArquivo={() => onVisualizarArquivo(item.id_arquivo_local)}
             onVisualizarDocumento={(indice) => onVisualizarDocumento(item.id_arquivo_local, indice)}
             onSelecionarDocumentoConferencia={
-              passo === 3 && onSelecionarDocumentoConferencia
+              passo >= 2 && onSelecionarDocumentoConferencia
                 ? (indice) => onSelecionarDocumentoConferencia(item.id_arquivo_local, indice)
                 : undefined
             }

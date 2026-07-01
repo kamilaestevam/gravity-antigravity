@@ -149,6 +149,20 @@ describe('TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151', () => {
       expect(screen.getByText('Segunda análise')).toBeInTheDocument()
       expect(screen.getByText('Terceira análise')).toBeInTheDocument()
     })
+
+    it('U08b: em 18s sem análise completa não exibe pill Completo', () => {
+      render(
+        <DashboardAnaliseNovaLeituraSmartRead
+          arquivos={[criarArquivoLocalAnalisandoPassoDois()]}
+          analiseCompleta={false}
+          processamentoComErro={false}
+          inicioAnalise={Date.now() - 18_000}
+          tempoAnaliseSegundos={18}
+        />,
+      )
+      expect(screen.queryByText('Completo')).not.toBeInTheDocument()
+      expect(screen.queryByText('100%')).not.toBeInTheDocument()
+    })
   })
 
   describe('ETAPA 9 — Globo 100% (U09)', () => {

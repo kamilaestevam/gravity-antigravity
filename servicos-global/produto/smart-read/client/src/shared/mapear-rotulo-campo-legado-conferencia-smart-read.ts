@@ -200,11 +200,17 @@ export function mapearRotuloCampoLegadoConferencia(caminho: string): RotuloCampo
 
 export function ordenarSecoesConferencia<T extends { titulo: string }>(secoes: T[]): T[] {
   const ordem = ORDEM_SECOES_CONFERENCIA_SMART_READ
-  return [...secoes].sort((a, b) => {
-    const ia = ordem.indexOf(a.titulo as (typeof ordem)[number])
-    const ib = ordem.indexOf(b.titulo as (typeof ordem)[number])
-    const pa = ia === -1 ? ordem.length : ia
-    const pb = ib === -1 ? ordem.length : ib
-    return pa - pb
-  })
+
+  const peso = (titulo: string): number => {
+    const item = /^Item (\d+)$/i.exec(titulo.trim())
+    if (item) {
+      const baseMercadoria = ordem.indexOf('Mercadoria')
+      const ancora = baseMercadoria === -1 ? ordem.length : baseMercadoria + 1
+      return ancora + Number(item[1]) / 1000
+    }
+    const idx = ordem.indexOf(titulo as (typeof ordem)[number])
+    return idx === -1 ? ordem.length + 0.5 : idx
+  }
+
+  return [...secoes].sort((a, b) => peso(a.titulo) - peso(b.titulo))
 }

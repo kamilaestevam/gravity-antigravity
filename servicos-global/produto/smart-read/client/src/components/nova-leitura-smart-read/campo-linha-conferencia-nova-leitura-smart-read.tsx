@@ -25,7 +25,6 @@ type Props = {
   valor: string | null
   alterado?: boolean
   destacado?: boolean
-  editavel?: boolean
   tipo?: TipoCampoConferencia
   aoSalvar: (novo: string) => void
 }
@@ -52,7 +51,6 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
   valor,
   alterado = false,
   destacado = false,
-  editavel = true,
   tipo: tipoProp,
   aoSalvar,
 }: Props) {
@@ -330,7 +328,7 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
             />
           )}
         </div>
-      ) : editavel ? (
+      ) : (
         <button
           type="button"
           className="dt-row-value"
@@ -344,14 +342,6 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
           )}
           <PencilSimple weight="duotone" size={13} className="dt-row-edit-icon" />
         </button>
-      ) : (
-        <div className="dt-row-value dt-row-value--somente-leitura" aria-readonly="true">
-          {vazio ? (
-            <span className="dt-row-empty">—</span>
-          ) : (
-            <span className="dt-row-text">{valorDisplay}</span>
-          )}
-        </div>
       )}
     </div>
   )

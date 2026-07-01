@@ -12,7 +12,6 @@ import {
 } from './formatacao-leitura-smart-read'
 import type { DocumentoLeituraLista } from './montar-documentos-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
-import { getEditavelFilhoListaSmartRead } from './column-behavior-lista-smart-read'
 
 /** Colunas da linha pai (leitura) visíveis por padrão — métricas da leitura, não campos extraídos do documento. */
 export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
@@ -37,7 +36,7 @@ export const CHAVES_COLUNAS_PAI_LISTA_LEITURA_SMART_READ = COLUNAS_PADRAO_VISIVE
 
 const CHAVES_CATALOGO = new Set(CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((c) => c.key))
 
-/** Lista Smart Read: linha pai somente leitura; filhos editáveis via column-behavior + onEditarFilho. */
+/** Lista Smart Read não tem edição inline — só o nome abre a leitura (link). */
 const COLUNA_SOMENTE_LEITURA = { editavel: false as const }
 const COLUNA_NOME_LINK = { editavel: false as const, celulaInterativa: true as const }
 const MAPA_FILHO_SOMENTE_LEITURA = { editavel: false as const }
@@ -64,7 +63,7 @@ function criarMapaColunasCatalogoDocumento(): Record<string, GTMapaColunasFilho<
   const mapa: Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> = {}
   for (const cat of CATALOGO_COLUNAS_DOCUMENTO_SMART_READ) {
     mapa[cat.key] = {
-      editavel: getEditavelFilhoListaSmartRead(cat.key),
+      editavel: false,
       render: (item) => item.valores_colunas[cat.key]?.trim() || '—',
       findDisplay: (item) => item.valores_colunas[cat.key] ?? '',
     }
@@ -300,9 +299,8 @@ export function criarMapaColunasDocumentoLeitura(
       render: (item) => item.tipo_documento ?? '—',
     },
     numeros_documento: {
-      editavel: getEditavelFilhoListaSmartRead('numeros_documento'),
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => item.numero_documento ?? '—',
-      findDisplay: (item) => item.numero_documento ?? '',
     },
     tempo_extracao_ia_ms: {
       ...MAPA_FILHO_SOMENTE_LEITURA,

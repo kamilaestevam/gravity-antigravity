@@ -21,10 +21,8 @@ import {
   MetricaLeituraRespostaSchema,
   CriarExportacaoLeituraRespostaSchema,
   StatusExportacaoLeituraRespostaSchema,
-  EditarCampoDocumentoListaRespostaSchema,
   type CriarExportacaoLeituraResposta,
   type CriarLeituraResposta,
-  type EditarCampoDocumentoListaResposta,
   type EstadoProgressoLeitura,
   type Leitura,
   type ListarTransacoesResposta,
@@ -238,26 +236,6 @@ export const smartReadApi = {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(estado),
-      },
-    )
-  },
-
-  editarCampoDocumentoLista(
-    idLeitura: string,
-    payload: {
-      id_arquivo: string
-      indice_documento: number
-      campo_coluna: string
-      valor: string
-    },
-  ): Promise<EditarCampoDocumentoListaResposta> {
-    return requisitar(
-      EditarCampoDocumentoListaRespostaSchema,
-      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/campo-documento`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
       },
     )
   },

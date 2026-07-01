@@ -40,8 +40,6 @@ import {
   montarDocumentosLeituraLista,
   type DocumentoLeituraLista,
 } from '../shared/montar-documentos-leitura-smart-read'
-import { CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ } from '../shared/column-behavior-lista-smart-read'
-import { parseIdDocumentoLeituraLista } from '../../../shared/lista-edicao-espelhada-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
@@ -122,7 +120,6 @@ export function TabelaTransacoesLeituraSmartRead({
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
-  const [resetCacheFilhos, setResetCacheFilhos] = useState(0)
 
   const handleExpandidosMudar = useCallback((count: number) => {
     setTemExpandido(count > 0)
@@ -297,43 +294,6 @@ export function TabelaTransacoesLeituraSmartRead({
     return montarDocumentosLeituraLista(detalhe)
   }, [])
 
-  const handleEditarFilho = useCallback(async (
-    idDocumento: string,
-    campo: string,
-    valor: unknown,
-  ): Promise<DocumentoLeituraLista> => {
-    const parseado = parseIdDocumentoLeituraLista(idDocumento)
-    if (!parseado || parseado.indice_extracao == null) {
-      throw new Error('Documento inválido para edição na lista')
-    }
-
-    const valorTexto = valor == null ? '' : String(valor)
-    const resposta = await smartReadApi.editarCampoDocumentoLista(
-      parseado.id_leitura,
-      {
-        id_arquivo: parseado.id_arquivo,
-        indice_documento: parseado.indice_extracao,
-        campo_coluna: campo,
-        valor: valorTexto,
-      },
-    )
-
-    setResetCacheFilhos((v) => v + 1)
-    onRecarregar()
-
-    const atualizado = resposta.documentos_atualizados.find((d) => d.id_documento_leitura === idDocumento)
-    if (!atualizado) {
-      throw new Error('Documento não retornado após salvar')
-    }
-
-    return {
-      ...atualizado,
-      status_documento: atualizado.status_documento ?? 'COMPLETED',
-      media_acertos: atualizado.media_acertos ?? null,
-      data_envio: atualizado.data_envio ?? null,
-    }
-  }, [onRecarregar])
-
   const handleConfirmarExclusao = useCallback(async () => {
     if (leiturasSelecionadas.length === 0) return
     setExcluindo(true)
@@ -492,14 +452,6 @@ export function TabelaTransacoesLeituraSmartRead({
         onCarregarFilhos={handleCarregarFilhos}
         onExpandidosMudar={handleExpandidosMudar}
         filhoId={filhoId}
-        camposEditaveisFilhos={CAMPOS_EDITAVEIS_FILHO_LISTA_SMART_READ}
-        onEditarFilho={handleEditarFilho}
-        resetCacheFilhos={resetCacheFilhos}
-        onErroAoSalvar={(mensagem) => addNotification({ type: 'error', message: mensagem })}
-        onSalvoComSucesso={() => addNotification({
-          type: 'success',
-          message: t('smart_read.lista.campo_salvo_sucesso', { defaultValue: 'Campo atualizado.' }),
-        })}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
         itensPorPagina={ITENS_POR_PAGINA}

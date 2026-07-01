@@ -37,7 +37,6 @@ import {
   type SecaoConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
 import { isCampoEditadoLeitura } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
-import { caminhoEditavelParidadeConferenciaListaSmartRead } from '../../shared/paridade-edicao-conferencia-lista-smart-read'
 import { CampoLinhaConferenciaNovaLeituraSmartRead } from './campo-linha-conferencia-nova-leitura-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
@@ -149,13 +148,6 @@ export function ConferenciaCamposNovaLeituraSmartRead({
     () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),
     [extracao?.dados],
   )
-  const tipoDocumentoAtual = extracao?.tipo_documento ?? documentoAtual?.tipo_documento ?? null
-
-  const caminhoEditavel = useCallback(
-    (chave: string) => caminhoEditavelParidadeConferenciaListaSmartRead(chave, tipoDocumentoAtual),
-    [tipoDocumentoAtual],
-  )
-
   const stats = useMemo(
     () =>
       calcularEstatisticasConferencia(secoes, {
@@ -528,7 +520,6 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         rotulo={campoAssinado.rotulo}
                         valor={campoAssinado.valor}
                         alterado={ehAlterado('isSigned')}
-                        editavel={caminhoEditavel('isSigned')}
                         tipo="booleano"
                         aoSalvar={(novo) => onEditarCampo?.('isSigned', novo)}
                       />
@@ -541,7 +532,6 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         valor={campo.valor}
                         alterado={ehAlterado(campo.chave)}
                         destacado={campoDestacado === campo.chave}
-                        editavel={caminhoEditavel(campo.chave)}
                         aoSalvar={(novo) => onEditarCampo?.(campo.chave, novo)}
                       />
                     ))}

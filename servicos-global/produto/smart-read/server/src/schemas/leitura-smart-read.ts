@@ -7,23 +7,6 @@
 import { z } from 'zod'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import { mesclarDadosExtracaoLegado } from '../../../shared/mesclar-dados-extracao-legado-smart-read.js'
-import { CATALOGO_COLUNAS_DOCUMENTO_SMART_READ } from '../../../shared/catalogo-colunas-documento-smart-read.js'
-import {
-  listarChavesColunaEditavelListaSmartRead,
-  type ColunaCatalogoListaEdicao,
-} from '../../../shared/lista-edicao-espelhada-smart-read.js'
-
-const CATALOGO_EDICAO_LISTA_SMART_READ: ColunaCatalogoListaEdicao[] =
-  CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((col) => ({
-    key: col.key,
-    tipos: col.tipos,
-    caminhos: col.caminhos,
-    status: col.status,
-  }))
-
-const CHAVES_CAMPO_COLUNA_EDITAVEL_LISTA = new Set(
-  listarChavesColunaEditavelListaSmartRead(CATALOGO_EDICAO_LISTA_SMART_READ),
-)
 
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
@@ -224,62 +207,29 @@ export function parearResultadoExtracaoLegado(arquivo: {
   if (!finais || finais.length === 0) return null
 
   const originais = arquivo.processingResult ?? []
-  const houveConferencia =
-    arquivo.finalProcessingResult != null && arquivo.processingResult != null
 
   return finais.map((itemFinal, indice) => {
-    const dados = itemFinal.data ?? {}
-    const itemOriginal = houveConferencia
-      ? resolverItemOriginalPareado(originais, itemFinal, indice)
-      : undefined
+    const dadosBrutosFinal = itemFinal.data ?? {}
+    const itemOriginal =
+      originais.length > 0 ? resolverItemOriginalPareado(originais, itemFinal, indice) : undefined
     const dadosOriginal = itemOriginal?.data
+    const dados =
+      dadosOriginal != null
+        ? mesclarDadosExtracaoLegado(dadosBrutosFinal, dadosOriginal)
+        : dadosBrutosFinal
 
     const base = {
       tipo_documento: itemFinal.fileType ?? itemOriginal?.fileType ?? null,
       dados,
     }
 
-    if (dadosOriginal && dadosDistintos(dadosOriginal, dados)) {
+    if (dadosOriginal && dadosDistintos(dadosOriginal, dadosBrutosFinal)) {
       return { ...base, dados_original: dadosOriginal }
     }
 
     return base
   })
 }
-
-export const DocumentoLeituraListaSchema = z.object({
-  id_documento_leitura: z.string(),
-  id_leitura: z.string(),
-  id_arquivo: z.string(),
-  nome_documento: z.string(),
-  status_documento: StatusLeituraEnum.optional(),
-  media_acertos: z.number().nullable().optional(),
-  data_envio: z.string().nullable().optional(),
-  tipo_documento: z.string().nullable(),
-  numero_documento: z.string().nullable(),
-  valores_colunas: z.record(z.string(), z.string()),
-})
-
-export const EditarCampoDocumentoListaRequestSchema = z
-  .object({
-    id_arquivo: z.string().min(1),
-    indice_documento: z.number().int().min(0),
-    campo_coluna: z.string().min(1),
-    valor: z.string(),
-  })
-  .superRefine((corpo, ctx) => {
-    if (!CHAVES_CAMPO_COLUNA_EDITAVEL_LISTA.has(corpo.campo_coluna)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'campo_coluna nao editavel na lista',
-        path: ['campo_coluna'],
-      })
-    }
-  })
-
-export const EditarCampoDocumentoListaRespostaSchema = z.object({
-  documentos_atualizados: z.array(DocumentoLeituraListaSchema),
-})
 
 export function normalizarLeitura(legado: LeituraLegado): Leitura {
   const arquivos = legado.files ?? []

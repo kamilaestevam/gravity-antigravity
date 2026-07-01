@@ -29,6 +29,73 @@ type LeituraMock = {
 
 const leituras = new Map<string, LeituraMock>()
 
+function montarDadosMockInvoiceFicticia(): Record<string, unknown> {
+  return {
+    document: {
+      documentNumber: 'CI-2026-0847',
+      date: '2026-06-18',
+      poReference: 'PO-BR-99102',
+      proforma: 'PF-2026-0318',
+      incoterm: 'FOB Hamburg, Germany',
+      currency: 'USD',
+      paymentTerms: '30 days net — T/T remittance',
+    },
+    exporter: {
+      name: 'Exportador ABC',
+      address: 'Hafenstraße 42, 20457 Hamburg, Germany',
+      taxId: 'DE298374651',
+      email: 'export@exportador-abc.example',
+    },
+    importer: {
+      name: 'Importador ABC',
+      address: 'Av. das Palmeiras 1200, Sala 804 — Vila Mariana, São Paulo — SP, 04101-300, Brazil',
+      cnpj: '47.829.103/0001-56',
+      stateRegistration: '112.884.559.018',
+    },
+    notify_party: {
+      name: 'Porto Norte Armazéns S.A.',
+      address: 'Rod. Anchieta km 18, Galpão 7 — Santos/SP, Brazil',
+    },
+    items: [
+      {
+        partNumber: 'PRM-8842-A',
+        description: 'Centrifugal pump rotor assembly',
+        ncm: '8471.30.19',
+        quantity: 24,
+        unit: 'PCS',
+        unitPrice: 185.5,
+        amount: 4452.0,
+      },
+      {
+        partNumber: 'PRM-8842-B',
+        description: 'Mechanical seal kit — type C',
+        ncm: '8484.20.00',
+        quantity: 24,
+        unit: 'SET',
+        unitPrice: 42.0,
+        amount: 1008.0,
+      },
+    ],
+    totals: {
+      subtotal: 5460.0,
+      total: 5460.0,
+      currency: 'USD',
+    },
+  }
+}
+
+function montarDadosMockExtracao(tipo: string, nomeArquivo?: string): Record<string, unknown> {
+  const chave = tipo.toLowerCase()
+  const nome = (nomeArquivo ?? '').toLowerCase()
+  if (chave.includes('invoice') || chave.includes('inv') || nome.includes('invoice_ficticia')) {
+    return montarDadosMockInvoiceFicticia()
+  }
+  if (chave.includes('packing')) {
+    return { document: { number: 'PL-MOCK' }, exporter: { name: 'Mock Exporter' } }
+  }
+  return { document: { number: 'DOC-MOCK' }, exporter: { name: 'Mock Exporter' } }
+}
+
 function inferirTiposDocumento(nomeArquivo: string): string[] {
   const nome = nomeArquivo.toLowerCase()
   if (nome.includes('bl')) return ['Bill of Lading']
@@ -67,7 +134,7 @@ function montarLeituraLegado(registro: LeituraMock): LeituraLegado {
           ? tipos.map((tipo, indice) => ({
               id: `${arquivo.fileReferenceId}-${indice}`,
               fileType: tipo,
-              data: { accuracy: 0.9 + indice * 0.02, origem: 'mock-dev' },
+              data: montarDadosMockExtracao(tipo, arquivo.filename),
             }))
           : undefined,
       }

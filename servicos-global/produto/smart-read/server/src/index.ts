@@ -23,9 +23,14 @@ import { leiturasSmartReadRouter } from './routes/leituras-smart-read.js'
 import { listaPaineisSmartReadRouter } from './routes/lista-paineis-smart-read.js'
 import { isolamentoOrganizacaoSmartReadMiddleware } from './middleware/isolamento-organizacao-smart-read.js'
 import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../../../servicos-plataforma/middleware/sidecar-listen-ready.js'
 
 const app = express()
-const PORT = process.env.PORT ?? 8033
+const PORT = Number(process.env.PORT ?? 8033)
+const SMART_READ_SIDECAR = process.env.SMART_READ_SIDECAR === '1'
 
 app.use(
   helmet({
@@ -114,8 +119,15 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   })
 })
 
+const listenHandles = criarSidecarListenReady(SMART_READ_SIDECAR, PORT, 'smart-read')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`smart-read server on :${PORT}`))
+  const server = app.listen(PORT, () => {
+    console.log(`smart-read server on :${PORT}`)
+    listenHandles.aoSubirListen()
+  })
+  registrarErroListenSidecar(server, listenHandles, SMART_READ_SIDECAR, PORT, 'smart-read')
 }
 
 export { app }

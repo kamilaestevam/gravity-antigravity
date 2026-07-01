@@ -995,6 +995,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   // Sidecar 6: Smart Read BFF (porta 8033) — adapter legado dati; sem banco próprio
   process.env.PORT = '8033'
+  process.env.SMART_READ_SIDECAR = '1'
   process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
   process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
     ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -1005,7 +1006,25 @@ if (process.env.NODE_ENV !== 'test') {
     )
   }
   try {
-    await import('../../produto/smart-read/server/src/index.js')
+    if (process.env.NODE_ENV !== 'production') {
+      const { execSync } = await import('node:child_process')
+      const repoRoot = resolve(__dir, '../../..')
+      console.log('[configurador] Dev — prisma generate Smart Read...')
+      execSync('node servicos-global/produto/smart-read/prisma/compose-schema.js', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+      execSync('npx prisma generate --schema=servicos-global/produto/smart-read/prisma/schema.prisma', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+    }
+    const modSmartRead = await import('../../produto/smart-read/server/src/index.js') as {
+      sidecarListenReady?: Promise<void>
+    }
+    await aguardarSidecarEmbutido(8033, modSmartRead.sidecarListenReady)
     const { deveUsarMockLegadoSmartRead } = await import(
       '../../produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
     )

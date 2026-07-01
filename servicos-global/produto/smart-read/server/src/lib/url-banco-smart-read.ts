@@ -9,13 +9,8 @@ function urlExplicitaSmartRead(): string | undefined {
   return url || undefined
 }
 
-function ambienteProducao(): boolean {
-  return Boolean(process.env.RAILWAY_ENVIRONMENT) || process.env.NODE_ENV === 'production'
-}
-
 export function resolverUrlBancoSmartRead(): string {
-  const explicita = urlExplicitaSmartRead()
-  const url = explicita ?? (ambienteProducao() ? undefined : process.env.DATABASE_URL)
+  const url = urlExplicitaSmartRead()
   if (!url) {
     throw new Error(
       '[SmartRead] SMART_READ_DATABASE_URL ausente — configure no Railway (gravity-smart-read-producao)',
@@ -27,7 +22,5 @@ export function resolverUrlBancoSmartRead(): string {
 }
 
 export function bancoSmartReadConfigurado(): boolean {
-  if (urlExplicitaSmartRead()) return true
-  if (ambienteProducao()) return false
-  return Boolean(process.env.DATABASE_URL)
+  return Boolean(urlExplicitaSmartRead())
 }

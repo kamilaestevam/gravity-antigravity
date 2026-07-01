@@ -1,89 +1,108 @@
 import { Link } from 'react-router-dom'
 import {
-  Globe,
-  FileText,
-  ArrowRight,
-  ChartBar,
+  ClipboardText,
+  Truck,
+  CurrencyDollar,
   Calculator,
-  Star,
+  FileText,
+  Sparkle,
+  ArrowRight,
 } from '@phosphor-icons/react'
-import { useTranslation } from 'react-i18next'
 
 const PRODUCTS = [
   {
-    id: 'simulador-comex',
-    icon: <Globe size={32} weight="duotone" />,
-    name: 'Simulador Comex',
-    tagline: 'Inteligência para importação e exportação',
-    desc: 'Calcule custos reais de operações de comércio exterior com precisão. Impostos, fretes, variações cambiais — tudo em um único simulador.',
-    tags: ['Importação', 'Exportação', 'Custos Reais'],
-    rating: 4.9,
-    reviews: 128,
-    color: '#34d399',
+    id: 'pedido',
+    icon: <ClipboardText size={32} weight="duotone" />,
+    name: 'Pedido',
+    tagline: 'Gestão de processos de importação e exportação',
+    desc: 'Controle completo do ciclo de vida dos seus pedidos: saldo automático, etapas customizáveis, controle de quantidades e rastreabilidade de ponta a ponta.',
+    tags: ['Saldo automático', 'Rastreabilidade', 'Etapas customizáveis', 'Multi-usuário'],
+    cat: 'Operações',
+    catColor: '#818cf8',
+    catBg: 'rgba(99,102,241,0.1)',
+    price: 'R$ 1,99',
+    unit: '/ processo',
+  },
+  {
+    id: 'bid-frete',
+    icon: <Truck size={32} weight="duotone" />,
+    name: 'BID Frete',
+    tagline: 'Licitação inteligente de fretes internacionais',
+    desc: 'Compare ofertas de múltiplos fornecedores com ranking automático, cálculo de savings e aprovação em 2 cliques. Histórico completo de cotações.',
+    tags: ['Ranking automático', 'Multi-fornecedor', 'Savings', 'Histórico'],
+    cat: 'Cotações',
+    catColor: '#fbbf24',
+    catBg: 'rgba(245,158,11,0.1)',
+    price: 'R$ 1,99',
+    unit: '/ cotação',
+  },
+  {
+    id: 'bid-cambio',
+    icon: <CurrencyDollar size={32} weight="duotone" />,
+    name: 'BID Câmbio',
+    tagline: 'Marketplace de corretoras de câmbio',
+    desc: 'Comparativo automático entre corretoras com PTAX integrado e cálculo de economia real para operações de COMEX. Histórico de spreads e performance.',
+    tags: ['Comparativo', 'PTAX integrado', 'Economia real', 'Spreads'],
+    cat: 'Cotações',
+    catColor: '#fbbf24',
+    catBg: 'rgba(245,158,11,0.1)',
+    price: 'R$ 2,99',
+    unit: '/ cotação',
+  },
+  {
+    id: 'simula-custo',
+    icon: <Calculator size={32} weight="duotone" />,
+    name: 'Simula Custo',
+    tagline: 'Simulação de custos de importação e exportação',
+    desc: 'Calcule o custo real das suas operações com múltiplos cenários, impostos automáticos e projeção de margens. Exporte em PDF para análise.',
+    tags: ['Multi-cenário', 'Impostos automáticos', 'Margem', 'Exportação PDF'],
+    cat: 'Simulação',
+    catColor: '#34d399',
+    catBg: 'rgba(16,185,129,0.1)',
+    price: 'R$ 10,99',
+    unit: '/ mês',
   },
   {
     id: 'nf-importacao',
     icon: <FileText size={32} weight="duotone" />,
     name: 'NF Importação',
     tagline: 'Notas fiscais de importação sem burocracia',
-    desc: 'Emissão e gestão de notas fiscais de importação. Integração com SEFAZ, validação automática e arquivamento seguro.',
-    tags: ['NF-e', 'SEFAZ', 'Compliance'],
-    rating: 4.7,
-    reviews: 84,
-    color: '#c084fc',
+    desc: 'Gestão completa de NFs de importação com DI vinculada, rateio automático de despesas aduaneiras e exportação para sistemas contábeis.',
+    tags: ['DI vinculada', 'Rateio automático', 'Integração contábil', 'Arquivamento'],
+    cat: 'Operações',
+    catColor: '#818cf8',
+    catBg: 'rgba(99,102,241,0.1)',
+    price: 'R$ 1,99',
+    unit: '/ documento',
   },
   {
-    id: 'dashboard',
-    icon: <ChartBar size={32} weight="duotone" />,
-    name: 'Dashboard Analítico',
-    tagline: 'Métricas que guiam decisões',
-    desc: 'Dashboards personalizados com KPIs em tempo real. Conecta automaticamente com todos os módulos contratados.',
-    tags: ['KPIs', 'Tempo Real', 'Personalizado'],
-    rating: 4.8,
-    reviews: 203,
-    color: '#34d399',
-    comingSoon: false,
-  },
-  {
-    id: 'simulacusto',
-    icon: <Calculator size={32} weight="duotone" />,
-    name: 'SimulaCusto',
-    tagline: 'Precificação inteligente de produtos',
-    desc: 'Calcule o custo real dos seus produtos considerando insumos, mão de obra, impostos e margem. Precifique com confiança.',
-    tags: ['Custos', 'Precificação', 'Margem'],
-    rating: 4.6,
-    reviews: 67,
-    color: '#34d399',
-    comingSoon: true,
-  },
-  {
-    id: 'bid-frete',
-    icon: <Globe size={32} weight="duotone" />,
-    name: 'BID Frete Internacional',
-    tagline: 'Licitação de fretes com inteligência artificial',
-    desc: 'Compare ofertas de múltiplos fornecedores internacionais. Automatize a seleção com IA baseada em preço, tempo de trânsito e histórico. Aprove em 2 cliques.',
-    tags: ['Frete', 'Logística', 'IA'],
-    rating: 4.8,
-    reviews: 142,
-    color: '#60a5fa',
+    id: 'smart-read',
+    icon: <Sparkle size={32} weight="duotone" />,
+    name: 'Smart Read',
+    tagline: 'Inteligência documental com IA para COMEX',
+    desc: 'Extração automática de dados, conferência, análise de riscos e Q&A conversacional com IA sobre qualquer documento de comércio exterior.',
+    tags: ['Extração com IA', 'Q&A documental', 'Análise de riscos', 'Multi-formato'],
+    cat: 'Inteligência',
+    catColor: '#a78bfa',
+    catBg: 'rgba(139,92,246,0.1)',
+    price: 'R$ 2,00',
+    unit: '/ análise',
   },
 ]
 
 export function Produtos() {
-  const { t } = useTranslation()
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
-
   return (
     <div>
       {/* Header */}
       <section className="section-sm" style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--bg-elevated)' }}>
         <div className="container">
-          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>{t('marketplace.produtos.badge')}</p>
-          <h1 className="text-h1" style={{ marginBottom: '0.75rem' }}>
-            {t('marketplace.produtos.titulo')}<span className="gradient-text">{t('marketplace.produtos.titulo_destaque')}</span>
+          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>Módulos</p>
+          <h1 className="text-h1" style={{ marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+            Tudo que você precisa<br />
+            <span className="gradient-text">para operar COMEX</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '540px', fontSize: '1.0625rem' }}>
-            {t('marketplace.produtos.subtitulo')}
+            Módulos independentes que se integram nativamente. Contrate só o que usar, escale quando precisar.
           </p>
         </div>
       </section>
@@ -91,105 +110,85 @@ export function Produtos() {
       {/* Products Grid */}
       <section className="section">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem' }}>
             {PRODUCTS.map(p => (
               <div
                 key={p.id}
                 className="card"
-                style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
-                {p.comingSoon && (
+                {/* Top */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
                   <div style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    right: '1rem',
-                    background: 'var(--warning-10)',
-                    color: 'var(--warning)',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.625rem',
-                    borderRadius: '99px',
-                    border: '1px solid rgba(245,158,11,0.3)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                  }}>
-                    {t('marketplace.produtos.em_breve')}
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', align: 'center', gap: '1rem' }}>
-                  <div style={{
-                    width: '56px',
-                    height: '56px',
-                    minWidth: '56px',
-                    flexShrink: 0,
-                    borderRadius: '14px',
-                    background: `${p.color}18`,
-                    color: p.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    width: '56px', height: '56px', minWidth: '56px', flexShrink: 0,
+                    borderRadius: '14px', background: p.catBg, color: p.catColor,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {p.icon}
                   </div>
-                  <div>
-                    <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem' }}>
-                      {p.name}
-                    </h2>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{p.tagline}</p>
-                  </div>
+                  <span style={{
+                    fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+                    padding: '3px 10px', borderRadius: '9999px',
+                    background: p.catBg, color: p.catColor,
+                    border: `1px solid ${p.catBg.replace('0.1', '0.25')}`,
+                    flexShrink: 0,
+                  }}>{p.cat}</span>
                 </div>
 
-                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.9375rem', flex: 1 }}>
-                  {p.desc}
-                </p>
+                {/* Body */}
+                <div>
+                  <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem' }}>{p.name}</h2>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>{p.tagline}</p>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.9375rem' }}>{p.desc}</p>
+                </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {/* Tags */}
+                <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
                   {p.tags.map(tag => (
                     <span key={tag} className="badge badge-accent">{tag}</span>
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
-                  <div style={{ display: 'flex', gap: '2px' }}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={12} color={i < Math.floor(p.rating) ? 'var(--warning)' : 'var(--bg-elevated)'} weight="fill" />
-                    ))}
+                {/* Price + CTA */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--bg-elevated)', marginTop: 'auto' }}>
+                  <div>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '2px' }}>A partir de</p>
+                    <p style={{ fontFamily: '"DM Mono", monospace', fontSize: '1.0625rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+                      {p.price} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.unit}</span>
+                    </p>
                   </div>
-                  <span style={{ color: 'var(--text-muted)' }}>{p.rating} ({p.reviews} {t('marketplace.produtos.avaliacoes')})</span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto' }}>
-                  {!p.comingSoon ? (
-                    <>
-                      <Link
-                        to={`/trial?produto=${p.id}`}
-                        className="btn btn-secondary"
-                        style={{ flex: 1, justifyContent: 'center' }}
-                      >
-                        {t('marketplace.produtos.teste_gratis')}
-                      </Link>
-                      <Link
-                        to={`/produtos/${p.id}`}
-                        className="btn btn-primary"
-                        style={{ flex: 1, justifyContent: 'center' }}
-                      >
-                        {t('marketplace.produtos.ver_detalhes')}
-                        <ArrowRight size={15} />
-                      </Link>
-                    </>
-                  ) : (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <a
-                      href={`${CONFIGURADOR}/waitlist?produto=${p.id}`}
-                      className="btn btn-secondary"
-                      style={{ flex: 1, justifyContent: 'center' }}
+                      href={`/cadastro?produto=${p.id}&trial=true`}
+                      className="btn btn-secondary btn-sm"
                     >
-                      {t('marketplace.produtos.entrar_waitlist')}
+                      Testar
                     </a>
-                  )}
+                    <Link
+                      to={`/produtos/${p.id}`}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Detalhes
+                      <ArrowRight size={13} />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="section-sm" style={{ background: 'var(--bg-base)', borderTop: '1px solid var(--bg-elevated)' }}>
+        <div className="container container-narrow" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Não sabe por onde começar?</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+            Fale com nosso time e monte o stack ideal para a sua operação.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/cadastro?trial=true" className="btn btn-primary">Testar gratuitamente</a>
+            <Link to="/precos" className="btn btn-secondary">Ver preços</Link>
           </div>
         </div>
       </section>

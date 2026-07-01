@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod'
+import { escolherProgressoSalvoLeituraSmartRead } from '../../../shared/escolher-progresso-salvo-leitura-smart-read'
 import { smartReadApi } from './api'
 import { LeituraSchema, type Leitura } from './schemas'
 
@@ -43,15 +44,16 @@ function lerLocal(idLeitura: string): EstadoSalvoLeitura | null {
 export async function carregarProgressoLeituraSmartRead(
   idLeitura: string,
 ): Promise<EstadoSalvoLeitura | null> {
+  const local = lerLocal(idLeitura)
+  let remoto: EstadoSalvoLeitura | null = null
   try {
-    const remoto = await smartReadApi.obterProgressoLeitura(idLeitura)
-    if (remoto) return remoto
+    remoto = await smartReadApi.obterProgressoLeitura(idLeitura)
   } catch (erro) {
     if (import.meta.env.DEV) {
       console.warn('[smart-read][persist] GET progresso falhou — localStorage', erro)
     }
   }
-  return lerLocal(idLeitura)
+  return escolherProgressoSalvoLeituraSmartRead(remoto, local)
 }
 
 export async function persistirProgressoLeituraSmartRead(

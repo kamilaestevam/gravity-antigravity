@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { escolherProgressoSalvoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-progresso-salvo-leitura-smart-read.ts'
 import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
@@ -42,5 +43,14 @@ describe('progresso-leitura-smart-read', () => {
 
   it('rejeita sessão inválida', () => {
     expect(extrairDadosSessaoProgressoLeitura({ foo: 'bar' })).toBeNull()
+  })
+
+  it('prefere passo local quando remoto está defasado', () => {
+    const base = { nome: 'Leitura', leitura: leituraMinima }
+    const escolhido = escolherProgressoSalvoLeituraSmartRead(
+      { ...base, passo: 2 },
+      { ...base, passo: 3 },
+    )
+    expect(escolhido?.passo).toBe(3)
   })
 })

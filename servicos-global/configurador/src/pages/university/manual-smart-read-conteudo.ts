@@ -5,6 +5,8 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
+const LINK_MANUAL_SMART_READ_CONFIGURACOES =
+  '{{link:/university-gravity/docs/smart-read#doc-sec-7|Configurações}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
@@ -22,9 +24,15 @@ const SCREENSHOT_SMART_DOCS_LISTA_EXCLUIR_SETA = '/university/screenshots/smart-
 const SCREENSHOT_SMART_DOCS_LISTA_EXCLUIR_MODAL = '/university/screenshots/smart-docs-lista-excluir-modal.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXCLUIR_CONFIRMACAO =
   '/university/screenshots/smart-docs-lista-excluir-confirmacao.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA =
+  '/university/screenshots/smart-docs-lista-exportar-seta.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL =
+  '/university/screenshots/smart-docs-lista-exportar-modal.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_SETA = '/university/screenshots/smart-docs-lista-expandir-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_LINHA_EXPANDIDA =
   '/university/screenshots/smart-docs-lista-linha-expandida.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_SETA =
+  '/university/screenshots/smart-docs-lista-expandir-todos-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_EXPANDIDO =
   '/university/screenshots/smart-docs-lista-expandir-todos-expandido.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA = '/university/screenshots/smart-docs-lista-paineis-seta.png'
@@ -36,6 +44,10 @@ const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-validado.png'
 const SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API = '/university/screenshots/smart-docs-lista-transacoes-api.png'
 const SCREENSHOT_SMART_DOCS_LISTA_NOVA_LEITURA = '/university/screenshots/smart-docs-lista-nova-leitura.png'
+const SCREENSHOT_SMART_DOCS_INSIGHTS_NOVA_LEITURA =
+  '/university/screenshots/smart-docs-insights-nova-leitura.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_4_PASSOS =
+  '/university/screenshots/smart-docs-nova-leitura-4-passos.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-geral.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR =
@@ -102,6 +114,8 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       paragrafos: [
         'No topo do produto, as abas **Insights** e **Lista** alternam entre **duas visualizações** complementares do mesmo workspace:',
       ],
+      modoCenarios: true,
+      cenariosLadoALado: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Insights',
@@ -179,9 +193,13 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               paragrafoAntes:
                 'No mesmo menu, **arraste** os itens para definir a **ordem** das colunas na tabela.',
               paragrafoDepois:
-                'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo. Para **criar colunas customizadas** (pilar 04), o passo a passo está na seção **Configurações**.',
+                'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
             },
           ],
+          paragrafoAposGaleriaTabela:
+            'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
+            LINK_MANUAL_SMART_READ_CONFIGURACOES +
+            '.',
         },
         {
           titulo: 'Expandir linhas',
@@ -189,7 +207,8 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           paragrafos: [
             'Clique na **seta** à esquerda da linha para expandir os documentos sem sair da lista.',
             'A **linha mãe** é a leitura (ex.: Leitura 477). As **linhas filhas** são cada documento extraído nessa leitura — ex.: 3 Invoices + 1 Packing List + 1 BL = **5 linhas filhas**.',
-            'Use **Expandir todos** na barra da tabela para abrir todas as linhas visíveis na página de uma vez.',
+            'Na **primeira coluna** do cabeçalho da tabela, clique na **seta** ao lado do checkbox para **expandir** ou **recolher** todas as leituras visíveis na página de uma vez.',
+            'Com todas expandidas, cada leitura mostra suas linhas filhas — o mesmo efeito de abrir linha a linha, em massa.',
           ],
           figurasAposParagrafo: [
             {
@@ -204,8 +223,13 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             },
             {
               indice: 2,
+              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_SETA,
+              legenda: 'Seta Expandir todos no cabeçalho',
+            },
+            {
+              indice: 3,
               imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_EXPANDIDO,
-              legenda: 'Expandir todos',
+              legenda: 'Todas as leituras expandidas',
             },
           ],
         },
@@ -228,30 +252,53 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               legenda: 'Modal de confirmação',
             },
           ],
+          callout: {
+            tipo: 'dica',
+            texto: 'Para **excluir mais de uma leitura**, marque as linhas desejadas pelo **checkbox** à esquerda e use **Excluir** — o modal confirma a quantidade selecionada.',
+          },
         },
         {
           titulo: 'Exportar',
           tituloCurto: 'Exportar',
           paragrafos: [
-            'No menu **Exportar**, baixe o recorte atual da tabela (filtros + página visível) em **Excel**, **CSV**, **PDF** ou **JSON** — mesmo padrão dos demais produtos Gravity com lista virtual.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual (filtros + página visível).',
+            'Escolha o formato — **Excel**, **CSV**, **PDF** ou **JSON** — mesmo padrão dos demais produtos Gravity com lista virtual.',
           ],
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA,
+              legenda: 'Menu Exportar',
+            },
+            {
+              indice: 1,
+              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
+              legenda: 'Formatos disponíveis',
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto: 'O **download** inicia **imediatamente** na sua máquina — não é necessário aguardar processamento adicional.',
+          },
         },
         {
           titulo: 'Painéis',
           tituloCurto: 'Painéis',
+          paragrafos: [
+            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
+            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
+          ],
+          mostrarInfograficoSmartDocsListaPaineis: true,
           imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
           imagemAbaixoTexto: true,
-          paragrafos: [
-            'Um **painel** guarda colunas, ordem, filtros e larguras da lista. O painel **Padrão** vem com o produto; você pode criar painéis próprios por usuário no workspace.',
-          ],
         },
         {
           titulo: 'Criar painel',
           tituloCurto: 'Novo painel',
           paragrafos: [
-            '1. Clique em **Novo painel** na faixa de painéis.',
-            '2. Informe um **nome** e confirme — o nome precisa ser único entre seus painéis.',
-            '3. Ajuste colunas e layout; as mudanças são salvas automaticamente no painel ativo.',
+            '1. Clique em **+** na faixa de painéis.',
+            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Finalizadas**, **Conferidas** ou **Por região**).',
+            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte — as mudanças salvam automaticamente no painel ativo.',
           ],
           figurasAposParagrafo: [
             {
@@ -286,45 +333,80 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       titulo: 'Nova Leitura',
       tituloSumario: 'Nova Leitura',
       paragrafos: [
-        'O wizard **Nova Leitura** tem quatro passos: **Anexar**, **Análise do arquivo**, **Conferência** e **Resultado**. Este manual detalha o **passo 1**; os passos seguintes serão ampliados conforme novos prints forem publicados.',
+        'O wizard **Nova Leitura** tem quatro etapas: **Anexar**, **Análise do arquivo**, **Conferência** e **Resultado**. Use o mapa abaixo para navegar — hoje o manual detalha o **passo 1 (Anexar)**; as etapas 2 a 4 serão ampliadas conforme novos prints forem publicados.',
+      ],
+      figurasAposParagrafo: [
+        {
+          indice: 0,
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_4_PASSOS,
+          legenda: 'Stepper — Anexar · Análise · Conferência · Resultado',
+        },
+      ],
+      prefixoPassosVisuais: 'Nova Leitura',
+      ancoraPassosPrefix: 'nova-leitura',
+      mostrarMapaSubtopicosPassos: true,
+      wizardEtapas: [
+        { numero: 1, rotulo: 'Anexar' },
+        { numero: 2, rotulo: 'Análise' },
+        { numero: 3, rotulo: 'Conferência' },
+        { numero: 4, rotulo: 'Resultado' },
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Abrir o wizard',
-          imagem: SCREENSHOT_SMART_DOCS_LISTA_NOVA_LEITURA,
-          imagemAbaixoTexto: true,
+          titulo: 'Iniciar',
+          tituloCurto: 'Iniciar',
           paragrafos: [
-            'Na aba **Insights** ou **Lista**, clique em **Novo**. O modal abre no passo **Anexar** com o stepper no topo.',
+            'Existem **duas formas** de iniciar uma nova leitura: clique no botão **+ Novo** na aba **Insights** ou na aba **Lista**. O modal abre no passo **Anexar**, com o stepper das quatro etapas no topo.',
           ],
-        },
-        {
-          titulo: 'Tela de anexar',
-          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'À esquerda: área de **clique ou arraste** com os formatos aceitos (PDF, imagens, XML, CSV, XLS/XLSX — até **50 MB** por arquivo). À direita: nome da leitura, lista de arquivos e botões **Cancelar** / **Enviar**.',
-          ],
-        },
-        {
-          titulo: 'Incluir anexos',
-          paragrafos: [
-            'Selecione um ou vários arquivos pelo explorador ou solte na zona indicada.',
-          ],
-          figurasAposParagrafo: [
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR_SETA,
-              legenda: 'Zona de anexar',
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: 'Via Insights',
+                  imagem: SCREENSHOT_SMART_DOCS_INSIGHTS_NOVA_LEITURA,
+                },
+                {
+                  legenda: 'Via Lista',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_NOVA_LEITURA,
+                },
+              ],
             },
+          ],
+        },
+        {
+          titulo: 'Anexar',
+          tituloCurto: 'Anexar',
+          etapaWizard: 1,
+          estiloTituloWizard: true,
+          paragrafos: [
+            'Após clicar em **+ Novo**, abre-se a tela do **passo 1 — Anexar** para enviar os documentos da leitura. O stepper no topo mostra as quatro etapas do wizard.',
+          ],
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR,
-              legenda: 'Formatos aceitos',
+              colunas: 2,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL,
+                  paragrafoAntes:
+                    'Nome da **leitura**, lista de **arquivos enviados** e botões **Cancelar** / **Enviar**.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR,
+                  paragrafoAntes:
+                    'Selecione **arquivos** pelo **explorador** ou **solte** na **área indicada** (PDF, imagens, XML, CSV, XLS/XLSX — até **50 MB** por arquivo).',
+                },
+              ],
             },
           ],
         },
         {
           titulo: 'Card do arquivo',
+          tituloCurto: 'Card',
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO,
           imagemAbaixoTexto: true,
           paragrafos: [
@@ -333,17 +415,61 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
         },
         {
           titulo: 'Validação de formato',
+          tituloCurto: 'Validação',
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXEMPLO_ERRO,
           imagemAbaixoTexto: true,
           paragrafos: [
             'Arquivos fora da lista de extensões ou acima do limite exibem erro na interface — corrija o anexo antes de **Enviar**.',
           ],
+        },
+        {
+          titulo: 'Análise do arquivo',
+          tituloCurto: 'Análise',
+          etapaWizard: 2,
+          estiloTituloWizard: true,
+          paragrafos: [
+            'Após **Enviar**, o wizard avança para **Análise do arquivo** — a IA classifica os documentos e prepara a extração.',
+          ],
           callout: {
             tipo: 'lembrete',
-            texto: '**Análise**, **Conferência** e **Resultado das leituras** (passos 2 a 4) serão documentados na próxima entrega deste manual.',
+            texto: 'Seção em construção — aguardando prints da etapa **Análise do arquivo**.',
+          },
+        },
+        {
+          titulo: 'Conferência',
+          tituloCurto: 'Conferência',
+          etapaWizard: 3,
+          estiloTituloWizard: true,
+          paragrafos: [
+            'Na **Conferência**, você revisa e corrige os campos extraídos antes de concluir a leitura.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Seção em construção — aguardando prints da etapa **Conferência**.',
+          },
+        },
+        {
+          titulo: 'Resultado',
+          tituloCurto: 'Resultado',
+          etapaWizard: 4,
+          estiloTituloWizard: true,
+          paragrafos: [
+            'No **Resultado**, a leitura concluída fica disponível na **Lista** e alimenta as métricas de **Insights**.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Seção em construção — aguardando prints da etapa **Resultado**.',
           },
         },
       ]),
+    },
+    {
+      titulo: 'Configurações',
+      tituloSumario: 'Configurações',
+      paragrafos: [
+        'No menu lateral, **Configurações** reúne as preferências do Smart Docs no workspace — entre elas, a criação de **colunas customizadas** (**texto**, **número**, **data**, **fórmula** e outros tipos) para personalizar a **Lista** além das colunas nativas e do catálogo.',
+      ],
+      passosVisuais: [],
     },
   ],
 }

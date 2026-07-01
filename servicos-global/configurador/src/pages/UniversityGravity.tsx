@@ -37,10 +37,12 @@ import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
 import { DOC_STORE_SUBTITULO } from './university/manual-store-conteudo'
 import { DOC_SMART_READ_SUBTITULO } from './university/manual-smart-read-conteudo'
+import { DOC_PEDIDO_SUBTITULO } from './university/manual-pedido-conteudo'
 import { DocNavegacaoManual } from './university/manual-navegacao-ui'
 import { DocHubManual } from './university/manual-hub-ui'
 import { DocStoreManual } from './university/manual-store-ui'
 import { DocSmartReadManual } from './university/manual-smart-read-ui'
+import { DocPedidoManual } from './university/manual-pedido-ui'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
 
@@ -1124,7 +1126,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
 function DocLoginManual() {
   const todosNums = DOC_LOGIN_SECOES.map(s => s.num)
-  const [abertos, setAbertos] = useState<number[]>([1])
+  const [abertos, setAbertos] = useState<number[]>([])
   const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
@@ -1468,6 +1470,7 @@ export function UniversityGravity() {
     docsProdutoSlug === 'hub' ||
     docsProdutoSlug === 'store' ||
     docsProdutoSlug === 'smart-read' ||
+    docsProdutoSlug === 'pedido' ||
     (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
   )
 
@@ -1615,10 +1618,17 @@ export function UniversityGravity() {
         { to: '/university-gravity/docs/gabi',         label: t('university.produto.gabi'),         icon: produtoIconManual('gabi'),         ...badgeEmBreve },
         { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIconManual('hub') },
         { to: '/university-gravity/docs/store',        label: t('university.produto.store'),        icon: produtoIconManual('store') },
-        { to: '/university-gravity/docs/pedido',       label: t('university.produto.pedido'),       icon: produtoIconManual('pedido') },
-        { to: '/university-gravity/docs/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconManual('smart-read') },
-        { to: '/university-gravity/docs/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconManual('bid-frete') },
-        { to: '/university-gravity/docs/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconManual('bid-cambio') },
+        {
+          to: '/university-gravity/docs/smart-read',
+          label: t('university.nav.produtos_gravity'),
+          icon: <PuzzlePiece weight="duotone" size={16} />,
+          children: [
+            { to: '/university-gravity/docs/pedido',     label: t('university.produto.pedido'),     icon: produtoIconManual('pedido') },
+            { to: '/university-gravity/docs/smart-read', label: t('university.produto.smart_read'), icon: produtoIconManual('smart-read') },
+            { to: '/university-gravity/docs/bid-frete',  label: t('university.produto.bid_frete'), icon: produtoIconManual('bid-frete'),  ...badgeEmBreve },
+            { to: '/university-gravity/docs/bid-cambio', label: t('university.produto.bid_cambio'), icon: produtoIconManual('bid-cambio'), ...badgeEmBreve },
+          ],
+        },
         { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIconManual('processo') },
       ],
     },
@@ -1808,6 +1818,9 @@ export function UniversityGravity() {
               )}
               {secao === 'docs' && docsProdutoSlug === 'smart-read' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_SMART_READ_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'pedido' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_PEDIDO_SUBTITULO}</span>
               )}
               {secao === 'docs' && configuradorManualItem && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{configuradorManualItem.subtitulo}</span>
@@ -2075,7 +2088,11 @@ export function UniversityGravity() {
             <DocSmartReadManual />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug === 'pedido' && (
+            <DocPedidoManual />
+          )}
+
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

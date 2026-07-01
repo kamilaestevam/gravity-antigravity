@@ -57,6 +57,7 @@ servicos-global/produto/smart-read/
 | Persistência | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) |
 | Insights | [INSIGHTS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/INSIGHTS-TECNICO.md) |
 | Análise de riscos | [ANALISE-DE-RISCOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/ANALISE-DE-RISCOS-TECNICO.md) |
+| **Requisitos técnicos** (rate limit, upload, paginação) | [REQUISITOS-TECNICOS.md](../../../documentos-tecnicos/produtos-gravity/smart-read/REQUISITOS-TECNICOS.md) |
 | Tokens LLM (auditoria) | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) §3.1 |
 | Índice geral | [README.md](../../../documentos-tecnicos/produtos-gravity/smart-read/README.md) |
 

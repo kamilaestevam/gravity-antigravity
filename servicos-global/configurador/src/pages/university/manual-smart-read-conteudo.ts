@@ -67,8 +67,8 @@ export const DOC_SMART_READ_SUBTITULO =
   'Leitura inteligente, gestão de documentos e riscos no COMEX — Insights, Lista e Nova Leitura'
 
 export const DOC_SMART_READ_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
-  { rotulo: 'Versão', valor: '1.0' },
-  { rotulo: 'Atualizado em', valor: 'junho 2026' },
+  { rotulo: 'Versão', valor: '1.1' },
+  { rotulo: 'Atualizado em', valor: 'julho 2026' },
   { rotulo: 'Produto', valor: 'Smart Docs' },
   { rotulo: 'URL de acesso', valor: 'https://usegravity.com.br/smart-read', href: true },
 ]
@@ -132,6 +132,40 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ],
           imagem: SCREENSHOT_SMART_DOCS_LISTA,
           imagemAbaixoTexto: true,
+        },
+      ]),
+    },
+    {
+      titulo: 'Requisitos técnicos',
+      tituloSumario: 'Requisitos técnicos',
+      paragrafos: [
+        'Informações de **limites da plataforma** e **consumo de API** — úteis para operação, integrações e suporte quando a interface exibe **Muitas requisicoes**.',
+      ],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Limite de requisições (produção)',
+          paragrafos: [
+            'O backend do Smart Docs aplica **até 100 chamadas HTTP por minuto** por **organização** em produção — proteção contra abuso e picos que sobrecarregam o serviço.',
+            'Esse limite conta **requisições**, não **documentos**: uma única consulta à **Lista** pode trazer **dezenas de leituras** e, em cada linha, **vários arquivos** (Invoice, BL, Packing etc.) dentro da mesma resposta.',
+          ],
+          callout: {
+            tipo: 'aviso',
+            texto: 'Se aparecer a faixa vermelha **Muitas requisicoes**, aguarde cerca de **1 minuto**, feche abas duplicadas do Smart Docs e recarregue — o contador da organização reinicia a cada minuto.',
+          },
+        },
+        {
+          titulo: 'O que a Lista busca ao abrir',
+          paragrafos: [
+            'Ao abrir a aba **Lista**, o produto dispara **4 consultas** em sequência rápida: listagem paginada (até **50** leituras por página), métrica de leituras realizadas, histórico para o card **Recursos reduzidos** (páginas de **100** leituras) e **painéis** salvos.',
+            'Com a aba aberta, o card de saving **atualiza a cada 30 segundos** — isso também consome o limite por minuto.',
+          ],
+        },
+        {
+          titulo: 'Upload — Nova Leitura',
+          paragrafos: [
+            'No passo **Anexar**, cada arquivo enviado gera **1 requisição de upload**. Formatos: **PDF, JPG/JPEG, PNG, XML, CSV, XLS/XLSX**. Tamanho máximo: **50 MB por arquivo**.',
+            'Vários anexos na mesma leitura são permitidos; documentos distintos dentro do **mesmo PDF** são separados na extração — sem multiplicar uploads.',
+          ],
         },
       ]),
     },

@@ -176,12 +176,7 @@ Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
 
 ### Rate limit do BFF (porta 8033)
 
-| Ambiente | Comportamento |
-|----------|----------------|
-| **Produção / staging** (`NODE_ENV=production`, padrão Railway) | `express-rate-limit`: **100 req/min** por `x-id-organizacao` em `/api/*` |
-| **Local** (`NODE_ENV` ≠ `production`) | Rate limit **desligado** (`skip` em `server/src/index.ts`) — evita 429 ao alternar abas com HMR |
-
-Resposta 429: `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } }` — exibida na faixa vermelha da Lista (`sr-erro`).
+> **SSOT completo:** [REQUISITOS-TECNICOS.md](./REQUISITOS-TECNICOS.md) — teto **100 req/min** por `x-id-organizacao`, chamadas no mount da Lista (**4 HTTP**), polling saving (**30 s**), distinção **requisição vs. documento** e erro **429** na UI.
 
 ---
 

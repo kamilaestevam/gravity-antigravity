@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales y Videos", "builders": "Builders" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales", "builders": "Gravity Partner", "produtos_gravity": "Productos Gravity" },
     "academy": {
       "subtitulo": "Onboarding guiado por producto — rutas para Login, Configurador, Hub y los módulos contratados en su organización."
     },

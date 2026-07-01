@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 403,
+  "proximo_numero": 404,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000403",
+      "ordinal": 127,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-RESULTADO-BUG-DOWNLOAD-PACOTE-DATI-404-TRANSITORIO",
+      "titulo_exibicao": "TASK-000403 | [Smart Docs] Nova Leitura · Resultado | BUG — Download pacote DATI falha no 404 transitório do poll",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA-RESULTADO",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "DOWNLOAD-PACOTE-DATI-404-TRANSITORIO",
+      "data_criacao": "2026-07-01T00:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000403.json"
+    },
     {
       "referencia": "TASK-000001",
       "ordinal": 1,

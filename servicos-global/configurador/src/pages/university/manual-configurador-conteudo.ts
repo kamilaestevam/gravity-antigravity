@@ -61,6 +61,16 @@ export interface DocPassoVisual {
   }
   /** Grade de cards (colunas da tabela). */
   colunasTabela?: DocColunaTabela[]
+  /** Manual Smart Docs §05 — tabela das 15 colunas padrão da Lista. */
+  mostrarTabelaColunasPadraoLista?: boolean
+  /** Manual Smart Docs §05 — infográfico dos 4 pilares de customização da Lista. */
+  mostrarInfograficoSmartDocsListaCustomizacao?: boolean
+  /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
+  galeriaTelasAposTabela?: DocGaleriaTela[]
+  /** Callout após tabela + galeria (ex.: resumo da customização completa). */
+  calloutAposGaleriaTabela?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Rótulo curto no mapa de subtópicos (quando `titulo` é longo). */
+  tituloCurto?: string
 }
 
 export interface DocColunaTabela {
@@ -119,6 +129,8 @@ export interface DocFluxo {
   mostrarInfograficoTiposUsuario?: boolean
   /** Manual Histórico §04 — catálogo completo de eventos (tabelas). */
   mostrarCatalogoHistoricoCompleto?: boolean
+  /** Manual Smart Docs §04 — mapa das métricas da tela Insights. */
+  mostrarInfograficoSmartDocsInsights?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -132,6 +144,12 @@ export interface DocFluxo {
   calloutAposPassos?: boolean
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
+  /** Prefixo visual em cada passo (ex.: «Lista — Visão geral»). */
+  prefixoPassosVisuais?: string
+  /** Slug para âncoras `manual-passo-{slug}-{num}`. */
+  ancoraPassosPrefix?: string
+  /** Mapa clicável de subtópicos antes dos passos (requer `prefixoPassosVisuais`). */
+  mostrarMapaSubtopicosPassos?: boolean
   passosVisuais: DocPassoVisual[]
 }
 

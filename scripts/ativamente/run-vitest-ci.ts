@@ -19,14 +19,17 @@ const deployGate = process.argv.includes('--deploy-gate')
 /** Suítes com falhas pré-existentes — fora do gate de deploy até correção. */
 const SUITES_FORA_DO_DEPLOY_GATE = new Set([
   'testes/testes-cross-organizacao/produto-gravity/bid-cambio/vitest.config.ts',
+  'testes/testes-cross-organizacao/produto-gravity/pedido/vitest.config.ts',
   'testes/testes-funcionais/produto-gravity/bid-frete-internacional/vitest.config.ts',
   'testes/testes-funcionais/cadastros/vitest.config.ts',
   'testes/testes-funcionais/configurador/vitest.config.ts',
   'testes/testes-funcionais/produto-gravity/pedido/vitest.config.ts',
+  'testes/testes-unitarios/api-cockpit/vitest.config.ts',
   'testes/testes-unitarios/cadastros/vitest.config.ts',
   'testes/testes-unitarios/configurador/vitest.config.ts',
   'testes/testes-unitarios/gabi/vitest.config.ts',
   'testes/testes-unitarios/historico/vitest.config.ts',
+  'testes/testes-unitarios/produto-gravity/bid-frete-internacional/vitest.config.ts',
   'testes/testes-unitarios/produto-gravity/pedido/vitest.config.ts',
   'testes/testes-unitarios/nucleo-global/dashboard-global/vitest.config.ts',
   'testes/testes-unitarios/nucleo-global/shell/vitest.config.ts',

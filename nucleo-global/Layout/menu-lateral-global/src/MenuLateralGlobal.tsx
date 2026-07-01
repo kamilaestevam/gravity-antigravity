@@ -283,10 +283,15 @@ export function MenuLateralGlobal({
     return (
       <div className="mlg-nav-content">
         <span className="mlg-nav-text">{item.label}</span>
-        <span className={`mlg-nav-badge ${variantClass}`}>{item.badge}</span>
-        {item.badgeSecundario ? (
-          <span className="mlg-nav-badge mlg-nav-badge--muted">{item.badgeSecundario}</span>
-        ) : null}
+        <span className="mlg-nav-badges-row">
+          <span className={`mlg-nav-badge ${variantClass}`}>{item.badge}</span>
+          {item.badgeSecundario ? (
+            <>
+              <span className="mlg-nav-badge-sep" aria-hidden> / </span>
+              <span className="mlg-nav-badge mlg-nav-badge--muted">{item.badgeSecundario}</span>
+            </>
+          ) : null}
+        </span>
       </div>
     )
   }

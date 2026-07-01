@@ -746,6 +746,26 @@
 }
 
 /* ── Badges (subtexto) ── */
+.mlg-nav-badges-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: 0;
+  min-width: 0;
+}
+
+.mlg-nav-badge-sep {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--mlg-accent, #818cf8);
+  opacity: 0.75;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
 .mlg-nav-badge {
   font-size: 0.625rem;
   font-weight: 600;

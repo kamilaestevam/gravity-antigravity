@@ -140,7 +140,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     slug: 'university',
     titulo: 'Gravity University',
     resumo: 'Atalho para manuais, trilhas de onboarding e documentação por produto.',
-    detalhe: 'Este manual está em Manuais e Vídeos → Navegação dentro da University.',
+    detalhe: 'Este manual está em Manuais → Navegação dentro da University.',
   },
   {
     ordem: 4,
@@ -377,7 +377,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
         {
           titulo: 'Tela da Gravity University',
           paragrafos: [
-            'A **sidebar esquerda** abre com **Onboarding**, **Manuais e Vídeos**, **Builders** e **Minha Jornada**. Este manual está em **Manuais e Vídeos → Navegação**.',
+            'A **sidebar esquerda** abre com **Onboarding**, **Manuais**, **Gravity Partners** e **Minha Jornada**. Este manual está em **Manuais → Navegação**.',
           ],
           imagem: SCREENSHOT_NAVEGACAO_ACESSO_UNIVERSITY_TELA,
           imagemAbaixoTexto: true,
@@ -409,15 +409,15 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           ],
         },
         {
-          titulo: 'Manuais e Vídeos',
+          titulo: 'Manuais',
           paragrafos: [
-            'Em **Manuais e Vídeos** ficam **Login**, **Navegação**, Admin restrito e o submenu **Configurador** (Hub, Store, Pedido, Smart Docs, BID Frete, BID Câmbio, Processo…).',
+            'Em **Manuais** ficam **Login**, **Navegação**, Admin restrito e o submenu **Configurador** (Hub, Store, Pedido, Smart Docs, BID Frete, BID Câmbio, Processo…).',
           ],
           figurasAposParagrafo: [
             {
               indice: 0,
               imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS,
-              legenda: 'Sidebar — Manuais e Vídeos',
+              legenda: 'Sidebar — Manuais',
               larguraMaxima: 240,
             },
           ],

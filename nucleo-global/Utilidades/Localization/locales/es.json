@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales y Videos", "builders": "Builders" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales", "builders": "Gravity Partners" },
     "academy": {
       "subtitulo": "Onboarding guiado por producto — rutas para Login, Configurador, Hub y los módulos contratados en su organización."
     },
@@ -42,7 +42,7 @@
     "jornada": { "pontos": "Puntos", "concluidas": "Completadas", "em_andamento": "En curso", "certificados": "Certificados" },
     "vazio": { "em_breve": "{{secao}} — próximamente" },
     "docs": { "descricao": "Manuales y videos de toda la plataforma — base de conocimiento de GABI." },
-    "builders": { "descricao": "Direccionamiento para integradores y desarrolladores (API Cockpit)." }
+    "builders": { "descricao": "Personas y empresas homologadas con capacitación técnica para onboarding, setup, personalizaciones e integraciones (API Cockpit)." }
   },
   "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operación",
   "BIDFRETE.NOVA_COTACAO.MODALIDADE_COTACAO_BID_FRETE_INTERNACIONAL": "Modalidad",

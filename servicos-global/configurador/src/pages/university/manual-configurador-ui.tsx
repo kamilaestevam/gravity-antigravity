@@ -34,6 +34,10 @@ import {
 } from './manual-configurador-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
+import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
+import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
+import { ManualSmartReadTabelaColunasPadraoLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
@@ -258,7 +262,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '39'
+const MANUAL_SCREENSHOT_CACHE_KEY = '44'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -673,17 +677,93 @@ function figurasAposParagrafoPasso(
   return (passo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
+function ManualMapaSubtopicosPassos({
+  prefixo,
+  ancoraPrefix,
+  passos,
+}: {
+  prefixo: string
+  ancoraPrefix: string
+  passos: DocPassoVisual[]
+}) {
+  if (passos.length === 0) return null
+
+  return (
+    <div style={{
+      marginTop: 20,
+      marginBottom: 4,
+      padding: '14px 16px',
+      borderRadius: 12,
+      border: '1px solid rgba(129,140,248,.22)',
+      background: 'linear-gradient(135deg, rgba(99,102,241,.08) 0%, rgba(148,163,184,.04) 100%)',
+    }}>
+      <p style={{
+        margin: '0 0 10px',
+        fontSize: '.66rem',
+        fontWeight: 700,
+        letterSpacing: '.08em',
+        textTransform: 'uppercase',
+        color: '#94a3b8',
+      }}>
+        Subtópicos · {prefixo}
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {passos.map((passo) => {
+          const rotulo = passo.tituloCurto ?? passo.titulo
+          const href = `#manual-passo-${ancoraPrefix}-${passo.num}`
+          return (
+            <a
+              key={passo.num}
+              href={href}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                borderRadius: 999,
+                fontSize: '.72rem',
+                fontWeight: 600,
+                lineHeight: 1.3,
+                color: '#c7d2fe',
+                background: 'rgba(99,102,241,.14)',
+                border: '1px solid rgba(129,140,248,.28)',
+                textDecoration: 'none',
+              }}
+            >
+              <span style={{
+                fontSize: '.62rem',
+                fontWeight: 800,
+                color: '#818cf8',
+                letterSpacing: '.06em',
+              }}>
+                {String(passo.num).padStart(2, '0')}
+              </span>
+              <span style={{ color: '#94a3b8', fontWeight: 500 }}>{prefixo}</span>
+              <span style={{ color: '#64748b' }}>—</span>
+              <span>{rotulo}</span>
+            </a>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
   emGradeCenarios = false,
   cenarioParte = 'completo',
+  prefixoPasso,
+  ancoraPassoId,
 }: {
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
   emGradeCenarios?: boolean
   /** Com grade lado a lado + imagens alinhadas: `texto` ou `figuras` em linhas separadas. */
   cenarioParte?: 'completo' | 'texto' | 'figuras'
+  prefixoPasso?: string
+  ancoraPassoId?: string
 }) {
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso
   const omitirFigurasNoTexto = cenarioParte === 'texto'
@@ -694,6 +774,10 @@ function ManualBlocoPassoVisual({
       borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
       marginTop: passo.num === 1 ? 18 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
     }
+
+  const estiloBlocoRaiz: React.CSSProperties = ancoraPassoId
+    ? { ...blocoBase, scrollMarginTop: MANUAL_SCROLL_MARGEM_TOPO_PX }
+    : blocoBase
 
   const calloutsLista = passo.dicaAoLadoImagem
     ? []
@@ -710,12 +794,37 @@ function ManualBlocoPassoVisual({
   const blocoTexto = (
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)', width: '100%', minWidth: 0 }}>
       {!semRotuloPasso && (
-        <p style={MANUAL_ESTILO_PASSO_ROTULO}>
-          {String(passo.num).padStart(2, '0')}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '0 0 8px' }}>
+          <span style={{ ...MANUAL_ESTILO_PASSO_ROTULO, margin: 0 }}>
+            {String(passo.num).padStart(2, '0')}
+          </span>
+          {prefixoPasso && (
+            <span style={{
+              fontSize: '.62rem',
+              fontWeight: 800,
+              letterSpacing: '.08em',
+              textTransform: 'uppercase',
+              color: '#a5b4fc',
+              background: 'rgba(99,102,241,.14)',
+              border: '1px solid rgba(129,140,248,.3)',
+              borderRadius: 999,
+              padding: '3px 10px',
+            }}>
+              {prefixoPasso}
+            </span>
+          )}
+        </div>
       )}
       {!passo.ocultarTituloPasso && (
-        <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+        prefixoPasso ? (
+          <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
+            <span style={{ color: '#94a3b8', fontWeight: 600 }}>{prefixoPasso}</span>
+            <span style={{ color: '#64748b', margin: '0 6px', fontWeight: 400 }}>—</span>
+            <span>{passo.titulo}</span>
+          </p>
+        ) : (
+          <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+        )
       )}
       {passo.paragrafos?.map((p, i) => (
         <div key={i}>
@@ -776,6 +885,39 @@ function ManualBlocoPassoVisual({
     ? <ManualColunasTabela colunas={passo.colunasTabela} />
     : null
 
+  const tabelaColunasPadraoLista = passo.mostrarTabelaColunasPadraoLista
+    ? <ManualSmartReadTabelaColunasPadraoLista />
+    : null
+
+  const infograficoListaCustomizacao = passo.mostrarInfograficoSmartDocsListaCustomizacao
+    ? <ManualInfograficoSmartDocsListaCustomizacao />
+    : null
+
+  const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
+    <div style={{ marginTop: 24 }}>
+      {passo.galeriaTelasAposTabela.map((tela) => (
+        <div key={tela.legenda} style={{ marginTop: 20 }}>
+          <ManualGaleriaTelaCelula tela={tela} />
+        </div>
+      ))}
+    </div>
+  ) : null
+
+  const calloutAposGaleriaTabela = passo.calloutAposGaleriaTabela ? (
+    <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={24} />
+  ) : null
+
+  const blocoListaCustomizacao = (infograficoListaCustomizacao || tabelaColunasPadraoLista
+    || galeriaAposTabela || calloutAposGaleriaTabela) ? (
+    <>
+      {infograficoListaCustomizacao}
+      {gradeColunas}
+      {tabelaColunasPadraoLista}
+      {galeriaAposTabela}
+      {calloutAposGaleriaTabela}
+    </>
+  ) : null
+
   const colunaTexto = (
     <>
       {blocoTexto}
@@ -813,7 +955,7 @@ function ManualBlocoPassoVisual({
     ) : null
 
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         {passo.calloutAoLadoTexto && calloutsLista.length > 0 ? (
           <div style={{
             display: 'grid',
@@ -845,14 +987,14 @@ function ManualBlocoPassoVisual({
           </div>
         )}
         {galeriaAbaixo}
-        {gradeColunas}
+        {blocoListaCustomizacao}
       </div>
     )
   }
 
   if (galeriaComparacao) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
@@ -876,7 +1018,7 @@ function ManualBlocoPassoVisual({
 
     if (passo.imagem) {
       return (
-        <div style={blocoBase}>
+        <div id={ancoraPassoId} style={estiloBlocoRaiz}>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
@@ -892,16 +1034,17 @@ function ManualBlocoPassoVisual({
     }
 
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         {colunaTexto}
         {galeria}
+        {blocoListaCustomizacao}
       </div>
     )
   }
 
   if (gradeColunas && passo.imagem) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
@@ -911,7 +1054,7 @@ function ManualBlocoPassoVisual({
           {blocoTexto}
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
-        {gradeColunas}
+        {blocoListaCustomizacao ?? gradeColunas}
       </div>
     )
   }
@@ -919,7 +1062,7 @@ function ManualBlocoPassoVisual({
   if (cenarioParte === 'figuras') {
     const figuras = passo.figurasAposParagrafo ?? []
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         {figuras.map((fig) => (
           <div key={fig.imagem} style={{ margin: 0 }}>
             <ManualFiguraScreenshot
@@ -935,26 +1078,28 @@ function ManualBlocoPassoVisual({
 
   if (cenarioParte === 'texto' && !passo.imagem && !passo.galeriaComparacao?.length && !passo.galeriaTelas?.length) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         {blocoTexto}
-        {gradeColunas}
+        {blocoListaCustomizacao}
       </div>
     )
   }
 
   if (!passo.imagem && !passo.galeriaComparacao?.length && !passo.galeriaTelas?.length) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
         {blocoTexto}
-        {gradeColunas}
+        {blocoListaCustomizacao}
         {rodapeDicaImagem}
       </div>
     )
   }
 
   return (
-    <div style={{
-      ...blocoBase,
+    <div
+      id={ancoraPassoId}
+      style={{
+      ...estiloBlocoRaiz,
       display: 'grid',
       gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
       gap: 28,
@@ -1062,6 +1207,17 @@ function ManualInfograficoPermissoesUsuarioEmbutido({ fluxo, aposPassoNum }: {
 }
 
 function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
+  const prefixoPasso = fluxo.prefixoPassosVisuais
+  const ancoraPassosPrefix = fluxo.ancoraPassosPrefix
+
+  const propsPasso = (passo: DocPassoVisual) => ({
+    passo,
+    prefixoPasso,
+    ancoraPassoId: ancoraPassosPrefix
+      ? `manual-passo-${ancoraPassosPrefix}-${passo.num}`
+      : undefined,
+  })
+
   return (
     <>
       {fluxo.paragrafos?.map((p, i) => (
@@ -1126,6 +1282,18 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           <ManualInfograficoTiposUsuario />
         </div>
       )}
+      {fluxo.mostrarInfograficoSmartDocsInsights && (
+        <div style={{ marginTop: 8, marginBottom: 4 }}>
+          <ManualInfograficoSmartDocsInsights />
+        </div>
+      )}
+      {fluxo.mostrarMapaSubtopicosPassos && prefixoPasso && ancoraPassosPrefix && (
+        <ManualMapaSubtopicosPassos
+          prefixo={prefixoPasso}
+          ancoraPrefix={ancoraPassosPrefix}
+          passos={fluxo.passosVisuais ?? []}
+        />
+      )}
       {fluxo.modoCenarios && fluxo.cenariosLadoALado && (fluxo.passosVisuais?.length ?? 0) > 0 ? (
         fluxo.cenariosImagensAlinhadas ? (
           <>
@@ -1139,7 +1307,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
               {fluxo.passosVisuais.map(passo => (
                 <ManualBlocoPassoVisual
                   key={`${passo.num}-texto`}
-                  passo={passo}
+                  {...propsPasso(passo)}
                   ocultarRotuloPasso
                   emGradeCenarios
                   cenarioParte="texto"
@@ -1156,7 +1324,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
               {fluxo.passosVisuais.map(passo => (
                 <ManualBlocoPassoVisual
                   key={`${passo.num}-figuras`}
-                  passo={passo}
+                  {...propsPasso(passo)}
                   ocultarRotuloPasso
                   emGradeCenarios
                   cenarioParte="figuras"
@@ -1175,7 +1343,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
             {fluxo.passosVisuais.map(passo => (
               <ManualBlocoPassoVisual
                 key={passo.num}
-                passo={passo}
+                {...propsPasso(passo)}
                 ocultarRotuloPasso
                 emGradeCenarios
               />
@@ -1186,7 +1354,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
         (fluxo.passosVisuais ?? []).map(passo => (
           <React.Fragment key={passo.num}>
             <ManualBlocoPassoVisual
-              passo={passo}
+              {...propsPasso(passo)}
               ocultarRotuloPasso={fluxo.modoCenarios}
             />
             <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
@@ -1545,6 +1713,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.mostrarInfograficoHubTelas && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoHubTelas />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoSmartDocsDocumentos && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoSmartDocsDocumentos />
         </div>
       )}
 

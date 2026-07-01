@@ -23,7 +23,6 @@ import {
   type ArquivoLocalNovaLeitura,
 } from './tipo-arquivo-nova-leitura-smart-read'
 import { criarObjectUrlArquivoLeitura } from './url-blob-arquivo-leitura-smart-read'
-import { montarUrlApiArquivoLeituraSmartRead } from './url-api-arquivo-leitura-smart-read'
 
 export type ResultadoUrlVisualizacaoArquivoLeitura =
   | { ok: true; url: string; arquivoAtualizado: File | null }
@@ -49,18 +48,6 @@ export async function resolverUrlVisualizacaoArquivoLeituraSmartRead(
 ): Promise<ResultadoUrlVisualizacaoArquivoLeitura> {
   const nomeArquivo = item.arquivo.name
 
-  const idLeitura =
-    item.id_leitura ?? idLeituraExistente ?? item.leitura?.id_leitura ?? null
-  const idArquivo = item.id_arquivo
-
-  if (idLeitura && idArquivo) {
-    return {
-      ok: true,
-      url: montarUrlApiArquivoLeituraSmartRead(idLeitura, idArquivo),
-      arquivoAtualizado: null,
-    }
-  }
-
   if (arquivoLocalTemBlobVisualizavel(item.arquivo)) {
     return {
       ok: true,
@@ -68,6 +55,10 @@ export async function resolverUrlVisualizacaoArquivoLeituraSmartRead(
       arquivoAtualizado: null,
     }
   }
+
+  const idLeitura =
+    item.id_leitura ?? idLeituraExistente ?? item.leitura?.id_leitura ?? null
+  const idArquivo = item.id_arquivo
 
   if (!idLeitura || !idArquivo) {
     return { ok: false, mensagem: mensagemPreviewArquivoIndisponivel(nomeArquivo) }

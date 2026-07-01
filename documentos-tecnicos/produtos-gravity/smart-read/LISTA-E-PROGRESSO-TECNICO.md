@@ -52,12 +52,17 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado — **snapshot (workspace)** → **legado** (se vinculada) → **progresso** (`catch`, `id_usuario` + workspace); grava snapshot após legado se elegível |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard por **usuário** (`404` se ausente) |
 | `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão (usuário); inclui `tempo_analise_segundos` congelado ao fim da análise — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/campo-documento` | Edição inline na lista (linha documento): body `{ id_arquivo, indice_documento, campo_coluna, valor }` → `{ documentos_atualizados }` — ver §2.1 |
 | `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |
 
 **Schemas Zod (bilateral — REGRA 07/09):**
 
 - Server: `server/src/schemas/leitura-smart-read.ts`, `server/src/schemas/progresso-leitura-smart-read.ts`
 - Client: `client/src/shared/schemas.ts`
+
+### 2.1 Edição inline na lista (`PATCH …/campo-documento`)
+
+Paridade Pedido (`onEditarFilho` + `TabelaVirtualGlobal`). Fluxo: client (`tabela-transacoes-leitura-smart-read.tsx`) → `PATCH campo-documento` → `editar-campo-documento-lista-smart-read.ts` aplica espelhamento (`shared/lista-edicao-espelhada-smart-read.ts`), sincroniza DATI (`sincronizarConferenciaLeituraNoLegado` → `finalProcessingResult`) e só então persiste snapshot Gravity com métricas recalculadas (`persistirSnapshotLeituraSmartRead`, motivo `conferencia_usuario`) — se o DATI falhar, nada é gravado no snapshot. **Espelhamento:** documentos com o mesmo sufixo de grupo no nome (ex.: `INVOICE A` + `PACKING_LIST A`) recebem o mesmo valor; isso exige **dois ou mais documentos do mesmo tipo** na leitura (sufixo `A`, `B`…). Com um único documento por tipo, só a linha editada muda. `campo_coluna` é validado no server via `EditarCampoDocumentoListaRequestSchema.superRefine` (400 se inválido).
 
 ### `TransacaoLeitura` (linha da lista)
 

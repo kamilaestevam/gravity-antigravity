@@ -61,10 +61,12 @@ import {
 
 import { abrirArquivoLeituraNovaAbaSmartRead } from '../../shared/abrir-arquivo-leitura-nova-aba-smart-read'
 
+import { montarChaveCampoEditadoLeitura } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 import {
-  definirValorPorCaminho,
-  montarChaveCampoEditadoLeitura,
-} from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
+  aplicarEdicaoPorCaminhoConferenciaSmartRead,
+  listarChavesCampoEditadoEspelhoConferenciaSmartRead,
+  ListaEdicaoSmartReadErro,
+} from '../../shared/paridade-edicao-conferencia-lista-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
 import { useContadorTokensLeituraSmartRead } from '../../shared/use-contador-tokens-leitura-smart-read'
@@ -566,25 +568,48 @@ export function ModalNovaLeituraSmartRead({
     (chave: string, valor: string) => {
       const selecao = conferenciaSelecao
       if (!selecao) return
+
+      let chavesEspelho: ReturnType<typeof listarChavesCampoEditadoEspelhoConferenciaSmartRead> = []
+
       setArquivos((prev) =>
         prev.map((item) => {
           if (item.id_arquivo_local !== selecao.idArquivoLocal || !item.leitura) return item
-          const leitura = structuredClone(item.leitura)
-          const arquivoApi =
-            leitura.arquivos.find((a) => a.id_arquivo === item.id_arquivo) ?? leitura.arquivos[0]
-          const extracao = arquivoApi?.resultado_extracao?.[selecao.indiceDocumento]
-          if (extracao?.dados) {
-            if (!extracao.dados_original) {
-              extracao.dados_original = structuredClone(extracao.dados)
-            }
-            definirValorPorCaminho(extracao.dados, chave, valor)
+          const idArquivo = item.id_arquivo ?? item.leitura.arquivos[0]?.id_arquivo
+          if (!idArquivo) return item
+
+          try {
+            const leituraEditada = aplicarEdicaoPorCaminhoConferenciaSmartRead({
+              leitura: item.leitura,
+              id_arquivo: idArquivo,
+              indice_documento: selecao.indiceDocumento,
+              caminho: chave,
+              valor,
+            })
+            chavesEspelho = listarChavesCampoEditadoEspelhoConferenciaSmartRead({
+              leitura: leituraEditada,
+              id_arquivo: idArquivo,
+              indice_documento: selecao.indiceDocumento,
+              caminho: chave,
+            })
+            return { ...item, leitura: leituraEditada }
+          } catch (erro) {
+            if (erro instanceof ListaEdicaoSmartReadErro) return item
+            throw erro
           }
-          return { ...item, leitura }
         }),
       )
+
       setCamposEditados((prev) => {
         const next = new Set(prev)
-        next.add(montarChaveCampoEditadoLeitura(selecao.idArquivoLocal, selecao.indiceDocumento, chave))
+        for (const marcacao of chavesEspelho) {
+          next.add(
+            montarChaveCampoEditadoLeitura(
+              selecao.idArquivoLocal,
+              marcacao.indice_documento,
+              marcacao.caminho,
+            ),
+          )
+        }
         return next
       })
     },

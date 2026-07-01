@@ -113,3 +113,29 @@ export const StatusExportacaoLeituraRespostaSchema = z.object({
   mensagem_erro: z.string().nullable(),
 })
 export type StatusExportacaoLeituraResposta = z.infer<typeof StatusExportacaoLeituraRespostaSchema>
+
+export const DocumentoLeituraListaSchema = z.object({
+  id_documento_leitura: z.string(),
+  id_leitura: z.string(),
+  id_arquivo: z.string(),
+  nome_documento: z.string(),
+  status_documento: StatusLeituraEnum.optional(),
+  media_acertos: z.number().nullable().optional(),
+  data_envio: z.string().nullable().optional(),
+  tipo_documento: z.string().nullable(),
+  numero_documento: z.string().nullable(),
+  valores_colunas: z.record(z.string(), z.string()),
+})
+export type DocumentoLeituraListaResposta = z.infer<typeof DocumentoLeituraListaSchema>
+
+export const EditarCampoDocumentoListaRequestSchema = z.object({
+  id_arquivo: z.string().min(1),
+  indice_documento: z.number().int().min(0),
+  campo_coluna: z.string().min(1),
+  valor: z.string(),
+})
+
+export const EditarCampoDocumentoListaRespostaSchema = z.object({
+  documentos_atualizados: z.array(DocumentoLeituraListaSchema),
+})
+export type EditarCampoDocumentoListaResposta = z.infer<typeof EditarCampoDocumentoListaRespostaSchema>

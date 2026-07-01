@@ -57,15 +57,7 @@ import {
   registrarArquivoSessaoLeituraSmartRead,
 } from '../../shared/cache-sessao-arquivo-leitura-smart-read'
 
-import { criarObjectUrlArquivoLeitura } from '../../shared/url-blob-arquivo-leitura-smart-read'
-import { urlVisualizacaoEhBlobRevogavel } from '../../shared/url-api-arquivo-leitura-smart-read'
-import { rotaVisualizarArquivoLeituraSmartRead } from '../../shared/rotas-smart-read'
-import {
-  abrirDocumentoNovaAba,
-  navegarAbaDocumento,
-  reservarAbaDocumento,
-} from '../../shared/abrir-documento-nova-aba-smart-read'
-import { resolverUrlVisualizacaoArquivoLeituraSmartRead } from '../../shared/resolver-url-visualizacao-arquivo-leitura-smart-read'
+import { abrirArquivoLeituraNovaAbaSmartRead } from '../../shared/abrir-arquivo-leitura-nova-aba-smart-read'
 
 import {
   definirValorPorCaminho,
@@ -87,8 +79,6 @@ import { DashboardAnaliseNovaLeituraSmartRead } from './dashboard-analise-nova-l
 import { AreaConferenciaNovaLeituraSmartRead, type SelecaoDocumentoConferencia } from './area-conferencia-nova-leitura-smart-read'
 
 import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arquivo-conferencia-smart-read'
-
-import { ModalVisualizarArquivoNovaLeituraSmartRead } from './modal-visualizar-arquivo-nova-leitura-smart-read'
 
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
@@ -209,17 +199,6 @@ export function ModalNovaLeituraSmartRead({
 
   const [compararAberto, setCompararAberto] = useState(false)
 
-  const [previewArquivo, setPreviewArquivo] = useState<{
-    idArquivoLocal: string
-    nomeArquivo: string
-  } | null>(null)
-  const [previewEvidencia, setPreviewEvidencia] = useState<ContextoEvidenciaRiscoNovaLeitura | null>(
-    null,
-  )
-  const [previewUrlRemota, setPreviewUrlRemota] = useState<string | null>(null)
-  const [previewCarregando, setPreviewCarregando] = useState(false)
-  const [previewErro, setPreviewErro] = useState<string | null>(null)
-
   const [camposEditados, setCamposEditados] = useState<Set<string>>(() => new Set())
 
   const [tempoTotalMs, setTempoTotalMs] = useState(0)
@@ -229,7 +208,6 @@ export function ModalNovaLeituraSmartRead({
 
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
-  const urlPreviewRemotaRef = useRef<string | null>(null)
   const abertoAnteriorRef = useRef(false)
   const passoSalvoRef = useRef(0)
   const inicioSessaoRef = useRef<number>(Date.now())
@@ -288,10 +266,6 @@ export function ModalNovaLeituraSmartRead({
       setConferenciaSelecao(null)
       setPassoConferenciaMontado(false)
       setCompararAberto(false)
-      setPreviewArquivo(null)
-      setPreviewUrlRemota(null)
-      setPreviewCarregando(false)
-      setPreviewErro(null)
       setCamposEditados(new Set())
       setTempoTotalMs(0)
       setArquivoExclusaoPendente(null)
@@ -517,195 +491,45 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  const abrirPreviewModalFallback = useCallback(
-    (
-      id: string,
-      nomeArquivo: string,
-      url: string | null,
-      evidencia: ContextoEvidenciaRiscoNovaLeitura | null,
-      carregando: boolean,
-      erro: string | null,
-    ) => {
-      if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
-        URL.revokeObjectURL(urlPreviewRemotaRef.current)
-        urlPreviewRemotaRef.current = null
-      }
-      if (url) {
-        urlPreviewRemotaRef.current = url
-        setPreviewUrlRemota(url)
-      } else {
-        setPreviewUrlRemota(null)
-      }
-      setPreviewCarregando(carregando)
-      setPreviewErro(erro)
-      setPreviewEvidencia(evidencia)
-      setPreviewArquivo({ idArquivoLocal: id, nomeArquivo })
-    },
-    [],
-  )
-
   const visualizarArquivo = useCallback(
-    async (id: string, evidencia?: ContextoEvidenciaRiscoNovaLeitura | null) => {
+    (id: string) => {
       const item = arquivos.find((a) => a.id_arquivo_local === id)
       if (!item) return
-
-      const nomeArquivo = item.arquivo.name
-      const idLeitura =
-        item.id_leitura ?? idLeituraExistente ?? item.leitura?.id_leitura ?? null
-      const idArquivo = item.id_arquivo
-
-      // Paridade DATI: nova aba na SPA (fetch com x-id-organizacao) — BFF não aceita GET direto sem header
-      if (idLeitura && idArquivo) {
-        const urlRota = rotaVisualizarArquivoLeituraSmartRead(idLeitura, idArquivo, nomeArquivo)
-        if (abrirDocumentoNovaAba(urlRota)) {
-          return
-        }
-        try {
-          abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, true, null)
-          const resultado = await resolverUrlVisualizacaoArquivoLeituraSmartRead(
-            item,
-            idLeituraExistente,
-          )
-          if (!resultado.ok) {
-            abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, false, resultado.mensagem)
-            return
-          }
-          if (urlVisualizacaoEhBlobRevogavel(resultado.url)) {
-            urlsBlob.current.set(id, resultado.url)
-          }
-          if (resultado.arquivoAtualizado) {
-            setArquivos((prev) =>
-              prev.map((arquivoItem) =>
-                arquivoItem.id_arquivo_local === id
-                  ? { ...arquivoItem, arquivo: resultado.arquivoAtualizado! }
-                  : arquivoItem,
-              ),
-            )
-          }
-          abrirPreviewModalFallback(id, nomeArquivo, resultado.url, evidencia ?? null, false, null)
-        } catch (excecao) {
-          abrirPreviewModalFallback(
-            id,
-            nomeArquivo,
-            null,
-            evidencia ?? null,
-            false,
-            mensagemDeExcecao(excecao, 'Não foi possível carregar o documento.'),
-          )
-        }
-        return
-      }
-
-      const temBlobLocal = arquivoLocalTemBlobVisualizavel(item.arquivo)
-      const abaReservada = temBlobLocal ? null : reservarAbaDocumento()
-
-      const tentarAbrirNovaAba = (url: string): boolean => {
-        if (temBlobLocal) {
-          return abrirDocumentoNovaAba(url) != null
-        }
-        if (abaReservada) {
-          navegarAbaDocumento(abaReservada, url)
-          return true
-        }
-        return abrirDocumentoNovaAba(url) != null
-      }
-
-      try {
-        if (temBlobLocal) {
-          let url = urlsBlob.current.get(id)
-          if (!url) {
-            url = criarObjectUrlArquivoLeitura(item.arquivo)
-            urlsBlob.current.set(id, url)
-          }
-          if (!tentarAbrirNovaAba(url)) {
-            abrirPreviewModalFallback(id, nomeArquivo, url, evidencia ?? null, false, null)
-          }
-          return
-        }
-
-        if (!abaReservada) {
-          abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, true, null)
-        }
-
-        const resultado = await resolverUrlVisualizacaoArquivoLeituraSmartRead(
-          item,
-          idLeituraExistente,
-        )
-
-        if (!resultado.ok) {
-          abaReservada?.close()
-          abrirPreviewModalFallback(id, nomeArquivo, null, evidencia ?? null, false, resultado.mensagem)
-          return
-        }
-
-        if (urlVisualizacaoEhBlobRevogavel(resultado.url)) {
-          urlsBlob.current.set(id, resultado.url)
-        }
-
-        if (resultado.arquivoAtualizado) {
+      void abrirArquivoLeituraNovaAbaSmartRead({
+        item,
+        idLeituraExistente,
+        urlsBlobCache: urlsBlob.current,
+        aoArquivoAtualizado: (idArquivoLocal, arquivo) => {
           setArquivos((prev) =>
             prev.map((arquivoItem) =>
-              arquivoItem.id_arquivo_local === id
-                ? { ...arquivoItem, arquivo: resultado.arquivoAtualizado! }
+              arquivoItem.id_arquivo_local === idArquivoLocal
+                ? { ...arquivoItem, arquivo }
                 : arquivoItem,
             ),
           )
-        }
-
-        if (!tentarAbrirNovaAba(resultado.url)) {
-          abrirPreviewModalFallback(id, nomeArquivo, resultado.url, evidencia ?? null, false, null)
-        }
-      } catch {
-        abaReservada?.close()
-      }
+        },
+      })
     },
-    [abrirPreviewModalFallback, arquivos, idLeituraExistente],
+    [arquivos, idLeituraExistente],
   )
-
-
 
   const visualizarEvidenciaRisco = useCallback((ctx: ContextoEvidenciaRiscoNovaLeitura) => {
     if (passo === 3) {
       setConferenciaSelecao({ idArquivoLocal: ctx.idArquivoLocal, indiceDocumento: 0 })
     }
-    void visualizarArquivo(ctx.idArquivoLocal, ctx)
+    visualizarArquivo(ctx.idArquivoLocal)
   }, [visualizarArquivo, passo])
-
-
 
   const visualizarDocumento = useCallback((id: string, indice: number) => {
     if (passo >= 2) {
       setConferenciaSelecao({ idArquivoLocal: id, indiceDocumento: indice })
     }
-    void visualizarArquivo(id)
+    visualizarArquivo(id)
   }, [visualizarArquivo, passo])
 
   const selecionarDocumentoConferencia = useCallback((id: string, indice: number) => {
     setConferenciaSelecao({ idArquivoLocal: id, indiceDocumento: indice })
   }, [])
-
-  useEffect(() => {
-    return () => {
-      if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
-        URL.revokeObjectURL(urlPreviewRemotaRef.current)
-        urlPreviewRemotaRef.current = null
-      }
-    }
-  }, [])
-
-  const fecharPreviewArquivo = useCallback(() => {
-    if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
-      URL.revokeObjectURL(urlPreviewRemotaRef.current)
-      urlPreviewRemotaRef.current = null
-    }
-    setPreviewUrlRemota(null)
-    setPreviewCarregando(false)
-    setPreviewErro(null)
-    setPreviewArquivo(null)
-    setPreviewEvidencia(null)
-  }, [])
-
-
 
   const editarCampoDocumentoAtual = useCallback(
     (chave: string, valor: string) => {
@@ -1126,16 +950,6 @@ export function ModalNovaLeituraSmartRead({
         indiceDocumento={conferenciaSelecao?.indiceDocumento ?? 0}
         onFechar={() => setCompararAberto(false)}
         onEditarCampoDocumentoAtual={editarCampoDocumentoAtual}
-      />
-
-      <ModalVisualizarArquivoNovaLeituraSmartRead
-        aberto={previewArquivo !== null}
-        nomeArquivo={previewArquivo?.nomeArquivo ?? 'documento'}
-        url={previewUrlRemota}
-        carregando={previewCarregando}
-        erro={previewErro}
-        evidenciaRisco={previewEvidencia}
-        onFechar={fecharPreviewArquivo}
       />
 
       <ModalConfirmarExcluirGlobal

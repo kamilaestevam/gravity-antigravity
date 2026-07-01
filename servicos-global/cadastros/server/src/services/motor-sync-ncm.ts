@@ -15,9 +15,11 @@
 import type { PrismaClient } from '../../../generated/index.js'
 import { baixarTabelaNcm, buscarAliquotasEmLote, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
 import { AppError } from '../lib/app-error.js'
+import { comRetryConexaoBanco } from '../lib/retry-conexao-banco.js'
 import { despacharNotificacoesNcmSync } from './notificador-sync-ncm.js'
 
-const BATCH_SIZE = 500  // upserts em lote para não sobrecarregar o banco
+const BATCH_SIZE = 500
+const UPSERT_CHUNK = 25
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -53,13 +55,13 @@ export async function executarSync(
     const itensPortal = await baixarTabelaNcm()
 
     // 3. Carregar codigos existentes no banco para calcular diff
-    const existentes = await prisma.ncmSync.findMany({
+    const existentes = await comRetryConexaoBanco(() => prisma.ncmSync.findMany({
       select: {
         codigo_ncm_sync:    true,
         descricao_ncm_sync: true,
         ativo_ncm_sync:     true,
       },
-    })
+    }))
 
     const mapaExistentes = new Map(existentes.map(e => [e.codigo_ncm_sync, e]))
     const codigosPortal  = new Set(itensPortal.map(i => i.codigo))
@@ -72,35 +74,38 @@ export async function executarSync(
     for (let i = 0; i < itensPortal.length; i += BATCH_SIZE) {
       const lote = itensPortal.slice(i, i + BATCH_SIZE)
 
-      await Promise.all(lote.map(async (item: NcmItemRaw) => {
-        const existente = mapaExistentes.get(item.codigo)
+      for (let j = 0; j < lote.length; j += UPSERT_CHUNK) {
+        const chunk = lote.slice(j, j + UPSERT_CHUNK)
 
-        if (!existente) {
-          adicionados++
-        } else if (existente.descricao_ncm_sync !== item.descricao || !existente.ativo_ncm_sync) {
-          alterados++
-        }
-        // se igual e ativo — nenhum contador muda, mas fazemos upsert mesmo assim
+        await comRetryConexaoBanco(() => Promise.all(chunk.map(async (item: NcmItemRaw) => {
+          const existente = mapaExistentes.get(item.codigo)
 
-        await prisma.ncmSync.upsert({
-          where: { codigo_ncm_sync: item.codigo },
-          create: {
-            codigo_ncm_sync:      item.codigo,
-            descricao_ncm_sync:   item.descricao,
-            ativo_ncm_sync:       true,
-            data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
-            data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
-            id_ncm_sync_log:      syncLog.id_ncm_sync_log,
-          },
-          update: {
-            descricao_ncm_sync:   item.descricao,
-            ativo_ncm_sync:       true,
-            data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
-            data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
-            id_ncm_sync_log:      syncLog.id_ncm_sync_log,
-          },
-        })
-      }))
+          if (!existente) {
+            adicionados++
+          } else if (existente.descricao_ncm_sync !== item.descricao || !existente.ativo_ncm_sync) {
+            alterados++
+          }
+
+          await prisma.ncmSync.upsert({
+            where: { codigo_ncm_sync: item.codigo },
+            create: {
+              codigo_ncm_sync:      item.codigo,
+              descricao_ncm_sync:   item.descricao,
+              ativo_ncm_sync:       true,
+              data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
+              data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
+              id_ncm_sync_log:      syncLog.id_ncm_sync_log,
+            },
+            update: {
+              descricao_ncm_sync:   item.descricao,
+              ativo_ncm_sync:       true,
+              data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
+              data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
+              id_ncm_sync_log:      syncLog.id_ncm_sync_log,
+            },
+          })
+        })))
+      }
     }
 
     // 5. Marcar como inativos os que existiam e não vieram do Portal
@@ -109,7 +114,7 @@ export async function executarSync(
       .map(e => e.codigo_ncm_sync)
 
     if (codigosRemovidos.length > 0) {
-      await prisma.ncmSync.updateMany({
+      await comRetryConexaoBanco(() => prisma.ncmSync.updateMany({
         where: {
           codigo_ncm_sync: { in: codigosRemovidos },
         },
@@ -117,7 +122,7 @@ export async function executarSync(
           ativo_ncm_sync:    false,
           id_ncm_sync_log:   syncLog.id_ncm_sync_log,
         },
-      })
+      }))
       removidos = codigosRemovidos.length
     }
 

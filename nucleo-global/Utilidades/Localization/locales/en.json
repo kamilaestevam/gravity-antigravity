@@ -1828,6 +1828,7 @@
       "col_alterados": "Modified",
       "col_removidos": "Removed",
       "col_status": "Status",
+      "col_erro": "Error message",
       "col_duracao": "Duration",
       "historico_titulo": "Sync History ({{count}} records)",
       "alerta_texto": "The NCM table is outdated — last sync was on {{data}}. Click Sync Now to update.",

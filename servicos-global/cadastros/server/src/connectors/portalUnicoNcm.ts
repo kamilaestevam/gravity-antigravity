@@ -83,8 +83,8 @@ export interface NcmDetalhe {
 function normalizarItem(raw: Record<string, unknown>): NcmItemRaw {
   const codigo    = String(raw['Codigo']    ?? raw['codigo']    ?? '').replace(/\D/g, '')
   const descricao = String(raw['Descricao'] ?? raw['descricao'] ?? '').trim()
-  const inicio    = (raw['DataInicio'] ?? raw['dataInicio'] ?? null) as string | null
-  const fim       = (raw['DataFim']    ?? raw['dataFim']    ?? null) as string | null
+  const inicio    = (raw['DataInicio'] ?? raw['dataInicio'] ?? raw['Data_Inicio'] ?? null) as string | null
+  const fim       = (raw['DataFim']    ?? raw['dataFim']    ?? raw['Data_Fim']    ?? null) as string | null
 
   return { codigo, descricao, dataInicio: inicio, dataFim: fim }
 }

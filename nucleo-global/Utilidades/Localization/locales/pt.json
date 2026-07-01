@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais", "builders": "Gravity Partners" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais", "builders": "Gravity Partner", "produtos_gravity": "Produtos Gravity" },
     "academy": {
       "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
     },
@@ -42,7 +42,7 @@
     "jornada": { "pontos": "Pontos", "concluidas": "Concluídas", "em_andamento": "Em andamento", "certificados": "Certificados" },
     "vazio": { "em_breve": "{{secao}} — em breve" },
     "docs": { "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI." },
-    "builders": { "descricao": "Pessoas e empresas homologadas com treinamento técnico para onboarding, setup, customizações e integrações (API Cockpit)." }
+    "builders": { "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)." }
   },
   "comum": {
     "salvar": "Salvar",

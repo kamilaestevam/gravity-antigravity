@@ -45,6 +45,14 @@ export interface DocPassoVisual {
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
   /** Duas telas lado a lado na coluna direita (comparativo sem × com). */
   galeriaComparacao?: { legenda: string; imagem: string }[]
+  /** Duas ou mais figuras lado a lado após um parágrafo (largura total). */
+  galeriaComparacaoAposParagrafo?: {
+    indice: number
+    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    ampliarInferiorDireito?: boolean
+    /** Colunas da grade (padrão: até 2). */
+    colunas?: number
+  }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
   imagemAbaixoTexto?: boolean
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
@@ -65,12 +73,20 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoLista?: boolean
   /** Manual Smart Docs §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
+  /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
+  mostrarInfograficoSmartDocsListaPaineis?: boolean
   /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
   galeriaTelasAposTabela?: DocGaleriaTela[]
   /** Callout após tabela + galeria (ex.: resumo da customização completa). */
   calloutAposGaleriaTabela?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Parágrafo em texto corrido após tabela + galeria (sem caixa de callout). */
+  paragrafoAposGaleriaTabela?: string
   /** Rótulo curto no mapa de subtópicos (quando `titulo` é longo). */
   tituloCurto?: string
+  /** Etapa ativa (1-based) no mini-stepper do wizard — requer `wizardEtapas` no fluxo pai. */
+  etapaWizard?: number
+  /** Cabeçalho só com mini-stepper (sem pill `02` + prefixo nem título duplicado). */
+  estiloTituloWizard?: boolean
 }
 
 export interface DocColunaTabela {
@@ -108,6 +124,11 @@ export interface DocOrigemDados {
     paragrafos: string[]
     imagem: string
   }[]
+}
+
+export interface DocWizardEtapa {
+  numero: number
+  rotulo: string
 }
 
 export interface DocFluxo {
@@ -150,6 +171,8 @@ export interface DocFluxo {
   ancoraPassosPrefix?: string
   /** Mapa clicável de subtópicos antes dos passos (requer `prefixoPassosVisuais`). */
   mostrarMapaSubtopicosPassos?: boolean
+  /** Mini-stepper das etapas do wizard (ex.: Anexar · Análise · Conferência · Resultado). */
+  wizardEtapas?: DocWizardEtapa[]
   passosVisuais: DocPassoVisual[]
 }
 
@@ -170,6 +193,8 @@ export interface DocSecao {
   mostrarInfograficoHubTelas?: boolean
   /** Manual Smart Docs §01 — cards dos tipos de documento lidos pela IA. */
   mostrarInfograficoSmartDocsDocumentos?: boolean
+  /** Manual Pedido §01 — mapa visual do ciclo do PO antes do embarque. */
+  mostrarInfograficoPedidoVisaoGeral?: boolean
   /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
   mostrarInfograficoMapaNavegacaoGravity?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
@@ -186,7 +211,9 @@ export interface DocSecao {
   /** Duas ou mais figuras lado a lado após um parágrafo (ex.: menu superior × menu lateral). */
   galeriaComparacaoAposParagrafo?: {
     indice: number
-    telas: { legenda: string; imagem: string }[]
+    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    ampliarInferiorDireito?: boolean
+    colunas?: number
   }[]
   /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
   topicosImagemLateral?: DocTopicoImagemLateral[]

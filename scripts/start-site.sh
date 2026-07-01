@@ -168,4 +168,6 @@ else
 fi
 
 echo "[start-site] Subindo Configurador + sidecars..."
+export NCM_CRON_ENABLED="${NCM_CRON_ENABLED:-1}"
+echo "[start-site] NCM cron automático: ${NCM_CRON_ENABLED}"
 exec node servicos-global/configurador/dist/server.mjs

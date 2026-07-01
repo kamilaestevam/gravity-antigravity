@@ -1636,6 +1636,7 @@
       "col_alterados": "Alterados",
       "col_removidos": "Removidos",
       "col_status": "Status",
+      "col_erro": "Mensagem de erro",
       "col_duracao": "Duração",
       "historico_titulo": "Histórico de Sincronizações ({{count}} registros)",
       "alerta_texto": "A tabela NCM está desatualizada — a última sincronização foi em {{data}}. Clique em Sincronizar Agora para atualizar.",

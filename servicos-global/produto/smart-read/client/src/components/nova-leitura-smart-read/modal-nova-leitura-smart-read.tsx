@@ -59,6 +59,10 @@ import {
 
 import { criarObjectUrlArquivoLeitura } from '../../shared/url-blob-arquivo-leitura-smart-read'
 import {
+  montarUrlApiArquivoLeituraSmartRead,
+  urlVisualizacaoEhBlobRevogavel,
+} from '../../shared/url-api-arquivo-leitura-smart-read'
+import {
   abrirDocumentoNovaAba,
   navegarAbaDocumento,
   reservarAbaDocumento,
@@ -524,7 +528,7 @@ export function ModalNovaLeituraSmartRead({
       carregando: boolean,
       erro: string | null,
     ) => {
-      if (urlPreviewRemotaRef.current) {
+      if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
         URL.revokeObjectURL(urlPreviewRemotaRef.current)
         urlPreviewRemotaRef.current = null
       }
@@ -548,6 +552,19 @@ export function ModalNovaLeituraSmartRead({
       if (!item) return
 
       const nomeArquivo = item.arquivo.name
+      const idLeitura =
+        item.id_leitura ?? idLeituraExistente ?? item.leitura?.id_leitura ?? null
+      const idArquivo = item.id_arquivo
+
+      // Paridade DATI: URL estável do BFF (mesma origem + sessão) — evita blob: inválido em nova aba
+      if (idLeitura && idArquivo) {
+        const urlApi = montarUrlApiArquivoLeituraSmartRead(idLeitura, idArquivo)
+        if (!abrirDocumentoNovaAba(urlApi)) {
+          abrirPreviewModalFallback(id, nomeArquivo, urlApi, evidencia ?? null, false, null)
+        }
+        return
+      }
+
       const temBlobLocal = arquivoLocalTemBlobVisualizavel(item.arquivo)
       const abaReservada = temBlobLocal ? null : reservarAbaDocumento()
 
@@ -590,7 +607,9 @@ export function ModalNovaLeituraSmartRead({
           return
         }
 
-        urlsBlob.current.set(id, resultado.url)
+        if (urlVisualizacaoEhBlobRevogavel(resultado.url)) {
+          urlsBlob.current.set(id, resultado.url)
+        }
 
         if (resultado.arquivoAtualizado) {
           setArquivos((prev) =>
@@ -636,7 +655,7 @@ export function ModalNovaLeituraSmartRead({
 
   useEffect(() => {
     return () => {
-      if (urlPreviewRemotaRef.current) {
+      if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
         URL.revokeObjectURL(urlPreviewRemotaRef.current)
         urlPreviewRemotaRef.current = null
       }
@@ -644,7 +663,7 @@ export function ModalNovaLeituraSmartRead({
   }, [])
 
   const fecharPreviewArquivo = useCallback(() => {
-    if (urlPreviewRemotaRef.current) {
+    if (urlPreviewRemotaRef.current && urlVisualizacaoEhBlobRevogavel(urlPreviewRemotaRef.current)) {
       URL.revokeObjectURL(urlPreviewRemotaRef.current)
       urlPreviewRemotaRef.current = null
     }

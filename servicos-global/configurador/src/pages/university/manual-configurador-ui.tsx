@@ -24,6 +24,7 @@ import {
   type DocPassoVisual,
   type DocSecao,
   type DocTopicoImagemLateral,
+  type DocWizardEtapa,
   metadadosConfiguradorPagina,
   montarItensSumarioManual,
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
@@ -34,9 +35,11 @@ import {
 } from './manual-configurador-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
+import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
 import { ManualSmartReadTabelaColunasPadraoLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
@@ -262,7 +265,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '44'
+const MANUAL_SCREENSHOT_CACHE_KEY = '53'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -274,11 +277,14 @@ function ManualFiguraScreenshot({
   alt,
   larguraMaxima,
   larguraTotal,
+  ampliarInferiorDireito,
 }: {
   src: string
   alt: string
   larguraMaxima?: number
   larguraTotal?: boolean
+  /** Só para casos pontuais — botão Ampliar no canto inferior direito da figura. */
+  ampliarInferiorDireito?: boolean
 }) {
   const [telaCheia, setTelaCheia] = useState(false)
   const [erroCarregamento, setErroCarregamento] = useState(false)
@@ -356,7 +362,8 @@ function ManualFiguraScreenshot({
           )}
           {!ampliarAbaixo && !erroCarregamento && (
             <span style={{
-              position: 'absolute', top: 10, right: 10,
+              position: 'absolute',
+              ...(ampliarInferiorDireito ? { bottom: 10, right: 10 } : { top: 10, right: 10 }),
               ...ESTILO_BOTAO_AMPLIAR,
               pointerEvents: 'none',
             }}>
@@ -416,6 +423,23 @@ function ManualFiguraScreenshot({
         </div>
       )}
     </>
+  )
+}
+
+function ManualTextoUx10AcimaFigura({ texto }: { texto: string }) {
+  return (
+    <div style={{
+      marginBottom: 10,
+      background: 'rgba(99,102,241,.06)',
+      border: '1px solid rgba(99,102,241,.18)',
+      borderRadius: 10,
+      padding: '10px 12px',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.04)',
+    }}>
+      <p style={{ ...MANUAL_ESTILO_CORPO, margin: 0, fontSize: '.75rem', lineHeight: 1.5 }}>
+        <ManualTextoRich texto={texto} />
+      </p>
+    </div>
   )
 }
 
@@ -677,6 +701,10 @@ function figurasAposParagrafoPasso(
   return (passo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
+function galeriaComparacaoAposParagrafoPasso(passo: DocPassoVisual, indice: number) {
+  return (passo.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
+}
+
 function ManualMapaSubtopicosPassos({
   prefixo,
   ancoraPrefix,
@@ -749,6 +777,85 @@ function ManualMapaSubtopicosPassos({
   )
 }
 
+function ManualMiniStepperWizard({
+  etapas,
+  etapaAtiva,
+}: {
+  etapas: DocWizardEtapa[]
+  etapaAtiva: number
+}) {
+  if (etapas.length === 0) return null
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 16,
+      padding: '10px 14px',
+      borderRadius: 10,
+      border: '1px solid rgba(129,140,248,.22)',
+      background: 'linear-gradient(90deg, rgba(99,102,241,.08) 0%, rgba(148,163,184,.03) 100%)',
+    }}>
+      {etapas.map((etapa, indice) => {
+        const ativa = etapa.numero === etapaAtiva
+        const concluida = etapa.numero < etapaAtiva
+        return (
+          <React.Fragment key={etapa.numero}>
+            {indice > 0 ? (
+              <span style={{
+                color: concluida || ativa ? 'rgba(129,140,248,.45)' : 'rgba(100,116,139,.35)',
+                fontSize: '.7rem',
+                userSelect: 'none',
+              }}>
+                ·
+              </span>
+            ) : null}
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              fontSize: '.7rem',
+              lineHeight: 1.2,
+              fontWeight: ativa ? 700 : 500,
+              color: ativa ? '#e0e7ff' : concluida ? '#94a3b8' : '#64748b',
+            }}>
+              <span style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontSize: '.62rem',
+                fontWeight: 800,
+                letterSpacing: 0,
+                background: ativa
+                  ? 'linear-gradient(135deg, #6366f1, #818cf8)'
+                  : concluida
+                    ? 'rgba(99,102,241,.18)'
+                    : 'transparent',
+                border: ativa
+                  ? 'none'
+                  : concluida
+                    ? '1px solid rgba(129,140,248,.35)'
+                    : '1px solid rgba(148,163,184,.3)',
+                color: ativa ? '#fff' : concluida ? '#a5b4fc' : '#64748b',
+                boxShadow: ativa ? '0 0 0 3px rgba(99,102,241,.18)' : undefined,
+              }}>
+                {ativa ? '●' : etapa.numero}
+              </span>
+              {etapa.rotulo}
+            </span>
+          </React.Fragment>
+        )
+      })}
+    </div>
+  )
+}
+
 function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
@@ -756,6 +863,7 @@ function ManualBlocoPassoVisual({
   cenarioParte = 'completo',
   prefixoPasso,
   ancoraPassoId,
+  wizardEtapas,
 }: {
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
@@ -764,8 +872,9 @@ function ManualBlocoPassoVisual({
   cenarioParte?: 'completo' | 'texto' | 'figuras'
   prefixoPasso?: string
   ancoraPassoId?: string
+  wizardEtapas?: DocWizardEtapa[]
 }) {
-  const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso
+  const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso || passo.estiloTituloWizard === true
   const omitirFigurasNoTexto = cenarioParte === 'texto'
   const blocoBase: React.CSSProperties = emGradeCenarios
     ? { paddingTop: 0, marginTop: cenarioParte === 'figuras' ? 0 : 18 }
@@ -816,14 +925,22 @@ function ManualBlocoPassoVisual({
         </div>
       )}
       {!passo.ocultarTituloPasso && (
-        prefixoPasso ? (
-          <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
-            <span style={{ color: '#94a3b8', fontWeight: 600 }}>{prefixoPasso}</span>
-            <span style={{ color: '#64748b', margin: '0 6px', fontWeight: 400 }}>—</span>
-            <span>{passo.titulo}</span>
-          </p>
+        passo.estiloTituloWizard && passo.etapaWizard != null && wizardEtapas ? (
+          <ManualMiniStepperWizard etapas={wizardEtapas} etapaAtiva={passo.etapaWizard} />
         ) : (
-          <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+          <>
+            {prefixoPasso ? (
+              <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX + 4 }}>
+                <span style={{ color: '#94a3b8', fontWeight: 600 }}>{prefixoPasso}</span>
+                <span style={{ color: '#64748b', margin: '0 6px', fontWeight: 400 }}>—</span>
+                <span>{passo.titulo}</span>
+              </p>
+            ) : (
+              <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX + 4 }}>
+                {passo.titulo}
+              </p>
+            )}
+          </>
         )
       )}
       {passo.paragrafos?.map((p, i) => (
@@ -843,6 +960,14 @@ function ManualBlocoPassoVisual({
                 />
               </div>
             ))}
+          {galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria) => (
+            <ManualGaleriaComparacaoIntro
+              key={galeria.telas.map((t) => t.imagem).join('|')}
+              telas={galeria.telas}
+              ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+              colunas={galeria.colunas}
+            />
+          ))}
         </div>
       ))}
       {passo.linkCapitulo && (
@@ -893,6 +1018,10 @@ function ManualBlocoPassoVisual({
     ? <ManualInfograficoSmartDocsListaCustomizacao />
     : null
 
+  const infograficoListaPaineis = passo.mostrarInfograficoSmartDocsListaPaineis
+    ? <ManualInfograficoSmartDocsListaPaineis />
+    : null
+
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
     <div style={{ marginTop: 24 }}>
       {passo.galeriaTelasAposTabela.map((tela) => (
@@ -903,17 +1032,25 @@ function ManualBlocoPassoVisual({
     </div>
   ) : null
 
+  const paragrafoAposGaleriaTabela = passo.paragrafoAposGaleriaTabela ? (
+    <div style={{ marginTop: 20 }}>
+      <ManualParagrafo texto={passo.paragrafoAposGaleriaTabela} marginBottom={0} />
+    </div>
+  ) : null
+
   const calloutAposGaleriaTabela = passo.calloutAposGaleriaTabela ? (
     <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={24} />
   ) : null
 
-  const blocoListaCustomizacao = (infograficoListaCustomizacao || tabelaColunasPadraoLista
-    || galeriaAposTabela || calloutAposGaleriaTabela) ? (
+  const blocoListaCustomizacao = (infograficoListaCustomizacao || (infograficoListaPaineis && !(passo.imagemAbaixoTexto && passo.imagem)) || tabelaColunasPadraoLista
+    || galeriaAposTabela || paragrafoAposGaleriaTabela || calloutAposGaleriaTabela) ? (
     <>
       {infograficoListaCustomizacao}
+      {!(passo.imagemAbaixoTexto && passo.imagem) ? infograficoListaPaineis : null}
       {gradeColunas}
       {tabelaColunasPadraoLista}
       {galeriaAposTabela}
+      {paragrafoAposGaleriaTabela}
       {calloutAposGaleriaTabela}
     </>
   ) : null
@@ -967,7 +1104,8 @@ function ManualBlocoPassoVisual({
             <div>{blocoCallouts}</div>
           </div>
         ) : blocoTexto}
-        <div style={{ marginTop: calloutsLista.length > 0 ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20 }}>
+        {infograficoListaPaineis}
+        <div style={{ marginTop: calloutsLista.length > 0 || infograficoListaPaineis ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20 }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
         {passo.paragrafosAposImagem && passo.paragrafosAposImagem.length > 0 && (
@@ -1213,6 +1351,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
   const propsPasso = (passo: DocPassoVisual) => ({
     passo,
     prefixoPasso,
+    wizardEtapas: fluxo.wizardEtapas,
     ancoraPassoId: ancoraPassosPrefix
       ? `manual-passo-${ancoraPassosPrefix}-${passo.num}`
       : undefined,
@@ -1449,27 +1588,41 @@ function galeriaComparacaoAposParagrafoSecao(secao: DocSecao, indice: number) {
 
 function ManualGaleriaComparacaoIntro({
   telas,
+  ampliarInferiorDireito,
+  colunas,
 }: {
-  telas: { legenda: string; imagem: string }[]
+  telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+  ampliarInferiorDireito?: boolean
+  colunas?: number
 }) {
   if (telas.length === 0) return null
+  const colunasGrade = colunas ?? Math.min(telas.length, 2)
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: `repeat(${Math.min(telas.length, 2)}, minmax(0, 1fr))`,
-      gap: 16,
+      gridTemplateColumns: `repeat(${colunasGrade}, minmax(0, 1fr))`,
+      gap: colunasGrade >= 4 ? 12 : 16,
       margin: '16px 0 22px',
       alignItems: 'start',
     }}>
       {telas.map((tela) => (
-        <div key={tela.legenda}>
-          <p style={{
-            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-            marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
-          }}>
-            {tela.legenda}
-          </p>
-          <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        <div key={tela.imagem}>
+          {tela.paragrafoAntes ? (
+            <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
+          ) : null}
+          {tela.legenda.trim() ? (
+            <p style={{
+              fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+              marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
+            }}>
+              {tela.legenda}
+            </p>
+          ) : null}
+          <ManualFiguraScreenshot
+            src={tela.imagem}
+            alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
+            ampliarInferiorDireito={ampliarInferiorDireito}
+          />
         </div>
       ))}
     </div>
@@ -1596,7 +1749,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   </div>
                 ))}
                 {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
-                  <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
+                  <ManualGaleriaComparacaoIntro
+                    key={galeria.telas.map(t => t.imagem).join('|')}
+                    telas={galeria.telas}
+                    ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+                    colunas={galeria.colunas}
+                  />
                 ))}
                 {secao.calloutAposParagrafo?.indice === i && (() => {
                   const margens = manualMargemCalloutAposParagrafo(i, secao.paragrafos.length)
@@ -1660,7 +1818,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                 </div>
               ))}
               {galeriaComparacaoAposParagrafoSecao(secao, i).map((galeria) => (
-                <ManualGaleriaComparacaoIntro key={galeria.telas.map(t => t.imagem).join('|')} telas={galeria.telas} />
+                <ManualGaleriaComparacaoIntro
+                  key={galeria.telas.map(t => t.imagem).join('|')}
+                  telas={galeria.telas}
+                  ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+                  colunas={galeria.colunas}
+                />
               ))}
               {secao.calloutAposParagrafo?.indice === i && (() => {
                 const margens = manualMargemCalloutAposParagrafo(i, secao.paragrafos.length)
@@ -1722,13 +1885,19 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         </div>
       )}
 
+      {secao.mostrarInfograficoPedidoVisaoGeral && (
+        <div style={{ marginTop: 16, marginBottom: 0 }}>
+          <ManualInfograficoPedidoVisaoGeral />
+        </div>
+      )}
+
       {secao.mostrarInfograficoMapaNavegacaoGravity && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoMapaNavegacaoGravity />
         </div>
       )}
 
-      {secao.lista && (
+      {secao.lista && !secao.mostrarInfograficoPedidoVisaoGeral && (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
@@ -3363,7 +3532,7 @@ export function DocManualUmaSecao({
   const location = useLocation()
   const itensSumario = montarItensSumarioManual(secao)
   const todosNums = itensSumario.map(i => i.num)
-  const [abertos, setAbertos] = useState<number[]>(secoesAbertasInicial ?? [1])
+  const [abertos, setAbertos] = useState<number[]>(secoesAbertasInicial ?? [])
   const todosAbertos = todosNums.length > 0 && todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])

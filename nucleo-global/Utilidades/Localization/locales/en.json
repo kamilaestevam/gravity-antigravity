@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "My Journey", "docs": "Manuals", "builders": "Gravity Partners" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "My Journey", "docs": "Manuals", "builders": "Gravity Partner", "produtos_gravity": "Gravity Products" },
     "academy": {
       "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."
     },
@@ -42,7 +42,7 @@
     "jornada": { "pontos": "Points", "concluidas": "Completed", "em_andamento": "In progress", "certificados": "Certificates" },
     "vazio": { "em_breve": "{{secao}} — coming soon" },
     "docs": { "descricao": "Manuals and videos for the whole platform — GABI's knowledge base." },
-    "builders": { "descricao": "Certified people and companies with technical training for onboarding, setup, customizations, and integrations (API Cockpit)." }
+    "builders": { "descricao": "Pointers for integrators and developers (API Cockpit)." }
   },
   "BIDFRETE": {
     "NOVA_COTACAO": {

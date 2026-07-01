@@ -182,10 +182,9 @@ export function ManualInfograficoSmartDocsListaCustomizacao() {
             fontSize: '.74rem',
             lineHeight: 1.5,
             color: CORPO_70,
-            maxWidth: 560,
+            whiteSpace: 'nowrap',
           }}>
-            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a
-            visualização ideal — nativas, catálogo ou campos próprios.
+            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal — nativas, catálogo ou campos próprios.
           </p>
         </div>
       </div>

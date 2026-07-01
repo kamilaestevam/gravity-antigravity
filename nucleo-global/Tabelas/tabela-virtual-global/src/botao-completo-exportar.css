@@ -43,10 +43,10 @@
   background: rgba(129, 140, 248, 0.1) !important;
 }
 
-/* ─── Menu dropdown ───────────────────────────────────────────────────────── */
-/* position: fixed + Portal — top/right setados inline via JS para escapar
-   ancestrais com overflow:hidden (cards de tabela com border-radius). */
-.gtv-export-menu {
+/* ─── Menu dropdown (portal em document.body) ─────────────────────────────── */
+/* Classe dedicada — evita conflito com .gtv-export-menu de tabela-virtual.css
+   (position:absolute + --gtv-bg só existe dentro de .gtv-container). */
+.gtv-export-menu--portal {
   position: fixed;
   z-index: 9999;
   background: var(--bg-base, #1e293b);
@@ -69,8 +69,8 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Itens do menu ───────────────────────────────────────────────────────── */
-.gtv-export-item {
+/* ─── Itens do menu portal ──────────────────────────────────────────────────── */
+.gtv-export-menu--portal .gtv-export-item {
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -88,23 +88,23 @@
   transition: background 0.12s, color 0.12s;
 }
 
-.gtv-export-item:hover {
+.gtv-export-menu--portal .gtv-export-item:hover {
   background: rgba(129, 140, 248, 0.08);
   color: var(--text-primary, #f1f5f9);
 }
 
 /* ─── Light theme ─────────────────────────────────────────────────────────── */
-body.light-theme .gtv-export-menu {
+body.light-theme .gtv-export-menu--portal {
   background: var(--bg-surface, #ffffff);
   border-color: var(--border-default, #cbd5e1);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
-body.light-theme .gtv-export-item {
+body.light-theme .gtv-export-menu--portal .gtv-export-item {
   color: var(--text-secondary, #334155);
 }
 
-body.light-theme .gtv-export-item:hover {
+body.light-theme .gtv-export-menu--portal .gtv-export-item:hover {
   background: rgba(79, 70, 229, 0.06);
   color: var(--text-primary, #1e293b);
 }

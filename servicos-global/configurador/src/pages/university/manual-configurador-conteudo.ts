@@ -35,6 +35,8 @@ export interface DocPassoVisual {
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
+  calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
   callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }[]
   tooltipsKpi?: DocTooltipKpi[]
   galeriaTelas?: DocGaleriaTela[]
@@ -52,6 +54,8 @@ export interface DocPassoVisual {
     ampliarInferiorDireito?: boolean
     /** Colunas da grade (padrão: até 2). */
     colunas?: number
+    /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
+    textoAcimaEstiloCorpo?: boolean
   }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
   imagemAbaixoTexto?: boolean
@@ -71,6 +75,8 @@ export interface DocPassoVisual {
   colunasTabela?: DocColunaTabela[]
   /** Manual Smart Docs §05 — tabela das 15 colunas padrão da Lista. */
   mostrarTabelaColunasPadraoLista?: boolean
+  /** Manual Smart Docs §05 — catálogo completo nativo (accordion + busca). */
+  mostrarCatalogoColunasListaSmartRead?: boolean
   /** Dica após a tabela de colunas padrão (antes da galeria de customização). */
   calloutAposTabelaColunasPadrao?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Manual Smart Docs §05 — infográfico dos 4 pilares de customização da Lista. */
@@ -83,6 +89,18 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoListaCustomizacao?: boolean
   /** Manual Pedido §05 — mapa UX 10 do catálogo nativo (>100 colunas por grupo). */
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
+  /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
+  mostrarCatalogoColunasPedidoLista?: boolean
+  /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
+  catalogoColunasPedidoAposParagrafo?: number
+  /** Manual Pedido §05 — infográfico pedido × itens e regras de alerta. */
+  mostrarInfograficoPedidoListaAlertas?: boolean
+  /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
+  mostrarTabelaAlertasPedidoLista?: boolean
+  /** Manual Smart Docs §05 — ícone de cursor bloqueado (lista somente visualização). */
+  mostrarIndicadorCursorVisualizacao?: boolean
+  /** Índice do parágrafo após o qual inserir o indicador de cursor (padrão: 1). */
+  indicadorCursorVisualizacaoAposParagrafo?: number
   /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
   galeriaTelasAposTabela?: DocGaleriaTela[]
   /** Callout após tabela + galeria (ex.: resumo da customização completa). */
@@ -105,15 +123,43 @@ export interface DocColunaTabela {
   imagem?: string
 }
 
+export interface DocGaleriaTelaFigura {
+  imagem: string
+  legenda?: string
+  /** Texto explicativo acima desta figura (mesmo estilo do parágrafo do manual). */
+  paragrafoAntes?: string
+  /** Recorte estreito ou modal — limita largura quando a linha está centralizada. */
+  larguraMaxima?: number
+}
+
+export interface DocGaleriaTelaLinhaFiguras {
+  figuras: DocGaleriaTelaFigura[]
+  /** Centraliza a linha (padrão: `true` quando há uma única figura). */
+  centralizar?: boolean
+  /** Legenda centralizada logo abaixo desta linha (estilo roxo de passo). */
+  legendaApos?: string
+  /** Parágrafo logo abaixo desta linha (mesmo estilo do corpo do manual). */
+  paragrafoApos?: string
+}
+
 export interface DocGaleriaTela {
   legenda: string
-  imagem: string
+  /** Obrigatório quando `imagensCompostas` não é usado. */
+  imagem?: string
+  /** Grade de figuras (ex.: duas telas lado a lado + modal centralizado abaixo). */
+  imagensCompostas?: DocGaleriaTelaLinhaFiguras[]
   /** Card explicativo do tooltip KPI renderizado acima da legenda e do screenshot. */
   tooltipKpi?: DocTooltipKpi
   /** Texto explicativo acima da legenda e do screenshot (ex.: transição na jornada do convidado). */
   paragrafoAntes?: string
   /** Texto explicativo abaixo do screenshot, na mesma coluna da tela. */
   paragrafoDepois?: string
+  /** Dica/aviso abaixo do screenshot (substitui `paragrafoDepois` quando presente). */
+  calloutDepois?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Chips numerados do infográfico de customização (ex.: ['01', '02'] = ocultar + exibir). */
+  pilaresCustomizacao?: Array<'01' | '02' | '03' | '04'>
+  /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
+  legendaAlinhamento?: 'left' | 'center'
 }
 
 export interface DocFiguraAposParagrafo {
@@ -224,6 +270,7 @@ export interface DocSecao {
     telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
     ampliarInferiorDireito?: boolean
     colunas?: number
+    textoAcimaEstiloCorpo?: boolean
   }[]
   /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
   topicosImagemLateral?: DocTopicoImagemLateral[]
@@ -740,12 +787,82 @@ function fluxoEmBreve(tituloFluxo: string, texto: string): DocFluxo {
   }
 }
 
-export function montarItensSumarioManual(secao: DocSecao): { num: number; titulo: string }[] {
-  const itens: { num: number; titulo: string }[] = [{ num: 1, titulo: secao.titulo }]
+export interface DocItemSumarioManual {
+  rotulo: string
+  titulo: string
+  /** Seção do acordeão (`doc-sec-N`) a expandir antes do scroll. */
+  secaoAcordeao: number
+  /** Âncora interna do subtópico (`manual-passo-*`). */
+  elementoScroll?: string
+  subitem?: boolean
+  /** Número do capítulo (itens principais do sumário — compat. testes). */
+  num?: number
+}
+
+export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[] {
+  const itens: DocItemSumarioManual[] = [{
+    rotulo: '1',
+    titulo: secao.titulo,
+    secaoAcordeao: 1,
+    num: 1,
+  }]
   secao.fluxos?.forEach((fluxo, i) => {
-    itens.push({ num: i + 2, titulo: fluxo.tituloSumario ?? fluxo.titulo })
+    const secaoNum = i + 2
+    itens.push({
+      rotulo: String(secaoNum),
+      titulo: fluxo.tituloSumario ?? fluxo.titulo,
+      secaoAcordeao: secaoNum,
+      num: secaoNum,
+    })
+    if (
+      fluxo.mostrarMapaSubtopicosPassos
+      && fluxo.prefixoPassosVisuais
+      && fluxo.ancoraPassosPrefix
+      && (fluxo.passosVisuais?.length ?? 0) > 0
+    ) {
+      fluxo.passosVisuais!.forEach((passo) => {
+        itens.push({
+          rotulo: `${secaoNum}.${String(passo.num).padStart(2, '0')}`,
+          titulo: passo.tituloCurto ?? passo.titulo,
+          secaoAcordeao: secaoNum,
+          elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
+          subitem: true,
+        })
+      })
+    }
   })
   return itens
+}
+
+export interface DocEntradaSumarioManual {
+  capitulo: DocItemSumarioManual
+  subitens?: DocItemSumarioManual[]
+}
+
+/** Agrupa capítulos principais e subtópicos (ex.: passos da Visão Lista) para o sumário hierárquico. */
+export function montarEntradasSumarioManual(secao: DocSecao): DocEntradaSumarioManual[] {
+  const itens = montarItensSumarioManual(secao)
+  const entradas: DocEntradaSumarioManual[] = []
+  let i = 0
+  while (i < itens.length) {
+    const capitulo = itens[i]
+    if (capitulo.subitem) {
+      i += 1
+      continue
+    }
+    const subitens: DocItemSumarioManual[] = []
+    let j = i + 1
+    while (j < itens.length && itens[j].subitem) {
+      subitens.push(itens[j])
+      j += 1
+    }
+    entradas.push({
+      capitulo,
+      subitens: subitens.length > 0 ? subitens : undefined,
+    })
+    i = j
+  }
+  return entradas
 }
 
 export function resolverConfiguradorManualSlug(pathSeg: string | undefined): ConfiguradorManualSlug {

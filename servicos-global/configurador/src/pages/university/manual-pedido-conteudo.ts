@@ -6,7 +6,11 @@ const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
 const LINK_MANUAL_PEDIDO_CONFIGURACOES =
-  '{{link:/university-gravity/docs/pedido#doc-sec-13|Configurações}}'
+  '{{link:/university-gravity/docs/pedido#doc-sec-8|Configurações}}'
+const LINK_MANUAL_PEDIDO_LISTA_DETALHAMENTO_COLUNAS =
+  '{{link:/university-gravity/docs/pedido#manual-passo-lista-2|5.02 Detalhamento das colunas}}'
+const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
+  '{{link:/university-gravity/docs/pedido#manual-passo-lista-11|5.11 Painéis}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/1. Pedido` → `public/university/screenshots/pedido-*.png`
@@ -23,6 +27,23 @@ const LINK_MANUAL_PEDIDO_CONFIGURACOES =
  * - tela_pedido_visao_lista_itens_expandidos.png → pedido-lista-itens-expandidos.png
  * - tela_pedido_visao_lista_expandir_todos_seta.png → pedido-lista-expandir-todos-seta.png
  * - tela_pedido_visao_lista_itens_expandidos_todos.png → pedido-lista-expandir-todos-expandido.png
+ * - tela_pedido_visao_lista_colunas_customizar.png → pedido-lista-colunas-customizar.png
+ * - tela_pedido_visao_lista_colunas_arrastar.png → pedido-lista-colunas-arrastar.png
+ * - tela_pedido_configuracoes_criar_coluna.png → pedido-configuracoes-criar-coluna.png
+ * - tela_pedido_configuracoes_seta.png → pedido-configuracoes-seta.png
+ * - tela_pedido_configuracoes_criar_coluna_modal.png → pedido-configuracoes-criar-coluna-modal.png
+ * - tela_pedido_lista_edicao_selecionar_salvo.png → pedido-lista-edicao-selecionar-salvo.png
+ * - tela_pedido_lista_edicao_selecionar_salvar.png → pedido-lista-edicao-selecionar-salvar.png
+ * - tela_pedido_lista_edicao_selecionar_opcal.png → pedido-lista-edicao-selecionar-opcoes.png
+ * - tela_pedido_lista_edicao_modal.png → pedido-lista-edicao-modal.png
+ * - tela_pedido_lista_alertas.png → pedido-lista-alertas.png
+ * - tela_pedido_lista_excluir_setas.png → pedido-lista-excluir-setas.png
+ * - tela_pedido_lista_excluir_modal.png → pedido-lista-excluir-modal.png
+ * - tela_pedido_lista_excluir_confirmacao.png → pedido-lista-excluir-confirmacao.png
+ * - tela_pedido_lista_filtro_seta.png → pedido-lista-filtro-seta.png
+ * - tela_pedido_lista_filtro_modal.png → pedido-lista-filtro-modal.png
+ * - tela_pedido_lista_filtro_aplicado.png → pedido-lista-filtro-aplicado.png
+ * - tela_pedido_lista_filtro_aplicado_2.png → pedido-lista-filtro-aplicado-2.png
  * - pedido-novo-pedido.png
  * - pedido-novo-item.png
  * - pedido-transferir.png
@@ -42,6 +63,23 @@ const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA = '/university/screenshots/pedido-li
 const SCREENSHOT_PEDIDO_LISTA_ITENS_EXPANDIDOS = '/university/screenshots/pedido-lista-itens-expandidos.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_SETA = '/university/screenshots/pedido-lista-expandir-todos-seta.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_EXPANDIDO = '/university/screenshots/pedido-lista-expandir-todos-expandido.png'
+const SCREENSHOT_PEDIDO_LISTA_COLUNAS_CUSTOMIZAR = '/university/screenshots/pedido-lista-colunas-customizar.png'
+const SCREENSHOT_PEDIDO_LISTA_COLUNAS_CUSTOMIZAR_ARRASTAR = '/university/screenshots/pedido-lista-colunas-arrastar.png'
+const SCREENSHOT_PEDIDO_CONFIGURACOES_CRIAR_COLUNA = '/university/screenshots/pedido-configuracoes-criar-coluna.png'
+const SCREENSHOT_PEDIDO_CONFIGURACOES_SETA = '/university/screenshots/pedido-configuracoes-seta.png'
+const SCREENSHOT_PEDIDO_CONFIGURACOES_CRIAR_COLUNA_MODAL = '/university/screenshots/pedido-configuracoes-criar-coluna-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_SALVO = '/university/screenshots/pedido-lista-edicao-selecionar-salvo.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_SALVAR = '/university/screenshots/pedido-lista-edicao-selecionar-salvar.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_OPCOES = '/university/screenshots/pedido-lista-edicao-selecionar-opcoes.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MODAL = '/university/screenshots/pedido-lista-edicao-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_ALERTAS = '/university/screenshots/pedido-lista-alertas.png'
+const SCREENSHOT_PEDIDO_LISTA_EXCLUIR_SETAS = '/university/screenshots/pedido-lista-excluir-setas.png'
+const SCREENSHOT_PEDIDO_LISTA_EXCLUIR_MODAL = '/university/screenshots/pedido-lista-excluir-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_EXCLUIR_CONFIRMACAO = '/university/screenshots/pedido-lista-excluir-confirmacao.png'
+const SCREENSHOT_PEDIDO_LISTA_FILTROS_SETA = '/university/screenshots/pedido-lista-filtro-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_FILTROS_MODAL = '/university/screenshots/pedido-lista-filtro-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO = '/university/screenshots/pedido-lista-filtro-aplicado.png'
+const SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO_2 = '/university/screenshots/pedido-lista-filtro-aplicado-2.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -167,17 +205,6 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
     {
       titulo: 'Visão Lista',
       tituloSumario: 'Visão Lista',
-      paragrafos: [
-        'A **Lista** é a forma mais **rápida** e **direta** de gerenciar pedidos no workspace: se assemelha a um **Excel**, mas **inteligente** e **integrado** à plataforma Gravity.',
-        'Aqui você **inclui** pedidos e itens, **edita** na tabela, **exclui**, **transfere**, **consolida**, aplica **edição em massa**, **importa**, **exporta** e monta **painéis** salvos.',
-      ],
-      calloutAposParagrafo: {
-        indice: 1,
-        callout: {
-          tipo: 'dica',
-          texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne os **pedidos** e **itens** dos workspaces selecionados.',
-        },
-      },
       prefixoPassosVisuais: 'Lista',
       ancoraPassosPrefix: 'lista',
       mostrarMapaSubtopicosPassos: true,
@@ -188,8 +215,26 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           imagem: SCREENSHOT_PEDIDO_LISTA,
           imagemAbaixoTexto: true,
           paragrafos: [
+            'A **Lista** é a forma mais **rápida** e **direta** de gerenciar pedidos no workspace: se assemelha a um **Excel**, mas **inteligente** e **integrado** à plataforma Gravity.',
+            'Aqui você **inclui** pedidos e itens, **edita** na tabela, **exclui**, **transfere**, **consolida**, aplica **edição em massa**, **importa**, **exporta** e monta **painéis** salvos.',
             'Cada **linha mãe** é um pedido; as **linhas filhas** são os itens do PO. A barra superior reúne busca, **Novo pedido**, painéis e as ações em lote: **transferir**, **consolidar**, **edição em massa**, **excluir** e **gerar documentos**.',
           ],
+          calloutAposParagrafo: {
+            indice: 1,
+            callout: {
+              tipo: 'dica',
+              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne os **pedidos** e **itens** dos workspaces selecionados.',
+            },
+          },
+        },
+        {
+          titulo: 'Detalhamento das colunas',
+          tituloCurto: 'Detalhamento das colunas',
+          paragrafos: [
+            'O menu **Colunas** oferece **236 campos nativos** (121 na linha mãe do pedido + 115 na linha filha do item). **121** já vêm ligados no painel **Padrão**; o restante você exibe quando precisar.',
+            'Abaixo, o catálogo completo com **formato**, **edição**, **soma** e **espelhamento** — referência antes de customizar a tabela.',
+          ],
+          mostrarInfograficoPedidoCatalogoColunasLista: true,
         },
         {
           titulo: 'Expandir linhas',
@@ -237,27 +282,179 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             'A **Lista** do Pedido é **altamente customizável**: você monta a visualização ideal no menu **Colunas**, salva no **painel** ativo e o layout volta automaticamente na sua próxima visita.',
           ],
           mostrarInfograficoPedidoListaCustomizacao: true,
-          mostrarInfograficoPedidoCatalogoColunasLista: true,
-          mostrarTabelaColunasPadraoListaPedido: true,
-          paragrafoAposGaleriaTabela:
-            'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
-            LINK_MANUAL_PEDIDO_CONFIGURACOES +
-            '.',
+          galeriaTelasAposTabela: [
+            {
+              legenda: '01 · Ocultar e exibir colunas nativas',
+              pilaresCustomizacao: ['01', '02'],
+              imagem: SCREENSHOT_PEDIDO_LISTA_COLUNAS_CUSTOMIZAR,
+              paragrafoAntes:
+                'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** campos de **pedido** ou **item**; **marque** de volta para **exibir**.',
+              calloutDepois: {
+                tipo: 'dica',
+                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+              },
+            },
+            {
+              legenda: '03 · Arrastar com sua preferência',
+              pilaresCustomizacao: ['03'],
+              imagem: SCREENSHOT_PEDIDO_LISTA_COLUNAS_CUSTOMIZAR_ARRASTAR,
+              paragrafoAntes:
+                'No mesmo menu, **arraste** os itens para definir a **ordem** das colunas na tabela.',
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+              },
+            },
+            {
+              legenda: '04 · Criar coluna customizada',
+              pilaresCustomizacao: ['04'],
+              imagensCompostas: [
+                {
+                  figuras: [
+                    {
+                      imagem: SCREENSHOT_PEDIDO_CONFIGURACOES_SETA,
+                      paragrafoAntes: 'No **Pedido**, clique no menu lateral em **Configurações**',
+                    },
+                    {
+                      imagem: SCREENSHOT_PEDIDO_CONFIGURACOES_CRIAR_COLUNA,
+                      paragrafoAntes:
+                        'Clique em **Colunas**, depois **Personalizadas** e **+ Criar Coluna**',
+                    },
+                  ],
+                  paragrafoApos:
+                    'Selecione o **tipo de coluna** que deseja, inclua o **nome** e clique em **Salvar**. A coluna será exibida na sua lista.',
+                },
+                {
+                  centralizar: false,
+                  figuras: [
+                    { imagem: SCREENSHOT_PEDIDO_CONFIGURACOES_CRIAR_COLUNA_MODAL },
+                  ],
+                },
+              ],
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Após salvar, a coluna aparece no menu **Colunas** da Lista para exibir e posicionar como as nativas. Detalhes em ' +
+                  LINK_MANUAL_PEDIDO_CONFIGURACOES +
+                  '.',
+              },
+            },
+          ],
           calloutAposGaleriaTabela: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — galeria de customização reservada: `pedido-lista-colunas-customizar.png`, `pedido-lista-colunas-arrastar.png`.',
+            tipo: 'dica',
+            texto:
+              'Preferências de coluna, ordem e painel são **por usuário** — cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
           },
         },
         {
           titulo: 'Edição na tabela',
           tituloCurto: 'Edição',
           paragrafos: [
+            'A **Lista** é **totalmente editável** — tanto **pedidos** quanto **itens** — respeitando as regras de cada coluna e campo definidas em ' +
+              LINK_MANUAL_PEDIDO_LISTA_DETALHAMENTO_COLUNAS +
+              '.',
             'Clique na célula editável para alterar o valor **in place**. A gravação ocorre ao confirmar (Enter ou sair do campo).',
-            'No **Nº pedido**, o link abre o **drawer** com o formulário completo do PO e dos itens.',
+          ],
+          mostrarCatalogoColunasPedidoLista: true,
+          catalogoColunasPedidoAposParagrafo: 1,
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_SALVO,
+                  paragrafoAntes: '**Selecione** a célula editável',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_OPCOES,
+                  paragrafoAntes: '**Opções** do tipo de campo',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_SELECIONAR_SALVAR,
+                  paragrafoAntes: 'Confirme com **Salvar** ou **Enter**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MODAL,
+                  paragrafoAntes: '**Drawer** com o formulário completo',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Filtro das colunas',
+          tituloCurto: 'Filtro das colunas',
+          paragrafos: [
+            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
+            'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
+            'Filtros ativos viram **chips** na barra da tabela, no formato **`Nome da coluna: valor`**. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece **Limpar todos**.',
+            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Incoterm** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
+              LINK_MANUAL_PEDIDO_LISTA_PAINEIS +
+              ') e reutilize depois.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_SETA,
+                  paragrafoAntes: '**Ícone de funil** no cabeçalho da coluna',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_MODAL,
+                  paragrafoAntes: 'Popover: **ordenar** e **filtrar**',
+                },
+              ],
+            },
+            {
+              indice: 2,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO,
+                  paragrafoAntes: 'Chip **`Coluna: valor`** na barra',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO_2,
+                  paragrafoAntes: '**Combinação** de filtros + **Limpar todos**',
+                },
+              ],
+            },
           ],
           callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-lista-edicao-celula.png`, `pedido-lista-edicao-drawer.png`.',
+            tipo: 'dica',
+            texto:
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
+          },
+        },
+        {
+          titulo: 'Alertas na lista',
+          tituloCurto: 'Alertas',
+          paragrafos: [
+            'A **Lista** sinaliza inconsistências entre a linha do **pedido** e suas **linhas de item** com ícone **âmbar (⚠)** na célula afetada. Os alertas ajudam a detectar campos que divergiram após edição parcial ou valores heterogêneos entre itens.',
+          ],
+          mostrarInfograficoPedidoListaAlertas: true,
+          mostrarTabelaAlertasPedidoLista: true,
+          imagem: SCREENSHOT_PEDIDO_LISTA_ALERTAS,
+          imagemAbaixoTexto: true,
+          callout: {
+            tipo: 'dica',
+            texto:
+              '**Workspace** e **Tipo de operação** replicam automaticamente para todos os itens — **não** geram alerta de divergência. **NCM** e **Descrição** podem ter vários valores no mesmo pedido sem alerta âmbar.',
           },
         },
         {
@@ -266,11 +463,35 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           paragrafos: [
             'Selecione a linha e use **Excluir** na barra de ações.',
             'O modal confirma a remoção. A ação remove o pedido ou item selecionado e **não pode ser desfeita**.',
-            'Para **excluir mais de um pedido**, marque as linhas desejadas pelo **checkbox** à esquerda e use **Excluir**. O modal confirma a quantidade selecionada.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EXCLUIR_SETAS,
+                  paragrafoAntes: '**Selecione** a linha e clique **Excluir**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EXCLUIR_MODAL,
+                  paragrafoAntes: '**Confirme** no modal (quantidade selecionada)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EXCLUIR_CONFIRMACAO,
+                  paragrafoAntes: '**Exclusão** concluída — ação irreversível',
+                },
+              ],
+            },
           ],
           callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-lista-excluir.png`, `pedido-lista-excluir-modal.png`.',
+            tipo: 'dica',
+            texto:
+              'Para **excluir mais de uma linha**, marque as desejadas pelo **checkbox** à esquerda e use **Excluir** — o modal confirma o que será removido. Você pode excluir **só um pedido**, **vários pedidos**, **só itens** ou **pedidos e itens** na mesma seleção.',
           },
         },
         {
@@ -323,6 +544,67 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             texto: 'Aguardando prints — `pedido-lista-painel-novo.png`, `pedido-lista-painel-nome.png`.',
           },
         },
+        {
+          titulo: 'Novo pedido e item',
+          tituloCurto: 'Novo pedido e item',
+          paragrafos: [
+            'A criação de um **novo pedido** inicia um PO no workspace atual. Em seguida, inclua **itens** (linhas de produto) com quantidades, referências comerciais e demais campos do formulário — o pedido permanece em **rascunho** até você concluir o preenchimento e salvar.',
+            'Na **Lista** (ou a partir das ações da barra superior), use **Novo pedido** para abrir o formulário. Preencha cabeçalho, fornecedor, incoterm, moeda e os campos obrigatórios do workspace.',
+            'Com o pedido aberto, adicione **itens** informando produto, quantidade, preço unitário e referências. Cada item herda o contexto do pedido e pode ser editado individualmente no drawer.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-novo-pedido.png`, `pedido-novo-item.png`.',
+          },
+        },
+        {
+          titulo: 'Transferir pedidos e itens',
+          tituloCurto: 'Transferir',
+          paragrafos: [
+            '**Transferir** move pedidos e/ou itens selecionados para **outro workspace** da organização. A operação preserva o histórico no workspace de origem e registra o evento em **Histórico**. Misturas de importação e exportação geram **aviso**, mas a transferência pode prosseguir.',
+            'Na **Lista**, marque os **pedidos** e/ou **itens** desejados, abra **Transferir** na barra de ações e escolha o workspace de destino. Revise o resumo no modal antes de confirmar.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-transferir.png`.',
+          },
+        },
+        {
+          titulo: 'Consolidar pedidos',
+          tituloCurto: 'Consolidar',
+          paragrafos: [
+            '**Consolidar** une **dois ou mais pedidos compatíveis** em um único PO — útil quando o mesmo fornecedor ou fluxo comercial permite agrupar linhas. Pedidos de **importação e exportação misturados** são **bloqueados**; a tela exibe banner e o botão fica desabilitado até a seleção ser corrigida.',
+            'Na **Lista**, selecione os pedidos elegíveis, abra **Consolidar** e confirme o pedido resultante. Os itens das origens passam a compor o pedido consolidado; os pedidos de origem são encerrados conforme as regras do produto.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-consolidar.png`.',
+          },
+        },
+        {
+          titulo: 'Edição em massa',
+          tituloCurto: 'Edição em massa',
+          paragrafos: [
+            'A **edição em massa** altera **campos de pedido e de item** em paralelo para todos os registros selecionados na lista. Campos bloqueados, somente leitura ou calculados automaticamente não aparecem no formulário.',
+            'Selecione pedidos e/ou itens na **Lista**, clique em **Edição em massa**, escolha os campos a atualizar e informe os novos valores. Ao salvar, o sistema aplica as mudanças em lote e exibe o resumo de registros afetados.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-edicao-massa.png`.',
+          },
+        },
+        {
+          titulo: 'Gerar documentos',
+          tituloCurto: 'Gerar documentos',
+          paragrafos: [
+            '**Gerar documentos** produz **PDFs e relatórios** a partir dos pedidos e itens selecionados, usando os **templates** configurados em **Configurações**. A ação está disponível na barra da **Lista** quando há seleção válida.',
+            'Marque os pedidos (e itens, quando aplicável), abra **Gerar documento**, escolha o template e confirme. O arquivo é gerado no servidor e disponibilizado para download ou visualização conforme o template.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-gerar-documentos.png`.',
+          },
+        },
       ]),
     },
     {
@@ -340,111 +622,6 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         'O **Kanban** organiza os pedidos em **colunas por status**. Arraste cartões entre colunas para atualizar o fluxo; as colunas visíveis são configuráveis em **Configurações › Kanban**.',
       ],
       passosVisuais: [],
-    },
-    {
-      titulo: 'Novo Pedido e Item',
-      tituloSumario: 'Novo Pedido e Item',
-      paragrafos: [
-        'A criação de um **novo pedido** inicia um PO no workspace atual. Em seguida, inclua **itens** (linhas de produto) com quantidades, referências comerciais e demais campos do formulário — o pedido permanece em **rascunho** até você concluir o preenchimento e salvar.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Novo pedido',
-          paragrafos: [
-            'Na **Lista** (ou a partir das ações da barra superior), use **Novo pedido** para abrir o formulário. Preencha cabeçalho, fornecedor, incoterm, moeda e os campos obrigatórios do workspace.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-novo-pedido.png`.',
-          },
-        },
-        {
-          titulo: 'Novo item',
-          paragrafos: [
-            'Com o pedido aberto, adicione **itens** informando produto, quantidade, preço unitário e referências. Cada item herda o contexto do pedido e pode ser editado individualmente no drawer.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-novo-item.png`.',
-          },
-        },
-      ]),
-    },
-    {
-      titulo: 'Transferir Pedidos e Itens',
-      tituloSumario: 'Transferir Pedidos e Itens',
-      paragrafos: [
-        '**Transferir** move pedidos e/ou itens selecionados para **outro workspace** da organização. A operação preserva o histórico no workspace de origem e registra o evento em **Histórico**. Misturas de importação e exportação geram **aviso**, mas a transferência pode prosseguir.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Selecionar e transferir',
-          paragrafos: [
-            'Na **Lista**, marque os **pedidos** e/ou **itens** desejados, abra **Transferir** na barra de ações e escolha o workspace de destino. Revise o resumo no modal antes de confirmar.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-transferir.png`.',
-          },
-        },
-      ]),
-    },
-    {
-      titulo: 'Consolidar Pedidos',
-      tituloSumario: 'Consolidar Pedidos',
-      paragrafos: [
-        '**Consolidar** une **dois ou mais pedidos compatíveis** em um único PO — útil quando o mesmo fornecedor ou fluxo comercial permite agrupar linhas. Pedidos de **importação e exportação misturados** são **bloqueados**; a tela exibe banner e o botão fica desabilitado até a seleção ser corrigida.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Selecionar e consolidar',
-          paragrafos: [
-            'Na **Lista**, selecione os pedidos elegíveis, abra **Consolidar** e confirme o pedido resultante. Os itens das origens passam a compor o pedido consolidado; os pedidos de origem são encerrados conforme as regras do produto.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-consolidar.png`.',
-          },
-        },
-      ]),
-    },
-    {
-      titulo: 'Edição em Massa',
-      tituloSumario: 'Edição em Massa',
-      paragrafos: [
-        'A **edição em massa** altera **campos de pedido e de item** em paralelo para todos os registros selecionados na lista. Campos bloqueados, somente leitura ou calculados automaticamente não aparecem no formulário.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Abrir e aplicar alterações',
-          paragrafos: [
-            'Selecione pedidos e/ou itens na **Lista**, clique em **Edição em massa**, escolha os campos a atualizar e informe os novos valores. Ao salvar, o sistema aplica as mudanças em lote e exibe o resumo de registros afetados.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-edicao-massa.png`.',
-          },
-        },
-      ]),
-    },
-    {
-      titulo: 'Gerar Documentos',
-      tituloSumario: 'Gerar Documentos',
-      paragrafos: [
-        '**Gerar documentos** produz **PDFs e relatórios** a partir dos pedidos e itens selecionados, usando os **templates** configurados em **Configurações**. A ação está disponível na barra da **Lista** quando há seleção válida.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Selecionar e gerar',
-          paragrafos: [
-            'Marque os pedidos (e itens, quando aplicável), abra **Gerar documento**, escolha o template e confirme. O arquivo é gerado no servidor e disponibilizado para download ou visualização conforme o template.',
-          ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — screenshot reservado: `pedido-gerar-documentos.png`.',
-          },
-        },
-      ]),
     },
     {
       titulo: 'Configurações',

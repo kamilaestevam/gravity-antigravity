@@ -1,6 +1,6 @@
 import React from 'react'
 import { Sparkle } from '@phosphor-icons/react'
-import { TOTAL_COLUNAS_CATALOGO_PEDIDO, GRUPOS_CATALOGO_COLUNAS_PEDIDO } from './manual-pedido-catalogo-colunas-dados'
+import { TOTAL_COLUNAS_CATALOGO_PEDIDO, GRUPOS_CATALOGO_COLUNAS_PEDIDO, TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO } from './manual-pedido-catalogo-colunas-dados'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -44,7 +44,7 @@ export function ManualInfograficoPedidoCatalogoColunasLista() {
         lineHeight: 1.35,
         letterSpacing: '-.01em',
       }}>
-        {TOTAL_COLUNAS_CATALOGO_PEDIDO} colunas no menu Colunas — não confundir com 111 campos da edição em massa (só nível Pedido)
+        {TOTAL_COLUNAS_CATALOGO_PEDIDO} colunas no menu Colunas — {TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO} já vêm ligadas no painel Padrão
       </p>
 
       <div style={{
@@ -119,14 +119,12 @@ export function ManualInfograficoPedidoCatalogoColunasLista() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        Marque só o que importa no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong>, reordene e salve no painel. O total{' '}
-        <strong style={{ color: '#cbd5e1' }}>{TOTAL_COLUNAS_CATALOGO_PEDIDO}</strong> vem de{' '}
-        <strong style={{ color: '#cbd5e1' }}>buildColunasPai</strong> +{' '}
-        <strong style={{ color: '#cbd5e1' }}>buildColunasFilho</strong> ({TOTAL_PEDIDO} linha mãe + {TOTAL_ITEM} linha filha). Os{' '}
-        <strong style={{ color: '#cbd5e1' }}>111</strong> campos da{' '}
-        <strong style={{ color: '#cbd5e1' }}>edição em massa</strong> são outro catálogo — só cabeçalho do pedido.{' '}
+        Marque só o que importa no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong>, reordene e salve no painel. O catálogo completo tem{' '}
+        <strong style={{ color: '#cbd5e1' }}>{TOTAL_COLUNAS_CATALOGO_PEDIDO}</strong> colunas ({TOTAL_PEDIDO} linha mãe + {TOTAL_ITEM} linha filha);{' '}
+        <strong style={{ color: '#cbd5e1' }}>{TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO}</strong> já vêm visíveis no painel{' '}
+        <strong style={{ color: '#cbd5e1' }}>Padrão</strong> (coluna Padrão = Sim no accordion abaixo).{' '}
         <strong style={{ color: '#cbd5e1' }}>Edição P</strong> / <strong style={{ color: '#cbd5e1' }}>I</strong>,{' '}
-        <strong style={{ color: '#cbd5e1' }}>Soma</strong> e <strong style={{ color: '#cbd5e1' }}>Espelha</strong> abaixo seguem o SSOT da Lista.
+        <strong style={{ color: '#cbd5e1' }}>Soma</strong> e <strong style={{ color: '#cbd5e1' }}>Espelha</strong> seguem o SSOT da Lista.
       </p>
     </div>
   )

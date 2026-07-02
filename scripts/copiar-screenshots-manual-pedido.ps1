@@ -28,6 +28,23 @@ $mapa = @{
   'tela_pedido_visao_lista_itens_expandidos' = 'pedido-lista-itens-expandidos.png'
   'tela_pedido_visao_lista_expandir_todos_seta' = 'pedido-lista-expandir-todos-seta.png'
   'tela_pedido_visao_lista_itens_expandidos_todos' = 'pedido-lista-expandir-todos-expandido.png'
+  'tela_pedido_visao_lista_colunas_customizar' = 'pedido-lista-colunas-customizar.png'
+  'tela_pedido_visao_lista_colunas_arrastar' = 'pedido-lista-colunas-arrastar.png'
+  'tela_pedido_configuracoes_criar_coluna' = 'pedido-configuracoes-criar-coluna.png'
+  'tela_pedido_configuracoes_seta' = 'pedido-configuracoes-seta.png'
+  'tela_pedido_configuracoes_criar_coluna_modal' = 'pedido-configuracoes-criar-coluna-modal.png'
+  'tela_pedido_lista_edicao_selecionar_salvo' = 'pedido-lista-edicao-selecionar-salvo.png'
+  'tela_pedido_lista_edicao_selecionar_salvar' = 'pedido-lista-edicao-selecionar-salvar.png'
+  'tela_pedido_lista_edicao_selecionar_opcal' = 'pedido-lista-edicao-selecionar-opcoes.png'
+  'tela_pedido_lista_edicao_modal' = 'pedido-lista-edicao-modal.png'
+  'tela_pedido_lista_alertas' = 'pedido-lista-alertas.png'
+  'tela_pedido_lista_excluir_setas' = 'pedido-lista-excluir-setas.png'
+  'tela_pedido_lista_excluir_modal' = 'pedido-lista-excluir-modal.png'
+  'tela_pedido_lista_excluir_confirmacao' = 'pedido-lista-excluir-confirmacao.png'
+  'tela_pedido_lista_filtro_seta' = 'pedido-lista-filtro-seta.png'
+  'tela_pedido_lista_filtro_modal' = 'pedido-lista-filtro-modal.png'
+  'tela_pedido_lista_filtro_aplicado' = 'pedido-lista-filtro-aplicado.png'
+  'tela_pedido_lista_filtro_aplicado_2' = 'pedido-lista-filtro-aplicado-2.png'
 }
 
 $copiados = 0

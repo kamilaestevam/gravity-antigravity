@@ -1,0 +1,2704 @@
+/** Gerado por scripts/gerar-manual-pedido-catalogo-colunas.ts — não editar manualmente. */
+export type ManualPedidoColunaCatalogo = {
+  ordem: number
+  coluna: string
+  descricao: string
+  formatacao: string
+  edicaoPedido: string
+  edicaoItem: string
+  soma: string
+  espelha: string
+  fixa?: boolean
+}
+
+export type ManualPedidoGrupoCatalogoColunas = {
+  id: string
+  titulo: string
+  nivel: 'pedido' | 'item'
+  colunas: ManualPedidoColunaCatalogo[]
+}
+
+export const TOTAL_COLUNAS_CATALOGO_PEDIDO = 236
+
+export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] = [
+  {
+    "id": "pai-identificacao",
+    "titulo": "Identificação",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 1,
+        "coluna": "Nº Pedido / Nº Item",
+        "descricao": "Número do pedido (linha pai) ou Nº do Item (linha filha)",
+        "fixa": true,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 2,
+        "coluna": "Tipo de Operação",
+        "descricao": "Importação (Purchase Order) ou Exportação (Sales Order)",
+        "fixa": false,
+        "formatacao": "Pill",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens"
+      },
+      {
+        "ordem": 3,
+        "coluna": "Workspace",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Importador"
+      },
+      {
+        "ordem": 4,
+        "coluna": "Ref. Importador",
+        "descricao": "Código de referência interno do importador para o pedido",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 5,
+        "coluna": "Ref. Exportador",
+        "descricao": "Código de referência utilizado pelo exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 6,
+        "coluna": "NCM",
+        "descricao": "Nomenclatura Comum do Mercosul",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 7,
+        "coluna": "Descrição Item",
+        "descricao": "Descrição do produto — visível apenas nos itens expandidos",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 8,
+        "coluna": "Nº Proforma",
+        "descricao": "Referência da Fatura Proforma vinculada",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 9,
+        "coluna": "Nº Invoice",
+        "descricao": "Identificador da Fatura Comercial (Invoice)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 10,
+        "coluna": "Status",
+        "descricao": "Ciclo de vida: Rascunho, Aberto, Em Transferência, Consolidado, Cancelado",
+        "fixa": false,
+        "formatacao": "Pill",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 11,
+        "coluna": "Ref. Fabricante",
+        "descricao": "Código de referência utilizado pelo fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 12,
+        "coluna": "Anexo do Pedido",
+        "descricao": "Clique no ícone na célula para anexar, baixar ou excluir arquivos do pedido",
+        "fixa": false,
+        "formatacao": "Anexo",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 13,
+        "coluna": "Anexo da Proforma",
+        "descricao": "Clique no ícone na célula para anexar, baixar ou excluir arquivos da proforma",
+        "fixa": false,
+        "formatacao": "Anexo",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 14,
+        "coluna": "Anexo da Invoice",
+        "descricao": "Clique no ícone na célula para anexar, baixar ou excluir arquivos da invoice",
+        "fixa": false,
+        "formatacao": "Anexo",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "pai-partes",
+    "titulo": "Partes",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 101,
+        "coluna": "Exportador",
+        "descricao": "Fornecedor/exportador estrangeiro na operação de importação",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Condicional",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 102,
+        "coluna": "Importador",
+        "descricao": "Comprador/importador estrangeiro na operação de exportação",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Condicional",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Workspace"
+      },
+      {
+        "ordem": 103,
+        "coluna": "CNPJ do Importador",
+        "descricao": "CNPJ da empresa importadora. Fonte única: CNPJ do Workspace. Em exportação, não se aplica (contraparte estrangeira).",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 104,
+        "coluna": "CNPJ do Exportador",
+        "descricao": "CNPJ da empresa exportadora. Fonte única: CNPJ do Workspace. Em importação, não se aplica (contraparte estrangeira).",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 105,
+        "coluna": "Fabricante",
+        "descricao": "Identificação da origem produtiva",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 106,
+        "coluna": "País do Exportador",
+        "descricao": "País de origem do exportador/fornecedor",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 107,
+        "coluna": "Estado/Província do Exportador",
+        "descricao": "Estado ou província do exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 108,
+        "coluna": "Cidade do Exportador",
+        "descricao": "Cidade do exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 109,
+        "coluna": "Endereço do Exportador",
+        "descricao": "Endereço completo do exportador/fornecedor",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 110,
+        "coluna": "CEP do Exportador",
+        "descricao": "Código postal do exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 111,
+        "coluna": "Exportador/Fabricante?",
+        "descricao": "Indica se o exportador é também o fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 112,
+        "coluna": "Relação Exportador e Fabricante",
+        "descricao": "Tipo de relação entre exportador e fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 113,
+        "coluna": "Contato do Exportador",
+        "descricao": "Nome do contato principal no exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 114,
+        "coluna": "Email do Exportador",
+        "descricao": "Email do contato principal",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 115,
+        "coluna": "WhatsApp do Exportador",
+        "descricao": "Número de WhatsApp do contato",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 116,
+        "coluna": "Cargo do Contato no Exportador",
+        "descricao": "Cargo ou função do contato no exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 117,
+        "coluna": "Departamento do Contato no Exportador",
+        "descricao": "Departamento do contato no exportador",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 118,
+        "coluna": "País do Fabricante",
+        "descricao": "País onde o produto foi fabricado",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 119,
+        "coluna": "Estado/Província do Fabricante",
+        "descricao": "Estado ou província do fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 120,
+        "coluna": "Cidade do Fabricante",
+        "descricao": "Cidade do fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 121,
+        "coluna": "Endereço do Fabricante",
+        "descricao": "Endereço completo do fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 122,
+        "coluna": "CEP do Fabricante",
+        "descricao": "Código postal do fabricante",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 123,
+        "coluna": "CNPJ Raiz Empresa Responsável",
+        "descricao": "CNPJ raiz (8 primeiros dígitos) da empresa responsável pelo OPE no Brasil",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 124,
+        "coluna": "Código do OPE",
+        "descricao": "Código identificador do OPE (Operador Exterior) no Siscomex",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 125,
+        "coluna": "Situação do OPE",
+        "descricao": "Situação cadastral do OPE: Ativo, Suspenso, Desativado",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 126,
+        "coluna": "Versão do OPE",
+        "descricao": "Versão corrente do cadastro do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 127,
+        "coluna": "Nome do OPE",
+        "descricao": "Razão social do Operador Exterior registrado no Siscomex",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 128,
+        "coluna": "País do OPE",
+        "descricao": "País de sede do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 129,
+        "coluna": "Estado do OPE",
+        "descricao": "Estado ou província do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 130,
+        "coluna": "Cidade do OPE",
+        "descricao": "Cidade do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 131,
+        "coluna": "Endereço do OPE",
+        "descricao": "Endereço completo do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 132,
+        "coluna": "CEP do OPE",
+        "descricao": "Código postal do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 133,
+        "coluna": "TIN do OPE",
+        "descricao": "Tax Identification Number — identificador fiscal do OPE no país de origem",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 134,
+        "coluna": "Email do OPE",
+        "descricao": "Email de contato do OPE",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "pai-quantidades",
+    "titulo": "Quantidades",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 401,
+        "coluna": "Unidade Comercializada",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 402,
+        "coluna": "Qtd. Inicial do Pedido",
+        "descricao": "Calculada a partir dos itens",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total da Qtd. Inicial do Pedido (soma de todos os itens)",
+        "espelha": "—"
+      },
+      {
+        "ordem": 403,
+        "coluna": "Qtd. Pronta do Pedido",
+        "descricao": "Calculada a partir dos itens",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total da Qtd Pronta do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
+        "espelha": "—"
+      },
+      {
+        "ordem": 404,
+        "coluna": "Saldo do Pedido",
+        "descricao": "Saldo do Pedido",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "Saldo do Pedido (soma dos itens na mesma unidade) · Fórmula configurada",
+        "espelha": "—"
+      },
+      {
+        "ordem": 405,
+        "coluna": "Qtd. Transferida do Pedido",
+        "descricao": "Soma da quantidade transferida de todos os itens do pedido.",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "Total da Qtd. Transferida do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
+        "espelha": "—"
+      },
+      {
+        "ordem": 406,
+        "coluna": "Qtd. Cancelada do Pedido",
+        "descricao": "Qtd. Cancelada do Pedido",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "Total da Qtd. Cancelada do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
+        "espelha": "—"
+      },
+      {
+        "ordem": 407,
+        "coluna": "Tipo Volume Pedido/Item",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 408,
+        "coluna": "Qtd. de Volumes do Pedido/Item",
+        "descricao": "Qtd. Total de Volumes do Pedido",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total de volumes do Pedido(soma dos itens)",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "pai-financeiro",
+    "titulo": "Financeiro",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 201,
+        "coluna": "Incoterm",
+        "descricao": "Regra de entrega: FOB, CIF, EXW, etc.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 202,
+        "coluna": "Valor Total do Pedido/Item",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total do Pedido — soma total dos itens na mesma moeda · Valor Total do Item = Valor unitário do item x Qtd inicial do item",
+        "espelha": "—"
+      },
+      {
+        "ordem": 203,
+        "coluna": "Moeda do Pedido/Item",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 204,
+        "coluna": "Valor Unitário do Item",
+        "descricao": "Valor unitário do item — visível apenas em itens expandidos.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 205,
+        "coluna": "Cobertura Cambial do Pedido/Item",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 206,
+        "coluna": "Condição de Pagamento do Pedido/Item — Comercial",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 207,
+        "coluna": "Condição de Pagamento do Pedido/Item — Siscomex",
+        "descricao": "Código oficial de modalidade de pagamento para LI/DI no Portal Único.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      }
+    ]
+  },
+  {
+    "id": "pai-logistica",
+    "titulo": "Logística",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 301,
+        "coluna": "Porto de Origem",
+        "descricao": "Porto ou local de embarque (cadastros.porto — UN/LOCODE)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      },
+      {
+        "ordem": 302,
+        "coluna": "Porto de Destino",
+        "descricao": "Porto ou local de desembarque (cadastros.porto — UN/LOCODE)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      },
+      {
+        "ordem": 303,
+        "coluna": "País de Origem",
+        "descricao": "País de origem rodoviária (cadastros.pais — ISO alpha-2)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      },
+      {
+        "ordem": 304,
+        "coluna": "País de Destino",
+        "descricao": "País de destino rodoviário (cadastros.pais — ISO alpha-2)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      },
+      {
+        "ordem": 305,
+        "coluna": "Aeroporto de Origem",
+        "descricao": "Aeroporto de embarque (cadastros.aeroporto — IATA ou UN/LOCODE)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      },
+      {
+        "ordem": 306,
+        "coluna": "Aeroporto de Destino",
+        "descricao": "Aeroporto de desembarque (cadastros.aeroporto — IATA ou UN/LOCODE)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Espelhado com itens e pedido"
+      }
+    ]
+  },
+  {
+    "id": "pai-cambio",
+    "titulo": "Câmbio",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 601,
+        "coluna": "Moeda Câmbio",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Replica pedido → item"
+      },
+      {
+        "ordem": 602,
+        "coluna": "Taxa Câmbio Estimada",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "Total do pedido (soma dos itens)",
+        "espelha": "—"
+      },
+      {
+        "ordem": 603,
+        "coluna": "Valor Total Câmbio",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total do pedido (soma dos itens)",
+        "espelha": "—"
+      },
+      {
+        "ordem": 604,
+        "coluna": "Contrato de Câmbio",
+        "descricao": "Campo nativo do pedido.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "pai-dados-fisicos",
+    "titulo": "Dados Físicos",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 701,
+        "coluna": "Peso Líquido Total",
+        "descricao": "Calculado a partir dos itens",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total do peso líquido do pedido (soma dos itens)",
+        "espelha": "—"
+      },
+      {
+        "ordem": 702,
+        "coluna": "Peso Bruto Total",
+        "descricao": "Calculado a partir dos itens",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total do peso bruto do pedido (soma dos itens)",
+        "espelha": "—"
+      },
+      {
+        "ordem": 703,
+        "coluna": "Cubagem Total",
+        "descricao": "Calculada a partir dos itens",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Sim",
+        "soma": "Total do pedido (soma dos itens)",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "pai-datas",
+    "titulo": "Datas",
+    "nivel": "pedido",
+    "colunas": [
+      {
+        "ordem": 501,
+        "coluna": "Data do Pedido",
+        "descricao": "Data de registro ou emissão do Purchase Order",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 502,
+        "coluna": "Data Prevista — Pedido Pronto",
+        "descricao": "Data prevista para o pedido estar pronto para embarque",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 503,
+        "coluna": "Data Confirmada — Pedido Pronto",
+        "descricao": "Data confirmada para o pedido estar pronto",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 504,
+        "coluna": "Data Meta — Pedido Pronto",
+        "descricao": "Data meta definida pelo importador",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 505,
+        "coluna": "Data Prevista — Inspeção",
+        "descricao": "Data prevista para inspeção pré-embarque (PSI/ISF)",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 506,
+        "coluna": "Data Confirmada — Inspeção",
+        "descricao": "Data confirmada para inspeção pré-embarque",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 507,
+        "coluna": "Data Meta — Inspeção",
+        "descricao": "Data meta para a inspeção do pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 508,
+        "coluna": "Data Prevista — Coleta",
+        "descricao": "Data prevista para coleta da mercadoria",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 509,
+        "coluna": "Data Confirmada — Coleta",
+        "descricao": "Data confirmada para coleta da mercadoria",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 510,
+        "coluna": "Data Meta — Coleta",
+        "descricao": "Data meta para a coleta do pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 511,
+        "coluna": "Data de Consolidação do Pedido",
+        "descricao": "Data em que o pedido foi consolidado",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 512,
+        "coluna": "Data de Transferência de Saldo",
+        "descricao": "Atualiza ao transferir saldo; você também pode editar manualmente",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 513,
+        "coluna": "Data Prevista — Recebimento Draft Pedido",
+        "descricao": "Data prevista para recebimento do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 514,
+        "coluna": "Data Confirmada — Recebimento Draft Pedido",
+        "descricao": "Data confirmada para recebimento do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 515,
+        "coluna": "Data Meta — Recebimento Draft Pedido",
+        "descricao": "Data meta para recebimento do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 516,
+        "coluna": "Data Prevista — Aprovação Draft Pedido",
+        "descricao": "Data prevista para aprovação do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 517,
+        "coluna": "Data Confirmada — Aprovação Draft Pedido",
+        "descricao": "Data confirmada para aprovação do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 518,
+        "coluna": "Data Meta — Aprovação Draft Pedido",
+        "descricao": "Data meta para aprovação do draft (rascunho) do Pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 519,
+        "coluna": "Data do Documento do Pedido",
+        "descricao": "Data de emissão do documento do pedido",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 520,
+        "coluna": "Data Doc. Proforma",
+        "descricao": "Data de emissão do documento proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 521,
+        "coluna": "Data Doc. Invoice",
+        "descricao": "Data de emissão do documento invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 522,
+        "coluna": "Data Prevista — Recebimento Draft Proforma",
+        "descricao": "Data prevista para recebimento do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 523,
+        "coluna": "Data Confirmada — Recebimento Draft Proforma",
+        "descricao": "Data confirmada para recebimento do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 524,
+        "coluna": "Data Meta — Recebimento Draft Proforma",
+        "descricao": "Data meta para recebimento do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 525,
+        "coluna": "Data Prevista — Aprovação Draft Proforma",
+        "descricao": "Data prevista para aprovação do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 526,
+        "coluna": "Data Confirmada — Aprovação Draft Proforma",
+        "descricao": "Data confirmada para aprovação do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 527,
+        "coluna": "Data Meta — Aprovação Draft Proforma",
+        "descricao": "Data meta para aprovação do draft (rascunho) da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 528,
+        "coluna": "Data Prevista — Envio Original Proforma",
+        "descricao": "Data prevista para envio do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 529,
+        "coluna": "Data Confirmada — Envio Original Proforma",
+        "descricao": "Data confirmada para envio do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 530,
+        "coluna": "Data Meta — Envio Original Proforma",
+        "descricao": "Data meta para envio do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 531,
+        "coluna": "Data Prevista — Recebimento Original Proforma",
+        "descricao": "Data prevista para recebimento do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 532,
+        "coluna": "Data Confirmada — Recebimento Original Proforma",
+        "descricao": "Data confirmada para recebimento do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 533,
+        "coluna": "Data Meta — Recebimento Original Proforma",
+        "descricao": "Data meta para recebimento do original da Proforma",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 534,
+        "coluna": "Data Prevista — Recebimento Draft Invoice",
+        "descricao": "Data prevista para recebimento do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 535,
+        "coluna": "Data Confirmada — Recebimento Draft Invoice",
+        "descricao": "Data confirmada para recebimento do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 536,
+        "coluna": "Data Meta — Recebimento Draft Invoice",
+        "descricao": "Data meta para recebimento do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 537,
+        "coluna": "Data Prevista — Aprovação Draft Invoice",
+        "descricao": "Data prevista para aprovação do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 538,
+        "coluna": "Data Confirmada — Aprovação Draft Invoice",
+        "descricao": "Data confirmada para aprovação do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 539,
+        "coluna": "Data Meta — Aprovação Draft Invoice",
+        "descricao": "Data meta para aprovação do draft (rascunho) da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 540,
+        "coluna": "Data Prevista — Envio Original Invoice",
+        "descricao": "Data prevista para envio do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 541,
+        "coluna": "Data Confirmada — Envio Original Invoice",
+        "descricao": "Data confirmada para envio do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 542,
+        "coluna": "Data Meta — Envio Original Invoice",
+        "descricao": "Data meta para envio do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 543,
+        "coluna": "Data Prevista — Recebimento Original Invoice",
+        "descricao": "Data prevista para recebimento do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 544,
+        "coluna": "Data Confirmada — Recebimento Original Invoice",
+        "descricao": "Data confirmada para recebimento do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 545,
+        "coluna": "Data Meta — Recebimento Original Invoice",
+        "descricao": "Data meta para recebimento do original da Invoice",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      }
+    ]
+  },
+  {
+    "id": "filho-identificacao",
+    "titulo": "Identificação",
+    "nivel": "item",
+    "colunas": [
+      {
+        "ordem": 1,
+        "coluna": "Part Number",
+        "descricao": "Campo nativo do item.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 2,
+        "coluna": "NCM",
+        "descricao": "Campo nativo do item.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 3,
+        "coluna": "Descrição do Item",
+        "descricao": "Campo nativo do item.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 4,
+        "coluna": "Tipo de Operação",
+        "descricao": "Campo nativo do item.",
+        "fixa": false,
+        "formatacao": "Pill",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 5,
+        "coluna": "Seq. Item",
+        "descricao": "Número sequencial do item dentro do pedido (conforme invoice)",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 6,
+        "coluna": "Descrição Completa do Item/Produto",
+        "descricao": "Descrição técnica detalhada do produto conforme catálogo",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 7,
+        "coluna": "Descrição Completa do Item/Produto - NF",
+        "descricao": "Descrição do produto como constará na nota fiscal de entrada",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 8,
+        "coluna": "Grupo do Item/Produto",
+        "descricao": "Grupo de classificação do produto conforme cadastro",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 9,
+        "coluna": "Subgrupo do Item/Produto",
+        "descricao": "Subgrupo de classificação do produto dentro do grupo principal",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 10,
+        "coluna": "Campo Especial do Item/Produto",
+        "descricao": "Campo configurável para uso interno ou integrações específicas",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 11,
+        "coluna": "Descrição Completa do Item/Produto - Inglês",
+        "descricao": "Descrição do produto em inglês, conforme invoice internacional",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 12,
+        "coluna": "Descrição Completa do Item/Produto - Espanhol",
+        "descricao": "Descrição do produto em espanhol",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 13,
+        "coluna": "Texto NCM",
+        "descricao": "Descrição oficial da posição tarifária NCM conforme TEC",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 14,
+        "coluna": "Atributo do Produto - Catálogo",
+        "descricao": "Atributos técnicos do produto conforme catálogo (cor, tensão, etc.)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 15,
+        "coluna": "Data de Transferência do Item",
+        "descricao": "Data em que o item foi transferido para um processo logístico",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 16,
+        "coluna": "Data de Consolidação do Item",
+        "descricao": "Data em que o item foi consolidado em um processo",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 17,
+        "coluna": "Data P.O.",
+        "descricao": "Data de emissão da Purchase Order no nível do item",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 18,
+        "coluna": "Data Embarque",
+        "descricao": "Data de embarque no nível do item",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      }
+    ]
+  },
+  {
+    "id": "filho-quantidades",
+    "titulo": "Quantidades",
+    "nivel": "item",
+    "colunas": [
+      {
+        "ordem": 101,
+        "coluna": "Unidade Comercializada",
+        "descricao": "Campo nativo do item.",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 102,
+        "coluna": "Qtd. Inicial do Item no Pedido",
+        "descricao": "Quantidade original do item — valor imutável",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 103,
+        "coluna": "Saldo",
+        "descricao": "Quantidade inicial menos cancelada e transferida",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 104,
+        "coluna": "Quantidade Pronta do Item no Pedido",
+        "descricao": "Quantidade produzida pela fábrica e validada para embarque",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 105,
+        "coluna": "Quantidade Transferida do Item no Pedido",
+        "descricao": "Quantidade deste item já transferida para outros pedidos.",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 106,
+        "coluna": "Quantidade Cancelada do Item no Pedido",
+        "descricao": "Total permanentemente cancelado — subtrai do saldo inicial",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 107,
+        "coluna": "Qtd. Estatística",
+        "descricao": "Quantidade do item expressa na unidade estatística exigida pela DUIMP",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 108,
+        "coluna": "Moeda do Item",
+        "descricao": "Moeda utilizada para valoração do item",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "Total do Pedido — soma total dos itens na mesma moeda",
+        "espelha": "—"
+      },
+      {
+        "ordem": 109,
+        "coluna": "Incoterm",
+        "descricao": "Condição de venda internacional do item (ex: FOB, CIF, EXW)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 110,
+        "coluna": "Cond. Pagamento — Comercial",
+        "descricao": "Condição de pagamento negociada para o item (texto livre)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 111,
+        "coluna": "Condição de Pagamento do Pedido/Item — Siscomex",
+        "descricao": "Código oficial de modalidade de pagamento para LI/DI",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Sim",
+        "edicaoItem": "Sim",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 112,
+        "coluna": "Casas Decimais Qtd",
+        "descricao": "Número de casas decimais para campos de quantidade do item",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "filho-duimp-fiscal",
+    "titulo": "DUIMP / Fiscal",
+    "nivel": "item",
+    "colunas": [
+      {
+        "ordem": 301,
+        "coluna": "Número LPCO",
+        "descricao": "Licença, Permissão, Certificado ou Outros documentos exigidos para importação",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 302,
+        "coluna": "Número do Certificado de Origem",
+        "descricao": "Número do certificado de origem emitido pelo exportador ou câmara de comércio",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 303,
+        "coluna": "Data do Cert. de Origem",
+        "descricao": "Data de emissão do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 304,
+        "coluna": "Anexo LPCO",
+        "descricao": "Arquivo de Licença, Permissão, Certificado ou Outro (LPCO)",
+        "fixa": false,
+        "formatacao": "Anexo",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 305,
+        "coluna": "Dt Prev. Conferência Draft LPCO",
+        "descricao": "Data prevista para conferência do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 306,
+        "coluna": "Dt Conf. Conferência Draft LPCO",
+        "descricao": "Data confirmada de conferência do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 307,
+        "coluna": "Dt Meta Conferência Draft LPCO",
+        "descricao": "Data meta para conferência do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 308,
+        "coluna": "Dt Prev. Aprovação Draft LPCO",
+        "descricao": "Data prevista para aprovação do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 309,
+        "coluna": "Dt Conf. Aprovação Draft LPCO",
+        "descricao": "Data confirmada de aprovação do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 310,
+        "coluna": "Dt Meta Aprovação Draft LPCO",
+        "descricao": "Data meta para aprovação do rascunho da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 311,
+        "coluna": "Dt Prev. Registro da LPCO",
+        "descricao": "Data prevista para registro da LPCO no órgão competente",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 312,
+        "coluna": "Dt Conf. Registro da LPCO",
+        "descricao": "Data confirmada de registro da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 313,
+        "coluna": "Dt Meta. Registro da LPCO",
+        "descricao": "Data meta para registro da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 314,
+        "coluna": "Dt Prev. Análise da LPCO",
+        "descricao": "Data prevista para resultado da análise pelo órgão anuente",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 315,
+        "coluna": "Dt Conf. Análise da LPCO",
+        "descricao": "Data confirmada do resultado da análise da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 316,
+        "coluna": "Dt Meta. Análise da LPCO",
+        "descricao": "Data meta para resultado da análise da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 317,
+        "coluna": "Dt Prev. Deferimento da LPCO",
+        "descricao": "Data prevista para deferimento (aprovação final) da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 318,
+        "coluna": "Dt Conf. Deferimento da LPCO",
+        "descricao": "Data confirmada do deferimento da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 319,
+        "coluna": "Dt Meta. Deferimento da LPCO",
+        "descricao": "Data meta para deferimento da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 320,
+        "coluna": "Dt Conf. Indeferimento da LPCO",
+        "descricao": "Data confirmada do indeferimento (reprovação) da LPCO",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 321,
+        "coluna": "Dt Conf. Exigência da LPCO",
+        "descricao": "Data confirmada de exigência/pendência da LPCO pelo órgão anuente",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 322,
+        "coluna": "Prev. Rec. Draft Cert. Origem",
+        "descricao": "Data prevista para recebimento do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 323,
+        "coluna": "Conf. Rec. Draft Cert. Origem",
+        "descricao": "Data confirmada de recebimento do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 324,
+        "coluna": "Meta Rec. Draft Cert. Origem",
+        "descricao": "Data meta para recebimento do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 325,
+        "coluna": "Prev. Aprov. Draft Cert. Origem",
+        "descricao": "Data prevista para aprovação do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 326,
+        "coluna": "Conf. Aprov. Draft Cert. Origem",
+        "descricao": "Data confirmada de aprovação do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 327,
+        "coluna": "Meta Aprov. Draft Cert. Origem",
+        "descricao": "Data meta para aprovação do rascunho do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 328,
+        "coluna": "Prev. Envio Original Cert. Origem",
+        "descricao": "Data prevista para envio do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 329,
+        "coluna": "Conf. Envio Original Cert. Origem",
+        "descricao": "Data confirmada de envio do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 330,
+        "coluna": "Meta Envio Original Cert. Origem",
+        "descricao": "Data meta para envio do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 331,
+        "coluna": "Prev. Rec. Original Cert. Origem",
+        "descricao": "Data prevista para recebimento do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 332,
+        "coluna": "Conf. Rec. Original Cert. Origem",
+        "descricao": "Data confirmada de recebimento do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 333,
+        "coluna": "Meta Rec. Original Cert. Origem",
+        "descricao": "Data meta para recebimento do original do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 334,
+        "coluna": "Data de emissão do Certificado de Origem",
+        "descricao": "Data de emissão do certificado de origem",
+        "fixa": false,
+        "formatacao": "Data",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "Aplicar em todos os itens"
+      },
+      {
+        "ordem": 335,
+        "coluna": "Tipo de Operação - DUIMP",
+        "descricao": "Tipo de operação de importação conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 336,
+        "coluna": "Descrição Resumida Produto - DUIMP",
+        "descricao": "Descrição resumida do produto conforme cadastro na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 337,
+        "coluna": "Versão do Produto - DUIMP",
+        "descricao": "Versão do cadastro do produto no catálogo DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 338,
+        "coluna": "NCM - DUIMP",
+        "descricao": "Código NCM utilizado na DUIMP (pode diferir do NCM do catálogo)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 339,
+        "coluna": "Atributos - DUIMP",
+        "descricao": "Atributos técnicos do produto conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 340,
+        "coluna": "Aplicação Mercadoria - DUIMP",
+        "descricao": "Finalidade ou aplicação da mercadoria conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 341,
+        "coluna": "Condição Mercadoria - DUIMP",
+        "descricao": "Estado da mercadoria (nova, usada, recondicionada) conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 342,
+        "coluna": "Relação Exportador/Fabricante - DUIMP",
+        "descricao": "Tipo de relação entre exportador e fabricante conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 343,
+        "coluna": "Vinculação Preço - DUIMP",
+        "descricao": "Indica se há vinculação de preço entre comprador e vendedor conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 344,
+        "coluna": "Descrição Completa - DUIMP",
+        "descricao": "Descrição completa e técnica do produto conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 345,
+        "coluna": "Descrição Complementar - DUIMP",
+        "descricao": "Informações complementares sobre a mercadoria na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 346,
+        "coluna": "Cód. OPE Descrição Completa - DUIMP",
+        "descricao": "Código do OPE (exportador) conforme cadastrado na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 347,
+        "coluna": "Nome OPE - DUIMP",
+        "descricao": "Nome do OPE conforme cadastrado na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 348,
+        "coluna": "País OPE - DUIMP",
+        "descricao": "País do OPE conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 349,
+        "coluna": "Cód. OPE Fabricante - DUIMP",
+        "descricao": "Código do OPE do fabricante conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 350,
+        "coluna": "Nome OPE Fabricante - DUIMP",
+        "descricao": "Nome do OPE do fabricante conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 351,
+        "coluna": "País OPE Fab. - DUIMP",
+        "descricao": "País do OPE fabricante conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 352,
+        "coluna": "Método Valoração - DUIMP",
+        "descricao": "Método de valoração aduaneira utilizado na DUIMP (ex: Método 1 — Valor de Transação)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 353,
+        "coluna": "Incoterm - DUIMP",
+        "descricao": "Incoterm ou condição de venda declarada na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 354,
+        "coluna": "Moeda - DUIMP",
+        "descricao": "Moeda utilizada no valor do produto conforme DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 355,
+        "coluna": "Valor Unitário do Produto - DUIMP",
+        "descricao": "Valor unitário do produto na moeda declarada na DUIMP",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 356,
+        "coluna": "Valor Total na Condição de Venda - DUIMP",
+        "descricao": "Valor total do item na condição de venda declarada na DUIMP",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 357,
+        "coluna": "Valor na Condição de Venda - DUIMP",
+        "descricao": "Valor do item na condição de venda convertido em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 358,
+        "coluna": "Frete Internacional (R$) - DUIMP",
+        "descricao": "Valor do frete internacional em reais para fins de valoração aduaneira",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 359,
+        "coluna": "Seguro Internacional (R$) - DUIMP",
+        "descricao": "Valor do seguro internacional em reais para fins de valoração aduaneira",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 360,
+        "coluna": "Valor Local de Embarque (R$) - DUIMP",
+        "descricao": "Valor da mercadoria no local de embarque em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 361,
+        "coluna": "Valor Aduaneiro (R$) - DUIMP",
+        "descricao": "Valor aduaneiro calculado em reais, base para tributos de importação",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 362,
+        "coluna": "Tipo Cobertura Cambial - DUIMP",
+        "descricao": "Modalidade de cobertura cambial declarada na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 363,
+        "coluna": "Número do ROF - DUIMP",
+        "descricao": "Número do Registro de Operações Financeiras junto ao BACEN",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 364,
+        "coluna": "Motivo Sem Cobertura - DUIMP",
+        "descricao": "Justificativa legal para ausência de cobertura cambial",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 365,
+        "coluna": "BC II (R$) - DUIMP",
+        "descricao": "Base de cálculo do Imposto de Importação em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 366,
+        "coluna": "Alíquota do II (%) - DUIMP",
+        "descricao": "Percentual de alíquota do Imposto de Importação",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 367,
+        "coluna": "Valor Devido do II - DUIMP",
+        "descricao": "Valor total do Imposto de Importação devido",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 368,
+        "coluna": "Valor Recolher do II - DUIMP",
+        "descricao": "Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 369,
+        "coluna": "BC IPI (R$) - DUIMP",
+        "descricao": "Base de cálculo do IPI em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 370,
+        "coluna": "Alíquota do IPI(%) - DUIMP",
+        "descricao": "Percentual de alíquota do IPI",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 371,
+        "coluna": "Valor Recolher do IPI- DUIMP",
+        "descricao": "Valor do IPI a recolher",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 372,
+        "coluna": "BC PIS(R$) - DUIMP",
+        "descricao": "Base de cálculo do PIS/PASEP em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 373,
+        "coluna": "Alíquota do PIS(%) - DUIMP",
+        "descricao": "Percentual de alíquota do PIS/PASEP",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 374,
+        "coluna": "Valor Recolher do PIS- DUIMP",
+        "descricao": "Valor do PIS/PASEP a recolher",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 375,
+        "coluna": "BC COFINS(R$) - DUIMP",
+        "descricao": "Base de cálculo do COFINS em reais",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 376,
+        "coluna": "Alíquota do COFINS(%) - DUIMP",
+        "descricao": "Percentual de alíquota do COFINS",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 377,
+        "coluna": "Valor Recolher do COFINS- DUIMP",
+        "descricao": "Valor do COFINS a recolher",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 378,
+        "coluna": "Existe Tratamento Administrativo - DUIMP",
+        "descricao": "Indica se existe tratamento administrativo associado ao item na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 379,
+        "coluna": "Tipo Tratamento Administrativo - DUIMP",
+        "descricao": "Tipo/modalidade do tratamento administrativo na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 380,
+        "coluna": "Órgão Anuente Tratamento Administrativo - DUIMP",
+        "descricao": "Órgão anuente responsável pelo tratamento administrativo",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 381,
+        "coluna": "Número LPCO Tratamento Administrativo - DUIMP",
+        "descricao": "Número da LPCO vinculada ao tratamento administrativo na DUIMP",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  },
+  {
+    "id": "filho-dados-fisicos",
+    "titulo": "Dados Físicos",
+    "nivel": "item",
+    "colunas": [
+      {
+        "ordem": 201,
+        "coluna": "Peso Líquido Unitário do Item",
+        "descricao": "Peso líquido unitário do produto, em kg",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 202,
+        "coluna": "Peso Bruto Unitário do Item",
+        "descricao": "Peso bruto unitário incluindo embalagem, em kg",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 203,
+        "coluna": "Cubagem Unitária do Item",
+        "descricao": "Volume unitário do produto, em m³",
+        "fixa": false,
+        "formatacao": "Número",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      },
+      {
+        "ordem": 204,
+        "coluna": "Tipo de Embalagem",
+        "descricao": "Tipo de embalagem do produto (ex: Caixa, Pallet, Tambor)",
+        "fixa": false,
+        "formatacao": "Texto",
+        "edicaoPedido": "Não",
+        "edicaoItem": "Não",
+        "soma": "—",
+        "espelha": "—"
+      }
+    ]
+  }
+] as ManualPedidoGrupoCatalogoColunas[]

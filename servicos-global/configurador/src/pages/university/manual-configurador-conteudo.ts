@@ -71,6 +71,8 @@ export interface DocPassoVisual {
   colunasTabela?: DocColunaTabela[]
   /** Manual Smart Docs §05 — tabela das 15 colunas padrão da Lista. */
   mostrarTabelaColunasPadraoLista?: boolean
+  /** Dica após a tabela de colunas padrão (antes da galeria de customização). */
+  calloutAposTabelaColunasPadrao?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Manual Smart Docs §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
@@ -79,6 +81,8 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual Pedido §05 — mapa UX 10 do catálogo nativo (>100 colunas por grupo). */
+  mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
   galeriaTelasAposTabela?: DocGaleriaTela[]
   /** Callout após tabela + galeria (ex.: resumo da customização completa). */

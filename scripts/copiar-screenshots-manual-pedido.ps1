@@ -25,6 +25,9 @@ $mapa = @{
   'tela_pedido_acesso_via_hub' = 'pedido-acesso-hub.png'
   'tela_pedido_acesso_via_menu_lateral' = 'pedido-acesso-menu-lateral.png'
   'tela_pedido_visao_lista_expandir_seta' = 'pedido-lista-expandir-seta.png'
+  'tela_pedido_visao_lista_itens_expandidos' = 'pedido-lista-itens-expandidos.png'
+  'tela_pedido_visao_lista_expandir_todos_seta' = 'pedido-lista-expandir-todos-seta.png'
+  'tela_pedido_visao_lista_itens_expandidos_todos' = 'pedido-lista-expandir-todos-expandido.png'
 }
 
 $copiados = 0

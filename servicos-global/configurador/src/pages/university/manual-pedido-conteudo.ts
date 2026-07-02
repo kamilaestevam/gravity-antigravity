@@ -20,6 +20,9 @@ const LINK_MANUAL_PEDIDO_CONFIGURACOES =
  * - tela_pedido_acesso_via_hub.png  → pedido-acesso-hub.png
  * - tela_pedido_acesso_via_menu_lateral.png → pedido-acesso-menu-lateral.png
  * - tela_pedido_visao_lista_expandir_seta.png → pedido-lista-expandir-seta.png
+ * - tela_pedido_visao_lista_itens_expandidos.png → pedido-lista-itens-expandidos.png
+ * - tela_pedido_visao_lista_expandir_todos_seta.png → pedido-lista-expandir-todos-seta.png
+ * - tela_pedido_visao_lista_itens_expandidos_todos.png → pedido-lista-expandir-todos-expandido.png
  * - pedido-novo-pedido.png
  * - pedido-novo-item.png
  * - pedido-transferir.png
@@ -36,6 +39,9 @@ const SCREENSHOT_PEDIDO_KANBAN = '/university/screenshots/pedido-kanban.png'
 const SCREENSHOT_PEDIDO_ACESSO_HUB = '/university/screenshots/pedido-acesso-hub.png'
 const SCREENSHOT_PEDIDO_ACESSO_MENU_LATERAL = '/university/screenshots/pedido-acesso-menu-lateral.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA = '/university/screenshots/pedido-lista-expandir-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_ITENS_EXPANDIDOS = '/university/screenshots/pedido-lista-itens-expandidos.png'
+const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_SETA = '/university/screenshots/pedido-lista-expandir-todos-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_EXPANDIDO = '/university/screenshots/pedido-lista-expandir-todos-expandido.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -189,7 +195,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Expandir linhas',
           tituloCurto: 'Expandir',
           paragrafos: [
-            'Clique na **seta** à esquerda da linha para expandir os itens sem sair da lista.',
+            'Clique na **seta** à esquerda da linha para expandir os itens.',
             'A **linha mãe** é o pedido (ex.: PO 12345). As **linhas filhas** são cada item daquele pedido.',
             'Na **primeira coluna** do cabeçalho da tabela, clique na **seta** ao lado do checkbox para **expandir** ou **recolher** todos os pedidos visíveis na página de uma vez.',
             'Com todos expandidos, cada pedido mostra suas linhas filhas. O mesmo efeito de abrir linha a linha, em massa.',
@@ -200,11 +206,29 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               imagem: SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA,
               legenda: 'Seta para expandir',
             },
+            {
+              indice: 1,
+              imagem: SCREENSHOT_PEDIDO_LISTA_ITENS_EXPANDIDOS,
+              legenda: 'Linha mãe e itens expandidos',
+            },
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-lista-linha-expandida.png`, `pedido-lista-expandir-todos-seta.png`, `pedido-lista-expandir-todos-expandido.png`.',
-          },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 2,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: 'Seta Expandir todos no cabeçalho',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_SETA,
+                },
+                {
+                  legenda: 'Todos os pedidos expandidos',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EXPANDIR_TODOS_EXPANDIDO,
+                },
+              ],
+            },
+          ],
         },
         {
           titulo: 'Customizar colunas',
@@ -213,6 +237,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             'A **Lista** do Pedido é **altamente customizável**: você monta a visualização ideal no menu **Colunas**, salva no **painel** ativo e o layout volta automaticamente na sua próxima visita.',
           ],
           mostrarInfograficoPedidoListaCustomizacao: true,
+          mostrarInfograficoPedidoCatalogoColunasLista: true,
           mostrarTabelaColunasPadraoListaPedido: true,
           paragrafoAposGaleriaTabela:
             'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +

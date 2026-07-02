@@ -10,7 +10,6 @@ import {
   DownloadSimple,
   FileText,
   Spinner,
-  Timer,
   TrendDown,
   TrendUp,
 } from '@phosphor-icons/react'
@@ -24,11 +23,6 @@ import {
   calcularEstatisticasConferencia,
   extrairSecoesConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
-import { calcularSavingNovaLeituraSmartRead } from '../../shared/calcular-saving-nova-leitura-smart-read'
-import {
-  formatarSavingHorasLeitura,
-  formatarSavingValorLeitura,
-} from '../../shared/formatacao-leitura-smart-read'
 import { executarDownloadExportacaoLeituraSmartRead } from '../../shared/executar-download-exportacao-leitura-smart-read'
 
 type Props = {
@@ -82,10 +76,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
     const pctAlterados = preenchidos ? Math.round((alterados / preenchidos) * 100) : 0
     const pctValidados = preenchidos ? 100 - pctAlterados : 0
     const segundos = Math.floor(tempoTotalMs / 1000)
-    const saving = calcularSavingNovaLeituraSmartRead(arquivosCompletos, {
-      tempoLeituraSegundos: segundos,
-    })
-    return { total, preenchidos, documentos, pctAlterados, pctValidados, segundos, saving }
+    return { total, preenchidos, documentos, pctAlterados, pctValidados, segundos }
   }, [arquivosCompletos, camposEditados, tempoTotalMs])
 
   function alternarSelecao(id: string) {
@@ -171,22 +162,6 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                   <TrendDown size={14} weight="bold" />
                 </div>
               </div>
-            </div>
-          </article>
-
-          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
-            <header>
-              <Timer size={18} weight="duotone" />
-              <span>Recursos reduzidos com a leitura</span>
-            </header>
-            <div className="sr-wizard-metrica-valores">
-              <div className="sr-wizard-recursos">
-                <strong>{formatarSavingHorasLeitura(metricas.saving.minutos)}</strong>
-              </div>
-              {metricas.saving.brl != null && (
-                <span className="sr-res-saving-valor">{formatarSavingValorLeitura(metricas.saving.brl)}</span>
-              )}
-              <small>Base manual do documento − tempo de leitura</small>
             </div>
           </article>
 

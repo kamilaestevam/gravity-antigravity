@@ -1042,6 +1042,33 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Smart Read:', msg)
   }
 
+  // Sidecar Email tenant (porta 8008) — Resend S2S; antes do BID (disparo de cotação)
+  const orgUrlEmail =
+    process.env.ORGANIZACAO_DATABASE_URL ??
+    process.env.SERVICOS_PLATAFORMA_DATABASE_URL ??
+    process.env.TENANT_DATABASE_URL
+  if (orgUrlEmail) {
+    process.env.ORGANIZACAO_DATABASE_URL = orgUrlEmail
+    process.env.PORT = '8008'
+    process.env.DATABASE_URL = orgUrlEmail
+    process.env.EMAIL_SIDECAR = '1'
+    try {
+      const modEmail = await import('../../servicos-plataforma/email/server/index.js') as {
+        sidecarListenReady?: Promise<void>
+      }
+      await aguardarSidecarEmbutido(8008, modEmail.sidecarListenReady)
+      _sidecarStatus['email'] = { ok: true }
+      console.log('[configurador] Sidecar Email iniciado na porta 8008')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['email'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar Email:', msg)
+    }
+  } else {
+    _sidecarStatus['email'] = { ok: false, error: 'ORGANIZACAO_DATABASE_URL ausente' }
+    console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — sidecar Email desativado')
+  }
+
   // Sidecar 6: BID Frete Internacional (porta 8023) — antes do GABI (tools bid_frete.*)
   if (process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
     await aplicarMigrationsBidFreteDev()
@@ -1055,9 +1082,14 @@ if (process.env.NODE_ENV !== 'test') {
     process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
     process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
     process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+    process.env.EMAIL_SERVICE_URL =
+      process.env.EMAIL_SERVICE_URL?.trim()
+      || process.env.TENANT_EMAIL_SERVICE_URL?.trim()
+      || 'http://127.0.0.1:8008'
     process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
       ? `https://${process.env.CANONICAL_DOMAIN}`
       : 'https://usegravity.com.br'
+    process.env.APP_URL = process.env.APP_URL?.trim() || process.env.CLIENT_URL
     process.env.BID_FRETE_SIDECAR = '1'
 
     const _origExitBid = process.exit
@@ -1118,6 +1150,8 @@ if (process.env.NODE_ENV !== 'test') {
   // Sidecars embutidos — sempre loopback; ignora URLs externas legadas no Railway
   process.env.API_COCKPIT_SERVICE_URL = 'http://127.0.0.1:8016'
   process.env.GABI_SERVICE_URL = 'http://127.0.0.1:8009'
+  process.env.EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
+  process.env.TENANT_EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
   process.env.BID_FRETE_INTERNATIONAL_SERVICE_URL = 'http://127.0.0.1:8023'
   process.env.PEDIDO_SERVICE_URL = 'http://127.0.0.1:8030'
   process.env.CONFIGURADOR_SERVICE_URL = configuradorLoopbackUrl

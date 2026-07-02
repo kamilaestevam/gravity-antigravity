@@ -5,9 +5,19 @@
 
 import axios from 'axios'
 
+/** Paridade com worker de notificações (Hub) — SSOT de resolução S2S do serviço de e-mail. */
+export function resolverUrlServicoEmailDisparoBidFrete(): string {
+  return (
+    process.env.EMAIL_SERVICE_URL?.trim()
+    || process.env.TENANT_EMAIL_SERVICE_URL?.trim()
+    || process.env.SERVIDOR_PLATAFORMA_URL?.trim()
+    || 'http://127.0.0.1:3001'
+  )
+}
+
 export function extrairMensagemErroDisparo(
   err: unknown,
-  emailServiceUrl = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008',
+  emailServiceUrl = resolverUrlServicoEmailDisparoBidFrete(),
 ): string {
   if (axios.isAxiosError(err)) {
     const data = err.response?.data as { error?: { message?: string }; message?: string } | undefined
@@ -46,6 +56,8 @@ export function montarHtmlEmailDisparo(params: {
   origemPais: string
   destinoNome: string
   destinoPais: string
+  opcoesOrigemTexto?: string | null
+  opcoesDestinoTexto?: string | null
   mercadoria: string
   incoterm: string
   tipoContainer?: string | null
@@ -62,6 +74,8 @@ export function montarHtmlEmailDisparo(params: {
     origemPais,
     destinoNome,
     destinoPais,
+    opcoesOrigemTexto,
+    opcoesDestinoTexto,
     mercadoria,
     incoterm,
     tipoContainer,
@@ -79,6 +93,12 @@ export function montarHtmlEmailDisparo(params: {
       ? `<li><strong>Container:</strong> ${quantidade}x ${tipoContainer}</li>`
       : ''
   const pesoHtml = pesoKg ? `<li><strong>Peso:</strong> ${pesoKg} kg</li>` : ''
+  const opcoesOrigemHtml = opcoesOrigemTexto
+    ? `<li><strong>Portos/aeroportos alternativos aceitos (origem):</strong> ${opcoesOrigemTexto}</li>`
+    : ''
+  const opcoesDestinoHtml = opcoesDestinoTexto
+    ? `<li><strong>Portos/aeroportos alternativos aceitos (destino):</strong> ${opcoesDestinoTexto}</li>`
+    : ''
 
   return `
     <h2>Solicitação de Cotação de Frete Internacional</h2>
@@ -88,7 +108,9 @@ export function montarHtmlEmailDisparo(params: {
       <li><strong>Número:</strong> ${numeroCotacao}</li>
       <li><strong>Modal:</strong> ${modal}</li>
       <li><strong>Origem:</strong> ${origemNome} (${origemPais})</li>
+      ${opcoesOrigemHtml}
       <li><strong>Destino:</strong> ${destinoNome} (${destinoPais})</li>
+      ${opcoesDestinoHtml}
       <li><strong>Mercadoria:</strong> ${mercadoria}</li>
       <li><strong>Incoterm:</strong> ${incoterm}</li>
       ${containerHtml}

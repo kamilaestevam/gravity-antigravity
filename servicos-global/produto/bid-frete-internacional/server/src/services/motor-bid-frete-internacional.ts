@@ -16,6 +16,7 @@ import {
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
+  resolverUrlServicoEmailDisparoBidFrete,
 } from './motor-bid-disparo-utils.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
@@ -27,7 +28,7 @@ import {
   type FornecedorEspelhoBidDisparo,
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 
-const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
+const EMAIL_SERVICE_URL = resolverUrlServicoEmailDisparoBidFrete()
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'

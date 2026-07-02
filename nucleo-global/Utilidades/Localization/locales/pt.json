@@ -4089,6 +4089,33 @@
       "data_cancelamento": "Data cancelamento",
       "motivo_reprovacao": "Motivo reprovação",
       "motivo_cancelamento": "Motivo cancelamento"
+    },
+    "insights": {
+      "subtitulo": "Resumo das cotações de frete internacional",
+      "kpi": {
+        "aguardando_aprovacao": {
+          "titulo": "Cotações aguardando aprovação",
+          "subtexto": "{{count}} no escopo · USD {{valor}} em aberto",
+          "tooltip_volume": "Volume em aberto",
+          "coluna_data": "Respondido"
+        },
+        "aguardando_resposta": {
+          "titulo": "Cotações aguardando resposta",
+          "subtexto": "{{enviadas}} enviadas · {{em_cotacao}} em cotação",
+          "tooltip_volume_meta": "Volume meta (USD)",
+          "coluna_data": "Envio"
+        },
+        "tempo_medio_resposta": {
+          "titulo": "Tempo Médio de Resposta",
+          "meta_dias": "Meta: {{count}} dias",
+          "valor_dias": "{{count}} d",
+          "tooltip_media": "Média de resposta",
+          "tooltip_meta_sla": "Meta SLA",
+          "tooltip_aprovacoes_prazo": "Aprovações no prazo",
+          "sem_dados": "Sem dados",
+          "dias": "{{count}} dias"
+        }
+      }
     }
   },
   "bidcambio": {

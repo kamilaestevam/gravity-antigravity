@@ -36,7 +36,7 @@ import {
   rotaBidFreteInternacional,
   rotaDetalheCotacaoBidFreteInternacional,
 } from './shared/rotas-bid-frete-internacional'
-import { resolverPageMetaTopo } from './shared/page-meta-topo'
+import { traduzirPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
 import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
@@ -242,8 +242,8 @@ function AppInner() {
   }, [location.pathname])
 
   const pageMeta = useMemo(
-    () => resolverPageMetaTopo(location.pathname, location.search),
-    [location.pathname, location.search],
+    () => traduzirPageMetaTopo(location.pathname, location.search, t),
+    [location.pathname, location.search, t],
   )
 
   const initials = currentUser.name

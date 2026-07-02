@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
@@ -437,6 +438,7 @@ function resolverValorMetaUsdTooltipKpiResposta(kpis: KpisInsightsVisaoGeral): n
 }
 
 export default function VisaoGeral() {
+  const { t } = useTranslation()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
@@ -626,7 +628,9 @@ export default function VisaoGeral() {
     const slug = STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL
     const funil = kpis?.funil ?? []
     return {
-      titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
+      titulo: t('bidfrete.insights.kpi.aguardando_aprovacao.titulo', {
+        defaultValue: TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
+      }),
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#818cf8'),
       count: resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(
         funil,
@@ -634,7 +638,7 @@ export default function VisaoGeral() {
         kpis?.kpi_insights_aguardando_aprovacao,
       ),
     }
-  }, [statusCotacaoConfig, kpis?.funil, kpis?.kpi_insights_aguardando_aprovacao])
+  }, [statusCotacaoConfig, kpis?.funil, kpis?.kpi_insights_aguardando_aprovacao, t])
 
   const kpiCardAguardandoResposta = useMemo(() => {
     const funil = kpis?.funil ?? []
@@ -645,7 +649,9 @@ export default function VisaoGeral() {
       kpis?.kpi_insights_aguardando_resposta,
     )
     return {
-      titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
+      titulo: t('bidfrete.insights.kpi.aguardando_resposta.titulo', {
+        defaultValue: TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
+      }),
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, 'EM_COTACAO', '#fb923c'),
       count: resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional(
         funil,
@@ -659,6 +665,7 @@ export default function VisaoGeral() {
     kpis?.funil,
     kpis?.kpi_insights_aguardando_resposta,
     kpis?.kpi_insights_aguardando_resposta_detalhe,
+    t,
   ])
 
   const cotacoesAguardandoRespostaOrdenadas = useMemo(
@@ -734,7 +741,31 @@ export default function VisaoGeral() {
   }
 
   const tempoRespostaLabel =
-    kpis.tempo_medio_resposta_dias != null ? `${kpis.tempo_medio_resposta_dias} d` : '—'
+    kpis.tempo_medio_resposta_dias != null
+      ? t('bidfrete.insights.kpi.tempo_medio_resposta.valor_dias', {
+        defaultValue: '{{count}} d',
+        count: kpis.tempo_medio_resposta_dias,
+      })
+      : '—'
+
+  const subtextoKpiAguardandoAprovacao = t('bidfrete.insights.kpi.aguardando_aprovacao.subtexto', {
+    defaultValue: `${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis))} em aberto`,
+    count: totalCotacoesEscopo,
+    valor: fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis)),
+  })
+
+  const subtextoKpiAguardandoResposta = t('bidfrete.insights.kpi.aguardando_resposta.subtexto', {
+    defaultValue: `${kpiCardAguardandoResposta.detalhe.enviadaFornecedores} enviadas · ${kpiCardAguardandoResposta.detalhe.emCotacao} em cotação`,
+    enviadas: kpiCardAguardandoResposta.detalhe.enviadaFornecedores,
+    em_cotacao: kpiCardAguardandoResposta.detalhe.emCotacao,
+  })
+
+  const rotuloStatusEnviadaFornecedor = t('bidfrete.status_cotacao.ENVIADA_FORNECEDORES', {
+    defaultValue: 'Enviada ao fornecedor',
+  })
+  const rotuloStatusEmCotacao = t('bidfrete.status_cotacao.EM_COTACAO', {
+    defaultValue: 'Em cotação',
+  })
 
   return (
     <div className="bfd-dashboard">
@@ -1097,13 +1128,15 @@ export default function VisaoGeral() {
           titulo={kpiCardAguardandoAprovacao.titulo}
           icone={<Warning weight="duotone" size={16} style={{ color: kpiCardAguardandoAprovacao.cor }} />}
           valor={String(kpiCardAguardandoAprovacao.count)}
-          subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis))} em aberto`}
+          subtexto={subtextoKpiAguardandoAprovacao}
           variante="padrao"
           tooltip={
             <InsightsKpiTooltipListaBidFreteInternacional
               resumo={(
                 <InsightsKpiTooltipResumoBidFreteInternacional
-                  volumeRotulo="Volume em aberto"
+                  volumeRotulo={t('bidfrete.insights.kpi.aguardando_aprovacao.tooltip_volume', {
+                    defaultValue: 'Volume em aberto',
+                  })}
                   volumeValor={`USD ${fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis))}`}
                   tituloContagem={kpiCardAguardandoAprovacao.titulo}
                   contagem={kpiCardAguardandoAprovacao.count}
@@ -1112,7 +1145,9 @@ export default function VisaoGeral() {
               )}
               cotacoes={cotacoesAguardandoAprovacaoOrdenadas}
               total={totalCotacoesAguardandoAprovacao}
-              rotuloColunaData="Respondido"
+              rotuloColunaData={t('bidfrete.insights.kpi.aguardando_aprovacao.coluna_data', {
+                defaultValue: 'Respondido',
+              })}
               resolverDataReferencia={c => c.data_primeira_resposta_cotacao_bid_frete_internacional}
             />
           }
@@ -1121,23 +1156,25 @@ export default function VisaoGeral() {
           titulo={kpiCardAguardandoResposta.titulo}
           icone={<Envelope weight="duotone" size={16} style={{ color: kpiCardAguardandoResposta.cor }} />}
           valor={String(kpiCardAguardandoResposta.count)}
-          subtexto={`${kpiCardAguardandoResposta.detalhe.enviadaFornecedores} enviadas · ${kpiCardAguardandoResposta.detalhe.emCotacao} em cotação`}
+          subtexto={subtextoKpiAguardandoResposta}
           variante="padrao"
           tooltip={
             <InsightsKpiTooltipListaBidFreteInternacional
               resumo={(
                 <InsightsKpiTooltipResumoBidFreteInternacional
-                  volumeRotulo="Volume meta (USD)"
+                  volumeRotulo={t('bidfrete.insights.kpi.aguardando_resposta.tooltip_volume_meta', {
+                    defaultValue: 'Volume meta (USD)',
+                  })}
                   volumeValor={`USD ${fmtMoeda(resolverValorMetaUsdTooltipKpiResposta(kpis))}`}
                   tituloContagem={kpiCardAguardandoResposta.titulo}
                   contagem={kpiCardAguardandoResposta.count}
                   linhasExtras={[
                     {
-                      rotulo: 'Enviada ao fornecedor',
+                      rotulo: rotuloStatusEnviadaFornecedor,
                       valor: kpiCardAguardandoResposta.detalhe.enviadaFornecedores,
                     },
                     {
-                      rotulo: 'Em cotação',
+                      rotulo: rotuloStatusEmCotacao,
                       valor: kpiCardAguardandoResposta.detalhe.emCotacao,
                       cor: '#34d399',
                     },
@@ -1147,34 +1184,52 @@ export default function VisaoGeral() {
               )}
               cotacoes={cotacoesAguardandoRespostaOrdenadas}
               total={totalCotacoesAguardandoResposta}
-              rotuloColunaData="Envio"
+              rotuloColunaData={t('bidfrete.insights.kpi.aguardando_resposta.coluna_data', {
+                defaultValue: 'Envio',
+              })}
               resolverDataReferencia={c => c.data_envio_disparo_cotacao_bid_frete_internacional}
             />
           }
         />
         <CardBasicoGlobal
-          titulo="Tempo Médio de Resposta"
+          titulo={t('bidfrete.insights.kpi.tempo_medio_resposta.titulo', {
+            defaultValue: 'Tempo Médio de Resposta',
+          })}
           icone={<Timer weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
           valor={tempoRespostaLabel}
           tendencia={{ valor: '', direcao: 'down' }}
-          subtexto="Meta: 3 dias"
+          subtexto={t('bidfrete.insights.kpi.tempo_medio_resposta.meta_dias', {
+            defaultValue: 'Meta: {{count}} dias',
+            count: 3,
+          })}
           variante="padrao"
           tooltip={
             <>
               <div className="cg-tooltip__row">
-                <span>Média de resposta</span>
+                <span>{t('bidfrete.insights.kpi.tempo_medio_resposta.tooltip_media', {
+                  defaultValue: 'Média de resposta',
+                })}</span>
                 <strong>
                   {kpis.tempo_medio_resposta_dias != null
-                    ? `${kpis.tempo_medio_resposta_dias} dias`
-                    : 'Sem dados'}
+                    ? t('bidfrete.insights.kpi.tempo_medio_resposta.dias', {
+                      defaultValue: '{{count}} dias',
+                      count: kpis.tempo_medio_resposta_dias,
+                    })
+                    : t('bidfrete.insights.kpi.tempo_medio_resposta.sem_dados', {
+                      defaultValue: 'Sem dados',
+                    })}
                 </strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Meta SLA</span>
+                <span>{t('bidfrete.insights.kpi.tempo_medio_resposta.tooltip_meta_sla', {
+                  defaultValue: 'Meta SLA',
+                })}</span>
                 <strong>3.0 dias</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Aprovações no prazo</span>
+                <span>{t('bidfrete.insights.kpi.tempo_medio_resposta.tooltip_aprovacoes_prazo', {
+                  defaultValue: 'Aprovações no prazo',
+                })}</span>
                 <strong style={{ color: '#34d399' }}>{kpis.aprovacao.percentual_em_tempo}%</strong>
               </div>
             </>

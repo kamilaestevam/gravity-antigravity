@@ -96,6 +96,29 @@ function normalizarItem(raw: Record<string, unknown>): NcmItemRaw {
   return { codigo, descricao, dataInicio: inicio, dataFim: fim }
 }
 
+/**
+ * Converte datas do Portal Único (DD/MM/YYYY) para Date válido.
+ * Retorna null para vazio, formato inválido ou sentinelas (ex.: 31/12/9999 = vigência aberta).
+ */
+export function parseDataNcmSiscomex(val: string | null | undefined): Date | null {
+  if (val == null) return null
+  const trimmed = String(val).trim()
+  if (!trimmed) return null
+
+  const br = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed)
+  if (br) {
+    const day = Number(br[1])
+    const month = Number(br[2])
+    const year = Number(br[3])
+    if (year >= 9999 || year < 1900) return null
+    const d = new Date(Date.UTC(year, month - 1, day))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+
+  const iso = new Date(trimmed)
+  return Number.isNaN(iso.getTime()) ? null : iso
+}
+
 function parseAliquota(val: unknown): number | null {
   if (val == null) return null
   const n = typeof val === 'number' ? val : parseFloat(String(val))

@@ -204,6 +204,12 @@ export function obterLeituraMockLegado(idLeitura: string): LeituraLegado {
   return montarLeituraLegado(registro)
 }
 
+export function excluirLeituraMockLegado(idLeitura: string): void {
+  if (!leituras.delete(idLeitura)) {
+    throw new Error(`Leitura mock ${idLeitura} não encontrada`)
+  }
+}
+
 export function listarLeiturasMockLegado(params: {
   pagina: number
   limite: number

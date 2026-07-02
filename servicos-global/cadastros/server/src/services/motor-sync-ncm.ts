@@ -13,7 +13,7 @@
  */
 
 import type { PrismaClient } from '../../../generated/index.js'
-import { baixarTabelaNcm, buscarAliquotasEmLote, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
+import { baixarTabelaNcm, buscarAliquotasEmLote, parseDataNcmSiscomex, type NcmItemRaw } from '../connectors/portalUnicoNcm.js'
 import { AppError } from '../lib/app-error.js'
 import { comRetryConexaoBanco } from '../lib/retry-conexao-banco.js'
 import { despacharNotificacoesNcmSync } from './notificador-sync-ncm.js'
@@ -92,15 +92,15 @@ export async function executarSync(
               codigo_ncm_sync:      item.codigo,
               descricao_ncm_sync:   item.descricao,
               ativo_ncm_sync:       true,
-              data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
-              data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
+              data_inicio_ncm_sync: parseDataNcmSiscomex(item.dataInicio),
+              data_fim_ncm_sync:    parseDataNcmSiscomex(item.dataFim),
               id_ncm_sync_log:      syncLog.id_ncm_sync_log,
             },
             update: {
               descricao_ncm_sync:   item.descricao,
               ativo_ncm_sync:       true,
-              data_inicio_ncm_sync: item.dataInicio ? new Date(item.dataInicio) : null,
-              data_fim_ncm_sync:    item.dataFim    ? new Date(item.dataFim)    : null,
+              data_inicio_ncm_sync: parseDataNcmSiscomex(item.dataInicio),
+              data_fim_ncm_sync:    parseDataNcmSiscomex(item.dataFim),
               id_ncm_sync_log:      syncLog.id_ncm_sync_log,
             },
           })

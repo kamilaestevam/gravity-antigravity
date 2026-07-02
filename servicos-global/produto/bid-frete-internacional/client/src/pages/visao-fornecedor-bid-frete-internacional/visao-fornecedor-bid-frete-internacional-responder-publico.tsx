@@ -222,6 +222,7 @@ export default function ResponderPublico() {
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
         cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
+        cotacao?.modalidade_cotacao_bid_frete_internacional,
       )
 
       await enviarPropostaPublicoApi(token, payload)

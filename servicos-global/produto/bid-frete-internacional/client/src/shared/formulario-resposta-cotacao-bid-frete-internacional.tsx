@@ -252,10 +252,18 @@ export function exibeCampoEscalasRespostaCotacao(modal?: ModalFrete | null): boo
   return modal === 'AEREO'
 }
 
-export function exigeFreeTimeObrigatorioRespostaCotacao(
+export function exibeCampoFreeTimeRespostaCotacao(
+  modal?: ModalFrete | null,
   modalidade?: ModalidadeCarga | null,
 ): boolean {
-  return modalidade === 'FCL'
+  return modal === 'MARITIMO' && modalidade === 'FCL'
+}
+
+export function exigeFreeTimeObrigatorioRespostaCotacao(
+  modal?: ModalFrete | null,
+  modalidade?: ModalidadeCarga | null,
+): boolean {
+  return exibeCampoFreeTimeRespostaCotacao(modal, modalidade)
 }
 
 function diasInteiroNaoNegativoValido(valor: string): boolean {
@@ -282,7 +290,7 @@ export function camposLogisticaRespostaCotacaoValidos(
   if (!diasInteiroNaoNegativoValido(form.dias_prazo_pagamento_proposta_bid_frete_internacional)) {
     return false
   }
-  if (exigeFreeTimeObrigatorioRespostaCotacao(modalidade)) {
+  if (exigeFreeTimeObrigatorioRespostaCotacao(modal, modalidade)) {
     if (!diasInteiroNaoNegativoValido(form.dias_free_time_proposta_bid_frete_internacional)) {
       return false
     }
@@ -563,7 +571,7 @@ export function FormPropostaRespostaCotacao({
 
   const mostrarTransbordos = exibeCampoTransbordosRespostaCotacao(modalCotacao)
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
-  const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
+  const mostrarFreeTime = exibeCampoFreeTimeRespostaCotacao(modalCotacao, modalidadeCotacao)
   const mostrarArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(incluirArmazenagemCotacao)
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
@@ -699,22 +707,20 @@ export function FormPropostaRespostaCotacao({
             />
           </div>
 
-          <div className="brc-field">
-            {freeTimeObrigatorio ? (
+          {mostrarFreeTime ? (
+            <div className="brc-field">
               <LabelObrigatorio>{rotulos.freeTime}</LabelObrigatorio>
-            ) : (
-              <label className="brc-label">{rotulos.freeTime}</label>
-            )}
-            <input
-              className="brc-input brc-input--mono"
-              type="number"
-              min="0"
-              step="1"
-              placeholder={rotulos.placeholderFreeTime}
-              value={form.dias_free_time_proposta_bid_frete_internacional}
-              onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
-            />
-          </div>
+              <input
+                className="brc-input brc-input--mono"
+                type="number"
+                min="0"
+                step="1"
+                placeholder={rotulos.placeholderFreeTime}
+                value={form.dias_free_time_proposta_bid_frete_internacional}
+                onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
+              />
+            </div>
+          ) : null}
 
           <div className="brc-field brc-field--calendario">
             <LabelObrigatorio>{rotulos.validade}</LabelObrigatorio>

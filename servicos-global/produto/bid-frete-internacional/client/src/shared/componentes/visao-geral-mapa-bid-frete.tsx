@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import type { ItemRankingMapaBidFrete } from '../calcular-rankings-mapa-bid-frete-internacional'
@@ -1086,6 +1087,10 @@ export function VisaoGeralMapaBidFrete({
   painelRankingsExterno = false,
   painelInferiorInsights,
 }: VisaoGeralMapaBidFreteProps) {
+  const { t } = useTranslation()
+  const tituloMapa = titulo ?? t('bidfrete.insights.mapa.titulo', {
+    defaultValue: 'Visão Geral Global de Cotações',
+  })
   const pinsBase = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
   const rotasBase = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
   const [filtrosMapaInsights, setFiltrosMapaInsights] =
@@ -1185,9 +1190,18 @@ export function VisaoGeralMapaBidFrete({
   const subtituloRankings =
     fonteDados === 'api'
       ? totalFiltrosAtivos > 0
-        ? `${totalFiltrosAtivos} filtro(s) ativo(s) • ${rankingsCalculados.totalBids} cotações`
-        : `Rankings em tempo real • ${rankingsCalculados.totalBids} cotações`
-      : painelRankingsSubtitulo
+        ? t('bidfrete.insights.rankings.subtitulo_filtros', {
+            defaultValue: `${totalFiltrosAtivos} filtro(s) ativo(s) • ${rankingsCalculados.totalBids} cotações`,
+            filtros: totalFiltrosAtivos,
+            count: rankingsCalculados.totalBids,
+          })
+        : t('bidfrete.insights.rankings.subtitulo_tempo_real', {
+            defaultValue: `Rankings em tempo real • ${rankingsCalculados.totalBids} cotações`,
+            count: rankingsCalculados.totalBids,
+          })
+      : t('bidfrete.insights.rankings.subtitulo_demo', {
+          defaultValue: painelRankingsSubtitulo,
+        })
 
   const rankingsEmColunaExterna = exibirPainelLateralMapa && painelRankingsExterno
   const layoutInsightsSplit = rankingsEmColunaExterna && fonteDados === 'api'
@@ -2437,10 +2451,14 @@ export function VisaoGeralMapaBidFrete({
           <div className={`bfd-map-right-panel bfd-map-right-panel--${painelRankingsExterno ? 'origens' : activeTab}`}>
             <div className="bfd-map-panel__header">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title">Rankings Globais</span>
+                <span className="bfd-map-panel__title">
+                  {t('bidfrete.insights.rankings.titulo', { defaultValue: 'Rankings Globais' })}
+                </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span className="bfd-map-panel__live-dot" />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {t('bidfrete.insights.rankings.live_feed', { defaultValue: 'LIVE FEED' })}
+                  </span>
                 </div>
               </div>
               <span className="bfd-map-panel__subtitle">{subtituloRankings}</span>
@@ -2452,19 +2470,19 @@ export function VisaoGeralMapaBidFrete({
                 className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
               >
-                <Globe size={13} weight="bold" /> Origens
+                <Globe size={13} weight="bold" /> {t('bidfrete.insights.rankings.tab_origens', { defaultValue: 'Origens' })}
               </button>
               <button
                 className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
               >
-                <MapPin size={13} weight="bold" /> Destinos
+                <MapPin size={13} weight="bold" /> {t('bidfrete.insights.rankings.tab_destinos', { defaultValue: 'Destinos' })}
               </button>
               <button
                 className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
               >
-                <List size={13} weight="bold" /> Modais
+                <List size={13} weight="bold" /> {t('bidfrete.insights.rankings.tab_modais', { defaultValue: 'Modais' })}
               </button>
             </div>
             ) : null}
@@ -2503,7 +2521,12 @@ export function VisaoGeralMapaBidFrete({
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    <span className="bfd-map-panel__row-bids">
+                      {t('bidfrete.insights.rankings.contagem_bids', {
+                        defaultValue: `${item.count} bids`,
+                        count: item.count,
+                      })}
+                    </span>
                   </div>
                 )
               })}
@@ -2541,7 +2564,12 @@ export function VisaoGeralMapaBidFrete({
                       <span className="bfd-map-panel__row-city">{item.name}</span>
                       <span className="bfd-map-panel__row-code">{item.code}</span>
                     </div>
-                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                    <span className="bfd-map-panel__row-bids">
+                      {t('bidfrete.insights.rankings.contagem_bids', {
+                        defaultValue: `${item.count} bids`,
+                        count: item.count,
+                      })}
+                    </span>
                   </div>
                 )
               })}
@@ -2555,10 +2583,15 @@ export function VisaoGeralMapaBidFrete({
                     </span>
                     <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
                       <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                        {item.label}
+                        {t(`bidfrete.enums.modal.${item.modal_cotacao_bid_frete_internacional}`, {
+                          defaultValue: item.label,
+                        })}
                       </span>
                       <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                        {item.count} bids
+                        {t('bidfrete.insights.rankings.contagem_bids', {
+                          defaultValue: `${item.count} bids`,
+                          count: item.count,
+                        })}
                       </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
@@ -2575,7 +2608,9 @@ export function VisaoGeralMapaBidFrete({
 
               {painelRankingsExterno && listaRankingsInsights.length === 0 ? (
                 <div className="bfd-map-panel__empty">
-                  Nenhuma cotação para os filtros selecionados.
+                  {t('bidfrete.insights.rankings.vazio_filtros', {
+                    defaultValue: 'Nenhuma cotação para os filtros selecionados.',
+                  })}
                 </div>
               ) : null}
             </div>
@@ -3325,15 +3360,23 @@ export function VisaoGeralMapaBidFrete({
             <div className="cg-card__icon-wrap">
               <Globe weight="duotone" size={16} style={{ color: '#fbbf24' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>{titulo}</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>{tituloMapa}</p>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
             {mapaVazioApi
-              ? 'Nenhuma cotação com coordenadas no mapa ainda.'
+              ? t('bidfrete.insights.mapa.vazio_coordenadas', {
+                defaultValue: 'Nenhuma cotação com coordenadas no mapa ainda.',
+              })
               : mapaModo === 'transit'
-                ? descricaoMapaTransit
+                ? descricaoTransit
                 : (descricaoBids ??
-                  `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`)}
+                  t('bidfrete.insights.mapa.descricao_bids', {
+                    defaultValue:
+                      `Localizações estratégicas, bids ativos e saving acumulado por terminal (${vista === 'mapa' ? 'Arrastar para Mover' : 'Arrastar para Girar'})`,
+                    arraste: vista === 'mapa'
+                      ? t('bidfrete.insights.mapa.arraste_mover', { defaultValue: 'Arrastar para Mover' })
+                      : t('bidfrete.insights.mapa.arraste_girar', { defaultValue: 'Arrastar para Girar' }),
+                  }))}
           </span>
         </div>
 

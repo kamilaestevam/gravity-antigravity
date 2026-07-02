@@ -332,7 +332,141 @@
       "goalDays": "Goal: {{count}} days",
       "openAmountUsd": "Open amount (USD)",
       "accumulatedUsd": "Accumulated (USD)",
-      "totalAmountUsd": "Total amount (USD)"
+      "totalAmountUsd": "Total amount (USD)",
+      "subtitulo_pagina": "Configurable KPIs and widgets",
+      "subtitulo_pagina_fornecedor": "Supplier configurable KPIs and widgets",
+      "painel_criado_sucesso": "Panel \"{{nome}}\" created.",
+      "painel_criado_erro": "Could not save the panel.",
+      "faixa_paineis": "Dashboard panels",
+      "paineis_secao": "Dashboard panels",
+      "gabi_insight_anterior": "Previous insight",
+      "gabi_proximo_insight": "Next insight",
+      "gabi_ao_vivo": "live",
+      "widget_adicionado_sucesso": "Widget \"{{title}}\" added to your dashboard successfully.",
+      "widgets": {
+        "kpi_saving_total": "Total Saving",
+        "kpi_valor_medio": "Average Won Value",
+        "kpi_transit_time": "Average Transit Time",
+        "kpi_ganho_percentual": "Percentage Gain",
+        "gabi_insights": "GABI AI · Insights",
+        "volume_mensal_chart": "Monthly Quote Volume",
+        "section_alertas": "Alerts and Operational Flows",
+        "kpi_cotacoes_andamento": "Quotes in Progress",
+        "kpi_cotacoes_passadas": "Past Quotes",
+        "kpi_valor_aprovado": "Total Approved Value",
+        "status_dist_chart": "Quotes by Status",
+        "kpi_pendentes_fornecedor": "Awaiting response",
+        "kpi_propostas_enviadas_fornecedor": "Proposals sent",
+        "kpi_taxa_resposta_fornecedor": "Response rate",
+        "kpi_taxa_aprovacao_fornecedor": "Approval rate",
+        "gabi_insights_fornecedor": "GABI AI · Insights",
+        "volume_mensal_fornecedor": "Monthly proposal volume",
+        "section_funil_fornecedor": "Funnel and results",
+        "kpi_em_analise_fornecedor": "Under review",
+        "kpi_aprovadas_fornecedor": "Approved",
+        "kpi_reprovadas_fornecedor": "Declined",
+        "funil_dist_fornecedor": "Proposal funnel"
+      },
+      "catalog": {
+        "saving_total": "Total Saving (Gain vs Target)",
+        "valor_medio_ganho_bid_frete_internacional": "Average Won Value",
+        "cotacoes_status": "Quotes by Status",
+        "ganho_percentual_ganho_bid_frete_internacional": "Average Percentage Gain",
+        "transit_time": "Average Transit Time (Days)",
+        "volume_mensal": "Monthly Quote Volume",
+        "cotacoes_andamento": "Quotes in Progress",
+        "cotacoes_passadas": "Past Quotes",
+        "valor_andamento_usd": "Total In-Progress Value (USD)",
+        "valor_aprovado_usd": "Total Approved Value (USD)"
+      },
+      "catalog_dimensao": {
+        "status_cotacao": "Quote Status"
+      },
+      "status_toolbar": {
+        "rascunho": "Draft",
+        "em_cotacao": "In Quoting",
+        "aguardando_aprovacao": "Pending Approval",
+        "aprovada": "Approved"
+      },
+      "derivadas": {
+        "saving_medio_por_cotacao": {
+          "label": "Average Saving per Quote",
+          "description": "Average amount saved per completed quote in the period"
+        },
+        "taxa_conclusao_cotacoes": {
+          "label": "Quote Completion Rate",
+          "description": "Percentage of past quotes relative to total (in progress + past)"
+        },
+        "ticket_medio_aprovado": {
+          "label": "Average Approved Ticket",
+          "description": "Average value of approved proposals"
+        }
+      },
+      "sugestoes": {
+        "distribuicao_titulo": "Distribution of {{dimLabel}}",
+        "distribuicao_descricao": "Proportion between {{fields}}",
+        "tendencia_mes_titulo": "{{label}} by Month",
+        "tendencia_mes_descricao": "Volume trend of {{label}} over the last 12 months",
+        "evolucao_titulo": "Trend — {{label}}",
+        "evolucao_descricao": "Monthly time series of {{label}}",
+        "comparativo_qty_titulo": "Quantity Comparison — {{domainLabel}}"
+      },
+      "insights": {
+        "rascunhos_ativos": {
+          "tag": "Attention · Pending Drafts",
+          "texto_one": "{{count}} quote in draft. Finalize and send for freight negotiation.",
+          "texto_other": "{{count}} quotes in draft. Finalize and send for freight negotiation.",
+          "stat_label": "In draft",
+          "link": "View quotes"
+        },
+        "cotacoes_andamento": {
+          "tag": "Operational · In Quoting",
+          "texto_one": "{{count}} active freight quote round in the market.",
+          "texto_other": "{{count}} active freight quote rounds in the market.",
+          "stat_valor": "Value in quoting",
+          "stat_ativas": "Active quotes",
+          "link": "Track BIDs"
+        },
+        "saving_total": {
+          "tag": "Financial · Accumulated Saving",
+          "texto": "Saving generated in freight negotiations totals {{valor}}.",
+          "stat_reducao": "Average reduction",
+          "stat_total": "Total saved",
+          "link": "View comparisons"
+        },
+        "valor_aprovado": {
+          "tag": "Financial · Awarded",
+          "texto": "International freight awards total {{valor}} in approved proposals.",
+          "stat_ticket": "Average won ticket",
+          "link": "View awarded"
+        },
+        "tendencia_volume": {
+          "tag": "Trend · Closed BIDs",
+          "texto_cresceu": "Volume of awarded quotes grew {{pct}} compared to the previous period.",
+          "texto_caiu": "Volume of awarded quotes fell {{pct}} compared to the previous period.",
+          "stat_anterior": "Previous period",
+          "link": "Explore data"
+        },
+        "status_ok": {
+          "tag": "Gabi AI · All clear",
+          "texto": "No critical pending items or operational anomalies identified in the selected period.",
+          "stat_periodo": "Period",
+          "link": "View quotes"
+        }
+      },
+      "vazio_widget": {
+        "gabi_tag": "GABI · No data in period",
+        "ampliar_para": "Expand to:",
+        "experimente": "Try:",
+        "editar_campos": "Edit fields",
+        "remover_widget": "Remove widget",
+        "campo_generico": "this field",
+        "conector_e": "and",
+        "distribuicao": "No records found to distribute {{field}} in the selected period. Adjust filters to continue.",
+        "tendencia": "No trend data for {{field}} in this interval. Try expanding the period.",
+        "barras": "No activity recorded to compare {{field}} in the current period.",
+        "generico": "No data available for this widget in the selected period. Expand the interval or adjust fields."
+      }
     },
     "config": {
       "sidebar": {
@@ -1279,6 +1413,7 @@
         "modal_excluir_n_itens": "Remove {{count}} selected opportunity(ies)?"
       },
       "kanban": {
+        "subtitulo": "Your quotes and proposals by stage",
         "aguardando_resposta": "Awaiting response",
         "em_analise": "Under review",
         "aprovada": "Approved",
@@ -1697,7 +1832,27 @@
       "direcionada": "Directed",
       "sim": "Yes",
       "nao": "No",
-      "anonima": "Anonymous"
+      "anonima": "Anonymous",
+      "numeroCotacao": "Quote No.",
+      "id": "ID",
+      "organizacao": "Organization",
+      "produtoGravity": "Gravity Product",
+      "usuario": "User",
+      "workspace": "Workspace",
+      "referenciaInterna": "Internal Reference",
+      "portoOrigem": "Origin port",
+      "aeroportoOrigem": "Origin airport",
+      "enderecoOrigem": "Origin address",
+      "portoDestino": "Destination port",
+      "aeroportoDestino": "Destination airport",
+      "enderecoDestino": "Destination address",
+      "zipcodeOrigem": "Origin ZIP code",
+      "zipcodeDestino": "Destination ZIP code",
+      "valorMeta": "Target value",
+      "moedaMeta": "Target currency",
+      "fornecedorVencedor": "Winning supplier",
+      "ganhoEstimado": "Estimated savings",
+      "ganhoPercentual": "Savings (%)"
     },
     "visao_geral": {
       "em_construcao": "Overview — Under construction"
@@ -1779,10 +1934,14 @@
       "membro_fallback": "Membro"
     },
     "kanban": {
-      "localizar": "Localizar quote...",
-      "propostas_contagem": "{{count}} proposta(s)",
-      "semCotacoes": "no quote",
-      "totalCotacoes": "{{count}} quotes"
+      "subtitulo": "Quotes organized by status",
+      "localizar": "Find quote...",
+      "referencia_prefixo": "Ref:",
+      "propostas_contagem_one": "{{count}} proposal",
+      "propostas_contagem_other": "{{count}} proposals",
+      "semCotacoes": "No quotes",
+      "totalCotacoes_one": "{{count}} quote",
+      "totalCotacoes_other": "{{count}} quotes"
     },
     "status_cotacao": {
       "RASCUNHO": "Draft",
@@ -1858,6 +2017,87 @@
           "tooltip_aprovacoes_prazo": "On-time approvals",
           "sem_dados": "No data",
           "dias": "{{count}} days"
+        }
+      },
+      "alertas": {
+        "titulo": "Alerts",
+        "hoje": "Today",
+        "dia_anterior_aria": "Previous day",
+        "proximo_dia_aria": "Next day",
+        "vence_hoje": "Quotes expiring today",
+        "resposta": "Pending responses",
+        "aprovacao": "Awaiting approval",
+        "nova": "New quotes (7 days)"
+      },
+      "funil": {
+        "titulo": "Quote Funnel"
+      },
+      "rankings": {
+        "titulo": "Global Rankings",
+        "live_feed": "LIVE FEED",
+        "tab_origens": "Origins",
+        "tab_destinos": "Destinations",
+        "tab_modais": "Modes",
+        "subtitulo_filtros": "{{filtros}} active filter(s) • {{count}} quotes",
+        "subtitulo_tempo_real": "Real-time rankings • {{count}} quotes",
+        "subtitulo_demo": "Real-time rankings • 200 bids",
+        "contagem_bids_one": "{{count}} bid",
+        "contagem_bids_other": "{{count}} bids",
+        "vazio_filtros": "No quotes match the selected filters."
+      },
+      "mapa": {
+        "titulo": "Global Quote Overview",
+        "vazio_coordenadas": "No quotes with map coordinates yet.",
+        "descricao_bids": "Strategic locations, active bids and accumulated savings by terminal ({{arraste}})",
+        "arraste_mover": "Drag to Move",
+        "arraste_girar": "Drag to Rotate"
+      },
+      "graficos": {
+        "cotacoes_por_mes": {
+          "titulo": "Quotes by Month",
+          "subtitulo": "Last 6 months",
+          "legenda_aprovadas": "Approved",
+          "legenda_andamento": "In progress",
+          "legenda_recusadas": "Declined",
+          "sem_dados": "No quotes in the last 6 months for the selected workspaces."
+        },
+        "distribuicao_modal": {
+          "titulo": "Distribution by Mode",
+          "centro_cotacoes": "quotes",
+          "sem_dados": "No quotes to distribute by mode."
+        },
+        "ptax": {
+          "titulo": "PTAX Exchange Rate (BACEN)",
+          "tab_hoje": "Today",
+          "tab_historico": "History",
+          "tab_futuro": "Future",
+          "selecionar_data": "SELECT PTAX DATE",
+          "horizonte_hedge": "HEDGE HORIZON",
+          "indisponivel": "PTAX unavailable. Sync in Configurator › Currency Rates.",
+          "erro_carregar": "Failed to load PTAX"
+        },
+        "spread": {
+          "titulo": "Average Applied Spread",
+          "sem_dados": "Configure rates in BID Frete › Settings › Exchange Rate to calculate spread.",
+          "rodape": "Spread = difference between product-configured rate and today's PTAX (BACEN)."
+        },
+        "melhor_cotacao": {
+          "titulo": "Best Quote of the Month",
+          "dias_one": "{{count}} day",
+          "dias_other": "{{count}} days",
+          "saving": "{{pct}}% saving",
+          "sem_dados": "No approved quotes this month in the selected scope."
+        },
+        "top_incoterms": {
+          "titulo": "Top Incoterms",
+          "sem_dados": "No incoterms recorded in scope quotes."
+        },
+        "taxa_aprovacao": {
+          "titulo": "Approval Rate",
+          "em_tempo_centro": "on time",
+          "legenda_em_tempo": "On time: {{pct}}%",
+          "legenda_atrasadas": "Delayed: {{pct}}%",
+          "legenda_sem_resposta": "No response: {{pct}}%"
         }
       }
     }

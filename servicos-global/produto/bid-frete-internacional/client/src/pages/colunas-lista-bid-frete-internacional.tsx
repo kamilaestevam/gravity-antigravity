@@ -1,4 +1,5 @@
 import React from 'react'
+import type { TFunction } from 'i18next'
 import type { GTColuna, GTMapaColunasFilho, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
@@ -32,6 +33,7 @@ import {
   CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
 } from '../shared/ordem-colunas-lista-bid-frete-internacional'
+import { traduzirLabelColunaListaBidFrete } from '../shared/traduzir-coluna-lista-bid-frete-internacional'
 
 export { CAMPOS_NAO_EDITAVEIS_LISTA }
 
@@ -642,11 +644,11 @@ export function formatValorExportColuna(
 
 /** Todas as colunas escalares de `cotacao_bid_frete_internacional` (fragment.prisma). */
 function buildColunasCotacoesBase(
-  _t: unknown,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
-  return [
+  const colunas: GTColuna<Cotacao>[] = [
     {
       key: 'numero_cotacao_bid_frete_internacional',
       label: 'Nº da cotação',
@@ -969,6 +971,15 @@ function buildColunasCotacoesBase(
       ),
     },
   ]
+
+  return colunas.map((col) => {
+    const chave = String(col.key ?? '')
+    const padraoPt = String(col.label ?? '')
+    return {
+      ...col,
+      label: traduzirLabelColunaListaBidFrete(t, chave, padraoPt),
+    }
+  })
 }
 
 function ordenarColunasListaPorOrdemCanonica(
@@ -993,7 +1004,7 @@ function ordenarColunasListaPorOrdemCanonica(
 }
 
 function buildColunasCotacoesBaseOrdenadas(
-  t: unknown,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
@@ -1009,7 +1020,7 @@ function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao>
 }
 
 export function buildColunasCotacoes(
-  t: unknown,
+  t: TFunction,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
@@ -1064,7 +1075,7 @@ export function buildColunasPaiListaDeColunasCotacao(
 
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
 export function buildColunasPaiLista(
-  t: unknown,
+  t: TFunction,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<LinhaPaiLista>[] {
@@ -1142,7 +1153,7 @@ export function buildMapaColunasFilhoDeColunas(
 }
 
 export function buildMapaColunasFilho(
-  t: unknown,
+  t: TFunction,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): Record<string, GTMapaColunasFilho<LinhaFilhaLista>> {

@@ -145,6 +145,10 @@ const PAGE_META_LABEL_KEYS: Partial<Record<string, string>> = {
 const PAGE_META_SUBTITLE_KEYS: Partial<Record<string, string>> = {
   insights: 'bidfrete.insights.subtitulo',
   'visao-geral': 'bidfrete.insights.subtitulo',
+  dashboard: 'bidfrete.dashboard.subtitulo_pagina',
+  'visao-fornecedor-bid-frete-internacional/paineis-dashboard': 'bidfrete.dashboard.subtitulo_pagina_fornecedor',
+  kanban: 'bidfrete.kanban.subtitulo',
+  'visao-fornecedor-bid-frete-internacional/kanban': 'bidfrete.visao_fornecedor_bid_frete_internacional.kanban.subtitulo',
 }
 
 /** Resolve meta do topo traduzida (label + subtítulo via i18n). */

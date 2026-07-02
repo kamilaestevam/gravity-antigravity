@@ -4,6 +4,10 @@
  */
 
 import { z } from 'zod'
+import {
+  LIMITE_CATALOGO_AEROPORTOS_GLOBAL,
+  LIMITE_CATALOGO_AEROPORTOS_POR_PAIS,
+} from '@nucleo/catalogo-aeroportos-cadastros'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   ehParceiroFreteInternacional,
@@ -261,10 +265,17 @@ export const cadastrosApi = {
   },
 
   listarAeroportos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
+    const busca = params?.q?.trim()
+    const pais = params?.pais?.trim()
+    const limitePadrao = busca
+      ? 500
+      : pais
+        ? LIMITE_CATALOGO_AEROPORTOS_POR_PAIS
+        : LIMITE_CATALOGO_AEROPORTOS_GLOBAL
     const search = new URLSearchParams({ apenas_ativos: 'true' })
-    if (params?.q) search.set('q', params.q)
-    if (params?.pais) search.set('pais', params.pais)
-    if (params?.limit) search.set('limit', String(params.limit))
+    if (busca) search.set('q', busca)
+    if (pais) search.set('pais', pais)
+    search.set('limit', String(params?.limit ?? limitePadrao))
     return request(`/api/v1/cadastros/aeroportos?${search.toString()}`)
   },
 

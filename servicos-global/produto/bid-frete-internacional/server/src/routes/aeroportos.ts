@@ -18,8 +18,9 @@ type ListaCadastros<T> = { itens: T[]; total: number }
 
 router.get('/aeroportos', async (req: Request, res: Response) => {
   try {
-    const { q, pais, limit = '50' } = req.query as { q?: string; pais?: string; limit?: string }
-    const limitNum = Math.min(Number(limit) || 50, q || pais ? 500 : 10_000)
+    const { q, pais, limit } = req.query as { q?: string; pais?: string; limit?: string }
+    const limiteMax = q || pais ? 500 : 10_000
+    const limitNum = Math.min(Number(limit) || limiteMax, limiteMax)
 
     const resp = await fetchCadastrosJson<ListaCadastros<AeroportoCadastros>>(
       '/api/v1/cadastros/aeroportos',

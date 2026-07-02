@@ -94,27 +94,24 @@ export function usePortosPorPais(codigoPais: string, ativo = true) {
   return { portos, opcoes, carregando }
 }
 
-/** Aeroportos: `ativo` controla o modal; país é filtro opcional (lista completa sem país). */
+/** Aeroportos: catálogo global indexado; `codigoPais` filtra no client (evita truncar na API). */
 export function useAeroportosPorPais(codigoPais: string, ativo = true) {
-  const [aeroportos, setAeroportos] = useState<AeroportoCadastro[]>([])
+  const [aeroportosCatalogo, setAeroportosCatalogo] = useState<AeroportoCadastro[]>([])
   const [carregando, setCarregando] = useState(false)
 
   useEffect(() => {
     if (!ativo) {
-      setAeroportos([])
+      setAeroportosCatalogo([])
       return
     }
     let cancelado = false
     setCarregando(true)
-    carregarCatalogoAeroportosCadastros(
-      (p) => cadastrosApi.listarAeroportos(p),
-      codigoPais,
-    )
+    carregarCatalogoAeroportosCadastros((p) => cadastrosApi.listarAeroportos(p))
       .then((itens) => {
-        if (!cancelado) setAeroportos(itens)
+        if (!cancelado) setAeroportosCatalogo(itens)
       })
       .catch(() => {
-        if (!cancelado) setAeroportos([])
+        if (!cancelado) setAeroportosCatalogo([])
       })
       .finally(() => {
         if (!cancelado) setCarregando(false)
@@ -122,7 +119,15 @@ export function useAeroportosPorPais(codigoPais: string, ativo = true) {
     return () => {
       cancelado = true
     }
-  }, [codigoPais, ativo])
+  }, [ativo])
+
+  const aeroportos = useMemo(() => {
+    const pais = codigoPais.trim().toUpperCase()
+    if (!pais) return aeroportosCatalogo
+    return aeroportosCatalogo.filter(
+      (a) => (a.codigo_pais_aeroporto ?? '').trim().toUpperCase() === pais,
+    )
+  }, [aeroportosCatalogo, codigoPais])
 
   const opcoes = useMemo((): SelectOpcao[] =>
     aeroportos

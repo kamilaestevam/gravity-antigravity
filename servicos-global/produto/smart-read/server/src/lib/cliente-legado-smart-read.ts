@@ -9,6 +9,7 @@ import {
   criarLeituraMockLegado,
   criarTarefaDownloadMockLegado,
   enviarArquivoMockLegado,
+  excluirLeituraMockLegado,
   listarLeiturasMockLegado,
   obterArquivoMockLegado,
   obterLeituraMockLegado,
@@ -62,6 +63,7 @@ const TIMEOUT_MS = 30_000
 // O frontend de referencia (dati-import-frontend-v2) nao limita o upload.
 const TIMEOUT_UPLOAD_MS = 600_000
 const BASE_PATH = '/import-control-center/external-readings'
+const BASE_PATH_LEITURAS_DATI = '/import-control-center/readings'
 
 function configuracaoLegado(): { urlBase: string; chaveGravity: string } {
   const urlBase = process.env.SMART_READ_LEGADO_URL
@@ -115,6 +117,34 @@ type MetadadosArquivoLegadoJson = {
 
 function extrairUrlMetadadosArquivo(meta: MetadadosArquivoLegadoJson): string | null {
   return meta.downloadUrl ?? meta.url ?? meta.fileUrl ?? null
+}
+
+async function chamarLegadoSemCorpo(
+  urlCompleta: string,
+  init: RequestInit,
+  timeoutMs = TIMEOUT_MS,
+): Promise<void> {
+  let resposta: globalThis.Response
+  try {
+    resposta = await fetch(urlCompleta, {
+      ...init,
+      signal: AbortSignal.timeout(timeoutMs),
+    })
+  } catch (erro) {
+    throw new AppError(
+      `Smart Docs legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      502,
+      'LEGADO_INDISPONIVEL',
+    )
+  }
+  if (!resposta.ok) {
+    const corpo = await resposta.text().catch(() => '')
+    throw new AppError(
+      `Smart Docs legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
+      resposta.status === 401 || resposta.status === 403 ? 502 : resposta.status,
+      'LEGADO_ERRO',
+    )
+  }
 }
 
 async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIMEOUT_MS): Promise<unknown> {
@@ -444,6 +474,49 @@ export async function obterArquivoLegado(
   }
 
   throw ultimoErro ?? new AppError('Arquivo nao encontrado no legado', 404, 'LEGADO_ARQUIVO_NAO_ENCONTRADO')
+}
+
+async function excluirLeituraViaReadingsController(companyId: string, idLeitura: string): Promise<void> {
+  const { urlBase } = configuracaoLegado()
+  const query = new URLSearchParams({ ids: idLeitura })
+  await chamarLegadoSemCorpo(
+    `${urlBase}${BASE_PATH_LEITURAS_DATI}/delete-multiple-readings?${query.toString()}`,
+    {
+      method: 'DELETE',
+      headers: {
+        ...cabecalhosBase(companyId),
+        'x-smart-read-project-id': 'gravity',
+      },
+    },
+  )
+}
+
+export async function excluirLeituraLegado(companyId: string, idLeitura: string): Promise<void> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    excluirLeituraMockLegado(idLeitura)
+    return
+  }
+  const { urlBase } = configuracaoLegado()
+  const cabecalhos = {
+    ...cabecalhosBase(companyId),
+    'x-smart-read-project-id': 'gravity',
+  }
+  try {
+    await chamarLegadoSemCorpo(`${urlBase}${BASE_PATH}/${idLeitura}`, {
+      method: 'DELETE',
+      headers: cabecalhos,
+    })
+  } catch (erro) {
+    if (
+      erro instanceof AppError &&
+      (erro.statusCode === 404 || erro.statusCode === 405 || erro.statusCode === 501)
+    ) {
+      await excluirLeituraViaReadingsController(companyId, idLeitura)
+      return
+    }
+    throw erro
+  }
 }
 
 export async function listarLeiturasLegado(

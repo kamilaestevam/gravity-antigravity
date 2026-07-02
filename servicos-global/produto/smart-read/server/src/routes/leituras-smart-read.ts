@@ -12,6 +12,7 @@ import { AppError } from '../lib/app-error.js'
 import {
   criarLeituraLegado,
   enviarArquivoLegado,
+  excluirLeituraLegado,
   obterArquivoLegado,
   obterLeituraLegado,
   resolverCompanyLegado,
@@ -24,6 +25,7 @@ import {
   resolverIdWorkspaceLeituraSmartRead,
 } from '../lib/escopo-workspace-leitura-smart-read.js'
 import { registrarVinculoLeituraUsuarioSmartRead } from '../lib/registrar-vinculo-leitura-usuario-smart-read.js'
+import { removerEspelhoGravityLeituraSmartRead } from '../lib/remover-espelho-gravity-leitura-smart-read.js'
 import {
   obterLeituraDoProgresso,
   obterLeituraDoSnapshot,
@@ -343,9 +345,26 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
   }
 })
 
-router.delete('/:id_leitura', async (_req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
-    throw new AppError('Exclusao de leitura ainda nao disponivel no legado', 501, 'NAO_IMPLEMENTADO')
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    idUsuarioDaRequisicao(req)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    const companyId = await resolverCompanyLegado(idOrganizacao)
+
+    await obterLeituraLegado(companyId, id_leitura)
+    await excluirLeituraLegado(companyId, id_leitura)
+
+    if (req.prisma) {
+      await removerEspelhoGravityLeituraSmartRead({
+        prisma: req.prisma,
+        idLeitura: id_leitura,
+        idWorkspace,
+      })
+    }
+
+    res.status(204).send()
   } catch (err) {
     next(err)
   }

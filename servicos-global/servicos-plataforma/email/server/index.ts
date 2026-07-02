@@ -14,6 +14,12 @@ import { mensagensRouter } from './routes/mensagens.js'
 import { templatesRouter } from './routes/templates.js'
 import { filaRouter } from './routes/fila.js'
 import { webhookRouter } from './routes/webhook.js'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../middleware/sidecar-listen-ready.js'
+
+const EMAIL_SIDECAR = process.env.EMAIL_SIDECAR === '1'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8008)
@@ -53,11 +59,16 @@ app.use(errorHandler)
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
+const listenHandles = criarSidecarListenReady(EMAIL_SIDECAR, PORT, 'EMAIL_SERVICE')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`[EMAIL_SERVICE] ✅ Rodando na porta ${PORT}`)
     console.log(`[EMAIL_SERVICE]    Health: http://localhost:${PORT}/health`)
+    listenHandles.aoSubirListen()
   })
+  registrarErroListenSidecar(server, listenHandles, EMAIL_SIDECAR, PORT, 'EMAIL_SERVICE')
 }
 
 export default app

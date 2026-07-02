@@ -18,7 +18,7 @@ describe('excluirLeituraLegado', () => {
     vi.restoreAllMocks()
   })
 
-  it('chama DELETE em external-readings com headers Gravity', async () => {
+  it('prioriza DELETE em external-readings/delete-multiple-readings', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -26,7 +26,9 @@ describe('excluirLeituraLegado', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(url).toBe(`https://legado.example/import-control-center/external-readings/${ID_LEITURA}`)
+    expect(url).toBe(
+      `https://legado.example/import-control-center/external-readings/delete-multiple-readings?ids=${encodeURIComponent(ID_LEITURA)}`,
+    )
     expect(init.method).toBe('DELETE')
     expect(init.headers).toMatchObject({
       'x-gravity-api-key': 'chave-teste',
@@ -35,23 +37,34 @@ describe('excluirLeituraLegado', () => {
     })
   })
 
-  it('faz fallback para delete-multiple-readings quando external-readings responde 404', async () => {
+  it('tenta proxima URL quando a anterior responde 404 de rota', async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce({
         ok: false,
         status: 404,
-        text: async () => '{"message":"Cannot DELETE /external-readings/..."}',
+        text: async () => '{"message":"Cannot DELETE /external-readings/delete-multiple-readings"}',
       })
-      .mockResolvedValueOnce({ ok: true, status: 200 })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
     vi.stubGlobal('fetch', fetchMock)
 
     await excluirLeituraLegado(COMPANY, ID_LEITURA)
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
     const [urlFallback] = fetchMock.mock.calls[1] as [string]
-    expect(urlFallback).toBe(
-      `https://legado.example/import-control-center/readings/delete-multiple-readings?ids=${encodeURIComponent(ID_LEITURA)}`,
-    )
+    expect(urlFallback).toBe(`https://legado.example/import-control-center/external-readings/${ID_LEITURA}`)
+  })
+
+  it('propaga 404 quando todas as URLs falham com reading not found', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      text: async () =>
+        '{"message":"Reading with ID 674a1b2c3d4e5f6789012345 not found","error":"Not Found","statusCode":404}',
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(excluirLeituraLegado(COMPANY, ID_LEITURA)).rejects.toThrow(/respondeu 404/)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 })

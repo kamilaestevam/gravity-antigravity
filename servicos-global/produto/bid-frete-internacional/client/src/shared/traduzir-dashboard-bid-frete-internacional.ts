@@ -326,6 +326,7 @@ export function traduzirInsightGabiDashboard(
           defaultValue: 'Ver comparativos',
         }),
       }
+    }
     case 'valor_aprovado': {
       const valor = kpis ? fmtUsdInsight(kpis.valor_aprovado_usd) : (ins.stat?.valor ?? '')
       return {
@@ -349,6 +350,7 @@ export function traduzirInsightGabiDashboard(
           defaultValue: 'Ver adjudicadas',
         }),
       }
+    }
     case 'tendencia_volume': {
       const crescendo = ins.texto.includes('cresceu')
       return {

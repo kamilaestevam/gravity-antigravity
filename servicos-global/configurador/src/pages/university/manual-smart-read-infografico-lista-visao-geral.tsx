@@ -202,7 +202,7 @@ const ZONAS: ZonaLista[] = [
       },
       {
         rotulo: 'Nome da leitura',
-        descricao: 'Link para retomar conferência e editar campos extraídos.',
+        descricao: 'O acesso aos detalhes das leituras é feito por aqui: passos, campos e downloads.',
         icone: PencilSimpleLine,
         capitulos: [],
         imagem: IMG.lista,

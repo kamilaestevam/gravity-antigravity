@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
@@ -125,7 +126,24 @@ function PainelSemDadosInsights({ mensagem }: { mensagem: string }) {
   )
 }
 
+function traduzirLabelAlertaInsights(t: TFunction, alerta: CalendarioAlerta): string {
+  return t(`bidfrete.insights.alertas.${alerta.tipo}`, { defaultValue: alerta.label })
+}
+
+function formatarMesGraficoInsights(chaveMes: string, locale: string, fallback: string): string {
+  const match = /^(\d{4})-(\d{2})$/.exec(chaveMes)
+  if (!match) return fallback
+  const ano = Number(match[1])
+  const mes = Number(match[2])
+  if (!Number.isFinite(ano) || !Number.isFinite(mes) || mes < 1 || mes > 12) return fallback
+  return new Date(ano, mes - 1, 1).toLocaleDateString(locale, { month: 'short' })
+}
+
 function GraficoBarrasMensal({ dados }: { dados: MesGraficoInsights[] }) {
+  const { t, i18n } = useTranslation()
+  const mensagemSemDados = t('bidfrete.insights.graficos.cotacoes_por_mes.sem_dados', {
+    defaultValue: 'Nenhuma cotação nos últimos 6 meses para os workspaces selecionados.',
+  })
   const W = 520
   const H = 280
   const pad = { top: 35, right: 20, bottom: 40, left: 40 }
@@ -136,7 +154,7 @@ function GraficoBarrasMensal({ dados }: { dados: MesGraficoInsights[] }) {
   const totais = dados.map(d => d.aprovadas + d.andamento + d.recusadas)
   const maxMonthlyTotal = Math.max(...totais, 0)
   if (maxMonthlyTotal === 0) {
-    return <PainelSemDadosInsights mensagem="Nenhuma cotação nos últimos 6 meses para os workspaces selecionados." />
+    return <PainelSemDadosInsights mensagem={mensagemSemDados} />
   }
   const maxVal = maxMonthlyTotal * 1.1
 
@@ -276,7 +294,7 @@ function GraficoBarrasMensal({ dados }: { dados: MesGraficoInsights[] }) {
               fontWeight="600"
               className="bfd-chart-month-text"
             >
-              {d.mes}
+              {formatarMesGraficoInsights(d.chave_mes, i18n.language, d.mes)}
             </text>
           </g>
         )
@@ -294,9 +312,16 @@ const MODAL_ICONS: Record<string, React.ReactNode> = {
 }
 
 function GraficoDonutModal({ dados }: { dados: ModalGraficoInsights[] }) {
+  const { t } = useTranslation()
+  const mensagemSemDados = t('bidfrete.insights.graficos.distribuicao_modal.sem_dados', {
+    defaultValue: 'Nenhuma cotação para distribuir por modal.',
+  })
+  const rotuloCentroCotacoes = t('bidfrete.insights.graficos.distribuicao_modal.centro_cotacoes', {
+    defaultValue: 'cotações',
+  })
   const total = dados.reduce((s, m) => s + m.count, 0)
   if (total === 0) {
-    return <PainelSemDadosInsights mensagem="Nenhuma cotação para distribuir por modal." />
+    return <PainelSemDadosInsights mensagem={mensagemSemDados} />
   }
   const cx = 80
   const cy = 80
@@ -331,13 +356,19 @@ function GraficoDonutModal({ dados }: { dados: ModalGraficoInsights[] }) {
           />
         ))}
         <text x={cx} y={cy - 4} textAnchor="middle" fill="#ffffff" fontSize="28" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{total}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>cotações</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{rotuloCentroCotacoes}</text>
       </svg>
       <div className="bfd-donut__legend">
         {dados.map(m => (
           <div key={m.modal_cotacao_bid_frete_internacional} className="bfd-donut__legend-row">
             <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>{MODAL_ICONS[m.modal_cotacao_bid_frete_internacional]}</span>
-            <span className="bfd-donut__legend-label">{MODAL_LABELS[m.modal_cotacao_bid_frete_internacional as keyof typeof MODAL_LABELS] ?? m.modal_cotacao_bid_frete_internacional}</span>
+            <span className="bfd-donut__legend-label">
+              {t(`bidfrete.enums.modal.${m.modal_cotacao_bid_frete_internacional}`, {
+                defaultValue:
+                  MODAL_LABELS[m.modal_cotacao_bid_frete_internacional as keyof typeof MODAL_LABELS]
+                  ?? m.modal_cotacao_bid_frete_internacional,
+              })}
+            </span>
             <div className="bfd-donut__legend-bar">
               <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
             </div>
@@ -357,6 +388,7 @@ function TaxaAprovacao({
 }: {
   aprovacao: DashboardKPIs['aprovacao']
 }) {
+  const { t } = useTranslation()
   const { percentual_em_tempo, percentual_atraso, nao_respondidas } = aprovacao
   const cx = 55
   const cy = 55
@@ -365,9 +397,30 @@ function TaxaAprovacao({
   const circ = 2 * Math.PI * r
 
   const segments = [
-    { pct: percentual_em_tempo, cor: '#60a5fa', label: `Em tempo: ${percentual_em_tempo}%` },
-    { pct: percentual_atraso, cor: '#fbbf24', label: `Atrasadas: ${percentual_atraso}%` },
-    { pct: nao_respondidas, cor: '#f87171', label: `Sem resposta: ${nao_respondidas}%` },
+    {
+      pct: percentual_em_tempo,
+      cor: '#60a5fa',
+      label: t('bidfrete.insights.graficos.taxa_aprovacao.legenda_em_tempo', {
+        defaultValue: `Em tempo: ${percentual_em_tempo}%`,
+        pct: percentual_em_tempo,
+      }),
+    },
+    {
+      pct: percentual_atraso,
+      cor: '#fbbf24',
+      label: t('bidfrete.insights.graficos.taxa_aprovacao.legenda_atrasadas', {
+        defaultValue: `Atrasadas: ${percentual_atraso}%`,
+        pct: percentual_atraso,
+      }),
+    },
+    {
+      pct: nao_respondidas,
+      cor: '#f87171',
+      label: t('bidfrete.insights.graficos.taxa_aprovacao.legenda_sem_resposta', {
+        defaultValue: `Sem resposta: ${nao_respondidas}%`,
+        pct: nao_respondidas,
+      }),
+    },
   ]
   let off = 0
 
@@ -393,7 +446,9 @@ function TaxaAprovacao({
           return arc
         })}
         <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="22" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{percentual_em_tempo}%</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>em tempo</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>
+          {t('bidfrete.insights.graficos.taxa_aprovacao.em_tempo_centro', { defaultValue: 'em tempo' })}
+        </text>
       </svg>
       <div className="bfd-taxa__legend">
         {segments.map((s, i) => (
@@ -438,7 +493,7 @@ function resolverValorMetaUsdTooltipKpiResposta(kpis: KpisInsightsVisaoGeral): n
 }
 
 export default function VisaoGeral() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
@@ -604,7 +659,7 @@ export default function VisaoGeral() {
       }
       setSpreadsMoeda(montarSpreadMedioInsights(atuais.por_moeda, taxasAplicadas))
     } catch (err) {
-      setErroPtax(err instanceof Error ? err.message : 'Falha ao carregar PTAX')
+      setErroPtax(err instanceof Error ? err.message : t('bidfrete.insights.graficos.ptax.erro_carregar', { defaultValue: 'Falha ao carregar PTAX' }))
       setCotacoesPtax([])
       setSpreadsMoeda([])
     }
@@ -688,12 +743,25 @@ export default function VisaoGeral() {
     ?? kpis?.funil?.reduce((acc, f) => acc + f.count, 0)
     ?? 0
 
+  const etapasFunilTraduzidas = useMemo(
+    () =>
+      etapasFunil.map((etapa) => ({
+        ...etapa,
+        rotulo: t(`bidfrete.status_cotacao.${etapa.codigo_status}`, {
+          defaultValue: etapa.rotulo,
+        }),
+      })),
+    [etapasFunil, t],
+  )
+
   const labelDataAlertas = useMemo(() => {
     const hoje = new Date().toISOString().slice(0, 10)
-    if (dataReferenciaAlertas === hoje) return 'Hoje'
+    if (dataReferenciaAlertas === hoje) {
+      return t('bidfrete.insights.alertas.hoje', { defaultValue: 'Hoje' })
+    }
     const d = new Date(`${dataReferenciaAlertas}T12:00:00`)
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-  }, [dataReferenciaAlertas])
+    return d.toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })
+  }, [dataReferenciaAlertas, i18n.language, t])
 
   const deslocarDiaAlertas = (delta: number) => {
     const d = new Date(`${dataReferenciaAlertas}T12:00:00`)
@@ -1266,14 +1334,16 @@ export default function VisaoGeral() {
                 <div className="cg-card__icon-wrap">
                   <Bell weight="duotone" size={16} style={{ color: '#f87171' }} />
                 </div>
-                <p className="cg-card__label" style={{ margin: 0 }}>Alertas</p>
+                <p className="cg-card__label" style={{ margin: 0 }}>
+                  {t('bidfrete.insights.alertas.titulo', { defaultValue: 'Alertas' })}
+                </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                 <button
                   type="button"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}
                   onClick={() => deslocarDiaAlertas(-1)}
-                  aria-label="Dia anterior"
+                  aria-label={t('bidfrete.insights.alertas.dia_anterior_aria', { defaultValue: 'Dia anterior' })}
                 >
                   <CaretLeft size={12} />
                 </button>
@@ -1282,7 +1352,7 @@ export default function VisaoGeral() {
                   type="button"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}
                   onClick={() => deslocarDiaAlertas(1)}
-                  aria-label="Próximo dia"
+                  aria-label={t('bidfrete.insights.alertas.proximo_dia_aria', { defaultValue: 'Próximo dia' })}
                 >
                   <CaretRight size={12} />
                 </button>
@@ -1365,7 +1435,7 @@ export default function VisaoGeral() {
                       </span>
                     </div>
                     <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#cbd5e1', lineHeight: '1.2', marginTop: '0.35rem', letterSpacing: '0.01em' }}>
-                      {a.label}
+                      {traduzirLabelAlertaInsights(t, a)}
                     </span>
                   </div>
                 )
@@ -1379,9 +1449,11 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Funil de Cotações</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>
+                {t('bidfrete.insights.funil.titulo', { defaultValue: 'Funil de Cotações' })}
+              </p>
             </div>
-            <BidFreteFunilBarras etapas={etapasFunil} rotuloEtapa={(rotulo) => rotulo} />
+            <BidFreteFunilBarras etapas={etapasFunilTraduzidas} rotuloEtapa={(rotulo) => rotulo} />
           </div>
             </div>
           )}
@@ -1396,15 +1468,28 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Cotações por Mês</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>
+                {t('bidfrete.insights.graficos.cotacoes_por_mes.titulo', { defaultValue: 'Cotações por Mês' })}
+              </p>
             </div>
-            <span className="bfd-chart__subtitle">Últimos 6 meses</span>
+            <span className="bfd-chart__subtitle">
+              {t('bidfrete.insights.graficos.cotacoes_por_mes.subtitulo', { defaultValue: 'Últimos 6 meses' })}
+            </span>
           </div>
           <GraficoBarrasMensal dados={graficos.cotacoes_por_mes} />
           <div className="bfd-chart__legend">
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Aprovadas</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} /> Em andamento</span>
-            <span><span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} /> Recusadas</span>
+            <span>
+              <span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} />{' '}
+              {t('bidfrete.insights.graficos.cotacoes_por_mes.legenda_aprovadas', { defaultValue: 'Aprovadas' })}
+            </span>
+            <span>
+              <span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} />{' '}
+              {t('bidfrete.insights.graficos.cotacoes_por_mes.legenda_andamento', { defaultValue: 'Em andamento' })}
+            </span>
+            <span>
+              <span className="bfd-chart__legend-dot" style={{ background: '#f87171' }} />{' '}
+              {t('bidfrete.insights.graficos.cotacoes_por_mes.legenda_recusadas', { defaultValue: 'Recusadas' })}
+            </span>
           </div>
         </div>
 
@@ -1414,7 +1499,9 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Distribuição por Modal</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>
+              {t('bidfrete.insights.graficos.distribuicao_modal.titulo', { defaultValue: 'Distribuição por Modal' })}
+            </p>
           </div>
           <GraficoDonutModal dados={graficos.distribuicao_modal} />
         </div>
@@ -1426,16 +1513,27 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <CurrencyDollar weight="duotone" size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Câmbio PTAX (BACEN)</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>
+                {t('bidfrete.insights.graficos.ptax.titulo', { defaultValue: 'Câmbio PTAX (BACEN)' })}
+              </p>
             </div>
           </div>
 
           {/* Tab Switcher */}
           <div style={{ display: 'flex', gap: '0.25rem', background: 'rgba(255, 255, 255, 0.04)', padding: '0.2rem', borderRadius: '8px', marginBottom: '0.85rem' }}>
             {[
-              { id: 'hoje', label: 'Hoje' },
-              { id: 'historico', label: 'Histórico' },
-              { id: 'futuro', label: 'Futuro' },
+              {
+                id: 'hoje',
+                label: t('bidfrete.insights.graficos.ptax.tab_hoje', { defaultValue: 'Hoje' }),
+              },
+              {
+                id: 'historico',
+                label: t('bidfrete.insights.graficos.ptax.tab_historico', { defaultValue: 'Histórico' }),
+              },
+              {
+                id: 'futuro',
+                label: t('bidfrete.insights.graficos.ptax.tab_futuro', { defaultValue: 'Futuro' }),
+              },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1462,7 +1560,9 @@ export default function VisaoGeral() {
           {/* Histórico: Date Picker */}
           {cambioModo === 'historico' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '0.85rem' }}>
-              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>SELECIONAR DATA PTAX</label>
+              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>
+                {t('bidfrete.insights.graficos.ptax.selecionar_data', { defaultValue: 'SELECIONAR DATA PTAX' })}
+              </label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <CalendarBlank size={14} style={{ position: 'absolute', left: '8px', color: '#94a3b8' }} />
                 <input
@@ -1489,7 +1589,9 @@ export default function VisaoGeral() {
           {/* Futuro: Forward Horizon Selectors */}
           {cambioModo === 'futuro' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '0.85rem' }}>
-              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>HORIZONTE HEDGE</label>
+              <label style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.05em' }}>
+                {t('bidfrete.insights.graficos.ptax.horizonte_hedge', { defaultValue: 'HORIZONTE HEDGE' })}
+              </label>
               <div style={{ display: 'flex', gap: '0.25rem' }}>
                 {[30, 90, 180, 360].map(dias => (
                   <button
@@ -1523,7 +1625,11 @@ export default function VisaoGeral() {
             {erroPtax ? (
               <PainelSemDadosInsights mensagem={erroPtax} />
             ) : cotacoesPtax.length === 0 ? (
-              <PainelSemDadosInsights mensagem="PTAX indisponível. Sincronize em Configurador › Taxas de Moeda." />
+              <PainelSemDadosInsights
+                mensagem={t('bidfrete.insights.graficos.ptax.indisponivel', {
+                  defaultValue: 'PTAX indisponível. Sincronize em Configurador › Taxas de Moeda.',
+                })}
+              />
             ) : cotacoesPtax.map(m => (
               <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.55rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span className="bfd-cambio__code" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff', minWidth: '40px' }}>{m.codigo}</span>
@@ -1553,13 +1659,20 @@ export default function VisaoGeral() {
               <div className="cg-card__icon-wrap">
                 <ChartLine weight="duotone" size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <p className="cg-card__label" style={{ margin: 0 }}>Spread Médio Aplicado</p>
+              <p className="cg-card__label" style={{ margin: 0 }}>
+                {t('bidfrete.insights.graficos.spread.titulo', { defaultValue: 'Spread Médio Aplicado' })}
+              </p>
             </div>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', margin: 'auto 0' }}>
             {spreadsMoeda.length === 0 ? (
-              <PainelSemDadosInsights mensagem="Configure taxas em BID Frete › Configurações › Taxa de Câmbio para calcular o spread." />
+              <PainelSemDadosInsights
+                mensagem={t('bidfrete.insights.graficos.spread.sem_dados', {
+                  defaultValue:
+                    'Configure taxas em BID Frete › Configurações › Taxa de Câmbio para calcular o spread.',
+                })}
+              />
             ) : spreadsMoeda.map(item => (
               <div key={item.moeda} style={{ display: 'flex', flexDirection: 'column', gap: '0.3' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1586,7 +1699,10 @@ export default function VisaoGeral() {
 
           <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
             <p style={{ fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
-              Spread = diferença entre taxa configurada no produto e PTAX (BACEN) de hoje.
+              {t('bidfrete.insights.graficos.spread.rodape', {
+                defaultValue:
+                  'Spread = diferença entre taxa configurada no produto e PTAX (BACEN) de hoje.',
+              })}
             </p>
           </div>
         </div>
@@ -1600,7 +1716,9 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Melhor Cotação do Mês</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>
+              {t('bidfrete.insights.graficos.melhor_cotacao.titulo', { defaultValue: 'Melhor Cotação do Mês' })}
+            </p>
           </div>
           {graficos.melhor_cotacao_mes ? (
           <div className="bfd-best">
@@ -1612,7 +1730,10 @@ export default function VisaoGeral() {
               <div className="bfd-best__arrow" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }}>
                 <span className="bfd-best__arrow-tt" style={{ fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }}>
                   {graficos.melhor_cotacao_mes.transit_time != null
-                    ? `${graficos.melhor_cotacao_mes.transit_time} dias`
+                    ? t('bidfrete.insights.graficos.melhor_cotacao.dias', {
+                        defaultValue: `${graficos.melhor_cotacao_mes.transit_time} dias`,
+                        count: graficos.melhor_cotacao_mes.transit_time,
+                      })
                     : '—'}
                 </span>
                 <svg width="100%" height="20" viewBox="0 0 160 20" style={{ overflow: 'visible' }}>
@@ -1631,7 +1752,11 @@ export default function VisaoGeral() {
             </div>
             <div className="bfd-best__saving">
               <span className="bfd-best__saving-badge">
-                <TrendUp size={12} /> {graficos.melhor_cotacao_mes.saving_pct}% saving
+                <TrendUp size={12} />{' '}
+                {t('bidfrete.insights.graficos.melhor_cotacao.saving', {
+                  defaultValue: `${graficos.melhor_cotacao_mes.saving_pct}% saving`,
+                  pct: graficos.melhor_cotacao_mes.saving_pct,
+                })}
               </span>
               <span className="bfd-best__saving-val">USD {fmtMoeda(graficos.melhor_cotacao_mes.ganho_valor_cotacao_bid_frete_internacional)}</span>
             </div>
@@ -1640,7 +1765,11 @@ export default function VisaoGeral() {
             </div>
           </div>
           ) : (
-            <PainelSemDadosInsights mensagem="Nenhuma cotação aprovada neste mês no escopo selecionado." />
+            <PainelSemDadosInsights
+              mensagem={t('bidfrete.insights.graficos.melhor_cotacao.sem_dados', {
+                defaultValue: 'Nenhuma cotação aprovada neste mês no escopo selecionado.',
+              })}
+            />
           )}
         </div>
 
@@ -1650,11 +1779,17 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Top Incoterms</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>
+              {t('bidfrete.insights.graficos.top_incoterms.titulo', { defaultValue: 'Top Incoterms' })}
+            </p>
           </div>
           <div className="bfd-incoterms">
             {graficos.top_incoterms.length === 0 ? (
-              <PainelSemDadosInsights mensagem="Nenhum incoterm registrado nas cotações do escopo." />
+              <PainelSemDadosInsights
+                mensagem={t('bidfrete.insights.graficos.top_incoterms.sem_dados', {
+                  defaultValue: 'Nenhum incoterm registrado nas cotações do escopo.',
+                })}
+              />
             ) : graficos.top_incoterms.map(inc => (
               <div key={inc.incoterm_cotacao_bid_frete_internacional} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -1680,7 +1815,9 @@ export default function VisaoGeral() {
             <div className="cg-card__icon-wrap">
               <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />
             </div>
-            <p className="cg-card__label" style={{ margin: 0 }}>Taxa de Aprovação</p>
+            <p className="cg-card__label" style={{ margin: 0 }}>
+              {t('bidfrete.insights.graficos.taxa_aprovacao.titulo', { defaultValue: 'Taxa de Aprovação' })}
+            </p>
           </div>
           <TaxaAprovacao aprovacao={kpis.aprovacao} />
         </div>

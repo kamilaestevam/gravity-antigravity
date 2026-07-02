@@ -18,7 +18,6 @@ import {
   XCircle,
 } from '@phosphor-icons/react'
 import type { Cotacao, PropostaBidFreteInternacional, StatusCotacao } from '../shared/types'
-import { MODAL_LABELS, MODALIDADE_LABELS, OPERACAO_LABELS } from '../shared/types'
 import { mudarStatusCotacao } from '../shared/api'
 import type { KanbanCardConfigBidFrete } from '../shared/kanban-bid-frete-card'
 import { useKanbanPreferencesBidFrete } from '../shared/use-kanban-preferences-bid-frete'
@@ -30,7 +29,19 @@ import {
   EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
   lerStatusCotacaoConfigBidFreteInternacional,
 } from '../shared/status-config-bid-frete-internacional'
+import {
+  traduzirModalidadeKanbanBidFrete,
+  traduzirModalKanbanBidFrete,
+  traduzirOperacaoKanbanBidFrete,
+  traduzirStatusColunaKanbanBidFrete,
+} from '../shared/traduzir-kanban-bid-frete-internacional'
 import './kanban-bid-frete-internacional.css'
+
+const LOCALE_I18N: Record<string, string> = {
+  pt: 'pt-BR',
+  en: 'en-US',
+  es: 'es-ES',
+}
 
 interface CotacoesKanbanProps {
   cotacoes: Cotacao[]
@@ -54,6 +65,7 @@ function propostaVencedora(cotacao: Cotacao): PropostaBidFreteInternacional | nu
 function dataCriticaCotacao(
   cotacao: Cotacao,
   campo: string | null,
+  locale: string,
 ): { label: string; urgencia: 'ok' | 'alerta' | 'urgente' } | null {
   if (!campo) return null
   const val = (cotacao as unknown as Record<string, unknown>)[campo]
@@ -69,14 +81,14 @@ function dataCriticaCotacao(
   if (diffDias <= 1) urgencia = 'urgente'
   else if (diffDias <= 7) urgencia = 'alerta'
 
-  return { label: data.toLocaleDateString('pt-BR'), urgencia }
+  return { label: data.toLocaleDateString(locale), urgencia }
 }
 
-function valorFooterCotacao(cotacao: Cotacao): { valor: string; moeda: string } | null {
+function valorFooterCotacao(cotacao: Cotacao, locale: string): { valor: string; moeda: string } | null {
   if (cotacao.valor_aprovado_ganho_bid_frete_internacional != null) {
     const moeda = cotacao.moeda_aprovada ?? cotacao.moeda_meta_cotacao_bid_frete_internacional ?? 'USD'
     return {
-      valor: cotacao.valor_aprovado_ganho_bid_frete_internacional.toLocaleString('pt-BR', {
+      valor: cotacao.valor_aprovado_ganho_bid_frete_internacional.toLocaleString(locale, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
@@ -86,7 +98,7 @@ function valorFooterCotacao(cotacao: Cotacao): { valor: string; moeda: string } 
   if (cotacao.valor_meta_cotacao_bid_frete_internacional != null) {
     const moeda = cotacao.moeda_meta_cotacao_bid_frete_internacional ?? 'USD'
     return {
-      valor: cotacao.valor_meta_cotacao_bid_frete_internacional.toLocaleString('pt-BR', {
+      valor: cotacao.valor_meta_cotacao_bid_frete_internacional.toLocaleString(locale, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
@@ -96,7 +108,7 @@ function valorFooterCotacao(cotacao: Cotacao): { valor: string; moeda: string } 
   const proposta = propostaVencedora(cotacao)
   if (proposta) {
     return {
-      valor: proposta.valor_total_proposta_bid_frete_internacional.toLocaleString('pt-BR', {
+      valor: proposta.valor_total_proposta_bid_frete_internacional.toLocaleString(locale, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
@@ -120,14 +132,18 @@ const STATUS_ICONS: Partial<Record<StatusCotacao, React.ReactElement>> = {
 
 /** Card Kanban — mesma estrutura e classes do Pedido (`CardPedido` / `kbp-card`). */
 export function CardCotacaoKanbanBidFrete({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: KanbanCardConfigBidFrete }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = LOCALE_I18N[i18n.language] ?? 'pt-BR'
   const campos = cardConfig.campos
   const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
 
-  const critica = dataCriticaCotacao(cotacao, cardConfig.dataCritica)
-  const valorFooter = valorFooterCotacao(cotacao)
+  const critica = dataCriticaCotacao(cotacao, cardConfig.dataCritica, locale)
+  const valorFooter = valorFooterCotacao(cotacao, locale)
 
-  const tipoLabel = OPERACAO_LABELS[cotacao.tipo_operacao_cotacao_bid_frete_internacional]
+  const tipoLabel = traduzirOperacaoKanbanBidFrete(
+    t,
+    cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+  )
   const isImport = cotacao.tipo_operacao_cotacao_bid_frete_internacional === 'IMPORTACAO'
   const tipoColor = isImport
     ? (ESTILO_BADGE_OPERACAO_IMPORTACAO.color as string)
@@ -169,15 +185,16 @@ export function CardCotacaoKanbanBidFrete({ cotacao, cardConfig }: { cotacao: Co
 
       {isVisivel('modal_modalidade') && (
         <div className="kbp-card-itens">
-          {MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional] ?? cotacao.modal_cotacao_bid_frete_internacional}
+          {traduzirModalKanbanBidFrete(t, cotacao.modal_cotacao_bid_frete_internacional)}
           {' · '}
-          {MODALIDADE_LABELS[cotacao.modalidade_cotacao_bid_frete_internacional] ?? cotacao.modalidade_cotacao_bid_frete_internacional}
+          {traduzirModalidadeKanbanBidFrete(t, cotacao.modalidade_cotacao_bid_frete_internacional)}
         </div>
       )}
 
       {isVisivel('referencia_interna') && cotacao.referencia_interna_cotacao_bid_frete_internacional && (
         <div className="kbp-card-parceiro">
-          Ref: {cotacao.referencia_interna_cotacao_bid_frete_internacional}
+          {t('bidfrete.kanban.referencia_prefixo', { defaultValue: 'Ref:' })}{' '}
+          {cotacao.referencia_interna_cotacao_bid_frete_internacional}
         </div>
       )}
 
@@ -253,12 +270,12 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
       .sort((a, b) => a.ordem - b.ordem)
       .map<KanbanColunaDef>(s => ({
         key: s.nome,
-        label: s.rotulo,
+        label: traduzirStatusColunaKanbanBidFrete(t, s),
         color: s.cor,
         icon: STATUS_ICONS[s.nome as StatusCotacao] ?? <Package size={16} weight="duotone" />,
         colapsavel: true,
       }))
-  }, [statusConfig, colunasOcultas])
+  }, [statusConfig, colunasOcultas, t])
 
   const itens = useMemo<CotacaoKanbanItem[]>(() =>
     cotacoes.map(cotacao => {
@@ -309,11 +326,14 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
           className="kbp-search"
           value={busca}
           onChange={event => setBusca(event.target.value)}
-          placeholder={t('bidfrete.kanban.localizar', 'Localizar cotação...')}
+          placeholder={t('bidfrete.kanban.localizar', { defaultValue: 'Localizar cotação...' })}
         />
       </div>
       <span className="kbp-total">
-        {t('bidfrete.kanban.totalCotacoes', '{{count}} cotações', { count: itensFiltrados.length })}
+        {t('bidfrete.kanban.totalCotacoes', {
+          count: itensFiltrados.length,
+          defaultValue: '{{count}} cotações',
+        })}
       </span>
     </div>
   )
@@ -327,24 +347,24 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
         onMoverItem={handleMoverCotacao}
         onCardClick={(item) => navigate(`/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
         skeletonCount={4}
-        emptyLabel={t('bidfrete.kanban.semCotacoes', 'Nenhuma cotação')}
+        emptyLabel={t('bidfrete.kanban.semCotacoes', { defaultValue: 'Nenhuma cotação' })}
         getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}
         getItemDate={(item) => item.cotacao.data_criacao_cotacao_bid_frete_internacional}
         toolbarSlot={toolbar}
         labels={{
-          sortNewest: t('kanban.ordenacao.mais_recente', 'Mais recente primeiro'),
-          sortOldest: t('kanban.ordenacao.mais_antigo', 'Mais antigo primeiro'),
-          sortAlpha: t('kanban.ordenacao.alfabetica', 'Ordem alfabética'),
-          sortPopoverTitle: t('kanban.ordenacao.titulo', 'Ordenar lista'),
-          sortPopoverClose: t('comum.fechar', 'Fechar'),
-          sortButtonTitle: t('kanban.ordenacao.botao', 'Ordenar coluna'),
-          collapseTitle: t('kanban.coluna.colapsar', 'Colapsar coluna'),
-          expandTitle: t('kanban.coluna.expandir', 'Expandir coluna'),
-          dropHintPrefix: t('kanban.mover.para', 'Mover para'),
-          moveCardTitle: t('kanban.mover.titulo', 'Mover para...'),
-          moveCardAriaLabel: t('kanban.mover.aria', 'Mover card para outra coluna'),
-          moveCardMenuLabel: t('kanban.mover.label', 'Mover para'),
-          movingAriaLabel: t('kanban.mover.movendo', 'Movendo...'),
+          sortNewest: t('kanban.ordenacao.mais_recente', { defaultValue: 'Mais recente primeiro' }),
+          sortOldest: t('kanban.ordenacao.mais_antigo', { defaultValue: 'Mais antigo primeiro' }),
+          sortAlpha: t('kanban.ordenacao.alfabetica', { defaultValue: 'Ordem alfabética' }),
+          sortPopoverTitle: t('kanban.ordenacao.titulo', { defaultValue: 'Ordenar lista' }),
+          sortPopoverClose: t('comum.fechar', { defaultValue: 'Fechar' }),
+          sortButtonTitle: t('kanban.ordenacao.botao', { defaultValue: 'Ordenar coluna' }),
+          collapseTitle: t('kanban.coluna.colapsar', { defaultValue: 'Colapsar coluna' }),
+          expandTitle: t('kanban.coluna.expandir', { defaultValue: 'Expandir coluna' }),
+          dropHintPrefix: t('kanban.mover.para', { defaultValue: 'Mover para' }),
+          moveCardTitle: t('kanban.mover.titulo', { defaultValue: 'Mover para...' }),
+          moveCardAriaLabel: t('kanban.mover.aria', { defaultValue: 'Mover card para outra coluna' }),
+          moveCardMenuLabel: t('kanban.mover.label', { defaultValue: 'Mover para' }),
+          movingAriaLabel: t('kanban.mover.movendo', { defaultValue: 'Movendo...' }),
         }}
       />
     </div>

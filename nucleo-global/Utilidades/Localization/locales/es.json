@@ -1153,7 +1153,141 @@
       "goalDays": "Meta: {{count}} días",
       "openAmountUsd": "Monto abierto (USD)",
       "accumulatedUsd": "Acumulado (USD)",
-      "totalAmountUsd": "Monto total (USD)"
+      "totalAmountUsd": "Monto total (USD)",
+      "subtitulo_pagina": "KPIs y widgets configurables",
+      "subtitulo_pagina_fornecedor": "KPIs y widgets configurables del proveedor",
+      "painel_criado_sucesso": "Panel \"{{nome}}\" creado.",
+      "painel_criado_erro": "No fue posible guardar el panel.",
+      "faixa_paineis": "Paneles del dashboard",
+      "paineis_secao": "Paneles del dashboard",
+      "gabi_insight_anterior": "Insight anterior",
+      "gabi_proximo_insight": "Próximo insight",
+      "gabi_ao_vivo": "en vivo",
+      "widget_adicionado_sucesso": "Widget \"{{title}}\" agregado con éxito a su dashboard.",
+      "widgets": {
+        "kpi_saving_total": "Saving Total",
+        "kpi_valor_medio": "Valor Medio Ganado",
+        "kpi_transit_time": "Transit Time Medio",
+        "kpi_ganho_percentual": "Ganho Percentual",
+        "gabi_insights": "GABI AI · Insights",
+        "volume_mensal_chart": "Volume Mensual de Cotizaciones",
+        "section_alertas": "Alertas y Flujos Operacionales",
+        "kpi_cotacoes_andamento": "Cotizaciones en Curso",
+        "kpi_cotacoes_passadas": "Cotizaciones Pasadas",
+        "kpi_valor_aprovado": "Valor Total Aprobado",
+        "status_dist_chart": "Cotizaciones por Status",
+        "kpi_pendentes_fornecedor": "Aguardando respuesta",
+        "kpi_propostas_enviadas_fornecedor": "Propuestas enviadas",
+        "kpi_taxa_resposta_fornecedor": "Tasa de respuesta",
+        "kpi_taxa_aprovacao_fornecedor": "Tasa de aprobación",
+        "gabi_insights_fornecedor": "GABI AI · Insights",
+        "volume_mensal_fornecedor": "Volume mensual de propuestas",
+        "section_funil_fornecedor": "Embudo y resultados",
+        "kpi_em_analise_fornecedor": "En análisis",
+        "kpi_aprovadas_fornecedor": "Aprobadas",
+        "kpi_reprovadas_fornecedor": "Rechazadas",
+        "funil_dist_fornecedor": "Embudo de propuestas"
+      },
+      "catalog": {
+        "saving_total": "Saving Total (Ganho vs Meta)",
+        "valor_medio_ganho_bid_frete_internacional": "Valor Medio Ganado",
+        "cotacoes_status": "Cotizaciones por Status",
+        "ganho_percentual_ganho_bid_frete_internacional": "Ganho Percentual Medio",
+        "transit_time": "Transit Time Medio (Días)",
+        "volume_mensal": "Volume Mensual de Cotizaciones",
+        "cotacoes_andamento": "Cotizaciones en Curso",
+        "cotacoes_passadas": "Cotizaciones Pasadas",
+        "valor_andamento_usd": "Valor Total en Curso (USD)",
+        "valor_aprovado_usd": "Valor Total Aprobado (USD)"
+      },
+      "catalog_dimensao": {
+        "status_cotacao": "Status de Cotización"
+      },
+      "status_toolbar": {
+        "rascunho": "Borrador",
+        "em_cotacao": "En Cotización",
+        "aguardando_aprovacao": "Pendiente Aprobación",
+        "aprovada": "Aprobadas"
+      },
+      "derivadas": {
+        "saving_medio_por_cotacao": {
+          "label": "Saving Medio por Cotización",
+          "description": "Valor medio ahorrado por cotización finalizada en el período"
+        },
+        "taxa_conclusao_cotacoes": {
+          "label": "Tasa de Conclusión de Cotizaciones",
+          "description": "Porcentaje de cotizaciones pasadas respecto al total (en curso + pasadas)"
+        },
+        "ticket_medio_aprovado": {
+          "label": "Ticket Medio Aprobado",
+          "description": "Valor medio de las propuestas aprobadas"
+        }
+      },
+      "sugestoes": {
+        "distribuicao_titulo": "Distribución de {{dimLabel}}",
+        "distribuicao_descricao": "Proporción entre {{fields}}",
+        "tendencia_mes_titulo": "{{label}} por Mes",
+        "tendencia_mes_descricao": "Evolución del volume de {{label}} en los últimos 12 meses",
+        "evolucao_titulo": "Evolución — {{label}}",
+        "evolucao_descricao": "Serie temporal mensual de {{label}}",
+        "comparativo_qty_titulo": "Comparativo de Cantidades — {{domainLabel}}"
+      },
+      "insights": {
+        "rascunhos_ativos": {
+          "tag": "Atención · Borradores Pendientes",
+          "texto_one": "{{count}} cotización en borrador. Finalice y envíe para negociación de flete.",
+          "texto_other": "{{count}} cotizaciones en borrador. Finalice y envíe para negociación de flete.",
+          "stat_label": "En borrador",
+          "link": "Ver cotizaciones"
+        },
+        "cotacoes_andamento": {
+          "tag": "Operacional · En Cotización",
+          "texto_one": "{{count}} ronda de cotización de flete activa en el mercado.",
+          "texto_other": "{{count}} rondas de cotización de flete activas en el mercado.",
+          "stat_valor": "Valor en cotización",
+          "stat_ativas": "Cotizaciones activas",
+          "link": "Acompanhar BIDs"
+        },
+        "saving_total": {
+          "tag": "Financiero · Saving Acumulado",
+          "texto": "Ahorro generado (saving) en negociaciones de flete acumulado en {{valor}}.",
+          "stat_reducao": "Reducción media",
+          "stat_total": "Total ahorrado",
+          "link": "Ver comparativos"
+        },
+        "valor_aprovado": {
+          "tag": "Financiero · Adjudicado",
+          "texto": "Adjudicación de flete internacional totaliza {{valor}} en propuestas aprobadas.",
+          "stat_ticket": "Ticket medio ganado",
+          "link": "Ver adjudicadas"
+        },
+        "tendencia_volume": {
+          "tag": "Tendencia · BIDs Cerrados",
+          "texto_cresceu": "El volume de cotizaciones adjudicadas creció {{pct}} respecto al período anterior.",
+          "texto_caiu": "El volume de cotizaciones adjudicadas cayó {{pct}} respecto al período anterior.",
+          "stat_anterior": "Período anterior",
+          "link": "Explorar datos"
+        },
+        "status_ok": {
+          "tag": "Gabi AI · Todo en día",
+          "texto": "Ninguna pendencia crítica o anomalía operacional identificada en el período seleccionado.",
+          "stat_periodo": "Período",
+          "link": "Ver cotizaciones"
+        }
+      },
+      "vazio_widget": {
+        "gabi_tag": "GABI · Sin datos en el período",
+        "ampliar_para": "Ampliar a:",
+        "experimente": "Pruebe:",
+        "editar_campos": "Editar campos",
+        "remover_widget": "Eliminar widget",
+        "campo_generico": "este campo",
+        "conector_e": "y",
+        "distribuicao": "Ningún registro encontrado para distribuir {{field}} en el período seleccionado. Ajuste los filtros para continuar.",
+        "tendencia": "Sin datos de tendencia para {{field}} en este intervalo. Intente ampliar el período.",
+        "barras": "Ninguna movimentación registrada para comparar {{field}} en el período actual.",
+        "generico": "No hay datos disponibles para este widget en el período seleccionado. Amplíe el intervalo o ajuste los campos."
+      }
     },
     "status_cotacao": {
       "RASCUNHO": "Borrador",
@@ -2392,7 +2526,27 @@
       "direcionada": "Dirigida",
       "sim": "Sí",
       "nao": "No",
-      "anonima": "Anónima"
+      "anonima": "Anónima",
+      "numeroCotacao": "Nº de cotización",
+      "id": "ID",
+      "organizacao": "Organización",
+      "produtoGravity": "Producto Gravity",
+      "usuario": "Usuario",
+      "workspace": "Workspace",
+      "referenciaInterna": "Referencia Interna",
+      "portoOrigem": "Puerto origen",
+      "aeroportoOrigem": "Aeropuerto origen",
+      "enderecoOrigem": "Dirección origen",
+      "portoDestino": "Puerto destino",
+      "aeroportoDestino": "Aeropuerto destino",
+      "enderecoDestino": "Dirección destino",
+      "zipcodeOrigem": "Código postal origen",
+      "zipcodeDestino": "Código postal destino",
+      "valorMeta": "Valor meta",
+      "moedaMeta": "Moneda meta",
+      "fornecedorVencedor": "Proveedor ganador",
+      "ganhoEstimado": "Ahorro estimado",
+      "ganhoPercentual": "Ahorro (%)"
     },
     "visao_geral": {
       "em_construcao": "Visión General — En construcción"
@@ -2659,7 +2813,8 @@
         "modal_excluir_n_itens": "¿Eliminar {{count}} oportunidad(es) seleccionada(s)?"
       },
       "kanban": {
-        "aguardando_resposta": "en espera resposta",
+        "subtitulo": "Sus cotizaciones y propuestas por etapa",
+        "aguardando_resposta": "En espera de respuesta",
         "em_analise": "Em análise",
         "aprovada": "aprobada",
         "reprovada": "rechazada",
@@ -2830,10 +2985,14 @@
       "membro_fallback": "Membro"
     },
     "kanban": {
+      "subtitulo": "Cotizaciones organizadas por status",
       "localizar": "Localizar cotización...",
-      "propostas_contagem": "{{count}} proposta(s)",
-      "semCotacoes": "ninguna cotización",
-      "totalCotacoes": "{{count}} cotizaciones"
+      "referencia_prefixo": "Ref:",
+      "propostas_contagem_one": "{{count}} propuesta",
+      "propostas_contagem_other": "{{count}} propuestas",
+      "semCotacoes": "Ninguna cotización",
+      "totalCotacoes_one": "{{count}} cotización",
+      "totalCotacoes_other": "{{count}} cotizaciones"
     },
     "insights": {
       "subtitulo": "Resumen de cotizaciones de flete internacional",
@@ -2859,6 +3018,87 @@
           "tooltip_aprovacoes_prazo": "Aprobaciones a tiempo",
           "sem_dados": "Sin datos",
           "dias": "{{count}} días"
+        }
+      },
+      "alertas": {
+        "titulo": "Alertas",
+        "hoje": "Hoy",
+        "dia_anterior_aria": "Día anterior",
+        "proximo_dia_aria": "Día siguiente",
+        "vence_hoje": "Cotizaciones vencen hoy",
+        "resposta": "Respuestas pendientes",
+        "aprovacao": "En espera de aprobación",
+        "nova": "Nuevas cotizaciones (7 días)"
+      },
+      "funil": {
+        "titulo": "Embudo de Cotizaciones"
+      },
+      "rankings": {
+        "titulo": "Rankings Globales",
+        "live_feed": "LIVE FEED",
+        "tab_origens": "Orígenes",
+        "tab_destinos": "Destinos",
+        "tab_modais": "Modales",
+        "subtitulo_filtros": "{{filtros}} filtro(s) activo(s) • {{count}} cotizaciones",
+        "subtitulo_tempo_real": "Rankings en tiempo real • {{count}} cotizaciones",
+        "subtitulo_demo": "Rankings en tiempo real • 200 bids",
+        "contagem_bids_one": "{{count}} bid",
+        "contagem_bids_other": "{{count}} bids",
+        "vazio_filtros": "Ninguna cotización coincide con los filtros seleccionados."
+      },
+      "mapa": {
+        "titulo": "Visión Global de Cotizaciones",
+        "vazio_coordenadas": "Aún no hay cotizaciones con coordenadas en el mapa.",
+        "descricao_bids": "Ubicaciones estratégicas, bids activos y ahorro acumulado por terminal ({{arraste}})",
+        "arraste_mover": "Arrastrar para Mover",
+        "arraste_girar": "Arrastrar para Girar"
+      },
+      "graficos": {
+        "cotacoes_por_mes": {
+          "titulo": "Cotizaciones por Mes",
+          "subtitulo": "Últimos 6 meses",
+          "legenda_aprovadas": "Aprobadas",
+          "legenda_andamento": "En curso",
+          "legenda_recusadas": "Rechazadas",
+          "sem_dados": "Ninguna cotización en los últimos 6 meses para los workspaces seleccionados."
+        },
+        "distribuicao_modal": {
+          "titulo": "Distribución por Modal",
+          "centro_cotacoes": "cotizaciones",
+          "sem_dados": "Ninguna cotización para distribuir por modal."
+        },
+        "ptax": {
+          "titulo": "Tipo de Cambio PTAX (BACEN)",
+          "tab_hoje": "Hoy",
+          "tab_historico": "Histórico",
+          "tab_futuro": "Futuro",
+          "selecionar_data": "SELECCIONAR FECHA PTAX",
+          "horizonte_hedge": "HORIZONTE HEDGE",
+          "indisponivel": "PTAX no disponible. Sincronice en Configurador › Tasas de Moneda.",
+          "erro_carregar": "Error al cargar PTAX"
+        },
+        "spread": {
+          "titulo": "Spread Medio Aplicado",
+          "sem_dados": "Configure tasas en BID Frete › Configuraciones › Tasa de Cambio para calcular el spread.",
+          "rodape": "Spread = diferencia entre la tasa configurada en el producto y el PTAX (BACEN) de hoy."
+        },
+        "melhor_cotacao": {
+          "titulo": "Mejor Cotización del Mes",
+          "dias_one": "{{count}} día",
+          "dias_other": "{{count}} días",
+          "saving": "{{pct}}% saving",
+          "sem_dados": "Ninguna cotización aprobada este mes en el alcance seleccionado."
+        },
+        "top_incoterms": {
+          "titulo": "Top Incoterms",
+          "sem_dados": "Ningún incoterm registrado en las cotizaciones del alcance."
+        },
+        "taxa_aprovacao": {
+          "titulo": "Tasa de Aprobación",
+          "em_tempo_centro": "a tiempo",
+          "legenda_em_tempo": "A tiempo: {{pct}}%",
+          "legenda_atrasadas": "Atrasadas: {{pct}}%",
+          "legenda_sem_resposta": "Sin respuesta: {{pct}}%"
         }
       }
     }

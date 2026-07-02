@@ -38,6 +38,8 @@ import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
+import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordion-colunas-lista'
 import { ManualPedidoTabelaColunasPadraoLista } from './manual-pedido-tabela-colunas-lista'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
@@ -268,7 +270,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '58'
+const MANUAL_SCREENSHOT_CACHE_KEY = '62'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1029,6 +1031,14 @@ function ManualBlocoPassoVisual({
     ? <ManualInfograficoSmartDocsListaPaineis />
     : null
 
+  const infograficoCatalogoColunasPedido = passo.mostrarInfograficoPedidoCatalogoColunasLista
+    ? <ManualInfograficoPedidoCatalogoColunasLista />
+    : null
+
+  const tabelaCatalogoColunasPedido = passo.mostrarInfograficoPedidoCatalogoColunasLista
+    ? <ManualPedidoTabelaCatalogoColunasLista />
+    : null
+
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
     <div style={{ marginTop: 24 }}>
       {passo.galeriaTelasAposTabela.map((tela) => (
@@ -1049,13 +1059,20 @@ function ManualBlocoPassoVisual({
     <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={24} />
   ) : null
 
-  const blocoListaCustomizacao = (infograficoListaCustomizacao || (infograficoListaPaineis && !(passo.imagemAbaixoTexto && passo.imagem)) || tabelaColunasPadraoLista
-    || galeriaAposTabela || paragrafoAposGaleriaTabela || calloutAposGaleriaTabela) ? (
+  const calloutAposTabelaColunasPadrao = passo.calloutAposTabelaColunasPadrao ? (
+    <ManualCalloutBloco callout={passo.calloutAposTabelaColunasPadrao} marginTop={16} />
+  ) : null
+
+  const blocoListaCustomizacao = (infograficoListaCustomizacao || infograficoCatalogoColunasPedido || tabelaCatalogoColunasPedido || (infograficoListaPaineis && !(passo.imagemAbaixoTexto && passo.imagem)) || tabelaColunasPadraoLista
+    || calloutAposTabelaColunasPadrao || galeriaAposTabela || paragrafoAposGaleriaTabela || calloutAposGaleriaTabela) ? (
     <>
       {infograficoListaCustomizacao}
+      {infograficoCatalogoColunasPedido}
+      {tabelaCatalogoColunasPedido}
       {!(passo.imagemAbaixoTexto && passo.imagem) ? infograficoListaPaineis : null}
       {gradeColunas}
       {tabelaColunasPadraoLista}
+      {calloutAposTabelaColunasPadrao}
       {galeriaAposTabela}
       {paragrafoAposGaleriaTabela}
       {calloutAposGaleriaTabela}

@@ -2834,6 +2834,33 @@
       "propostas_contagem": "{{count}} proposta(s)",
       "semCotacoes": "ninguna cotización",
       "totalCotacoes": "{{count}} cotizaciones"
+    },
+    "insights": {
+      "subtitulo": "Resumen de cotizaciones de flete internacional",
+      "kpi": {
+        "aguardando_aprovacao": {
+          "titulo": "Cotizaciones en espera de aprobación",
+          "subtexto": "{{count}} en alcance · USD {{valor}} abierto",
+          "tooltip_volume": "Volumen abierto",
+          "coluna_data": "Respondido"
+        },
+        "aguardando_resposta": {
+          "titulo": "Cotizaciones en espera de respuesta",
+          "subtexto": "{{enviadas}} enviadas · {{em_cotacao}} en cotización",
+          "tooltip_volume_meta": "Volumen meta (USD)",
+          "coluna_data": "Envío"
+        },
+        "tempo_medio_resposta": {
+          "titulo": "Tiempo Medio de Respuesta",
+          "meta_dias": "Meta: {{count}} días",
+          "valor_dias": "{{count}} d",
+          "tooltip_media": "Promedio de respuesta",
+          "tooltip_meta_sla": "Meta SLA",
+          "tooltip_aprovacoes_prazo": "Aprobaciones a tiempo",
+          "sem_dados": "Sin datos",
+          "dias": "{{count}} días"
+        }
+      }
     }
   },
   "bidcambio": {

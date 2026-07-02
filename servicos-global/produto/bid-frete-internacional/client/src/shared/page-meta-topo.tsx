@@ -17,6 +17,7 @@ import {
   Ranking,
 } from '@phosphor-icons/react'
 import { resolveRouteKey } from '@nucleo/menu-topo-global'
+import type { TFunction } from 'i18next'
 
 export interface PageMetaTopo {
   label: string
@@ -131,4 +132,32 @@ export function resolverPageMetaTopo(pathname: string, search: string): PageMeta
   if (/^visao-fornecedor-bid-frete-internacional\/responder\/[^/]+$/.test(routeKey)) return RESPONDER_COTACAO_META
 
   return metaFromRoute(routeKey)
+}
+
+const PAGE_META_LABEL_KEYS: Partial<Record<string, string>> = {
+  insights: 'bidfrete.nav.insights',
+  'visao-geral': 'bidfrete.nav.insights',
+  lista: 'bidfrete.nav.lista',
+  dashboard: 'bidfrete.nav.dashboard',
+  kanban: 'bidfrete.nav.kanban',
+}
+
+const PAGE_META_SUBTITLE_KEYS: Partial<Record<string, string>> = {
+  insights: 'bidfrete.insights.subtitulo',
+  'visao-geral': 'bidfrete.insights.subtitulo',
+}
+
+/** Resolve meta do topo traduzida (label + subtítulo via i18n). */
+export function traduzirPageMetaTopo(pathname: string, search: string, t: TFunction): PageMetaTopo {
+  const raw = resolverPageMetaTopo(pathname, search)
+  const routeKey = resolveRouteKey(pathname)
+  const labelKey = PAGE_META_LABEL_KEYS[routeKey]
+  const subtitleKey = PAGE_META_SUBTITLE_KEYS[routeKey]
+  return {
+    ...raw,
+    label: labelKey ? t(labelKey, { defaultValue: raw.label }) : raw.label,
+    subtitulo: subtitleKey && raw.subtitulo
+      ? t(subtitleKey, { defaultValue: raw.subtitulo })
+      : raw.subtitulo,
+  }
 }

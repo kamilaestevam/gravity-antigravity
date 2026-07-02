@@ -1833,6 +1833,33 @@
       "data_cancelamento": "Cancellation date",
       "motivo_reprovacao": "Rejection reason",
       "motivo_cancelamento": "Cancellation reason"
+    },
+    "insights": {
+      "subtitulo": "Summary of international freight quotes",
+      "kpi": {
+        "aguardando_aprovacao": {
+          "titulo": "Quotes awaiting approval",
+          "subtexto": "{{count}} in scope · USD {{valor}} open",
+          "tooltip_volume": "Open volume",
+          "coluna_data": "Responded"
+        },
+        "aguardando_resposta": {
+          "titulo": "Quotes awaiting response",
+          "subtexto": "{{enviadas}} sent · {{em_cotacao}} in quoting",
+          "tooltip_volume_meta": "Target volume (USD)",
+          "coluna_data": "Sent"
+        },
+        "tempo_medio_resposta": {
+          "titulo": "Average Response Time",
+          "meta_dias": "Goal: {{count}} days",
+          "valor_dias": "{{count}} d",
+          "tooltip_media": "Average response time",
+          "tooltip_meta_sla": "SLA goal",
+          "tooltip_aprovacoes_prazo": "On-time approvals",
+          "sem_dados": "No data",
+          "dias": "{{count}} days"
+        }
+      }
     }
   },
   "comum": {

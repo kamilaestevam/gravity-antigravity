@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useSearchParams } from 'react-router-dom'
 import {
   SquaresFour, Table, Bell, DownloadSimple,
@@ -210,8 +211,10 @@ const NOME_EXIBICAO_CARDS: Record<string, string> = {
   cotacoes_acima_meta: 'Quantidade cotações acima da meta',
 }
 
-function obterNomeExibicaoCard(card: CardDefinicao): string {
-  return NOME_EXIBICAO_CARDS[card.id] || card.labelKey
+function obterNomeExibicaoCard(card: CardDefinicao, t: TFunction): string {
+  return t(card.labelKey, {
+    defaultValue: NOME_EXIBICAO_CARDS[card.id] ?? card.labelKey,
+  })
 }
 
 function resolverVisualCard(def: CardDefinicao): { icone: React.ReactNode; cor: string } {
@@ -243,6 +246,14 @@ const SIDEBAR_ITEMS = [
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'taxa-cambio',           label: 'Taxa de Câmbio',    labelKey: 'bidfrete.config.sidebar.taxa_cambio',       icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
 ]
+
+function traduzirLabelSidebarConfig(
+  t: TFunction,
+  item: { label: string; labelKey?: string },
+): string {
+  if (!item.labelKey) return item.label
+  return t(item.labelKey, { defaultValue: item.label })
+}
 
 const COLUNAS_FILHOS = [
   'colunas-casas-decimais',
@@ -280,6 +291,7 @@ function CardSortavel({
   onRemover: () => void
   periodoAtivo: string
 }) {
+  const { t } = useTranslation()
   const visual = resolverVisualCard(def)
   const [detalheAberto, setDetalheAberto] = useState(false)
 
@@ -316,7 +328,7 @@ function CardSortavel({
             {visual.icone}
           </span>
           <div>
-            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def)}</p>
+            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def, t)}</p>
             <p className="cfg-card-row__desc">{subtitulo}</p>
           </div>
         </div>
@@ -392,6 +404,7 @@ function CardDisponivel({
   onAdicionar: () => void
   periodoAtivo: string
 }) {
+  const { t } = useTranslation()
   const visual = CARD_VISUAL[def.id]
   const [detalheAberto, setDetalheAberto] = useState(false)
   const periodoLabel = PERIODOS.find(p => p.id === periodoAtivo)?.label ?? periodoAtivo
@@ -407,7 +420,7 @@ function CardDisponivel({
             {visual.icone}
           </span>
           <div>
-            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def)}</p>
+            <p className="cfg-card-row__nome">{obterNomeExibicaoCard(def, t)}</p>
             <p className="cfg-card-row__desc">{def.descricao}</p>
           </div>
         </div>
@@ -1282,7 +1295,7 @@ export default function Configuracoes() {
             if (item.tipo === 'grupo') {
               return (
                 <div key={idx} className="cfg-sidebar__titulo--grupo">
-                  {item.label}
+                  {traduzirLabelSidebarConfig(t, item)}
                 </div>
               )
             }
@@ -1297,7 +1310,7 @@ export default function Configuracoes() {
                     onClick={() => toggleGroup(itemId)}
                   >
                     <span className="cfg-sidebar__item-icon">{item.icone}</span>
-                    <span className="cfg-sidebar__item-label">{item.label}</span>
+                    <span className="cfg-sidebar__item-label">{traduzirLabelSidebarConfig(t, item)}</span>
                     <CaretDown className={`cfg-sidebar__chevron ${isOpen ? 'cfg-sidebar__chevron--open' : ''}`} size={12} />
                   </button>
                   <div className={`cfg-sidebar__submenu ${isOpen ? 'cfg-sidebar__submenu--open' : ''}`}>
@@ -1311,7 +1324,7 @@ export default function Configuracoes() {
                           className={`cfg-sidebar__subitem ${subAtivo ? 'cfg-sidebar__subitem--ativo' : ''}`}
                           onClick={() => setCategoria(subId)}
                         >
-                          {sub.label}
+                          {traduzirLabelSidebarConfig(t, sub)}
                         </button>
                       )
                     })}
@@ -1330,7 +1343,7 @@ export default function Configuracoes() {
                 onClick={() => setCategoria(itemId)}
               >
                 <span className="cfg-sidebar__item-icon">{item.icone}</span>
-                <span className="cfg-sidebar__item-label">{item.label}</span>
+                <span className="cfg-sidebar__item-label">{traduzirLabelSidebarConfig(t, item)}</span>
               </button>
             )
           })}
@@ -1395,7 +1408,7 @@ export default function Configuracoes() {
                           {visual.icone}
                         </div>
                         <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
-                        <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card)}</p>
+                        <p className="cfg-kpi-preview-card__label">{obterNomeExibicaoCard(card, t)}</p>
                       </div>
                     )
                   })}
@@ -1696,8 +1709,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
-                <p className="cfg-secao__desc">Adicione colunas personalizadas extras para as cotações de frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.colunas_personalizadas_titulo', 'Colunas Personalizadas')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.colunas_personalizadas_desc', 'Adicione colunas personalizadas extras para as cotações de frete.')}
+                </p>
               </div>
             </div>
 
@@ -1745,8 +1762,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Campos Calculados</h2>
-                <p className="cfg-secao__desc">Configure fórmulas matemáticas customizadas com campos nativos de frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.campos_calculados_titulo', 'Campos Calculados')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.campos_calculados_desc', 'Configure fórmulas matemáticas customizadas com campos nativos de frete.')}
+                </p>
               </div>
             </div>
 
@@ -1796,8 +1817,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Colunas do Kanban</h2>
-                <p className="cfg-secao__desc">Configure quais colunas de status devem aparecer no seu Kanban de BID de Frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.kanban_colunas_titulo', 'Colunas do Kanban')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.kanban_colunas_desc', 'Configure quais colunas de status devem aparecer no seu Kanban de BID de Frete.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1807,7 +1832,7 @@ export default function Configuracoes() {
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: s.cor }} />
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{s.rotulo}</span>
                   </div>
-                  <TooltipGlobal descricao={ehStatusCotacaoSistema(s) ? t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser editado, excluído ou ocultado') : kanbanColunasOcultas.includes(s.id) ? 'Exibir no Kanban' : 'Ocultar do Kanban'}>
+                  <TooltipGlobal descricao={ehStatusCotacaoSistema(s) ? t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser editado, excluído ou ocultado') : kanbanColunasOcultas.includes(s.id) ? t('bidfrete.configuracoes.exibir_kanban', 'Exibir no Kanban') : t('bidfrete.configuracoes.ocultar_kanban', 'Ocultar do Kanban')}>
                     <button
                       type="button"
                       className={`cfg-eye-btn ${!kanbanColunasOcultas.includes(s.id) ? 'cfg-eye-btn--on' : ''}`}
@@ -1831,9 +1856,11 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Card do Kanban</h2>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.kanban_card_titulo', 'Card do Kanban')}
+                </h2>
                 <p className="cfg-secao__desc">
-                  Defina quais campos aparecem nos cards de cotação — mesmo padrão visual do Kanban de Pedido.
+                  {t('bidfrete.configuracoes.kanban_card_desc', 'Defina quais campos aparecem nos cards de cotação — mesmo padrão visual do Kanban de Pedido.')}
                 </p>
               </div>
             </div>
@@ -1979,8 +2006,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Campos do Modal Rápido</h2>
-                <p className="cfg-secao__desc">Decida quais informações da cotação são editáveis no modal pop-up lateral.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.modal_rapido_titulo', 'Campos do Modal Rápido')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.modal_rapido_desc', 'Decida quais informações da cotação são editáveis no modal pop-up lateral.')}
+                </p>
               </div>
             </div>
 
@@ -2230,8 +2261,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Gerenciar Status do BID</h2>
-                <p className="cfg-secao__desc">Configure status do conjunto BID (agrupador de pedidos de cotação).</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.config.status_bid.titulo', 'Gerenciar Status do BID')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.config.status_bid.descricao', 'Configure status do conjunto BID (agrupador de pedidos de cotação).')}
+                </p>
               </div>
             </div>
 
@@ -2253,8 +2288,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Máscara e Sequência Numérica</h2>
-                <p className="cfg-secao__desc">Configure o formato padrão dos IDs gerados para cada BID.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.numeracao_titulo', 'Máscara e Sequência Numérica')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.numeracao_desc', 'Configure o formato padrão dos IDs gerados para cada BID.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2283,8 +2322,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Templates PDF</h2>
-                <p className="cfg-secao__desc">Personalize o design visual e fontes de relatórios em PDF de BIDs de Frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.templates_pdf_titulo', 'Templates PDF')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.templates_pdf_desc', 'Personalize o design visual e fontes de relatórios em PDF de BIDs de Frete.')}
+                </p>
               </div>
             </div>
 
@@ -2365,8 +2408,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Regras de Negócio</h2>
-                <p className="cfg-secao__desc">Configure as regras de envio, validação e automações do BID Frete Internacional.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.regras_titulo', 'Regras de Negócio')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.regras_desc', 'Configure as regras de envio, validação e automações do BID Frete Internacional.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2405,8 +2452,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Categorias de Anexo</h2>
-                <p className="cfg-secao__desc">Configure as tags de anexo obrigatórias e opcionais para documentos anexados.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.categ_anexos_titulo', 'Categorias de Anexo')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.categ_anexos_desc', 'Configure as tags de anexo obrigatórias e opcionais para documentos anexados.')}
+                </p>
               </div>
             </div>
 
@@ -2457,8 +2508,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Boletim Cambial</h2>
-                <p className="cfg-secao__desc">Configure as cotações das moedas de referência para as cotações internacionais de frete.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.boletim_cambial_titulo', 'Boletim Cambial')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.boletim_cambial_desc', 'Configure as cotações das moedas de referência para as cotações internacionais de frete.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2491,8 +2546,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Preferências de Notificação</h2>
-                <p className="cfg-secao__desc">Ajuste os disparos e alertas de cotação de frete por email e WhatsApp.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.notificacoes_titulo', 'Preferências de Notificação')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.notificacoes_desc', 'Ajuste os disparos e alertas de cotação de frete por email e WhatsApp.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -2526,8 +2585,12 @@ export default function Configuracoes() {
           <section className="cfg-secao">
             <div className="cfg-secao__header">
               <div>
-                <h2 className="cfg-secao__titulo">Exportação de Relatórios</h2>
-                <p className="cfg-secao__desc">Configure as preferências de download e layout de arquivos de propostas geradas.</p>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.exportacao_titulo', 'Exportação de Relatórios')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.exportacao_desc', 'Configure as preferências de download e layout de arquivos de propostas geradas.')}
+                </p>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

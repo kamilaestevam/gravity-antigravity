@@ -68,7 +68,7 @@ export const PRODUCT_CONFIG = {
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     { id: '/workspace/historico-organizacao?id_produto_historico_log=bid-frete', label: 'Histórico', icon: 'clock-counter-clockwise', source: 'tenant', external: true },
-    { id: rotaBidFreteInternacional('configuracoes'), label: 'Configurações', icon: 'gear-six', source: 'product' },
+    { id: rotaBidFreteInternacional('configuracoes'), labelKey: 'bidfrete.nav.configuracoes', label: 'Configurações', icon: 'gear-six', source: 'product' },
 
   ] satisfies NavigationItem[],
 

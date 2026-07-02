@@ -61,6 +61,15 @@ import {
 import { rotaDetalheCotacaoBidFreteInternacional } from '../rotas-bid-frete-internacional'
 import type { ArcRouteBidFrete } from '../mapa-bid-frete-internacional-tipos'
 import type { StatusCotacao } from '../types'
+import {
+  traduzirComparativoTransitBenchmarkRota,
+  traduzirLabelFiltroOperacaoModalMapaInsights,
+  traduzirLabelFiltroStatusMapaInsights,
+  traduzirResumoMapaFiltrado,
+  traduzirStatusTransitBenchmarkRota,
+  traduzirTituloSecaoFiltroMapaInsights,
+  traduzirTooltipFiltroOperacaoModalMapaInsights,
+} from '../traduzir-mapa-insights-bid-frete-internacional'
 
 const COR_ACCENT_TOGGLE_MAPA_BID_FRETE = corOficialProdutoGravity('bid-frete-internacional')
 const ESTILO_VARS_TOGGLE_MAPA_BID_FRETE: React.CSSProperties = {
@@ -1017,9 +1026,12 @@ function SecaoFiltroMapaInsights({
   onToggle,
   children,
 }: SecaoFiltroMapaInsightsProps) {
+  const { t } = useTranslation()
   const semRestricao = ativos === 0
   const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
-  const rotuloMeta = semRestricao ? 'Todos' : `${ativos}/${total}`
+  const rotuloMeta = semRestricao
+    ? t('bidfrete.insights.mapa.refinar.todos', { defaultValue: 'Todos' })
+    : `${ativos}/${total}`
 
   return (
     <section
@@ -1034,8 +1046,15 @@ function SecaoFiltroMapaInsights({
         aria-controls={`bfd-map-filtro-secao-${id}-corpo`}
         title={
           semRestricao
-            ? `${titulo}: sem restrição — exibe todos no mapa`
-            : `${titulo}: ${ativos} filtro(s) ativo(s) nesta seção`
+            ? t('bidfrete.insights.mapa.refinar.secao_sem_restricao', {
+              defaultValue: `${titulo}: sem restrição — exibe todos no mapa`,
+              titulo,
+            })
+            : t('bidfrete.insights.mapa.refinar.secao_filtros_ativos', {
+              defaultValue: `${titulo}: ${ativos} filtro(s) ativo(s) nesta seção`,
+              titulo,
+              count: ativos,
+            })
         }
       >
         <div className="bfd-map-filtro-secao__title">
@@ -1313,7 +1332,10 @@ export function VisaoGeralMapaBidFrete({
     onOpenCompleto?.(route)
   }
   const descricaoMapaTransit =
-    descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
+    descricaoTransit ??
+    t('bidfrete.insights.mapa.benchmark.descricao_global', {
+      defaultValue: 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)',
+    })
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedPinForDialogoResumido, setSelectedPinForDialogoResumido] = useState<number | null>(null)
@@ -2294,13 +2316,19 @@ export function VisaoGeralMapaBidFrete({
           <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
             <div className="bfd-map-panel__header">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="bfd-map-panel__title" style={{ color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }}>Transit Benchmark</span>
+                <span className="bfd-map-panel__title" style={{ color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }}>
+                  {t('bidfrete.insights.mapa.benchmark.titulo', { defaultValue: 'Transit Benchmark' })}
+                </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span className="bfd-map-panel__live-dot" style={{ backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ATIVO</span>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {t('bidfrete.insights.mapa.benchmark.ativo', { defaultValue: 'ATIVO' })}
+                  </span>
                 </div>
               </div>
-              <span className="bfd-map-panel__subtitle">Sua Empresa vs. Média de Mercado</span>
+              <span className="bfd-map-panel__subtitle">
+                {t('bidfrete.insights.mapa.benchmark.subtitulo', { defaultValue: 'Sua Empresa vs. Média de Mercado' })}
+              </span>
             </div>
 
             <div style={{
@@ -2313,11 +2341,19 @@ export function VisaoGeralMapaBidFrete({
               color: '#cbd5e1'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }}>
-                <span>Eficiência Média Geral</span>
-                <span style={{ color: '#34d399' }}>+14.2% mais rápido</span>
+                <span>{t('bidfrete.insights.mapa.benchmark.eficiencia_media', { defaultValue: 'Eficiência Média Geral' })}</span>
+                <span style={{ color: '#34d399' }}>
+                  {t('bidfrete.insights.mapa.benchmark.mais_rapido_pct', {
+                    defaultValue: '+14.2% mais rápido',
+                    pct: 14.2,
+                  })}
+                </span>
               </div>
               <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
-                Suas rotas ativas estão em média <strong>3.1 dias</strong> à frente do benchmark logístico internacional.
+                {t('bidfrete.insights.mapa.benchmark.resumo_dias', {
+                  defaultValue: 'Suas rotas ativas estão em média {{dias}} dias à frente do benchmark logístico internacional.',
+                  dias: 3.1,
+                })}
               </span>
             </div>
 
@@ -2341,16 +2377,14 @@ export function VisaoGeralMapaBidFrete({
 
                 let statusColor = '#34d399'
                 let statusBg = 'rgba(52, 211, 153, 0.1)'
-                let statusText = `+${delta}d mais rápido`
+                let statusText = traduzirStatusTransitBenchmarkRota(t, delta)
 
                 if (delta === 0) {
                   statusColor = '#fbbf24'
                   statusBg = 'rgba(251, 191, 36, 0.1)'
-                  statusText = 'Dentro da média'
                 } else if (delta < 0) {
                   statusColor = '#f87171'
                   statusBg = 'rgba(248, 113, 113, 0.1)'
-                  statusText = `${Math.abs(delta)}d atrasado`
                 }
 
                 const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId
@@ -2406,13 +2440,19 @@ export function VisaoGeralMapaBidFrete({
                         textTransform: 'uppercase',
                       }}>
                         {isAir ? <AirplaneTilt size={9} weight="bold" /> : <Anchor size={9} weight="bold" />}
-                        {isAir ? 'Aéreo' : 'Marítimo'}
+                        {isAir
+                          ? t('bidfrete.insights.mapa.benchmark.modal_aereo', { defaultValue: 'Aéreo' })
+                          : t('bidfrete.insights.mapa.benchmark.modal_maritimo', { defaultValue: 'Marítimo' })}
                       </span>
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
                       <span style={{ color: '#94a3b8' }}>
-                        Sua Empresa: <strong style={{ color: '#ffffff' }}>{tClient}d</strong> vs Mercado: <span style={{ color: '#cbd5e1' }}>{tMarket}d</span>
+                        {t('bidfrete.insights.mapa.benchmark.sua_empresa_vs_mercado_inline', {
+                          defaultValue: `Sua Empresa: ${tClient}d vs Mercado: ${tMarket}d`,
+                          empresa: tClient,
+                          mercado: tMarket,
+                        })}
                       </span>
                       <span style={{
                         fontSize: '0.68rem',
@@ -2651,10 +2691,12 @@ export function VisaoGeralMapaBidFrete({
             id={idCampoBusca}
             type="search"
             className="bfd-map-filtros-panel__local-busca-input"
-            placeholder="Localizar"
+            placeholder={t('bidfrete.insights.mapa.refinar.localizar', { defaultValue: 'Localizar' })}
             value={busca}
             onChange={(e) => onBuscaChange(e.target.value)}
-            aria-label="Localizar terminal por nome ou código"
+            aria-label={t('bidfrete.insights.mapa.refinar.localizar_aria', {
+              defaultValue: 'Localizar terminal por nome ou código',
+            })}
             autoComplete="off"
           />
           {buscaAtiva ? (
@@ -2662,8 +2704,8 @@ export function VisaoGeralMapaBidFrete({
               type="button"
               className="bfd-map-filtros-panel__local-busca-limpar"
               onClick={() => onBuscaChange('')}
-              title="Limpar busca"
-              aria-label="Limpar busca"
+              title={t('bidfrete.insights.mapa.refinar.limpar_busca', { defaultValue: 'Limpar busca' })}
+              aria-label={t('bidfrete.insights.mapa.refinar.limpar_busca', { defaultValue: 'Limpar busca' })}
             >
               <X size={11} weight="bold" />
             </button>
@@ -2676,7 +2718,9 @@ export function VisaoGeralMapaBidFrete({
         ) : null}
         {terminaisFiltrados.length === 0 ? (
           <p className="bfd-map-filtros-panel__lista-vazia">
-            Nenhum terminal corresponde à busca.
+            {t('bidfrete.insights.mapa.refinar.busca_sem_resultado', {
+              defaultValue: 'Nenhum terminal corresponde à busca.',
+            })}
           </p>
         ) : (
           <div className="bfd-map-filtros-panel__local-lista">
@@ -2713,7 +2757,7 @@ export function VisaoGeralMapaBidFrete({
     const filtrosModal = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'modal')
 
     return (
-      <aside className="bfd-map-filtros-rail" aria-label="Filtros do mapa (compacto)">
+      <aside className="bfd-map-filtros-rail" aria-label={t('bidfrete.insights.mapa.refinar.aria_filtros_compacto', { defaultValue: 'Filtros do mapa (compacto)' })}>
         <div className="bfd-map-filtros-rail__grupo">
           {filtrosOperacao.map((filtro) => {
             const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
@@ -2723,7 +2767,7 @@ export function VisaoGeralMapaBidFrete({
                 type="button"
                 className={`bfd-map-filtros-rail__btn ${ativo ? 'is-active' : ''}`}
                 aria-pressed={ativo}
-                title={filtro.tooltipDescricao}
+                title={traduzirTooltipFiltroOperacaoModalMapaInsights(t, filtro.id)}
                 onClick={() => {
                   setPainelFiltrosMapaExpandido(true)
                   alternarFiltroOperacaoModal(filtro.id)
@@ -2746,7 +2790,7 @@ export function VisaoGeralMapaBidFrete({
                 type="button"
                 className={`bfd-map-filtros-rail__btn bfd-map-filtros-rail__btn--modal tab-${filtro.id.toLowerCase()} ${ativo ? 'is-active' : ''}`}
                 aria-pressed={ativo}
-                title={filtro.tooltipDescricao}
+                title={traduzirTooltipFiltroOperacaoModalMapaInsights(t, filtro.id)}
                 onClick={() => {
                   setPainelFiltrosMapaExpandido(true)
                   alternarFiltroOperacaoModal(filtro.id)
@@ -2769,7 +2813,7 @@ export function VisaoGeralMapaBidFrete({
                 type="button"
                 className={`bfd-map-filtros-rail__btn bfd-map-filtros-rail__btn--status ${ativo ? 'is-active' : ''}`}
                 aria-pressed={ativo}
-                title={filtro.label}
+                title={traduzirLabelFiltroStatusMapaInsights(t, filtro.id)}
                 onClick={() => {
                   setPainelFiltrosMapaExpandido(true)
                   alternarFiltroStatusMapa(filtro.id)
@@ -2788,7 +2832,7 @@ export function VisaoGeralMapaBidFrete({
           <button
             type="button"
             className="bfd-map-filtros-rail__limpar"
-            title="Limpar filtros"
+            title={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
             onClick={() => {
               setPainelFiltrosMapaExpandido(true)
               limparFiltrosMapaInsights()
@@ -2830,10 +2874,13 @@ export function VisaoGeralMapaBidFrete({
     const statusAtivos = filtrosMapaInsights.status.size
     const todasSecoesFiltroColapsadas =
       secoesFiltroMapaColapsadas.size === SECOES_FILTRO_MAPA_INSIGHTS.length
-    const resumoMapaFiltrado =
-      totalFiltrosAtivos === 0
-        ? `Exibindo todos · ${pinsAtivos.length} terminais · ${rotasAtivas.length} rotas`
-        : `${pinsAtivos.length}/${pinsBase.length} terminais · ${rotasAtivas.length}/${rotasBase.length} rotas · ${totalFiltrosAtivos} filtro(s)`
+    const resumoMapaFiltrado = traduzirResumoMapaFiltrado(t, {
+      totalFiltrosAtivos,
+      pinsAtivos: pinsAtivos.length,
+      pinsBase: pinsBase.length,
+      rotasAtivas: rotasAtivas.length,
+      rotasBase: rotasBase.length,
+    })
 
     return (
       <div
@@ -2841,7 +2888,11 @@ export function VisaoGeralMapaBidFrete({
         style={ESTILO_VARS_TOGGLE_MAPA_BID_FRETE}
       >
         <TooltipGlobal
-          descricao={painelFiltrosMapaExpandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
+          descricao={
+            painelFiltrosMapaExpandido
+              ? t('bidfrete.insights.mapa.refinar.recolher', { defaultValue: 'Recolher Refinar mapa' })
+              : t('bidfrete.insights.mapa.refinar.expandir', { defaultValue: 'Expandir Refinar mapa' })
+          }
         >
           <button
             type="button"
@@ -2857,11 +2908,13 @@ export function VisaoGeralMapaBidFrete({
         <aside
           id="bfd-map-filtros-panel-conteudo"
           className="bfd-map-filtros-panel bfd-map-filtros-panel--acordeao"
-          aria-label="Filtros do mapa"
+          aria-label={t('bidfrete.insights.mapa.refinar.aria_filtros', { defaultValue: 'Filtros do mapa' })}
         >
         <div className="bfd-map-filtros-panel__topo">
           <div>
-            <p className="bfd-map-filtros-panel__titulo">Refinar mapa</p>
+            <p className="bfd-map-filtros-panel__titulo">
+              {t('bidfrete.insights.mapa.refinar.titulo', { defaultValue: 'Refinar mapa' })}
+            </p>
             <p className="bfd-map-filtros-panel__resumo">{resumoMapaFiltrado}</p>
           </div>
         </div>
@@ -2873,8 +2926,8 @@ export function VisaoGeralMapaBidFrete({
             onClick={alternarTodasSecoesFiltroMapa}
             title={
               todasSecoesFiltroColapsadas
-                ? 'Expandir todas as seções'
-                : 'Recolher todas as seções'
+                ? t('bidfrete.insights.mapa.refinar.expandir_todas_secoes', { defaultValue: 'Expandir todas as seções' })
+                : t('bidfrete.insights.mapa.refinar.recolher_todas_secoes', { defaultValue: 'Recolher todas as seções' })
             }
           >
             <CaretDown
@@ -2882,7 +2935,9 @@ export function VisaoGeralMapaBidFrete({
               size={12}
               className={`bfd-map-filtro-secao__caret ${todasSecoesFiltroColapsadas ? 'bfd-map-filtro-secao__caret--colapsado' : ''}`}
             />
-            {todasSecoesFiltroColapsadas ? 'Expandir todas' : 'Recolher todas'}
+            {todasSecoesFiltroColapsadas
+              ? t('bidfrete.insights.mapa.refinar.expandir_todas', { defaultValue: 'Expandir todas' })
+              : t('bidfrete.insights.mapa.refinar.recolher_todas', { defaultValue: 'Recolher todas' })}
           </button>
           {totalFiltrosAtivos > 0 ? (
             <button
@@ -2891,7 +2946,7 @@ export function VisaoGeralMapaBidFrete({
               onClick={limparFiltrosMapaInsights}
             >
               <X size={12} weight="bold" />
-              Limpar
+              {t('bidfrete.insights.mapa.refinar.limpar', { defaultValue: 'Limpar' })}
             </button>
           ) : null}
         </div>
@@ -2899,7 +2954,7 @@ export function VisaoGeralMapaBidFrete({
         <div className="bfd-map-filtros-acordeao">
           <SecaoFiltroMapaInsights
             id="operacao"
-            titulo="Operação"
+            titulo={traduzirTituloSecaoFiltroMapaInsights(t, 'operacao')}
             icone={<Export size={16} weight="duotone" />}
             ativos={operacaoAtivos}
             total={filtrosOperacao.length}
@@ -2920,7 +2975,9 @@ export function VisaoGeralMapaBidFrete({
                     <span className="bfd-map-filtros-panel__operacao-icone">
                       {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
                     </span>
-                    <span className="bfd-map-filtros-panel__operacao-label">{filtro.label}</span>
+                    <span className="bfd-map-filtros-panel__operacao-label">
+                      {traduzirLabelFiltroOperacaoModalMapaInsights(t, filtro.id)}
+                    </span>
                   </button>
                 )
               })}
@@ -2929,7 +2986,7 @@ export function VisaoGeralMapaBidFrete({
 
           <SecaoFiltroMapaInsights
             id="modal"
-            titulo="Modal"
+            titulo={traduzirTituloSecaoFiltroMapaInsights(t, 'modal')}
             icone={<Anchor size={16} weight="duotone" />}
             ativos={modalAtivos}
             total={filtrosModal.length}
@@ -2948,7 +3005,7 @@ export function VisaoGeralMapaBidFrete({
                     onClick={() => alternarFiltroOperacaoModal(filtro.id)}
                   >
                     {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
-                    <span>{filtro.label}</span>
+                    <span>{traduzirLabelFiltroOperacaoModalMapaInsights(t, filtro.id)}</span>
                   </button>
                 )
               })}
@@ -2957,7 +3014,7 @@ export function VisaoGeralMapaBidFrete({
 
           <SecaoFiltroMapaInsights
             id="origem"
-            titulo="Origem"
+            titulo={traduzirTituloSecaoFiltroMapaInsights(t, 'origem')}
             icone={<MapPin size={16} weight="duotone" />}
             ativos={origemAtivos}
             total={terminaisOrigemMapa.length}
@@ -2968,7 +3025,9 @@ export function VisaoGeralMapaBidFrete({
               terminaisOrigemMapa,
               filtrosMapaInsights.codigos_origem,
               alternarFiltroOrigemMapa,
-              'Nenhum terminal de origem nas rotas atuais.',
+              t('bidfrete.insights.mapa.refinar.vazio_origem', {
+                defaultValue: 'Nenhum terminal de origem nas rotas atuais.',
+              }),
               buscaLocaisOrigemMapa,
               setBuscaLocaisOrigemMapa,
               'bfd-map-filtro-busca-origem',
@@ -2977,7 +3036,7 @@ export function VisaoGeralMapaBidFrete({
 
           <SecaoFiltroMapaInsights
             id="destino"
-            titulo="Destino"
+            titulo={traduzirTituloSecaoFiltroMapaInsights(t, 'destino')}
             icone={<Flag size={16} weight="duotone" />}
             ativos={destinoAtivos}
             total={terminaisDestinoMapa.length}
@@ -2988,7 +3047,9 @@ export function VisaoGeralMapaBidFrete({
               terminaisDestinoMapa,
               filtrosMapaInsights.codigos_destino,
               alternarFiltroDestinoMapa,
-              'Nenhum terminal de destino nas rotas atuais.',
+              t('bidfrete.insights.mapa.refinar.vazio_destino', {
+                defaultValue: 'Nenhum terminal de destino nas rotas atuais.',
+              }),
               buscaLocaisDestinoMapa,
               setBuscaLocaisDestinoMapa,
               'bfd-map-filtro-busca-destino',
@@ -2997,7 +3058,7 @@ export function VisaoGeralMapaBidFrete({
 
           <SecaoFiltroMapaInsights
             id="status"
-            titulo="Status"
+            titulo={traduzirTituloSecaoFiltroMapaInsights(t, 'status')}
             icone={<TrafficSign size={16} weight="duotone" />}
             ativos={statusAtivos}
             total={FILTROS_STATUS_MAPA_INSIGHTS.length}
@@ -3019,7 +3080,9 @@ export function VisaoGeralMapaBidFrete({
                       className="bfd-map-filtros-panel__status-dot"
                       style={{ backgroundColor: filtro.cor, color: filtro.cor }}
                     />
-                    <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
+                    <span className="bfd-map-filtros-panel__status-label">
+                      {traduzirLabelFiltroStatusMapaInsights(t, filtro.id)}
+                    </span>
                     {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
                   </button>
                 )
@@ -3368,7 +3431,7 @@ export function VisaoGeralMapaBidFrete({
                 defaultValue: 'Nenhuma cotação com coordenadas no mapa ainda.',
               })
               : mapaModo === 'transit'
-                ? descricaoTransit
+                ? descricaoMapaTransit
                 : (descricaoBids ??
                   t('bidfrete.insights.mapa.descricao_bids', {
                     defaultValue:
@@ -3408,7 +3471,7 @@ export function VisaoGeralMapaBidFrete({
             }}
           >
             <MapPin size={13} weight="bold" />
-            <span>Bids Ativos</span>
+            <span>{t('bidfrete.insights.mapa.modo_bids_ativos', { defaultValue: 'Bids Ativos' })}</span>
           </button>
           <button
             onClick={() => setMapaModo('transit')}
@@ -3429,7 +3492,7 @@ export function VisaoGeralMapaBidFrete({
             }}
           >
             <Clock size={13} weight="bold" />
-            <span>Transit Time</span>
+            <span>{t('bidfrete.insights.mapa.modo_transit_time', { defaultValue: 'Transit Time' })}</span>
           </button>
         </div>
         ) : null}
@@ -3593,20 +3656,33 @@ export function VisaoGeralMapaBidFrete({
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Respostas</span>
+                              <span className="bfd-route-stat-label">
+                                {t('bidfrete.insights.mapa.benchmark.stat_respostas', { defaultValue: 'Respostas' })}
+                              </span>
                               <span className="bfd-route-stat-value">{rotuloRespostasRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Melhor Preço</span>
+                              <span className="bfd-route-stat-label">
+                                {t('bidfrete.insights.mapa.benchmark.stat_melhor_preco', { defaultValue: 'Melhor Preço' })}
+                              </span>
                               <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{rotuloPrecoRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Saving</span>
+                              <span className="bfd-route-stat-label">
+                                {t('bidfrete.insights.mapa.benchmark.stat_saving', { defaultValue: 'Saving' })}
+                              </span>
                               <span className="bfd-route-stat-value" style={{ color: isAir ? '#a78bfa' : '#34d399' }}>+{route.saving}%</span>
                             </div>
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Transit Time</span>
-                              <span className="bfd-route-stat-value">{route.transitTime} dias</span>
+                              <span className="bfd-route-stat-label">
+                                {t('bidfrete.insights.mapa.benchmark.stat_transit_time', { defaultValue: 'Transit Time' })}
+                              </span>
+                              <span className="bfd-route-stat-value">
+                                {t('bidfrete.insights.mapa.benchmark.stat_dias', {
+                                  defaultValue: `${route.transitTime} dias`,
+                                  count: route.transitTime ?? 0,
+                                })}
+                              </span>
                             </div>
                           </div>
 
@@ -3617,7 +3693,9 @@ export function VisaoGeralMapaBidFrete({
                             if (!temBenchmark) {
                               return (
                                 <div style={{ marginTop: '0.75rem', fontSize: '0.68rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                                  Benchmark de trânsito indisponível — aguardando propostas na rota.
+                                  {t('bidfrete.insights.mapa.benchmark.indisponivel', {
+                                    defaultValue: 'Benchmark de trânsito indisponível — aguardando propostas na rota.',
+                                  })}
                                 </div>
                               )
                             }
@@ -3626,8 +3704,18 @@ export function VisaoGeralMapaBidFrete({
                             return (
                           <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 600 }}>
-                              <span style={{ color: '#94a3b8' }}>Benchmarking Transit Time</span>
-                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>Sua Empresa: {tEmpresa}d vs Mercado: {tMercado}d</span>
+                              <span style={{ color: '#94a3b8' }}>
+                                {t('bidfrete.insights.mapa.benchmark.titulo_transit_time', {
+                                  defaultValue: 'Benchmarking Transit Time',
+                                })}
+                              </span>
+                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>
+                                {t('bidfrete.insights.mapa.benchmark.sua_empresa_vs_mercado_inline', {
+                                  defaultValue: `Sua Empresa: ${tEmpresa}d vs Mercado: ${tMercado}d`,
+                                  empresa: tEmpresa,
+                                  mercado: tMercado,
+                                })}
+                              </span>
                             </div>
                             <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
                               <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.12)' }} />
@@ -3645,11 +3733,7 @@ export function VisaoGeralMapaBidFrete({
                               />
                             </div>
                             <div style={{ fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }}>
-                              {diff > 0
-                                ? `+${pct}% (${diff} dia(s) mais rápido que a média das propostas)`
-                                : diff < 0
-                                  ? `${pct}% (${Math.abs(diff)} dia(s) acima da média das propostas)`
-                                  : 'Igual à média das propostas na rota'}
+                              {traduzirComparativoTransitBenchmarkRota(t, diff, pct)}
                             </div>
                           </div>
                             )

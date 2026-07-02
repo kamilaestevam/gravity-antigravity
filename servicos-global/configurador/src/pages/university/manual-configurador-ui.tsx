@@ -36,6 +36,9 @@ import {
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
+import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
+import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualPedidoTabelaColunasPadraoLista } from './manual-pedido-tabela-colunas-lista'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
@@ -159,8 +162,8 @@ const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
   destaque: { bg: 'rgba(251,191,36,.1)', borda: 'rgba(251,191,36,.38)', label: 'Bom saber', cor: '#fbbf24' },
   aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso', cor: '#f87171' },
-  exemplo: { bg: 'rgba(148,163,184,.08)', borda: 'rgba(148,163,184,.25)', label: 'Exemplo', cor: '#94a3b8' },
-  dica: { bg: 'rgba(99,102,241,.08)', borda: 'rgba(129,140,248,.35)', label: 'Dica', cor: '#818cf8' },
+  exemplo: { bg: 'rgba(148,163,184,.08)', borda: 'rgba(148,163,184,.25)', label: '💡 Exemplo', cor: '#94a3b8' },
+  dica: { bg: 'rgba(99,102,241,.07)', borda: 'rgba(99,102,241,.3)', label: '💡 Dica', cor: '#818cf8' },
   lembrete: { bg: 'rgba(251,191,36,.08)', borda: 'rgba(251,191,36,.32)', label: 'Lembrete', cor: '#fbbf24' },
   seguranca: { bg: 'rgba(52,211,153,.08)', borda: 'rgba(52,211,153,.35)', label: 'Segurança', cor: '#34d399' },
 }
@@ -265,7 +268,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '53'
+const MANUAL_SCREENSHOT_CACHE_KEY = '58'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1012,11 +1015,15 @@ function ManualBlocoPassoVisual({
 
   const tabelaColunasPadraoLista = passo.mostrarTabelaColunasPadraoLista
     ? <ManualSmartReadTabelaColunasPadraoLista />
-    : null
+    : passo.mostrarTabelaColunasPadraoListaPedido
+      ? <ManualPedidoTabelaColunasPadraoLista />
+      : null
 
   const infograficoListaCustomizacao = passo.mostrarInfograficoSmartDocsListaCustomizacao
     ? <ManualInfograficoSmartDocsListaCustomizacao />
-    : null
+    : passo.mostrarInfograficoPedidoListaCustomizacao
+      ? <ManualInfograficoPedidoListaCustomizacao />
+      : null
 
   const infograficoListaPaineis = passo.mostrarInfograficoSmartDocsListaPaineis
     ? <ManualInfograficoSmartDocsListaPaineis />
@@ -1374,11 +1381,14 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
               i,
               fluxo.paragrafos?.length ?? 0,
             )
+            const marginBottomCallout = margens.marginBottom > 0
+              ? margens.marginBottom
+              : (fluxo.mostrarMapaSubtopicosPassos ? 16 : 0)
             return (
               <ManualCalloutBloco
                 callout={fluxo.calloutAposParagrafo.callout}
                 marginTop={margens.marginTop}
-                marginBottom={margens.marginBottom}
+                marginBottom={marginBottomCallout}
               />
             )
           })()}
@@ -1424,6 +1434,11 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
       {fluxo.mostrarInfograficoSmartDocsInsights && (
         <div style={{ marginTop: 8, marginBottom: 4 }}>
           <ManualInfograficoSmartDocsInsights />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoPedidoInsights && (
+        <div style={{ marginTop: 8, marginBottom: 4 }}>
+          <ManualInfograficoPedidoInsights />
         </div>
       )}
       {fluxo.mostrarMapaSubtopicosPassos && prefixoPasso && ancoraPassosPrefix && (

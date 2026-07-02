@@ -1,11 +1,22 @@
-﻿{
+{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais", "builders": "Gravity Partner", "produtos_gravity": "Produtos Gravity" },
+    "nav": {
+      "academy": "Onboarding",
+      "minha_jornada": "Minha Jornada",
+      "docs": "Manuais",
+      "builders": "Gravity Partner",
+      "produtos_gravity": "Produtos Gravity"
+    },
     "academy": {
       "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
     },
-    "badge": { "em_breve": "Em Breve", "restrito": "Restrito", "nova_empresa": "Nova empresa", "convidar_usuario": "Convidar usuário" },
+    "badge": {
+      "em_breve": "Em Breve",
+      "restrito": "Restrito",
+      "nova_empresa": "Nova empresa",
+      "convidar_usuario": "Convidar usuário"
+    },
     "produto": {
       "login": "Login",
       "navegacao": "Navegação",
@@ -28,21 +39,54 @@
       "em_construcao": "Em construção",
       "descricao": "Hub único de aprendizado da plataforma — onboarding por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
     },
-    "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar jornada", "concluida": "Concluída" },
-    "aula": { "voltar": "Voltar", "marcar_concluida": "Marcar como concluída", "inicio": "Início", "fim": "Fim do módulo" },
-    "grupo": { "comece_aqui": "Comece por aqui", "seus_produtos": "Seus produtos", "explorar": "Explorar outros" },
-    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
-    "progresso": { "produtos_contratados": "Progresso nos produtos contratados", "concluidos": "concluídos" },
+    "acao": {
+      "continuar": "Continuar",
+      "iniciar_jornada": "Iniciar jornada",
+      "concluida": "Concluída"
+    },
+    "aula": {
+      "voltar": "Voltar",
+      "marcar_concluida": "Marcar como concluída",
+      "inicio": "Início",
+      "fim": "Fim do módulo"
+    },
+    "grupo": {
+      "comece_aqui": "Comece por aqui",
+      "seus_produtos": "Seus produtos",
+      "explorar": "Explorar outros"
+    },
+    "trilha": {
+      "modulos_one": "{{count}} módulo",
+      "modulos_other": "{{count}} módulos",
+      "total": "Total:"
+    },
+    "progresso": {
+      "produtos_contratados": "Progresso nos produtos contratados",
+      "concluidos": "concluídos"
+    },
     "dica": {
       "titulo": "Dicas e Explicações",
       "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",
       "desabilitadas": "Desabilitadas — nenhuma dica é exibida"
     },
-    "busca": { "organizacao": "Buscar organização…" },
-    "jornada": { "pontos": "Pontos", "concluidas": "Concluídas", "em_andamento": "Em andamento", "certificados": "Certificados" },
-    "vazio": { "em_breve": "{{secao}} — em breve" },
-    "docs": { "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI." },
-    "builders": { "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)." }
+    "busca": {
+      "organizacao": "Buscar organização…"
+    },
+    "jornada": {
+      "pontos": "Pontos",
+      "concluidas": "Concluídas",
+      "em_andamento": "Em andamento",
+      "certificados": "Certificados"
+    },
+    "vazio": {
+      "em_breve": "{{secao}} — em breve"
+    },
+    "docs": {
+      "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI."
+    },
+    "builders": {
+      "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)."
+    }
   },
   "comum": {
     "salvar": "Salvar",
@@ -2318,10 +2362,10 @@
       "kanban": "Kanban"
     },
     "lista": {
-      "label_bid_one": "bid",
-      "label_bid_other": "bids",
-      "label_cotacao_one": "cotação",
-      "label_cotacao_other": "cotações"
+      "colunas": {
+        "data_aprovacao": "Data aprovação",
+        "data_cancelamento": "Data cancelamento"
+      }
     },
     "dashboard": {
       "titulo": "Visão Geral",
@@ -3188,7 +3232,8 @@
         "horas_restantes_one": "{{count}} hora restante",
         "horas_restantes_other": "{{count}} horas restantes",
         "min_restantes_one": "{{count}} minuto restante",
-        "min_restantes_other": "{{count}} minutos restantes"
+        "min_restantes_other": "{{count}} minutos restantes",
+        "unidades": "un"
       },
       "meu_desempenho": {
         "titulo": "Meu Desempenho",
@@ -3481,7 +3526,27 @@
         "kpi_propostas_enviadas": "Propostas enviadas",
         "kpi_propostas_enviadas_desc": "Respostas que você já enviou",
         "kpi_valor_aprovado": "Valor aprovado",
-        "kpi_valor_aprovado_desc": "Soma das suas propostas aprovadas no período"
+        "kpi_valor_aprovado_desc": "Soma das suas propostas aprovadas no período",
+        "toggle_lista": "Lista",
+        "toggle_kanban": "Kanban",
+        "buscar_curto": "Buscar",
+        "erro_carregar": "Erro ao carregar oportunidades",
+        "col_data_cotacao": "Data cotação",
+        "col_solicitante": "Solicitante",
+        "col_valor_total": "Valor total",
+        "solicitante_oculto": "Oculto",
+        "painel_criado_sucesso": "Painel salvo com sucesso.",
+        "painel_criado_erro": "Não foi possível salvar o painel.",
+        "vazio_sem_filtro": "Nenhuma oportunidade disponível no momento.",
+        "acao_excluir": "Remover da lista",
+        "excluir": "Remover da lista",
+        "excluir_desc": "Remove as oportunidades selecionadas da sua lista.",
+        "excluir_selecionados": "Remover {{count}} selecionada(s)",
+        "excluir_sucesso": "Oportunidade(s) removida(s) da lista.",
+        "export_titulo": "Exportar oportunidades",
+        "modal_excluir_titulo": "Remover da lista?",
+        "modal_excluir_desc": "Esta ação remove as oportunidades da sua visualização, sem cancelar a cotação.",
+        "modal_excluir_n_itens": "Remover {{count}} oportunidade(s) selecionada(s)?"
       },
       "kanban": {
         "aguardando_resposta": "Aguardando resposta",
@@ -3866,7 +3931,8 @@
       "spark_tooltip_valor_metrica": "Valor",
       "spark_tooltip_valor_referencia": "Valor referência",
       "spark_tooltip_vs_referencia": "Vs proposta do card",
-      "vazio_recusas": "Nenhum disparo sem resposta no momento"
+      "vazio_recusas": "Nenhum disparo sem resposta no momento",
+      "erro_carregar": "Erro ao carregar cotação"
     },
     "colunas": {
       "processo": "Processo (DATI)",
@@ -3974,11 +4040,55 @@
       "semCotacoes": "Nenhuma cotação",
       "totalCotacoes": "{{count}} cotações"
     },
-    "lista": {
-      "colunas": {
-        "data_aprovacao": "Data aprovação",
-        "data_cancelamento": "Data cancelamento"
+    "status_cotacao": {
+      "RASCUNHO": "Rascunho",
+      "ENVIADA_FORNECEDORES": "Enviada ao fornecedor",
+      "EM_COTACAO": "Em cotação",
+      "AGUARDANDO_APROVACAO": "Aprovação pendente",
+      "APROVADA": "Aprovada",
+      "REPROVADA": "Reprovada",
+      "CANCELADA": "Cancelada",
+      "FALTA_INFORMACAO": "Falta de informação",
+      "EXPIRADA": "Expirada"
+    },
+    "status_disparo": {
+      "PENDENTE": "Pendente",
+      "ENVIADO": "Enviado",
+      "VISUALIZADO": "Visualizado",
+      "RESPONDIDO": "Respondido",
+      "EXPIRADO": "Expirado",
+      "ERRO_ENVIO": "Erro de envio"
+    },
+    "enums": {
+      "canal": {
+        "EMAIL": "Email",
+        "WHATSAPP": "WhatsApp",
+        "API": "API",
+        "PORTAL": "Portal"
+      },
+      "operacao": {
+        "IMPORTACAO": "Importação",
+        "EXPORTACAO": "Exportação"
+      },
+      "modal": {
+        "MARITIMO": "Marítimo",
+        "AEREO": "Aéreo",
+        "RODOVIARIO": "Rodoviário"
+      },
+      "modalidade": {
+        "FCL": "FCL",
+        "LCL": "LCL",
+        "AEREO_GERAL": "Aéreo Geral",
+        "RODOVIARIO_FTL": "FTL",
+        "RODOVIARIO_LTL": "LTL"
       }
+    },
+    "colunas_datas_motivos": {
+      "data_limite_resposta": "Prazo resposta",
+      "data_aprovacao": "Data aprovação",
+      "data_cancelamento": "Data cancelamento",
+      "motivo_reprovacao": "Motivo reprovação",
+      "motivo_cancelamento": "Motivo cancelamento"
     }
   },
   "bidcambio": {

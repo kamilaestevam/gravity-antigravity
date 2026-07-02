@@ -2359,7 +2359,40 @@
       "insights": "Insights",
       "lista": "Lista",
       "dashboard": "Dashboard",
-      "kanban": "Kanban"
+      "kanban": "Kanban",
+      "cotacoes": "Cotações",
+      "importar": "Importar Cotações",
+      "fornecedores": "Fornecedores",
+      "configuracoes": "Configurações"
+    },
+    "page_meta": {
+      "lista": "Todas as cotações de frete em tabela",
+      "cotacoes": "Cotações de frete internacional",
+      "importar": "Importar cotações em massa via planilha",
+      "configuracoes": "Personalize cards, colunas e status do produto",
+      "detalhe_cotacao": {
+        "titulo": "Detalhe da Cotação",
+        "subtitulo": "Informações, propostas e ações da cotação"
+      },
+      "detalhe_fornecedor": {
+        "titulo": "Detalhe do Fornecedor",
+        "subtitulo": "Histórico, rating e dados do transportador"
+      },
+      "comparativo": {
+        "subtitulo": "Compare propostas e selecione a melhor opção"
+      },
+      "responder_cotacao": {
+        "subtitulo": "Envie sua proposta para esta cotação"
+      },
+      "fornecedor": {
+        "dashboard": "Visão geral das suas cotações e desempenho",
+        "lista": "Todas as oportunidades em tabela",
+        "cotacoes_pendentes": "Cotações aguardando sua proposta",
+        "propostas": "Propostas que você enviou",
+        "tabelas_valor": "Suas tabelas de valor",
+        "desempenho": "Métricas e classificação",
+        "configuracoes": "Personalize cards, colunas e kanban da sua visão"
+      }
     },
     "lista": {
       "colunas": {
@@ -2552,8 +2585,24 @@
     },
     "config": {
       "sidebar": {
+        "grupo_visualizacoes": "VISUALIZAÇÕES",
+        "cards": "Cards",
+        "tabela": "Tabela",
+        "colunas": "Colunas",
+        "casas_decimais": "Casas Decimais",
+        "formato_data": "Formato de Data",
+        "personalizadas": "Personalizadas",
+        "campos_calculados": "Campos Calculados",
+        "kanban": "Kanban",
+        "kanban_colunas": "Colunas",
+        "card": "Card",
+        "modal": "Modal",
         "dashboard_kpi": "Visão Geral",
-        "grupo_bidfrete": "BID Frete Internacional"
+        "grupo_bidfrete": "BID FRETE INTERNACIONAL",
+        "status": "Status Cotação",
+        "status_bid": "Status BID",
+        "numeracao": "Numeração",
+        "taxa_cambio": "Taxa de Câmbio"
       },
       "acao": {
         "salvar": "Salvar",
@@ -2595,6 +2644,10 @@
         "cor": "Cor",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
         "msg_salvo": "Status salvos com sucesso."
+      },
+      "status_bid": {
+        "titulo": "Gerenciar Status do BID",
+        "descricao": "Configure status do conjunto BID (agrupador de pedidos de cotação)."
       },
       "kanban": {
         "card_msg_salvo": "Card do Kanban salvo com sucesso."
@@ -2931,7 +2984,61 @@
       "incotermFasDesc": "Vendedor entrega ao lado do navio",
       "incotermFasResp": "Comprador paga embarque + frete",
       "adicionar_outra_bid": "Adicionar outra cotação ao BID",
-      "subtitulo_vinculada_bid": "Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete"
+      "subtitulo_vinculada_bid": "Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete",
+      "step_origem_destino": "Origem e Destino",
+      "step_carga_incoterm": "Carga e Incoterm",
+      "step_armazenagem": "Armazenagem",
+      "operacao_desc_importacao": "Trazer cargas de outros países para o território nacional.",
+      "operacao_desc_exportacao": "Enviar produtos nacionais para compradores internacionais.",
+      "modal_desc_maritimo": "Alto volume, menor custo",
+      "modal_desc_aereo": "Entrega rápida e expressa",
+      "modal_desc_rodoviario": "Flexível e porta a porta",
+      "label_fcl_completo": "FCL — Container Completo",
+      "label_lcl_fracionada": "LCL — Carga Fracionada",
+      "carga_perigosa_secao": "Carga perigosa",
+      "carga_perigosa_label": "Carga Perigosa",
+      "carga_perigosa_desc": "Mercadoria classificada ONU (IMDG / ADR / IATA DGR). Informe o número ONU no passo Carga.",
+      "incoterm_grupo_e": "Grupo E — Saída do vendedor",
+      "incoterm_grupo_f": "Grupo F — Principal não pago (marítimo)",
+      "incoterm_grupo_c": "Grupo C — Principal pago",
+      "incoterm_grupo_d": "Grupo D — Entrega no destino",
+      "incoterm_grupo_label": "Grupo",
+      "exibir_campos_origem": "Exibir campos: Cidade de Origem, Estado ou Província de Origem e País de Origem",
+      "exibir_campos_destino": "Exibir campos: Cidade de Destino, Estado ou Província de Destino e País de Destino",
+      "legenda_origem_aeroporto": "Informe o aeroporto de partida. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_origem_porto": "Informe o porto de embarque. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_origem_rodoviario": "Informe país, estado/província e cidade de coleta (América Latina).",
+      "legenda_destino_aeroporto": "Informe o aeroporto de chegada. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_destino_porto": "Informe o porto de destino. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_destino_rodoviario": "Informe país, estado/província e cidade de entrega (América Latina).",
+      "titulo_aeroporto_origem": "Aeroporto de Origem",
+      "titulo_aeroporto_destino": "Aeroporto de Destino",
+      "titulo_local_rodoviario_origem": "Local rodoviário de Origem",
+      "titulo_local_rodoviario_destino": "Local rodoviário de Destino",
+      "sim": "Sim",
+      "nao": "Não",
+      "selecione": "Selecionar",
+      "hint_armazenagem": "Disponível para embarques Marítimo LCL. Informe se a cotação deve incluir armazenagem.",
+      "campo_incluir_armazenagem": "Incluir armazenagem",
+      "label_armazenagem": "Armazenagem",
+      "resumo_incluir_armazenagem": "Incluir armazenagem",
+      "resumo_nao_incluir_armazenagem": "Não incluir armazenagem",
+      "resumo_containers": "Containers",
+      "resumo_tipo_volume": "Tipo de volume",
+      "anonima_desc_long": "Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.",
+      "erro_criar_cotacao": "Erro ao criar cotação: {{detalhe}}",
+      "disparo_nao_configurado": "Disparo não configurado",
+      "disparo_nao_configurado_detalhe": "Marque ao menos um canal (E-mail) e selecione fornecedores no passo anterior.",
+      "disparo_nao_realizado": "Disparo não realizado",
+      "disparo_nao_realizado_detalhe": "Nenhum fornecedor selecionado para envio.",
+      "embalagem_unidade": "Unidade (UN)",
+      "embalagem_caixa": "Caixa",
+      "embalagem_pallet": "Palete / Pallet",
+      "embalagem_volume": "Volume",
+      "embalagem_fardo": "Fardo",
+      "embalagem_saco": "Saco / Bag",
+      "embalagem_tambor": "Tambor",
+      "embalagem_big_bag": "Big Bag"
     },
     "novo_bid": {
       "titulo": "Novo BID",
@@ -4306,7 +4413,88 @@
         "vazio_coordenadas": "Nenhuma cotação com coordenadas no mapa ainda.",
         "descricao_bids": "Localizações estratégicas, bids ativos e saving acumulado por terminal ({{arraste}})",
         "arraste_mover": "Arrastar para Mover",
-        "arraste_girar": "Arrastar para Girar"
+        "arraste_girar": "Arrastar para Girar",
+        "modo_bids_ativos": "Bids Ativos",
+        "modo_transit_time": "Transit Time",
+        "refinar": {
+          "titulo": "Refinar mapa",
+          "recolher": "Recolher Refinar mapa",
+          "expandir": "Expandir Refinar mapa",
+          "aria_filtros": "Filtros do mapa",
+          "aria_filtros_compacto": "Filtros do mapa (compacto)",
+          "expandir_todas": "Expandir todas",
+          "recolher_todas": "Recolher todas",
+          "expandir_todas_secoes": "Expandir todas as seções",
+          "recolher_todas_secoes": "Recolher todas as seções",
+          "limpar": "Limpar",
+          "limpar_filtros": "Limpar filtros",
+          "todos": "Todos",
+          "secao_sem_restricao": "{{titulo}}: sem restrição — exibe todos no mapa",
+          "secao_filtros_ativos": "{{titulo}}: {{count}} filtro(s) ativo(s) nesta seção",
+          "resumo_todos": "Exibindo todos · {{terminais}} terminais · {{rotas}} rotas",
+          "resumo_filtrado": "{{pinsAtivos}}/{{pinsBase}} terminais · {{rotasAtivas}}/{{rotasBase}} rotas · {{filtros}} filtro(s)",
+          "localizar": "Localizar",
+          "localizar_aria": "Localizar terminal por nome ou código",
+          "limpar_busca": "Limpar busca",
+          "busca_sem_resultado": "Nenhum terminal corresponde à busca.",
+          "vazio_origem": "Nenhum terminal de origem nas rotas atuais.",
+          "vazio_destino": "Nenhum terminal de destino nas rotas atuais."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operação",
+            "modal": "Modal",
+            "origem": "Origem",
+            "destino": "Destino",
+            "status": "Status"
+          },
+          "status": {
+            "ENVIADA_FORNECEDORES": "Enviada",
+            "AGUARDANDO_APROVACAO": "Aprovação"
+          },
+          "operacao_modal": {
+            "IMPORTACAO": {
+              "tooltip": "Cotações com origem fora do Brasil e destino no Brasil"
+            },
+            "EXPORTACAO": {
+              "tooltip": "Cotações com origem no Brasil e destino no exterior"
+            },
+            "MARITIMO": {
+              "tooltip": "Rotas com modal marítimo"
+            },
+            "AEREO": {
+              "tooltip": "Rotas com modal aéreo"
+            },
+            "RODOVIARIO": {
+              "tooltip": "Rotas com modal rodoviário"
+            }
+          }
+        },
+        "benchmark": {
+          "titulo": "Transit Benchmark",
+          "ativo": "ATIVO",
+          "subtitulo": "Sua Empresa vs. Média de Mercado",
+          "descricao_global": "Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)",
+          "eficiencia_media": "Eficiência Média Geral",
+          "mais_rapido_pct": "+{{pct}}% mais rápido",
+          "resumo_dias": "Suas rotas ativas estão em média {{dias}} dias à frente do benchmark logístico internacional.",
+          "sua_empresa_vs_mercado_inline": "Sua Empresa: {{empresa}}d vs Mercado: {{mercado}}d",
+          "rota_mais_rapido": "+{{dias}}d mais rápido",
+          "rota_na_media": "Dentro da média",
+          "rota_atrasado": "{{dias}}d atrasado",
+          "modal_maritimo": "Marítimo",
+          "modal_aereo": "Aéreo",
+          "indisponivel": "Benchmark de trânsito indisponível — aguardando propostas na rota.",
+          "titulo_transit_time": "Benchmarking Transit Time",
+          "comparativo_mais_rapido": "+{{pct}}% ({{dias}} dia(s) mais rápido que a média das propostas)",
+          "comparativo_mais_lento": "{{pct}}% ({{dias}} dia(s) acima da média das propostas)",
+          "comparativo_igual": "Igual à média das propostas na rota",
+          "stat_respostas": "Respostas",
+          "stat_melhor_preco": "Melhor Preço",
+          "stat_saving": "Saving",
+          "stat_transit_time": "Transit Time",
+          "stat_dias": "{{count}} dias"
+        }
       },
       "graficos": {
         "cotacoes_por_mes": {

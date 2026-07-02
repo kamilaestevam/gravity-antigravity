@@ -99,7 +99,40 @@
       "insights": "Insights",
       "lista": "List",
       "dashboard": "Dashboard",
-      "kanban": "Kanban"
+      "kanban": "Kanban",
+      "cotacoes": "Quotes",
+      "importar": "Import Quotes",
+      "fornecedores": "Suppliers",
+      "configuracoes": "Settings"
+    },
+    "page_meta": {
+      "lista": "All freight quotes in table view",
+      "cotacoes": "International freight quotes",
+      "importar": "Bulk import quotes via spreadsheet",
+      "configuracoes": "Customize cards, columns and product statuses",
+      "detalhe_cotacao": {
+        "titulo": "Quote Details",
+        "subtitulo": "Information, proposals and quote actions"
+      },
+      "detalhe_fornecedor": {
+        "titulo": "Supplier Details",
+        "subtitulo": "History, rating and carrier data"
+      },
+      "comparativo": {
+        "subtitulo": "Compare proposals and select the best option"
+      },
+      "responder_cotacao": {
+        "subtitulo": "Send your proposal for this quote"
+      },
+      "fornecedor": {
+        "dashboard": "Overview of your quotes and performance",
+        "lista": "All opportunities in table view",
+        "cotacoes_pendentes": "Quotes awaiting your proposal",
+        "propostas": "Proposals you sent",
+        "tabelas_valor": "Your rate tables",
+        "desempenho": "Metrics and rating",
+        "configuracoes": "Customize cards, columns and kanban in your view"
+      }
     },
     "lista": {
       "label_bid_one": "bid",
@@ -258,7 +291,61 @@
       "incotermFasResp": "Buyer pays loading + freight",
       "adicionar_outra_bid": "Add another quote to the BID",
       "subtitulo_vinculada_bid": "Quote linked to BID — fill in the details to find the best freight options",
-      "fornecedores_disparo": "supplieres e envio"
+      "step_origem_destino": "Origin & Destination",
+      "step_carga_incoterm": "Cargo & Incoterm",
+      "step_armazenagem": "Storage",
+      "operacao_desc_importacao": "Bring cargo from other countries into the domestic market.",
+      "operacao_desc_exportacao": "Send domestic products to international buyers.",
+      "modal_desc_maritimo": "High volume, lower cost",
+      "modal_desc_aereo": "Fast, express delivery",
+      "modal_desc_rodoviario": "Flexible door-to-door",
+      "label_fcl_completo": "FCL — Full Container",
+      "label_lcl_fracionada": "LCL — Consolidated Cargo",
+      "carga_perigosa_secao": "Dangerous goods",
+      "carga_perigosa_label": "Dangerous Goods",
+      "carga_perigosa_desc": "UN-classified goods (IMDG / ADR / IATA DGR). Enter the UN number in the Cargo step.",
+      "incoterm_grupo_e": "Group E — Seller departure",
+      "incoterm_grupo_f": "Group F — Main carriage unpaid (maritime)",
+      "incoterm_grupo_c": "Group C — Main carriage paid",
+      "incoterm_grupo_d": "Group D — Arrival at destination",
+      "incoterm_grupo_label": "Group",
+      "exibir_campos_origem": "Show fields: Origin City, Origin State/Province and Origin Country",
+      "exibir_campos_destino": "Show fields: Destination City, Destination State/Province and Destination Country",
+      "legenda_origem_aeroporto": "Enter the departure airport. Check the option below if you need to add address or country.",
+      "legenda_origem_porto": "Enter the port of loading. Check the option below if you need to add address or country.",
+      "legenda_origem_rodoviario": "Enter country, state/province and pickup city (Latin America).",
+      "legenda_destino_aeroporto": "Enter the arrival airport. Check the option below if you need to add address or country.",
+      "legenda_destino_porto": "Enter the destination port. Check the option below if you need to add address or country.",
+      "legenda_destino_rodoviario": "Enter country, state/province and delivery city (Latin America).",
+      "titulo_aeroporto_origem": "Origin Airport",
+      "titulo_aeroporto_destino": "Destination Airport",
+      "titulo_local_rodoviario_origem": "Road origin location",
+      "titulo_local_rodoviario_destino": "Road destination location",
+      "sim": "Yes",
+      "nao": "No",
+      "selecione": "Select",
+      "hint_armazenagem": "Available for Maritime LCL shipments. Indicate whether the quote should include storage.",
+      "campo_incluir_armazenagem": "Include storage",
+      "label_armazenagem": "Storage",
+      "resumo_incluir_armazenagem": "Include storage",
+      "resumo_nao_incluir_armazenagem": "Do not include storage",
+      "resumo_containers": "Containers",
+      "resumo_tipo_volume": "Volume type",
+      "anonima_desc_long": "Hide your company name in the initial bidding market for full confidentiality.",
+      "erro_criar_cotacao": "Error creating quote: {{detalhe}}",
+      "disparo_nao_configurado": "Dispatch not configured",
+      "disparo_nao_configurado_detalhe": "Select at least one channel (Email) and suppliers in the previous step.",
+      "disparo_nao_realizado": "Dispatch not performed",
+      "disparo_nao_realizado_detalhe": "No supplier selected for sending.",
+      "embalagem_unidade": "Unit (UN)",
+      "embalagem_caixa": "Box",
+      "embalagem_pallet": "Pallet",
+      "embalagem_volume": "Volume",
+      "embalagem_fardo": "Bale",
+      "embalagem_saco": "Bag",
+      "embalagem_tambor": "Drum",
+      "embalagem_big_bag": "Big Bag",
+      "fornecedores_disparo": "Suppliers & dispatch"
     },
     "novo_bid": {
       "titulo": "New BID",
@@ -470,8 +557,24 @@
     },
     "config": {
       "sidebar": {
+        "grupo_visualizacoes": "VIEWS",
+        "cards": "Cards",
+        "tabela": "Table",
+        "colunas": "Columns",
+        "casas_decimais": "Decimal Places",
+        "formato_data": "Date Format",
+        "personalizadas": "Custom",
+        "campos_calculados": "Calculated Fields",
+        "kanban": "Kanban",
+        "kanban_colunas": "Columns",
+        "card": "Card",
+        "modal": "Modal",
         "dashboard_kpi": "Overview",
-        "grupo_bidfrete": "BID International Freight"
+        "grupo_bidfrete": "BID INTERNATIONAL FREIGHT",
+        "status": "Quote Status",
+        "status_bid": "BID Status",
+        "numeracao": "Numbering",
+        "taxa_cambio": "Exchange Rate"
       },
       "acao": {
         "salvar": "save",
@@ -512,7 +615,11 @@
         "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
         "cor": "Cor",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
-        "msg_salvo": "Status salvos com success."
+        "msg_salvo": "Status saved successfully."
+      },
+      "status_bid": {
+        "titulo": "Manage BID Status",
+        "descricao": "Configure statuses for the BID group (quote batch container)."
       },
       "kanban": {
         "card_msg_salvo": "Card do Kanban salvo com success."
@@ -2050,7 +2157,88 @@
         "vazio_coordenadas": "No quotes with map coordinates yet.",
         "descricao_bids": "Strategic locations, active bids and accumulated savings by terminal ({{arraste}})",
         "arraste_mover": "Drag to Move",
-        "arraste_girar": "Drag to Rotate"
+        "arraste_girar": "Drag to Rotate",
+        "modo_bids_ativos": "Active Bids",
+        "modo_transit_time": "Transit Time",
+        "refinar": {
+          "titulo": "Refine map",
+          "recolher": "Collapse Refine map",
+          "expandir": "Expand Refine map",
+          "aria_filtros": "Map filters",
+          "aria_filtros_compacto": "Map filters (compact)",
+          "expandir_todas": "Expand all",
+          "recolher_todas": "Collapse all",
+          "expandir_todas_secoes": "Expand all sections",
+          "recolher_todas_secoes": "Collapse all sections",
+          "limpar": "Clear",
+          "limpar_filtros": "Clear filters",
+          "todos": "All",
+          "secao_sem_restricao": "{{titulo}}: no restriction — shows all on the map",
+          "secao_filtros_ativos": "{{titulo}}: {{count}} active filter(s) in this section",
+          "resumo_todos": "Showing all · {{terminais}} terminals · {{rotas}} routes",
+          "resumo_filtrado": "{{pinsAtivos}}/{{pinsBase}} terminals · {{rotasAtivas}}/{{rotasBase}} routes · {{filtros}} filter(s)",
+          "localizar": "Search",
+          "localizar_aria": "Find terminal by name or code",
+          "limpar_busca": "Clear search",
+          "busca_sem_resultado": "No terminal matches your search.",
+          "vazio_origem": "No origin terminals in current routes.",
+          "vazio_destino": "No destination terminals in current routes."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operation",
+            "modal": "Mode",
+            "origem": "Origin",
+            "destino": "Destination",
+            "status": "Status"
+          },
+          "status": {
+            "ENVIADA_FORNECEDORES": "Sent",
+            "AGUARDANDO_APROVACAO": "Pending approval"
+          },
+          "operacao_modal": {
+            "IMPORTACAO": {
+              "tooltip": "Quotes with origin outside Brazil and destination in Brazil"
+            },
+            "EXPORTACAO": {
+              "tooltip": "Quotes with origin in Brazil and destination abroad"
+            },
+            "MARITIMO": {
+              "tooltip": "Routes with maritime mode"
+            },
+            "AEREO": {
+              "tooltip": "Routes with air mode"
+            },
+            "RODOVIARIO": {
+              "tooltip": "Routes with road mode"
+            }
+          }
+        },
+        "benchmark": {
+          "titulo": "Transit Benchmark",
+          "ativo": "ACTIVE",
+          "subtitulo": "Your Company vs. Market Average",
+          "descricao_global": "Global Transit Time benchmarking (Your Company vs. Market Average)",
+          "eficiencia_media": "Overall Average Efficiency",
+          "mais_rapido_pct": "+{{pct}}% faster",
+          "resumo_dias": "Your active routes are on average {{dias}} days ahead of the international logistics benchmark.",
+          "sua_empresa_vs_mercado_inline": "Your Company: {{empresa}}d vs Market: {{mercado}}d",
+          "rota_mais_rapido": "+{{dias}}d faster",
+          "rota_na_media": "Within average",
+          "rota_atrasado": "{{dias}}d delayed",
+          "modal_maritimo": "Maritime",
+          "modal_aereo": "Air",
+          "indisponivel": "Transit benchmark unavailable — awaiting proposals on the route.",
+          "titulo_transit_time": "Transit Time Benchmarking",
+          "comparativo_mais_rapido": "+{{pct}}% ({{dias}} day(s) faster than proposal average)",
+          "comparativo_mais_lento": "{{pct}}% ({{dias}} day(s) above proposal average)",
+          "comparativo_igual": "Equal to proposal average on the route",
+          "stat_respostas": "Responses",
+          "stat_melhor_preco": "Best Price",
+          "stat_saving": "Saving",
+          "stat_transit_time": "Transit Time",
+          "stat_dias": "{{count}} days"
+        }
       },
       "graficos": {
         "cotacoes_por_mes": {

@@ -34,6 +34,20 @@ import {
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
 } from '../shared/ordem-colunas-lista-bid-frete-internacional'
 import { traduzirLabelColunaListaBidFrete } from '../shared/traduzir-coluna-lista-bid-frete-internacional'
+import {
+  opcoesAnonimaListaBidFrete,
+  opcoesModalidadeListaBidFrete,
+  opcoesModalListaBidFrete,
+  opcoesOperacaoListaBidFrete,
+  opcoesStatusPadraoListaBidFrete,
+  opcoesVisibilidadeListaBidFrete,
+  traduzirModalKanbanBidFrete,
+  traduzirModalidadeKanbanBidFrete,
+  traduzirOperacaoKanbanBidFrete,
+  traduzirSimNaoBidFrete,
+  traduzirStatusCotacaoBidFrete,
+  traduzirVisibilidadeBidFrete,
+} from '../shared/traduzir-enums-bid-frete-internacional'
 
 export { CAMPOS_NAO_EDITAVEIS_LISTA }
 
@@ -46,10 +60,16 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
   default: { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
 }
 
-export function RenderBadgeStatus(valor: unknown): React.ReactNode {
+export function RenderBadgeStatus(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const status = valor as StatusCotacao
   const variante = STATUS_BADGE[status] || 'default'
   const cores = BADGE_COLORS[variante]
+  const label = t
+    ? traduzirStatusCotacaoBidFrete(t, status)
+    : (STATUS_LABELS[status] || status)
   return (
     <span style={{
       display: 'inline-flex',
@@ -61,7 +81,7 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
       background: cores.bg,
       color: cores.color,
     }}>
-      {STATUS_LABELS[status] || status}
+      {label}
     </span>
   )
 }
@@ -79,24 +99,35 @@ export const ESTILO_BADGE_OPERACAO_EXPORTACAO: React.CSSProperties = {
   border: '1px solid rgba(52,211,153,0.2)',
 }
 
-export function RenderBadgeOperacao(valor: unknown): React.ReactNode {
+export function RenderBadgeOperacao(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const op = valor as TipoOperacao
   const isImport = op === 'IMPORTACAO'
+  const label = t
+    ? traduzirOperacaoKanbanBidFrete(t, op)
+    : (OPERACAO_LABELS[op] || op)
   return (
     <StatusBadgeGlobal
-      valor={OPERACAO_LABELS[op] || op}
+      valor={label}
       genero="feminino"
       style={isImport ? ESTILO_BADGE_OPERACAO_IMPORTACAO : ESTILO_BADGE_OPERACAO_EXPORTACAO}
     />
   )
 }
 
-export function RenderBadgeVisibilidade(valor: unknown): React.ReactNode {
+export function RenderBadgeVisibilidade(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const vis = valor as Visibilidade
   const isAberta = vis === 'ABERTA'
   const bg = isAberta ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAberta ? 'var(--success, #22c55e)' : 'var(--accent, #6366f1)'
-  const label = isAberta ? 'Aberta' : 'Direcionada'
+  const label = t
+    ? traduzirVisibilidadeBidFrete(t, vis)
+    : (isAberta ? 'Aberta' : 'Direcionada')
   return (
     <span style={{
       display: 'inline-flex',
@@ -113,11 +144,16 @@ export function RenderBadgeVisibilidade(valor: unknown): React.ReactNode {
   )
 }
 
-export function RenderBadgeAnonima(valor: unknown): React.ReactNode {
+export function RenderBadgeAnonima(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const isAnonima = !!valor
   const bg = isAnonima ? 'rgba(148,163,184,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAnonima ? 'var(--text-muted, #64748b)' : 'var(--accent, #6366f1)'
-  const label = isAnonima ? 'Sim' : 'Não'
+  const label = t
+    ? traduzirSimNaoBidFrete(t, isAnonima)
+    : (isAnonima ? 'Sim' : 'Não')
   return (
     <span style={{
       display: 'inline-flex',
@@ -286,6 +322,7 @@ const OPCOES_STATUS_PADRAO = (Object.entries(STATUS_LABELS) as Array<[StatusCota
 function aplicarConfigEdicaoColuna(
   col: GTColuna<Cotacao>,
   opcoes: OpcoesColunasLista,
+  t?: TFunction | null,
 ): GTColuna<Cotacao> {
   const key = col.key as string
   if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
@@ -306,20 +343,22 @@ function aplicarConfigEdicaoColuna(
     case 'status_cotacao_bid_frete_internacional':
       return {
         ...base,
-        opcoes: opcoes.statusOpcoes?.length ? opcoes.statusOpcoes : OPCOES_STATUS_PADRAO,
+        opcoes: opcoes.statusOpcoes?.length
+          ? opcoes.statusOpcoes
+          : (t ? opcoesStatusPadraoListaBidFrete(t) : OPCOES_STATUS_PADRAO),
       }
     case 'tipo_operacao_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_OPERACAO }
+      return { ...base, opcoes: t ? opcoesOperacaoListaBidFrete(t) : OPCOES_OPERACAO }
     case 'modal_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_MODAL }
+      return { ...base, opcoes: t ? opcoesModalListaBidFrete(t) : OPCOES_MODAL }
     case 'modalidade_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_MODALIDADE }
+      return { ...base, opcoes: t ? opcoesModalidadeListaBidFrete(t) : OPCOES_MODALIDADE }
     case 'visibilidade_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_VISIBILIDADE }
+      return { ...base, opcoes: t ? opcoesVisibilidadeListaBidFrete(t) : OPCOES_VISIBILIDADE }
     case 'anonima_cotacao_bid_frete_internacional':
       return {
         ...base,
-        opcoes: OPCOES_ANONIMA,
+        opcoes: t ? opcoesAnonimaListaBidFrete(t) : OPCOES_ANONIMA,
         getValorEditar: (item: Cotacao) => String(!!item.anonima_cotacao_bid_frete_internacional),
       }
     case 'incoterm_cotacao_bid_frete_internacional':
@@ -725,13 +764,13 @@ function buildColunasCotacoesBase(
       key: 'tipo_operacao_cotacao_bid_frete_internacional',
       label: 'Operação',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeOperacao(val),
+      render: (val: unknown) => RenderBadgeOperacao(val, t),
     },
     {
       key: 'status_cotacao_bid_frete_internacional',
       label: 'Status',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeStatus(val),
+      render: (val: unknown) => RenderBadgeStatus(val, t),
     },
     {
       key: 'data_criacao_cotacao_bid_frete_internacional',
@@ -753,10 +792,13 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => {
         const modal = val as ModalFrete
+        const label = t
+          ? traduzirModalKanbanBidFrete(t, modal)
+          : (MODAL_LABELS[modal] ?? modal)
         return (
           <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
             {RenderModalIcon(modal)}
-            {MODAL_LABELS[modal] ?? modal}
+            {label}
           </span>
         )
       },
@@ -767,6 +809,9 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => {
         const mod = val as ModalidadeCarga
+        if (t) {
+          return traduzirModalidadeKanbanBidFrete(t, mod)
+        }
         return MODALIDADE_LABELS[mod] ?? (val as string | null ?? '—')
       },
     },
@@ -921,13 +966,13 @@ function buildColunasCotacoesBase(
       key: 'visibilidade_cotacao_bid_frete_internacional',
       label: 'Visibilidade',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeVisibilidade(val),
+      render: (val: unknown) => RenderBadgeVisibilidade(val, t),
     },
     {
       key: 'anonima_cotacao_bid_frete_internacional',
       label: 'Anônima',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeAnonima(val),
+      render: (val: unknown) => RenderBadgeAnonima(val, t),
     },
     ...criarColunasDatasMotivosCotacaoLista(),
     {
@@ -1020,7 +1065,7 @@ function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao>
 }
 
 export function buildColunasCotacoes(
-  t: TFunction,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
@@ -1028,6 +1073,7 @@ export function buildColunasCotacoes(
     aplicarConfigEdicaoColuna(
       garantirFiltravelColunaLista({ ...col, align: 'center' }),
       opcoes,
+      t,
     ),
   )
 }

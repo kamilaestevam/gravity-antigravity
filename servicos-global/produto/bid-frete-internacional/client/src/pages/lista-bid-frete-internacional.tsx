@@ -153,6 +153,7 @@ import {
   lerStatusCotacaoConfigBidFreteInternacional,
   type StatusCotacaoConfigBidFreteInternacional,
 } from '../shared/status-config-bid-frete-internacional'
+import { traduzirStatusColunaKanbanBidFrete } from '../shared/traduzir-enums-bid-frete-internacional'
 import type { FiltroAtivo, FiltrosAtivosMap } from '../components/lista/filtros'
 import {
   calcularValoresUnicosPorCampoBidFrete,
@@ -285,8 +286,11 @@ export default function Cotacoes() {
   }, [])
 
   const statusOpcoesColunas = useMemo(
-    () => statusConfig.map(s => ({ valor: s.nome, label: s.rotulo })),
-    [statusConfig],
+    () => statusConfig.map(s => ({
+      valor: s.nome,
+      label: traduzirStatusColunaKanbanBidFrete(t, s),
+    })),
+    [statusConfig, t],
   )
 
   const {
@@ -922,8 +926,8 @@ export default function Cotacoes() {
   }, [colunasCotacaoComUsuario])
 
   const labelsFiltroCtx = useMemo(
-    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes }),
-    [opcoesColunasLista.statusOpcoes],
+    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes, t }),
+    [opcoesColunasLista.statusOpcoes, t],
   )
 
   const numerosBidParaFiltroColuna = useMemo(

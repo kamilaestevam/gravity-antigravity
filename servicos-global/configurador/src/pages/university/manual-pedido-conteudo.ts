@@ -5,6 +5,8 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
+const LINK_MANUAL_PEDIDO_CONFIGURACOES =
+  '{{link:/university-gravity/docs/pedido#doc-sec-13|Configurações}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/1. Pedido` → `public/university/screenshots/pedido-*.png`
@@ -15,6 +17,9 @@ const LINK_MANUAL_HUB_PRODUTOS =
  * - tela_pedido_visao_lista.png     → pedido-lista.png
  * - tela_pedido_visao_dashboard.png → pedido-dashboard.png
  * - tela_pedido_visao_kanban.png    → pedido-kanban.png
+ * - tela_pedido_acesso_via_hub.png  → pedido-acesso-hub.png
+ * - tela_pedido_acesso_via_menu_lateral.png → pedido-acesso-menu-lateral.png
+ * - tela_pedido_visao_lista_expandir_seta.png → pedido-lista-expandir-seta.png
  * - pedido-novo-pedido.png
  * - pedido-novo-item.png
  * - pedido-transferir.png
@@ -28,6 +33,9 @@ const SCREENSHOT_PEDIDO_INSIGHTS = '/university/screenshots/pedido-tela-principa
 const SCREENSHOT_PEDIDO_LISTA = '/university/screenshots/pedido-lista.png'
 const SCREENSHOT_PEDIDO_DASHBOARD = '/university/screenshots/pedido-dashboard.png'
 const SCREENSHOT_PEDIDO_KANBAN = '/university/screenshots/pedido-kanban.png'
+const SCREENSHOT_PEDIDO_ACESSO_HUB = '/university/screenshots/pedido-acesso-hub.png'
+const SCREENSHOT_PEDIDO_ACESSO_MENU_LATERAL = '/university/screenshots/pedido-acesso-menu-lateral.png'
+const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA = '/university/screenshots/pedido-lista-expandir-seta.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -67,6 +75,8 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
     {
       titulo: 'Como acessar o produto',
       tituloSumario: 'Como acessar o produto',
+      modoCenarios: true,
+      cenariosLadoALado: true,
       paragrafos: [
         'Com o **Pedido** contratado e habilitado no workspace, há **dois caminhos** para abrir o produto: pelo **Hub** ou pelo **menu lateral** (**acesso rápido**, a partir de outro Produto Gravity).',
       ],
@@ -76,18 +86,24 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           paragrafos: [
             'No ' + LINK_MANUAL_HUB + ', na seção ' + LINK_MANUAL_HUB_PRODUTOS + ', clique no ícone **Pedido**.',
           ],
+          imagem: SCREENSHOT_PEDIDO_ACESSO_HUB,
+          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Menu lateral — acesso rápido',
           paragrafos: [
             'Já em outro **Produto Gravity** do mesmo workspace, abra o **seletor de produtos** no topo do menu lateral e escolha **Pedido**.',
           ],
+          imagem: SCREENSHOT_PEDIDO_ACESSO_MENU_LATERAL,
+          imagemAbaixoTexto: true,
         },
       ]),
     },
     {
       titulo: 'Tipos de visualização Pedido',
       tituloSumario: 'Tipos de visualização',
+      modoCenarios: true,
+      cenariosLadoALado: true,
       paragrafos: [
         'No topo do produto, as abas **Insights**, **Lista**, **Dashboard** e **Kanban** alternam entre **quatro visualizações** do mesmo escopo de pedidos do workspace:',
       ],
@@ -95,43 +111,67 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Insights',
           paragrafos: [
-            'Cockpit com KPIs e visão consolidada — aba padrão ao entrar no produto (`/pedido/pedidos/visao-geral`).',
+            'Cockpit com **KPIs** e **visão consolidada**.',
           ],
+          imagem: SCREENSHOT_PEDIDO_INSIGHTS,
+          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Lista',
           paragrafos: [
-            'Operação diária: busca, colunas personalizáveis, painéis salvos, exclusão, exportação, expansão de linhas e edição em massa.',
+            'Visão de **pedidos** e **itens**, **edição na tabela**, **lista customizada**, **importar dados** e **exportar lista**.',
           ],
+          imagem: SCREENSHOT_PEDIDO_LISTA,
+          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Dashboard',
           paragrafos: [
-            'Painéis com widgets configuráveis — gráficos e indicadores montados pelo usuário.',
+            'Painel de BI **customizado** por usuário.',
           ],
+          imagem: SCREENSHOT_PEDIDO_DASHBOARD,
+          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Kanban',
           paragrafos: [
             'Cartões organizados por **status** do pedido, com arrastar entre colunas.',
           ],
+          imagem: SCREENSHOT_PEDIDO_KANBAN,
+          imagemAbaixoTexto: true,
         },
       ]),
     },
     {
-      titulo: 'Visualização — Insights',
-      tituloSumario: 'Visualização — Insights',
+      titulo: 'Visão Insights',
+      tituloSumario: 'Visão Insights',
       paragrafos: [
-        '**Insights** concentra os indicadores principais do workspace — volume de pedidos, status, evolução temporal e demais KPIs derivados dos pedidos **ativos** no escopo selecionado.',
+        '**Insights** concentra os indicadores principais do **workspace**: volume de pedidos, status, evolução temporal e demais KPIs derivados dos pedidos ativos no escopo selecionado. O print e o mapa das métricas abaixo detalham cada bloco da tela.',
       ],
+      figurasAposParagrafo: [
+        {
+          indice: 0,
+          imagem: SCREENSHOT_PEDIDO_INSIGHTS,
+          legenda: 'Tela Insights',
+        },
+      ],
+      mostrarInfograficoPedidoInsights: true,
       passosVisuais: [],
     },
     {
-      titulo: 'Visualização — Lista',
-      tituloSumario: 'Visualização — Lista',
+      titulo: 'Visão Lista',
+      tituloSumario: 'Visão Lista',
       paragrafos: [
-        'A **Lista** é a visualização operacional do Pedido: grade virtual com **customização por usuário** (colunas, painéis, filtros e preferências salvas só para você). Inclui ações em lote, drawer de edição, consolidação, transferência e exportação.',
+        'A **Lista** é a forma mais **rápida** e **direta** de gerenciar pedidos no workspace: se assemelha a um **Excel**, mas **inteligente** e **integrado** à plataforma Gravity.',
+        'Aqui você **inclui** pedidos e itens, **edita** na tabela, **exclui**, **transfere**, **consolida**, aplica **edição em massa**, **importa**, **exporta** e monta **painéis** salvos.',
       ],
+      calloutAposParagrafo: {
+        indice: 1,
+        callout: {
+          tipo: 'dica',
+          texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne os **pedidos** e **itens** dos workspaces selecionados.',
+        },
+      },
       prefixoPassosVisuais: 'Lista',
       ancoraPassosPrefix: 'lista',
       mostrarMapaSubtopicosPassos: true,
@@ -139,27 +179,138 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Visão geral',
           tituloCurto: 'Visão geral',
+          imagem: SCREENSHOT_PEDIDO_LISTA,
+          imagemAbaixoTexto: true,
           paragrafos: [
-            'Use este capítulo como **mapa da tela**. Os subtópicos abaixo serão detalhados com screenshots na próxima entrega (barra de ações, painéis, colunas, expandir linha, novo pedido, exclusão, exportação…).',
+            'Cada **linha mãe** é um pedido; as **linhas filhas** são os itens do PO. A barra superior reúne busca, **Novo pedido**, painéis e as ações em lote: **transferir**, **consolidar**, **edição em massa**, **excluir** e **gerar documentos**.',
+          ],
+        },
+        {
+          titulo: 'Expandir linhas',
+          tituloCurto: 'Expandir',
+          paragrafos: [
+            'Clique na **seta** à esquerda da linha para expandir os itens sem sair da lista.',
+            'A **linha mãe** é o pedido (ex.: PO 12345). As **linhas filhas** são cada item daquele pedido.',
+            'Na **primeira coluna** do cabeçalho da tabela, clique na **seta** ao lado do checkbox para **expandir** ou **recolher** todos os pedidos visíveis na página de uma vez.',
+            'Com todos expandidos, cada pedido mostra suas linhas filhas. O mesmo efeito de abrir linha a linha, em massa.',
+          ],
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA,
+              legenda: 'Seta para expandir',
+            },
           ],
           callout: {
             tipo: 'lembrete',
-            texto: 'Aguardando prints — estrutura do sumário já reservada para os capítulos da Lista.',
+            texto: 'Aguardando prints — `pedido-lista-linha-expandida.png`, `pedido-lista-expandir-todos-seta.png`, `pedido-lista-expandir-todos-expandido.png`.',
+          },
+        },
+        {
+          titulo: 'Customizar colunas',
+          tituloCurto: 'Customizar',
+          paragrafos: [
+            'A **Lista** do Pedido é **altamente customizável**: você monta a visualização ideal no menu **Colunas**, salva no **painel** ativo e o layout volta automaticamente na sua próxima visita.',
+          ],
+          mostrarInfograficoPedidoListaCustomizacao: true,
+          mostrarTabelaColunasPadraoListaPedido: true,
+          paragrafoAposGaleriaTabela:
+            'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
+            LINK_MANUAL_PEDIDO_CONFIGURACOES +
+            '.',
+          calloutAposGaleriaTabela: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — galeria de customização reservada: `pedido-lista-colunas-customizar.png`, `pedido-lista-colunas-arrastar.png`.',
+          },
+        },
+        {
+          titulo: 'Edição na tabela',
+          tituloCurto: 'Edição',
+          paragrafos: [
+            'Clique na célula editável para alterar o valor **in place**. A gravação ocorre ao confirmar (Enter ou sair do campo).',
+            'No **Nº pedido**, o link abre o **drawer** com o formulário completo do PO e dos itens.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-lista-edicao-celula.png`, `pedido-lista-edicao-drawer.png`.',
+          },
+        },
+        {
+          titulo: 'Excluir',
+          tituloCurto: 'Excluir',
+          paragrafos: [
+            'Selecione a linha e use **Excluir** na barra de ações.',
+            'O modal confirma a remoção. A ação remove o pedido ou item selecionado e **não pode ser desfeita**.',
+            'Para **excluir mais de um pedido**, marque as linhas desejadas pelo **checkbox** à esquerda e use **Excluir**. O modal confirma a quantidade selecionada.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-lista-excluir.png`, `pedido-lista-excluir-modal.png`.',
+          },
+        },
+        {
+          titulo: 'Exportar',
+          tituloCurto: 'Exportar',
+          paragrafos: [
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual (filtros + página visível).',
+            'Escolha o formato — **Excel**, **CSV**, **PDF** ou **JSON** — mesmo padrão dos demais produtos Gravity com lista virtual.',
+          ],
+          callout: {
+            tipo: 'dica',
+            texto: 'O **download** inicia **imediatamente** na sua máquina. Não é necessário aguardar processamento adicional.',
+          },
+        },
+        {
+          titulo: 'Importar dados',
+          tituloCurto: 'Importar',
+          paragrafos: [
+            'Na barra superior, use **Importar** para subir planilhas e criar ou atualizar pedidos e itens em lote.',
+            'O assistente valida colunas obrigatórias do workspace antes de gravar. Corrija erros apontados e reenvie se necessário.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-lista-importar.png`.',
+          },
+        },
+        {
+          titulo: 'Painéis',
+          tituloCurto: 'Painéis',
+          paragrafos: [
+            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
+            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
+          ],
+          mostrarInfograficoSmartDocsListaPaineis: true,
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-lista-paineis.png`.',
+          },
+        },
+        {
+          titulo: 'Criar painel',
+          tituloCurto: 'Novo painel',
+          paragrafos: [
+            '1. Clique em **+** na faixa de painéis.',
+            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Por incoterm** ou **Saldo aberto**).',
+            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte. As mudanças salvam automaticamente no painel ativo.',
+          ],
+          callout: {
+            tipo: 'lembrete',
+            texto: 'Aguardando prints — `pedido-lista-painel-novo.png`, `pedido-lista-painel-nome.png`.',
           },
         },
       ]),
     },
     {
-      titulo: 'Visualização — Dashboard',
-      tituloSumario: 'Visualização — Dashboard',
+      titulo: 'Visão Dashboard',
+      tituloSumario: 'Visão Dashboard',
       paragrafos: [
         'O **Dashboard** permite montar **widgets** personalizados (gráficos, tabelas e KPIs) a partir dos pedidos do workspace. Cada usuário salva seu próprio layout.',
       ],
       passosVisuais: [],
     },
     {
-      titulo: 'Visualização — Kanban',
-      tituloSumario: 'Visualização — Kanban',
+      titulo: 'Visão Kanban',
+      tituloSumario: 'Visão Kanban',
       paragrafos: [
         'O **Kanban** organiza os pedidos em **colunas por status**. Arraste cartões entre colunas para atualizar o fluxo; as colunas visíveis são configuráveis em **Configurações › Kanban**.',
       ],

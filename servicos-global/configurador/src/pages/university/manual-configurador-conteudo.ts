@@ -75,6 +75,10 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
+  mostrarTabelaColunasPadraoListaPedido?: boolean
+  /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
+  mostrarInfograficoPedidoListaCustomizacao?: boolean
   /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
   galeriaTelasAposTabela?: DocGaleriaTela[]
   /** Callout após tabela + galeria (ex.: resumo da customização completa). */
@@ -152,6 +156,8 @@ export interface DocFluxo {
   mostrarCatalogoHistoricoCompleto?: boolean
   /** Manual Smart Docs §04 — mapa das métricas da tela Insights. */
   mostrarInfograficoSmartDocsInsights?: boolean
+  /** Manual Pedido §04 — mapa UX 10 da tela Insights. */
+  mostrarInfograficoPedidoInsights?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */

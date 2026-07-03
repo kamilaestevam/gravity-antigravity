@@ -1,4 +1,5 @@
 /// <reference types="vitest/globals" />
+// @vitest-environment node
 // TST-FUN-BIDFRT-000120 — POST /cotacoes filtra fornecedor inelegível ao modal antes do disparo
 
 import express, { Request, Response, NextFunction } from 'express'

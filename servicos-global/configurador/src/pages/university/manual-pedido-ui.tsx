@@ -6,6 +6,7 @@ export function DocPedidoManual() {
     <DocManualUmaSecao
       secao={DOC_PEDIDO_SECAO}
       metadados={DOC_PEDIDO_METADADOS}
+      manualSlug="pedido"
     />
   )
 }

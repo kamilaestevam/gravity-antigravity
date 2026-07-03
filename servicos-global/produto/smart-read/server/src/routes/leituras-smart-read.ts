@@ -353,8 +353,17 @@ router.delete('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Res
     const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
     const companyId = await resolverCompanyLegado(idOrganizacao)
 
-    await obterLeituraLegado(companyId, id_leitura)
-    await excluirLeituraLegado(companyId, id_leitura)
+    try {
+      await excluirLeituraLegado(companyId, id_leitura)
+    } catch (err) {
+      if (!(err instanceof AppError && err.statusCode === 404)) {
+        throw err
+      }
+      console.warn(
+        '[smart-read][delete] legado respondeu 404 — removendo espelho Gravity para ocultar da lista',
+        { id_leitura, idWorkspace },
+      )
+    }
 
     if (req.prisma) {
       await removerEspelhoGravityLeituraSmartRead({

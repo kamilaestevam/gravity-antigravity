@@ -386,33 +386,6 @@ export function TabelaTransacoesLeituraSmartRead({
           </button>
         </TooltipGlobal>
 
-        {(Object.keys(filtrosAtivosLista).length > 0 || termoBusca.trim()) && (
-          <FiltroChips
-            colunas={colunas}
-            filtrosAtivos={filtrosAtivosLista}
-            onLimparFiltro={handleLimparFiltroColuna}
-            onLimparTodos={handleLimparTodosFiltrosColuna}
-            onEditarFiltro={onFiltroColuna}
-            thresholdConsolidar={2}
-            prefixo={termoBusca.trim() ? (
-              <span className="fc-chip">
-                <span className="fc-chip-label">
-                  {t('smart_read.lista.chip_busca', { defaultValue: 'Busca' })}:
-                </span>
-                <span className="fc-chip-valor">{termoBusca}</span>
-                <button
-                  type="button"
-                  className="fc-chip-remove"
-                  onClick={() => onBuscar('')}
-                  aria-label={t('smart_read.lista.remover_busca', { defaultValue: 'Remover busca' })}
-                >
-                  <X size={10} weight="bold" />
-                </button>
-              </span>
-            ) : null}
-          />
-        )}
-
         <BotaoNovoListaSmartRead onAbrirNovaLeitura={() => abrirNovaLeitura()} />
 
         <TooltipGlobal
@@ -432,6 +405,35 @@ export function TabelaTransacoesLeituraSmartRead({
             onClick={() => setModalExcluirAberto(true)}
           />
         </TooltipGlobal>
+
+        {(Object.keys(filtrosAtivosLista).length > 0 || termoBusca.trim()) && (
+          <div className="sr-lista-acoes-barra__chips">
+            <FiltroChips
+              colunas={colunas}
+              filtrosAtivos={filtrosAtivosLista}
+              onLimparFiltro={handleLimparFiltroColuna}
+              onLimparTodos={handleLimparTodosFiltrosColuna}
+              onEditarFiltro={onFiltroColuna}
+              thresholdConsolidar={2}
+              prefixo={termoBusca.trim() ? (
+                <span className="fc-chip">
+                  <span className="fc-chip-label">
+                    {t('smart_read.lista.chip_busca', { defaultValue: 'Busca' })}:
+                  </span>
+                  <span className="fc-chip-valor">{termoBusca}</span>
+                  <button
+                    type="button"
+                    className="fc-chip-remove"
+                    onClick={() => onBuscar('')}
+                    aria-label={t('smart_read.lista.remover_busca', { defaultValue: 'Remover busca' })}
+                  >
+                    <X size={10} weight="bold" />
+                  </button>
+                </span>
+              ) : null}
+            />
+          </div>
+        )}
       </div>
     ),
     [

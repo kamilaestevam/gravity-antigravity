@@ -476,19 +476,11 @@ export async function obterArquivoLegado(
   throw ultimoErro ?? new AppError('Arquivo nao encontrado no legado', 404, 'LEGADO_ARQUIVO_NAO_ENCONTRADO')
 }
 
-async function excluirLeituraViaReadingsController(companyId: string, idLeitura: string): Promise<void> {
-  const { urlBase } = configuracaoLegado()
-  const query = new URLSearchParams({ ids: idLeitura })
-  await chamarLegadoSemCorpo(
-    `${urlBase}${BASE_PATH_LEITURAS_DATI}/delete-multiple-readings?${query.toString()}`,
-    {
-      method: 'DELETE',
-      headers: {
-        ...cabecalhosBase(companyId),
-        'x-smart-read-project-id': 'gravity',
-      },
-    },
-  )
+function erroExclusaoLegadoDeveTentarProximaUrl(erro: unknown): boolean {
+  if (!(erro instanceof AppError)) return false
+  if (erro.statusCode === 405 || erro.statusCode === 501) return true
+  if (erro.statusCode !== 404) return false
+  return /cannot delete|not found/i.test(erro.message)
 }
 
 export async function excluirLeituraLegado(companyId: string, idLeitura: string): Promise<void> {
@@ -502,21 +494,28 @@ export async function excluirLeituraLegado(companyId: string, idLeitura: string)
     ...cabecalhosBase(companyId),
     'x-smart-read-project-id': 'gravity',
   }
-  try {
-    await chamarLegadoSemCorpo(`${urlBase}${BASE_PATH}/${idLeitura}`, {
-      method: 'DELETE',
-      headers: cabecalhos,
-    })
-  } catch (erro) {
-    if (
-      erro instanceof AppError &&
-      (erro.statusCode === 404 || erro.statusCode === 405 || erro.statusCode === 501)
-    ) {
-      await excluirLeituraViaReadingsController(companyId, idLeitura)
+  const query = new URLSearchParams({ ids: idLeitura })
+  const urls = [
+    `${urlBase}${BASE_PATH}/delete-multiple-readings?${query.toString()}`,
+    `${urlBase}${BASE_PATH}/${idLeitura}`,
+    `${urlBase}${BASE_PATH_LEITURAS_DATI}/delete-multiple-readings?${query.toString()}`,
+  ]
+
+  let ultimoErro: AppError | null = null
+  for (const url of urls) {
+    try {
+      await chamarLegadoSemCorpo(url, { method: 'DELETE', headers: cabecalhos })
       return
+    } catch (erro) {
+      if (erroExclusaoLegadoDeveTentarProximaUrl(erro)) {
+        ultimoErro = erro instanceof AppError ? erro : ultimoErro
+        continue
+      }
+      throw erro
     }
-    throw erro
   }
+
+  throw ultimoErro ?? new AppError('Exclusao indisponivel no legado DATI', 404, 'LEGADO_EXCLUIR_NAO_DISPONIVEL')
 }
 
 export async function listarLeiturasLegado(

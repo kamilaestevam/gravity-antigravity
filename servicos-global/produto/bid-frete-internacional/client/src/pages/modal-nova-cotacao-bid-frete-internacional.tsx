@@ -3574,7 +3574,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
-                    {rotuloResumoVisibilidadeNovaCotacao(
+                    {traduzirRotuloResumoVisibilidadeNovaCotacao(
                       t,
                       form.visibilidade_cotacao_bid_frete_internacional,
                       form.anonima_cotacao_bid_frete_internacional,

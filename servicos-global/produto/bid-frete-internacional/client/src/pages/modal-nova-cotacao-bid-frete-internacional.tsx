@@ -73,6 +73,7 @@ import {
   filtrarFornecedoresDisparoBidFreteInternacional,
   filtrarIdsFornecedoresDisparoBidFreteInternacional,
 } from '../shared/filtrar-fornecedores-disparo-bid-frete-internacional'
+import { montarEmailsPorFornecedorDisparoPayload } from '../shared/contato-disparo-bid-frete-internacional'
 import type {
   TipoOperacao,
   ModalFrete,
@@ -2607,10 +2608,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
         : []
 
-      const pretendiaDisparar = canaisDisparo.length > 0
-        && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-          ? idsDisparoAberta.length > 0
-          : idsDisparoDirecionada.length > 0)
+      const idsFornecedoresDisparo = form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'
+        ? idsDisparoDirecionada
+        : form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+          ? idsDisparoAberta
+          : []
+
+      const pretendiaDisparar = canaisDisparo.length > 0 && idsFornecedoresDisparo.length > 0
 
       const { cotacao, disparo, disparo_erro } = await criarCotacaoComDisparo({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
@@ -2693,19 +2697,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? new Date(form.data_limite_resposta_cotacao_bid_frete_internacional).toISOString()
           : undefined,
         id_bid_bid_frete_internacional: idBid ?? undefined,
-        fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'
-          ? idsDisparoDirecionada
-          : form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-            ? idsDisparoAberta
-            : undefined,
-        disparar_ao_criar: canaisDisparo.length > 0
-          && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-            ? idsDisparoAberta.length > 0
-            : idsDisparoDirecionada.length > 0),
+        fornecedor_ids: idsFornecedoresDisparo.length > 0 ? idsFornecedoresDisparo : undefined,
+        disparar_ao_criar: pretendiaDisparar,
         canais_disparo: canaisDisparo,
-        emails_por_fornecedor: Object.keys(emailsPorFornecedorDisparo).length > 0
-          ? emailsPorFornecedorDisparo
-          : undefined,
+        emails_por_fornecedor: montarEmailsPorFornecedorDisparoPayload(
+          idsFornecedoresDisparo,
+          emailsPorFornecedorDisparo,
+        ),
       })
       const feedback = formatarFeedbackDisparoBidFrete(
         pretendiaDisparar ? disparo : null,

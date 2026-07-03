@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { excluirLeituraLegado } from '../../../../servicos-global/produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
+import {
+  excluirLeituraLegado,
+  falhaExclusaoLegadoPermiteEspelhoGravity,
+} from '../../../../servicos-global/produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
+import { AppError } from '../../../../servicos-global/produto/smart-read/server/src/lib/app-error.js'
 
 describe('excluirLeituraLegado', () => {
   const envOriginal = { ...process.env }
@@ -53,6 +57,36 @@ describe('excluirLeituraLegado', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     const [urlFallback] = fetchMock.mock.calls[1] as [string]
     expect(urlFallback).toBe(`https://legado.example/import-control-center/external-readings/${ID_LEITURA}`)
+  })
+
+  it('tenta proxima URL quando DATI responde 401 na rota de delete', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        text: async () =>
+          '{"message":"Gravity API Key não autorizada para esta rota","error":"Unauthorized","statusCode":401}',
+      })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await excluirLeituraLegado(COMPANY, ID_LEITURA)
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('falhaExclusaoLegadoPermiteEspelhoGravity aceita 401 mas rejeita rede', () => {
+    expect(
+      falhaExclusaoLegadoPermiteEspelhoGravity(
+        new AppError('Smart Docs legado respondeu 401: unauthorized', 502, 'LEGADO_ERRO'),
+      ),
+    ).toBe(true)
+    expect(
+      falhaExclusaoLegadoPermiteEspelhoGravity(
+        new AppError('Smart Docs legado inacessivel', 502, 'LEGADO_INDISPONIVEL'),
+      ),
+    ).toBe(false)
   })
 
   it('propaga 404 quando todas as URLs falham com reading not found', async () => {

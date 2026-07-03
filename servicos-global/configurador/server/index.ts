@@ -102,7 +102,9 @@ if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
     const proto = req.headers['x-forwarded-proto'] ?? req.protocol
     if (proto === 'http' || host.startsWith('www.')) {
       const canonical = `https://usegravity.com.br${req.originalUrl}`
-      res.redirect(301, canonical)
+      // 308 preserva POST/PATCH/DELETE no redirect www → apex (301 virava GET e quebrava criar cotação)
+      const redirectCode = req.originalUrl.startsWith('/api/') ? 308 : 301
+      res.redirect(redirectCode, canonical)
       return
     }
     next()
@@ -385,9 +387,11 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   // Browser autenticado deve enviar x-id-organizacao/x-id-usuario via shell (/me).
 
   let bodyBuf: Buffer | undefined
-  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+  const metodoComCorpo = req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH'
+  if (metodoComCorpo && req.body !== undefined && typeof req.body === 'object') {
     bodyBuf = Buffer.from(JSON.stringify(req.body))
     headers['content-length'] = String(bodyBuf.length)
+    delete headers['transfer-encoding']
   }
 
   const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
@@ -411,7 +415,7 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
   } else {
-    proxyReq.end()
+    req.pipe(proxyReq)
   }
 }
 

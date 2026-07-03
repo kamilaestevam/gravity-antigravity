@@ -17,6 +17,7 @@ import {
   rotuloAeroportoCadastroLogistica,
   rotuloPortoCadastroLogistica,
 } from '../../../shared/rotulo-cadastro-logistica-bid-frete-internacional'
+import { filtrarTaxasCatalogoNaoLegado } from './taxas-linha-proposta-bid-frete-internacional'
 
 export function usePaisesCadastros() {
   const [paises, setPaises] = useState<PaisCadastro[]>([])

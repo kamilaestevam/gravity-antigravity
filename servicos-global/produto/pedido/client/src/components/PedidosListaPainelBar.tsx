@@ -2,7 +2,8 @@
 /**
  * PedidosListaPainelBar — abas de painéis da Lista (espelho do Dashboard).
  */
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent,
 } from '@dnd-kit/core'
@@ -35,15 +36,12 @@ import '../pages/PedidosDashboard.css'
 const sty = {
   painelTabWrap: { position: 'relative' as const, display: 'inline-flex' },
   painelMenuDropdown: {
-    position: 'absolute' as const,
-    top: '100%',
-    left: 0,
-    marginTop: '4px',
+    position: 'fixed' as const,
     background: 'var(--surface-elevated, #1e1e2e)',
     border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px',
     padding: '0.25rem 0',
-    zIndex: 200,
+    zIndex: 10000,
     minWidth: '140px',
     boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
   },
@@ -136,8 +134,39 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [menuPainelId, setMenuPainelId] = useState<string | null>(null)
+  const [menuAnchor, setMenuAnchor] = useState<{ top: number; left: number } | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const renameInFlightRef = useRef<string | null>(null)
+  const menuPortalRef = useRef<HTMLDivElement | null>(null)
+
+  const fecharMenuPainel = useCallback(() => {
+    setMenuPainelId(null)
+    setMenuAnchor(null)
+    setDeletingId(null)
+  }, [])
+
+  useEffect(() => {
+    if (!menuPainelId) return
+
+    const fecharSeFora = (ev: PointerEvent) => {
+      const alvo = ev.target
+      if (!(alvo instanceof Node)) return
+      if (menuPortalRef.current?.contains(alvo)) return
+      if (alvo instanceof Element && alvo.closest('.lp-painel-tab__menu')) return
+      fecharMenuPainel()
+    }
+
+    const fecharAoRolar = () => fecharMenuPainel()
+
+    document.addEventListener('pointerdown', fecharSeFora)
+    window.addEventListener('scroll', fecharAoRolar, true)
+    window.addEventListener('resize', fecharAoRolar)
+    return () => {
+      document.removeEventListener('pointerdown', fecharSeFora)
+      window.removeEventListener('scroll', fecharAoRolar, true)
+      window.removeEventListener('resize', fecharAoRolar)
+    }
+  }, [menuPainelId, fecharMenuPainel])
 
   const painelSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
@@ -174,17 +203,22 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
       .finally(() => { renameInFlightRef.current = null })
   }, [paineis, setPaineis, painelApi])
 
-  const toggleMenuPainel = useCallback((id: string) => {
-    setMenuPainelId(prev => (prev === id ? null : id))
+  const toggleMenuPainel = useCallback((id: string, anchorEl: HTMLElement) => {
+    if (menuPainelId === id) {
+      fecharMenuPainel()
+      return
+    }
+    const rect = anchorEl.getBoundingClientRect()
+    setMenuAnchor({ top: rect.bottom + 4, left: rect.left })
+    setMenuPainelId(id)
     setDeletingId(null)
-  }, [])
+  }, [menuPainelId, fecharMenuPainel])
 
   const abrirRenomearPainel = useCallback((painel: T) => {
-    setMenuPainelId(null)
-    setDeletingId(null)
+    fecharMenuPainel()
     setRenamingId(painel.id)
     setRenameValue(valorInputRenomearPainelLista(painel, paineis))
-  }, [paineis])
+  }, [paineis, fecharMenuPainel])
 
   const handleDeletarPainel = useCallback((id: string) => {
     if (paineis.length <= 1) return
@@ -201,9 +235,8 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
         }
       })
       .catch(() => {})
-    setMenuPainelId(null)
-    setDeletingId(null)
-  }, [paineis, painelAtualId, setPaineis, setPainelAtualId, onTrocarPainel, painelApi])
+    fecharMenuPainel()
+  }, [paineis, painelAtualId, setPaineis, setPainelAtualId, onTrocarPainel, painelApi, fecharMenuPainel])
 
   const handlePainelDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
@@ -243,7 +276,79 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
       ? 'lp-paineis-lista-strip lp-paineis-lista-strip--unificado'
       : 'lp-paineis-lista-strip'
 
+  const painelMenuAberto = menuPainelId
+    ? paineisNaBarra.find(p => p.id === menuPainelId) ?? null
+    : null
+
+  const rotuloPainelMenuAberto = painelMenuAberto ? rotulosPainel(painelMenuAberto) : null
+
+  const menuPortal = menuPainelId && menuAnchor && painelMenuAberto && rotuloPainelMenuAberto
+    ? createPortal(
+        <div
+          ref={menuPortalRef}
+          role="menu"
+          data-testid={`${testIdPrefixMenu}-${painelMenuAberto.id}-dropdown`}
+          style={{
+            ...sty.painelMenuDropdown,
+            top: menuAnchor.top,
+            left: menuAnchor.left,
+          }}
+          onClick={e => e.stopPropagation()}
+          onPointerDown={e => e.stopPropagation()}
+        >
+          {deletingId === painelMenuAberto.id ? (
+            <div style={{ padding: '0.5rem 0.75rem' }}>
+              <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
+                {i18n('painel_excluir_confirmar', 'Excluir painel?')}
+                {' '}
+                <strong style={{ color: '#fff' }}>{rotuloPainelMenuAberto.exibicao}</strong>
+                {rotuloPainelMenuAberto.ehGenerico && rotuloPainelMenuAberto.nomeSalvo !== rotuloPainelMenuAberto.exibicao ? (
+                  <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.65, marginTop: '0.2rem' }}>
+                    {rotuloPainelMenuAberto.nomeSalvo}
+                  </span>
+                ) : null}
+              </p>
+              <div style={{ display: 'flex', gap: '0.35rem' }}>
+                <button type="button" className="lp-painel-tab-form__ok" onClick={() => handleDeletarPainel(painelMenuAberto.id)}>
+                  {t('comum.confirmar', { defaultValue: 'Confirmar' })}
+                </button>
+                <button type="button" className="lp-painel-tab-form__cancel" onClick={() => setDeletingId(null)}>
+                  {t('comum.cancelar', { defaultValue: 'Cancelar' })}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                role="menuitem"
+                style={sty.painelMenuItem}
+                onClick={() => abrirRenomearPainel(painelMenuAberto)}
+              >
+                <PencilSimple size={13} />
+                {i18n('painel_renomear', 'Renomear')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                style={paineis.length <= 1
+                  ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' }
+                  : sty.painelMenuItemDanger}
+                onClick={() => paineis.length > 1 && setDeletingId(painelMenuAberto.id)}
+                disabled={paineis.length <= 1}
+              >
+                <Trash size={13} />
+                {i18n('painel_excluir', 'Excluir')}
+              </button>
+            </>
+          )}
+        </div>,
+        document.body,
+      )
+    : null
+
   return (
+    <>
     <div className={stripClass} data-testid={testIdBar}>
       <span
         className="lp-paineis-lista-strip__label"
@@ -326,67 +431,16 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                     onPointerDown={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation()
-                      toggleMenuPainel(p.id)
+                      toggleMenuPainel(p.id, e.currentTarget)
                     }}
                     onContextMenu={e => {
                       e.preventDefault()
                       e.stopPropagation()
-                      toggleMenuPainel(p.id)
+                      toggleMenuPainel(p.id, e.currentTarget)
                     }}
                   >
                     <DotsThree size={12} weight="bold" />
                   </button>
-                </div>
-              )}
-              {menuPainelId === p.id && (
-                <div
-                  style={sty.painelMenuDropdown}
-                  onClick={e => e.stopPropagation()}
-                  onPointerDown={e => e.stopPropagation()}
-                >
-                  {deletingId === p.id ? (
-                    <div style={{ padding: '0.5rem 0.75rem' }}>
-                      <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                        {i18n('painel_excluir_confirmar', 'Excluir painel?')}
-                        {' '}<strong style={{ color: '#fff' }}>{exibicao}</strong>
-                        {ehGenerico && nomeSalvo !== exibicao ? (
-                          <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.65, marginTop: '0.2rem' }}>
-                            {nomeSalvo}
-                          </span>
-                        ) : null}
-                      </p>
-                      <div style={{ display: 'flex', gap: '0.35rem' }}>
-                        <button type="button" className="lp-painel-tab-form__ok" onClick={() => handleDeletarPainel(p.id)}>
-                          {t('comum.confirmar', { defaultValue: 'Confirmar' })}
-                        </button>
-                        <button type="button" className="lp-painel-tab-form__cancel" onClick={() => setDeletingId(null)}>
-                          {t('comum.cancelar', { defaultValue: 'Cancelar' })}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        style={sty.painelMenuItem}
-                        onClick={() => abrirRenomearPainel(p)}
-                      >
-                        <PencilSimple size={13} />
-                        {i18n('painel_renomear', 'Renomear')}
-                      </button>
-                      <button
-                        type="button"
-                        style={paineis.length <= 1
-                          ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' }
-                          : sty.painelMenuItemDanger}
-                        onClick={() => paineis.length > 1 && setDeletingId(p.id)}
-                        disabled={paineis.length <= 1}
-                      >
-                        <Trash size={13} />
-                        {i18n('painel_excluir', 'Excluir')}
-                      </button>
-                    </>
-                  )}
                 </div>
               )}
             </SortableTabWrapper>
@@ -453,5 +507,7 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
       ))}
       </div>
     </div>
+    {menuPortal}
+    </>
   )
 }

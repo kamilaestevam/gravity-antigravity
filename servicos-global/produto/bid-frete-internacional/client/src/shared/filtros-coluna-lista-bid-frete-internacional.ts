@@ -30,7 +30,7 @@ export const FILTRO_TIPO_OVERRIDES_BID_FRETE: Record<string, FiltroTipo> = {
   valor_meta_cotacao_bid_frete_internacional: 'numero',
   ganho_valor_cotacao_bid_frete_internacional: 'numero',
   ganho_percentual_cotacao_bid_frete_internacional: 'numero',
-  quantidade_cotacao_bid_frete_internacional: 'numero',
+  quantidade_volume_cotacao_bid_frete_internacional: 'numero',
   peso_kg_cotacao_bid_frete_internacional: 'numero',
   cubagem_m3_cotacao_bid_frete_internacional: 'numero',
 }

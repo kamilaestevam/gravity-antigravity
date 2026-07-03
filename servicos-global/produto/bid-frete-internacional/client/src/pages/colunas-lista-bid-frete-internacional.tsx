@@ -499,7 +499,7 @@ function aplicarConfigEdicaoColuna(
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
-                item.quantidade_cotacao_bid_frete_internacional,
+                item.quantidade_volume_cotacao_bid_frete_internacional,
                 rotuloContainer,
               )
             : '—',
@@ -507,7 +507,7 @@ function aplicarConfigEdicaoColuna(
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
-                item.quantidade_cotacao_bid_frete_internacional,
+                item.quantidade_volume_cotacao_bid_frete_internacional,
                 rotuloContainer,
               )
             : '—',
@@ -892,7 +892,7 @@ function buildColunasCotacoesBase(
       render: renderTexto,
     },
     {
-      key: 'quantidade_cotacao_bid_frete_internacional',
+      key: 'quantidade_volume_cotacao_bid_frete_internacional',
       label: 'Quantidade de Volume',
       tipo: 'numero',
       align: 'center',

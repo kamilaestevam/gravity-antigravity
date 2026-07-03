@@ -29,8 +29,8 @@ describe('motor-bid-disparo-utils', () => {
     else process.env.SERVIDOR_PLATAFORMA_URL = envSnapshot.SERVIDOR_PLATAFORMA_URL
   })
 
-  it('resolve URL do serviço de e-mail — paridade Hub (EMAIL → TENANT → plataforma → :3001)', () => {
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:3001')
+  it('resolve URL do serviço de e-mail — paridade Hub (EMAIL → TENANT → plataforma → :8008)', () => {
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
 
     process.env.SERVIDOR_PLATAFORMA_URL = 'http://plataforma.test'
     expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://plataforma.test')

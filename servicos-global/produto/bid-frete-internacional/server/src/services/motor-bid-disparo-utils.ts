@@ -11,7 +11,7 @@ export function resolverUrlServicoEmailDisparoBidFrete(): string {
     process.env.EMAIL_SERVICE_URL?.trim()
     || process.env.TENANT_EMAIL_SERVICE_URL?.trim()
     || process.env.SERVIDOR_PLATAFORMA_URL?.trim()
-    || 'http://127.0.0.1:3001'
+    || 'http://127.0.0.1:8008'
   )
 }
 

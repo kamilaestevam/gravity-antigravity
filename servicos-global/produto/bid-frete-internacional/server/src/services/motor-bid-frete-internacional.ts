@@ -28,7 +28,6 @@ import {
   type FornecedorEspelhoBidDisparo,
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 
-const EMAIL_SERVICE_URL = resolverUrlServicoEmailDisparoBidFrete()
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
@@ -195,7 +194,7 @@ export const motorBid = {
           fornecedorEnviou = true
         } catch (err: unknown) {
           statusDisparo = 'ERRO_ENVIO'
-          const errorMessage = extrairMensagemErroDisparo(err, EMAIL_SERVICE_URL)
+          const errorMessage = extrairMensagemErroDisparo(err, resolverUrlServicoEmailDisparoBidFrete())
           erroDisparo = errorMessage
           try {
             await (prisma as any).disparoCotacaoBidFreteInternacional.update({
@@ -411,8 +410,9 @@ export const motorBid = {
       linkResposta,
     })
 
+    const emailServiceUrl = resolverUrlServicoEmailDisparoBidFrete()
     const response = await axios.post(
-      `${EMAIL_SERVICE_URL}/api/v1/envios-email`,
+      `${emailServiceUrl}/api/v1/envios-email`,
       {
         to: email,
         subject: montarAssuntoEmailDisparo(cotacao.numero_cotacao_bid_frete_internacional),

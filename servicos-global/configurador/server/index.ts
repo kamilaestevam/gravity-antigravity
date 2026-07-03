@@ -768,7 +768,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   if (devPm2) {
     console.log(
-      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033)',
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033/8008)',
     )
   }
 

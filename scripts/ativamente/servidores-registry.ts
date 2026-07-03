@@ -41,6 +41,7 @@ export const SERVIDORES_PM2: readonly ServidorDev[] = [
   { pm2Name: 'cfg-back', label: 'Configurador (API)', port: 8005, grupo: 'infra' },
   { pm2Name: 'cfg-front', label: 'Shell / Configurador (UI)', port: 8000, grupo: 'infra', healthPath: '/' },
   { pm2Name: 'org', label: 'Super-servidor plataforma', port: 3001, grupo: 'plataforma' },
+  { pm2Name: 'email', label: 'E-mail tenant (Resend S2S)', port: 8008, grupo: 'plataforma' },
   { pm2Name: 'cockpit', label: 'API Cockpit', port: 8016, grupo: 'plataforma' },
   { pm2Name: 'conector-erp', label: 'Conector ERP', port: 8017, grupo: 'plataforma' },
   { pm2Name: 'taxas-moeda', label: 'Taxas Moeda (BCB / PTAX)', port: 8032, grupo: 'plataforma' },

@@ -16,7 +16,9 @@ import {
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
+  montarTextoPlanoEmailDisparo,
   resolverUrlServicoEmailDisparoBidFrete,
+  type ParametrosEmailDisparoBidFreteInternacional,
 } from './motor-bid-disparo-utils.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
@@ -202,6 +204,7 @@ export const motorBid = {
                 cotacao,
                 fornecedor,
                 token,
+                tokenExpira,
                 id_organizacao,
                 id_usuario,
                 email,
@@ -438,6 +441,7 @@ export const motorBid = {
     _cotacao: Record<string, unknown>,
     _fornecedor: Record<string, unknown>,
     token: string,
+    dataExpiracaoToken: Date,
     id_organizacao: string,
     id_usuario: string,
     emailDestino: string,
@@ -450,10 +454,11 @@ export const motorBid = {
     }
 
     const linkResposta = montarLinkRespostaDisparo(APP_URL, token)
-    const bodyHtml = montarHtmlEmailDisparo({
-      nomeFornecedor: fornecedor.nome_fornecedor_bid_frete_internacional,
+    const parametrosEmail: ParametrosEmailDisparoBidFreteInternacional = {
+      nomeFornecedor: fornecedor.nome_fornecedor_bid_frete_internacional ?? '',
       numeroCotacao: cotacao.numero_cotacao_bid_frete_internacional,
       modal: cotacao.modal_cotacao_bid_frete_internacional,
+      modalidade: cotacao.modalidade_cotacao_bid_frete_internacional,
       origemNome: cotacao.origem_nome_cotacao_bid_frete_internacional,
       origemPais: cotacao.origem_pais_cotacao_bid_frete_internacional,
       destinoNome: cotacao.destino_nome_cotacao_bid_frete_internacional,
@@ -463,17 +468,22 @@ export const motorBid = {
       tipoContainer: cotacao.tipo_container_cotacao_bid_frete_internacional,
       quantidade: cotacao.quantidade_volume_cotacao_bid_frete_internacional,
       pesoKg: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      cubagemM3: cotacao.cubagem_m3_cotacao_bid_frete_internacional,
       dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+      dataExpiracaoToken,
+      nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
+      anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,
       linkResposta,
-    })
+    }
 
     const emailServiceUrl = resolverUrlServicoEmailDisparoBidFrete()
     const response = await axios.post(
       `${emailServiceUrl}/api/v1/envios-email`,
       {
         to: email,
-        subject: montarAssuntoEmailDisparo(cotacao.numero_cotacao_bid_frete_internacional),
-        body_html: bodyHtml,
+        subject: montarAssuntoEmailDisparo(parametrosEmail),
+        body_html: montarHtmlEmailDisparo(parametrosEmail),
+        body: montarTextoPlanoEmailDisparo(parametrosEmail),
         product_id: 'bid-frete-internacional',
       },
       {

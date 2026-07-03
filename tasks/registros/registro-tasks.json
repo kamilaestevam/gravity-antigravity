@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 405,
+  "proximo_numero": 406,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000405",
+      "ordinal": 129,
+      "titulo_canonico": "BIDFRT-COTACOES-BUG-ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
+      "titulo_exibicao": "TASK-000405 | [BID Frete] Cotações · Nova | BUG — Origem AEJEA não encontrada no Cadastros ao criar cotação",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "COTACOES",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
+      "data_criacao": "2026-07-03T14:55:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000405.json"
+    },
     {
       "referencia": "TASK-000404",
       "ordinal": 128,

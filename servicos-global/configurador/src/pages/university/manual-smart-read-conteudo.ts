@@ -11,6 +11,8 @@ const LINK_MANUAL_PEDIDO_LISTA =
   '{{link:/university-gravity/docs/pedido#doc-sec-5|Pedido · Visão Lista}}'
 const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
   '{{link:/university-gravity/docs/smart-read#manual-passo-lista-9|5.09 Painéis}}'
+const LINK_MANUAL_SMART_READ_LISTA_NOVO_PAINEL =
+  '{{link:/university-gravity/docs/smart-read#manual-passo-lista-10|5.10 Novo painel}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
@@ -19,7 +21,8 @@ const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
  * - tela_smart_read_lista_filtro_modal.png → smart-docs-lista-filtro-modal.png
  * - tela_smart_read_lista_filtro_final.png → smart-docs-lista-filtro-final.png
  * - tela_smart_read_lista_exportar_planilha.png → smart-docs-lista-exportar-planilha.png
- * - tela_smart_read_lista_exportar_download.png → smart-docs-lista-exportar-download.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validar → smart-docs-lista-paineis-novo-nome-validar.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validado → smart-docs-lista-paineis-novo-nome-validado.png
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
@@ -53,6 +56,8 @@ const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-seta.png'
+const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR =
+  '/university/screenshots/smart-docs-lista-paineis-novo-nome-validar.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-validado.png'
 const SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API = '/university/screenshots/smart-docs-lista-transacoes-api.png'
@@ -450,34 +455,61 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
         {
           titulo: 'Painéis',
           tituloCurto: 'Painéis',
-          paragrafos: [
-            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
-            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
-            '**Novo painel:**',
-            '1. Clique em **+** na faixa de painéis.',
-            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Finalizadas**, **Conferidas** ou **Por região**).',
-            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte — as mudanças salvam automaticamente no painel ativo.',
-          ],
+          paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
-          imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
-          imagemAbaixoTexto: true,
-          figurasAposParagrafo: [
+        },
+        {
+          titulo: 'Criar painel',
+          tituloCurto: 'Novo painel',
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
             {
-              indice: 3,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
-              legenda: 'Novo painel',
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
+                  paragrafoAntes: 'Faixa de **painéis** acima da tabela — **Padrão** e **+**',
+                },
+              ],
             },
             {
-              indice: 4,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
-              legenda: 'Nome do painel',
-            },
-            {
-              indice: 5,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
-              legenda: 'Nome validado',
+              indice: 0,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
+                  paragrafoAntes: '**01.** Clique em **+** na faixa de painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
+                  paragrafoAntes:
+                    '**02.** Informe um **nome** único (ex.: **Em andamento**, **Finalizadas**, **Conferidas**)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
+                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
+                  paragrafoAntes:
+                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                },
+              ],
             },
           ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+          },
         },
         {
           titulo: 'Transações (API)',

@@ -56,6 +56,10 @@ export interface DocPassoVisual {
     colunas?: number
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
+    /** Cabeçalho de passo (chip + legenda roxa) acima da grade — paridade com `galeriaTelasAposTabela`. */
+    legendaPasso?: string
+    /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
   }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
   imagemAbaixoTexto?: boolean
@@ -95,12 +99,27 @@ export interface DocPassoVisual {
   catalogoColunasPedidoAposParagrafo?: number
   /** Manual Pedido §05 — infográfico pedido × itens e regras de alerta. */
   mostrarInfograficoPedidoListaAlertas?: boolean
+  /** Manual Pedido §05 — mapa das 4 formas de criar via Novo (Importação, API, Smart Docs, Manual). */
+  mostrarInfograficoPedidoListaImportarFormas?: boolean
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
   mostrarTabelaAlertasPedidoLista?: boolean
   /** Manual Pedido §05 — ícones dos formatos de exportação da Lista. */
   mostrarFormatosExportacaoPedidoLista?: boolean
   /** Índice do parágrafo após o qual inserir os formatos de exportação (padrão: 1). */
   formatosExportacaoPedidoAposParagrafo?: number
+  /** Manual Pedido §05 — grade dos dois caminhos do Smart Import (template vs planilha própria). */
+  mostrarCaminhosImportacaoPlanilhaPedidoLista?: boolean
+  /** Índice do parágrafo após o qual inserir os caminhos de importação (padrão: 1). */
+  caminhosImportacaoPlanilhaAposParagrafo?: number
+  /** Manual Pedido § Importar — galerias após cards dos dois caminhos (Novo → Importação + stepper). */
+  galeriaComparacaoAposCaminhosImportacao?: {
+    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    ampliarInferiorDireito?: boolean
+    colunas?: number
+    textoAcimaEstiloCorpo?: boolean
+    legendaPasso?: string
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
+  }[]
   /** Manual Pedido §05 — ícones dos formatos de importação (Smart Import). */
   mostrarFormatosImportacaoPedidoLista?: boolean
   /** Índice do parágrafo após o qual inserir os formatos de importação. */
@@ -279,6 +298,8 @@ export interface DocSecao {
     ampliarInferiorDireito?: boolean
     colunas?: number
     textoAcimaEstiloCorpo?: boolean
+    legendaPasso?: string
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
   }[]
   /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
   topicosImagemLateral?: DocTopicoImagemLateral[]

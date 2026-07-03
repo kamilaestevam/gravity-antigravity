@@ -50,8 +50,9 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - tela_pedido_lista_exportar_download.png → pedido-lista-exportar-download.png
  * Smart Import (Drive: tela_pedido_lista_novo_pedido_modal_importacao_*):
  * - tela_pedido_lista_novo_seta → pedido-lista-importar-seta-novo.png
+ * - tela_pedido_lista_novo_pedido_seta → pedido-lista-importar-seta-novo-pedido.png
  * - tela_pedido_lista_novo_pedido_modal → pedido-lista-importar-seta-importacao.png
- * - tela_pedido_lista_novo_pedido_modal_importacao → pedido-lista-importar-stepper.png
+ * - tela_pedido_lista_novo_pedido_modal_importacao → pedido-lista-importar-modal.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_passo_1 → pedido-lista-importar-upload.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_passo_1_baixar_modelo_seta → pedido-lista-importar-template.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_selecionar_planilha_seta → pedido-lista-importar-multiplas-abas.png
@@ -106,9 +107,11 @@ const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_SETA = '/university/screenshots/pedido-li
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_MODAL = '/university/screenshots/pedido-lista-exportar-modal.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_PLANILHA = '/university/screenshots/pedido-lista-exportar-planilha.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_DOWNLOAD = '/university/screenshots/pedido-lista-exportar-download.png'
-const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO = '/university/screenshots/pedido-lista-importar-seta-novo.png'
-const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_IMPORTACAO = '/university/screenshots/pedido-lista-importar-seta-importacao.png'
-const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_STEPPER = '/university/screenshots/pedido-lista-importar-stepper.png'
+const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO =
+  '/university/screenshots/pedido-lista-importar-seta-novo.png'
+const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO_PEDIDO =
+  '/university/screenshots/pedido-lista-importar-seta-novo-pedido.png'
+const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MODAL = '/university/screenshots/pedido-lista-importar-modal.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_UPLOAD = '/university/screenshots/pedido-lista-importar-upload.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE = '/university/screenshots/pedido-lista-importar-template.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MULTIPLAS_ABAS = '/university/screenshots/pedido-lista-importar-multiplas-abas.png'
@@ -125,6 +128,15 @@ const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SOBRESCREVER_DIFF = '/university/screensh
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_RESULTADO = '/university/screenshots/pedido-lista-importar-resultado.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ERROS_CSV = '/university/screenshots/pedido-lista-importar-erros-csv.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_REVERTER = '/university/screenshots/pedido-lista-importar-reverter.png'
+const SCREENSHOT_PEDIDO_LISTA_PAINEIS_SETA = '/university/screenshots/pedido-lista-paineis-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_SETA =
+  '/university/screenshots/pedido-lista-paineis-novo-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_SETA =
+  '/university/screenshots/pedido-lista-paineis-novo-nome-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDAR =
+  '/university/screenshots/pedido-lista-paineis-novo-nome-validar.png'
+const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
+  '/university/screenshots/pedido-lista-paineis-novo-nome-validado.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -587,26 +599,49 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Importar dados',
           tituloCurto: 'Importar',
           paragrafos: [
-            'O **Smart Import** transforma planilhas, PDFs e outros arquivos em **pedidos e itens** no workspace — com mapeamento automático de colunas, **preview** linha a linha e confirmação antes de gravar.',
-            'O assistente percorre **quatro etapas** fixas: **Upload** → **Mapeamento** → **Preview** → **Resultado**. O stepper no topo do modal mostra em qual etapa você está.',
-            'Na **Lista**, abra **Novo** na barra superior e escolha **Novo pedido** ou **Novo item** → **Importação**. O mesmo fluxo Smart Import atende os dois caminhos.',
-            'No submenu também aparece **Smart Read** com badge **Em breve** — importação assistida por IA a partir de documentos; ainda não disponível. Use **Importação** para o fluxo atual.',
-            'Formatos aceitos no upload (até **10 MB** e **1.000 linhas** por arquivo):',
-            'Não sabe montar a planilha? Use **Baixar template** na etapa Upload — o `.xlsx` oficial traz as colunas do workspace e exemplos na linha 3.',
-            '**Etapa 1 — Upload:** arraste o arquivo ou clique na área de upload. Em **Excel** com várias abas, escolha qual planilha importar antes de continuar. O sistema analisa o arquivo e avança sozinho para o Mapeamento.',
-            '**PDF com texto selecionável:** o Gravity envia o arquivo ao **Gemini 2.5 Flash**, que extrai pedidos e itens da invoice (part number, quantidade, valores, etc.). Pode levar **60–90 segundos** em PDFs longos — mensagens de progresso aparecem durante a análise. No Mapeamento, o badge **✦ Extraído com IA (Gemini)** confirma que a leitura veio da IA.',
+            'O Smart Import prevê **dois caminhos**: **planilha modelo Gravity** (template `.xlsx` oficial) e **planilha do usuário** (arquivo do fornecedor). **Somente o template está homologado hoje** — o upload de planilha própria está **em breve**.',
+            '**Caminho disponível — template oficial:** na etapa Upload, clique **Baixar template**, preencha a planilha (exemplos na linha 3) e envie o `.xlsx` de volta. As colunas já correspondem ao workspace.',
+            '**Etapa 1 — Upload:** após baixar o template, **arraste** o `.xlsx` preenchido ou clique na área de upload. Em Excel com **várias abas**, escolha qual planilha importar antes de continuar.',
             '**Etapa 2 — Mapeamento:** cada coluna do arquivo é ligada a um **campo do Pedido** (pedido ou item). O sistema mostra um **valor de exemplo** da primeira linha, o **nível de confiança** (%) e permite ajustar manualmente. Use **Modo Essencial** para focar nos campos críticos ou **Ver documento** para conferir o arquivo ao lado.',
             'Se você já importou um arquivo com as **mesmas colunas**, o badge **Mapeamento salvo** indica que a memória foi reaplicada. Marque **Lembrar este mapeamento** para reutilizar na próxima planilha do mesmo fornecedor.',
             '**Etapa 3 — Preview:** revise cada pedido com status **OK**, **Aviso** ou **Erro**. Filtre por status, marque/desmarque linhas e edite o **número do pedido** ou campos inline quando permitido. Linhas com **erro bloqueante** (ex.: quantidade ≤ 0) vêm **desmarcadas** por padrão.',
             'Pedido **já existente** no workspace? O card exibe aviso de **duplicata** — escolha **Sobrescrever** (atualiza o pedido e mostra diff), **Criar novo** (segundo PO com mesmo número) ou **Pular** (ignora a linha). A decisão vale para todas as linhas daquele número.',
             '**Etapa 4 — Resultado:** confira **Criados**, **Atualizados**, **Pulados** e **Erros**. Se houver falhas, **Baixar relatório** gera um `.csv` com linha e motivo. **Ver pedidos importados** atualiza a Lista sem fechar o modal. **Reverter importação** cancela pedidos criados em **Rascunho** (soft delete para auditoria).',
           ],
-          figurasAposParagrafo: [
+          mostrarInfograficoPedidoListaImportarFormas: true,
+          galeriaComparacaoAposCaminhosImportacao: [
             {
-              indice: 1,
-              imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_STEPPER,
-              legenda: 'Stepper — Upload · Mapeamento · Preview · Resultado',
-              larguraMaxima: 720,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MODAL,
+                  paragrafoAntes:
+                    'Assistente **Importar Pedidos** — stepper **Upload · Mapeamento · Preview · Resultado**',
+                },
+              ],
+            },
+            {
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO,
+                  paragrafoAntes: '**01.** Na Lista, clique em **+ Novo**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO_PEDIDO,
+                  paragrafoAntes: '**02.** Escolha **Novo pedido**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MODAL,
+                  paragrafoAntes: '**03.** Selecione **Importação**',
+                },
+              ],
             },
           ],
           galeriaComparacaoAposParagrafo: [
@@ -617,52 +652,35 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO,
-                  paragrafoAntes: '**Novo** na barra → **Novo pedido** ou **Novo item**',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_IMPORTACAO,
-                  paragrafoAntes: 'Escolha **Importação** (Smart Import)',
-                },
-              ],
-            },
-            {
-              indice: 6,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_UPLOAD,
-                  paragrafoAntes: '**Arraste** ou selecione o arquivo',
+                  paragrafoAntes: '**Em breve** — arraste planilha ou invoice do fornecedor',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE,
-                  paragrafoAntes: '**Baixar template** oficial (.xlsx)',
+                  paragrafoAntes: '**Disponível** — **Baixar template** oficial (.xlsx)',
                 },
               ],
             },
             {
-              indice: 7,
+              indice: 2,
               colunas: 2,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MULTIPLAS_ABAS,
-                  paragrafoAntes: 'Excel: escolha a **aba** a importar',
+                  paragrafoAntes: 'Template: escolha a **aba** a importar',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ANALISANDO,
-                  paragrafoAntes: 'Análise em andamento (planilha ou PDF)',
+                  paragrafoAntes: '**Em breve** — análise de planilha ou PDF do fornecedor',
                 },
               ],
             },
             {
-              indice: 9,
+              indice: 3,
               colunas: 3,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -684,7 +702,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 10,
+              indice: 4,
               colunas: 2,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -701,7 +719,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 12,
+              indice: 5,
               colunas: 4,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -728,7 +746,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 13,
+              indice: 6,
               colunas: 3,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -750,14 +768,14 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
           ],
-          mostrarFormatosImportacaoPedidoLista: true,
-          formatosImportacaoPedidoAposParagrafo: 4,
+          mostrarCaminhosImportacaoPlanilhaPedidoLista: true,
+          caminhosImportacaoPlanilhaAposParagrafo: 0,
           calloutAposParagrafo: {
-            indice: 7,
+            indice: 0,
             callout: {
-              tipo: 'aviso',
+              tipo: 'lembrete',
               texto:
-                '**PDF escaneado** (imagem, sem texto selecionável) **não é suportado** — o sistema não consegue extrair linhas. Converta para **Excel** ou **CSV**, ou use um PDF nativo com texto copiável. Se o Gemini estiver indisponível, o Pedido tenta extração local; sem texto, exibe erro com sugestões práticas.',
+                'Prints marcados **Em breve** (upload genérico, PDF, análise IA) ilustram o **caminho da planilha do usuário**, ainda em homologação. O passo a passo abaixo segue o **template oficial** — caminho homologado hoje.',
             },
           },
           callouts: [
@@ -781,19 +799,60 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Painéis',
           tituloCurto: 'Painéis',
-          paragrafos: [
-            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
-            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
-            '**Novo painel:**',
-            '1. Clique em **+** na faixa de painéis.',
-            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Por incoterm** ou **Saldo aberto**).',
-            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte. As mudanças salvam automaticamente no painel ativo.',
-          ],
+          paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
+        },
+        {
+          titulo: 'Criar painel',
+          tituloCurto: 'Novo painel',
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_SETA,
+                  paragrafoAntes: 'Faixa de **painéis** acima da tabela — **Padrão** e **+**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_SETA,
+                  paragrafoAntes: '**01.** Clique em **+** na faixa de painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_SETA,
+                  paragrafoAntes:
+                    '**02.** Informe um **nome** único (ex.: **Em andamento**, **Por incoterm**, **Saldo aberto**)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
+                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
+                  paragrafoAntes:
+                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                },
+              ],
+            },
+          ],
           callout: {
-            tipo: 'lembrete',
+            tipo: 'dica',
             texto:
-              'Aguardando prints — `pedido-lista-paineis.png`, `pedido-lista-painel-novo.png`, `pedido-lista-painel-nome.png`.',
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
           },
         },
         {

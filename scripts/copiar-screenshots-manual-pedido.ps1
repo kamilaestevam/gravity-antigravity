@@ -51,8 +51,9 @@ $mapa = @{
   'tela_pedido_lista_exportar_download' = 'pedido-lista-exportar-download.png'
   # Smart Import — nomes reais no Drive (modal_importacao_passo_*)
   'tela_pedido_lista_novo_seta' = 'pedido-lista-importar-seta-novo.png'
+  'tela_pedido_lista_novo_pedido_seta' = 'pedido-lista-importar-seta-novo-pedido.png'
   'tela_pedido_lista_novo_pedido_modal' = 'pedido-lista-importar-seta-importacao.png'
-  'tela_pedido_lista_novo_pedido_modal_importacao' = 'pedido-lista-importar-stepper.png'
+  'tela_pedido_lista_novo_pedido_modal_importacao' = 'pedido-lista-importar-modal.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_1' = 'pedido-lista-importar-upload.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_1_baixar_modelo_seta' = 'pedido-lista-importar-template.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_selecionar_planilha_seta' = 'pedido-lista-importar-multiplas-abas.png'
@@ -67,6 +68,11 @@ $mapa = @{
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_3_modal_expandido_editando' = 'pedido-lista-importar-sobrescrever-diff.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_4' = 'pedido-lista-importar-resultado.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_tela_final' = 'pedido-lista-importar-erros-csv.png'
+  'tela_pedido_visao_lista_paineis_seta' = 'pedido-lista-paineis-seta.png'
+  'tela_pedido_visao_lista_paineis_novo_seta' = 'pedido-lista-paineis-novo-seta.png'
+  'tela_pedido_visao_lista_paineis_novo_nome_seta' = 'pedido-lista-paineis-novo-nome-seta.png'
+  'tela_pedido_visao_lista_paineis_novo_nome_validar' = 'pedido-lista-paineis-novo-nome-validar.png'
+  'tela_pedido_visao_lista_paineis_novo_nome_validado' = 'pedido-lista-paineis-novo-nome-validado.png'
 }
 
 # Mesma origem Drive -> dois destinos (lembrar + reverter reutilizam print proximo)
@@ -107,6 +113,24 @@ foreach ($par in $mapa.GetEnumerator()) {
 
 foreach ($extra in $copiasExtrasImportar) {
   if (Copiar-PrintManual -Base $extra.base -NomeDestino $extra.dest) { $copiados++ }
+}
+
+# Fallback: prints de paineis ainda so no Drive Smart Docs -> copia smart-docs-*.png para pedido-*.png
+$copiasFallbackPaineisSmartDocs = @(
+  @{ src = 'smart-docs-lista-paineis-seta.png'; dest = 'pedido-lista-paineis-seta.png' },
+  @{ src = 'smart-docs-lista-paineis-novo-seta.png'; dest = 'pedido-lista-paineis-novo-seta.png' },
+  @{ src = 'smart-docs-lista-paineis-novo-nome-seta.png'; dest = 'pedido-lista-paineis-novo-nome-seta.png' },
+  @{ src = 'smart-docs-lista-paineis-novo-nome-validar.png'; dest = 'pedido-lista-paineis-novo-nome-validar.png' },
+  @{ src = 'smart-docs-lista-paineis-novo-nome-validado.png'; dest = 'pedido-lista-paineis-novo-nome-validado.png' }
+)
+foreach ($fb in $copiasFallbackPaineisSmartDocs) {
+  $destPath = Join-Path $destino $fb.dest
+  if (Test-Path $destPath) { continue }
+  $srcPath = Join-Path $destino $fb.src
+  if (-not (Test-Path $srcPath)) { continue }
+  Copy-Item -LiteralPath $srcPath -Destination $destPath -Force
+  Write-Host "Fallback $($fb.src) -> $($fb.dest)"
+  $copiados++
 }
 
 Write-Host "`n$copiados arquivo(s) copiado(s) para $destino"

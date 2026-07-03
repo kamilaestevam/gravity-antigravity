@@ -5,7 +5,8 @@ import {
   CurrencyCircleDollar, ClockCounterClockwise, ArrowsOut, CaretDown,
   UserPlus, IdentificationCard, ArrowRight, ShieldCheck, User, Key, Check,
   Package, Truck, ArrowDown, ArrowUp, EnvelopeSimple, Desktop,
-  Eye, EyeSlash, PlusCircle, ArrowsOutLineVertical, PencilSimple, List, SquaresFour, ChartBar,
+  Eye, EyeSlash, PlusCircle, ArrowsOutLineVertical, PencilSimple, UploadSimple, ArrowsLeftRight, Sparkle,
+  List, SquaresFour, ChartBar,
   ShieldStar, UserGear, Boat, Airplane, TruckTrailer, Warehouse, Bank, Factory,
   Circle, CheckCircle, CircleHalf, Prohibit,
   type Icon,
@@ -59,9 +60,11 @@ import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infogr
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
+import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
 import { ManualPedidoFormatosImportacaoLista } from './manual-pedido-formatos-importacao-lista'
+import { ManualPedidoCaminhosImportacaoPlanilha } from './manual-pedido-caminhos-importacao-planilha'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
@@ -152,6 +155,88 @@ function ManualPilaresCustomizacaoChips({ pilares }: { pilares: ManualPilarCusto
           </div>
         )
       })}
+    </div>
+  )
+}
+
+type ManualPilarImportarFormaId = '01' | '02' | '03' | '04'
+
+const MANUAL_PILARES_IMPORTAR_FORMAS: Record<
+  ManualPilarImportarFormaId,
+  { icone: Icon; cor: string; borda: string; fundo: string }
+> = {
+  '01': { icone: UploadSimple, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
+  '02': { icone: ArrowsLeftRight, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
+  '03': { icone: Sparkle, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(139,92,246,.08)' },
+  '04': { icone: PencilSimple, cor: '#fbbf24', borda: 'rgba(251,191,36,.32)', fundo: 'rgba(245,158,11,.1)' },
+}
+
+function ManualPilaresImportarFormasChips({ pilares }: { pilares: ManualPilarImportarFormaId[] }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 6,
+        flexShrink: 0,
+        paddingTop: 2,
+      }}
+      aria-label={`Passos ${pilares.join(' e ')} do infográfico de importação`}
+    >
+      {pilares.map((num) => {
+        const pilar = MANUAL_PILARES_IMPORTAR_FORMAS[num]
+        const Icone = pilar.icone
+        return (
+          <div
+            key={num}
+            title={`Passo ${num}`}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 8,
+              border: `1px solid ${pilar.borda}`,
+              background: pilar.fundo,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+            }}
+          >
+            <span style={{ fontSize: '.5rem', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
+              {num}
+            </span>
+            <Icone size={13} weight="duotone" color={pilar.cor} aria-hidden />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ManualGaleriaCabecalhoPasso({
+  legendaPasso,
+  pilaresImportarFormas,
+  pilaresCustomizacao,
+}: {
+  legendaPasso: string
+  pilaresImportarFormas?: ManualPilarImportarFormaId[]
+  pilaresCustomizacao?: ManualPilarCustomizacaoId[]
+}) {
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 12,
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      marginBottom: 10,
+    }}>
+      {pilaresImportarFormas?.length ? (
+        <ManualPilaresImportarFormasChips pilares={pilaresImportarFormas} />
+      ) : pilaresCustomizacao?.length ? (
+        <ManualPilaresCustomizacaoChips pilares={pilaresCustomizacao} />
+      ) : null}
+      <ManualGaleriaTelaLegendaStep legenda={legendaPasso} alinhamento="left" />
     </div>
   )
 }
@@ -434,7 +519,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '82'
+const MANUAL_SCREENSHOT_CACHE_KEY = '92'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -737,9 +822,6 @@ function ManualGaleriaTelaFigurasCompostas({
 
 function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
   const pilares = tela.pilaresCustomizacao
-  const legendaComPilares = pilares?.length ? (
-    <ManualGaleriaTelaLegendaStep legenda={tela.legenda} alinhamento="left" />
-  ) : null
 
   const figuras = tela.imagensCompostas?.length
     ? (
@@ -798,16 +880,10 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
 
   return (
     <div>
-      <div style={{
-        display: 'flex',
-        gap: 12,
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        marginBottom: 10,
-      }}>
-        <ManualPilaresCustomizacaoChips pilares={pilares} />
-        {legendaComPilares}
-      </div>
+      <ManualGaleriaCabecalhoPasso
+        legendaPasso={tela.legenda}
+        pilaresCustomizacao={pilares}
+      />
       {tela.paragrafoAntes ? (
         <div style={{ marginBottom: 10, textAlign: 'left' }}>
           <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
@@ -1385,8 +1461,44 @@ function ManualBlocoPassoVisual({
           </>
         )
       )}
-      {passo.paragrafos?.map((p, i) => (
+      {passo.mostrarInfograficoPedidoListaImportarFormas ? (
+        <div style={{ marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+          <ManualInfograficoPedidoListaImportarFormas />
+        </div>
+      ) : null}
+      {passo.mostrarInfograficoSmartDocsListaPaineis ? (
+        <div style={{ marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+          <ManualInfograficoSmartDocsListaPaineis />
+        </div>
+      ) : null}
+      {passo.paragrafos?.map((p, i) => {
+        const caminhosImportacaoIdx = passo.caminhosImportacaoPlanilhaAposParagrafo ?? 1
+        const calloutAntesParagrafoCaminhosImportacao = Boolean(
+          passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
+          && passo.calloutAposParagrafo?.indice === i
+          && caminhosImportacaoIdx === i,
+        )
+        const calloutBloco = passo.calloutAposParagrafo?.indice === i ? (() => {
+          const margens = margemCalloutAposParagrafo(
+            i,
+            passo.paragrafos?.length ?? 0,
+          )
+          return (
+            <ManualCalloutBloco
+              callout={passo.calloutAposParagrafo.callout}
+              marginTop={calloutAntesParagrafoCaminhosImportacao
+                ? MANUAL_ESPACO_ENTRE_PASSOS_PX
+                : margens.marginTop}
+              marginBottom={calloutAntesParagrafoCaminhosImportacao
+                ? MANUAL_ESPACO_PARAGRAFO_PX
+                : margens.marginBottom}
+            />
+          )
+        })() : null
+
+        return (
         <div key={i}>
+          {calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
           <ManualParagrafo
             texto={p}
             marginBottom={margemParagrafo(
@@ -1399,19 +1511,7 @@ function ManualBlocoPassoVisual({
           && (passo.indicadorCursorVisualizacaoAposParagrafo ?? 1) === i ? (
             <ManualIndicadorCursorVisualizacao />
           ) : null}
-          {passo.calloutAposParagrafo?.indice === i && (() => {
-            const margens = margemCalloutAposParagrafo(
-              i,
-              passo.paragrafos?.length ?? 0,
-            )
-            return (
-              <ManualCalloutBloco
-                callout={passo.calloutAposParagrafo.callout}
-                marginTop={margens.marginTop}
-                marginBottom={margens.marginBottom}
-              />
-            )
-          })()}
+          {!calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
           {omitirFigurasNoTexto
             ? null
             : figurasAposParagrafoPasso(passo, i).map((fig) => (
@@ -1431,6 +1531,23 @@ function ManualBlocoPassoVisual({
           && (passo.formatosExportacaoPedidoAposParagrafo ?? 1) === i ? (
             <ManualPedidoFormatosExportacaoLista />
           ) : null}
+          {passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
+          && (passo.caminhosImportacaoPlanilhaAposParagrafo ?? 1) === i ? (
+            <>
+              <ManualPedidoCaminhosImportacaoPlanilha />
+              {(passo.galeriaComparacaoAposCaminhosImportacao ?? []).map((galeria) => (
+                <ManualGaleriaComparacaoIntro
+                  key={galeria.telas.map((t) => t.imagem).join('|')}
+                  telas={galeria.telas}
+                  ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+                  colunas={galeria.colunas}
+                  textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                  legendaPasso={galeria.legendaPasso}
+                  pilaresImportarFormas={galeria.pilaresImportarFormas}
+                />
+              ))}
+            </>
+          ) : null}
           {passo.mostrarFormatosImportacaoPedidoLista
           && (passo.formatosImportacaoPedidoAposParagrafo ?? 1) === i ? (
             <ManualPedidoFormatosImportacaoLista />
@@ -1442,10 +1559,26 @@ function ManualBlocoPassoVisual({
               ampliarInferiorDireito={galeria.ampliarInferiorDireito}
               colunas={galeria.colunas}
               textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+              legendaPasso={galeria.legendaPasso}
+              pilaresImportarFormas={galeria.pilaresImportarFormas}
             />
           ))}
         </div>
-      ))}
+        )
+      })}
+      {(passo.paragrafos?.length ?? 0) === 0
+        ? galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria) => (
+          <ManualGaleriaComparacaoIntro
+            key={galeria.telas.map((t) => t.imagem).join('|')}
+            telas={galeria.telas}
+            ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+            colunas={galeria.colunas}
+            textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+            legendaPasso={galeria.legendaPasso}
+            pilaresImportarFormas={galeria.pilaresImportarFormas}
+          />
+        ))
+        : null}
       {passo.linkCapitulo && (
         <p style={{ marginTop: 12, marginBottom: 0 }}>
           <Link to={passo.linkCapitulo.href} style={MANUAL_LINK_STYLE}>
@@ -1496,10 +1629,6 @@ function ManualBlocoPassoVisual({
       ? <ManualInfograficoPedidoListaCustomizacao />
       : null
 
-  const infograficoListaPaineis = passo.mostrarInfograficoSmartDocsListaPaineis
-    ? <ManualInfograficoSmartDocsListaPaineis />
-    : null
-
   const infograficoCatalogoColunasPedido = passo.mostrarInfograficoPedidoCatalogoColunasLista
     ? <ManualInfograficoPedidoCatalogoColunasLista />
     : null
@@ -1540,7 +1669,7 @@ function ManualBlocoPassoVisual({
     <ManualCalloutBloco callout={passo.calloutAposTabelaColunasPadrao} marginTop={16} />
   ) : null
 
-  const blocoListaCustomizacao = (infograficoListaCustomizacao || infograficoCatalogoColunasPedido || tabelaCatalogoColunasPedido || infograficoListaAlertas || tabelaAlertasPedidoLista || (infograficoListaPaineis && !(passo.imagemAbaixoTexto && passo.imagem)) || passo.mostrarTabelaColunasPadraoLista
+  const blocoListaCustomizacao = (infograficoListaCustomizacao || infograficoCatalogoColunasPedido || tabelaCatalogoColunasPedido || infograficoListaAlertas || tabelaAlertasPedidoLista || passo.mostrarTabelaColunasPadraoLista
     || tabelaCatalogoColunasSmartRead || calloutAposTabelaColunasPadrao || galeriaAposTabela || paragrafoAposGaleriaTabela || calloutAposGaleriaTabela) ? (
     <>
       {infograficoListaCustomizacao}
@@ -1548,7 +1677,6 @@ function ManualBlocoPassoVisual({
       {tabelaCatalogoColunasPedido}
       {infograficoListaAlertas}
       {tabelaAlertasPedidoLista}
-      {!(passo.imagemAbaixoTexto && passo.imagem) ? infograficoListaPaineis : null}
       {gradeColunas}
       {tabelaCatalogoColunasSmartRead}
       {calloutAposTabelaColunasPadrao}
@@ -1607,11 +1735,10 @@ function ManualBlocoPassoVisual({
             <div>{blocoCallouts}</div>
           </div>
         ) : blocoTexto}
-        {infograficoListaPaineis}
         <div style={{
           marginTop: emAcordeaoSubtopico
             ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
-            : (calloutsLista.length > 0 || infograficoListaPaineis ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20),
+            : (calloutsLista.length > 0 ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20),
         }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
@@ -2131,20 +2258,34 @@ function ManualGaleriaComparacaoIntro({
   ampliarInferiorDireito,
   colunas,
   textoAcimaEstiloCorpo = false,
+  legendaPasso,
+  pilaresImportarFormas,
+  pilaresCustomizacao,
 }: {
   telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
   ampliarInferiorDireito?: boolean
   colunas?: number
   textoAcimaEstiloCorpo?: boolean
+  legendaPasso?: string
+  pilaresImportarFormas?: ManualPilarImportarFormaId[]
+  pilaresCustomizacao?: ManualPilarCustomizacaoId[]
 }) {
   if (telas.length === 0) return null
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
+  const cabecalhoPasso = legendaPasso && (pilaresImportarFormas?.length || pilaresCustomizacao?.length) ? (
+    <ManualGaleriaCabecalhoPasso
+      legendaPasso={legendaPasso}
+      pilaresImportarFormas={pilaresImportarFormas}
+      pilaresCustomizacao={pilaresCustomizacao}
+    />
+  ) : null
   return (
-    <div style={{
+    <div style={{ margin: textoAcimaEstiloCorpo ? '12px 0 16px' : '16px 0 22px' }}>
+      {cabecalhoPasso}
+      <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${colunasGrade}, minmax(0, 1fr))`,
       gap: colunasGrade >= 4 ? 10 : 16,
-      margin: textoAcimaEstiloCorpo ? '12px 0 16px' : '16px 0 22px',
       alignItems: 'start',
     }}>
       {telas.map((tela) => (
@@ -2169,6 +2310,7 @@ function ManualGaleriaComparacaoIntro({
           />
         </div>
       ))}
+      </div>
     </div>
   )
 }
@@ -2299,6 +2441,8 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                     ampliarInferiorDireito={galeria.ampliarInferiorDireito}
                     colunas={galeria.colunas}
                     textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                    legendaPasso={galeria.legendaPasso}
+                    pilaresImportarFormas={galeria.pilaresImportarFormas}
                   />
                 ))}
                 {secao.calloutAposParagrafo?.indice === i && (() => {
@@ -2368,6 +2512,9 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   telas={galeria.telas}
                   ampliarInferiorDireito={galeria.ampliarInferiorDireito}
                   colunas={galeria.colunas}
+                  textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                  legendaPasso={galeria.legendaPasso}
+                  pilaresImportarFormas={galeria.pilaresImportarFormas}
                 />
               ))}
               {secao.calloutAposParagrafo?.indice === i && (() => {

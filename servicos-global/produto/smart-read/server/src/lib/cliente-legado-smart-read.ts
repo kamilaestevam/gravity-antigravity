@@ -476,9 +476,16 @@ export async function obterArquivoLegado(
   throw ultimoErro ?? new AppError('Arquivo nao encontrado no legado', 404, 'LEGADO_ARQUIVO_NAO_ENCONTRADO')
 }
 
+export function falhaExclusaoLegadoPermiteEspelhoGravity(erro: unknown): boolean {
+  if (!(erro instanceof AppError)) return false
+  return erro.code !== 'LEGADO_INDISPONIVEL'
+}
+
 function erroExclusaoLegadoDeveTentarProximaUrl(erro: unknown): boolean {
   if (!(erro instanceof AppError)) return false
   if (erro.statusCode === 405 || erro.statusCode === 501) return true
+  if (erro.statusCode === 401 || erro.statusCode === 403) return true
+  if (erro.statusCode === 502 && /401|403|nao autorizada|unauthorized/i.test(erro.message)) return true
   if (erro.statusCode !== 404) return false
   return /cannot delete|not found/i.test(erro.message)
 }

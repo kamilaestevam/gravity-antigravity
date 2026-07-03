@@ -259,6 +259,74 @@ export function traduzirFraseExibirCamposLocalizacao(
   )
 }
 
+export function traduzirFraseOpcaoPortoAeroportoLocalizacao(
+  t: TFunction,
+  lado: LadoLocalizacaoWizard,
+): string {
+  return t(
+    lado === 'origem'
+      ? 'bidfrete.nova_cotacao.opcao_porto_aeroporto_origem'
+      : 'bidfrete.nova_cotacao.opcao_porto_aeroporto_destino',
+    {
+      defaultValue:
+        lado === 'origem'
+          ? 'Incluir mais opções para Porto/Aeroporto de Origem'
+          : 'Incluir mais opções para Porto/Aeroporto de Destino',
+    },
+  )
+}
+
+export function traduzirLegendaOpcaoPortoAeroportoLocalizacao(
+  t: TFunction,
+  lado: LadoLocalizacaoWizard,
+  tipo: 'aeroporto' | 'porto',
+): string {
+  const keys: Record<LadoLocalizacaoWizard, Record<typeof tipo, { key: string; defaultValue: string }>> = {
+    origem: {
+      porto: {
+        key: 'bidfrete.nova_cotacao.legenda_opcao_porto_origem',
+        defaultValue:
+          'Além do porto principal, aceito cotações para outros portos próximos (ex.: Navegantes, São Francisco do Sul).',
+      },
+      aeroporto: {
+        key: 'bidfrete.nova_cotacao.legenda_opcao_aeroporto_origem',
+        defaultValue: 'Além do aeroporto principal, aceito cotações para outros aeroportos próximos.',
+      },
+    },
+    destino: {
+      porto: {
+        key: 'bidfrete.nova_cotacao.legenda_opcao_porto_destino',
+        defaultValue: 'Além do porto principal, aceito cotações para outros portos próximos.',
+      },
+      aeroporto: {
+        key: 'bidfrete.nova_cotacao.legenda_opcao_aeroporto_destino',
+        defaultValue: 'Além do aeroporto principal, aceito cotações para outros aeroportos próximos.',
+      },
+    },
+  }
+  const { key, defaultValue } = keys[lado][tipo]
+  return t(key, { defaultValue })
+}
+
+export function traduzirCampoLocaisOpcionaisLocalizacao(
+  t: TFunction,
+  lado: LadoLocalizacaoWizard,
+  tipo: 'aeroporto' | 'porto',
+): string {
+  const keys: Record<LadoLocalizacaoWizard, Record<typeof tipo, { key: string; defaultValue: string }>> = {
+    origem: {
+      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_origem', defaultValue: 'PORTOS ALTERNATIVOS ACEITOS' },
+      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_origem', defaultValue: 'AEROPORTOS ALTERNATIVOS ACEITOS' },
+    },
+    destino: {
+      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_destino', defaultValue: 'PORTOS ALTERNATIVOS ACEITOS' },
+      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_destino', defaultValue: 'AEROPORTOS ALTERNATIVOS ACEITOS' },
+    },
+  }
+  const { key, defaultValue } = keys[lado][tipo]
+  return t(key, { defaultValue })
+}
+
 export function traduzirLegendaLocalizacaoNovaCotacao(
   t: TFunction,
   lado: LadoLocalizacaoWizard,

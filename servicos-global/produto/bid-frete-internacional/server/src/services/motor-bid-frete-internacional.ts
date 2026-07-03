@@ -27,6 +27,8 @@ import {
   resolverWhatsappsDisparoBidFrete,
   type FornecedorEspelhoBidDisparo,
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
+import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
+import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
 
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
@@ -81,12 +83,28 @@ export const motorBid = {
     const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
-    await garantirFornecedoresEspelhoDisparoBidFrete(prisma, id_organizacao, fornecedor_ids)
+    const modal = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
+    const fornecedor_ids_elegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+      id_organizacao,
+      modal,
+      fornecedor_ids,
+    )
+
+    if (fornecedor_ids_elegiveis.length === 0) {
+      return {
+        disparos: 0,
+        enviados: false,
+        results: [],
+        message: 'Nenhum fornecedor elegivel para o modal da cotacao',
+      }
+    }
+
+    await garantirFornecedoresEspelhoDisparoBidFrete(prisma, id_organizacao, fornecedor_ids_elegiveis)
 
     // Buscar fornecedores
     const fornecedores = await (prisma as any).fornecedorBidFreteInternacional.findMany({
       where: {
-        id_fornecedor_bid_frete_internacional: { in: fornecedor_ids },
+        id_fornecedor_bid_frete_internacional: { in: fornecedor_ids_elegiveis },
         status_fornecedor_bid_frete_internacional: 'ATIVO',
       },
     })
@@ -261,6 +279,14 @@ export const motorBid = {
   },
 
   async dispararCotacaoAberta(prisma: PrismaClient, options: DispararCotacaoAbertaOptions) {
+    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({
+      where: { id_cotacao_bid_frete_internacional: options.id_cotacao_bid_frete_internacional },
+      select: { modal_cotacao_bid_frete_internacional: true },
+    })
+    if (!cotacao) throw new Error('Cotacao nao encontrada')
+
+    const modal = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
+
     const where: Record<string, unknown> = {
       id_produto_gravity: 'bid-frete-internacional',
       status_fornecedor_bid_frete_internacional: 'ATIVO',
@@ -272,15 +298,30 @@ export const motorBid = {
 
     const fornecedores = await (prisma as any).fornecedorBidFreteInternacional.findMany({
       where,
-      select: { id_fornecedor_bid_frete_internacional: true },
+      select: {
+        id_fornecedor_bid_frete_internacional: true,
+        tipo_fornecedor_bid_frete_internacional: true,
+      },
     })
 
-    const fornecedor_ids = (fornecedores as Array<{ id_fornecedor_bid_frete_internacional: string }>).map(
-      (f) => f.id_fornecedor_bid_frete_internacional,
+    const fornecedor_ids = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+      options.id_organizacao,
+      modal,
+      (fornecedores as Array<{ id_fornecedor_bid_frete_internacional: string }>).map(
+        (f) => f.id_fornecedor_bid_frete_internacional,
+      ),
+      {
+        tiposEspelhoPorId: new Map(
+          (fornecedores as Array<{
+            id_fornecedor_bid_frete_internacional: string
+            tipo_fornecedor_bid_frete_internacional: TipoFornecedorMotor
+          }>).map(f => [f.id_fornecedor_bid_frete_internacional, f.tipo_fornecedor_bid_frete_internacional]),
+        ),
+      },
     )
 
     if (fornecedor_ids.length === 0) {
-      return { disparos: 0, results: [], message: 'Nenhum fornecedor ativo aceita cotacao aberta' }
+      return { disparos: 0, results: [], message: 'Nenhum fornecedor ativo aceita cotacao aberta para este modal' }
     }
 
     return this.disparar(prisma, {

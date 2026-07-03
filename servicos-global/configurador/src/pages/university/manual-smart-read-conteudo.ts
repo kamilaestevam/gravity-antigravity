@@ -7,6 +7,7 @@ const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
 const LINK_MANUAL_SMART_READ_CONFIGURACOES =
   '{{link:/university-gravity/docs/smart-read#doc-sec-7|Configurações}}'
+const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API Cockpit}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
@@ -333,8 +334,17 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A visão **Transações** destaca leituras criadas pela **API** (`origem_leitura: API`) — útil para reconciliar integrações com o que foi enviado pela interface.',
+            'A aba **Transações API** destaca leituras criadas por **integração** (`origem_leitura: API`) — o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
+            'Na **Visão geral** aparecem **todos** os envios do workspace; em **Transações API** permanecem apenas os marcados como **API** pelo processamento legado (tipicamente envios via ' +
+              LINK_MANUAL_API_COCKPIT +
+              ' ou ERP conectado). Leituras iniciadas pelo wizard **+ Novo** ou pela interface registram **`INTERFACE`** e **não** entram nesta aba.',
+            '**Busca**, **Colunas**, **Exportar** e **painéis** funcionam igual à Visão geral — só muda o filtro de origem. Se a mesma leitura foi registrada como API em algum momento, a origem **API prevalece** na lista.',
           ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API — ausência de linhas aqui não significa falha da Lista inteira.',
+          },
         },
       ]),
     },

@@ -229,6 +229,10 @@ model CotacaoBidFreteInternacional {
   pais_destino_rodoviario_cotacao_bid_frete_internacional      String?
   estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional String? @map("estado_provincia_destino_rodov_cotacao_bid_frete_internacional")
   cidade_destino_rodoviario_cotacao_bid_frete_internacional      String?
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional   Boolean  @default(false)
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional     Json?
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional  Boolean  @default(false)
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional    Json?
   // Snapshot derivado (compatibilidade lista/tabelas/APIs legadas — não exibir no front)
   origem_codigo_cotacao_bid_frete_internacional       String              // UN/LOCODE, IATA ou código rodoviário
   origem_nome_cotacao_bid_frete_internacional         String

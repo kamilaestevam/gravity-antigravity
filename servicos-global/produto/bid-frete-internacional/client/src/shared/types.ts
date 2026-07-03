@@ -217,6 +217,10 @@ export interface Cotacao {
   zipcode_destino_cotacao_bid_frete_internacional: string | null
   endereco_origem_cotacao_bid_frete_internacional?: string | null
   endereco_destino_cotacao_bid_frete_internacional?: string | null
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: string[] | null
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
   hs_code_cotacao_bid_frete_internacional?: string | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -264,6 +268,12 @@ export interface Fornecedor {
   nome_fornecedor_bid_frete_internacional: string
   nome_fantasia_fornecedor_bid_frete_internacional: string | null
   tipo_fornecedor_bid_frete_internacional: TipoFornecedor
+  /** Flags Cadastros — presentes quando lista vem do espelho sync; ausentes no fallback Prisma legado. */
+  pode_ser_agente_fornecedor?: boolean
+  pode_ser_armador_fornecedor?: boolean
+  pode_ser_cia_aerea_fornecedor?: boolean
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
   status_fornecedor_bid_frete_internacional: StatusFornecedor
   cnpj_fornecedor_bid_frete_internacional: string | null
   email_fornecedor_bid_frete_internacional: string

@@ -68,7 +68,10 @@ import {
 } from '../shared/containers-cotacao-bid-frete-internacional'
 import { useAeroportosPorPais, useContainersCadastros, useMercadoriasPerigosasCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
-import { montarEmailsPorFornecedorDisparoPayload } from '../shared/contato-disparo-bid-frete-internacional'
+import {
+  filtrarFornecedoresDisparoBidFreteInternacional,
+  filtrarIdsFornecedoresDisparoBidFreteInternacional,
+} from '../shared/filtrar-fornecedores-disparo-bid-frete-internacional'
 import type {
   TipoOperacao,
   ModalFrete,
@@ -97,6 +100,9 @@ import {
   traduzirDisparoNaoRealizadoNovaCotacao,
   traduzirErroCriarCotacaoNovaCotacao,
   traduzirFraseExibirCamposLocalizacao,
+  traduzirFraseOpcaoPortoAeroportoLocalizacao,
+  traduzirCampoLocaisOpcionaisLocalizacao,
+  traduzirLegendaOpcaoPortoAeroportoLocalizacao,
   traduzirIncotermExplicacaoNovaCotacao,
   traduzirLabelModalidadeNovaCotacao,
   traduzirLegendaLocalizacaoNovaCotacao,
@@ -231,6 +237,56 @@ function exibirCamposExtrasLocalizacao(
     : form.exibir_campos_extras_destino_cotacao
 }
 
+function habilitarOpcaoPortoAeroportoLocalizacao(form: FormState, lado: LadoLocalizacaoWizard): boolean {
+  return lado === 'origem'
+    ? form.habilitar_opcao_porto_aeroporto_origem_cotacao
+    : form.habilitar_opcao_porto_aeroporto_destino_cotacao
+}
+
+function codigosOpcaoPortoAeroportoLocalizacao(form: FormState, lado: LadoLocalizacaoWizard): string[] {
+  return lado === 'origem'
+    ? form.codigos_opcao_porto_aeroporto_origem_cotacao
+    : form.codigos_opcao_porto_aeroporto_destino_cotacao
+}
+
+function alternarOpcaoPortoAeroportoLocalizacao(
+  setForm: React.Dispatch<React.SetStateAction<FormState>>,
+  lado: LadoLocalizacaoWizard,
+  ativo: boolean,
+): void {
+  setForm((prev) => {
+    if (lado === 'origem') {
+      return {
+        ...prev,
+        habilitar_opcao_porto_aeroporto_origem_cotacao: ativo,
+        codigos_opcao_porto_aeroporto_origem_cotacao: ativo ? prev.codigos_opcao_porto_aeroporto_origem_cotacao : [],
+      }
+    }
+    return {
+      ...prev,
+      habilitar_opcao_porto_aeroporto_destino_cotacao: ativo,
+      codigos_opcao_porto_aeroporto_destino_cotacao: ativo ? prev.codigos_opcao_porto_aeroporto_destino_cotacao : [],
+    }
+  })
+}
+
+function definirCodigosOpcaoPortoAeroportoLocalizacao(
+  setForm: React.Dispatch<React.SetStateAction<FormState>>,
+  lado: LadoLocalizacaoWizard,
+  codigos: string[],
+): void {
+  setForm((prev) => (
+    lado === 'origem'
+      ? { ...prev, codigos_opcao_porto_aeroporto_origem_cotacao: codigos }
+      : { ...prev, codigos_opcao_porto_aeroporto_destino_cotacao: codigos }
+  ))
+}
+
+function opcaoPortoAeroportoValida(form: FormState, lado: LadoLocalizacaoWizard): boolean {
+  if (!habilitarOpcaoPortoAeroportoLocalizacao(form, lado)) return true
+  return codigosOpcaoPortoAeroportoLocalizacao(form, lado).length > 0
+}
+
 function limparCamposCargaPerigosa(): Pick<
   FormState,
   | 'eh_carga_perigosa_cotacao_bid_frete_internacional'
@@ -295,6 +351,10 @@ interface FormState {
   destino_pais_nome: string
   exibir_campos_extras_origem_cotacao: boolean
   exibir_campos_extras_destino_cotacao: boolean
+  habilitar_opcao_porto_aeroporto_origem_cotacao: boolean
+  codigos_opcao_porto_aeroporto_origem_cotacao: string[]
+  habilitar_opcao_porto_aeroporto_destino_cotacao: boolean
+  codigos_opcao_porto_aeroporto_destino_cotacao: string[]
   // Carga
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
@@ -352,6 +412,10 @@ const INITIAL_FORM: FormState = {
   destino_pais_nome: '',
   exibir_campos_extras_origem_cotacao: false,
   exibir_campos_extras_destino_cotacao: false,
+  habilitar_opcao_porto_aeroporto_origem_cotacao: false,
+  codigos_opcao_porto_aeroporto_origem_cotacao: [],
+  habilitar_opcao_porto_aeroporto_destino_cotacao: false,
+  codigos_opcao_porto_aeroporto_destino_cotacao: [],
   descricao_mercadoria_cotacao_bid_frete_internacional: '',
   ncm_cotacao_bid_frete_internacional: '',
   hs_code_cotacao_bid_frete_internacional: '',
@@ -556,6 +620,77 @@ function LinhaCheckboxExibirCamposLocalizacao({
         <span>{traduzirFraseExibirCamposLocalizacao(t, lado)}</span>
       </label>
     </div>
+  )
+}
+
+function LinhaOpcaoPortoAeroportoLocalizacao({
+  lado,
+  form,
+  setForm,
+  tipoLocal,
+  opcoes,
+  codigoPrincipal,
+  carregando,
+}: {
+  lado: LadoLocalizacaoWizard
+  form: FormState
+  setForm: React.Dispatch<React.SetStateAction<FormState>>
+  tipoLocal: 'porto' | 'aeroporto'
+  opcoes: SelectOpcao[]
+  codigoPrincipal: string
+  carregando: boolean
+}) {
+  const { t } = useTranslation()
+  const habilitado = habilitarOpcaoPortoAeroportoLocalizacao(form, lado)
+  const codigosSelecionados = codigosOpcaoPortoAeroportoLocalizacao(form, lado)
+  const opcoesFiltradas = useMemo(
+    () => opcoes.filter((o) => String(o.valor) !== codigoPrincipal),
+    [opcoes, codigoPrincipal],
+  )
+
+  return (
+    <>
+      <div className="nc-exibir-campos-linha">
+        <label className="nc-exibir-campos-checkbox">
+          <input
+            type="checkbox"
+            className="nc-checkbox-padrao"
+            checked={habilitado}
+            onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
+          />
+          <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado)}</span>
+        </label>
+      </div>
+      {habilitado && (
+        <div className="nc-fields-grid nc-fields-grid--location-extras">
+          <Field
+            label={traduzirCampoLocaisOpcionaisLocalizacao(t, lado, tipoLocal)}
+            className="nc-field--span-2"
+            required
+            icone={tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
+          >
+            <p className="nc-caption" style={{ margin: '0 0 0.5rem' }}>
+              {traduzirLegendaOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}
+            </p>
+            <SelectGlobal
+              iconeEsquerda={tipoLocal === 'porto' ? <Anchor size={16} /> : <AirplaneTilt size={16} />}
+              opcoes={opcoesFiltradas}
+              multiplo
+              valores={codigosSelecionados}
+              aoMudarValores={(vals) => {
+                definirCodigosOpcaoPortoAeroportoLocalizacao(setForm, lado, vals.map((v) => String(v)))
+              }}
+              placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_locais_opcionais', {
+                defaultValue: 'Selecione um ou mais locais alternativos...',
+              })}
+              buscavel
+              carregando={carregando}
+              posicao="auto"
+            />
+          </Field>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -1964,6 +2099,19 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     return () => { cancelado = true }
   }, [step, form.visibilidade_cotacao_bid_frete_internacional, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
 
+  const modalDisparo = form.modal_cotacao_bid_frete_internacional as ModalFrete
+  const fornecedoresDisparoElegiveis = React.useMemo(
+    () => (modalDisparo
+      ? filtrarFornecedoresDisparoBidFreteInternacional(fornecedoresAtivos, modalDisparo)
+      : []),
+    [fornecedoresAtivos, modalDisparo],
+  )
+
+  useEffect(() => {
+    setFornecedorIdsSelecionados([])
+    setFornecedorIdsExcluidosDisparo([])
+  }, [form.modal_cotacao_bid_frete_internacional])
+
   useEffect(() => {
     setFornecedorIdsExcluidosDisparo([])
     if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
@@ -1973,17 +2121,17 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   useEffect(() => {
     if (step !== 4 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
-    if (carregandoFornecedores || fornecedoresAtivos.length === 0) return
+    if (carregandoFornecedores || fornecedoresDisparoElegiveis.length === 0) return
     if (fornecedorIdsSelecionados.length === 0) {
       setFornecedorIdsSelecionados(
-        fornecedoresAtivos.map(f => f.id_fornecedor_bid_frete_internacional),
+        fornecedoresDisparoElegiveis.map(f => f.id_fornecedor_bid_frete_internacional),
       )
     }
   }, [
     step,
     form.visibilidade_cotacao_bid_frete_internacional,
     carregandoFornecedores,
-    fornecedoresAtivos,
+    fornecedoresDisparoElegiveis,
     fornecedorIdsSelecionados.length,
   ])
 
@@ -2036,6 +2184,16 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     paisDestinoCodigo,
     modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
   )
+  const exigePortoModal = modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional)
+  const exigeAeroportoModal = modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional)
+  const {
+    opcoes: opcoesPortosAlternativos,
+    carregando: carregandoPortosAlternativos,
+  } = usePortosPorPais('', exigePortoModal)
+  const {
+    opcoes: opcoesAeroportosAlternativos,
+    carregando: carregandoAeroportosAlternativos,
+  } = useAeroportosPorPais('', exigeAeroportoModal)
   const {
     containers: containersCadastro,
     opcoes: opcoesContainers,
@@ -2115,6 +2273,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     setForm((prev) => ({
       ...prev,
       porto_origem_cotacao_bid_frete_internacional: codigo,
+      codigos_opcao_porto_aeroporto_origem_cotacao: prev.codigos_opcao_porto_aeroporto_origem_cotacao.filter(
+        (c) => c !== codigo,
+      ),
       ...(porto?.codigo_pais_porto
         ? {
             origem_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto,
@@ -2130,6 +2291,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     setForm((prev) => ({
       ...prev,
       porto_destino_cotacao_bid_frete_internacional: codigo,
+      codigos_opcao_porto_aeroporto_destino_cotacao: prev.codigos_opcao_porto_aeroporto_destino_cotacao.filter(
+        (c) => c !== codigo,
+      ),
       ...(porto?.codigo_pais_porto
         ? {
             destino_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto,
@@ -2145,6 +2309,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     setForm((prev) => ({
       ...prev,
       aeroporto_origem_cotacao_bid_frete_internacional: iata,
+      codigos_opcao_porto_aeroporto_origem_cotacao: prev.codigos_opcao_porto_aeroporto_origem_cotacao.filter(
+        (c) => c !== iata,
+      ),
       ...(aeroporto?.codigo_pais_aeroporto
         ? {
             origem_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto,
@@ -2160,6 +2327,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     setForm((prev) => ({
       ...prev,
       aeroporto_destino_cotacao_bid_frete_internacional: iata,
+      codigos_opcao_porto_aeroporto_destino_cotacao: prev.codigos_opcao_porto_aeroporto_destino_cotacao.filter(
+        (c) => c !== iata,
+      ),
       ...(aeroporto?.codigo_pais_aeroporto
         ? {
             destino_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto,
@@ -2343,6 +2513,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 && !!form.cidade_destino_rodoviario_cotacao_bid_frete_internacional
               : true
         return origemOk && destinoOk
+          && opcaoPortoAeroportoValida(form, 'origem')
+          && opcaoPortoAeroportoValida(form, 'destino')
       }
       case 'carga': {
         const base = !!form.descricao_mercadoria_cotacao_bid_frete_internacional
@@ -2417,16 +2589,21 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           }
 
       const idsDisparoAberta = idsFornecedoresDisparoCotacaoAberta(
-        fornecedoresAtivos,
+        fornecedoresDisparoElegiveis,
         fornecedorIdsExcluidosDisparo,
       )
-      const idsFornecedoresDisparo = form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'
-        ? fornecedorIdsSelecionados
-        : form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-          ? idsDisparoAberta
-          : []
+      const idsDisparoDirecionada = modalDisparo
+        ? filtrarIdsFornecedoresDisparoBidFreteInternacional(
+          fornecedoresDisparoElegiveis,
+          modalDisparo,
+          fornecedorIdsSelecionados,
+        )
+        : []
 
-      const pretendiaDisparar = canaisDisparo.length > 0 && idsFornecedoresDisparo.length > 0
+      const pretendiaDisparar = canaisDisparo.length > 0
+        && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+          ? idsDisparoAberta.length > 0
+          : idsDisparoDirecionada.length > 0)
 
       const { cotacao, disparo, disparo_erro } = await criarCotacaoComDisparo({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
@@ -2467,6 +2644,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         endereco_destino_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'destino')
           ? form.endereco_destino_cotacao_bid_frete_internacional.trim() || undefined
           : undefined,
+        habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          form.habilitar_opcao_porto_aeroporto_origem_cotacao,
+        codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          form.habilitar_opcao_porto_aeroporto_origem_cotacao
+            ? form.codigos_opcao_porto_aeroporto_origem_cotacao
+            : undefined,
+        habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          form.habilitar_opcao_porto_aeroporto_destino_cotacao,
+        codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          form.habilitar_opcao_porto_aeroporto_destino_cotacao
+            ? form.codigos_opcao_porto_aeroporto_destino_cotacao
+            : undefined,
         visibilidade_cotacao_bid_frete_internacional: form.visibilidade_cotacao_bid_frete_internacional,
         anonima_cotacao_bid_frete_internacional: form.anonima_cotacao_bid_frete_internacional,
         valor_meta_cotacao_bid_frete_internacional: form.valor_meta_cotacao_bid_frete_internacional
@@ -2497,13 +2686,19 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? new Date(form.data_limite_resposta_cotacao_bid_frete_internacional).toISOString()
           : undefined,
         id_bid_bid_frete_internacional: idBid ?? undefined,
-        fornecedor_ids: idsFornecedoresDisparo.length > 0 ? idsFornecedoresDisparo : undefined,
-        disparar_ao_criar: pretendiaDisparar,
+        fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'
+          ? idsDisparoDirecionada
+          : form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+            ? idsDisparoAberta
+            : undefined,
+        disparar_ao_criar: canaisDisparo.length > 0
+          && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+            ? idsDisparoAberta.length > 0
+            : idsDisparoDirecionada.length > 0),
         canais_disparo: canaisDisparo,
-        emails_por_fornecedor: montarEmailsPorFornecedorDisparoPayload(
-          idsFornecedoresDisparo,
-          emailsPorFornecedorDisparo,
-        ),
+        emails_por_fornecedor: Object.keys(emailsPorFornecedorDisparo).length > 0
+          ? emailsPorFornecedorDisparo
+          : undefined,
       })
       const feedback = formatarFeedbackDisparoBidFrete(
         pretendiaDisparar ? disparo : null,
@@ -2788,6 +2983,22 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 )}
 
                 {(exigePorto || exigeAeroporto) && (
+                  <LinhaOpcaoPortoAeroportoLocalizacao
+                    lado="origem"
+                    form={form}
+                    setForm={setForm}
+                    tipoLocal={exigePorto ? 'porto' : 'aeroporto'}
+                    opcoes={exigePorto ? opcoesPortosAlternativos : opcoesAeroportosAlternativos}
+                    codigoPrincipal={
+                      exigePorto
+                        ? form.porto_origem_cotacao_bid_frete_internacional
+                        : form.aeroporto_origem_cotacao_bid_frete_internacional
+                    }
+                    carregando={exigePorto ? carregandoPortosAlternativos : carregandoAeroportosAlternativos}
+                  />
+                )}
+
+                {(exigePorto || exigeAeroporto) && (
                   <LinhaCheckboxExibirCamposLocalizacao lado="origem" form={form} setForm={setForm} />
                 )}
 
@@ -2921,6 +3132,22 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       )}
                     </Field>
                   </div>
+                )}
+
+                {(exigePorto || exigeAeroporto) && (
+                  <LinhaOpcaoPortoAeroportoLocalizacao
+                    lado="destino"
+                    form={form}
+                    setForm={setForm}
+                    tipoLocal={exigePorto ? 'porto' : 'aeroporto'}
+                    opcoes={exigePorto ? opcoesPortosAlternativos : opcoesAeroportosAlternativos}
+                    codigoPrincipal={
+                      exigePorto
+                        ? form.porto_destino_cotacao_bid_frete_internacional
+                        : form.aeroporto_destino_cotacao_bid_frete_internacional
+                    }
+                    carregando={exigePorto ? carregandoPortosAlternativos : carregandoAeroportosAlternativos}
+                  />
                 )}
 
                 {(exigePorto || exigeAeroporto) && (
@@ -3391,7 +3618,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </NcSectionTitle>
               <SelecaoFornecedoresDisparo
                 visibilidade={form.visibilidade_cotacao_bid_frete_internacional}
-                fornecedores={fornecedoresAtivos}
+                fornecedores={fornecedoresDisparoElegiveis}
                 carregando={carregandoFornecedores}
                 selecionados={fornecedorIdsSelecionados}
                 onChangeSelecionados={setFornecedorIdsSelecionados}
@@ -3571,7 +3798,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <div className="nc-receipt-row">
                   <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
-                    {traduzirRotuloResumoVisibilidadeNovaCotacao(
+                    {rotuloResumoVisibilidadeNovaCotacao(
                       t,
                       form.visibilidade_cotacao_bid_frete_internacional,
                       form.anonima_cotacao_bid_frete_internacional,

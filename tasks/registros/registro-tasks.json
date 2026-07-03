@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 405,
+  "proximo_numero": 407,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000406",
+      "ordinal": 130,
+      "titulo_canonico": "PEDIDO-LISTA-MEL-EXCLUIR-PAINEL-MENU-TRES-PONTOS",
+      "titulo_exibicao": "TASK-000406 | [Pedido] Lista | MEL — Excluir painel no menu de três pontos",
+      "status": "RES",
+      "area": "PEDIDO",
+      "subarea": "PAINEL-LISTA",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "EXCLUIR-PAINEL-MENU-TRES-PONTOS",
+      "data_criacao": "2026-07-02T22:30:00.000Z",
+      "data_encerramento": "2026-07-03T16:09:00.000Z",
+      "tempo_liquido_horas": 3.5,
+      "tokens_estimados_total": 140000,
+      "arquivo_ficha": "registros/TASK-000406.json"
+    },
     {
       "referencia": "TASK-000404",
       "ordinal": 128,

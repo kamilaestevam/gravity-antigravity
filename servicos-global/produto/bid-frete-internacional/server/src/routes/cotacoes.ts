@@ -22,6 +22,12 @@ import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-wo
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
 import { carregarContextoCatalogoRotaBidFreteInternacional } from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
 import { validarRotaCotacaoContraCadastros } from '../lib/validar-rota-cadastros-cotacao-bid-frete-internacional.js'
+import {
+  codigosOpcaoPortoAeroportoParaPersistencia,
+  refinamentoOpcoesPortoAeroportoCotacao,
+} from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from '../services/filtrar-fornecedores-disparo-bid-frete-internacional.js'
+import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -82,6 +88,10 @@ const CriarCotacaoSchemaBase = z.object({
   disparar_ao_criar: z.boolean().default(false),
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
   emails_por_fornecedor: z.record(z.string(), z.array(z.string().email())).optional(),
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: z.boolean().default(false),
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.boolean().default(false),
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
 })
 
 type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
@@ -114,6 +124,13 @@ const CAMPOS_CARGA_PERIGOSA_COTACAO = [
   'divisao_carga_perigosa_cotacao_bid_frete_internacional',
   'grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional',
   'observacoes_carga_perigosa_cotacao_bid_frete_internacional',
+] as const
+
+const CAMPOS_OPCAO_PORTO_AEROPORTO_COTACAO = [
+  'habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional',
+  'codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional',
+  'habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional',
+  'codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional',
 ] as const
 
 function corpoPatchTocaCampo(body: Record<string, unknown>, campos: readonly string[]): boolean {
@@ -178,6 +195,38 @@ function refinamentoRota(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
   }
 }
 
+function refinamentoOpcoesPortoAeroporto(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
+  refinamentoOpcoesPortoAeroportoCotacao(
+    data.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+    data.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+    'codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional',
+    ctx,
+  )
+  refinamentoOpcoesPortoAeroportoCotacao(
+    data.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+    data.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+    'codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional',
+    ctx,
+  )
+}
+
+function prepararCamposOpcaoPortoAeroportoCotacao(dados: DadosCotacaoBase) {
+  const habilitarOrigem = dados.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional ?? false
+  const habilitarDestino = dados.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional ?? false
+  return {
+    habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: habilitarOrigem,
+    codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: codigosOpcaoPortoAeroportoParaPersistencia(
+      habilitarOrigem,
+      dados.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional ?? [],
+    ),
+    habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: habilitarDestino,
+    codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: codigosOpcaoPortoAeroportoParaPersistencia(
+      habilitarDestino,
+      dados.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional ?? [],
+    ),
+  }
+}
+
 async function prepararRotaComValidacaoCadastros(
   dados: DadosCotacaoBase,
   idOrganizacao: string,
@@ -205,6 +254,9 @@ function assertRefinamentosCotacaoPatch(
   if (corpoPatchTocaCampo(body, CAMPOS_ROTA_COTACAO)) {
     issues.push(...executarRefinamentoCotacao(merged, refinamentoRota))
   }
+  if (corpoPatchTocaCampo(body, CAMPOS_OPCAO_PORTO_AEROPORTO_COTACAO)) {
+    issues.push(...executarRefinamentoCotacao(merged, refinamentoOpcoesPortoAeroporto))
+  }
   if (issues.length === 0) return
   throw new AppError(
     `Dados invalidos: ${issues.map(i => `[${i.path.join('.')}] ${i.message}`).join('; ')}`,
@@ -216,6 +268,7 @@ function assertRefinamentosCotacaoPatch(
 const CriarCotacaoSchema = CriarCotacaoSchemaBase
   .superRefine(refinamentoCargaPerigosa)
   .superRefine(refinamentoRota)
+  .superRefine(refinamentoOpcoesPortoAeroporto)
 
 const FiltrosCotacaoSchema = z.object({
   status: z.string().optional(),
@@ -319,10 +372,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
+    const camposOpcaoPortoAeroporto = prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
         ...camposPersistencia,
+        ...camposOpcaoPortoAeroporto,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
@@ -349,10 +404,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     let disparo_erro: string | null = null
     if (disparar_ao_criar && tenantId) {
       const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
+      const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
       try {
         if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
           if (fornecedor_ids !== undefined) {
-            const idsElegiveis = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
+            const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
+            const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+              tenantId,
+              modalDisparo,
+              idsAberta,
+            )
             if (idsElegiveis.length > 0) {
               disparo = await motorBid.disparar(req.prisma!, {
                 id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
@@ -374,14 +435,23 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
             })
           }
         } else if (fornecedor_ids && fornecedor_ids.length > 0) {
-          disparo = await motorBid.disparar(req.prisma!, {
-            id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+          const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+            tenantId,
+            modalDisparo,
             fornecedor_ids,
-            canais,
-            id_usuario: userId,
-            id_organizacao: tenantId,
-            emails_por_fornecedor,
-          })
+          )
+          if (idsElegiveis.length > 0) {
+            disparo = await motorBid.disparar(req.prisma!, {
+              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+              fornecedor_ids: idsElegiveis,
+              canais,
+              id_usuario: userId,
+              id_organizacao: tenantId,
+              emails_por_fornecedor,
+            })
+          } else {
+            disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor elegivel para o modal da cotacao' }
+          }
         }
       } catch (disparoErr: unknown) {
         disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
@@ -609,6 +679,10 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
       data.divisao_carga_perigosa_cotacao_bid_frete_internacional = null
       data.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional = null
       data.observacoes_carga_perigosa_cotacao_bid_frete_internacional = null
+    }
+
+    if (corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_OPCAO_PORTO_AEROPORTO_COTACAO)) {
+      Object.assign(data, prepararCamposOpcaoPortoAeroportoCotacao(merged as DadosCotacaoBase))
     }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({

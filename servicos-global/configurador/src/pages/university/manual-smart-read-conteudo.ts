@@ -11,8 +11,7 @@ const LINK_MANUAL_PEDIDO_LISTA =
   '{{link:/university-gravity/docs/pedido#doc-sec-5|Pedido · Visão Lista}}'
 const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
   '{{link:/university-gravity/docs/smart-read#manual-passo-lista-9|5.09 Painéis}}'
-const LINK_MANUAL_SMART_READ_LISTA_NOVO_PAINEL =
-  '{{link:/university-gravity/docs/smart-read#manual-passo-lista-10|5.10 Novo painel}}'
+const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API Cockpit}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
@@ -457,24 +456,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Painéis',
           paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
-        },
-        {
-          titulo: 'Criar painel',
-          tituloCurto: 'Novo painel',
-          paragrafos: [],
           galeriaComparacaoAposParagrafo: [
-            {
-              indice: 0,
-              colunas: 1,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
-                  paragrafoAntes: 'Faixa de **painéis** acima da tabela — **Padrão** e **+**',
-                },
-              ],
-            },
             {
               indice: 0,
               colunas: 4,
@@ -517,8 +499,24 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A visão **Transações** destaca leituras criadas pela **API** (`origem_leitura: API`) — útil para reconciliar integrações com o que foi enviado pela interface.',
+            'A aba **Transações API** destaca leituras criadas pela **integração entre a Gravity e sistemas externos** — **ERP**, **sistemas de comércio exterior** e outros conectados via ' +
+              LINK_MANUAL_API_COCKPIT +
+              ' (`origem_leitura: API`). É o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
           ],
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto:
+              'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API — ausência de linhas aqui não significa falha da Lista inteira.',
+          },
+          paragrafosAposImagem: [
+            'Para **enviar um documento** do **Sistema Externo** e **receber a leitura de volta**, existem **três camadas**: **Sistema Externo** (ERP, COMEX…), **fronteira Gravity** (**API Cockpit** + token) e **Smart Docs** (IA + extração). O mapa abaixo usa um **PDF de Pedido de Compra** como exemplo.',
+            '**Token + API** é a porta de entrada (Camada A → B): no ' +
+              LINK_MANUAL_API_COCKPIT +
+              ', o admin gera um token com **permissão de escrita** e **workspace** correto; o **Sistema Externo** faz **POST** do documento e recebe o **id da leitura**.',
+            'Na **Camada C**, a **IA classifica** o arquivo e **extrai os campos** (nº pedido, itens, valores…). Para o **retorno**, o **Sistema Externo** consulta a **API** (GET) **ou** recebe um **Webhook** e então busca os dados completos com o mesmo token.',
+            '**Webhook sozinho não substitui token** — ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
+          ],
+          mostrarInfograficoSmartDocsListaIntegracaoApi: true,
         },
       ]),
     },

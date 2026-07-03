@@ -600,30 +600,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           tituloCurto: 'Importar',
           paragrafos: [
             'O Smart Import prevê **dois caminhos**: **planilha modelo Gravity** (template `.xlsx` oficial) e **planilha do usuário** (arquivo do fornecedor). **Somente o template está homologado hoje** — o upload de planilha própria está **em breve**.',
-            '**Caminho disponível — template oficial:** na etapa Upload, clique **Baixar template**, preencha a planilha (exemplos na linha 3) e envie o `.xlsx` de volta. As colunas já correspondem ao workspace.',
-            '**Etapa 1 — Upload:** após baixar o template, **arraste** o `.xlsx` preenchido ou clique na área de upload. Em Excel com **várias abas**, escolha qual planilha importar antes de continuar.',
-            '**Etapa 2 — Mapeamento:** cada coluna do arquivo é ligada a um **campo do Pedido** (pedido ou item). O sistema mostra um **valor de exemplo** da primeira linha, o **nível de confiança** (%) e permite ajustar manualmente. Use **Modo Essencial** para focar nos campos críticos ou **Ver documento** para conferir o arquivo ao lado.',
-            'Se você já importou um arquivo com as **mesmas colunas**, o badge **Mapeamento salvo** indica que a memória foi reaplicada. Marque **Lembrar este mapeamento** para reutilizar na próxima planilha do mesmo fornecedor.',
-            '**Etapa 3 — Preview:** revise cada pedido com status **OK**, **Aviso** ou **Erro**. Filtre por status, marque/desmarque linhas e edite o **número do pedido** ou campos inline quando permitido. Linhas com **erro bloqueante** (ex.: quantidade ≤ 0) vêm **desmarcadas** por padrão.',
-            'Pedido **já existente** no workspace? O card exibe aviso de **duplicata** — escolha **Sobrescrever** (atualiza o pedido e mostra diff), **Criar novo** (segundo PO com mesmo número) ou **Pular** (ignora a linha). A decisão vale para todas as linhas daquele número.',
-            '**Etapa 4 — Resultado:** confira **Criados**, **Atualizados**, **Pulados** e **Erros**. Se houver falhas, **Baixar relatório** gera um `.csv` com linha e motivo. **Ver pedidos importados** atualiza a Lista sem fechar o modal. **Reverter importação** cancela pedidos criados em **Rascunho** (soft delete para auditoria).',
           ],
           mostrarInfograficoPedidoListaImportarFormas: true,
           galeriaComparacaoAposCaminhosImportacao: [
             {
-              colunas: 1,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MODAL,
-                  paragrafoAntes:
-                    'Assistente **Importar Pedidos** — stepper **Upload · Mapeamento · Preview · Resultado**',
-                },
-              ],
-            },
-            {
-              colunas: 3,
+              tituloEtapa: '**Etapa 1 — Upload (template oficial):**',
+              colunas: 4,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -641,129 +623,147 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MODAL,
                   paragrafoAntes: '**03.** Selecione **Importação**',
                 },
-              ],
-            },
-          ],
-          galeriaComparacaoAposParagrafo: [
-            {
-              indice: 2,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_UPLOAD,
-                  paragrafoAntes: '**Em breve** — arraste planilha ou invoice do fornecedor',
-                },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE,
-                  paragrafoAntes: '**Disponível** — **Baixar template** oficial (.xlsx)',
+                  paragrafoAntes: '**04.** Modal **Importar Pedidos** será aberto',
                 },
               ],
             },
             {
-              indice: 2,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MULTIPLAS_ABAS,
-                  paragrafoAntes: 'Template: escolha a **aba** a importar',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ANALISANDO,
-                  paragrafoAntes: '**Em breve** — análise de planilha ou PDF do fornecedor',
-                },
-              ],
-            },
-            {
-              indice: 3,
-              colunas: 3,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MAPEAMENTO,
-                  paragrafoAntes: 'Coluna do arquivo → **campo Gravity**',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_CONFIANCA,
-                  paragrafoAntes: 'Confiança: **≥90%** verde · **50–89%** amarelo · **<50%** cinza',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MEMORIA,
-                  paragrafoAntes: 'Badge **Mapeamento salvo**',
-                },
-              ],
-            },
-            {
-              indice: 4,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_LEMBRAR,
-                  paragrafoAntes: '**Lembrar** este mapeamento',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_VER_DOCUMENTO,
-                  paragrafoAntes: '**Ver documento** ao lado da tabela',
-                },
-              ],
-            },
-            {
-              indice: 5,
               colunas: 4,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_PREVIEW_FILTROS,
-                  paragrafoAntes: 'Filtros **OK / Aviso / Erro**',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE,
+                  paragrafoAntes: '**05.** **Disponível** — **Baixar template** oficial (.xlsx)',
                 },
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_PREVIEW_CARD,
-                  paragrafoAntes: 'Card expandido — editar campos',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MULTIPLAS_ABAS,
+                  paragrafoAntes: '**06.** Template: escolha a **aba** a importar',
                 },
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_DUPLICATA,
-                  paragrafoAntes: 'Duplicata: **Sobrescrever / Criar / Pular**',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ANALISANDO,
+                  paragrafoAntes: '**07.** **Em breve** — análise de planilha ou PDF do fornecedor',
                 },
+              ],
+            },
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              tituloEtapa: '**Etapa 2 — Mapeamento:**',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              infograficoMapeamentoImportarColunas: true,
+              telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SOBRESCREVER_DIFF,
-                  paragrafoAntes: 'Diff ao **Sobrescrever**',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MEMORIA,
+                  paragrafoAntes: '**08.** Modal com o **resultado da importação**',
                 },
               ],
             },
             {
-              indice: 6,
-              colunas: 3,
+              indice: 0,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MAPEAMENTO,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto: 'Cada linha liga uma **coluna do arquivo** a um **campo Gravity** — ajuste no dropdown se a IA errar.',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_CONFIANCA,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto: 'Use a cor da confiança: **≥90%** verde (aceite), **50–89%** amarelo (confira), **<50%** cinza (mapeie ou ignore).',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_LEMBRAR,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto:
+                      'Se você já importou um arquivo com as **mesmas colunas**, o badge **Mapeamento salvo** indica que a memória foi reaplicada.',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_VER_DOCUMENTO,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto: '**Ver documento** exibe o arquivo original ao lado da tabela — confira o PDF ou a planilha sem sair do modal.',
+                  },
+                },
+              ],
+            },
+            {
+              indice: 0,
+              tituloEtapa: '**Etapa 3 — Preview:**',
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_PREVIEW_FILTROS,
+                  paragrafoAntes: '**09.** Modal com o **Preview**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_PREVIEW_CARD,
+                  paragrafoAntes: '**10.** Preview expandido',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_DUPLICATA,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto:
+                      'Pedido **já existente** no workspace? O card exibe aviso de **duplicata** — escolha **Sobrescrever**, **Criar novo** ou **Pular**. A decisão vale para todas as linhas daquele número.',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SOBRESCREVER_DIFF,
+                  calloutAntes: {
+                    tipo: 'dica',
+                    texto: 'Ao **Sobrescrever**, o modal exibe o **diff** entre o pedido atual e os dados importados.',
+                  },
+                },
+              ],
+            },
+            {
+              indice: 0,
+              tituloEtapa: '**Etapa 4 — Resultado:**',
+              colunas: 2,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_RESULTADO,
-                  paragrafoAntes: 'Resumo: **Criados · Atualizados · Pulados · Erros**',
+                  paragrafoAntes: '**11.** Resultado e **Confirmação**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ERROS_CSV,
-                  paragrafoAntes: '**Baixar relatório** de erros (.csv)',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_REVERTER,
-                  paragrafoAntes: '**Reverter importação** (rascunhos)',
+                  paragrafoAntes: '**12.** Conferir na **lista**',
                 },
               ],
             },
@@ -801,24 +801,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           tituloCurto: 'Painéis',
           paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
-        },
-        {
-          titulo: 'Criar painel',
-          tituloCurto: 'Novo painel',
-          paragrafos: [],
           galeriaComparacaoAposParagrafo: [
-            {
-              indice: 0,
-              colunas: 1,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_SETA,
-                  paragrafoAntes: 'Faixa de **painéis** acima da tabela — **Padrão** e **+**',
-                },
-              ],
-            },
             {
               indice: 0,
               colunas: 4,

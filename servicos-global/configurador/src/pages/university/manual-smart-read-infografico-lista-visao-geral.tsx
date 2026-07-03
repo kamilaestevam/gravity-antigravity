@@ -83,7 +83,7 @@ const ZONAS: ZonaLista[] = [
         rotulo: 'Transações (API)',
         descricao: 'Só leituras com origem API — reconciliar integrações.',
         icone: CloudArrowUp,
-        capitulos: [{ num: 11, rotulo: 'API' }],
+        capitulos: [{ num: 10, rotulo: 'API' }],
         imagem: IMG.transacoesApi,
         recorte: { objectPosition: 'center 28%' },
       },
@@ -110,7 +110,7 @@ const ZONAS: ZonaLista[] = [
         rotulo: 'Novo painel (+)',
         descricao: 'Crie um painel com nome único e salve preferências.',
         icone: Plus,
-        capitulos: [{ num: 10, rotulo: 'Novo painel' }],
+        capitulos: [{ num: 9, rotulo: 'Novo painel' }],
         imagem: IMG.painelNovo,
         recorte: { objectPosition: 'center 40%' },
       },
@@ -474,7 +474,7 @@ export function ManualInfograficoSmartDocsListaVisaoGeral() {
         <span style={{ fontSize: '.7rem', fontWeight: 800, color: '#c7d2fe' }}>
           Ir aos capítulos:
         </span>
-        {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((num) => {
+        {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
           const labels: Record<number, string> = {
             2: 'Detalhamento',
             3: 'Expandir',
@@ -484,8 +484,7 @@ export function ManualInfograficoSmartDocsListaVisaoGeral() {
             7: 'Excluir',
             8: 'Exportar',
             9: 'Painéis',
-            10: 'Novo painel',
-            11: 'API',
+            10: 'API',
           }
           return <CapituloPill key={num} cap={{ num, rotulo: labels[num] ?? '' }} />
         })}

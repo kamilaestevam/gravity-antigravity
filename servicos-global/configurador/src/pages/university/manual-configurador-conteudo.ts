@@ -50,7 +50,7 @@ export interface DocPassoVisual {
   /** Duas ou mais figuras lado a lado após um parágrafo (largura total). */
   galeriaComparacaoAposParagrafo?: {
     indice: number
-    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    telas: DocGaleriaComparacaoTela[]
     ampliarInferiorDireito?: boolean
     /** Colunas da grade (padrão: até 2). */
     colunas?: number
@@ -60,13 +60,23 @@ export interface DocPassoVisual {
     legendaPasso?: string
     /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
     pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
+    /** Título de etapa acima da grade (ex.: Etapa 2 — Mapeamento). */
+    tituloEtapa?: string
+    /** Parágrafo introdutório logo abaixo do título da etapa. */
+    textoIntro?: string
+    /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
+    textoAoLado?: string[]
+    /** Infográfico compacto das colunas de mapeamento ao lado do print 08. */
+    infograficoMapeamentoImportarColunas?: boolean
+    /** Dica/aviso logo abaixo desta grade (ex.: entre duas linhas de prints). */
+    calloutApos?: DocCalloutManual
   }[]
-  /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
-  imagemAbaixoTexto?: boolean
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
   /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
   paragrafosAposImagem?: string[]
+  /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
+  calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
@@ -87,6 +97,8 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Smart Docs §05 — fluxo API + Webhook (Sistema Externo → Gravity → Sistema Externo). */
+  mostrarInfograficoSmartDocsListaIntegracaoApi?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
@@ -113,12 +125,14 @@ export interface DocPassoVisual {
   caminhosImportacaoPlanilhaAposParagrafo?: number
   /** Manual Pedido § Importar — galerias após cards dos dois caminhos (Novo → Importação + stepper). */
   galeriaComparacaoAposCaminhosImportacao?: {
-    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    telas: DocGaleriaComparacaoTela[]
     ampliarInferiorDireito?: boolean
     colunas?: number
     textoAcimaEstiloCorpo?: boolean
     legendaPasso?: string
     pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
+    /** Título de etapa acima da grade (ex.: Etapa 1 — Upload). */
+    tituloEtapa?: string
   }[]
   /** Manual Pedido §05 — ícones dos formatos de importação (Smart Import). */
   mostrarFormatosImportacaoPedidoLista?: boolean
@@ -167,6 +181,20 @@ export interface DocGaleriaTelaLinhaFiguras {
   legendaApos?: string
   /** Parágrafo logo abaixo desta linha (mesmo estilo do corpo do manual). */
   paragrafoApos?: string
+}
+
+export type DocCalloutManual = {
+  tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'
+  texto: string
+}
+
+/** Célula de galeria comparativa (prints lado a lado após parágrafo). */
+export interface DocGaleriaComparacaoTela {
+  legenda: string
+  imagem: string
+  paragrafoAntes?: string
+  /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
+  calloutAntes?: DocCalloutManual
 }
 
 export interface DocGaleriaTela {
@@ -294,7 +322,7 @@ export interface DocSecao {
   /** Duas ou mais figuras lado a lado após um parágrafo (ex.: menu superior × menu lateral). */
   galeriaComparacaoAposParagrafo?: {
     indice: number
-    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    telas: DocGaleriaComparacaoTela[]
     ampliarInferiorDireito?: boolean
     colunas?: number
     textoAcimaEstiloCorpo?: boolean

@@ -129,53 +129,6 @@ function CardPilar({ pilar }: { pilar: PilarFormaImportar }) {
   )
 }
 
-function MarcadorPassoDetalhadoImportarPlanilha({ pilar }: { pilar: PilarFormaImportar }) {
-  const Icone = pilar.icone
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10,
-      padding: '8px 10px',
-      borderRadius: 8,
-      background: 'rgba(52,211,153,.06)',
-      border: `1px dashed ${pilar.borda}`,
-    }}>
-      <div
-        title="Passo 01"
-        style={{
-          width: 38,
-          height: 38,
-          borderRadius: 8,
-          border: `1px solid ${pilar.borda}`,
-          background: pilar.fundo,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 1,
-          flexShrink: 0,
-        }}
-      >
-        <span style={{ fontSize: '.5rem', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
-          01
-        </span>
-        <Icone size={13} weight="duotone" color={pilar.cor} aria-hidden />
-      </div>
-      <p style={{
-        margin: 0,
-        fontSize: '12.5px',
-        fontWeight: 700,
-        color: '#818cf8',
-        letterSpacing: '.04em',
-        lineHeight: 1.35,
-      }}>
-        01 · Importar via planilha
-      </p>
-    </div>
-  )
-}
-
 /** Manual Pedido §05 — mapa das 4 formas de criar via Novo (paridade visual com §05 Customizar) */
 export function ManualInfograficoPedidoListaImportarFormas() {
   return (
@@ -248,20 +201,11 @@ export function ManualInfograficoPedidoListaImportarFormas() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 12,
         alignItems: 'start',
+        marginBottom: 14,
       }}>
         {PILARES.map((pilar) => (
           <CardPilar key={pilar.num} pilar={pilar} />
         ))}
-      </div>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 12,
-        marginTop: 10,
-        marginBottom: 14,
-      }}>
-        <MarcadorPassoDetalhadoImportarPlanilha pilar={PILARES[0]} />
       </div>
 
       <div style={{

@@ -22,6 +22,8 @@ import {
   type DocFiguraAposParagrafo,
   type DocFluxo,
   type DocGaleriaTela,
+  type DocGaleriaComparacaoTela,
+  type DocCalloutManual,
   type DocOrigemDados,
   type DocPassoVisual,
   type DocSecao,
@@ -61,6 +63,7 @@ import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-inf
 import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
+import { ManualInfograficoPedidoListaImportarMapeamentoColunas } from './manual-pedido-infografico-mapeamento-importar-colunas'
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
 import { ManualPedidoFormatosImportacaoLista } from './manual-pedido-formatos-importacao-lista'
@@ -69,6 +72,7 @@ import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infogr
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
 import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
+import { ManualInfograficoSmartDocsListaIntegracaoApi } from './manual-smart-read-infografico-lista-integracao-api'
 import { ManualSmartReadTabelaCatalogoColunasLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
@@ -519,7 +523,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '92'
+const MANUAL_SCREENSHOT_CACHE_KEY = '112'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1140,6 +1144,19 @@ function galeriaComparacaoAposParagrafoPasso(passo: DocPassoVisual, indice: numb
   return (passo.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
 }
 
+/** Nova etapa após bloco da etapa anterior (ex.: dicas → Etapa 3) — paridade com espaço Etapa 1 → Etapa 2. */
+function espacoSuperiorAntesTituloEtapaGaleria(
+  galerias: Array<{ tituloEtapa?: string }>,
+  indice: number,
+  galeria: { tituloEtapa?: string },
+): boolean {
+  return Boolean(
+    galeria.tituloEtapa
+    && indice > 0
+    && !galerias[indice - 1]?.tituloEtapa,
+  )
+}
+
 function ManualPassosSubtopicosAcordeao({
   fluxo,
   numeroSecaoFluxo,
@@ -1401,7 +1418,7 @@ function ManualBlocoPassoVisual({
     marginBottom: indiceCallout < totalParagrafos - 1 ? espacoParagrafoPx : 0,
   })
 
-  const calloutsLista = passo.dicaAoLadoImagem
+  const calloutsLista = passo.dicaAoLadoImagem || passo.calloutAposImagem
     ? []
     : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
 
@@ -1499,6 +1516,13 @@ function ManualBlocoPassoVisual({
         return (
         <div key={i}>
           {calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
+          {passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
+          && (passo.caminhosImportacaoPlanilhaAposParagrafo ?? 1) === i ? (
+            <ManualGaleriaCabecalhoPasso
+              legendaPasso="01 · Importar via planilha"
+              pilaresImportarFormas={['01']}
+            />
+          ) : null}
           <ManualParagrafo
             texto={p}
             marginBottom={margemParagrafo(
@@ -1544,6 +1568,11 @@ function ManualBlocoPassoVisual({
                   textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
                   legendaPasso={galeria.legendaPasso}
                   pilaresImportarFormas={galeria.pilaresImportarFormas}
+                  tituloEtapa={galeria.tituloEtapa}
+                  textoIntro={galeria.textoIntro}
+                  textoAoLado={galeria.textoAoLado}
+                  infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+                  calloutApos={galeria.calloutApos}
                 />
               ))}
             </>
@@ -1552,7 +1581,9 @@ function ManualBlocoPassoVisual({
           && (passo.formatosImportacaoPedidoAposParagrafo ?? 1) === i ? (
             <ManualPedidoFormatosImportacaoLista />
           ) : null}
-          {galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria) => (
+          {(() => {
+            const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
+            return galeriasParagrafo.map((galeria, idxGaleria) => (
             <ManualGaleriaComparacaoIntro
               key={galeria.telas.map((t) => t.imagem).join('|')}
               telas={galeria.telas}
@@ -1561,8 +1592,15 @@ function ManualBlocoPassoVisual({
               textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
               legendaPasso={galeria.legendaPasso}
               pilaresImportarFormas={galeria.pilaresImportarFormas}
+              tituloEtapa={galeria.tituloEtapa}
+              textoIntro={galeria.textoIntro}
+              textoAoLado={galeria.textoAoLado}
+              infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+              calloutApos={galeria.calloutApos}
+              espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
             />
-          ))}
+          ))
+          })()}
         </div>
         )
       })}
@@ -1742,6 +1780,9 @@ function ManualBlocoPassoVisual({
         }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
+        {passo.calloutAposImagem ? (
+          <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={20} />
+        ) : null}
         {passo.paragrafosAposImagem && passo.paragrafosAposImagem.length > 0 && (
           <div style={{ marginTop: 20 }}>
             {passo.paragrafosAposImagem.map((p, i) => (
@@ -1753,6 +1794,9 @@ function ManualBlocoPassoVisual({
             ))}
           </div>
         )}
+        {passo.mostrarInfograficoSmartDocsListaIntegracaoApi ? (
+          <ManualInfograficoSmartDocsListaIntegracaoApi />
+        ) : null}
         {passo.tooltipsKpiAposImagem && passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
           <div style={{ marginTop: 20 }}>
             <ManualTooltipsKpi tooltips={passo.tooltipsKpi} />
@@ -2261,14 +2305,26 @@ function ManualGaleriaComparacaoIntro({
   legendaPasso,
   pilaresImportarFormas,
   pilaresCustomizacao,
+  tituloEtapa,
+  textoIntro,
+  textoAoLado,
+  infograficoMapeamentoImportarColunas,
+  calloutApos,
+  espacoSuperiorEtapa = false,
 }: {
-  telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+  telas: DocGaleriaComparacaoTela[]
   ampliarInferiorDireito?: boolean
   colunas?: number
   textoAcimaEstiloCorpo?: boolean
   legendaPasso?: string
   pilaresImportarFormas?: ManualPilarImportarFormaId[]
   pilaresCustomizacao?: ManualPilarCustomizacaoId[]
+  tituloEtapa?: string
+  textoIntro?: string
+  textoAoLado?: string[]
+  infograficoMapeamentoImportarColunas?: boolean
+  calloutApos?: DocCalloutManual
+  espacoSuperiorEtapa?: boolean
 }) {
   if (telas.length === 0) return null
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
@@ -2279,38 +2335,102 @@ function ManualGaleriaComparacaoIntro({
       pilaresCustomizacao={pilaresCustomizacao}
     />
   ) : null
+
+  const alinharCalloutsNaGrade = telas.length > 1 && telas.some((t) => t.calloutAntes)
+
+  const renderTela = (tela: DocGaleriaComparacaoTela) => (
+    <div
+      key={tela.imagem}
+      style={alinharCalloutsNaGrade ? { display: 'flex', flexDirection: 'column', height: '100%' } : undefined}
+    >
+      {tela.calloutAntes ? (
+        <div style={alinharCalloutsNaGrade ? { flex: '1 1 0', marginBottom: 10 } : undefined}>
+          <ManualCalloutBloco callout={tela.calloutAntes} marginTop={0} marginBottom={alinharCalloutsNaGrade ? 0 : 10} />
+        </div>
+      ) : tela.paragrafoAntes ? (
+        textoAcimaEstiloCorpo
+          ? <ManualGaleriaTelaParagrafoFigura texto={tela.paragrafoAntes} entreLinhas />
+          : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
+      ) : null}
+      {tela.legenda.trim() ? (
+        <p style={{
+          fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+          marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
+        }}>
+          {tela.legenda}
+        </p>
+      ) : null}
+      <ManualFiguraScreenshot
+        src={tela.imagem}
+        alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
+        ampliarInferiorDireito={ampliarInferiorDireito}
+      />
+    </div>
+  )
+
+  const gradeComTextoAoLado = (textoAoLado?.length || infograficoMapeamentoImportarColunas)
+    && telas.length === 1
+    && colunasGrade === 4
+
   return (
-    <div style={{ margin: textoAcimaEstiloCorpo ? '12px 0 16px' : '16px 0 22px' }}>
+    <div style={{
+      margin: textoAcimaEstiloCorpo ? '12px 0 16px' : '16px 0 22px',
+      paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
+    }}>
+      {tituloEtapa ? <ManualGaleriaTelaParagrafoFigura texto={tituloEtapa} /> : null}
+      {textoIntro ? <ManualParagrafo texto={textoIntro} marginBottom={6} /> : null}
       {cabecalhoPasso}
+      {gradeComTextoAoLado ? (
+        <>
+          {infograficoMapeamentoImportarColunas && telas[0].paragrafoAntes ? (
+            <ManualGaleriaTelaParagrafoFigura texto={telas[0].paragrafoAntes} entreLinhas />
+          ) : null}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 10,
+            alignItems: 'stretch',
+          }}>
+            {infograficoMapeamentoImportarColunas ? (
+              <>
+                <ManualFiguraScreenshot
+                  src={telas[0].imagem}
+                  alt={telas[0].paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
+                  ampliarInferiorDireito={ampliarInferiorDireito}
+                />
+                <div style={{ gridColumn: 'span 3', display: 'flex', minHeight: 0 }}>
+                  <ManualInfograficoPedidoListaImportarMapeamentoColunas />
+                </div>
+              </>
+            ) : (
+              <>
+                {renderTela(telas[0])}
+                <div style={{ gridColumn: 'span 3', paddingTop: 2 }}>
+                  {textoAoLado?.map((paragrafo, idx) => (
+                    <ManualParagrafo
+                      key={paragrafo.slice(0, 24)}
+                      texto={paragrafo}
+                      marginBottom={idx === (textoAoLado?.length ?? 0) - 1 ? 0 : MANUAL_ESPACO_PARAGRAFO_PX}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      ) : (
       <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${colunasGrade}, minmax(0, 1fr))`,
       gap: colunasGrade >= 4 ? 10 : 16,
-      alignItems: 'start',
+      alignItems: alinharCalloutsNaGrade ? 'stretch' : 'start',
     }}>
-      {telas.map((tela) => (
-        <div key={tela.imagem}>
-          {tela.paragrafoAntes ? (
-            textoAcimaEstiloCorpo
-              ? <ManualGaleriaTelaParagrafoFigura texto={tela.paragrafoAntes} entreLinhas />
-              : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
-          ) : null}
-          {tela.legenda.trim() ? (
-            <p style={{
-              fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-              marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
-            }}>
-              {tela.legenda}
-            </p>
-          ) : null}
-          <ManualFiguraScreenshot
-            src={tela.imagem}
-            alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
-            ampliarInferiorDireito={ampliarInferiorDireito}
-          />
-        </div>
-      ))}
+      {telas.map((tela) => renderTela(tela))}
       </div>
+      )}
+      {calloutApos ? (
+        <ManualCalloutBloco callout={calloutApos} marginTop={12} marginBottom={0} />
+      ) : null}
     </div>
   )
 }

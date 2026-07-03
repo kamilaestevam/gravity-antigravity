@@ -66,9 +66,10 @@ export function usePortosPorPais(codigoPais: string, ativo = true) {
     }
     let cancelado = false
     setCarregando(true)
+    const paisFiltro = codigoPais?.trim()
     cadastrosApi
       .listarPortos({
-        ...(codigoPais ? { pais: codigoPais } : {}),
+        ...(paisFiltro && paisFiltro.length === 2 ? { pais: paisFiltro.toUpperCase() } : {}),
         limit: 500,
       })
       .then((resp) => {

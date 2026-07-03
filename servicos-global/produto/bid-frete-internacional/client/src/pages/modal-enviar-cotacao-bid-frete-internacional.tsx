@@ -2,7 +2,7 @@
  * Modal — enviar cotação aos fornecedores (disparo e-mail / WhatsApp).
  */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PaperPlaneTilt, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -16,6 +16,7 @@ import {
 } from '../shared/api'
 import { formatarFeedbackDisparoBidFrete } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo } from './selecao-fornecedores-disparo-bid-frete-internacional'
+import { filtrarFornecedoresDisparoBidFreteInternacional } from '../shared/filtrar-fornecedores-disparo-bid-frete-internacional'
 
 export interface ModalEnviarCotacaoBidFreteInternacionalProps {
   cotacao: Cotacao
@@ -64,12 +65,20 @@ export function ModalEnviarCotacaoBidFreteInternacional({
     void carregarFornecedores()
   }, [aberto, carregarFornecedores])
 
+  const fornecedoresDisparoElegiveis = useMemo(
+    () => filtrarFornecedoresDisparoBidFreteInternacional(
+      fornecedores,
+      cotacao.modal_cotacao_bid_frete_internacional,
+    ),
+    [fornecedores, cotacao.modal_cotacao_bid_frete_internacional],
+  )
+
   useEffect(() => {
-    if (!aberto || carregandoFornecedores || fornecedores.length === 0) return
+    if (!aberto || carregandoFornecedores || fornecedoresDisparoElegiveis.length === 0) return
     if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA') {
-      setSelecionados(fornecedores.map(f => f.id_fornecedor_bid_frete_internacional))
+      setSelecionados(fornecedoresDisparoElegiveis.map(f => f.id_fornecedor_bid_frete_internacional))
     }
-  }, [aberto, carregandoFornecedores, fornecedores, cotacao.visibilidade_cotacao_bid_frete_internacional])
+  }, [aberto, carregandoFornecedores, fornecedoresDisparoElegiveis, cotacao.visibilidade_cotacao_bid_frete_internacional])
 
   const notificarErro = useCallback((msg: string) => {
     setErro(msg)
@@ -138,7 +147,7 @@ export function ModalEnviarCotacaoBidFreteInternacional({
 
         <SelecaoFornecedoresDisparo
           visibilidade={cotacao.visibilidade_cotacao_bid_frete_internacional}
-          fornecedores={fornecedores}
+          fornecedores={fornecedoresDisparoElegiveis}
           carregando={carregandoFornecedores}
           selecionados={selecionados}
           onChangeSelecionados={setSelecionados}

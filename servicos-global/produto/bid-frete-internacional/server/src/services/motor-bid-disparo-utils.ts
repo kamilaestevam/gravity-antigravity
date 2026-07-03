@@ -7,10 +7,10 @@ import axios from 'axios'
 
 /** Paridade com worker de notificações (Hub) — SSOT de resolução S2S do serviço de e-mail. */
 export function resolverUrlServicoEmailDisparoBidFrete(): string {
+  // TENANT_EMAIL antes de EMAIL: .env legado do produto às vezes aponta :3001 (org) por engano.
   return (
-    process.env.EMAIL_SERVICE_URL?.trim()
-    || process.env.TENANT_EMAIL_SERVICE_URL?.trim()
-    || process.env.SERVIDOR_PLATAFORMA_URL?.trim()
+    process.env.TENANT_EMAIL_SERVICE_URL?.trim()
+    || process.env.EMAIL_SERVICE_URL?.trim()
     || 'http://127.0.0.1:8008'
   )
 }

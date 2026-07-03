@@ -133,6 +133,24 @@ O painel bootstrap grava `nome_lista_painel_usuario_global: 'Principal'` no banc
 
 **Teste UNI:** `testes/testes-unitarios/produto-gravity/pedido/rotulo-painel-lista.test.ts`
 
+### 5.3 Menu ⋮ — Renomear / Excluir (TASK-000406)
+
+| Camada | Comportamento |
+|--------|---------------|
+| Clique ⋮ | Abre menu contextual (não entra direto em rename — regressão corrigida PR #610) |
+| Itens | **Renomear** (inline na aba) · **Excluir** (confirmação inline; desabilitado se único painel) |
+| Duplo clique no rótulo | Atalho para renomear (sem abrir menu) |
+| Renderização | **`createPortal` → `document.body`** + `position: fixed` ancorado ao botão ⋮ (PR #615) |
+| Fechamento | Clique fora, scroll (capture) ou `resize` da janela |
+
+**Por que portal:** a faixa unificada da Lista usa `.lp-tabela-chrome { overflow: hidden }` e `.lp-paineis-lista-strip__tabs { overflow-x: auto }`. Dropdown inline (`position: absolute` dentro da aba) abria no estado React mas ficava **invisível** (clipe). Dashboard já tinha `overflow: visible` na barra — Lista não.
+
+**Arquivo:** `PedidosListaPainelBar.tsx` (espelho futuro em `BidFreteListaPainelBar` se reproduzir o bug).
+
+**API relacionada (PR #610):** `POST /lista/paineis` valida `config_json` → **400**; Prisma P2021 (tabela ausente) → **503 SCHEMA_DRIFT**.
+
+**PRs:** #610 (handler + API) · #615 (portal overflow).
+
 ---
 
 ## 6. Fases de implementação

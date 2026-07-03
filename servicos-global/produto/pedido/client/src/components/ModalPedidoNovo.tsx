@@ -28,6 +28,13 @@ import { pedidoApi } from '../shared/api'
 import { cadastrosApi, type Empresa, type Fornecedor, type PapelEmpresaRapido } from '../shared/cadastrosApi'
 import { ModalEmpresaCadastroRapido } from './ModalEmpresaCadastroRapido'
 import { getCasas } from './lista/ColunasPai'
+import { Z_INDEX_CONFIRM_DUPLICATA_NOVO_PEDIDO } from '../shared/modal-novo-pedido-constants'
+import {
+  deveAbrirConfirmacaoDuplicata,
+  interpretarErroCriacaoDuplicata,
+  montarMensagemCancelamentoDuplicata,
+  type PedidoDuplicataResumo,
+} from '../shared/modal-novo-pedido-duplicata-helpers'
 
 // Casas decimais padrão alinhadas com Configurações › Casas Decimais
 // (`COLUNAS_NUMERICAS` em pages/Configuracoes.tsx). Defaults sistêmicos:
@@ -320,7 +327,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [salvando, setSalvando] = useState(false)
   const [erros, setErros]       = useState<ErrosValidacao>({})
   const [confirmarDuplicataAberto, setConfirmarDuplicataAberto] = useState(false)
-  const [pedidosDuplicadosExistentes, setPedidosDuplicadosExistentes] = useState<Array<{ id_pedido: string; numero_pedido: string }>>([])
+  const [pedidosDuplicadosExistentes, setPedidosDuplicadosExistentes] = useState<PedidoDuplicataResumo[]>([])
   const [payloadPendente, setPayloadPendente] = useState<Record<string, unknown> | null>(null)
   const { addNotification } = useShellStore()
 
@@ -598,6 +605,32 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     ? requisitosPasso1.every((r) => r.ok)
     : true
 
+  function abrirConfirmacaoDuplicata(
+    payload: Record<string, unknown>,
+    pedidosExistentes: PedidoDuplicataResumo[],
+  ) {
+    setPayloadPendente(payload)
+    setPedidosDuplicadosExistentes(pedidosExistentes)
+    setConfirmarDuplicataAberto(true)
+    setErros({})
+  }
+
+  function cancelarConfirmacaoDuplicata() {
+    const quantidade = pedidosDuplicadosExistentes.length
+    setConfirmarDuplicataAberto(false)
+    setPayloadPendente(null)
+    setPedidosDuplicadosExistentes([])
+    if (quantidade > 0) {
+      setErros({
+        geral: montarMensagemCancelamentoDuplicata(
+          form.numero_pedido.trim(),
+          quantidade,
+          t,
+        ),
+      })
+    }
+  }
+
   async function executarCriacao(
     payload: Record<string, unknown>,
     confirmarNumeroDuplicado = false,
@@ -617,14 +650,16 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       handleFechar()
     } catch (err: unknown) {
       console.error('[ModalNovoPedido] erro ao criar pedido:', err)
+      const duplicata = interpretarErroCriacaoDuplicata(err)
+      if (duplicata.requerConfirmacao) {
+        abrirConfirmacaoDuplicata(payload, duplicata.pedidosExistentes)
+        return
+      }
       const msg = traduzirErroApi(err, t)
       setErros({ geral: msg })
       addNotification({ type: 'error', message: msg })
     } finally {
       setSalvando(false)
-      setConfirmarDuplicataAberto(false)
-      setPayloadPendente(null)
-      setPedidosDuplicadosExistentes([])
     }
   }
 
@@ -691,10 +726,8 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       const numeroTrim = form.numero_pedido.trim()
       try {
         const { pedidos_existentes } = await pedidoApi.buscarDuplicatasNumero(numeroTrim)
-        if (pedidos_existentes.length > 0) {
-          setPayloadPendente(payload)
-          setPedidosDuplicadosExistentes(pedidos_existentes)
-          setConfirmarDuplicataAberto(true)
+        if (deveAbrirConfirmacaoDuplicata(pedidos_existentes)) {
+          abrirConfirmacaoDuplicata(payload, pedidos_existentes)
           return
         }
       } catch (err: unknown) {
@@ -785,11 +818,10 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       />
       <ModalOverlay
         aberto={confirmarDuplicataAberto}
+        zIndex={Z_INDEX_CONFIRM_DUPLICATA_NOVO_PEDIDO}
         aoFechar={() => {
           if (salvando) return
-          setConfirmarDuplicataAberto(false)
-          setPayloadPendente(null)
-          setPedidosDuplicadosExistentes([])
+          cancelarConfirmacaoDuplicata()
         }}
         titulo={t('pedido.modal_novo.confirm_duplicata_titulo')}
         tamanho="sm"
@@ -798,9 +830,8 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
             rotulo: t('pedido.modal_novo.confirm_duplicata_cancelar'),
             variante: 'secondary',
             ao_clicar: () => {
-              setConfirmarDuplicataAberto(false)
-              setPayloadPendente(null)
-              setPedidosDuplicadosExistentes([])
+              if (salvando) return
+              cancelarConfirmacaoDuplicata()
             },
           },
           {

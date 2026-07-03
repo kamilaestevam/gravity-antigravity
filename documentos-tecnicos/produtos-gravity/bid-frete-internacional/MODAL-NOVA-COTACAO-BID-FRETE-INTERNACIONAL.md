@@ -12,6 +12,10 @@
 |----------|---------|
 | Modal wizard (5 passos) | `servicos-global/produto/bid-frete-internacional/client/src/pages/modal-nova-cotacao-bid-frete-internacional.tsx` |
 | Seleção fornecedores + disparo | `servicos-global/produto/bid-frete-internacional/client/src/pages/selecao-fornecedores-disparo-bid-frete-internacional.tsx` |
+| Elegibilidade disparo × modal (SSOT) | `servicos-global/produto/bid-frete-internacional/shared/fornecedor-elegivel-disparo-bid-frete-internacional.ts` |
+| Filtro client por modal | `servicos-global/produto/bid-frete-internacional/client/src/shared/filtrar-fornecedores-disparo-bid-frete-internacional.ts` |
+| Filtro server + motor | `server/src/services/filtrar-fornecedores-disparo-bid-frete-internacional.ts`, `motor-bid-frete-internacional.ts` |
+| Schema Zod fornecedor (flags Cadastros) | `shared/fornecedor-bid-frete-internacional-api-schema.ts` |
 | API client | `servicos-global/produto/bid-frete-internacional/client/src/shared/api.ts` |
 | POST cotação + disparo | `servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes.ts` |
 
@@ -73,6 +77,29 @@ getFornecedores({ limit: 200, status: 'ATIVO' })
 Motivo: alimentar preview (Aberta) e lista de checkboxes (Direcionada).
 
 **Loading:** enquanto `carregando === true`, `GravityLoader` (`CarregandoFornecedoresDisparo`) abaixo dos canais — Aberta e Direcionada.
+
+### 3.5 Elegibilidade por modal e tipo de parceiro (Cadastros)
+
+A lista do passo 4 **não** usa a permissão RBAC `visao_fornecedor:cotar` (“Pode cotar frete internacional”). Essa permissão governa o **usuário fornecedor** (visão fornecedor, HUB, responder cotações) — ver [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md). O wizard do **comprador** filtra parceiros pelas flags `pode_ser_*` do Cadastros e pelo `modal_cotacao_bid_frete_internacional` escolhido no passo 1.
+
+**SSOT da regra:** `shared/fornecedor-elegivel-disparo-bid-frete-internacional.ts` (consumido no client, `POST /cotacoes` e motor de disparo).
+
+| Flag Cadastros / tipo | Marítimo / Aéreo | Rodoviário |
+|----------------------|------------------|------------|
+| Agente de carga | Sim | Sim |
+| Armador | Sim | Sim |
+| Cia aérea | Sim | Sim |
+| Transportadora rodoviária **internacional** | **Não** | Sim |
+| Transportadora rodoviária **nacional** | **Não** | **Não** |
+| Nacional **+** internacional | Não | Sim (internacional prevalece) |
+
+**Client:** `filtrarFornecedoresDisparoBidFreteInternacional()` após `getFornecedores`; seleção e exclusões resetam ao trocar modal.
+
+**GET /fornecedores:** inclui as cinco flags booleanas quando a lista vem do espelho Cadastros (`mapCadastrosParaBidFornecedor`). Contrato Zod: `shared/fornecedor-bid-frete-internacional-api-schema.ts`.
+
+**Server:** `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` no `POST /cotacoes` (Direcionada e Aberta com subset) e revalidação no `motorBid.disparar` / `dispararCotacaoAberta`. A lista admin de fornecedores **não** aplica este filtro.
+
+**Testes:** UNI `fornecedor-elegivel-disparo-bid-frete-internacional.test.ts`; FUN `TST-FUN-BIDFRT-000121`.
 
 ---
 
@@ -158,7 +185,7 @@ Se `disparar_ao_criar` era intencional e:
 
 Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts`.
 
-**ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta`.
+**ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` + `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` (modal) no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta` (também filtra por modal no motor).
 
 ### 5.5 Resolução de contatos (multi destinatário — PR #338)
 
@@ -217,6 +244,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
 | #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
 | #338 | 2026-06-15 | Multi-e-mail/WhatsApp no disparo; resolução Cadastros `fornecedor_contato`; feedback agregado por fornecedor |
+| — | 2026-07-03 | Elegibilidade disparo × modal/tipo (flags Cadastros); Zod flags em GET fornecedores; FUN TST-000121 |
 
 ---
 
@@ -224,7 +252,6 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 | Item | Mandamento / skill |
 |------|-------------------|
-| Zod parse na lista `getFornecedores` | Mandamento 06 |
 | Chaves i18n em `nucleo-global/Utilidades/Localization/locales/pt.json` | `skills/arquitetura/traducao` |
 | `aria-expanded` / `aria-controls` no toggle de notas | `skills/ux/acessibilidade` |
 | Plano de testes UNI/FUN/E2E da tela Nova Cotação | Fechamento da tela — `skills/testes/multi-agente-plano-teste` |

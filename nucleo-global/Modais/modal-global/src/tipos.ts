@@ -124,6 +124,8 @@ export interface ModalProps {
   fecharPorESC?: boolean
   /** Se true, desabilita o botão X e o fechamento externo */
   semFechar?: boolean
+  /** z-index do overlay — use acima de modais empilhados (ex.: wizard `Z_INDEX_MODAL_PASSO_PASSO`). */
+  zIndex?: number
 }
 
 // ─── Estado do Modal Manager ──────────────────────────────────────────────────

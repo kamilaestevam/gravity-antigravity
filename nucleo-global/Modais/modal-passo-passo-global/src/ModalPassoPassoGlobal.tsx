@@ -16,6 +16,9 @@ import { createPortal } from 'react-dom'
 import { ArrowLeft, ArrowRight, Check, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 
+/** SSOT — overlay do wizard (CSS `.mpg-overlay` espelha este valor). */
+export const Z_INDEX_MODAL_PASSO_PASSO = 9999
+
 const LARGURA: Record<string, string> = {
   sm: '400px',
   md: '560px',
@@ -565,7 +568,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999,
+    zIndex: Z_INDEX_MODAL_PASSO_PASSO,
     padding: '1rem',
     animation: 'mpg-fade-in 0.15s ease',
   },

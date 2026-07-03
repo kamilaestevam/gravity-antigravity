@@ -50,6 +50,7 @@ const DESCRIPTIVE_REGEXES: readonly RegExp[] = [
   /^TST-(UNI|FUN|CRO|E2E)-PREFERENCIA-TESTE-USUARIO-ADMIN-\d{6}$/,
   /^TST-(UNI|FUN|CRO|E2E)-AGENDAMENTO-NCM-ADMIN-\d{6}$/,
   /^TST-(UNI|FUN|CRO|E2E)-CONVITE-SUPER-ADMIN-ADMIN-\d{6}$/,
+  /^TST-(UNI|FUN|CRO|E2E)-PEDIDO-NOVO-DUPLICATA-\d{6}$/,
 ]
 
 /** Retorna o regex descritivo que casa o ID, ou undefined. */

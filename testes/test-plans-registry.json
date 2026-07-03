@@ -2178,6 +2178,21 @@
       "ultimoResultado": null
     },
     {
+      "id": "TST-FUN-BIDFRT-000121",
+      "tipo": "FUN",
+      "escopo": "BIDFRT",
+      "sublocal": "cotacoes",
+      "modulo": "POST cotação filtro elegibilidade modal disparo",
+      "specFile": "testes-funcionais/produto-gravity/bid-frete-internacional/cotacoes/TST-FUN-BIDFRT-000121-cotacao-disparo-elegibilidade-modal.test.ts",
+      "planoFile": "testes-funcionais/produto-gravity/bid-frete-internacional/cotacoes/plano-teste/TST-FUN-BIDFRT-000121.md",
+      "componenteFile": "servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes.ts",
+      "criticidade": "alta",
+      "status": "aprovado",
+      "criadoEm": "2026-07-03T21:05:00.000Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
       "id": "TST-UNI-MBOTO-000107",
       "tipo": "UNI",
       "escopo": "MBOTO",

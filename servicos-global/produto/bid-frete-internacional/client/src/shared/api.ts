@@ -18,6 +18,11 @@ import {
   dashboardPainelListResponseSchema,
   dashboardPainelReordenarResponseSchema,
 } from '../../../shared/dashboardPainelApiSchema.js'
+import {
+  fornecedorBidFreteInternacionalResponseSchema,
+  fornecedoresListResponseSchema,
+  fornecedorDetalheResponseSchema,
+} from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -292,13 +297,59 @@ function serializeValue(value: unknown): unknown {
   return value
 }
 
-export function mapFornecedorFromServer(rawUnknown: unknown): Fornecedor {
-  return serializeValue(rawUnknown) as Fornecedor
+function normalizarFornecedorPayloadFromServer(
+  raw: Record<string, unknown>,
+  contexto?: { id_organizacao?: string },
+): Record<string, unknown> {
+  const dataIsoFallback =
+    typeof raw.data_criacao_fornecedor_bid_frete_internacional === 'string'
+      ? raw.data_criacao_fornecedor_bid_frete_internacional
+      : new Date(0).toISOString()
+
+  return {
+    ...raw,
+    id_fornecedor_bid_frete_internacional:
+      raw.id_fornecedor_bid_frete_internacional ?? raw.id,
+    id_organizacao: raw.id_organizacao ?? contexto?.id_organizacao ?? '',
+    nome_fornecedor_bid_frete_internacional: raw.nome_fornecedor_bid_frete_internacional ?? '',
+    nome_fantasia_fornecedor_bid_frete_internacional:
+      raw.nome_fantasia_fornecedor_bid_frete_internacional ?? null,
+    tipo_fornecedor_bid_frete_internacional:
+      raw.tipo_fornecedor_bid_frete_internacional ?? 'AGENTE_CARGA',
+    status_fornecedor_bid_frete_internacional:
+      raw.status_fornecedor_bid_frete_internacional ?? 'ATIVO',
+    cnpj_fornecedor_bid_frete_internacional: raw.cnpj_fornecedor_bid_frete_internacional ?? null,
+    email_fornecedor_bid_frete_internacional: raw.email_fornecedor_bid_frete_internacional ?? '',
+    telefone_fornecedor_bid_frete_internacional: raw.telefone_fornecedor_bid_frete_internacional ?? null,
+    whatsapp_fornecedor_bid_frete_internacional: raw.whatsapp_fornecedor_bid_frete_internacional ?? null,
+    website_fornecedor_bid_frete_internacional: raw.website_fornecedor_bid_frete_internacional ?? null,
+    pais_fornecedor_bid_frete_internacional: raw.pais_fornecedor_bid_frete_internacional ?? null,
+    cidade_fornecedor_bid_frete_internacional: raw.cidade_fornecedor_bid_frete_internacional ?? null,
+    aceita_cotacao_aberta_fornecedor_bid_frete_internacional:
+      raw.aceita_cotacao_aberta_fornecedor_bid_frete_internacional ?? false,
+    cotacao_automatica_fornecedor_bid_frete_internacional:
+      raw.cotacao_automatica_fornecedor_bid_frete_internacional ?? false,
+    data_criacao_fornecedor_bid_frete_internacional:
+      raw.data_criacao_fornecedor_bid_frete_internacional ?? dataIsoFallback,
+    data_atualizacao_fornecedor_bid_frete_internacional:
+      raw.data_atualizacao_fornecedor_bid_frete_internacional ?? dataIsoFallback,
+  }
+}
+
+export function mapFornecedorFromServer(
+  rawUnknown: unknown,
+  contexto?: { id_organizacao?: string },
+): Fornecedor {
+  const serialized = serializeValue(rawUnknown) as Record<string, unknown>
+  const normalizado = normalizarFornecedorPayloadFromServer(serialized, contexto)
+  return fornecedorBidFreteInternacionalResponseSchema.parse(normalizado) as Fornecedor
 }
 
 export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown): PropostaBidFreteInternacional {
   const raw = serializeValue(rawUnknown) as Record<string, unknown>
-  const fornecedor = raw.fornecedor ? mapFornecedorFromServer(raw.fornecedor) : undefined
+  const fornecedor = raw.fornecedor
+    ? mapFornecedorFromServer(raw.fornecedor, { id_organizacao: raw.id_organizacao as string | undefined })
+    : undefined
   return {
     id_proposta_bid_frete_internacional: (raw.id_proposta_bid_frete_internacional ?? raw.id) as string,
     id_organizacao: raw.id_organizacao as string,
@@ -433,7 +484,9 @@ export function mapDisparoCotacaoBidFreteInternacionalFromServer(
     data_atualizacao_disparo_cotacao_bid_frete_internacional:
       (raw.data_atualizacao_disparo_cotacao_bid_frete_internacional ??
         raw.data_atualizacao_pedido_cotacao_bid_frete_internacional) as string,
-    fornecedor: raw.fornecedor ? mapFornecedorFromServer(raw.fornecedor) : undefined,
+    fornecedor: raw.fornecedor
+      ? mapFornecedorFromServer(raw.fornecedor, { id_organizacao: raw.id_organizacao as string | undefined })
+      : undefined,
     proposta: propostaRaw ? mapPropostaBidFreteInternacionalFromServer(propostaRaw) : undefined,
     cotacao: raw.cotacao ? mapCotacaoFromServer(raw.cotacao) : undefined,
   }
@@ -1143,10 +1196,11 @@ export async function getFornecedores(params: FornecedoresListParams = {}): Prom
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-frete-internacional/fornecedores?${query}`, { headers: headers() })
-  const data = await handleResponse<FornecedoresListResponse>(res)
+  const raw = await handleResponse<unknown>(res)
+  const data = fornecedoresListResponseSchema.parse(raw)
   return {
     ...data,
-    fornecedores: (data.fornecedores ?? []).map(mapFornecedorFromServer),
+    fornecedores: data.fornecedores.map(f => f as Fornecedor),
   }
 }
 
@@ -1156,8 +1210,8 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
     { headers: headers() },
   )
   const raw = await handleResponse<unknown>(res)
-  const parsed = z.object({ fornecedor: z.unknown() }).parse(raw)
-  return mapFornecedorFromServer(parsed.fornecedor)
+  const parsed = fornecedorDetalheResponseSchema.parse(raw)
+  return parsed.fornecedor as Fornecedor
 }
 
 export function mapTabelaBidFreteInternacionalFromServer(rawUnknown: unknown): TabelaBidFreteInternacional {

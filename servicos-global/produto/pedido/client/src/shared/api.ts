@@ -4,6 +4,7 @@
  * Comunica com o backend via processos-core (proxy Vite -> :8025)
  */
 
+import { z } from 'zod'
 import {
   dashboardKpisSchema,
   dashboardBundleResponseSchema,
@@ -62,6 +63,11 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
+import {
+  duplicatasNumeroResponseSchema,
+  pedidoDuplicataResumoSchema,
+  type PedidoDuplicataResumo,
+} from './modal-novo-pedido-duplicata-helpers.js'
 import {
   listaPainelDeletarResponseSchema,
   listaPainelItemResponseSchema,
@@ -199,13 +205,25 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
     // BUG-C (Mand. 08): preservar `details` no Error para que a UI possa exibir
     // o(s) campo(s) realmente inválidos em vez de uma mensagem genérica.
     const msg = raw?.error?.message || raw?.erro?.mensagem || (typeof raw?.error === 'string' ? raw.error : null)
-    const err = new Error(msg || `HTTP ${response.status}`) as Error & { details?: unknown; codeBackend?: string }
+    const err = new Error(msg || `HTTP ${response.status}`) as Error & {
+      details?: unknown
+      codeBackend?: string
+      pedidosExistentesDuplicata?: PedidoDuplicataResumo[]
+    }
     if (raw?.error && typeof raw.error === 'object') {
       if ('details' in raw.error) {
         err.details = (raw.error as { details?: unknown }).details
       }
       if ('code' in raw.error && typeof (raw.error as { code?: unknown }).code === 'string') {
         err.codeBackend = (raw.error as { code: string }).code
+      }
+      if ('pedidos_existentes' in raw.error && Array.isArray((raw.error as { pedidos_existentes?: unknown }).pedidos_existentes)) {
+        const parsed = z.array(pedidoDuplicataResumoSchema).safeParse(
+          (raw.error as { pedidos_existentes: unknown }).pedidos_existentes,
+        )
+        if (parsed.success) {
+          err.pedidosExistentesDuplicata = parsed.data
+        }
       }
     }
     throw err
@@ -342,10 +360,12 @@ export const pedidoApi = {
       body: JSON.stringify(data),
     }),
 
-  buscarDuplicatasNumero: (numero_pedido: string) =>
-    request<{ pedidos_existentes: Array<{ id_pedido: string; numero_pedido: string }> }>(
+  buscarDuplicatasNumero: async (numero_pedido: string) => {
+    const raw = await request<unknown>(
       `/api/v1/pedidos/duplicatas-numero?${new URLSearchParams({ numero_pedido })}`,
-    ),
+    )
+    return duplicatasNumeroResponseSchema.parse(raw)
+  },
 
   atualizar: (id: string, data: Partial<Pedido>) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}`, {

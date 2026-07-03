@@ -131,7 +131,6 @@ import {
   formatValorExportColuna,
   fmtData,
   fmtQuantidade,
-  RenderBadgeStatus,
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
 import {

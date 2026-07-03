@@ -18,6 +18,11 @@ import {
   dashboardPainelListResponseSchema,
   dashboardPainelReordenarResponseSchema,
 } from '../../../shared/dashboardPainelApiSchema.js'
+import {
+  fornecedorBidFreteInternacionalResponseSchema,
+  fornecedoresListResponseSchema,
+  fornecedorDetalheResponseSchema,
+} from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -293,7 +298,8 @@ function serializeValue(value: unknown): unknown {
 }
 
 export function mapFornecedorFromServer(rawUnknown: unknown): Fornecedor {
-  return serializeValue(rawUnknown) as Fornecedor
+  const serialized = serializeValue(rawUnknown)
+  return fornecedorBidFreteInternacionalResponseSchema.parse(serialized) as Fornecedor
 }
 
 export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown): PropostaBidFreteInternacional {
@@ -1143,10 +1149,11 @@ export async function getFornecedores(params: FornecedoresListParams = {}): Prom
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-frete-internacional/fornecedores?${query}`, { headers: headers() })
-  const data = await handleResponse<FornecedoresListResponse>(res)
+  const raw = await handleResponse<unknown>(res)
+  const data = fornecedoresListResponseSchema.parse(raw)
   return {
     ...data,
-    fornecedores: (data.fornecedores ?? []).map(mapFornecedorFromServer),
+    fornecedores: data.fornecedores.map(f => f as Fornecedor),
   }
 }
 
@@ -1156,8 +1163,8 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
     { headers: headers() },
   )
   const raw = await handleResponse<unknown>(res)
-  const parsed = z.object({ fornecedor: z.unknown() }).parse(raw)
-  return mapFornecedorFromServer(parsed.fornecedor)
+  const parsed = fornecedorDetalheResponseSchema.parse(raw)
+  return parsed.fornecedor as Fornecedor
 }
 
 export function mapTabelaBidFreteInternacionalFromServer(rawUnknown: unknown): TabelaBidFreteInternacional {

@@ -3,13 +3,15 @@
 // catalogo de ferramentas, circuit breaker e permissoes.
 
 import {
-  GoogleGenerativeAI,
+  GoogleGenAI,
+  FunctionCallingConfigMode,
   type Tool,
-  type FunctionResponsePart,
-} from '@google/generative-ai'
-import { GoogleAICacheManager } from '@google/generative-ai/server'
+  type Part,
+  type Content,
+} from '@google/genai'
 import { AppError } from '../lib/errors.js'
 import { normalizarHistoricoGemini } from '../lib/historico-gemini.js'
+import { MODELS_CHAIN, calcularCusto } from '../lib/modelos-gemini.js'
 import {
   gerarGeminiDeclarations,
   filtrarToolsPorPermissao,
@@ -23,14 +25,12 @@ import {
   type ContextoExecucao,
 } from './roteador-ferramentas.js'
 import { verificarPermissaoCompleta } from './permission.js'
-import type { UsageMetadataWithCache } from '../lib/gemini-types.js'
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
 // Lazy initialization — evita ESM hoisting ler process.env antes do dotenv.config()
 let _apiKey: string | undefined
-let _genAI: GoogleGenerativeAI | undefined
-let _cacheManager: GoogleAICacheManager | undefined
+let _genAI: GoogleGenAI | undefined
 
 function getApiKey(): string {
   if (!_apiKey) {
@@ -40,60 +40,12 @@ function getApiKey(): string {
   return _apiKey
 }
 
-function getGenAI(): GoogleGenerativeAI {
-  if (!_genAI) _genAI = new GoogleGenerativeAI(getApiKey())
+function getGenAI(): GoogleGenAI {
+  if (!_genAI) _genAI = new GoogleGenAI({ apiKey: getApiKey() })
   return _genAI
 }
 
-function getCacheManager(): GoogleAICacheManager {
-  if (!_cacheManager) _cacheManager = new GoogleAICacheManager(getApiKey())
-  return _cacheManager
-}
-
-const MODELS_CHAIN = [
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.5-pro',
-]
-
-const MODEL_PRICING: Record<string, { input: number; inputCached: number; output: number }> = {
-  'gemini-2.5-flash': { input: 0.15,  inputCached: 0.0375, output: 0.60 },
-  'gemini-2.0-flash': { input: 0.075, inputCached: 0.01875, output: 0.30 },
-  'gemini-2.5-pro':   { input: 1.25,  inputCached: 0.3125,  output: 10.0 },
-}
-
 const MAX_TOOL_ITERATIONS = 10
-const CACHE_TTL_SECONDS = 1800
-
-function calcularCusto(model: string, tokensIn: number, tokensOut: number, cachedTokens: number): number {
-  const pricing = MODEL_PRICING[model] ?? { input: 1.0, inputCached: 0.25, output: 3.0 }
-  const freshTokens = Math.max(0, tokensIn - cachedTokens)
-  return (
-    freshTokens * pricing.input +
-    cachedTokens * pricing.inputCached +
-    tokensOut * pricing.output
-  ) / 1_000_000
-}
-
-// ── Cache de system prompt ──────────────────────────────────────────────────
-
-interface CacheEntry {
-  cache: import('@google/generative-ai').CachedContent
-  promptHash: string
-  expiresAt: number
-}
-
-const promptCacheMap = new Map<string, CacheEntry>()
-
-function simpleHash(str: string): string {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return hash.toString(36)
-}
 
 // ── Tipos de resultado ──────────────────────────────────────────────────────
 
@@ -135,6 +87,7 @@ export interface ContextoAgente extends ContextoExecucao {
 // Priorizamos: pedido (core) + config (essencial) + READ tools de outros.
 
 const PRIORIDADE_PREFIXO: string[] = [
+  'gabi.',       // execucao local (consulta ao banco) — sempre disponivel
   'pedido.',     // core product
   'bid_frete.',  // cotacoes de frete internacional
   'config.',     // configuracao essencial
@@ -144,28 +97,31 @@ const PRIORIDADE_PREFIXO: string[] = [
   'store.',      // catalogo
 ]
 
+function rankPrioridade(id: string): number {
+  const idx = PRIORIDADE_PREFIXO.findIndex((p) => id.startsWith(p))
+  return idx === -1 ? PRIORIDADE_PREFIXO.length : idx
+}
+
 function selecionarToolsPorContexto(toolIds: string[], max: number): string[] {
-  const selecionadas: string[] = []
+  const prioritarias: string[] = []
   const restantes: string[] = []
 
-  // Primeiro: tools dos prefixos prioritarios (pedido + config)
   for (const id of toolIds) {
-    const prioritario = PRIORIDADE_PREFIXO.some((p) => id.startsWith(p))
-    if (prioritario) {
-      selecionadas.push(id)
-    } else {
-      restantes.push(id)
-    }
+    if (PRIORIDADE_PREFIXO.some((p) => id.startsWith(p))) prioritarias.push(id)
+    else restantes.push(id)
   }
 
-  // Se ja passou do limite, cortar as menos prioritarias
-  if (selecionadas.length > max) {
-    return selecionadas.slice(0, max)
+  // Ordena por rank do prefixo (nao pela ordem do catalogo) — assim tools de
+  // prefixo prioritario (ex.: 'gabi.' = consulta ao banco) entram no corte
+  // mesmo estando no fim do catalogo. Sort estavel preserva ordem dentro do rank.
+  prioritarias.sort((a, b) => rankPrioridade(a) - rankPrioridade(b))
+
+  if (prioritarias.length >= max) {
+    return prioritarias.slice(0, max)
   }
 
-  // Preencher com restantes ate o limite
-  const vagas = max - selecionadas.length
-  return [...selecionadas, ...restantes.slice(0, vagas)]
+  const vagas = max - prioritarias.length
+  return [...prioritarias, ...restantes.slice(0, vagas)]
 }
 
 // ── Orquestrador principal ──────────────────────────────────────────────────
@@ -198,10 +154,14 @@ export async function executarAgente(
   for (const modelName of MODELS_CHAIN) {
     try {
       console.log(`[GABI/Agente] Tentando modelo ${modelName}...`)
-      const model = await obterModeloComCache(modelName, systemPrompt, geminiTools as Tool[])
-
-      const chat = model.startChat({
-        history: normalizarHistoricoGemini(historico),
+      const chat = getGenAI().chats.create({
+        model: modelName,
+        config: {
+          systemInstruction: systemPrompt,
+          tools: geminiTools as Tool[],
+          toolConfig: { functionCallingConfig: { mode: FunctionCallingConfigMode.AUTO } },
+        },
+        history: normalizarHistoricoGemini(historico) as Content[],
       })
 
       let totalInputTok = 0
@@ -213,24 +173,24 @@ export async function executarAgente(
       emitSse?.('transparency', { message: 'Processando sua mensagem...' })
 
       console.log(`[GABI/Agente] Enviando mensagem ao Gemini...`)
-      let current = await chat.sendMessage(mensagemUsuario)
-      totalInputTok += current.response.usageMetadata?.promptTokenCount ?? 0
-      totalOutputTok += current.response.usageMetadata?.candidatesTokenCount ?? 0
-      totalCachedTok += (current.response.usageMetadata as UsageMetadataWithCache | undefined)?.cachedContentTokenCount ?? 0
+      let current = await chat.sendMessage({ message: mensagemUsuario })
+      totalInputTok += current.usageMetadata?.promptTokenCount ?? 0
+      totalOutputTok += current.usageMetadata?.candidatesTokenCount ?? 0
+      totalCachedTok += current.usageMetadata?.cachedContentTokenCount ?? 0
 
-      const _dbgFc = current.response.functionCalls?.() ?? []
-      const _dbgTxt = current.response.text?.() ?? ''
-      const _dbgCandidates = current.response.candidates
-      console.log(`[GABI/Agente] Resposta: fc=${_dbgFc.length} fcNames=${_dbgFc.map((f: { name: string }) => f.name).join(',')} text=${_dbgTxt.slice(0, 80)}`)
+      const _dbgFc = current.functionCalls ?? []
+      const _dbgTxt = current.text ?? ''
+      const _dbgCandidates = current.candidates
+      console.log(`[GABI/Agente] Resposta: fc=${_dbgFc.length} fcNames=${_dbgFc.map((f) => f.name).join(',')} text=${_dbgTxt.slice(0, 80)}`)
       console.log(`[GABI/Agente] Candidates: ${JSON.stringify(_dbgCandidates?.map(c => ({ finishReason: c.finishReason, partsCount: c.content?.parts?.length })))}`)
 
       for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
-        const funcCalls = current.response.functionCalls()
+        const funcCalls = current.functionCalls
         if (!funcCalls || funcCalls.length === 0) break
 
         const toolParts = await Promise.all(
-          funcCalls.map(async (fc) => {
-            const toolId = geminiNameToToolId(fc.name)
+          funcCalls.map(async (fc): Promise<Part> => {
+            const toolId = geminiNameToToolId(fc.name ?? '')
             const parametros = (fc.args ?? {}) as Record<string, unknown>
             const inicio = Date.now()
 
@@ -301,20 +261,23 @@ export async function executarAgente(
 
             return {
               functionResponse: {
+                // Gemini 3+ exige o id para casar resposta com a chamada
+                // correta quando ha function calls paralelas no mesmo turno.
+                id: fc.id,
                 name: fc.name,
-                response: toolResult,
+                response: toolResult as Record<string, unknown>,
               },
             }
           }),
         )
 
-        current = await chat.sendMessage(toolParts as FunctionResponsePart[])
-        totalInputTok += current.response.usageMetadata?.promptTokenCount ?? 0
-        totalOutputTok += current.response.usageMetadata?.candidatesTokenCount ?? 0
-        totalCachedTok += (current.response.usageMetadata as UsageMetadataWithCache | undefined)?.cachedContentTokenCount ?? 0
+        current = await chat.sendMessage({ message: toolParts })
+        totalInputTok += current.usageMetadata?.promptTokenCount ?? 0
+        totalOutputTok += current.usageMetadata?.candidatesTokenCount ?? 0
+        totalCachedTok += current.usageMetadata?.cachedContentTokenCount ?? 0
       }
 
-      const texto = current.response.text()
+      const texto = current.text
         || 'Desculpe, a tarefa foi muito complexa. Tente dividir em partes menores.'
 
       return {
@@ -341,19 +304,6 @@ export async function executarAgente(
     502,
     'LLM_UNAVAILABLE',
   )
-}
-
-// ── Modelo com cache ────────────────────────────────────────────────────────
-
-async function obterModeloComCache(modelName: string, systemPrompt: string, tools: Tool[]) {
-  const toolConfig = { functionCallingConfig: { mode: 'AUTO' as const } }
-
-  return getGenAI().getGenerativeModel({
-    model: modelName,
-    tools,
-    toolConfig,
-    systemInstruction: systemPrompt,
-  })
 }
 
 // ── Confirmar acao pendente ─────────────────────────────────────────────────

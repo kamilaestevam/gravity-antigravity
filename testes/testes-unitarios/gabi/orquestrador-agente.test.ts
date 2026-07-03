@@ -143,7 +143,7 @@ describe('orquestrador-agente', () => {
       const result = await executarAgente('Voce e a GABI', 'Oi', [], ctx)
 
       expect(result.texto).toBe('Ola! Como posso ajudar?')
-      expect(result.modelo_usado).toBe('gemini-2.5-flash')
+      expect(result.modelo_usado).toBe('gemini-3.5-flash')
       expect(result.tokens_input).toBeGreaterThanOrEqual(0)
       expect(result.tokens_output).toBeGreaterThanOrEqual(0)
       expect(result.custo_usd).toBeGreaterThanOrEqual(0)
@@ -363,7 +363,7 @@ describe('orquestrador-agente', () => {
       const result = await executarAgente('system', 'msg', [], ctx)
 
       expect(result.texto).toBe('Resposta do fallback')
-      expect(result.modelo_usado).toBe('gemini-2.0-flash')
+      expect(result.modelo_usado).toBe('gemini-2.5-flash')
     })
 
     it('lanca erro quando todos os modelos falham', async () => {

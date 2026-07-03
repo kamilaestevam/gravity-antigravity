@@ -156,13 +156,13 @@ describe('catalogo-ferramentas', () => {
   })
 
   describe('integridade do catalogo', () => {
-    it('todo endpoint comeca com /api/', () => {
+    it('todo endpoint comeca com /api/ (REST) ou local: (execucao local)', () => {
       const reads = listarToolsPorClasse('READ')
       const writes = listarToolsPorClasse('WRITE_SAFE')
       const destrutivas = listarToolsPorClasse('WRITE_DESTRUTIVA')
       const todas = [...reads, ...writes, ...destrutivas]
       for (const t of todas) {
-        expect(t.endpoint).toMatch(/^\/api\//)
+        expect(t.endpoint).toMatch(/^(\/api\/|local:)/)
       }
     })
 

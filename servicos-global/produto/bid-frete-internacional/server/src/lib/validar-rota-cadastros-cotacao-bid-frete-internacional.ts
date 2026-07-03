@@ -11,7 +11,7 @@ import {
   prepararCamposRotaCotacaoPersistencia,
   type CamposRotaModalCotacao,
 } from './rota-cotacao-bid-frete-internacional.js'
-import { resolverLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
+import { resolverMetadadosLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
 
 export interface ErroValidacaoRotaCadastros {
   path: string
@@ -19,7 +19,7 @@ export interface ErroValidacaoRotaCadastros {
 }
 
 function paraLocalResolvido(
-  local: Awaited<ReturnType<typeof resolverLocalCadastrosBidFreteInternacional>>,
+  local: Awaited<ReturnType<typeof resolverMetadadosLocalCadastrosBidFreteInternacional>>,
 ): LocalCadastrosResolvido | null {
   if (!local) return null
   return { codigo: local.codigo, nome: local.nome, pais: local.pais }
@@ -43,7 +43,7 @@ export async function validarRotaCotacaoContraCadastros(
 
   if (origemCodigo) {
     const cadastros = paraLocalResolvido(
-      await resolverLocalCadastrosBidFreteInternacional(origemCodigo, {
+      await resolverMetadadosLocalCadastrosBidFreteInternacional(origemCodigo, {
         id_organizacao: idOrganizacao,
         modal,
       }),
@@ -62,7 +62,7 @@ export async function validarRotaCotacaoContraCadastros(
 
   if (destinoCodigo) {
     const cadastros = paraLocalResolvido(
-      await resolverLocalCadastrosBidFreteInternacional(destinoCodigo, {
+      await resolverMetadadosLocalCadastrosBidFreteInternacional(destinoCodigo, {
         id_organizacao: idOrganizacao,
         modal,
       }),

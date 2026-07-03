@@ -203,6 +203,15 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 **Mapa (`GET /dashboard/mapa-cotacoes`):** pins e coordenadas vêm do **Cadastros** por código (IATA/UNLOCODE), não do nome gravado na cotação. Divergência nome/país → `alerta_divergencia_cadastros_*` no hover. SSOT: `shared/divergencia-cadastros-rota-bid-frete-internacional.ts` (mapa = alerta; gravação = bloqueio).
 
+**Resolução Cadastros — metadados vs coordenadas (TASK-000405):**
+
+| Uso | Função server | Exige lat/long? |
+|-----|---------------|-----------------|
+| Validação `POST`/`PATCH` cotação | `resolverMetadadosLocalCadastrosBidFreteInternacional` | **Não** — porto/aeroporto ativo basta |
+| Mapa Insights / pins | `resolverLocalCadastrosBidFreteInternacional` | **Sim** — sem coordenadas o pin é omitido |
+
+Arquivo: `server/src/lib/resolver-local-cadastros-bid-frete-internacional.ts` · chamada na gravação: `validarRotaCotacaoContraCadastros`. Erro HTTP Cadastros (≠ 404) → `console.warn` com código; 404 = código inexistente (sem log ruidoso).
+
 **Validação rota na cotação:** `prepararRotaComValidacaoCadastros` em `cotacoes.ts` — catálogo portos/aeroportos + `prepararCamposRotaCotacaoPersistencia(input, ctx)` no `POST` e no `PATCH` quando body toca campos de rota. País comparado em ISO alpha-2 (`normalizarPaisIsoParaComparacao`).
 
 **Testes UNI (mapa/validação):** `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`

@@ -47,6 +47,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   dataExpiracaoToken?: string | Date | null
   nomeClienteOperacao?: string | null
   anonimaCotacao?: boolean
+  tipoOperacao?: string | null
   linkResposta: string
 }
 
@@ -142,6 +143,60 @@ export function formatarRotaEmailDisparoBidFrete(
   return `${origemNome.trim()} (${origemPais.trim()}) → ${destinoNome.trim()} (${destinoPais.trim()})`
 }
 
+export function montarIntroClienteEmailDisparoBidFrete(
+  params: Pick<ParametrosEmailDisparoBidFreteInternacional, 'anonimaCotacao' | 'nomeClienteOperacao' | 'tipoOperacao'>,
+): { introHtml: string; introTextoPlano: string; rotuloPreheader: string } {
+  if (params.anonimaCotacao) {
+    return {
+      introHtml:
+        '<strong>Um cliente</strong> enviou uma solicitação de cotação '
+        + '<strong>com identidade oculta</strong> (cotação anônima). '
+        + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
+      introTextoPlano:
+        'Um cliente enviou uma solicitação de cotação com identidade oculta (cotação anônima).',
+      rotuloPreheader: 'Cotação anônima',
+    }
+  }
+
+  const nome = params.nomeClienteOperacao?.trim()
+  if (nome) {
+    const tipo = params.tipoOperacao?.trim().toUpperCase()
+    if (tipo === 'IMPORTACAO') {
+      return {
+        introHtml:
+          `O importador <strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
+          + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
+        introTextoPlano: `O importador ${nome} enviou uma solicitação de cotação.`,
+        rotuloPreheader: nome,
+      }
+    }
+    if (tipo === 'EXPORTACAO') {
+      return {
+        introHtml:
+          `O exportador <strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
+          + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
+        introTextoPlano: `O exportador ${nome} enviou uma solicitação de cotação.`,
+        rotuloPreheader: nome,
+      }
+    }
+    return {
+      introHtml:
+        `<strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
+        + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
+      introTextoPlano: `${nome} enviou uma solicitação de cotação.`,
+      rotuloPreheader: nome,
+    }
+  }
+
+  return {
+    introHtml:
+      '<strong>Um cliente</strong> enviou uma solicitação de cotação. '
+      + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
+    introTextoPlano: 'Um cliente enviou uma solicitação de cotação.',
+    rotuloPreheader: 'Um cliente',
+  }
+}
+
 function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): Array<[string, string]> {
   const linhaVolume = formatarLinhaVolumeEmailDisparoBidFrete({
     modal: params.modal,
@@ -207,14 +262,15 @@ export function montarAssuntoEmailDisparo(
 }
 
 export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
-  const cliente = params.anonimaCotacao ? 'Um cliente' : (params.nomeClienteOperacao?.trim() || 'Um cliente')
-  return `${cliente} solicitou cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
+  const { rotuloPreheader } = montarIntroClienteEmailDisparoBidFrete(params)
+  if (params.anonimaCotacao) {
+    return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
+  }
+  return `${rotuloPreheader} solicitou cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
 }
 
 export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
-  const cliente = params.anonimaCotacao
-    ? 'Um cliente'
-    : (params.nomeClienteOperacao?.trim() || 'Um cliente')
+  const { introTextoPlano } = montarIntroClienteEmailDisparoBidFrete(params)
   const linhas = linhasResumoEmailDisparo(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
@@ -223,7 +279,7 @@ export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFr
     '',
     `Olá, ${params.nomeFornecedor.trim()},`,
     '',
-    `${cliente} enviou uma solicitação de cotação de frete internacional.`,
+    `${introTextoPlano} Confira o resumo e responda pelo link.`,
     '',
     ...linhas.map(([rotulo, valor]) => `${rotulo}: ${valor}`),
     '',
@@ -249,9 +305,7 @@ function linhaTabelaHtml(rotulo: string, valor: string): string {
 }
 
 export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
-  const cliente = params.anonimaCotacao
-    ? 'Um cliente'
-    : (params.nomeClienteOperacao?.trim() || 'Um cliente')
+  const { introHtml } = montarIntroClienteEmailDisparoBidFrete(params)
   const linhas = linhasResumoEmailDisparo(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
   const preheader = montarPreheaderEmailDisparo(params)
@@ -282,7 +336,7 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
             <td style="padding:28px;">
               <p style="margin:0 0 8px;font-size:16px;color:${COR_TEXTO};">Olá, <strong>${escapeHtmlTextoEmailBidFrete(params.nomeFornecedor.trim())}</strong>,</p>
               <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:${COR_MUTED};">
-                <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(cliente)}</strong> enviou uma solicitação de cotação. Confira o resumo abaixo e envie sua proposta pelo botão.
+                ${introHtml}
               </p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;border:1px solid ${COR_BORDA};border-radius:8px;overflow:hidden;">
                 ${tabelaLinhas}

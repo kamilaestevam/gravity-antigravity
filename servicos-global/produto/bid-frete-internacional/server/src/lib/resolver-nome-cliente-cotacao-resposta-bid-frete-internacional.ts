@@ -69,3 +69,18 @@ export function resolverNomeClienteOperacaoCotacaoResposta(input: {
   if (!idWorkspace) return null
   return input.mapaNomesWorkspace.get(idWorkspace) ?? null
 }
+
+/** Resolve nome do workspace (exportador/importador) para disparo de e-mail/WhatsApp. */
+export async function resolverNomeClienteOperacaoCotacaoDisparo(input: {
+  id_workspace?: string | null
+  anonima_cotacao_bid_frete_internacional?: boolean | null
+}): Promise<string | null> {
+  const mapaNomesWorkspace = await obterMapaNomesWorkspacePorIds(
+    input.id_workspace?.trim() ? [input.id_workspace.trim()] : [],
+  )
+  return resolverNomeClienteOperacaoCotacaoResposta({
+    id_workspace: input.id_workspace,
+    anonima_cotacao_bid_frete_internacional: input.anonima_cotacao_bid_frete_internacional,
+    mapaNomesWorkspace,
+  })
+}

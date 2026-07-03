@@ -30,6 +30,7 @@ import {
   type FornecedorEspelhoBidDisparo,
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
+import { resolverNomeClienteOperacaoCotacaoDisparo } from '../lib/resolver-nome-cliente-cotacao-resposta-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
 
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
@@ -82,8 +83,17 @@ export const motorBid = {
     } = options
 
     // Buscar cotacao
-    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
-    if (!cotacao) throw new Error('Cotacao nao encontrada')
+    const cotacaoRaw = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
+    if (!cotacaoRaw) throw new Error('Cotacao nao encontrada')
+
+    const nomeClienteOperacao = await resolverNomeClienteOperacaoCotacaoDisparo({
+      id_workspace: cotacaoRaw.id_workspace,
+      anonima_cotacao_bid_frete_internacional: cotacaoRaw.anonima_cotacao_bid_frete_internacional,
+    })
+    const cotacao = {
+      ...cotacaoRaw,
+      nome_cliente_operacao_cotacao_bid_frete_internacional: nomeClienteOperacao,
+    }
 
     const modal = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
 
@@ -473,6 +483,7 @@ export const motorBid = {
       dataExpiracaoToken,
       nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
       anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,
+      tipoOperacao: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
       linkResposta,
     }
 

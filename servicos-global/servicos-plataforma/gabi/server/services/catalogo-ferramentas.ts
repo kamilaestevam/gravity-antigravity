@@ -339,6 +339,13 @@ const storeCatalogoParams = z.object({})
 const storeDetalheProdutoParams = z.object({ slug: z.string() })
 const storePlanosParams = z.object({ slug: z.string() })
 
+// ── GABI (execucao local) — READ ─────────────────────────────────────────────
+
+const gabiConsultarDadosParams = z.object({
+  consulta: z.string().min(1).max(5000),
+  max_linhas: z.number().int().min(1).max(100).optional(),
+})
+
 // ── CATALOGO COMPLETO ────────────────────────────────────────────────────────
 
 export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
@@ -1570,6 +1577,40 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
           slug: { type: 'STRING', description: 'Slug do produto (obrigatorio)' },
         },
         required: ['slug'],
+      },
+    },
+  },
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // GABI — execucao LOCAL (nao e REST; roda no proprio servico da Gabi)
+  // ════════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'gabi.consultar_dados',
+    produto: 'gabi',
+    classe: 'READ',
+    metodo: 'POST',
+    // endpoint 'local:' sinaliza execucao no proprio servico (ver roteador-ferramentas)
+    endpoint: 'local:consultar_dados',
+    descricao: 'Consulta SQL somente-leitura no banco da organizacao do usuario',
+    // SQL cru contorna o RBAC por-endpoint das tools REST — restrito a admin da org.
+    permissao_minima: 'MASTER',
+    schema_params: gabiConsultarDadosParams,
+    gemini_declaration: {
+      name: 'gabi.consultar_dados',
+      description:
+        'Executa uma consulta SQL SOMENTE-LEITURA (SELECT) no banco de dados da organizacao do usuario (PostgreSQL). ' +
+        'Use quando as outras ferramentas nao cobrem o dado pedido e for preciso cruzar/agregar informacoes. ' +
+        'Regras: apenas UM SELECT (ou WITH ... SELECT); proibido INSERT/UPDATE/DELETE/DDL; sem ponto-e-virgula no meio. ' +
+        'Para descobrir tabelas e colunas disponiveis, consulte information_schema (ex: SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema()). ' +
+        'O resultado e limitado a 100 linhas. O acesso ja esta restrito a organizacao do usuario — nao inclua filtros de schema/organizacao no SQL.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          consulta: { type: 'STRING', description: 'Consulta SQL SELECT (PostgreSQL, um unico statement)' },
+          max_linhas: { type: 'NUMBER', description: 'Maximo de linhas (1-100, padrao 100)' },
+        },
+        required: ['consulta'],
       },
     },
   },

@@ -13,6 +13,7 @@ import {
   criarLeituraLegado,
   enviarArquivoLegado,
   excluirLeituraLegado,
+  falhaExclusaoLegadoPermiteEspelhoGravity,
   obterArquivoLegado,
   obterLeituraLegado,
   resolverCompanyLegado,
@@ -356,12 +357,12 @@ router.delete('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Res
     try {
       await excluirLeituraLegado(companyId, id_leitura)
     } catch (err) {
-      if (!(err instanceof AppError && err.statusCode === 404)) {
+      if (!falhaExclusaoLegadoPermiteEspelhoGravity(err)) {
         throw err
       }
       console.warn(
-        '[smart-read][delete] legado respondeu 404 — removendo espelho Gravity para ocultar da lista',
-        { id_leitura, idWorkspace },
+        '[smart-read][delete] legado nao removeu leitura — limpando espelho Gravity para ocultar da lista',
+        { id_leitura, idWorkspace, erro: err instanceof AppError ? err.message : err },
       )
     }
 

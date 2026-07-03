@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 // @vitest-environment node
-// TST-FUN-BIDFRT-000120 — POST /cotacoes filtra fornecedor inelegível ao modal antes do disparo
+// TST-FUN-BIDFRT-000121 — POST /cotacoes filtra fornecedor inelegível ao modal antes do disparo
 
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
@@ -60,6 +60,24 @@ import { cotacoesRouter } from '../../../../../servicos-global/produto/bid-frete
 const ID_TRANSPORTADORA_INT = 'BR-TRANSCAPRI-00001'
 const ID_ARMADOR = 'BR-MAERSK-00001'
 
+const PORTO_BRSSZ = {
+  codigo_unlocode_porto: 'BRSSZ',
+  nome_porto: 'Porto de Santos',
+  codigo_pais_porto: 'BR',
+  latitude_porto: -23.96,
+  longitude_porto: -46.33,
+  ativo_porto: true,
+}
+
+const PORTO_NLRTM = {
+  codigo_unlocode_porto: 'NLRTM',
+  nome_porto: 'Porto de Roterdã',
+  codigo_pais_porto: 'NL',
+  latitude_porto: 51.9,
+  longitude_porto: 4.5,
+  ativo_porto: true,
+}
+
 function mockCadastrosParceirosFrete() {
   fetchCadastrosJson.mockImplementation(async (path: string) => {
     if (path === '/api/v1/fornecedores') {
@@ -91,6 +109,14 @@ function mockCadastrosParceirosFrete() {
         total: 2,
       }
     }
+    if (path === '/api/v1/cadastros/portos') {
+      return { itens: [PORTO_BRSSZ, PORTO_NLRTM], total: 2 }
+    }
+    if (path === '/api/v1/cadastros/aeroportos') {
+      return { itens: [], total: 0 }
+    }
+    if (path.endsWith('/BRSSZ')) return PORTO_BRSSZ
+    if (path.endsWith('/NLRTM')) return PORTO_NLRTM
     throw new Error(`Cadastros mock não configurado: ${path}`)
   })
 }
@@ -119,10 +145,10 @@ const COTACAO_MARITIMA = {
   modalidade_cotacao_bid_frete_internacional: 'FCL',
   origem_codigo_cotacao_bid_frete_internacional: 'BRSSZ',
   origem_nome_cotacao_bid_frete_internacional: 'Porto de Santos',
-  origem_pais_cotacao_bid_frete_internacional: 'Brasil',
+  origem_pais_cotacao_bid_frete_internacional: 'BR',
   destino_codigo_cotacao_bid_frete_internacional: 'NLRTM',
   destino_nome_cotacao_bid_frete_internacional: 'Porto de Roterdã',
-  destino_pais_cotacao_bid_frete_internacional: 'Holanda',
+  destino_pais_cotacao_bid_frete_internacional: 'NL',
   descricao_mercadoria_cotacao_bid_frete_internacional: 'Maquinários',
   incoterm_cotacao_bid_frete_internacional: 'FOB',
   quantidade_volume_cotacao_bid_frete_internacional: 1,
@@ -132,7 +158,7 @@ const COTACAO_MARITIMA = {
   fornecedor_ids: [ID_TRANSPORTADORA_INT, ID_ARMADOR],
 }
 
-describe('TST-FUN-BIDFRT-000120 — elegibilidade fornecedor por modal no POST /cotacoes', () => {
+describe('TST-FUN-BIDFRT-000121 — elegibilidade fornecedor por modal no POST /cotacoes', () => {
   const app = criarApp()
 
   beforeEach(() => {

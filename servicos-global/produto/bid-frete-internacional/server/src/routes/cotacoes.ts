@@ -28,6 +28,7 @@ import {
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from '../services/filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
+import type { TipoFornecedorBidFreteColapsado } from '../../../shared/fornecedor-elegivel-disparo-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -355,6 +356,43 @@ async function filtrarIdsFornecedoresElegiveisCotacaoAberta(
   return rows.map(r => r.id_fornecedor_bid_frete_internacional)
 }
 
+async function carregarTiposEspelhoFornecedoresDisparo(
+  prisma: NonNullable<Request['prisma']>,
+  fornecedor_ids: string[],
+): Promise<Map<string, TipoFornecedorBidFreteColapsado>> {
+  if (fornecedor_ids.length === 0) return new Map()
+  const rows = await (prisma as {
+    fornecedorBidFreteInternacional: {
+      findMany: (args: unknown) => Promise<Array<{
+        id_fornecedor_bid_frete_internacional: string
+        tipo_fornecedor_bid_frete_internacional: TipoFornecedorBidFreteColapsado
+      }>>
+    }
+  }).fornecedorBidFreteInternacional.findMany({
+    where: { id_fornecedor_bid_frete_internacional: { in: fornecedor_ids } },
+    select: {
+      id_fornecedor_bid_frete_internacional: true,
+      tipo_fornecedor_bid_frete_internacional: true,
+    },
+  })
+  return new Map(rows.map(r => [r.id_fornecedor_bid_frete_internacional, r.tipo_fornecedor_bid_frete_internacional]))
+}
+
+async function filtrarIdsFornecedoresElegiveisModalDisparo(
+  idOrganizacao: string,
+  modal: ModalRotaCotacao,
+  prisma: NonNullable<Request['prisma']>,
+  fornecedor_ids: string[],
+): Promise<string[]> {
+  const tiposEspelhoPorId = await carregarTiposEspelhoFornecedoresDisparo(prisma, fornecedor_ids)
+  return filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+    idOrganizacao,
+    modal,
+    fornecedor_ids,
+    { tiposEspelhoPorId },
+  )
+}
+
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -409,9 +447,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
           if (fornecedor_ids !== undefined) {
             const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
-            const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+            const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
               tenantId,
               modalDisparo,
+              req.prisma!,
               idsAberta,
             )
             if (idsElegiveis.length > 0) {
@@ -435,9 +474,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
             })
           }
         } else if (fornecedor_ids && fornecedor_ids.length > 0) {
-          const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+          const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
             tenantId,
             modalDisparo,
+            req.prisma!,
             fornecedor_ids,
           )
           if (idsElegiveis.length > 0) {

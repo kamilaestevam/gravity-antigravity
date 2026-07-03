@@ -11,13 +11,11 @@ describe('motor-bid-disparo-utils', () => {
   const envSnapshot = {
     EMAIL_SERVICE_URL: process.env.EMAIL_SERVICE_URL,
     TENANT_EMAIL_SERVICE_URL: process.env.TENANT_EMAIL_SERVICE_URL,
-    SERVIDOR_PLATAFORMA_URL: process.env.SERVIDOR_PLATAFORMA_URL,
   }
 
   beforeEach(() => {
     delete process.env.EMAIL_SERVICE_URL
     delete process.env.TENANT_EMAIL_SERVICE_URL
-    delete process.env.SERVIDOR_PLATAFORMA_URL
   })
 
   afterEach(() => {
@@ -25,19 +23,18 @@ describe('motor-bid-disparo-utils', () => {
     else process.env.EMAIL_SERVICE_URL = envSnapshot.EMAIL_SERVICE_URL
     if (envSnapshot.TENANT_EMAIL_SERVICE_URL === undefined) delete process.env.TENANT_EMAIL_SERVICE_URL
     else process.env.TENANT_EMAIL_SERVICE_URL = envSnapshot.TENANT_EMAIL_SERVICE_URL
-    if (envSnapshot.SERVIDOR_PLATAFORMA_URL === undefined) delete process.env.SERVIDOR_PLATAFORMA_URL
-    else process.env.SERVIDOR_PLATAFORMA_URL = envSnapshot.SERVIDOR_PLATAFORMA_URL
   })
 
-  it('resolve URL do serviço de e-mail — paridade Hub (EMAIL → TENANT → plataforma → :8008)', () => {
+  it('resolve URL do serviço de e-mail — TENANT_EMAIL → EMAIL → :8008', () => {
     expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
 
-    process.env.SERVIDOR_PLATAFORMA_URL = 'http://plataforma.test'
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://plataforma.test')
+    process.env.EMAIL_SERVICE_URL = 'http://localhost:3001'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://localhost:3001')
 
-    process.env.TENANT_EMAIL_SERVICE_URL = 'http://tenant-email.test'
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://tenant-email.test')
+    process.env.TENANT_EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
 
+    delete process.env.TENANT_EMAIL_SERVICE_URL
     process.env.EMAIL_SERVICE_URL = 'http://email.test'
     expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://email.test')
   })

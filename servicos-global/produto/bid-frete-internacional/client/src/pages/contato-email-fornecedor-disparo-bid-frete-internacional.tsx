@@ -474,7 +474,7 @@ function ContatoEmailStyles() {
         color: #f1f5f9; font-size: 0.8125rem; cursor: pointer; text-align: left;
       }
       .bf-contato-email-opcao:hover, .bf-contato-email-opcao--ativa { background: rgba(99,102,241,0.15); }
-      .bf-contato-email-edicao { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; }
+      .bf-contato-email-edicao { display: flex; flex-direction: column; gap: 0.625rem; width: 100%; }
       .bf-contato-email-edicao input, .bf-contato-email-rapido input, .bf-contato-email-input {
         width: 100%; box-sizing: border-box; padding: 0.45rem 0.55rem; border-radius: 6px;
         border: 1px solid rgba(71, 85, 105, 0.85); background: #0f172a; color: #f1f5f9;
@@ -498,7 +498,11 @@ function ContatoEmailStyles() {
         caret-color: #f1f5f9;
         transition: background-color 9999s ease-out 0s;
       }
-      .bf-contato-email-edicao-acoes, .bf-contato-email-rapido-acoes { display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center; }
+      .bf-contato-email-edicao-acoes, .bf-contato-email-rapido-acoes {
+        display: flex; justify-content: flex-end; gap: 0.625rem; align-items: center;
+        margin-top: 0.625rem; padding-top: 0.125rem;
+      }
+      .bf-contato-email-rapido { display: flex; flex-direction: column; gap: 0.625rem; }
       .bf-contato-email-cancelar {
         color: #e2e8f0; background: transparent;
         border: 1px solid rgba(148, 163, 184, 0.45); border-radius: 6px;

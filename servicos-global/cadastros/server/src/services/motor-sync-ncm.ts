@@ -185,29 +185,60 @@ export async function executarSync(
 export async function buscarNcm(
   prisma: PrismaClient,
   query: string,
-  limite = 20
+  limite = 20,
+  opcoes?: { apenasAtivos?: boolean; somenteInativos?: boolean },
 ): Promise<Array<{ codigo: string; descricao: string }>> {
   const q = query.trim()
   if (q.length === 0) return []
 
   const isCodigoParcial = /^\d+$/.test(q)
+  const filtroAtivo =
+    opcoes?.somenteInativos === true
+      ? { ativo_ncm_sync: false }
+      : opcoes?.apenasAtivos === false
+        ? {}
+        : { ativo_ncm_sync: true }
 
   const itens = await prisma.ncmSync.findMany({
     where: {
-      ativo_ncm_sync: true,
+      ...filtroAtivo,
       ...(isCodigoParcial
-        ? { codigo_ncm_sync:    { startsWith: q } }
+        ? { codigo_ncm_sync: { startsWith: q } }
         : { descricao_ncm_sync: { contains: q, mode: 'insensitive' } }),
     },
-    select:  { codigo_ncm_sync: true, descricao_ncm_sync: true },
+    select: { codigo_ncm_sync: true, descricao_ncm_sync: true },
     orderBy: { codigo_ncm_sync: 'asc' },
-    take:    limite,
+    take: limite,
   })
 
-  return itens.map(i => ({
+  return itens.map((i) => ({
     codigo: i.codigo_ncm_sync,
     descricao: i.descricao_ncm_sync,
   }))
+}
+
+/**
+ * Busca para modal público: ativos primeiro; se vazio, reativa descritivos inativos
+ * que ainda existem no cache (sync parcial costuma marcar capítulos como inativos).
+ */
+export async function buscarNcmParaModal(
+  prisma: PrismaClient,
+  query: string,
+  limite = 20,
+): Promise<Array<{ codigo: string; descricao: string }>> {
+  const ativos = await buscarNcm(prisma, query, limite, { apenasAtivos: true })
+  if (ativos.length > 0) return ativos
+
+  const inativos = await buscarNcm(prisma, query, limite, { somenteInativos: true })
+  if (inativos.length === 0) return []
+
+  const codigos = inativos.map((i) => i.codigo)
+  await prisma.ncmSync.updateMany({
+    where: { codigo_ncm_sync: { in: codigos }, ativo_ncm_sync: false },
+    data: { ativo_ncm_sync: true },
+  })
+
+  return inativos
 }
 
 /**

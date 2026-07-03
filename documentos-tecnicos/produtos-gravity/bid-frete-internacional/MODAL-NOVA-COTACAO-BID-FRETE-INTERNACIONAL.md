@@ -99,7 +99,7 @@ A lista do passo 4 **não** usa a permissão RBAC `visao_fornecedor:cotar` (“P
 
 **Server:** `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` no `POST /cotacoes` (Direcionada e Aberta com subset) e revalidação no `motorBid.disparar` / `dispararCotacaoAberta`. A lista admin de fornecedores **não** aplica este filtro.
 
-**Testes:** UNI `fornecedor-elegivel-disparo-bid-frete-internacional.test.ts`; FUN `TST-FUN-BIDFRT-000120`.
+**Testes:** UNI `fornecedor-elegivel-disparo-bid-frete-internacional.test.ts`; FUN `TST-FUN-BIDFRT-000121`.
 
 ---
 
@@ -244,7 +244,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
 | #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
 | #338 | 2026-06-15 | Multi-e-mail/WhatsApp no disparo; resolução Cadastros `fornecedor_contato`; feedback agregado por fornecedor |
-| — | 2026-07-03 | Elegibilidade disparo × modal/tipo (flags Cadastros); Zod flags em GET fornecedores; FUN TST-000120 |
+| — | 2026-07-03 | Elegibilidade disparo × modal/tipo (flags Cadastros); Zod flags em GET fornecedores; FUN TST-000121 |
 
 ---
 

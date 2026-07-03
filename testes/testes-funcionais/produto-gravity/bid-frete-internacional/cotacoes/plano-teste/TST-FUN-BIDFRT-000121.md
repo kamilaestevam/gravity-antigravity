@@ -1,6 +1,6 @@
-# Plano — TST-FUN-BIDFRT-000120
+# Plano — TST-FUN-BIDFRT-000121
 
-**ID:** TST-FUN-BIDFRT-000120  
+**ID:** TST-FUN-BIDFRT-000121  
 **Tipo:** FUN  
 **Escopo:** BIDFRT / cotacoes  
 **Objetivo:** POST `/cotacoes` filtra fornecedor inelegível ao modal (transportadora internacional em cotação marítima) antes de `motorBid.disparar`.

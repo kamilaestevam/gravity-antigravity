@@ -84,10 +84,26 @@ export const motorBid = {
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
     const modal = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
+
+    const espelhosPreFiltro = await (prisma as any).fornecedorBidFreteInternacional.findMany({
+      where: { id_fornecedor_bid_frete_internacional: { in: fornecedor_ids } },
+      select: {
+        id_fornecedor_bid_frete_internacional: true,
+        tipo_fornecedor_bid_frete_internacional: true,
+      },
+    })
+    const tiposEspelhoPorId = new Map(
+      (espelhosPreFiltro as Array<{
+        id_fornecedor_bid_frete_internacional: string
+        tipo_fornecedor_bid_frete_internacional: TipoFornecedorMotor
+      }>).map(f => [f.id_fornecedor_bid_frete_internacional, f.tipo_fornecedor_bid_frete_internacional]),
+    )
+
     const fornecedor_ids_elegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
       id_organizacao,
       modal,
       fornecedor_ids,
+      { tiposEspelhoPorId },
     )
 
     if (fornecedor_ids_elegiveis.length === 0) {

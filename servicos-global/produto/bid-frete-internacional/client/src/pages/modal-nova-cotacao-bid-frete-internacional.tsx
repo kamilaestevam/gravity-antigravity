@@ -67,6 +67,7 @@ import {
   type LinhaContainerCotacao,
 } from '../shared/containers-cotacao-bid-frete-internacional'
 import { useAeroportosPorPais, useContainersCadastros, useMercadoriasPerigosasCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
+import { useOpcoesMoedaCadastrosBidFreteInternacional } from '../shared/use-opcoes-moeda-cadastros-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import {
   filtrarFornecedoresDisparoBidFreteInternacional,
@@ -2077,6 +2078,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
   const [emailsPorFornecedorDisparo, setEmailsPorFornecedorDisparo] = useState<Record<string, string[]>>({})
   const proximoIdLinhaContainerRef = useRef(2)
+  const {
+    opcoes: opcoesMoedaMeta,
+    loading: carregandoMoedasMeta,
+    erro: erroMoedasMeta,
+    indisponivel: moedasMetaIndisponiveis,
+  } = useOpcoesMoedaCadastrosBidFreteInternacional()
 
   useEffect(() => {
     const passoFornecedores = sequenciaPassosWizardNovaCotacao(
@@ -3681,11 +3688,32 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
               </Field>
               <Field label={t('bidfrete.nova_cotacao.moeda')} icone={<Tag {...ICONE_FIELD} />}>
-                <select className="nc-input" value={form.moeda_meta_cotacao_bid_frete_internacional} onChange={e => set('moeda_meta_cotacao_bid_frete_internacional', e.target.value)}>
-                  <option value="USD">USD ($)</option>
-                  <option value="BRL">BRL (R$)</option>
-                  <option value="EUR">EUR (€)</option>
-                </select>
+                <SelectGlobal
+                  id="nc-moeda-meta-cotacao"
+                  opcoes={opcoesMoedaMeta}
+                  valor={form.moeda_meta_cotacao_bid_frete_internacional || null}
+                  aoMudarValor={(v) =>
+                    set('moeda_meta_cotacao_bid_frete_internacional', v == null ? '' : String(v))
+                  }
+                  buscavel
+                  placeholder={
+                    erroMoedasMeta
+                      ? t('bidfrete.portal.responder.moeda_erro', {
+                        erro: erroMoedasMeta,
+                        defaultValue: 'Erro ao carregar moedas: {{erro}}',
+                      })
+                      : (!carregandoMoedasMeta && opcoesMoedaMeta.length === 0)
+                        ? t('bidfrete.portal.responder.moeda_sem_cadastro', {
+                          defaultValue: 'Nenhuma moeda cadastrada',
+                        })
+                        : t('bidfrete.portal.responder.moeda_selecionar', {
+                          defaultValue: 'Selecionar moeda',
+                        })
+                  }
+                  carregando={carregandoMoedasMeta}
+                  desabilitado={moedasMetaIndisponiveis}
+                  posicao="auto"
+                />
               </Field>
             </div>
 

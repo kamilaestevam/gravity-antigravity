@@ -836,7 +836,7 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-cargo-stack {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1.75rem;
         }
         .nc-cargo-subsecao {
           background: var(--bg-base, rgba(15, 23, 42, 0.3));

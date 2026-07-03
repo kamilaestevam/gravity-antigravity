@@ -4,8 +4,34 @@ import {
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
+  montarTextoPlanoEmailDisparo,
   resolverUrlServicoEmailDisparoBidFrete,
 } from '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-disparo-utils'
+import {
+  formatarModalExibicaoEmailDisparoBidFrete,
+  montarIntroClienteEmailDisparoBidFrete,
+  rotuloCampoVolumeEmailDisparoBidFrete,
+} from '../../../../servicos-global/produto/bid-frete-internacional/shared/formatar-email-disparo-bid-frete-internacional'
+
+const PARAMETROS_BASE = {
+  nomeFornecedor: 'Maersk',
+  numeroCotacao: 'BID-001',
+  modal: 'MARITIMO',
+  modalidade: 'FCL',
+  origemNome: 'Santos',
+  origemPais: 'BR',
+  destinoNome: 'Shanghai',
+  destinoPais: 'CN',
+  mercadoria: 'Peças',
+  incoterm: 'FOB',
+  tipoContainer: "20' DRY",
+  quantidade: 2,
+  pesoKg: 1200,
+  dataExpiracaoToken: '2026-07-10T12:00:00.000Z',
+  nomeClienteOperacao: 'Acme Import',
+  tipoOperacao: 'IMPORTACAO',
+  linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
+} as const
 
 describe('motor-bid-disparo-utils', () => {
   const envSnapshot = {
@@ -44,7 +70,14 @@ describe('motor-bid-disparo-utils', () => {
     expect(link).toBe('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/token-abc')
   })
 
-  it('monta assunto com número da cotação', () => {
+  it('monta assunto com rota e modal traduzidos', () => {
+    const assunto = montarAssuntoEmailDisparo({ ...PARAMETROS_BASE })
+    expect(assunto).toContain('BID-001')
+    expect(assunto).toContain('Santos (BR) → Shanghai (CN)')
+    expect(assunto).toContain('Marítimo · FCL')
+  })
+
+  it('monta assunto legado só com número', () => {
     expect(montarAssuntoEmailDisparo('BID-20260528-0594')).toContain('BID-20260528-0594')
   })
 
@@ -58,21 +91,75 @@ describe('motor-bid-disparo-utils', () => {
     expect(extrairMensagemErroDisparo(err, 'http://localhost:8008')).toContain('8008')
   })
 
-  it('monta HTML com link de resposta', () => {
-    const html = montarHtmlEmailDisparo({
-      nomeFornecedor: 'Maersk',
-      numeroCotacao: 'BID-001',
-      modal: 'MARITIMO',
-      origemNome: 'Santos',
-      origemPais: 'BR',
-      destinoNome: 'Shanghai',
-      destinoPais: 'CN',
-      mercadoria: 'Peças',
-      incoterm: 'FOB',
-      linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
-    })
+  it('traduz modal rodoviário e label embalagem', () => {
+    expect(formatarModalExibicaoEmailDisparoBidFrete('RODOVIARIO', 'RODOVIARIO_LTL')).toBe('Rodoviário · LTL')
+    expect(rotuloCampoVolumeEmailDisparoBidFrete('RODOVIARIO')).toBe('Embalagem')
+    expect(rotuloCampoVolumeEmailDisparoBidFrete('MARITIMO')).toBe('Container')
+  })
+
+  it('monta HTML com layout, cliente e link de resposta', () => {
+    const html = montarHtmlEmailDisparo({ ...PARAMETROS_BASE })
     expect(html).toContain('Maersk')
     expect(html).toContain('BID-001')
+    expect(html).toContain('O importador')
+    expect(html).toContain('Acme Import')
+    expect(html).toContain('Marítimo · FCL')
+    expect(html).toContain('Responder cotação')
+    expect(html).not.toContain('RODOVIARIO')
     expect(html).toContain('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok')
   })
+
+  it('intro exportador quando operação é exportação', () => {
+    const intro = montarIntroClienteEmailDisparoBidFrete({
+      nomeClienteOperacao: 'Work sem work',
+      tipoOperacao: 'EXPORTACAO',
+      anonimaCotacao: false,
+    })
+    expect(intro.introTextoPlano).toContain('O exportador Work sem work')
+    expect(intro.introHtml).toContain('exportador')
+  })
+
+  it('intro anônima oculta identidade do cliente', () => {
+    const intro = montarIntroClienteEmailDisparoBidFrete({
+      anonimaCotacao: true,
+      nomeClienteOperacao: 'Não deve aparecer',
+    })
+    expect(intro.introTextoPlano).toContain('identidade oculta')
+    expect(intro.introTextoPlano).toContain('anônima')
+    expect(intro.rotuloPreheader).toBe('Cotação anônima')
+
+    const html = montarHtmlEmailDisparo({
+      ...PARAMETROS_BASE,
+      anonimaCotacao: true,
+      nomeClienteOperacao: null,
+    })
+    expect(html).toContain('identidade oculta')
+    expect(html).not.toContain('Acme Import')
+  })
+
+  it('monta texto plano espelhando resumo e link', () => {
+    const texto = montarTextoPlanoEmailDisparo({
+      ...PARAMETROS_BASE,
+      modal: 'RODOVIARIO',
+      modalidade: 'RODOVIARIO_LTL',
+      tipoContainer: 'CAIXA',
+      quantidade: 10001,
+    })
+    expect(texto).toContain('Rodoviário · LTL')
+    expect(texto).toContain('10.001× Caixa')
+    expect(texto).toContain('Responder cotação:')
+    expect(texto).toContain(PARAMETROS_BASE.linkResposta)
+    expect(texto).toContain('Não responda este e-mail')
+  })
+
+  it('oculta nome do cliente quando cotação anônima', () => {
+    const html = montarHtmlEmailDisparo({
+      ...PARAMETROS_BASE,
+      anonimaCotacao: true,
+      nomeClienteOperacao: null,
+    })
+    expect(html).toContain('Um cliente')
+    expect(html).not.toContain('Acme Import')
+  })
 })
+

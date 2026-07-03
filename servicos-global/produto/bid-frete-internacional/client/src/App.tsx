@@ -317,8 +317,14 @@ function AppInner() {
         <ToastContainer />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
+            {/* /bid-frete/* (splat longo) — usuário logado ou rota protegida legada */}
             <Route
               path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
+              element={<VisaoFornecedorResponderPublico />}
+            />
+            {/* /bid-frete/.../publico/* (splat = só o token) — link do e-mail sem login */}
+            <Route
+              path=":token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}
             />
           </Routes>

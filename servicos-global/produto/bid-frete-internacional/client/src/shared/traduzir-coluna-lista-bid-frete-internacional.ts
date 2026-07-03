@@ -27,7 +27,7 @@ const CHAVE_I18N_COLUNA_LISTA: Record<string, string> = {
   endereco_destino_cotacao_bid_frete_internacional: 'enderecoDestino',
   descricao_mercadoria_cotacao_bid_frete_internacional: 'descricaoMercadoria',
   ncm_cotacao_bid_frete_internacional: 'ncm',
-  quantidade_cotacao_bid_frete_internacional: 'quantidade',
+  quantidade_volume_cotacao_bid_frete_internacional: 'quantidade',
   tipo_container_cotacao_bid_frete_internacional: 'tipoContainer',
   peso_kg_cotacao_bid_frete_internacional: 'pesoKg',
   cubagem_m3_cotacao_bid_frete_internacional: 'volumeM3',

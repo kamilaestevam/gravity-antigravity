@@ -11,7 +11,13 @@ import {
   resolverKnowledgeParaPrompt,
 } from '../services/chat.js'
 import { executarAgente, confirmarAcaoPendente } from '../services/orquestrador-agente.js'
-import { carregarMemorias, formatarMemoriasParaPrompt, salvarMemoria } from '../services/servico-memoria.js'
+import {
+  carregarMemorias,
+  recuperarMemoriasRelevantes,
+  formatarMemoriasParaPrompt,
+  salvarMemoria,
+} from '../services/servico-memoria.js'
+import { extrairMemoriasDoTurno } from '../services/servico-extracao-memoria.js'
 import { consultarErrosRecentes, diagnosticarProblema } from '../services/servico-diagnostico.js'
 import { avaliarLimite, invalidarCacheGastoMtd } from '../services/limiteMonetarioService.js'
 import { auditGabiAction } from '../services/audit.js'
@@ -79,7 +85,7 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
 
     const [history, memorias, errosRecentes] = await Promise.all([
       getConversationContext(tenantId, conversationIdEfetivo).catch(() => []),
-      carregarMemorias({ id_organizacao: tenantId, id_usuario: userId }).catch(() => []),
+      recuperarMemoriasRelevantes({ id_organizacao: tenantId, id_usuario: userId }, message).catch(() => []),
       consultarErrosRecentes(tenantId, userId, 3, 1).catch(() => []),
     ])
 
@@ -139,6 +145,13 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
     }
 
     const { cleanText, suggestions } = extractSuggestions(resultado.texto)
+
+    // Extracao automatica de memoria durave do turno (fire-and-forget, modelo barato)
+    void extrairMemoriasDoTurno(
+      { id_organizacao: tenantId, id_usuario: userId },
+      message,
+      cleanText,
+    ).catch(() => {})
 
     await persistirTurnoConversa({
       conversationId: conversationIdEfetivo,

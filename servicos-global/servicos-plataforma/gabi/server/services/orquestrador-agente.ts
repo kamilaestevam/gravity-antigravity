@@ -97,28 +97,31 @@ const PRIORIDADE_PREFIXO: string[] = [
   'store.',      // catalogo
 ]
 
+function rankPrioridade(id: string): number {
+  const idx = PRIORIDADE_PREFIXO.findIndex((p) => id.startsWith(p))
+  return idx === -1 ? PRIORIDADE_PREFIXO.length : idx
+}
+
 function selecionarToolsPorContexto(toolIds: string[], max: number): string[] {
-  const selecionadas: string[] = []
+  const prioritarias: string[] = []
   const restantes: string[] = []
 
-  // Primeiro: tools dos prefixos prioritarios (pedido + config)
   for (const id of toolIds) {
-    const prioritario = PRIORIDADE_PREFIXO.some((p) => id.startsWith(p))
-    if (prioritario) {
-      selecionadas.push(id)
-    } else {
-      restantes.push(id)
-    }
+    if (PRIORIDADE_PREFIXO.some((p) => id.startsWith(p))) prioritarias.push(id)
+    else restantes.push(id)
   }
 
-  // Se ja passou do limite, cortar as menos prioritarias
-  if (selecionadas.length > max) {
-    return selecionadas.slice(0, max)
+  // Ordena por rank do prefixo (nao pela ordem do catalogo) — assim tools de
+  // prefixo prioritario (ex.: 'gabi.' = consulta ao banco) entram no corte
+  // mesmo estando no fim do catalogo. Sort estavel preserva ordem dentro do rank.
+  prioritarias.sort((a, b) => rankPrioridade(a) - rankPrioridade(b))
+
+  if (prioritarias.length >= max) {
+    return prioritarias.slice(0, max)
   }
 
-  // Preencher com restantes ate o limite
-  const vagas = max - selecionadas.length
-  return [...selecionadas, ...restantes.slice(0, vagas)]
+  const vagas = max - prioritarias.length
+  return [...prioritarias, ...restantes.slice(0, vagas)]
 }
 
 // ── Orquestrador principal ──────────────────────────────────────────────────

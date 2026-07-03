@@ -1,12 +1,12 @@
 {
   "$schema": "./test-plans-registry.schema.json",
   "versao": "1.0.0",
-  "atualizadoEm": "2026-06-25T19:30:00.000Z",
-  "totalPlanos": 118,
+  "atualizadoEm": "2026-07-03T15:20:00.000Z",
+  "totalPlanos": 122,
   "totalPorTipo": {
-    "UNI": 36,
+    "UNI": 38,
     "CON": 0,
-    "FUN": 25,
+    "FUN": 27,
     "CRO": 9,
     "E2E": 35,
     "PEN": 0,
@@ -21,10 +21,10 @@
     "MARKET": 0,
     "TENANT": 2,
     "DBASE": 0,
-    "PEDIDO": 31,
+    "PEDIDO": 33,
     "NFIMP": 0,
     "LPCO": 0,
-    "BIDFRT": 7,
+    "BIDFRT": 9,
     "BIDCAM": 0,
     "SIMCUS": 0,
     "FINCOM": 0,
@@ -2148,6 +2148,36 @@
       "ultimoResultado": null
     },
     {
+      "id": "TST-UNI-BIDFRT-000118",
+      "tipo": "UNI",
+      "escopo": "BIDFRT",
+      "sublocal": "cotacoes",
+      "modulo": "validação rota Cadastros sem coords",
+      "specFile": "testes-unitarios/produto-gravity/bid-frete-internacional/server/TST-UNI-BIDFRT-000118-validar-rota-cadastros-cotacao.test.ts",
+      "planoFile": "testes-unitarios/produto-gravity/bid-frete-internacional/server/plano-teste/TST-UNI-BIDFRT-000118.md",
+      "componenteFile": "servicos-global/produto/bid-frete-internacional/server/src/lib/validar-rota-cadastros-cotacao-bid-frete-internacional.ts",
+      "criticidade": "alta",
+      "status": "aprovado",
+      "criadoEm": "2026-07-03T15:20:00.000Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-FUN-BIDFRT-000119",
+      "tipo": "FUN",
+      "escopo": "BIDFRT",
+      "sublocal": "cotacoes",
+      "modulo": "POST cotação porto sem lat/long",
+      "specFile": "testes-funcionais/produto-gravity/bid-frete-internacional/cotacoes/TST-FUN-BIDFRT-000119-cotacao-porto-sem-coords.test.ts",
+      "planoFile": "testes-funcionais/produto-gravity/bid-frete-internacional/cotacoes/plano-teste/TST-FUN-BIDFRT-000119.md",
+      "componenteFile": "servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes.ts",
+      "criticidade": "alta",
+      "status": "aprovado",
+      "criadoEm": "2026-07-03T15:20:00.000Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
       "id": "TST-UNI-MBOTO-000107",
       "tipo": "UNI",
       "escopo": "MBOTO",
@@ -2463,14 +2493,6 @@
       "ultimoResultado": null
     },
     {
-      "casosTotal": 6,
-      "coberturaPercentual": 0,
-      "status": "aprovado_qa",
-      "criadoEm": "2026-06-25T19:30:00.000Z",
-      "ultimaExecucao": null,
-      "ultimoResultado": null
-    },
-    {
       "id": "TST-UNI-SMTRD-URL-BANCO-000399",
       "tipo": "UNI",
       "escopo": "SMTRD",
@@ -2600,6 +2622,45 @@
       "coberturaPercentual": 0,
       "status": "aprovado_qa",
       "criadoEm": "2026-06-25T19:30:00.000Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-PEDIDO-NOVO-DUPLICATA-000407",
+      "tipo": "UNI",
+      "escopo": "PEDIDO",
+      "sublocal": "lista/novo-pedido",
+      "modulo": "Novo Pedido — helpers duplicata, z-index overlay, request 409",
+      "criticidade": "alta",
+      "planoFile": "testes-funcionais/produto-gravity/pedido/Lista/novo-pedido/plano-de-teste/TST-FUN-PEDIDO-NOVO-DUPLICATA-000407-funcional.md",
+      "specFile": "testes-unitarios/produto-gravity/pedido/modal-novo-pedido-duplicata-helpers.test.ts",
+      "specFiles": [
+        "testes-unitarios/produto-gravity/pedido/modal-novo-pedido-duplicata-helpers.test.ts",
+        "testes-unitarios/produto-gravity/pedido/modal-novo-pedido-duplicata-zindex.test.ts",
+        "testes-unitarios/produto-gravity/pedido/request-erro-duplicata-numero.test.ts"
+      ],
+      "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidoNovo.tsx",
+      "casosTotal": 7,
+      "coberturaPercentual": 0,
+      "status": "aprovado",
+      "criadoEm": "2026-07-03T15:20:00.000Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-FUN-PEDIDO-NOVO-DUPLICATA-000408",
+      "tipo": "FUN",
+      "escopo": "PEDIDO",
+      "sublocal": "lista/novo-pedido",
+      "modulo": "GET duplicatas-numero + POST 409 confirmação duplicata",
+      "criticidade": "alta",
+      "planoFile": "testes-funcionais/produto-gravity/pedido/Lista/novo-pedido/plano-de-teste/TST-FUN-PEDIDO-NOVO-DUPLICATA-000407-funcional.md",
+      "specFile": "testes-funcionais/produto-gravity/pedido/Lista/novo-pedido/plano-de-teste/TST-FUN-PEDIDO-NOVO-DUPLICATA-000408.test.ts",
+      "componenteFile": "servicos-global/produto/processos-core/src/routes/pedidos.ts",
+      "casosTotal": 3,
+      "coberturaPercentual": 0,
+      "status": "aprovado",
+      "criadoEm": "2026-07-03T15:20:00.000Z",
       "ultimaExecucao": null,
       "ultimoResultado": null
     }

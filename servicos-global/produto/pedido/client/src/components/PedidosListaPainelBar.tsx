@@ -174,6 +174,11 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
       .finally(() => { renameInFlightRef.current = null })
   }, [paineis, setPaineis, painelApi])
 
+  const toggleMenuPainel = useCallback((id: string) => {
+    setMenuPainelId(prev => (prev === id ? null : id))
+    setDeletingId(null)
+  }, [])
+
   const abrirRenomearPainel = useCallback((painel: T) => {
     setMenuPainelId(null)
     setDeletingId(null)
@@ -302,11 +307,7 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                     onDoubleClick={() => abrirRenomearPainel(p)}
                     title={
                       ehGenerico
-                        ? t('pedido.lista.painel_nome_generico_dica', {
-                            defaultValue:
-                              '{{exibicao}} (nome padrão — ⋮ para renomear)',
-                            exibicao,
-                          })
+                        ? i18n('painel_nome_generico_dica', '{{exibicao}} (nome padrão — ⋮ para opções)', { exibicao })
                         : exibicao
                     }
                     aria-current={ativo ? 'true' : undefined}
@@ -318,20 +319,19 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                     type="button"
                     data-testid={`${testIdPrefixMenu}-${p.id}`}
                     className="lp-painel-tab__menu"
-                    aria-label={t('pedido.lista.painel_renomear', { defaultValue: 'Renomear' })}
-                    title={t('pedido.lista.painel_renomear_um_clique', {
-                      defaultValue: 'Renomear painel',
-                    })}
+                    aria-label={i18n('painel_opcoes', 'Opções do painel')}
+                    title={i18n('painel_opcoes_um_clique', 'Opções do painel (renomear, excluir)')}
+                    aria-expanded={menuPainelId === p.id}
+                    aria-haspopup="menu"
                     onPointerDown={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation()
-                      abrirRenomearPainel(p)
+                      toggleMenuPainel(p.id)
                     }}
                     onContextMenu={e => {
                       e.preventDefault()
                       e.stopPropagation()
-                      setMenuPainelId(prev => prev === p.id ? null : p.id)
-                      setDeletingId(null)
+                      toggleMenuPainel(p.id)
                     }}
                   >
                     <DotsThree size={12} weight="bold" />
@@ -347,7 +347,7 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                   {deletingId === p.id ? (
                     <div style={{ padding: '0.5rem 0.75rem' }}>
                       <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                        {t('pedido.lista.painel_excluir_confirmar', { defaultValue: 'Excluir painel?' })}
+                        {i18n('painel_excluir_confirmar', 'Excluir painel?')}
                         {' '}<strong style={{ color: '#fff' }}>{exibicao}</strong>
                         {ehGenerico && nomeSalvo !== exibicao ? (
                           <span style={{ display: 'block', fontSize: '0.65rem', opacity: 0.65, marginTop: '0.2rem' }}>
@@ -372,7 +372,7 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                         onClick={() => abrirRenomearPainel(p)}
                       >
                         <PencilSimple size={13} />
-                        {t('pedido.lista.painel_renomear', { defaultValue: 'Renomear' })}
+                        {i18n('painel_renomear', 'Renomear')}
                       </button>
                       <button
                         type="button"
@@ -383,7 +383,7 @@ export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
                         disabled={paineis.length <= 1}
                       >
                         <Trash size={13} />
-                        {t('pedido.lista.painel_excluir', { defaultValue: 'Excluir' })}
+                        {i18n('painel_excluir', 'Excluir')}
                       </button>
                     </>
                   )}

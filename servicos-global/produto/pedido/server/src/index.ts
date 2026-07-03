@@ -338,6 +338,14 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
     // Record not found
     return res.status(404).json({ error: { message: 'Registro não encontrado.', code: 'NOT_FOUND' } })
   }
+  if (prismaCode === 'P2021') {
+    return res.status(503).json({
+      error: {
+        message: 'Tabela de painéis da lista ausente no banco. Aplique a migration create_lista_painel_usuario_global.',
+        code: 'SCHEMA_DRIFT',
+      },
+    })
+  }
 
   const status = err.statusCode ?? 500
   const code   = err.code ?? (status === 500 ? 'INTERNAL_ERROR' : 'ERROR')

@@ -22,7 +22,7 @@ export const CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA: readonly string[] = [
   'tipo_container_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
-  'quantidade_cotacao_bid_frete_internacional',
+  'quantidade_volume_cotacao_bid_frete_internacional',
   'aeroporto_origem_cotacao_bid_frete_internacional',
   'aeroporto_destino_cotacao_bid_frete_internacional',
   'ncm_cotacao_bid_frete_internacional',

@@ -249,9 +249,13 @@ listaPaineisRouter.post('/paineis', async (req: Request, res: Response, next: Ne
 
       let configInicial = configListaPainelPadraoV1()
       if (parsed.data.config_json) {
-        configInicial = migrarChavesConfigListaPainel(
-          listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json)),
-        )
+        try {
+          configInicial = migrarChavesConfigListaPainel(
+            listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json)),
+          )
+        } catch {
+          throw new AppError('config_json inválido', 400, 'VALIDATION_ERROR')
+        }
       }
 
       const painel = await db.listaPainelUsuarioGlobal.create({

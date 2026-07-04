@@ -22,6 +22,7 @@ import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-trans
 import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
 import { tentarRecuperarVinculoLeituraWorkspaceSmartRead } from '../lib/assegurar-vinculo-leitura-workspace-smart-read.js'
 import {
+  clausulaWorkspaceLeituraSmartRead,
   leituraVinculadaAoWorkspaceSmartRead,
   resolverIdWorkspaceLeituraSmartRead,
 } from '../lib/escopo-workspace-leitura-smart-read.js'
@@ -46,6 +47,8 @@ import {
   normalizarLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
+import { CriarPedidoDeLeituraSmartReadRequestSchema } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
+import { dispararCriacaoPedidoDeLeituraSmartRead } from '../lib/disparar-criacao-pedido-de-leitura-smart-read.js'
 import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.js'
 import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 import { qaLeituraSmartReadRouter } from './qa-leitura-smart-read.js'
@@ -342,6 +345,58 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
         return
       }
     }
+    next(err)
+  }
+})
+
+router.get('/:id_leitura/snapshot-id', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    if (!req.prisma) {
+      throw new AppError('Banco Smart Read indisponivel', 503, 'PRISMA_INDISPONIVEL')
+    }
+    const filtro = clausulaWorkspaceLeituraSmartRead(idWorkspace)
+    const snap = await req.prisma.snapshotLeituraSmartRead.findFirst({
+      where: {
+        ...filtro,
+        id_leitura_legado_snapshot_leitura_smart_read: id_leitura,
+        id_organizacao: idOrganizacao,
+      },
+      select: { id_snapshot_leitura_smart_read: true },
+    })
+    if (!snap) {
+      throw new AppError('Snapshot nao encontrado', 404, 'SNAPSHOT_NAO_ENCONTRADO')
+    }
+    res.json({ id_snapshot_leitura_smart_read: snap.id_snapshot_leitura_smart_read })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post('/:id_leitura/criar-pedido', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    const idUsuario = idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    if (!req.prisma) {
+      throw new AppError('Banco Smart Read indisponivel', 503, 'PRISMA_INDISPONIVEL')
+    }
+    const body = CriarPedidoDeLeituraSmartReadRequestSchema.parse({
+      id_leitura,
+      ...((req.body && typeof req.body === 'object') ? req.body : {}),
+    })
+    const resultado = await dispararCriacaoPedidoDeLeituraSmartRead({
+      prisma: req.prisma,
+      idOrganizacao,
+      idUsuario,
+      idWorkspace,
+      body,
+    })
+    res.status(201).json(resultado)
+  } catch (err) {
     next(err)
   }
 })

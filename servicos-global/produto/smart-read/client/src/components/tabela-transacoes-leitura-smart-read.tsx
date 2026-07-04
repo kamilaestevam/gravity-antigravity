@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import { Trash, CaretDoubleDown, CaretDoubleUp, X } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
@@ -121,6 +122,17 @@ export function TabelaTransacoesLeituraSmartRead({
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const origemPedido = searchParams.get('origem') === 'pedido'
+
+  useEffect(() => {
+    if (searchParams.get('origem') === 'pedido' && searchParams.get('acao') === 'nova-leitura') {
+      setModalNovaLeituraAberto(true)
+      const next = new URLSearchParams(searchParams)
+      next.delete('acao')
+      setSearchParams(next, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   const handleExpandidosMudar = useCallback((count: number) => {
     setTemExpandido(count > 0)
@@ -548,6 +560,7 @@ export function TabelaTransacoesLeituraSmartRead({
         aberto={modalNovaLeituraAberto}
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
+        origemPedido={origemPedido}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])

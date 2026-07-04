@@ -140,3 +140,28 @@ model LogUsoLlmLeituraSmartRead {
   @@map("log_uso_llm_leitura_smart_read")
 }
 
+/// Linhagem DE/PARA leitura Smart Read → Pedido (referências cross-banco sem FK).
+model ConversaoLeituraPedidoSmartRead {
+  id_conversao_leitura_pedido_smart_read           String   @id @default(cuid())
+  id_organizacao                                   String
+  id_produto_gravity                               String   @default("smart-read")
+  id_usuario                                       String
+  id_workspace                                     String?
+  id_leitura_legado_conversao_leitura_pedido       String
+  id_snapshot_leitura_smart_read                   String?
+  id_pedido                                        String
+  ids_pedido_item_conversao_leitura_pedido         Json
+  status_conversao_leitura_pedido_smart_read       String
+  detalhe_mapeamento_conversao_leitura_pedido      Json
+  data_conversao_leitura_pedido_smart_read         DateTime @default(now())
+  data_criacao_conversao_leitura_pedido_smart_read DateTime @default(now())
+  data_atualizacao_conversao_leitura_pedido        DateTime @updatedAt
+
+  @@unique([id_organizacao, id_leitura_legado_conversao_leitura_pedido])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_pedido])
+  @@map("conversao_leitura_pedido_smart_read")
+}
+

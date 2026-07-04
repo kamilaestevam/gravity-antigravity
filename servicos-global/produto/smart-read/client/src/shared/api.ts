@@ -42,6 +42,10 @@ import {
   ResumoUsoLlmLeituraSmartReadSchema,
   type ResumoUsoLlmLeituraSmartRead,
 } from '../../../shared/uso-llm-leitura-smart-read'
+import {
+  CriarPedidoDeLeituraSmartReadRespostaSchema,
+  type CriarPedidoDeLeituraSmartReadResposta,
+} from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 import {
   conteudoArquivoLeituraEhVisualizavel,
@@ -157,6 +161,19 @@ export const smartReadApi = {
 
   obterLeitura(idLeitura: string): Promise<Leitura> {
     return requisitar(LeituraSchema, `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`)
+  },
+
+  criarPedidoDeLeitura(idLeitura: string): Promise<CriarPedidoDeLeituraSmartReadResposta> {
+    return requisitar(
+      CriarPedidoDeLeituraSmartReadRespostaSchema,
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/criar-pedido`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_leitura: idLeitura }),
+        signal: AbortSignal.timeout(120_000),
+      },
+    )
   },
 
   async obterArquivoLeitura(idLeitura: string, idArquivo: string, nomeArquivo?: string): Promise<Blob> {

@@ -14,7 +14,7 @@ import {
   getFornecedores,
   type DisparoResultadoBidFreteInternacional,
 } from '../shared/api'
-import { formatarFeedbackDisparoBidFrete } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
+import { formatarFeedbackDisparoBidFrete, tipoNotificacaoFeedbackDisparo } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import { filtrarFornecedoresDisparoBidFreteInternacional } from '../shared/filtrar-fornecedores-disparo-bid-frete-internacional'
 
@@ -88,9 +88,9 @@ export function ModalEnviarCotacaoBidFreteInternacional({
   const notificarResultadoDisparo = useCallback((resultado: DisparoResultadoBidFreteInternacional) => {
     const feedback = formatarFeedbackDisparoBidFrete(resultado)
     addNotification({
-      type: feedback.tipo === 'sucesso' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
+      type: tipoNotificacaoFeedbackDisparo(feedback.tipo),
       message: `${feedback.titulo} — ${feedback.detalhe}`,
-      duration: feedback.tipo === 'erro' ? 8000 : 6000,
+      duration: feedback.tipo === 'erro' || feedback.tipo === 'nao_confirmado' ? 8000 : 6000,
     })
     setErro(feedback.tipo === 'sucesso' ? null : `${feedback.titulo} — ${feedback.detalhe}`)
     onEnviado()

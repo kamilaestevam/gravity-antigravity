@@ -20,9 +20,23 @@ export type ResultadoDisparoResumo = {
 }
 
 export type FeedbackDisparoFormatado = {
-  tipo: 'sucesso' | 'parcial' | 'erro' | 'pendente'
+  tipo: 'sucesso' | 'parcial' | 'erro' | 'aguardando' | 'nao_confirmado'
   titulo: string
   detalhe: string
+}
+
+export function tipoNotificacaoFeedbackDisparo(
+  tipo: FeedbackDisparoFormatado['tipo'],
+): 'success' | 'warning' | 'error' {
+  if (tipo === 'sucesso') return 'success'
+  if (tipo === 'parcial' || tipo === 'aguardando') return 'warning'
+  return 'error'
+}
+
+export function corBordaFeedbackDisparo(tipo: FeedbackDisparoFormatado['tipo']): string {
+  if (tipo === 'sucesso') return 'rgba(34, 197, 94, 0.35)'
+  if (tipo === 'parcial' || tipo === 'aguardando') return 'rgba(245, 158, 11, 0.35)'
+  return 'rgba(239, 68, 68, 0.35)'
 }
 
 function nomesFornecedoresResultado(results: ResultadoDisparoItem[], status: string): string[] {
@@ -40,13 +54,19 @@ function resumirNomes(nomes: string[], max = 3): string {
 
 export function formatarFeedbackDisparoBidFrete(
   resultado: ResultadoDisparoResumo | null | undefined,
-  opts?: { disparoErro?: string | null; disparoPendente?: boolean },
+  opts?: {
+    disparoErro?: string | null
+    /** UI durante polling — não afirma que e-mail foi enviado. */
+    aguardandoConfirmacao?: boolean
+    /** Timeout ou disparos ainda PENDENTE após espera. */
+    naoConfirmado?: boolean
+  },
 ): FeedbackDisparoFormatado {
-  if (opts?.disparoPendente) {
+  if (opts?.aguardandoConfirmacao) {
     return {
-      tipo: 'pendente',
-      titulo: 'Cotação criada — disparo em andamento',
-      detalhe: 'Os convites aos fornecedores estão sendo enviados. Você pode acompanhar o status na lista de cotações.',
+      tipo: 'aguardando',
+      titulo: 'Cotação salva — confirmando envio',
+      detalhe: 'Aguardando confirmação de entrega dos convites por e-mail. Isso pode levar alguns segundos.',
     }
   }
   if (opts?.disparoErro) {
@@ -65,6 +85,22 @@ export function formatarFeedbackDisparoBidFrete(
   }
 
   const results = resultado.results ?? []
+  const pendentes = results.filter(r => r.status_disparo_cotacao_bid_frete_internacional === 'PENDENTE').length
+
+  if (opts?.naoConfirmado || pendentes > 0) {
+    const partes = [
+      pendentes > 0
+        ? `${pendentes} convite(s) ainda sem confirmação de entrega`
+        : 'O envio não foi confirmado a tempo',
+      'Abra os detalhes da cotação para ver o status real de cada fornecedor',
+    ]
+    return {
+      tipo: 'nao_confirmado',
+      titulo: 'Envio não confirmado',
+      detalhe: partes.join(' — '),
+    }
+  }
+
   const enviadosOk = resultado.enviados_ok
     ?? results.filter(r => r.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO').length
   const erros = resultado.erros_envio

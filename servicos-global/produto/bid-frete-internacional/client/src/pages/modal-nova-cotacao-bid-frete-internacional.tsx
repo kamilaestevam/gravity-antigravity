@@ -38,6 +38,7 @@ import {
   NotePencil,
   ListNumbers,
   GitBranch,
+  Clock,
   Warehouse,
 } from '@phosphor-icons/react'
 
@@ -49,8 +50,15 @@ import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
-import { criarCotacaoComDisparo, getFornecedores } from '../shared/api'
-import { formatarFeedbackDisparoBidFrete, type FeedbackDisparoFormatado } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
+import { criarCotacaoComDisparo, getCotacao, getFornecedores } from '../shared/api'
+import { aguardarConfirmacaoDisparoCotacao } from '../shared/aguardar-confirmacao-disparo-bid-frete-internacional'
+import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
+import {
+  corBordaFeedbackDisparo,
+  formatarFeedbackDisparoBidFrete,
+  tipoNotificacaoFeedbackDisparo,
+  type FeedbackDisparoFormatado,
+} from '../shared/formatar-resultado-disparo-bid-frete-internacional'
 import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
 import {
   ROTA_LISTA_BID_FRETE_INTERNACIONAL,
@@ -334,6 +342,7 @@ function modalidadeEfetivaNovaCotacao(form: FormState): ModalidadeCarga | '' {
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 interface FormState {
+  numero_cotacao_bid_frete_internacional: string
   tipo_operacao_cotacao_bid_frete_internacional: TipoOperacao | ''
   modal_cotacao_bid_frete_internacional: ModalFrete | ''
   modalidade_cotacao_bid_frete_internacional: ModalidadeCarga | ''
@@ -395,6 +404,7 @@ interface FormState {
 }
 
 const INITIAL_FORM: FormState = {
+  numero_cotacao_bid_frete_internacional: '',
   tipo_operacao_cotacao_bid_frete_internacional: '',
   modal_cotacao_bid_frete_internacional: '',
   modalidade_cotacao_bid_frete_internacional: '',
@@ -446,6 +456,13 @@ const INITIAL_FORM: FormState = {
   anonima_cotacao_bid_frete_internacional: false,
   valor_meta_cotacao_bid_frete_internacional: '',
   moeda_meta_cotacao_bid_frete_internacional: 'USD',
+}
+
+function criarFormInicialNovaCotacao(): FormState {
+  return {
+    ...INITIAL_FORM,
+    numero_cotacao_bid_frete_internacional: gerarNumeroCotacaoFreteInternacional(),
+  }
 }
 
 function BotaoIncotermNovaCotacao({
@@ -1275,6 +1292,13 @@ const NC_ESTILOS_CONTEUDO = `
           border-color: var(--nc-accent);
           box-shadow: var(--nc-focus-ring);
         }
+        .nc-field-hint {
+          display: block;
+          margin-top: 0.35rem;
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+          line-height: 1.35;
+        }
         .nc-input::placeholder { 
           color: var(--text-muted, #64748b); 
         }
@@ -2067,7 +2091,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
   const idPainelLista = idPainelListaBidFreteDoQueryParam(searchParams.get('id_painel_lista'))
   const [step, setStep] = useState(1)
-  const [form, setForm] = useState<FormState>(INITIAL_FORM)
+  const [form, setForm] = useState<FormState>(criarFormInicialNovaCotacao)
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
   const [feedbackDisparoCriacao, setFeedbackDisparoCriacao] = useState<FeedbackDisparoFormatado | null>(null)
@@ -2497,6 +2521,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const canNext = (): boolean => {
     switch (tipoPassoAtual) {
       case 'modal': {
+        if (!form.numero_cotacao_bid_frete_internacional.trim()) return false
         if (!form.tipo_operacao_cotacao_bid_frete_internacional || !form.modal_cotacao_bid_frete_internacional) {
           return false
         }
@@ -2617,6 +2642,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       const pretendiaDisparar = canaisDisparo.length > 0 && idsFornecedoresDisparo.length > 0
 
       const { cotacao, disparo, disparo_erro, disparo_pendente } = await criarCotacaoComDisparo({
+        numero_cotacao_bid_frete_internacional: form.numero_cotacao_bid_frete_internacional.trim(),
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
         modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
         modalidade_cotacao_bid_frete_internacional: modalidadeEfetivaNovaCotacao(form) as ModalidadeCarga,
@@ -2705,16 +2731,32 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           emailsPorFornecedorDisparo,
         ),
       })
-      const feedback = formatarFeedbackDisparoBidFrete(
-        pretendiaDisparar && !disparo_pendente ? disparo : null,
-        { disparoErro: disparo_erro, disparoPendente: disparo_pendente },
-      )
+      setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
+      setSucesso(true)
+
       if (pretendiaDisparar) {
+        let feedback: FeedbackDisparoFormatado
+
+        if (disparo_erro) {
+          feedback = formatarFeedbackDisparoBidFrete(null, { disparoErro: disparo_erro })
+        } else if (disparo_pendente) {
+          setFeedbackDisparoCriacao(formatarFeedbackDisparoBidFrete(null, { aguardandoConfirmacao: true }))
+          const { resumo, confirmado } = await aguardarConfirmacaoDisparoCotacao(
+            cotacao.id_cotacao_bid_frete_internacional,
+            getCotacao,
+          )
+          feedback = confirmado
+            ? formatarFeedbackDisparoBidFrete(resumo)
+            : formatarFeedbackDisparoBidFrete(resumo, { naoConfirmado: true })
+        } else {
+          feedback = formatarFeedbackDisparoBidFrete(disparo)
+        }
+
         setFeedbackDisparoCriacao(feedback)
         addNotification({
-          type: feedback.tipo === 'sucesso' || feedback.tipo === 'pendente' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
+          type: tipoNotificacaoFeedbackDisparo(feedback.tipo),
           message: `${feedback.titulo} — ${feedback.detalhe}`,
-          duration: feedback.tipo === 'erro' ? 8000 : 6000,
+          duration: feedback.tipo === 'erro' || feedback.tipo === 'nao_confirmado' ? 10000 : 8000,
         })
       } else if (canaisDisparo.length === 0) {
         setFeedbackDisparoCriacao({
@@ -2727,8 +2769,6 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ...traduzirDisparoNaoRealizadoNovaCotacao(t),
         })
       }
-      setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
-      setSucesso(true)
     } catch (err) {
       console.error('Erro ao criar cotação:', err)
       alert(
@@ -2749,6 +2789,28 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       case 'modal':
         return (
           <div className="nc-step-content">
+            <Field
+              label={t('bidfrete.nova_cotacao.numero_cotacao', { defaultValue: 'Nº da cotação' })}
+              icone={<Hash {...ICONE_LABEL_SECAO} />}
+            >
+              <input
+                type="text"
+                className="nc-input"
+                value={form.numero_cotacao_bid_frete_internacional}
+                onChange={(e) => set('numero_cotacao_bid_frete_internacional', e.target.value)}
+                placeholder={t('bidfrete.nova_cotacao.numero_cotacao_placeholder', {
+                  defaultValue: 'COT-YYYYMMDD-NNNN',
+                })}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <span className="nc-field-hint">
+                {t('bidfrete.nova_cotacao.numero_cotacao_hint', {
+                  defaultValue: 'Gerado automaticamente; você pode personalizar antes de criar.',
+                })}
+              </span>
+            </Field>
+
             <NcSectionTitle icone={<GlobeHemisphereWest {...ICONE_LABEL_SECAO} />} obrigatorio>
               {t('bidfrete.nova_cotacao.tipo_operacao')}
             </NcSectionTitle>
@@ -3852,7 +3914,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   const handleNovaCotacaoMesmoBid = () => {
-    setForm(INITIAL_FORM)
+    setForm(criarFormInicialNovaCotacao())
     setFornecedorIdsSelecionados([])
     setCanaisDisparo([])
     setCotacaoId(null)
@@ -3918,17 +3980,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 style={{
                   ...ESTILOS_RESULTADO.resultadoBanner,
                   marginTop: '0.75rem',
-                  borderColor: feedbackDisparoCriacao.tipo === 'sucesso' || feedbackDisparoCriacao.tipo === 'pendente'
-                    ? 'rgba(34, 197, 94, 0.35)'
-                    : feedbackDisparoCriacao.tipo === 'parcial'
-                      ? 'rgba(245, 158, 11, 0.35)'
-                      : 'rgba(239, 68, 68, 0.35)',
+                  borderColor: corBordaFeedbackDisparo(feedbackDisparoCriacao.tipo),
                 }}
                 role="status"
               >
-                {feedbackDisparoCriacao.tipo === 'sucesso' || feedbackDisparoCriacao.tipo === 'pendente'
+                {feedbackDisparoCriacao.tipo === 'sucesso'
                   ? <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
-                  : <Warning weight="fill" size={20} color={feedbackDisparoCriacao.tipo === 'parcial' ? '#f59e0b' : '#ef4444'} />}
+                  : feedbackDisparoCriacao.tipo === 'aguardando'
+                    ? <Clock weight="fill" size={20} color="#f59e0b" />
+                    : <Warning weight="fill" size={20} color={feedbackDisparoCriacao.tipo === 'parcial' ? '#f59e0b' : '#ef4444'} />}
                 <p style={ESTILOS_RESULTADO.resultadoBannerTexto}>
                   <strong>{feedbackDisparoCriacao.titulo}</strong>
                   {' — '}

@@ -68,6 +68,8 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - tela_pedido_lista_novo_pedido_modal_importacao_passo_4 → pedido-lista-importar-resultado.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_tela_final → pedido-lista-importar-erros-csv.png (+ reverter)
  * Transferir (Drive: tela_pedido_lista_transferir_* → pedido-lista-transferir-*.png)
+ * Consolidar (Drive: tela_pedido_lista_consolidar_* → pedido-lista-consolidar-*.png)
+ * Edição em massa (Drive: tela_pedido_lista_edicao_em_massa_* → pedido-lista-edicao-massa-*.png)
  * - pedido-novo-pedido.png
  * - pedido-novo-item.png
  * - pedido-transferir.png
@@ -203,6 +205,62 @@ const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO =
   '/university/screenshots/pedido-lista-transferir-reducao-modal-confirmado.png'
 const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO_2 =
   '/university/screenshots/pedido-lista-transferir-reducao-modal-confirmado-2.png'
+
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_BOTAO_COM_SELECAO =
+  '/university/screenshots/pedido-lista-consolidar-botao-com-selecao-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_1 =
+  '/university/screenshots/pedido-lista-consolidar-passo-1-configurar.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_MODAL =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_FILTRO_ORIGEM =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-filtro-origem.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_IGUAIS =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-dados-iguais.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_DIVERGENTES =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-dados-divergentes.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_VAZIOS =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-dados-vazios.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_PROXIMO =
+  '/university/screenshots/pedido-lista-consolidar-passo-2-proximo.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_3 =
+  '/university/screenshots/pedido-lista-consolidar-passo-3-confirmar.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_CONCLUIDO_MODAL =
+  '/university/screenshots/pedido-lista-consolidar-concluido-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_CONCLUIDO_LISTA =
+  '/university/screenshots/pedido-lista-consolidar-concluido-lista.png'
+
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_SELECAO =
+  '/university/screenshots/pedido-lista-edicao-massa-selecao-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPOS =
+  '/university/screenshots/pedido-lista-edicao-massa-campos-a-editar.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_PREVIEW =
+  '/university/screenshots/pedido-lista-edicao-massa-preview.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_PEDIDO =
+  '/university/screenshots/pedido-lista-edicao-massa-campos-opcoes-pedido.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_ITEM =
+  '/university/screenshots/pedido-lista-edicao-massa-campos-opcoes-item.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_COMBINADO =
+  '/university/screenshots/pedido-lista-edicao-massa-campos-opcoes-combinado.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_ALFANUMERICO =
+  '/university/screenshots/pedido-lista-edicao-massa-campo-alfanumerico.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_SELECT =
+  '/university/screenshots/pedido-lista-edicao-massa-campo-select.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_ADICIONAR_CAMPO =
+  '/university/screenshots/pedido-lista-edicao-massa-campos-adicionar-campo.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_MODAL =
+  '/university/screenshots/pedido-lista-edicao-massa-revisao-modal.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_POR_PEDIDO =
+  '/university/screenshots/pedido-lista-edicao-massa-revisao-por-pedido.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_TODOS =
+  '/university/screenshots/pedido-lista-edicao-massa-revisao-todos-serao-alterados.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_ALTERADOS =
+  '/university/screenshots/pedido-lista-edicao-massa-revisao-com-alteracao.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_SEM_EFEITO =
+  '/university/screenshots/pedido-lista-edicao-massa-revisao-sem-alteracao.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONFIRMAR =
+  '/university/screenshots/pedido-lista-edicao-massa-confirmar.png'
+const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONCLUIDO_MODAL =
+  '/university/screenshots/pedido-lista-edicao-massa-concluido-modal.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -1191,25 +1249,344 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Consolidar pedidos',
           tituloCurto: 'Consolidar',
           paragrafos: [
-            '**Consolidar** une **dois ou mais pedidos compatíveis** em um único PO — útil quando o mesmo fornecedor ou fluxo comercial permite agrupar linhas. Pedidos de **importação e exportação misturados** são **bloqueados**; a tela exibe banner e o botão fica desabilitado até a seleção ser corrigida.',
-            'Na **Lista**, selecione os pedidos elegíveis, abra **Consolidar** e confirme o pedido resultante. Os itens das origens passam a compor o pedido consolidado; os pedidos de origem são encerrados conforme as regras do produto.',
+            '**Consolidar** une **dois ou mais pedidos** em um único PO, útil quando o mesmo fornecedor ou fluxo comercial permite agrupar linhas. A consolidação ocorre normalmente para iniciar a próxima etapa, que é o **embarque**.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-consolidar.png`.',
+          calloutAposParagrafo: {
+            indice: 0,
+            callout: {
+              tipo: 'aviso',
+              texto:
+                'Não é possível consolidar pedidos de **importação** e **exportação**.',
+            },
           },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_BOTAO_COM_SELECAO,
+                  paragrafoAntes: '**01.** Com **dois ou mais pedidos** marcados, clique em **Consolidar**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_1,
+                  paragrafoAntes:
+                    '**02.** Defina o **número do PO consolidado** e confira na **prévia** a quantidade de **pedidos**, **itens**, **inteiros** e **parciais** que serão consolidados',
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Com **Fundir itens** ativo, linhas com o mesmo **part number** viram **uma única linha** no PO novo, somando quantidades; sem a opção, todos os itens são **copiados** para o consolidado.',
+              },
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_MODAL,
+                  paragrafoAntes: '**03.** **Comparar pedidos consolidados**',
+                },
+              ],
+              calloutApos: [
+                {
+                  tipo: 'dica',
+                  texto:
+                    'Use os filtros **Todos**, **Divergentes**, **Iguais** e **Vazios** para navegar rápido. Divergentes já vêm com **valor sugerido**; altere no dropdown se precisar.',
+                },
+                {
+                  tipo: 'dica',
+                  texto:
+                    'O PO consolidado herda campos **iguais** + **escolhas do passo 2** + base do **primeiro pedido** da seleção; **valor total** = soma dos origens.',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              infograficoConsolidarPasso2Regras: true,
+              telas: [],
+            },
+            {
+              indice: 0,
+              layoutConsolidarExemplosPasso2: true,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_FILTRO_ORIGEM,
+                  chipConsolidarExemplo: 'filtro_origem',
+                  paragrafoAntes: 'Filtro por **pedido de origem** para focar conflitos de um PO específico',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_IGUAIS,
+                  chipConsolidarExemplo: 'igual',
+                  paragrafoAntes: 'Campo **igual**, mesmo valor em todos; entra automaticamente (somente leitura)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_DIVERGENTES,
+                  chipConsolidarExemplo: 'divergente',
+                  paragrafoAntes: 'Campo **divergente**, **dropdown** para escolher qual valor prevalece no PO novo',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_DADOS_VAZIOS,
+                  chipConsolidarExemplo: 'vazio',
+                  paragrafoAntes: 'Campo **vazio**, sem dado nas origens; permanece vazio no consolidado',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_2_PROXIMO,
+                  chipConsolidarExemplo: 'proximo',
+                  paragrafoAntes: 'Revise e clique em **Próximo** para o passo 3 do modal',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_PASSO_3,
+                  paragrafoAntes: '**04.** Revise o resumo e clique em **Confirmar**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_CONCLUIDO_MODAL,
+                  paragrafoAntes: '**05.** Consolidação **concluída** no modal',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              tituloEtapa: '**Resultado na Lista:**',
+              layoutConsolidarResultadoUnificado: true,
+              infograficoConsolidarResultadoEsperado: true,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_CONSOLIDAR_CONCLUIDO_LISTA,
+                  paragrafoAntes: '**06.** **PO consolidado** visível na Lista; origens saem da visão ativa',
+                },
+              ],
+            },
+          ],
         },
         {
           titulo: 'Edição em massa',
           tituloCurto: 'Edição em massa',
           paragrafos: [
-            'A **edição em massa** altera **campos de pedido e de item** em paralelo para todos os registros selecionados na lista. Campos bloqueados, somente leitura ou calculados automaticamente não aparecem no formulário.',
-            'Selecione pedidos e/ou itens na **Lista**, clique em **Edição em massa**, escolha os campos a atualizar e informe os novos valores. Ao salvar, o sistema aplica as mudanças em lote e exibe o resumo de registros afetados.',
+            'A **edição em massa** altera **campos de pedido e de item** em paralelo para todos os registros selecionados na Lista. Campos **calculados**, **somente leitura** ou geridos por **outro fluxo** (consolidação, transferência) **não aparecem** no formulário.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-edicao-massa.png`.',
+          calloutAposParagrafo: {
+            indice: 0,
+            callout: {
+              tipo: 'dica',
+              texto:
+                'Você pode selecionar **pedidos inteiros**, **itens avulsos** ou **mistura dos dois** — o modal adapta o escopo. **Colunas criadas pelo usuário** também entram na edição.',
+            },
           },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_SELECAO,
+                  paragrafoAntes: '**01.** Com pedidos e/ou itens marcados — clique em **Edição em massa**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPOS,
+                  paragrafoAntes: '**02.** Passo 1 — escolha **nível**, **campo**, **operação** e **valor**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              infograficoEdicaoMassaPasso1Regras: true,
+              telas: [],
+            },
+            {
+              indice: 0,
+              rotuloEdicaoMassaExemplosPasso1: true,
+              layoutEdicaoMassaExemplosPasso1: true,
+              tituloEtapa: '**Ilustrações do passo 1 — não são passos extras:**',
+              textoIntro:
+                'Cada print mostra um **comportamento real** da tela de campos, alinhado ao infográfico acima.',
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_PEDIDO,
+                  chipEdicaoMassaExemplo: 'nivel_pedido',
+                  paragrafoAntes: 'Nível **Pedido** — só campos de cabeçalho do PO',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_ITEM,
+                  chipEdicaoMassaExemplo: 'nivel_item',
+                  paragrafoAntes: 'Nível **Item** — campos das linhas do pedido',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_COMBINADO,
+                  chipEdicaoMassaExemplo: 'nivel_combinado',
+                  paragrafoAntes: 'Nível **Combinado** — pedido + item na mesma tela',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_ALFANUMERICO,
+                  chipEdicaoMassaExemplo: 'tipo_texto',
+                  paragrafoAntes: 'Campo **texto** — operação **substituir**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_SELECT,
+                  chipEdicaoMassaExemplo: 'tipo_select',
+                  paragrafoAntes: 'Campo **select** — dropdown com opções válidas (Incoterm, moeda, status…)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_ADICIONAR_CAMPO,
+                  chipEdicaoMassaExemplo: 'adicionar_campo',
+                  paragrafoAntes: '**+ Adicionar campo** — inclua mais linhas de edição no mesmo lote',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_PREVIEW,
+                  paragrafoAntes: '**03.** **Preview** em tempo real — DE/PARA por pedido (debounce ~300 ms)',
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Se o valor já é **igual** em todos os pedidos, aparece **Múltiplos valores** ou placeholder — revise antes de avançar. Campos **@@unique** com **2+ POs** ficam **bloqueados** na operação substituir.',
+              },
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_MODAL,
+                  paragrafoAntes: '**04.** Passo 2 — **Revisão** com pills de resumo (pedidos · itens · campos)',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              infograficoEdicaoMassaPasso2Regras: true,
+              telas: [],
+            },
+            {
+              indice: 0,
+              rotuloEdicaoMassaExemplosPasso2: true,
+              layoutEdicaoMassaExemplosPasso2: true,
+              tituloEtapa: '**Ilustrações do passo 2 — não são passos extras:**',
+              textoIntro:
+                'Filtros e visões do DE/PARA antes de confirmar — alinhados ao infográfico acima.',
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_POR_PEDIDO,
+                  chipEdicaoMassaExemplo: 'filtro_por_pedido',
+                  paragrafoAntes: 'Filtro por **pedido de origem** — foco no DE/PARA de um PO',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_TODOS,
+                  chipEdicaoMassaExemplo: 'filtro_todos',
+                  paragrafoAntes: 'Filtro **Todos** — visão completa, inclusive linhas **sem efeito**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_ALTERADOS,
+                  chipEdicaoMassaExemplo: 'filtro_alterados',
+                  paragrafoAntes: 'Filtro **Alterados** — só registros que **mudam de fato**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_SEM_EFEITO,
+                  chipEdicaoMassaExemplo: 'filtro_sem_efeito',
+                  paragrafoAntes: 'Filtro **Sem efeito** — valor novo **igual ao atual** (não grava)',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONFIRMAR,
+                  paragrafoAntes: '**05.** Revise e clique em **Confirmar**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONCLUIDO_MODAL,
+                  paragrafoAntes: '**06.** Edição **concluída** no modal (passo 3 — Resultado)',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              infograficoEdicaoMassaResultadoEsperado: true,
+              telas: [],
+            },
+          ],
         },
         {
           titulo: 'Gerar documentos',

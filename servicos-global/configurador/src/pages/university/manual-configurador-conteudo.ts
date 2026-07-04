@@ -74,6 +74,30 @@ export interface DocPassoVisual {
     chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
     /** Manual Pedido § Transferir — mapa UX 10 do resultado esperado (saldos e quantidades). */
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
+    /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
+    infograficoConsolidarPasso2Regras?: boolean
+    /** Manual Pedido § Consolidar — resultado esperado após confirmar. */
+    infograficoConsolidarResultadoEsperado?: boolean
+    /** Manual Pedido § Consolidar — prints 05–06 + infográfico resultado num único bloco. */
+    layoutConsolidarResultadoUnificado?: boolean
+    /** Manual Pedido § Consolidar — grade de exemplos do passo 2 (não são passos numerados). */
+    rotuloConsolidarExemplosPasso2?: boolean
+    /** Manual Pedido § Consolidar — layout 1+3+1 (filtro → Igual/Divergente/Vazio → Próximo). */
+    layoutConsolidarExemplosPasso2?: boolean
+    /** Manual Pedido § Edição em massa — infográfico passo 1 (Campos). */
+    infograficoEdicaoMassaPasso1Regras?: boolean
+    /** Manual Pedido § Edição em massa — infográfico passo 2 (Revisão). */
+    infograficoEdicaoMassaPasso2Regras?: boolean
+    /** Manual Pedido § Edição em massa — resultado esperado após confirmar. */
+    infograficoEdicaoMassaResultadoEsperado?: boolean
+    /** Manual Pedido § Edição em massa — exemplos ilustrativos do passo 1. */
+    rotuloEdicaoMassaExemplosPasso1?: boolean
+    /** Manual Pedido § Edição em massa — exemplos ilustrativos do passo 2. */
+    rotuloEdicaoMassaExemplosPasso2?: boolean
+    /** Manual Pedido § Edição em massa — grade 3+3 de exemplos do passo 1. */
+    layoutEdicaoMassaExemplosPasso1?: boolean
+    /** Manual Pedido § Edição em massa — grade 1+3 de exemplos do passo 2. */
+    layoutEdicaoMassaExemplosPasso2?: boolean
     /** Dica(s) logo abaixo desta grade (ex.: entre duas linhas de prints). */
     calloutApos?: DocCalloutManual | DocCalloutManual[]
   }[]
@@ -199,10 +223,21 @@ export type DocCalloutManual = {
 }
 
 /** Célula de galeria comparativa (prints lado a lado após parágrafo). */
+export type DocChipConsolidarExemploId = 'filtro_origem' | 'igual' | 'divergente' | 'vazio' | 'proximo'
+
+export type DocChipEdicaoMassaExemploId =
+  | 'nivel_pedido' | 'nivel_item' | 'nivel_combinado'
+  | 'tipo_texto' | 'tipo_select' | 'adicionar_campo'
+  | 'filtro_por_pedido' | 'filtro_todos' | 'filtro_alterados' | 'filtro_sem_efeito'
+
 export interface DocGaleriaComparacaoTela {
   legenda: string
   imagem: string
   paragrafoAntes?: string
+  /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
+  chipConsolidarExemplo?: DocChipConsolidarExemploId
+  /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */
+  chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
   /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
   calloutAntes?: DocCalloutManual
 }

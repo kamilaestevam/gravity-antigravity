@@ -167,66 +167,107 @@ export const DOC_API_COCKPIT_SECAO: DocSecao = {
           ],
         },
         {
-          titulo: 'Abrir Novo token',
-          imagem: IMG_TOKENS_NOVO_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Clique em **Novo token**, como indicado pela seta na imagem.',
-          ],
-        },
-        {
-          titulo: 'Preencher o formulário',
-          imagem: IMG_TOKENS_MODAL_1,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Informe um **nome** identificável (ex.: «Integração SAP»), escolha o **escopo** (Leitura, Escrita ou Exclusão), a **validade** (Nunca, 30 dias, 90 dias ou personalizado) e o **rate limit** em requisições por minuto.',
-          ],
-        },
-        {
-          titulo: 'Confirmar criação',
-          imagem: IMG_TOKENS_MODAL_2,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Revise os campos e clique em **Gerar token**.',
-          ],
-        },
-        {
-          titulo: 'Copiar o valor em claro',
-          imagem: IMG_TOKENS_GERAR_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'O sistema exibe o token completo **uma única vez**. Use **Copiar** e armazene em local seguro antes de fechar.',
-          ],
-        },
-        {
-          titulo: 'Modal de confirmação',
-          imagem: IMG_TOKENS_GERAR_CONF,
-          imagemAbaixoTexto: true,
+          titulo: 'Emitir token',
           ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
           paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '03 · Abrir Novo token',
+                  imagem: IMG_TOKENS_NOVO_SETA,
+                  paragrafoAntes: 'Clique em **Novo token**, como indicado pela seta na imagem.',
+                },
+                {
+                  legenda: '04 · Preencher o formulário',
+                  imagem: IMG_TOKENS_MODAL_1,
+                  paragrafoAntes:
+                    'Informe um **nome** identificável (ex.: «Integração SAP»), escolha o **escopo** (Leitura, Escrita ou Exclusão), a **validade** (Nunca, 30 dias, 90 dias ou personalizado) e o **rate limit** em requisições por minuto.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Confirmar e copiar',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '05 · Confirmar criação',
+                  imagem: IMG_TOKENS_MODAL_2,
+                  paragrafoAntes: 'Revise os campos e clique em **Gerar token**.',
+                },
+                {
+                  legenda: '06 · Copiar o valor em claro',
+                  imagem: IMG_TOKENS_GERAR_SETA,
+                  paragrafoAntes:
+                    'O sistema exibe o token completo **uma única vez**. Use **Copiar** e armazene em local seguro antes de fechar.',
+                },
+              ],
+            },
+          ],
         },
         {
           titulo: 'Token na listagem',
-          imagem: IMG_TOKENS_GERAR_OK,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Após confirmar, o token aparece na tabela apenas com o **prefixo** — o valor secreto não pode ser recuperado depois.',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '07 · Modal de confirmação',
+                  imagem: IMG_TOKENS_GERAR_CONF,
+                },
+                {
+                  legenda: '08 · Token na listagem',
+                  imagem: IMG_TOKENS_GERAR_OK,
+                  paragrafoAntes:
+                    'Após confirmar, o token aparece na tabela apenas com o **prefixo** — o valor secreto não pode ser recuperado depois.',
+                },
+              ],
+            },
           ],
         },
         {
-          titulo: 'Revogar um token',
-          imagem: IMG_TOKENS_REVOGAR_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Para invalidar uma credencial comprometida ou desativada, use a ação **Revogar** na linha do token.',
-          ],
-        },
-        {
-          titulo: 'Confirmar revogação',
-          imagem: IMG_TOKENS_REVOGAR_MODAL,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'No modal **Revogar token?**, leia o aviso e clique em **Excluir** para confirmar. A revogação é **imediata**: requisições com aquele token passam a retornar erro de autenticação.',
+          titulo: 'Revogar token',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '09 · Revogar um token',
+                  imagem: IMG_TOKENS_REVOGAR_SETA,
+                  paragrafoAntes:
+                    'Para invalidar uma credencial comprometida ou desativada, use a ação **Revogar** na linha do token.',
+                },
+                {
+                  legenda: '10 · Confirmar revogação',
+                  imagem: IMG_TOKENS_REVOGAR_MODAL,
+                  paragrafoAntes:
+                    'No modal **Revogar token?**, leia o aviso e clique em **Excluir** para confirmar. A revogação é **imediata**: requisições com aquele token passam a retornar erro de autenticação.',
+                },
+              ],
+            },
           ],
         },
         {
@@ -247,67 +288,110 @@ export const DOC_API_COCKPIT_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Abrir a aba Webhooks',
-          imagem: IMG_WEBHOOK_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'No menu de abas do Cockpit, clique em **Webhooks**.',
+          titulo: 'Abrir e cadastrar',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '01 · Abrir a aba Webhooks',
+                  imagem: IMG_WEBHOOK_SETA,
+                  paragrafoAntes: 'No menu de abas do Cockpit, clique em **Webhooks**.',
+                },
+                {
+                  legenda: '02 · Novo webhook — URL e eventos',
+                  imagem: IMG_WEBHOOK_MODAL_NOVO,
+                  paragrafoAntes:
+                    'Clique em **+ Novo Webhook**. Informe a **URL HTTPS** do seu sistema e marque os **eventos** que deseja receber.',
+                },
+              ],
+            },
           ],
         },
         {
-          titulo: 'Novo webhook — URL e eventos',
-          imagem: IMG_WEBHOOK_MODAL_NOVO,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Clique em **+ Novo Webhook**. Informe a **URL HTTPS** do seu sistema e marque os **eventos** que deseja receber.',
+          titulo: 'Secret e listagem',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '03 · Cadastrar webhook',
+                  imagem: IMG_WEBHOOK_CAD_SETA,
+                  paragrafoAntes:
+                    'Selecione pelo menos um evento (ex.: **pedido.criado**) e clique em **Cadastrar Webhook**, como indicado pela seta na imagem.',
+                },
+                {
+                  legenda: '04 · Secret em claro',
+                  imagem: IMG_WEBHOOK_CAD_MODAL,
+                  paragrafoAntes:
+                    'Copie o **secret** exibido uma única vez. Use-o para validar o header `X-Gravity-Signature` no seu endpoint.',
+                },
+              ],
+            },
           ],
         },
         {
-          titulo: 'Cadastrar webhook',
-          imagem: IMG_WEBHOOK_CAD_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Selecione pelo menos um evento (ex.: **pedido.criado**) e clique em **Cadastrar Webhook**, como indicado pela seta na imagem.',
+          titulo: 'Testar webhook',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '05 · Webhook na listagem',
+                  imagem: IMG_WEBHOOK_CAD_TELA,
+                  paragrafoAntes:
+                    'O webhook ativo aparece na tabela com URL, eventos e ações de teste, histórico e exclusão.',
+                },
+                {
+                  legenda: '06 · Disparar evento de teste',
+                  imagem: IMG_WEBHOOK_TESTAR,
+                  paragrafoAntes:
+                    'Use **Testar** para enviar um payload de exemplo à URL cadastrada e verificar conectividade antes de ir para produção.',
+                },
+              ],
+            },
           ],
         },
         {
-          titulo: 'Secret em claro',
-          imagem: IMG_WEBHOOK_CAD_MODAL,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Copie o **secret** exibido uma única vez. Use-o para validar o header `X-Gravity-Signature` no seu endpoint.',
-          ],
-        },
-        {
-          titulo: 'Webhook na listagem',
-          imagem: IMG_WEBHOOK_CAD_TELA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'O webhook ativo aparece na tabela com URL, eventos e ações de teste, histórico e exclusão.',
-          ],
-        },
-        {
-          titulo: 'Disparar evento de teste',
-          imagem: IMG_WEBHOOK_TESTAR,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Use **Testar** para enviar um payload de exemplo à URL cadastrada e verificar conectividade antes de ir para produção.',
-          ],
-        },
-        {
-          titulo: 'Histórico de disparos',
-          imagem: IMG_WEBHOOK_HIST_SETA,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Abra **Histórico** na linha do webhook para auditar tentativas, códigos HTTP e latência.',
-          ],
-        },
-        {
-          titulo: 'Modal de histórico',
-          imagem: IMG_WEBHOOK_HIST_MODAL,
-          imagemAbaixoTexto: true,
-          paragrafos: [
-            'Cada linha registra evento, status (sucesso ou falha), latência e número de tentativas com retry automático.',
+          titulo: 'Histórico',
+          ocultarTituloPasso: true,
+          ocultarRotuloPasso: true,
+          paragrafos: [],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '07 · Histórico de disparos',
+                  imagem: IMG_WEBHOOK_HIST_SETA,
+                  paragrafoAntes:
+                    'Abra **Histórico** na linha do webhook para auditar tentativas, códigos HTTP e latência.',
+                },
+                {
+                  legenda: '08 · Modal de histórico',
+                  imagem: IMG_WEBHOOK_HIST_MODAL,
+                  paragrafoAntes:
+                    'Cada linha registra evento, status (sucesso ou falha), latência e número de tentativas com retry automático.',
+                },
+              ],
+            },
           ],
         },
         {

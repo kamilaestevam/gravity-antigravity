@@ -204,8 +204,9 @@ if (process.env.NODE_ENV !== 'test') {
   const bidServer = app.listen(PORT, () => {
     console.log(`[BidFrete] Servidor rodando na porta ${PORT}${BID_FRETE_SIDECAR ? ' (sidecar)' : ''}`)
     listenHandles.aoSubirListen()
-    // Cron TAMBÉM em sidecar (prod Railway) — sem ele, disparos PENDENTE nunca são reprocessados.
-    startCronJobs()
+    if (!BID_FRETE_SIDECAR) {
+      startCronJobs()
+    }
   })
   registrarErroListenSidecar(bidServer, listenHandles, BID_FRETE_SIDECAR, Number(PORT), 'BidFrete')
 }

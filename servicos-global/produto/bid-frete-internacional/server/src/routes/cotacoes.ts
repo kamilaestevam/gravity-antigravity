@@ -435,9 +435,6 @@ async function executarDisparoAoCriarCotacao(
   const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
   const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
   const idCotacao = String(cotacao.id_cotacao_bid_frete_internacional)
-  const numeroCotacao = String(cotacao.numero_cotacao_bid_frete_internacional ?? idCotacao)
-  console.log(`[disparo-bg] iniciando — cotacao ${numeroCotacao}, canais: ${canais.join(',')}`)
-  let erroJob: string | null = null
 
   try {
     if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
@@ -486,32 +483,9 @@ async function executarDisparoAoCriarCotacao(
       }
     }
   } catch (disparoErr: unknown) {
-    erroJob = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
-    console.error('[disparo-bg] disparo ao criar falhou (cotacao persistida):', erroJob)
+    const disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
+    console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
   }
-
-  // Watchdog: nenhum disparo pode terminar o job ainda PENDENTE — o motor marca
-  // ENVIADO/ERRO_ENVIO por item; sobrar PENDENTE = job interrompido no meio.
-  try {
-    const presos = await (prisma as any).disparoCotacaoBidFreteInternacional.updateMany({
-      where: {
-        id_cotacao_bid_frete_internacional: idCotacao,
-        status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
-      },
-      data: {
-        status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-        erro_envio_disparo_cotacao_bid_frete_internacional:
-          erroJob ?? 'Envio interrompido antes da confirmação (watchdog pós-job)',
-      },
-    })
-    if (presos.count > 0) {
-      console.error(`[disparo-bg] watchdog: ${presos.count} disparo(s) PENDENTE marcados ERRO_ENVIO — cotacao ${numeroCotacao}`)
-    }
-  } catch (watchdogErr: unknown) {
-    const msg = watchdogErr instanceof Error ? watchdogErr.message : String(watchdogErr)
-    console.error('[disparo-bg] watchdog falhou:', msg)
-  }
-  console.log(`[disparo-bg] concluído — cotacao ${numeroCotacao}${erroJob ? ` (com erro: ${erroJob})` : ''}`)
 }
 
 // --- POST / — Criar cotacao ---
@@ -581,15 +555,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         canais_disparo,
         emails_por_fornecedor,
       }
-      // 'finish' pode não disparar se o cliente/proxy abortar — 'close' cobre esse caso.
-      let disparoAgendado = false
-      const agendar = () => {
-        if (disparoAgendado) return
-        disparoAgendado = true
-        agendarDisparoNovaCotacaoEmBackground(tenantId, disparoParams)
-      }
-      res.on('finish', agendar)
-      res.on('close', agendar)
+      res.on('finish', () => agendarDisparoNovaCotacaoEmBackground(tenantId, disparoParams))
       res.status(201).json({
         cotacao,
         disparo: null,

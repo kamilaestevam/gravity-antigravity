@@ -583,32 +583,12 @@ export const motorBid = {
 
   /** Reprocessa disparos EMAIL presos em PENDENTE (cron + recovery pós-timeout). */
   async reprocessarDisparosPendentes(prisma: PrismaClient, limite = 20) {
-    // Janela de 24h: PENDENTE mais antigo que isso é backlog morto — marcar erro, nunca reenviar
-    // (evita rajada de e-mails de cotações velhas quando o cron volta a rodar).
-    const expirados = await (prisma as any).disparoCotacaoBidFreteInternacional.updateMany({
-      where: {
-        status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
-        data_criacao_disparo_cotacao_bid_frete_internacional: {
-          lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-      },
-      data: {
-        status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-        erro_envio_disparo_cotacao_bid_frete_internacional:
-          'Envio não realizado — disparo ficou pendente por mais de 24h (job de envio interrompido)',
-      },
-    })
-    if (expirados.count > 0) {
-      console.log(`[motor-bid] ${expirados.count} disparo(s) PENDENTE >24h marcados como ERRO_ENVIO (sem reenvio)`)
-    }
-
     const pendentes = await (prisma as any).disparoCotacaoBidFreteInternacional.findMany({
       where: {
         status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
         canal_disparo_cotacao_bid_frete_internacional: 'EMAIL',
         data_criacao_disparo_cotacao_bid_frete_internacional: {
           lt: new Date(Date.now() - 2 * 60 * 1000),
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
         },
       },
       take: limite,

@@ -29,8 +29,29 @@ function extrairCamposEscalaresModelPrisma(modelName: string): Set<string> {
   return campos
 }
 
+/** Campos escalares obrigatórios: sem `?`, sem @default, sem @updatedAt. */
+function extrairCamposObrigatoriosModelPrisma(modelName: string): Set<string> {
+  const re = new RegExp(`model ${modelName}\\s*\\{([\\s\\S]*?)^\\}`, 'm')
+  const match = FRAGMENT.match(re)
+  if (!match?.[1]) throw new Error(`Model ${modelName} não encontrado no fragment.prisma`)
+  const campos = new Set<string>()
+  for (const line of match[1].split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('@@')) continue
+    const scalar = trimmed.match(
+      /^(\w+)\s+(String|Int|Decimal|DateTime|Json|Boolean|Float)(\s|$)/,
+    )
+    if (!scalar?.[1]) continue
+    if (trimmed.includes('@default') || trimmed.includes('@updatedAt')) continue
+    campos.add(scalar[1])
+  }
+  return campos
+}
+
 const CAMPOS_PEDIDO_PRISMA = extrairCamposEscalaresModelPrisma('Pedido')
 const CAMPOS_ITEM_PRISMA = extrairCamposEscalaresModelPrisma('PedidoItem')
+const CAMPOS_PEDIDO_OBRIGATORIOS = extrairCamposObrigatoriosModelPrisma('Pedido')
+const CAMPOS_ITEM_OBRIGATORIOS = extrairCamposObrigatoriosModelPrisma('PedidoItem')
 const CAMPOS_SNAPSHOT_NCM_PRISMA = extrairCamposEscalaresModelPrisma('PedidoSnapshotNcm')
 const CAMPOS_SNAPSHOT_MOEDA_PRISMA = extrairCamposEscalaresModelPrisma('PedidoSnapshotMoeda')
 
@@ -115,10 +136,19 @@ describe('montar-create-pedido-de-conversao-smart-read', () => {
     expect(data.moeda_pedido).toBe('USD')
     expect(data.data_emissao_pedido).toBeDefined()
 
+    for (const campo of CAMPOS_PEDIDO_OBRIGATORIOS) {
+      expect(campo in data, `campo obrigatorio ausente no pedido: ${campo}`).toBe(true)
+    }
+
     const item = (data.itens_pedido as { create: Record<string, unknown>[] }).create[0]
     for (const campo of Object.keys(item)) {
       expect(CAMPOS_ITEM_PRISMA.has(campo), `campo item nao Prisma: ${campo}`).toBe(true)
     }
+    for (const campo of CAMPOS_ITEM_OBRIGATORIOS) {
+      if (campo === 'id_pedido') continue // preenchido pelo Prisma no nested create
+      expect(campo in item, `campo obrigatorio ausente no item: ${campo}`).toBe(true)
+    }
+    expect(item.quantidade_atual_item).toBe(5)
     expect(item.campo_extra_item).toBeUndefined()
     expect(item.descricao_item).toBe('')
     expect(item.ncm_item).toBe('')

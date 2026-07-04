@@ -78,6 +78,7 @@ export const CAMPOS_ITEM_CREATE_PERMITIDOS = new Set<string>([
   'id_organizacao',
   'id_workspace',
   'sequencia_item_pedido',
+  'quantidade_atual_item',
   ...CAMPOS_ITEM_CONVERSAO_PERMITIDOS,
   ...Object.values(MAPA_PROPAGACAO_PEDIDO_ITEM),
 ])

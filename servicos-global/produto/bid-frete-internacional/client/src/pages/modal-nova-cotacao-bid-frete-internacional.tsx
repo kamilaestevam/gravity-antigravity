@@ -2616,7 +2616,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
       const pretendiaDisparar = canaisDisparo.length > 0 && idsFornecedoresDisparo.length > 0
 
-      const { cotacao, disparo, disparo_erro } = await criarCotacaoComDisparo({
+      const { cotacao, disparo, disparo_erro, disparo_pendente } = await criarCotacaoComDisparo({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
         modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
         modalidade_cotacao_bid_frete_internacional: modalidadeEfetivaNovaCotacao(form) as ModalidadeCarga,
@@ -2706,13 +2706,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         ),
       })
       const feedback = formatarFeedbackDisparoBidFrete(
-        pretendiaDisparar ? disparo : null,
-        { disparoErro: disparo_erro },
+        pretendiaDisparar && !disparo_pendente ? disparo : null,
+        { disparoErro: disparo_erro, disparoPendente: disparo_pendente },
       )
       if (pretendiaDisparar) {
         setFeedbackDisparoCriacao(feedback)
         addNotification({
-          type: feedback.tipo === 'sucesso' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
+          type: feedback.tipo === 'sucesso' || feedback.tipo === 'pendente' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
           message: `${feedback.titulo} — ${feedback.detalhe}`,
           duration: feedback.tipo === 'erro' ? 8000 : 6000,
         })
@@ -3918,7 +3918,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 style={{
                   ...ESTILOS_RESULTADO.resultadoBanner,
                   marginTop: '0.75rem',
-                  borderColor: feedbackDisparoCriacao.tipo === 'sucesso'
+                  borderColor: feedbackDisparoCriacao.tipo === 'sucesso' || feedbackDisparoCriacao.tipo === 'pendente'
                     ? 'rgba(34, 197, 94, 0.35)'
                     : feedbackDisparoCriacao.tipo === 'parcial'
                       ? 'rgba(245, 158, 11, 0.35)'
@@ -3926,7 +3926,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 }}
                 role="status"
               >
-                {feedbackDisparoCriacao.tipo === 'sucesso'
+                {feedbackDisparoCriacao.tipo === 'sucesso' || feedbackDisparoCriacao.tipo === 'pendente'
                   ? <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
                   : <Warning weight="fill" size={20} color={feedbackDisparoCriacao.tipo === 'parcial' ? '#f59e0b' : '#ef4444'} />}
                 <p style={ESTILOS_RESULTADO.resultadoBannerTexto}>

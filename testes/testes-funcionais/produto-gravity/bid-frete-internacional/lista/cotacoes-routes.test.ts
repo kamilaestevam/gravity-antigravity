@@ -164,7 +164,7 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
   })
 
-  it('deve retornar 201 mesmo quando disparo aberto falha (cotacao persistida)', async () => {
+  it('deve retornar 201 com disparo_pendente quando disparo ao criar (assíncrono)', async () => {
     mockDispararCotacaoAberta.mockRejectedValueOnce(new Error('Falha ao enviar e-mail: HTTP 503'))
 
     const res = await request(app)
@@ -178,7 +178,8 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
 
     expect(res.status).toBe(201)
     expect(res.body.cotacao).toHaveProperty('id_cotacao_bid_frete_internacional')
-    expect(res.body.disparo_erro).toContain('Falha ao enviar e-mail')
+    expect(res.body.disparo_pendente).toBe(true)
+    expect(res.body.disparo).toBeNull()
   })
 
   it('deve persistir endereco_origem quando informado', async () => {

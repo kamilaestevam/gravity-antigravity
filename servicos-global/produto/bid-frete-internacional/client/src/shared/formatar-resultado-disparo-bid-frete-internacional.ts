@@ -20,7 +20,7 @@ export type ResultadoDisparoResumo = {
 }
 
 export type FeedbackDisparoFormatado = {
-  tipo: 'sucesso' | 'parcial' | 'erro'
+  tipo: 'sucesso' | 'parcial' | 'erro' | 'pendente'
   titulo: string
   detalhe: string
 }
@@ -40,8 +40,15 @@ function resumirNomes(nomes: string[], max = 3): string {
 
 export function formatarFeedbackDisparoBidFrete(
   resultado: ResultadoDisparoResumo | null | undefined,
-  opts?: { disparoErro?: string | null },
+  opts?: { disparoErro?: string | null; disparoPendente?: boolean },
 ): FeedbackDisparoFormatado {
+  if (opts?.disparoPendente) {
+    return {
+      tipo: 'pendente',
+      titulo: 'Cotação criada — disparo em andamento',
+      detalhe: 'Os convites aos fornecedores estão sendo enviados. Você pode acompanhar o status na lista de cotações.',
+    }
+  }
   if (opts?.disparoErro) {
     return {
       tipo: 'erro',

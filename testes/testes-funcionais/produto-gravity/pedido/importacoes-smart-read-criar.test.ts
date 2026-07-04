@@ -121,6 +121,9 @@ describe('POST /importacoes-smart-read/criar', () => {
     const createData = mockPrisma.pedido.create.mock.calls[0]?.[0]?.data
     expect(createData.codigo_moeda_pedido).toBeUndefined()
     expect(createData.moeda_pedido).toBe('USD')
+    expect(createData.data_emissao_pedido).toBeDefined()
+    expect(createData.casas_decimais_valor_pedido).toBe(2)
+    expect(createData.valor_total_pedido).toBeUndefined()
     expect(createData.itens_pedido.create[0].ncm_item).toBe('84713012')
     expect(createData.itens_pedido.create[0].descricao_item).toBe('')
     expect(createData.itens_pedido.create[0].incoterm_item).toBe('FOB')

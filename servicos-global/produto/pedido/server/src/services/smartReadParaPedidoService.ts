@@ -19,11 +19,11 @@ import { obterIdSnapshotSmartReadS2s, obterLeituraSmartReadS2s } from '../lib/cl
 import { buscarSnapshotsCadastrosIniciaisPedido } from '../lib/buscar-snapshots-cadastros-iniciais-pedido.js'
 import { montarCreatePedidoDeConversaoSmartRead } from '../lib/montar-create-pedido-de-conversao-smart-read.js'
 import { recalcularAgregadosPedido } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
+import { gerarIdImportacao } from '../../../shared/smart-import-ids.js'
 
-function gerarId(prefixo: string): string {
-  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
-  const ano = String(new Date().getFullYear()).slice(-2)
-  return `${prefixo}_id_${seq}-${ano}`
+function mensagemErroPrisma(err: unknown): string {
+  if (err instanceof Error) return err.message
+  return String(err)
 }
 
 type GrupoPedido = {
@@ -147,7 +147,7 @@ export class SmartReadParaPedidoService {
       select: { id_pedido_status: true },
     })
 
-    const pedidoId = gerarId('pedi')
+    const pedidoId = gerarIdImportacao('pedi')
 
     const { data: createData, idsItens } = montarCreatePedidoDeConversaoSmartRead({
       pedidoId,
@@ -155,16 +155,21 @@ export class SmartReadParaPedidoService {
       idWorkspace,
       idStatusPedido: statusRascunho?.id_pedido_status ?? null,
       grupo,
-      gerarIdItem: () => gerarId('pite'),
+      gerarIdItem: () => gerarIdImportacao('pite'),
       snapshotsNcm,
       snapshotsMoeda,
       snapshotsUnidade,
     })
 
-    const pedidoCriado = await (this.db as { pedido: { create: Function } }).pedido.create({
-      data: createData,
-      select: { id_pedido: true, numero_pedido: true },
-    })
+    let pedidoCriado: { id_pedido: string; numero_pedido: string }
+    try {
+      pedidoCriado = await (this.db as { pedido: { create: Function } }).pedido.create({
+        data: createData,
+        select: { id_pedido: true, numero_pedido: true },
+      })
+    } catch (err) {
+      throw new AppError(mensagemErroPrisma(err), 500, 'PRISMA_CREATE_PEDIDO_FALHOU')
+    }
 
     await recalcularAgregadosPedido(
       this.db as Parameters<typeof recalcularAgregadosPedido>[0],

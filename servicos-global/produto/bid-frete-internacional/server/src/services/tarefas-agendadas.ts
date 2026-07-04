@@ -184,7 +184,6 @@ async function reprocessarDisparosEmailPendentes() {
 let cronInterval: ReturnType<typeof setInterval> | null = null
 
 export function startCronJobs() {
-  if (cronInterval) return
   console.log('[Cron] Jobs automáticos iniciados (intervalo: 5min)')
 
   // Executar imediatamente

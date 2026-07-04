@@ -2,7 +2,8 @@ import React from 'react'
 import type { TFunction } from 'i18next'
 import type { GTColuna, GTMapaColunasFilho, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
+import { Anchor, AirplaneTilt, ArrowSquareOut, Truck } from '@phosphor-icons/react'
+import { rotaDetalheCotacaoBidFreteInternacional } from '../shared/rotas-bid-frete-internacional'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
@@ -499,7 +500,7 @@ function aplicarConfigEdicaoColuna(
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
-                item.quantidade_volume_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
                 rotuloContainer,
               )
             : '—',
@@ -507,7 +508,7 @@ function aplicarConfigEdicaoColuna(
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
-                item.quantidade_volume_cotacao_bid_frete_internacional,
+                item.quantidade_cotacao_bid_frete_internacional,
                 rotuloContainer,
               )
             : '—',
@@ -692,25 +693,43 @@ function buildColunasCotacoesBase(
       key: 'numero_cotacao_bid_frete_internacional',
       label: 'Nº da cotação',
       tipo: 'texto',
+      linkPopoverEdicao: onAbrirCotacao
+        ? (item: Cotacao) => ({
+            label: t
+              ? t('bidfrete.lista.abrir_cotacao', { defaultValue: 'Abrir cotação' })
+              : 'Abrir cotação',
+            href: rotaDetalheCotacaoBidFreteInternacional(item.id_cotacao_bid_frete_internacional),
+          })
+        : undefined,
       render: (val: unknown, item: Cotacao) => {
-        const numero = val as string
-
-        if (!onAbrirCotacao) {
-          return <span className="gtv-celula-link bf-lista-link-cotacao">{numero}</span>
-        }
+        const numero = String(val ?? '')
 
         return (
-          <button
-            type="button"
-            aria-label={`Abrir cotação ${numero}`}
-            className="gtv-celula-link bf-lista-link-cotacao"
-            onClick={(e) => {
-              e.stopPropagation()
-              onAbrirCotacao(item)
-            }}
-          >
-            {numero}
-          </button>
+          <span className="bf-lista-numero-cotacao-celula">
+            <span className="bf-lista-numero-cotacao-valor" title={numero}>
+              {numero}
+            </span>
+            {onAbrirCotacao ? (
+              <button
+                type="button"
+                aria-label={
+                  t
+                    ? t('bidfrete.lista.abrir_cotacao_numero', {
+                        defaultValue: 'Abrir cotação {{numero}}',
+                        numero,
+                      })
+                    : `Abrir cotação ${numero}`
+                }
+                className="bf-lista-numero-cotacao-abrir"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onAbrirCotacao(item)
+                }}
+              >
+                <ArrowSquareOut size={14} weight="bold" aria-hidden />
+              </button>
+            ) : null}
+          </span>
         )
       },
     },
@@ -892,7 +911,7 @@ function buildColunasCotacoesBase(
       render: renderTexto,
     },
     {
-      key: 'quantidade_volume_cotacao_bid_frete_internacional',
+      key: 'quantidade_cotacao_bid_frete_internacional',
       label: 'Quantidade de Volume',
       tipo: 'numero',
       align: 'center',

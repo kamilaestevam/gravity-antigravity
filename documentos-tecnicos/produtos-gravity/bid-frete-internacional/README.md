@@ -38,6 +38,12 @@
 
 ---
 
+## Entregas recentes (2026-07)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| TASK-000407 (2026-07-04) | Nº da cotação editável: wizard passo 1 (auto-gerado + customizável no POST), lista inline (PATCH), UX texto vs ícone abrir — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 e [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação |
+
 ## Entregas recentes (2026-06)
 
 | PR / entrega | Escopo |

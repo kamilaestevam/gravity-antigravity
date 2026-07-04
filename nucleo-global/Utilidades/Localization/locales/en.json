@@ -135,6 +135,8 @@
       }
     },
     "lista": {
+      "abrir_cotacao": "Open quote",
+      "abrir_cotacao_numero": "Open quote {{numero}}",
       "label_bid_one": "bid",
       "label_bid_other": "bids",
       "label_cotacao_one": "quote",
@@ -165,6 +167,9 @@
       "criar": "Create Quote",
       "criando": "Creating...",
       "modal_operacao": "Modal & Operation",
+      "numero_cotacao": "Quote No.",
+      "numero_cotacao_hint": "Auto-generated; you can customize it before creating.",
+      "numero_cotacao_placeholder": "COT-YYYYMMDD-NNNN",
       "titulo": "New Freight Quote",
       "titulo_internacional": "New International Freight Quote",
       "tipo_operacao": "Operation Type",

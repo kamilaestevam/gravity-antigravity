@@ -127,3 +127,22 @@ Na carga (`carregar`), cotações são enriquecidas com `enriquecerCotacoesComCo
 **Filtro:** `cotacaoPassaFiltrosColuna` resolve valor via `findDisplay` / mapa `colunasPersonalizadasPorChave` (chave → `col.id`).
 
 **Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+
+---
+
+## Nº da cotação — edição inline (TASK-000407)
+
+Primeira coluna visível da grid (`numero_cotacao_bid_frete_internacional`). Auto-gerado no servidor; **editável** na lista e no wizard.
+
+| Item | Valor |
+|------|-------|
+| Ordem SSOT | `shared/ordem-colunas-lista-bid-frete-internacional.ts` — primeira coluna de dados |
+| Coluna GTV | `pages/colunas-lista-bid-frete-internacional.ts` — `linkPopoverEdicao` + render texto + botão ↗ |
+| UX | Clique no **texto** abre popover de edição; ícone ↗ (`stopPropagation`) abre detalhe `/bid-frete/cotacoes/:id` |
+| Persistência lista | `salvarCampoCotacaoBidFreteInternacional` → `PATCH /cotacoes/:id` |
+| Client → server | `mapCotacaoToServer` **inclui** `numero_cotacao_bid_frete_internacional` (removido de `CAMPOS_COTACAO_APENAS_CLIENTE`) |
+| Validação client | `normalizarValorEdicaoCotacao` — trim; vazio → erro ruidoso |
+| Zod PATCH | `AtualizarCotacaoSchema` herda campo opcional de `CriarCotacaoSchemaBase` |
+| Linha BID pai | Nº do agrupador não é editável inline — tooltip orienta expandir e editar na filha |
+
+**Testes:** UNI `lista/map-cotacao-to-server.test.ts`, `lista/salvar-campo-numero-cotacao.test.ts`; FUN `lista/cotacoes-routes.test.ts` (`deve atualizar numero_cotacao via PATCH`).

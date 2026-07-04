@@ -896,6 +896,7 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
   cotacao: Cotacao
   disparo: ResultadoDisparoCriacaoCotacao | null
   disparo_erro: string | null
+  disparo_pendente: boolean
 }> {
   const serverInput = mapCotacaoToServer(input)
   if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
@@ -911,11 +912,13 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
     cotacao: unknown
     disparo?: ResultadoDisparoCriacaoCotacao | null
     disparo_erro?: string
+    disparo_pendente?: boolean
   }>(res)
   return {
     cotacao: mapCotacaoFromServer(data.cotacao),
     disparo: data.disparo ?? null,
     disparo_erro: data.disparo_erro ?? null,
+    disparo_pendente: data.disparo_pendente === true,
   }
 }
 

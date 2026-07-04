@@ -496,6 +496,7 @@ export const motorBid = {
         body_html: montarHtmlEmailDisparo(parametrosEmail),
         body: montarTextoPlanoEmailDisparo(parametrosEmail),
         product_id: 'bid-frete-internacional',
+        max_tentativas: 1,
       },
       {
         headers: {

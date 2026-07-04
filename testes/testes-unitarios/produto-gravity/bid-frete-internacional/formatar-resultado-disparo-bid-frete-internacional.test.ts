@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { formatarFeedbackDisparoBidFrete } from '../../../../servicos-global/produto/bid-frete-internacional/shared/formatar-resultado-disparo-bid-frete-internacional.js'
 
 describe('formatarFeedbackDisparoBidFrete', () => {
+  it('retorna pendente quando disparo é assíncrono', () => {
+    const feedback = formatarFeedbackDisparoBidFrete(null, { disparoPendente: true })
+    expect(feedback.tipo).toBe('pendente')
+  })
+
   it('retorna sucesso quando todos os disparos foram entregues', () => {
     const feedback = formatarFeedbackDisparoBidFrete({
       disparos: 2,

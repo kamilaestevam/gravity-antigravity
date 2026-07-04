@@ -393,6 +393,74 @@ async function filtrarIdsFornecedoresElegiveisModalDisparo(
   )
 }
 
+async function executarDisparoAoCriarCotacao(
+  prisma: NonNullable<Request['prisma']>,
+  params: {
+    cotacao: Record<string, unknown>
+    tenantId: string
+    userId: string
+    fornecedor_ids: string[] | undefined
+    canais_disparo: string[]
+    emails_por_fornecedor: Record<string, string[]> | undefined
+  },
+): Promise<void> {
+  const { cotacao, tenantId, userId, fornecedor_ids, canais_disparo, emails_por_fornecedor } = params
+  const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
+  const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
+  const idCotacao = String(cotacao.id_cotacao_bid_frete_internacional)
+
+  try {
+    if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+      if (fornecedor_ids !== undefined) {
+        const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(prisma, fornecedor_ids)
+        const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
+          tenantId,
+          modalDisparo,
+          prisma,
+          idsAberta,
+        )
+        if (idsElegiveis.length > 0) {
+          await motorBid.disparar(prisma, {
+            id_cotacao_bid_frete_internacional: idCotacao,
+            fornecedor_ids: idsElegiveis,
+            canais,
+            id_usuario: userId,
+            id_organizacao: tenantId,
+            emails_por_fornecedor,
+          })
+        }
+      } else {
+        await motorBid.dispararCotacaoAberta(prisma, {
+          id_cotacao_bid_frete_internacional: idCotacao,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId,
+        })
+      }
+    } else if (fornecedor_ids && fornecedor_ids.length > 0) {
+      const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
+        tenantId,
+        modalDisparo,
+        prisma,
+        fornecedor_ids,
+      )
+      if (idsElegiveis.length > 0) {
+        await motorBid.disparar(prisma, {
+          id_cotacao_bid_frete_internacional: idCotacao,
+          fornecedor_ids: idsElegiveis,
+          canais,
+          id_usuario: userId,
+          id_organizacao: tenantId,
+          emails_por_fornecedor,
+        })
+      }
+    }
+  } catch (disparoErr: unknown) {
+    const disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
+    console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
+  }
+}
+
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -440,63 +508,23 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     let disparo: Awaited<ReturnType<typeof motorBid.disparar>> | Awaited<ReturnType<typeof motorBid.dispararCotacaoAberta>> | null = null
     let disparo_erro: string | null = null
+
+    // Responde antes do disparo — Resend/e-mail pode exceder timeout HTTP do Railway (~30s).
     if (disparar_ao_criar && tenantId) {
-      const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
-      const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
-      try {
-        if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-          if (fornecedor_ids !== undefined) {
-            const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
-            const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
-              tenantId,
-              modalDisparo,
-              req.prisma!,
-              idsAberta,
-            )
-            if (idsElegiveis.length > 0) {
-              disparo = await motorBid.disparar(req.prisma!, {
-                id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-                fornecedor_ids: idsElegiveis,
-                canais,
-                id_usuario: userId,
-                id_organizacao: tenantId,
-                emails_por_fornecedor,
-              })
-            } else {
-              disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor selecionado para disparo' }
-            }
-          } else {
-            disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
-              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-              canais,
-              id_usuario: userId,
-              id_organizacao: tenantId,
-            })
-          }
-        } else if (fornecedor_ids && fornecedor_ids.length > 0) {
-          const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
-            tenantId,
-            modalDisparo,
-            req.prisma!,
-            fornecedor_ids,
-          )
-          if (idsElegiveis.length > 0) {
-            disparo = await motorBid.disparar(req.prisma!, {
-              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-              fornecedor_ids: idsElegiveis,
-              canais,
-              id_usuario: userId,
-              id_organizacao: tenantId,
-              emails_por_fornecedor,
-            })
-          } else {
-            disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor elegivel para o modal da cotacao' }
-          }
-        }
-      } catch (disparoErr: unknown) {
-        disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
-        console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
-      }
+      res.status(201).json({
+        cotacao,
+        disparo: null,
+        disparo_pendente: true,
+      })
+      void executarDisparoAoCriarCotacao(req.prisma!, {
+        cotacao,
+        tenantId,
+        userId,
+        fornecedor_ids,
+        canais_disparo,
+        emails_por_fornecedor,
+      })
+      return
     }
 
     res.status(201).json({ cotacao, disparo, ...(disparo_erro ? { disparo_erro } : {}) })
@@ -504,7 +532,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
       relancarSeSchemaDrift(err)
     } catch (e) {
-      next(e)
+      return next(e)
     }
   }
 })

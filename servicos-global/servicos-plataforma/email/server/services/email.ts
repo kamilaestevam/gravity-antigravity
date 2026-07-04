@@ -22,6 +22,8 @@ export interface SendEmailOptions {
   templateId?: string
   /** Se true, não grava log em EmailRegistroEnvio (usado para auto-replies da Gabi) */
   skipLog?: boolean
+  /** Tentativas síncronas antes de falhar (padrão 5). Disparo BID usa 1 para não bloquear HTTP. */
+  maxTentativas?: number
 }
 
 interface SendEmailResult {
@@ -57,6 +59,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
     from = process.env.EMAIL_FROM ?? 'Gravity <no-reply@resend.dev>',
     templateId,
     skipLog = false,
+    maxTentativas = MAX_TENTATIVAS,
   } = opts
 
   const dedupKey = randomUUID()
@@ -114,7 +117,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
 
   // Tentar envio com retry exponencial
   let lastError: string | undefined
-  for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+  for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
     try {
       // Atualizar status para PROCESSANDO
       if (logId) {
@@ -180,10 +183,10 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err)
       console.error(
-        `[EMAIL_SERVICE] Tentativa ${tentativa}/${MAX_TENTATIVAS} falhou — tenant:${tenantId} erro:${lastError}`
+        `[EMAIL_SERVICE] Tentativa ${tentativa}/${maxTentativas} falhou — tenant:${tenantId} erro:${lastError}`
       )
 
-      if (tentativa < MAX_TENTATIVAS) {
+      if (tentativa < maxTentativas) {
         const nextRetryAt = new Date(Date.now() + calcBackoffMs(tentativa))
         if (logId) {
           await prisma.emailRegistroEnvio.update({

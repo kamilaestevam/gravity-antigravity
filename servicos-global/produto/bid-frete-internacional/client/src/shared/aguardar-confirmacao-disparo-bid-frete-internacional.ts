@@ -55,10 +55,23 @@ function dormir(ms: number): Promise<void> {
 export type ResultadoConfirmacaoDisparoCotacao = {
   resumo: ResultadoDisparoResumo
   confirmado: boolean
-  cotacao: Cotacao
+  cotacao: Cotacao | null
+  /** Falhas transitórias de rede/proxy durante o polling (502, timeout). */
+  falhasConsulta: number
 }
 
-/** Poll GET cotação até disparos terminal (ENVIADO/ERRO) ou timeout. */
+async function buscarCotacaoComRetry(
+  idCotacao: string,
+  buscarCotacao: (id: string) => Promise<Cotacao>,
+): Promise<Cotacao | null> {
+  try {
+    return await buscarCotacao(idCotacao)
+  } catch {
+    return null
+  }
+}
+
+/** Poll GET cotação até disparos terminal (ENVIADO/ERRO) ou timeout. Nunca lança — falhas de rede são retentadas. */
 export async function aguardarConfirmacaoDisparoCotacao(
   idCotacao: string,
   buscarCotacao: (id: string) => Promise<Cotacao>,
@@ -67,18 +80,30 @@ export async function aguardarConfirmacaoDisparoCotacao(
   const intervaloMs = opts?.intervaloMs ?? INTERVALO_PADRAO_MS
   const esperaMaximaMs = opts?.esperaMaximaMs ?? ESPERA_MAXIMA_PADRAO_MS
   const inicio = Date.now()
+  let falhasConsulta = 0
 
-  let cotacao = await buscarCotacao(idCotacao)
-  let resumo = montarResumoDisparoFromCotacao(cotacao)
+  let cotacao: Cotacao | null = await buscarCotacaoComRetry(idCotacao, buscarCotacao)
+  if (!cotacao) {
+    falhasConsulta += 1
+  }
 
-  while (!disparosCotacaoResolvidos(listarDisparosCotacao(cotacao))) {
+  let resumo: ResultadoDisparoResumo = cotacao
+    ? montarResumoDisparoFromCotacao(cotacao)
+    : { disparos: 0, enviados: false, enviados_ok: 0, erros_envio: 0, results: [] }
+
+  while (!cotacao || !disparosCotacaoResolvidos(listarDisparosCotacao(cotacao))) {
     if (Date.now() - inicio >= esperaMaximaMs) {
-      return { resumo, confirmado: false, cotacao }
+      return { resumo, confirmado: false, cotacao, falhasConsulta }
     }
     await dormir(intervaloMs)
-    cotacao = await buscarCotacao(idCotacao)
+    const proxima = await buscarCotacaoComRetry(idCotacao, buscarCotacao)
+    if (!proxima) {
+      falhasConsulta += 1
+      continue
+    }
+    cotacao = proxima
     resumo = montarResumoDisparoFromCotacao(cotacao)
   }
 
-  return { resumo, confirmado: resumo.disparos !== 0, cotacao }
+  return { resumo, confirmado: resumo.disparos !== 0, cotacao, falhasConsulta }
 }

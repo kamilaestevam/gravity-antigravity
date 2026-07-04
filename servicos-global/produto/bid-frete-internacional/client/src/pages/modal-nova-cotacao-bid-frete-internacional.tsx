@@ -2592,6 +2592,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   const handleSubmit = async () => {
     setSalvando(true)
+    setFeedbackDisparoCriacao(null)
+    let idCotacaoSalva: string | null = null
     try {
       const rotaPersistencia = prepararCamposRotaCotacaoPersistencia(
         {
@@ -2731,8 +2733,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           emailsPorFornecedorDisparo,
         ),
       })
-      setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
-      setSucesso(true)
+      idCotacaoSalva = cotacao.id_cotacao_bid_frete_internacional
+      setCotacaoId(idCotacaoSalva)
 
       if (pretendiaDisparar) {
         let feedback: FeedbackDisparoFormatado
@@ -2740,9 +2742,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         if (disparo_erro) {
           feedback = formatarFeedbackDisparoBidFrete(null, { disparoErro: disparo_erro })
         } else if (disparo_pendente) {
+          setSucesso(true)
           setFeedbackDisparoCriacao(formatarFeedbackDisparoBidFrete(null, { aguardandoConfirmacao: true }))
           const { resumo, confirmado } = await aguardarConfirmacaoDisparoCotacao(
-            cotacao.id_cotacao_bid_frete_internacional,
+            idCotacaoSalva,
             getCotacao,
           )
           feedback = confirmado
@@ -2769,14 +2772,29 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ...traduzirDisparoNaoRealizadoNovaCotacao(t),
         })
       }
+
+      setSucesso(true)
     } catch (err) {
       console.error('Erro ao criar cotação:', err)
-      alert(
-        traduzirErroCriarCotacaoNovaCotacao(
-          t,
-          err instanceof Error ? err.message : String(err),
-        ),
-      )
+      const detalhe = err instanceof Error ? err.message : String(err)
+      if (idCotacaoSalva) {
+        const feedback = formatarFeedbackDisparoBidFrete(null, { naoConfirmado: true })
+        setCotacaoId(idCotacaoSalva)
+        setSucesso(true)
+        setFeedbackDisparoCriacao(feedback)
+        addNotification({
+          type: 'error',
+          message: `${feedback.titulo} — ${feedback.detalhe}`,
+          duration: 10000,
+        })
+      } else {
+        setSucesso(false)
+        addNotification({
+          type: 'error',
+          message: traduzirErroCriarCotacaoNovaCotacao(t, detalhe),
+          duration: 10000,
+        })
+      }
     } finally {
       setSalvando(false)
     }

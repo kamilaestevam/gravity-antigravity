@@ -204,7 +204,10 @@ if (process.env.NODE_ENV !== 'test') {
   const bidServer = app.listen(PORT, () => {
     console.log(`[BidFrete] Servidor rodando na porta ${PORT}${BID_FRETE_SIDECAR ? ' (sidecar)' : ''}`)
     listenHandles.aoSubirListen()
-    if (!BID_FRETE_SIDECAR) {
+    // Em sidecar (prod Railway) o cron só liga com BID_FRETE_CRON=on — ativação
+    // controlada após observar logs, nunca junto com o merge (outage de 04/07/2026:
+    // cron no boot disparou e-mails contra tabela com drift e derrubou o monolito).
+    if (!BID_FRETE_SIDECAR || process.env.BID_FRETE_CRON === 'on') {
       startCronJobs()
     }
   })

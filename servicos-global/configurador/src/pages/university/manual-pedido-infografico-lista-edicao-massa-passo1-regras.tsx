@@ -16,7 +16,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
   return (
     <div
       role="group"
-      aria-label="Regras do passo 1 — selecionar campos na edição em massa"
+      aria-label="Regras do passo 1, selecionar campos na edição em massa"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(148,163,184,.04) 48%, rgba(52,211,153,.05) 100%)',
         border: '1px solid rgba(148,163,184,.16)',
@@ -34,7 +34,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
         color: '#94a3b8',
         margin: '0 0 4px',
       }}>
-        Passo 1 — Campos
+        Passo 1 · Campos
       </p>
       <p style={{
         margin: '0 0 12px',
@@ -43,7 +43,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
         color: '#e2e8f0',
         lineHeight: 1.4,
       }}>
-        Escolha **nível**, **campo**, **operação** e **valor** — com preview em tempo real abaixo.
+        {renderizarNegrito('Defina, em cada linha, o **nível**, o **campo**, a **operação** e o **valor**. Use **+ Adicionar campo** para incluir mais alterações no mesmo lote.')}
       </p>
 
       <div style={{
@@ -61,7 +61,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Pedido</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('Campos de **cabeçalho** do PO — aplicados a cada pedido selecionado.')}
+            {renderizarNegrito('Edição campos do **Pedido**.')}
           </p>
         </div>
         <div style={{
@@ -73,7 +73,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Item</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('Campos de **linha** — todos os itens dos pedidos (ou só os itens marcados).')}
+            {renderizarNegrito('Edição de campos do **Item**.')}
           </p>
         </div>
         <div style={{
@@ -85,7 +85,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Combinado</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('**Pedido + item** na mesma tela — útil quando mistura os dois níveis.')}
+            {renderizarNegrito('Campos de **Pedidos** e **Itens** na mesma tela.')}
           </p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso1Regras() {
           <span style={{ fontWeight: 700, color: '#cbd5e1' }}>Operações por tipo</span>
         </div>
         <p style={{ margin: 0 }}>
-          {renderizarNegrito('**Texto / select / NCM:** substituir · **Número:** substituir, somar, subtrair, percentual · **Data:** substituir, avançar/recuar dias. Campos **calculados**, **somente leitura** e **@@unique** com múltiplos POs não entram ou ficam bloqueados. **Colunas criadas pelo usuário** também são editáveis.')}
+          {renderizarNegrito('**Texto / select / NCM:** substituir · **Número:** substituir, somar, subtrair, percentual · **Data:** substituir, avançar/recuar dias. Campos **calculados**, **somente leitura** e **únicos** (ex.: **Nº do Pedido**) com vários pedidos selecionados ficam bloqueados. **Colunas criadas pelo usuário** também são editáveis.')}
         </p>
       </div>
     </div>

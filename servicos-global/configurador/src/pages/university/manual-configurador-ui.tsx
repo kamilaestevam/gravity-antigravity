@@ -43,7 +43,7 @@ import {
   LINK_MANUAL_PERMISSOES,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -63,7 +63,7 @@ import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-v
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
-import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordion-colunas-lista'
+import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
@@ -758,7 +758,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '162'
+const MANUAL_SCREENSHOT_CACHE_KEY = '173'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1993,6 +1993,7 @@ function ManualBlocoPassoVisual({
                   rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
                   layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
                   infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
+                  mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
                   infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
                   infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
                   rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
@@ -2034,6 +2035,7 @@ function ManualBlocoPassoVisual({
               rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
               layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
               infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
+              mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
               infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
               infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
               rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
@@ -2762,6 +2764,7 @@ function ManualGaleriaComparacaoIntro({
   rotuloConsolidarExemplosPasso2,
   layoutConsolidarExemplosPasso2,
   infograficoEdicaoMassaPasso1Regras,
+  mostrarCatalogoEdicaoMassaPedidoLista,
   infograficoEdicaoMassaPasso2Regras,
   infograficoEdicaoMassaResultadoEsperado,
   rotuloEdicaoMassaExemplosPasso1,
@@ -2791,6 +2794,7 @@ function ManualGaleriaComparacaoIntro({
   rotuloConsolidarExemplosPasso2?: boolean
   layoutConsolidarExemplosPasso2?: boolean
   infograficoEdicaoMassaPasso1Regras?: boolean
+  mostrarCatalogoEdicaoMassaPedidoLista?: boolean
   infograficoEdicaoMassaPasso2Regras?: boolean
   infograficoEdicaoMassaResultadoEsperado?: boolean
   rotuloEdicaoMassaExemplosPasso1?: boolean
@@ -2808,6 +2812,7 @@ function ManualGaleriaComparacaoIntro({
     && !infograficoConsolidarPasso2Regras
     && !infograficoConsolidarResultadoEsperado
     && !infograficoEdicaoMassaPasso1Regras
+    && !mostrarCatalogoEdicaoMassaPedidoLista
     && !infograficoEdicaoMassaPasso2Regras
     && !infograficoEdicaoMassaResultadoEsperado
   ) return null
@@ -2825,7 +2830,11 @@ function ManualGaleriaComparacaoIntro({
 
   const renderTela = (
     tela: DocGaleriaComparacaoTela,
-    opts?: { alinharLegendaChipGrade?: boolean },
+    opts?: {
+      alinharLegendaChipGrade?: boolean
+      alturaLegendaChipGrade?: number
+      margemAbaixoLegenda?: number
+    },
   ) => (
     <div
       key={tela.imagem}
@@ -2845,16 +2854,20 @@ function ManualGaleriaComparacaoIntro({
           chip={tela.chipConsolidarExemplo}
           texto={tela.paragrafoAntes}
           entreLinhas
-          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10}
-          alturaFixaLegenda={opts?.alinharLegendaChipGrade ? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX : undefined}
+          margemAbaixo={opts?.margemAbaixoLegenda ?? (printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10)}
+          alturaFixaLegenda={opts?.alinharLegendaChipGrade
+            ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
+            : undefined}
         />
       ) : tela.chipEdicaoMassaExemplo && tela.paragrafoAntes ? (
         <ManualGaleriaLegendaEdicaoMassaExemplo
           chip={tela.chipEdicaoMassaExemplo}
           texto={tela.paragrafoAntes}
           entreLinhas
-          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10}
-          alturaFixaLegenda={opts?.alinharLegendaChipGrade ? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX : undefined}
+          margemAbaixo={opts?.margemAbaixoLegenda ?? (printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10)}
+          alturaFixaLegenda={opts?.alinharLegendaChipGrade
+            ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
+            : undefined}
         />
       ) : tela.paragrafoAntes ? (
         textoAcimaEstiloCorpo
@@ -2949,6 +2962,9 @@ function ManualGaleriaComparacaoIntro({
       {infograficoEdicaoMassaPasso1Regras ? (
         <ManualInfograficoPedidoListaEdicaoMassaPasso1Regras />
       ) : null}
+      {mostrarCatalogoEdicaoMassaPedidoLista ? (
+        <ManualPedidoTabelaCatalogoColunasEdicaoMassa />
+      ) : null}
       {infograficoEdicaoMassaPasso2Regras ? (
         <ManualInfograficoPedidoListaEdicaoMassaPasso2Regras />
       ) : null}
@@ -3024,27 +3040,25 @@ function ManualGaleriaComparacaoIntro({
         </div>
       ) : layoutEdicaoMassaExemplosPasso1 && telas.length >= 6 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 10,
-            alignItems: 'start',
-          }}>
-            {telas.slice(0, 3).map((tela) => renderTela(tela))}
+          <div style={MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS}>
+            {telas.slice(0, 3).map((tela) => renderTela(tela, {
+              alinharLegendaChipGrade: true,
+              alturaLegendaChipGrade: MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX,
+              margemAbaixoLegenda: 4,
+            }))}
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 10,
-            alignItems: 'start',
-          }}>
-            {telas.slice(3, 6).map((tela) => renderTela(tela))}
+          <div style={MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS}>
+            {telas.slice(3, 6).map((tela) => renderTela(tela, {
+              alinharLegendaChipGrade: true,
+              alturaLegendaChipGrade: MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX,
+              margemAbaixoLegenda: 4,
+            }))}
           </div>
         </div>
       ) : layoutEdicaoMassaExemplosPasso2 && telas.length >= 4 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {renderTela(telas[0])}
-          <div style={MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS}>
+          <div style={{ ...MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS, marginTop: -50 }}>
             {telas.slice(1, 4).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
           </div>
         </div>

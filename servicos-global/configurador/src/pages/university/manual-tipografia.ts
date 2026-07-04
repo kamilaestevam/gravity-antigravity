@@ -34,6 +34,12 @@ export const MANUAL_GRID_TEXTO_IMAGEM = 'minmax(300px, 1fr) minmax(300px, 1fr)' 
 /** Altura fixa da legenda chip+texto em grades 3 colunas (Igual/Divergente/Vazio alinhados). */
 export const MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX = 96
 
+/** Edição em massa passo 1 — legendas mais curtas (nível Pedido/Item/Combinado). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX = 48
+
+/** Edição em massa passo 1 — legendas com texto em duas linhas (texto/select/+ campo). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX = 72
+
 /** Espaço entre o fim de um passo visual e a linha divisória do passo seguinte (≈ paddingTop do passo). */
 export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
 

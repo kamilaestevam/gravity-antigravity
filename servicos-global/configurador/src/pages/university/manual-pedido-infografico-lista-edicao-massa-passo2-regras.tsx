@@ -43,7 +43,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
         color: '#e2e8f0',
         lineHeight: 1.4,
       }}>
-        Confira o **DE/PARA** por pedido antes de aplicar — pills de resumo + filtros + avisos de negócio.
+        Confira o DE/PARA por pedido antes de aplicar.
       </p>
 
       <div style={{

@@ -86,6 +86,8 @@ export interface DocPassoVisual {
     layoutConsolidarExemplosPasso2?: boolean
     /** Manual Pedido § Edição em massa — infográfico passo 1 (Campos). */
     infograficoEdicaoMassaPasso1Regras?: boolean
+    /** Manual Pedido § Edição em massa — catálogo Colunas da Lista (Massa P/I). */
+    mostrarCatalogoEdicaoMassaPedidoLista?: boolean
     /** Manual Pedido § Edição em massa — infográfico passo 2 (Revisão). */
     infograficoEdicaoMassaPasso2Regras?: boolean
     /** Manual Pedido § Edição em massa — resultado esperado após confirmar. */

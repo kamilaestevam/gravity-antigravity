@@ -3,6 +3,7 @@ import { CaretDown, Columns, LockSimple, MagnifyingGlass } from '@phosphor-icons
 import {
   GRUPOS_CATALOGO_COLUNAS_PEDIDO,
   TOTAL_COLUNAS_CATALOGO_PEDIDO,
+  TOTAL_COLUNAS_EDICAO_MASSA_LISTA_PEDIDO,
   TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO,
 } from './manual-pedido-catalogo-colunas-dados'
 
@@ -17,6 +18,8 @@ type ColunaCatalogoAccordion = {
   formatacao?: string
   edicaoPedido?: string
   edicaoItem?: string
+  edicaoMassaPedido?: string
+  edicaoMassaItem?: string
   edicao?: string
   soma?: string
   espelha?: string
@@ -53,7 +56,7 @@ function colunaCorrespondeBusca(
 ) {
   if (!busca) return true
   const meta = coluna.formatacao
-    ? ` ${coluna.formatacao} ${coluna.edicaoPedido ?? ''} ${coluna.edicaoItem ?? ''} ${coluna.soma ?? ''} ${coluna.espelha ?? ''}`
+    ? ` ${coluna.formatacao} ${coluna.edicaoPedido ?? ''} ${coluna.edicaoItem ?? ''} ${coluna.edicaoMassaPedido ?? ''} ${coluna.edicaoMassaItem ?? ''} ${coluna.soma ?? ''} ${coluna.espelha ?? ''}`
     : coluna.edicao
       ? ` ${coluna.edicao}`
       : ''
@@ -87,6 +90,8 @@ type PropsCatalogoAccordion = {
   marginTop?: number
   /** Exibe colunas Formato, Edição P/I, Soma e Espelha (catálogo completo Pedido). */
   mostrarMetadadosCatalogo?: boolean
+  /** Exibe Massa P/I em vez de Edição P/I (catálogo edição em massa). */
+  mostrarMetadadosEdicaoMassa?: boolean
   /** Exibe coluna única Edição + descrição (catálogo Smart Docs). */
   mostrarEdicaoSimples?: boolean
   /** Texto abaixo do accordion (rodapé). */
@@ -102,6 +107,7 @@ export function ManualPedidoAccordionColunasLista({
   accent = 'amber',
   marginTop = 20,
   mostrarMetadadosCatalogo = false,
+  mostrarMetadadosEdicaoMassa = false,
   mostrarEdicaoSimples = false,
   rodape,
 }: PropsCatalogoAccordion) {
@@ -144,9 +150,12 @@ export function ManualPedidoAccordionColunasLista({
     background: 'rgba(8,12,24,.18)',
   }
 
-  const exibirMetadados = mostrarMetadadosCatalogo || grupos.some((g) => g.colunas.some(linhaTemMetadadosCatalogo))
+  const exibirMetadados = mostrarMetadadosCatalogo || mostrarMetadadosEdicaoMassa
+    || grupos.some((g) => g.colunas.some(linhaTemMetadadosCatalogo))
   const exibirEdicaoSimples = mostrarEdicaoSimples && !exibirMetadados
-  const exibirPadrao = grupos.some((g) => g.colunas.some((c) => c.visivelPadrao))
+  const exibirPadrao = !mostrarMetadadosEdicaoMassa && grupos.some((g) => g.colunas.some((c) => c.visivelPadrao))
+  const rotuloEdicaoPedido = mostrarMetadadosEdicaoMassa ? 'Massa P' : 'Edição P'
+  const rotuloEdicaoItem = mostrarMetadadosEdicaoMassa ? 'Massa I' : 'Edição I'
 
   const tdBase: React.CSSProperties = {
     padding: '10px 12px',
@@ -313,8 +322,8 @@ export function ManualPedidoAccordionColunasLista({
                               {exibirPadrao && (
                                 <th style={{ ...thBase, width: '7%' }}>Padrão</th>
                               )}
-                              <th style={{ ...thBase, width: '10%' }}>Edição P</th>
-                              <th style={{ ...thBase, width: '10%' }}>Edição I</th>
+                              <th style={{ ...thBase, width: '10%' }}>{rotuloEdicaoPedido}</th>
+                              <th style={{ ...thBase, width: '10%' }}>{rotuloEdicaoItem}</th>
                               <th style={{ ...thBase, width: exibirPadrao ? '16%' : '18%' }}>Soma</th>
                               <th style={{ ...thBase, width: exibirPadrao ? '16%' : '18%' }}>Espelha</th>
                             </>
@@ -388,10 +397,18 @@ export function ManualPedidoAccordionColunasLista({
                                   </td>
                                 )}
                                 <td style={{ ...tdBase, width: '10%' }}>
-                                  <CelulaMeta valor={linha.edicaoPedido} />
+                                  <CelulaMeta valor={
+                                    mostrarMetadadosEdicaoMassa
+                                      ? (linha.edicaoMassaPedido ?? '—')
+                                      : (linha.edicaoPedido ?? '—')
+                                  } />
                                 </td>
                                 <td style={{ ...tdBase, width: '10%' }}>
-                                  <CelulaMeta valor={linha.edicaoItem} />
+                                  <CelulaMeta valor={
+                                    mostrarMetadadosEdicaoMassa
+                                      ? (linha.edicaoMassaItem ?? '—')
+                                      : (linha.edicaoItem ?? '—')
+                                  } />
                                 </td>
                                 <td style={{ ...tdBase, width: '18%' }}>
                                   <CelulaMeta valor={linha.soma} corDestaque="#93c5fd" />
@@ -457,6 +474,23 @@ export function ManualPedidoTabelaCatalogoColunasLista() {
       marginTop={12}
       mostrarMetadadosCatalogo
       rodape={`Colunas com Padrão = Sim são as que o painel Padrão já abre na primeira visita (${TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO} de ${TOTAL_COLUNAS_CATALOGO_PEDIDO}). Use o menu Colunas para exibir, ocultar e reordenar; o layout salva no painel ativo.`}
+    />
+  )
+}
+
+/** Manual Pedido § Edição em massa — catálogo com colunas Massa P / Massa I. */
+export function ManualPedidoTabelaCatalogoColunasEdicaoMassa() {
+  return (
+    <ManualPedidoAccordionColunasLista
+      titulo="Colunas da Lista"
+      badge={`${TOTAL_COLUNAS_CATALOGO_PEDIDO} colunas · ${TOTAL_COLUNAS_EDICAO_MASSA_LISTA_PEDIDO} na edição em massa`}
+      grupos={GRUPOS_CATALOGO_COLUNAS_PEDIDO}
+      totalColunas={TOTAL_COLUNAS_CATALOGO_PEDIDO}
+      abertoPorPadrao={false}
+      accent="indigo"
+      marginTop={12}
+      mostrarMetadadosEdicaoMassa
+      rodape={`Massa P = editável em massa no nível Pedido (ou Combinado). Massa I = editável no nível Item. Campos calculados, somente leitura e únicos (ex.: Nº do Pedido) com vários pedidos selecionados ficam bloqueados. Colunas criadas pelo usuário também entram.`}
     />
   )
 }

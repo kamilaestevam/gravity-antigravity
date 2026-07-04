@@ -1395,14 +1395,14 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Edição em massa',
           tituloCurto: 'Edição em massa',
           paragrafos: [
-            'A **edição em massa** altera **campos de pedido e de item** em paralelo para todos os registros selecionados na Lista. Campos **calculados**, **somente leitura** ou geridos por **outro fluxo** (consolidação, transferência) **não aparecem** no formulário.',
+            'Edite **diversos campos** de uma só vez na **lista** de **pedidos e itens**.',
           ],
           calloutAposParagrafo: {
             indice: 0,
             callout: {
               tipo: 'dica',
               texto:
-                'Você pode selecionar **pedidos inteiros**, **itens avulsos** ou **mistura dos dois** — o modal adapta o escopo. **Colunas criadas pelo usuário** também entram na edição.',
+                'Você pode selecionar **pedidos inteiros**, **itens avulsos** ou **mistura dos dois**. O modal adapta o escopo. **Colunas criadas pelo usuário** também entram na edição.',
             },
           },
           galeriaComparacaoAposParagrafo: [
@@ -1414,7 +1414,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_SELECAO,
-                  paragrafoAntes: '**01.** Com pedidos e/ou itens marcados — clique em **Edição em massa**',
+                  paragrafoAntes: '**01.** Com os pedidos e itens que deseja editar, clique em **Editar em Massa**',
                 },
               ],
             },
@@ -1426,41 +1426,38 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPOS,
-                  paragrafoAntes: '**02.** Passo 1 — escolha **nível**, **campo**, **operação** e **valor**',
+                  paragrafoAntes: '**02.** Escolha o **campo** que deseja editar',
                 },
               ],
             },
             {
               indice: 0,
               infograficoEdicaoMassaPasso1Regras: true,
+              mostrarCatalogoEdicaoMassaPedidoLista: true,
               telas: [],
             },
             {
               indice: 0,
-              rotuloEdicaoMassaExemplosPasso1: true,
               layoutEdicaoMassaExemplosPasso1: true,
-              tituloEtapa: '**Ilustrações do passo 1 — não são passos extras:**',
-              textoIntro:
-                'Cada print mostra um **comportamento real** da tela de campos, alinhado ao infográfico acima.',
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_PEDIDO,
                   chipEdicaoMassaExemplo: 'nivel_pedido',
-                  paragrafoAntes: 'Nível **Pedido** — só campos de cabeçalho do PO',
+                  paragrafoAntes: 'Edição campos do **Pedido**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_ITEM,
                   chipEdicaoMassaExemplo: 'nivel_item',
-                  paragrafoAntes: 'Nível **Item** — campos das linhas do pedido',
+                  paragrafoAntes: 'Edição de campos do **Item**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_OPCOES_COMBINADO,
                   chipEdicaoMassaExemplo: 'nivel_combinado',
-                  paragrafoAntes: 'Nível **Combinado** — pedido + item na mesma tela',
+                  paragrafoAntes: 'Campos de **Pedidos** e **Itens**',
                 },
                 {
                   legenda: '',
@@ -1481,6 +1478,18 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: '**+ Adicionar campo** — inclua mais linhas de edição no mesmo lote',
                 },
               ],
+              calloutApos: [
+                {
+                  tipo: 'dica',
+                  texto:
+                    'Uma vez selecionado o **campo**, as opções de preenchimento seguem o padrão do sistema: **texto**, **número**, **select**, **data** e demais tipos.',
+                },
+                {
+                  tipo: 'dica',
+                  texto:
+                    'É possível editar **mais de um campo** de uma vez: use **+ Adicionar campo** para incluir outra linha no mesmo lote.',
+                },
+              ],
             },
             {
               indice: 0,
@@ -1496,7 +1505,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               calloutApos: {
                 tipo: 'dica',
                 texto:
-                  'Se o valor já é **igual** em todos os pedidos, aparece **Múltiplos valores** ou placeholder — revise antes de avançar. Campos **@@unique** com **2+ POs** ficam **bloqueados** na operação substituir.',
+                  'Se o valor já é **igual** em todos os pedidos, aparece **Múltiplos valores**. Revise antes de avançar. Com **dois ou mais pedidos** selecionados, campos **únicos** (como o **Nº do Pedido**) ficam **bloqueados** na operação **Substituir**.',
               },
             },
             {
@@ -1518,11 +1527,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 0,
-              rotuloEdicaoMassaExemplosPasso2: true,
               layoutEdicaoMassaExemplosPasso2: true,
-              tituloEtapa: '**Ilustrações do passo 2 — não são passos extras:**',
-              textoIntro:
-                'Filtros e visões do DE/PARA antes de confirmar — alinhados ao infográfico acima.',
               textoAcimaEstiloCorpo: true,
               telas: [
                 {

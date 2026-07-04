@@ -2,7 +2,10 @@
  * Monta payload Prisma para pedido.create() a partir da conversão Smart Read.
  * Whitelist explícita — nunca faz spread cego de dados_pedido/item do converter.
  */
-import { construirCamposPropagadosParaItem } from '../../../shared/mapaPropagacaoPedidoItem.js'
+import {
+  construirCamposPropagadosParaItem,
+  MAPA_PROPAGACAO_PEDIDO_ITEM,
+} from '../../../shared/mapaPropagacaoPedidoItem.js'
 import type {
   SnapshotMoedaData,
   SnapshotNcmData,
@@ -50,6 +53,45 @@ const CAMPOS_PEDIDO_DATETIME = new Set([
   'data_documento_invoice_pedido',
   'data_emissao_pedido',
 ])
+
+/** Campos escalares permitidos no pedido.create — espelha Smart Import (montarDadosPedido). */
+export const CAMPOS_PEDIDO_CREATE_PERMITIDOS = new Set<string>([
+  'id_pedido',
+  'id_organizacao',
+  'id_workspace',
+  'numero_pedido',
+  'tipo_operacao_pedido',
+  'status_pedido',
+  'id_status_pedido',
+  'moeda_pedido',
+  'data_emissao_pedido',
+  'casas_decimais_valor_pedido',
+  'casas_decimais_quantidade_pedido',
+  'casas_decimais_peso_pedido',
+  'casas_decimais_cubagem_pedido',
+  ...CAMPOS_PEDIDO_CONVERSAO_PERMITIDOS,
+])
+
+/** Campos escalares permitidos em cada item do nested create. */
+export const CAMPOS_ITEM_CREATE_PERMITIDOS = new Set<string>([
+  'id_item',
+  'id_organizacao',
+  'id_workspace',
+  'sequencia_item_pedido',
+  ...CAMPOS_ITEM_CONVERSAO_PERMITIDOS,
+  ...Object.values(MAPA_PROPAGACAO_PEDIDO_ITEM),
+])
+
+function filtrarCamposPermitidos(
+  origem: Record<string, unknown>,
+  permitidos: ReadonlySet<string>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [campo, valor] of Object.entries(origem)) {
+    if (permitidos.has(campo)) out[campo] = valor
+  }
+  return out
+}
 
 export type GrupoConversaoSmartRead = {
   numero_pedido: string
@@ -150,21 +192,28 @@ export function montarCreatePedidoDeConversaoSmartRead(
     ...camposPedidoConversao,
   })
 
-  const pedidoBase: Record<string, unknown> = {
+  const pedidoBaseBruto: Record<string, unknown> = {
     id_pedido: pedidoId,
     id_organizacao: idOrganizacao,
     id_workspace: idWorkspace,
     numero_pedido: grupo.numero_pedido,
     tipo_operacao_pedido: 'importacao',
     status_pedido: 'rascunho',
-    id_status_pedido: idStatusPedido,
     moeda_pedido: moedaPedido,
-    valor_total_pedido: 0,
-    quantidade_total_pedido: 0,
+    data_emissao_pedido: camposPedidoConversao.data_emissao_pedido ?? new Date(),
+    casas_decimais_valor_pedido: 2,
+    casas_decimais_quantidade_pedido: 2,
+    casas_decimais_peso_pedido: 3,
+    casas_decimais_cubagem_pedido: 3,
     ...camposPedidoConversao,
+    ...(idStatusPedido ? { id_status_pedido: idStatusPedido } : {}),
   }
 
-  const propagacaoPedido = construirCamposPropagadosParaItem(pedidoBase)
+  const pedidoBase = filtrarCamposPermitidos(pedidoBaseBruto, CAMPOS_PEDIDO_CREATE_PERMITIDOS)
+  const propagacaoPedido = filtrarCamposPermitidos(
+    construirCamposPropagadosParaItem(pedidoBase),
+    CAMPOS_ITEM_CREATE_PERMITIDOS,
+  )
   const idsItens: string[] = []
 
   const itensCreate = grupo.itens.map((itemBruto, index) => {
@@ -175,34 +224,37 @@ export function montarCreatePedidoDeConversaoSmartRead(
     const idItem = gerarIdItem()
     idsItens.push(idItem)
 
-    return {
-      ...propagacaoPedido,
-      id_item: idItem,
-      id_organizacao: idOrganizacao,
-      id_workspace: idWorkspace,
-      sequencia_item_pedido: index + 1,
-      part_number_item: itemWhitelisted.part_number_item,
-      descricao_item: itemWhitelisted.descricao_item,
-      ncm_item: itemWhitelisted.ncm_item,
-      quantidade_inicial_item: qty,
-      quantidade_atual_item: qty,
-      moeda_item: moedaItem,
-      valor_por_unidade_item: valorUnit,
-      valor_total_item:
-        itemWhitelisted.valor_total_item ??
-        (valorUnit != null ? valorUnit * qty : null),
-      peso_bruto_unitario_item: itemWhitelisted.peso_bruto_unitario_item ?? null,
-      peso_liquido_unitario_item: itemWhitelisted.peso_liquido_unitario_item ?? null,
-      ...(itemWhitelisted.unidade_comercializada_item != null
-        ? { unidade_comercializada_item: itemWhitelisted.unidade_comercializada_item }
-        : {}),
-      ...(itemWhitelisted.casas_decimais_quantidade_item !== undefined
-        ? { casas_decimais_quantidade_item: itemWhitelisted.casas_decimais_quantidade_item }
-        : {}),
-      ...(itemWhitelisted.casas_decimais_valor_item !== undefined
-        ? { casas_decimais_valor_item: itemWhitelisted.casas_decimais_valor_item }
-        : {}),
-    }
+    return filtrarCamposPermitidos(
+      {
+        ...propagacaoPedido,
+        id_item: idItem,
+        id_organizacao: idOrganizacao,
+        id_workspace: idWorkspace,
+        sequencia_item_pedido: index + 1,
+        part_number_item: itemWhitelisted.part_number_item,
+        descricao_item: itemWhitelisted.descricao_item,
+        ncm_item: itemWhitelisted.ncm_item,
+        quantidade_inicial_item: qty,
+        quantidade_atual_item: qty,
+        moeda_item: moedaItem,
+        valor_por_unidade_item: valorUnit,
+        valor_total_item:
+          itemWhitelisted.valor_total_item ??
+          (valorUnit != null ? valorUnit * qty : null),
+        peso_bruto_unitario_item: itemWhitelisted.peso_bruto_unitario_item ?? null,
+        peso_liquido_unitario_item: itemWhitelisted.peso_liquido_unitario_item ?? null,
+        casas_decimais_quantidade_item:
+          itemWhitelisted.casas_decimais_quantidade_item ??
+          pedidoBase.casas_decimais_quantidade_pedido ??
+          2,
+        casas_decimais_valor_item:
+          itemWhitelisted.casas_decimais_valor_item ?? pedidoBase.casas_decimais_valor_pedido ?? 2,
+        ...(itemWhitelisted.unidade_comercializada_item != null
+          ? { unidade_comercializada_item: itemWhitelisted.unidade_comercializada_item }
+          : {}),
+      },
+      CAMPOS_ITEM_CREATE_PERMITIDOS,
+    )
   })
 
   return {

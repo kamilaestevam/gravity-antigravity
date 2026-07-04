@@ -53,7 +53,7 @@ export async function dispararCriacaoPedidoDeLeituraSmartRead(params: {
   if (!response.ok) {
     const texto = await response.text().catch(() => '')
     throw new AppError(
-      `Pedido indisponivel (${response.status}): ${texto.slice(0, 300)}`,
+      `Pedido indisponivel (${response.status}): ${texto.slice(0, 2000)}`,
       response.status >= 500 ? 502 : response.status,
       'PEDIDO_CONVERSAO_FALHOU',
     )

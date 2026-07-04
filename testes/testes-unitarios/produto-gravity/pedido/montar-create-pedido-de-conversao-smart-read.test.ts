@@ -113,6 +113,7 @@ describe('montar-create-pedido-de-conversao-smart-read', () => {
     expect(data.codigo_moeda_pedido).toBeUndefined()
     expect(data.campo_fantasma).toBeUndefined()
     expect(data.moeda_pedido).toBe('USD')
+    expect(data.data_emissao_pedido).toBeDefined()
 
     const item = (data.itens_pedido as { create: Record<string, unknown>[] }).create[0]
     for (const campo of Object.keys(item)) {

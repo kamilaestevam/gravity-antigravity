@@ -516,7 +516,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             'Na **Camada C**, a **IA classifica** o arquivo e **extrai os campos** (nº pedido, itens, valores…). Para o **retorno**, o **Sistema Externo** consulta a **API** (GET) **ou** recebe um **Webhook** e então busca os dados completos com o mesmo token.',
             '**Webhook sozinho não substitui token** — ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
           ],
-          mostrarInfograficoSmartDocsListaIntegracaoApi: true,
+          mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit: true,
         },
       ]),
     },

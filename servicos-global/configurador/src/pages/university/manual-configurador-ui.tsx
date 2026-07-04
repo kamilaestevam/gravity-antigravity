@@ -72,11 +72,12 @@ import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infogr
 import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
 import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
-import { ManualInfograficoSmartDocsListaIntegracaoApi } from './manual-smart-read-infografico-lista-integracao-api'
+import { ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit'
 import { ManualSmartReadTabelaCatalogoColunasLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
+import { DOC_API_COCKPIT_SECAO } from './manual-api-cockpit-conteudo'
 
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
@@ -523,7 +524,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '144'
+const MANUAL_SCREENSHOT_CACHE_KEY = '145'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1868,8 +1869,8 @@ function ManualBlocoPassoVisual({
             ))}
           </div>
         )}
-        {passo.mostrarInfograficoSmartDocsListaIntegracaoApi ? (
-          <ManualInfograficoSmartDocsListaIntegracaoApi />
+        {passo.mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit ? (
+          <ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit />
         ) : null}
         {passo.tooltipsKpiAposImagem && passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
           <div style={{ marginTop: 20 }}>
@@ -5083,7 +5084,9 @@ export function DocManualUmaSecao({
 }
 
 export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: ConfiguradorManualSlug }) {
-  const secao = secaoConfiguradorPorSlug(paginaSlug)
+  const secao = paginaSlug === 'api-cockpit'
+    ? DOC_API_COCKPIT_SECAO
+    : secaoConfiguradorPorSlug(paginaSlug)
   const metadados = metadadosConfiguradorPagina(paginaSlug)
 
   if (!secao) {

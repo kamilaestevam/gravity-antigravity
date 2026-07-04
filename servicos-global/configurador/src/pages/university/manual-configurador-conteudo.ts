@@ -97,8 +97,8 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
-  /** Manual Smart Docs §05 — fluxo API + Webhook (Sistema Externo → Gravity → Sistema Externo). */
-  mostrarInfograficoSmartDocsListaIntegracaoApi?: boolean
+  /** Manual Smart Docs §05.10 — swimlane Lista Leitura → integração API Cockpit. */
+  mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */

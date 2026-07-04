@@ -63,6 +63,7 @@ import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-inf
 import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
+import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
 import { ManualInfograficoPedidoListaImportarMapeamentoColunas } from './manual-pedido-infografico-mapeamento-importar-colunas'
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
@@ -524,7 +525,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '145'
+const MANUAL_SCREENSHOT_CACHE_KEY = '146'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1655,6 +1656,10 @@ function ManualBlocoPassoVisual({
           {passo.mostrarFormatosImportacaoPedidoLista
           && (passo.formatosImportacaoPedidoAposParagrafo ?? 1) === i ? (
             <ManualPedidoFormatosImportacaoLista />
+          ) : null}
+          {passo.mostrarInfograficoPedidoListaTransferirFluxo
+          && (passo.transferirInfograficoAposParagrafo ?? 1) === i ? (
+            <ManualInfograficoPedidoListaTransferirFluxo />
           ) : null}
           {(() => {
             const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)

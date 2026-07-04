@@ -5,7 +5,7 @@ import type { TelaSequenciaInfografico } from './manual-lista-leitura-smart-read
 import { IMAGEM_PREVIEW_PADRAO_INFOGRAFICO } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
 
 /** Sincronizar com `MANUAL_SCREENSHOT_CACHE_KEY` em manual-configurador-ui.tsx */
-const CACHE_SCREENSHOT = '145'
+const CACHE_SCREENSHOT = '146'
 
 const ESTILO_AMPLIAR_MINI: React.CSSProperties = {
   display: 'inline-flex',

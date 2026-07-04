@@ -37,11 +37,13 @@ describe('motor-bid-disparo-utils', () => {
   const envSnapshot = {
     EMAIL_SERVICE_URL: process.env.EMAIL_SERVICE_URL,
     TENANT_EMAIL_SERVICE_URL: process.env.TENANT_EMAIL_SERVICE_URL,
+    BID_FRETE_SIDECAR: process.env.BID_FRETE_SIDECAR,
   }
 
   beforeEach(() => {
     delete process.env.EMAIL_SERVICE_URL
     delete process.env.TENANT_EMAIL_SERVICE_URL
+    delete process.env.BID_FRETE_SIDECAR
   })
 
   afterEach(() => {
@@ -49,6 +51,8 @@ describe('motor-bid-disparo-utils', () => {
     else process.env.EMAIL_SERVICE_URL = envSnapshot.EMAIL_SERVICE_URL
     if (envSnapshot.TENANT_EMAIL_SERVICE_URL === undefined) delete process.env.TENANT_EMAIL_SERVICE_URL
     else process.env.TENANT_EMAIL_SERVICE_URL = envSnapshot.TENANT_EMAIL_SERVICE_URL
+    if (envSnapshot.BID_FRETE_SIDECAR === undefined) delete process.env.BID_FRETE_SIDECAR
+    else process.env.BID_FRETE_SIDECAR = envSnapshot.BID_FRETE_SIDECAR
   })
 
   it('resolve URL do serviço de e-mail — TENANT_EMAIL → EMAIL → :8008', () => {
@@ -63,6 +67,13 @@ describe('motor-bid-disparo-utils', () => {
     delete process.env.TENANT_EMAIL_SERVICE_URL
     process.env.EMAIL_SERVICE_URL = 'http://email.test'
     expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://email.test')
+  })
+
+  it('força loopback :8008 quando BID_FRETE_SIDECAR=1 (prod site-usegravity)', () => {
+    process.env.BID_FRETE_SIDECAR = '1'
+    process.env.TENANT_EMAIL_SERVICE_URL = 'http://localhost:3001'
+    process.env.EMAIL_SERVICE_URL = 'http://email.test'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
   })
 
   it('monta link público na rota da visão fornecedor', () => {

@@ -57,6 +57,7 @@ const CamposRotaModalCotacaoSchema = z.object({
 
 const CriarCotacaoSchemaBase = z.object({
   id_bid_bid_frete_internacional: z.string().optional(),
+  numero_cotacao_bid_frete_internacional: z.string().min(1).max(64).optional(),
   referencia_interna_cotacao_bid_frete_internacional: z.string().optional(),
   tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
@@ -395,6 +396,30 @@ async function filtrarIdsFornecedoresElegiveisModalDisparo(
   )
 }
 
+function agendarDisparoNovaCotacaoEmBackground(
+  tenantId: string,
+  params: {
+    cotacao: Record<string, unknown>
+    tenantId: string
+    userId: string
+    fornecedor_ids: string[] | undefined
+    canais_disparo: string[]
+    emails_por_fornecedor: Record<string, string[]> | undefined
+  },
+): void {
+  let agendado = false
+  const executar = () => {
+    if (agendado) return
+    agendado = true
+    const prismaBg = withTenantIsolation(basePrisma, tenantId) as PrismaClient
+    void executarDisparoAoCriarCotacao(prismaBg, params).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[cotacoes] disparo background falhou (unhandled):', msg)
+    })
+  }
+  setImmediate(executar)
+}
+
 async function executarDisparoAoCriarCotacao(
   prisma: NonNullable<Request['prisma']>,
   params: {
@@ -477,10 +502,19 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
-    const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
+    const {
+      fornecedor_ids,
+      disparar_ao_criar,
+      canais_disparo,
+      emails_por_fornecedor,
+      id_bid_bid_frete_internacional,
+      numero_cotacao_bid_frete_internacional: numeroInformado,
+      ...cotacaoData
+    } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
     const camposOpcaoPortoAeroporto = prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
+    const numeroCotacao = numeroInformado?.trim() || gerarNumeroCotacao()
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
@@ -490,7 +524,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
-        numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
+        numero_cotacao_bid_frete_internacional: numeroCotacao,
         data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso ? new Date(dataLimiteIso) : null,
       },
     })
@@ -521,18 +555,11 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         canais_disparo,
         emails_por_fornecedor,
       }
+      res.on('finish', () => agendarDisparoNovaCotacaoEmBackground(tenantId, disparoParams))
       res.status(201).json({
         cotacao,
         disparo: null,
         disparo_pendente: true,
-      })
-      // Dispara após flush da resposta — Prisma do request não deve ser usado em background.
-      res.on('finish', () => {
-        const prismaBg = withTenantIsolation(basePrisma, tenantId) as PrismaClient
-        void executarDisparoAoCriarCotacao(prismaBg, disparoParams).catch((err: unknown) => {
-          const msg = err instanceof Error ? err.message : String(err)
-          console.error('[cotacoes] disparo background falhou (unhandled):', msg)
-        })
       })
       return
     }

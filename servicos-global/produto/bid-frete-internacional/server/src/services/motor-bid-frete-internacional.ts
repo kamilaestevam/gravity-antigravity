@@ -34,9 +34,12 @@ import { resolverNomeClienteOperacaoCotacaoDisparo } from '../lib/resolver-nome-
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
 
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
-const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
-const DISPARO_HTTP_TIMEOUT_MS = 30_000
+const DISPARO_HTTP_TIMEOUT_MS = 25_000
+
+function lerChaveInternaDisparo(): string {
+  return process.env.CHAVE_INTERNA_SERVICO?.trim() ?? ''
+}
 
 type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
 type TipoFornecedorMotor = 'AGENTE_CARGA' | 'ARMADOR' | 'CIA_AEREA' | 'TRANSPORTADORA'
@@ -210,15 +213,23 @@ export const motorBid = {
               )
             }
             for (const email of emails) {
-              idMensagem = await this.dispararEmail(
-                cotacao,
-                fornecedor,
-                token,
-                tokenExpira,
-                id_organizacao,
-                id_usuario,
-                email,
-              )
+              idMensagem = await Promise.race([
+                this.dispararEmail(
+                  cotacao,
+                  fornecedor,
+                  token,
+                  tokenExpira,
+                  id_organizacao,
+                  id_usuario,
+                  email,
+                ),
+                new Promise<never>((_, reject) => {
+                  setTimeout(
+                    () => reject(new Error(`Timeout (${DISPARO_HTTP_TIMEOUT_MS}ms) ao enviar e-mail para ${email}`)),
+                    DISPARO_HTTP_TIMEOUT_MS + 2_000,
+                  )
+                }),
+              ])
             }
           } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
             const whatsapps = resolverWhatsappsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
@@ -488,6 +499,10 @@ export const motorBid = {
     }
 
     const emailServiceUrl = resolverUrlServicoEmailDisparoBidFrete()
+    const chaveInterna = lerChaveInternaDisparo()
+    if (!chaveInterna) {
+      throw new Error('CHAVE_INTERNA_SERVICO ausente no sidecar BID — envio de e-mail bloqueado')
+    }
     const response = await axios.post(
       `${emailServiceUrl}/api/v1/envios-email`,
       {
@@ -500,13 +515,14 @@ export const motorBid = {
       },
       {
         headers: {
-          'x-chave-interna-servico': INTERNAL_KEY,
+          'x-chave-interna-servico': chaveInterna,
           'x-id-organizacao': id_organizacao,
           'x-id-usuario': id_usuario,
           'Content-Type': 'application/json',
         },
         validateStatus: () => true,
         timeout: DISPARO_HTTP_TIMEOUT_MS,
+        signal: AbortSignal.timeout(DISPARO_HTTP_TIMEOUT_MS),
       },
     )
 
@@ -551,7 +567,7 @@ export const motorBid = {
       },
       {
         headers: {
-          'x-chave-interna-servico': INTERNAL_KEY,
+          'x-chave-interna-servico': lerChaveInternaDisparo(),
           'x-id-organizacao': id_organizacao,
           'Content-Type': 'application/json',
         },
@@ -563,5 +579,82 @@ export const motorBid = {
     if (response.status < 200 || response.status >= 300) {
       throw new Error(`Falha ao enviar WhatsApp: HTTP ${response.status}`)
     }
+  },
+
+  /** Reprocessa disparos EMAIL presos em PENDENTE (cron + recovery pós-timeout). */
+  async reprocessarDisparosPendentes(prisma: PrismaClient, limite = 20) {
+    const pendentes = await (prisma as any).disparoCotacaoBidFreteInternacional.findMany({
+      where: {
+        status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
+        canal_disparo_cotacao_bid_frete_internacional: 'EMAIL',
+        data_criacao_disparo_cotacao_bid_frete_internacional: {
+          lt: new Date(Date.now() - 2 * 60 * 1000),
+        },
+      },
+      take: limite,
+      orderBy: { data_criacao_disparo_cotacao_bid_frete_internacional: 'asc' },
+      include: {
+        cotacao: true,
+        fornecedor: true,
+      },
+    })
+
+    let reprocessados = 0
+    for (const disparo of pendentes as Array<Record<string, unknown>>) {
+      const cotacao = disparo.cotacao as Record<string, unknown>
+      const fornecedor = disparo.fornecedor as Record<string, unknown>
+      const idDisparo = String(disparo.id_disparo_cotacao_bid_frete_internacional)
+      const idOrganizacao = String(disparo.id_organizacao)
+      const idUsuario = String(disparo.id_usuario ?? 'system')
+      const token = String(disparo.token_resposta_disparo_cotacao_bid_frete_internacional)
+      const tokenExpira = disparo.data_expiracao_token_disparo_cotacao_bid_frete_internacional as Date
+      const email = String(fornecedor.email_fornecedor_bid_frete_internacional ?? '').trim()
+
+      if (!email) {
+        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
+          data: {
+            status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
+            erro_envio_disparo_cotacao_bid_frete_internacional: 'Fornecedor sem e-mail cadastrado',
+          },
+        })
+        continue
+      }
+
+      try {
+        const idMensagem = await Promise.race([
+          this.dispararEmail(cotacao, fornecedor, token, tokenExpira, idOrganizacao, idUsuario, email),
+          new Promise<never>((_, reject) => {
+            setTimeout(
+              () => reject(new Error(`Timeout (${DISPARO_HTTP_TIMEOUT_MS}ms) ao reprocessar e-mail`)),
+              DISPARO_HTTP_TIMEOUT_MS + 2_000,
+            )
+          }),
+        ])
+        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
+          data: {
+            status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
+            data_envio_disparo_cotacao_bid_frete_internacional: new Date(),
+            ...(idMensagem ? { id_mensagem_disparo_cotacao_bid_frete_internacional: idMensagem } : {}),
+          },
+        })
+        reprocessados += 1
+      } catch (err: unknown) {
+        const errorMessage = extrairMensagemErroDisparo(err, resolverUrlServicoEmailDisparoBidFrete())
+        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
+          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
+          data: {
+            status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
+            erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
+          },
+        })
+      }
+    }
+
+    if (reprocessados > 0) {
+      console.log(`[motor-bid] ${reprocessados} disparo(s) PENDENTE reprocessado(s) com sucesso`)
+    }
+    return reprocessados
   },
 }

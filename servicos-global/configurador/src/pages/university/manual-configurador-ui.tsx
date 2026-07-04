@@ -6,6 +6,7 @@ import {
   UserPlus, IdentificationCard, ArrowRight, ShieldCheck, User, Key, Check,
   Package, Truck, ArrowDown, ArrowUp, EnvelopeSimple, Desktop,
   Eye, EyeSlash, PlusCircle, ArrowsOutLineVertical, PencilSimple, UploadSimple, ArrowsLeftRight, Sparkle,
+  Plus, MinusCircle,
   List, SquaresFour, ChartBar,
   ShieldStar, UserGear, Boat, Airplane, TruckTrailer, Warehouse, Bank, Factory,
   Circle, CheckCircle, CircleHalf, Prohibit,
@@ -64,6 +65,7 @@ import { ManualPedidoTabelaCatalogoColunasLista } from './manual-pedido-accordio
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
+import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
 import { ManualInfograficoPedidoListaImportarMapeamentoColunas } from './manual-pedido-infografico-mapeamento-importar-colunas'
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
@@ -216,6 +218,90 @@ function ManualPilaresImportarFormasChips({ pilares }: { pilares: ManualPilarImp
           </div>
         )
       })}
+    </div>
+  )
+}
+
+const MANUAL_CHIPS_TRANSFERIR_TRES_TIPOS = [
+  { id: 'novo', rotulo: 'Novo pedido', icone: Plus, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
+  { id: 'existente', rotulo: 'Pedido existente', icone: Package, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
+  { id: 'reducao', rotulo: 'Redução simples', icone: MinusCircle, cor: '#fbbf24', borda: 'rgba(251,191,36,.32)', fundo: 'rgba(245,158,11,.1)' },
+] as const
+
+type ManualChipTransferirTipoId = (typeof MANUAL_CHIPS_TRANSFERIR_TRES_TIPOS)[number]['id']
+
+function ManualChipTransferirTipo({ id }: { id: ManualChipTransferirTipoId }) {
+  const tipo = MANUAL_CHIPS_TRANSFERIR_TRES_TIPOS.find((item) => item.id === id)
+  if (!tipo) return null
+  const Icone = tipo.icone
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 7,
+        fontSize: '.68rem',
+        fontWeight: 800,
+        color: tipo.cor,
+        background: tipo.fundo,
+        border: `1px solid ${tipo.borda}`,
+        borderRadius: 999,
+        padding: '4px 11px 4px 5px',
+        letterSpacing: '.02em',
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: 7,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          background: 'rgba(8,12,24,.4)',
+          border: `1px solid ${tipo.borda}`,
+        }}
+        aria-hidden
+      >
+        <Icone size={16} weight="bold" color={tipo.cor} />
+      </span>
+      {tipo.rotulo}
+    </span>
+  )
+}
+
+/** Manual Pedido § Transferir — chips dos 3 destinos que compartilham o início comum (01–04). */
+function ManualChipsTransferirTresTiposInicioComum({ compacto = false }: { compacto?: boolean }) {
+  return (
+    <div
+      role="group"
+      aria-label="Novo pedido, Pedido existente e Redução simples compartilham os passos 01 a 04"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginBottom: compacto ? 0 : 12,
+        alignItems: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {!compacto ? (
+        <span style={{
+          fontSize: '.62rem',
+          fontWeight: 800,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          color: '#94a3b8',
+          marginRight: 2,
+        }}>
+          Válido para
+        </span>
+      ) : null}
+      {MANUAL_CHIPS_TRANSFERIR_TRES_TIPOS.map((tipo) => (
+        <ManualChipTransferirTipo key={tipo.id} id={tipo.id} />
+      ))}
     </div>
   )
 }
@@ -525,7 +611,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '146'
+const MANUAL_SCREENSHOT_CACHE_KEY = '147'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1220,17 +1306,15 @@ function galeriaComparacaoAposParagrafoPasso(passo: DocPassoVisual, indice: numb
   return (passo.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
 }
 
-/** Nova etapa após bloco da etapa anterior (ex.: dicas → Etapa 3) — paridade com espaço Etapa 1 → Etapa 2. */
+/** Nova etapa / novo assunto após bloco anterior (ex.: dicas → Novo pedido). SSOT: `MANUAL_ESPACO_ENTRE_PASSOS_PX` (22px). */
 function espacoSuperiorAntesTituloEtapaGaleria(
-  galerias: Array<{ tituloEtapa?: string }>,
+  galerias: Array<{ tituloEtapa?: string; chipTransferirTituloEtapa?: string }>,
   indice: number,
-  galeria: { tituloEtapa?: string },
+  galeria: { tituloEtapa?: string; chipTransferirTituloEtapa?: string },
 ): boolean {
-  return Boolean(
-    galeria.tituloEtapa
-    && indice > 0
-    && !galerias[indice - 1]?.tituloEtapa,
-  )
+  if (!galeria.tituloEtapa || indice === 0) return false
+  if (galeria.chipTransferirTituloEtapa) return true
+  return !galerias[indice - 1]?.tituloEtapa
 }
 
 function ManualPassosSubtopicosAcordeao({
@@ -1648,6 +1732,7 @@ function ManualBlocoPassoVisual({
                   textoIntro={galeria.textoIntro}
                   textoAoLado={galeria.textoAoLado}
                   infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+                  infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
                   calloutApos={galeria.calloutApos}
                 />
               ))}
@@ -1665,7 +1750,7 @@ function ManualBlocoPassoVisual({
             const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
             return galeriasParagrafo.map((galeria, idxGaleria) => (
             <ManualGaleriaComparacaoIntro
-              key={galeria.telas.map((t) => t.imagem).join('|')}
+              key={`galeria-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}
               telas={galeria.telas}
               ampliarInferiorDireito={galeria.ampliarInferiorDireito}
               colunas={galeria.colunas}
@@ -1676,6 +1761,9 @@ function ManualBlocoPassoVisual({
               textoIntro={galeria.textoIntro}
               textoAoLado={galeria.textoAoLado}
               infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+              infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
+              mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
+              chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
               calloutApos={galeria.calloutApos}
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
             />
@@ -2389,6 +2477,9 @@ function ManualGaleriaComparacaoIntro({
   textoIntro,
   textoAoLado,
   infograficoMapeamentoImportarColunas,
+  infograficoTransferirResultadoEsperado,
+  mostrarChipsTransferirTresTipos,
+  chipTransferirTituloEtapa,
   calloutApos,
   espacoSuperiorEtapa = false,
 }: {
@@ -2403,10 +2494,13 @@ function ManualGaleriaComparacaoIntro({
   textoIntro?: string
   textoAoLado?: string[]
   infograficoMapeamentoImportarColunas?: boolean
-  calloutApos?: DocCalloutManual
+  infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
+  mostrarChipsTransferirTresTipos?: boolean
+  chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
+  calloutApos?: DocCalloutManual | DocCalloutManual[]
   espacoSuperiorEtapa?: boolean
 }) {
-  if (telas.length === 0) return null
+  if (telas.length === 0 && !infograficoTransferirResultadoEsperado) return null
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
   const cabecalhoPasso = legendaPasso && (pilaresImportarFormas?.length || pilaresCustomizacao?.length) ? (
     <ManualGaleriaCabecalhoPasso
@@ -2462,9 +2556,49 @@ function ManualGaleriaComparacaoIntro({
       paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
     }}>
       {linhaSoDicas ? <ManualGaleriaRotuloLinhaDicas /> : null}
-      {tituloEtapa ? <ManualGaleriaTelaParagrafoFigura texto={tituloEtapa} /> : null}
-      {textoIntro ? <ManualParagrafo texto={textoIntro} marginBottom={6} /> : null}
+      {tituloEtapa && mostrarChipsTransferirTresTipos ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '6px 8px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+          <span style={{
+            fontSize: '.74rem',
+            fontWeight: 600,
+            color: 'color-mix(in srgb, var(--ws-text, #f1f5f9) 75%, transparent)',
+            lineHeight: 1.4,
+          }}>
+            válido para
+          </span>
+          <ManualChipsTransferirTresTiposInicioComum compacto />
+        </div>
+      ) : tituloEtapa && chipTransferirTituloEtapa ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '8px 10px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualChipTransferirTipo id={chipTransferirTituloEtapa} />
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+        </div>
+      ) : tituloEtapa ? (
+        <ManualGaleriaTelaParagrafoFigura texto={tituloEtapa} />
+      ) : null}
+      {mostrarChipsTransferirTresTipos && !tituloEtapa ? (
+        <ManualChipsTransferirTresTiposInicioComum />
+      ) : null}
+      {textoIntro ? <ManualParagrafo texto={textoIntro} marginBottom={MANUAL_ESPACO_PARAGRAFO_PX} /> : null}
       {cabecalhoPasso}
+      {infograficoTransferirResultadoEsperado ? (
+        <ManualInfograficoPedidoListaTransferirResultadoEsperado variant={infograficoTransferirResultadoEsperado} />
+      ) : null}
       {gradeComTextoAoLado ? (
         <>
           {infograficoMapeamentoImportarColunas && telas[0].paragrafoAntes ? (
@@ -2503,7 +2637,7 @@ function ManualGaleriaComparacaoIntro({
             )}
           </div>
         </>
-      ) : (
+      ) : telas.length > 0 ? (
       <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${colunasGrade}, minmax(0, 1fr))`,
@@ -2512,9 +2646,16 @@ function ManualGaleriaComparacaoIntro({
     }}>
       {telas.map((tela) => renderTela(tela))}
       </div>
-      )}
+      ) : null}
       {calloutApos ? (
-        <ManualCalloutBloco callout={calloutApos} marginTop={12} marginBottom={0} />
+        (Array.isArray(calloutApos) ? calloutApos : [calloutApos]).map((callout, idx) => (
+          <ManualCalloutBloco
+            key={callout.texto.slice(0, 32)}
+            callout={callout}
+            marginTop={idx === 0 ? 12 : 8}
+            marginBottom={0}
+          />
+        ))
       ) : null}
     </div>
   )

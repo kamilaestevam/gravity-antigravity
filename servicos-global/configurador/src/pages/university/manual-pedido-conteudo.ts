@@ -67,6 +67,7 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - tela_pedido_lista_novo_pedido_modal_importacao_passo_3_modal_expandido_editando → pedido-lista-importar-sobrescrever-diff.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_passo_4 → pedido-lista-importar-resultado.png
  * - tela_pedido_lista_novo_pedido_modal_importacao_tela_final → pedido-lista-importar-erros-csv.png (+ reverter)
+ * Transferir (Drive: tela_pedido_lista_transferir_* → pedido-lista-transferir-*.png)
  * - pedido-novo-pedido.png
  * - pedido-novo-item.png
  * - pedido-transferir.png
@@ -137,6 +138,71 @@ const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDAR =
   '/university/screenshots/pedido-lista-paineis-novo-nome-validar.png'
 const SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
   '/university/screenshots/pedido-lista-paineis-novo-nome-validado.png'
+
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_COM_SELECAO =
+  '/university/screenshots/pedido-lista-transferir-com-selecao-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_ITEM_QTD_SALDO =
+  '/university/screenshots/pedido-lista-transferir-item-qtd-inicial-saldo.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_ICONE_INICIAR =
+  '/university/screenshots/pedido-lista-transferir-icone-iniciar.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_MODAL_TIPOS =
+  '/university/screenshots/pedido-lista-transferir-modal-tipos.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_SETA =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_2_SETA =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-2-seta.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_2_QTD =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-2-qtd.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_3_NUMERO =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-3-numero.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_4_REVISAO =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-4-revisao.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_5_CONFIRMAR =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-5-confirmar.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_5_CONFIRMADO =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-passo-5-confirmado.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_EM_TELA =
+  '/university/screenshots/pedido-lista-transferir-novo-pedido-em-tela-criado.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_SELECIONAR_1 =
+  '/university/screenshots/pedido-lista-transferir-existente-selecionar-1.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_SELECIONAR_2 =
+  '/university/screenshots/pedido-lista-transferir-existente-selecionar-2.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_1 =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-1.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_2 =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-2.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_3 =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-3.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_3_CONFIRMAR =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-3-confirmar.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_4 =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-4.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_5 =
+  '/university/screenshots/pedido-lista-transferir-existente-passo-5.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_CONFIRMADO =
+  '/university/screenshots/pedido-lista-transferir-existente-confirmado.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_1 =
+  '/university/screenshots/pedido-lista-transferir-existente-em-tela-1.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_2 =
+  '/university/screenshots/pedido-lista-transferir-existente-em-tela-2.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_TELA_1 =
+  '/university/screenshots/pedido-lista-transferir-reducao-tela-1.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_TELA_2 =
+  '/university/screenshots/pedido-lista-transferir-reducao-tela-2.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_1 =
+  '/university/screenshots/pedido-lista-transferir-reducao-passo-1.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_2 =
+  '/university/screenshots/pedido-lista-transferir-reducao-passo-2.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_3 =
+  '/university/screenshots/pedido-lista-transferir-reducao-passo-3.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_4 =
+  '/university/screenshots/pedido-lista-transferir-reducao-passo-4.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_5 =
+  '/university/screenshots/pedido-lista-transferir-reducao-passo-5.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO =
+  '/university/screenshots/pedido-lista-transferir-reducao-modal-confirmado.png'
+const SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO_2 =
+  '/university/screenshots/pedido-lista-transferir-reducao-modal-confirmado-2.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -855,13 +921,271 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Transferir pedidos e itens',
           tituloCurto: 'Transferir',
           paragrafos: [
-            '**Transferir** move pedidos e/ou itens selecionados para **outro workspace** da organização. A operação preserva o histórico no workspace de origem e registra o evento em **Histórico**. Misturas de importação e exportação geram **aviso**, mas a transferência pode prosseguir.',
-            'Na **Lista**, marque os **pedidos** e/ou **itens** desejados, abra **Transferir** na barra de ações e escolha o workspace de destino. Revise o resumo no modal antes de confirmar.',
+            'A **Lista** permite **transferir quantidade** de um item para **outro item**, **abrir um novo pedido** com o saldo transferido ou **reduzir a quantidade** do item selecionado sem destino — o foco é ajustar saldo quando a operação real diverge do previsto.',
+            'Muitas vezes **exportadores** alteram entregas entre previstas e reais; aqui é o **controle de tudo**. Selecione **um ou mais itens**, clique em **Transferir** e escolha **Novo pedido**, **Pedido existente** ou **Redução simples** — quantidade, revisão e confirmação seguem lógica parecida nos três caminhos.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-transferir.png`.',
-          },
+          mostrarInfograficoPedidoListaTransferirFluxo: true,
+          transferirInfograficoAposParagrafo: 1,
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              tituloEtapa: '**Início comum (passos 01–04):**',
+              mostrarChipsTransferirTresTipos: true,
+              textoIntro:
+                'Antes de escolher **Novo pedido**, **Pedido existente** ou **Redução simples**, o fluxo é **o mesmo**: selecionar o item na Lista, abrir **Transferir** e só então escolher o tipo no modal (passo **04**).',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_COM_SELECAO,
+                  paragrafoAntes: '**01.** Marque **um ou mais itens**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_ITEM_QTD_SALDO,
+                  paragrafoAntes: '**02.** Confira **quantidade inicial** e **saldo** do item',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_ICONE_INICIAR,
+                  paragrafoAntes: '**03.** Clique em **Transferir** na barra de ações',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_MODAL_TIPOS,
+                  paragrafoAntes: '**04.** Escolha o **tipo de transferência**',
+                },
+              ],
+              calloutApos: [
+                {
+                  tipo: 'dica',
+                  texto:
+                    'O botão **Transferir** só fica **habilitado** quando **pelo menos um item** está selecionado na Lista.',
+                },
+                {
+                  tipo: 'dica',
+                  texto:
+                    'É possível selecionar **vários itens de uma vez** — do **mesmo pedido** ou de **pedidos diferentes** — antes de abrir **Transferir**.',
+                },
+                {
+                  tipo: 'dica',
+                  texto:
+                    'A partir do **passo 05**, cada tipo segue seu próprio assistente — os três caminhos abaixo partem deste mesmo ponto.',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              tituloEtapa: '**Passo a passo para transferir item(s) para um novo pedido:**',
+              chipTransferirTituloEtapa: 'novo',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_SETA,
+                  paragrafoAntes: '**05.** Selecione **Novo pedido**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_2_SETA,
+                  paragrafoAntes: '**06.** Informe a **quantidade** a transferir',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_2_QTD,
+                  paragrafoAntes: '**07.** Quantidade preenchida no campo',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_3_NUMERO,
+                  paragrafoAntes: '**08.** Defina o **número do novo PO**',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_4_REVISAO,
+                  paragrafoAntes: '**09.** **Revisão** antes de confirmar',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_5_CONFIRMAR,
+                  paragrafoAntes: '**10.** Clique em **Confirmar**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_PASSO_5_CONFIRMADO,
+                  paragrafoAntes: '**11.** Transferência **confirmada** no modal',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_NOVO_PEDIDO_EM_TELA,
+                  paragrafoAntes: '**12.** **Novo pedido** visível na Lista',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              infograficoTransferirResultadoEsperado: 'novo',
+              telas: [],
+            },
+            {
+              indice: 1,
+              tituloEtapa: '**Passo a passo para transferir item(s) para um pedido existente:**',
+              chipTransferirTituloEtapa: 'existente',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_SELECIONAR_1,
+                  paragrafoAntes: '**05.** Selecione a opção **Pedido existente**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_SELECIONAR_2,
+                  paragrafoAntes: '**06.** Selecione o **pedido de destino**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_1,
+                  paragrafoAntes: '**07.** Clique em **Próximo**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_2,
+                  paragrafoAntes: '**08.** Ajuste a **quantidade**',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_3,
+                  paragrafoAntes: '**09.** Revise a **transferência**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_3_CONFIRMAR,
+                  paragrafoAntes: '**10.** Clique em **Transferir**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_4,
+                  paragrafoAntes: '**11.** Resumo da operação',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_PASSO_5,
+                  paragrafoAntes: '**12.** Clique em **Confirmar**',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_CONFIRMADO,
+                  paragrafoAntes: '**13.** Transferência **confirmada**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_1,
+                  paragrafoAntes: '**14.** **Origem** — confira saldo e qtd. inicial na Lista',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_2,
+                  paragrafoAntes: '**15.** **Destino** — confira saldo após receber a transferência',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              infograficoTransferirResultadoEsperado: 'existente',
+              telas: [],
+            },
+            {
+              indice: 1,
+              tituloEtapa: '**Passo a passo para reduzir quantidade de itens de um pedido:**',
+              chipTransferirTituloEtapa: 'reducao',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_TELA_1,
+                  paragrafoAntes: '**05.** Selecione a opção **Redução simples**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_TELA_2,
+                  paragrafoAntes: '**06.** Clique em **Transferir**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_1,
+                  paragrafoAntes: '**07.** Item e saldo atual',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_2,
+                  paragrafoAntes: '**08.** Informe quanto **reduzir**',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_3,
+                  paragrafoAntes: '**09.** Revisão do impacto no saldo',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_4,
+                  paragrafoAntes: '**10.** Resumo antes de confirmar',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_PASSO_5,
+                  paragrafoAntes: '**11.** Conclusão do assistente',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO,
+                  paragrafoAntes: '**12.** Redução **confirmada** no modal',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_REDUCAO_MODAL_CONFIRMADO_2,
+                  paragrafoAntes: '**13.** Saldo atualizado na **Lista** após a redução',
+                },
+              ],
+            },
+            {
+              indice: 1,
+              infograficoTransferirResultadoEsperado: 'reducao',
+              telas: [],
+            },
+          ],
         },
         {
           titulo: 'Consolidar pedidos',

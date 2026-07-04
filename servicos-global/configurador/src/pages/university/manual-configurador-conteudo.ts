@@ -68,8 +68,14 @@ export interface DocPassoVisual {
     textoAoLado?: string[]
     /** Infográfico compacto das colunas de mapeamento ao lado do print 08. */
     infograficoMapeamentoImportarColunas?: boolean
-    /** Dica/aviso logo abaixo desta grade (ex.: entre duas linhas de prints). */
-    calloutApos?: DocCalloutManual
+    /** Manual Pedido § Transferir — chips Novo pedido / Existente / Redução acima da grade. */
+    mostrarChipsTransferirTresTipos?: boolean
+    /** Manual Pedido § Transferir — badge do tipo no título da etapa (ex.: novo + «passo a passo»). */
+    chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
+    /** Manual Pedido § Transferir — mapa UX 10 do resultado esperado (saldos e quantidades). */
+    infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
+    /** Dica(s) logo abaixo desta grade (ex.: entre duas linhas de prints). */
+    calloutApos?: DocCalloutManual | DocCalloutManual[]
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
@@ -113,6 +119,10 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoListaAlertas?: boolean
   /** Manual Pedido §05 — mapa das 4 formas de criar via Novo (Importação, API, Smart Docs, Manual). */
   mostrarInfograficoPedidoListaImportarFormas?: boolean
+  /** Manual Pedido § Transferir — mapa mental dos 3 tipos (Novo PO, Existente, Redução). */
+  mostrarInfograficoPedidoListaTransferirFluxo?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Transferir (padrão: 1). */
+  transferirInfograficoAposParagrafo?: number
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
   mostrarTabelaAlertasPedidoLista?: boolean
   /** Manual Pedido §05 — ícones dos formatos de exportação da Lista. */

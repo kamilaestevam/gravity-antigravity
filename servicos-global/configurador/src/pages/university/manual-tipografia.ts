@@ -31,6 +31,9 @@ export const MANUAL_CORPO_TIPOGRAFIA = {
 /** Grid 50/50 texto + screenshot nas intros laterais (evita coluna estreita que impede justificar). */
 export const MANUAL_GRID_TEXTO_IMAGEM = 'minmax(300px, 1fr) minmax(300px, 1fr)' as const
 
+/** Altura fixa da legenda chip+texto em grades 3 colunas (Igual/Divergente/Vazio alinhados). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX = 96
+
 /** Espaço entre o fim de um passo visual e a linha divisória do passo seguinte (≈ paddingTop do passo). */
 export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
 

@@ -87,7 +87,7 @@ export function ManualInfograficoPedidoListaConsolidarPasso2Regras() {
           borda="rgba(251,191,36,.32)"
           fundo="rgba(245,158,11,.08)"
         >
-          {renderizarNegrito('Valores **diferentes** entre origens. **Dropdown**: você escolhe qual prevalece no PO consolidado (ex.: Incoterm FOB vs CIF). Badge laranja + tooltip com valor por PO.')}
+          {renderizarNegrito('Campos **diferentes entre pedidos**. Seleção de qual prevalece no PO consolidado (ex.: Incoterm FOB vs CIF). Badge laranja + tooltip com valor por PO.')}
         </CardBadge>
         <CardBadge
           icone={CheckCircle}
@@ -96,7 +96,7 @@ export function ManualInfograficoPedidoListaConsolidarPasso2Regras() {
           borda="rgba(52,211,153,.32)"
           fundo="rgba(52,211,153,.06)"
         >
-          {renderizarNegrito('**Mesmo valor** em todos os pedidos, entra **automaticamente** no consolidado. Somente leitura; badge verde **igual**.')}
+          {renderizarNegrito('**Mesmo valor** em todos os pedidos e itens; entra **automaticamente** no consolidado. Somente leitura; badge verde **igual**.')}
         </CardBadge>
         <CardBadge
           icone={MinusCircle}
@@ -105,7 +105,7 @@ export function ManualInfograficoPedidoListaConsolidarPasso2Regras() {
           borda="rgba(100,116,139,.28)"
           fundo="rgba(71,85,105,.12)"
         >
-          {renderizarNegrito('Campo **sem dado** nas origens, permanece vazio no novo PO. Badge cinza; não exige ação.')}
+          {renderizarNegrito('**Sem dado** nos pedidos selecionados; permanece vazio no novo PO. Badge cinza; não exige ação.')}
         </CardBadge>
       </div>
 

@@ -43,7 +43,7 @@ import {
   LINK_MANUAL_PERMISSOES,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -758,7 +758,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '153'
+const MANUAL_SCREENSHOT_CACHE_KEY = '162'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1097,11 +1097,14 @@ function ManualGaleriaLegendaConsolidarExemplo({
   texto,
   entreLinhas = false,
   margemAbaixo,
+  alturaFixaLegenda,
 }: {
   chip: DocChipConsolidarExemploId
   texto: string
   entreLinhas?: boolean
   margemAbaixo?: number
+  /** Grade 3 colunas — mesma altura em Igual/Divergente/Vazio para alinhar prints. */
+  alturaFixaLegenda?: number
 }) {
   const marginBottom = margemAbaixo ?? (entreLinhas ? 4 : 6)
   return (
@@ -1110,7 +1113,9 @@ function ManualGaleriaLegendaConsolidarExemplo({
       gap: 10,
       alignItems: 'flex-start',
       marginBottom,
-      minHeight: entreLinhas ? undefined : '2.75rem',
+      minHeight: alturaFixaLegenda ?? (entreLinhas ? undefined : '2.75rem'),
+      height: alturaFixaLegenda,
+      boxSizing: 'border-box',
     }}>
       <div style={{ paddingTop: 2 }}>
         <ManualChipConsolidarExemplo id={chip} />
@@ -1128,11 +1133,13 @@ function ManualGaleriaLegendaEdicaoMassaExemplo({
   texto,
   entreLinhas = false,
   margemAbaixo,
+  alturaFixaLegenda,
 }: {
   chip: DocChipEdicaoMassaExemploId
   texto: string
   entreLinhas?: boolean
   margemAbaixo?: number
+  alturaFixaLegenda?: number
 }) {
   const marginBottom = margemAbaixo ?? (entreLinhas ? 4 : 6)
   return (
@@ -1141,7 +1148,9 @@ function ManualGaleriaLegendaEdicaoMassaExemplo({
       gap: 10,
       alignItems: 'flex-start',
       marginBottom,
-      minHeight: entreLinhas ? undefined : '2.75rem',
+      minHeight: alturaFixaLegenda ?? (entreLinhas ? undefined : '2.75rem'),
+      height: alturaFixaLegenda,
+      boxSizing: 'border-box',
     }}>
       <div style={{ paddingTop: 2 }}>
         <ManualChipEdicaoMassaExemplo id={chip} />
@@ -1151,6 +1160,15 @@ function ManualGaleriaLegendaEdicaoMassaExemplo({
       </div>
     </div>
   )
+}
+
+/** Grade Igual/Divergente/Vazio — 3 colunas na largura total, legendas alinhadas. */
+const MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+  gap: 10,
+  alignItems: 'stretch',
+  width: '100%',
 }
 
 function ManualGaleriaTelaFigurasCompostas({
@@ -2805,12 +2823,17 @@ function ManualGaleriaComparacaoIntro({
 
   const alinharCalloutsNaGrade = telas.length > 1 && telas.some((t) => t.calloutAntes)
 
-  const renderTela = (tela: DocGaleriaComparacaoTela) => (
+  const renderTela = (
+    tela: DocGaleriaComparacaoTela,
+    opts?: { alinharLegendaChipGrade?: boolean },
+  ) => (
     <div
       key={tela.imagem}
       style={{
         ...(printLarguraTotal ? { width: '100%', minWidth: 0 } : {}),
-        ...(alinharCalloutsNaGrade ? { display: 'flex', flexDirection: 'column', height: '100%' } : {}),
+        ...(alinharCalloutsNaGrade || opts?.alinharLegendaChipGrade
+          ? { display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }
+          : {}),
       }}
     >
       {tela.calloutAntes ? (
@@ -2822,14 +2845,16 @@ function ManualGaleriaComparacaoIntro({
           chip={tela.chipConsolidarExemplo}
           texto={tela.paragrafoAntes}
           entreLinhas
-          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : undefined}
+          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10}
+          alturaFixaLegenda={opts?.alinharLegendaChipGrade ? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX : undefined}
         />
       ) : tela.chipEdicaoMassaExemplo && tela.paragrafoAntes ? (
         <ManualGaleriaLegendaEdicaoMassaExemplo
           chip={tela.chipEdicaoMassaExemplo}
           texto={tela.paragrafoAntes}
           entreLinhas
-          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : undefined}
+          margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10}
+          alturaFixaLegenda={opts?.alinharLegendaChipGrade ? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX : undefined}
         />
       ) : tela.paragrafoAntes ? (
         textoAcimaEstiloCorpo
@@ -3019,28 +3044,15 @@ function ManualGaleriaComparacaoIntro({
       ) : layoutEdicaoMassaExemplosPasso2 && telas.length >= 4 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {renderTela(telas[0])}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 10,
-            alignItems: 'start',
-          }}>
-            {telas.slice(1, 4).map((tela) => renderTela(tela))}
+          <div style={MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS}>
+            {telas.slice(1, 4).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
           </div>
         </div>
-      ) : (rotuloConsolidarExemplosPasso2 || layoutConsolidarExemplosPasso2) && telas.length >= 5 ? (
+      ) : (rotuloConsolidarExemplosPasso2 || layoutConsolidarExemplosPasso2) && telas.length >= 4 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {renderTela(telas[0])}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gap: 10,
-            alignItems: 'start',
-          }}>
-            {telas.slice(1, 4).map((tela) => renderTela(tela))}
-          </div>
-          <div style={{ width: '100%' }}>
-            {renderTela(telas[4])}
+          <div style={MANUAL_ESTILO_GRADE_CHIP_TRES_COLUNAS}>
+            {telas.slice(1, 4).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
           </div>
         </div>
       ) : (

@@ -91,20 +91,22 @@ export function ManualInfograficoPedidoListaConsolidarResultadoEsperado({
         marginBottom: 12,
       }}>
         <Painel titulo="Pedidos de origem" cor="#f87171" borda="rgba(248,113,113,.28)" fundo="rgba(248,113,113,.06)">
-          <LinhaMetrica rotulo="Status na Lista" valor="Saem da visão ativa" />
-          <LinhaMetrica rotulo="No banco" valor="Soft delete + status consolidado" />
-          <LinhaMetrica rotulo="Itens" valor="Permanecem no histórico" />
+          <LinhaMetrica rotulo="Na grade principal" valor="Não aparecem mais soltos" />
+          <LinhaMetrica rotulo="Onde ficam" valor="Aninhados no PO consolidado" />
+          <LinhaMetrica rotulo="Como ver" valor="Expandir a linha mãe (+)" />
+          <LinhaMetrica rotulo="Status" valor="Consolidado" />
           <p style={{ margin: '8px 0 0', fontSize: '.64rem', color: CORPO_70 }}>
-            {renderizarNegrito('Rastreio em **Histórico**: audit trail registra a operação.')}
+            {renderizarNegrito('Consulte **Histórico** para ver quem consolidou e quando.')}
           </p>
         </Painel>
 
         <Painel titulo="PO consolidado (novo)" cor="#34d399" borda="rgba(52,211,153,.28)" fundo="rgba(52,211,153,.06)">
+          <LinhaMetrica rotulo="Na Lista" valor="1 linha mãe visível" />
+          <LinhaMetrica rotulo="Status" valor="Consolidado" />
           <LinhaMetrica rotulo="Número" valor="Definido no passo 1" />
           <LinhaMetrica rotulo="Valor total" valor="Soma dos POs origem" />
           <LinhaMetrica rotulo="Itens" valor="Cópia ou fundidos (part number)" />
           <LinhaMetrica rotulo="Campos" valor="Iguais + escolhas do passo 2" />
-          <LinhaMetrica rotulo="Rastreabilidade" valor="ids_origem_consolidacao_pedido" />
         </Painel>
       </div>
 
@@ -124,9 +126,9 @@ export function ManualInfograficoPedidoListaConsolidarResultadoEsperado({
         <span>Ex.: 3 POs selecionados</span>
         <ArrowRight size={12} color="#64748b" aria-hidden />
         <GitMerge size={14} color="#818cf8" aria-hidden />
-        <span><strong style={{ color: '#cbd5e1' }}>1 PO novo</strong> na Lista</span>
+        <span><strong style={{ color: '#cbd5e1' }}>1 PO novo</strong> na grade</span>
         <ArrowRight size={12} color="#64748b" aria-hidden />
-        <span>3 origens arquivadas</span>
+        <span>origens aninhadas ao expandir</span>
       </div>
     </>
   )

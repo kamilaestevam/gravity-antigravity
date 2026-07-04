@@ -4,6 +4,7 @@
  */
 import { aplicarDdlHistoricoLogSchema } from '../../servicos-global/servicos-plataforma/historico-global/server/lib/aplicar-ddl-historico-log-schema.js'
 import { aplicarDdlNotificacoesSchema } from '../../servicos-global/servicos-plataforma/notificacoes/server/lib/aplicar-ddl-notificacoes-schema.js'
+import { aplicarDdlEmailSchema } from '../../servicos-global/servicos-plataforma/email/server/lib/aplicar-ddl-email-schema.js'
 
 function mascararUrl(url: string): string {
   const host = url.split('@')[1]?.split('/')[0]
@@ -24,6 +25,9 @@ async function main(): Promise<void> {
 
   const notificacoes = await aplicarDdlNotificacoesSchema(url)
   console.log(`[ddl-plataforma-public] notificacoes: ${notificacoes}`)
+
+  const email = await aplicarDdlEmailSchema(url)
+  console.log(`[ddl-plataforma-public] email (5 tabelas): ${email}`)
 }
 
 main().catch((err) => {

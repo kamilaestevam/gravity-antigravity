@@ -45,6 +45,19 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
+// Blindagem do monolito: um sidecar (Email, Pedido, BID, ...) NUNCA pode derrubar
+// os outros. Sem estes handlers o Node 22 mata o processo inteiro em qualquer
+// promise rejeitada sem catch — foi exatamente o que tirou a prod do ar em
+// 04/07/2026 (P2022 do Email em rota async sem catch → crash-loop de 12h).
+// Logar alto e seguir vivo; o erro real continua visível nos Deploy Logs.
+process.on('unhandledRejection', (motivo) => {
+  const msg = motivo instanceof Error ? (motivo.stack ?? motivo.message) : String(motivo)
+  console.error('[FATAL-EVITADO] unhandledRejection (processo segue vivo):', msg)
+})
+process.on('uncaughtException', (err, origem) => {
+  console.error(`[FATAL-EVITADO] uncaughtException via ${origem} (processo segue vivo):`, err.stack ?? err.message)
+})
+
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'

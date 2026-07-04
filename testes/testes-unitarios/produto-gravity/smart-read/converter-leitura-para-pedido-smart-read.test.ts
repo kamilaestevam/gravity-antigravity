@@ -1,7 +1,38 @@
 import { describe, expect, it } from 'vitest'
-import { converterLeituraParaPedido } from '../../../../servicos-global/produto/smart-read/shared/converter-leitura-para-pedido-smart-read.ts'
+import {
+  converterLeituraParaPedido,
+  REGRAS_ITEM,
+  REGRAS_PEDIDO,
+} from '../../../../servicos-global/produto/smart-read/shared/converter-leitura-para-pedido-smart-read.ts'
+import {
+  ALIAS_CAMPO_PEDIDO_CONVERSAO,
+  CAMPOS_ITEM_CONVERSAO_PERMITIDOS,
+  CAMPOS_PEDIDO_CONVERSAO_PERMITIDOS,
+} from '../../../../servicos-global/produto/pedido/server/src/lib/montar-create-pedido-de-conversao-smart-read.ts'
+
+const CAMPOS_PEDIDO_CONVERSAO = new Set<string>([
+  ...CAMPOS_PEDIDO_CONVERSAO_PERMITIDOS,
+  'numero_pedido',
+])
+const CAMPOS_ITEM_CONVERSAO = new Set<string>(CAMPOS_ITEM_CONVERSAO_PERMITIDOS)
 
 describe('converter-leitura-para-pedido-smart-read', () => {
+  it('REGRAS_PEDIDO e REGRAS_ITEM usam só campos da whitelist Prisma', () => {
+    for (const regra of REGRAS_PEDIDO) {
+      expect(
+        CAMPOS_PEDIDO_CONVERSAO.has(regra.campo),
+        `REGRAS_PEDIDO.campo fora da whitelist: ${regra.campo}`,
+      ).toBe(true)
+      expect(Object.keys(ALIAS_CAMPO_PEDIDO_CONVERSAO)).not.toContain(regra.campo)
+    }
+    for (const regra of REGRAS_ITEM) {
+      expect(
+        CAMPOS_ITEM_CONVERSAO.has(regra.campo),
+        `REGRAS_ITEM.campo fora da whitelist: ${regra.campo}`,
+      ).toBe(true)
+    }
+  })
+
   it('mapeia invoice com items para numero_pedido e part_number_item', () => {
     const resultado = converterLeituraParaPedido({
       id_leitura: 'abc123',

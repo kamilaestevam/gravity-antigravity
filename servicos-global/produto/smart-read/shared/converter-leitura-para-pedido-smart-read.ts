@@ -23,15 +23,15 @@ type GrupoPedidoExtraido = {
   itens: Record<string, unknown>[]
 }
 
-const REGRAS_PEDIDO: Array<{ caminhos: string[][]; campo: string }> = [
+export const REGRAS_PEDIDO: Array<{ caminhos: string[][]; campo: string }> = [
   { caminhos: [['document', 'documentNumber'], ['document', 'number']], campo: 'numero_pedido' },
   { caminhos: [['document', 'incoterm']], campo: 'incoterm_pedido' },
-  { caminhos: [['currency', 'type'], ['payment', 'currency']], campo: 'codigo_moeda_pedido' },
+  { caminhos: [['currency', 'type'], ['payment', 'currency']], campo: 'moeda_pedido' },
   { caminhos: [['document', 'documentDate'], ['document', 'date']], campo: 'data_documento_proforma_pedido' },
   { caminhos: [['payment', 'terms']], campo: 'condicao_pagamento_pedido' },
 ]
 
-const REGRAS_ITEM: Array<{ caminhos: string[][]; campo: string }> = [
+export const REGRAS_ITEM: Array<{ caminhos: string[][]; campo: string }> = [
   { caminhos: [['partNumber'], ['part_number']], campo: 'part_number_item' },
   { caminhos: [['quantity'], ['qty']], campo: 'quantidade_inicial_item' },
   {

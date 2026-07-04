@@ -10,6 +10,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { PrismaClient } from '../generated/client/index.js'
 import { AppError } from '../lib/erros.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
@@ -17,6 +18,7 @@ import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
+import { prisma as basePrisma, withTenantIsolation } from '../middleware/isolamento-tenant.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
@@ -511,18 +513,26 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     // Responde antes do disparo — Resend/e-mail pode exceder timeout HTTP do Railway (~30s).
     if (disparar_ao_criar && tenantId) {
-      res.status(201).json({
-        cotacao,
-        disparo: null,
-        disparo_pendente: true,
-      })
-      void executarDisparoAoCriarCotacao(req.prisma!, {
+      const disparoParams = {
         cotacao,
         tenantId,
         userId,
         fornecedor_ids,
         canais_disparo,
         emails_por_fornecedor,
+      }
+      res.status(201).json({
+        cotacao,
+        disparo: null,
+        disparo_pendente: true,
+      })
+      // Dispara após flush da resposta — Prisma do request não deve ser usado em background.
+      res.on('finish', () => {
+        const prismaBg = withTenantIsolation(basePrisma, tenantId) as PrismaClient
+        void executarDisparoAoCriarCotacao(prismaBg, disparoParams).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err)
+          console.error('[cotacoes] disparo background falhou (unhandled):', msg)
+        })
       })
       return
     }

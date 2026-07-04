@@ -610,7 +610,6 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
 const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'id_cotacao_bid_frete_internacional',
   'id_organizacao',
-  'numero_cotacao_bid_frete_internacional',
   'data_atualizacao_cotacao_bid_frete_internacional',
   'valor_aprovado_ganho_bid_frete_internacional',
   'moeda_aprovada',

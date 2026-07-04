@@ -24,13 +24,24 @@
 
 **Carga perigosa (DG):** ver [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) — passo 1 (toggle) + passo 3 (combo ONU).
 
+### 2.1 Passo 1 — Nº da cotação (TASK-000407)
+
+| Item | Valor |
+|------|-------|
+| Campo UI | Primeiro bloco do passo 1 — `form.numero_cotacao_bid_frete_internacional` |
+| Geração inicial | `gerarNumeroCotacaoFreteInternacional()` em `shared/numeracao-bid-frete-internacional.ts` (prefixo `COT-YYYYMMDD-NNNN`) |
+| Tipografia | Mesma fonte dos demais `.nc-input` do wizard (`font-family: inherit`) — **não** usar mono no input |
+| Validação client | `canNext()` exige texto não vazio após trim |
+| POST | `numero_cotacao_bid_frete_internacional` opcional no body; servidor usa valor informado ou gera novo |
+| Zod server | `CriarCotacaoSchemaBase` — `z.string().min(1).max(64).optional()` |
+
 ---
 
 ## 2. Wizard — 5 passos
 
 | # | Passo | Conteúdo principal |
 |---|-------|-------------------|
-| 1 | Modal e Operação | Tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
+| 1 | Modal e Operação | **Nº da cotação** (auto-gerado, editável), tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
 | 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
 | 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, incoterm + helper card |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
@@ -159,6 +170,7 @@ export async function criarCotacaoComDisparo(input): Promise<{
 
 ```ts
 {
+  numero_cotacao_bid_frete_internacional?: string, // opcional — wizard passo 1; omitido → servidor gera COT-*
   visibilidade_cotacao_bid_frete_internacional: 'ABERTA' | 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: boolean,
   data_limite_resposta_cotacao_bid_frete_internacional?: string, // ISO

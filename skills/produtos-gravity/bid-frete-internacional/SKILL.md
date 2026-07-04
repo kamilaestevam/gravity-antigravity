@@ -107,6 +107,20 @@ Doc: [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/prod
 
 Ícone ▾ em todas colunas visíveis; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`. Colunas manuais: `filtravel: true` + `_colunas_usuario[col.id]` (`valores-colunas-usuario-bid-frete-internacional.ts`, localStorage WIP). Teste: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`.
 
+### Nº da cotação editável (TASK-000407)
+
+| Peça | Caminho / contrato |
+|------|-------------------|
+| Campo Prisma | `numero_cotacao_bid_frete_internacional` — auto no create; editável via PATCH |
+| Wizard passo 1 | `modal-nova-cotacao-bid-frete-internacional.tsx` — `gerarNumeroCotacaoFreteInternacional()` + POST opcional |
+| Lista inline | `colunas-lista-bid-frete-internacional.ts` — texto editável + ↗ abrir detalhe |
+| Persistência | `shared/salvar-campo-cotacao-bid-frete-internacional.ts` + `mapCotacaoToServer` em `api.ts` |
+| API | `PATCH /cotacoes/:id` e `POST /cotacoes` aceitam `numero_cotacao_bid_frete_internacional` |
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 · [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação
+
+**Testes UNI:** `lista/map-cotacao-to-server.test.ts`, `lista/salvar-campo-numero-cotacao.test.ts` · **FUN:** `lista/cotacoes-routes.test.ts` (PATCH numero)
+
 ### Criação (menu Novo → Buscar Frete)
 
 O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
@@ -378,7 +392,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Proposta tabela + BRL estimado: `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
 - Funcionais: `testes/testes-funcionais/produto-gravity/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
-- Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+- Nº cotação editável: `lista/map-cotacao-to-server.test.ts`, `lista/salvar-campo-numero-cotacao.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 

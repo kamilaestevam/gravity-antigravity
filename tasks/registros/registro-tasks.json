@@ -31,6 +31,23 @@
       "arquivo_ficha": "registros/TASK-000408.json"
     },
     {
+      "referencia": "TASK-000407",
+      "ordinal": 131,
+      "titulo_canonico": "BIDFRT-LISTA-MEL-NUMERO-COTACAO-EDITAVEL-SALVAR",
+      "titulo_exibicao": "TASK-000407 | [Bid Frete] Lista | MEL — Número da cotação editável (primeiro campo, UX clara, corrigir salvamento)",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "NUMERO-COTACAO-EDITAVEL-SALVAR",
+      "data_criacao": "2026-07-04T01:46:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000407.json"
+    },
+    {
       "referencia": "TASK-000406",
       "ordinal": 130,
       "titulo_canonico": "PEDIDO-LISTA-MEL-EXCLUIR-PAINEL-MENU-TRES-PONTOS",

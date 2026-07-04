@@ -59,6 +59,13 @@ function normalizarDataIsoEdicao(valor: unknown): string | null {
 }
 
 export function normalizarValorEdicaoCotacao(campo: string, valor: unknown): unknown {
+  if (campo === 'numero_cotacao_bid_frete_internacional') {
+    const texto = String(valor ?? '').trim()
+    if (!texto) {
+      throw new Error('Número da cotação não pode ficar vazio.')
+    }
+    return texto
+  }
   if (campo === 'anonima_cotacao_bid_frete_internacional') {
     if (typeof valor === 'boolean') return valor
     return valor === true || valor === 'true' || valor === 'Sim'

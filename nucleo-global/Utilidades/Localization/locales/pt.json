@@ -2395,6 +2395,8 @@
       }
     },
     "lista": {
+      "abrir_cotacao": "Abrir cotação",
+      "abrir_cotacao_numero": "Abrir cotação {{numero}}",
       "colunas": {
         "data_aprovacao": "Data aprovação",
         "data_cancelamento": "Data cancelamento"
@@ -2857,6 +2859,9 @@
       "criar": "Criar Cotação",
       "criando": "Criando...",
       "modal_operacao": "Modal e Operação",
+      "numero_cotacao": "Nº da cotação",
+      "numero_cotacao_hint": "Gerado automaticamente; você pode personalizar antes de criar.",
+      "numero_cotacao_placeholder": "COT-YYYYMMDD-NNNN",
       "titulo": "Nova Cotação de Frete",
       "titulo_internacional": "Nova Cotação de Frete Internacional",
       "tipo_operacao": "Tipo de Operação",

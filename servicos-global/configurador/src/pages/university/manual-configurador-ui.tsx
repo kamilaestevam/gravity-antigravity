@@ -152,7 +152,7 @@ function ManualPilaresCustomizacaoChips({ pilares }: { pilares: ManualPilarCusto
               gap: 1,
             }}
           >
-            <span style={{ fontSize: '.5rem', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
               {num}
             </span>
             <Icone size={13} weight="duotone" color={pilar.cor} aria-hidden />
@@ -207,7 +207,7 @@ function ManualPilaresImportarFormasChips({ pilares }: { pilares: ManualPilarImp
               gap: 1,
             }}
           >
-            <span style={{ fontSize: '.5rem', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: pilar.cor, lineHeight: 1, letterSpacing: '.04em' }}>
               {num}
             </span>
             <Icone size={13} weight="duotone" color={pilar.cor} aria-hidden />
@@ -523,7 +523,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '112'
+const MANUAL_SCREENSHOT_CACHE_KEY = '144'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -710,7 +710,7 @@ function ManualGaleriaTelaLegendaStep({
 }) {
   return (
     <p style={{
-      fontSize: '12.5px', fontWeight: 700, color: '#818cf8',
+      fontSize: '14.5px', fontWeight: 700, color: '#818cf8',
       margin: 0, marginBottom: alinhamento === 'center' ? 6 : 0,
       textAlign: alinhamento, letterSpacing: '.04em',
     }}>{legenda}</p>
@@ -753,6 +753,80 @@ function ManualGaleriaTelaParagrafoFigura({
     }}>
       <ManualParagrafo texto={texto} marginBottom={0} />
     </div>
+  )
+}
+
+/** Print numerado (**08.** …) — chip indigo + legenda, distinto do bloco 💡 Dica. */
+function ManualGaleriaChipNumeroPasso({ numero }: { numero: string }) {
+  return (
+    <div
+      title={`Passo ${numero}`}
+      style={{
+        minWidth: 52,
+        height: 38,
+        padding: '0 7px',
+        borderRadius: 8,
+        border: '1px solid rgba(129,140,248,.32)',
+        background: 'rgba(99,102,241,.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1,
+        flexShrink: 0,
+      }}
+    >
+      <span style={{
+        fontSize: '7px', fontWeight: 800, color: '#818cf8', letterSpacing: '.1em',
+        lineHeight: 1, textTransform: 'uppercase',
+      }}>
+        Passo
+      </span>
+      <span style={{
+        fontSize: '11px', fontWeight: 800, color: '#818cf8', letterSpacing: '.04em', lineHeight: 1,
+      }}>
+        {numero}
+      </span>
+    </div>
+  )
+}
+
+function ManualGaleriaLegendaPrintPasso({
+  texto,
+  entreLinhas = false,
+}: {
+  texto: string
+  entreLinhas?: boolean
+}) {
+  const match = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
+  if (!match) {
+    return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} />
+  }
+  const [, numero, legenda] = match
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 10,
+      alignItems: 'center',
+      marginBottom: entreLinhas ? 4 : 6,
+      minHeight: entreLinhas ? undefined : '2.75rem',
+    }}>
+      <ManualGaleriaChipNumeroPasso numero={numero} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <ManualParagrafo texto={legenda.trim()} marginBottom={0} />
+      </div>
+    </div>
+  )
+}
+
+function ManualGaleriaRotuloLinhaDicas() {
+  return (
+    <p style={{
+      ...MANUAL_ESTILO_PASSO_ROTULO,
+      margin: '0 0 10px',
+    }}>
+      Dicas desta etapa
+    </p>
   )
 }
 
@@ -2349,7 +2423,7 @@ function ManualGaleriaComparacaoIntro({
         </div>
       ) : tela.paragrafoAntes ? (
         textoAcimaEstiloCorpo
-          ? <ManualGaleriaTelaParagrafoFigura texto={tela.paragrafoAntes} entreLinhas />
+          ? <ManualGaleriaLegendaPrintPasso texto={tela.paragrafoAntes} entreLinhas />
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
       ) : null}
       {tela.legenda.trim() ? (
@@ -2372,18 +2446,23 @@ function ManualGaleriaComparacaoIntro({
     && telas.length === 1
     && colunasGrade === 4
 
+  const linhaSoDicas = telas.length > 0
+    && telas.every((t) => t.calloutAntes)
+    && !tituloEtapa
+
   return (
     <div style={{
       margin: textoAcimaEstiloCorpo ? '12px 0 16px' : '16px 0 22px',
       paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
     }}>
+      {linhaSoDicas ? <ManualGaleriaRotuloLinhaDicas /> : null}
       {tituloEtapa ? <ManualGaleriaTelaParagrafoFigura texto={tituloEtapa} /> : null}
       {textoIntro ? <ManualParagrafo texto={textoIntro} marginBottom={6} /> : null}
       {cabecalhoPasso}
       {gradeComTextoAoLado ? (
         <>
           {infograficoMapeamentoImportarColunas && telas[0].paragrafoAntes ? (
-            <ManualGaleriaTelaParagrafoFigura texto={telas[0].paragrafoAntes} entreLinhas />
+            <ManualGaleriaLegendaPrintPasso texto={telas[0].paragrafoAntes} entreLinhas />
           ) : null}
           <div style={{
             display: 'grid',

@@ -252,7 +252,12 @@
     },
     "pedido": {
       "baseUrl": "http://localhost:8030",
-      "pathPrefix": "/api/v1/pedidos"
+      "pathPrefix": "/api/v1/pedidos",
+      "endpoints": {
+        "importacoes-smart-read": {
+          "POST /importacoes-smart-read/criar": "Ponte Smart Docs → Pedido: busca leitura no BFF Smart Read (S2S), converte snapshot conferido em pedido+itens (canal smart_read no historico). Body Zod: CriarPedidoDeLeituraSmartReadRequestSchema ({ id_leitura, id_snapshot_leitura_smart_read? }). Resposta: CriarPedidoDeLeituraSmartReadRespostaSchema. Headers S2S: x-chave-interna-servico, x-id-organizacao, x-id-workspace (obrigatorio), x-id-usuario, x-nome-usuario. Permissao: pedido:lista:editar."
+        }
+      }
     },
     "lpco": {
       "baseUrl": "http://localhost:8027",
@@ -273,7 +278,13 @@
     "smart-read": {
       "baseUrl": "http://localhost:8033",
       "pathPrefix": "/api/v1/smart-read",
-      "note": "BFF/adapter para o Smart Read legado (dati/microservices, external-readings). Sem banco proprio. Upload: POST /leituras (multipart 'arquivo', 202). Polling: GET /leituras/:id_leitura. S2S: x-internal-key + x-id-organizacao."
+      "note": "BFF/adapter para o Smart Read legado (dati/microservices, external-readings). Postgres Gravity: snapshot, progresso, conversao_leitura_pedido_smart_read. Upload: POST /leituras (multipart 'arquivo', 202). Polling: GET /leituras/:id_leitura. S2S: x-chave-interna-servico + x-id-organizacao + x-id-workspace.",
+      "endpoints": {
+        "leituras-pedido": {
+          "POST /leituras/:id_leitura/criar-pedido": "Orquestrador hibrido: chama Pedido POST /importacoes-smart-read/criar (S2S) e persiste linhagem DE/PARA em conversao_leitura_pedido_smart_read. Idempotente por id_leitura (409 se ja convertida).",
+          "GET /leituras/:id_leitura/snapshot-id": "Retorna { id_snapshot_leitura_smart_read } para consumo S2S do Pedido."
+        }
+      }
     },
     "taxas-moeda": {
       "baseUrl": "http://localhost:8005",

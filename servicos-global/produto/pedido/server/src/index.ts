@@ -43,6 +43,7 @@ import { consolidarRouter } from './routes/consolidacoes-pedido.js'
 import { transferirRouter, transferirHistoricoRouter } from './routes/transferencias-pedido.js'
 import { edicaoEmMassaRouter } from './routes/edicoes-em-massa-pedido.js'
 import { smartImportRouter, templateHandler } from './routes/importacoes-inteligentes-pedido.js'
+import { importacoesSmartReadPedidoRouter } from './routes/importacoes-smart-read-pedido.js'
 import { duplicacoesPedidoRouter } from './routes/duplicacoes-pedido.js'
 import { exclusoesPedidoRouter } from './routes/exclusoes-pedido.js'
 import { reordenacaoItensPedidoRouter } from './routes/reordenacao-itens-pedido.js'
@@ -274,6 +275,7 @@ app.use('/api/v1/pedidos/consolidacoes',               exigirPermissao('lista', 
 app.use('/api/v1/pedidos/edicoes-em-massa',            exigirPermissao('lista', 'editar'), edicaoEmMassaRouter)
 // smartImportRouter aplica `exigirPermissao('lista','editar')` internamente.
 app.use('/api/v1/pedidos/importacoes-inteligentes',    smartImportRouter)
+app.use('/api/v1/pedidos/importacoes-smart-read',      importacoesSmartReadPedidoRouter)
 app.use('/api/v1/pedidos/colunas-usuario',             exigirPorMetodo('lista'), colunasUsuarioRouter)
 app.use('/api/v1/pedidos/cards-usuario',              exigirPermissao('configuracao', 'editar'), cardsUsuarioRouter)
 app.use(gabiProxyRouter)

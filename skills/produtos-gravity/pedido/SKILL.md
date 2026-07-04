@@ -197,6 +197,17 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 - O filtro client-side de `Pedidos.tsx` espelha as mesmas condições sobre `_colunas_usuario` (Mand. 07 — alterar um lado exige alterar o outro).
 - Detalhes: [`COLUNAS-USUARIO-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/COLUNAS-USUARIO-TECNICO.md) §Busca da Lista.
 
+### + Novo → Smart Docs (TASK-000408)
+
+> SSOT cross-produto: [SMART-READ-CRIAR-PEDIDO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/SMART-READ-CRIAR-PEDIDO-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| UI | `BarraAcoesPedido.tsx` + menu inline `Pedidos.tsx`; flag `PRODUCT_CONFIG.features.smart_read` |
+| Redirect | `/smart-read/lista?origem=pedido&acao=nova-leitura` |
+| API Pedido | `POST /api/v1/pedidos/importacoes-smart-read/criar` (S2S; service `smartReadParaPedidoService`) |
+| Histórico | `canal_criacao: smart_read` + `id_leitura` em `auditLog` |
+
 ---
 
 ## Parte 3 — Consolidar / Transferir / Outras Features

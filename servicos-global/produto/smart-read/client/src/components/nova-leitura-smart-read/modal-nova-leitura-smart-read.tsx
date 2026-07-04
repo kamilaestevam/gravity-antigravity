@@ -20,6 +20,7 @@ import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-glo
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 
 import { smartReadApi } from '../../shared/api'
+import { useShellStore } from '@gravity/shell'
 
 import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 
@@ -128,6 +129,9 @@ type Props = {
 
   onConcluido?: () => void
 
+  /** Quando true (redirect do Pedido), dispara criação de pedido ao concluir passo 4. */
+  origemPedido?: boolean
+
 }
 
 
@@ -154,7 +158,11 @@ export function ModalNovaLeituraSmartRead({
 
   onConcluido,
 
+  origemPedido = false,
+
 }: Props) {
+
+  const addNotification = useShellStore((s) => s.addNotification)
 
   const [passo, setPasso] = useState(1)
 
@@ -774,6 +782,28 @@ export function ModalNovaLeituraSmartRead({
     if (passo === 2 && !processamentoFinalizado) return
 
     if (passo >= 4) {
+
+      if (origemPedido && idLeituraAtual) {
+        try {
+          const resultado = await smartReadApi.criarPedidoDeLeitura(idLeituraAtual)
+          const totalPedidos = resultado.pedidos_criados?.length ?? 1
+          const tituloPedido =
+            totalPedidos > 1
+              ? `${totalPedidos} pedidos criados no Pedido (${resultado.numero_pedido} e outros)`
+              : `Pedido ${resultado.numero_pedido} criado no Pedido`
+          addNotification({
+            type: 'success',
+            title: tituloPedido,
+            message: 'Leitura concluída e pedido gerado com sucesso.',
+          })
+        } catch (erro) {
+          addNotification({
+            type: 'error',
+            title: 'Falha ao criar pedido',
+            message: mensagemDeExcecao(erro, 'Nao foi possivel gerar o pedido a partir da leitura.'),
+          })
+        }
+      }
 
       onConcluido?.()
 

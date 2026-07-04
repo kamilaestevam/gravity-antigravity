@@ -51,6 +51,7 @@ flowchart LR
 | **Snapshot** da leitura (extração + métricas) | **Gravity** (`snapshot_leitura_smart_read`) | BFF ao concluir/conferir | Lista, Insights, `GET /leituras/:id` |
 | Painéis/colunas/filtros da lista | **Gravity** (`lista_painel_usuario_global`) | API `/lista/paineis` | Lista |
 | **Tokens LLM Gemini** (auditoria por chamada) | **Gravity** (`log_uso_llm_leitura_smart_read`) | BFF após QA, classificação fiscal e análise de riscos (`registrarUsoLlmLeituraSmartRead`) | Contador sidebar + `GET /leituras/tokens/*` |
+| **Conversão → Pedido** (linhagem DE/PARA) | **Gravity** (`conversao_leitura_pedido_smart_read`) | BFF após `POST …/criar-pedido` | Auditoria; refs `id_pedido` cross-banco |
 
 **Não confundir:** `SMART_READ_DATABASE_URL` (Railway Postgres Gravity) **≠** banco do DATI. São instâncias separadas, em servidores diferentes. O vínculo org Gravity → company legado é resolvido via Configurador (`resolverCompanyLegado`). O Gravity **nunca** grava PDF nem substitui o motor OCR do DATI — apenas **lê** o legado via REST e **copia** JSON normalizado para o snapshot quando elegível.
 
@@ -110,6 +111,26 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 | `GET /api/v1/smart-read/leituras/tokens/resumo?escopo=usuario_mes\|organizacao_mes` | Agregado mensal por usuário ou organização |
 
 Respostas validadas por `ResumoUsoLlmLeituraSmartReadSchema`. Rotas em `server/src/routes/tokens-uso-llm-leitura-smart-read.ts`.
+
+---
+
+## 3.2 Conversão leitura → Pedido (`conversao_leitura_pedido_smart_read`)
+
+> **Task:** TASK-000408 · Migration `20260703230000_create_conversao_leitura_pedido_smart_read` · Deploy DB: `scripts/ativamente/migrate-smart-read-railway.ps1`  
+> **Fluxo completo:** [SMART-READ-CRIAR-PEDIDO-TECNICO.md](./SMART-READ-CRIAR-PEDIDO-TECNICO.md)
+
+| Atributo | Valor |
+|----------|-------|
+| Banco | Postgres Railway `gravity-smart-read-*` |
+| Model Prisma | `ConversaoLeituraPedidoSmartRead` |
+| Tabela | `conversao_leitura_pedido_smart_read` |
+| SSOT contrato | `shared/conversao-leitura-pedido-smart-read-schema.ts` |
+| Serviço BFF | `server/src/lib/disparar-criacao-pedido-de-leitura-smart-read.ts` |
+| Persistência | `server/src/lib/persistir-conversao-leitura-pedido-smart-read.ts` |
+
+**Colunas:** `id_conversao_leitura_pedido_smart_read` (PK), `id_organizacao`, `id_leitura_legado_conversao_leitura_pedido`, `id_snapshot_leitura_smart_read`, `id_pedido`, `ids_pedido_item_conversao_leitura_pedido` (JSON), `status_conversao_leitura_pedido_smart_read`, `detalhe_mapeamento_conversao_leitura_pedido` (JSON).
+
+**Pedido canônico** (`pedido`, `pedido_item`) fica no **banco Pedido** — esta tabela só guarda linhagem e DE/PARA no Smart Read.
 
 ---
 
@@ -195,6 +216,8 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 | `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
 | `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
 | `testes/testes-unitarios/produto-gravity/smart-read/uso-llm-leitura-smart-read.test.ts` | Soma, formatação discreta e custo USD estimado |
+| `testes/testes-unitarios/produto-gravity/smart-read/converter-leitura-para-pedido-smart-read.test.ts` | Conversão DE/PARA leitura → pedido |
+| `testes/testes-funcionais/produto-gravity/pedido/importacoes-smart-read-criar.test.ts` | Rota Pedido S2S criar de leitura |
 
 ---
 
@@ -202,6 +225,7 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 
 | Doc | Conteúdo |
 |-----|----------|
+| [SMART-READ-CRIAR-PEDIDO-TECNICO.md](./SMART-READ-CRIAR-PEDIDO-TECNICO.md) | Ponte Pedido (+ Novo → Smart Docs) |
 | [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Rotas BFF, progresso, nome do wizard, painéis |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Regras de acerto/erro, rankings, savings |
 | [README.md](./README.md) | Índice do produto |

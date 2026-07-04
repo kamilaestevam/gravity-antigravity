@@ -59,6 +59,7 @@ servicos-global/produto/smart-read/
 | Análise de riscos | [ANALISE-DE-RISCOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/ANALISE-DE-RISCOS-TECNICO.md) |
 | **Requisitos técnicos** (rate limit, upload, paginação) | [REQUISITOS-TECNICOS.md](../../../documentos-tecnicos/produtos-gravity/smart-read/REQUISITOS-TECNICOS.md) |
 | Tokens LLM (auditoria) | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) §3.1 |
+| **Criar Pedido (ponte Pedido)** | [SMART-READ-CRIAR-PEDIDO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/SMART-READ-CRIAR-PEDIDO-TECNICO.md) |
 | Índice geral | [README.md](../../../documentos-tecnicos/produtos-gravity/smart-read/README.md) |
 
 ---
@@ -163,3 +164,17 @@ Entrada canônica: `/smart-read` → `/smart-read/insights` (`ROTA_ENTRADA_SMART
 | Isolamento de organização | [isolamento-organizacao](../../governanca/lei/isolamento-organizacao/SKILL.md) |
 | Zod = contrato bilateral | [Mand. 06 + 09](../../governanca/lei/9-mandamentos/SKILL.md) |
 | Sem mock preguiçoso / fallback silencioso | [Mand. 05 + 08](../../governanca/lei/9-mandamentos/SKILL.md) |
+
+---
+
+## Ponte Pedido — criar pedido a partir de leitura (TASK-000408)
+
+> SSOT: [SMART-READ-CRIAR-PEDIDO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/SMART-READ-CRIAR-PEDIDO-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| Entrada Pedido | `+ Novo` → Smart Docs → `/smart-read/lista?origem=pedido&acao=nova-leitura` |
+| Conclusão wizard | Passo 4 com `origem=pedido` → `POST /leituras/:id/criar-pedido` |
+| Orquestração | BFF chama Pedido `POST /importacoes-smart-read/criar` (S2S) e persiste `conversao_leitura_pedido_smart_read` |
+| Contrato Zod | `shared/conversao-leitura-pedido-smart-read-schema.ts` |
+| Migration | `20260703230000_create_conversao_leitura_pedido_smart_read` · deploy: `scripts/ativamente/migrate-smart-read-railway.ps1` |

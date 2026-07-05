@@ -382,11 +382,11 @@ export function traduzirLegendaLocalizacaoNovaCotacao(
     origem: {
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_origem_aeroporto',
-        defaultValue: 'Selecione o aeroporto de partida de preferência.',
+        defaultValue: 'Selecione o aeroporto de partida de preferência',
       },
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_origem_porto',
-        defaultValue: 'Selecione o porto de embarque de preferência.',
+        defaultValue: 'Selecione o porto de embarque de preferência',
       },
       rodoviario: {
         key: 'bidfrete.nova_cotacao.legenda_origem_rodoviario',
@@ -396,11 +396,11 @@ export function traduzirLegendaLocalizacaoNovaCotacao(
     destino: {
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_destino_aeroporto',
-        defaultValue: 'Selecione o aeroporto de destino de preferência.',
+        defaultValue: 'Selecione o aeroporto de destino de preferência',
       },
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_destino_porto',
-        defaultValue: 'Selecione o porto de destino de preferência.',
+        defaultValue: 'Selecione o porto de destino de preferência',
       },
       rodoviario: {
         key: 'bidfrete.nova_cotacao.legenda_destino_rodoviario',

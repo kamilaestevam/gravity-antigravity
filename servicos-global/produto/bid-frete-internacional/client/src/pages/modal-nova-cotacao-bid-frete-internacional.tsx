@@ -170,11 +170,22 @@ const SUFIXO_QUANTIDADE_EMBALAGEM: Record<string, string> = {
   BIG_BAG: 'bb',
 }
 
+const LIMITE_CARACTERES_ARMAZENS_RESUMO = 24
+
 function sufixoQuantidadeEmbalagem(codigo: string): string {
   return SUFIXO_QUANTIDADE_EMBALAGEM[codigo] ?? 'un'
 }
 
 type LadoLocalizacaoWizard = 'origem' | 'destino'
+
+interface LinhaArmazemAlfandegadoCotacao {
+  id: number
+  nome_armazem_alfandegado: string
+}
+
+function linhaArmazemAlfandegadoVazia(id: number): LinhaArmazemAlfandegadoCotacao {
+  return { id, nome_armazem_alfandegado: '' }
+}
 
 function modalExigePortoCotacao(modal: ModalFrete | ''): boolean {
   return modal === 'MARITIMO'
@@ -344,6 +355,7 @@ function limparCamposQuantidadeAoMudarModalidade(
     quantidade_volume_cotacao_bid_frete_internacional: 0,
     linhas_container_fcl_cotacao: [linhaContainerCotacaoVazia(1)],
     opcao_incluir_armazenagem_cotacao: modalidade === 'LCL' ? '' : '',
+    linhas_armazem_alfandegado_cotacao: [linhaArmazemAlfandegadoVazia(1)],
   }))
 }
 
@@ -412,6 +424,7 @@ interface FormState {
   data_limite_resposta_cotacao_bid_frete_internacional: string
   /** Marítimo LCL — '' até o comprador escolher Sim/Não no passo Armazenagem */
   opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
+  linhas_armazem_alfandegado_cotacao: LinhaArmazemAlfandegadoCotacao[]
   /** UI-only — checkbox revela painel C×L×A; não persiste no banco */
   exibir_cubagem_detalhada_cotacao: boolean
   // Fornecedores
@@ -475,6 +488,7 @@ const INITIAL_FORM: FormState = {
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
   opcao_incluir_armazenagem_cotacao: '',
+  linhas_armazem_alfandegado_cotacao: [linhaArmazemAlfandegadoVazia(1)],
   exibir_cubagem_detalhada_cotacao: false,
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: false,
@@ -719,6 +733,36 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
     return Array.from(mapa.values())
   }, [opcoesFiltradas, opcoesSelecionadasMemoria])
 
+  // Linhas no padrão "Adicionar container": cada local é uma linha com select + remover.
+  // '' representa linha recém-adicionada ainda sem local escolhido.
+  const [linhasLocais, setLinhasLocais] = useState<string[]>(() =>
+    codigosSelecionados.length > 0 ? codigosSelecionados : [''],
+  )
+
+  useEffect(() => {
+    if (!habilitado) return
+    setLinhasLocais((prev) => {
+      const preenchidas = prev.filter((c) => c !== '')
+      const iguais =
+        preenchidas.length === codigosSelecionados.length &&
+        preenchidas.every((c, i) => c === codigosSelecionados[i])
+      if (iguais) return prev
+      const vazias = prev.filter((c) => c === '')
+      return [...codigosSelecionados, ...vazias].length > 0
+        ? [...codigosSelecionados, ...vazias]
+        : ['']
+    })
+  }, [habilitado, codigosSelecionados])
+
+  const persistirLinhas = (linhas: string[]) => {
+    setLinhasLocais(linhas.length > 0 ? linhas : [''])
+    definirCodigosOpcaoPortoAeroportoLocalizacao(
+      setForm,
+      lado,
+      linhas.filter((c) => c !== ''),
+    )
+  }
+
   return (
     <>
       <div className="nc-exibir-campos-linha">
@@ -733,39 +777,68 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
         </label>
       </div>
       {habilitado && (
-        <div className="nc-fields-grid nc-fields-grid--location-extras">
-          <Field
-            label={t('bidfrete.nova_cotacao.campo_selecionar_locais_opcionais', {
-              defaultValue: 'LOCAIS ADICIONAIS ACEITOS',
-            })}
-            className="nc-field--span-2"
-            required
-            icone={tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
-          >
-            <p className="nc-caption" style={{ margin: '0 0 0.5rem' }}>
+        <div className="nc-locais-adicionais-bloco">
+          <div className="nc-linhas-container-header">
+            <p className="nc-cargo-subsecao-hint" style={{ margin: 0 }}>
               {traduzirLegendaOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}
             </p>
-            <SelectGlobal
-              iconeEsquerda={tipoLocal === 'porto' ? <Anchor size={16} /> : <AirplaneTilt size={16} />}
-              opcoes={opcoesComSelecionadas}
-              multiplo
-              valores={codigosSelecionados}
-              aoMudarValores={(vals) => {
-                definirCodigosOpcaoPortoAeroportoLocalizacao(setForm, lado, vals.map((v) => String(v)))
-              }}
-              placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_locais_opcionais', {
-                defaultValue: 'Selecione portos ou aeroportos adicionais aceitos...',
-              })}
-              buscavel
-              buscaRemota={Boolean(aoMudarBuscaCatalogo)}
-              aoMudarBusca={aoMudarBuscaCatalogo}
-              aoScrollFimLista={aoScrollFimListaCatalogo}
-              totalOpcoesCatalogo={totalCatalogo}
-              mensagemListaVazia={mensagemListaVazia}
-              carregando={carregando}
-              posicao="auto"
-            />
-          </Field>
+            <button
+              type="button"
+              className="nc-btn-adicionar-linha"
+              onClick={() => setLinhasLocais((prev) => [...prev, ''])}
+            >
+              <Plus size={14} weight="bold" />
+              {tipoLocal === 'porto'
+                ? t('bidfrete.nova_cotacao.adicionar_porto_local', { defaultValue: 'Adicionar porto' })
+                : t('bidfrete.nova_cotacao.adicionar_aeroporto_local', { defaultValue: 'Adicionar aeroporto' })}
+            </button>
+          </div>
+          {linhasLocais.map((codigo, indice) => (
+            <div key={`${lado}-local-${indice}`} className="nc-linha-armazem-row">
+              <Field
+                label={t('bidfrete.nova_cotacao.campo_selecionar_locais_opcionais', {
+                  defaultValue: 'LOCAIS ADICIONAIS ACEITOS',
+                })}
+                required
+                icone={tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
+              >
+                <SelectGlobal
+                  iconeEsquerda={tipoLocal === 'porto' ? <Anchor size={16} /> : <AirplaneTilt size={16} />}
+                  opcoes={opcoesComSelecionadas.filter(
+                    (o) => String(o.valor) === codigo || !linhasLocais.includes(String(o.valor)),
+                  )}
+                  valor={codigo || null}
+                  aoMudarValor={(v) => {
+                    const novo = String(v ?? '')
+                    persistirLinhas(linhasLocais.map((c, i) => (i === indice ? novo : c)))
+                  }}
+                  placeholder={
+                    tipoLocal === 'porto'
+                      ? t('bidfrete.nova_cotacao.placeholder_selecione_porto', { defaultValue: 'Selecione o porto...' })
+                      : t('bidfrete.nova_cotacao.placeholder_selecione_aeroporto', { defaultValue: 'Selecione o aeroporto...' })
+                  }
+                  buscavel
+                  buscaRemota={Boolean(aoMudarBuscaCatalogo)}
+                  aoMudarBusca={aoMudarBuscaCatalogo}
+                  aoScrollFimLista={aoScrollFimListaCatalogo}
+                  totalOpcoesCatalogo={totalCatalogo}
+                  mensagemListaVazia={mensagemListaVazia}
+                  carregando={carregando}
+                  posicao="auto"
+                />
+              </Field>
+              <button
+                type="button"
+                className="nc-btn-remover-linha"
+                title={t('bidfrete.nova_cotacao.remover_local', { defaultValue: 'Remover local' })}
+                disabled={linhasLocais.length <= 1 && !codigo}
+                onClick={() => persistirLinhas(linhasLocais.filter((_, i) => i !== indice))}
+                aria-label={t('bidfrete.nova_cotacao.remover_local', { defaultValue: 'Remover local' })}
+              >
+                <Trash size={18} weight="duotone" />
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </>
@@ -791,6 +864,36 @@ const NC_ESTILOS_CONTEUDO = `
         /* Área scrollável — padding compacto para caber passo 1 sem scroll */
         .mpg-content-wrap {
           padding: 1.25rem 2rem 1.5rem !important;
+        }
+
+        /* Header — 12px entre o subtítulo e a linha divisória */
+        .mpg-dialog > div:has(> .mpg-btn-fechar) {
+          padding-bottom: 12px !important;
+        }
+
+        /* Stepper compacto — mesmos elementos, altura reduzida */
+        div:has(> [role="list"][aria-label="Passos"]) {
+          padding: 12px 1.5rem !important;
+        }
+        [role="list"][aria-label="Passos"] [role="listitem"] {
+          gap: 0.3rem !important;
+        }
+        [role="list"][aria-label="Passos"] [role="listitem"] > div:first-child {
+          width: 2.25rem !important;
+          height: 2.25rem !important;
+        }
+        .mpg-circulo-ativo,
+        .mpg-circulo-feito,
+        .mpg-circulo-pendente {
+          width: 2.25rem !important;
+          height: 2.25rem !important;
+          min-width: 2.25rem !important;
+        }
+        [role="list"][aria-label="Passos"] > div[aria-hidden="true"] {
+          margin-top: 1.125rem !important;
+        }
+        .mpg-orbita-3d {
+          transform: scale(0.82);
         }
 
         /* Animação Suave entre Passos */
@@ -1186,6 +1289,9 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1rem;
           margin-bottom: 0.75rem;
         }
+        .nc-locais-adicionais-bloco {
+          margin-top: 0.75rem;
+        }
         .nc-btn-adicionar-linha {
           display: inline-flex;
           align-items: center;
@@ -1207,6 +1313,13 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-linha-container-row {
           display: grid;
           grid-template-columns: minmax(0, 1fr) 7.5rem auto;
+          gap: 0.75rem;
+          align-items: end;
+          margin-bottom: 0.75rem;
+        }
+        .nc-linha-armazem-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
           gap: 0.75rem;
           align-items: end;
           margin-bottom: 0.75rem;
@@ -1286,6 +1399,7 @@ const NC_ESTILOS_CONTEUDO = `
           .nc-cargo-subsecao-grid-quantidade,
           .nc-cargo-subsecao-grid-quantidade--embalagem,
           .nc-linha-container-row,
+          .nc-linha-armazem-row,
           .nc-cargo-cubagem-dimensoes-grid {
             grid-template-columns: 1fr;
           }
@@ -2219,6 +2333,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
   const [emailsPorFornecedorDisparo, setEmailsPorFornecedorDisparo] = useState<Record<string, string[]>>({})
   const proximoIdLinhaContainerRef = useRef(2)
+  const proximoIdLinhaArmazemRef = useRef(2)
   const {
     opcoes: opcoesMoedaMeta,
     loading: carregandoMoedasMeta,
@@ -2648,6 +2763,36 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       ...prev,
       linhas_container_fcl_cotacao: prev.linhas_container_fcl_cotacao.map((l) =>
         l.id === id ? { ...l, ...patch } : l,
+      ),
+    }))
+  }
+
+  const adicionarLinhaArmazemAlfandegado = () => {
+    const id = proximoIdLinhaArmazemRef.current++
+    setForm((prev) => ({
+      ...prev,
+      linhas_armazem_alfandegado_cotacao: [
+        ...prev.linhas_armazem_alfandegado_cotacao,
+        linhaArmazemAlfandegadoVazia(id),
+      ],
+    }))
+  }
+
+  const removerLinhaArmazemAlfandegado = (id: number) => {
+    setForm((prev) => {
+      if (prev.linhas_armazem_alfandegado_cotacao.length <= 1) return prev
+      return {
+        ...prev,
+        linhas_armazem_alfandegado_cotacao: prev.linhas_armazem_alfandegado_cotacao.filter((l) => l.id !== id),
+      }
+    })
+  }
+
+  const atualizarLinhaArmazemAlfandegado = (id: number, nome: string) => {
+    setForm((prev) => ({
+      ...prev,
+      linhas_armazem_alfandegado_cotacao: prev.linhas_armazem_alfandegado_cotacao.map((l) =>
+        l.id === id ? { ...l, nome_armazem_alfandegado: nome } : l,
       ),
     }))
   }
@@ -4059,8 +4204,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <NcSubsecaoTitle id="nc-cargo-valor-alvo" icone={<Hash {...ICONE_LABEL_SECAO} />}>
                 {t('bidfrete.nova_cotacao.valor_alvo')}
               </NcSubsecaoTitle>
+              <p className="nc-cargo-subsecao-hint">
+                {t('bidfrete.nova_cotacao.hint_valor_alvo', {
+                  defaultValue: 'Informe o valor de referência esperado para esta cotação.',
+                })}
+              </p>
               <div className="nc-fields-grid nc-fields-grid--summary-inputs">
-                <Field label={t('bidfrete.nova_cotacao.valor_alvo')} icone={<Hash {...ICONE_FIELD} />}>
+                <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
                   <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
                 <Field label={t('bidfrete.nova_cotacao.moeda')} icone={<Tag {...ICONE_FIELD} />}>
@@ -4119,13 +4269,60 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 id="nc-incluir-armazenagem"
                 opcoes={opcoesIncluirArmazenagem}
                 valor={form.opcao_incluir_armazenagem_cotacao || null}
-                aoMudarValor={(v) =>
-                  set('opcao_incluir_armazenagem_cotacao', v == null ? '' : String(v) as '' | 'sim' | 'nao')
-                }
+                aoMudarValor={(v) => {
+                  const valor = v == null ? '' : String(v) as '' | 'sim' | 'nao'
+                  setForm((prev) => ({
+                    ...prev,
+                    opcao_incluir_armazenagem_cotacao: valor,
+                    linhas_armazem_alfandegado_cotacao:
+                      valor === 'sim'
+                        ? prev.linhas_armazem_alfandegado_cotacao
+                        : [linhaArmazemAlfandegadoVazia(1)],
+                  }))
+                }}
                 placeholder={t('bidfrete.nova_cotacao.selecione', { defaultValue: 'Selecionar' })}
                 posicao="auto"
               />
             </Field>
+            {form.opcao_incluir_armazenagem_cotacao === 'sim' && (
+              <div className="nc-cargo-cubagem-stack nc-fade-in">
+                <div className="nc-linhas-container-header">
+                  <p className="nc-cargo-subsecao-hint" style={{ margin: 0 }}>
+                    Nome do armazém alfandegado de preferência da desova.
+                  </p>
+                  <button
+                    type="button"
+                    className="nc-btn-adicionar-linha"
+                    onClick={adicionarLinhaArmazemAlfandegado}
+                  >
+                    <Plus size={14} weight="bold" />
+                    Adicionar armazém
+                  </button>
+                </div>
+                {form.linhas_armazem_alfandegado_cotacao.map((linha) => (
+                  <div key={linha.id} className="nc-linha-armazem-row">
+                    <Field label="ARMAZÉM ALFANDEGADO" icone={<Warehouse {...ICONE_FIELD} />}>
+                      <input
+                        className="nc-input"
+                        placeholder="Ex: Nome do armazém"
+                        value={linha.nome_armazem_alfandegado}
+                        onChange={(e) => atualizarLinhaArmazemAlfandegado(linha.id, e.target.value)}
+                      />
+                    </Field>
+                    <button
+                      type="button"
+                      className="nc-btn-remover-linha"
+                      title="Remover linha"
+                      disabled={form.linhas_armazem_alfandegado_cotacao.length <= 1}
+                      onClick={() => removerLinhaArmazemAlfandegado(linha.id)}
+                      aria-label="Remover armazém"
+                    >
+                      <Trash size={18} weight="duotone" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )
       }
@@ -4305,6 +4502,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         const destinoTituloResumo = destinoCodigoResumo
           ? normalizarTextoPontoRota(destinoName, destinoCodigoResumo).titulo
           : destinoName
+        const textoArmazensResumo = form.linhas_armazem_alfandegado_cotacao
+          .map((linha) => linha.nome_armazem_alfandegado.trim())
+          .filter(Boolean)
+          .join(', ')
+        const textoArmazensResumoTruncado =
+          textoArmazensResumo.length > LIMITE_CARACTERES_ARMAZENS_RESUMO
+            ? `${textoArmazensResumo.slice(0, LIMITE_CARACTERES_ARMAZENS_RESUMO)}...`
+            : textoArmazensResumo
 
         return (
           <div className="nc-step-content">
@@ -4422,9 +4627,24 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   form.modalidade_cotacao_bid_frete_internacional,
                 ) && (
                   <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.label_armazenagem', { defaultValue: 'Armazenagem' })}</span>
+                    <span className="nc-receipt-label"><Warehouse size={14} />Incluir armazenagem</span>
                     <span className="nc-receipt-value">
-                      {traduzirRotuloArmazenagemResumoNovaCotacao(t, form.opcao_incluir_armazenagem_cotacao)}
+                      {form.opcao_incluir_armazenagem_cotacao === 'sim'
+                        ? 'Sim'
+                        : traduzirRotuloArmazenagemResumoNovaCotacao(t, form.opcao_incluir_armazenagem_cotacao)}
+                    </span>
+                  </div>
+                )}
+                {form.opcao_incluir_armazenagem_cotacao === 'sim'
+                  && textoArmazensResumo && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label"><Warehouse size={14} />Armazéns de preferência</span>
+                    <span className="nc-receipt-value">
+                      {textoArmazensResumo.length > LIMITE_CARACTERES_ARMAZENS_RESUMO ? (
+                        <TooltipGlobal titulo="Armazéns de preferência" descricao={textoArmazensResumo}>
+                          <span>{textoArmazensResumoTruncado}</span>
+                        </TooltipGlobal>
+                      ) : textoArmazensResumo}
                     </span>
                   </div>
                 )}
@@ -4484,6 +4704,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     setCotacaoId(null)
     setSucesso(false)
     proximoIdLinhaContainerRef.current = 2
+    proximoIdLinhaArmazemRef.current = 2
     setStep(1)
   }
 

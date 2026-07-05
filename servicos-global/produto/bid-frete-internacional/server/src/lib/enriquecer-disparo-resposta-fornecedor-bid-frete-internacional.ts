@@ -64,6 +64,7 @@ export const COTACAO_SELECT_RESPOSTA_FORNECEDOR = {
   data_limite_resposta_cotacao_bid_frete_internacional: true,
   anonima_cotacao_bid_frete_internacional: true,
   incluir_armazenagem_cotacao_bid_frete_internacional: true,
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional: true,
   status_cotacao_bid_frete_internacional: true,
 } as const
 

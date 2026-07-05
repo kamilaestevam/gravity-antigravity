@@ -172,7 +172,7 @@ const SUFIXO_QUANTIDADE_EMBALAGEM: Record<string, string> = {
 }
 
 const LIMITE_CARACTERES_ARMAZENS_RESUMO = 24
-const LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO = 50
+const LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO = 100
 const LIMITE_CARACTERES_MERCADORIA_RESUMO = 200
 
 function sufixoQuantidadeEmbalagem(codigo: string): string {
@@ -2541,6 +2541,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     totalCatalogo: totalCatalogoAeroportosAlternativos,
     mensagemListaVazia: mensagemVaziaAeroportosAlternativos,
   } = useAeroportosPorPais('', exigeAeroportoModal)
+  // Cache cumulativo código→rótulo do catálogo paginado: garante que o Resumo
+  // exiba "SIGLA — Nome" mesmo quando a opção saiu da página atual do select.
+  const rotulosLocaisCatalogoRef = useRef(new Map<string, string>())
+  useEffect(() => {
+    for (const opcao of [...opcoesPortosAlternativos, ...opcoesAeroportosAlternativos]) {
+      rotulosLocaisCatalogoRef.current.set(String(opcao.valor), String(opcao.rotulo))
+    }
+  }, [opcoesPortosAlternativos, opcoesAeroportosAlternativos])
+
   const {
     containers: containersCadastro,
     opcoes: opcoesContainers,
@@ -4590,7 +4599,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? opcoesPortosAlternativos
           : opcoesAeroportosAlternativos
         const resolverRotuloLocalOpcionalResumo = (codigo: string) =>
-          opcoesLocaisResumo.find((opcao) => String(opcao.valor) === codigo)?.rotulo ?? codigo
+          opcoesLocaisResumo.find((opcao) => String(opcao.valor) === codigo)?.rotulo
+            ?? rotulosLocaisCatalogoRef.current.get(codigo)
+            ?? codigo
         const textoLocaisOpcionaisOrigemResumo = codigosLocaisOpcionaisCotacaoBidFrete(
           ctxLocaisOpcionaisResumo,
           'origem',
@@ -4780,7 +4791,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 {form.numero_cotacao_bid_frete_internacional.trim() && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><ListNumbers size={14} />{t('bidfrete.nova_cotacao.resumo_numero_cotacao', { defaultValue: 'Nº da Cotação' })}</span>
-                    <span className="nc-receipt-value font-mono">{form.numero_cotacao_bid_frete_internacional}</span>
+                    <span className="nc-receipt-value">{form.numero_cotacao_bid_frete_internacional}</span>
                   </div>
                 )}
                 <div className="nc-receipt-row">
@@ -4804,13 +4815,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 {form.ncm_cotacao_bid_frete_internacional && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><Barcode size={14} />NCM</span>
-                    <span className="nc-receipt-value font-mono">{form.ncm_cotacao_bid_frete_internacional}</span>
+                    <span className="nc-receipt-value">{form.ncm_cotacao_bid_frete_internacional}</span>
                   </div>
                 )}
                 {form.hs_code_cotacao_bid_frete_internacional && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><Hash size={14} />HS Code</span>
-                    <span className="nc-receipt-value font-mono">{form.hs_code_cotacao_bid_frete_internacional}</span>
+                    <span className="nc-receipt-value">{form.hs_code_cotacao_bid_frete_internacional}</span>
                   </div>
                 )}
                 {textoCargaPerigosaResumo && (

@@ -50,6 +50,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   dimensoesCubagemTexto?: string | null
   cargaPerigosaTexto?: string | null
   incluirArmazenagem?: boolean | null
+  nomesArmazensTexto?: string | null
   dataLimiteResposta?: string | null
   dataExpiracaoToken?: string | Date | null
   nomeClienteOperacao?: string | null
@@ -294,6 +295,9 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
   }
   if (params.incluirArmazenagem) {
     linhas.push(['Armazenagem', 'Incluir armazenagem na cotação'])
+  }
+  if (params.incluirArmazenagem && params.nomesArmazensTexto?.trim()) {
+    linhas.push(['Armazéns de preferência', params.nomesArmazensTexto.trim()])
   }
   if (params.opcoesOrigemTexto?.trim()) {
     linhas.push(['Alternativas (origem)', params.opcoesOrigemTexto.trim()])

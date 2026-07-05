@@ -55,6 +55,18 @@ import {
   type TotalPorMoedaBidFreteInternacional,
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
+import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
+import {
+  codigosElegiveisSelecaoLocalFornecedorBidFrete,
+  exigeSelecaoLocalFornecedorRespostaBidFrete,
+  type ContextoLocaisOpcionaisCotacaoBidFrete,
+} from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
+import {
+  rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
+  rotuloSelecaoLocalFornecedorRespostaBidFrete,
+  useResolverRotuloLocalLogisticoCotacaoBidFrete,
+  useTextosLocaisOpcionaisCotacaoBidFrete,
+} from './locais-opcionais-cotacao-bid-frete-internacional'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
 import { urlMarketplaceBidFreteInternacional } from './url-marketplace-gravity-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
@@ -140,6 +152,15 @@ export interface DetalhesCotacaoResposta {
   observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   data_limite_resposta_cotacao_bid_frete_internacional?: string | null
   incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional?: string[] | null
+  porto_origem_cotacao_bid_frete_internacional?: string | null
+  porto_destino_cotacao_bid_frete_internacional?: string | null
+  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
+  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: string[] | null
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
 }
 
 /** "120 × 100 × 90 cm" — só quando as 3 dimensões da cubagem foram preenchidas. */
@@ -194,6 +215,8 @@ export interface EstadoFormularioRespostaCotacao {
   transbordos_proposta_bid_frete_internacional: string
   escalas_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional: string
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional: string
   linhas_periodo_armazenagem: LinhaPeriodoArmazenagemFormBidFreteInternacional[]
 }
 
@@ -212,6 +235,10 @@ export function estadoFormularioFromProposta(
     proposta.taxas_destino?.length
       ? linhasFromPropostaTaxas(proposta.taxas_destino, 'destino')
       : []
+
+  const { locais, observacoes } = parseObservacoesPropostaComLocais(
+    proposta.observacoes_proposta_bid_frete_internacional,
+  )
 
   return {
     moeda_proposta_bid_frete_internacional: proposta.moeda_proposta_bid_frete_internacional,
@@ -232,7 +259,11 @@ export function estadoFormularioFromProposta(
       proposta.quantidade_transbordo_proposta_bid_frete_internacional ?? 0,
     ),
     escalas_proposta_bid_frete_internacional: quantidadeEscalasTextoFromProposta(proposta),
-    observacoes_proposta_bid_frete_internacional: proposta.observacoes_proposta_bid_frete_internacional ?? '',
+    observacoes_proposta_bid_frete_internacional: observacoes,
+    codigo_porto_aeroporto_origem_proposta_bid_frete_internacional:
+      locais.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional ?? '',
+    codigo_porto_aeroporto_destino_proposta_bid_frete_internacional:
+      locais.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional ?? '',
     linhas_periodo_armazenagem: linhasPeriodoArmazenagemFromProposta(
       proposta.periodos_armazenagem_proposta_bid_frete_internacional,
       {
@@ -364,8 +395,10 @@ export function obterErroValidacaoFormularioRespostaCotacao(
     modal?: ModalFrete | null
     modalidade?: ModalidadeCarga | null
     incluirArmazenagem?: boolean | null
+    cotacao?: DetalhesCotacaoResposta | ContextoLocaisOpcionaisCotacaoBidFrete | null
     mensagemCamposObrigatorios: string
     mensagemArmazenagemInvalida: string
+    mensagemLocalObrigatorio?: string
   },
 ): string | null {
   if (
@@ -393,6 +426,18 @@ export function obterErroValidacaoFormularioRespostaCotacao(
     return opts.mensagemCamposObrigatorios
   }
 
+  if (opts.cotacao) {
+    for (const lado of ['origem', 'destino'] as const) {
+      if (!exigeSelecaoLocalFornecedorRespostaBidFrete(opts.cotacao, lado)) continue
+      const valor = lado === 'origem'
+        ? form.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional.trim()
+        : form.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional.trim()
+      if (!valor) {
+        return opts.mensagemLocalObrigatorio ?? opts.mensagemCamposObrigatorios
+      }
+    }
+  }
+
   return null
 }
 
@@ -408,6 +453,8 @@ export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao
   transbordos_proposta_bid_frete_internacional: '',
   escalas_proposta_bid_frete_internacional: '',
   observacoes_proposta_bid_frete_internacional: '',
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional: '',
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional: '',
   linhas_periodo_armazenagem: [criarLinhaPeriodoArmazenagemVazia()],
 }
 
@@ -453,6 +500,7 @@ export function SecaoDetalhesCotacaoResposta({
   numeroFallback?: string
 }) {
   const { t } = useTranslation()
+  const textosOpcionais = useTextosLocaisOpcionaisCotacaoBidFrete(cotacao ?? {})
   const partesCarga: string[] = []
   if (cotacao?.descricao_mercadoria_cotacao_bid_frete_internacional) {
     partesCarga.push(cotacao.descricao_mercadoria_cotacao_bid_frete_internacional)
@@ -494,6 +542,11 @@ export function SecaoDetalhesCotacaoResposta({
           : data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
       })()
     : null
+  const nomesArmazensRaw = cotacao?.nomes_armazem_alfandegado_cotacao_bid_frete_internacional
+  const nomesArmazensPreferencia = (Array.isArray(nomesArmazensRaw) ? nomesArmazensRaw : [])
+    .filter((nome): nome is string => typeof nome === 'string')
+    .map((nome) => nome.trim())
+    .filter(Boolean)
 
   return (
     <section className="brc-secao" aria-labelledby="brc-detalhes-titulo">
@@ -515,6 +568,22 @@ export function SecaoDetalhesCotacaoResposta({
             )}
           </span>
         </div>
+        {textosOpcionais.origem ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', cotacao ?? {})}
+            </span>
+            <span className="brc-detalhe-valor">{textosOpcionais.origem}</span>
+          </div>
+        ) : null}
+        {textosOpcionais.destino ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', cotacao ?? {})}
+            </span>
+            <span className="brc-detalhe-valor">{textosOpcionais.destino}</span>
+          </div>
+        ) : null}
         <div className="brc-detalhe">
           <span className="brc-detalhe-label">{rotuloModal}</span>
           <span className="brc-detalhe-valor">
@@ -606,6 +675,16 @@ export function SecaoDetalhesCotacaoResposta({
             </span>
           </div>
         ) : null}
+        {cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional && nomesArmazensPreferencia.length > 0 ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.armazens_preferencia', {
+                defaultValue: 'Armazéns alfandegados de preferência',
+              })}
+            </span>
+            <span className="brc-detalhe-valor">{nomesArmazensPreferencia.join(', ')}</span>
+          </div>
+        ) : null}
       </div>
     </section>
   )
@@ -615,6 +694,7 @@ export function FormPropostaRespostaCotacao({
   form,
   modalCotacao,
   modalidadeCotacao,
+  cotacaoLocais,
   incluirArmazenagemCotacao = false,
   onChange,
   onLinhasOrigemChange,
@@ -631,6 +711,7 @@ export function FormPropostaRespostaCotacao({
   form: EstadoFormularioRespostaCotacao
   modalCotacao?: ModalFrete | null
   modalidadeCotacao?: ModalidadeCarga | null
+  cotacaoLocais?: DetalhesCotacaoResposta | ContextoLocaisOpcionaisCotacaoBidFrete | null
   incluirArmazenagemCotacao?: boolean
   onChange: (field: keyof EstadoFormularioRespostaCotacao, value: string) => void
   onLinhasOrigemChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
@@ -733,11 +814,74 @@ export function FormPropostaRespostaCotacao({
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
 
+  const ctxLocais = cotacaoLocais ?? {}
+  const resolverRotuloLocal = useResolverRotuloLocalLogisticoCotacaoBidFrete(ctxLocais)
+  const exigeLocalOrigem = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'origem')
+  const exigeLocalDestino = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'destino')
+  const opcoesLocalOrigem = exigeLocalOrigem
+    ? codigosElegiveisSelecaoLocalFornecedorBidFrete(ctxLocais, 'origem').map((codigo) => ({
+      valor: codigo,
+      rotulo: resolverRotuloLocal(codigo),
+    }))
+    : []
+  const opcoesLocalDestino = exigeLocalDestino
+    ? codigosElegiveisSelecaoLocalFornecedorBidFrete(ctxLocais, 'destino').map((codigo) => ({
+      valor: codigo,
+      rotulo: resolverRotuloLocal(codigo),
+    }))
+    : []
+
   return (
     <section className="brc-secao" aria-labelledby="brc-proposta-titulo">
       <form onSubmit={onSubmit} noValidate>
         <h2 id="brc-proposta-titulo" className="brc-secao-titulo">{tituloSecao}</h2>
         <div className="brc-form-grid">
+          {exigeLocalOrigem ? (
+            <div className="brc-field brc-field--wide">
+              <LabelObrigatorio>
+                {rotuloSelecaoLocalFornecedorRespostaBidFrete(t, 'origem', ctxLocais)}
+              </LabelObrigatorio>
+              <SelectGlobal
+                id="brc-local-origem-proposta"
+                opcoes={opcoesLocalOrigem}
+                valor={form.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional || null}
+                aoMudarValor={(v) =>
+                  onChange(
+                    'codigo_porto_aeroporto_origem_proposta_bid_frete_internacional',
+                    v == null ? '' : String(v),
+                  )
+                }
+                buscavel
+                placeholder={t('bidfrete.portal.responder.selecionar_local_origem', {
+                  defaultValue: 'Selecionar origem',
+                })}
+                posicao="auto"
+              />
+            </div>
+          ) : null}
+          {exigeLocalDestino ? (
+            <div className="brc-field brc-field--wide">
+              <LabelObrigatorio>
+                {rotuloSelecaoLocalFornecedorRespostaBidFrete(t, 'destino', ctxLocais)}
+              </LabelObrigatorio>
+              <SelectGlobal
+                id="brc-local-destino-proposta"
+                opcoes={opcoesLocalDestino}
+                valor={form.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional || null}
+                aoMudarValor={(v) =>
+                  onChange(
+                    'codigo_porto_aeroporto_destino_proposta_bid_frete_internacional',
+                    v == null ? '' : String(v),
+                  )
+                }
+                buscavel
+                placeholder={t('bidfrete.portal.responder.selecionar_local_destino', {
+                  defaultValue: 'Selecionar destino',
+                })}
+                posicao="auto"
+              />
+            </div>
+          ) : null}
           <div className="brc-field">
             <LabelObrigatorio>{rotulos.moeda}</LabelObrigatorio>
             <SelectGlobal

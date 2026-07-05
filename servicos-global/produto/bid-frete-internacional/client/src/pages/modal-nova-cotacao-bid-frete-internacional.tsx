@@ -118,6 +118,7 @@ import {
   traduzirErroCriarCotacaoNovaCotacao,
   traduzirFraseExibirCamposLocalizacao,
   traduzirFraseOpcaoPortoAeroportoLocalizacao,
+  traduzirDicaOpcaoPortoAeroportoLocalizacao,
   traduzirCampoLocaisOpcionaisLocalizacao,
   traduzirLegendaOpcaoPortoAeroportoLocalizacao,
   traduzirIncotermExplicacaoNovaCotacao,
@@ -694,7 +695,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
 
   return (
     <>
-      <div className="nc-exibir-campos-linha">
+      <div className="nc-exibir-campos-linha nc-exibir-campos-linha--opcao-porto">
         <label className="nc-exibir-campos-checkbox">
           <input
             type="checkbox"
@@ -702,8 +703,11 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
             checked={habilitado}
             onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
           />
-          <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado)}</span>
+          <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
         </label>
+        <p className="nc-caption nc-exibir-campos-dica">
+          {traduzirDicaOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}
+        </p>
       </div>
       {habilitado && (
         <div className="nc-fields-grid nc-fields-grid--location-extras">
@@ -725,7 +729,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
                 definirCodigosOpcaoPortoAeroportoLocalizacao(setForm, lado, vals.map((v) => String(v)))
               }}
               placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_locais_opcionais', {
-                defaultValue: 'Selecione um ou mais locais alternativos...',
+                defaultValue: 'Selecione portos ou aeroportos adicionais aceitos...',
               })}
               buscavel
               buscaRemota={Boolean(aoMudarBuscaCatalogo)}
@@ -1399,6 +1403,15 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-exibir-campos-linha {
           margin: 0;
           padding: 0;
+        }
+        .nc-exibir-campos-linha--opcao-porto {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+        .nc-exibir-campos-dica {
+          margin: 0 0 0 1.65rem;
+          max-width: 42rem;
         }
         .nc-exibir-campos-checkbox {
           display: flex;

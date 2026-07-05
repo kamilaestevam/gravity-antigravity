@@ -5,9 +5,10 @@
 
 import { z } from 'zod'
 import {
-  LIMITE_CATALOGO_AEROPORTOS_GLOBAL,
-  LIMITE_CATALOGO_AEROPORTOS_POR_PAIS,
-} from '@nucleo/catalogo-aeroportos-cadastros'
+  LIMITE_BUSCA_CATALOGO_LOGISTICA_BID,
+  LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID,
+  LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID,
+} from '../../../shared/limites-catalogo-logistica-bid-frete-internacional'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   ehParceiroFreteInternacional,
@@ -219,6 +220,7 @@ const portoDadosMestreBidSchema = z.object({
 
 const listaPortosDadosMestreBidSchema = z.object({
   portos: z.array(portoDadosMestreBidSchema),
+  total: z.number().optional(),
 })
 
 const aeroportoDadosMestreBidSchema = z.object({
@@ -230,6 +232,7 @@ const aeroportoDadosMestreBidSchema = z.object({
 
 const listaAeroportosDadosMestreBidSchema = z.object({
   aeroportos: z.array(aeroportoDadosMestreBidSchema),
+  total: z.number().optional(),
 })
 
 async function requestCadastros<T>(url: string): Promise<T> {
@@ -278,10 +281,15 @@ export const cadastrosApi = {
   listarPortos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
     const busca = params?.q?.trim()
     const pais = params?.pais?.trim().toUpperCase()
+    const limitePadrao = busca
+      ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
+      : pais
+        ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
+        : LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID
     const search = new URLSearchParams({ tipo: 'porto' })
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)
-    search.set('limit', String(params?.limit ?? 500))
+    search.set('limit', String(params?.limit ?? limitePadrao))
     const path = `/api/v1/bid-frete-internacional/dados-mestre/portos?${search.toString()}`
     const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
     const parsed = listaPortosDadosMestreBidSchema.parse(raw)
@@ -293,17 +301,17 @@ export const cadastrosApi = {
         codigo_pais_porto: p.pais_codigo_porto_bid_frete_internacional || null,
         ativo_porto: true,
       }))
-    return { itens, total: itens.length }
+    return { itens, total: parsed.total ?? itens.length }
   },
 
   listarAeroportos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
     const busca = params?.q?.trim()
     const pais = params?.pais?.trim().toUpperCase()
     const limitePadrao = busca
-      ? 500
+      ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
       : pais
-        ? LIMITE_CATALOGO_AEROPORTOS_POR_PAIS
-        : LIMITE_CATALOGO_AEROPORTOS_GLOBAL
+        ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
+        : LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID
     const search = new URLSearchParams()
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)
@@ -319,7 +327,7 @@ export const cadastrosApi = {
       codigo_pais_aeroporto: a.codigo_pais_aeroporto || null,
       ativo_aeroporto: true,
     }))
-    return { itens, total: itens.length }
+    return { itens, total: parsed.total ?? itens.length }
   },
 
   listarMercadoriasPerigosas: async (

@@ -284,6 +284,12 @@ Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino
 
 **Regra:** o país do formulário é preenchido **depois** da seleção do porto/aeroporto (snapshot para persistência), mas não restringe o dropdown. Commit de referência: `fc6c8426d` (`manual-gravity-8001`).
 
+### 8.3 Pin dos locais adicionais aceitos ao navegar entre passos (2026-07-05)
+
+**Bug:** ao avançar até o Resumo e voltar ao passo Origem e Destino, os selects de **Locais adicionais aceitos** apareciam vazios («Selecione o porto...») mesmo com os códigos preservados no `form` — o rótulo dependia de memória local do componente (que morre no unmount do passo) e a primeira página do catálogo paginado raramente contém o código selecionado.
+
+**Correção:** o hook `useSelectCatalogoLogisticaCadastros...` ganhou o parâmetro `codigosSelecionados?: string[]` (plural), com o mesmo mecanismo de pin do `codigoSelecionado` principal: cada código ausente do catálogo em memória é garantido via `garantirSelecionado` (busca `?q=<código>`) e fixado num `Map` código→item, prependado em toda troca de página/busca. O modal passa a união `origem + destino` dos códigos de locais adicionais aos hooks `usePortosPorPais`/`useAeroportosPorPais` «alternativos». A chave de efeito é a string ordenada `join('|')` dos códigos — evita refetch quando o array é recriado com o mesmo conteúdo.
+
 ---
 
 ## 9. Backlog técnico (não bloqueante)

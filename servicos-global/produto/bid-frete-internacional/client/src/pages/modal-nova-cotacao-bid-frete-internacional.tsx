@@ -2532,7 +2532,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     aoScrollFimLista: aoScrollFimPortosAlternativos,
     totalCatalogo: totalCatalogoPortosAlternativos,
     mensagemListaVazia: mensagemVaziaPortosAlternativos,
-  } = usePortosPorPais('', exigePortoModal)
+  } = usePortosPorPais('', exigePortoModal, null, [
+    ...form.codigos_opcao_porto_aeroporto_origem_cotacao,
+    ...form.codigos_opcao_porto_aeroporto_destino_cotacao,
+  ])
   const {
     opcoes: opcoesAeroportosAlternativos,
     carregando: carregandoAeroportosAlternativos,
@@ -2540,7 +2543,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     aoScrollFimLista: aoScrollFimAeroportosAlternativos,
     totalCatalogo: totalCatalogoAeroportosAlternativos,
     mensagemListaVazia: mensagemVaziaAeroportosAlternativos,
-  } = useAeroportosPorPais('', exigeAeroportoModal)
+  } = useAeroportosPorPais('', exigeAeroportoModal, null, [
+    ...form.codigos_opcao_porto_aeroporto_origem_cotacao,
+    ...form.codigos_opcao_porto_aeroporto_destino_cotacao,
+  ])
   // Cache cumulativo código→rótulo do catálogo paginado: garante que o Resumo
   // exiba "SIGLA — Nome" mesmo quando a opção saiu da página atual do select.
   const rotulosLocaisCatalogoRef = useRef(new Map<string, string>())

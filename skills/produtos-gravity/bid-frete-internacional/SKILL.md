@@ -138,6 +138,8 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catálogo completo do Cadastros no scroll (100/página) e fazem busca remota no banco inteiro (150 resultados, ≥2 chars). SSOT de limites: `shared/limites-catalogo-logistica-bid-frete-internacional.ts`; hook `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`; proxies e rotas Cadastros aceitam `offset` e devolvem `total`; `SelectGlobal` ganhou props `buscaRemota`/`aoMudarBusca`/`aoScrollFimLista`/`totalOpcoesCatalogo`. Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
 
+**Pin de selecionados (§8.3):** todo código selecionado precisa ser garantido na lista em memória, senão o SelectGlobal mostra placeholder ao voltar de passo (catálogo paginado raramente contém o código na 1ª página). O hook aceita `codigoSelecionado` (principal) e `codigosSelecionados: string[]` (locais adicionais aceitos) — ambos usam `garantirSelecionado` + Map de pins. Ao consumir o hook para um select com valor persistido, **sempre** repassar o(s) código(s) selecionado(s).
+
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 
 Todas as colunas visíveis têm filtro ▾ no header (`FiltroPopoverColuna` / `FiltroChips` do núcleo). Estado `filtrosAtivosLista` em `lista-bid-frete-internacional.tsx`; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`.

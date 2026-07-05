@@ -294,6 +294,8 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 **Testes UNI:** `aguardar-confirmacao-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
 
+**Validade do link público (e-mail + `GET /publico/:token`):** `calcularDataExpiracaoTokenDisparoBidFreteInternacional` — igual ao prazo de resposta quando informado; sem prazo, **360 dias** (proibido fixar 7 dias). SSOT: `shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.ts` · teste UNI homônimo.
+
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.3–5.4
 
 ---

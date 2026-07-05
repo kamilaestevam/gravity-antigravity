@@ -57,14 +57,13 @@ import {
 import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
 import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
 import {
-  codigosElegiveisSelecaoLocalFornecedorBidFrete,
   exigeSelecaoLocalFornecedorRespostaBidFrete,
   type ContextoLocaisOpcionaisCotacaoBidFrete,
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
 import {
   rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
   rotuloSelecaoLocalFornecedorRespostaBidFrete,
-  useResolverRotuloLocalLogisticoCotacaoBidFrete,
+  useLocaisSelecaoFornecedorRespostaBidFrete,
   useTextosLocaisOpcionaisCotacaoBidFrete,
 } from './locais-opcionais-cotacao-bid-frete-internacional'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
@@ -815,21 +814,13 @@ export function FormPropostaRespostaCotacao({
   })
 
   const ctxLocais = cotacaoLocais ?? {}
-  const resolverRotuloLocal = useResolverRotuloLocalLogisticoCotacaoBidFrete(ctxLocais)
   const exigeLocalOrigem = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'origem')
   const exigeLocalDestino = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'destino')
-  const opcoesLocalOrigem = exigeLocalOrigem
-    ? codigosElegiveisSelecaoLocalFornecedorBidFrete(ctxLocais, 'origem').map((codigo) => ({
-      valor: codigo,
-      rotulo: resolverRotuloLocal(codigo),
-    }))
-    : []
-  const opcoesLocalDestino = exigeLocalDestino
-    ? codigosElegiveisSelecaoLocalFornecedorBidFrete(ctxLocais, 'destino').map((codigo) => ({
-      valor: codigo,
-      rotulo: resolverRotuloLocal(codigo),
-    }))
-    : []
+  const {
+    opcoesOrigem: opcoesLocalOrigem,
+    opcoesDestino: opcoesLocalDestino,
+    carregando: carregandoLocais,
+  } = useLocaisSelecaoFornecedorRespostaBidFrete(ctxLocais)
 
   return (
     <section className="brc-secao" aria-labelledby="brc-proposta-titulo">
@@ -852,6 +843,7 @@ export function FormPropostaRespostaCotacao({
                   )
                 }
                 buscavel
+                carregando={carregandoLocais}
                 placeholder={t('bidfrete.portal.responder.selecionar_local_origem', {
                   defaultValue: 'Selecionar origem',
                 })}
@@ -875,6 +867,7 @@ export function FormPropostaRespostaCotacao({
                   )
                 }
                 buscavel
+                carregando={carregandoLocais}
                 placeholder={t('bidfrete.portal.responder.selecionar_local_destino', {
                   defaultValue: 'Selecionar destino',
                 })}

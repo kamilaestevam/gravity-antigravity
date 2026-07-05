@@ -96,7 +96,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       opcoesOrigemTexto: 'BRSSZ — Santos, BR · BRPNG — Paranaguá, BR',
       opcoesDestinoTexto: 'CNNGB — Ningbo, CN',
       dataLimiteResposta: '2026-07-20T12:00:00.000Z',
-      dataExpiracaoToken: new Date('2026-07-12T12:00:00.000Z'),
+      dataExpiracaoToken: new Date('2026-07-20T12:00:00.000Z'),
     })
     expect(html).toContain('Referência interna')
     expect(html).toContain('IMP023/22')
@@ -115,7 +115,17 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(html).toContain('Alternativas (destino)')
     expect(html).toContain('Ningbo')
     expect(html).toContain('Prazo de resposta')
-    expect(html).toContain('Link válido até')
+    expect(html).not.toContain('>Link válido até</td>')
+  })
+
+  it('exibe Link válido até separado quando difere do prazo de resposta', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      dataLimiteResposta: '2026-08-08T12:00:00.000Z',
+      dataExpiracaoToken: new Date('2026-06-30T12:00:00.000Z'),
+    })
+    expect(html).toContain('Prazo de resposta')
+    expect(html).toContain('>Link válido até</td>')
   })
 
   it('texto plano acompanha as mesmas linhas', () => {

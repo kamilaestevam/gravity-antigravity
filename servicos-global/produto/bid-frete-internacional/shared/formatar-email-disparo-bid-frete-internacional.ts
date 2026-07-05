@@ -5,6 +5,7 @@
 
 import { MAPAS_ROTULO_ENUM_IMPORTACAO_BID } from './template-importacao-config-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from './rota-cotacao-bid-frete-internacional.js'
+import { DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL } from './calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
 
 const ROTULOS_MODAL = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modal_cotacao_bid_frete_internacional ?? {}
 const ROTULOS_MODALIDADE = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modalidade_cotacao_bid_frete_internacional ?? {}
@@ -193,11 +194,10 @@ export function montarIntroClienteEmailDisparoBidFrete(
   if (params.anonimaCotacao) {
     return {
       introHtml:
-        '<strong>Um cliente</strong> enviou uma solicitação de cotação '
-        + '<strong>com identidade oculta</strong> (cotação anônima). '
+        '<strong>Um cliente</strong>, que optou em manter seu nome oculto, enviou uma solicitação de cotação. '
         + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
       introTextoPlano:
-        'Um cliente enviou uma solicitação de cotação com identidade oculta (cotação anônima).',
+        'Um cliente, que optou em manter seu nome oculto, enviou uma solicitação de cotação.',
       rotuloPreheader: 'Cotação anônima',
     }
   }
@@ -308,7 +308,7 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
   if (prazoResposta) {
     linhas.push(['Prazo de resposta', prazoResposta])
   }
-  if (validadeLink) {
+  if (validadeLink && validadeLink !== prazoResposta) {
     linhas.push(['Link válido até', validadeLink])
   }
 
@@ -331,18 +331,31 @@ export function montarAssuntoEmailDisparo(
   return `Cotação ${params.numeroCotacao} · ${rota} · ${modal}`
 }
 
+export function montarTextoRodapeValidadeLinkEmailDisparoBidFrete(
+  dataExpiracaoToken: string | Date | null | undefined,
+): string {
+  const validade = formatarDataEmailDisparoBidFrete(dataExpiracaoToken)
+  if (validade) {
+    return `Este link é válido até ${validade}.`
+  }
+  return `Este link expira em ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias.`
+}
+
 export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { rotuloPreheader } = montarIntroClienteEmailDisparoBidFrete(params)
+  const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
+  const sufixoValidade = validade
+    ? `válido até ${validade}`
+    : `válido por ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias`
   if (params.anonimaCotacao) {
-    return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
+    return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — ${sufixoValidade}.`
   }
-  return `${rotuloPreheader} solicitou cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
+  return `${rotuloPreheader} solicitou cotação ${params.numeroCotacao}. Responda pelo link — ${sufixoValidade}.`
 }
 
 export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { introTextoPlano } = montarIntroClienteEmailDisparoBidFrete(params)
   const linhas = linhasResumoEmailDisparo(params)
-  const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
   const corpo = [
     'Gravity — BID Frete Internacional',
@@ -356,7 +369,7 @@ export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFr
     'Responder cotação:',
     params.linkResposta,
     '',
-    validade ? `Este link é válido até ${validade}.` : 'Este link expira em 7 dias.',
+    montarTextoRodapeValidadeLinkEmailDisparoBidFrete(params.dataExpiracaoToken),
     '',
     'Não responda este e-mail — use o link acima para enviar sua proposta.',
     '',
@@ -380,6 +393,9 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
   const preheader = montarPreheaderEmailDisparo(params)
   const link = escapeHtmlTextoEmailBidFrete(params.linkResposta)
+  const rodapeValidadeHtml = validade
+    ? `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Link válido até <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(validade)}</strong>.</p>`
+    : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Este link expira em ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias.</p>`
 
   const tabelaLinhas = linhas.map(([rotulo, valor]) => linhaTabelaHtml(rotulo, valor)).join('')
 
@@ -422,7 +438,7 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
                 Se o botão não funcionar, copie e cole este link no navegador:<br />
                 <a href="${link}" style="color:${COR_INDIGO};">${link}</a>
               </p>
-              ${validade ? `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Link válido até <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(validade)}</strong>.</p>` : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Este link expira em 7 dias.</p>`}
+              ${rodapeValidadeHtml}
             </td>
           </tr>
           <tr>

@@ -106,6 +106,10 @@ Público: `bidfrete.visao_fornecedor_bid_frete_internacional_publico.*`
 `motor-bid-disparo-utils.ts` →  
 `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/{token}`
 
+**Intro cotação anônima:** `montarIntroClienteEmailDisparoBidFrete` em `shared/formatar-email-disparo-bid-frete-internacional.ts` — «Um cliente, que optou em manter seu nome oculto, enviou uma solicitação de cotação.» (nome do workspace nunca aparece no corpo).
+
+**Validade do link público:** `calcularDataExpiracaoTokenDisparoBidFreteInternacional` — expira na **mesma data** do prazo de resposta quando informado; sem prazo, **360 dias** (nunca mais 7 dias fixos). O e-mail omite a linha «Link válido até» quando coincide com «Prazo de resposta».
+
 ---
 
 ## Termos proibidos na visão fornecedor

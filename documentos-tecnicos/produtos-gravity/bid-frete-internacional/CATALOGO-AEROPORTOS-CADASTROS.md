@@ -48,6 +48,8 @@ Os selects do wizard **não** carregam mais o catálogo inteiro de uma vez: usam
 
 **Importação por planilha (TASK-000415):** o contexto base da importação carrega uma página do catálogo (500 portos de ~17k ativos). Locais citados na planilha que não resolvem contra a página são buscados remotamente (`?q=valor`) e anexados ao contexto por `enriquecerContextoCatalogoLocaisImportacaoBid` (`client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts`) — o preview recalcula e nenhum porto/aeroporto vira «inválido» por estar fora da página. Teste UNI: `testes/testes-unitarios/produto-gravity/bid-frete-internacional/catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
 
+**Server — gravação de cotação (TASK-000415):** o mesmo princípio vale no backend. O contexto de catálogo usado para derivar o snapshot de rota é uma página, então `garantirTerminaisRotaNoContextoCatalogo` resolve origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) antes da validação — ver modal §8.4. Diagnóstico útil: o Cadastros tem ~17k portos ativos e ~5,3k **sem coordenadas**; a validação de gravação usa `resolverMetadadosLocalCadastrosBidFreteInternacional` (não exige lat/long) justamente para não reprovar porto válido sem coordenadas (skill do produto § Resolução Cadastros).
+
 ---
 
 ## Backlog

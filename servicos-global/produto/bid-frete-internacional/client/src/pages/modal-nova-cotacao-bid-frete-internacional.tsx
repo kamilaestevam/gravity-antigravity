@@ -1981,6 +1981,10 @@ const NC_ESTILOS_CONTEUDO = `
           flex-direction: column;
           gap: 0.35rem;
         }
+        /* Título da origem levemente à direita para centralizar sobre "CNSHA — Shanghai" */
+        .nc-timeline-node:first-child .nc-node-code {
+          padding-left: 6px;
+        }
         .nc-node-code {
           font-size: 1.0625rem;
           font-weight: 800;
@@ -2050,7 +2054,7 @@ const NC_ESTILOS_CONTEUDO = `
           border-top: 1px solid rgba(148, 163, 184, 0.14);
           padding-bottom: 0.75rem;
           border-bottom: 1px solid rgba(148, 163, 184, 0.14);
-          margin-bottom: 0.25rem;
+          margin-bottom: 0.875rem;
         }
         .nc-receipt-row {
           display: flex;
@@ -4050,6 +4054,45 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 })()}
               </div>
             </section>
+
+            <section className="nc-cargo-subsecao" aria-labelledby="nc-cargo-valor-alvo">
+              <NcSubsecaoTitle id="nc-cargo-valor-alvo" icone={<Hash {...ICONE_LABEL_SECAO} />}>
+                {t('bidfrete.nova_cotacao.valor_alvo')}
+              </NcSubsecaoTitle>
+              <div className="nc-fields-grid nc-fields-grid--summary-inputs">
+                <Field label={t('bidfrete.nova_cotacao.valor_alvo')} icone={<Hash {...ICONE_FIELD} />}>
+                  <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
+                </Field>
+                <Field label={t('bidfrete.nova_cotacao.moeda')} icone={<Tag {...ICONE_FIELD} />}>
+                  <SelectGlobal
+                    id="nc-moeda-meta-cotacao"
+                    opcoes={opcoesMoedaMeta}
+                    valor={form.moeda_meta_cotacao_bid_frete_internacional || null}
+                    aoMudarValor={(v) =>
+                      set('moeda_meta_cotacao_bid_frete_internacional', v == null ? '' : String(v))
+                    }
+                    buscavel
+                    placeholder={
+                      erroMoedasMeta
+                        ? t('bidfrete.portal.responder.moeda_erro', {
+                          erro: erroMoedasMeta,
+                          defaultValue: 'Erro ao carregar moedas: {{erro}}',
+                        })
+                        : (!carregandoMoedasMeta && opcoesMoedaMeta.length === 0)
+                          ? t('bidfrete.portal.responder.moeda_sem_cadastro', {
+                            defaultValue: 'Nenhuma moeda cadastrada',
+                          })
+                          : t('bidfrete.portal.responder.moeda_selecionar', {
+                            defaultValue: 'Selecionar moeda',
+                          })
+                    }
+                    carregando={carregandoMoedasMeta}
+                    desabilitado={moedasMetaIndisponiveis}
+                    posicao="auto"
+                  />
+                </Field>
+              </div>
+            </section>
           </div>
         )
       }
@@ -4268,40 +4311,6 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             <NcSectionTitle icone={<FileText {...ICONE_LABEL_SECAO} />}>
               {t('bidfrete.nova_cotacao.resumo_cotacao')}
             </NcSectionTitle>
-
-            <div className="nc-fields-grid nc-fields-grid--summary-inputs">
-              <Field label={t('bidfrete.nova_cotacao.valor_alvo')} icone={<Hash {...ICONE_FIELD} />}>
-                <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
-              </Field>
-              <Field label={t('bidfrete.nova_cotacao.moeda')} icone={<Tag {...ICONE_FIELD} />}>
-                <SelectGlobal
-                  id="nc-moeda-meta-cotacao"
-                  opcoes={opcoesMoedaMeta}
-                  valor={form.moeda_meta_cotacao_bid_frete_internacional || null}
-                  aoMudarValor={(v) =>
-                    set('moeda_meta_cotacao_bid_frete_internacional', v == null ? '' : String(v))
-                  }
-                  buscavel
-                  placeholder={
-                    erroMoedasMeta
-                      ? t('bidfrete.portal.responder.moeda_erro', {
-                        erro: erroMoedasMeta,
-                        defaultValue: 'Erro ao carregar moedas: {{erro}}',
-                      })
-                      : (!carregandoMoedasMeta && opcoesMoedaMeta.length === 0)
-                        ? t('bidfrete.portal.responder.moeda_sem_cadastro', {
-                          defaultValue: 'Nenhuma moeda cadastrada',
-                        })
-                        : t('bidfrete.portal.responder.moeda_selecionar', {
-                          defaultValue: 'Selecionar moeda',
-                        })
-                  }
-                  carregando={carregandoMoedasMeta}
-                  desabilitado={moedasMetaIndisponiveis}
-                  posicao="auto"
-                />
-              </Field>
-            </div>
 
             {/* Receipt Premium Layout de Resumo de Embarque */}
             <div className="nc-receipt-card">

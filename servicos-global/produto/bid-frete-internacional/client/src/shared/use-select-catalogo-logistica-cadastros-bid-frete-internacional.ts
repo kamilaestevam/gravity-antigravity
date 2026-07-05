@@ -7,7 +7,8 @@ import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
   DEBOUNCE_MS_BUSCA_CATALOGO_LOGISTICA_BID,
   LIMITE_BUSCA_CATALOGO_LOGISTICA_BID,
-  LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID,
+  LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
+  LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID,
   LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID,
   MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID,
 } from '../../../shared/limites-catalogo-logistica-bid-frete-internacional'
@@ -57,7 +58,11 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
           ...(paisParam ? { pais: paisParam } : {}),
           ...(busca.length >= MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID
             ? { q: busca, limit: LIMITE_BUSCA_CATALOGO_LOGISTICA_BID }
-            : { limit: LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID }),
+            : {
+                limit: paisParam
+                  ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
+                  : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
+              }),
         }
         const resp =
           tipo === 'porto'
@@ -196,7 +201,10 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     carregando,
     totalCatalogo,
     aoMudarBusca,
-    limiteOpcoesRenderizadas: LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID,
+    limiteOpcoesRenderizadas:
+      totalCatalogo > LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID
+        ? LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID
+        : undefined,
     mensagemListaVazia,
   }
 }

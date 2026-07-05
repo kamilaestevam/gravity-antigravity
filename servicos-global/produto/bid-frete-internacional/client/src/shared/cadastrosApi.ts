@@ -6,8 +6,7 @@
 import { z } from 'zod'
 import {
   LIMITE_BUSCA_CATALOGO_LOGISTICA_BID,
-  LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID,
-  LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID,
+  LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
 } from '../../../shared/limites-catalogo-logistica-bid-frete-internacional'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
@@ -283,9 +282,7 @@ export const cadastrosApi = {
     const pais = params?.pais?.trim().toUpperCase()
     const limitePadrao = busca
       ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
-      : pais
-        ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
-        : LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID
+      : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID
     const search = new URLSearchParams({ tipo: 'porto' })
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)
@@ -309,9 +306,7 @@ export const cadastrosApi = {
     const pais = params?.pais?.trim().toUpperCase()
     const limitePadrao = busca
       ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
-      : pais
-        ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
-        : LIMITE_PREVIEW_CATALOGO_LOGISTICA_BID
+      : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID
     const search = new URLSearchParams()
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)

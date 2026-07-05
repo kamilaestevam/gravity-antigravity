@@ -46,6 +46,8 @@ Os selects do wizard **não** carregam mais o catálogo inteiro de uma vez: usam
 
 **Portos:** mesmo hook paginado e mesmas rotas (`dados-mestre/portos?tipo=porto`). **TASK-000415:** selects de origem/destino no wizard **não** enviam `?pais=` — catálogo sempre global (ver modal §8.2). O parâmetro `pais` permanece disponível na API para outros consumidores (lista, importação) que precisem filtrar explicitamente.
 
+**Importação por planilha (TASK-000415):** o contexto base da importação carrega uma página do catálogo (500 portos de ~17k ativos). Locais citados na planilha que não resolvem contra a página são buscados remotamente (`?q=valor`) e anexados ao contexto por `enriquecerContextoCatalogoLocaisImportacaoBid` (`client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts`) — o preview recalcula e nenhum porto/aeroporto vira «inválido» por estar fora da página. Teste UNI: `testes/testes-unitarios/produto-gravity/bid-frete-internacional/catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
+
 ---
 
 ## Backlog

@@ -175,7 +175,7 @@ textarea::placeholder,
   font-size:   0.875rem;                          /* 14px — .text-body */
   font-weight: 400;                               /* normal */
   font-style:  normal;                            /* NUNCA italic */
-  color:       var(--text-muted, #64748b);        /* dark: #64748b · light: #94a3b8 */
+  color:       #3d4b5f;                           /* dark: #3d4b5f ("Slate 650") · light: #94a3b8 */
   opacity:     1;                                 /* browsers aplicam 0.54 por default — forçar 1 */
   text-align:  left;                              /* mesmo em campos numéricos right-aligned */
 }
@@ -186,7 +186,7 @@ textarea::placeholder,
 | `font-family` | `'Plus Jakarta Sans', sans-serif` | Fonte UI padrão — `DM Mono` é só para código/valores numéricos preenchidos |
 | `font-size` | `0.875rem` (14px) | Classe `.text-body` — alinha com valor selecionado (`.sg-valor-selecionado`) |
 | `font-weight` | `400` | Normal — valores preenchidos usam `500`, placeholder fica mais leve |
-| `color` | `var(--text-muted)` | Dark `#64748b` / Light `#94a3b8` — token de texto terciário |
+| `color` | `#3d4b5f` (dark) / `#94a3b8` (light) | "Slate 650" no dark (meio-termo 600↔700, decisão do dono 05/07/2026) — fonte: `placeholder-global.css` |
 | `opacity` | `1` | Explícito — Firefox/Chrome reduzem para `0.54` se não forçado |
 | `text-align` | `left` | Placeholder é texto descritivo, sempre à esquerda — valor numérico muda para `right` ao digitar |
 
@@ -667,4 +667,4 @@ import { CaixaSelectGlobal } from '@nucleo/caixa-campo-select-global'
 8. **Steppers:** `min-width` e `flex-shrink: 0` obrigatórios nos círculos
 9. **Toasts:** usar `addNotification` via Shell; nunca criar elementos manualmente
 10. **Tema:** dark é o padrão; light theme via `body.light-theme`
-11. **Placeholders:** `'Plus Jakarta Sans'`, `0.875rem`, `var(--text-muted)`, `opacity: 1`, `text-align: left` — mesmo em campos numéricos. Nunca monospace, nunca valor válido do domínio como texto de placeholder
+11. **Placeholders:** `'Plus Jakarta Sans'`, `0.875rem`, `#3d4b5f` (dark) / `#94a3b8` (light), `opacity: 1`, `text-align: left` — mesmo em campos numéricos. Nunca monospace, nunca valor válido do domínio como texto de placeholder

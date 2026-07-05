@@ -244,8 +244,7 @@ export function traduzirRotuloUnidadeEmbalagemNovaCotacao(t: TFunction, codigo: 
 
 export function traduzirFraseCubagemDetalhada(t: TFunction): string {
   return t('bidfrete.nova_cotacao.frase_cubagem_detalhada', {
-    defaultValue:
-      'Informar comprimento, largura e altura — o volume em m³ é calculado automaticamente e continua editável',
+    defaultValue: 'Incluir comprimento, largura e altura',
   })
 }
 

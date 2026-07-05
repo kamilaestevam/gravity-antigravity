@@ -67,7 +67,10 @@ import {
   idPainelListaBidFreteDoQueryParam,
   rotaDetalheCotacaoBidFreteInternacional,
 } from '../shared/rotas-bid-frete-internacional'
-import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
+import {
+  formatarRotuloLocalLogistico,
+  normalizarTextoPontoRota,
+} from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import {
   formatarLinhasContainersParaExibicao,
@@ -119,8 +122,7 @@ import {
   traduzirFraseExibirCamposLocalizacao,
   traduzirFraseOpcaoPortoAeroportoLocalizacao,
   traduzirCampoIncluirCubagemDetalhada,
-  traduzirCampoExibirLocalizacaoNovaCotacao,
-  traduzirCampoLocaisOpcionaisLocalizacao,
+  traduzirFraseCubagemDetalhada,
   traduzirLegendaOpcaoPortoAeroportoLocalizacao,
   traduzirIncotermExplicacaoNovaCotacao,
   traduzirLabelModalidadeNovaCotacao,
@@ -650,22 +652,16 @@ function LinhaCheckboxExibirCamposLocalizacao({
   const marcado = exibirCamposExtrasLocalizacao(form, lado)
 
   return (
-    <div className="nc-location-opcao-titulo-bloco">
-      <span className="nc-field-label">
-        <GlobeHemisphereWest {...ICONE_FIELD} />
-        <span>{traduzirCampoExibirLocalizacaoNovaCotacao(t, lado)}</span>
-      </span>
-      <div className="nc-exibir-campos-linha">
-        <label className="nc-exibir-campos-checkbox">
-          <input
-            type="checkbox"
-            className="nc-checkbox-padrao"
-            checked={marcado}
-            onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
-          />
-          <span>{traduzirFraseExibirCamposLocalizacao(t, lado)}</span>
-        </label>
-      </div>
+    <div className="nc-exibir-campos-linha">
+      <label className="nc-exibir-campos-checkbox">
+        <input
+          type="checkbox"
+          className="nc-checkbox-padrao"
+          checked={marcado}
+          onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
+        />
+        <span>{traduzirFraseExibirCamposLocalizacao(t, lado)}</span>
+      </label>
     </div>
   )
 }
@@ -702,25 +698,39 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
     () => opcoes.filter((o) => String(o.valor) !== codigoPrincipal),
     [opcoes, codigoPrincipal],
   )
+  const [opcoesSelecionadasMemoria, setOpcoesSelecionadasMemoria] = useState<SelectOpcao[]>([])
+
+  useEffect(() => {
+    setOpcoesSelecionadasMemoria((anteriores) => {
+      const mapa = new Map(anteriores.map((opcao) => [String(opcao.valor), opcao]))
+      opcoesFiltradas.forEach((opcao) => {
+        if (codigosSelecionados.includes(String(opcao.valor))) {
+          mapa.set(String(opcao.valor), opcao)
+        }
+      })
+      return Array.from(mapa.values()).filter((opcao) => codigosSelecionados.includes(String(opcao.valor)))
+    })
+  }, [codigosSelecionados, opcoesFiltradas])
+
+  const opcoesComSelecionadas = useMemo(() => {
+    const mapa = new Map<string, SelectOpcao>()
+    opcoesSelecionadasMemoria.forEach((opcao) => mapa.set(String(opcao.valor), opcao))
+    opcoesFiltradas.forEach((opcao) => mapa.set(String(opcao.valor), opcao))
+    return Array.from(mapa.values())
+  }, [opcoesFiltradas, opcoesSelecionadasMemoria])
 
   return (
     <>
-      <div className="nc-location-opcao-titulo-bloco">
-        <span className="nc-field-label">
-          {tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
-          <span>{traduzirCampoLocaisOpcionaisLocalizacao(t, lado, tipoLocal)}</span>
-        </span>
-        <div className="nc-exibir-campos-linha">
-          <label className="nc-exibir-campos-checkbox">
-            <input
-              type="checkbox"
-              className="nc-checkbox-padrao"
-              checked={habilitado}
-              onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
-            />
-            <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
-          </label>
-        </div>
+      <div className="nc-exibir-campos-linha">
+        <label className="nc-exibir-campos-checkbox">
+          <input
+            type="checkbox"
+            className="nc-checkbox-padrao"
+            checked={habilitado}
+            onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
+          />
+          <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
+        </label>
       </div>
       {habilitado && (
         <div className="nc-fields-grid nc-fields-grid--location-extras">
@@ -737,7 +747,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
             </p>
             <SelectGlobal
               iconeEsquerda={tipoLocal === 'porto' ? <Anchor size={16} /> : <AirplaneTilt size={16} />}
-              opcoes={opcoesFiltradas}
+              opcoes={opcoesComSelecionadas}
               multiplo
               valores={codigosSelecionados}
               aoMudarValores={(vals) => {
@@ -1446,11 +1456,6 @@ const NC_ESTILOS_CONTEUDO = `
           margin: 0;
           padding: 0;
         }
-        .nc-location-opcao-titulo-bloco {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
         .nc-exibir-campos-checkbox {
           display: flex;
           align-items: flex-start;
@@ -1952,6 +1957,10 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1rem;
           flex: 1;
         }
+        .nc-timeline-node:last-child {
+          justify-content: flex-end;
+          text-align: right;
+        }
         .nc-node-dot {
           width: 12px;
           height: 12px;
@@ -2039,6 +2048,9 @@ const NC_ESTILOS_CONTEUDO = `
           margin-top: 0.25rem;
           padding-top: 0.75rem;
           border-top: 1px solid rgba(148, 163, 184, 0.14);
+          padding-bottom: 0.75rem;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+          margin-bottom: 0.25rem;
         }
         .nc-receipt-row {
           display: flex;
@@ -2053,8 +2065,15 @@ const NC_ESTILOS_CONTEUDO = `
         }
 
         .nc-receipt-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
           font-size: 0.875rem;
           color: var(--text-secondary-light, #cbd5e1);
+        }
+        .nc-receipt-label svg {
+          color: var(--text-secondary, #94a3b8);
+          flex-shrink: 0;
         }
         .nc-receipt-value {
           font-size: 0.875rem;
@@ -3856,13 +3875,17 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   label={traduzirCampoIncluirCubagemDetalhada(t)}
                   icone={<Package {...ICONE_FIELD} />}
                 >
-                  <SelectGlobal
-                    opcoes={opcoesIncluirArmazenagem}
-                    valor={incluirCubagemDetalhada ? 'sim' : 'nao'}
-                    aoMudarValor={(v) => alternarCubagemDetalhada(v === 'sim')}
-                    placeholder={t('bidfrete.nova_cotacao.placeholder_selecionar', { defaultValue: 'Selecionar' })}
-                    posicao="auto"
-                  />
+                  <div className="nc-exibir-campos-linha">
+                    <label className="nc-exibir-campos-checkbox">
+                      <input
+                        type="checkbox"
+                        className="nc-checkbox-padrao"
+                        checked={form.exibir_cubagem_detalhada_cotacao}
+                        onChange={(e) => alternarCubagemDetalhada(e.target.checked)}
+                      />
+                      <span>{traduzirFraseCubagemDetalhada(t)}</span>
+                    </label>
+                  </div>
                 </Field>
 
                 {incluirCubagemDetalhada && (
@@ -3961,23 +3984,23 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         </div>
                       </Field>
                     </div>
+
+                    <div className="nc-cargo-subsecao-grid-cubagem-m3" style={{ marginTop: '1rem' }}>
+                      <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 33.2"
+                            value={form.cubagem_m3_cotacao_bid_frete_internacional}
+                            onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
+                          />
+                          <span className="nc-input-suffix">m³</span>
+                        </div>
+                      </Field>
+                    </div>
                   </div>
                 )}
-
-                <div className="nc-cargo-subsecao-grid-cubagem-m3">
-                  <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
-                    <div className="nc-input-group">
-                      <input
-                        className="nc-input nc-input--with-suffix"
-                        type="number"
-                        placeholder="Ex: 33.2"
-                        value={form.cubagem_m3_cotacao_bid_frete_internacional}
-                        onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
-                      />
-                      <span className="nc-input-suffix">m³</span>
-                    </div>
-                  </Field>
-                </div>
               </div>
             </section>
 
@@ -4225,6 +4248,20 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
         const origemName = rotaResumo.origem_nome_cotacao_bid_frete_internacional
         const destinoName = rotaResumo.destino_nome_cotacao_bid_frete_internacional
+        const origemCodigoResumo =
+          form.porto_origem_cotacao_bid_frete_internacional
+          || form.aeroporto_origem_cotacao_bid_frete_internacional
+          || ''
+        const destinoCodigoResumo =
+          form.porto_destino_cotacao_bid_frete_internacional
+          || form.aeroporto_destino_cotacao_bid_frete_internacional
+          || ''
+        const origemTituloResumo = origemCodigoResumo
+          ? normalizarTextoPontoRota(origemName, origemCodigoResumo).titulo
+          : origemName
+        const destinoTituloResumo = destinoCodigoResumo
+          ? normalizarTextoPontoRota(destinoName, destinoCodigoResumo).titulo
+          : destinoName
 
         return (
           <div className="nc-step-content">
@@ -4284,7 +4321,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--origin"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{origemName || '—'}</span>
+                    <span className="nc-node-code">{origemTituloResumo || '—'}</span>
                     <span className="nc-node-name">{origemName || '—'}{form.origem_pais_nome && !origemName?.includes(form.origem_pais_cotacao_bid_frete_internacional) ? `, ${form.origem_pais_cotacao_bid_frete_internacional}` : ''}</span>
                   </div>
                 </div>
@@ -4302,7 +4339,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <div className="nc-timeline-node">
                   <div className="nc-node-dot nc-node-dot--destination"></div>
                   <div className="nc-node-text">
-                    <span className="nc-node-code">{destinoName || '—'}</span>
+                    <span className="nc-node-code">{destinoTituloResumo || '—'}</span>
                     <span className="nc-node-name">{destinoName || '—'}{form.destino_pais_nome && !destinoName?.includes(form.destino_pais_cotacao_bid_frete_internacional) ? `, ${form.destino_pais_cotacao_bid_frete_internacional}` : ''}</span>
                   </div>
                 </div>
@@ -4313,6 +4350,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   {textosLocaisOpcionaisResumo.origem ? (
                     <div className="nc-receipt-row">
                       <span className="nc-receipt-label">
+                        {ctxLocaisOpcionaisResumo.tipoLocal === 'aeroporto' ? <AirplaneTilt size={14} /> : <Anchor size={14} />}
                         {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisResumo)}
                       </span>
                       <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.origem}</span>
@@ -4321,6 +4359,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   {textosLocaisOpcionaisResumo.destino ? (
                     <div className="nc-receipt-row">
                       <span className="nc-receipt-label">
+                        {ctxLocaisOpcionaisResumo.tipoLocal === 'aeroporto' ? <AirplaneTilt size={14} /> : <Anchor size={14} />}
                         {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisResumo)}
                       </span>
                       <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.destino}</span>
@@ -4331,7 +4370,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
               <div className="nc-receipt-details">
                 <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
+                  <span className="nc-receipt-label"><Package size={14} />{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
                   <span className="nc-receipt-value">{form.descricao_mercadoria_cotacao_bid_frete_internacional || '—'}</span>
                 </div>
                 {form.ncm_cotacao_bid_frete_internacional && (
@@ -4347,7 +4386,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   </div>
                 )}
                 <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
+                  <span className="nc-receipt-label"><Scales size={14} />{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                   <span className="nc-receipt-value">
                     {exigeContainerFcl
                       ? `${serializarLinhasContainersFcl(form.linhas_container_fcl_cotacao).quantidade_volume_cotacao_bid_frete_internacional} ctn`
@@ -4384,7 +4423,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   ? form.linhas_container_fcl_cotacao.some((l) => l.tipo_container.trim())
                   : !!form.tipo_container_cotacao_bid_frete_internacional) && (
                   <div className="nc-receipt-row">
-                    <span className="nc-receipt-label">{exigeContainerFcl ? t('bidfrete.nova_cotacao.resumo_containers', { defaultValue: 'Containers' }) : t('bidfrete.nova_cotacao.resumo_tipo_volume', { defaultValue: 'Tipo de volume' })}</span>
+                    <span className="nc-receipt-label"><ShippingContainer size={14} />{exigeContainerFcl ? t('bidfrete.nova_cotacao.resumo_containers', { defaultValue: 'Containers' }) : t('bidfrete.nova_cotacao.resumo_tipo_volume', { defaultValue: 'Tipo de volume' })}</span>
                     <span className="nc-receipt-value">
                       {exigeContainerFcl
                         ? formatarLinhasContainersParaExibicao(
@@ -4396,11 +4435,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   </div>
                 )}
                 <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
+                  <span className="nc-receipt-label"><Tag size={14} />{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
                   <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
                 </div>
                 <div className="nc-receipt-row">
-                  <span className="nc-receipt-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
+                  <span className="nc-receipt-label"><Eye size={14} />{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                   <span className="nc-receipt-value">
                     {traduzirRotuloResumoVisibilidadeNovaCotacao(
                       t,

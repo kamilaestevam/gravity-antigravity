@@ -77,6 +77,7 @@ import { ManualInfograficoPedidoListaImportarMapeamentoColunas } from './manual-
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
 import { ManualPedidoAccordionDashboardSugestoes } from './manual-pedido-accordion-dashboard-sugestoes'
 import { ManualPedidoAccordionDashboardTiposVisualizacao } from './manual-pedido-accordion-dashboard-tipos-visualizacao'
+import { ManualPedidoCatalogoHistoricoEventos } from './manual-pedido-accordion-historico-eventos'
 import { ManualPedidoIndicadoresMoverDashboard } from './manual-pedido-indicadores-mover-dashboard'
 import { ManualPedidoCardsKanbanCabecalho } from './manual-pedido-cards-kanban-cabecalho'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
@@ -762,7 +763,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '176'
+const MANUAL_SCREENSHOT_CACHE_KEY = '177'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1968,6 +1969,10 @@ function ManualBlocoPassoVisual({
           {passo.mostrarCatalogoColunasPedidoLista
           && (passo.catalogoColunasPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoTabelaCatalogoColunasLista />
+          ) : null}
+          {passo.mostrarCatalogoHistoricoPedido
+          && (passo.catalogoHistoricoPedidoAposParagrafo ?? 0) === i ? (
+            <ManualPedidoCatalogoHistoricoEventos />
           ) : null}
           {passo.mostrarFormatosExportacaoPedidoLista
           && (passo.formatosExportacaoPedidoAposParagrafo ?? 1) === i ? (

@@ -1,5 +1,6 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_PEDIDO_CONFIGURACOES } from './manual-pedido-configuracoes-conteudo'
+import { PASSOS_MANUAL_PEDIDO_HISTORICO } from './manual-pedido-historico-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -78,6 +79,10 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - pedido-edicao-massa.png
  * - pedido-gerar-documentos.png
  * - pedido-configuracoes.png
+ * Histórico (Drive: tela_pedido_historico_*):
+ * - tela_pedido_historico_1 → pedido-historico-1.png
+ * - tela_pedido_historico_2 → pedido-historico-2.png
+ * - tela_pedido_historico_3 → pedido-historico-3.png
  */
 
 const SCREENSHOT_PEDIDO_INSIGHTS = '/university/screenshots/pedido-tela-principal.png'
@@ -2305,10 +2310,18 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
     {
       titulo: 'Histórico',
       tituloSumario: 'Histórico',
+      prefixoPassosVisuais: 'Histórico',
+      ancoraPassosPrefix: 'historico',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Pelo menu lateral, **Histórico** abre a trilha de auditoria dos pedidos do workspace — criação, edição, exclusão, transferência, consolidação e demais eventos gravados no servidor.',
+        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Pedido** — filtrada automaticamente para o workspace ativo. É a mesma tela do Configurador, com escopo do produto.',
+        'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
       ],
-      passosVisuais: [],
+      callout: {
+        tipo: 'dica',
+        texto: 'O acesso exige permissão **historico:ver** no workspace. Usuários **Fornecedor** veem apenas linhas em que são ator ou alvo.',
+      },
+      passosVisuais: PASSOS_MANUAL_PEDIDO_HISTORICO,
     },
   ],
 }

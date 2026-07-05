@@ -151,6 +151,10 @@ export interface DocPassoVisual {
   mostrarCatalogoDashboardTiposVisualizacaoPedido?: boolean
   /** Índice da galeria após a qual inserir o catálogo de tipos de visualização. */
   catalogoDashboardTiposVisualizacaoAposGaleriaIndice?: number
+  /** Manual Pedido §09 Histórico — catálogo accordion de eventos auditados. */
+  mostrarCatalogoHistoricoPedido?: boolean
+  /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
+  catalogoHistoricoPedidoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
   catalogoColunasPedidoAposParagrafo?: number
   /** Manual Pedido §05 — infográfico pedido × itens e regras de alerta. */

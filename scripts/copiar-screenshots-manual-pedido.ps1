@@ -145,6 +145,10 @@ $mapa = @{
   'tela_pedido_dashboard_teka_principal_tres_pontos_excluir_seta' = 'pedido-dashboard-tres-pontos-excluir-seta.png'
   'tela_pedido_dashboard_teka_principal_tres_pontos_excluido' = 'pedido-dashboard-tres-pontos-excluido.png'
   'tela_pedido_dashboard_teka_principal_detalhamento_grafico_mouse_1' = 'pedido-dashboard-detalhamento-grafico-mouse.png'
+  # Historico
+  'tela_pedido_historico_1' = 'pedido-historico-1.png'
+  'tela_pedido_historico_2' = 'pedido-historico-2.png'
+  'tela_pedido_historico_3' = 'pedido-historico-3.png'
   # Configuracoes (tela principal)
   'tela_pedido_configuracoes_tela_principal_cards_ativos_disponiveis_adicionar' = 'pedido-configuracoes-cards-ativos-disponiveis-adicionar.png'
   'tela_pedido_configuracoes_tela_principal_cards_ativos_disponiveis_adicionar_ver_detalhes' = 'pedido-configuracoes-cards-ativos-disponiveis-adicionar-ver-detalhes.png'

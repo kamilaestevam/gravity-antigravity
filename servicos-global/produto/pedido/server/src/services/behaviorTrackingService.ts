@@ -44,6 +44,11 @@ export type BehaviorEventInput = z.infer<typeof BehaviorEventSchema>
 
 const EVENT_TO_INSIGHT_MAP: Record<string, Record<string, string>> = {
   route_visited: {
+    '/pedido/pedidos/lista?status=atrasado':   'atrasados',
+    '/pedido/pedidos/lista?status=aberto':     'abertos',
+    '/pedido/pedidos/lista?status=cancelado':  'cancelados',
+    '/pedido/pedidos/lista?sem_exportador=true': 'sem_exportador',
+    // Legado (rotas incorretas antes de TASK-000411)
     '/pedidos/lista?status=atrasado':   'atrasados',
     '/pedidos/lista?status=aberto':     'abertos',
     '/pedidos/lista?status=cancelado':  'cancelados',

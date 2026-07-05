@@ -48,6 +48,7 @@ import {
 } from '@phosphor-icons/react'
 import './PedidosDashboard.css'
 import './Pedidos.css'
+import { ROTA_LISTA_PEDIDO_UI, rotaListaPedidoUi } from '../../../shared/rotas-pedido-ui'
 import '../components/PedidosVisualizacaoTabs.css'
 
 import { useDashboardStore, translateWidgetTitle, widgetTituloFoiCustomizado } from '../stores/dashboardStore'
@@ -222,7 +223,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_atrasados_texto', { count: kpis.pedidos_atrasados }),
       stat: { label: t('pedido.dashboard.insight_atrasados_stat_label'), valor: fmtPct(taxa) },
       textoLink: t('pedido.dashboard.insight_atrasados_link'),
-      rota: '/pedidos/lista?status=atrasado',
+      rota: '/pedido/pedidos/lista?status=atrasado',
     })
   }
 
@@ -234,7 +235,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_sem_exportador_texto', { count: kpis.pedidos_sem_exportador }),
       stat: { label: t('pedido.dashboard.insight_sem_exportador_stat_label'), valor: fmtNum(kpis.pedidos_sem_exportador) },
       textoLink: t('pedido.dashboard.insight_sem_exportador_link'),
-      rota: '/pedidos/lista?exportador=nenhum',
+      rota: '/pedido/pedidos/lista?exportador=nenhum',
     })
   }
 
@@ -249,7 +250,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_cancelados_texto', { count: kpis.pedidos_cancelados, pct: fmtPct(pct) }),
       stat: { label: t('pedido.dashboard.insight_cancelados_stat_label'), valor: fmtNum(kpis.total_pedidos) },
       textoLink: t('pedido.dashboard.insight_cancelados_link'),
-      rota: '/pedidos/lista?status=cancelado',
+      rota: '/pedido/pedidos/lista?status=cancelado',
     })
   }
 
@@ -261,7 +262,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_rascunho_texto', { count: kpis.pedidos_rascunho }),
       stat: { label: t('pedido.dashboard.insight_rascunho_stat_label'), valor: fmtNum(kpis.pedidos_rascunho) },
       textoLink: t('pedido.dashboard.insight_rascunho_link'),
-      rota: '/pedidos/lista?status=rascunho',
+      rota: '/pedido/pedidos/lista?status=rascunho',
     })
   }
 
@@ -277,7 +278,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
         ? { label: t('pedido.dashboard.insight_abertos_stat_label_transferida'), valor: fmtNum(kpis.qtd_transferida_total) }
         : { label: t('pedido.dashboard.insight_abertos_stat_label_abertos'), valor: fmtNum(kpis.pedidos_abertos) },
       textoLink: t('pedido.dashboard.insight_abertos_link'),
-      rota: '/pedidos/lista?status=aberto',
+      rota: '/pedido/pedidos/lista?status=aberto',
     })
   }
 
@@ -291,7 +292,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_transferencia_texto', { count: kpis.pedidos_em_andamento }),
       stat: { label: t('pedido.dashboard.insight_transferencia_stat_label'), valor: fmtPct(txTransf) },
       textoLink: t('pedido.dashboard.insight_transferencia_link'),
-      rota: '/pedidos/lista?status=transferencia',
+      rota: '/pedido/pedidos/lista?status=transferencia',
     })
   }
 
@@ -305,7 +306,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_qtd_pronta_texto', { qtd: fmtNum(kpis.itens_prontos), pct: fmtPct(pctPronta) }),
       stat: { label: t('pedido.dashboard.insight_qtd_pronta_stat_label'), valor: fmtNum(kpis.qtd_atual_total) },
       textoLink: t('pedido.dashboard.insight_qtd_pronta_link'),
-      rota: '/pedidos/lista?status=pronto',
+      rota: '/pedido/pedidos/lista?status=pronto',
     })
   }
 
@@ -317,7 +318,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_consolidados_texto', { count: kpis.pedidos_consolidados }),
       stat: { label: t('pedido.dashboard.insight_consolidados_stat_label'), valor: fmtNum(kpis.pedidos_consolidados) },
       textoLink: t('pedido.dashboard.insight_consolidados_link'),
-      rota: '/pedidos/lista?status=consolidado',
+      rota: '/pedido/pedidos/lista?status=consolidado',
     })
   }
 
@@ -429,7 +430,7 @@ function buildClientInsights(kpis: DashboardKpis, prev: DashboardKpis | null | u
       texto: t('pedido.dashboard.insight_status_ok_texto'),
       stat: { label: t('pedido.dashboard.insight_status_ok_stat_label'), valor: fmtNum(kpis.total_pedidos) },
       textoLink: t('pedido.dashboard.insight_status_ok_link'),
-      rota: '/pedidos/lista',
+      rota: ROTA_LISTA_PEDIDO_UI,
     })
     items.push({
       id: 'dica_periodo',
@@ -466,9 +467,9 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
 
 // Rota de drill-down por widget de alerta
 const WIDGET_NAV_ROUTE: Record<string, string> = {
-  kpi_pedidos_atrasados: '/pedidos/lista?status=atrasado',
-  kpi_sem_exportador:    '/pedidos/lista?exportador=nenhum',
-  kpi_qtd_pronta:        '/pedidos/lista?status=pronto',
+  kpi_pedidos_atrasados: rotaListaPedidoUi('status=atrasado'),
+  kpi_sem_exportador:    rotaListaPedidoUi('exportador=nenhum'),
+  kpi_qtd_pronta:        rotaListaPedidoUi('status=pronto'),
 }
 
 // ── GABI Empty State — utilitários ───────────────────────────────────────────
@@ -1247,7 +1248,7 @@ export default function PedidosDashboard() {
                                   type="button"
                                   onClick={() => {
                                     trackInsight(ins.id)
-                                    if (ins.rota) window.location.href = ins.rota
+                                    if (ins.rota) navigate(ins.rota)
                                   }}
                                 >
                                   {ins.textoLink} <CaretRight size={10} />

@@ -1152,6 +1152,12 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-cubagem-dicas .nc-empty-hint {
           padding: 0.875rem 1rem;
           grid-column: auto;
+          background: var(--nc-accent-dim);
+          border: 1px solid var(--nc-accent-border);
+          border-radius: 10px;
+        }
+        .nc-cubagem-dicas .nc-empty-hint > svg {
+          color: var(--nc-accent);
         }
         .nc-cubagem-dicas .nc-empty-hint p {
           margin: 0;
@@ -1523,8 +1529,12 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-muted, #64748b);
           line-height: 1.35;
         }
-        .nc-input::placeholder { 
-          color: var(--text-muted, #64748b); 
+        /* Teste nesta tela — placeholder mais claro (override do placeholder-global.css, que usa !important) */
+        .nc-root .nc-input::placeholder {
+          color: #f8fafc !important;
+        }
+        .nc-root .sg-placeholder {
+          color: #f8fafc !important;
         }
 
         select.nc-input {
@@ -2454,8 +2464,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     useCidadesIbgeBidFreteInternacional(
       form.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? ufDestinoRodoviario : '',
     )
-  const paisOrigemCodigo = form.origem_pais_cotacao_bid_frete_internacional
-  const paisDestinoCodigo = form.destino_pais_cotacao_bid_frete_internacional
+  // Busca de porto/aeroporto SEMPRE no catálogo global ('' = sem filtro de país).
+  // O país do formulário NÃO filtra o catálogo: quando os campos de localização
+  // estão ocultos, o filtro ficaria invisível e esconderia portos (ex: Hamburg
+  // não aparecia com país de origem = US preenchido silenciosamente).
   const {
     portos: portosOrigem,
     opcoes: opcoesPortosOrigem,
@@ -2465,7 +2477,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     totalCatalogo: totalCatalogoPortosOrigem,
     mensagemListaVazia: mensagemVaziaPortosOrigem,
   } = usePortosPorPais(
-    paisOrigemCodigo,
+    '',
     modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
     form.porto_origem_cotacao_bid_frete_internacional || null,
   )
@@ -2478,7 +2490,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     totalCatalogo: totalCatalogoPortosDestino,
     mensagemListaVazia: mensagemVaziaPortosDestino,
   } = usePortosPorPais(
-    paisDestinoCodigo,
+    '',
     modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
     form.porto_destino_cotacao_bid_frete_internacional || null,
   )
@@ -2491,7 +2503,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     totalCatalogo: totalCatalogoAeroportosOrigem,
     mensagemListaVazia: mensagemVaziaAeroportosOrigem,
   } = useAeroportosPorPais(
-    paisOrigemCodigo,
+    '',
     modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
     form.aeroporto_origem_cotacao_bid_frete_internacional || null,
   )
@@ -2504,7 +2516,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     totalCatalogo: totalCatalogoAeroportosDestino,
     mensagemListaVazia: mensagemVaziaAeroportosDestino,
   } = useAeroportosPorPais(
-    paisDestinoCodigo,
+    '',
     modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
     form.aeroporto_destino_cotacao_bid_frete_internacional || null,
   )

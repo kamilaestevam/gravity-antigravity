@@ -75,6 +75,7 @@
 
 | Task / entrega | Escopo |
 |----------------|--------|
+| PR #646 (2026-07-05) | Portal fornecedor: restaura locais alternativos removidos por engano no PR #642 + persistência/exibição dos armazéns de preferência (coluna JSONB, migration `20260705200000`, wizard, portal, e-mail) — ver [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) §§ Resposta — locais opcionais · Armazéns de preferência |
 | TASK-000415 (2026-07-05) | Lista de portos/aeroportos incompleta: remove filtro invisível por país no wizard; busca global no Cadastros (Hamburg, Frankfurt, etc.) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
 | Catálogo paginado + busca remota (2026-07-05) | Hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional`, limites SSOT, `offset`/`total` no Cadastros e proxy BID — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1 |
 

@@ -17,9 +17,17 @@ import {
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
   montarTextoPlanoEmailDisparo,
-  resolverUrlServicoEmailDisparoBidFrete,
   type ParametrosEmailDisparoBidFreteInternacional,
 } from './motor-bid-disparo-utils.js'
+import {
+  formatarCargaPerigosaEmailDisparoBidFrete,
+  formatarDimensoesCubagemEmailDisparoBidFrete,
+} from '../../../shared/formatar-email-disparo-bid-frete-internacional.js'
+import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import {
+  montarTextoRotulosLocaisOpcionaisDisparoBidFrete,
+  resolverRotulosLocaisOpcionaisDisparoBidFrete,
+} from '../lib/resolver-rotulos-locais-opcionais-disparo-bid-frete-internacional.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 import { buscarFornecedorCadastrosParaDisparo } from './buscar-fornecedor-cadastros-disparo.js'
@@ -30,15 +38,25 @@ import {
   type FornecedorEspelhoBidDisparo,
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
-import { resolverNomeClienteOperacaoCotacaoDisparo } from '../lib/resolver-nome-cliente-cotacao-resposta-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
 
+const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
+const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
-const DISPARO_HTTP_TIMEOUT_MS = 25_000
+const DISPARO_HTTP_TIMEOUT_MS = 30_000
 
-function lerChaveInternaDisparo(): string {
-  return process.env.CHAVE_INTERNA_SERVICO?.trim() ?? ''
+/** Texto das alternativas de porto/aeroporto para o e-mail — nomes completos via Cadastros. */
+async function montarTextoOpcoesLocaisEmailDisparo(
+  modal: string | null | undefined,
+  habilitado: boolean | null | undefined,
+  codigosRaw: unknown,
+): Promise<string | null> {
+  if (!habilitado) return null
+  const codigos = parseCodigosOpcaoPortoAeroportoFromDb(codigosRaw)
+  if (codigos.length === 0) return null
+  const rotulos = await resolverRotulosLocaisOpcionaisDisparoBidFrete(modal, codigos)
+  return montarTextoRotulosLocaisOpcionaisDisparoBidFrete(rotulos)
 }
 
 type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
@@ -86,39 +104,14 @@ export const motorBid = {
     } = options
 
     // Buscar cotacao
-    const cotacaoRaw = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
-    if (!cotacaoRaw) throw new Error('Cotacao nao encontrada')
-
-    const nomeClienteOperacao = await resolverNomeClienteOperacaoCotacaoDisparo({
-      id_workspace: cotacaoRaw.id_workspace,
-      anonima_cotacao_bid_frete_internacional: cotacaoRaw.anonima_cotacao_bid_frete_internacional,
-    })
-    const cotacao = {
-      ...cotacaoRaw,
-      nome_cliente_operacao_cotacao_bid_frete_internacional: nomeClienteOperacao,
-    }
+    const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
+    if (!cotacao) throw new Error('Cotacao nao encontrada')
 
     const modal = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
-
-    const espelhosPreFiltro = await (prisma as any).fornecedorBidFreteInternacional.findMany({
-      where: { id_fornecedor_bid_frete_internacional: { in: fornecedor_ids } },
-      select: {
-        id_fornecedor_bid_frete_internacional: true,
-        tipo_fornecedor_bid_frete_internacional: true,
-      },
-    })
-    const tiposEspelhoPorId = new Map(
-      (espelhosPreFiltro as Array<{
-        id_fornecedor_bid_frete_internacional: string
-        tipo_fornecedor_bid_frete_internacional: TipoFornecedorMotor
-      }>).map(f => [f.id_fornecedor_bid_frete_internacional, f.tipo_fornecedor_bid_frete_internacional]),
-    )
-
     const fornecedor_ids_elegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
       id_organizacao,
       modal,
       fornecedor_ids,
-      { tiposEspelhoPorId },
     )
 
     if (fornecedor_ids_elegiveis.length === 0) {
@@ -213,23 +206,15 @@ export const motorBid = {
               )
             }
             for (const email of emails) {
-              idMensagem = await Promise.race([
-                this.dispararEmail(
-                  cotacao,
-                  fornecedor,
-                  token,
-                  tokenExpira,
-                  id_organizacao,
-                  id_usuario,
-                  email,
-                ),
-                new Promise<never>((_, reject) => {
-                  setTimeout(
-                    () => reject(new Error(`Timeout (${DISPARO_HTTP_TIMEOUT_MS}ms) ao enviar e-mail para ${email}`)),
-                    DISPARO_HTTP_TIMEOUT_MS + 2_000,
-                  )
-                }),
-              ])
+              idMensagem = await this.dispararEmail(
+                cotacao,
+                fornecedor,
+                token,
+                tokenExpira,
+                id_organizacao,
+                id_usuario,
+                email,
+              )
             }
           } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
             const whatsapps = resolverWhatsappsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
@@ -252,7 +237,7 @@ export const motorBid = {
           fornecedorEnviou = true
         } catch (err: unknown) {
           statusDisparo = 'ERRO_ENVIO'
-          const errorMessage = extrairMensagemErroDisparo(err, resolverUrlServicoEmailDisparoBidFrete())
+          const errorMessage = extrairMensagemErroDisparo(err, EMAIL_SERVICE_URL)
           erroDisparo = errorMessage
           try {
             await (prisma as any).disparoCotacaoBidFreteInternacional.update({
@@ -462,7 +447,7 @@ export const motorBid = {
     _cotacao: Record<string, unknown>,
     _fornecedor: Record<string, unknown>,
     token: string,
-    dataExpiracaoToken: Date,
+    dataExpiracaoToken: Date | null,
     id_organizacao: string,
     id_usuario: string,
     emailDestino: string,
@@ -475,21 +460,55 @@ export const motorBid = {
     }
 
     const linkResposta = montarLinkRespostaDisparo(APP_URL, token)
+    const [opcoesOrigemTexto, opcoesDestinoTexto] = await Promise.all([
+      montarTextoOpcoesLocaisEmailDisparo(
+        cotacao.modal_cotacao_bid_frete_internacional,
+        cotacao.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+        cotacao.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+      ),
+      montarTextoOpcoesLocaisEmailDisparo(
+        cotacao.modal_cotacao_bid_frete_internacional,
+        cotacao.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+        cotacao.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+      ),
+    ])
     const parametrosEmail: ParametrosEmailDisparoBidFreteInternacional = {
       nomeFornecedor: fornecedor.nome_fornecedor_bid_frete_internacional ?? '',
       numeroCotacao: cotacao.numero_cotacao_bid_frete_internacional,
+      referenciaInterna: cotacao.referencia_interna_cotacao_bid_frete_internacional,
       modal: cotacao.modal_cotacao_bid_frete_internacional,
       modalidade: cotacao.modalidade_cotacao_bid_frete_internacional,
       origemNome: cotacao.origem_nome_cotacao_bid_frete_internacional,
       origemPais: cotacao.origem_pais_cotacao_bid_frete_internacional,
       destinoNome: cotacao.destino_nome_cotacao_bid_frete_internacional,
       destinoPais: cotacao.destino_pais_cotacao_bid_frete_internacional,
+      opcoesOrigemTexto,
+      opcoesDestinoTexto,
       mercadoria: cotacao.descricao_mercadoria_cotacao_bid_frete_internacional,
+      ncm: cotacao.ncm_cotacao_bid_frete_internacional,
+      hsCode: cotacao.hs_code_cotacao_bid_frete_internacional,
       incoterm: cotacao.incoterm_cotacao_bid_frete_internacional,
       tipoContainer: cotacao.tipo_container_cotacao_bid_frete_internacional,
       quantidade: cotacao.quantidade_volume_cotacao_bid_frete_internacional,
       pesoKg: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      pesoTon: cotacao.peso_ton_cotacao_bid_frete_internacional,
       cubagemM3: cotacao.cubagem_m3_cotacao_bid_frete_internacional,
+      dimensoesCubagemTexto: formatarDimensoesCubagemEmailDisparoBidFrete({
+        comprimento: cotacao.comprimento_cubagem_cotacao_bid_frete_internacional,
+        largura: cotacao.largura_cubagem_cotacao_bid_frete_internacional,
+        altura: cotacao.altura_cubagem_cotacao_bid_frete_internacional,
+        codigoUnidade: cotacao.codigo_unidade_cubagem_cotacao_bid_frete_internacional,
+      }),
+      cargaPerigosaTexto: formatarCargaPerigosaEmailDisparoBidFrete({
+        ehCargaPerigosa: cotacao.eh_carga_perigosa_cotacao_bid_frete_internacional,
+        numeroOnu: cotacao.numero_onu_cotacao_bid_frete_internacional,
+        nomeTecnicoEmbarque: cotacao.nome_tecnico_embarque_cotacao_bid_frete_internacional,
+        classe: cotacao.classe_carga_perigosa_cotacao_bid_frete_internacional,
+        divisao: cotacao.divisao_carga_perigosa_cotacao_bid_frete_internacional,
+        grupoEmbalagem: cotacao.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional,
+        observacoes: cotacao.observacoes_carga_perigosa_cotacao_bid_frete_internacional,
+      }),
+      incluirArmazenagem: cotacao.incluir_armazenagem_cotacao_bid_frete_internacional === true,
       dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
       nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
@@ -498,31 +517,24 @@ export const motorBid = {
       linkResposta,
     }
 
-    const emailServiceUrl = resolverUrlServicoEmailDisparoBidFrete()
-    const chaveInterna = lerChaveInternaDisparo()
-    if (!chaveInterna) {
-      throw new Error('CHAVE_INTERNA_SERVICO ausente no sidecar BID — envio de e-mail bloqueado')
-    }
     const response = await axios.post(
-      `${emailServiceUrl}/api/v1/envios-email`,
+      `${EMAIL_SERVICE_URL}/api/v1/envios-email`,
       {
         to: email,
         subject: montarAssuntoEmailDisparo(parametrosEmail),
         body_html: montarHtmlEmailDisparo(parametrosEmail),
         body: montarTextoPlanoEmailDisparo(parametrosEmail),
         product_id: 'bid-frete-internacional',
-        max_tentativas: 1,
       },
       {
         headers: {
-          'x-chave-interna-servico': chaveInterna,
+          'x-chave-interna-servico': INTERNAL_KEY,
           'x-id-organizacao': id_organizacao,
           'x-id-usuario': id_usuario,
           'Content-Type': 'application/json',
         },
         validateStatus: () => true,
         timeout: DISPARO_HTTP_TIMEOUT_MS,
-        signal: AbortSignal.timeout(DISPARO_HTTP_TIMEOUT_MS),
       },
     )
 
@@ -567,7 +579,7 @@ export const motorBid = {
       },
       {
         headers: {
-          'x-chave-interna-servico': lerChaveInternaDisparo(),
+          'x-chave-interna-servico': INTERNAL_KEY,
           'x-id-organizacao': id_organizacao,
           'Content-Type': 'application/json',
         },
@@ -579,82 +591,5 @@ export const motorBid = {
     if (response.status < 200 || response.status >= 300) {
       throw new Error(`Falha ao enviar WhatsApp: HTTP ${response.status}`)
     }
-  },
-
-  /** Reprocessa disparos EMAIL presos em PENDENTE (cron + recovery pós-timeout). */
-  async reprocessarDisparosPendentes(prisma: PrismaClient, limite = 20) {
-    const pendentes = await (prisma as any).disparoCotacaoBidFreteInternacional.findMany({
-      where: {
-        status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
-        canal_disparo_cotacao_bid_frete_internacional: 'EMAIL',
-        data_criacao_disparo_cotacao_bid_frete_internacional: {
-          lt: new Date(Date.now() - 2 * 60 * 1000),
-        },
-      },
-      take: limite,
-      orderBy: { data_criacao_disparo_cotacao_bid_frete_internacional: 'asc' },
-      include: {
-        cotacao: true,
-        fornecedor: true,
-      },
-    })
-
-    let reprocessados = 0
-    for (const disparo of pendentes as Array<Record<string, unknown>>) {
-      const cotacao = disparo.cotacao as Record<string, unknown>
-      const fornecedor = disparo.fornecedor as Record<string, unknown>
-      const idDisparo = String(disparo.id_disparo_cotacao_bid_frete_internacional)
-      const idOrganizacao = String(disparo.id_organizacao)
-      const idUsuario = String(disparo.id_usuario ?? 'system')
-      const token = String(disparo.token_resposta_disparo_cotacao_bid_frete_internacional)
-      const tokenExpira = disparo.data_expiracao_token_disparo_cotacao_bid_frete_internacional as Date
-      const email = String(fornecedor.email_fornecedor_bid_frete_internacional ?? '').trim()
-
-      if (!email) {
-        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
-          data: {
-            status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-            erro_envio_disparo_cotacao_bid_frete_internacional: 'Fornecedor sem e-mail cadastrado',
-          },
-        })
-        continue
-      }
-
-      try {
-        const idMensagem = await Promise.race([
-          this.dispararEmail(cotacao, fornecedor, token, tokenExpira, idOrganizacao, idUsuario, email),
-          new Promise<never>((_, reject) => {
-            setTimeout(
-              () => reject(new Error(`Timeout (${DISPARO_HTTP_TIMEOUT_MS}ms) ao reprocessar e-mail`)),
-              DISPARO_HTTP_TIMEOUT_MS + 2_000,
-            )
-          }),
-        ])
-        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
-          data: {
-            status_disparo_cotacao_bid_frete_internacional: 'ENVIADO',
-            data_envio_disparo_cotacao_bid_frete_internacional: new Date(),
-            ...(idMensagem ? { id_mensagem_disparo_cotacao_bid_frete_internacional: idMensagem } : {}),
-          },
-        })
-        reprocessados += 1
-      } catch (err: unknown) {
-        const errorMessage = extrairMensagemErroDisparo(err, resolverUrlServicoEmailDisparoBidFrete())
-        await (prisma as any).disparoCotacaoBidFreteInternacional.update({
-          where: { id_disparo_cotacao_bid_frete_internacional: idDisparo },
-          data: {
-            status_disparo_cotacao_bid_frete_internacional: 'ERRO_ENVIO',
-            erro_envio_disparo_cotacao_bid_frete_internacional: errorMessage,
-          },
-        })
-      }
-    }
-
-    if (reprocessados > 0) {
-      console.log(`[motor-bid] ${reprocessados} disparo(s) PENDENTE reprocessado(s) com sucesso`)
-    }
-    return reprocessados
   },
 }

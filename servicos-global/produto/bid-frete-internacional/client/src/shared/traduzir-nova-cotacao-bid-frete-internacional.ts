@@ -40,6 +40,17 @@ const GRUPO_CHAVE_POR_INCOTERM: Record<string, string> = Object.fromEntries(
   INCOTERM_GRUPOS_CODIGOS.flatMap((grupo) => grupo.itens.map((inc) => [inc, grupo.chave])),
 )
 
+const EMBALAGEM_CODIGOS = [
+  'UNIDADE',
+  'CAIXA',
+  'PALLET',
+  'VOLUME',
+  'FARDO',
+  'SACO',
+  'TAMBOR',
+  'BIG_BAG',
+] as const
+
 type LadoLocalizacaoWizard = 'origem' | 'destino'
 
 export function traduzirPassoWizardNovaCotacao(
@@ -208,6 +219,58 @@ export function traduzirOpcoesSimNaoNovaCotacao(t: TFunction): SelectOpcao[] {
   ]
 }
 
+export function traduzirOpcoesUnidadeEmbalagemNovaCotacao(t: TFunction): SelectOpcao[] {
+  return EMBALAGEM_CODIGOS.map((codigo) => ({
+    valor: codigo,
+    rotulo: traduzirRotuloUnidadeEmbalagemNovaCotacao(t, codigo),
+  }))
+}
+
+export function traduzirRotuloUnidadeEmbalagemNovaCotacao(t: TFunction, codigo: string): string {
+  const defaults: Record<string, string> = {
+    UNIDADE: 'Unidade (UN)',
+    CAIXA: 'Caixa',
+    PALLET: 'Palete / Pallet',
+    VOLUME: 'Volume',
+    FARDO: 'Fardo',
+    SACO: 'Saco / Bag',
+    TAMBOR: 'Tambor',
+    BIG_BAG: 'Big Bag',
+  }
+  return t(`bidfrete.nova_cotacao.embalagem_${codigo.toLowerCase()}`, {
+    defaultValue: defaults[codigo] ?? codigo,
+  })
+}
+
+export function traduzirFraseCubagemDetalhada(t: TFunction): string {
+  return t('bidfrete.nova_cotacao.frase_cubagem_detalhada', {
+    defaultValue: 'Incluir comprimento, largura e altura',
+  })
+}
+
+export function traduzirCampoIncluirCubagemDetalhada(t: TFunction): string {
+  return t('bidfrete.nova_cotacao.campo_incluir_cubagem_detalhada', {
+    defaultValue: 'INCLUIR CUBAGEM DETALHADA',
+  })
+}
+
+export function traduzirCampoExibirLocalizacaoNovaCotacao(
+  t: TFunction,
+  lado: LadoLocalizacaoWizard,
+): string {
+  return t(
+    lado === 'origem'
+      ? 'bidfrete.nova_cotacao.campo_exibir_localizacao_origem'
+      : 'bidfrete.nova_cotacao.campo_exibir_localizacao_destino',
+    {
+      defaultValue:
+        lado === 'origem'
+          ? 'CAMPOS DE COLETA NA ORIGEM'
+          : 'CAMPOS DE COLETA NO DESTINO',
+    },
+  )
+}
+
 export function traduzirFraseExibirCamposLocalizacao(
   t: TFunction,
   lado: LadoLocalizacaoWizard,
@@ -219,8 +282,8 @@ export function traduzirFraseExibirCamposLocalizacao(
     {
       defaultValue:
         lado === 'origem'
-          ? 'Exibir campos: Cidade de Origem, Estado ou Província de Origem e País de Origem'
-          : 'Exibir campos: Cidade de Destino, Estado ou Província de Destino e País de Destino',
+          ? 'Exibir campos: cidade, estado/província e país de origem para cotações de coleta na origem'
+          : 'Exibir campos: cidade, estado/província e país de destino para cotações de coleta',
     },
   )
 }
@@ -228,18 +291,32 @@ export function traduzirFraseExibirCamposLocalizacao(
 export function traduzirFraseOpcaoPortoAeroportoLocalizacao(
   t: TFunction,
   lado: LadoLocalizacaoWizard,
+  tipo: 'aeroporto' | 'porto',
 ): string {
-  return t(
-    lado === 'origem'
-      ? 'bidfrete.nova_cotacao.opcao_porto_aeroporto_origem'
-      : 'bidfrete.nova_cotacao.opcao_porto_aeroporto_destino',
-    {
-      defaultValue:
-        lado === 'origem'
-          ? 'Incluir mais opções para Porto/Aeroporto de Origem'
-          : 'Incluir mais opções para Porto/Aeroporto de Destino',
+  const keys: Record<LadoLocalizacaoWizard, Record<typeof tipo, { key: string; defaultValue: string }>> = {
+    origem: {
+      porto: {
+        key: 'bidfrete.nova_cotacao.opcao_porto_origem',
+        defaultValue: 'Autorizar cotações em outros portos próximos à origem preferencial',
+      },
+      aeroporto: {
+        key: 'bidfrete.nova_cotacao.opcao_aeroporto_origem',
+        defaultValue: 'Autorizar cotações em outros aeroportos próximos à origem preferencial',
+      },
     },
-  )
+    destino: {
+      porto: {
+        key: 'bidfrete.nova_cotacao.opcao_porto_destino',
+        defaultValue: 'Autorizar cotações em outros portos próximos ao destino preferencial',
+      },
+      aeroporto: {
+        key: 'bidfrete.nova_cotacao.opcao_aeroporto_destino',
+        defaultValue: 'Autorizar cotações em outros aeroportos próximos ao destino preferencial',
+      },
+    },
+  }
+  const { key, defaultValue } = keys[lado][tipo]
+  return t(key, { defaultValue })
 }
 
 export function traduzirLegendaOpcaoPortoAeroportoLocalizacao(
@@ -252,21 +329,24 @@ export function traduzirLegendaOpcaoPortoAeroportoLocalizacao(
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_opcao_porto_origem',
         defaultValue:
-          'Além do porto principal, aceito cotações para outros portos próximos (ex.: Navegantes, São Francisco do Sul).',
+          'Selecione portos próximos que você aceita na proposta, além do porto de preferência acima.',
       },
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_opcao_aeroporto_origem',
-        defaultValue: 'Além do aeroporto principal, aceito cotações para outros aeroportos próximos.',
+        defaultValue:
+          'Selecione aeroportos próximos que você aceita na proposta, além do aeroporto de preferência acima.',
       },
     },
     destino: {
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_opcao_porto_destino',
-        defaultValue: 'Além do porto principal, aceito cotações para outros portos próximos.',
+        defaultValue:
+          'Selecione portos próximos que você aceita na proposta, além do porto de preferência acima.',
       },
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_opcao_aeroporto_destino',
-        defaultValue: 'Além do aeroporto principal, aceito cotações para outros aeroportos próximos.',
+        defaultValue:
+          'Selecione aeroportos próximos que você aceita na proposta, além do aeroporto de preferência acima.',
       },
     },
   }
@@ -281,12 +361,12 @@ export function traduzirCampoLocaisOpcionaisLocalizacao(
 ): string {
   const keys: Record<LadoLocalizacaoWizard, Record<typeof tipo, { key: string; defaultValue: string }>> = {
     origem: {
-      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_origem', defaultValue: 'PORTOS ALTERNATIVOS ACEITOS' },
-      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_origem', defaultValue: 'AEROPORTOS ALTERNATIVOS ACEITOS' },
+      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_origem', defaultValue: 'PORTOS ADICIONAIS PARA COTAÇÃO' },
+      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_origem', defaultValue: 'AEROPORTOS ADICIONAIS PARA COTAÇÃO' },
     },
     destino: {
-      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_destino', defaultValue: 'PORTOS ALTERNATIVOS ACEITOS' },
-      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_destino', defaultValue: 'AEROPORTOS ALTERNATIVOS ACEITOS' },
+      porto: { key: 'bidfrete.nova_cotacao.campo_portos_opcionais_destino', defaultValue: 'PORTOS ADICIONAIS PARA COTAÇÃO' },
+      aeroporto: { key: 'bidfrete.nova_cotacao.campo_aeroportos_opcionais_destino', defaultValue: 'AEROPORTOS ADICIONAIS PARA COTAÇÃO' },
     },
   }
   const { key, defaultValue } = keys[lado][tipo]
@@ -302,13 +382,11 @@ export function traduzirLegendaLocalizacaoNovaCotacao(
     origem: {
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_origem_aeroporto',
-        defaultValue:
-          'Informe o aeroporto de partida. Marque a opção abaixo se precisar complementar endereço ou país.',
+        defaultValue: 'Selecione o aeroporto de partida de preferência',
       },
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_origem_porto',
-        defaultValue:
-          'Informe o porto de embarque. Marque a opção abaixo se precisar complementar endereço ou país.',
+        defaultValue: 'Selecione o porto de embarque de preferência',
       },
       rodoviario: {
         key: 'bidfrete.nova_cotacao.legenda_origem_rodoviario',
@@ -318,13 +396,11 @@ export function traduzirLegendaLocalizacaoNovaCotacao(
     destino: {
       aeroporto: {
         key: 'bidfrete.nova_cotacao.legenda_destino_aeroporto',
-        defaultValue:
-          'Informe o aeroporto de chegada. Marque a opção abaixo se precisar complementar endereço ou país.',
+        defaultValue: 'Selecione o aeroporto de destino de preferência',
       },
       porto: {
         key: 'bidfrete.nova_cotacao.legenda_destino_porto',
-        defaultValue:
-          'Informe o porto de destino. Marque a opção abaixo se precisar complementar endereço ou país.',
+        defaultValue: 'Selecione o porto de destino de preferência',
       },
       rodoviario: {
         key: 'bidfrete.nova_cotacao.legenda_destino_rodoviario',

@@ -9,6 +9,17 @@ import type { ModalRotaCotacao } from './rota-cotacao-bid-frete-internacional.js
 const ROTULOS_MODAL = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modal_cotacao_bid_frete_internacional ?? {}
 const ROTULOS_MODALIDADE = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modalidade_cotacao_bid_frete_internacional ?? {}
 
+const ROTULOS_EMBALAGEM: Readonly<Record<string, string>> = {
+  UNIDADE: 'Unidade (UN)',
+  CAIXA: 'Caixa',
+  PALLET: 'Palete / Pallet',
+  VOLUME: 'Volume',
+  FARDO: 'Fardo',
+  SACO: 'Saco / Bag',
+  TAMBOR: 'Tambor',
+  BIG_BAG: 'Big Bag',
+}
+
 const COR_INDIGO = '#4F46E5'
 const COR_TEXTO = '#0f172a'
 const COR_MUTED = '#64748b'
@@ -18,6 +29,7 @@ const COR_FUNDO = '#f8fafc'
 export interface ParametrosEmailDisparoBidFreteInternacional {
   nomeFornecedor: string
   numeroCotacao: string
+  referenciaInterna?: string | null
   modal: string
   modalidade?: string | null
   origemNome: string
@@ -27,11 +39,17 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   opcoesOrigemTexto?: string | null
   opcoesDestinoTexto?: string | null
   mercadoria: string
+  ncm?: string | null
+  hsCode?: string | null
   incoterm: string
   tipoContainer?: string | null
   quantidade?: number | null
   pesoKg?: number | null
+  pesoTon?: number | null
   cubagemM3?: number | null
+  dimensoesCubagemTexto?: string | null
+  cargaPerigosaTexto?: string | null
+  incluirArmazenagem?: boolean | null
   dataLimiteResposta?: string | null
   dataExpiracaoToken?: string | Date | null
   nomeClienteOperacao?: string | null
@@ -69,6 +87,8 @@ export function rotuloCampoVolumeEmailDisparoBidFrete(modal: string): string {
 
 function rotuloTipoVolumeEmailDisparo(modal: string, tipo: string | null | undefined): string {
   if (!tipo?.trim()) return '—'
+  const codigo = tipo.trim().toUpperCase()
+  if (ROTULOS_EMBALAGEM[codigo]) return ROTULOS_EMBALAGEM[codigo]
   return tipo.trim()
 }
 
@@ -104,6 +124,42 @@ export function formatarResumoCargaEmailDisparoBidFrete(params: {
     partes.push(`${params.cubagemM3.toLocaleString('pt-BR')} m³`)
   }
   return partes.length > 0 ? partes.join(' · ') : '—'
+}
+
+/** "120 × 100 × 90 cm" — só quando as 3 dimensões foram preenchidas. */
+export function formatarDimensoesCubagemEmailDisparoBidFrete(params: {
+  comprimento?: number | null
+  largura?: number | null
+  altura?: number | null
+  codigoUnidade?: string | null
+}): string | null {
+  const { comprimento, largura, altura } = params
+  if (comprimento == null || largura == null || altura == null) return null
+  if (comprimento <= 0 || largura <= 0 || altura <= 0) return null
+  const unidade = params.codigoUnidade?.trim().toLowerCase() || 'm'
+  const fmt = (v: number) => v.toLocaleString('pt-BR')
+  return `${fmt(comprimento)} × ${fmt(largura)} × ${fmt(altura)} ${unidade}`
+}
+
+/** "UN 1263 · Tintas · Classe 3 · Divisão 1.4 · GE II · obs" — null quando não é carga perigosa. */
+export function formatarCargaPerigosaEmailDisparoBidFrete(params: {
+  ehCargaPerigosa?: boolean | null
+  numeroOnu?: string | null
+  nomeTecnicoEmbarque?: string | null
+  classe?: number | null
+  divisao?: string | null
+  grupoEmbalagem?: string | null
+  observacoes?: string | null
+}): string | null {
+  if (!params.ehCargaPerigosa) return null
+  const partes: string[] = []
+  if (params.numeroOnu?.trim()) partes.push(`UN ${params.numeroOnu.trim()}`)
+  if (params.nomeTecnicoEmbarque?.trim()) partes.push(params.nomeTecnicoEmbarque.trim())
+  if (params.classe != null) partes.push(`Classe ${params.classe}`)
+  if (params.divisao?.trim()) partes.push(`Divisão ${params.divisao.trim()}`)
+  if (params.grupoEmbalagem?.trim()) partes.push(`GE ${params.grupoEmbalagem.trim()}`)
+  if (params.observacoes?.trim()) partes.push(params.observacoes.trim())
+  return partes.length > 0 ? `Sim — ${partes.join(' · ')}` : 'Sim'
 }
 
 export function formatarDataEmailDisparoBidFrete(
@@ -200,8 +256,13 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
   const prazoResposta = formatarDataEmailDisparoBidFrete(params.dataLimiteResposta)
   const validadeLink = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
-  const linhas: Array<[string, string]> = [
-    ['Número', params.numeroCotacao],
+  const linhas: Array<[string, string]> = [['Número', params.numeroCotacao]]
+
+  if (params.referenciaInterna?.trim()) {
+    linhas.push(['Referência interna', params.referenciaInterna.trim()])
+  }
+
+  linhas.push(
     ['Rota', formatarRotaEmailDisparoBidFrete(
       params.origemNome,
       params.origemPais,
@@ -211,10 +272,28 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
     ['Modal', formatarModalExibicaoEmailDisparoBidFrete(params.modal, params.modalidade)],
     ['Incoterm', params.incoterm.trim() || '—'],
     ['Carga', resumoCarga],
-  ]
+  )
 
   if (linhaVolume) {
     linhas.push([rotuloCampoVolumeEmailDisparoBidFrete(params.modal), linhaVolume])
+  }
+  if (params.ncm?.trim()) {
+    linhas.push(['NCM', params.ncm.trim()])
+  }
+  if (params.hsCode?.trim()) {
+    linhas.push(['HS Code', params.hsCode.trim()])
+  }
+  if (params.pesoTon != null && params.pesoTon > 0) {
+    linhas.push(['Peso (ton)', `${params.pesoTon.toLocaleString('pt-BR')} t`])
+  }
+  if (params.dimensoesCubagemTexto?.trim()) {
+    linhas.push(['Dimensões (C × L × A)', params.dimensoesCubagemTexto.trim()])
+  }
+  if (params.cargaPerigosaTexto?.trim()) {
+    linhas.push(['Carga perigosa', params.cargaPerigosaTexto.trim()])
+  }
+  if (params.incluirArmazenagem) {
+    linhas.push(['Armazenagem', 'Incluir armazenagem na cotação'])
   }
   if (params.opcoesOrigemTexto?.trim()) {
     linhas.push(['Alternativas (origem)', params.opcoesOrigemTexto.trim()])

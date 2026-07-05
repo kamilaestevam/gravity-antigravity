@@ -40,9 +40,11 @@ Se `total > itens.length`, o client emite `console.warn` `[catalogo-aeroportos] 
 
 ---
 
-## Atualização 2026-07-05 — TASK-000415: sem filtro de país nos selects do wizard
+## Atualização 2026-07-05 — paginação + busca remota no modal Nova Cotação
 
-Os selects de porto/aeroporto de origem/destino no wizard Nova Cotação **não** enviam `?pais=` — o catálogo consultado é sempre o global (ver modal §8). O parâmetro `pais` permanece disponível na API para outros consumidores (lista, importação) que precisem filtrar explicitamente.
+Os selects do wizard **não** carregam mais o catálogo inteiro de uma vez: usam paginação por `offset` (100 por página no scroll) e busca remota no banco completo (150 resultados). SSOT: `shared/limites-catalogo-logistica-bid-frete-internacional.ts` + hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`. Rotas do Cadastros (`portos.ts`, `aeroportos.ts`) e proxies BID aceitam `offset` e devolvem `total`. Detalhes: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
+
+**Portos:** mesmo hook paginado e mesmas rotas (`dados-mestre/portos?tipo=porto`). **TASK-000415:** selects de origem/destino no wizard **não** enviam `?pais=` — catálogo sempre global (ver modal §8.2). O parâmetro `pais` permanece disponível na API para outros consumidores (lista, importação) que precisem filtrar explicitamente.
 
 ---
 

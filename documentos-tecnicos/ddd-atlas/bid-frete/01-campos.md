@@ -111,7 +111,12 @@ Cada model possui duas tabelas:
 | quantidade | quantidade_volume_cotacao_bid_frete_internacional | Int @default(1) | REGRA 01 | Campo generico `quantidade` -> sufixo entidade |
 | tipo_container | tipo_container_cotacao_bid_frete_internacional | String? | REGRA 01 | Campo generico -> sufixo entidade |
 | peso_kg | peso_kg_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade |
-| cubagem_m3 | cubagem_m3_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade |
+| peso_ton | peso_ton_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade |
+| codigo_unidade_cubagem | codigo_unidade_cubagem_cotacao_bid_frete_internacional | String? | REGRA 01, Cadastros SSOT | Sigla `codigo_unidade` Cadastros/unidade (`tipo_unidade=comprimento`) |
+| comprimento_cubagem | comprimento_cubagem_cotacao_bid_frete_internacional | Float? | REGRA 01 | Dimensão na unidade selecionada |
+| largura_cubagem | largura_cubagem_cotacao_bid_frete_internacional | Float? | REGRA 01 | Dimensão na unidade selecionada |
+| altura_cubagem | altura_cubagem_cotacao_bid_frete_internacional | Float? | REGRA 01 | Dimensão na unidade selecionada |
+| cubagem_m3 | cubagem_m3_cotacao_bid_frete_internacional | Float? | REGRA 01 | Campo generico -> sufixo entidade; total em m³ |
 | incoterm | incoterm_cotacao_bid_frete_internacional | String | REGRA 01 | Campo generico `incoterm` -> sufixo entidade |
 | zip_code_origem | zipcode_origem_cotacao_bid_frete_internacional | String? | REGRA 01, REGRA 02 | Generico -> sufixo; underscore removido; dono decidiu manter `zipcode` |
 | zip_code_destino | zipcode_destino_cotacao_bid_frete_internacional | String? | REGRA 01, REGRA 02 | Generico -> sufixo; underscore removido; dono decidiu manter `zipcode` |

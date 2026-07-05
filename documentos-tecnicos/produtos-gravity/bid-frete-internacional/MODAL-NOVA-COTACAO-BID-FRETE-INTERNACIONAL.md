@@ -12,10 +12,6 @@
 |----------|---------|
 | Modal wizard (5 passos) | `servicos-global/produto/bid-frete-internacional/client/src/pages/modal-nova-cotacao-bid-frete-internacional.tsx` |
 | Seleção fornecedores + disparo | `servicos-global/produto/bid-frete-internacional/client/src/pages/selecao-fornecedores-disparo-bid-frete-internacional.tsx` |
-| Elegibilidade disparo × modal (SSOT) | `servicos-global/produto/bid-frete-internacional/shared/fornecedor-elegivel-disparo-bid-frete-internacional.ts` |
-| Filtro client por modal | `servicos-global/produto/bid-frete-internacional/client/src/shared/filtrar-fornecedores-disparo-bid-frete-internacional.ts` |
-| Filtro server + motor | `server/src/services/filtrar-fornecedores-disparo-bid-frete-internacional.ts`, `motor-bid-frete-internacional.ts` |
-| Schema Zod fornecedor (flags Cadastros) | `shared/fornecedor-bid-frete-internacional-api-schema.ts` |
 | API client | `servicos-global/produto/bid-frete-internacional/client/src/shared/api.ts` |
 | POST cotação + disparo | `servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes.ts` |
 
@@ -24,55 +20,17 @@
 
 **Carga perigosa (DG):** ver [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) — passo 1 (toggle) + passo 3 (combo ONU).
 
-### 2.1 Passo 1 — Nº da cotação (TASK-000407)
-
-| Item | Valor |
-|------|-------|
-| Campo UI | Primeiro bloco do passo 1 — `form.numero_cotacao_bid_frete_internacional` |
-| Geração inicial | `gerarNumeroCotacaoFreteInternacional()` em `shared/numeracao-bid-frete-internacional.ts` (prefixo `COT-YYYYMMDD-NNNN`) |
-| Tipografia | Mesma fonte dos demais `.nc-input` do wizard (`font-family: inherit`) — **não** usar mono no input |
-| Validação client | `canNext()` exige texto não vazio após trim |
-| POST | `numero_cotacao_bid_frete_internacional` opcional no body; servidor usa valor informado ou gera novo |
-| Zod server | `CriarCotacaoSchemaBase` — `z.string().min(1).max(64).optional()` |
-
 ---
 
 ## 2. Wizard — 5 passos
 
 | # | Passo | Conteúdo principal |
 |---|-------|-------------------|
-| 1 | Modal e Operação | **Nº da cotação** (auto-gerado, editável), tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
-| 2 | Origem e Destino | Porto/aeroporto principal + **alternativas opcionais** (multi-select Cadastros) — §2.1 |
-| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, incoterm + helper card |
+| 1 | Modal e Operação | Tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
+| 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
+| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, **peso + dimensões de cubagem**, incoterm + helper card, **valor alvo + moeda** (movidos do passo 5) |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
-| 5 | Resumo | Valor alvo, moeda (SSOT Cadastros), receipt da rota + **listas de portos/aeroportos opcionais** — §2.1 |
-
-### 2.1 Portos/Aeroportos alternativos (opcionais)
-
-Toggle por lado (origem/destino) no passo **Origem e Destino**. Quando habilitado, multi-select busca catálogo global de portos (marítimo) ou aeroportos (aéreo) via Cadastros.
-
-| Campo Prisma (cotação) | Tipo | Uso |
-|------------------------|------|-----|
-| `habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional` | Boolean | Liga alternativas na origem |
-| `codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional` | JSONB `string[]` \| null | Códigos UN/LOCODE ou IATA |
-| `habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional` | Boolean | Liga alternativas no destino |
-| `codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional` | JSONB `string[]` \| null | Idem destino |
-
-**SSOT regras:** `shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.ts` — parse persistência, elegíveis para fornecedor (principal + opcionais), textos de exibição.
-
-**UI comprador:**
-
-| Tela | Peça | Comportamento |
-|------|------|---------------|
-| Passo 2 | `modal-nova-cotacao-bid-frete-internacional.tsx` | Toggle + multi-select |
-| Passo 5 Resumo | idem | Linhas «Portos/Aeroportos de Origem/Destino opcionais: x, y, z» (`.nc-receipt-details--locais-opcionais`) |
-| Detalhe cotação | `cotacao-detalhe.tsx` card **Rota** | `InfoRow` com mesmos rótulos |
-
-**Hooks client:** `client/src/shared/locais-opcionais-cotacao-bid-frete-internacional.ts` — `useTextosLocaisOpcionaisCotacaoBidFrete`, `useResolverRotuloLocalLogisticoCotacaoBidFrete`.
-
-**API:** `POST`/`PATCH /cotacoes` aceitam os quatro campos; Zod + `refinamentoOpcoesPortoAeroportoCotacao` exige ≥1 código quando toggle ligado.
-
-**Fornecedor (resposta):** quando há opcionais, o agente **deve** escolher qual local usa — ver [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais.
+| 5 | Resumo | Receipt visual da rota + detalhes (valor alvo/moeda ficam no passo 3) |
 
 ---
 
@@ -115,29 +73,6 @@ getFornecedores({ limit: 200, status: 'ATIVO' })
 Motivo: alimentar preview (Aberta) e lista de checkboxes (Direcionada).
 
 **Loading:** enquanto `carregando === true`, `GravityLoader` (`CarregandoFornecedoresDisparo`) abaixo dos canais — Aberta e Direcionada.
-
-### 3.5 Elegibilidade por modal e tipo de parceiro (Cadastros)
-
-A lista do passo 4 **não** usa a permissão RBAC `visao_fornecedor:cotar` (“Pode cotar frete internacional”). Essa permissão governa o **usuário fornecedor** (visão fornecedor, HUB, responder cotações) — ver [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md). O wizard do **comprador** filtra parceiros pelas flags `pode_ser_*` do Cadastros e pelo `modal_cotacao_bid_frete_internacional` escolhido no passo 1.
-
-**SSOT da regra:** `shared/fornecedor-elegivel-disparo-bid-frete-internacional.ts` (consumido no client, `POST /cotacoes` e motor de disparo).
-
-| Flag Cadastros / tipo | Marítimo / Aéreo | Rodoviário |
-|----------------------|------------------|------------|
-| Agente de carga | Sim | Sim |
-| Armador | Sim | Sim |
-| Cia aérea | Sim | Sim |
-| Transportadora rodoviária **internacional** | **Não** | Sim |
-| Transportadora rodoviária **nacional** | **Não** | **Não** |
-| Nacional **+** internacional | Não | Sim (internacional prevalece) |
-
-**Client:** `filtrarFornecedoresDisparoBidFreteInternacional()` após `getFornecedores`; seleção e exclusões resetam ao trocar modal.
-
-**GET /fornecedores:** inclui as cinco flags booleanas quando a lista vem do espelho Cadastros (`mapCadastrosParaBidFornecedor`). Contrato Zod: `shared/fornecedor-bid-frete-internacional-api-schema.ts`.
-
-**Server:** `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` no `POST /cotacoes` (Direcionada e Aberta com subset) e revalidação no `motorBid.disparar` / `dispararCotacaoAberta`. A lista admin de fornecedores **não** aplica este filtro.
-
-**Testes:** UNI `fornecedor-elegivel-disparo-bid-frete-internacional.test.ts`; FUN `TST-FUN-BIDFRT-000121`.
 
 ---
 
@@ -188,7 +123,6 @@ export async function criarCotacaoComDisparo(input): Promise<{
   cotacao: Cotacao
   disparo: { disparos: number; enviados?: boolean; message?: string } | null
   disparo_erro: string | null
-  disparo_pendente: boolean // true → backend disparou em background; client faz polling
 }>
 ```
 
@@ -198,7 +132,6 @@ export async function criarCotacaoComDisparo(input): Promise<{
 
 ```ts
 {
-  numero_cotacao_bid_frete_internacional?: string, // opcional — wizard passo 1; omitido → servidor gera COT-*
   visibilidade_cotacao_bid_frete_internacional: 'ABERTA' | 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: boolean,
   data_limite_resposta_cotacao_bid_frete_internacional?: string, // ISO
@@ -208,41 +141,24 @@ export async function criarCotacaoComDisparo(input): Promise<{
 }
 ```
 
-### 5.3 Feedback honesto no modal (REGRA 08 — PRs #627/#632)
+### 5.3 Feedback no modal (REGRA 08)
 
-A UI **nunca afirma envio que o banco não confirmou**. Sem `alert()` nativo — só `addNotification` + banner no modal.
+Se `disparar_ao_criar` era intencional e:
 
-Fluxo pós-201 com `disparo_pendente: true`:
+- `disparo_erro` presente → `alert` com mensagem de falha (cotação já persistida)
+- `disparo.disparos === 0` → `alert` orientando verificar fornecedores
 
-1. Banner amarelo *"Cotação salva — confirmando envio"* (tipo `aguardando`)
-2. Polling `aguardarConfirmacaoDisparoCotacao` (`client/src/shared/aguardar-confirmacao-disparo-bid-frete-internacional.ts`): `GET /cotacoes/:id` a cada 2s, máx. 45s, até todos os disparos saírem de `PENDENTE`. **Nunca lança** — 502/timeout de rede são retentados (`falhasConsulta`)
-3. Resultado final por status real no banco:
-   - todos `ENVIADO` → verde *"X de Y entregues"* (`sucesso`)
-   - mistura → amarelo (`parcial`), com nomes e primeiro erro
-   - todos `ERRO_ENVIO` → vermelho com `erro_envio_...` (`erro`)
-   - timeout ainda `PENDENTE` → vermelho *"Envio não confirmado"* (`nao_confirmado`)
+### 5.4 Backend
 
-Se o `catch` do submit rodar **após** a cotação salva (ex.: falha do polling), o modal de sucesso permanece e o feedback vira `nao_confirmado` — nunca a mensagem "Erro ao criar cotação".
-
-Helpers: `formatarFeedbackDisparoBidFrete`, `tipoNotificacaoFeedbackDisparo`, `corBordaFeedbackDisparo` (`shared/formatar-resultado-disparo-bid-frete-internacional.ts`).
-
-### 5.4 Backend — disparo assíncrono pós-201 (PRs #622–#624/#632)
-
-`POST /api/v1/bid-frete-internacional/cotacoes` com `disparar_ao_criar` responde **antes** do envio (Resend pode exceder o timeout HTTP do Railway ~30s):
+`POST /api/v1/bid-frete-internacional/cotacoes` retorna:
 
 ```json
-{ "cotacao": { ... }, "disparo": null, "disparo_pendente": true }
+{ "cotacao": { ... }, "disparo": { "disparos": N }, "disparo_erro": "..." }
 ```
 
-- Job em background agendado em `res.on('finish')` **e** `res.on('close')` (idempotente) com Prisma dedicado `withTenantIsolation(basePrisma, tenantId)`
-- Motor marca cada disparo `PENDENTE → ENVIADO | ERRO_ENVIO`; e-mail via sidecar `127.0.0.1:8008` (`BID_FRETE_SIDECAR=1`), timeout 25s + `Promise.race`
-- **Watchdog pós-job:** qualquer disparo da cotação ainda `PENDENTE` ao final vira `ERRO_ENVIO` com mensagem diagnóstica — nenhum registro fica pendente para sempre
-- **Cron (5 min) roda TAMBÉM em sidecar** (`startCronJobs()` incondicional no `index.ts` — era o bug local×prod do #632): reenvia `PENDENTE` entre 2min e 24h; `PENDENTE` >24h vira `ERRO_ENVIO` **sem reenvio** (evita rajada de e-mails velhos)
-- Logs Railway: prefixo `[disparo-bg]` (iniciando/concluído/watchdog)
+Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts`.
 
-Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts` + `tarefas-agendadas.ts`.
-
-**ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` + `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` (modal) no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta` (também filtra por modal no motor).
+**ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta`.
 
 ### 5.5 Resolução de contatos (multi destinatário — PR #338)
 
@@ -301,15 +217,62 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
 | #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
 | #338 | 2026-06-15 | Multi-e-mail/WhatsApp no disparo; resolução Cadastros `fornecedor_contato`; feedback agregado por fornecedor |
-| TASK-000405 | 2026-07-04 | Portos/aeroportos alternativos opcionais (passo 2, resumo, detalhe Rota, seleção fornecedor) — §2.1 |
-| — | 2026-07-03 | Elegibilidade disparo × modal/tipo (flags Cadastros); Zod flags em GET fornecedores; FUN TST-000121 |
-| #622–#624 | 2026-07-03 | Disparo assíncrono pós-201 (`disparo_pendente`); Prisma dedicado no background; timeout 25s; e-mail força sidecar `127.0.0.1:8008` |
-| #627 | 2026-07-03 | Feedback honesto: polling resiliente (não lança em 502), sem `alert()` nativo, `nao_confirmado` em timeout |
-| #632 | 2026-07-04 | **Root cause prod:** cron não rodava em sidecar (`if (!BID_FRETE_SIDECAR)`); cron incondicional + watchdog PENDENTE→ERRO_ENVIO + limpeza >24h sem reenvio + logs `[disparo-bg]` |
 
 ---
 
-## 8. Passo 2 — Sem filtro de país nos selects de porto/aeroporto (TASK-000415)
+## 8. Passo 3 — Peso e cubagem (dimensões)
+
+Subseção **Peso e cubagem** no passo 3 (`modal-nova-cotacao-bid-frete-internacional.tsx`):
+
+**Layout padrão (colapsado):** PESO (KG/TON) → **Field** com ícone Package + título «Incluir cubagem detalhada» e checkbox com frase descritiva → **CUBAGEM (M³)** (sempre o último campo).
+
+**Painel expandido (checkbox marcado):** card `.nc-cargo-cubagem-detalhe-panel` com unidade + comprimento/largura/altura em grid 3 colunas. Ao desmarcar, dimensões são limpas no form e **não** vão no `POST`.
+
+| Campo DDD | UI | SSOT / notas |
+|-----------|-----|--------------|
+| `peso_kg_cotacao_bid_frete_internacional` | PESO (KG) | Opcional; sincroniza com TON |
+| `peso_ton_cotacao_bid_frete_internacional` | PESO (TON) | Opcional; sincroniza com KG |
+| — | Checkbox cubagem detalhada | `exibir_cubagem_detalhada_cotacao` — **somente wizard** (boolean) |
+| `codigo_unidade_cubagem_cotacao_bid_frete_internacional` | Medida da cubagem | Painel detalhado — Select Cadastros `tipo_unidade=comprimento` |
+| `comprimento_cubagem_cotacao_bid_frete_internacional` | Comprimento | Painel detalhado |
+| `largura_cubagem_cotacao_bid_frete_internacional` | Largura | Painel detalhado |
+| `altura_cubagem_cotacao_bid_frete_internacional` | Altura | Painel detalhado |
+| `cubagem_m3_cotacao_bid_frete_internacional` | CUBAGEM (M³) | Último campo; manual ou auto-calculado |
+
+**Auto-cálculo (por modal):** quando unidade + comprimento + largura + altura estão preenchidos, `cubagem_m3_*` é recalculado por `calcularCubagemAutoDimensoesPorModalBidFreteInternacional` (`shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional.ts`):
+
+- **AÉREO + unidade CM** → `(C × L × A em cm) ÷ 6000` (fator IATA — constante `DIVISOR_PESO_CUBADO_AEREO_CM_BID`).
+- **Marítimo, rodoviário, ou aéreo em outra unidade** → C×L×A convertido para m³ (comportamento original).
+- Trocar o **modal do frete** com dimensões já preenchidas também recalcula (`recalcularCubagemAutoPorModal` envolve os `setForm` dos 3 OptionButtons de modal).
+
+**Unidade preferencial:** ao marcar «Incluir cubagem detalhada», `codigo_unidade_cubagem_*` vem pré-selecionado em **CM** (preferencial, não obrigatório — usuário pode trocar).
+
+Alterar dimensões/unidade sobrescreve o total; editar m³ diretamente permanece válido até a próxima mudança nas dimensões. migration `20260705130000_add_dimensoes_cubagem_cotacao_bid_frete_internacional` — colunas físicas adjacentes a `cubagem_m3_*` (ordem: unidade → C → L → A → m³).  
+**Cadastros:** unidades `IN` (Polegada) e `FT` (Pé) em `unidades-canonicas.ts` + migration `20260705120000_add_unidades_comprimento_in_ft`.  
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/calcular-cubagem-m3-dimensoes-bid-frete-internacional.test.ts` (inclui casos AÉREO÷6000 e marítimo/rodoviário com CM).
+
+Hook: `client/src/shared/use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts`
+
+---
+
+## 8.1 Passo 2 — Catálogo de portos/aeroportos paginado com busca remota
+
+Os selects de porto/aeroporto (origem, destino e **locais adicionais aceitos**) exibem **todo o catálogo ativo do Cadastros**, paginado no scroll e com busca remota no banco inteiro:
+
+| Peça | Caminho |
+|------|---------|
+| Limites (SSOT) | `shared/limites-catalogo-logistica-bid-frete-internacional.ts` — página 100, busca 150, debounce, mín. 2 chars |
+| Hook paginado | `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts` (`usePortosPorPais`, `useAeroportosPorPais` re-exportados por `useCadastrosLogistica.ts`) |
+| API client | `client/src/shared/cadastrosApi.ts` — `offset` + `total` no Zod |
+| Proxy BID | `server/src/routes/portos.ts`, `aeroportos.ts` — repassam `offset` e devolvem `total` |
+| Cadastros | `servicos-global/cadastros/server/src/routes/portos.ts`, `aeroportos.ts` — `skip`/`take` no `findMany` |
+| SelectGlobal | props novas `buscaRemota`, `aoMudarBusca`, `aoScrollFimLista`, `totalOpcoesCatalogo`, `mensagemListaVazia` (nucleo-global — autorizado pelo dono) |
+
+Comportamento: scroll ao fim da lista carrega +100; digitar ≥2 caracteres consulta o catálogo completo no servidor (até 150 resultados); rodapé exibe «Mostrando X de Y». **Locais adicionais aceitos** usam o padrão de linhas com botão «Adicionar» (mesmo padrão dos containers FCL).
+
+> Dados: em 2026-07-05 todos os portos do Cadastros foram ativados (`ativo_porto = true`, script `servicos-global/cadastros/scripts/ativar-todos-portos.ts`) — antes só 267 de 16.934 apareciam.
+
+### 8.2 Sem filtro de país nos selects (TASK-000415)
 
 Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino** recebem sempre `codigoPais = ''` (catálogo global). O valor de `origem_pais_cotacao_bid_frete_internacional` / `destino_pais_cotacao_bid_frete_internacional` **não** é repassado como query `?pais=` na API.
 
@@ -321,7 +284,13 @@ Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino
 
 **Regra:** o país do formulário é preenchido **depois** da seleção do porto/aeroporto (snapshot para persistência), mas não restringe o dropdown. Commit de referência: `fc6c8426d` (`manual-gravity-8001`).
 
-### 8.1 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
+### 8.3 Pin dos locais adicionais aceitos ao navegar entre passos (2026-07-05)
+
+**Bug:** ao avançar até o Resumo e voltar ao passo Origem e Destino, os selects de **Locais adicionais aceitos** apareciam vazios («Selecione o porto...») mesmo com os códigos preservados no `form` — o rótulo dependia de memória local do componente (que morre no unmount do passo) e a primeira página do catálogo paginado raramente contém o código selecionado.
+
+**Correção:** o hook `useSelectCatalogoLogisticaCadastros...` ganhou o parâmetro `codigosSelecionados?: string[]` (plural), com o mesmo mecanismo de pin do `codigoSelecionado` principal: cada código ausente do catálogo em memória é garantido via `garantirSelecionado` (busca `?q=<código>`) e fixado num `Map` código→item, prependado em toda troca de página/busca. O modal passa a união `origem + destino` dos códigos de locais adicionais aos hooks `usePortosPorPais`/`useAeroportosPorPais` «alternativos». A chave de efeito é a string ordenada `join('|')` dos códigos — evita refetch quando o array é recriado com o mesmo conteúdo.
+
+### 8.4 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
 
 Na gravação (POST/PATCH de cotação), o server deriva o snapshot de rota a partir de uma página do catálogo do Cadastros (`carregar-contexto-catalogo-rota-bid-frete-internacional.ts`). Como o Cadastros tem mais portos ativos que o limite da página, um porto fora da página faria o snapshot cair no fallback «nome = código» e reprovar na validação (ex.: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)`). A função `garantirTerminaisRotaNoContextoCatalogo` resolve cada código de origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto quando ausente — o snapshot nunca depende do tamanho ou da ordenação do catálogo.
 
@@ -331,6 +300,7 @@ Na gravação (POST/PATCH de cotação), o server deriva o snapshot de rota a pa
 
 | Item | Mandamento / skill |
 |------|-------------------|
+| Zod parse na lista `getFornecedores` | Mandamento 06 |
 | Chaves i18n em `nucleo-global/Utilidades/Localization/locales/pt.json` | `skills/arquitetura/traducao` |
 | `aria-expanded` / `aria-controls` no toggle de notas | `skills/ux/acessibilidade` |
 | Plano de testes UNI/FUN/E2E da tela Nova Cotação | Fechamento da tela — `skills/testes/multi-agente-plano-teste` |

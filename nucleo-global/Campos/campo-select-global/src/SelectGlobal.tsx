@@ -142,6 +142,12 @@ export function SelectGlobal({
   aoMudarValores,
   multiplo = false,
   buscavel = true,
+  buscaRemota = false,
+  aoMudarBusca,
+  aoScrollFimLista,
+  limiteOpcoesRenderizadas,
+  totalOpcoesCatalogo,
+  mensagemListaVazia,
   placeholder = 'Selecionar...',
   desabilitado = false,
   carregando = false,
@@ -230,7 +236,20 @@ export function SelectGlobal({
     if (aberto && buscavel) {
       setTimeout(() => buscaRef.current?.focus(), 50)
     }
-  }, [aberto, buscavel])
+    if (aberto && buscaRemota) {
+      aoMudarBusca?.('')
+    }
+  }, [aberto, buscavel, buscaRemota, aoMudarBusca])
+
+  const handleBuscaInput = useCallback(
+    (valor: string) => {
+      setBusca(valor)
+      if (buscaRemota) {
+        aoMudarBusca?.(valor)
+      }
+    },
+    [buscaRemota, aoMudarBusca],
+  )
 
   // ─── Opções planas (flatten grupos) ──────────────────────────────────────
 
@@ -249,14 +268,44 @@ export function SelectGlobal({
     const semVazias = todasOpcoes.filter(
       (op) => op.valor !== '' && op.valor != null
     )
-    if (!busca.trim()) return semVazias
+    if (buscaRemota || !busca.trim()) return semVazias
     const termo = busca.trim().toLowerCase()
     return semVazias.filter(
       (op) =>
         op.rotulo.toLowerCase().includes(termo) ||
         op.descricao?.toLowerCase().includes(termo)
     )
-  }, [todasOpcoes, busca])
+  }, [todasOpcoes, busca, buscaRemota])
+
+  const opcoesParaRender = useMemo(() => {
+    if (buscaRemota) return opcoesFiltradas
+    if (!limiteOpcoesRenderizadas || limiteOpcoesRenderizadas <= 0) {
+      return opcoesFiltradas
+    }
+    return opcoesFiltradas.slice(0, limiteOpcoesRenderizadas)
+  }, [opcoesFiltradas, limiteOpcoesRenderizadas, buscaRemota])
+
+  const haMaisOpcoesRender =
+    !buscaRemota &&
+    limiteOpcoesRenderizadas != null &&
+    limiteOpcoesRenderizadas > 0 &&
+    opcoesFiltradas.length > opcoesParaRender.length
+
+  const haMaisCatalogoRemoto =
+    buscaRemota &&
+    totalOpcoesCatalogo != null &&
+    totalOpcoesCatalogo > opcoesFiltradas.length
+
+  const handleScrollLista = useCallback(
+    (event: React.UIEvent<HTMLUListElement>) => {
+      if (!aoScrollFimLista) return
+      const el = event.currentTarget
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) {
+        aoScrollFimLista()
+      }
+    },
+    [aoScrollFimLista],
+  )
 
 
   // ─── Opções filtradas por grupo ───────────────────────────────────────────
@@ -363,7 +412,7 @@ export function SelectGlobal({
 
   function renderizarLista() {
     const temGrupos = grupos.length > 0 && gruposFiltrados.length > 0
-    const listaParaRenderizar = temGrupos ? [] : opcoesFiltradas
+    const listaParaRenderizar = temGrupos ? [] : opcoesParaRender
 
     if (temGrupos) {
       return gruposFiltrados.map((grupo) => (
@@ -387,11 +436,11 @@ export function SelectGlobal({
 
     if (listaParaRenderizar.length === 0) {
       return (
-        <li className="sg-vazio">{t('campo.nenhuma_opcao')}</li>
+        <li className="sg-vazio">{mensagemListaVazia ?? t('campo.nenhuma_opcao')}</li>
       )
     }
 
-    return listaParaRenderizar.map((op) => (
+    const itens = listaParaRenderizar.map((op) => (
       <ItemOpcao
         key={op.valor}
         opcao={op}
@@ -401,6 +450,28 @@ export function SelectGlobal({
         renderizarOpcao={renderizarOpcao}
       />
     ))
+
+    if (haMaisOpcoesRender || haMaisCatalogoRemoto) {
+      const exibidos = opcoesParaRender.length
+      const totalRef = totalOpcoesCatalogo ?? opcoesFiltradas.length
+      itens.push(
+        <li key="__sg-mais-opcoes" className="sg-vazio sg-vazio--hint" aria-hidden="true">
+          {buscaRemota
+            ? t('campo.mais_opcoes_busca_remota', {
+                defaultValue: `Mostrando ${exibidos} de ${totalRef}. Role ou digite para buscar no catálogo completo.`,
+                exibidos,
+                total: totalRef,
+              })
+            : t('campo.mais_opcoes_refine_busca', {
+                defaultValue: `Mostrando ${exibidos} de ${opcoesFiltradas.length}. Refine a busca.`,
+                exibidos,
+                total: opcoesFiltradas.length,
+              })}
+        </li>,
+      )
+    }
+
+    return itens
   }
 
   // ─── Aria describedby composto ────────────────────────────────────────────
@@ -446,7 +517,7 @@ export function SelectGlobal({
             type="text"
             placeholder={t('campo.buscar_placeholder')}
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => handleBuscaInput(e.target.value)}
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             aria-label={t('campo.buscar_opcoes')}
@@ -465,6 +536,7 @@ export function SelectGlobal({
         role="listbox"
         aria-multiselectable={multiplo}
         aria-label={ariaLabel ?? label ?? 'Opções'}
+        onScroll={handleScrollLista}
       >
         {renderizarLista()}
       </ul>

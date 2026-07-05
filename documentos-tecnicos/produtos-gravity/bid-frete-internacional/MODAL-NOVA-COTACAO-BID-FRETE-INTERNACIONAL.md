@@ -28,9 +28,9 @@
 |---|-------|-------------------|
 | 1 | Modal e Operação | Tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
 | 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
-| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, **peso + dimensões de cubagem**, incoterm + helper card |
+| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, **peso + dimensões de cubagem**, incoterm + helper card, **valor alvo + moeda** (movidos do passo 5) |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
-| 5 | Resumo | Valor alvo, moeda, receipt visual da rota |
+| 5 | Resumo | Receipt visual da rota + detalhes (valor alvo/moeda ficam no passo 3) |
 
 ---
 
@@ -239,10 +239,38 @@ Subseção **Peso e cubagem** no passo 3 (`modal-nova-cotacao-bid-frete-internac
 | `altura_cubagem_cotacao_bid_frete_internacional` | Altura | Painel detalhado |
 | `cubagem_m3_cotacao_bid_frete_internacional` | CUBAGEM (M³) | Último campo; manual ou auto-calculado |
 
-**Auto-cálculo:** quando unidade + comprimento + largura + altura estão preenchidos, `cubagem_m3_*` é recalculado (C×L×A → m³). Alterar dimensões/unidade sobrescreve o total; editar m³ diretamente permanece válido até a próxima mudança nas dimensões. Util: `shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional.ts`. migration `20260705130000_add_dimensoes_cubagem_cotacao_bid_frete_internacional` — colunas físicas adjacentes a `cubagem_m3_*` (ordem: unidade → C → L → A → m³).  
-**Cadastros:** unidades `IN` (Polegada) e `FT` (Pé) em `unidades-canonicas.ts` + migration `20260705120000_add_unidades_comprimento_in_ft`.
+**Auto-cálculo (por modal):** quando unidade + comprimento + largura + altura estão preenchidos, `cubagem_m3_*` é recalculado por `calcularCubagemAutoDimensoesPorModalBidFreteInternacional` (`shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional.ts`):
+
+- **AÉREO + unidade CM** → `(C × L × A em cm) ÷ 6000` (fator IATA — constante `DIVISOR_PESO_CUBADO_AEREO_CM_BID`).
+- **Marítimo, rodoviário, ou aéreo em outra unidade** → C×L×A convertido para m³ (comportamento original).
+- Trocar o **modal do frete** com dimensões já preenchidas também recalcula (`recalcularCubagemAutoPorModal` envolve os `setForm` dos 3 OptionButtons de modal).
+
+**Unidade preferencial:** ao marcar «Incluir cubagem detalhada», `codigo_unidade_cubagem_*` vem pré-selecionado em **CM** (preferencial, não obrigatório — usuário pode trocar).
+
+Alterar dimensões/unidade sobrescreve o total; editar m³ diretamente permanece válido até a próxima mudança nas dimensões. migration `20260705130000_add_dimensoes_cubagem_cotacao_bid_frete_internacional` — colunas físicas adjacentes a `cubagem_m3_*` (ordem: unidade → C → L → A → m³).  
+**Cadastros:** unidades `IN` (Polegada) e `FT` (Pé) em `unidades-canonicas.ts` + migration `20260705120000_add_unidades_comprimento_in_ft`.  
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/calcular-cubagem-m3-dimensoes-bid-frete-internacional.test.ts` (inclui casos AÉREO÷6000 e marítimo/rodoviário com CM).
 
 Hook: `client/src/shared/use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts`
+
+---
+
+## 8.1 Passo 2 — Catálogo de portos/aeroportos paginado com busca remota
+
+Os selects de porto/aeroporto (origem, destino e **locais adicionais aceitos**) exibem **todo o catálogo ativo do Cadastros**, paginado no scroll e com busca remota no banco inteiro:
+
+| Peça | Caminho |
+|------|---------|
+| Limites (SSOT) | `shared/limites-catalogo-logistica-bid-frete-internacional.ts` — página 100, busca 150, debounce, mín. 2 chars |
+| Hook paginado | `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts` (`usePortosPorPais`, `useAeroportosPorPais` re-exportados por `useCadastrosLogistica.ts`) |
+| API client | `client/src/shared/cadastrosApi.ts` — `offset` + `total` no Zod |
+| Proxy BID | `server/src/routes/portos.ts`, `aeroportos.ts` — repassam `offset` e devolvem `total` |
+| Cadastros | `servicos-global/cadastros/server/src/routes/portos.ts`, `aeroportos.ts` — `skip`/`take` no `findMany` |
+| SelectGlobal | props novas `buscaRemota`, `aoMudarBusca`, `aoScrollFimLista`, `totalOpcoesCatalogo`, `mensagemListaVazia` (nucleo-global — autorizado pelo dono) |
+
+Comportamento: scroll ao fim da lista carrega +100; digitar ≥2 caracteres consulta o catálogo completo no servidor (até 150 resultados); rodapé exibe «Mostrando X de Y». **Locais adicionais aceitos** usam o padrão de linhas com botão «Adicionar» (mesmo padrão dos containers FCL).
+
+> Dados: em 2026-07-05 todos os portos do Cadastros foram ativados (`ativo_porto = true`, script `servicos-global/cadastros/scripts/ativar-todos-portos.ts`) — antes só 267 de 16.934 apareciam.
 
 ---
 

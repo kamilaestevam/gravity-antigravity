@@ -81,11 +81,12 @@ import {
 import { useAeroportosPorPais, useContainersCadastros, useMercadoriasPerigosasCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from '../shared/use-opcoes-moeda-cadastros-bid-frete-internacional'
 import { useOpcoesUnidadeComprimentoCubagemBidFreteInternacional } from '../shared/use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional'
+import { useOpcoesUnidadeEmbalagemBidFreteInternacional } from '../shared/use-opcoes-unidade-embalagem-bid-frete-internacional'
 import {
   rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
-  useTextosLocaisOpcionaisCotacaoBidFrete,
 } from '../shared/locais-opcionais-cotacao-bid-frete-internacional'
-import { calcularCubagemM3AutoDimensoesBidFreteInternacional } from '../../../shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
+import { codigosLocaisOpcionaisCotacaoBidFrete } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
+import { calcularCubagemAutoDimensoesPorModalBidFreteInternacional } from '../../../shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import {
   filtrarFornecedoresDisparoBidFreteInternacional,
@@ -129,12 +130,10 @@ import {
   traduzirLegendaLocalizacaoNovaCotacao,
   traduzirModalNovaCotacao,
   traduzirOpcoesSimNaoNovaCotacao,
-  traduzirOpcoesUnidadeEmbalagemNovaCotacao,
   traduzirOperacaoNovaCotacao,
   traduzirPassoWizardNovaCotacao,
   traduzirRotuloArmazenagemResumoNovaCotacao,
   traduzirRotuloResumoVisibilidadeNovaCotacao,
-  traduzirRotuloUnidadeEmbalagemNovaCotacao,
   traduzirTituloLocalizacaoNovaCotacao,
   traduzirTooltipIncotermNovaCotacao,
 } from '../shared/traduzir-nova-cotacao-bid-frete-internacional'
@@ -171,9 +170,14 @@ const SUFIXO_QUANTIDADE_EMBALAGEM: Record<string, string> = {
 }
 
 const LIMITE_CARACTERES_ARMAZENS_RESUMO = 24
+const LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO = 50
 
 function sufixoQuantidadeEmbalagem(codigo: string): string {
   return SUFIXO_QUANTIDADE_EMBALAGEM[codigo] ?? 'un'
+}
+
+function truncarTextoResumoComReticencias(texto: string, limite: number): string {
+  return texto.length > limite ? `${texto.slice(0, limite)}...` : texto
 }
 
 type LadoLocalizacaoWizard = 'origem' | 'destino'
@@ -1138,6 +1142,25 @@ const NC_ESTILOS_CONTEUDO = `
           grid-column: span 2;
         }
 
+        /* ── Dicas cubagem (aéreo — IATA) ── */
+        .nc-cubagem-dicas {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-top: 1rem;
+        }
+        .nc-cubagem-dicas .nc-empty-hint {
+          padding: 0.875rem 1rem;
+          grid-column: auto;
+        }
+        .nc-cubagem-dicas .nc-empty-hint p {
+          margin: 0;
+          line-height: 1.5;
+        }
+        .nc-cubagem-dicas .nc-empty-hint svg {
+          flex-shrink: 0;
+        }
+
         /* ── Fields ── */
         .nc-fields-grid {
           display: grid;
@@ -2093,18 +2116,16 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-node-text {
           display: flex;
           flex-direction: column;
+          align-items: center;
           gap: 0.35rem;
-        }
-        /* Título da origem levemente à direita para centralizar sobre "CNSHA — Shanghai" */
-        .nc-timeline-node:first-child .nc-node-code {
-          padding-left: 6px;
+          text-align: center;
         }
         .nc-node-code {
           font-size: 1.0625rem;
           font-weight: 800;
           color: #fff;
           line-height: 1.2;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
         }
         .nc-node-name {
           font-size: 0.875rem;
@@ -2197,6 +2218,16 @@ const NC_ESTILOS_CONTEUDO = `
           font-size: 0.875rem;
           font-weight: 600;
           color: var(--text-primary, #f8fafc);
+        }
+        .nc-receipt-value-tooltip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+        .nc-receipt-value-tooltip svg {
+          color: var(--text-secondary, #94a3b8);
+          flex-shrink: 0;
+          opacity: 0.75;
         }
         .nc-receipt-value.font-mono {
           font-family: 'DM Mono', monospace;
@@ -2345,6 +2376,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     loading: carregandoUnidadesCubagem,
     indisponivel: unidadesCubagemIndisponiveis,
   } = useOpcoesUnidadeComprimentoCubagemBidFreteInternacional()
+  const {
+    opcoes: opcoesEmbalagem,
+    loading: carregandoUnidadesEmbalagem,
+    indisponivel: unidadesEmbalagemIndisponiveis,
+  } = useOpcoesUnidadeEmbalagemBidFreteInternacional()
 
   useEffect(() => {
     const passoFornecedores = sequenciaPassosWizardNovaCotacao(
@@ -2642,9 +2678,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const modal = form.modal_cotacao_bid_frete_internacional
   const modalidade = modalidadeEfetivaNovaCotacao(form)
   const exigeContainerFcl = modal === 'MARITIMO' && modalidade === 'FCL'
-  const opcoesEmbalagem = useMemo(
-    () => traduzirOpcoesUnidadeEmbalagemNovaCotacao(t),
-    [t],
+  const rotuloUnidadeEmbalagemPorCodigo = useCallback(
+    (codigo: string) => opcoesEmbalagem.find((opcao) => String(opcao.valor) === codigo)?.rotulo ?? codigo,
+    [opcoesEmbalagem],
   )
   const opcoesIncluirArmazenagem = useMemo(
     () => traduzirOpcoesSimNaoNovaCotacao(t),
@@ -2705,25 +2741,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       }))
       return
     }
-    set('exibir_cubagem_detalhada_cotacao', true)
+    setForm(prev => ({
+      ...prev,
+      exibir_cubagem_detalhada_cotacao: true,
+      // CM é a unidade preferencial (não obrigatória) — usuário pode trocar
+      codigo_unidade_cubagem_cotacao_bid_frete_internacional:
+        prev.codigo_unidade_cubagem_cotacao_bid_frete_internacional || 'CM',
+    }))
+  }
+
+  const recalcularCubagemAutoPorModal = (next: FormState): FormState => {
+    const m3Auto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+      comprimento: next.comprimento_cubagem_cotacao_bid_frete_internacional,
+      largura: next.largura_cubagem_cotacao_bid_frete_internacional,
+      altura: next.altura_cubagem_cotacao_bid_frete_internacional,
+      codigo_unidade: next.codigo_unidade_cubagem_cotacao_bid_frete_internacional,
+      modal: next.modal_cotacao_bid_frete_internacional,
+    })
+    if (m3Auto != null) {
+      next.cubagem_m3_cotacao_bid_frete_internacional = m3Auto
+    }
+    return next
   }
 
   const aplicarDimensaoCubagemComAutoCalc = (
     patch: Partial<CamposDimensaoCubagemForm>,
   ) => {
-    setForm(prev => {
-      const next: FormState = { ...prev, ...patch }
-      const m3Auto = calcularCubagemM3AutoDimensoesBidFreteInternacional({
-        comprimento: next.comprimento_cubagem_cotacao_bid_frete_internacional,
-        largura: next.largura_cubagem_cotacao_bid_frete_internacional,
-        altura: next.altura_cubagem_cotacao_bid_frete_internacional,
-        codigo_unidade: next.codigo_unidade_cubagem_cotacao_bid_frete_internacional,
-      })
-      if (m3Auto != null) {
-        next.cubagem_m3_cotacao_bid_frete_internacional = m3Auto
-      }
-      return next
-    })
+    setForm(prev => recalcularCubagemAutoPorModal({ ...prev, ...patch }))
   }
 
   const rotuloContainerPorCodigo = useCallback(
@@ -3182,8 +3226,6 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     }),
     [form],
   )
-  const textosLocaisOpcionaisResumo = useTextosLocaisOpcionaisCotacaoBidFrete(ctxLocaisOpcionaisResumo)
-
   const renderStep = () => {
     switch (tipoPassoAtual) {
       // STEP — Modal e Operação
@@ -3237,7 +3279,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <OptionButton
                 selected={form.modal_cotacao_bid_frete_internacional === 'MARITIMO'}
                 onClick={() => {
-                  setForm((prev) => ({
+                  setForm((prev) => recalcularCubagemAutoPorModal({
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'MARITIMO',
                     modalidade_cotacao_bid_frete_internacional: '',
@@ -3252,7 +3294,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <OptionButton
                 selected={form.modal_cotacao_bid_frete_internacional === 'AEREO'}
                 onClick={() => {
-                  setForm((prev) => ({
+                  setForm((prev) => recalcularCubagemAutoPorModal({
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'AEREO',
                     modalidade_cotacao_bid_frete_internacional: 'AEREO_GERAL',
@@ -3270,7 +3312,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <OptionButton
                 selected={form.modal_cotacao_bid_frete_internacional === 'RODOVIARIO'}
                 onClick={() => {
-                  setForm((prev) => ({
+                  setForm((prev) => recalcularCubagemAutoPorModal({
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'RODOVIARIO',
                     modalidade_cotacao_bid_frete_internacional: '',
@@ -3767,7 +3809,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <NcSubsecaoTitle id="nc-cargo-identificacao" icone={<IdentificationCard {...ICONE_LABEL_SECAO} />} obrigatorio>
                 {t('bidfrete.nova_cotacao.identificacao_mercadoria', { defaultValue: 'Identificação da mercadoria' })}
               </NcSubsecaoTitle>
-              <p className="nc-cargo-subsecao-hint">{t('bidfrete.nova_cotacao.hint_identificacao_mercadoria', { defaultValue: 'NCM, descrição comercial e HS Code (quando aplicável).' })}</p>
+              <p className="nc-cargo-subsecao-hint">{t('bidfrete.nova_cotacao.hint_identificacao_mercadoria', { defaultValue: 'NCM, descrição comercial e HS Code (quando aplicável)' })}</p>
               <div className="nc-cargo-subsecao-grid-identificacao">
                 <Field label="NCM" icone={<Barcode {...ICONE_FIELD} />}>
                   <SelectNcmGlobal
@@ -3931,7 +3973,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               ) : (
                 <>
                   <p className="nc-cargo-subsecao-hint">
-                    Modalidade <strong>{modalidadeLabel}</strong> — escolha o tipo de volume (caixa, palete, etc.) e a quantidade.
+                    Modalidade <strong>{modalidadeLabel}</strong> — escolha o tipo de volume (caixa, palete, etc.) e a quantidade
                   </p>
                   <div className="nc-cargo-subsecao-grid-quantidade nc-cargo-subsecao-grid-quantidade--embalagem">
                     <Field label="TIPO DE VOLUME" required icone={<Package {...ICONE_FIELD} />}>
@@ -3941,6 +3983,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         aoMudarValor={(v) => set('tipo_container_cotacao_bid_frete_internacional', String(v ?? ''))}
                         placeholder="Selecione caixa, palete..."
                         buscavel
+                        carregando={carregandoUnidadesEmbalagem}
+                        desabilitado={unidadesEmbalagemIndisponiveis}
                         posicao="auto"
                       />
                     </Field>
@@ -3990,7 +4034,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <p className="nc-cargo-subsecao-hint">
                 {t('bidfrete.nova_cotacao.hint_peso_cubagem', {
                   defaultValue:
-                    'Opcional neste momento; ajuda o fornecedor a cotar com precisão. Informe peso e cubagem total (m³). Ative cubagem detalhada se souber comprimento, largura e altura — o m³ é calculado automaticamente e continua editável.',
+                    'Opcional — informe peso e cubagem para ajudar o fornecedor a cotar com precisão',
                 })}
               </p>
               <div className="nc-cargo-subsecao-grid-peso">
@@ -4148,6 +4192,28 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         </div>
                       </Field>
                     </div>
+
+                    {modal === 'AEREO' && (
+                      <div className="nc-cubagem-dicas">
+                        <div className="nc-empty-hint">
+                          <Info size={18} weight="duotone" />
+                          <p>
+                            A unidade <strong>CM</strong> vem pré-selecionada como preferência — não é
+                            obrigatória, mas é a convenção da IATA para o frete aéreo, cujo fator
+                            volumétrico é definido em centímetros nas TACT Rules (The Air Cargo Tariff
+                            and Rules).
+                          </p>
+                        </div>
+                        <div className="nc-empty-hint">
+                          <Info size={18} weight="duotone" />
+                          <p>
+                            Com CM, o cálculo é <strong>comprimento × largura × altura em
+                            centímetros ÷ 6.000</strong>, conforme o fator volumétrico das TACT Rules
+                            da IATA (6.000 cm³ = 1 kg).
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -4159,7 +4225,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </NcSubsecaoTitle>
               <p className="nc-cargo-subsecao-hint">
                 {t('bidfrete.nova_cotacao.hint_incoterm', {
-                  defaultValue: 'Escolha quem assume frete e risco até o destino.',
+                  defaultValue: 'Escolha quem assume frete e risco até o destino',
                 })}
               </p>
               <div className="nc-incoterm-stack">
@@ -4206,13 +4272,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </NcSubsecaoTitle>
               <p className="nc-cargo-subsecao-hint">
                 {t('bidfrete.nova_cotacao.hint_valor_alvo', {
-                  defaultValue: 'Informe o valor de referência esperado para esta cotação.',
+                  defaultValue: 'Informe o valor de referência esperado para esta cotação',
                 })}
               </p>
               <div className="nc-fields-grid nc-fields-grid--summary-inputs">
-                <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
-                  <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
-                </Field>
                 <Field label={t('bidfrete.nova_cotacao.moeda')} icone={<Tag {...ICONE_FIELD} />}>
                   <SelectGlobal
                     id="nc-moeda-meta-cotacao"
@@ -4240,6 +4303,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     desabilitado={moedasMetaIndisponiveis}
                     posicao="auto"
                   />
+                </Field>
+                <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
+                  <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_meta_cotacao_bid_frete_internacional} onChange={e => set('valor_meta_cotacao_bid_frete_internacional', e.target.value)} />
                 </Field>
               </div>
             </section>
@@ -4502,14 +4568,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         const destinoTituloResumo = destinoCodigoResumo
           ? normalizarTextoPontoRota(destinoName, destinoCodigoResumo).titulo
           : destinoName
+        const opcoesLocaisResumo = modal === 'MARITIMO'
+          ? opcoesPortosAlternativos
+          : opcoesAeroportosAlternativos
+        const resolverRotuloLocalOpcionalResumo = (codigo: string) =>
+          opcoesLocaisResumo.find((opcao) => String(opcao.valor) === codigo)?.rotulo ?? codigo
+        const textoLocaisOpcionaisOrigemResumo = codigosLocaisOpcionaisCotacaoBidFrete(
+          ctxLocaisOpcionaisResumo,
+          'origem',
+        ).map(resolverRotuloLocalOpcionalResumo).join(', ')
+        const textoLocaisOpcionaisDestinoResumo = codigosLocaisOpcionaisCotacaoBidFrete(
+          ctxLocaisOpcionaisResumo,
+          'destino',
+        ).map(resolverRotuloLocalOpcionalResumo).join(', ')
+        const textoLocaisOpcionaisOrigemTruncado = truncarTextoResumoComReticencias(
+          textoLocaisOpcionaisOrigemResumo,
+          LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO,
+        )
+        const textoLocaisOpcionaisDestinoTruncado = truncarTextoResumoComReticencias(
+          textoLocaisOpcionaisDestinoResumo,
+          LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO,
+        )
         const textoArmazensResumo = form.linhas_armazem_alfandegado_cotacao
           .map((linha) => linha.nome_armazem_alfandegado.trim())
           .filter(Boolean)
           .join(', ')
         const textoArmazensResumoTruncado =
-          textoArmazensResumo.length > LIMITE_CARACTERES_ARMAZENS_RESUMO
-            ? `${textoArmazensResumo.slice(0, LIMITE_CARACTERES_ARMAZENS_RESUMO)}...`
-            : textoArmazensResumo
+          truncarTextoResumoComReticencias(textoArmazensResumo, LIMITE_CARACTERES_ARMAZENS_RESUMO)
 
         return (
           <div className="nc-step-content">
@@ -4559,24 +4644,48 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 </div>
               </div>
 
-              {(textosLocaisOpcionaisResumo.origem || textosLocaisOpcionaisResumo.destino) ? (
+              {(textoLocaisOpcionaisOrigemResumo || textoLocaisOpcionaisDestinoResumo) ? (
                 <div className="nc-receipt-details nc-receipt-details--locais-opcionais">
-                  {textosLocaisOpcionaisResumo.origem ? (
+                  {textoLocaisOpcionaisOrigemResumo ? (
                     <div className="nc-receipt-row">
                       <span className="nc-receipt-label">
                         {ctxLocaisOpcionaisResumo.tipoLocal === 'aeroporto' ? <AirplaneTilt size={14} /> : <Anchor size={14} />}
                         {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisResumo)}
                       </span>
-                      <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.origem}</span>
+                      <span className="nc-receipt-value">
+                        {textoLocaisOpcionaisOrigemResumo.length > LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO ? (
+                          <TooltipGlobal
+                            titulo={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisResumo)}
+                            descricao={textoLocaisOpcionaisOrigemResumo}
+                          >
+                            <span className="nc-receipt-value-tooltip">
+                              {textoLocaisOpcionaisOrigemTruncado}
+                              <Eye size={14} />
+                            </span>
+                          </TooltipGlobal>
+                        ) : textoLocaisOpcionaisOrigemResumo}
+                      </span>
                     </div>
                   ) : null}
-                  {textosLocaisOpcionaisResumo.destino ? (
+                  {textoLocaisOpcionaisDestinoResumo ? (
                     <div className="nc-receipt-row">
                       <span className="nc-receipt-label">
                         {ctxLocaisOpcionaisResumo.tipoLocal === 'aeroporto' ? <AirplaneTilt size={14} /> : <Anchor size={14} />}
                         {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisResumo)}
                       </span>
-                      <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.destino}</span>
+                      <span className="nc-receipt-value">
+                        {textoLocaisOpcionaisDestinoResumo.length > LIMITE_CARACTERES_LOCAIS_OPCIONAIS_RESUMO ? (
+                          <TooltipGlobal
+                            titulo={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisResumo)}
+                            descricao={textoLocaisOpcionaisDestinoResumo}
+                          >
+                            <span className="nc-receipt-value-tooltip">
+                              {textoLocaisOpcionaisDestinoTruncado}
+                              <Eye size={14} />
+                            </span>
+                          </TooltipGlobal>
+                        ) : textoLocaisOpcionaisDestinoResumo}
+                      </span>
                     </div>
                   ) : null}
                 </div>
@@ -4642,7 +4751,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     <span className="nc-receipt-value">
                       {textoArmazensResumo.length > LIMITE_CARACTERES_ARMAZENS_RESUMO ? (
                         <TooltipGlobal titulo="Armazéns de preferência" descricao={textoArmazensResumo}>
-                          <span>{textoArmazensResumoTruncado}</span>
+                          <span className="nc-receipt-value-tooltip">
+                            {textoArmazensResumoTruncado}
+                            <Eye size={14} />
+                          </span>
                         </TooltipGlobal>
                       ) : textoArmazensResumo}
                     </span>
@@ -4659,7 +4771,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                             form.linhas_container_fcl_cotacao,
                             rotuloContainerPorCodigo,
                           )
-                        : traduzirRotuloUnidadeEmbalagemNovaCotacao(t, form.tipo_container_cotacao_bid_frete_internacional)}
+                        : rotuloUnidadeEmbalagemPorCodigo(form.tipo_container_cotacao_bid_frete_internacional)}
                     </span>
                   </div>
                 )}

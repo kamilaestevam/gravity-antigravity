@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DIVISOR_PESO_CUBADO_AEREO_CM_BID,
+  calcularCubagemAutoDimensoesPorModalBidFreteInternacional,
   calcularCubagemM3AutoDimensoesBidFreteInternacional,
   calcularCubagemM3DimensoesBidFreteInternacional,
 } from '../../../../servicos-global/produto/bid-frete-internacional/shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
@@ -33,5 +35,52 @@ describe('calcular-cubagem-m3-dimensoes-bid-frete-internacional', () => {
       codigo_unidade: 'cm',
     })
     expect(texto).toBe('0.864')
+  })
+
+  it('AÉREO + CM aplica fator IATA ÷6000 (120 × 80 × 90 cm = 144)', () => {
+    expect(DIVISOR_PESO_CUBADO_AEREO_CM_BID).toBe(6000)
+    const texto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+      comprimento: '120',
+      largura: '80',
+      altura: '90',
+      codigo_unidade: 'CM',
+      modal: 'AEREO',
+    })
+    expect(texto).toBe('144')
+  })
+
+  it('AÉREO com unidade diferente de CM mantém C × L × A em m³', () => {
+    const texto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+      comprimento: '2',
+      largura: '2',
+      altura: '2',
+      codigo_unidade: 'M',
+      modal: 'AEREO',
+    })
+    expect(texto).toBe('8')
+  })
+
+  it('MARÍTIMO e RODOVIÁRIO com CM mantêm conversão para m³ (sem ÷6000)', () => {
+    for (const modal of ['MARITIMO', 'RODOVIARIO']) {
+      const texto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+        comprimento: '120',
+        largura: '80',
+        altura: '90',
+        codigo_unidade: 'CM',
+        modal,
+      })
+      expect(texto).toBe('0.864')
+    }
+  })
+
+  it('AÉREO + CM retorna null com dimensão inválida', () => {
+    const texto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+      comprimento: '0',
+      largura: '80',
+      altura: '90',
+      codigo_unidade: 'CM',
+      modal: 'AEREO',
+    })
+    expect(texto).toBeNull()
   })
 })

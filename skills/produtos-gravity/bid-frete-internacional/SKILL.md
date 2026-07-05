@@ -130,7 +130,13 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 | API | `POST/PATCH /cotacoes` — Zod em `server/src/routes/cotacoes.ts` |
 | Migrations | Bid Frete `20260705130000_*` · Cadastros `20260705120000_*` (IN/FT) |
 
+**Regra de cálculo por modal** (`calcularCubagemAutoDimensoesPorModalBidFreteInternacional`): AÉREO + unidade CM → `(C×L×A em cm) ÷ 6000` (fator IATA, `DIVISOR_PESO_CUBADO_AEREO_CM_BID`); marítimo/rodoviário (mesmo em CM) e aéreo em outra unidade → C×L×A em m³. Trocar o modal recalcula. Ao marcar cubagem detalhada, unidade vem pré-selecionada em **CM** (preferencial, não obrigatória).
+
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8 · Atlas `ddd-atlas/bid-frete/01-campos.md`
+
+### Catálogo portos/aeroportos paginado (Nova Cotação — passo 2)
+
+Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catálogo completo do Cadastros no scroll (100/página) e fazem busca remota no banco inteiro (150 resultados, ≥2 chars). SSOT de limites: `shared/limites-catalogo-logistica-bid-frete-internacional.ts`; hook `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`; proxies e rotas Cadastros aceitam `offset` e devolvem `total`; `SelectGlobal` ganhou props `buscaRemota`/`aoMudarBusca`/`aoScrollFimLista`/`totalOpcoesCatalogo`. Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
 
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 

@@ -812,6 +812,14 @@ export default function DetalheCotacao() {
               label={t('bidfrete.detalhe_cotacao.cubagem')}
               value={cotacao.cubagem_m3_cotacao_bid_frete_internacional ? `${cotacao.cubagem_m3_cotacao_bid_frete_internacional} m³` : '—'}
             />
+            {cotacao.comprimento_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.largura_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.altura_cubagem_cotacao_bid_frete_internacional != null && (
+              <InfoRow
+                label="Dimensões (C × L × A)"
+                value={`${cotacao.comprimento_cubagem_cotacao_bid_frete_internacional} × ${cotacao.largura_cubagem_cotacao_bid_frete_internacional} × ${cotacao.altura_cubagem_cotacao_bid_frete_internacional} ${cotacao.codigo_unidade_cubagem_cotacao_bid_frete_internacional ?? ''}`.trim()}
+              />
+            )}
           </CardSecaoDados>
         </div>
         </div>
@@ -1440,8 +1448,9 @@ export default function DetalheCotacao() {
         }
         .dc-target-label { font-weight: 600; }
         .dc-target-value {
-          font-family: 'DM Mono', monospace;
-          font-weight: 700;
+          font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
           color: var(--text-primary, #f1f5f9);
         }
 

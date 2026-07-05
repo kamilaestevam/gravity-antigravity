@@ -10,7 +10,6 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { PrismaClient } from '../generated/client/index.js'
 import { AppError } from '../lib/erros.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
@@ -18,11 +17,13 @@ import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
-import { prisma as basePrisma, withTenantIsolation } from '../middleware/isolamento-tenant.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
-import { carregarContextoCatalogoRotaBidFreteInternacional } from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
+import {
+  carregarContextoCatalogoRotaBidFreteInternacional,
+  garantirTerminaisRotaNoContextoCatalogo,
+} from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
 import { validarRotaCotacaoContraCadastros } from '../lib/validar-rota-cadastros-cotacao-bid-frete-internacional.js'
 import {
   codigosOpcaoPortoAeroportoParaPersistencia,
@@ -30,7 +31,6 @@ import {
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from '../services/filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
-import type { TipoFornecedorBidFreteColapsado } from '../../../shared/fornecedor-elegivel-disparo-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -57,7 +57,6 @@ const CamposRotaModalCotacaoSchema = z.object({
 
 const CriarCotacaoSchemaBase = z.object({
   id_bid_bid_frete_internacional: z.string().optional(),
-  numero_cotacao_bid_frete_internacional: z.string().min(1).max(64).optional(),
   referencia_interna_cotacao_bid_frete_internacional: z.string().optional(),
   tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
@@ -65,10 +64,15 @@ const CriarCotacaoSchemaBase = z.object({
 }).merge(CamposRotaModalCotacaoSchema).extend({
   descricao_mercadoria_cotacao_bid_frete_internacional: z.string().min(1),
   ncm_cotacao_bid_frete_internacional: z.string().optional(),
+  hs_code_cotacao_bid_frete_internacional: z.string().max(10).optional(),
   quantidade_volume_cotacao_bid_frete_internacional: z.number().int().positive().default(1),
   tipo_container_cotacao_bid_frete_internacional: z.string().optional(),
   peso_kg_cotacao_bid_frete_internacional: z.number().positive().optional(),
   peso_ton_cotacao_bid_frete_internacional: z.number().positive().optional(),
+  codigo_unidade_cubagem_cotacao_bid_frete_internacional: z.string().min(1).max(8).optional(),
+  comprimento_cubagem_cotacao_bid_frete_internacional: z.number().positive().optional(),
+  largura_cubagem_cotacao_bid_frete_internacional: z.number().positive().optional(),
+  altura_cubagem_cotacao_bid_frete_internacional: z.number().positive().optional(),
   cubagem_m3_cotacao_bid_frete_internacional: z.number().positive().optional(),
   incoterm_cotacao_bid_frete_internacional: z.string().min(1),
   zipcode_origem_cotacao_bid_frete_internacional: z.string().optional(),
@@ -236,6 +240,7 @@ async function prepararRotaComValidacaoCadastros(
   idOrganizacao: string,
 ): Promise<ReturnType<typeof prepararCamposRotaCotacaoPersistencia>> {
   const ctx = await carregarContextoCatalogoRotaBidFreteInternacional(idOrganizacao)
+  await garantirTerminaisRotaNoContextoCatalogo(ctx, dados, idOrganizacao)
   const erros = await validarRotaCotacaoContraCadastros(dados, idOrganizacao, ctx)
   if (erros.length > 0) {
     throw new AppError(
@@ -359,135 +364,6 @@ async function filtrarIdsFornecedoresElegiveisCotacaoAberta(
   return rows.map(r => r.id_fornecedor_bid_frete_internacional)
 }
 
-async function carregarTiposEspelhoFornecedoresDisparo(
-  prisma: NonNullable<Request['prisma']>,
-  fornecedor_ids: string[],
-): Promise<Map<string, TipoFornecedorBidFreteColapsado>> {
-  if (fornecedor_ids.length === 0) return new Map()
-  const rows = await (prisma as {
-    fornecedorBidFreteInternacional: {
-      findMany: (args: unknown) => Promise<Array<{
-        id_fornecedor_bid_frete_internacional: string
-        tipo_fornecedor_bid_frete_internacional: TipoFornecedorBidFreteColapsado
-      }>>
-    }
-  }).fornecedorBidFreteInternacional.findMany({
-    where: { id_fornecedor_bid_frete_internacional: { in: fornecedor_ids } },
-    select: {
-      id_fornecedor_bid_frete_internacional: true,
-      tipo_fornecedor_bid_frete_internacional: true,
-    },
-  })
-  return new Map(rows.map(r => [r.id_fornecedor_bid_frete_internacional, r.tipo_fornecedor_bid_frete_internacional]))
-}
-
-async function filtrarIdsFornecedoresElegiveisModalDisparo(
-  idOrganizacao: string,
-  modal: ModalRotaCotacao,
-  prisma: NonNullable<Request['prisma']>,
-  fornecedor_ids: string[],
-): Promise<string[]> {
-  const tiposEspelhoPorId = await carregarTiposEspelhoFornecedoresDisparo(prisma, fornecedor_ids)
-  return filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
-    idOrganizacao,
-    modal,
-    fornecedor_ids,
-    { tiposEspelhoPorId },
-  )
-}
-
-function agendarDisparoNovaCotacaoEmBackground(
-  tenantId: string,
-  params: {
-    cotacao: Record<string, unknown>
-    tenantId: string
-    userId: string
-    fornecedor_ids: string[] | undefined
-    canais_disparo: string[]
-    emails_por_fornecedor: Record<string, string[]> | undefined
-  },
-): void {
-  let agendado = false
-  const executar = () => {
-    if (agendado) return
-    agendado = true
-    const prismaBg = withTenantIsolation(basePrisma, tenantId) as PrismaClient
-    void executarDisparoAoCriarCotacao(prismaBg, params).catch((err: unknown) => {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error('[cotacoes] disparo background falhou (unhandled):', msg)
-    })
-  }
-  setImmediate(executar)
-}
-
-async function executarDisparoAoCriarCotacao(
-  prisma: NonNullable<Request['prisma']>,
-  params: {
-    cotacao: Record<string, unknown>
-    tenantId: string
-    userId: string
-    fornecedor_ids: string[] | undefined
-    canais_disparo: string[]
-    emails_por_fornecedor: Record<string, string[]> | undefined
-  },
-): Promise<void> {
-  const { cotacao, tenantId, userId, fornecedor_ids, canais_disparo, emails_por_fornecedor } = params
-  const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
-  const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
-  const idCotacao = String(cotacao.id_cotacao_bid_frete_internacional)
-
-  try {
-    if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-      if (fornecedor_ids !== undefined) {
-        const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(prisma, fornecedor_ids)
-        const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
-          tenantId,
-          modalDisparo,
-          prisma,
-          idsAberta,
-        )
-        if (idsElegiveis.length > 0) {
-          await motorBid.disparar(prisma, {
-            id_cotacao_bid_frete_internacional: idCotacao,
-            fornecedor_ids: idsElegiveis,
-            canais,
-            id_usuario: userId,
-            id_organizacao: tenantId,
-            emails_por_fornecedor,
-          })
-        }
-      } else {
-        await motorBid.dispararCotacaoAberta(prisma, {
-          id_cotacao_bid_frete_internacional: idCotacao,
-          canais,
-          id_usuario: userId,
-          id_organizacao: tenantId,
-        })
-      }
-    } else if (fornecedor_ids && fornecedor_ids.length > 0) {
-      const idsElegiveis = await filtrarIdsFornecedoresElegiveisModalDisparo(
-        tenantId,
-        modalDisparo,
-        prisma,
-        fornecedor_ids,
-      )
-      if (idsElegiveis.length > 0) {
-        await motorBid.disparar(prisma, {
-          id_cotacao_bid_frete_internacional: idCotacao,
-          fornecedor_ids: idsElegiveis,
-          canais,
-          id_usuario: userId,
-          id_organizacao: tenantId,
-          emails_por_fornecedor,
-        })
-      }
-    }
-  } catch (disparoErr: unknown) {
-    const disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
-    console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
-  }
-}
-
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -502,19 +378,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
-    const {
-      fornecedor_ids,
-      disparar_ao_criar,
-      canais_disparo,
-      emails_por_fornecedor,
-      id_bid_bid_frete_internacional,
-      numero_cotacao_bid_frete_internacional: numeroInformado,
-      ...cotacaoData
-    } = parsed.data
+    const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
     const camposOpcaoPortoAeroporto = prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
-    const numeroCotacao = numeroInformado?.trim() || gerarNumeroCotacao()
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
@@ -524,7 +391,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
-        numero_cotacao_bid_frete_internacional: numeroCotacao,
+        numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
         data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso ? new Date(dataLimiteIso) : null,
       },
     })
@@ -544,24 +411,61 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     let disparo: Awaited<ReturnType<typeof motorBid.disparar>> | Awaited<ReturnType<typeof motorBid.dispararCotacaoAberta>> | null = null
     let disparo_erro: string | null = null
-
-    // Responde antes do disparo — Resend/e-mail pode exceder timeout HTTP do Railway (~30s).
     if (disparar_ao_criar && tenantId) {
-      const disparoParams = {
-        cotacao,
-        tenantId,
-        userId,
-        fornecedor_ids,
-        canais_disparo,
-        emails_por_fornecedor,
+      const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
+      const modalDisparo = cotacao.modal_cotacao_bid_frete_internacional as ModalRotaCotacao
+      try {
+        if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+          if (fornecedor_ids !== undefined) {
+            const idsAberta = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
+            const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+              tenantId,
+              modalDisparo,
+              idsAberta,
+            )
+            if (idsElegiveis.length > 0) {
+              disparo = await motorBid.disparar(req.prisma!, {
+                id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+                fornecedor_ids: idsElegiveis,
+                canais,
+                id_usuario: userId,
+                id_organizacao: tenantId,
+                emails_por_fornecedor,
+              })
+            } else {
+              disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor selecionado para disparo' }
+            }
+          } else {
+            disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
+              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+              canais,
+              id_usuario: userId,
+              id_organizacao: tenantId,
+            })
+          }
+        } else if (fornecedor_ids && fornecedor_ids.length > 0) {
+          const idsElegiveis = await filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional(
+            tenantId,
+            modalDisparo,
+            fornecedor_ids,
+          )
+          if (idsElegiveis.length > 0) {
+            disparo = await motorBid.disparar(req.prisma!, {
+              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+              fornecedor_ids: idsElegiveis,
+              canais,
+              id_usuario: userId,
+              id_organizacao: tenantId,
+              emails_por_fornecedor,
+            })
+          } else {
+            disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor elegivel para o modal da cotacao' }
+          }
+        }
+      } catch (disparoErr: unknown) {
+        disparo_erro = disparoErr instanceof Error ? disparoErr.message : String(disparoErr)
+        console.error('[cotacoes] disparo ao criar falhou (cotacao persistida):', disparo_erro)
       }
-      res.on('finish', () => agendarDisparoNovaCotacaoEmBackground(tenantId, disparoParams))
-      res.status(201).json({
-        cotacao,
-        disparo: null,
-        disparo_pendente: true,
-      })
-      return
     }
 
     res.status(201).json({ cotacao, disparo, ...(disparo_erro ? { disparo_erro } : {}) })
@@ -569,7 +473,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
       relancarSeSchemaDrift(err)
     } catch (e) {
-      return next(e)
+      next(e)
     }
   }
 })

@@ -270,11 +270,16 @@ model CotacaoBidFreteInternacional {
   quantidade_volume_cotacao_bid_frete_internacional          Int                 @default(1)
   peso_kg_cotacao_bid_frete_internacional             Float?              // peso bruto
   peso_ton_cotacao_bid_frete_internacional            Float?
+  codigo_unidade_cubagem_cotacao_bid_frete_internacional String?         // ref Cadastros/unidade (tipo comprimento)
+  comprimento_cubagem_cotacao_bid_frete_internacional Float?
+  largura_cubagem_cotacao_bid_frete_internacional     Float?
+  altura_cubagem_cotacao_bid_frete_internacional      Float?
   cubagem_m3_cotacao_bid_frete_internacional          Float?
 
   // Mercadoria
   descricao_mercadoria_cotacao_bid_frete_internacional String
   ncm_cotacao_bid_frete_internacional                 String?
+  hs_code_cotacao_bid_frete_internacional             String?
 
   // Carga perigosa (espelho do catálogo ONU — Cadastros)
   eh_carga_perigosa_cotacao_bid_frete_internacional              Boolean  @default(false)

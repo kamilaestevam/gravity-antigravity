@@ -18,9 +18,13 @@ type ListaCadastros<T> = { itens: T[]; total: number }
 
 router.get('/aeroportos', async (req: Request, res: Response) => {
   try {
-    const { q, pais, limit } = req.query as { q?: string; pais?: string; limit?: string }
-    const limiteMax = q || pais ? 500 : 10_000
-    const limitNum = Math.min(Number(limit) || limiteMax, limiteMax)
+    const { q, pais, limit = '50', offset = '0' } = req.query as {
+      q?: string
+      pais?: string
+      limit?: string
+      offset?: string
+    }
+    const limitNum = Math.min(Number(limit) || 50, q || pais ? 500 : 10_000)
 
     const resp = await fetchCadastrosJson<ListaCadastros<AeroportoCadastros>>(
       '/api/v1/cadastros/aeroportos',
@@ -28,6 +32,7 @@ router.get('/aeroportos', async (req: Request, res: Response) => {
         q,
         pais: pais?.toUpperCase(),
         limit: String(limitNum),
+        offset,
         apenas_ativos: 'true',
       },
     )
@@ -39,9 +44,9 @@ router.get('/aeroportos', async (req: Request, res: Response) => {
       codigo_pais_aeroporto: a.codigo_pais_aeroporto ?? '',
     }))
 
-    res.json({ aeroportos })
+    res.json({ aeroportos, total: resp.total })
   } catch {
-    res.json({ aeroportos: [] })
+    res.json({ aeroportos: [], total: 0 })
   }
 })
 

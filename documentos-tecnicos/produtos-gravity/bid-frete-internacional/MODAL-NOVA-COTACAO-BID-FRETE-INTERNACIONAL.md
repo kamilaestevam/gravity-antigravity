@@ -224,15 +224,15 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 Subseção **Peso e cubagem** no passo 3 (`modal-nova-cotacao-bid-frete-internacional.tsx`):
 
-**Layout padrão (colapsado):** PESO (KG/TON) → select **Incluir cubagem detalhada** (Sim/Não, UI-only) → **CUBAGEM (M³)** (sempre o último campo da subseção).
+**Layout padrão (colapsado):** PESO (KG/TON) → **Field** com ícone Package + título «Incluir cubagem detalhada» e checkbox com frase descritiva → **CUBAGEM (M³)** (sempre o último campo).
 
-**Painel expandido (Sim):** card `.nc-cargo-cubagem-detalhe-panel` com unidade + comprimento/largura/altura em grid 3 colunas. Ao voltar para Não, dimensões são limpas no form e **não** vão no `POST`.
+**Painel expandido (checkbox marcado):** card `.nc-cargo-cubagem-detalhe-panel` com unidade + comprimento/largura/altura em grid 3 colunas. Ao desmarcar, dimensões são limpas no form e **não** vão no `POST`.
 
 | Campo DDD | UI | SSOT / notas |
 |-----------|-----|--------------|
 | `peso_kg_cotacao_bid_frete_internacional` | PESO (KG) | Opcional; sincroniza com TON |
 | `peso_ton_cotacao_bid_frete_internacional` | PESO (TON) | Opcional; sincroniza com KG |
-| — | Incluir cubagem detalhada | `opcao_incluir_cubagem_detalhada_cotacao` — **somente wizard** (`'' \| 'sim' \| 'nao'`) |
+| — | Checkbox cubagem detalhada | `exibir_cubagem_detalhada_cotacao` — **somente wizard** (boolean) |
 | `codigo_unidade_cubagem_cotacao_bid_frete_internacional` | Medida da cubagem | Painel detalhado — Select Cadastros `tipo_unidade=comprimento` |
 | `comprimento_cubagem_cotacao_bid_frete_internacional` | Comprimento | Painel detalhado |
 | `largura_cubagem_cotacao_bid_frete_internacional` | Largura | Painel detalhado |

@@ -71,6 +71,10 @@ import {
 } from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import { PainelDadosGeraisCotacaoBidFreteInternacional } from '../shared/painel-dados-gerais-cotacao-bid-frete-internacional'
+import {
+  rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
+  useTextosLocaisOpcionaisCotacaoBidFrete,
+} from '../shared/locais-opcionais-cotacao-bid-frete-internacional'
 import { TextoTruncadoComTooltip } from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
 import {
   inscreverCotacaoAtualizadaBidFrete,
@@ -407,6 +411,28 @@ export default function DetalheCotacao() {
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
 
+  const ctxLocaisOpcionaisCotacao = useMemo(
+    () => (cotacao
+      ? {
+        modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        porto_origem_cotacao_bid_frete_internacional: cotacao.porto_origem_cotacao_bid_frete_internacional,
+        porto_destino_cotacao_bid_frete_internacional: cotacao.porto_destino_cotacao_bid_frete_internacional,
+        aeroporto_origem_cotacao_bid_frete_internacional: cotacao.aeroporto_origem_cotacao_bid_frete_internacional,
+        aeroporto_destino_cotacao_bid_frete_internacional: cotacao.aeroporto_destino_cotacao_bid_frete_internacional,
+        habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          cotacao.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+        codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          cotacao.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+        habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          cotacao.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+        codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          cotacao.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+      }
+      : {}),
+    [cotacao],
+  )
+  const textosLocaisOpcionaisCotacao = useTextosLocaisOpcionaisCotacaoBidFrete(ctxLocaisOpcionaisCotacao)
+
   const bidsExibidosAba = useMemo(() => {
     if (filtroDisparosAba !== 'recusas') return bids
     return bids.filter(isDisparoRecusaSemResposta)
@@ -735,6 +761,18 @@ export default function DetalheCotacao() {
               rotuloOrigem={t('bidfrete.detalhe_cotacao.origem')}
               rotuloDestino={t('bidfrete.detalhe_cotacao.destino')}
             />
+            {textosLocaisOpcionaisCotacao.origem ? (
+              <InfoRow
+                label={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisCotacao)}
+                value={textosLocaisOpcionaisCotacao.origem}
+              />
+            ) : null}
+            {textosLocaisOpcionaisCotacao.destino ? (
+              <InfoRow
+                label={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisCotacao)}
+                value={textosLocaisOpcionaisCotacao.destino}
+              />
+            ) : null}
           </CardSecaoDados>
 
           <CardSecaoDados variante="carga" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_carga', 'Detalhes da Carga')}>

@@ -242,6 +242,36 @@ export function traduzirRotuloUnidadeEmbalagemNovaCotacao(t: TFunction, codigo: 
   })
 }
 
+export function traduzirFraseCubagemDetalhada(t: TFunction): string {
+  return t('bidfrete.nova_cotacao.frase_cubagem_detalhada', {
+    defaultValue:
+      'Informar comprimento, largura e altura — o volume em m³ é calculado automaticamente e continua editável',
+  })
+}
+
+export function traduzirCampoIncluirCubagemDetalhada(t: TFunction): string {
+  return t('bidfrete.nova_cotacao.campo_incluir_cubagem_detalhada', {
+    defaultValue: 'INCLUIR CUBAGEM DETALHADA',
+  })
+}
+
+export function traduzirCampoExibirLocalizacaoNovaCotacao(
+  t: TFunction,
+  lado: LadoLocalizacaoWizard,
+): string {
+  return t(
+    lado === 'origem'
+      ? 'bidfrete.nova_cotacao.campo_exibir_localizacao_origem'
+      : 'bidfrete.nova_cotacao.campo_exibir_localizacao_destino',
+    {
+      defaultValue:
+        lado === 'origem'
+          ? 'CAMPOS DE COLETA NA ORIGEM'
+          : 'CAMPOS DE COLETA NO DESTINO',
+    },
+  )
+}
+
 export function traduzirFraseExibirCamposLocalizacao(
   t: TFunction,
   lado: LadoLocalizacaoWizard,

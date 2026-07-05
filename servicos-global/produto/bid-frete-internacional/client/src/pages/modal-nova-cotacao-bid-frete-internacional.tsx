@@ -118,6 +118,8 @@ import {
   traduzirErroCriarCotacaoNovaCotacao,
   traduzirFraseExibirCamposLocalizacao,
   traduzirFraseOpcaoPortoAeroportoLocalizacao,
+  traduzirCampoIncluirCubagemDetalhada,
+  traduzirCampoExibirLocalizacaoNovaCotacao,
   traduzirCampoLocaisOpcionaisLocalizacao,
   traduzirLegendaOpcaoPortoAeroportoLocalizacao,
   traduzirIncotermExplicacaoNovaCotacao,
@@ -408,8 +410,8 @@ interface FormState {
   data_limite_resposta_cotacao_bid_frete_internacional: string
   /** Marítimo LCL — '' até o comprador escolher Sim/Não no passo Armazenagem */
   opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
-  /** UI-only — revela painel de dimensões C×L×A; não persiste no banco */
-  opcao_incluir_cubagem_detalhada_cotacao: '' | 'sim' | 'nao'
+  /** UI-only — checkbox revela painel C×L×A; não persiste no banco */
+  exibir_cubagem_detalhada_cotacao: boolean
   // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -471,7 +473,7 @@ const INITIAL_FORM: FormState = {
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
   opcao_incluir_armazenagem_cotacao: '',
-  opcao_incluir_cubagem_detalhada_cotacao: '',
+  exibir_cubagem_detalhada_cotacao: false,
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: false,
   valor_meta_cotacao_bid_frete_internacional: '',
@@ -648,16 +650,22 @@ function LinhaCheckboxExibirCamposLocalizacao({
   const marcado = exibirCamposExtrasLocalizacao(form, lado)
 
   return (
-    <div className="nc-exibir-campos-linha">
-      <label className="nc-exibir-campos-checkbox">
-        <input
-          type="checkbox"
-          className="nc-checkbox-padrao"
-          checked={marcado}
-          onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
-        />
-        <span>{traduzirFraseExibirCamposLocalizacao(t, lado)}</span>
-      </label>
+    <div className="nc-location-opcao-titulo-bloco">
+      <span className="nc-field-label">
+        <GlobeHemisphereWest {...ICONE_FIELD} />
+        <span>{traduzirCampoExibirLocalizacaoNovaCotacao(t, lado)}</span>
+      </span>
+      <div className="nc-exibir-campos-linha">
+        <label className="nc-exibir-campos-checkbox">
+          <input
+            type="checkbox"
+            className="nc-checkbox-padrao"
+            checked={marcado}
+            onChange={(e) => alternarExibirCamposExtrasLocalizacao(setForm, lado, e.target.checked)}
+          />
+          <span>{traduzirFraseExibirCamposLocalizacao(t, lado)}</span>
+        </label>
+      </div>
     </div>
   )
 }
@@ -697,21 +705,29 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
 
   return (
     <>
-      <div className="nc-exibir-campos-linha">
-        <label className="nc-exibir-campos-checkbox">
-          <input
-            type="checkbox"
-            className="nc-checkbox-padrao"
-            checked={habilitado}
-            onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
-          />
-          <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
-        </label>
+      <div className="nc-location-opcao-titulo-bloco">
+        <span className="nc-field-label">
+          {tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
+          <span>{traduzirCampoLocaisOpcionaisLocalizacao(t, lado, tipoLocal)}</span>
+        </span>
+        <div className="nc-exibir-campos-linha">
+          <label className="nc-exibir-campos-checkbox">
+            <input
+              type="checkbox"
+              className="nc-checkbox-padrao"
+              checked={habilitado}
+              onChange={(e) => alternarOpcaoPortoAeroportoLocalizacao(setForm, lado, e.target.checked)}
+            />
+            <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
+          </label>
+        </div>
       </div>
       {habilitado && (
         <div className="nc-fields-grid nc-fields-grid--location-extras">
           <Field
-            label={traduzirCampoLocaisOpcionaisLocalizacao(t, lado, tipoLocal)}
+            label={t('bidfrete.nova_cotacao.campo_selecionar_locais_opcionais', {
+              defaultValue: 'LOCAIS ADICIONAIS ACEITOS',
+            })}
             className="nc-field--span-2"
             required
             icone={tipoLocal === 'porto' ? <Anchor {...ICONE_FIELD} /> : <AirplaneTilt {...ICONE_FIELD} />}
@@ -1420,9 +1436,20 @@ const NC_ESTILOS_CONTEUDO = `
           flex-direction: column;
           gap: 1rem;
         }
+        .nc-location-body > .nc-field > .nc-field-label {
+          color: var(--text-primary, #f8fafc);
+        }
+        .nc-location-body > .nc-field > .nc-field-label svg {
+          color: var(--text-primary, #f8fafc);
+        }
         .nc-exibir-campos-linha {
           margin: 0;
           padding: 0;
+        }
+        .nc-location-opcao-titulo-bloco {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
         }
         .nc-exibir-campos-checkbox {
           display: flex;
@@ -2485,11 +2512,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     () => traduzirOpcoesSimNaoNovaCotacao(t),
     [t],
   )
-  const opcoesIncluirCubagemDetalhada = useMemo(
-    () => traduzirOpcoesSimNaoNovaCotacao(t),
-    [t],
-  )
-  const incluirCubagemDetalhada = form.opcao_incluir_cubagem_detalhada_cotacao === 'sim'
+  const incluirCubagemDetalhada = form.exibir_cubagem_detalhada_cotacao
   const unidadeCubagemSufixo = form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'
   const passosWizard = useMemo(
     () =>
@@ -2532,11 +2555,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     | 'codigo_unidade_cubagem_cotacao_bid_frete_internacional'
   >
 
-  const mudarOpcaoCubagemDetalhada = (valor: '' | 'sim' | 'nao') => {
-    if (valor !== 'sim') {
+  const alternarCubagemDetalhada = (ativo: boolean) => {
+    if (!ativo) {
       setForm(prev => ({
         ...prev,
-        opcao_incluir_cubagem_detalhada_cotacao: valor,
+        exibir_cubagem_detalhada_cotacao: false,
         codigo_unidade_cubagem_cotacao_bid_frete_internacional: '',
         comprimento_cubagem_cotacao_bid_frete_internacional: '',
         largura_cubagem_cotacao_bid_frete_internacional: '',
@@ -2544,7 +2567,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       }))
       return
     }
-    set('opcao_incluir_cubagem_detalhada_cotacao', valor)
+    set('exibir_cubagem_detalhada_cotacao', true)
   }
 
   const aplicarDimensaoCubagemComAutoCalc = (
@@ -3830,19 +3853,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
               <div className="nc-cargo-cubagem-stack">
                 <Field
-                  label={t('bidfrete.nova_cotacao.campo_incluir_cubagem_detalhada', {
-                    defaultValue: 'Incluir cubagem detalhada',
-                  })}
+                  label={traduzirCampoIncluirCubagemDetalhada(t)}
                   icone={<Package {...ICONE_FIELD} />}
                 >
                   <SelectGlobal
-                    id="nc-incluir-cubagem-detalhada"
-                    opcoes={opcoesIncluirCubagemDetalhada}
-                    valor={form.opcao_incluir_cubagem_detalhada_cotacao || null}
-                    aoMudarValor={(v) =>
-                      mudarOpcaoCubagemDetalhada(v == null ? '' : String(v) as '' | 'sim' | 'nao')
-                    }
-                    placeholder={t('bidfrete.nova_cotacao.selecione', { defaultValue: 'Selecionar' })}
+                    opcoes={opcoesIncluirArmazenagem}
+                    valor={incluirCubagemDetalhada ? 'sim' : 'nao'}
+                    aoMudarValor={(v) => alternarCubagemDetalhada(v === 'sim')}
+                    placeholder={t('bidfrete.nova_cotacao.placeholder_selecionar', { defaultValue: 'Selecionar' })}
                     posicao="auto"
                   />
                 </Field>
@@ -3853,18 +3871,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     role="region"
                     aria-labelledby="nc-cubagem-detalhe-title"
                   >
-                    <div className="nc-helper-header">
-                      <Package size={20} weight="duotone" aria-hidden />
-                      <h4 id="nc-cubagem-detalhe-title">
-                        {t('bidfrete.nova_cotacao.titulo_cubagem_detalhada', {
-                          defaultValue: 'Dimensões da carga',
-                        })}
-                      </h4>
-                    </div>
-                    <p className="nc-helper-desc">
+                    <p id="nc-cubagem-detalhe-title" className="nc-helper-desc">
                       {t('bidfrete.nova_cotacao.desc_cubagem_detalhada', {
                         defaultValue:
-                          'Escolha a unidade de medida e informe comprimento, largura e altura. O volume em m³ é recalculado ao editar qualquer dimensão.',
+                          'Escolha a unidade de medida e informe comprimento, largura e altura.',
                       })}
                     </p>
                     <div className="nc-cargo-cubagem-dimensoes-grid">

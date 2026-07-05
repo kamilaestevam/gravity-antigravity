@@ -1529,12 +1529,13 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-muted, #64748b);
           line-height: 1.35;
         }
-        /* Teste nesta tela — placeholder mais claro (override do placeholder-global.css, que usa !important) */
-        .nc-root .nc-input::placeholder {
-          color: #f8fafc !important;
+        /* Teste nesta tela — placeholder Slate 300 (override do placeholder-global.css, que usa !important) */
+        .nc-root input::placeholder,
+        .nc-root textarea::placeholder {
+          color: #f1f5f9 !important;
         }
         .nc-root .sg-placeholder {
-          color: #f8fafc !important;
+          color: #f1f5f9 !important;
         }
 
         select.nc-input {

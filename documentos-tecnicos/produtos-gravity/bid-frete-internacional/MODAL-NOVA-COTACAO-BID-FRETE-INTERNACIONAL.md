@@ -272,6 +272,18 @@ Comportamento: scroll ao fim da lista carrega +100; digitar ≥2 caracteres cons
 
 > Dados: em 2026-07-05 todos os portos do Cadastros foram ativados (`ativo_porto = true`, script `servicos-global/cadastros/scripts/ativar-todos-portos.ts`) — antes só 267 de 16.934 apareciam.
 
+### 8.2 Sem filtro de país nos selects (TASK-000415)
+
+Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino** recebem sempre `codigoPais = ''` (catálogo global). O valor de `origem_pais_cotacao_bid_frete_internacional` / `destino_pais_cotacao_bid_frete_internacional` **não** é repassado como query `?pais=` na API.
+
+| Antes (bug) | Depois (correto) |
+|-------------|------------------|
+| País preenchido no form (ex.: `US`) filtrava portos/aeroportos só daquele país | Busca sempre no catálogo inteiro do Cadastros |
+| Com checkbox «Exibir campos… país» desmarcado, o filtro ficava **invisível** | Hamburg (DEHAM), Frankfurt (FRA) etc. aparecem ao digitar o termo |
+| Usuário via só cidades US com «ham» no nome | Resultados globais ordenados por país + nome no Cadastros |
+
+**Regra:** o país do formulário é preenchido **depois** da seleção do porto/aeroporto (snapshot para persistência), mas não restringe o dropdown. Commit de referência: `fc6c8426d` (`manual-gravity-8001`).
+
 ---
 
 ## 9. Backlog técnico (não bloqueante)

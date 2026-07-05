@@ -64,6 +64,13 @@
 | #302 | Passo 4 WIP: loader, meta tipo/nota, excluir Aberta, catálogo aeroportos, filtro elegíveis POST |
 | #301 | Modal excluir: anti-flicker (preview 1× ao montar, montagem condicional no pai) |
 
+## Entregas recentes (2026-07)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| TASK-000415 (2026-07-05) | Lista de portos/aeroportos incompleta: remove filtro invisível por país no wizard; busca global no Cadastros (Hamburg, Frankfurt, etc.) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
+| Catálogo paginado + busca remota (2026-07-05) | Hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional`, limites SSOT, `offset`/`total` no Cadastros e proxy BID — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1 |
+
 ## Entregas recentes (2026-05)
 
 | PR / entrega | Escopo |

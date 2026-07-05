@@ -76,6 +76,10 @@ import {
 } from '../shared/containers-cotacao-bid-frete-internacional'
 import { useAeroportosPorPais, useContainersCadastros, useMercadoriasPerigosasCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from '../shared/use-opcoes-moeda-cadastros-bid-frete-internacional'
+import {
+  rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
+  useTextosLocaisOpcionaisCotacaoBidFrete,
+} from '../shared/locais-opcionais-cotacao-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import {
   filtrarFornecedoresDisparoBidFreteInternacional,
@@ -1947,6 +1951,11 @@ const NC_ESTILOS_CONTEUDO = `
           flex-direction: column;
           gap: 0.875rem;
         }
+        .nc-receipt-details--locais-opcionais {
+          margin-top: 0.25rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid rgba(148, 163, 184, 0.14);
+        }
         .nc-receipt-row {
           display: flex;
           justify-content: space-between;
@@ -2801,6 +2810,26 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   // ─── Step Content ─────────────────────────────────────────────────────
+  const ctxLocaisOpcionaisResumo = useMemo(
+    () => ({
+      modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional,
+      porto_origem_cotacao_bid_frete_internacional: form.porto_origem_cotacao_bid_frete_internacional,
+      porto_destino_cotacao_bid_frete_internacional: form.porto_destino_cotacao_bid_frete_internacional,
+      aeroporto_origem_cotacao_bid_frete_internacional: form.aeroporto_origem_cotacao_bid_frete_internacional,
+      aeroporto_destino_cotacao_bid_frete_internacional: form.aeroporto_destino_cotacao_bid_frete_internacional,
+      habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+        form.habilitar_opcao_porto_aeroporto_origem_cotacao,
+      codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+        form.codigos_opcao_porto_aeroporto_origem_cotacao,
+      habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+        form.habilitar_opcao_porto_aeroporto_destino_cotacao,
+      codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+        form.codigos_opcao_porto_aeroporto_destino_cotacao,
+    }),
+    [form],
+  )
+  const textosLocaisOpcionaisResumo = useTextosLocaisOpcionaisCotacaoBidFrete(ctxLocaisOpcionaisResumo)
+
   const renderStep = () => {
     switch (tipoPassoAtual) {
       // STEP — Modal e Operação
@@ -3836,6 +3865,27 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   </div>
                 </div>
               </div>
+
+              {(textosLocaisOpcionaisResumo.origem || textosLocaisOpcionaisResumo.destino) ? (
+                <div className="nc-receipt-details nc-receipt-details--locais-opcionais">
+                  {textosLocaisOpcionaisResumo.origem ? (
+                    <div className="nc-receipt-row">
+                      <span className="nc-receipt-label">
+                        {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisResumo)}
+                      </span>
+                      <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.origem}</span>
+                    </div>
+                  ) : null}
+                  {textosLocaisOpcionaisResumo.destino ? (
+                    <div className="nc-receipt-row">
+                      <span className="nc-receipt-label">
+                        {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisResumo)}
+                      </span>
+                      <span className="nc-receipt-value">{textosLocaisOpcionaisResumo.destino}</span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
 
               <div className="nc-receipt-details">
                 <div className="nc-receipt-row">

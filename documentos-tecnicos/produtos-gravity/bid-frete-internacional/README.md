@@ -43,6 +43,7 @@
 | Task / entrega | Escopo |
 |----------------|--------|
 | TASK-000407 (2026-07-04) | Nº da cotação editável: wizard passo 1 (auto-gerado + customizável no POST), lista inline (PATCH), UX texto vs ícone abrir — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 e [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação |
+| TASK-000405 (2026-07-04) | Portos/aeroportos alternativos opcionais: wizard passo 2 + resumo, card Rota no detalhe, seleção obrigatória na resposta do fornecedor — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 · [COTACAO-DETALHE-COCKPIT](./COTACAO-DETALHE-COCKPIT-TECNICO.md) §6 · [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais |
 
 ## Entregas recentes (2026-06)
 

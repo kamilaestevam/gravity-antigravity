@@ -23,6 +23,7 @@ import {
   fornecedoresListResponseSchema,
   fornecedorDetalheResponseSchema,
 } from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
+import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -603,6 +604,14 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       (raw.nome_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_solicitante_bid_frete_internacional:
       (raw.nome_usuario_solicitante_bid_frete_internacional as string | null | undefined) ?? null,
+    codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+      parseCodigosOpcaoPortoAeroportoFromDb(
+        raw.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+      ),
+    codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+      parseCodigosOpcaoPortoAeroportoFromDb(
+        raw.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+      ),
   }
 }
 

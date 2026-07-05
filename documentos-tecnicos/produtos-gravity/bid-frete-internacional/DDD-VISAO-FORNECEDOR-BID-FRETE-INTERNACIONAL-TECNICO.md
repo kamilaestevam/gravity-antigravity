@@ -125,3 +125,45 @@ Campo Prisma `via_portal_proposta_bid_frete_internacional` permanece (flag hist�
 ## Serviços compartilhados
 
 - `server/src/services/enviar-proposta-disparo-bid-frete-internacional.ts` — cria proposta + atualiza disparo/cotação (auth + público)
+
+---
+
+## Resposta — locais opcionais (TASK-000405)
+
+Quando a cotação tem portos/aeroportos alternativos (`habilitar_opcao_*` + `codigos_opcao_*`), o fornecedor **deve** informar qual local utiliza na proposta.
+
+### Exibição (detalhes da cotação)
+
+`SecaoDetalhesCotacaoResposta` (`formulario-resposta-cotacao-bid-frete-internacional.tsx`) lista as opções abaixo da rota principal — paridade com o card Rota do comprador.
+
+### Seleção obrigatória (formulário)
+
+| Campo POST | Obrigatório quando |
+|------------|-------------------|
+| `codigo_porto_aeroporto_origem_proposta_bid_frete_internacional` | `exigeSelecaoLocalFornecedorRespostaBidFrete(cotacao, 'origem')` |
+| `codigo_porto_aeroporto_destino_proposta_bid_frete_internacional` | Idem `'destino'` |
+
+Elegíveis = local principal da cotação + códigos opcionais (dedupe). UI: `SelectGlobal` buscável no topo de **Sua Proposta**. Validação client: `obterErroValidacaoFormularioRespostaCotacao`; server: `validar-locais-proposta-resposta-bid-frete-internacional.ts`.
+
+### Persistência do local escolhido
+
+Sem coluna nova na proposta — serialização em `observacoes_proposta_bid_frete_internacional` via marcador estruturado:
+
+```
+__GRAVITY_BID_LOCAIS__{"codigo_porto_aeroporto_origem_proposta_bid_frete_internacional":"BRSSZ"}__GRAVITY_BID_LOCAIS__
+```
+
+SSOT: `shared/local-proposta-resposta-bid-frete-internacional.ts` (`serializarLocaisPropostaObservacoes`, `parseObservacoesPropostaComLocais`). Edição de proposta repopula os selects via `propostaToEstadoFormularioResposta`.
+
+### Select da cotação no GET disparo
+
+`COTACAO_SELECT_RESPOSTA_FORNECEDOR` em `enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.ts` inclui `habilitar_opcao_*`, `codigos_opcao_*` e campos de porto/aeroporto principal.
+
+### Páginas
+
+| Contexto | Arquivo |
+|----------|---------|
+| Token público | `visao-fornecedor-bid-frete-internacional-responder-publico.tsx` — prop `cotacaoLocais={cotacao}` |
+| Auth | `visao-fornecedor-bid-frete-internacional-responder-cotacao.tsx` — idem |
+
+Schema Zod POST: `server/src/schemas/enviar-proposta-bid-frete-internacional-schema.ts`.

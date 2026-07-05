@@ -309,6 +309,13 @@ export function exibeCampoEscalasRespostaCotacao(modal?: ModalFrete | null): boo
   return modal === 'AEREO'
 }
 
+export function exibeCampoFreeTimeRespostaCotacao(
+  modal?: ModalFrete | null,
+  modalidade?: ModalidadeCarga | null,
+): boolean {
+  return modal === 'MARITIMO' && modalidade === 'FCL'
+}
+
 export function exigeFreeTimeObrigatorioRespostaCotacao(
   modalidade?: ModalidadeCarga | null,
 ): boolean {

@@ -27,6 +27,8 @@ interface ParamsSelectCatalogoLogistica {
   codigoPais?: string
   ativo?: boolean
   codigoSelecionado?: string | null
+  /** Códigos extras a garantir na lista (ex.: locais adicionais aceitos) — mesmo pin do selecionado principal. */
+  codigosSelecionados?: string[]
 }
 
 function mesclarPortos(prev: PortoCadastro[], novos: PortoCadastro[]): PortoCadastro[] {
@@ -42,11 +44,21 @@ function mesclarAeroportos(prev: AeroportoCadastro[], novos: AeroportoCadastro[]
   return Array.from(map.values())
 }
 
+function codigoDeItemCatalogo(
+  tipo: TipoCatalogoLogistica,
+  item: PortoCadastro | AeroportoCadastro,
+): string {
+  if (tipo === 'porto') return (item as PortoCadastro).codigo_unlocode_porto
+  const a = item as AeroportoCadastro
+  return a.codigo_iata_aeroporto ?? a.codigo_unlocode_aeroporto
+}
+
 export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
   tipo,
   codigoPais = '',
   ativo = true,
   codigoSelecionado = null,
+  codigosSelecionados,
 }: ParamsSelectCatalogoLogistica) {
   const [itens, setItens] = useState<(PortoCadastro | AeroportoCadastro)[]>([])
   const [totalCatalogo, setTotalCatalogo] = useState(0)
@@ -57,9 +69,27 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
   const reqIdRef = useRef(0)
   const offsetRef = useRef(0)
   const termoBuscaRef = useRef('')
+  // Itens selecionados fixados ("pin"): o snapshot de rota no submit deriva nome/país
+  // desta lista em memória. Sem o pin, uma nova página/busca substituiria a lista
+  // e o item selecionado sumiria — o nome gravado viraria o próprio código
+  // (ex.: «Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)»).
+  // Map código→item: suporta o selecionado principal e os locais adicionais aceitos.
+  const itensSelecionadosRef = useRef(new Map<string, PortoCadastro | AeroportoCadastro>())
 
   const paisFiltro = codigoPais?.trim().toUpperCase()
   const paisParam = paisFiltro && paisFiltro.length === 2 ? paisFiltro : undefined
+
+  const incluirItemSelecionado = useCallback(
+    (lista: (PortoCadastro | AeroportoCadastro)[]): (PortoCadastro | AeroportoCadastro)[] => {
+      if (itensSelecionadosRef.current.size === 0) return lista
+      const codigosNaLista = new Set(lista.map((i) => codigoDeItemCatalogo(tipo, i)))
+      const faltantes = Array.from(itensSelecionadosRef.current.values()).filter(
+        (item) => !codigosNaLista.has(codigoDeItemCatalogo(tipo, item)),
+      )
+      return faltantes.length > 0 ? [...faltantes, ...lista] : lista
+    },
+    [tipo],
+  )
 
   const buscarPagina = useCallback(
     async (termo: string, offset: number, append: boolean) => {
@@ -90,10 +120,13 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
 
         setTotalCatalogo(resp.total)
         setItens((prev) => {
-          if (!append || emBusca) return resp.itens
-          return tipo === 'porto'
-            ? mesclarPortos(prev as PortoCadastro[], resp.itens as PortoCadastro[])
-            : mesclarAeroportos(prev as AeroportoCadastro[], resp.itens as AeroportoCadastro[])
+          const base =
+            !append || emBusca
+              ? resp.itens
+              : tipo === 'porto'
+                ? mesclarPortos(prev as PortoCadastro[], resp.itens as PortoCadastro[])
+                : mesclarAeroportos(prev as AeroportoCadastro[], resp.itens as AeroportoCadastro[])
+          return incluirItemSelecionado(base)
         })
         offsetRef.current = emBusca ? 0 : offset + resp.itens.length
         termoBuscaRef.current = busca
@@ -111,7 +144,7 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
         }
       }
     },
-    [ativo, paisParam, tipo],
+    [ativo, incluirItemSelecionado, paisParam, tipo],
   )
 
   const reiniciarBusca = useCallback(
@@ -153,35 +186,45 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     [paisParam, tipo],
   )
 
+  // Chave estável dos códigos a garantir (principal + adicionais) — evita refetch
+  // a cada render quando o array é recriado com o mesmo conteúdo.
+  const chaveCodigosSelecionados = useMemo(() => {
+    const codigos = new Set<string>()
+    if (codigoSelecionado?.trim()) codigos.add(codigoSelecionado.trim())
+    for (const c of codigosSelecionados ?? []) {
+      if (c?.trim()) codigos.add(c.trim())
+    }
+    return Array.from(codigos).sort().join('|')
+  }, [codigoSelecionado, codigosSelecionados])
+
   useEffect(() => {
-    if (!ativo || !codigoSelecionado?.trim()) return
+    if (!ativo || !chaveCodigosSelecionados) {
+      itensSelecionadosRef.current.clear()
+      return
+    }
+    const codigos = chaveCodigosSelecionados.split('|')
+    const codigosSet = new Set(codigos)
+    for (const fixado of Array.from(itensSelecionadosRef.current.keys())) {
+      if (!codigosSet.has(fixado)) itensSelecionadosRef.current.delete(fixado)
+    }
+    const faltantes = codigos.filter((c) => !itensSelecionadosRef.current.has(c))
+    if (faltantes.length === 0) return
+
     let cancelado = false
-    void garantirSelecionado(codigoSelecionado.trim()).then((item) => {
-      if (cancelado || !item) return
-      setItens((prev) => {
-        if (tipo === 'porto') {
-          const porto = item as PortoCadastro
-          return prev.some(
-            (p) => (p as PortoCadastro).codigo_unlocode_porto === porto.codigo_unlocode_porto,
-          )
-            ? prev
-            : [porto, ...prev]
-        }
-        const aeroporto = item as AeroportoCadastro
-        const codigo = aeroporto.codigo_iata_aeroporto ?? aeroporto.codigo_unlocode_aeroporto
-        return prev.some(
-          (a) =>
-            (a as AeroportoCadastro).codigo_iata_aeroporto === codigo ||
-            (a as AeroportoCadastro).codigo_unlocode_aeroporto === codigo,
-        )
-          ? prev
-          : [aeroporto, ...prev]
+    void Promise.all(faltantes.map((codigo) => garantirSelecionado(codigo))).then((itensGarantidos) => {
+      if (cancelado) return
+      let algumNovo = false
+      itensGarantidos.forEach((item, i) => {
+        if (!item) return
+        itensSelecionadosRef.current.set(faltantes[i], item)
+        algumNovo = true
       })
+      if (algumNovo) setItens((prev) => incluirItemSelecionado(prev))
     })
     return () => {
       cancelado = true
     }
-  }, [ativo, codigoSelecionado, garantirSelecionado, tipo])
+  }, [ativo, chaveCodigosSelecionados, garantirSelecionado, incluirItemSelecionado, tipo])
 
   useEffect(() => {
     if (!ativo) {
@@ -259,12 +302,14 @@ export function usePortosPorPais(
   codigoPais: string,
   ativo = true,
   codigoSelecionado?: string | null,
+  codigosSelecionados?: string[],
 ) {
   return useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     tipo: 'porto',
     codigoPais,
     ativo,
     codigoSelecionado,
+    codigosSelecionados,
   })
 }
 
@@ -272,11 +317,13 @@ export function useAeroportosPorPais(
   codigoPais: string,
   ativo = true,
   codigoSelecionado?: string | null,
+  codigosSelecionados?: string[],
 ) {
   return useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     tipo: 'aeroporto',
     codigoPais,
     ativo,
+    codigosSelecionados,
     codigoSelecionado,
   })
 }

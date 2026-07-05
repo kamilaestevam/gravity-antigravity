@@ -120,6 +120,18 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 
 - Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
 
+### Dimensões de cubagem na cotação (TASK-000417)
+
+| Peça | Caminho / contrato |
+|------|-------------------|
+| Campos Prisma | `codigo_unidade_cubagem_*`, `comprimento_cubagem_*`, `largura_cubagem_*`, `altura_cubagem_*`, `cubagem_m3_*` |
+| SSOT unidade | Cadastros `unidade.codigo_unidade` (`tipo_unidade=comprimento` — CM, M, IN, FT) |
+| Wizard passo 3 | `modal-nova-cotacao-bid-frete-internacional.tsx` + `use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts` |
+| API | `POST/PATCH /cotacoes` — Zod em `server/src/routes/cotacoes.ts` |
+| Migrations | Bid Frete `20260705130000_*` · Cadastros `20260705120000_*` (IN/FT) |
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8 · Atlas `ddd-atlas/bid-frete/01-campos.md`
+
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 
 Todas as colunas visíveis têm filtro ▾ no header (`FiltroPopoverColuna` / `FiltroChips` do núcleo). Estado `filtrosAtivosLista` em `lista-bid-frete-internacional.tsx`; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`.

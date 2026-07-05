@@ -54,6 +54,19 @@ export interface SelectProps {
   multiplo?: boolean
   /** Permite busca interna na lista */
   buscavel?: boolean
+  /**
+   * Busca assíncrona no servidor — desativa filtro local; `aoMudarBusca` é
+   * chamado a cada alteração do campo e ao abrir o dropdown.
+   */
+  buscaRemota?: boolean
+  /** Callback de busca remota (Cadastros / API indexada). */
+  aoMudarBusca?: (termo: string) => void
+  /** Máximo de opções renderizadas no DOM (restante via busca remota). */
+  limiteOpcoesRenderizadas?: number
+  /** Total no catálogo (para hint "X de Y"). */
+  totalOpcoesCatalogo?: number
+  /** Mensagem quando a lista filtrada está vazia (substitui padrão i18n). */
+  mensagemListaVazia?: string
   /** Placeholder do campo */
   placeholder?: string
 

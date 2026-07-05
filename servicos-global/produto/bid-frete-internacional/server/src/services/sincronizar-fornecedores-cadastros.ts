@@ -81,6 +81,13 @@ export function mapCadastrosParaBidFornecedor(fornecedor: FornecedorCadastrosFre
     id_produto_gravity: 'bid-frete-internacional',
     nome_fornecedor_bid_frete_internacional: fornecedor.nome_fornecedor,
     tipo_fornecedor_bid_frete_internacional: inferirTipoFornecedorBidFrete(fornecedor),
+    pode_ser_agente_fornecedor: fornecedor.pode_ser_agente_fornecedor,
+    pode_ser_armador_fornecedor: fornecedor.pode_ser_armador_fornecedor,
+    pode_ser_cia_aerea_fornecedor: fornecedor.pode_ser_cia_aerea_fornecedor,
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor:
+      fornecedor.pode_ser_transportadora_rodoviaria_nacional_fornecedor,
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor:
+      fornecedor.pode_ser_transportadora_rodoviaria_internacional_fornecedor,
     cnpj_fornecedor_bid_frete_internacional: fornecedor.cnpj_fornecedor ?? null,
     email_fornecedor_bid_frete_internacional: resolverEmailFornecedorBidFrete(fornecedor),
     telefone_fornecedor_bid_frete_internacional: extrairTelefoneParceiroCadastros(fornecedor),

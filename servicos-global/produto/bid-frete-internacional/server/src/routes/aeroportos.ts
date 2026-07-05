@@ -38,9 +38,9 @@ router.get('/aeroportos', async (req: Request, res: Response) => {
       codigo_pais_aeroporto: a.codigo_pais_aeroporto ?? '',
     }))
 
-    res.json({ aeroportos })
+    res.json({ aeroportos, total: resp.total })
   } catch {
-    res.json({ aeroportos: [] })
+    res.json({ aeroportos: [], total: 0 })
   }
 })
 

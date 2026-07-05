@@ -770,6 +770,14 @@ export default function DetalheCotacao() {
               label={t('bidfrete.detalhe_cotacao.cubagem')}
               value={cotacao.cubagem_m3_cotacao_bid_frete_internacional ? `${cotacao.cubagem_m3_cotacao_bid_frete_internacional} m³` : '—'}
             />
+            {cotacao.comprimento_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.largura_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.altura_cubagem_cotacao_bid_frete_internacional != null && (
+              <InfoRow
+                label="Dimensões (C × L × A)"
+                value={`${cotacao.comprimento_cubagem_cotacao_bid_frete_internacional} × ${cotacao.largura_cubagem_cotacao_bid_frete_internacional} × ${cotacao.altura_cubagem_cotacao_bid_frete_internacional} ${cotacao.codigo_unidade_cubagem_cotacao_bid_frete_internacional ?? ''}`.trim()}
+              />
+            )}
           </CardSecaoDados>
         </div>
         </div>

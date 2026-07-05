@@ -48,6 +48,24 @@ export type AnaliseContatosDisparo = {
   fornecedores_sem_whatsapp: FornecedorContatoDisparo[]
 }
 
+/** Monta payload de e-mails por fornecedor apenas para IDs do disparo atual. */
+export function montarEmailsPorFornecedorDisparoPayload(
+  idsFornecedoresDisparo: string[],
+  emailsPorFornecedor: Record<string, string[]>,
+): Record<string, string[]> | undefined {
+  const filtrado = Object.fromEntries(
+    idsFornecedoresDisparo
+      .map((id) => {
+        const emails = (emailsPorFornecedor[id] ?? [])
+          .map((email) => email.trim().toLowerCase())
+          .filter(emailValidoDisparoBidFrete)
+        return emails.length > 0 ? [id, [...new Set(emails)]] as const : null
+      })
+      .filter((entry): entry is readonly [string, string[]] => entry != null),
+  )
+  return Object.keys(filtrado).length > 0 ? filtrado : undefined
+}
+
 export function analisarContatosDisparoFornecedores(
   fornecedores: FornecedorContatoDisparo[],
 ): AnaliseContatosDisparo {

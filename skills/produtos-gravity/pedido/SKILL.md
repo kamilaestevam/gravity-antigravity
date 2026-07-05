@@ -472,7 +472,7 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 |-------|--------|
 | 1 — Edição em Massa | ✅ Consolidada |
 | 2 — Lista de Pedidos | 🟡 Em evolução — editar-salvar STATUS/TOP documentado 2026-06-03 |
-| 2.2 — Painéis da Lista | ✅ `ListaPainelUsuarioGlobal`, `/lista/paineis`, `PedidosListaPainelBar` — ver `documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-GLOSSARIO.md` |
+| 2.2 — Painéis da Lista | ✅ `ListaPainelUsuarioGlobal`, `/lista/paineis`, `PedidosListaPainelBar` — menu ⋮ Renomear/Excluir via portal (`createPortal` + `position: fixed`; ver `PAINEL-LISTA-CONTRATO.md` §5.3, PRs #610/#615) |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — regras de negócio em docs; transferir implementado |
 | 4 — Duplicar | ✅ Consolidada |

@@ -4,6 +4,10 @@
  */
 
 import { z } from 'zod'
+import {
+  LIMITE_CATALOGO_AEROPORTOS_GLOBAL,
+  LIMITE_CATALOGO_AEROPORTOS_POR_PAIS,
+} from '@nucleo/catalogo-aeroportos-cadastros'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   ehParceiroFreteInternacional,
@@ -206,6 +210,28 @@ const listaMercadoriasPerigosasBidSchema = z.object({
   total: z.number(),
 })
 
+const portoDadosMestreBidSchema = z.object({
+  codigo: z.string().min(1),
+  nome: z.string().min(1),
+  pais_codigo_porto_bid_frete_internacional: z.string(),
+  tipo: z.string(),
+})
+
+const listaPortosDadosMestreBidSchema = z.object({
+  portos: z.array(portoDadosMestreBidSchema),
+})
+
+const aeroportoDadosMestreBidSchema = z.object({
+  id_aeroporto: z.string().min(1),
+  codigo_iata_aeroporto: z.string().nullable().optional(),
+  nome_aeroporto: z.string().min(1),
+  codigo_pais_aeroporto: z.string(),
+})
+
+const listaAeroportosDadosMestreBidSchema = z.object({
+  aeroportos: z.array(aeroportoDadosMestreBidSchema),
+})
+
 async function requestCadastros<T>(url: string): Promise<T> {
   const res = await fetch(url, { headers: await authHeadersCadastros() })
   if (!res.ok) {
@@ -249,23 +275,51 @@ export const cadastrosApi = {
   listarPaises: (): Promise<{ itens: PaisCadastro[]; total: number }> =>
     request('/api/v1/cadastros/paises?apenas_ativos=true'),
 
-  listarPortos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
+  listarPortos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
     const busca = params?.q?.trim()
-    const search = new URLSearchParams({
-      apenas_ativos: busca ? 'false' : 'true',
-    })
+    const pais = params?.pais?.trim().toUpperCase()
+    const search = new URLSearchParams({ tipo: 'porto' })
     if (busca) search.set('q', busca)
-    if (params?.pais) search.set('pais', params.pais)
-    if (params?.limit) search.set('limit', String(params.limit))
-    return request(`/api/v1/cadastros/portos?${search.toString()}`)
+    if (pais && pais.length === 2) search.set('pais', pais)
+    search.set('limit', String(params?.limit ?? 500))
+    const path = `/api/v1/bid-frete-internacional/dados-mestre/portos?${search.toString()}`
+    const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
+    const parsed = listaPortosDadosMestreBidSchema.parse(raw)
+    const itens: PortoCadastro[] = parsed.portos
+      .filter((p) => p.tipo === 'porto')
+      .map((p) => ({
+        codigo_unlocode_porto: p.codigo,
+        nome_porto: p.nome,
+        codigo_pais_porto: p.pais_codigo_porto_bid_frete_internacional || null,
+        ativo_porto: true,
+      }))
+    return { itens, total: itens.length }
   },
 
-  listarAeroportos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
-    const search = new URLSearchParams({ apenas_ativos: 'true' })
-    if (params?.q) search.set('q', params.q)
-    if (params?.pais) search.set('pais', params.pais)
-    if (params?.limit) search.set('limit', String(params.limit))
-    return request(`/api/v1/cadastros/aeroportos?${search.toString()}`)
+  listarAeroportos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
+    const busca = params?.q?.trim()
+    const pais = params?.pais?.trim().toUpperCase()
+    const limitePadrao = busca
+      ? 500
+      : pais
+        ? LIMITE_CATALOGO_AEROPORTOS_POR_PAIS
+        : LIMITE_CATALOGO_AEROPORTOS_GLOBAL
+    const search = new URLSearchParams()
+    if (busca) search.set('q', busca)
+    if (pais && pais.length === 2) search.set('pais', pais)
+    search.set('limit', String(params?.limit ?? limitePadrao))
+    const qs = search.toString()
+    const path = `/api/v1/bid-frete-internacional/dados-mestre/aeroportos${qs ? `?${qs}` : ''}`
+    const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
+    const parsed = listaAeroportosDadosMestreBidSchema.parse(raw)
+    const itens: AeroportoCadastro[] = parsed.aeroportos.map((a) => ({
+      codigo_unlocode_aeroporto: a.id_aeroporto,
+      codigo_iata_aeroporto: a.codigo_iata_aeroporto ?? a.id_aeroporto,
+      nome_aeroporto: a.nome_aeroporto,
+      codigo_pais_aeroporto: a.codigo_pais_aeroporto || null,
+      ativo_aeroporto: true,
+    }))
+    return { itens, total: itens.length }
   },
 
   listarMercadoriasPerigosas: async (

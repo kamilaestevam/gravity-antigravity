@@ -28,7 +28,7 @@
 |---|-------|-------------------|
 | 1 | Modal e Operação | Tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
 | 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
-| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, incoterm + helper card |
+| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, **peso + dimensões de cubagem**, incoterm + helper card |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
 | 5 | Resumo | Valor alvo, moeda, receipt visual da rota |
 
@@ -220,7 +220,28 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 ---
 
-## 8. Backlog técnico (não bloqueante)
+## 8. Passo 3 — Peso e cubagem (dimensões)
+
+Subseção **Peso e cubagem** no passo 3 (`modal-nova-cotacao-bid-frete-internacional.tsx`):
+
+| Campo DDD | UI | SSOT / notas |
+|-----------|-----|--------------|
+| `peso_kg_cotacao_bid_frete_internacional` | PESO (KG) | Opcional; sincroniza com TON |
+| `peso_ton_cotacao_bid_frete_internacional` | PESO (TON) | Opcional; sincroniza com KG |
+| `codigo_unidade_cubagem_cotacao_bid_frete_internacional` | MEDIDA DA CUBAGEM | Select — `useUnidades()` filtrado `tipo_unidade=comprimento` (Cadastros) |
+| `comprimento_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (COMPRIMENTO) | Na unidade selecionada |
+| `largura_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (LARGURA) | Idem |
+| `altura_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (ALTURA) | Idem |
+| `cubagem_m3_cotacao_bid_frete_internacional` | CUBAGEM (M³) | Total em m³ — manual |
+
+**Auto-cálculo:** quando unidade + comprimento + largura + altura estão preenchidos, `cubagem_m3_*` é recalculado (C×L×A → m³). Alterar dimensões/unidade sobrescreve o total; editar m³ diretamente permanece válido até a próxima mudança nas dimensões. Util: `shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional.ts`. migration `20260705130000_add_dimensoes_cubagem_cotacao_bid_frete_internacional` — colunas físicas adjacentes a `cubagem_m3_*` (ordem: unidade → C → L → A → m³).  
+**Cadastros:** unidades `IN` (Polegada) e `FT` (Pé) em `unidades-canonicas.ts` + migration `20260705120000_add_unidades_comprimento_in_ft`.
+
+Hook: `client/src/shared/use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts`
+
+---
+
+## 9. Backlog técnico (não bloqueante)
 
 | Item | Mandamento / skill |
 |------|-------------------|

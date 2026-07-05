@@ -54,6 +54,8 @@ export const UNIDADES_CANONICAS: UnidadeCanonica[] = [
   // ── Comprimento ─────────────────────────────────────────────────────
   { sigla: 'CM',        descricao: 'Centímetro',                       categoria: 'comprimento' },
   { sigla: 'M',         descricao: 'Metro',                            categoria: 'comprimento' },
+  { sigla: 'IN',        descricao: 'Polegada',                         categoria: 'comprimento' },
+  { sigla: 'FT',        descricao: 'Pé',                               categoria: 'comprimento' },
   // ── Área ────────────────────────────────────────────────────────────
   { sigla: 'CM2',       descricao: 'Centímetro quadrado',              categoria: 'area' },
   { sigla: 'M2',        descricao: 'Metro quadrado',                   categoria: 'area' },

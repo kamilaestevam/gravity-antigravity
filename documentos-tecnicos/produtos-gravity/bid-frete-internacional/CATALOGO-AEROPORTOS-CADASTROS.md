@@ -40,6 +40,12 @@ Se `total > itens.length`, o client emite `console.warn` `[catalogo-aeroportos] 
 
 ---
 
+## Atualização 2026-07-05 — TASK-000415: sem filtro de país nos selects do wizard
+
+Os selects de porto/aeroporto de origem/destino no wizard Nova Cotação **não** enviam `?pais=` — o catálogo consultado é sempre o global (ver modal §8). O parâmetro `pais` permanece disponível na API para outros consumidores (lista, importação) que precisem filtrar explicitamente.
+
+---
+
 ## Backlog
 
 | Item | Nota |

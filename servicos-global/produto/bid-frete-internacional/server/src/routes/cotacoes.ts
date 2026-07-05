@@ -22,7 +22,10 @@ import { prisma as basePrisma, withTenantIsolation } from '../middleware/isolame
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
-import { carregarContextoCatalogoRotaBidFreteInternacional } from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
+import {
+  carregarContextoCatalogoRotaBidFreteInternacional,
+  garantirTerminaisRotaNoContextoCatalogo,
+} from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
 import { validarRotaCotacaoContraCadastros } from '../lib/validar-rota-cadastros-cotacao-bid-frete-internacional.js'
 import {
   codigosOpcaoPortoAeroportoParaPersistencia,
@@ -236,6 +239,7 @@ async function prepararRotaComValidacaoCadastros(
   idOrganizacao: string,
 ): Promise<ReturnType<typeof prepararCamposRotaCotacaoPersistencia>> {
   const ctx = await carregarContextoCatalogoRotaBidFreteInternacional(idOrganizacao)
+  await garantirTerminaisRotaNoContextoCatalogo(ctx, dados, idOrganizacao)
   const erros = await validarRotaCotacaoContraCadastros(dados, idOrganizacao, ctx)
   if (erros.length > 0) {
     throw new AppError(

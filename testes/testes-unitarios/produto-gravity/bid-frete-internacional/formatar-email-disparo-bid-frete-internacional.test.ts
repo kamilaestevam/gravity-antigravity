@@ -88,6 +88,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       ...base,
       referenciaInterna: 'IMP023/22',
       ncm: '8471.30.19',
+      hsCode: '8471.30',
       pesoTon: 12.5,
       dimensoesCubagemTexto: '120 × 100 × 90 cm',
       cargaPerigosaTexto: 'Sim — UN 1263 · Classe 3',
@@ -101,6 +102,8 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(html).toContain('IMP023/22')
     expect(html).toContain('NCM')
     expect(html).toContain('8471.30.19')
+    expect(html).toContain('HS Code')
+    expect(html).toContain('8471.30')
     expect(html).toContain('Peso (ton)')
     expect(html).toContain('Dimensões (C × L × A)')
     expect(html).toContain('120 × 100 × 90 cm')
@@ -119,9 +122,11 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     const texto = montarTextoPlanoEmailDisparo({
       ...base,
       ncm: '8471.30.19',
+      hsCode: '8471.30',
       cargaPerigosaTexto: 'Sim — UN 1263',
     })
     expect(texto).toContain('NCM: 8471.30.19')
+    expect(texto).toContain('HS Code: 8471.30')
     expect(texto).toContain('Carga perigosa: Sim — UN 1263')
   })
 })

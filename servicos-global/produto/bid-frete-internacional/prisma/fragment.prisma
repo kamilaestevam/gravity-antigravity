@@ -255,6 +255,7 @@ model CotacaoBidFreteInternacional {
   // Mercadoria
   descricao_mercadoria_cotacao_bid_frete_internacional String
   ncm_cotacao_bid_frete_internacional                 String?
+  hs_code_cotacao_bid_frete_internacional             String?
 
   // Carga perigosa (espelho do catálogo ONU — Cadastros)
   eh_carga_perigosa_cotacao_bid_frete_internacional              Boolean  @default(false)

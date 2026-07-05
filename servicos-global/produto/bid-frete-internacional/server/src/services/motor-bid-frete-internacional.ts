@@ -486,6 +486,7 @@ export const motorBid = {
       opcoesDestinoTexto,
       mercadoria: cotacao.descricao_mercadoria_cotacao_bid_frete_internacional,
       ncm: cotacao.ncm_cotacao_bid_frete_internacional,
+      hsCode: cotacao.hs_code_cotacao_bid_frete_internacional,
       incoterm: cotacao.incoterm_cotacao_bid_frete_internacional,
       tipoContainer: cotacao.tipo_container_cotacao_bid_frete_internacional,
       quantidade: cotacao.quantidade_volume_cotacao_bid_frete_internacional,

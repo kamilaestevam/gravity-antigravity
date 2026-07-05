@@ -40,6 +40,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   opcoesDestinoTexto?: string | null
   mercadoria: string
   ncm?: string | null
+  hsCode?: string | null
   incoterm: string
   tipoContainer?: string | null
   quantidade?: number | null
@@ -278,6 +279,9 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
   }
   if (params.ncm?.trim()) {
     linhas.push(['NCM', params.ncm.trim()])
+  }
+  if (params.hsCode?.trim()) {
+    linhas.push(['HS Code', params.hsCode.trim()])
   }
   if (params.pesoTon != null && params.pesoTon > 0) {
     linhas.push(['Peso (ton)', `${params.pesoTon.toLocaleString('pt-BR')} t`])

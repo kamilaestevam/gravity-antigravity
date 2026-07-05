@@ -632,7 +632,6 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'aeroporto_destino_cotacao_bid_frete_internacional',
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
-  'hs_code_cotacao_bid_frete_internacional',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 

@@ -64,6 +64,7 @@ const CriarCotacaoSchemaBase = z.object({
 }).merge(CamposRotaModalCotacaoSchema).extend({
   descricao_mercadoria_cotacao_bid_frete_internacional: z.string().min(1),
   ncm_cotacao_bid_frete_internacional: z.string().optional(),
+  hs_code_cotacao_bid_frete_internacional: z.string().max(10).optional(),
   quantidade_volume_cotacao_bid_frete_internacional: z.number().int().positive().default(1),
   tipo_container_cotacao_bid_frete_internacional: z.string().optional(),
   peso_kg_cotacao_bid_frete_internacional: z.number().positive().optional(),

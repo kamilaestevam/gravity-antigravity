@@ -121,6 +121,7 @@ export interface DetalhesCotacaoResposta {
   incoterm_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional?: string | null
+  hs_code_cotacao_bid_frete_internacional?: string | null
   quantidade_volume_cotacao_bid_frete_internacional?: number
   tipo_container_cotacao_bid_frete_internacional?: string | null
   peso_kg_cotacao_bid_frete_internacional?: number | null
@@ -541,6 +542,16 @@ export function SecaoDetalhesCotacaoResposta({
             </span>
             <span className="brc-detalhe-valor">
               {cotacao.ncm_cotacao_bid_frete_internacional.trim()}
+            </span>
+          </div>
+        ) : null}
+        {cotacao?.hs_code_cotacao_bid_frete_internacional?.trim() ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.hs_code', { defaultValue: 'HS Code' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              {cotacao.hs_code_cotacao_bid_frete_internacional.trim()}
             </span>
           </div>
         ) : null}

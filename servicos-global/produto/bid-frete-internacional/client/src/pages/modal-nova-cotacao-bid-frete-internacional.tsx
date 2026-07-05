@@ -3095,6 +3095,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         destino_pais_cotacao_bid_frete_internacional: rotaPersistencia.destino_pais_cotacao_bid_frete_internacional,
         descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
         ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
+        hs_code_cotacao_bid_frete_internacional: form.hs_code_cotacao_bid_frete_internacional || undefined,
         quantidade_volume_cotacao_bid_frete_internacional: containersPersistidos.quantidade_volume_cotacao_bid_frete_internacional,
         tipo_container_cotacao_bid_frete_internacional:
           containersPersistidos.tipo_container_cotacao_bid_frete_internacional || undefined,

@@ -34,6 +34,7 @@ export const COTACAO_SELECT_RESPOSTA_FORNECEDOR = {
   destino_pais_cotacao_bid_frete_internacional: true,
   descricao_mercadoria_cotacao_bid_frete_internacional: true,
   ncm_cotacao_bid_frete_internacional: true,
+  hs_code_cotacao_bid_frete_internacional: true,
   incoterm_cotacao_bid_frete_internacional: true,
   quantidade_volume_cotacao_bid_frete_internacional: true,
   tipo_container_cotacao_bid_frete_internacional: true,

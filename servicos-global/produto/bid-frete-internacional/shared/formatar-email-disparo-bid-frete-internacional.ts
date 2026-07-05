@@ -9,17 +9,6 @@ import type { ModalRotaCotacao } from './rota-cotacao-bid-frete-internacional.js
 const ROTULOS_MODAL = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modal_cotacao_bid_frete_internacional ?? {}
 const ROTULOS_MODALIDADE = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modalidade_cotacao_bid_frete_internacional ?? {}
 
-const ROTULOS_EMBALAGEM: Readonly<Record<string, string>> = {
-  UNIDADE: 'Unidade (UN)',
-  CAIXA: 'Caixa',
-  PALLET: 'Palete / Pallet',
-  VOLUME: 'Volume',
-  FARDO: 'Fardo',
-  SACO: 'Saco / Bag',
-  TAMBOR: 'Tambor',
-  BIG_BAG: 'Big Bag',
-}
-
 const COR_INDIGO = '#4F46E5'
 const COR_TEXTO = '#0f172a'
 const COR_MUTED = '#64748b'
@@ -80,8 +69,6 @@ export function rotuloCampoVolumeEmailDisparoBidFrete(modal: string): string {
 
 function rotuloTipoVolumeEmailDisparo(modal: string, tipo: string | null | undefined): string {
   if (!tipo?.trim()) return '—'
-  const codigo = tipo.trim().toUpperCase()
-  if (ROTULOS_EMBALAGEM[codigo]) return ROTULOS_EMBALAGEM[codigo]
   return tipo.trim()
 }
 

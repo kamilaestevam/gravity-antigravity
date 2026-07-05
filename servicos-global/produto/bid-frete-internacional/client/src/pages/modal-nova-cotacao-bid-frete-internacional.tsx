@@ -52,6 +52,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 import { criarCotacaoComDisparo, getCotacao, getFornecedores } from '../shared/api'
 import { aguardarConfirmacaoDisparoCotacao } from '../shared/aguardar-confirmacao-disparo-bid-frete-internacional'
+import { publicarCotacaoAtualizadaBidFrete } from '../shared/bus-cotacao-atualizada-bid-frete-internacional'
 import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
 import {
   corBordaFeedbackDisparo,
@@ -122,15 +123,14 @@ import {
   traduzirLegendaLocalizacaoNovaCotacao,
   traduzirModalNovaCotacao,
   traduzirOpcoesSimNaoNovaCotacao,
-  traduzirOpcoesUnidadeEmbalagemNovaCotacao,
   traduzirOperacaoNovaCotacao,
   traduzirPassoWizardNovaCotacao,
   traduzirRotuloArmazenagemResumoNovaCotacao,
   traduzirRotuloResumoVisibilidadeNovaCotacao,
-  traduzirRotuloUnidadeEmbalagemNovaCotacao,
   traduzirTituloLocalizacaoNovaCotacao,
   traduzirTooltipIncotermNovaCotacao,
 } from '../shared/traduzir-nova-cotacao-bid-frete-internacional'
+import { useOpcoesUnidadeEmbalagemBidFreteInternacional } from '../shared/use-opcoes-unidade-embalagem-bid-frete-internacional'
 
 const ICONES_PASSO_WIZARD: Record<TipoPassoWizardNovaCotacao, React.ReactNode> = {
   modal: <Truck weight="duotone" size={16} />,
@@ -654,6 +654,10 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
   opcoes,
   codigoPrincipal,
   carregando,
+  aoMudarBuscaCatalogo,
+  aoScrollFimListaCatalogo,
+  totalCatalogo,
+  mensagemListaVazia,
 }: {
   lado: LadoLocalizacaoWizard
   form: FormState
@@ -662,6 +666,10 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
   opcoes: SelectOpcao[]
   codigoPrincipal: string
   carregando: boolean
+  aoMudarBuscaCatalogo?: (termo: string) => void
+  aoScrollFimListaCatalogo?: () => void
+  totalCatalogo?: number
+  mensagemListaVazia?: string
 }) {
   const { t } = useTranslation()
   const habilitado = habilitarOpcaoPortoAeroportoLocalizacao(form, lado)
@@ -707,17 +715,14 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
                 defaultValue: 'Selecione um ou mais locais alternativos...',
               })}
               buscavel
+              buscaRemota={Boolean(aoMudarBuscaCatalogo)}
+              aoMudarBusca={aoMudarBuscaCatalogo}
+              aoScrollFimLista={aoScrollFimListaCatalogo}
+              totalOpcoesCatalogo={totalCatalogo}
+              mensagemListaVazia={mensagemListaVazia}
               carregando={carregando}
               posicao="auto"
             />
-          </Field>
-        </div>
-      )}
-    </>
-  )
-}
-
-const NC_ESTILOS_CONTEUDO = `
         .nc-root,
         .nc-step-wrapper,
         .nc-sucesso {
@@ -2191,49 +2196,79 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     useCidadesIbgeBidFreteInternacional(
       form.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? ufDestinoRodoviario : '',
     )
-  const paisOrigemCodigo = form.origem_pais_cotacao_bid_frete_internacional
-  const paisDestinoCodigo = form.destino_pais_cotacao_bid_frete_internacional
+  // Busca de porto/aeroporto SEMPRE no catálogo global ('' = sem filtro de país).
+  // O país do formulário NÃO filtra o catálogo: quando os campos de localização
+  // estão ocultos, o filtro ficaria invisível e esconderia portos (ex: Hamburg
+  // não aparecia com país de origem = US preenchido silenciosamente).
   const {
     portos: portosOrigem,
     opcoes: opcoesPortosOrigem,
     carregando: carregandoPortosOrigem,
+    aoMudarBusca: aoMudarBuscaPortosOrigem,
+    aoScrollFimLista: aoScrollFimPortosOrigem,
+    totalCatalogo: totalCatalogoPortosOrigem,
+    mensagemListaVazia: mensagemVaziaPortosOrigem,
   } = usePortosPorPais(
-    paisOrigemCodigo,
+    '',
     modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
+    form.porto_origem_cotacao_bid_frete_internacional || null,
   )
   const {
     portos: portosDestino,
     opcoes: opcoesPortosDestino,
     carregando: carregandoPortosDestino,
+    aoMudarBusca: aoMudarBuscaPortosDestino,
+    aoScrollFimLista: aoScrollFimPortosDestino,
+    totalCatalogo: totalCatalogoPortosDestino,
+    mensagemListaVazia: mensagemVaziaPortosDestino,
   } = usePortosPorPais(
-    paisDestinoCodigo,
+    '',
     modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional),
+    form.porto_destino_cotacao_bid_frete_internacional || null,
   )
   const {
     aeroportos: aeroportosOrigem,
     opcoes: opcoesAeroportosOrigem,
     carregando: carregandoAeroportosOrigem,
+    aoMudarBusca: aoMudarBuscaAeroportosOrigem,
+    aoScrollFimLista: aoScrollFimAeroportosOrigem,
+    totalCatalogo: totalCatalogoAeroportosOrigem,
+    mensagemListaVazia: mensagemVaziaAeroportosOrigem,
   } = useAeroportosPorPais(
-    paisOrigemCodigo,
+    '',
     modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
+    form.aeroporto_origem_cotacao_bid_frete_internacional || null,
   )
   const {
     aeroportos: aeroportosDestino,
     opcoes: opcoesAeroportosDestino,
     carregando: carregandoAeroportosDestino,
+    aoMudarBusca: aoMudarBuscaAeroportosDestino,
+    aoScrollFimLista: aoScrollFimAeroportosDestino,
+    totalCatalogo: totalCatalogoAeroportosDestino,
+    mensagemListaVazia: mensagemVaziaAeroportosDestino,
   } = useAeroportosPorPais(
-    paisDestinoCodigo,
+    '',
     modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional),
+    form.aeroporto_destino_cotacao_bid_frete_internacional || null,
   )
   const exigePortoModal = modalExigePortoCotacao(form.modal_cotacao_bid_frete_internacional)
   const exigeAeroportoModal = modalExigeAeroportoCotacao(form.modal_cotacao_bid_frete_internacional)
   const {
     opcoes: opcoesPortosAlternativos,
     carregando: carregandoPortosAlternativos,
+    aoMudarBusca: aoMudarBuscaPortosAlternativos,
+    aoScrollFimLista: aoScrollFimPortosAlternativos,
+    totalCatalogo: totalCatalogoPortosAlternativos,
+    mensagemListaVazia: mensagemVaziaPortosAlternativos,
   } = usePortosPorPais('', exigePortoModal)
   const {
     opcoes: opcoesAeroportosAlternativos,
     carregando: carregandoAeroportosAlternativos,
+    aoMudarBusca: aoMudarBuscaAeroportosAlternativos,
+    aoScrollFimLista: aoScrollFimAeroportosAlternativos,
+    totalCatalogo: totalCatalogoAeroportosAlternativos,
+    mensagemListaVazia: mensagemVaziaAeroportosAlternativos,
   } = useAeroportosPorPais('', exigeAeroportoModal)
   const {
     containers: containersCadastro,
@@ -2385,10 +2420,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const modal = form.modal_cotacao_bid_frete_internacional
   const modalidade = modalidadeEfetivaNovaCotacao(form)
   const exigeContainerFcl = modal === 'MARITIMO' && modalidade === 'FCL'
-  const opcoesEmbalagem = useMemo(
-    () => traduzirOpcoesUnidadeEmbalagemNovaCotacao(t),
-    [t],
-  )
+  const { opcoes: opcoesEmbalagem, rotuloPorCodigo: rotuloUnidadeEmbalagemPorCodigo } =
+    useOpcoesUnidadeEmbalagemBidFreteInternacional()
   const opcoesIncluirArmazenagem = useMemo(
     () => traduzirOpcoesSimNaoNovaCotacao(t),
     [t],
@@ -2753,10 +2786,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         } else if (disparo_pendente) {
           setSucesso(true)
           setFeedbackDisparoCriacao(formatarFeedbackDisparoBidFrete(null, { aguardandoConfirmacao: true }))
-          const { resumo, confirmado } = await aguardarConfirmacaoDisparoCotacao(
+          const { resumo, confirmado, cotacao: cotacaoConfirmada } = await aguardarConfirmacaoDisparoCotacao(
             idCotacaoSalva,
             getCotacao,
           )
+          // Disparo roda em background no servidor — propagar a cotação confirmada
+          // para lista/detalhe já abertos exibirem os disparos sem F5
+          if (cotacaoConfirmada) publicarCotacaoAtualizadaBidFrete(cotacaoConfirmada)
           feedback = confirmado
             ? formatarFeedbackDisparoBidFrete(resumo)
             : formatarFeedbackDisparoBidFrete(resumo, { naoConfirmado: true })
@@ -3014,6 +3050,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       aoMudarValor={aoMudarPortoOrigem}
                       placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_porto', { defaultValue: 'Selecione o porto...' })}
                       buscavel
+                      buscaRemota
+                      aoMudarBusca={aoMudarBuscaPortosOrigem}
+                      aoScrollFimLista={aoScrollFimPortosOrigem}
+                      totalOpcoesCatalogo={totalCatalogoPortosOrigem}
+                      mensagemListaVazia={mensagemVaziaPortosOrigem}
                       carregando={carregandoPortosOrigem}
                       posicao="auto"
                     />
@@ -3029,6 +3070,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       aoMudarValor={aoMudarAeroportoOrigem}
                       placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_aeroporto', { defaultValue: 'Selecione o aeroporto...' })}
                       buscavel
+                      buscaRemota
+                      aoMudarBusca={aoMudarBuscaAeroportosOrigem}
+                      aoScrollFimLista={aoScrollFimAeroportosOrigem}
+                      totalOpcoesCatalogo={totalCatalogoAeroportosOrigem}
+                      mensagemListaVazia={mensagemVaziaAeroportosOrigem}
                       carregando={carregandoAeroportosOrigem}
                       posicao="auto"
                     />
@@ -3109,6 +3155,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         : form.aeroporto_origem_cotacao_bid_frete_internacional
                     }
                     carregando={exigePorto ? carregandoPortosAlternativos : carregandoAeroportosAlternativos}
+                    aoMudarBuscaCatalogo={
+                      exigePorto ? aoMudarBuscaPortosAlternativos : aoMudarBuscaAeroportosAlternativos
+                    }
+                    aoScrollFimListaCatalogo={
+                      exigePorto ? aoScrollFimPortosAlternativos : aoScrollFimAeroportosAlternativos
+                    }
+                    totalCatalogo={
+                      exigePorto ? totalCatalogoPortosAlternativos : totalCatalogoAeroportosAlternativos
+                    }
+                    mensagemListaVazia={
+                      exigePorto ? mensagemVaziaPortosAlternativos : mensagemVaziaAeroportosAlternativos
+                    }
                   />
                 )}
 
@@ -3166,6 +3224,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       aoMudarValor={aoMudarPortoDestino}
                       placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_porto', { defaultValue: 'Selecione o porto...' })}
                       buscavel
+                      buscaRemota
+                      aoMudarBusca={aoMudarBuscaPortosDestino}
+                      aoScrollFimLista={aoScrollFimPortosDestino}
+                      totalOpcoesCatalogo={totalCatalogoPortosDestino}
+                      mensagemListaVazia={mensagemVaziaPortosDestino}
                       carregando={carregandoPortosDestino}
                       posicao="auto"
                     />
@@ -3181,6 +3244,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       aoMudarValor={aoMudarAeroportoDestino}
                       placeholder={t('bidfrete.nova_cotacao.placeholder_selecione_aeroporto', { defaultValue: 'Selecione o aeroporto...' })}
                       buscavel
+                      buscaRemota
+                      aoMudarBusca={aoMudarBuscaAeroportosDestino}
+                      aoScrollFimLista={aoScrollFimAeroportosDestino}
+                      totalOpcoesCatalogo={totalCatalogoAeroportosDestino}
+                      mensagemListaVazia={mensagemVaziaAeroportosDestino}
                       carregando={carregandoAeroportosDestino}
                       posicao="auto"
                     />
@@ -3261,6 +3329,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         : form.aeroporto_destino_cotacao_bid_frete_internacional
                     }
                     carregando={exigePorto ? carregandoPortosAlternativos : carregandoAeroportosAlternativos}
+                    aoMudarBuscaCatalogo={
+                      exigePorto ? aoMudarBuscaPortosAlternativos : aoMudarBuscaAeroportosAlternativos
+                    }
+                    aoScrollFimListaCatalogo={
+                      exigePorto ? aoScrollFimPortosAlternativos : aoScrollFimAeroportosAlternativos
+                    }
+                    totalCatalogo={
+                      exigePorto ? totalCatalogoPortosAlternativos : totalCatalogoAeroportosAlternativos
+                    }
+                    mensagemListaVazia={
+                      exigePorto ? mensagemVaziaPortosAlternativos : mensagemVaziaAeroportosAlternativos
+                    }
                   />
                 )}
 
@@ -3943,7 +4023,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                             form.linhas_container_fcl_cotacao,
                             rotuloContainerPorCodigo,
                           )
-                        : traduzirRotuloUnidadeEmbalagemNovaCotacao(t, form.tipo_container_cotacao_bid_frete_internacional)}
+                        : rotuloUnidadeEmbalagemPorCodigo(form.tipo_container_cotacao_bid_frete_internacional)}
                     </span>
                   </div>
                 )}

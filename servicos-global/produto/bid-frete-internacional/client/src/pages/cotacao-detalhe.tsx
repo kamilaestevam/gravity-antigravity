@@ -377,6 +377,10 @@ export default function DetalheCotacao() {
     return inscreverCotacaoAtualizadaBidFrete((cotacaoRemota) => {
       if (cotacaoRemota.id_cotacao_bid_frete_internacional !== id) return
       mesclarCotacaoNoDetalhe(cotacaoRemota)
+      // Disparo em background: a cotação confirmada chega com os disparos —
+      // refletir na aba Solicitação de Cotação sem exigir F5
+      const disparosRemotos = cotacaoRemota.disparo_cotacao_bid_frete_internacional
+      if (disparosRemotos && disparosRemotos.length > 0) setBids(disparosRemotos)
     })
   }, [id, mesclarCotacaoNoDetalhe])
 

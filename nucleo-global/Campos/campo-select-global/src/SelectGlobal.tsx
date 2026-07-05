@@ -144,6 +144,7 @@ export function SelectGlobal({
   buscavel = true,
   buscaRemota = false,
   aoMudarBusca,
+  aoScrollFimLista,
   limiteOpcoesRenderizadas,
   totalOpcoesCatalogo,
   mensagemListaVazia,
@@ -277,16 +278,34 @@ export function SelectGlobal({
   }, [todasOpcoes, busca, buscaRemota])
 
   const opcoesParaRender = useMemo(() => {
+    if (buscaRemota) return opcoesFiltradas
     if (!limiteOpcoesRenderizadas || limiteOpcoesRenderizadas <= 0) {
       return opcoesFiltradas
     }
     return opcoesFiltradas.slice(0, limiteOpcoesRenderizadas)
-  }, [opcoesFiltradas, limiteOpcoesRenderizadas])
+  }, [opcoesFiltradas, limiteOpcoesRenderizadas, buscaRemota])
 
   const haMaisOpcoesRender =
+    !buscaRemota &&
     limiteOpcoesRenderizadas != null &&
     limiteOpcoesRenderizadas > 0 &&
     opcoesFiltradas.length > opcoesParaRender.length
+
+  const haMaisCatalogoRemoto =
+    buscaRemota &&
+    totalOpcoesCatalogo != null &&
+    totalOpcoesCatalogo > opcoesFiltradas.length
+
+  const handleScrollLista = useCallback(
+    (event: React.UIEvent<HTMLUListElement>) => {
+      if (!aoScrollFimLista) return
+      const el = event.currentTarget
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 32) {
+        aoScrollFimLista()
+      }
+    },
+    [aoScrollFimLista],
+  )
 
 
   // ─── Opções filtradas por grupo ───────────────────────────────────────────
@@ -432,14 +451,14 @@ export function SelectGlobal({
       />
     ))
 
-    if (haMaisOpcoesRender || (buscaRemota && totalOpcoesCatalogo != null && totalOpcoesCatalogo > opcoesFiltradas.length)) {
+    if (haMaisOpcoesRender || haMaisCatalogoRemoto) {
       const exibidos = opcoesParaRender.length
       const totalRef = totalOpcoesCatalogo ?? opcoesFiltradas.length
       itens.push(
         <li key="__sg-mais-opcoes" className="sg-vazio sg-vazio--hint" aria-hidden="true">
           {buscaRemota
             ? t('campo.mais_opcoes_busca_remota', {
-                defaultValue: `Mostrando ${exibidos} de ${totalRef}. Digite para buscar no catálogo completo.`,
+                defaultValue: `Mostrando ${exibidos} de ${totalRef}. Role ou digite para buscar no catálogo completo.`,
                 exibidos,
                 total: totalRef,
               })
@@ -517,6 +536,7 @@ export function SelectGlobal({
         role="listbox"
         aria-multiselectable={multiplo}
         aria-label={ariaLabel ?? label ?? 'Opções'}
+        onScroll={handleScrollLista}
       >
         {renderizarLista()}
       </ul>

@@ -1405,8 +1405,9 @@ export default function DetalheCotacao() {
         }
         .dc-target-label { font-weight: 600; }
         .dc-target-value {
-          font-family: 'DM Mono', monospace;
-          font-weight: 700;
+          font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
           color: var(--text-primary, #f1f5f9);
         }
 

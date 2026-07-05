@@ -126,7 +126,7 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 |------|-------------------|
 | Campos Prisma | `codigo_unidade_cubagem_*`, `comprimento_cubagem_*`, `largura_cubagem_*`, `altura_cubagem_*`, `cubagem_m3_*` |
 | SSOT unidade | Cadastros `unidade.codigo_unidade` (`tipo_unidade=comprimento` — CM, M, IN, FT) |
-| Wizard passo 3 | `modal-nova-cotacao-bid-frete-internacional.tsx` + `use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts` |
+| Wizard passo 3 | `modal-nova-cotacao-bid-frete-internacional.tsx` — toggle UI **Incluir cubagem detalhada** (painel C×L×A); m³ sempre por último + `use-opcoes-unidade-comprimento-cubagem-bid-frete-internacional.ts` |
 | API | `POST/PATCH /cotacoes` — Zod em `server/src/routes/cotacoes.ts` |
 | Migrations | Bid Frete `20260705130000_*` · Cadastros `20260705120000_*` (IN/FT) |
 

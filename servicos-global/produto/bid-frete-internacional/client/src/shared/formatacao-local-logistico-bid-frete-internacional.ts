@@ -1,7 +1,28 @@
 /**
- * Rótulos de porto/aeroporto — evita sigla duplicada entre parênteses.
- * Ex.: "Buenos Aires Ezeiza (EZE) (EZE)" → "Buenos Aires Ezeiza (EZE)"
+ * Rótulos de porto/aeroporto — evita sigla duplicada entre parênteses ou prefixo "COD — Nome".
+ * Ex.: "Buenos Aires Ezeiza (EZE) (EZE)" → "Buenos Aires Ezeiza" + linha "EZE"
+ * Ex.: "VNHPH — Hai Phong" + código VNHPH → "Hai Phong" + linha "VNHPH"
  */
+
+function variantesCodigoLogistico(codigo: string): string[] {
+  const normalizado = codigo.trim().toUpperCase()
+  if (!normalizado) return []
+  const variantes = new Set<string>([normalizado])
+  if (normalizado.length === 5 && /^[A-Z]{5}$/.test(normalizado)) {
+    variantes.add(`${normalizado.slice(0, 2)} ${normalizado.slice(2)}`)
+  }
+  return [...variantes]
+}
+
+function removerPrefixoCodigoDoTitulo(titulo: string, codigo: string): string {
+  let resultado = titulo.trim()
+  for (const variante of variantesCodigoLogistico(codigo)) {
+    const varianteEscapada = variante.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const padraoPrefixo = new RegExp(`^${varianteEscapada}\\s*[—–-]\\s*`, 'i')
+    resultado = resultado.replace(padraoPrefixo, '').trim()
+  }
+  return resultado
+}
 
 /** Evita "Buenos Aires (EZE)" + linha "EZE" — sigla aparece só uma vez. */
 export function normalizarTextoPontoRota(
@@ -15,6 +36,8 @@ export function normalizarTextoPontoRota(
     return { titulo: titulo || '—', sigla: null }
   }
 
+  titulo = removerPrefixoCodigoDoTitulo(titulo, sigla)
+
   const siglaEscapada = sigla.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const padraoSufixoEntreParenteses = new RegExp(`\\s*\\(\\s*${siglaEscapada}\\s*\\)\\s*$`, 'i')
 
@@ -22,6 +45,12 @@ export function normalizarTextoPontoRota(
   while (titulo !== anterior) {
     anterior = titulo
     titulo = titulo.replace(padraoSufixoEntreParenteses, '').trim()
+  }
+
+  for (const variante of variantesCodigoLogistico(sigla)) {
+    if (titulo.toUpperCase() === variante) {
+      return { titulo: variante, sigla: null }
+    }
   }
 
   if (!titulo || titulo.toUpperCase() === sigla.toUpperCase()) {

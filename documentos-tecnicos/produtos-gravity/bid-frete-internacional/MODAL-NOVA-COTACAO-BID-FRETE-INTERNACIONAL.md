@@ -224,15 +224,20 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 Subseção **Peso e cubagem** no passo 3 (`modal-nova-cotacao-bid-frete-internacional.tsx`):
 
+**Layout padrão (colapsado):** PESO (KG/TON) → select **Incluir cubagem detalhada** (Sim/Não, UI-only) → **CUBAGEM (M³)** (sempre o último campo da subseção).
+
+**Painel expandido (Sim):** card `.nc-cargo-cubagem-detalhe-panel` com unidade + comprimento/largura/altura em grid 3 colunas. Ao voltar para Não, dimensões são limpas no form e **não** vão no `POST`.
+
 | Campo DDD | UI | SSOT / notas |
 |-----------|-----|--------------|
 | `peso_kg_cotacao_bid_frete_internacional` | PESO (KG) | Opcional; sincroniza com TON |
 | `peso_ton_cotacao_bid_frete_internacional` | PESO (TON) | Opcional; sincroniza com KG |
-| `codigo_unidade_cubagem_cotacao_bid_frete_internacional` | MEDIDA DA CUBAGEM | Select — `useUnidades()` filtrado `tipo_unidade=comprimento` (Cadastros) |
-| `comprimento_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (COMPRIMENTO) | Na unidade selecionada |
-| `largura_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (LARGURA) | Idem |
-| `altura_cubagem_cotacao_bid_frete_internacional` | CUBAGEM TOTAL (ALTURA) | Idem |
-| `cubagem_m3_cotacao_bid_frete_internacional` | CUBAGEM (M³) | Total em m³ — manual |
+| — | Incluir cubagem detalhada | `opcao_incluir_cubagem_detalhada_cotacao` — **somente wizard** (`'' \| 'sim' \| 'nao'`) |
+| `codigo_unidade_cubagem_cotacao_bid_frete_internacional` | Medida da cubagem | Painel detalhado — Select Cadastros `tipo_unidade=comprimento` |
+| `comprimento_cubagem_cotacao_bid_frete_internacional` | Comprimento | Painel detalhado |
+| `largura_cubagem_cotacao_bid_frete_internacional` | Largura | Painel detalhado |
+| `altura_cubagem_cotacao_bid_frete_internacional` | Altura | Painel detalhado |
+| `cubagem_m3_cotacao_bid_frete_internacional` | CUBAGEM (M³) | Último campo; manual ou auto-calculado |
 
 **Auto-cálculo:** quando unidade + comprimento + largura + altura estão preenchidos, `cubagem_m3_*` é recalculado (C×L×A → m³). Alterar dimensões/unidade sobrescreve o total; editar m³ diretamente permanece válido até a próxima mudança nas dimensões. Util: `shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional.ts`. migration `20260705130000_add_dimensoes_cubagem_cotacao_bid_frete_internacional` — colunas físicas adjacentes a `cubagem_m3_*` (ordem: unidade → C → L → A → m³).  
 **Cadastros:** unidades `IN` (Polegada) e `FT` (Pé) em `unidades-canonicas.ts` + migration `20260705120000_add_unidades_comprimento_in_ft`.

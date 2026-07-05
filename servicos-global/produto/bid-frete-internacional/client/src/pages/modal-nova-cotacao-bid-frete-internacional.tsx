@@ -118,7 +118,6 @@ import {
   traduzirErroCriarCotacaoNovaCotacao,
   traduzirFraseExibirCamposLocalizacao,
   traduzirFraseOpcaoPortoAeroportoLocalizacao,
-  traduzirDicaOpcaoPortoAeroportoLocalizacao,
   traduzirCampoLocaisOpcionaisLocalizacao,
   traduzirLegendaOpcaoPortoAeroportoLocalizacao,
   traduzirIncotermExplicacaoNovaCotacao,
@@ -409,6 +408,8 @@ interface FormState {
   data_limite_resposta_cotacao_bid_frete_internacional: string
   /** Marítimo LCL — '' até o comprador escolher Sim/Não no passo Armazenagem */
   opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
+  /** UI-only — revela painel de dimensões C×L×A; não persiste no banco */
+  opcao_incluir_cubagem_detalhada_cotacao: '' | 'sim' | 'nao'
   // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -470,6 +471,7 @@ const INITIAL_FORM: FormState = {
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
   opcao_incluir_armazenagem_cotacao: '',
+  opcao_incluir_cubagem_detalhada_cotacao: '',
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: false,
   valor_meta_cotacao_bid_frete_internacional: '',
@@ -669,7 +671,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
   codigoPrincipal,
   carregando,
   aoMudarBuscaCatalogo,
-  limiteOpcoesRenderizadas,
+  aoScrollFimListaCatalogo,
   totalCatalogo,
   mensagemListaVazia,
 }: {
@@ -681,7 +683,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
   codigoPrincipal: string
   carregando: boolean
   aoMudarBuscaCatalogo?: (termo: string) => void
-  limiteOpcoesRenderizadas?: number
+  aoScrollFimListaCatalogo?: () => void
   totalCatalogo?: number
   mensagemListaVazia?: string
 }) {
@@ -695,7 +697,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
 
   return (
     <>
-      <div className="nc-exibir-campos-linha nc-exibir-campos-linha--opcao-porto">
+      <div className="nc-exibir-campos-linha">
         <label className="nc-exibir-campos-checkbox">
           <input
             type="checkbox"
@@ -705,9 +707,6 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
           />
           <span>{traduzirFraseOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}</span>
         </label>
-        <p className="nc-caption nc-exibir-campos-dica">
-          {traduzirDicaOpcaoPortoAeroportoLocalizacao(t, lado, tipoLocal)}
-        </p>
       </div>
       {habilitado && (
         <div className="nc-fields-grid nc-fields-grid--location-extras">
@@ -734,7 +733,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
               buscavel
               buscaRemota={Boolean(aoMudarBuscaCatalogo)}
               aoMudarBusca={aoMudarBuscaCatalogo}
-              limiteOpcoesRenderizadas={limiteOpcoesRenderizadas}
+              aoScrollFimLista={aoScrollFimListaCatalogo}
               totalOpcoesCatalogo={totalCatalogo}
               mensagemListaVazia={mensagemListaVazia}
               carregando={carregando}
@@ -1213,12 +1212,29 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1.25rem;
           align-items: start;
         }
-        .nc-cargo-subsecao-grid-cubagem {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        .nc-cargo-cubagem-stack {
+          display: flex;
+          flex-direction: column;
           gap: 1.25rem;
-          align-items: start;
           margin-top: 1.25rem;
+        }
+        .nc-cargo-cubagem-detalhe-panel {
+          background: var(--nc-accent-dim);
+          border: 1px solid var(--nc-accent-border);
+          border-radius: 10px;
+          padding: 1.25rem 1.5rem;
+        }
+        .nc-cargo-cubagem-dimensoes-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+        .nc-cargo-cubagem-dimensoes-grid .nc-field-medida-cubagem {
+          grid-column: 1 / -1;
+        }
+        .nc-cargo-subsecao-grid-cubagem-m3 {
+          max-width: min(100%, 280px);
         }
         @media (max-width: 960px) {
           .nc-cargo-subsecao-grid-identificacao {
@@ -1234,13 +1250,17 @@ const NC_ESTILOS_CONTEUDO = `
           .nc-cargo-subsecao-grid-quantidade--embalagem {
             grid-template-columns: 1fr 1fr;
           }
+          .nc-cargo-cubagem-dimensoes-grid {
+            grid-template-columns: 1fr 1fr;
+          }
         }
         @media (max-width: 560px) {
           .nc-cargo-subsecao-grid-identificacao,
           .nc-cargo-perigosa-grid,
           .nc-cargo-subsecao-grid-quantidade,
           .nc-cargo-subsecao-grid-quantidade--embalagem,
-          .nc-linha-container-row {
+          .nc-linha-container-row,
+          .nc-cargo-cubagem-dimensoes-grid {
             grid-template-columns: 1fr;
           }
         }
@@ -1403,15 +1423,6 @@ const NC_ESTILOS_CONTEUDO = `
         .nc-exibir-campos-linha {
           margin: 0;
           padding: 0;
-        }
-        .nc-exibir-campos-linha--opcao-porto {
-          display: flex;
-          flex-direction: column;
-          gap: 0.35rem;
-        }
-        .nc-exibir-campos-dica {
-          margin: 0 0 0 1.65rem;
-          max-width: 42rem;
         }
         .nc-exibir-campos-checkbox {
           display: flex;
@@ -2249,7 +2260,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesPortosOrigem,
     carregando: carregandoPortosOrigem,
     aoMudarBusca: aoMudarBuscaPortosOrigem,
-    limiteOpcoesRenderizadas: limiteRenderPortosOrigem,
+    aoScrollFimLista: aoScrollFimPortosOrigem,
     totalCatalogo: totalCatalogoPortosOrigem,
     mensagemListaVazia: mensagemVaziaPortosOrigem,
   } = usePortosPorPais(
@@ -2262,7 +2273,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesPortosDestino,
     carregando: carregandoPortosDestino,
     aoMudarBusca: aoMudarBuscaPortosDestino,
-    limiteOpcoesRenderizadas: limiteRenderPortosDestino,
+    aoScrollFimLista: aoScrollFimPortosDestino,
     totalCatalogo: totalCatalogoPortosDestino,
     mensagemListaVazia: mensagemVaziaPortosDestino,
   } = usePortosPorPais(
@@ -2275,7 +2286,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesAeroportosOrigem,
     carregando: carregandoAeroportosOrigem,
     aoMudarBusca: aoMudarBuscaAeroportosOrigem,
-    limiteOpcoesRenderizadas: limiteRenderAeroportosOrigem,
+    aoScrollFimLista: aoScrollFimAeroportosOrigem,
     totalCatalogo: totalCatalogoAeroportosOrigem,
     mensagemListaVazia: mensagemVaziaAeroportosOrigem,
   } = useAeroportosPorPais(
@@ -2288,7 +2299,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesAeroportosDestino,
     carregando: carregandoAeroportosDestino,
     aoMudarBusca: aoMudarBuscaAeroportosDestino,
-    limiteOpcoesRenderizadas: limiteRenderAeroportosDestino,
+    aoScrollFimLista: aoScrollFimAeroportosDestino,
     totalCatalogo: totalCatalogoAeroportosDestino,
     mensagemListaVazia: mensagemVaziaAeroportosDestino,
   } = useAeroportosPorPais(
@@ -2302,7 +2313,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesPortosAlternativos,
     carregando: carregandoPortosAlternativos,
     aoMudarBusca: aoMudarBuscaPortosAlternativos,
-    limiteOpcoesRenderizadas: limiteRenderPortosAlternativos,
+    aoScrollFimLista: aoScrollFimPortosAlternativos,
     totalCatalogo: totalCatalogoPortosAlternativos,
     mensagemListaVazia: mensagemVaziaPortosAlternativos,
   } = usePortosPorPais('', exigePortoModal)
@@ -2310,7 +2321,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     opcoes: opcoesAeroportosAlternativos,
     carregando: carregandoAeroportosAlternativos,
     aoMudarBusca: aoMudarBuscaAeroportosAlternativos,
-    limiteOpcoesRenderizadas: limiteRenderAeroportosAlternativos,
+    aoScrollFimLista: aoScrollFimAeroportosAlternativos,
     totalCatalogo: totalCatalogoAeroportosAlternativos,
     mensagemListaVazia: mensagemVaziaAeroportosAlternativos,
   } = useAeroportosPorPais('', exigeAeroportoModal)
@@ -2474,6 +2485,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     () => traduzirOpcoesSimNaoNovaCotacao(t),
     [t],
   )
+  const opcoesIncluirCubagemDetalhada = useMemo(
+    () => traduzirOpcoesSimNaoNovaCotacao(t),
+    [t],
+  )
+  const incluirCubagemDetalhada = form.opcao_incluir_cubagem_detalhada_cotacao === 'sim'
+  const unidadeCubagemSufixo = form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'
   const passosWizard = useMemo(
     () =>
       sequenciaPassosWizardNovaCotacao(modal, form.modalidade_cotacao_bid_frete_internacional).map(
@@ -2514,6 +2531,21 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     | 'altura_cubagem_cotacao_bid_frete_internacional'
     | 'codigo_unidade_cubagem_cotacao_bid_frete_internacional'
   >
+
+  const mudarOpcaoCubagemDetalhada = (valor: '' | 'sim' | 'nao') => {
+    if (valor !== 'sim') {
+      setForm(prev => ({
+        ...prev,
+        opcao_incluir_cubagem_detalhada_cotacao: valor,
+        codigo_unidade_cubagem_cotacao_bid_frete_internacional: '',
+        comprimento_cubagem_cotacao_bid_frete_internacional: '',
+        largura_cubagem_cotacao_bid_frete_internacional: '',
+        altura_cubagem_cotacao_bid_frete_internacional: '',
+      }))
+      return
+    }
+    set('opcao_incluir_cubagem_detalhada_cotacao', valor)
+  }
 
   const aplicarDimensaoCubagemComAutoCalc = (
     patch: Partial<CamposDimensaoCubagemForm>,
@@ -2803,10 +2835,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           containersPersistidos.tipo_container_cotacao_bid_frete_internacional || undefined,
         peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
         peso_ton_cotacao_bid_frete_internacional: form.peso_ton_cotacao_bid_frete_internacional ? parseFloat(form.peso_ton_cotacao_bid_frete_internacional) : undefined,
-        codigo_unidade_cubagem_cotacao_bid_frete_internacional: form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || undefined,
-        comprimento_cubagem_cotacao_bid_frete_internacional: form.comprimento_cubagem_cotacao_bid_frete_internacional ? parseFloat(form.comprimento_cubagem_cotacao_bid_frete_internacional) : undefined,
-        largura_cubagem_cotacao_bid_frete_internacional: form.largura_cubagem_cotacao_bid_frete_internacional ? parseFloat(form.largura_cubagem_cotacao_bid_frete_internacional) : undefined,
-        altura_cubagem_cotacao_bid_frete_internacional: form.altura_cubagem_cotacao_bid_frete_internacional ? parseFloat(form.altura_cubagem_cotacao_bid_frete_internacional) : undefined,
+        codigo_unidade_cubagem_cotacao_bid_frete_internacional: incluirCubagemDetalhada
+          ? form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || undefined
+          : undefined,
+        comprimento_cubagem_cotacao_bid_frete_internacional: incluirCubagemDetalhada && form.comprimento_cubagem_cotacao_bid_frete_internacional
+          ? parseFloat(form.comprimento_cubagem_cotacao_bid_frete_internacional)
+          : undefined,
+        largura_cubagem_cotacao_bid_frete_internacional: incluirCubagemDetalhada && form.largura_cubagem_cotacao_bid_frete_internacional
+          ? parseFloat(form.largura_cubagem_cotacao_bid_frete_internacional)
+          : undefined,
+        altura_cubagem_cotacao_bid_frete_internacional: incluirCubagemDetalhada && form.altura_cubagem_cotacao_bid_frete_internacional
+          ? parseFloat(form.altura_cubagem_cotacao_bid_frete_internacional)
+          : undefined,
         cubagem_m3_cotacao_bid_frete_internacional: form.cubagem_m3_cotacao_bid_frete_internacional ? parseFloat(form.cubagem_m3_cotacao_bid_frete_internacional) : undefined,
         incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional,
         endereco_origem_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'origem')
@@ -3139,7 +3179,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       buscavel
                       buscaRemota
                       aoMudarBusca={aoMudarBuscaPortosOrigem}
-                      limiteOpcoesRenderizadas={limiteRenderPortosOrigem}
+                      aoScrollFimLista={aoScrollFimPortosOrigem}
                       totalOpcoesCatalogo={totalCatalogoPortosOrigem}
                       mensagemListaVazia={mensagemVaziaPortosOrigem}
                       carregando={carregandoPortosOrigem}
@@ -3159,7 +3199,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       buscavel
                       buscaRemota
                       aoMudarBusca={aoMudarBuscaAeroportosOrigem}
-                      limiteOpcoesRenderizadas={limiteRenderAeroportosOrigem}
+                      aoScrollFimLista={aoScrollFimAeroportosOrigem}
                       totalOpcoesCatalogo={totalCatalogoAeroportosOrigem}
                       mensagemListaVazia={mensagemVaziaAeroportosOrigem}
                       carregando={carregandoAeroportosOrigem}
@@ -3245,8 +3285,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     aoMudarBuscaCatalogo={
                       exigePorto ? aoMudarBuscaPortosAlternativos : aoMudarBuscaAeroportosAlternativos
                     }
-                    limiteOpcoesRenderizadas={
-                      exigePorto ? limiteRenderPortosAlternativos : limiteRenderAeroportosAlternativos
+                    aoScrollFimListaCatalogo={
+                      exigePorto ? aoScrollFimPortosAlternativos : aoScrollFimAeroportosAlternativos
                     }
                     totalCatalogo={
                       exigePorto ? totalCatalogoPortosAlternativos : totalCatalogoAeroportosAlternativos
@@ -3339,7 +3379,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       buscavel
                       buscaRemota
                       aoMudarBusca={aoMudarBuscaPortosDestino}
-                      limiteOpcoesRenderizadas={limiteRenderPortosDestino}
+                      aoScrollFimLista={aoScrollFimPortosDestino}
                       totalOpcoesCatalogo={totalCatalogoPortosDestino}
                       mensagemListaVazia={mensagemVaziaPortosDestino}
                       carregando={carregandoPortosDestino}
@@ -3359,7 +3399,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       buscavel
                       buscaRemota
                       aoMudarBusca={aoMudarBuscaAeroportosDestino}
-                      limiteOpcoesRenderizadas={limiteRenderAeroportosDestino}
+                      aoScrollFimLista={aoScrollFimAeroportosDestino}
                       totalOpcoesCatalogo={totalCatalogoAeroportosDestino}
                       mensagemListaVazia={mensagemVaziaAeroportosDestino}
                       carregando={carregandoAeroportosDestino}
@@ -3445,8 +3485,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     aoMudarBuscaCatalogo={
                       exigePorto ? aoMudarBuscaPortosAlternativos : aoMudarBuscaAeroportosAlternativos
                     }
-                    limiteOpcoesRenderizadas={
-                      exigePorto ? limiteRenderPortosAlternativos : limiteRenderAeroportosAlternativos
+                    aoScrollFimListaCatalogo={
+                      exigePorto ? aoScrollFimPortosAlternativos : aoScrollFimAeroportosAlternativos
                     }
                     totalCatalogo={
                       exigePorto ? totalCatalogoPortosAlternativos : totalCatalogoAeroportosAlternativos
@@ -3756,7 +3796,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <NcSubsecaoTitle id="nc-cargo-peso" icone={<Scales {...ICONE_LABEL_SECAO} />}>
                 Peso e cubagem
               </NcSubsecaoTitle>
-              <p className="nc-cargo-subsecao-hint">Opcional neste momento; ajuda o fornecedor a cotar com precisão. Dimensões preenchidas calculam m³ automaticamente — o total continua editável.</p>
+              <p className="nc-cargo-subsecao-hint">
+                {t('bidfrete.nova_cotacao.hint_peso_cubagem', {
+                  defaultValue:
+                    'Opcional neste momento; ajuda o fornecedor a cotar com precisão. Informe peso e cubagem total (m³). Ative cubagem detalhada se souber comprimento, largura e altura — o m³ é calculado automaticamente e continua editável.',
+                })}
+              </p>
               <div className="nc-cargo-subsecao-grid-peso">
                 <Field label="PESO (KG)" icone={<Scales {...ICONE_FIELD} />}>
                   <div className="nc-input-group">
@@ -3783,73 +3828,146 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 </Field>
               </div>
 
-              <div className="nc-cargo-subsecao-grid-cubagem">
-                <Field label="MEDIDA DA CUBAGEM" icone={<Ruler {...ICONE_FIELD} />}>
+              <div className="nc-cargo-cubagem-stack">
+                <Field
+                  label={t('bidfrete.nova_cotacao.campo_incluir_cubagem_detalhada', {
+                    defaultValue: 'Incluir cubagem detalhada',
+                  })}
+                  icone={<Package {...ICONE_FIELD} />}
+                >
                   <SelectGlobal
-                    opcoes={opcoesUnidadeCubagem}
-                    valor={form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || null}
-                    aoMudarValor={(v) => aplicarDimensaoCubagemComAutoCalc({
-                      codigo_unidade_cubagem_cotacao_bid_frete_internacional: String(v ?? ''),
-                    })}
-                    placeholder="Selecione cm, m, in..."
-                    buscavel
-                    carregando={carregandoUnidadesCubagem}
-                    desabilitado={unidadesCubagemIndisponiveis}
+                    id="nc-incluir-cubagem-detalhada"
+                    opcoes={opcoesIncluirCubagemDetalhada}
+                    valor={form.opcao_incluir_cubagem_detalhada_cotacao || null}
+                    aoMudarValor={(v) =>
+                      mudarOpcaoCubagemDetalhada(v == null ? '' : String(v) as '' | 'sim' | 'nao')
+                    }
+                    placeholder={t('bidfrete.nova_cotacao.selecione', { defaultValue: 'Selecionar' })}
                     posicao="auto"
                   />
                 </Field>
 
-                <Field label="CUBAGEM TOTAL (COMPRIMENTO)" icone={<Ruler {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input
-                      className="nc-input nc-input--with-suffix"
-                      type="number"
-                      placeholder="Ex: 120"
-                      value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
-                      onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                        comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                {incluirCubagemDetalhada && (
+                  <div
+                    className="nc-cargo-cubagem-detalhe-panel nc-fade-in"
+                    role="region"
+                    aria-labelledby="nc-cubagem-detalhe-title"
+                  >
+                    <div className="nc-helper-header">
+                      <Package size={20} weight="duotone" aria-hidden />
+                      <h4 id="nc-cubagem-detalhe-title">
+                        {t('bidfrete.nova_cotacao.titulo_cubagem_detalhada', {
+                          defaultValue: 'Dimensões da carga',
+                        })}
+                      </h4>
+                    </div>
+                    <p className="nc-helper-desc">
+                      {t('bidfrete.nova_cotacao.desc_cubagem_detalhada', {
+                        defaultValue:
+                          'Escolha a unidade de medida e informe comprimento, largura e altura. O volume em m³ é recalculado ao editar qualquer dimensão.',
                       })}
-                    />
-                    <span className="nc-input-suffix">{form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'}</span>
-                  </div>
-                </Field>
+                    </p>
+                    <div className="nc-cargo-cubagem-dimensoes-grid">
+                      <Field
+                        className="nc-field-medida-cubagem"
+                        label={t('bidfrete.nova_cotacao.campo_medida_cubagem', {
+                          defaultValue: 'Medida da cubagem',
+                        })}
+                        icone={<Ruler {...ICONE_FIELD} />}
+                      >
+                        <SelectGlobal
+                          opcoes={opcoesUnidadeCubagem}
+                          valor={form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || null}
+                          aoMudarValor={(v) => aplicarDimensaoCubagemComAutoCalc({
+                            codigo_unidade_cubagem_cotacao_bid_frete_internacional: String(v ?? ''),
+                          })}
+                          placeholder={t('bidfrete.nova_cotacao.placeholder_unidade_cubagem', {
+                            defaultValue: 'Selecione cm, m, in...',
+                          })}
+                          buscavel
+                          carregando={carregandoUnidadesCubagem}
+                          desabilitado={unidadesCubagemIndisponiveis}
+                          posicao="auto"
+                        />
+                      </Field>
 
-                <Field label="CUBAGEM TOTAL (LARGURA)" icone={<Ruler {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input
-                      className="nc-input nc-input--with-suffix"
-                      type="number"
-                      placeholder="Ex: 80"
-                      value={form.largura_cubagem_cotacao_bid_frete_internacional}
-                      onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                        largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                      })}
-                    />
-                    <span className="nc-input-suffix">{form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'}</span>
-                  </div>
-                </Field>
+                      <Field
+                        label={t('bidfrete.nova_cotacao.campo_comprimento_cubagem', {
+                          defaultValue: 'Comprimento',
+                        })}
+                        icone={<Ruler {...ICONE_FIELD} />}
+                      >
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 120"
+                            value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
+                      </Field>
 
-                <Field label="CUBAGEM TOTAL (ALTURA)" icone={<Ruler {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input
-                      className="nc-input nc-input--with-suffix"
-                      type="number"
-                      placeholder="Ex: 90"
-                      value={form.altura_cubagem_cotacao_bid_frete_internacional}
-                      onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                        altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                      })}
-                    />
-                    <span className="nc-input-suffix">{form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'}</span>
-                  </div>
-                </Field>
+                      <Field
+                        label={t('bidfrete.nova_cotacao.campo_largura_cubagem', {
+                          defaultValue: 'Largura',
+                        })}
+                        icone={<Ruler {...ICONE_FIELD} />}
+                      >
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 80"
+                            value={form.largura_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
+                      </Field>
 
-                <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3_cotacao_bid_frete_internacional} onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)} />
-                    <span className="nc-input-suffix">m³</span>
+                      <Field
+                        label={t('bidfrete.nova_cotacao.campo_altura_cubagem', {
+                          defaultValue: 'Altura',
+                        })}
+                        icone={<Ruler {...ICONE_FIELD} />}
+                      >
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 90"
+                            value={form.altura_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
+                      </Field>
+                    </div>
                   </div>
-                </Field>
+                )}
+
+                <div className="nc-cargo-subsecao-grid-cubagem-m3">
+                  <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
+                    <div className="nc-input-group">
+                      <input
+                        className="nc-input nc-input--with-suffix"
+                        type="number"
+                        placeholder="Ex: 33.2"
+                        value={form.cubagem_m3_cotacao_bid_frete_internacional}
+                        onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
+                      />
+                      <span className="nc-input-suffix">m³</span>
+                    </div>
+                  </Field>
+                </div>
               </div>
             </section>
 
@@ -4226,7 +4344,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       : `${form.quantidade_volume_cotacao_bid_frete_internacional} ${sufixoQuantidadeEmbalagem(form.tipo_container_cotacao_bid_frete_internacional)}`}
                     {form.peso_kg_cotacao_bid_frete_internacional ? ` | ${form.peso_kg_cotacao_bid_frete_internacional} Kg` : ''}
                     {form.peso_ton_cotacao_bid_frete_internacional ? ` (${form.peso_ton_cotacao_bid_frete_internacional} TON)` : ''}
-                    {form.comprimento_cubagem_cotacao_bid_frete_internacional
+                    {incluirCubagemDetalhada
+                      && form.comprimento_cubagem_cotacao_bid_frete_internacional
                       && form.largura_cubagem_cotacao_bid_frete_internacional
                       && form.altura_cubagem_cotacao_bid_frete_internacional
                       ? ` | ${form.comprimento_cubagem_cotacao_bid_frete_internacional}×${form.largura_cubagem_cotacao_bid_frete_internacional}×${form.altura_cubagem_cotacao_bid_frete_internacional} ${form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || ''}`.trim()

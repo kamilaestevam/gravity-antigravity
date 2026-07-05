@@ -6,7 +6,7 @@
 import { z } from 'zod'
 import {
   LIMITE_BUSCA_CATALOGO_LOGISTICA_BID,
-  LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
+  LIMITE_PAGINA_CATALOGO_LOGISTICA_BID,
 } from '../../../shared/limites-catalogo-logistica-bid-frete-internacional'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
@@ -277,16 +277,24 @@ export const cadastrosApi = {
   listarPaises: (): Promise<{ itens: PaisCadastro[]; total: number }> =>
     request('/api/v1/cadastros/paises?apenas_ativos=true'),
 
-  listarPortos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
+  listarPortos: async (params?: {
+    q?: string
+    pais?: string
+    limit?: number
+    offset?: number
+  }): Promise<{ itens: PortoCadastro[]; total: number }> => {
     const busca = params?.q?.trim()
     const pais = params?.pais?.trim().toUpperCase()
     const limitePadrao = busca
       ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
-      : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID
+      : LIMITE_PAGINA_CATALOGO_LOGISTICA_BID
     const search = new URLSearchParams({ tipo: 'porto' })
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)
     search.set('limit', String(params?.limit ?? limitePadrao))
+    if (params?.offset != null && params.offset > 0) {
+      search.set('offset', String(params.offset))
+    }
     const path = `/api/v1/bid-frete-internacional/dados-mestre/portos?${search.toString()}`
     const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
     const parsed = listaPortosDadosMestreBidSchema.parse(raw)
@@ -301,16 +309,24 @@ export const cadastrosApi = {
     return { itens, total: parsed.total ?? itens.length }
   },
 
-  listarAeroportos: async (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
+  listarAeroportos: async (params?: {
+    q?: string
+    pais?: string
+    limit?: number
+    offset?: number
+  }): Promise<{ itens: AeroportoCadastro[]; total: number }> => {
     const busca = params?.q?.trim()
     const pais = params?.pais?.trim().toUpperCase()
     const limitePadrao = busca
       ? LIMITE_BUSCA_CATALOGO_LOGISTICA_BID
-      : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID
+      : LIMITE_PAGINA_CATALOGO_LOGISTICA_BID
     const search = new URLSearchParams()
     if (busca) search.set('q', busca)
     if (pais && pais.length === 2) search.set('pais', pais)
     search.set('limit', String(params?.limit ?? limitePadrao))
+    if (params?.offset != null && params.offset > 0) {
+      search.set('offset', String(params.offset))
+    }
     const qs = search.toString()
     const path = `/api/v1/bid-frete-internacional/dados-mestre/aeroportos${qs ? `?${qs}` : ''}`
     const raw = await requestPublicDadosMestreBidFrete<unknown>(path)

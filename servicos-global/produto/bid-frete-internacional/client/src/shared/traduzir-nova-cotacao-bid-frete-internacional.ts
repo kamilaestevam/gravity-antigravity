@@ -253,8 +253,8 @@ export function traduzirFraseExibirCamposLocalizacao(
     {
       defaultValue:
         lado === 'origem'
-          ? 'Exibir campos: cidade, estado/província e país de origem para cotações de coleta na origem (EXW)'
-          : 'Exibir campos: cidade, estado/província e país de destino para cotações de coleta (EXW)',
+          ? 'Exibir campos: cidade, estado/província e país de origem para cotações de coleta na origem'
+          : 'Exibir campos: cidade, estado/província e país de destino para cotações de coleta',
     },
   )
 }
@@ -283,41 +283,6 @@ export function traduzirFraseOpcaoPortoAeroportoLocalizacao(
       aeroporto: {
         key: 'bidfrete.nova_cotacao.opcao_aeroporto_destino',
         defaultValue: 'Autorizar cotações em outros aeroportos próximos ao destino preferencial',
-      },
-    },
-  }
-  const { key, defaultValue } = keys[lado][tipo]
-  return t(key, { defaultValue })
-}
-
-export function traduzirDicaOpcaoPortoAeroportoLocalizacao(
-  t: TFunction,
-  lado: LadoLocalizacaoWizard,
-  tipo: 'aeroporto' | 'porto',
-): string {
-  const keys: Record<LadoLocalizacaoWizard, Record<typeof tipo, { key: string; defaultValue: string }>> = {
-    origem: {
-      porto: {
-        key: 'bidfrete.nova_cotacao.dica_opcao_porto_origem',
-        defaultValue:
-          'Opcional: além do porto selecionado acima, o fornecedor poderá incluir propostas usando portos próximos.',
-      },
-      aeroporto: {
-        key: 'bidfrete.nova_cotacao.dica_opcao_aeroporto_origem',
-        defaultValue:
-          'Opcional: além do aeroporto selecionado acima, o fornecedor poderá incluir propostas usando aeroportos próximos.',
-      },
-    },
-    destino: {
-      porto: {
-        key: 'bidfrete.nova_cotacao.dica_opcao_porto_destino',
-        defaultValue:
-          'Opcional: além do porto selecionado acima, o fornecedor poderá incluir propostas usando portos próximos.',
-      },
-      aeroporto: {
-        key: 'bidfrete.nova_cotacao.dica_opcao_aeroporto_destino',
-        defaultValue:
-          'Opcional: além do aeroporto selecionado acima, o fornecedor poderá incluir propostas usando aeroportos próximos.',
       },
     },
   }

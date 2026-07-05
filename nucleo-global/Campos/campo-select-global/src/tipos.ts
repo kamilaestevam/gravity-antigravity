@@ -61,7 +61,9 @@ export interface SelectProps {
   buscaRemota?: boolean
   /** Callback de busca remota (Cadastros / API indexada). */
   aoMudarBusca?: (termo: string) => void
-  /** Máximo de opções renderizadas no DOM (restante via busca remota). */
+  /** Disparado ao chegar ao fim do scroll da lista (paginação). */
+  aoScrollFimLista?: () => void
+  /** Máximo de opções renderizadas no DOM (somente busca local). */
   limiteOpcoesRenderizadas?: number
   /** Total no catálogo (para hint "X de Y"). */
   totalOpcoesCatalogo?: number

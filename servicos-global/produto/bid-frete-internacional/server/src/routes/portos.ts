@@ -35,17 +35,19 @@ function resolverLimitePortos(query: {
 
 router.get('/portos', async (req: Request, res: Response) => {
   try {
-    const { q, tipo, pais, limit = '50' } = req.query as {
+    const { q, tipo, pais, limit = '50', offset = '0' } = req.query as {
       q?: string
       pais?: string
       tipo?: string
       limit?: string
+      offset?: string
     }
     const limitNum = resolverLimitePortos({ q, pais, limit })
     const queryBase = {
       q,
       pais: pais?.toUpperCase(),
       limit: String(limitNum),
+      offset,
       apenas_ativos: 'true',
     }
 

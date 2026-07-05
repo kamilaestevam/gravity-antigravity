@@ -1,15 +1,13 @@
 /**
- * Catálogo portos/aeroportos com busca remota no Cadastros (lista total via ?q=).
- * Preview parcial ao abrir; render limitado no SelectGlobal.
+ * Catálogo portos/aeroportos — paginação por scroll + busca remota indexada.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
   DEBOUNCE_MS_BUSCA_CATALOGO_LOGISTICA_BID,
   LIMITE_BUSCA_CATALOGO_LOGISTICA_BID,
-  LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
   LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID,
-  LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID,
+  LIMITE_PAGINA_CATALOGO_LOGISTICA_BID,
   MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID,
 } from '../../../shared/limites-catalogo-logistica-bid-frete-internacional'
 import {
@@ -31,6 +29,19 @@ interface ParamsSelectCatalogoLogistica {
   codigoSelecionado?: string | null
 }
 
+function mesclarPortos(prev: PortoCadastro[], novos: PortoCadastro[]): PortoCadastro[] {
+  const map = new Map(prev.map((p) => [p.codigo_unlocode_porto, p]))
+  for (const p of novos) map.set(p.codigo_unlocode_porto, p)
+  return Array.from(map.values())
+}
+
+function mesclarAeroportos(prev: AeroportoCadastro[], novos: AeroportoCadastro[]): AeroportoCadastro[] {
+  const chave = (a: AeroportoCadastro) => a.codigo_iata_aeroporto ?? a.codigo_unlocode_aeroporto
+  const map = new Map(prev.map((a) => [chave(a), a]))
+  for (const a of novos) map.set(chave(a), a)
+  return Array.from(map.values())
+}
+
 export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
   tipo,
   codigoPais = '',
@@ -40,28 +51,35 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
   const [itens, setItens] = useState<(PortoCadastro | AeroportoCadastro)[]>([])
   const [totalCatalogo, setTotalCatalogo] = useState(0)
   const [carregando, setCarregando] = useState(false)
+  const [carregandoMais, setCarregandoMais] = useState(false)
   const [aguardandoMinimoBusca, setAguardandoMinimoBusca] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const reqIdRef = useRef(0)
+  const offsetRef = useRef(0)
+  const termoBuscaRef = useRef('')
 
   const paisFiltro = codigoPais?.trim().toUpperCase()
   const paisParam = paisFiltro && paisFiltro.length === 2 ? paisFiltro : undefined
 
-  const buscar = useCallback(
-    async (termo: string) => {
+  const buscarPagina = useCallback(
+    async (termo: string, offset: number, append: boolean) => {
       if (!ativo) return
       const busca = termo.trim()
       const id = ++reqIdRef.current
-      setCarregando(true)
+      if (append) setCarregandoMais(true)
+      else setCarregando(true)
+
       try {
+        const emBusca = busca.length >= MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID
         const params = {
           ...(paisParam ? { pais: paisParam } : {}),
-          ...(busca.length >= MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID
-            ? { q: busca, limit: LIMITE_BUSCA_CATALOGO_LOGISTICA_BID }
+          ...(emBusca
+            ? { q: busca, limit: LIMITE_BUSCA_CATALOGO_LOGISTICA_BID, offset: 0 }
             : {
                 limit: paisParam
                   ? LIMITE_CATALOGO_LOGISTICA_POR_PAIS_BID
-                  : LIMITE_CATALOGO_LOGISTICA_GLOBAL_BID,
+                  : LIMITE_PAGINA_CATALOGO_LOGISTICA_BID,
+                offset,
               }),
         }
         const resp =
@@ -69,21 +87,47 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
             ? await cadastrosApi.listarPortos(params)
             : await cadastrosApi.listarAeroportos(params)
         if (id !== reqIdRef.current) return
-        setItens(resp.itens)
+
         setTotalCatalogo(resp.total)
+        setItens((prev) => {
+          if (!append || emBusca) return resp.itens
+          return tipo === 'porto'
+            ? mesclarPortos(prev as PortoCadastro[], resp.itens as PortoCadastro[])
+            : mesclarAeroportos(prev as AeroportoCadastro[], resp.itens as AeroportoCadastro[])
+        })
+        offsetRef.current = emBusca ? 0 : offset + resp.itens.length
+        termoBuscaRef.current = busca
       } catch {
         if (id !== reqIdRef.current) return
-        setItens([])
-        setTotalCatalogo(0)
+        if (!append) {
+          setItens([])
+          setTotalCatalogo(0)
+        }
       } finally {
         if (id === reqIdRef.current) {
           setCarregando(false)
+          setCarregandoMais(false)
           setAguardandoMinimoBusca(false)
         }
       }
     },
     [ativo, paisParam, tipo],
   )
+
+  const reiniciarBusca = useCallback(
+    (termo: string) => {
+      offsetRef.current = 0
+      void buscarPagina(termo, 0, false)
+    },
+    [buscarPagina],
+  )
+
+  const carregarMais = useCallback(() => {
+    if (!ativo || carregando || carregandoMais) return
+    if (termoBuscaRef.current.trim().length >= MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID) return
+    if (itens.length >= totalCatalogo) return
+    void buscarPagina(termoBuscaRef.current, offsetRef.current, true)
+  }, [ativo, buscarPagina, carregando, carregandoMais, itens.length, totalCatalogo])
 
   const garantirSelecionado = useCallback(
     async (codigo: string) => {
@@ -117,23 +161,21 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
       setItens((prev) => {
         if (tipo === 'porto') {
           const porto = item as PortoCadastro
-          if (prev.some((p) => (p as PortoCadastro).codigo_unlocode_porto === porto.codigo_unlocode_porto)) {
-            return prev
-          }
-          return [porto, ...prev]
+          return prev.some(
+            (p) => (p as PortoCadastro).codigo_unlocode_porto === porto.codigo_unlocode_porto,
+          )
+            ? prev
+            : [porto, ...prev]
         }
         const aeroporto = item as AeroportoCadastro
         const codigo = aeroporto.codigo_iata_aeroporto ?? aeroporto.codigo_unlocode_aeroporto
-        if (
-          prev.some(
-            (a) =>
-              (a as AeroportoCadastro).codigo_iata_aeroporto === codigo ||
-              (a as AeroportoCadastro).codigo_unlocode_aeroporto === codigo,
-          )
-        ) {
-          return prev
-        }
-        return [aeroporto, ...prev]
+        return prev.some(
+          (a) =>
+            (a as AeroportoCadastro).codigo_iata_aeroporto === codigo ||
+            (a as AeroportoCadastro).codigo_unlocode_aeroporto === codigo,
+        )
+          ? prev
+          : [aeroporto, ...prev]
       })
     })
     return () => {
@@ -145,10 +187,12 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     if (!ativo) {
       setItens([])
       setTotalCatalogo(0)
+      offsetRef.current = 0
+      termoBuscaRef.current = ''
       return
     }
-    void buscar('')
-  }, [ativo, paisParam, buscar])
+    reiniciarBusca('')
+  }, [ativo, paisParam, reiniciarBusca])
 
   useEffect(
     () => () => {
@@ -168,10 +212,10 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
       }
       setAguardandoMinimoBusca(false)
       debounceRef.current = setTimeout(() => {
-        void buscar(termo)
+        reiniciarBusca(termo)
       }, DEBOUNCE_MS_BUSCA_CATALOGO_LOGISTICA_BID)
     },
-    [ativo, buscar],
+    [ativo, reiniciarBusca],
   )
 
   const opcoes = useMemo((): SelectOpcao[] => {
@@ -189,6 +233,10 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
       }))
   }, [itens, tipo])
 
+  const temMaisItens =
+    termoBuscaRef.current.trim().length < MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID &&
+    itens.length < totalCatalogo
+
   const mensagemListaVazia =
     aguardandoMinimoBusca && !carregando
       ? `Digite ao menos ${MIN_CARACTERES_BUSCA_CATALOGO_LOGISTICA_BID} caracteres para buscar no catálogo completo.`
@@ -198,13 +246,11 @@ export function useSelectCatalogoLogisticaCadastrosBidFreteInternacional({
     portos: tipo === 'porto' ? (itens as PortoCadastro[]) : [],
     aeroportos: tipo === 'aeroporto' ? (itens as AeroportoCadastro[]) : [],
     opcoes,
-    carregando,
+    carregando: carregando || carregandoMais,
     totalCatalogo,
+    temMaisItens,
     aoMudarBusca,
-    limiteOpcoesRenderizadas:
-      totalCatalogo > LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID
-        ? LIMITE_RENDER_OPCOES_SELECT_CATALOGO_LOGISTICA_BID
-        : undefined,
+    aoScrollFimLista: carregarMais,
     mensagemListaVazia,
   }
 }

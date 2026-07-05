@@ -290,6 +290,10 @@ Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino
 
 **Correção:** o hook `useSelectCatalogoLogisticaCadastros...` ganhou o parâmetro `codigosSelecionados?: string[]` (plural), com o mesmo mecanismo de pin do `codigoSelecionado` principal: cada código ausente do catálogo em memória é garantido via `garantirSelecionado` (busca `?q=<código>`) e fixado num `Map` código→item, prependado em toda troca de página/busca. O modal passa a união `origem + destino` dos códigos de locais adicionais aos hooks `usePortosPorPais`/`useAeroportosPorPais` «alternativos». A chave de efeito é a string ordenada `join('|')` dos códigos — evita refetch quando o array é recriado com o mesmo conteúdo.
 
+### 8.4 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
+
+Na gravação (POST/PATCH de cotação), o server deriva o snapshot de rota a partir de uma página do catálogo do Cadastros (`carregar-contexto-catalogo-rota-bid-frete-internacional.ts`). Como o Cadastros tem mais portos ativos que o limite da página, um porto fora da página faria o snapshot cair no fallback «nome = código» e reprovar na validação (ex.: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)`). A função `garantirTerminaisRotaNoContextoCatalogo` resolve cada código de origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto quando ausente — o snapshot nunca depende do tamanho ou da ordenação do catálogo.
+
 ---
 
 ## 9. Backlog técnico (não bloqueante)
@@ -303,7 +307,7 @@ Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino
 
 ---
 
-## 9. Referências
+## 10. Referências
 
 - Padrão UX wizard: `skills/produtos-gravity/processo/SKILL.md` + `documentos-tecnicos/produtos-gravity/processo/PADRAO-UX-TELAS.md`
 - Visão fornecedor (resposta/disparo): [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md)

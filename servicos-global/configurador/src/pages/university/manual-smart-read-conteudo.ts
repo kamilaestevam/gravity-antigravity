@@ -1,4 +1,6 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import { PASSOS_MANUAL_SMART_READ_CONFIGURACOES } from './manual-smart-read-configuracoes-conteudo'
+import { PASSOS_MANUAL_SMART_READ_HISTORICO } from './manual-smart-read-historico-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -657,10 +659,29 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       titulo: 'Configurações',
       tituloSumario: 'Configurações',
+      prefixoPassosVisuais: 'Configurações',
+      ancoraPassosPrefix: 'configuracoes',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'No menu lateral, **Configurações** reúne as preferências do Smart Docs no workspace — entre elas, a criação de **colunas customizadas** (**texto**, **número**, **data**, **fórmula** e outros tipos) para personalizar a **Lista** além das colunas nativas e do catálogo.',
       ],
-      passosVisuais: [],
+      passosVisuais: PASSOS_MANUAL_SMART_READ_CONFIGURACOES,
+    },
+    {
+      titulo: 'Histórico',
+      tituloSumario: 'Histórico',
+      prefixoPassosVisuais: 'Histórico',
+      ancoraPassosPrefix: 'historico',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Smart Docs** — filtrada automaticamente para o workspace ativo.',
+        'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'O acesso exige permissão **historico:ver** no workspace.',
+      },
+      passosVisuais: PASSOS_MANUAL_SMART_READ_HISTORICO,
     },
     {
       titulo: 'Requisitos técnicos',

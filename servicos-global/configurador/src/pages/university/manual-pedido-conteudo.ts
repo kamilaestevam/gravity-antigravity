@@ -1,4 +1,5 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import { PASSOS_MANUAL_PEDIDO_CONFIGURACOES } from './manual-pedido-configuracoes-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -2293,10 +2294,13 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
     {
       titulo: 'Configurações',
       tituloSumario: 'Configurações',
+      prefixoPassosVisuais: 'Configurações',
+      ancoraPassosPrefix: 'configuracoes',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'No menu lateral, **Configurações** reúne as preferências do produto no workspace: **status** e rótulos, **colunas** da lista, **templates** de exportação/PDF, **Kanban**, casas decimais, formato de data e demais abas administrativas.',
       ],
-      passosVisuais: [],
+      passosVisuais: PASSOS_MANUAL_PEDIDO_CONFIGURACOES,
     },
     {
       titulo: 'Histórico',

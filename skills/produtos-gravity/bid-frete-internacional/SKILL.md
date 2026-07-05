@@ -309,6 +309,10 @@ Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-
 
 Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema.prisma`.
 
+**HS Code (2026-07-05):** `hs_code_cotacao_bid_frete_internacional String?` ao lado do NCM — migration `20260705170000` (aplicada local + Railway; inclui colunas físicas de dimensões de cubagem). Zod `max 10` no create/patch de `cotacoes.ts`; wizard envia; e-mail e portal exibem.
+
+**Regra de exibição (dono):** todo campo preenchido da cotação aparece no Resumo do wizard, no e-mail de disparo e no portal do fornecedor com formatação idêntica (ícone, truncamento, tooltip); campos internos (valor alvo, fornecedores, canais) só no Resumo. SSOT: `shared/formatar-email-disparo-bid-frete-internacional.ts` + `SecaoDetalhesCotacaoResposta` — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md` §8.4.
+
 ---
 
 ## API (rotas novas / críticas)

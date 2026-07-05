@@ -75,6 +75,10 @@ import { ManualInfograficoPedidoListaEdicaoMassaPasso2Regras } from './manual-pe
 import { ManualInfograficoPedidoListaEdicaoMassaResultadoEsperado } from './manual-pedido-infografico-lista-edicao-massa-resultado-esperado'
 import { ManualInfograficoPedidoListaImportarMapeamentoColunas } from './manual-pedido-infografico-mapeamento-importar-colunas'
 import { ManualPedidoTabelaAlertasLista } from './manual-pedido-tabela-alertas-lista'
+import { ManualPedidoAccordionDashboardSugestoes } from './manual-pedido-accordion-dashboard-sugestoes'
+import { ManualPedidoAccordionDashboardTiposVisualizacao } from './manual-pedido-accordion-dashboard-tipos-visualizacao'
+import { ManualPedidoIndicadoresMoverDashboard } from './manual-pedido-indicadores-mover-dashboard'
+import { ManualPedidoCardsKanbanCabecalho } from './manual-pedido-cards-kanban-cabecalho'
 import { ManualPedidoFormatosExportacaoLista } from './manual-pedido-formatos-exportacao-lista'
 import { ManualPedidoFormatosImportacaoLista } from './manual-pedido-formatos-importacao-lista'
 import { ManualPedidoCaminhosImportacaoPlanilha } from './manual-pedido-caminhos-importacao-planilha'
@@ -758,7 +762,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '174'
+const MANUAL_SCREENSHOT_CACHE_KEY = '175'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -2016,37 +2020,48 @@ function ManualBlocoPassoVisual({
           {(() => {
             const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
             return galeriasParagrafo.map((galeria, idxGaleria) => (
-            <ManualGaleriaComparacaoIntro
-              key={`galeria-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.infograficoConsolidarPasso2Regras ? 'c2' : ''}-${galeria.infograficoConsolidarResultadoEsperado ? 'cr' : ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}
-              telas={galeria.telas}
-              ampliarInferiorDireito={galeria.ampliarInferiorDireito}
-              colunas={galeria.colunas}
-              textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
-              legendaPasso={galeria.legendaPasso}
-              pilaresImportarFormas={galeria.pilaresImportarFormas}
-              tituloEtapa={galeria.tituloEtapa}
-              textoIntro={galeria.textoIntro}
-              textoAoLado={galeria.textoAoLado}
-              infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
-              infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
-              infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
-              infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
-              layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
-              rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
-              layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
-              infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
-              mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
-              infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
-              infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
-              rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
-              rotuloEdicaoMassaExemplosPasso2={galeria.rotuloEdicaoMassaExemplosPasso2}
-              layoutEdicaoMassaExemplosPasso1={galeria.layoutEdicaoMassaExemplosPasso1}
-              layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
+            <React.Fragment key={`galeria-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.infograficoConsolidarPasso2Regras ? 'c2' : ''}-${galeria.infograficoConsolidarResultadoEsperado ? 'cr' : ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}>
+              <ManualGaleriaComparacaoIntro
+                telas={galeria.telas}
+                ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+                colunas={galeria.colunas}
+                textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                legendaPasso={galeria.legendaPasso}
+                pilaresImportarFormas={galeria.pilaresImportarFormas}
+                tituloEtapa={galeria.tituloEtapa}
+                textoIntro={galeria.textoIntro}
+                textoAoLado={galeria.textoAoLado}
+                infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+                infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
+                infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
+                infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
+                layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
+                rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
+                layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
+                infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
+                mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
+                infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
+                infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
+                rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
+                rotuloEdicaoMassaExemplosPasso2={galeria.rotuloEdicaoMassaExemplosPasso2}
+                layoutEdicaoMassaExemplosPasso1={galeria.layoutEdicaoMassaExemplosPasso1}
+                layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
               calloutApos={galeria.calloutApos}
+              mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
+              mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
-            />
+              />
+              {passo.mostrarCatalogoDashboardSugestoesPedido
+              && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
+                <ManualPedidoAccordionDashboardSugestoes />
+              ) : null}
+              {passo.mostrarCatalogoDashboardTiposVisualizacaoPedido
+              && passo.catalogoDashboardTiposVisualizacaoAposGaleriaIndice === idxGaleria ? (
+                <ManualPedidoAccordionDashboardTiposVisualizacao />
+              ) : null}
+            </React.Fragment>
           ))
           })()}
         </div>
@@ -2081,6 +2096,14 @@ function ManualBlocoPassoVisual({
       ).map((callout, i) => (
         <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 12 : 8} />
       ))}
+      {passo.mostrarCatalogoDashboardSugestoesPedido
+      && passo.catalogoDashboardSugestoesAposGaleriaIndice == null ? (
+        <ManualPedidoAccordionDashboardSugestoes />
+      ) : null}
+      {passo.mostrarCatalogoDashboardTiposVisualizacaoPedido
+      && passo.catalogoDashboardTiposVisualizacaoAposGaleriaIndice == null ? (
+        <ManualPedidoAccordionDashboardTiposVisualizacao />
+      ) : null}
       {!passo.calloutAoLadoTexto && blocoCallouts}
     </div>
   )
@@ -2774,6 +2797,8 @@ function ManualGaleriaComparacaoIntro({
   mostrarChipsTransferirTresTipos,
   chipTransferirTituloEtapa,
   calloutApos,
+  mostrarIndicadoresMoverDashboardPedido,
+  mostrarCardsKanbanCabecalhoPedido,
   espacoSuperiorEtapa = false,
 }: {
   telas: DocGaleriaComparacaoTela[]
@@ -2804,6 +2829,8 @@ function ManualGaleriaComparacaoIntro({
   mostrarChipsTransferirTresTipos?: boolean
   chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
+  mostrarIndicadoresMoverDashboardPedido?: boolean
+  mostrarCardsKanbanCabecalhoPedido?: boolean
   espacoSuperiorEtapa?: boolean
 }) {
   if (
@@ -3091,6 +3118,8 @@ function ManualGaleriaComparacaoIntro({
           />
         ))
       ) : null}
+      {mostrarIndicadoresMoverDashboardPedido ? <ManualPedidoIndicadoresMoverDashboard /> : null}
+      {mostrarCardsKanbanCabecalhoPedido ? <ManualPedidoCardsKanbanCabecalho /> : null}
     </div>
   )
 }

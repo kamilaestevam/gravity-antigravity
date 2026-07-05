@@ -98,6 +98,10 @@ import type {
   FiltroTipo,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
+import {
+  mesclarVisibilidadeCardsTopoPainel,
+  painelCardsTopoTemIntersecaoComPrefs,
+} from '../shared/cardsPrefsSync'
 import { ListaPedidoCards } from '../components/ListaPedidoCards'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
@@ -130,6 +134,12 @@ import {
   somaValorTotalPedidoLocal,
 } from '../shared/agregadosFisicosLista'
 import { valorTotalCambioItemParaLista } from '../shared/valorTotalCambioItemLista'
+import { isPedidoAtrasado } from '../shared/listaCardStats'
+import {
+  carregarTabelaConfigPedido,
+  SYNC_EVENT_TABELA_PEDIDO,
+  type TabelaConfigPedido,
+} from '../shared/tabela-config-pedido'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
@@ -4562,16 +4572,29 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           />
         </TooltipGlobal>
 
-        {/* Gerar Documento */}
+        {/* Gerar Documento — aceita pedido, item ou misto (agrupa itens por pedido) */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
+          titulo={(() => {
+            const labelItem = itensSelecionados.length === 1 ? t('pedido.barra.label_item_one') : t('pedido.barra.label_item_other')
+            const labelPedido = pedidosSelecionados.length === 1 ? t('pedido.barra.label_pedido_one') : t('pedido.barra.label_pedido_other')
+            if (pedidosSelecionados.length > 0 && itensSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} ${labelPedido} + ${itensSelecionados.length} ${labelItem}`
+            }
+            if (pedidosSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} ${labelPedido}`
+            }
+            if (itensSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${itensSelecionados.length} ${labelItem}`
+            }
+            return t('pedido.barra.gerar_documento')
+          })()}
           descricao={t('pedido.barra.gerar_documento_desc')}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<FilePdf size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
+            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => setModalGerarPdfAberto(true)}
           />
         </TooltipGlobal>
@@ -5189,17 +5212,25 @@ export default function Pedidos() {
   const [paginaAtual, setPaginaAtual]       = useState(1)
   const [total, setTotal]                   = useState(0)
   const [totalItensBanco, setTotalItensBanco] = useState(0)
-  const ITENS_POR_PAGINA: 25 | 50 | 100 | 200 = (() => {
-    try {
-      const raw = localStorage.getItem('pedido:tabela_config')
-      if (raw) {
-        const parsed = JSON.parse(raw) as { linhasPorPagina?: number }
-        const v = parsed.linhasPorPagina
-        if (v === 25 || v === 50 || v === 100 || v === 200) return v
-      }
-    } catch { /* ignore */ }
-    return 100
-  })()
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigPedido>(carregarTabelaConfigPedido)
+  const ITENS_POR_PAGINA = tabelaConfig.linhasPorPagina
+
+  useEffect(() => {
+    const sync = () => setTabelaConfig(carregarTabelaConfigPedido())
+    window.addEventListener(SYNC_EVENT_TABELA_PEDIDO, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_TABELA_PEDIDO, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  const hojeIsoLista = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
+  const classNameLinhaPai = useCallback((linha: Pedido) => {
+    if (!tabelaConfig.destacarAtrasados) return undefined
+    return isPedidoAtrasado(linha, hojeIsoLista) ? 'gtv-linha--atrasado' : undefined
+  }, [tabelaConfig.destacarAtrasados, hojeIsoLista])
 
   // ── Seleção de pedidos/itens via selecaoStore (Zustand) ──────────────────────
   const { setPedidosSelecionados, setItensSelecionados } = useSelecaoStore()
@@ -5983,10 +6014,9 @@ export default function Pedidos() {
       setPeriodoCards(cardsTopo.periodo as typeof periodosValidos[number])
     }
     if (cardsTopo.ids_visiveis.length > 0) {
-      const visiveisSet = new Set(cardsTopo.ids_visiveis)
-      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      const algumIdValido = painelCardsTopoTemIntersecaoComPrefs(cardPrefs, cardsTopo.ids_visiveis)
       if (algumIdValido) {
-        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+        persistirCardPrefs(mesclarVisibilidadeCardsTopoPainel(cardPrefs, cardsTopo.ids_visiveis))
       } else {
         console.warn(
           '[Pedidos] cards_topo.ids_visiveis do painel não batem com nenhum card local — mantendo visibilidade atual',
@@ -8460,6 +8490,7 @@ export default function Pedidos() {
 
           renderIndicadorLinha={renderIndicadorLinhaPedido}
           renderIndicadorLinhaFilho={renderIndicadorLinhaItem}
+          classNameLinhaPai={classNameLinhaPai}
 
           selecionavelFilhos
           onSelecaoFilho={onSelecaoFilhoEstavel}
@@ -8836,9 +8867,27 @@ export default function Pedidos() {
       )}
 
       {/* ── Modal Gerar Documento PDF ── */}
-      {modalGerarPdfAberto && pedidosSelecionados.length > 0 && (
+      {modalGerarPdfAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
         <ModalGerarPdfPedido
-          pedidos={pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))}
+          pedidos={(() => {
+            // Pedido inteiro selecionado → todos os itens; itens avulsos → agrupa por pedido pai
+            const numeroPorPedido = new Map(pedidos.map(p => [p.id, p.numero_pedido]))
+            const inteiros = pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))
+            const idsInteiros = new Set(pedidosSelecionados.map(p => p.id))
+            const itensPorPedido = new Map<string, string[]>()
+            for (const item of itensSelecionados) {
+              if (idsInteiros.has(item.pedido_id)) continue // pedido inteiro prevalece
+              const lista = itensPorPedido.get(item.pedido_id) ?? []
+              lista.push(item.id)
+              itensPorPedido.set(item.pedido_id, lista)
+            }
+            const parciais = Array.from(itensPorPedido.entries()).map(([idPedido, itemIds]) => ({
+              id: idPedido,
+              numero: numeroPorPedido.get(idPedido) ?? idPedido,
+              item_ids: itemIds,
+            }))
+            return [...inteiros, ...parciais]
+          })()}
           onFechar={() => setModalGerarPdfAberto(false)}
           onConcluido={() => {
             setModalGerarPdfAberto(false)

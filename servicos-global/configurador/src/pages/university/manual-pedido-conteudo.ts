@@ -345,6 +345,15 @@ const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EXCLUIDO =
 const SCREENSHOT_PEDIDO_DASHBOARD_DETALHAMENTO_GRAFICO_MOUSE =
   '/university/screenshots/pedido-dashboard-detalhamento-grafico-mouse.png'
 
+const SCREENSHOT_PEDIDO_KANBAN_ACESSO_SETA =
+  '/university/screenshots/pedido-kanban-acesso-seta.png'
+const SCREENSHOT_PEDIDO_KANBAN_TELA_PRINCIPAL =
+  '/university/screenshots/pedido-kanban-tela-principal.png'
+const SCREENSHOT_PEDIDO_KANBAN_CABECALHO =
+  '/university/screenshots/pedido-kanban-cabecalho.png'
+const SCREENSHOT_PEDIDO_KANBAN_MOVER =
+  '/university/screenshots/pedido-kanban-mover.png'
+
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -1697,8 +1706,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           imagem: SCREENSHOT_PEDIDO_DASHBOARD,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'O **Dashboard** é o painel de **BI personalizado** do Pedido: monte **widgets** (KPIs, gráficos de linha, barras, área e distribuição) a partir dos pedidos do workspace. Cada usuário salva **painéis**, **layout** e **filtros** próprios — sem alterar a visualização dos colegas.',
-            'A barra superior concentra **período**, **status**, **filtros globais**, **visibilidade dos widgets** e o botão **+** para adicionar novos blocos. Os **KPIs fixos** no topo refletem o recorte atual; abaixo, a grade aceita redimensionar, mover e editar cada widget.',
+            'O **Dashboard** é o painel de **BI personalizado** do Pedido: monte **widgets** (KPIs, gráficos de linha, barras, área e distribuição) a partir dos pedidos do workspace. Cada usuário salva **painéis**, **layout** e **filtros** — sem alterar a visualização dos colegas.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -1722,16 +1730,33 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Painel montado com **gráficos** e **tabelas**',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'O **período** escolhido no Dashboard pode **sincronizar** com o das abas **Insights** e **Lista** quando você usa os atalhos padrão — widgets individuais podem ter **período próprio** na edição.',
+              },
             },
           ],
-          calloutAposParagrafo: {
-            indice: 1,
-            callout: {
-              tipo: 'dica',
-              texto:
-                'O **período** escolhido no Dashboard pode **sincronizar** com o das abas **Insights** e **Lista** quando você usa os atalhos padrão — widgets individuais podem ter **período próprio** na edição.',
+        },
+        {
+          titulo: 'Detalhamento do gráfico',
+          tituloCurto: 'Detalhamento',
+          paragrafos: [
+            'Em gráficos de **linha**, **barras** e **área**, passe o **mouse** sobre um ponto ou barra para ver o **detalhamento** do valor: data, campo, operação e total no recorte atual.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_DETALHAMENTO_GRAFICO_MOUSE,
+                },
+              ],
             },
-          },
+          ],
         },
         {
           titulo: 'Painéis',
@@ -1790,7 +1815,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Período, status e filtros',
           tituloCurto: 'Período e filtros',
           paragrafos: [
-            'A barra do Dashboard aplica recortes **globais** a todos os widgets que não usam período próprio. Combine **período**, **status** e **filtros adicionais** para refinar o que entra nos gráficos.',
+            'A barra superior concentra **período**, **status**, **filtros globais**, **visibilidade dos widgets** e o botão **+** para adicionar novos blocos.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -1818,7 +1843,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SELECAO_FEITA,
-                  paragrafoAntes: 'Período **aplicado** — KPIs e widgets recalculam',
+                  paragrafoAntes: 'Período **aplicado** — KPIs e widgets do recorte global recalculam',
                 },
                 {
                   legenda: '',
@@ -1826,6 +1851,11 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Chip de **período ativo** na barra inferior',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Ao mudar o **Período** da barra, os **KPIs fixos** e os widgets que **seguem o recorte global** recalculam na hora. **Não acompanham** widgets com **período próprio** (aba Período na edição ⋮) nem gráficos de **tendência** que permanecem em **12 meses** por padrão.',
+              },
             },
             {
               indice: 0,
@@ -1847,7 +1877,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_FILTRO,
-                  paragrafoAntes: '**Filtros** adicionais por campo do catálogo',
+                  paragrafoAntes: 'Recorte de **Status** visível na barra — ex.: **Todos os status ativos**',
                 },
                 {
                   legenda: '',
@@ -1855,19 +1885,25 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Menu **Widgets** — exibir, ocultar e **reordenar** blocos da grade',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Os recortes da barra aplicam-se de forma **global** aos widgets que não usam período próprio — combine **período**, **status** e **filtros adicionais** para refinar o que entra nos gráficos.',
+              },
             },
           ],
           callout: {
             tipo: 'dica',
             texto:
-              'Dois ou mais filtros ativos geram **chips** na barra inferior. Use **Limpar** para resetar o recorte sem trocar de painel.',
+              'Período, status e demais filtros **ativos** aparecem na **barra**, em **chips** abaixo dela ou na faixa **Filtros ativos** — sempre visíveis para você conferir o recorte. Use **Limpar** para resetar sem trocar de painel.',
           },
         },
         {
           titulo: 'Adicionar widget',
           tituloCurto: 'Adicionar widget',
           paragrafos: [
-            'Use o botão **+** na barra para incluir widgets. Há dois caminhos: **Explorar sugestões** (atalhos prontos com base no catálogo do Pedido) ou **Criar do zero** (monte a consulta campo a campo).',
+            'Clique em **+** na barra do Dashboard. O menu oferece **dois caminhos** — escolha **um** (não é preciso fazer os dois).',
+            '**Caminho A — Explorar sugestões:** widgets prontos gerados pelo catálogo do Pedido — basta **Adicionar**. **Caminho B — Criar do zero:** wizard em **3 passos** (**Campos** → **Operação** → **Visualizar**), montando campo, operação e formato você mesmo.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -1878,7 +1914,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SETA,
-                  paragrafoAntes: '**01.** Clique em **+** na barra do Dashboard',
+                  paragrafoAntes: 'Clique em **+** na barra',
                 },
               ],
             },
@@ -1886,11 +1922,13 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 0,
               colunas: 1,
               textoAcimaEstiloCorpo: true,
+              tituloEtapa: 'Caminho A — Explorar sugestões',
+              textoIntro: 'Atalhos prontos — ideal para começar rápido.',
               telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_SETA,
-                  paragrafoAntes: '**02.** Escolha **Explorar sugestões**',
+                  paragrafoAntes: 'Escolha **Explorar sugestões**',
                 },
               ],
             },
@@ -1902,12 +1940,26 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL,
-                  paragrafoAntes: 'Modal com **sugestões** prontas (KPI, linha, barras, distribuição…)',
+                  paragrafoAntes: 'Clique **+ Adicionar** na sugestão desejada',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL_FEITO,
-                  paragrafoAntes: 'Widget **adicionado** à grade após confirmar',
+                  paragrafoAntes: 'Pronto — widget na grade',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              tituloEtapa: 'Caminho B — Criar do zero',
+              textoIntro: 'Wizard **Campos → Operação → Visualizar** (barra de progresso no topo do modal).',
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_SETA,
+                  paragrafoAntes: 'No mesmo menu **+**, escolha **Criar do zero**',
                 },
               ],
             },
@@ -1918,30 +1970,32 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_SETA,
-                  paragrafoAntes: '**03.** Ou escolha **Criar do zero** no mesmo menu **+**',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_1,
+                  paragrafoAntes: '**Campos** — marque **1 campo** do catálogo',
                 },
               ],
             },
             {
               indice: 0,
-              colunas: 3,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_1,
-                  paragrafoAntes: 'Passo 1 — escolha **campos** do catálogo do Pedido',
-                },
-                {
-                  legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_SELECAO,
-                  paragrafoAntes: 'Campos **selecionados** para a consulta',
+                  paragrafoAntes: '**Campos** — clique **Próximo**',
                 },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_OPERACAO,
-                  paragrafoAntes: 'Defina a **operação** por campo (soma, contagem, média…)',
+                  paragrafoAntes: '**Operação** — **título**, operação do campo e **período** → **Próximo**',
                 },
               ],
             },
@@ -1953,20 +2007,22 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO,
-                  paragrafoAntes: 'Escolha o **tipo de gráfico** (KPI, linha, barras, área, pizza…)',
+                  paragrafoAntes: '**Visualizar** — escolha o **formato** (KPI, linha, barras, área…)',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO_FEITO,
-                  paragrafoAntes: 'Widget **criado** e posicionado na grade',
+                  paragrafoAntes: '**Salvar** — widget criado na grade',
                 },
               ],
             },
           ],
+          mostrarCatalogoDashboardSugestoesPedido: true,
+          mostrarCatalogoDashboardTiposVisualizacaoPedido: true,
           callout: {
             tipo: 'dica',
             texto:
-              'Sugestões **complementares** aparecem conforme você já tem widgets no painel — acelera montar visões correlatas (ex.: volume por status + evolução temporal).',
+              'Os **catálogos expansivos abaixo** são referência opcional (o que cada sugestão ou formato faz). No dia a dia, o caminho A costuma ser o mais rápido; use o B quando precisar de um widget sob medida.',
           },
         },
         {
@@ -2013,7 +2069,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TITULO,
-                  paragrafoAntes: 'Aba **Título** — renomeie o widget',
+                  paragrafoAntes: 'Edite o **título** do widget',
                 },
                 {
                   legenda: '',
@@ -2030,12 +2086,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_PERIODO,
-                  paragrafoAntes: 'Aba **Período** — intervalo **próprio** do widget',
+                  paragrafoAntes: 'Selecione o **período**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TIPO_GRAFICO,
-                  paragrafoAntes: 'Aba **Tipo de gráfico** — altere visualização',
+                  paragrafoAntes: 'Selecione o **tipo de gráfico**',
                 },
               ],
             },
@@ -2059,7 +2115,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_LINHA,
-                  paragrafoAntes: 'Arraste para a **linha** desejada',
+                  paragrafoAntes: 'Linha na cor **roxa** — card ativado para **mover**',
                 },
                 {
                   legenda: '',
@@ -2067,6 +2123,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Posição **confirmada** na grade',
                 },
               ],
+              mostrarIndicadoresMoverDashboardPedido: true,
             },
             {
               indice: 0,
@@ -2088,7 +2145,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO,
-                  paragrafoAntes: 'Arraste a **borda** para ampliar ou reduzir',
+                  paragrafoAntes: 'Clique na **linha** e mude **altura** e **largura**',
                 },
                 {
                   legenda: '',
@@ -2096,6 +2153,11 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Novo **tamanho** aplicado',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Clique na **linha** roxa (borda ou canto do card) e **arraste** para ajustar **altura** e **largura**. Use **Concluir** no menu **⋮** para salvar.',
+              },
             },
             {
               indice: 0,
@@ -2120,14 +2182,69 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   paragrafoAntes: 'Widget **removido** — layout salvo automaticamente',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Nenhuma **confirmação** será solicitada — ao clicar em **Excluir**, o widget some na hora e o layout é salvo automaticamente.',
+              },
             },
           ],
         },
+      ]),
+    },
+    {
+      titulo: 'Visão Kanban',
+      tituloSumario: 'Visão Kanban',
+      prefixoPassosVisuais: 'Kanban',
+      ancoraPassosPrefix: 'kanban',
+      mostrarMapaSubtopicosPassos: true,
+      passosVisuais: renumerarPassos([
         {
-          titulo: 'Detalhamento do gráfico',
-          tituloCurto: 'Detalhamento',
+          titulo: 'Visão geral',
+          tituloCurto: 'Visão geral',
+          imagem: SCREENSHOT_PEDIDO_KANBAN_TELA_PRINCIPAL,
+          imagemAbaixoTexto: true,
           paragrafos: [
-            'Em gráficos de **linha**, **barras** e **área**, passe o **mouse** sobre um ponto ou barra para ver o **detalhamento** do valor: data, campo, operação e total no recorte atual.',
+            'O **Kanban** organiza os pedidos em **colunas por status** — cada coluna reflete um status configurado no workspace.',
+          ],
+          calloutAposParagrafo: {
+            indice: 0,
+            callout: {
+              tipo: 'dica',
+              texto:
+                '**Arraste** o cartão para outra coluna para **alterar o status** do pedido; a busca e as colunas visíveis respeitam suas **preferências** salvas.',
+            },
+          },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_KANBAN_ACESSO_SETA,
+                  paragrafoAntes: 'Abra a aba **Kanban** no topo do Pedido',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_KANBAN_TELA_PRINCIPAL,
+                  paragrafoAntes: 'Colunas por **status** e cartões com número, parceiro, datas e valor',
+                },
+              ],
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Colunas **somente leitura** (ex.: Consolidado) não aceitam cartões — o arraste é bloqueado. Configure status e colunas em **Configurações › Kanban**.',
+          },
+        },
+        {
+          titulo: 'Busca e contagem',
+          tituloCurto: 'Busca',
+          paragrafos: [
+            'A **barra superior** concentra a **busca** e o **total de pedidos** visíveis no recorte atual (após filtrar por texto).',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -2137,22 +2254,41 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               telas: [
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_DETALHAMENTO_GRAFICO_MOUSE,
-                  paragrafoAntes: '**Tooltip** ao passar o mouse sobre o gráfico',
+                  imagem: SCREENSHOT_PEDIDO_KANBAN_CABECALHO,
+                  paragrafoAntes: 'Use **Localizar** para filtrar por número, parceiro, incoterm ou status',
                 },
               ],
+              mostrarCardsKanbanCabecalhoPedido: true,
+            },
+          ],
+        },
+        {
+          titulo: 'Mover entre colunas',
+          tituloCurto: 'Mover cartão',
+          paragrafos: [
+            '**Arraste** um cartão de uma coluna para outra — ao soltar, o **status do pedido** é atualizado na hora (mesmo efeito de alterar status na Lista).',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_KANBAN_MOVER,
+                  paragrafoAntes: '**Arraste** o cartão até a coluna de destino',
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'É preciso permissão **kanban:editar**. Sem ela, o arraste fica desabilitado e um aviso aparece no topo da tela.',
+              },
             },
           ],
         },
       ]),
-    },
-    {
-      titulo: 'Visão Kanban',
-      tituloSumario: 'Visão Kanban',
-      paragrafos: [
-        'O **Kanban** organiza os pedidos em **colunas por status**. Arraste cartões entre colunas para atualizar o fluxo; as colunas visíveis são configuráveis em **Configurações › Kanban**.',
-      ],
-      passosVisuais: [],
     },
     {
       titulo: 'Configurações',

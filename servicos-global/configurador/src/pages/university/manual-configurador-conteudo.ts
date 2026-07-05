@@ -102,6 +102,10 @@ export interface DocPassoVisual {
     layoutEdicaoMassaExemplosPasso2?: boolean
     /** Dica(s) logo abaixo desta grade (ex.: entre duas linhas de prints). */
     calloutApos?: DocCalloutManual | DocCalloutManual[]
+    /** Manual Pedido §06 Dashboard — ícone de mão (grab) + área vermelha de guia ao mover. */
+    mostrarIndicadoresMoverDashboardPedido?: boolean
+    /** Manual Pedido §07 Kanban — cards do cabeçalho da coluna (status, contagem, ordenar). */
+    mostrarCardsKanbanCabecalhoPedido?: boolean
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
@@ -139,6 +143,14 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
   mostrarCatalogoColunasPedidoLista?: boolean
+  /** Manual Pedido §06 Dashboard — accordion de sugestões do modal Explorar sugestões. */
+  mostrarCatalogoDashboardSugestoesPedido?: boolean
+  /** Índice da galeria (0-based) após a qual inserir o catálogo; omitido = antes do callout final. */
+  catalogoDashboardSugestoesAposGaleriaIndice?: number
+  /** Manual Pedido §06 Dashboard — accordion dos tipos de dado (Passo 3 Criar do zero). */
+  mostrarCatalogoDashboardTiposVisualizacaoPedido?: boolean
+  /** Índice da galeria após a qual inserir o catálogo de tipos de visualização. */
+  catalogoDashboardTiposVisualizacaoAposGaleriaIndice?: number
   /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
   catalogoColunasPedidoAposParagrafo?: number
   /** Manual Pedido §05 — infográfico pedido × itens e regras de alerta. */

@@ -145,6 +145,11 @@ $mapa = @{
   'tela_pedido_dashboard_teka_principal_tres_pontos_excluir_seta' = 'pedido-dashboard-tres-pontos-excluir-seta.png'
   'tela_pedido_dashboard_teka_principal_tres_pontos_excluido' = 'pedido-dashboard-tres-pontos-excluido.png'
   'tela_pedido_dashboard_teka_principal_detalhamento_grafico_mouse_1' = 'pedido-dashboard-detalhamento-grafico-mouse.png'
+  # Kanban
+  'tela_pedido_kanban_acesso_seta' = 'pedido-kanban-acesso-seta.png'
+  'tela_pedido_kanban_tela_principal' = 'pedido-kanban-tela-principal.png'
+  'tela_pedido_kanban_tela_principal_cabecalho' = 'pedido-kanban-cabecalho.png'
+  'tela_pedido_kanban_tela_principal_mover' = 'pedido-kanban-mover.png'
 }
 
 # Mesma origem Drive -> dois destinos (lembrar + reverter reutilizam print proximo)

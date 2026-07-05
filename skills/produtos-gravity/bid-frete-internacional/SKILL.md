@@ -154,6 +154,16 @@ Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catál
 
 **Pin de selecionados (§8.3):** todo código selecionado precisa ser garantido na lista em memória, senão o SelectGlobal mostra placeholder ao voltar de passo (catálogo paginado raramente contém o código na 1ª página). O hook aceita `codigoSelecionado` (principal) e `codigosSelecionados: string[]` (locais adicionais aceitos) — ambos usam `garantirSelecionado` + Map de pins. Ao consumir o hook para um select com valor persistido, **sempre** repassar o(s) código(s) selecionado(s).
 
+**Regra anti-ponto-cego (TASK-000415):** o Cadastros tem ~17k portos ativos e toda página carregada em memória (client ou server) é um **recorte**. Nenhum fluxo pode tratar «não está no contexto carregado» como «não existe». Três aplicações concretas:
+
+| Fluxo | Mecanismo | Arquivo |
+|-------|-----------|---------|
+| Selects do wizard (passo 2) | Sem `?pais=` — busca global paginada + pin | `use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts` (§8.1–8.3) |
+| Gravação `POST`/`PATCH` (snapshot de rota) | `garantirTerminaisRotaNoContextoCatalogo` resolve origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto antes de validar | `server/src/lib/carregar-contexto-catalogo-rota-bid-frete-internacional.ts` (modal §8.4) |
+| Importação por planilha | `enriquecerContextoCatalogoLocaisImportacaoBid` busca remotamente (`?q=valor`) os locais que não resolveram contra a página base e anexa ao contexto do preview | `client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts` (CATALOGO doc) |
+
+Sintoma clássico do ponto cego no server: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)` — o snapshot caiu no fallback «nome = código» porque o porto estava fora da página do contexto. Testes UNI: `catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
+
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 
 Todas as colunas visíveis têm filtro ▾ no header (`FiltroPopoverColuna` / `FiltroChips` do núcleo). Estado `filtrosAtivosLista` em `lista-bid-frete-internacional.tsx`; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`.
@@ -430,6 +440,7 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 - Confundir **status de cotação** (`status_cotacao_config_*`) com **status de BID** (`status_bid_config_*`).
 - Usar `destino_nome` da cotação para posicionar pin no mapa Insights — usar código + Cadastros (ver INSIGHTS §7).
 - Gravar rota de cotação sem validar contra catálogo Cadastros quando modal ≠ rodoviário — usar `prepararRotaComValidacaoCadastros`.
+- Tratar «código ausente do contexto de catálogo em memória» como «porto/aeroporto inexistente» — o contexto é uma página de ~17k itens; resolver individualmente no Cadastros antes de reprovar (ver Catálogo § Regra anti-ponto-cego, TASK-000415).
 
 ---
 

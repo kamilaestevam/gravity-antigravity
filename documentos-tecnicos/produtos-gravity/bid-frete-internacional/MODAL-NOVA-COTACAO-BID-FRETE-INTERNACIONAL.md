@@ -309,7 +309,25 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 ---
 
-## 8. Backlog técnico (não bloqueante)
+## 8. Passo 2 — Sem filtro de país nos selects de porto/aeroporto (TASK-000415)
+
+Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino** recebem sempre `codigoPais = ''` (catálogo global). O valor de `origem_pais_cotacao_bid_frete_internacional` / `destino_pais_cotacao_bid_frete_internacional` **não** é repassado como query `?pais=` na API.
+
+| Antes (bug) | Depois (correto) |
+|-------------|------------------|
+| País preenchido no form (ex.: `US`) filtrava portos/aeroportos só daquele país | Busca sempre no catálogo inteiro do Cadastros |
+| Com checkbox «Exibir campos… país» desmarcado, o filtro ficava **invisível** | Hamburg (DEHAM), Frankfurt (FRA) etc. aparecem ao digitar o termo |
+| Usuário via só cidades US com «ham» no nome | Resultados globais ordenados por país + nome no Cadastros |
+
+**Regra:** o país do formulário é preenchido **depois** da seleção do porto/aeroporto (snapshot para persistência), mas não restringe o dropdown. Commit de referência: `fc6c8426d` (`manual-gravity-8001`).
+
+### 8.1 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
+
+Na gravação (POST/PATCH de cotação), o server deriva o snapshot de rota a partir de uma página do catálogo do Cadastros (`carregar-contexto-catalogo-rota-bid-frete-internacional.ts`). Como o Cadastros tem mais portos ativos que o limite da página, um porto fora da página faria o snapshot cair no fallback «nome = código» e reprovar na validação (ex.: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)`). A função `garantirTerminaisRotaNoContextoCatalogo` resolve cada código de origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto quando ausente — o snapshot nunca depende do tamanho ou da ordenação do catálogo.
+
+---
+
+## 9. Backlog técnico (não bloqueante)
 
 | Item | Mandamento / skill |
 |------|-------------------|
@@ -319,7 +337,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 ---
 
-## 9. Referências
+## 10. Referências
 
 - Padrão UX wizard: `skills/produtos-gravity/processo/SKILL.md` + `documentos-tecnicos/produtos-gravity/processo/PADRAO-UX-TELAS.md`
 - Visão fornecedor (resposta/disparo): [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md)

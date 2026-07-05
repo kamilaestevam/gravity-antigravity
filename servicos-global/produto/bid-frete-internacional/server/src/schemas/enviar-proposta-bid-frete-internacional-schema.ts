@@ -48,6 +48,8 @@ export const EnviarPropostaSchema = z.object({
   escalas_proposta_bid_frete_internacional: z
     .union([z.string().regex(/^\d+$/), z.number().int().min(0).transform(String)])
     .nullish(),
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional: z.string().min(1).optional(),
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional: z.string().min(1).optional(),
   observacoes_proposta_bid_frete_internacional: z.string().nullish(),
   periodos_armazenagem_proposta_bid_frete_internacional: z
     .array(periodoArmazenagemPropostaSchema)

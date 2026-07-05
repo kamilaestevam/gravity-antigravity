@@ -256,6 +256,50 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 ---
 
+## Disparo — envio assíncrono + feedback honesto (PRs #622–#632, TASK-000405)
+
+**Regra inviolável (REGRA 08):** a UI só afirma entrega quando o banco confirma `ENVIADO`. Nunca `alert()` nativo; nunca banner verde para disparo não confirmado.
+
+**Backend:** `POST /cotacoes` com `disparar_ao_criar` responde 201 + `disparo_pendente: true` **antes** do envio (Resend excede timeout Railway ~30s). Job em background via `res.on('finish')` + `res.on('close')`, Prisma dedicado `withTenantIsolation`. E-mail via sidecar `127.0.0.1:8008` quando `BID_FRETE_SIDECAR=1`.
+
+**Garantias anti-PENDENTE-eterno:**
+
+1. **Watchdog pós-job** (`cotacoes.ts`): disparo ainda `PENDENTE` ao fim do job → `ERRO_ENVIO` com mensagem diagnóstica
+2. **Cron 5min roda TAMBÉM em sidecar** (`startCronJobs()` incondicional em `server/src/index.ts`) — reenvia `PENDENTE` 2min–24h; >24h vira `ERRO_ENVIO` **sem reenvio**
+3. Logs Railway com prefixo `[disparo-bg]`
+
+> ⚠️ Armadilha que causou o bug de prod (#632): condicionar cron/jobs a `!BID_FRETE_SIDECAR` desliga a rotina exatamente no ambiente de produção. Todo job vital do produto DEVE rodar também em modo sidecar.
+
+**Frontend (wizard):** polling `aguardarConfirmacaoDisparoCotacao` (2s, máx 45s) até disparos saírem de `PENDENTE`; falha de rede no GET **não lança** (retenta). Estados: `aguardando` (amarelo) → `sucesso` / `parcial` / `erro` / `nao_confirmado`. Cotação salva + polling falho ≠ "Erro ao criar cotação".
+
+**Testes UNI:** `aguardar-confirmacao-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.3–5.4
+
+---
+
+## Portos/Aeroportos alternativos opcionais (TASK-000405)
+
+Cotação pode oferecer locais logísticos alternativos além do principal (origem/destino). Comprador configura no wizard; fornecedor escolhe qual usa ao responder.
+
+| Peça | Caminho |
+|------|---------|
+| SSOT regras + parse JSON | `shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.ts` |
+| Hooks UI (rótulos Cadastros) | `client/src/shared/locais-opcionais-cotacao-bid-frete-internacional.ts` |
+| Wizard passo 2 + resumo | `modal-nova-cotacao-bid-frete-internacional.tsx` |
+| Detalhe comprador (card Rota) | `cotacao-detalhe.tsx` |
+| Form fornecedor + validação | `formulario-resposta-cotacao-bid-frete-internacional.tsx` |
+| Payload POST proposta | `montar-payload-proposta-resposta-bid-frete-internacional.ts` |
+| Persistência local na proposta | `shared/local-proposta-resposta-bid-frete-internacional.ts` (marcador em `observacoes_proposta_*`) |
+| Validação server | `server/src/lib/validar-locais-proposta-resposta-bid-frete-internacional.ts` |
+| Normalização GET cotação | `mapCotacaoFromServer` — `parseCodigosOpcaoPortoAeroportoFromDb` |
+
+**Campos cotação (Prisma):** `habilitar_opcao_porto_aeroporto_{origem,destino}_*` + `codigos_opcao_porto_aeroporto_{origem,destino}_*` (JSONB).
+
+**Regra fornecedor:** se há opcionais no lado, select obrigatório; elegíveis = principal + opcionais. Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais · wizard: [MODAL-NOVA-COTACAO](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1.
+
+---
+
 ## Detalhe da cotação — scroll (PR #338)
 
 | Peça | Caminho |

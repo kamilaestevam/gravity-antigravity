@@ -42,10 +42,37 @@
 | # | Passo | Conteúdo principal |
 |---|-------|-------------------|
 | 1 | Modal e Operação | **Nº da cotação** (auto-gerado, editável), tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
-| 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
+| 2 | Origem e Destino | Porto/aeroporto principal + **alternativas opcionais** (multi-select Cadastros) — §2.1 |
 | 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, incoterm + helper card |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
-| 5 | Resumo | Valor alvo, moeda, receipt visual da rota |
+| 5 | Resumo | Valor alvo, moeda (SSOT Cadastros), receipt da rota + **listas de portos/aeroportos opcionais** — §2.1 |
+
+### 2.1 Portos/Aeroportos alternativos (opcionais)
+
+Toggle por lado (origem/destino) no passo **Origem e Destino**. Quando habilitado, multi-select busca catálogo global de portos (marítimo) ou aeroportos (aéreo) via Cadastros.
+
+| Campo Prisma (cotação) | Tipo | Uso |
+|------------------------|------|-----|
+| `habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional` | Boolean | Liga alternativas na origem |
+| `codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional` | JSONB `string[]` \| null | Códigos UN/LOCODE ou IATA |
+| `habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional` | Boolean | Liga alternativas no destino |
+| `codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional` | JSONB `string[]` \| null | Idem destino |
+
+**SSOT regras:** `shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.ts` — parse persistência, elegíveis para fornecedor (principal + opcionais), textos de exibição.
+
+**UI comprador:**
+
+| Tela | Peça | Comportamento |
+|------|------|---------------|
+| Passo 2 | `modal-nova-cotacao-bid-frete-internacional.tsx` | Toggle + multi-select |
+| Passo 5 Resumo | idem | Linhas «Portos/Aeroportos de Origem/Destino opcionais: x, y, z» (`.nc-receipt-details--locais-opcionais`) |
+| Detalhe cotação | `cotacao-detalhe.tsx` card **Rota** | `InfoRow` com mesmos rótulos |
+
+**Hooks client:** `client/src/shared/locais-opcionais-cotacao-bid-frete-internacional.ts` — `useTextosLocaisOpcionaisCotacaoBidFrete`, `useResolverRotuloLocalLogisticoCotacaoBidFrete`.
+
+**API:** `POST`/`PATCH /cotacoes` aceitam os quatro campos; Zod + `refinamentoOpcoesPortoAeroportoCotacao` exige ≥1 código quando toggle ligado.
+
+**Fornecedor (resposta):** quando há opcionais, o agente **deve** escolher qual local usa — ver [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais.
 
 ---
 
@@ -161,6 +188,7 @@ export async function criarCotacaoComDisparo(input): Promise<{
   cotacao: Cotacao
   disparo: { disparos: number; enviados?: boolean; message?: string } | null
   disparo_erro: string | null
+  disparo_pendente: boolean // true → backend disparou em background; client faz polling
 }>
 ```
 
@@ -180,22 +208,39 @@ export async function criarCotacaoComDisparo(input): Promise<{
 }
 ```
 
-### 5.3 Feedback no modal (REGRA 08)
+### 5.3 Feedback honesto no modal (REGRA 08 — PRs #627/#632)
 
-Se `disparar_ao_criar` era intencional e:
+A UI **nunca afirma envio que o banco não confirmou**. Sem `alert()` nativo — só `addNotification` + banner no modal.
 
-- `disparo_erro` presente → `alert` com mensagem de falha (cotação já persistida)
-- `disparo.disparos === 0` → `alert` orientando verificar fornecedores
+Fluxo pós-201 com `disparo_pendente: true`:
 
-### 5.4 Backend
+1. Banner amarelo *"Cotação salva — confirmando envio"* (tipo `aguardando`)
+2. Polling `aguardarConfirmacaoDisparoCotacao` (`client/src/shared/aguardar-confirmacao-disparo-bid-frete-internacional.ts`): `GET /cotacoes/:id` a cada 2s, máx. 45s, até todos os disparos saírem de `PENDENTE`. **Nunca lança** — 502/timeout de rede são retentados (`falhasConsulta`)
+3. Resultado final por status real no banco:
+   - todos `ENVIADO` → verde *"X de Y entregues"* (`sucesso`)
+   - mistura → amarelo (`parcial`), com nomes e primeiro erro
+   - todos `ERRO_ENVIO` → vermelho com `erro_envio_...` (`erro`)
+   - timeout ainda `PENDENTE` → vermelho *"Envio não confirmado"* (`nao_confirmado`)
 
-`POST /api/v1/bid-frete-internacional/cotacoes` retorna:
+Se o `catch` do submit rodar **após** a cotação salva (ex.: falha do polling), o modal de sucesso permanece e o feedback vira `nao_confirmado` — nunca a mensagem "Erro ao criar cotação".
+
+Helpers: `formatarFeedbackDisparoBidFrete`, `tipoNotificacaoFeedbackDisparo`, `corBordaFeedbackDisparo` (`shared/formatar-resultado-disparo-bid-frete-internacional.ts`).
+
+### 5.4 Backend — disparo assíncrono pós-201 (PRs #622–#624/#632)
+
+`POST /api/v1/bid-frete-internacional/cotacoes` com `disparar_ao_criar` responde **antes** do envio (Resend pode exceder o timeout HTTP do Railway ~30s):
 
 ```json
-{ "cotacao": { ... }, "disparo": { "disparos": N }, "disparo_erro": "..." }
+{ "cotacao": { ... }, "disparo": null, "disparo_pendente": true }
 ```
 
-Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts`.
+- Job em background agendado em `res.on('finish')` **e** `res.on('close')` (idempotente) com Prisma dedicado `withTenantIsolation(basePrisma, tenantId)`
+- Motor marca cada disparo `PENDENTE → ENVIADO | ERRO_ENVIO`; e-mail via sidecar `127.0.0.1:8008` (`BID_FRETE_SIDECAR=1`), timeout 25s + `Promise.race`
+- **Watchdog pós-job:** qualquer disparo da cotação ainda `PENDENTE` ao final vira `ERRO_ENVIO` com mensagem diagnóstica — nenhum registro fica pendente para sempre
+- **Cron (5 min) roda TAMBÉM em sidecar** (`startCronJobs()` incondicional no `index.ts` — era o bug local×prod do #632): reenvia `PENDENTE` entre 2min e 24h; `PENDENTE` >24h vira `ERRO_ENVIO` **sem reenvio** (evita rajada de e-mails velhos)
+- Logs Railway: prefixo `[disparo-bg]` (iniciando/concluído/watchdog)
+
+Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts` + `tarefas-agendadas.ts`.
 
 **ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` + `filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional` (modal) no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta` (também filtra por modal no motor).
 
@@ -256,7 +301,11 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
 | #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
 | #338 | 2026-06-15 | Multi-e-mail/WhatsApp no disparo; resolução Cadastros `fornecedor_contato`; feedback agregado por fornecedor |
+| TASK-000405 | 2026-07-04 | Portos/aeroportos alternativos opcionais (passo 2, resumo, detalhe Rota, seleção fornecedor) — §2.1 |
 | — | 2026-07-03 | Elegibilidade disparo × modal/tipo (flags Cadastros); Zod flags em GET fornecedores; FUN TST-000121 |
+| #622–#624 | 2026-07-03 | Disparo assíncrono pós-201 (`disparo_pendente`); Prisma dedicado no background; timeout 25s; e-mail força sidecar `127.0.0.1:8008` |
+| #627 | 2026-07-03 | Feedback honesto: polling resiliente (não lança em 502), sem `alert()` nativo, `nao_confirmado` em timeout |
+| #632 | 2026-07-04 | **Root cause prod:** cron não rodava em sidecar (`if (!BID_FRETE_SIDECAR)`); cron incondicional + watchdog PENDENTE→ERRO_ENVIO + limpeza >24h sem reenvio + logs `[disparo-bg]` |
 
 ---
 

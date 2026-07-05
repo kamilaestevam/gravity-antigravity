@@ -11,6 +11,8 @@ import { validarPropostaEnvioModalidadeCotacaoBidFreteInternacional } from '../l
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { persistirTaxasProposta, type TaxaInputProposta } from '../lib/persistir-taxas-proposta.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
+import { validarLocaisPropostaRespostaBidFreteInternacional } from '../lib/validar-locais-proposta-resposta-bid-frete-internacional.js'
+import { serializarLocaisPropostaObservacoes } from '../../../shared/local-proposta-resposta-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from './integracoes-tenant.js'
 
 export interface DadosPropostaDisparo {
@@ -24,6 +26,8 @@ export interface DadosPropostaDisparo {
   transbordos_proposta_bid_frete_internacional: number
   escalas_proposta_bid_frete_internacional?: string
   observacoes_proposta_bid_frete_internacional?: string
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional?: string
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional?: string
   periodos_armazenagem_proposta_bid_frete_internacional?: Array<{
     ordem_periodo_armazenagem_proposta_bid_frete_internacional: number
     dias_periodo_armazenagem_proposta_bid_frete_internacional: number
@@ -100,6 +104,15 @@ export async function enviarPropostaDisparoBidFreteInternacional(
           data_limite_resposta_cotacao_bid_frete_internacional: true,
           modalidade_cotacao_bid_frete_internacional: true,
           incluir_armazenagem_cotacao_bid_frete_internacional: true,
+          modal_cotacao_bid_frete_internacional: true,
+          porto_origem_cotacao_bid_frete_internacional: true,
+          porto_destino_cotacao_bid_frete_internacional: true,
+          aeroporto_origem_cotacao_bid_frete_internacional: true,
+          aeroporto_destino_cotacao_bid_frete_internacional: true,
+          habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: true,
+          codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: true,
+          habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: true,
+          codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: true,
         },
       },
     },
@@ -126,6 +139,16 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     throw erroAcesso('VALIDATION_ERROR', erroModalidade, 400)
   }
 
+  validarLocaisPropostaRespostaBidFreteInternacional(
+    disparo.cotacao as Parameters<typeof validarLocaisPropostaRespostaBidFreteInternacional>[0],
+    {
+      codigo_porto_aeroporto_origem_proposta_bid_frete_internacional:
+        dados.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional,
+      codigo_porto_aeroporto_destino_proposta_bid_frete_internacional:
+        dados.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional,
+    },
+  )
+
   const modo = acesso.modo_acesso_resposta_disparo_bid_frete_internacional
   const propostaExistente = disparo.proposta as { id_proposta_bid_frete_internacional: string } | null
 
@@ -133,7 +156,12 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     throw erroAcesso('PROPOSTA_NAO_ENCONTRADA', 'Proposta nao encontrada para atualizacao', 404)
   }
 
-  const { taxas, ...responseData } = dados
+  const {
+    taxas,
+    codigo_porto_aeroporto_origem_proposta_bid_frete_internacional,
+    codigo_porto_aeroporto_destino_proposta_bid_frete_internacional,
+    ...responseData
+  } = dados
   const valorTotal =
     responseData.valor_frete_proposta_bid_frete_internacional +
     responseData.taxas_origem_proposta_bid_frete_internacional +
@@ -141,6 +169,13 @@ export async function enviarPropostaDisparoBidFreteInternacional(
 
   const dadosProposta = {
     ...responseData,
+    observacoes_proposta_bid_frete_internacional: serializarLocaisPropostaObservacoes(
+      {
+        codigo_porto_aeroporto_origem_proposta_bid_frete_internacional,
+        codigo_porto_aeroporto_destino_proposta_bid_frete_internacional,
+      },
+      responseData.observacoes_proposta_bid_frete_internacional,
+    ),
     valor_total_proposta_bid_frete_internacional: valorTotal,
     validade_proposta_bid_frete_internacional: new Date(responseData.validade_proposta_bid_frete_internacional),
   }

@@ -262,6 +262,89 @@ const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONFIRMAR =
 const SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONCLUIDO_MODAL =
   '/university/screenshots/pedido-lista-edicao-massa-concluido-modal.png'
 
+const SCREENSHOT_PEDIDO_DASHBOARD_ICONE_ACESSO =
+  '/university/screenshots/pedido-dashboard-icone-acesso.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_ICONE_TELA_1 =
+  '/university/screenshots/pedido-dashboard-icone-tela-principal-1.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_ICONE_TELA_2 =
+  '/university/screenshots/pedido-dashboard-icone-tela-principal-2.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_SETA =
+  '/university/screenshots/pedido-dashboard-paineis-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_SETA =
+  '/university/screenshots/pedido-dashboard-paineis-novo-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_PREENCHIDO =
+  '/university/screenshots/pedido-dashboard-paineis-novo-preenchido.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_FEITO =
+  '/university/screenshots/pedido-dashboard-paineis-novo-feito.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_RENOMEAR_EXCLUIR =
+  '/university/screenshots/pedido-dashboard-paineis-renomear-excluir.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SETA =
+  '/university/screenshots/pedido-dashboard-periodo-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SELECAO =
+  '/university/screenshots/pedido-dashboard-periodo-selecao.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SELECAO_FEITA =
+  '/university/screenshots/pedido-dashboard-periodo-selecao-feita.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_FILTRO_ATIVO =
+  '/university/screenshots/pedido-dashboard-periodo-filtro-ativo.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_FILTRO =
+  '/university/screenshots/pedido-dashboard-filtro.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_FILTROS_SELECAO_WIDGETS =
+  '/university/screenshots/pedido-dashboard-filtros-selecao-widgets.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_STATUS =
+  '/university/screenshots/pedido-dashboard-status.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SETA =
+  '/university/screenshots/pedido-dashboard-novo-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_SETA =
+  '/university/screenshots/pedido-dashboard-novo-sugestoes-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL =
+  '/university/screenshots/pedido-dashboard-novo-sugestoes-modal.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL_FEITO =
+  '/university/screenshots/pedido-dashboard-novo-sugestoes-modal-feito.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_SETA =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_1 =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-modal-1.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_SELECAO =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-modal-selecao.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_OPERACAO =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-modal-operacao.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-modal-tipo-grafico.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO_FEITO =
+  '/university/screenshots/pedido-dashboard-novo-criar-zero-modal-tipo-grafico-feito.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_SETA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_SETA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-modal.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TITULO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-modal-titulo.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_INDICADOR =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-modal-indicador.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_PERIODO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-modal-periodo.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TIPO_GRAFICO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-editar-modal-tipo-grafico.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_SETA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mover-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_LINHA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mover-linha.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_CONCLUIR =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mover-concluir.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO_SETA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mudar-tamanho-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mudar-tamanho.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO_FEITO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-mudar-tamanho-feito.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EXCLUIR_SETA =
+  '/university/screenshots/pedido-dashboard-tres-pontos-excluir-seta.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EXCLUIDO =
+  '/university/screenshots/pedido-dashboard-tres-pontos-excluido.png'
+const SCREENSHOT_PEDIDO_DASHBOARD_DETALHAMENTO_GRAFICO_MOUSE =
+  '/university/screenshots/pedido-dashboard-detalhamento-grafico-mouse.png'
+
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -1604,10 +1687,464 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
     {
       titulo: 'Visão Dashboard',
       tituloSumario: 'Visão Dashboard',
-      paragrafos: [
-        'O **Dashboard** permite montar **widgets** personalizados (gráficos, tabelas e KPIs) a partir dos pedidos do workspace. Cada usuário salva seu próprio layout.',
-      ],
-      passosVisuais: [],
+      prefixoPassosVisuais: 'Dashboard',
+      ancoraPassosPrefix: 'dashboard',
+      mostrarMapaSubtopicosPassos: true,
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Visão geral',
+          tituloCurto: 'Visão geral',
+          imagem: SCREENSHOT_PEDIDO_DASHBOARD,
+          imagemAbaixoTexto: true,
+          paragrafos: [
+            'O **Dashboard** é o painel de **BI personalizado** do Pedido: monte **widgets** (KPIs, gráficos de linha, barras, área e distribuição) a partir dos pedidos do workspace. Cada usuário salva **painéis**, **layout** e **filtros** próprios — sem alterar a visualização dos colegas.',
+            'A barra superior concentra **período**, **status**, **filtros globais**, **visibilidade dos widgets** e o botão **+** para adicionar novos blocos. Os **KPIs fixos** no topo refletem o recorte atual; abaixo, a grade aceita redimensionar, mover e editar cada widget.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_ICONE_ACESSO,
+                  paragrafoAntes: 'Abra a aba **Dashboard** no topo do Pedido',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_ICONE_TELA_1,
+                  paragrafoAntes: 'Visão com **KPIs** e grade de widgets',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_ICONE_TELA_2,
+                  paragrafoAntes: 'Painel montado com **gráficos** e **tabelas**',
+                },
+              ],
+            },
+          ],
+          calloutAposParagrafo: {
+            indice: 1,
+            callout: {
+              tipo: 'dica',
+              texto:
+                'O **período** escolhido no Dashboard pode **sincronizar** com o das abas **Insights** e **Lista** quando você usa os atalhos padrão — widgets individuais podem ter **período próprio** na edição.',
+            },
+          },
+        },
+        {
+          titulo: 'Painéis',
+          tituloCurto: 'Painéis',
+          paragrafos: [
+            'Assim como na **Lista**, o Dashboard usa **painéis** (abas) para guardar recortes diferentes: um painel **Operação**, outro **Financeiro**, outro **Por fornecedor**, cada um com widgets e filtros próprios.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_SETA,
+                  paragrafoAntes: '**01.** A faixa de **painéis** fica abaixo da barra de ferramentas',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_SETA,
+                  paragrafoAntes: 'Clique em **+** para **novo painel**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_PREENCHIDO,
+                  paragrafoAntes: 'Informe um **nome** único',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_NOVO_FEITO,
+                  paragrafoAntes: 'Painel **criado** — monte widgets e filtros nele',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PAINEIS_RENOMEAR_EXCLUIR,
+                  paragrafoAntes: 'Menu do painel: **renomear** ou **excluir**',
+                },
+              ],
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Filtros de **período**, **status** e **widgets visíveis** ficam **salvos no painel ativo** — ao trocar de aba, cada painel restaura seu próprio recorte.',
+          },
+        },
+        {
+          titulo: 'Período, status e filtros',
+          tituloCurto: 'Período e filtros',
+          paragrafos: [
+            'A barra do Dashboard aplica recortes **globais** a todos os widgets que não usam período próprio. Combine **período**, **status** e **filtros adicionais** para refinar o que entra nos gráficos.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SETA,
+                  paragrafoAntes: '**01.** Abra o seletor de **Período** na barra',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SELECAO,
+                  paragrafoAntes: 'Escolha um **intervalo** (7 dias, 30 dias, trimestre, personalizado…)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_SELECAO_FEITA,
+                  paragrafoAntes: 'Período **aplicado** — KPIs e widgets recalculam',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_PERIODO_FILTRO_ATIVO,
+                  paragrafoAntes: 'Chip de **período ativo** na barra inferior',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_STATUS,
+                  paragrafoAntes: '**02.** Filtro de **Status** — marque um ou vários status de pedido',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_FILTRO,
+                  paragrafoAntes: '**Filtros** adicionais por campo do catálogo',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_FILTROS_SELECAO_WIDGETS,
+                  paragrafoAntes: 'Menu **Widgets** — exibir, ocultar e **reordenar** blocos da grade',
+                },
+              ],
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Dois ou mais filtros ativos geram **chips** na barra inferior. Use **Limpar** para resetar o recorte sem trocar de painel.',
+          },
+        },
+        {
+          titulo: 'Adicionar widget',
+          tituloCurto: 'Adicionar widget',
+          paragrafos: [
+            'Use o botão **+** na barra para incluir widgets. Há dois caminhos: **Explorar sugestões** (atalhos prontos com base no catálogo do Pedido) ou **Criar do zero** (monte a consulta campo a campo).',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SETA,
+                  paragrafoAntes: '**01.** Clique em **+** na barra do Dashboard',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_SETA,
+                  paragrafoAntes: '**02.** Escolha **Explorar sugestões**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL,
+                  paragrafoAntes: 'Modal com **sugestões** prontas (KPI, linha, barras, distribuição…)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_SUGESTOES_MODAL_FEITO,
+                  paragrafoAntes: 'Widget **adicionado** à grade após confirmar',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_SETA,
+                  paragrafoAntes: '**03.** Ou escolha **Criar do zero** no mesmo menu **+**',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_1,
+                  paragrafoAntes: 'Passo 1 — escolha **campos** do catálogo do Pedido',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_SELECAO,
+                  paragrafoAntes: 'Campos **selecionados** para a consulta',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_OPERACAO,
+                  paragrafoAntes: 'Defina a **operação** por campo (soma, contagem, média…)',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO,
+                  paragrafoAntes: 'Escolha o **tipo de gráfico** (KPI, linha, barras, área, pizza…)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO_FEITO,
+                  paragrafoAntes: 'Widget **criado** e posicionado na grade',
+                },
+              ],
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Sugestões **complementares** aparecem conforme você já tem widgets no painel — acelera montar visões correlatas (ex.: volume por status + evolução temporal).',
+          },
+        },
+        {
+          titulo: 'Menu do widget',
+          tituloCurto: 'Menu do widget',
+          paragrafos: [
+            'Cada widget na grade expõe o menu **⋮** (três pontos) no canto. Por ele você **edita** a consulta, **move** na grade, **redimensiona** ou **exclui** o bloco.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_SETA,
+                  paragrafoAntes: '**01.** Clique em **⋮** no widget desejado',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_SETA,
+                  paragrafoAntes: '**02.** **Editar** — abre o modal de configuração',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 3,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL,
+                  paragrafoAntes: 'Visão geral do **modal de edição**',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TITULO,
+                  paragrafoAntes: 'Aba **Título** — renomeie o widget',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_INDICADOR,
+                  paragrafoAntes: 'Aba **Indicadores** — campos e operações',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_PERIODO,
+                  paragrafoAntes: 'Aba **Período** — intervalo **próprio** do widget',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EDITAR_MODAL_TIPO_GRAFICO,
+                  paragrafoAntes: 'Aba **Tipo de gráfico** — altere visualização',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_SETA,
+                  paragrafoAntes: '**03.** **Mover** — rearranja a posição na grade',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_LINHA,
+                  paragrafoAntes: 'Arraste para a **linha** desejada',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MOVER_CONCLUIR,
+                  paragrafoAntes: 'Posição **confirmada** na grade',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO_SETA,
+                  paragrafoAntes: '**04.** **Mudar tamanho** — redimensione o widget',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO,
+                  paragrafoAntes: 'Arraste a **borda** para ampliar ou reduzir',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_MUDAR_TAMANHO_FEITO,
+                  paragrafoAntes: 'Novo **tamanho** aplicado',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EXCLUIR_SETA,
+                  paragrafoAntes: '**05.** **Excluir** — remove o widget do painel',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_TRES_PONTOS_EXCLUIDO,
+                  paragrafoAntes: 'Widget **removido** — layout salvo automaticamente',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Detalhamento do gráfico',
+          tituloCurto: 'Detalhamento',
+          paragrafos: [
+            'Em gráficos de **linha**, **barras** e **área**, passe o **mouse** sobre um ponto ou barra para ver o **detalhamento** do valor: data, campo, operação e total no recorte atual.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_DASHBOARD_DETALHAMENTO_GRAFICO_MOUSE,
+                  paragrafoAntes: '**Tooltip** ao passar o mouse sobre o gráfico',
+                },
+              ],
+            },
+          ],
+        },
+      ]),
     },
     {
       titulo: 'Visão Kanban',

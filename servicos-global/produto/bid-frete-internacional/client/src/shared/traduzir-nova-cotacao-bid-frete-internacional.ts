@@ -40,17 +40,6 @@ const GRUPO_CHAVE_POR_INCOTERM: Record<string, string> = Object.fromEntries(
   INCOTERM_GRUPOS_CODIGOS.flatMap((grupo) => grupo.itens.map((inc) => [inc, grupo.chave])),
 )
 
-const EMBALAGEM_CODIGOS = [
-  'UNIDADE',
-  'CAIXA',
-  'PALLET',
-  'VOLUME',
-  'FARDO',
-  'SACO',
-  'TAMBOR',
-  'BIG_BAG',
-] as const
-
 type LadoLocalizacaoWizard = 'origem' | 'destino'
 
 export function traduzirPassoWizardNovaCotacao(
@@ -217,29 +206,6 @@ export function traduzirOpcoesSimNaoNovaCotacao(t: TFunction): SelectOpcao[] {
     { valor: 'sim', rotulo: t('bidfrete.nova_cotacao.sim', { defaultValue: 'Sim' }) },
     { valor: 'nao', rotulo: t('bidfrete.nova_cotacao.nao', { defaultValue: 'Não' }) },
   ]
-}
-
-export function traduzirOpcoesUnidadeEmbalagemNovaCotacao(t: TFunction): SelectOpcao[] {
-  return EMBALAGEM_CODIGOS.map((codigo) => ({
-    valor: codigo,
-    rotulo: traduzirRotuloUnidadeEmbalagemNovaCotacao(t, codigo),
-  }))
-}
-
-export function traduzirRotuloUnidadeEmbalagemNovaCotacao(t: TFunction, codigo: string): string {
-  const defaults: Record<string, string> = {
-    UNIDADE: 'Unidade (UN)',
-    CAIXA: 'Caixa',
-    PALLET: 'Palete / Pallet',
-    VOLUME: 'Volume',
-    FARDO: 'Fardo',
-    SACO: 'Saco / Bag',
-    TAMBOR: 'Tambor',
-    BIG_BAG: 'Big Bag',
-  }
-  return t(`bidfrete.nova_cotacao.embalagem_${codigo.toLowerCase()}`, {
-    defaultValue: defaults[codigo] ?? codigo,
-  })
 }
 
 export function traduzirFraseExibirCamposLocalizacao(

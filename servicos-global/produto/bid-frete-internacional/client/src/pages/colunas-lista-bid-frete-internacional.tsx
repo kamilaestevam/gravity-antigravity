@@ -490,18 +490,28 @@ function aplicarConfigEdicaoColuna(
             || '—',
       }
     case 'tipo_container_cotacao_bid_frete_internacional': {
-      const rotuloContainer = (codigo: string) =>
-        rotuloCadastroLista(codigo, opcoes.containersOpcoes ?? []) || codigo
+      const opcoesTipoVolume = [
+        ...(opcoes.containersOpcoes ?? []),
+        ...(opcoes.unidadesEmbalagemOpcoes ?? []),
+      ]
+      const ehFcl = (item: Cotacao) =>
+        item.modal_cotacao_bid_frete_internacional === 'MARITIMO'
+        && item.modalidade_cotacao_bid_frete_internacional === 'FCL'
+      const rotuloTipoVolume = (item: Cotacao, codigo: string) =>
+        rotuloCadastroLista(
+          codigo,
+          ehFcl(item) ? (opcoes.containersOpcoes ?? []) : (opcoes.unidadesEmbalagemOpcoes ?? []),
+        ) || codigo
       return {
         ...base,
-        opcoes: opcoes.containersOpcoes,
+        opcoes: opcoesTipoVolume,
         getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
         findDisplay: (item: Cotacao) =>
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
                 item.quantidade_cotacao_bid_frete_internacional,
-                rotuloContainer,
+                (codigo) => rotuloTipoVolume(item, codigo),
               )
             : '—',
         render: (_val: unknown, item: Cotacao) =>
@@ -509,7 +519,7 @@ function aplicarConfigEdicaoColuna(
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
                 item.quantidade_cotacao_bid_frete_internacional,
-                rotuloContainer,
+                (codigo) => rotuloTipoVolume(item, codigo),
               )
             : '—',
       }

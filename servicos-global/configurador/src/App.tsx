@@ -142,6 +142,17 @@ const ProductLoading = () => (
   </div>
 )
 
+/** Resposta pública BID Frete (link do e-mail/WhatsApp) — sem ProtectedRoute. */
+function BidFreteInternacionalPublicoRoute() {
+  return (
+    <ProductErrorBoundary name="BID Frete Internacional — Resposta pública">
+      <React.Suspense fallback={<ProductLoading />}>
+        <BidFreteApp />
+      </React.Suspense>
+    </ProductErrorBoundary>
+  )
+}
+
 class ProductErrorBoundary extends React.Component<
   { children: React.ReactNode; name: string },
   { error: Error | null }
@@ -397,6 +408,24 @@ export default function App() {
         <Route path="/acesso-processos/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         {/* /processo/* mantido como redirect legado pra back-compat */}
         <Route path="/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        {/* Token público do disparo — precede /bid-frete/* (ProtectedRoute mandaria ao login). */}
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/publico/*"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/*"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        {/* Condições da plataforma (link do e-mail de disparo) — pública, sem login. */}
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
         <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />

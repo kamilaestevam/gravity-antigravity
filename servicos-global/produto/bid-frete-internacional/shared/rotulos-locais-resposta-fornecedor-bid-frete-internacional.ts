@@ -14,6 +14,8 @@ import {
 export type ContextoLocaisComNomesSnapshot = ContextoLocaisOpcionaisCotacaoBidFrete & {
   origem_nome_cotacao_bid_frete_internacional?: string | null
   destino_nome_cotacao_bid_frete_internacional?: string | null
+  /** Preenchido pelo enriquecimento do disparo — rótulos já resolvidos no server. */
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
 }
 
 export type PortoRotuloCadastro = {
@@ -111,6 +113,9 @@ export function resolverRotuloLocalFornecedorRespostaBidFrete(
   mapaRemoto: ReadonlyMap<string, string> = new Map(),
 ): string {
   const chave = chaveCodigoLocalBidFrete(codigo)
+  const rotuloServidor = ctx.mapa_rotulos_locais_resposta_bid_frete_internacional?.[chave]
+  if (rotuloServidor) return rotuloServidor
+
   const remoto = mapaRemoto.get(chave)
   if (remoto) return remoto
 

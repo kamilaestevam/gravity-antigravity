@@ -234,6 +234,14 @@ const listaAeroportosDadosMestreBidSchema = z.object({
   total: z.number().optional(),
 })
 
+const portoPorCodigoDadosMestreBidSchema = z.object({
+  porto: portoDadosMestreBidSchema,
+})
+
+const aeroportoPorCodigoDadosMestreBidSchema = z.object({
+  aeroporto: aeroportoDadosMestreBidSchema,
+})
+
 async function requestCadastros<T>(url: string): Promise<T> {
   const res = await fetch(url, { headers: await authHeadersCadastros() })
   if (!res.ok) {
@@ -309,6 +317,24 @@ export const cadastrosApi = {
     return { itens, total: parsed.total ?? itens.length }
   },
 
+  buscarPortoPorCodigo: async (codigo: string): Promise<PortoCadastro | null> => {
+    const alvo = codigo.trim().toUpperCase()
+    if (!alvo) return null
+    try {
+      const path = `/api/v1/bid-frete-internacional/dados-mestre/portos/${encodeURIComponent(alvo)}`
+      const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
+      const parsed = portoPorCodigoDadosMestreBidSchema.parse(raw)
+      return {
+        codigo_unlocode_porto: parsed.porto.codigo,
+        nome_porto: parsed.porto.nome,
+        codigo_pais_porto: parsed.porto.pais_codigo_porto_bid_frete_internacional || null,
+        ativo_porto: true,
+      }
+    } catch {
+      return null
+    }
+  },
+
   listarAeroportos: async (params?: {
     q?: string
     pais?: string
@@ -339,6 +365,25 @@ export const cadastrosApi = {
       ativo_aeroporto: true,
     }))
     return { itens, total: parsed.total ?? itens.length }
+  },
+
+  buscarAeroportoPorCodigo: async (codigo: string): Promise<AeroportoCadastro | null> => {
+    const alvo = codigo.trim().toUpperCase()
+    if (!alvo) return null
+    try {
+      const path = `/api/v1/bid-frete-internacional/dados-mestre/aeroportos/${encodeURIComponent(alvo)}`
+      const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
+      const parsed = aeroportoPorCodigoDadosMestreBidSchema.parse(raw)
+      return {
+        codigo_unlocode_aeroporto: parsed.aeroporto.id_aeroporto,
+        codigo_iata_aeroporto: parsed.aeroporto.codigo_iata_aeroporto ?? parsed.aeroporto.id_aeroporto,
+        nome_aeroporto: parsed.aeroporto.nome_aeroporto,
+        codigo_pais_aeroporto: parsed.aeroporto.codigo_pais_aeroporto || null,
+        ativo_aeroporto: true,
+      }
+    } catch {
+      return null
+    }
   },
 
   listarMercadoriasPerigosas: async (

@@ -178,6 +178,7 @@ export interface DetalhesCotacaoResposta {
   habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
   codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
   empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
 }
 
 /** "120 × 100 × 90 cm" — só quando as 3 dimensões da cubagem foram preenchidas. */

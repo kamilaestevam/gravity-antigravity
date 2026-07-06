@@ -23,8 +23,6 @@ import {
 import { cadastrosApi } from './cadastrosApi'
 import { useAeroportosPorPais, usePortosPorPais } from './useCadastrosLogistica'
 
-const LIMITE_BUSCA_ROTULO_LOCAL = 25
-
 async function buscarRotuloLocalCadastrosBidFrete(
   codigo: string,
   modal: ContextoLocaisOpcionaisCotacaoBidFrete['modal_cotacao_bid_frete_internacional'],
@@ -34,17 +32,11 @@ async function buscarRotuloLocalCadastrosBidFrete(
 
   try {
     if (modalCotacaoExigePortoLocal(modal)) {
-      const resp = await cadastrosApi.listarPortos({ q: alvo, limit: LIMITE_BUSCA_ROTULO_LOCAL })
-      const hit = resp.itens.find((p) => chaveCodigoLocalBidFrete(p.codigo_unlocode_porto) === alvo)
+      const hit = await cadastrosApi.buscarPortoPorCodigo(alvo)
       if (hit) return rotuloPortoCadastroLogistica(hit)
     }
     if (modalCotacaoExigeAeroportoLocal(modal)) {
-      const resp = await cadastrosApi.listarAeroportos({ q: alvo, limit: LIMITE_BUSCA_ROTULO_LOCAL })
-      const hit = resp.itens.find(
-        (a) =>
-          chaveCodigoLocalBidFrete(a.codigo_iata_aeroporto ?? '') === alvo
-          || chaveCodigoLocalBidFrete(a.codigo_unlocode_aeroporto) === alvo,
-      )
+      const hit = await cadastrosApi.buscarAeroportoPorCodigo(alvo)
       if (hit) return rotuloAeroportoCadastroLogistica(hit)
     }
   } catch {
@@ -78,6 +70,8 @@ function useMapaRotulosLocaisCotacaoBidFrete(ctx: ContextoLocaisComNomesSnapshot
     void Promise.all(
       codigos.map(async (codigo) => {
         const chave = chaveCodigoLocalBidFrete(codigo)
+        const rotuloServidor = ctx.mapa_rotulos_locais_resposta_bid_frete_internacional?.[chave]
+        if (rotuloServidor) return [chave, rotuloServidor] as const
 
         for (const lado of ['origem', 'destino'] as const) {
           const snapshot = rotuloLocalFromSnapshotCotacaoBidFrete(ctx, lado, codigo)
@@ -106,6 +100,7 @@ function useMapaRotulosLocaisCotacaoBidFrete(ctx: ContextoLocaisComNomesSnapshot
     ctx.modal_cotacao_bid_frete_internacional,
     ctx.origem_nome_cotacao_bid_frete_internacional,
     ctx.destino_nome_cotacao_bid_frete_internacional,
+    ctx.mapa_rotulos_locais_resposta_bid_frete_internacional,
   ])
 
   const resolverRotulo = useCallback(

@@ -237,6 +237,8 @@ export interface Cotacao {
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
   fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: boolean
   empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
+  /** Mapa código → rótulo completo — preenchido na resposta pública do fornecedor. */
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
   valor_aprovado_ganho_bid_frete_internacional?: number | null
   moeda_aprovada?: string | null
   ganho_valor_cotacao_bid_frete_internacional: number | null

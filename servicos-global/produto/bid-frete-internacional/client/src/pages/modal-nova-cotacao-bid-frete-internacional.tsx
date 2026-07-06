@@ -521,6 +521,25 @@ function criarFormInicialNovaCotacao(): FormState {
   }
 }
 
+function aplicarMascaraHoraInput(valor: string): string {
+  const digitos = valor.replace(/\D/g, '').slice(0, 4)
+  if (digitos.length <= 2) return digitos
+  return `${digitos.slice(0, 2)}:${digitos.slice(2)}`
+}
+
+function horaInputValida(hora: string): boolean {
+  const partes = /^(\d{2}):(\d{2})$/.exec(hora.trim())
+  if (!partes) return false
+  const h = Number(partes[1])
+  const min = Number(partes[2])
+  return h >= 0 && h <= 23 && min >= 0 && min <= 59
+}
+
+function prazoLimiteRespostaPreenchido(valor: string): boolean {
+  const [data, hora] = valor.split('T')
+  return Boolean(data?.trim() && horaInputValida(hora ?? ''))
+}
+
 function BotaoIncotermNovaCotacao({
   inc,
   selecionado,
@@ -953,13 +972,18 @@ const NC_ESTILOS_CONTEUDO = `
           line-height: 1.125rem;
         }
         .nc-prazo-data-hora .nc-field > .cg-wrapper,
-        .nc-prazo-data-hora .nc-field > .nc-input {
+        .nc-prazo-data-hora .nc-field > .nc-input-icon-wrap {
           height: 2.5rem;
           min-height: 2.5rem;
           max-height: 2.5rem;
           width: 100%;
           min-width: 0;
           box-sizing: border-box;
+        }
+        .nc-prazo-data-hora .nc-field > .nc-input-icon-wrap .nc-input {
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
         }
         .nc-prazo-data-hora .nc-field > .cg-wrapper {
           display: flex;
@@ -3021,12 +3045,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           || form.opcao_incluir_armazenagem_cotacao === 'nao'
       case 'fornecedores':
         if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-          return !!form.data_limite_resposta_cotacao_bid_frete_internacional
+          return prazoLimiteRespostaPreenchido(form.data_limite_resposta_cotacao_bid_frete_internacional)
             && (form.opcao_fornecedor_pode_alterar_proposta === 'sim'
               || form.opcao_fornecedor_pode_alterar_proposta === 'nao')
         }
         return fornecedorIdsSelecionados.length > 0
-          && !!form.data_limite_resposta_cotacao_bid_frete_internacional
+          && prazoLimiteRespostaPreenchido(form.data_limite_resposta_cotacao_bid_frete_internacional)
           && (form.opcao_fornecedor_pode_alterar_proposta === 'sim'
             || form.opcao_fornecedor_pode_alterar_proposta === 'nao')
       case 'resumo': return true
@@ -4490,16 +4514,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </NcSubsecaoTitle>
               <p className="nc-cargo-subsecao-hint">{t('bidfrete.nova_cotacao.hint_prazo_respostas_obrigatorio', { defaultValue: 'Obrigatório — define até quando os fornecedores podem enviar ou alterar propostas.' })}</p>
               <div className="nc-prazo-data-hora">
-                <Field label={t('bidfrete.nova_cotacao.prazo_respostas')} icone={<CalendarBlank {...ICONE_FIELD} />}>
+                <Field
+                  label={t('bidfrete.nova_cotacao.data_vencimento_prazo', { defaultValue: 'Data de vencimento' })}
+                  required
+                  icone={<CalendarBlank {...ICONE_FIELD} />}
+                >
                   <CampoCalendarioGlobal
                     modoUnico
+                    permitirLimpar={false}
                     placeholder="DD/MM/AAAA"
                     valor={{ inicio: prazoDataSelecionada, fim: prazoDataSelecionada }}
                     aoMudarValor={({ inicio }) => {
-                      if (!inicio) {
-                        set('data_limite_resposta_cotacao_bid_frete_internacional', '')
-                        return
-                      }
+                      if (!inicio) return
                       const yyyy = inicio.getFullYear()
                       const mm = String(inicio.getMonth() + 1).padStart(2, '0')
                       const dd = String(inicio.getDate()).padStart(2, '0')
@@ -4510,20 +4536,46 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     }}
                   />
                 </Field>
-                <Field label={t('bidfrete.nova_cotacao.campo_hora', { defaultValue: 'Hora' })} icone={<CalendarBlank {...ICONE_FIELD} />}>
-                  <input
-                    className="nc-input"
-                    type="time"
-                    value={prazoHoraParte}
-                    disabled={!prazoDataParte}
-                    onChange={e => {
-                      if (!prazoDataParte) return
-                      set(
-                        'data_limite_resposta_cotacao_bid_frete_internacional',
-                        `${prazoDataParte}T${e.target.value}`,
-                      )
-                    }}
-                  />
+                <Field
+                  label={t('bidfrete.nova_cotacao.campo_hora', { defaultValue: 'Hora' })}
+                  required
+                  icone={<Clock {...ICONE_FIELD} />}
+                >
+                  <div className="nc-input-icon-wrap">
+                    <Clock
+                      className="nc-input-search-icon"
+                      size={16}
+                      weight="duotone"
+                      aria-hidden
+                    />
+                    <input
+                      className="nc-input nc-input--search"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="HH:mm"
+                      maxLength={5}
+                      value={prazoHoraParte}
+                      disabled={!prazoDataParte}
+                      onChange={(e) => {
+                        if (!prazoDataParte) return
+                        const horaMascarada = aplicarMascaraHoraInput(e.target.value)
+                        set(
+                          'data_limite_resposta_cotacao_bid_frete_internacional',
+                          `${prazoDataParte}T${horaMascarada}`,
+                        )
+                      }}
+                      onBlur={(e) => {
+                        if (!prazoDataParte) return
+                        const horaMascarada = aplicarMascaraHoraInput(e.target.value)
+                        if (!horaInputValida(horaMascarada)) return
+                        set(
+                          'data_limite_resposta_cotacao_bid_frete_internacional',
+                          `${prazoDataParte}T${horaMascarada}`,
+                        )
+                      }}
+                    />
+                  </div>
                 </Field>
               </div>
             </section>

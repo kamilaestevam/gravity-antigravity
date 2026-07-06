@@ -32,6 +32,11 @@ import {
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from '../services/filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
+import { empresaPagadoraTaxaFechamentoPlataformaGravitySchema, normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity, rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import {
+  lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
+  registrarEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
+} from '../lib/snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -104,6 +109,8 @@ const CriarCotacaoSchemaBase = z.object({
   codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
   habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.boolean().default(false),
   codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
+  empresa_pagadora_taxa_fechamento_plataforma_gravity:
+    empresaPagadoraTaxaFechamentoPlataformaGravitySchema.optional(),
 })
 
 type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
@@ -397,7 +404,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
-    const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
+    const {
+      fornecedor_ids,
+      disparar_ao_criar,
+      canais_disparo,
+      emails_por_fornecedor,
+      id_bid_bid_frete_internacional,
+      empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ...cotacaoData
+    } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
     const camposOpcaoPortoAeroporto = prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
@@ -417,6 +432,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         data_limite_resposta_cotacao_bid_frete_internacional: new Date(dataLimiteIso),
       },
     })
+
+    registrarEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+      cotacao.id_cotacao_bid_frete_internacional,
+      normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+        empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ),
+    )
 
     if (id_bid_bid_frete_internacional) {
       await sincronizarResumoBid(req.prisma, id_bid_bid_frete_internacional)
@@ -668,6 +690,10 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     res.json({
       cotacao: {
         ...cotacao,
+        empresa_pagadora_taxa_fechamento_plataforma_gravity:
+          lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+            cotacao.id_cotacao_bid_frete_internacional,
+          ),
         historico_aprovado: historicoAprovado,
         id_usuario_aprovacao_ganho_bid_frete_internacional,
         nome_usuario_aprovacao_ganho_bid_frete_internacional,

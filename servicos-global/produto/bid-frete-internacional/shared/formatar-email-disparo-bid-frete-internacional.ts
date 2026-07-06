@@ -7,8 +7,17 @@ import { MAPAS_ROTULO_ENUM_IMPORTACAO_BID } from './template-importacao-config-b
 import type { ModalRotaCotacao } from './rota-cotacao-bid-frete-internacional.js'
 import {
   resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional,
-  ROTULO_TAXA_FECHAMENTO_FRETE_USD,
 } from './condicoes-plataforma-fornecedor-bid-frete-internacional.js'
+import {
+  EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from './empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import {
+  montarCorpoHtmlAvisoTaxaEmailDisparoBidFrete,
+  montarTextoAvisoTaxaEmailDisparoBidFrete,
+} from './textos-taxa-fechamento-plataforma-bid-frete-internacional.js'
 
 const ROTULOS_MODAL = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modal_cotacao_bid_frete_internacional ?? {}
 const ROTULOS_MODALIDADE = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modalidade_cotacao_bid_frete_internacional ?? {}
@@ -49,6 +58,8 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   destinoPais: string
   opcoesOrigemTexto?: string | null
   opcoesDestinoTexto?: string | null
+  localizacaoOrigemTexto?: string | null
+  localizacaoDestinoTexto?: string | null
   mercadoria: string
   ncm?: string | null
   hsCode?: string | null
@@ -68,6 +79,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   anonimaCotacao?: boolean
   tipoOperacao?: string | null
   linkResposta: string
+  empresaPagadoraTaxaFechamentoPlataformaGravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
 }
 
 export function escapeHtmlTextoEmailBidFrete(valor: string): string {
@@ -234,27 +246,32 @@ export function montarIntroClienteEmailDisparoBidFrete(
   }
 }
 
-export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(linkResposta: string): {
+export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(
+  linkResposta: string,
+  pagador: EmpresaPagadoraTaxaFechamentoPlataformaGravity = EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
+): {
   avisoHtml: string
   avisoTextoPlano: string
 } {
+  const pagadorNormalizado = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagador)
   const urlCondicoes = resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(linkResposta)
   const urlHtml = escapeHtmlTextoEmailBidFrete(urlCondicoes)
-  const avisoTextoPlano =
-    `Cotação gratuita na plataforma: nada é cobrado para participar e enviar sua proposta. `
-    + `Caso o cliente feche o frete com sua empresa, será debitado ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} da sua conta na Gravity. `
-    + `Condições: ${urlCondicoes}`
+  const avisoTextoPlano = montarTextoAvisoTaxaEmailDisparoBidFrete({
+    pagador: pagadorNormalizado,
+    urlCondicoes,
+  })
+
+  const corpoParagrafo = montarCorpoHtmlAvisoTaxaEmailDisparoBidFrete({
+    pagador: pagadorNormalizado,
+    urlCondicoesHtml: urlHtml,
+    corTexto: COR_TEXTO,
+    corAvisoTexto: COR_AVISO_TEXTO,
+    corIndigo: COR_INDIGO,
+  })
 
   const avisoHtml = `
               <div style="margin:0 0 24px;padding:14px 16px;background:${COR_AVISO_FUNDO};border:1px solid ${COR_AVISO_BORDA};border-radius:8px;border-left:4px solid ${COR_AVISO_ACENTO};">
-                <p style="margin:0;font-size:14px;line-height:1.55;color:${COR_AVISO_TEXTO};">
-                  <strong style="color:${COR_TEXTO};">Cotação gratuita na plataforma.</strong>
-                  Nada é cobrado para participar e enviar sua proposta.
-                  Caso o cliente feche o frete com sua empresa, será debitado
-                  <strong style="color:${COR_TEXTO};">${ROTULO_TAXA_FECHAMENTO_FRETE_USD}</strong>
-                  da sua conta na Gravity.
-                  <a href="${urlHtml}" style="color:${COR_INDIGO};font-weight:600;text-decoration:underline;">Leia aqui as condições</a>.
-                </p>
+                ${corpoParagrafo}
               </div>`
 
   return { avisoHtml, avisoTextoPlano }
@@ -289,6 +306,22 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
       params.destinoNome,
       params.destinoPais,
     )],
+  )
+
+  if (params.opcoesOrigemTexto?.trim()) {
+    linhas.push(['Alternativas (origem)', params.opcoesOrigemTexto.trim()])
+  }
+  if (params.localizacaoOrigemTexto?.trim()) {
+    linhas.push(['Origem', params.localizacaoOrigemTexto.trim()])
+  }
+  if (params.opcoesDestinoTexto?.trim()) {
+    linhas.push(['Alternativas (destino)', params.opcoesDestinoTexto.trim()])
+  }
+  if (params.localizacaoDestinoTexto?.trim()) {
+    linhas.push(['Destino', params.localizacaoDestinoTexto.trim()])
+  }
+
+  linhas.push(
     ['Modal', formatarModalExibicaoEmailDisparoBidFrete(params.modal, params.modalidade)],
     ['Incoterm', params.incoterm.trim() || '—'],
     ['Carga', resumoCarga],
@@ -318,15 +351,15 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
   if (params.incluirArmazenagem && params.nomesArmazensTexto?.trim()) {
     linhas.push(['Armazéns de preferência', params.nomesArmazensTexto.trim()])
   }
-  if (params.opcoesOrigemTexto?.trim()) {
-    linhas.push(['Alternativas (origem)', params.opcoesOrigemTexto.trim()])
-  }
-  if (params.opcoesDestinoTexto?.trim()) {
-    linhas.push(['Alternativas (destino)', params.opcoesDestinoTexto.trim()])
-  }
   if (prazoResposta) {
     linhas.push(['Prazo de resposta', prazoResposta])
   }
+  linhas.push([
+    'Taxa de fechamento paga por',
+    rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+      params.empresaPagadoraTaxaFechamentoPlataformaGravity,
+    ),
+  ])
   if (validadeLink) {
     linhas.push(['Link válido até', validadeLink])
   }
@@ -357,7 +390,10 @@ export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFre
 
 export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { introTextoPlano } = montarIntroClienteEmailDisparoBidFrete(params)
-  const { avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(params.linkResposta)
+  const { avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(
+    params.linkResposta,
+    params.empresaPagadoraTaxaFechamentoPlataformaGravity ?? undefined,
+  )
   const linhas = linhasResumoEmailDisparo(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
@@ -395,7 +431,10 @@ function linhaTabelaHtml(rotulo: string, valor: string): string {
 
 export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { introHtml } = montarIntroClienteEmailDisparoBidFrete(params)
-  const { avisoHtml } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(params.linkResposta)
+  const { avisoHtml } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(
+    params.linkResposta,
+    params.empresaPagadoraTaxaFechamentoPlataformaGravity ?? undefined,
+  )
   const linhas = linhasResumoEmailDisparo(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
   const preheader = montarPreheaderEmailDisparo(params)

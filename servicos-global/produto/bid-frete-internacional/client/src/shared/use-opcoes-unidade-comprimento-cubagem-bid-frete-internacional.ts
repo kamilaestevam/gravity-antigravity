@@ -22,8 +22,7 @@ export function useOpcoesUnidadeComprimentoCubagemBidFreteInternacional(): UseOp
         .map(
           (u): SelectOpcao => ({
             valor: u.codigo_unidade,
-            rotulo: u.codigo_unidade,
-            descricao: u.nome_unidade,
+            rotulo: `${u.nome_unidade} (${u.codigo_unidade})`,
           }),
         ),
     [unidades],

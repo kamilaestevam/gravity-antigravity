@@ -82,11 +82,25 @@ const ORDEM_CATEGORIA: Record<TipoUnidade, number> = {
   caixa: 10,
 }
 
+/** Dentro de contagem/quantidade, UN é a opção padrão mais usada — sempre primeiro. */
+const CODIGOS_PRIORIDADE_CONTAGEM = ['UN'] as const
+
+function prioridadeCodigoContagem(codigo: string): number {
+  const idx = CODIGOS_PRIORIDADE_CONTAGEM.indexOf(codigo as (typeof CODIGOS_PRIORIDADE_CONTAGEM)[number])
+  return idx === -1 ? 999 : idx
+}
+
 function ordenarPorCategoria(unidades: Unidade[]): Unidade[] {
   return [...unidades].sort((a, b) => {
     const ordemA = ORDEM_CATEGORIA[a.tipo_unidade] ?? 99
     const ordemB = ORDEM_CATEGORIA[b.tipo_unidade] ?? 99
     if (ordemA !== ordemB) return ordemA - ordemB
+    const catContagem = (t: TipoUnidade) => t === 'contagem' || t === 'quantidade'
+    if (catContagem(a.tipo_unidade) && catContagem(b.tipo_unidade)) {
+      const prioA = prioridadeCodigoContagem(a.codigo_unidade)
+      const prioB = prioridadeCodigoContagem(b.codigo_unidade)
+      if (prioA !== prioB) return prioA - prioB
+    }
     return a.codigo_unidade.localeCompare(b.codigo_unidade)
   })
 }

@@ -43,6 +43,9 @@ export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX = 72
 /** Espaço entre o fim de um passo visual e a linha divisória do passo seguinte (≈ paddingTop do passo). */
 export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
 
+/** Gap horizontal entre colunas em galerias PASSO (prints lado a lado). */
+export const MANUAL_ESPACO_GRADE_GALERIA_PX = 24
+
 /** Retorna margin-bottom: 12px entre parágrafos, 0 no último de cada bloco. */
 export function manualMargemParagrafo(indice: number, total: number): number {
   return indice < total - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0

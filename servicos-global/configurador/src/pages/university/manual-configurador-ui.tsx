@@ -43,7 +43,7 @@ import {
   LINK_MANUAL_PERMISSOES,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -61,12 +61,14 @@ import {
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
+import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
+import { ManualInfograficoBidFreteNovaCotacaoFluxo } from './manual-bid-frete-infografico-nova-cotacao-fluxo'
 import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
 import { ManualInfograficoPedidoListaConsolidarPasso2Regras } from './manual-pedido-infografico-lista-consolidar-passo2-regras'
 import { ManualInfograficoPedidoListaConsolidarResultadoEsperado } from './manual-pedido-infografico-lista-consolidar-resultado-esperado'
@@ -313,6 +315,172 @@ function ManualChipsTransferirTresTiposInicioComum({ compacto = false }: { compa
       ) : null}
       {MANUAL_CHIPS_TRANSFERIR_TRES_TIPOS.map((tipo) => (
         <ManualChipTransferirTipo key={tipo.id} id={tipo.id} />
+      ))}
+    </div>
+  )
+}
+
+const MANUAL_CHIPS_BID_FRETE_MODAL_TRANSPORTE = [
+  { id: 'maritimo', rotulo: 'Marítimo', icone: Boat, cor: '#38bdf8', borda: 'rgba(56,189,248,.32)', fundo: 'rgba(56,189,248,.08)' },
+  { id: 'aereo', rotulo: 'Aéreo', icone: Airplane, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(167,139,250,.1)' },
+  { id: 'rodoviario', rotulo: 'Rodoviário', icone: TruckTrailer, cor: '#fbbf24', borda: 'rgba(251,191,36,.32)', fundo: 'rgba(245,158,11,.1)' },
+] as const
+
+type ManualChipBidFreteModalTransporteId = (typeof MANUAL_CHIPS_BID_FRETE_MODAL_TRANSPORTE)[number]['id']
+
+function ManualChipBidFreteModalTransporte({ id }: { id: ManualChipBidFreteModalTransporteId }) {
+  const tipo = MANUAL_CHIPS_BID_FRETE_MODAL_TRANSPORTE.find((item) => item.id === id)
+  if (!tipo) return null
+  const Icone = tipo.icone
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 7,
+        fontSize: '.68rem',
+        fontWeight: 800,
+        color: tipo.cor,
+        background: tipo.fundo,
+        border: `1px solid ${tipo.borda}`,
+        borderRadius: 999,
+        padding: '4px 11px 4px 5px',
+        letterSpacing: '.02em',
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: 7,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          background: 'rgba(8,12,24,.4)',
+          border: `1px solid ${tipo.borda}`,
+        }}
+        aria-hidden
+      >
+        <Icone size={16} weight="bold" color={tipo.cor} />
+      </span>
+      {tipo.rotulo}
+    </span>
+  )
+}
+
+function ManualChipsBidFreteModalTransporteInicioComum({ compacto = false }: { compacto?: boolean }) {
+  return (
+    <div
+      role="group"
+      aria-label="Marítimo, Aéreo e Rodoviário compartilham os passos iniciais da nova cotação manual"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginBottom: compacto ? 0 : 12,
+        alignItems: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {!compacto ? (
+        <span style={{
+          fontSize: '.62rem',
+          fontWeight: 800,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          color: '#94a3b8',
+          marginRight: 2,
+        }}>
+          Modais
+        </span>
+      ) : null}
+      {MANUAL_CHIPS_BID_FRETE_MODAL_TRANSPORTE.map((tipo) => (
+        <ManualChipBidFreteModalTransporte key={tipo.id} id={tipo.id} />
+      ))}
+    </div>
+  )
+}
+
+const MANUAL_CHIPS_BID_FRETE_TIPO_CARGA = [
+  { id: 'fcl', rotulo: 'FCL', icone: Package, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
+  { id: 'lcl', rotulo: 'LCL', icone: CubeTransparent, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
+  { id: 'air_lcl_rodo', rotulo: 'Aéreo / LCL / Rodo', icone: Airplane, cor: '#f472b6', borda: 'rgba(244,114,182,.32)', fundo: 'rgba(244,114,182,.08)' },
+] as const
+
+type ManualChipBidFreteTipoCargaId = (typeof MANUAL_CHIPS_BID_FRETE_TIPO_CARGA)[number]['id']
+
+function ManualChipBidFreteTipoCarga({ id }: { id: ManualChipBidFreteTipoCargaId }) {
+  const tipo = MANUAL_CHIPS_BID_FRETE_TIPO_CARGA.find((item) => item.id === id)
+  if (!tipo) return null
+  const Icone = tipo.icone
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 7,
+        fontSize: '.68rem',
+        fontWeight: 800,
+        color: tipo.cor,
+        background: tipo.fundo,
+        border: `1px solid ${tipo.borda}`,
+        borderRadius: 999,
+        padding: '4px 11px 4px 5px',
+        letterSpacing: '.02em',
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: 7,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          background: 'rgba(8,12,24,.4)',
+          border: `1px solid ${tipo.borda}`,
+        }}
+        aria-hidden
+      >
+        <Icone size={16} weight="bold" color={tipo.cor} />
+      </span>
+      {tipo.rotulo}
+    </span>
+  )
+}
+
+function ManualChipsBidFreteTipoCargaInicioComum({ compacto = false }: { compacto?: boolean }) {
+  return (
+    <div
+      role="group"
+      aria-label="FCL, LCL e Aéreo LCL Rodo compartilham cubagem, Incoterm e valor alvo"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginBottom: compacto ? 0 : 12,
+        alignItems: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {!compacto ? (
+        <span style={{
+          fontSize: '.62rem',
+          fontWeight: 800,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          color: '#94a3b8',
+          marginRight: 2,
+        }}>
+          Carga
+        </span>
+      ) : null}
+      {MANUAL_CHIPS_BID_FRETE_TIPO_CARGA.map((tipo) => (
+        <ManualChipBidFreteTipoCarga key={tipo.id} id={tipo.id} />
       ))}
     </div>
   )
@@ -982,12 +1150,12 @@ function ManualGaleriaTelaParagrafoFigura({
   entreLinhas = false,
 }: {
   texto: string
-  /** Texto entre linhas de prints — menos margem e sem altura mínima de coluna. */
+  /** @deprecated Preferir `margemAbaixo` em `ManualGaleriaLegendaPrintPasso`. Mantido só em grades legadas. */
   entreLinhas?: boolean
 }) {
   return (
     <div style={{
-      marginBottom: entreLinhas ? 4 : 6,
+      marginBottom: entreLinhas ? MANUAL_ESPACO_PARAGRAFO_PX : MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX,
       textAlign: 'left',
       minHeight: entreLinhas ? undefined : '2.75rem',
     }}>
@@ -1046,7 +1214,7 @@ function ManualGaleriaLegendaPrintPasso({
     return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} />
   }
   const [, numero, legenda] = match
-  const marginBottom = margemAbaixo ?? (entreLinhas ? 4 : 6)
+  const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
   return (
     <div style={{
       display: 'flex',
@@ -1627,7 +1795,7 @@ function ManualPassosSubtopicosAcordeao({
   const abertosPasso = ctx.abertosPorPrefix[ancoraPrefix] ?? []
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_PARAGRAFO_PX, marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
       {passos.map((passo) => {
         const ancoraPassoId = `manual-passo-${ancoraPrefix}-${passo.num}`
         const rotuloCurto = passo.tituloCurto ?? passo.titulo
@@ -1723,7 +1891,10 @@ function ManualPassosSubtopicosAcordeao({
               </button>
             </div>
             {aberto && (
-              <div style={{ padding: '18px 20px 24px', borderTop: '1px solid rgba(148,163,184,.1)' }}>
+              <div style={{
+                padding: `${MANUAL_ESPACO_ENTRE_PASSOS_PX}px 20px ${MANUAL_ESPACO_ENTRE_PASSOS_PX + 4}px`,
+                borderTop: '1px solid rgba(148,163,184,.1)',
+              }}>
                 <ManualBlocoPassoVisual
                   {...propsPasso(passo)}
                   ocultarRotuloPasso
@@ -1840,6 +2011,7 @@ function ManualBlocoPassoVisual({
 }) {
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso || passo.estiloTituloWizard === true || emAcordeaoSubtopico
   const omitirFigurasNoTexto = cenarioParte === 'texto'
+  const textoCenariosAlinhados = emGradeCenarios && cenarioParte === 'texto'
   const blocoBase: React.CSSProperties = emAcordeaoSubtopico
     ? { paddingTop: 0, marginTop: 0 }
     : emGradeCenarios
@@ -1853,6 +2025,10 @@ function ManualBlocoPassoVisual({
   const estiloBlocoRaiz: React.CSSProperties = ancoraPassoId && !emAcordeaoSubtopico
     ? { ...blocoBase, scrollMarginTop: MANUAL_SCROLL_MARGEM_TOPO_PX }
     : blocoBase
+
+  const estiloRaizTextoCenarios: React.CSSProperties = textoCenariosAlinhados
+    ? { ...estiloBlocoRaiz, height: '100%', display: 'flex', flexDirection: 'column' }
+    : estiloBlocoRaiz
 
   const espacoParagrafoPx = emAcordeaoSubtopico ? MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX : MANUAL_ESPACO_PARAGRAFO_PX
   const margemParagrafo = (indice: number, total: number, indiceCallout?: number) => {
@@ -1883,6 +2059,9 @@ function ManualBlocoPassoVisual({
       borderLeft: emAcordeaoSubtopico ? undefined : '3px solid rgba(99,102,241,.45)',
       width: '100%',
       minWidth: 0,
+      ...(textoCenariosAlinhados
+        ? { flex: 1, height: '100%', boxSizing: 'border-box' as const, paddingBottom: 8 }
+        : {}),
     }}>
       {!semRotuloPasso && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '0 0 8px' }}>
@@ -1989,7 +2168,7 @@ function ManualBlocoPassoVisual({
           {omitirFigurasNoTexto
             ? null
             : figurasAposParagrafoPasso(passo, i).map((fig) => (
-              <div key={fig.imagem} style={{ margin: '12px 0 16px' }}>
+              <div key={fig.imagem} style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
                 <ManualFiguraScreenshot
                   src={fig.imagem}
                   alt={fig.legenda ?? passo.titulo}
@@ -2054,6 +2233,10 @@ function ManualBlocoPassoVisual({
           && (passo.transferirInfograficoAposParagrafo ?? 1) === i ? (
             <ManualInfograficoPedidoListaTransferirFluxo />
           ) : null}
+          {passo.mostrarInfograficoBidFreteNovaCotacaoFluxo
+          && (passo.bidFreteNovaCotacaoInfograficoAposParagrafo ?? 1) === i ? (
+            <ManualInfograficoBidFreteNovaCotacaoFluxo />
+          ) : null}
           {(() => {
             const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
             return galeriasParagrafo.map((galeria, idxGaleria) => (
@@ -2085,6 +2268,10 @@ function ManualBlocoPassoVisual({
                 layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
+              mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
+              chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
+              mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
+              chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
               calloutApos={galeria.calloutApos}
               mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
@@ -2270,26 +2457,20 @@ function ManualBlocoPassoVisual({
       />
     ) : null
 
-    return (
-      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
-        {passo.calloutAoLadoTexto && calloutsLista.length > 0 ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
-            gap: 20,
-            alignItems: 'center',
-          }}>
-            {blocoTexto}
-            <div>{blocoCallouts}</div>
-          </div>
-        ) : blocoTexto}
-        <div style={{
-          marginTop: emAcordeaoSubtopico
-            ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
-            : (calloutsLista.length > 0 ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20),
-        }}>
-          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
-        </div>
+    const blocoTextoComCallout = passo.calloutAoLadoTexto && calloutsLista.length > 0 ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
+        gap: 20,
+        alignItems: 'center',
+      }}>
+        {blocoTexto}
+        <div>{blocoCallouts}</div>
+      </div>
+    ) : blocoTexto
+
+    const blocoAposFigura = (
+      <>
         {passo.calloutAposImagem ? (
           <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={20} />
         ) : null}
@@ -2314,6 +2495,37 @@ function ManualBlocoPassoVisual({
         )}
         {galeriaAbaixo}
         {blocoListaCustomizacao}
+      </>
+    )
+
+    if (cenarioParte === 'texto') {
+      return (
+        <div id={ancoraPassoId} style={estiloRaizTextoCenarios}>
+          {blocoTextoComCallout}
+        </div>
+      )
+    }
+
+    if (cenarioParte === 'figuras') {
+      return (
+        <div id={ancoraPassoId} style={estiloBlocoRaiz}>
+          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
+          {blocoAposFigura}
+        </div>
+      )
+    }
+
+    return (
+      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
+        {blocoTextoComCallout}
+        <div style={{
+          marginTop: emAcordeaoSubtopico
+            ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+            : (calloutsLista.length > 0 ? MANUAL_ESPACO_ENTRE_PASSOS_PX : 20),
+        }}>
+          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
+        </div>
+        {blocoAposFigura}
       </div>
     )
   }
@@ -2404,7 +2616,7 @@ function ManualBlocoPassoVisual({
 
   if (cenarioParte === 'texto' && !passo.imagem && !passo.galeriaComparacao?.length && !passo.galeriaTelas?.length) {
     return (
-      <div id={ancoraPassoId} style={estiloBlocoRaiz}>
+      <div id={ancoraPassoId} style={estiloRaizTextoCenarios}>
         {blocoTexto}
         {blocoListaCustomizacao}
       </div>
@@ -2600,7 +2812,7 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
             )
           })()}
           {figurasAposParagrafoFluxo(fluxo, i).map((fig) => (
-            <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+            <div key={fig.imagem} style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
               <ManualFiguraScreenshot
                 src={fig.imagem}
                 alt={fig.legenda ?? fluxo.titulo}
@@ -2619,33 +2831,38 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
         </div>
       )}
       {fluxo.mostrarInfograficoPapeisFornecedor && (
-        <div style={{ marginTop: 8, marginBottom: 20 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
           <ManualInfograficoPapeisFornecedor />
         </div>
       )}
       {fluxo.mostrarInfograficoMenuLateral && (
-        <div style={{ marginTop: 8, marginBottom: 20 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
           <ManualInfograficoMenuLateral />
         </div>
       )}
       {fluxo.mostrarInfograficoIconesMenuSuperior && !fluxo.infograficoIconesMenuSuperiorAposPassos && (
-        <div style={{ marginTop: 8, marginBottom: 4 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoIconesMenuSuperior />
         </div>
       )}
       {fluxo.mostrarInfograficoTiposUsuario && (
-        <div style={{ marginTop: 12, marginBottom: 8 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoTiposUsuario />
         </div>
       )}
       {fluxo.mostrarInfograficoSmartDocsInsights && (
-        <div style={{ marginTop: 8, marginBottom: 4 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoSmartDocsInsights />
         </div>
       )}
       {fluxo.mostrarInfograficoPedidoInsights && (
-        <div style={{ marginTop: 8, marginBottom: 4 }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoPedidoInsights />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoBidFreteInsights && (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+          <ManualInfograficoBidFreteInsights />
         </div>
       )}
       {fluxo.modoCenarios && fluxo.cenariosLadoALado && (fluxo.passosVisuais?.length ?? 0) > 0 ? (
@@ -2654,9 +2871,9 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: 24,
-              alignItems: 'start',
-              marginTop: 18,
+              gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
+              alignItems: 'stretch',
+              marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX,
             }}>
               {fluxo.passosVisuais.map(passo => (
                 <ManualBlocoPassoVisual
@@ -2671,9 +2888,9 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: 24,
+              gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
               alignItems: 'start',
-              marginTop: 16,
+              marginTop: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX,
             }}>
               {fluxo.passosVisuais.map(passo => (
                 <ManualBlocoPassoVisual
@@ -2690,9 +2907,9 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: 24,
+            gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
             alignItems: 'start',
-            marginTop: 18,
+            marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX,
           }}>
             {fluxo.passosVisuais.map(passo => (
               <ManualBlocoPassoVisual
@@ -2835,6 +3052,10 @@ function ManualGaleriaComparacaoIntro({
   layoutEdicaoMassaExemplosPasso2,
   mostrarChipsTransferirTresTipos,
   chipTransferirTituloEtapa,
+  mostrarChipsBidFreteModalTransporte,
+  chipBidFreteModalTransporte,
+  mostrarChipsBidFreteTipoCarga,
+  chipBidFreteTipoCarga,
   calloutApos,
   mostrarIndicadoresMoverDashboardPedido,
   mostrarCardsKanbanCabecalhoPedido,
@@ -2868,6 +3089,10 @@ function ManualGaleriaComparacaoIntro({
   layoutEdicaoMassaExemplosPasso2?: boolean
   mostrarChipsTransferirTresTipos?: boolean
   chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
+  mostrarChipsBidFreteModalTransporte?: boolean
+  chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
+  mostrarChipsBidFreteTipoCarga?: boolean
+  chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
   mostrarIndicadoresMoverDashboardPedido?: boolean
   mostrarCardsKanbanCabecalhoPedido?: boolean
@@ -2893,6 +3118,12 @@ function ManualGaleriaComparacaoIntro({
   const espacoAcimaGaleriaPx = emAcordeaoSubtopico
     ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
     : MANUAL_ESPACO_PARAGRAFO_PX
+  const espacoLegendaPrintFiguraPx = textoAcimaEstiloCorpo || emAcordeaoSubtopico
+    ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+    : MANUAL_ESPACO_PARAGRAFO_PX
+  const espacoGradeGaleriaPx = textoAcimaEstiloCorpo
+    ? MANUAL_ESPACO_GRADE_GALERIA_PX
+    : (colunasGrade >= 4 ? 10 : MANUAL_ESPACO_GRADE_GALERIA_PX)
   const cabecalhoPasso = legendaPasso && (pilaresImportarFormas?.length || pilaresCustomizacao?.length) ? (
     <ManualGaleriaCabecalhoPasso
       legendaPasso={legendaPasso}
@@ -2915,7 +3146,9 @@ function ManualGaleriaComparacaoIntro({
       key={tela.imagem}
       style={{
         ...(printLarguraTotal ? { width: '100%', minWidth: 0 } : {}),
-        ...(alinharCalloutsNaGrade || opts?.alinharLegendaChipGrade
+        ...((textoAcimaEstiloCorpo && colunasGrade > 1 && !printLarguraTotal)
+          || alinharCalloutsNaGrade
+          || opts?.alinharLegendaChipGrade
           ? { display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }
           : {}),
       }}
@@ -2928,8 +3161,7 @@ function ManualGaleriaComparacaoIntro({
         <ManualGaleriaLegendaConsolidarExemplo
           chip={tela.chipConsolidarExemplo}
           texto={tela.paragrafoAntes}
-          entreLinhas
-          margemAbaixo={opts?.margemAbaixoLegenda ?? (printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10)}
+          margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
           alturaFixaLegenda={opts?.alinharLegendaChipGrade
             ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
             : undefined}
@@ -2938,8 +3170,7 @@ function ManualGaleriaComparacaoIntro({
         <ManualGaleriaLegendaEdicaoMassaExemplo
           chip={tela.chipEdicaoMassaExemplo}
           texto={tela.paragrafoAntes}
-          entreLinhas
-          margemAbaixo={opts?.margemAbaixoLegenda ?? (printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : 10)}
+          margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
           alturaFixaLegenda={opts?.alinharLegendaChipGrade
             ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
             : undefined}
@@ -2949,8 +3180,7 @@ function ManualGaleriaComparacaoIntro({
           ? (
             <ManualGaleriaLegendaPrintPasso
               texto={tela.paragrafoAntes}
-              entreLinhas
-              margemAbaixo={printLarguraTotal ? espacoParagrafoGaleriaPx : undefined}
+              margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
             />
           )
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
@@ -2984,7 +3214,7 @@ function ManualGaleriaComparacaoIntro({
     <div style={{
       margin: textoAcimaEstiloCorpo
         ? `${espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`
-        : `16px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`,
+        : `${MANUAL_ESPACO_ENTRE_PASSOS_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`,
       paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
     }}>
       {linhaSoDicas ? <ManualGaleriaRotuloLinhaDicas /> : null}
@@ -3023,11 +3253,81 @@ function ManualGaleriaComparacaoIntro({
           <ManualChipTransferirTipo id={chipTransferirTituloEtapa} />
           <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
         </div>
+      ) : tituloEtapa && chipBidFreteModalTransporte ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '8px 10px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualChipBidFreteModalTransporte id={chipBidFreteModalTransporte} />
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+        </div>
+      ) : tituloEtapa && chipBidFreteTipoCarga ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '8px 10px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualChipBidFreteTipoCarga id={chipBidFreteTipoCarga} />
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+        </div>
+      ) : tituloEtapa && mostrarChipsBidFreteModalTransporte ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '6px 8px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+          <span style={{
+            fontSize: '.74rem',
+            fontWeight: 600,
+            color: 'color-mix(in srgb, var(--ws-text, #f1f5f9) 75%, transparent)',
+            lineHeight: 1.4,
+          }}>
+            válido para
+          </span>
+          <ManualChipsBidFreteModalTransporteInicioComum compacto />
+        </div>
+      ) : tituloEtapa && mostrarChipsBidFreteTipoCarga ? (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '6px 8px',
+          marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+          textAlign: 'left',
+        }}>
+          <ManualParagrafo texto={tituloEtapa} marginBottom={0} />
+          <span style={{
+            fontSize: '.74rem',
+            fontWeight: 600,
+            color: 'color-mix(in srgb, var(--ws-text, #f1f5f9) 75%, transparent)',
+            lineHeight: 1.4,
+          }}>
+            válido para
+          </span>
+          <ManualChipsBidFreteTipoCargaInicioComum compacto />
+        </div>
       ) : tituloEtapa ? (
         <ManualGaleriaTelaParagrafoFigura texto={tituloEtapa} />
       ) : null}
       {mostrarChipsTransferirTresTipos && !tituloEtapa ? (
         <ManualChipsTransferirTresTiposInicioComum />
+      ) : null}
+      {mostrarChipsBidFreteModalTransporte && !tituloEtapa ? (
+        <ManualChipsBidFreteModalTransporteInicioComum />
+      ) : null}
+      {mostrarChipsBidFreteTipoCarga && !tituloEtapa ? (
+        <ManualChipsBidFreteTipoCargaInicioComum />
       ) : null}
       {textoIntro ? <ManualParagrafo texto={textoIntro} marginBottom={MANUAL_ESPACO_PARAGRAFO_PX} /> : null}
       {cabecalhoPasso}
@@ -3149,8 +3449,10 @@ function ManualGaleriaComparacaoIntro({
       display: 'grid',
       gridTemplateColumns: printLarguraTotal ? 'minmax(0, 1fr)' : `repeat(${colunasGrade}, minmax(0, 1fr))`,
       width: printLarguraTotal ? '100%' : undefined,
-      gap: colunasGrade >= 4 ? 10 : 16,
-      alignItems: alinharCalloutsNaGrade ? 'stretch' : 'start',
+      gap: espacoGradeGaleriaPx,
+      alignItems: alinharCalloutsNaGrade || (textoAcimaEstiloCorpo && colunasGrade > 1)
+        ? 'stretch'
+        : 'start',
     }}>
       {telas.map((tela) => renderTela(tela))}
       </div>
@@ -3283,7 +3585,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   )}
                 />
                 {figurasAposParagrafo(secao, i).map((fig) => (
-                  <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+                  <div key={fig.imagem} style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
                     <ManualFiguraScreenshot
                       src={fig.imagem}
                       alt={fig.legenda ?? secao.titulo}
@@ -3355,7 +3657,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                 }
               />
               {figurasAposParagrafo(secao, i).map((fig) => (
-                <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+                <div key={fig.imagem} style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
                   <ManualFiguraScreenshot
                     src={fig.imagem}
                     alt={fig.legenda ?? secao.titulo}

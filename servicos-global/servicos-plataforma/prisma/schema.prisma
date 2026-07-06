@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-07-06T01:15:48.298Z
+// Gerado em: 2026-07-06T01:16:14.750Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes, api-cockpit
 // Serviços ausentes (fragment não encontrado): processos-core, ncm-sync
 // ============================================================================

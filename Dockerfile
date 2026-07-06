@@ -45,6 +45,11 @@ RUN cd servicos-global/configurador && npx vite build && cd ../..
 RUN mv servicos-global/configurador/dist/servicos-global/configurador/index.html servicos-global/configurador/dist/index.html \
     && rm -rf servicos-global/configurador/dist/servicos-global
 
+# Build marketplace vitrine (servida em usegravity.com.br/ pelo Configurador em /vitrine)
+# NODE_ENV=production faz o vite.config aplicar base:'/vitrine/'. Sem este passo o
+# servidor nao encontra marketplace/dist/index.html e a raiz cai no Configurador.
+RUN cd servicos-global/marketplace && NODE_ENV=production npx vite build && cd ../..
+
 # Build all backend servers
 # Configurador — tsx loader (cross-service imports + custom Prisma paths)
 RUN bash scripts/build-esm.sh servicos-global/configurador/server/index.ts servicos-global/configurador/dist/server.mjs

@@ -5214,6 +5214,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           onProximo={handleFechar}
           onVoltar={handleFechar}
           onFechar={handleFechar}
+          fecharAoClicarFora={false}
+          fecharComTeclaEscape={false}
           ocultarStepper
           footerCustom={(
             <div style={ESTILOS_RESULTADO.footerAcoes}>
@@ -5287,6 +5289,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         onProximo={handleProximo}
         onVoltar={handleVoltar}
         onFechar={handleFechar}
+        fecharAoClicarFora={false}
+        fecharComTeclaEscape={false}
         onIrParaPasso={(id) => setStep(id)}
         podeAvancar={canNext()}
         carregando={salvando}

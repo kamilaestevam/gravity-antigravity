@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  contarFiltrosMapaAtivos,
   filtrarDadosMapaInsightsBidFreteInternacional,
   filtrarTerminaisMapaInsightsPorBusca,
+  filtrosMapaInsightsIniciais,
   inferirTipoOperacaoRotaMapa,
 } from '../../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/filtrar-dados-mapa-insights-bid-frete-internacional'
 import type {
@@ -121,30 +123,24 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
       statuses_cotacao_bid_frete_internacional: ['APROVADA'],
     }
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaComStatus, rotaOutroStatus], {
-      operacaoModal: new Set(),
+      ...filtrosMapaInsightsIniciais(),
       status: new Set(['RASCUNHO']),
-      codigos_origem: new Set(),
-      codigos_destino: new Set(),
     })
     expect(resultado.routes).toEqual([rotaComStatus])
   })
 
   it('mantém rota sem status quando filtro de status está ativo', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaImportacao], {
-      operacaoModal: new Set(),
+      ...filtrosMapaInsightsIniciais(),
       status: new Set(['RASCUNHO']),
-      codigos_origem: new Set(),
-      codigos_destino: new Set(),
     })
     expect(resultado.routes).toEqual([rotaImportacao])
   })
 
   it('filtra por terminal de origem', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
-      status: new Set(),
+      ...filtrosMapaInsightsIniciais(),
       codigos_origem: new Set(['CNSHA']),
-      codigos_destino: new Set(),
     })
     expect(resultado.routes).toEqual([rotaImportacao])
     expect(resultado.pins.map((p) => p.portCode).sort()).toEqual(['BRSSZ', 'CNSHA'])
@@ -152,9 +148,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('filtra por terminal de destino', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
-      status: new Set(),
-      codigos_origem: new Set(),
+      ...filtrosMapaInsightsIniciais(),
       codigos_destino: new Set(['USNYC']),
     })
     expect(resultado.routes).toEqual([rotaExportacaoAerea])
@@ -163,12 +157,83 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('combina filtro de origem e destino', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
-      status: new Set(),
+      ...filtrosMapaInsightsIniciais(),
       codigos_origem: new Set(['BRSSZ']),
       codigos_destino: new Set(['USNYC']),
     })
     expect(resultado.routes).toEqual([rotaExportacaoAerea])
+  })
+})
+
+describe('semântica opt-out dos cards de operação e modal', () => {
+  const routes = [rotaImportacao, rotaExportacaoAerea]
+
+  it('estado inicial (todos os cards ativos) mostra tudo e conta zero filtros', () => {
+    const filtros = filtrosMapaInsightsIniciais()
+    expect(contarFiltrosMapaAtivos(filtros)).toBe(0)
+
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, filtros)
+    expect(resultado.routes).toHaveLength(2)
+    expect(resultado.pins).toHaveLength(3)
+  })
+
+  it('desativar um modal oculta as rotas daquele modal', () => {
+    const filtros = filtrosMapaInsightsIniciais()
+    const operacaoModal = new Set(filtros.operacaoModal)
+    operacaoModal.delete('AEREO')
+
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      ...filtros,
+      operacaoModal,
+    })
+    expect(resultado.routes).toEqual([rotaImportacao])
+    expect(contarFiltrosMapaAtivos({ ...filtros, operacaoModal })).toBe(1)
+  })
+
+  it('desativar uma operação oculta as rotas daquela operação', () => {
+    const filtros = filtrosMapaInsightsIniciais()
+    const operacaoModal = new Set(filtros.operacaoModal)
+    operacaoModal.delete('IMPORTACAO')
+
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      ...filtros,
+      operacaoModal,
+    })
+    expect(resultado.routes).toEqual([rotaExportacaoAerea])
+  })
+
+  it('desativar todos os cards de um grupo oculta tudo', () => {
+    const filtros = filtrosMapaInsightsIniciais()
+    const operacaoModal = new Set(filtros.operacaoModal)
+    operacaoModal.delete('MARITIMO')
+    operacaoModal.delete('AEREO')
+    operacaoModal.delete('RODOVIARIO')
+
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      ...filtros,
+      operacaoModal,
+    })
+    expect(resultado.routes).toHaveLength(0)
+    expect(resultado.pins).toHaveLength(0)
+  })
+
+  it('grupo de operação completo não oculta rota sem tipo de operação inferível', () => {
+    const rotaCrossTrade: ArcRouteBidFrete = {
+      fromId: 1,
+      toId: 3,
+      color: '#60a5fa',
+      mode: 'MARITIMO',
+      modal_cotacao_bid_frete_internacional: 'MARITIMO',
+    }
+    const filtros = filtrosMapaInsightsIniciais()
+    const operacaoModal = new Set(filtros.operacaoModal)
+    operacaoModal.delete('AEREO')
+
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaCrossTrade], {
+      ...filtros,
+      operacaoModal,
+    })
+    expect(resultado.routes).toEqual([rotaCrossTrade])
   })
 })
 

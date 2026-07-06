@@ -58,6 +58,7 @@ const CamposRotaModalCotacaoSchema = z.object({
 
 const CriarCotacaoSchemaBase = z.object({
   id_bid_bid_frete_internacional: z.string().optional(),
+  numero_cotacao_bid_frete_internacional: z.string().trim().min(1).max(80).optional(),
   referencia_interna_cotacao_bid_frete_internacional: z.string().optional(),
   tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
@@ -411,7 +412,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
-        numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
+        numero_cotacao_bid_frete_internacional:
+          camposCotacao.numero_cotacao_bid_frete_internacional?.trim() || gerarNumeroCotacao(),
         data_limite_resposta_cotacao_bid_frete_internacional: new Date(dataLimiteIso),
       },
     })

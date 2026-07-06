@@ -28,6 +28,7 @@ const CAMPOS_NUMERICOS_COTACAO = new Set([
 
 /** Campos exibidos em Dados gerais que espelham a lista (edição compartilhada). */
 export const CAMPOS_ESPELHO_PAINEL_DADOS_GERAIS = [
+  'numero_cotacao_bid_frete_internacional',
   'referencia_interna_cotacao_bid_frete_internacional',
   'status_cotacao_bid_frete_internacional',
   'data_criacao_cotacao_bid_frete_internacional',

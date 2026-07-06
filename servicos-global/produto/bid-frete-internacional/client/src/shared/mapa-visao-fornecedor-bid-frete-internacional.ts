@@ -47,6 +47,14 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
     }),
       ),
+      resumo_cobertura_mapa_visao_fornecedor_bid_frete_internacional: z
+        .object({
+          total_cotacoes_consultadas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+          total_cotacoes_exibidas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+          total_cotacoes_sem_origem_destino_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+          total_cotacoes_sem_coordenadas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+        })
+        .optional(),
     }),
   }),
 })
@@ -160,5 +168,17 @@ export function mapMapaCotacoesVisaoFornecedorFromServer(
     })
     .filter((r): r is NonNullable<typeof r> => r != null)
 
-  return { pins, routes }
+  const resumoBruto = mapa.resumo_cobertura_mapa_visao_fornecedor_bid_frete_internacional
+  const resumoCobertura = resumoBruto
+    ? {
+        totalConsultadas: resumoBruto.total_cotacoes_consultadas_mapa_visao_fornecedor_bid_frete_internacional,
+        totalExibidas: resumoBruto.total_cotacoes_exibidas_mapa_visao_fornecedor_bid_frete_internacional,
+        totalSemOrigemDestino:
+          resumoBruto.total_cotacoes_sem_origem_destino_mapa_visao_fornecedor_bid_frete_internacional,
+        totalSemCoordenadas:
+          resumoBruto.total_cotacoes_sem_coordenadas_mapa_visao_fornecedor_bid_frete_internacional,
+      }
+    : undefined
+
+  return { pins, routes, resumoCobertura }
 }

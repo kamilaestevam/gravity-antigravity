@@ -3,6 +3,8 @@
  */
 
 import { fetchCadastrosJson } from './cadastros-client.js'
+import { resolverCoordenadasFallbackTerminalBidFreteInternacional } from './coordenadas-fallback-terminais-bid-frete-internacional.js'
+import { resolverCoordenadasGarantidasMapaBidFreteInternacional } from './coordenadas-garantidas-mapa-bid-frete-internacional.js'
 
 type PortoCadastros = {
   codigo_unlocode_porto: string
@@ -203,12 +205,14 @@ export async function resolverMetadadosLocalCadastrosBidFreteInternacional(
   )
 }
 
-/** Resolve terminal com coordenadas — exige lat/long no Cadastros (mapa). */
+/** Resolve terminal com coordenadas — garante pin no mapa para todo código não vazio. */
 export async function resolverLocalCadastrosBidFreteInternacional(
   codigo: string,
   opcoes?: {
     id_organizacao?: string
     modal?: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
+    nome_local?: string
+    pais_local?: string
   },
 ): Promise<LocalCadastrosBidFreteInternacional | null> {
   const codigoUpper = codigo.trim().toUpperCase()
@@ -217,9 +221,49 @@ export async function resolverLocalCadastrosBidFreteInternacional(
   const idOrganizacao = opcoes?.id_organizacao
   const modal = opcoes?.modal ?? 'MARITIMO'
 
+  let coords: LocalCadastrosBidFreteInternacional | null = null
+  let nomeCadastros: string | undefined
+  let paisCadastros: string | undefined
+
   if (modal === 'AEREO') {
-    return (await buscarAeroporto(codigoUpper, idOrganizacao)) ?? (await buscarPorto(codigoUpper, idOrganizacao))
+    const aeroporto = await fetchAeroportoCadastros(codigoUpper, idOrganizacao)
+    if (aeroporto) {
+      nomeCadastros = aeroporto.nome_aeroporto.trim()
+      paisCadastros = aeroporto.codigo_pais_aeroporto?.trim().toUpperCase()
+      coords = coordsAeroporto(aeroporto, codigoUpper)
+    }
+    if (!coords) {
+      const porto = await fetchPortoCadastros(codigoUpper, idOrganizacao)
+      if (porto) {
+        nomeCadastros = porto.nome_porto.trim()
+        paisCadastros = porto.codigo_pais_porto?.trim().toUpperCase()
+        coords = coordsPorto(porto, codigoUpper)
+      }
+    }
+  } else {
+    const porto = await fetchPortoCadastros(codigoUpper, idOrganizacao)
+    if (porto) {
+      nomeCadastros = porto.nome_porto.trim()
+      paisCadastros = porto.codigo_pais_porto?.trim().toUpperCase()
+      coords = coordsPorto(porto, codigoUpper)
+    }
+    if (!coords) {
+      const aeroporto = await fetchAeroportoCadastros(codigoUpper, idOrganizacao)
+      if (aeroporto) {
+        nomeCadastros = aeroporto.nome_aeroporto.trim()
+        paisCadastros = aeroporto.codigo_pais_aeroporto?.trim().toUpperCase()
+        coords = coordsAeroporto(aeroporto, codigoUpper)
+      }
+    }
   }
 
-  return (await buscarPorto(codigoUpper, idOrganizacao)) ?? (await buscarAeroporto(codigoUpper, idOrganizacao))
+  if (coords) return coords
+
+  const catalogo = resolverCoordenadasFallbackTerminalBidFreteInternacional(codigoUpper)
+  if (catalogo) return catalogo
+
+  return resolverCoordenadasGarantidasMapaBidFreteInternacional(codigoUpper, {
+    nome: opcoes?.nome_local ?? nomeCadastros,
+    pais: opcoes?.pais_local ?? paisCadastros,
+  })
 }

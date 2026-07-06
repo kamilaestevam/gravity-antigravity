@@ -392,6 +392,8 @@ Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema
 
 **E-mail de disparo — intro e taxa (TASK-000419+):** intro condicional por `anonima_cotacao_bid_frete_internacional` (nome visível vs cliente oculto); tag amarela com cotação gratuita + taxa USD 10,00 no fechamento + link «Leia aqui as condições». Cobrança: **boleto mensal** consolidando as taxas do mês. Aviso de aceite também no formulário de resposta (`.brc-aceite-condicoes`, acima do botão Enviar Proposta — público e logado). SSOT condições: `shared/condicoes-plataforma-fornecedor-bid-frete-internacional.ts` · doc `CONDICOES-PLATAFORMA-FORNECEDOR-BID-FRETE-INTERNACIONAL.md` · rota pública `/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma`.
 
+**Aviso de Condições Comerciais — documento legal (TASK-000411):** a página pública é um aviso **pré-contratual** formal (12 seções, versionado via `VERSAO_*`/`DATA_VIGENCIA_*` no SSOT) — NÃO é contrato: o contrato («li e aceito») é celebrado só no Fechamento. Regras de negócio embutidas no texto: USD 10,00 é indexador (cobrança em BRL, PTAX venda D-1 da emissão — Lei 14.286/2022); atraso > 5 dias corridos no boleto suspende o fornecedor até quitação (`DIAS_ATRASO_SUSPENSAO_FORNECEDOR_BID_FRETE_INTERNACIONAL`); confidencialidade do solicitante vale só na cotação (identidade revelada no Fechamento); envio de proposta = declaração de ciência, não aceite. Alterar o texto exige incrementar versão/data de vigência e validação jurídica — ver doc técnico §Natureza jurídica.
+
 ---
 
 ## API (rotas novas / críticas)

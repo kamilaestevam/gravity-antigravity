@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 411,
+  "proximo_numero": 412,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000411",
+      "ordinal": 135,
+      "titulo_canonico": "BIDFRT-VISAO-FORNECEDOR-NOV-DOCUMENTO-LEGAL-AVISO-CONDICOES-COBRANCA",
+      "titulo_exibicao": "TASK-000411 | [Bid Frete] Visão Fornecedor | NOV — Documento legal (aviso pré-contratual) das condições de cobrança USD 10,00",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "VISAO-FORNECEDOR",
+      "visualizacao": null,
+      "tipo_entrega": "NOV",
+      "resumo": "DOCUMENTO-LEGAL-AVISO-CONDICOES-COBRANCA",
+      "data_criacao": "2026-07-06T14:03:27.595Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000411.json"
+    },
     {
       "referencia": "TASK-000410",
       "ordinal": 134,

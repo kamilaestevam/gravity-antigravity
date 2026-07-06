@@ -1,0 +1,135 @@
+/**
+ * Aeroportos leva Europa (prints) — verificação contra cadastros.aeroporto.
+ */
+export type AeroportoVerificacao = {
+  pais: string
+  rotulo: string
+  iata: string
+  termos?: string[]
+}
+
+export const AEROPORTOS_LEVA_EUROPA: AeroportoVerificacao[] = [
+  // ─── REINO UNIDO ───────────────────────────────────────────────────────────
+  { pais: 'GB', rotulo: 'London Heathrow', iata: 'LHR', termos: ['Heathrow'] },
+  { pais: 'GB', rotulo: 'London Gatwick', iata: 'LGW', termos: ['Gatwick'] },
+  { pais: 'GB', rotulo: 'London Stansted', iata: 'STN', termos: ['Stansted'] },
+  { pais: 'GB', rotulo: 'Manchester', iata: 'MAN' },
+  { pais: 'GB', rotulo: 'Birmingham', iata: 'BHX' },
+  { pais: 'GB', rotulo: 'East Midlands', iata: 'EMA', termos: ['East Midlands'] },
+  { pais: 'GB', rotulo: 'Edinburgh', iata: 'EDI' },
+  { pais: 'GB', rotulo: 'Glasgow', iata: 'GLA' },
+  { pais: 'GB', rotulo: 'Belfast International', iata: 'BFS', termos: ['Belfast'] },
+  // ─── IRLANDA ───────────────────────────────────────────────────────────────
+  { pais: 'IE', rotulo: 'Dublin', iata: 'DUB' },
+  { pais: 'IE', rotulo: 'Shannon', iata: 'SNN' },
+  { pais: 'IE', rotulo: 'Cork', iata: 'ORK' },
+  // ─── FRANÇA ────────────────────────────────────────────────────────────────
+  { pais: 'FR', rotulo: 'Paris Charles de Gaulle', iata: 'CDG', termos: ['Charles de Gaulle', 'Roissy'] },
+  { pais: 'FR', rotulo: 'Paris Orly', iata: 'ORY', termos: ['Orly'] },
+  { pais: 'FR', rotulo: 'Lyon Saint-Exupéry', iata: 'LYS', termos: ['Lyon', 'Saint-Exupery'] },
+  { pais: 'FR', rotulo: 'Marseille Provence', iata: 'MRS', termos: ['Marseille'] },
+  { pais: 'FR', rotulo: "Nice Côte d'Azur", iata: 'NCE', termos: ['Nice'] },
+  { pais: 'FR', rotulo: 'Toulouse-Blagnac', iata: 'TLS', termos: ['Toulouse', 'Blagnac'] },
+  { pais: 'FR', rotulo: 'Bordeaux-Mérignac', iata: 'BOD', termos: ['Bordeaux', 'Merignac'] },
+  { pais: 'FR', rotulo: 'Nantes Atlantique', iata: 'NTE', termos: ['Nantes'] },
+  // ─── ALEMANHA ──────────────────────────────────────────────────────────────
+  { pais: 'DE', rotulo: 'Frankfurt', iata: 'FRA', termos: ['Frankfurt'] },
+  { pais: 'DE', rotulo: 'Munich', iata: 'MUC', termos: ['Munich', 'Munchen'] },
+  { pais: 'DE', rotulo: 'Berlin Brandenburg', iata: 'BER', termos: ['Berlin', 'Brandenburg'] },
+  { pais: 'DE', rotulo: 'Hamburg', iata: 'HAM' },
+  { pais: 'DE', rotulo: 'Düsseldorf', iata: 'DUS', termos: ['Dusseldorf'] },
+  { pais: 'DE', rotulo: 'Cologne Bonn', iata: 'CGN', termos: ['Cologne', 'Koln', 'Bonn'] },
+  { pais: 'DE', rotulo: 'Leipzig/Halle', iata: 'LEJ', termos: ['Leipzig', 'Halle'] },
+  { pais: 'DE', rotulo: 'Stuttgart', iata: 'STR' },
+  { pais: 'DE', rotulo: 'Hannover', iata: 'HAJ' },
+  { pais: 'DE', rotulo: 'Nuremberg', iata: 'NUE', termos: ['Nuremberg', 'Nurnberg'] },
+  { pais: 'DE', rotulo: 'Bremen', iata: 'BRE' },
+  // ─── HOLANDA ───────────────────────────────────────────────────────────────
+  { pais: 'NL', rotulo: 'Amsterdam Schiphol', iata: 'AMS', termos: ['Schiphol', 'Amsterdam'] },
+  { pais: 'NL', rotulo: 'Rotterdam The Hague', iata: 'RTM', termos: ['Rotterdam', 'Hague'] },
+  { pais: 'NL', rotulo: 'Eindhoven', iata: 'EIN' },
+  { pais: 'NL', rotulo: 'Maastricht Aachen', iata: 'MST', termos: ['Maastricht', 'Aachen'] },
+  // ─── BÉLGICA ───────────────────────────────────────────────────────────────
+  { pais: 'BE', rotulo: 'Brussels Airport', iata: 'BRU', termos: ['Brussels', 'Zaventem'] },
+  { pais: 'BE', rotulo: 'Liège Airport', iata: 'LGG', termos: ['Liege'] },
+  { pais: 'BE', rotulo: 'Brussels South Charleroi', iata: 'CRL', termos: ['Charleroi'] },
+  { pais: 'BE', rotulo: 'Antwerp Airport', iata: 'ANR', termos: ['Antwerp'] },
+  // ─── LUX / CH / AT ─────────────────────────────────────────────────────────
+  { pais: 'LU', rotulo: 'Luxembourg Airport', iata: 'LUX', termos: ['Luxembourg'] },
+  { pais: 'CH', rotulo: 'Zurich', iata: 'ZRH' },
+  { pais: 'CH', rotulo: 'Geneva', iata: 'GVA' },
+  { pais: 'CH', rotulo: 'Basel Mulhouse Freiburg', iata: 'BSL', termos: ['Basel', 'Mulhouse'] },
+  { pais: 'AT', rotulo: 'Vienna International', iata: 'VIE', termos: ['Vienna', 'Wien'] },
+  { pais: 'AT', rotulo: 'Graz', iata: 'GRZ' },
+  { pais: 'AT', rotulo: 'Linz', iata: 'LNZ' },
+  // ─── ITÁLIA ────────────────────────────────────────────────────────────────
+  { pais: 'IT', rotulo: 'Rome Fiumicino', iata: 'FCO', termos: ['Fiumicino', 'Rome'] },
+  { pais: 'IT', rotulo: 'Milan Malpensa', iata: 'MXP', termos: ['Malpensa', 'Milan'] },
+  { pais: 'IT', rotulo: 'Milan Linate', iata: 'LIN', termos: ['Linate'] },
+  { pais: 'IT', rotulo: 'Venice Marco Polo', iata: 'VCE', termos: ['Venice', 'Marco Polo'] },
+  { pais: 'IT', rotulo: 'Bologna Guglielmo Marconi', iata: 'BLQ', termos: ['Bologna'] },
+  { pais: 'IT', rotulo: 'Naples', iata: 'NAP', termos: ['Naples', 'Napoli'] },
+  { pais: 'IT', rotulo: 'Turin', iata: 'TRN', termos: ['Turin', 'Torino'] },
+  { pais: 'IT', rotulo: 'Pisa', iata: 'PSA' },
+  { pais: 'IT', rotulo: 'Bergamo Orio al Serio', iata: 'BGY', termos: ['Bergamo', 'Orio'] },
+  { pais: 'IT', rotulo: 'Catania Fontanarossa', iata: 'CTA', termos: ['Catania'] },
+  // ─── ESPANHA ───────────────────────────────────────────────────────────────
+  { pais: 'ES', rotulo: 'Madrid Barajas', iata: 'MAD', termos: ['Barajas', 'Madrid'] },
+  { pais: 'ES', rotulo: 'Barcelona El Prat', iata: 'BCN', termos: ['Barcelona', 'El Prat'] },
+  { pais: 'ES', rotulo: 'Valencia', iata: 'VLC' },
+  { pais: 'ES', rotulo: 'Zaragoza', iata: 'ZAZ' },
+  { pais: 'ES', rotulo: 'Bilbao', iata: 'BIO' },
+  { pais: 'ES', rotulo: 'Seville', iata: 'SVQ', termos: ['Seville', 'Sevilla'] },
+  { pais: 'ES', rotulo: 'Malaga', iata: 'AGP', termos: ['Malaga'] },
+  { pais: 'ES', rotulo: 'Alicante', iata: 'ALC' },
+  { pais: 'ES', rotulo: 'Palma de Mallorca', iata: 'PMI', termos: ['Palma', 'Mallorca'] },
+  // ─── PORTUGAL ──────────────────────────────────────────────────────────────
+  { pais: 'PT', rotulo: 'Lisbon Humberto Delgado', iata: 'LIS', termos: ['Lisbon', 'Lisboa'] },
+  { pais: 'PT', rotulo: 'Porto', iata: 'OPO' },
+  { pais: 'PT', rotulo: 'Faro', iata: 'FAO' },
+  { pais: 'PT', rotulo: 'Madeira Funchal', iata: 'FNC', termos: ['Funchal', 'Madeira'] },
+  // ─── NÓRDICOS ──────────────────────────────────────────────────────────────
+  { pais: 'DK', rotulo: 'Copenhagen', iata: 'CPH', termos: ['Copenhagen', 'Kastrup'] },
+  { pais: 'DK', rotulo: 'Billund', iata: 'BLL' },
+  { pais: 'DK', rotulo: 'Aalborg', iata: 'AAL' },
+  { pais: 'NO', rotulo: 'Oslo Gardermoen', iata: 'OSL', termos: ['Oslo', 'Gardermoen'] },
+  { pais: 'NO', rotulo: 'Bergen', iata: 'BGO' },
+  { pais: 'NO', rotulo: 'Stavanger', iata: 'SVG' },
+  { pais: 'SE', rotulo: 'Stockholm Arlanda', iata: 'ARN', termos: ['Arlanda', 'Stockholm'] },
+  { pais: 'SE', rotulo: 'Gothenburg Landvetter', iata: 'GOT', termos: ['Gothenburg', 'Landvetter'] },
+  { pais: 'SE', rotulo: 'Malmö', iata: 'MMX', termos: ['Malmo'] },
+  { pais: 'FI', rotulo: 'Helsinki', iata: 'HEL' },
+  { pais: 'FI', rotulo: 'Turku', iata: 'TKU' },
+  { pais: 'FI', rotulo: 'Oulu', iata: 'OUL' },
+  // ─── LESTE EUROPA ──────────────────────────────────────────────────────────
+  { pais: 'PL', rotulo: 'Warsaw Chopin', iata: 'WAW', termos: ['Warsaw', 'Chopin'] },
+  { pais: 'PL', rotulo: 'Katowice', iata: 'KTW' },
+  { pais: 'PL', rotulo: 'Kraków', iata: 'KRK', termos: ['Krakow'] },
+  { pais: 'PL', rotulo: 'Gdańsk', iata: 'GDN', termos: ['Gdansk'] },
+  { pais: 'PL', rotulo: 'Wrocław', iata: 'WRO', termos: ['Wroclaw'] },
+  { pais: 'PL', rotulo: 'Poznań', iata: 'POZ', termos: ['Poznan'] },
+  { pais: 'CZ', rotulo: 'Prague Václav Havel', iata: 'PRG', termos: ['Prague', 'Havel'] },
+  { pais: 'CZ', rotulo: 'Brno', iata: 'BRQ' },
+  { pais: 'HU', rotulo: 'Budapest Ferenc Liszt', iata: 'BUD', termos: ['Budapest', 'Liszt'] },
+  { pais: 'RO', rotulo: 'Bucharest Henri Coandă', iata: 'OTP', termos: ['Bucharest', 'Coanda'] },
+  { pais: 'RO', rotulo: 'Cluj-Napoca', iata: 'CLJ', termos: ['Cluj'] },
+  { pais: 'BG', rotulo: 'Sofia', iata: 'SOF' },
+  { pais: 'BG', rotulo: 'Varna', iata: 'VAR' },
+  { pais: 'GR', rotulo: 'Athens International', iata: 'ATH', termos: ['Athens'] },
+  { pais: 'GR', rotulo: 'Thessaloniki', iata: 'SKG' },
+  { pais: 'GR', rotulo: 'Heraklion', iata: 'HER' },
+  // ─── TURQUIA ───────────────────────────────────────────────────────────────
+  { pais: 'TR', rotulo: 'Istanbul Airport', iata: 'IST', termos: ['Istanbul'] },
+  { pais: 'TR', rotulo: 'Sabiha Gökçen', iata: 'SAW', termos: ['Sabiha', 'Gokcen'] },
+  { pais: 'TR', rotulo: 'Ankara Esenboğa', iata: 'ESB', termos: ['Ankara', 'Esenboga'] },
+  { pais: 'TR', rotulo: 'Izmir Adnan Menderes', iata: 'ADB', termos: ['Izmir', 'Menderes'] },
+  { pais: 'TR', rotulo: 'Antalya', iata: 'AYT' },
+  // ─── RÚSSIA ────────────────────────────────────────────────────────────────
+  { pais: 'RU', rotulo: 'Moscow Sheremetyevo', iata: 'SVO', termos: ['Sheremetyevo'] },
+  { pais: 'RU', rotulo: 'Moscow Domodedovo', iata: 'DME', termos: ['Domodedovo'] },
+  { pais: 'RU', rotulo: 'Moscow Vnukovo', iata: 'VKO', termos: ['Vnukovo'] },
+  { pais: 'RU', rotulo: 'St. Petersburg Pulkovo', iata: 'LED', termos: ['Pulkovo', 'Petersburg'] },
+  { pais: 'RU', rotulo: 'Novosibirsk Tolmachevo', iata: 'OVB', termos: ['Novosibirsk', 'Tolmachevo'] },
+  { pais: 'RU', rotulo: 'Yekaterinburg Koltsovo', iata: 'SVX', termos: ['Yekaterinburg', 'Koltsovo'] },
+  { pais: 'RU', rotulo: 'Vladivostok', iata: 'VVO' },
+]

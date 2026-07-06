@@ -2545,6 +2545,36 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   box-shadow: 0 0 16px var(--dc-cockpit-accent-glow);
 }
 
+.dc-cockpit-tab--em-breve {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: not-allowed;
+}
+
+.dc-cockpit-tab--em-breve:hover {
+  color: #64748b;
+}
+
+.dc-cockpit-tab .cfg-badge-breve {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+body.light-theme .dc-cockpit-tab .cfg-badge-breve {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
 /* Aba Dados — 3 cards + Combat Matrix na mesma linha */
 .dc-cockpit-workspace {
   display: flex;

@@ -42,6 +42,7 @@ import {
   Globe,
   UsersThree,
   Clock,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 
 import {
@@ -99,6 +100,7 @@ import {
 } from '../shared/types'
 import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -707,11 +709,13 @@ export default function DetalheCotacao() {
         >
           {t('bidfrete.detalhe_cotacao.tab_respostas', 'Propostas')}
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_comentarios', 'Comentários')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_documentos', 'Documentos')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
       </nav>
 
@@ -750,6 +754,13 @@ export default function DetalheCotacao() {
                   ? t('bidfrete.nova_cotacao.tipo_aberta')
                   : t('bidfrete.nova_cotacao.tipo_direcionada')
               }
+            />
+            <InfoRowComIcone
+              icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.pagador_taxa_fechamento', 'Taxa de fechamento paga por')}
+              value={rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+                cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+              )}
             />
           </CardSecaoDados>
 
@@ -911,6 +922,9 @@ export default function DetalheCotacao() {
           exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
           ctxLocaisOpcionaisCotacao={ctxLocaisOpcionaisCotacao}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
         />
       )}
       </>

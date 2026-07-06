@@ -1,3 +1,9 @@
+import {
+  EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from './empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+
 export const CHAVE_LOCAL_STORAGE_REGRAS_CONFIG_BID_FRETE_INTERNACIONAL = 'bid-frete:config:regras'
 
 export interface RegrasConfigBidFreteInternacional {
@@ -7,6 +13,8 @@ export interface RegrasConfigBidFreteInternacional {
   aprovarAbaixoDoTeto: boolean
   /** Padrão da organização — wizard exige escolha explícita por cotação. */
   fornecedorPodeAlterarPropostaPadrao: boolean
+  /** Quem paga a taxa de fechamento da plataforma Gravity (success fee). */
+  empresaPagadoraTaxaFechamentoPlataformaGravity: EmpresaPagadoraTaxaFechamentoPlataformaGravity
 }
 
 export const REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL: RegrasConfigBidFreteInternacional = {
@@ -14,7 +22,8 @@ export const REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL: RegrasConfigBidFreteI
   prazoPadraoHoras: 72,
   alertasDivergencia: true,
   aprovarAbaixoDoTeto: false,
-  fornecedorPodeAlterarPropostaPadrao: true,
+  fornecedorPodeAlterarPropostaPadrao: false,
+  empresaPagadoraTaxaFechamentoPlataformaGravity: EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
 }
 
 export function lerRegrasConfigBidFreteInternacional(): RegrasConfigBidFreteInternacional {
@@ -31,6 +40,10 @@ export function lerRegrasConfigBidFreteInternacional(): RegrasConfigBidFreteInte
       fornecedorPodeAlterarPropostaPadrao:
         parsed.fornecedorPodeAlterarPropostaPadrao
         ?? REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.fornecedorPodeAlterarPropostaPadrao,
+      empresaPagadoraTaxaFechamentoPlataformaGravity:
+        normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+          parsed.empresaPagadoraTaxaFechamentoPlataformaGravity,
+        ),
     }
   } catch {
     return { ...REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL }

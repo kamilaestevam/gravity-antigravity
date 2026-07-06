@@ -44,6 +44,23 @@ export function filtrarCodigosPaisPorBuscaPorto(
   return [...codigos]
 }
 
+/** UN/LOCODE marítimo (2 letras país + 3 letras local). */
+export function ehBuscaUnlocodeExato(q: string): boolean {
+  return /^[A-Za-z]{2}[A-Za-z0-9]{3}$/.test(q.trim())
+}
+
+/** Match direto por código — exceto quando prefixo não bate com país resolvido por nome ("CHINA" → CN, não CH). */
+export function buscaUnlocodeExatoDeveUsarMatchDireto(
+  q: string,
+  codigosPaisResolvidos: string[],
+): boolean {
+  if (!ehBuscaUnlocodeExato(q)) return false
+  const codigo = q.trim().toUpperCase()
+  const paisDoCodigo = codigo.slice(0, 2)
+  if (codigosPaisResolvidos.length === 0) return true
+  return codigosPaisResolvidos.includes(paisDoCodigo)
+}
+
 /** Evita falso positivo curto ("san" → Santos, não só San Marino). */
 export function buscaPortoDeveFiltrarSomentePorPais(
   q: string,
@@ -82,6 +99,17 @@ export function montarWhereBuscaPortoCadastros(opcoes: {
   }
 
   if (!q) return base
+
+  if (buscaUnlocodeExatoDeveUsarMatchDireto(q, codigosPaisResolvidos)) {
+    const codigo = q.trim().toUpperCase()
+    return {
+      ...base,
+      OR: [
+        { codigo_unlocode_porto: codigo },
+        { codigo_iata_porto: codigo },
+      ],
+    }
+  }
 
   if (
     !paisFiltro &&

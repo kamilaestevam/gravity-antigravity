@@ -557,6 +557,7 @@ function CardMelhorPropostaSmart({
   id_cotacao_bid_frete_internacional,
   status_cotacao_bid_frete_internacional,
   propostasRanking,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   onCotacaoAtualizada,
   t,
 }: {
@@ -565,6 +566,7 @@ function CardMelhorPropostaSmart({
   id_cotacao_bid_frete_internacional?: string | null
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
@@ -699,6 +701,9 @@ function CardMelhorPropostaSmart({
           aberto={modalAprovar}
           id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
           proposta={propostaMelhor}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
           onFechar={fecharModalAprovar}
           onAprovado={aoAprovarProposta}
         />
@@ -781,6 +786,7 @@ function CardRankingRespostasInsights({
   status_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   onCotacaoAtualizada,
   t,
 }: {
@@ -788,6 +794,7 @@ function CardRankingRespostasInsights({
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking: boolean
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
@@ -804,6 +811,9 @@ function CardRankingRespostasInsights({
           carregandoRanking={carregandoRanking}
           variante="combate"
           onCotacaoAtualizada={onCotacaoAtualizada}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
         />
       </div>
     </article>
@@ -1075,6 +1085,9 @@ export function InsightsGridFluxoCotacao({
           id_cotacao_bid_frete_internacional={idCotacao}
           status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
           onCotacaoAtualizada={onCotacaoAtualizada}
           t={t}
         />
@@ -1084,6 +1097,9 @@ export function InsightsGridFluxoCotacao({
             status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
             propostasRanking={propostasRanking}
             carregandoRanking={carregandoRanking}
+            empresa_pagadora_taxa_fechamento_plataforma_gravity={
+              cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity
+            }
             onCotacaoAtualizada={onCotacaoAtualizada}
             t={t}
           />

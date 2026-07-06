@@ -4,6 +4,10 @@
  * Cotação avulsa = id_bid null; linha plana sem expandir na lista.
  */
 
+import {
+  resolverStatusBidPersistidoDeCotacoesBidFreteInternacional,
+  statusMaisAvancadoCotacoesBidFreteInternacional,
+} from '../../../shared/status-agregado-bid-frete-internacional'
 import type { BidFreteInternacional, Cotacao, PropostaBidFreteInternacional, StatusBid, StatusCotacao } from '../shared/types'
 
 export interface LinhaBidGrupoPai {
@@ -44,27 +48,6 @@ export function isLinhaBidGrupo(linha: LinhaPaiLista): linha is LinhaBidGrupoPai
 
 export function isLinhaProposta(filha: LinhaFilhaLista): filha is PropostaBidFreteInternacional {
   return 'id_proposta_bid_frete_internacional' in filha
-}
-
-const PRIORIDADE_STATUS: StatusCotacao[] = [
-  'APROVADA',
-  'AGUARDANDO_APROVACAO',
-  'EM_COTACAO',
-  'ENVIADA_FORNECEDORES',
-  'FALTA_INFORMACAO',
-  'RASCUNHO',
-  'REPROVADA',
-  'CANCELADA',
-  'EXPIRADA',
-]
-
-function statusMaisAvancado(cotacoes: Cotacao[]): StatusCotacao {
-  for (const status of PRIORIDADE_STATUS) {
-    if (cotacoes.some(c => c.status_cotacao_bid_frete_internacional === status)) {
-      return status
-    }
-  }
-  return cotacoes[0]?.status_cotacao_bid_frete_internacional ?? 'RASCUNHO'
 }
 
 function agregarCampoId(
@@ -119,8 +102,12 @@ function buildLinhaBidGrupo(bid: BidFreteInternacional): LinhaBidGrupoPai {
     workspaces_divergentes: workspaces.divergente,
     quantidade_usuarios_distintos: usuarios.quantidade,
     quantidade_workspaces_distintos: workspaces.quantidade,
-    status_cotacao_bid_frete_internacional: statusMaisAvancado(cotacoes),
-    status_bid_bid_frete_internacional: bid.status_bid_bid_frete_internacional,
+    status_cotacao_bid_frete_internacional: statusMaisAvancadoCotacoesBidFreteInternacional(
+      cotacoes,
+    ) as StatusCotacao,
+    status_bid_bid_frete_internacional: resolverStatusBidPersistidoDeCotacoesBidFreteInternacional(
+      cotacoes,
+    ) as StatusBid,
     data_criacao_cotacao_bid_frete_internacional: principal?.data_criacao_cotacao_bid_frete_internacional ?? bid.data_criacao_bid_bid_frete_internacional,
     data_atualizacao_cotacao_bid_frete_internacional: principal?.data_atualizacao_cotacao_bid_frete_internacional ?? bid.data_atualizacao_bid_bid_frete_internacional,
     tipo_operacao_cotacao_bid_frete_internacional: principal?.tipo_operacao_cotacao_bid_frete_internacional ?? 'IMPORTACAO',

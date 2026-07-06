@@ -30,8 +30,14 @@ import {
   codigosOpcaoPortoAeroportoParaPersistencia,
   refinamentoOpcoesPortoAeroportoCotacao,
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import { resolverRotulosLocaisOpcionaisDisparoBidFrete } from '../lib/resolver-rotulos-locais-opcionais-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from '../services/filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
+import { empresaPagadoraTaxaFechamentoPlataformaGravitySchema, normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity, rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import {
+  lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
+  registrarEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
+} from '../lib/snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -104,6 +110,8 @@ const CriarCotacaoSchemaBase = z.object({
   codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
   habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.boolean().default(false),
   codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
+  empresa_pagadora_taxa_fechamento_plataforma_gravity:
+    empresaPagadoraTaxaFechamentoPlataformaGravitySchema.optional(),
 })
 
 type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
@@ -222,19 +230,38 @@ function refinamentoOpcoesPortoAeroporto(data: DadosCotacaoBase, ctx: z.Refineme
   )
 }
 
-function prepararCamposOpcaoPortoAeroportoCotacao(dados: DadosCotacaoBase) {
+async function prepararCamposOpcaoPortoAeroportoCotacao(dados: DadosCotacaoBase) {
   const habilitarOrigem = dados.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional ?? false
   const habilitarDestino = dados.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional ?? false
+  const modal = dados.modal_cotacao_bid_frete_internacional
+
+  async function persistirOpcionais(
+    habilitado: boolean,
+    codigos: string[] | undefined,
+  ): Promise<unknown[] | null> {
+    if (!habilitado) return null
+    const limpos = (codigos ?? []).map((c) => c.trim()).filter(Boolean)
+    if (limpos.length === 0) return null
+    const rotulos = await resolverRotulosLocaisOpcionaisDisparoBidFrete(modal, limpos)
+    return codigosOpcaoPortoAeroportoParaPersistencia(
+      true,
+      limpos.map((codigo, indice) => {
+        const rotulo = rotulos[indice]
+        return rotulo && rotulo !== codigo ? { codigo, rotulo } : codigo
+      }),
+    )
+  }
+
   return {
     habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: habilitarOrigem,
-    codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: codigosOpcaoPortoAeroportoParaPersistencia(
+    codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: await persistirOpcionais(
       habilitarOrigem,
-      dados.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional ?? [],
+      dados.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
     ),
     habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: habilitarDestino,
-    codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: codigosOpcaoPortoAeroportoParaPersistencia(
+    codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: await persistirOpcionais(
       habilitarDestino,
-      dados.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional ?? [],
+      dados.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
     ),
   }
 }
@@ -397,10 +424,18 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
-    const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
+    const {
+      fornecedor_ids,
+      disparar_ao_criar,
+      canais_disparo,
+      emails_por_fornecedor,
+      id_bid_bid_frete_internacional,
+      empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ...cotacaoData
+    } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
-    const camposOpcaoPortoAeroporto = prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
+    const camposOpcaoPortoAeroporto = await prepararCamposOpcaoPortoAeroportoCotacao(camposCotacao)
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
@@ -417,6 +452,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         data_limite_resposta_cotacao_bid_frete_internacional: new Date(dataLimiteIso),
       },
     })
+
+    registrarEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+      cotacao.id_cotacao_bid_frete_internacional,
+      normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+        empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ),
+    )
 
     if (id_bid_bid_frete_internacional) {
       await sincronizarResumoBid(req.prisma, id_bid_bid_frete_internacional)
@@ -668,6 +710,10 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     res.json({
       cotacao: {
         ...cotacao,
+        empresa_pagadora_taxa_fechamento_plataforma_gravity:
+          lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+            cotacao.id_cotacao_bid_frete_internacional,
+          ),
         historico_aprovado: historicoAprovado,
         id_usuario_aprovacao_ganho_bid_frete_internacional,
         nome_usuario_aprovacao_ganho_bid_frete_internacional,
@@ -713,7 +759,7 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     }
 
     if (corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_OPCAO_PORTO_AEROPORTO_COTACAO)) {
-      Object.assign(data, prepararCamposOpcaoPortoAeroportoCotacao(merged as DadosCotacaoBase))
+      Object.assign(data, await prepararCamposOpcaoPortoAeroportoCotacao(merged as DadosCotacaoBase))
     }
 
     if (patchDeveMarcarCotacaoAlterada(
@@ -727,6 +773,10 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data,
     })
+
+    if (existing.id_bid_bid_frete_internacional) {
+      await sincronizarResumoBid(req.prisma, existing.id_bid_bid_frete_internacional)
+    }
 
     res.json({ cotacao })
   } catch (err) {
@@ -763,6 +813,10 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data,
     })
+
+    if (existing.id_bid_bid_frete_internacional) {
+      await sincronizarResumoBid(req.prisma, existing.id_bid_bid_frete_internacional)
+    }
 
     res.json({ cotacao })
   } catch (err) {

@@ -979,6 +979,12 @@ const MODAIS_INFO = [
 export type DadosMapaBidFrete = {
   pins: MapPinBidFrete[]
   routes: ArcRouteBidFrete[]
+  resumoCobertura?: {
+    totalConsultadas: number
+    totalExibidas: number
+    totalSemOrigemDestino: number
+    totalSemCoordenadas: number
+  }
 }
 
 export interface VisaoGeralMapaBidFreteProps {
@@ -1171,7 +1177,23 @@ export function VisaoGeralMapaBidFrete({
     )
   }, [fonteDados, pinsBase, rotasBase, filtrosMapaInsights])
 
-  const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
+  const mapaVazioBase = fonteDados === 'api' && pinsBase.length === 0
+  const mapaOcultoPorFiltros =
+    fonteDados === 'api' && pinsBase.length > 0 && pinsAtivos.length === 0
+  const resumoCobertura = dadosMapa?.resumoCobertura
+  const descricaoCoberturaMapa =
+    fonteDados === 'api' &&
+    resumoCobertura != null &&
+    resumoCobertura.totalExibidas < resumoCobertura.totalConsultadas
+      ? t('bidfrete.insights.mapa.cobertura_parcial', {
+          defaultValue:
+            '{{exibidas}} de {{consultadas}} cotações no mapa — {{semCoords}} sem coordenada de terminal, {{semOrigemDestino}} sem origem/destino.',
+          exibidas: resumoCobertura.totalExibidas,
+          consultadas: resumoCobertura.totalConsultadas,
+          semCoords: resumoCobertura.totalSemCoordenadas,
+          semOrigemDestino: resumoCobertura.totalSemOrigemDestino,
+        })
+      : null
 
   const rankingsCalculados = useMemo(() => {
     return calcularRankingsMapaBidFreteInternacional(pinsAtivos, rotasAtivas)
@@ -1209,6 +1231,26 @@ export function VisaoGeralMapaBidFrete({
     [pinsBase, rotasContextoListaDestino],
   )
   const totalFiltrosAtivos = contarFiltrosMapaAtivos(filtrosMapaInsights)
+
+  const totalCotacoesBaseMapa = useMemo(
+    () =>
+      rotasBase.reduce(
+        (acc, rota) =>
+          acc + (rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 1),
+        0,
+      ),
+    [rotasBase],
+  )
+
+  const totalCotacoesAtivasMapa = useMemo(
+    () =>
+      rotasAtivas.reduce(
+        (acc, rota) =>
+          acc + (rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 1),
+        0,
+      ),
+    [rotasAtivas],
+  )
   const subtituloRankings =
     fonteDados === 'api'
       ? totalFiltrosAtivos > 0
@@ -2831,19 +2873,19 @@ export function VisaoGeralMapaBidFrete({
           })}
         </div>
 
-        {totalFiltrosAtivos > 0 ? (
-          <button
-            type="button"
-            className="bfd-map-filtros-rail__limpar"
-            title={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
-            onClick={() => {
-              setPainelFiltrosMapaExpandido(true)
-              limparFiltrosMapaInsights()
-            }}
-          >
-            <X size={13} weight="bold" />
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className="bfd-map-filtros-rail__limpar"
+          title={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
+          aria-label={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
+          disabled={totalFiltrosAtivos === 0}
+          onClick={() => {
+            setPainelFiltrosMapaExpandido(true)
+            limparFiltrosMapaInsights()
+          }}
+        >
+          <X size={13} weight="bold" />
+        </button>
       </aside>
     )
   }
@@ -2879,6 +2921,8 @@ export function VisaoGeralMapaBidFrete({
       secoesFiltroMapaColapsadas.size === SECOES_FILTRO_MAPA_INSIGHTS.length
     const resumoMapaFiltrado = traduzirResumoMapaFiltrado(t, {
       totalFiltrosAtivos,
+      totalCotacoes: totalCotacoesAtivasMapa,
+      totalCotacoesBase: totalCotacoesBaseMapa,
       pinsAtivos: pinsAtivos.length,
       pinsBase: pinsBase.length,
       rotasAtivas: rotasAtivas.length,
@@ -2942,16 +2986,17 @@ export function VisaoGeralMapaBidFrete({
               ? t('bidfrete.insights.mapa.refinar.expandir_todas', { defaultValue: 'Expandir todas' })
               : t('bidfrete.insights.mapa.refinar.recolher_todas', { defaultValue: 'Recolher todas' })}
           </button>
-          {totalFiltrosAtivos > 0 ? (
-            <button
-              type="button"
-              className="bfd-map-filtros-panel__limpar"
-              onClick={limparFiltrosMapaInsights}
-            >
-              <X size={12} weight="bold" />
-              {t('bidfrete.insights.mapa.refinar.limpar', { defaultValue: 'Limpar' })}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className="bfd-map-filtros-panel__limpar"
+            onClick={limparFiltrosMapaInsights}
+            disabled={totalFiltrosAtivos === 0}
+            title={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
+            aria-label={t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
+          >
+            <X size={12} weight="bold" />
+            {t('bidfrete.insights.mapa.refinar.limpar_filtros', { defaultValue: 'Limpar filtros' })}
+          </button>
         </div>
 
         <div className="bfd-map-filtros-acordeao">
@@ -3265,7 +3310,7 @@ export function VisaoGeralMapaBidFrete({
                         </span>
                       </div>
                     ) : null}
-                    <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
+                    <div className="bfd-map-tooltip__hint">👉 Clique para ver cotações</div>
                   </div>
                   <div className="bfd-map-tooltip__after" />
                 </div>
@@ -3431,11 +3476,17 @@ export function VisaoGeralMapaBidFrete({
             <p className="cg-card__label" style={{ margin: 0 }}>{tituloMapa}</p>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
-            {mapaVazioApi
-              ? t('bidfrete.insights.mapa.vazio_coordenadas', {
-                defaultValue: 'Nenhuma cotação com coordenadas no mapa ainda.',
+            {mapaOcultoPorFiltros
+              ? t('bidfrete.insights.mapa.vazio_filtros', {
+                defaultValue: 'Nenhuma rota para os filtros ativos. Clique em Limpar no painel Refinar mapa.',
               })
-              : mapaModo === 'transit'
+              : mapaVazioBase
+                ? descricaoCoberturaMapa ??
+                  t('bidfrete.insights.mapa.vazio_coordenadas', {
+                  defaultValue: 'Nenhuma cotação com coordenadas no mapa ainda.',
+                })
+                : descricaoCoberturaMapa ??
+                  (mapaModo === 'transit'
                 ? descricaoMapaTransit
                 : (descricaoBids ??
                   t('bidfrete.insights.mapa.descricao_bids', {
@@ -3444,7 +3495,7 @@ export function VisaoGeralMapaBidFrete({
                     arraste: vista === 'mapa'
                       ? t('bidfrete.insights.mapa.arraste_mover', { defaultValue: 'Arrastar para Mover' })
                       : t('bidfrete.insights.mapa.arraste_girar', { defaultValue: 'Arrastar para Girar' }),
-                  }))}
+                  })))}
           </span>
         </div>
 

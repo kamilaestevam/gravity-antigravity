@@ -8,6 +8,7 @@
 
 import { AppError } from '../lib/erros.js'
 import { PrismaClient } from '../generated/client/index.js'
+import { randomUUID } from 'crypto'
 
 interface RankedResponse {
   id: string
@@ -170,6 +171,11 @@ export const motorComparativo = {
         tags,
         taxas_origem: r.taxas_origem,
         taxas_destino: r.taxas_destino,
+        status_proposta_bid_frete_internacional: r.status_proposta_bid_frete_internacional,
+        data_aceite_aprovacao_proposta_bid_frete_internacional:
+          r.data_aceite_aprovacao_proposta_bid_frete_internacional
+            ? new Date(r.data_aceite_aprovacao_proposta_bid_frete_internacional).toISOString()
+            : null,
       }
     })
 
@@ -230,10 +236,14 @@ export const motorComparativo = {
       throw new AppError('Cotacao nao encontrada', 404, 'COTACAO_NAO_ENCONTRADA')
     }
 
-    // Aprovar a resposta
+    // Aprovar a resposta (token público para aceite "Recebi e estou de acordo")
+    const tokenAceite = randomUUID()
     await (prisma as any).propostaBidFreteInternacional.update({
       where: { id_proposta_bid_frete_internacional },
-      data: { status_proposta_bid_frete_internacional: 'APROVADA' },
+      data: {
+        status_proposta_bid_frete_internacional: 'APROVADA',
+        token_aceite_aprovacao_proposta_bid_frete_internacional: tokenAceite,
+      },
     })
 
     // Reprovar todas as outras

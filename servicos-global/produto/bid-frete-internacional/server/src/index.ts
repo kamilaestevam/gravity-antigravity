@@ -23,13 +23,13 @@ import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
 import { solicitacaoCotacaoBidFreteInternacionalRouter } from './routes/solicitacao-cotacao-bid-frete-internacional.js'
 import { configStatusRouter } from './routes/config-status.js'
-import { configStatusBidFreteInternacionalRouter } from './routes/config-status-bid-frete-internacional.js'
 import { bidsFreteInternacionalRouter } from './routes/bids-frete-internacional.js'
 import { duplicacoesBidFreteInternacionalRouter } from './routes/duplicacoes-bid-frete-internacional.js'
 import { exclusoesBidFreteInternacionalRouter } from './routes/exclusoes-bid-frete-internacional.js'
 import { comparativoRouter } from './routes/comparativo.js'
 import { visaoFornecedorBidFreteInternacionalRouter } from './routes/visao-fornecedor-bid-frete-internacional.js'
 import { visaoFornecedorBidFreteInternacionalPublicoRouter } from './routes/visao-fornecedor-bid-frete-internacional-publico.js'
+import { aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter } from './routes/aceite-aprovacao-proposta-bid-frete-internacional-publico.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
@@ -124,6 +124,11 @@ app.use(
   rateLimitPresets.public(),
   visaoFornecedorBidFreteInternacionalPublicoRouter,
 )
+app.use(
+  '/api/v1/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico',
+  rateLimitPresets.public(),
+  aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter,
+)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)
@@ -163,7 +168,6 @@ app.use('/api/v1/bid-frete-internacional/bids-frete-internacional', bidsFreteInt
 app.use('/api/v1/bid-frete-internacional/fornecedores', fornecedoresRouter)
 app.use('/api/v1/bid-frete-internacional/solicitacao-cotacao-bid-frete-internacional', solicitacaoCotacaoBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/config/status', configStatusRouter)
-app.use('/api/v1/bid-frete-internacional/config/status-bid-frete-internacional', configStatusBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/comparativo', comparativoRouter)
 app.use('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional', visaoFornecedorBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/avaliacoes', avaliacoesRouter)

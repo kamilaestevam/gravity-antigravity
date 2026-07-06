@@ -3,12 +3,23 @@
  * Execução: npx tsx prisma/seed-portos.ts
  *
  * Fonte: UN/LOCODE + IATA codes
- * Cobertura: ~150 principais terminais do comércio internacional
+ * Cobertura: ~150 principais terminais + 35 hubs portuários chineses COMEX
  */
 
 import { PrismaClient } from '@prisma/client'
+import { PORTOS_CHINA_HUB_COMERCIO } from '../../../cadastros/prisma/data/portos-china-hub-comercio.js'
 
 const prisma = new PrismaClient()
+
+const PORTOS_CHINA = PORTOS_CHINA_HUB_COMERCIO.map((p) => ({
+  codigo: p.codigo_unlocode_porto,
+  nome: p.nome_porto,
+  pais: 'China',
+  pais_codigo_porto_bid_frete_internacional: 'CN',
+  tipo: 'porto' as const,
+  latitude: p.latitude_porto,
+  longitude: p.longitude_porto,
+}))
 
 const PORTOS = [
   // ─── BRASIL ──────────────────────────────────────────────────────────────────
@@ -28,14 +39,8 @@ const PORTOS = [
   { codigo: 'BRGIG', nome: 'Galeão (GIG)', pais: 'Brasil', pais_codigo_porto_bid_frete_internacional: 'BR', tipo: 'aeroporto', latitude: -22.8100, longitude: -43.2505 },
   { codigo: 'BRCWB', nome: 'Curitiba (CWB)', pais: 'Brasil', pais_codigo_porto_bid_frete_internacional: 'BR', tipo: 'aeroporto', latitude: -25.5285, longitude: -49.1758 },
 
-  // ─── CHINA ───────────────────────────────────────────────────────────────────
-  { codigo: 'CNSHA', nome: 'Shanghai', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 31.2304, longitude: 121.4737 },
-  { codigo: 'CNSZX', nome: 'Shenzhen (Yantian)', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 22.5431, longitude: 114.0579 },
-  { codigo: 'CNNBO', nome: 'Ningbo-Zhoushan', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 29.8683, longitude: 121.5440 },
-  { codigo: 'CNQZJ', nome: 'Qingdao', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 36.0671, longitude: 120.3826 },
-  { codigo: 'CNTXG', nome: 'Tianjin (Xingang)', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 38.9860, longitude: 117.7354 },
-  { codigo: 'CNXMN', nome: 'Xiamen', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 24.4798, longitude: 118.0894 },
-  { codigo: 'CNGZH', nome: 'Guangzhou (Nansha)', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'porto', latitude: 23.1291, longitude: 113.2644 },
+  // ─── CHINA — hubs COMEX (fonte: portos-china-hub-comercio.ts + HK) ───────────
+  ...PORTOS_CHINA,
   { codigo: 'CNHKG', nome: 'Hong Kong', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'HK', tipo: 'porto', latitude: 22.3193, longitude: 114.1694 },
   // Aeroportos CN
   { codigo: 'CNPVG', nome: 'Shanghai Pudong (PVG)', pais: 'China', pais_codigo_porto_bid_frete_internacional: 'CN', tipo: 'aeroporto', latitude: 31.1443, longitude: 121.8083 },

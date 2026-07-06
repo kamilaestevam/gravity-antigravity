@@ -11,6 +11,7 @@ import { motorComparativo } from '../services/motor-comparativo-bid-frete-intern
 import { AppError } from '../lib/erros.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, gabiIntegration } from '../services/integracoes-tenant.js'
+import { enviarEmailsResultadoAprovacaoBidFreteInternacional } from '../services/enviar-emails-aprovacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -65,6 +66,22 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
       cotacao?.id_organizacao
         ? await resolverNomeUsuarioOrganizacaoBidFreteInternacional(cotacao.id_organizacao, userId)
         : null
+
+    if (tenantId && cotacao?.id_organizacao) {
+      void enviarEmailsResultadoAprovacaoBidFreteInternacional({
+        prisma: req.prisma!,
+        id_cotacao_bid_frete_internacional: req.params.cotacaoId,
+        id_proposta_ganhadora: id_proposta_bid_frete_internacional,
+        id_organizacao: cotacao.id_organizacao,
+        id_usuario: userId,
+        nome_usuario_aprovacao: nome_usuario_aprovacao_ganho_bid_frete_internacional,
+      }).catch((err: unknown) => {
+        console.warn(
+          '[Comparativo] Falha ao enviar e-mails de resultado da aprovação:',
+          err instanceof Error ? err.message : err,
+        )
+      })
+    }
 
     res.json({
       cotacao: {

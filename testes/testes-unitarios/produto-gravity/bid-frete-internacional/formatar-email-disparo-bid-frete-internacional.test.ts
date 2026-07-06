@@ -54,10 +54,27 @@ describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
     const { avisoHtml, avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(base.linkResposta)
     expect(avisoHtml).toContain('Cotação gratuita na plataforma')
     expect(avisoHtml).toContain('USD 10,00')
+    expect(avisoHtml).toContain('da sua conta na Gravity')
     expect(avisoHtml).toContain('Leia aqui as condições')
+    expect(avisoHtml).toContain('#fef3c7')
+    expect(avisoHtml).not.toContain('#f8fafc')
     expect(avisoHtml).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
     expect(avisoTextoPlano).toContain('USD 10,00')
     expect(avisoTextoPlano).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
+  })
+
+  it('quando Contratante Gravity paga, informa que o fornecedor não será cobrado', () => {
+    const { avisoHtml, avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(
+      base.linkResposta,
+      'CONTRATANTE_GRAVITY',
+    )
+    expect(avisoTextoPlano).toContain('contratante Gravity')
+    expect(avisoTextoPlano).toContain('você não será cobrado')
+    expect(avisoTextoPlano).not.toContain('da sua conta na Gravity')
+    expect(avisoHtml).toContain('contratante Gravity')
+    expect(avisoHtml).not.toContain('da sua conta na Gravity')
+    expect(avisoHtml).toContain('#f8fafc')
+    expect(avisoHtml).not.toContain('#fef3c7')
   })
 })
 
@@ -135,7 +152,9 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       incluirArmazenagem: true,
       opcoesOrigemTexto: 'BRSSZ — Santos, BR · BRPNG — Paranaguá, BR',
       opcoesDestinoTexto: 'CNNGB — Ningbo, CN',
-      dataLimiteResposta: '2026-07-20T12:00:00.000Z',
+      localizacaoOrigemTexto: 'País: CN · Endereço: Rua A',
+      localizacaoDestinoTexto: 'País: BR · Cidade: Itajaí · Endereço: Av. B',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',
       dataExpiracaoToken: new Date('2026-07-12T12:00:00.000Z'),
     })
     expect(html).toContain('Referência interna')
@@ -154,8 +173,42 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(html).toContain('Paranaguá')
     expect(html).toContain('Alternativas (destino)')
     expect(html).toContain('Ningbo')
+    expect(html).toContain('Origem')
+    expect(html).toContain('Rua A')
+    expect(html).toContain('Destino')
+    expect(html).toContain('Av. B')
     expect(html).toContain('Prazo de resposta')
-    expect(html).toContain('Link válido até')
+    expect(html).toContain('>Link válido até</td>')
+
+    const idxRota = html.indexOf('Rota')
+    const idxAltOrig = html.indexOf('Alternativas (origem)')
+    const idxOrigem = html.indexOf('>Origem<')
+    const idxAltDest = html.indexOf('Alternativas (destino)')
+    const idxModal = html.indexOf('Modal')
+    expect(idxAltOrig).toBeGreaterThan(idxRota)
+    expect(idxOrigem).toBeGreaterThan(idxAltOrig)
+    expect(idxAltDest).toBeGreaterThan(idxOrigem)
+    expect(idxModal).toBeGreaterThan(idxAltDest)
+  })
+
+  it('exibe Link válido até separado quando difere do prazo de resposta', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-08-08T12:00:00.000Z',
+      dataExpiracaoToken: new Date('2026-06-30T12:00:00.000Z'),
+    })
+    expect(html).toContain('Prazo de resposta')
+    expect(html).toContain('>Link válido até</td>')
+  })
+
+  it('nao duplica Link valido ate quando coincide com prazo de resposta', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',
+      dataExpiracaoToken: new Date('2026-07-20T12:00:00.000Z'),
+    })
+    expect(html).toContain('Prazo de resposta')
+    expect(html).not.toContain('>Link válido até</td>')
   })
 
   it('texto plano acompanha as mesmas linhas', () => {

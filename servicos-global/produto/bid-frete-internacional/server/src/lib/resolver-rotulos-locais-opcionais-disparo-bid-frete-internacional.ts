@@ -22,11 +22,21 @@ type AeroportoCadastros = {
 }
 
 async function resolverRotuloPorto(codigo: string): Promise<string> {
+  const alvo = codigo.trim().toUpperCase()
+  try {
+    const hit = await fetchCadastrosJson<PortoCadastros>(
+      `/api/v1/cadastros/portos/${encodeURIComponent(alvo)}`,
+    )
+    const pais = hit.codigo_pais_porto?.trim()
+    return `${alvo} — ${hit.nome_porto}${pais ? `, ${pais}` : ''}`
+  } catch {
+    /* fallback para busca paginada */
+  }
+
   const resp = await fetchCadastrosJson<ListaCadastros<PortoCadastros>>(
     '/api/v1/cadastros/portos',
-    { q: codigo, limit: '10' },
+    { q: alvo, limit: '10' },
   )
-  const alvo = codigo.trim().toUpperCase()
   const hit = resp.itens.find((p) => p.codigo_unlocode_porto?.trim().toUpperCase() === alvo)
   if (!hit) return codigo
   const pais = hit.codigo_pais_porto?.trim()
@@ -34,11 +44,22 @@ async function resolverRotuloPorto(codigo: string): Promise<string> {
 }
 
 async function resolverRotuloAeroporto(codigo: string): Promise<string> {
+  const alvo = codigo.trim().toUpperCase()
+  try {
+    const hit = await fetchCadastrosJson<AeroportoCadastros>(
+      `/api/v1/cadastros/aeroportos/${encodeURIComponent(alvo)}`,
+    )
+    const pais = hit.codigo_pais_aeroporto?.trim()
+    const codigoFmt = hit.codigo_iata_aeroporto?.trim().toUpperCase() || alvo
+    return `${codigoFmt} — ${hit.nome_aeroporto}${pais ? `, ${pais}` : ''}`
+  } catch {
+    /* fallback para busca paginada */
+  }
+
   const resp = await fetchCadastrosJson<ListaCadastros<AeroportoCadastros>>(
     '/api/v1/cadastros/aeroportos',
-    { q: codigo, limit: '10' },
+    { q: alvo, limit: '10' },
   )
-  const alvo = codigo.trim().toUpperCase()
   const hit = resp.itens.find(
     (a) =>
       a.codigo_iata_aeroporto?.trim().toUpperCase() === alvo
@@ -46,7 +67,8 @@ async function resolverRotuloAeroporto(codigo: string): Promise<string> {
   )
   if (!hit) return codigo
   const pais = hit.codigo_pais_aeroporto?.trim()
-  return `${alvo} — ${hit.nome_aeroporto}${pais ? `, ${pais}` : ''}`
+  const codigoFmt = hit.codigo_iata_aeroporto?.trim().toUpperCase() || alvo
+  return `${codigoFmt} — ${hit.nome_aeroporto}${pais ? `, ${pais}` : ''}`
 }
 
 /**

@@ -695,3 +695,5 @@ body.light-theme .mlg-submenu-item:hover {
   color: var(--text-primary) !important;
   background: rgba(255, 255, 255, 0.03) !important;
 }
+
+/* ── Spinner input[type=number] — refinado no wizard BID (escopo local no modal) ── */

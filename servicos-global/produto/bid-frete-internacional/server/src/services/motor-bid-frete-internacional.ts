@@ -23,6 +23,7 @@ import {
   formatarCargaPerigosaEmailDisparoBidFrete,
   formatarDimensoesCubagemEmailDisparoBidFrete,
 } from '../../../shared/formatar-email-disparo-bid-frete-internacional.js'
+import { montarTextoLocalizacaoComplementarEmailDisparoBidFrete } from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional.js'
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { calcularDataExpiracaoTokenDisparoBidFreteInternacional } from '../../../shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
 import {
@@ -33,6 +34,8 @@ import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 import { buscarFornecedorCadastrosParaDisparo } from './buscar-fornecedor-cadastros-disparo.js'
 import { garantirFornecedoresEspelhoDisparoBidFrete } from './garantir-fornecedores-espelho-disparo-bid-frete-internacional.js'
+import { resolverNomeClienteOperacaoCotacaoDisparo } from '../lib/resolver-nome-cliente-cotacao-resposta-bid-frete-internacional.js'
+import { lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional } from '../lib/snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
 import {
   resolverEmailsDisparoBidFrete,
   resolverWhatsappsDisparoBidFrete,
@@ -68,6 +71,28 @@ function montarTextoNomesArmazensDisparo(nomesRaw: unknown): string | null {
     .map((nome) => nome.trim())
     .filter(Boolean)
   return nomes.length > 0 ? nomes.join(', ') : null
+}
+
+function montarLocalizacaoComplementarEmailDisparoFromCotacao(
+  cotacao: Record<string, unknown>,
+  lado: 'origem' | 'destino',
+): string | null {
+  if (lado === 'origem') {
+    return montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+      paisCodigo: cotacao.origem_pais_cotacao_bid_frete_internacional as string | null | undefined,
+      estadoProvincia:
+        cotacao.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional as string | null | undefined,
+      cidade: cotacao.cidade_origem_rodoviario_cotacao_bid_frete_internacional as string | null | undefined,
+      endereco: cotacao.endereco_origem_cotacao_bid_frete_internacional as string | null | undefined,
+    })
+  }
+  return montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+    paisCodigo: cotacao.destino_pais_cotacao_bid_frete_internacional as string | null | undefined,
+    estadoProvincia:
+      cotacao.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional as string | null | undefined,
+    cidade: cotacao.cidade_destino_rodoviario_cotacao_bid_frete_internacional as string | null | undefined,
+    endereco: cotacao.endereco_destino_cotacao_bid_frete_internacional as string | null | undefined,
+  })
 }
 
 type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
@@ -473,7 +498,7 @@ export const motorBid = {
     }
 
     const linkResposta = montarLinkRespostaDisparo(APP_URL, token)
-    const [opcoesOrigemTexto, opcoesDestinoTexto] = await Promise.all([
+    const [opcoesOrigemTexto, opcoesDestinoTexto, nomeClienteOperacao] = await Promise.all([
       montarTextoOpcoesLocaisEmailDisparo(
         cotacao.modal_cotacao_bid_frete_internacional,
         cotacao.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
@@ -484,6 +509,10 @@ export const motorBid = {
         cotacao.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
         cotacao.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
       ),
+      resolverNomeClienteOperacaoCotacaoDisparo({
+        id_workspace: cotacao.id_workspace,
+        anonima_cotacao_bid_frete_internacional: cotacao.anonima_cotacao_bid_frete_internacional,
+      }),
     ])
     const parametrosEmail: ParametrosEmailDisparoBidFreteInternacional = {
       nomeFornecedor: fornecedor.nome_fornecedor_bid_frete_internacional ?? '',
@@ -497,6 +526,8 @@ export const motorBid = {
       destinoPais: cotacao.destino_pais_cotacao_bid_frete_internacional,
       opcoesOrigemTexto,
       opcoesDestinoTexto,
+      localizacaoOrigemTexto: montarLocalizacaoComplementarEmailDisparoFromCotacao(cotacao, 'origem'),
+      localizacaoDestinoTexto: montarLocalizacaoComplementarEmailDisparoFromCotacao(cotacao, 'destino'),
       mercadoria: cotacao.descricao_mercadoria_cotacao_bid_frete_internacional,
       ncm: cotacao.ncm_cotacao_bid_frete_internacional,
       hsCode: cotacao.hs_code_cotacao_bid_frete_internacional,
@@ -527,10 +558,13 @@ export const motorBid = {
       ),
       dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
-      nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
+      nomeClienteOperacao,
       anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,
       tipoOperacao: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
       linkResposta,
+      empresaPagadoraTaxaFechamentoPlataformaGravity: lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+        cotacao.id_cotacao_bid_frete_internacional,
+      ),
     }
 
     const response = await axios.post(

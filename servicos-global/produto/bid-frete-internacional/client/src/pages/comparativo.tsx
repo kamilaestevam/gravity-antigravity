@@ -416,6 +416,7 @@ export default function Comparativo() {
       onClick: (item: PropostaRankingBidFreteInternacional) => abrirModalAprovar(item),
       disabled: (item: PropostaRankingBidFreteInternacional) =>
         item.status_proposta_bid_frete_internacional === 'APROVADA'
+        || item.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA'
         || item.status_proposta_bid_frete_internacional === 'REPROVADA',
     },
   ]
@@ -569,6 +570,9 @@ export default function Comparativo() {
         aberto={modalAprovar}
         id_cotacao_bid_frete_internacional={id ?? ''}
         proposta={respostaSelecionada}
+        empresa_pagadora_taxa_fechamento_plataforma_gravity={
+          cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity
+        }
         onFechar={fecharModalAprovar}
         onAprovado={aoAprovarProposta}
       />

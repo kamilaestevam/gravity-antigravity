@@ -16,6 +16,25 @@ type AeroportoCadastros = {
 
 type ListaCadastros<T> = { itens: T[]; total: number }
 
+router.get('/aeroportos/:codigo', async (req: Request, res: Response) => {
+  try {
+    const codigo = req.params.codigo.trim().toUpperCase()
+    const aeroporto = await fetchCadastrosJson<AeroportoCadastros>(
+      `/api/v1/cadastros/aeroportos/${encodeURIComponent(codigo)}`,
+    )
+    res.json({
+      aeroporto: {
+        id_aeroporto: aeroporto.codigo_iata_aeroporto ?? aeroporto.codigo_unlocode_aeroporto,
+        codigo_iata_aeroporto: aeroporto.codigo_iata_aeroporto ?? aeroporto.codigo_unlocode_aeroporto,
+        nome_aeroporto: aeroporto.nome_aeroporto,
+        codigo_pais_aeroporto: aeroporto.codigo_pais_aeroporto ?? '',
+      },
+    })
+  } catch {
+    res.status(404).json({ error: { message: 'Aeroporto não encontrado' } })
+  }
+})
+
 router.get('/aeroportos', async (req: Request, res: Response) => {
   try {
     const { q, pais, limit = '50', offset = '0' } = req.query as {

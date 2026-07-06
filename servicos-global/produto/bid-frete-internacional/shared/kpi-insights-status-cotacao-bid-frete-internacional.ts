@@ -22,7 +22,7 @@ export const NOMES_STATUS_COTACAO_SISTEMA_BID_FRETE_INTERNACIONAL = new Set<stri
 export type StatusCotacaoConfigMinimoKpiInsightsBidFreteInternacional = {
   nome: string
   ordem?: number
-  is_sistema?: boolean
+  gerenciado_sistema?: boolean
 }
 
 export function ehStatusCotacaoCustomUsuarioBidFreteInternacional(nome: string): boolean {

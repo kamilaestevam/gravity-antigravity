@@ -24,6 +24,8 @@ import {
   fornecedorDetalheResponseSchema,
 } from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -89,7 +91,6 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
-  StatusBidConfigBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaBidFreteInternacional,
@@ -614,6 +615,13 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       ),
     fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
       raw.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional !== false,
+    empresa_pagadora_taxa_fechamento_plataforma_gravity:
+      normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+        raw.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ),
+    mapa_rotulos_locais_resposta_bid_frete_internacional:
+      (raw.mapa_rotulos_locais_resposta_bid_frete_internacional as Record<string, string> | null | undefined) ??
+      null,
   }
 }
 
@@ -634,6 +642,8 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'aeroporto_destino_cotacao_bid_frete_internacional',
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
+  'empresa_pagadora_taxa_fechamento_plataforma_gravity',
+  'mapa_rotulos_locais_resposta_bid_frete_internacional',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 
@@ -865,18 +875,12 @@ export async function criarBidFreteInternacional(
   return mapBidFreteInternacionalFromServer(data.bid_frete_internacional)
 }
 
-export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
-  const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)
-  const lista = data.status_bid_frete_internacional ?? data.status ?? []
-  return lista as StatusBidConfigBidFreteInternacional[]
-}
-
 export interface CriarCotacaoPayload extends Partial<Cotacao> {
   fornecedor_ids?: string[]
   disparar_ao_criar?: boolean
   canais_disparo?: CanalDisparo[]
   emails_por_fornecedor?: Record<string, string[]>
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
 }
 
 export interface ResultadoDisparoCriacaoCotacao {
@@ -912,6 +916,10 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
   if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
   if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
   if (input.emails_por_fornecedor) serverInput.emails_por_fornecedor = input.emails_por_fornecedor
+  if (input.empresa_pagadora_taxa_fechamento_plataforma_gravity) {
+    serverInput.empresa_pagadora_taxa_fechamento_plataforma_gravity =
+      input.empresa_pagadora_taxa_fechamento_plataforma_gravity
+  }
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),
@@ -1244,6 +1252,7 @@ export async function getAvaliacoes(fornecedorId: string): Promise<AvaliacaoBidF
 }
 
 const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
+const ACEITE_APROVACAO_PUBLICO_BASE = `${API_BASE}/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico`
 
 export interface DashboardVisaoFornecedorBidFreteInternacional {
   metricas: MetricasVisaoFornecedorBidFreteInternacional
@@ -1436,6 +1445,49 @@ export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(
   )
   const raw = await handleResponse<unknown>(res)
   visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema.parse(raw)
+}
+
+const aceiteAprovacaoPublicoResponseSchema = z.object({
+  proposta: z.object({
+    id_proposta_bid_frete_internacional: z.string(),
+    status_proposta_bid_frete_internacional: z.string(),
+    nome_fornecedor_bid_frete_internacional: z.string(),
+    numero_cotacao_bid_frete_internacional: z.string(),
+    valor_total_proposta_bid_frete_internacional: z.number(),
+    moeda_proposta_bid_frete_internacional: z.string(),
+    data_aceite_aprovacao_proposta_bid_frete_internacional: z.string().nullable(),
+  }),
+  pode_confirmar: z.boolean(),
+  token_expirado: z.boolean(),
+  ja_confirmado: z.boolean(),
+})
+
+const confirmarAceiteAprovacaoResponseSchema = z.object({
+  status_proposta_bid_frete_internacional: z.literal('APROVACAO_RECEBIDA'),
+  data_aceite_aprovacao_proposta_bid_frete_internacional: z.string(),
+})
+
+export type AceiteAprovacaoPropostaPublicoCarregado = z.infer<typeof aceiteAprovacaoPublicoResponseSchema>
+
+export async function getAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<AceiteAprovacaoPropostaPublicoCarregado> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}`,
+  )
+  const raw = await handleResponse<unknown>(res)
+  return aceiteAprovacaoPublicoResponseSchema.parse(raw)
+}
+
+export async function confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<z.infer<typeof confirmarAceiteAprovacaoResponseSchema>> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}/confirmar`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+  )
+  const raw = await handleResponse<unknown>(res)
+  return confirmarAceiteAprovacaoResponseSchema.parse(raw)
 }
 
 /** @deprecated use getVisaoFornecedorBidFreteInternacionalDashboard */

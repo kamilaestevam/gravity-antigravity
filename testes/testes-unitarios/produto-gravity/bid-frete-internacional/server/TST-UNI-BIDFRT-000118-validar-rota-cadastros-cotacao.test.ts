@@ -69,14 +69,36 @@ describe('TST-UNI-BIDFRT-000118 — resolver-local-cadastros-bid-frete-internaci
     })
   })
 
-  it('não resolve coordenadas quando porto não tem lat/long (mapa)', async () => {
+  it('usa fallback de coordenadas quando Cadastros não tem lat/long (mapa)', async () => {
     fetchCadastrosJson.mockResolvedValueOnce(PORTO_AEJEA)
 
     const coords = await resolverLocalCadastrosBidFreteInternacional('AEJEA', {
       modal: 'MARITIMO',
     })
 
-    expect(coords).toBeNull()
+    expect(coords).toEqual({
+      codigo: 'AEJEA',
+      nome: 'Jebel Ali (Dubai)',
+      pais: 'AE',
+      latitude: 25.0073,
+      longitude: 55.0612,
+    })
+  })
+
+  it('garante coordenadas para código fora do catálogo usando país da cotação', async () => {
+    fetchCadastrosJson.mockRejectedValueOnce(new Error('Cadastros 404: Porto'))
+
+    const coords = await resolverLocalCadastrosBidFreteInternacional('ZZZZZ', {
+      modal: 'MARITIMO',
+      nome_local: 'Terminal Teste',
+      pais_local: 'BR',
+    })
+
+    expect(coords).not.toBeNull()
+    expect(coords?.codigo).toBe('ZZZZZ')
+    expect(coords?.pais).toBe('BR')
+    expect(coords?.latitude).toBeTypeOf('number')
+    expect(coords?.longitude).toBeTypeOf('number')
   })
 
   it('registra warn quando Cadastros retorna erro HTTP diferente de 404', async () => {

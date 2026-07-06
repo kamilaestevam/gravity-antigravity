@@ -23,3 +23,24 @@ export function temLocalizacaoComplementarResumoNovaCotacaoBidFrete(
   const partes = montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete(dados)
   return !!(partes.pais || partes.estadoProvincia || partes.cidade || partes.endereco)
 }
+
+/** Complemento de endereço (País/Cidade/Endereço) — exige pelo menos estado, cidade ou endereço. */
+export function temLocalizacaoComplementarEmailDisparoBidFrete(
+  dados: LocalizacaoComplementarResumoNovaCotacaoBidFrete,
+): boolean {
+  const partes = montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete(dados)
+  return !!(partes.estadoProvincia || partes.cidade || partes.endereco)
+}
+
+export function montarTextoLocalizacaoComplementarEmailDisparoBidFrete(
+  dados: LocalizacaoComplementarResumoNovaCotacaoBidFrete,
+): string | null {
+  if (!temLocalizacaoComplementarEmailDisparoBidFrete(dados)) return null
+  const partes = montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete(dados)
+  const linhas: string[] = []
+  if (partes.pais) linhas.push(`País: ${partes.pais}`)
+  if (partes.estadoProvincia) linhas.push(`Estado/Província: ${partes.estadoProvincia}`)
+  if (partes.cidade) linhas.push(`Cidade: ${partes.cidade}`)
+  if (partes.endereco) linhas.push(`Endereço: ${partes.endereco}`)
+  return linhas.length > 0 ? linhas.join(' · ') : null
+}

@@ -6,10 +6,13 @@ import type { DocColunaTabela, DocPassoVisual } from './manual-configurador-cont
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
-/** Drive `tela_pedido_historico_1.png` */
+/** Drive `tela_pedido_historico_2.png` — tela de auditoria após abrir Histórico */
 export const SCREENSHOT_PEDIDO_HISTORICO_TELA_PRINCIPAL =
+  '/university/screenshots/pedido-historico-2.png'
+/** Drive `tela_pedido_historico_1.png` — menu lateral inferior (clique em Histórico) */
+const SCREENSHOT_PEDIDO_HISTORICO_MENU_SETA =
   '/university/screenshots/pedido-historico-1.png'
-/** Drive `tela_pedido_historico_2.png` */
+/** Drive `tela_pedido_historico_2.png` — tabela de eventos (mesma tela principal) */
 export const SCREENSHOT_PEDIDO_HISTORICO_TABELA =
   '/university/screenshots/pedido-historico-2.png'
 /** Drive `tela_pedido_historico_3.png` */
@@ -49,8 +52,23 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
     titulo: 'Visão geral',
     tituloCurto: 'Visão geral',
     paragrafos: [
-      'No menu lateral inferior do **Pedido**, clique em **Histórico**. A tela abre no serviço de auditoria da organização, já filtrada para eventos do produto **Pedido** no workspace ativo.',
+      'A tela de **Histórico** exibe a trilha de auditoria do produto **Pedido** no workspace ativo — a mesma interface do Configurador, com escopo filtrado ao módulo.',
       'Os **três cards** no topo resumem volume e distribuição dos eventos da **página atual** (25 registros por página). Passe o mouse no ícone **(i)** de cada card para ver o tooltip.',
+    ],
+    imagem: SCREENSHOT_PEDIDO_HISTORICO_TELA_PRINCIPAL,
+    imagemAbaixoTexto: true,
+    callout: {
+      tipo: 'dica',
+      texto:
+        '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do Pedido** — operações do módulo (Lista, Dashboard, Kanban, Configurações).',
+    },
+  },
+  {
+    titulo: 'Como acessar',
+    tituloCurto: 'Como acessar',
+    paragrafos: [
+      'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Pedido** — filtrada automaticamente para o workspace ativo.',
+      'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
     ],
     galeriaComparacaoAposParagrafo: [
       {
@@ -60,8 +78,13 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
         telas: [
           {
             legenda: '',
+            imagem: SCREENSHOT_PEDIDO_HISTORICO_MENU_SETA,
+            paragrafoAntes: '**01.** No menu lateral inferior do **Pedido**, clique em **Histórico**',
+          },
+          {
+            legenda: '',
             imagem: SCREENSHOT_PEDIDO_HISTORICO_TELA_PRINCIPAL,
-            paragrafoAntes: 'Abra **Histórico** no menu lateral do Pedido',
+            paragrafoAntes: '**02.** A tela de auditoria abre filtrada ao produto **Pedido**',
           },
         ],
       },
@@ -69,14 +92,14 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
     callout: {
       tipo: 'dica',
       texto:
-        '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do Pedido** — operações do módulo (Lista, Dashboard, Kanban, Configurações).',
+        'O acesso exige permissão **historico:ver** no workspace. Usuários **Fornecedor** veem apenas linhas em que são ator ou alvo.',
     },
   },
   {
     titulo: 'O que registra',
     tituloCurto: 'O que registra',
     paragrafos: [
-      'Referência completa do que o Histórico do **Pedido** grava no servidor — extraída do código (`auditLog` dedicado + captura automática de mutações na API). Expanda cada grupo para ver **código**, **rótulo na coluna Ação**, **tela de origem** e **quando acontece**.',
+      'As ações exatas que o histórico registra estão descritas abaixo.',
     ],
     mostrarCatalogoHistoricoPedido: true,
     catalogoHistoricoPedidoAposParagrafo: 0,
@@ -121,12 +144,5 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
       tipo: 'aviso',
       texto: 'A exportação reflete o recorte atual (filtros + página). Os cards do topo também consideram só a **página corrente**.',
     },
-  },
-  {
-    titulo: 'Paginação',
-    tituloCurto: 'Paginação',
-    paragrafos: [
-      'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela para percorrer o histórico completo do workspace.',
-    ],
   },
 ])

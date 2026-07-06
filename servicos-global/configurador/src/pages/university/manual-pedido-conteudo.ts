@@ -29,8 +29,8 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - tela_pedido_visao_lista_itens_expandidos.png → pedido-lista-itens-expandidos.png
  * - tela_pedido_visao_lista_expandir_todos_seta.png → pedido-lista-expandir-todos-seta.png
  * - tela_pedido_visao_lista_itens_expandidos_todos.png → pedido-lista-expandir-todos-expandido.png
- * - tela_pedido_visao_lista_colunas_customizar.png → pedido-lista-colunas-customizar.png
- * - tela_pedido_visao_lista_colunas_arrastar.png → pedido-lista-colunas-arrastar.png
+ * - tela_pedido_visao_lista_ocultar_exibir_1.png → pedido-lista-colunas-customizar.png
+ * - tela_pedido_visao_lista_arrastar_exibir_1.png → pedido-lista-colunas-arrastar.png
  * - tela_pedido_configuracoes_criar_coluna.png → pedido-configuracoes-criar-coluna.png
  * - tela_pedido_configuracoes_seta.png → pedido-configuracoes-seta.png
  * - tela_pedido_configuracoes_criar_coluna_modal.png → pedido-configuracoes-criar-coluna-modal.png
@@ -72,17 +72,15 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * Transferir (Drive: tela_pedido_lista_transferir_* → pedido-lista-transferir-*.png)
  * Consolidar (Drive: tela_pedido_lista_consolidar_* → pedido-lista-consolidar-*.png)
  * Edição em massa (Drive: tela_pedido_lista_edicao_em_massa_* → pedido-lista-edicao-massa-*.png)
- * - pedido-novo-pedido.png
- * - pedido-novo-item.png
- * - pedido-transferir.png
- * - pedido-consolidar.png
- * - pedido-edicao-massa.png
- * - pedido-gerar-documentos.png
+ * Novo pedido manual (§5.12 — badge Em desenvolvimento; prints pendentes)
+ * Gerar documentos (Drive: tela_pedido_visao_lista_gerar_documento_*):
+ * - tela_pedido_visao_lista_gerar_documento_1 → pedido-lista-gerar-documento-1.png
+ * - tela_pedido_visao_lista_gerar_documento_2 → pedido-lista-gerar-documento-2.png
  * - pedido-configuracoes.png
  * Histórico (Drive: tela_pedido_historico_*):
- * - tela_pedido_historico_1 → pedido-historico-1.png
- * - tela_pedido_historico_2 → pedido-historico-2.png
- * - tela_pedido_historico_3 → pedido-historico-3.png
+ * - tela_pedido_historico_1 → pedido-historico-1.png (menu — clique em Histórico)
+ * - tela_pedido_historico_2 → pedido-historico-2.png (tela de auditoria)
+ * - tela_pedido_historico_3 → pedido-historico-3.png (filtros e exportar)
  */
 
 const SCREENSHOT_PEDIDO_INSIGHTS = '/university/screenshots/pedido-tela-principal.png'
@@ -116,6 +114,10 @@ const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_SETA = '/university/screenshots/pedido-li
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_MODAL = '/university/screenshots/pedido-lista-exportar-modal.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_PLANILHA = '/university/screenshots/pedido-lista-exportar-planilha.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPORTAR_DOWNLOAD = '/university/screenshots/pedido-lista-exportar-download.png'
+const SCREENSHOT_PEDIDO_LISTA_GERAR_DOCUMENTO_1 =
+  '/university/screenshots/pedido-lista-gerar-documento-1.png'
+const SCREENSHOT_PEDIDO_LISTA_GERAR_DOCUMENTO_2 =
+  '/university/screenshots/pedido-lista-gerar-documento-2.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO =
   '/university/screenshots/pedido-lista-importar-seta-novo.png'
 const SCREENSHOT_PEDIDO_LISTA_IMPORTAR_SETA_NOVO_PEDIDO =
@@ -1063,15 +1065,10 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Novo pedido e item',
           tituloCurto: 'Novo pedido e item',
+          badgeEmDesenvolvimento: true,
           paragrafos: [
-            'A criação de um **novo pedido** inicia um PO no workspace atual. Em seguida, inclua **itens** (linhas de produto) com quantidades, referências comerciais e demais campos do formulário — o pedido permanece em **rascunho** até você concluir o preenchimento e salvar.',
-            'Na **Lista** (ou a partir das ações da barra superior), use **Novo pedido** para abrir o formulário. Preencha cabeçalho, fornecedor, incoterm, moeda e os campos obrigatórios do workspace.',
-            'Com o pedido aberto, adicione **itens** informando produto, quantidade, preço unitário e referências. Cada item herda o contexto do pedido e pode ser editado individualmente no drawer.',
+            'Na **Lista**, use **Novo pedido** para abrir o formulário de cabeçalho e, em seguida, inclua **itens** (linhas de produto) com quantidades e referências comerciais — o pedido permanece em **rascunho** até salvar.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-novo-pedido.png`, `pedido-novo-item.png`.',
-          },
         },
         {
           titulo: 'Transferir pedidos e itens',
@@ -1688,14 +1685,32 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Gerar documentos',
           tituloCurto: 'Gerar documentos',
+          badgeEmDesenvolvimento: true,
           paragrafos: [
             '**Gerar documentos** produz **PDFs e relatórios** a partir dos pedidos e itens selecionados, usando os **templates** configurados em **Configurações**. A ação está disponível na barra da **Lista** quando há seleção válida.',
             'Marque os pedidos (e itens, quando aplicável), abra **Gerar documento**, escolha o template e confirme. O arquivo é gerado no servidor e disponibilizado para download ou visualização conforme o template.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Aguardando prints — `pedido-gerar-documentos.png`.',
-          },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_GERAR_DOCUMENTO_1,
+                  paragrafoAntes:
+                    '**01.** Com pedidos ou itens selecionados, abra **Gerar documento** na barra da Lista',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_LISTA_GERAR_DOCUMENTO_2,
+                  paragrafoAntes:
+                    '**02.** Escolha o **template** ou documento padrão e confirme a geração',
+                },
+              ],
+            },
+          ],
         },
       ]),
     },
@@ -2313,14 +2328,6 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
       prefixoPassosVisuais: 'Histórico',
       ancoraPassosPrefix: 'historico',
       mostrarMapaSubtopicosPassos: true,
-      paragrafos: [
-        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Pedido** — filtrada automaticamente para o workspace ativo. É a mesma tela do Configurador, com escopo do produto.',
-        'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
-      ],
-      callout: {
-        tipo: 'dica',
-        texto: 'O acesso exige permissão **historico:ver** no workspace. Usuários **Fornecedor** veem apenas linhas em que são ator ou alvo.',
-      },
       passosVisuais: PASSOS_MANUAL_PEDIDO_HISTORICO,
     },
   ],

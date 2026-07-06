@@ -158,12 +158,12 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       titulo: "Cards — adicionar",
       tituloCurto: "Adicionar card",
       paragrafos: [
-        "Na lista **Disponíveis para adicionar**, clique em **+** para incluir um card em **Ativos**. Use **Ver detalhes** para conferir campo base, agregação e origem antes de salvar.",
+        "Na lista **Disponíveis para adicionar**, clique em **+** para incluir um card em **Ativos**.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 3,
+          colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
@@ -171,15 +171,31 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_ADICIONAR,
               paragrafoAntes: "**01.** Clique em **+** no card desejado",
             },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Cards — detalhes ao adicionar",
+      tituloCurto: "Detalhes ao adicionar",
+      paragrafos: [
+        "Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem** — útil para entender o indicador.",
+      ],
+      galeriaComparacaoAposParagrafo: [
+        {
+          indice: 0,
+          colunas: 2,
+          textoAcimaEstiloCorpo: true,
+          telas: [
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_ADICIONAR_VER_DETALHES,
-              paragrafoAntes: "**02.** **Ver detalhes** do card",
+              paragrafoAntes: "Abra **Ver detalhes** na lista **Disponíveis**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_ADICIONAR_VER_DETALHES_ABERTO,
-              paragrafoAntes: "**03.** Painel com campo, agregação e origem",
+              paragrafoAntes: "Painel com campo, agregação e origem",
             },
           ],
         },
@@ -1058,6 +1074,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
     {
       titulo: "Numeração automática",
       tituloCurto: "Numeração",
+      badgeEmDesenvolvimento: true,
       paragrafos: [
         "**Numeração** define **prefixo**, **dígitos**, **ano** e **reinício** do número automático de pedidos — preview mostra o formato antes de salvar.",
       ],

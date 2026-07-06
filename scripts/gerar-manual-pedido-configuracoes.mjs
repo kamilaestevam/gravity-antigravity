@@ -128,16 +128,28 @@ const passosSpec = [
     titulo: 'Cards — adicionar',
     tituloCurto: 'Adicionar card',
     paragrafos: [
-      'Na lista **Disponíveis para adicionar**, clique em **+** para incluir um card em **Ativos**. Use **Ver detalhes** para conferir campo base, agregação e origem antes de salvar.',
+      'Na lista **Disponíveis para adicionar**, clique em **+** para incluir um card em **Ativos**.',
+    ],
+    galerias: [
+      galeriaTelas(
+        [{ slug: 'cards-ativos-disponiveis-adicionar', paragrafoAntes: '**01.** Clique em **+** no card desejado' }],
+        1,
+      ),
+    ],
+  },
+  {
+    titulo: 'Cards — detalhes ao adicionar',
+    tituloCurto: 'Detalhes ao adicionar',
+    paragrafos: [
+      'Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem** — útil para entender o indicador.',
     ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'cards-ativos-disponiveis-adicionar', paragrafoAntes: '**01.** Clique em **+** no card desejado' },
-          { slug: 'cards-ativos-disponiveis-adicionar-ver-detalhes', paragrafoAntes: '**02.** **Ver detalhes** do card' },
-          { slug: 'cards-ativos-disponiveis-adicionar-ver-detalhes-aberto', paragrafoAntes: '**03.** Painel com campo, agregação e origem' },
+          { slug: 'cards-ativos-disponiveis-adicionar-ver-detalhes', paragrafoAntes: 'Abra **Ver detalhes** na lista **Disponíveis**' },
+          { slug: 'cards-ativos-disponiveis-adicionar-ver-detalhes-aberto', paragrafoAntes: 'Painel com campo, agregação e origem' },
         ],
-        3,
+        2,
       ),
     ],
   },

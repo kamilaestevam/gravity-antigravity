@@ -34,6 +34,8 @@ export interface DocPassoVisual {
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
+  /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
+  badgeEmDesenvolvimento?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
   calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }

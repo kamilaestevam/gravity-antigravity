@@ -131,6 +131,15 @@ const GRUPO_LISTA_ANEXOS: GrupoCatalogoHistoricoPedido = {
   ],
 }
 
+const GRUPO_LISTA_GERAR_DOCUMENTO: GrupoCatalogoHistoricoPedido = {
+  id: 'lista-gerar-documento',
+  titulo: 'Lista — gerar documento',
+  eventos: [
+    evt('CRIAR', 'Lista › Gerar documento', 'Gerar **PDF** a partir de template (opção **salvar como anexo**).'),
+    evt('CRIAR', 'Lista › Gerar documento', 'Gerar **documento comercial** por tipo e idioma (PI, CI, etc.).'),
+  ],
+}
+
 const GRUPO_DASHBOARD: GrupoCatalogoHistoricoPedido = {
   id: 'dashboard',
   titulo: 'Dashboard',
@@ -228,6 +237,7 @@ export const GRUPOS_CATALOGO_HISTORICO_PEDIDO: GrupoCatalogoHistoricoPedido[] = 
   GRUPO_LISTA_IMPORT_EXPORT,
   GRUPO_LISTA_PERSONALIZACAO,
   GRUPO_LISTA_ANEXOS,
+  GRUPO_LISTA_GERAR_DOCUMENTO,
   GRUPO_DASHBOARD,
   GRUPO_KANBAN,
   GRUPO_CONFIGURACOES,

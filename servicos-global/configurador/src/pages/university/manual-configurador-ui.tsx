@@ -763,7 +763,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '177'
+const MANUAL_SCREENSHOT_CACHE_KEY = '179'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1442,6 +1442,34 @@ function ManualCalloutBloco({ callout, marginTop = 12, marginBottom = 0 }: {
   )
 }
 
+function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_PX }: { marginBottom?: number }) {
+  const c = CALLOUT_STYLE.lembrete
+  return (
+    <div style={{
+      background: c.bg,
+      border: `1px solid ${c.borda}`,
+      borderRadius: 8,
+      padding: '12px 16px',
+      marginTop: 0,
+      marginBottom,
+    }}>
+      <p style={{
+        fontSize: '.7rem',
+        fontWeight: 700,
+        color: c.cor,
+        marginBottom: 5,
+        letterSpacing: '.06em',
+        textTransform: 'uppercase',
+      }}>
+        Em desenvolvimento
+      </p>
+      <p style={MANUAL_ESTILO_CALLOUT_CORPO}>
+        Esta aba ainda está em homologação — a documentação pode antecipar telas que mudam antes do release.
+      </p>
+    </div>
+  )
+}
+
 function ManualColunasTabela({ colunas }: { colunas: DocColunaTabela[] }) {
   return (
     <div style={{
@@ -1907,6 +1935,9 @@ function ManualBlocoPassoVisual({
           <ManualInfograficoSmartDocsListaPaineis />
         </div>
       ) : null}
+      {passo.badgeEmDesenvolvimento ? (
+        <ManualBadgeEmDesenvolvimento marginBottom={espacoParagrafoPx} />
+      ) : null}
       {passo.paragrafos?.map((p, i) => {
         const caminhosImportacaoIdx = passo.caminhosImportacaoPlanilhaAposParagrafo ?? 1
         const calloutAntesParagrafoCaminhosImportacao = Boolean(
@@ -2010,6 +2041,7 @@ function ManualBlocoPassoVisual({
                   layoutEdicaoMassaExemplosPasso1={galeria.layoutEdicaoMassaExemplosPasso1}
                   layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
                   calloutApos={galeria.calloutApos}
+                  emAcordeaoSubtopico={emAcordeaoSubtopico}
                 />
               ))}
             </>
@@ -2057,6 +2089,7 @@ function ManualBlocoPassoVisual({
               mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
+              emAcordeaoSubtopico={emAcordeaoSubtopico}
               />
               {passo.mostrarCatalogoDashboardSugestoesPedido
               && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
@@ -2082,6 +2115,7 @@ function ManualBlocoPassoVisual({
             textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
             legendaPasso={galeria.legendaPasso}
             pilaresImportarFormas={galeria.pilaresImportarFormas}
+            emAcordeaoSubtopico={emAcordeaoSubtopico}
           />
         ))
         : null}
@@ -2805,6 +2839,7 @@ function ManualGaleriaComparacaoIntro({
   mostrarIndicadoresMoverDashboardPedido,
   mostrarCardsKanbanCabecalhoPedido,
   espacoSuperiorEtapa = false,
+  emAcordeaoSubtopico = false,
 }: {
   telas: DocGaleriaComparacaoTela[]
   ampliarInferiorDireito?: boolean
@@ -2837,6 +2872,8 @@ function ManualGaleriaComparacaoIntro({
   mostrarIndicadoresMoverDashboardPedido?: boolean
   mostrarCardsKanbanCabecalhoPedido?: boolean
   espacoSuperiorEtapa?: boolean
+  /** Galeria dentro de subtópico recolhível — usa ritmo `manual-tipografia` (28px antes do print). */
+  emAcordeaoSubtopico?: boolean
 }) {
   if (
     telas.length === 0
@@ -2850,6 +2887,12 @@ function ManualGaleriaComparacaoIntro({
   ) return null
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
   const printLarguraTotal = colunasGrade === 1
+  const espacoParagrafoGaleriaPx = emAcordeaoSubtopico
+    ? MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX
+    : MANUAL_ESPACO_PARAGRAFO_PX
+  const espacoAcimaGaleriaPx = emAcordeaoSubtopico
+    ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+    : MANUAL_ESPACO_PARAGRAFO_PX
   const cabecalhoPasso = legendaPasso && (pilaresImportarFormas?.length || pilaresCustomizacao?.length) ? (
     <ManualGaleriaCabecalhoPasso
       legendaPasso={legendaPasso}
@@ -2907,7 +2950,7 @@ function ManualGaleriaComparacaoIntro({
             <ManualGaleriaLegendaPrintPasso
               texto={tela.paragrafoAntes}
               entreLinhas
-              margemAbaixo={printLarguraTotal ? MANUAL_ESPACO_PARAGRAFO_PX : undefined}
+              margemAbaixo={printLarguraTotal ? espacoParagrafoGaleriaPx : undefined}
             />
           )
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
@@ -2940,7 +2983,7 @@ function ManualGaleriaComparacaoIntro({
   return (
     <div style={{
       margin: textoAcimaEstiloCorpo
-        ? `${espacoSuperiorEtapa ? 0 : MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`
+        ? `${espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`
         : `16px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px`,
       paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
     }}>

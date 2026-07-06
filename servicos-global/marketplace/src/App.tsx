@@ -7,6 +7,8 @@ import { ProdutoDetalhe } from './pages/produto/ProdutoDetalhe'
 import { Precos } from './pages/Precos'
 import { Trial } from './pages/Trial'
 import { Checkout } from './pages/Checkout'
+import { ComingSoon } from './pages/ComingSoon'
+import { isLancado } from './launch'
 
 function NotFound() {
   return (
@@ -20,6 +22,13 @@ function NotFound() {
 }
 
 export function App() {
+  // Pré-lançamento: todo o site público mostra a contagem regressiva.
+  // No horário de lançamento (ver launch.ts) a vitrine completa é liberada
+  // automaticamente, sem necessidade de novo deploy.
+  if (!isLancado()) {
+    return <ComingSoon />
+  }
+
   return (
     <BrowserRouter>
       <Layout>

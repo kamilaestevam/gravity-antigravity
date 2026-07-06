@@ -681,11 +681,11 @@ model TaxaFechamentoPlataformaBidFreteInternacional {
 
   data_criacao_taxa_fechamento_plataforma_bid_frete_internacional    DateTime @default(now())
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_produto_gravity])
-  @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_cotacao_bid_frete_internacional])
-  @@index([id_organizacao, status_cobranca_taxa_fechamento_plataforma_bid_frete_internacional])
+  @@index([id_organizacao], map: "taxa_fech_bfi_id_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "taxa_fech_bfi_id_org_prod_idx")
+  @@index([id_organizacao, id_usuario], map: "taxa_fech_bfi_id_org_user_idx")
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional], map: "taxa_fech_bfi_id_org_cotacao_idx")
+  @@index([id_organizacao, status_cobranca_taxa_fechamento_plataforma_bid_frete_internacional], map: "taxa_fech_bfi_id_org_status_idx")
   @@map("taxa_fechamento_plataforma_bid_frete_internacional")
 }
 

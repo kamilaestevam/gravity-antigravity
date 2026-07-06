@@ -3265,7 +3265,7 @@ export function VisaoGeralMapaBidFrete({
                         </span>
                       </div>
                     ) : null}
-                    <div className="bfd-map-tooltip__hint">👉 Clique para ver rotas</div>
+                    <div className="bfd-map-tooltip__hint">👉 Clique para ver cotações</div>
                   </div>
                   <div className="bfd-map-tooltip__after" />
                 </div>

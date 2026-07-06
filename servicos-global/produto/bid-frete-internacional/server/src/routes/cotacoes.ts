@@ -754,6 +754,10 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
       data,
     })
 
+    if (existing.id_bid_bid_frete_internacional) {
+      await sincronizarResumoBid(req.prisma, existing.id_bid_bid_frete_internacional)
+    }
+
     res.json({ cotacao })
   } catch (err) {
     try {
@@ -789,6 +793,10 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
       where: { id_cotacao_bid_frete_internacional: req.params.id },
       data,
     })
+
+    if (existing.id_bid_bid_frete_internacional) {
+      await sincronizarResumoBid(req.prisma, existing.id_bid_bid_frete_internacional)
+    }
 
     res.json({ cotacao })
   } catch (err) {

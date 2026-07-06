@@ -91,7 +91,6 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
-  StatusBidConfigBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaBidFreteInternacional,
@@ -870,13 +869,6 @@ export async function criarBidFreteInternacional(
   })
   const data = await handleResponse<{ bid_frete_internacional: unknown }>(res)
   return mapBidFreteInternacionalFromServer(data.bid_frete_internacional)
-}
-
-export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
-  const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)
-  const lista = data.status_bid_frete_internacional ?? data.status ?? []
-  return lista as StatusBidConfigBidFreteInternacional[]
 }
 
 export interface CriarCotacaoPayload extends Partial<Cotacao> {

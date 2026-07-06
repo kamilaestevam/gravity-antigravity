@@ -11,6 +11,8 @@ const taxaMoedaDtoSchema = z.object({
   compra: z.union([z.number(), z.string()]),
   venda: z.union([z.number(), z.string()]),
   data_cotacao: z.union([z.string(), z.date()]).optional(),
+  boletim: z.string().optional(),
+  criado_em: z.union([z.string(), z.date()]).optional(),
 })
 
 export const taxasMoedaAtuaisResponseSchema = z.object({
@@ -313,8 +315,10 @@ export const previsaoTaxaFuturaMoedaResponseSchema = z.object({
       moeda_previsao_taxa_futura_moeda: z.string(),
       mes_previsao_taxa_futura_moeda: z.string(),
       valor_mediano_previsao_taxa_futura_moeda: z.number(),
-      valor_medio_previsao_taxa_futura_moeda: z.number(),
-      fonte_previsao_taxa_futura_moeda: z.string(),
+      valor_medio_previsao_taxa_futura_moeda: z.number().optional(),
+      fonte_previsao_taxa_futura_moeda: z.string().optional(),
+      data_previsao_taxa_futura_moeda: z.string().optional(),
+      data_atualizacao_previsao_taxa_futura_moeda: z.string().optional(),
     }),
   ),
   moeda: z.string(),

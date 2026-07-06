@@ -171,6 +171,11 @@ export const motorComparativo = {
         tags,
         taxas_origem: r.taxas_origem,
         taxas_destino: r.taxas_destino,
+        status_proposta_bid_frete_internacional: r.status_proposta_bid_frete_internacional,
+        data_aceite_aprovacao_proposta_bid_frete_internacional:
+          r.data_aceite_aprovacao_proposta_bid_frete_internacional
+            ? new Date(r.data_aceite_aprovacao_proposta_bid_frete_internacional).toISOString()
+            : null,
       }
     })
 

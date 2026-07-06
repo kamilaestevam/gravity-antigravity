@@ -30,6 +30,8 @@ export interface DocPassoVisual {
   titulo: string
   paragrafos: string[]
   imagem?: string
+  /** Texto em cima, screenshot em largura total abaixo; tooltips/galeria depois da imagem. */
+  imagemAbaixoTexto?: boolean
   /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
@@ -74,6 +76,14 @@ export interface DocPassoVisual {
     mostrarChipsTransferirTresTipos?: boolean
     /** Manual Pedido § Transferir — badge do tipo no título da etapa (ex.: novo + «passo a passo»). */
     chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
+    /** Manual BID Frete § Nova cotação — chips Marítimo / Aéreo / Rodoviário acima da grade. */
+    mostrarChipsBidFreteModalTransporte?: boolean
+    /** Manual BID Frete § Nova cotação — badge do modal no título da etapa. */
+    chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
+    /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
+    mostrarChipsBidFreteTipoCarga?: boolean
+    /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
+    chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
     /** Manual Pedido § Transferir — mapa UX 10 do resultado esperado (saldos e quantidades). */
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
@@ -167,6 +177,10 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoListaTransferirFluxo?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Transferir (padrão: 1). */
   transferirInfograficoAposParagrafo?: number
+  /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
+  mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
+  bidFreteNovaCotacaoInfograficoAposParagrafo?: number
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
   mostrarTabelaAlertasPedidoLista?: boolean
   /** Manual Pedido §05 — ícones dos formatos de exportação da Lista. */
@@ -328,6 +342,8 @@ export interface DocFluxo {
   mostrarInfograficoSmartDocsInsights?: boolean
   /** Manual Pedido §04 — mapa UX 10 da tela Insights. */
   mostrarInfograficoPedidoInsights?: boolean
+  /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
+  mostrarInfograficoBidFreteInsights?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */

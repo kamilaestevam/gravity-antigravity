@@ -2726,7 +2726,7 @@
       "labelPai_one": "{{count}} cotação",
       "labelPai_other": "{{count}} cotações",
       "toolbar": {
-        "novo": "Novo",
+        "novo": "Nova",
         "buscarFrete": "Buscar Frete",
         "buscarFreteDesc": "Cotação avulsa ou BID",
         "cotacaoAvulsa": "Cotação Avulsa",

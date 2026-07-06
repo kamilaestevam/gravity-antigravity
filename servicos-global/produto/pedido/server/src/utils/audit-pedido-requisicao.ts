@@ -4,7 +4,7 @@
  */
 import type { Request } from 'express'
 import type { ContextoOrganizacao } from '@gravity/resolver-organizacao'
-import { auditLog, type AuditLogPayload } from '../../../../../../servicos-plataforma/historico-global/src/audit-client.js'
+import { auditLog, type AuditLogPayload } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
 type CamposAuditPedido = Pick<
   AuditLogPayload,

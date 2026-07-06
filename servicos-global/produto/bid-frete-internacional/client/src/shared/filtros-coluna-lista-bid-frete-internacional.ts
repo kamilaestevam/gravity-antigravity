@@ -4,8 +4,17 @@
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { detectarTipoColuna as detectarTipoColunaCore } from '@nucleo/tabela-virtual-global'
 import type { FiltroTipo } from '@nucleo/tabela-virtual-global'
+import type { TFunction } from 'i18next'
 import type { Cotacao } from './types'
 import { STATUS_LABELS, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS } from './types'
+import {
+  mapAnonimaLabelsBidFrete,
+  mapModalLabelsBidFrete,
+  mapModalidadeLabelsBidFrete,
+  mapOperacaoLabelsBidFrete,
+  mapStatusLabelsBidFrete,
+  mapVisibilidadeLabelsBidFrete,
+} from './traduzir-enums-bid-frete-internacional'
 import type { FiltrosAtivosMap } from '../components/lista/filtros'
 import {
   formatValorExportColuna,
@@ -21,7 +30,7 @@ export const FILTRO_TIPO_OVERRIDES_BID_FRETE: Record<string, FiltroTipo> = {
   valor_meta_cotacao_bid_frete_internacional: 'numero',
   ganho_valor_cotacao_bid_frete_internacional: 'numero',
   ganho_percentual_cotacao_bid_frete_internacional: 'numero',
-  quantidade_cotacao_bid_frete_internacional: 'numero',
+  quantidade_volume_cotacao_bid_frete_internacional: 'numero',
   peso_kg_cotacao_bid_frete_internacional: 'numero',
   cubagem_m3_cotacao_bid_frete_internacional: 'numero',
 }
@@ -72,34 +81,38 @@ export function resolverValoresUnicosPopoverBidFrete(
 
 export interface LabelsFiltroBidFreteContext {
   statusOpcoes?: Array<{ valor: string; label: string }>
+  t?: TFunction
 }
 
 export function getLabelsFiltroBidFrete(
   campo: string,
   ctx: LabelsFiltroBidFreteContext = {},
 ): Record<string, string> {
+  const t = ctx.t
   if (campo === 'status_cotacao_bid_frete_internacional') {
     if (ctx.statusOpcoes?.length) {
       const map: Record<string, string> = {}
       for (const o of ctx.statusOpcoes) map[o.valor] = o.label
       return map
     }
-    return { ...STATUS_LABELS }
+    return t ? mapStatusLabelsBidFrete(t) : { ...STATUS_LABELS }
   }
   if (campo === 'tipo_operacao_cotacao_bid_frete_internacional') {
-    return { ...OPERACAO_LABELS }
+    return t ? mapOperacaoLabelsBidFrete(t) : { ...OPERACAO_LABELS }
   }
   if (campo === 'modal_cotacao_bid_frete_internacional') {
-    return { ...MODAL_LABELS }
+    return t ? mapModalLabelsBidFrete(t) : { ...MODAL_LABELS }
   }
   if (campo === 'modalidade_cotacao_bid_frete_internacional') {
-    return { ...MODALIDADE_LABELS }
+    return t ? mapModalidadeLabelsBidFrete(t) : { ...MODALIDADE_LABELS }
   }
   if (campo === 'visibilidade_cotacao_bid_frete_internacional') {
-    return { ABERTA: 'Aberta', DIRECIONADA: 'Direcionada' }
+    return t
+      ? mapVisibilidadeLabelsBidFrete(t)
+      : { ABERTA: 'Aberta', DIRECIONADA: 'Direcionada' }
   }
   if (campo === 'anonima_cotacao_bid_frete_internacional') {
-    return { true: 'Sim', false: 'Não' }
+    return t ? mapAnonimaLabelsBidFrete(t) : { true: 'Sim', false: 'Não' }
   }
   if (campo === 'id_produto_gravity') {
     return { 'bid-frete-internacional': 'BID Frete Internacional' }

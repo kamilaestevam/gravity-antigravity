@@ -14,6 +14,7 @@
 import { PrismaClient } from '../generated/client/index.js'
 import { withTenantIsolation } from '../middleware/isolamento-tenant.js'
 import { atividadesIntegration, notificacoesIntegration } from './integracoes-tenant.js'
+import { motorBid } from './motor-bid-frete-internacional.js'
 
 // Prisma global — usado APENAS para leituras cross-tenant nos cron jobs.
 // Escrita SEMPRE via withTenantIsolation ou com id_organizacao explícito no WHERE.
@@ -150,6 +151,33 @@ async function detectarSemResposta() {
 }
 
 /**
+ * Job 4: Reprocessar disparos EMAIL presos em PENDENTE (timeout/background abortado)
+ */
+async function reprocessarDisparosEmailPendentes() {
+  const pendentes = await cronPrisma.disparoCotacaoBidFreteInternacional.findMany({
+    where: {
+      status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
+      canal_disparo_cotacao_bid_frete_internacional: 'EMAIL',
+      data_criacao_disparo_cotacao_bid_frete_internacional: {
+        lt: new Date(Date.now() - 2 * 60 * 1000),
+      },
+    } as any,
+    select: { id_organizacao: true },
+    take: 50,
+  } as any)
+
+  const orgs = [...new Set((pendentes as Array<{ id_organizacao: string }>).map(p => p.id_organizacao))]
+  let total = 0
+  for (const idOrganizacao of orgs) {
+    const tenantDb = withTenantIsolation(cronPrisma, idOrganizacao)
+    total += await motorBid.reprocessarDisparosPendentes(tenantDb as PrismaClient, 20)
+  }
+  if (total > 0) {
+    console.log(`[Cron] ${total} disparo(s) EMAIL reprocessado(s) de PENDENTE`)
+  }
+}
+
+/**
  * Inicia todos os cron jobs
  * Intervalo: a cada 5 minutos
  */
@@ -178,10 +206,11 @@ async function runAll() {
     await expirarCotacoesVencidas()
     await alertarProximoVencimento()
     await detectarSemResposta()
+    await reprocessarDisparosEmailPendentes()
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     console.error('[Cron] Erro nos jobs:', errorMessage)
   }
 }
 
-export { expirarCotacoesVencidas, alertarProximoVencimento, detectarSemResposta }
+export { expirarCotacoesVencidas, alertarProximoVencimento, detectarSemResposta, reprocessarDisparosEmailPendentes }

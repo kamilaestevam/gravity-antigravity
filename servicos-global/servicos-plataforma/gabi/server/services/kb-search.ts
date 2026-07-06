@@ -1,9 +1,8 @@
 // server/services/kb-search.ts
 // Busca semantica na base de conhecimento via pgvector (cosine similarity).
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import prisma from '../lib/prisma.js'
+import { embedarTexto } from '../lib/embeddings-gemini.js'
 
-const EMBEDDING_MODEL = 'text-embedding-004'
 const DEFAULT_TOP_K = 10
 const MAX_TOTAL_TOKENS = 12_000
 const MIN_SIMILARITY = 0.3
@@ -23,23 +22,10 @@ export interface KbSearchMeta {
   tokens_total_chunks: number
 }
 
-let genAI: GoogleGenerativeAI | null = null
-
-function getGenAI(): GoogleGenerativeAI {
-  if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) throw new Error('GEMINI_API_KEY obrigatoria para embedding')
-    genAI = new GoogleGenerativeAI(apiKey)
-  }
-  return genAI
-}
-
 async function embedQuery(query: string): Promise<number[]> {
-  const model = getGenAI().getGenerativeModel({ model: EMBEDDING_MODEL })
-  const result = await model.embedContent({
-    content: { parts: [{ text: query }], role: 'user' },
-  })
-  return result.embedding.values
+  // taskType RETRIEVAL_QUERY otimiza o vetor para busca (o ingest usa
+  // RETRIEVAL_DOCUMENT). outputDimensionality casa com vector(768) da tabela.
+  return embedarTexto(query, 'RETRIEVAL_QUERY')
 }
 
 /** Converts a number[] embedding to a pgvector literal string like '[0.1,0.2,...]'.

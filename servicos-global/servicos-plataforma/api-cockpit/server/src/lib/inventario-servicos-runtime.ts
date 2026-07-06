@@ -70,6 +70,13 @@ export const INVENTARIO_SERVICOS_RUNTIME: EntradaInventarioServico[] = [
     path_endpoint_publico: '/smart-read',
   },
   {
+    nome_servico_plataforma: 'email',
+    tipo_servico_plataforma: 'PLATAFORMA',
+    env_var_url: 'TENANT_EMAIL_SERVICE_URL',
+    porta_loopback_padrao: 8008,
+    path_endpoint_publico: null,
+  },
+  {
     nome_servico_plataforma: 'gabi',
     tipo_servico_plataforma: 'PLATAFORMA',
     env_var_url: 'GABI_SERVICE_URL',

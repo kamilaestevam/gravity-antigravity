@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, useNavigate, useParams, Navigate, useLocation, useSearchParams } from 'react-router-dom'
+import { Routes, Route, useNavigate, useParams, Navigate, useLocation, useSearchParams, useNavigationType } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
@@ -180,9 +180,14 @@ function OrganizacaoDetalheWrapper() {
   return <OrganizacaoDetalheAdmin id_organizacao={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
 }
 
-/** Rota raiz: deslogado → /login; logado → porteiro /me → /trial ou /hub */
+/**
+ * Rota raiz: só atua no fallback (vitrine não compilada). Em condições normais
+ * o Express serve marketplace/dist/index.html antes do React carregar.
+ * Fresh load (POP): hard redirect — não cria histórico SPA que o Chrome memoriza.
+ */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
+  const navType = useNavigationType()
   const [clerkTimeout, setClerkTimeout] = React.useState(false)
 
   React.useEffect(() => {
@@ -191,8 +196,10 @@ function RootRedirect() {
     return () => clearTimeout(timer)
   }, [isLoaded])
 
-  // Se Clerk não carregou após timeout (ex: cookies bloqueados em anônima), mostra login direto
-  if (!isLoaded && !clerkTimeout) {
+  if (!isLoaded && !clerkTimeout) return <TelaCarregandoPorteiro />
+
+  if (navType === 'POP') {
+    window.location.replace(isSignedIn ? '/hub' : '/login')
     return <TelaCarregandoPorteiro />
   }
 

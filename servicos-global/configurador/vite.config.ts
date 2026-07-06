@@ -447,6 +447,14 @@ export default defineConfig(({ command }) => {
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      '/dev-health/smart-read': {
+        target: 'http://localhost:8033',
+        changeOrigin: true,
+        rewrite: () => '/health',
+        onError(_err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
     },
   },
 }

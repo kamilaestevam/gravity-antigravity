@@ -58,6 +58,17 @@ import { usePermissoesBidFreteInternacional } from '../shared/permissoes/usePerm
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import type { EnrichedCatalogField } from '@nucleo/dashboard'
 import { useBidFreteDashboardVisao } from '../shared/bid-frete-dashboard-visao-context'
+import {
+  traduzirCatalogoDashboard,
+  traduzirInsightGabiDashboard,
+  traduzirMapaStatusCotacaoDashboard,
+  traduzirMetricaDerivadaDashboard,
+  traduzirStatusToolbarDashboard,
+  traduzirSugestaoDashboard,
+  traduzirTextoVazioWidgetDashboard,
+  traduzirTituloWidgetDashboard,
+  traduzirWidgetDashboard,
+} from '../shared/traduzir-dashboard-bid-frete-internacional'
 import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel } from '../shared/api'
 import type { StatusCotacao } from '../shared/types'
 
@@ -228,39 +239,10 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
 type PeriodKey = typeof PERIOD_SEQUENCE[number]
 
-const PERIOD_LABEL: Record<string, string> = {
-  '7d':           'Últimos 7 dias',
-  '30d':          'Últimos 30 dias',
-  '90d':          'Últimos 90 dias',
-  '12m':          'Últimos 12 meses',
-  'current_year': 'Ano atual',
-}
-
 function getNextPeriods(current: string): string[] {
   const idx = PERIOD_SEQUENCE.indexOf(current as PeriodKey)
   if (idx === -1) return ['30d', '12m']
   return Array.from(PERIOD_SEQUENCE.slice(idx + 1, idx + 3))
-}
-
-function buildEmptyText(chartType: string, fieldNames: string[]): string {
-  const fieldStr = fieldNames.length === 0
-    ? 'este campo'
-    : fieldNames.length === 1
-      ? `"${fieldNames[0]}"`
-      : fieldNames.slice(0, 2).map(f => `"${f}"`).join(' e ')
-
-  switch (chartType) {
-    case 'DISTRIBUTION':
-      return `Nenhum registro encontrado para distribuir ${fieldStr} no período selecionado. Ajuste os filtros para prosseguir.`
-    case 'LINE':
-    case 'AREA':
-      return `Sem dados de tendência para ${fieldStr} neste intervalo. Experimente ampliar o período.`
-    case 'BAR':
-    case 'BAR_HORIZONTAL':
-      return `Nenhuma movimentação registrada para comparar ${fieldStr} no período atual.`
-    default:
-      return `Não há dados disponíveis para este widget no período selecionado. Amplie o intervalo ou ajuste os campos.`
-  }
 }
 
 function isResultEmpty(result: WidgetResult, isDerived: boolean): boolean {
@@ -294,8 +276,19 @@ interface WidgetEmptyGabiProps {
 }
 
 function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove }: WidgetEmptyGabiProps) {
+  const { t } = useTranslation()
   const nextPeriods = getNextPeriods(currentPeriod)
-  const emptyText   = buildEmptyText(widget.chart_type, fieldNames)
+  const emptyText = traduzirTextoVazioWidgetDashboard(t, widget.chart_type, fieldNames)
+  const rotuloPeriodo = (p: string) => {
+    const mapa: Record<string, string> = {
+      '7d': t('nucleo.dashboard.periodo.ultimos_7_dias', { defaultValue: 'Últimos 7 dias' }),
+      '30d': t('nucleo.dashboard.periodo.ultimos_30_dias', { defaultValue: 'Últimos 30 dias' }),
+      '90d': t('nucleo.dashboard.periodo.ultimos_90_dias', { defaultValue: 'Últimos 90 dias' }),
+      '12m': t('nucleo.dashboard.periodo.ultimos_12_meses', { defaultValue: 'Últimos 12 meses' }),
+      current_year: t('nucleo.dashboard.periodo.ano_atual', { defaultValue: 'Ano atual' }),
+    }
+    return mapa[p] ?? p
+  }
 
   return (
     <div style={gabiEmptyStyles.wrap} className="dp-gabi-empty-pulse">
@@ -308,7 +301,9 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
           <div style={gabiEmptyStyles.avatar}>
             <RocketLaunch size={13} weight="fill" color="#doc" />
           </div>
-          <span style={gabiEmptyStyles.tag}>GABI · Sem dados no período</span>
+          <span style={gabiEmptyStyles.tag}>
+            {t('bidfrete.dashboard.vazio_widget.gabi_tag', { defaultValue: 'GABI · Sem dados no período' })}
+          </span>
         </div>
 
         <p style={gabiEmptyStyles.text}>{emptyText}</p>
@@ -316,31 +311,35 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
         <div style={gabiEmptyStyles.actions}>
           {nextPeriods.length > 0 ? (
             <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>Ampliar para:</span>
+              <span style={gabiEmptyStyles.actionLabel}>
+                {t('bidfrete.dashboard.vazio_widget.ampliar_para', { defaultValue: 'Ampliar para:' })}
+              </span>
               {nextPeriods.map(p => (
                 <button key={p} type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod(p)}>
-                  {PERIOD_LABEL[p] ?? p}
+                  {rotuloPeriodo(p)}
                 </button>
               ))}
             </div>
           ) : (
             <div style={gabiEmptyStyles.periodGroup}>
-              <span style={gabiEmptyStyles.actionLabel}>Experimente:</span>
+              <span style={gabiEmptyStyles.actionLabel}>
+                {t('bidfrete.dashboard.vazio_widget.experimente', { defaultValue: 'Experimente:' })}
+              </span>
               <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('30d')}>
-                Últimos 30 dias
+                {rotuloPeriodo('30d')}
               </button>
               <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('12m')}>
-                Últimos 12 meses
+                {rotuloPeriodo('12m')}
               </button>
             </div>
           )}
 
           <div style={gabiEmptyStyles.rowActions}>
             <button type="button" style={gabiEmptyStyles.editBtn} onClick={onEdit}>
-              Editar campos
+              {t('bidfrete.dashboard.vazio_widget.editar_campos', { defaultValue: 'Editar campos' })}
             </button>
             <button type="button" style={gabiEmptyStyles.removeBtn} onClick={onRemove}>
-              Remover widget
+              {t('bidfrete.dashboard.vazio_widget.remover_widget', { defaultValue: 'Remover widget' })}
             </button>
           </div>
         </div>
@@ -635,19 +634,33 @@ export default function Dashboard() {
 
   const visao = useBidFreteDashboardVisao()
   const {
-    catalog,
-    catalogByKey,
+    catalog: catalogBase,
+    catalogByKey: catalogByKeyBase,
     dashboardApi,
     paineisDashboardApi,
     generateSuggestions,
     buildClientInsights,
     widgetNavRoute,
     listaRoute,
+    statusLabels: statusLabelsBase,
   } = visao
   const useDashboardStoreHook = visao.useDashboardStore
+
+  const catalog = useMemo(
+    () => traduzirCatalogoDashboard(t, catalogBase),
+    [t, catalogBase],
+  )
+  const catalogByKey = useMemo(
+    () => Object.fromEntries(catalog.map(f => [f.key, f])),
+    [catalog],
+  )
+  const statusLabelsTraduzidos = useMemo(
+    () => traduzirMapaStatusCotacaoDashboard(t, statusLabelsBase),
+    [t, statusLabelsBase],
+  )
   const widgetBuildDeps = useMemo(
-    () => ({ statusLabels: visao.statusLabels, catalogByKey }),
-    [visao.statusLabels, catalogByKey],
+    () => ({ statusLabels: statusLabelsTraduzidos, catalogByKey }),
+    [statusLabelsTraduzidos, catalogByKey],
   )
 
   const {
@@ -711,7 +724,7 @@ export default function Dashboard() {
       setPainelDashboardAtualId(data.id)
       addNotification({
         type: 'success',
-        message: t('bid_frete_internacional.dashboard.painel_criado_sucesso', {
+        message: t('bidfrete.dashboard.painel_criado_sucesso', {
           defaultValue: 'Painel "{{nome}}" criado.',
           nome: data.nome,
         }),
@@ -720,7 +733,7 @@ export default function Dashboard() {
     } catch {
       addNotification({
         type: 'error',
-        message: t('bid_frete_internacional.dashboard.painel_criado_erro', {
+        message: t('bidfrete.dashboard.painel_criado_erro', {
           defaultValue: 'Não foi possível salvar o painel.',
         }),
       })
@@ -797,8 +810,8 @@ export default function Dashboard() {
   }, [])
 
   const allDerived: DerivedMetric[] = useMemo(
-    () => [...BUILT_IN_DERIVED, ...userDerivedMetrics],
-    [userDerivedMetrics],
+    () => [...BUILT_IN_DERIVED, ...userDerivedMetrics].map(dm => traduzirMetricaDerivadaDashboard(t, dm)),
+    [userDerivedMetrics, t],
   )
 
   const fieldLabels = useMemo(
@@ -814,15 +827,24 @@ export default function Dashboard() {
   const suggestions = useMemo(
     () => generateSuggestions(
       widgets.map(w => w.id),
-      allDerived,
+      [...BUILT_IN_DERIVED, ...userDerivedMetrics],
       gridBottom,
       widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
-    ),
-    [widgets, allDerived, gridBottom, generateSuggestions],
+    ).map(sug => traduzirSugestaoDashboard(t, sug, catalogByKey)),
+    [widgets, userDerivedMetrics, gridBottom, generateSuggestions, t, catalogByKey],
   )
 
   const triggerWidgetAddedFX = useCallback((widgetId: string, title: string) => {
-    try { addNotification({ type: 'success', message: `Widget "${title}" adicionado com sucesso ao seu dashboard.`, duration: 4000 }) } catch { /* ignorar */ }
+    try {
+      addNotification({
+        type: 'success',
+        message: t('bidfrete.dashboard.widget_adicionado_sucesso', {
+          title,
+          defaultValue: `Widget "${title}" adicionado com sucesso ao seu dashboard.`,
+        }),
+        duration: 4000,
+      })
+    } catch { /* ignorar */ }
     setTimeout(() => {
       const wrapper = document.querySelector(`[data-widget-id="${widgetId}"]`)
       wrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -832,12 +854,13 @@ export default function Dashboard() {
         setTimeout(() => wrapper.classList.remove('wc-highlighted'), 4500)
       }, 700)
     }, 300)
-  }, [addNotification])
+  }, [addNotification, t])
 
   const handleAddWidgetFromSuggestions = useCallback((widgetConfig: DashboardWidgetConfig) => {
+    const traduzido = traduzirWidgetDashboard(t, widgetConfig)
     addWidget(widgetConfig)
-    triggerWidgetAddedFX(widgetConfig.id, widgetConfig.title)
-  }, [addWidget, triggerWidgetAddedFX])
+    triggerWidgetAddedFX(widgetConfig.id, traduzido.title)
+  }, [addWidget, triggerWidgetAddedFX, t])
 
   useEffect(() => {
     if (gabiPaused || loadingData) return
@@ -909,11 +932,11 @@ export default function Dashboard() {
           : w.query_spec.filters.period === '12m'
             ? w.query_spec.filters
             : { ...w.query_spec.filters, period: slicers.period }
-        return {
+        return traduzirWidgetDashboard(t, {
           ...w,
           query_spec: { ...w.query_spec, filters },
-        }
-      }), [widgets, slicers.period],
+        })
+      }), [widgets, slicers.period, t],
   )
 
   const buildPainelWidgetProps = useCallback((widget: DashboardWidgetConfig) => {
@@ -971,19 +994,23 @@ export default function Dashboard() {
   ])
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
-    const chartType = widget.chart_type
-    const widgetPeriod = widget.query_spec.filters.period
+    const widgetTraduzido = traduzirWidgetDashboard(t, widget)
+    const chartType = widgetTraduzido.chart_type
+    const widgetPeriod = widgetTraduzido.query_spec.filters.period
     const kpisWidget = (kpisPorPeriodo[widgetPeriod] ?? kpisData) as DashboardKpis | null
-    const painelProps = buildPainelWidgetProps(widget)
-    const emInteracaoLayout = widgetLayoutInteracao?.widgetId === widget.id
+    const painelProps = buildPainelWidgetProps(widgetTraduzido)
+    const emInteracaoLayout = widgetLayoutInteracao?.widgetId === widgetTraduzido.id
 
     // ── GABI_INSIGHTS — menu ⋮ mover / tamanho / excluir (paridade Pedido) ──
     if (chartType === 'GABI_INSIGHTS') {
-      const insights = insightsData.length > 0
+      const insightsBrutos = insightsData.length > 0
         ? insightsData
         : kpisData
           ? buildClientInsights(kpisData, prevKpisData)
           : []
+      const insights = insightsBrutos.map(ins =>
+        traduzirInsightGabiDashboard(t, ins, kpisData, prevKpisData),
+      )
       const gabiVisual = WIDGET_VISUAL.gabi_insights ?? {}
       const gabiResult: WidgetResult = {
         data: {},
@@ -998,7 +1025,7 @@ export default function Dashboard() {
             className="dp-gabi-nav-btn"
             type="button"
             onClick={() => scrollGabi('left')}
-            aria-label={t('bid_frete_internacional.dashboard.gabi_insight_anterior', { defaultValue: 'Insight anterior' })}
+            aria-label={t('bidfrete.dashboard.gabi_insight_anterior', { defaultValue: 'Insight anterior' })}
           >
             <CaretLeft size={12} weight="bold" />
           </button>
@@ -1006,21 +1033,21 @@ export default function Dashboard() {
             className="dp-gabi-nav-btn"
             type="button"
             onClick={() => scrollGabi('right')}
-            aria-label={t('bid_frete_internacional.dashboard.gabi_proximo_insight', { defaultValue: 'Próximo insight' })}
+            aria-label={t('bidfrete.dashboard.gabi_proximo_insight', { defaultValue: 'Próximo insight' })}
           >
             <CaretRight size={12} weight="bold" />
           </button>
           <span className="dp-gabi-live-badge">
             <span className="dp-gabi-live-dot" />
-            {t('bid_frete_internacional.dashboard.gabi_ao_vivo', { defaultValue: 'ao vivo' })}
+            {t('bidfrete.dashboard.gabi_ao_vivo', { defaultValue: 'ao vivo' })}
           </span>
         </div>
       )
 
       return (
-        <div key={widget.id} className="dp-gabi-painel-host">
+        <div key={widgetTraduzido.id} className="dp-gabi-painel-host">
           <DashboardPainelContainer
-            widget={widget}
+            widget={widgetTraduzido}
             result={gabiResult}
             loading={loadingData}
             error={null}
@@ -1094,41 +1121,41 @@ export default function Dashboard() {
     // ── SECTION_LABEL ────────────────────────────────────────────────────────
     if (chartType === 'SECTION_LABEL') {
       return (
-        <div key={widget.id} style={sectionLabelStyle}>
-          <span style={sectionLabelTextStyle}>{widget.title}</span>
+        <div key={widgetTraduzido.id} style={sectionLabelStyle}>
+          <span style={sectionLabelTextStyle}>{widgetTraduzido.title}</span>
           <div style={sectionLabelLineStyle} />
         </div>
       )
     }
 
     const result = kpisWidget
-      ? buildWidgetResult(widget, kpisWidget, trendData, allDerived, widgetBuildDeps)
-      : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
-    const fields = widget.query_spec.fields
-    const isDerived = !!widget.config?.derivedMetricId
+      ? buildWidgetResult(widgetTraduzido, kpisWidget, trendData, allDerived, widgetBuildDeps)
+      : { data: {}, chartType: widgetTraduzido.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
+    const fields = widgetTraduzido.query_spec.fields
+    const isDerived = !!widgetTraduzido.config?.derivedMetricId
 
     // ── Estado vazio ─────────────────────────────────────────────────────────
     if (!loadingData && kpisWidget && isResultEmpty(result, isDerived)) {
       return (
         <DashboardPainelContainer
-          key={widget.id}
-          widget={widget}
+          key={widgetTraduzido.id}
+          widget={widgetTraduzido}
           result={result}
           loading={false}
           error={null}
           {...painelProps}
         >
           <WidgetEmptyGabi
-            widget={widget}
+            widget={widgetTraduzido}
             fieldNames={fields.map((f: { key: string }) => fieldLabels[f.key] ?? f.key)}
             currentPeriod={slicers.period}
             onExpandPeriod={handlePeriodChange}
             onEdit={() => {
-              const stored = widgets.find(x => x.id === widget.id) ?? widget
+              const stored = widgets.find(x => x.id === widgetTraduzido.id) ?? widgetTraduzido
               setEditingWidget(stored)
               setEditModalOpen(true)
             }}
-            onRemove={() => removeWidget(widget.id)}
+            onRemove={() => removeWidget(widgetTraduzido.id)}
           />
         </DashboardPainelContainer>
       )
@@ -1137,7 +1164,7 @@ export default function Dashboard() {
     // ── DISTRIBUTION ────────────────────────────────────────────────────────
     if (chartType === 'DISTRIBUTION') {
       return (
-        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widgetTraduzido.id} widget={widgetTraduzido} result={result} loading={loadingData} error={null}
           {...painelProps}
         >
           <DashboardWidgetDistribuicao slices={result.slices ?? []} />
@@ -1165,7 +1192,7 @@ export default function Dashboard() {
       })
 
       return (
-        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widgetTraduzido.id} widget={widgetTraduzido} result={result} loading={loadingData} error={null}
           {...painelProps}
         >
           <DashboardWidgetLinha
@@ -1199,7 +1226,7 @@ export default function Dashboard() {
       })
 
       return (
-        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widgetTraduzido.id} widget={widgetTraduzido} result={result} loading={loadingData} error={null}
           {...painelProps}
         >
           <DashboardWidgetBarras
@@ -1217,23 +1244,23 @@ export default function Dashboard() {
     if (chartType === 'KPI_CARD') {
       const fieldKey = fields[0]?.key ?? 'value'
       const cat = catalogByKey[fieldKey]
-      const dm = widget.config?.derivedMetricId
-        ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
+      const dm = widgetTraduzido.config?.derivedMetricId
+        ? allDerived.find(m => m.id === widgetTraduzido.config!.derivedMetricId)
         : undefined
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
-      const visual   = WIDGET_VISUAL[widget.id] ?? {}
-      const navRoute = widgetNavRoute[widget.id]
+      const visual   = WIDGET_VISUAL[widgetTraduzido.id] ?? {}
+      const navRoute = widgetNavRoute[widgetTraduzido.id]
       const currentVal = Number(kpisWidget?.[fieldKey] ?? 0)
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
-        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widgetTraduzido.id} widget={widgetTraduzido} result={result} loading={loadingData} error={null}
           {...painelProps}
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
           onClick={() => {
-            trackWidget(widget.id)
+            trackWidget(widgetTraduzido.id)
             if (navRoute && !emInteracaoLayout) navigate(navRoute)
           }}
         >
@@ -1252,7 +1279,7 @@ export default function Dashboard() {
     // ── Fallback ─────────────────────────────────────────────────────────────
     const fieldKey = fields[0]?.key ?? 'value'
     return (
-      <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+      <DashboardPainelContainer key={widgetTraduzido.id} widget={widgetTraduzido} result={result} loading={loadingData} error={null}
         {...painelProps}
       >
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
@@ -1294,17 +1321,17 @@ export default function Dashboard() {
       position: { x: 0, y: gridBottom, w: chartType === 'KPI_CARD' ? 3 : 6, h: chartType === 'KPI_CARD' ? 2 : 3 },
     })
     setQueryBuilderOpen(false)
-    triggerWidgetAddedFX(id, title)
+    triggerWidgetAddedFX(id, traduzirTituloWidgetDashboard(t, { id, title } as DashboardWidgetConfig))
   }
 
   const STATUS_OPTIONS = ['rascunho', 'em_cotacao', 'aguardando_aprovacao', 'aprovada']
 
-  const STATUS_LABELS_TOOLBAR: Record<string, string> = {
-    rascunho: 'Rascunho',
-    em_cotacao: 'Em Cotação',
-    aguardando_aprovacao: 'Pendente Aprovação',
-    aprovada: 'Aprovadas',
-  }
+  const STATUS_LABELS_TOOLBAR = useMemo(
+    () => Object.fromEntries(
+      STATUS_OPTIONS.map(opt => [opt, traduzirStatusToolbarDashboard(t, opt)]),
+    ),
+    [t],
+  )
 
   const hexToRgba = (hex: string, alpha: number): string => {
     const r = parseInt(hex.slice(1, 3), 16)
@@ -1328,8 +1355,8 @@ export default function Dashboard() {
   )
 
   const getWidgetLabel = useCallback(
-    (widget: DashboardWidgetConfig) => widget.title,
-    [],
+    (widget: DashboardWidgetConfig) => traduzirTituloWidgetDashboard(t, widget),
+    [t],
   )
 
   const temWidgets = widgets.length > 0

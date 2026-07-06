@@ -96,7 +96,9 @@ export function KanbanFornecedorConteudo({ disparos, toolbarInicio }: KanbanForn
       .sort((a, b) => a.ordem - b.ordem)
       .map<KanbanColunaDef>(s => ({
         key: s.nome,
-        label: t(`bidfrete.visao_fornecedor_bid_frete_internacional.kanban.${s.nome.toLowerCase()}`, s.rotulo),
+        label: t(`bidfrete.visao_fornecedor_bid_frete_internacional.kanban.${s.nome.toLowerCase()}`, {
+          defaultValue: s.rotulo,
+        }),
         color: s.cor,
         icon: STATUS_ICONS_FORNECEDOR[s.nome] ?? <Package size={16} weight="duotone" />,
         colapsavel: true,
@@ -148,12 +150,15 @@ export function KanbanFornecedorConteudo({ disparos, toolbarInicio }: KanbanForn
           className="kbp-search"
           value={busca}
           onChange={event => setBusca(event.target.value)}
-          placeholder={t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.busca', 'Localizar cotação...')}
+          placeholder={t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.busca', {
+            defaultValue: 'Localizar cotação...',
+          })}
         />
       </div>
       <span className="kbp-total">
-        {t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.total', '{{count}} oportunidades', {
+        {t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.total', {
           count: itensFiltrados.length,
+          defaultValue: '{{count}} oportunidades',
         })}
       </span>
     </div>
@@ -169,7 +174,9 @@ export function KanbanFornecedorConteudo({ disparos, toolbarInicio }: KanbanForn
         )}
         onCardClick={handleCardClick}
         skeletonCount={4}
-        emptyLabel={t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.vazio', 'Nenhuma cotação')}
+        emptyLabel={t('bidfrete.visao_fornecedor_bid_frete_internacional.kanban.vazio', {
+          defaultValue: 'Nenhuma cotação no funil',
+        })}
         getItemLabel={(item) => item.cotacao.numero_cotacao_bid_frete_internacional}
         getItemDate={(item) =>
           item.disparo.data_envio_disparo_cotacao_bid_frete_internacional

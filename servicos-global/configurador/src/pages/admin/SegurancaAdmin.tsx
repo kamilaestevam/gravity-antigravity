@@ -4,7 +4,7 @@ import {
   ShieldCheck, ShieldWarning, ShieldSlash,
   Lock, Eye, Warning, Key, Timer,
   ArrowsClockwise, UserCircle, ShieldStar, ArrowsLeftRight,
-  ClockCounterClockwise, Database, Certificate, HardDrives,
+  ClockCounterClockwise, Database, Certificate, HardDrives, Broadcast,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -21,6 +21,7 @@ const AbaAuditTrail = lazy(() => import('./seguranca/AbaAuditTrail').then(m => (
 const AbaIsolamento = lazy(() => import('./seguranca/AbaIsolamento').then(m => ({ default: m.AbaIsolamento })))
 const AbaCompliance = lazy(() => import('./seguranca/AbaCompliance').then(m => ({ default: m.AbaCompliance })))
 const AbaInfra = lazy(() => import('./seguranca/AbaInfra').then(m => ({ default: m.AbaInfra })))
+const AbaMonitor = lazy(() => import('./seguranca/AbaMonitor').then(m => ({ default: m.AbaMonitor })))
 
 // ─── Tipos (espelhados do backend) ────────────────────────────────────────
 
@@ -237,7 +238,7 @@ const POLL_INTERVAL = 30_000 // 30s (antes: 15s × 5 endpoints = 20 req/min por 
 
 export function SegurancaAdmin() {
   const { t } = useTranslation()
-  const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets' | 'audit' | 'isolamento' | 'compliance' | 'infra'>('health')
+  const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets' | 'audit' | 'isolamento' | 'compliance' | 'infra' | 'monitor'>('health')
   const [filtroAction, setFiltroAction] = useState<string>('TODOS')
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -561,6 +562,7 @@ export function SegurancaAdmin() {
             { key: 'isolamento' as const, label: 'Isolamento', icon: <Database size={16} />, tip: 'Monitoramento do isolamento entre organizações (schema-per-org). Detecta tentativas de acesso cross-tenant' },
             { key: 'compliance' as const, label: 'Compliance', icon: <Certificate size={16} />, tip: 'Verificação dinâmica de conformidade OWASP Top 10 e monitoramento de certificados SSL/TLS' },
             { key: 'infra' as const, label: 'Infra & DR', icon: <HardDrives size={16} />, tip: 'Infraestrutura, backups, disaster recovery, métricas de performance e SLA da plataforma' },
+            { key: 'monitor' as const, label: 'Monitor', icon: <Broadcast size={16} />, tip: 'Monitor externo (UptimeRobot) do site em produção: status ao vivo, uptime e histórico de quedas' },
           ].map(tab => (
             <TooltipGlobal key={tab.key} titulo={tab.label} descricao={tab.tip}>
               <button
@@ -954,6 +956,13 @@ export function SegurancaAdmin() {
       {abaAtiva === 'infra' && (
         <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Infraestrutura...</div>}>
           <AbaInfra key={refreshKey} />
+        </Suspense>
+      )}
+
+      {/* ── Aba: Monitor externo (UptimeRobot — pós-mortem 04/07/2026) ── */}
+      {abaAtiva === 'monitor' && (
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>Carregando Monitor...</div>}>
+          <AbaMonitor key={refreshKey} />
         </Suspense>
       )}
 

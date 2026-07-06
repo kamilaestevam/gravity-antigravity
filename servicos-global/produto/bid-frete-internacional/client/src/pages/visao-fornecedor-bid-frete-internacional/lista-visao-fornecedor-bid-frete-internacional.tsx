@@ -432,8 +432,8 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   )
 
   const labelsFiltroCtx = useMemo(
-    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes }),
-    [opcoesColunasLista.statusOpcoes],
+    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes, t }),
+    [opcoesColunasLista.statusOpcoes, t],
   )
 
   const cotacoesVisiveis = useMemo(

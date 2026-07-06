@@ -60,6 +60,16 @@ async function montarTextoOpcoesLocaisEmailDisparo(
   return montarTextoRotulosLocaisOpcionaisDisparoBidFrete(rotulos)
 }
 
+/** Texto dos armazéns alfandegados de preferência (coluna Json) para o e-mail de disparo. */
+function montarTextoNomesArmazensDisparo(nomesRaw: unknown): string | null {
+  if (!Array.isArray(nomesRaw)) return null
+  const nomes = nomesRaw
+    .filter((nome): nome is string => typeof nome === 'string')
+    .map((nome) => nome.trim())
+    .filter(Boolean)
+  return nomes.length > 0 ? nomes.join(', ') : null
+}
+
 type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
 type TipoFornecedorMotor = 'AGENTE_CARGA' | 'ARMADOR' | 'CIA_AEREA' | 'TRANSPORTADORA'
 
@@ -512,6 +522,9 @@ export const motorBid = {
         observacoes: cotacao.observacoes_carga_perigosa_cotacao_bid_frete_internacional,
       }),
       incluirArmazenagem: cotacao.incluir_armazenagem_cotacao_bid_frete_internacional === true,
+      nomesArmazensTexto: montarTextoNomesArmazensDisparo(
+        cotacao.nomes_armazem_alfandegado_cotacao_bid_frete_internacional,
+      ),
       dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
       nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,

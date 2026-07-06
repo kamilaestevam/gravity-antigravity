@@ -440,6 +440,129 @@ adminSecurityRouter.get('/health', async (_req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
+// GET /monitor-uptime — monitor externo (UptimeRobot) do www.usegravity.com.br
+//
+// Pós-mortem 04/07/2026: prod ficou 12h fora sem ninguém saber. O alerta real
+// mora no UptimeRobot (externo — dispara e-mail mesmo com o monolito morto);
+// esta rota só espelha o status no Admin › Segurança › aba Monitor.
+// ---------------------------------------------------------------------------
+
+const uptimeRobotMonitorSchema = z.object({
+  id: z.number(),
+  friendly_name: z.string(),
+  url: z.string(),
+  status: z.number(),
+  custom_uptime_ratio: z.string().optional(),
+  logs: z.array(z.object({
+    type: z.number(),
+    datetime: z.number(),
+    duration: z.number(),
+    reason: z.object({ code: z.union([z.string(), z.number()]).optional(), detail: z.string().optional() }).optional(),
+  })).optional(),
+})
+
+const uptimeRobotResponseSchema = z.object({
+  stat: z.string(),
+  error: z.object({ message: z.string().optional() }).optional(),
+  monitors: z.array(uptimeRobotMonitorSchema).optional(),
+})
+
+type StatusMonitorUptime = 'ATIVO' | 'FORA' | 'INSTAVEL' | 'PAUSADO' | 'DESCONHECIDO'
+
+function mapearStatusUptimeRobot(status: number): StatusMonitorUptime {
+  switch (status) {
+    case 2: return 'ATIVO'
+    case 8: return 'INSTAVEL'
+    case 9: return 'FORA'
+    case 0: return 'PAUSADO'
+    default: return 'DESCONHECIDO'
+  }
+}
+
+interface MonitorUptimeEntry {
+  id_monitor: string
+  nome_monitor: string
+  url_monitor: string
+  status_monitor: StatusMonitorUptime
+  uptime_1d: number | null
+  uptime_7d: number | null
+  uptime_30d: number | null
+  eventos_monitor: Array<{
+    tipo_evento_monitor: 'QUEDA' | 'RETORNO' | 'OUTRO'
+    data_evento_monitor: string
+    duracao_segundos_evento_monitor: number
+    motivo_evento_monitor: string | null
+  }>
+}
+
+interface MonitorUptimeResponse {
+  configurado: boolean
+  monitores: MonitorUptimeEntry[]
+  erro?: string
+}
+
+/** Cache 30s — UptimeRobot free tier limita a 10 req/min. */
+let monitorUptimeCache: { data: MonitorUptimeResponse; expiresAt: number } | null = null
+
+async function fetchMonitorUptime(): Promise<MonitorUptimeResponse> {
+  const apiKey = process.env.UPTIMEROBOT_API_KEY?.trim()
+  if (!apiKey) return { configurado: false, monitores: [] }
+
+  if (monitorUptimeCache && Date.now() < monitorUptimeCache.expiresAt) {
+    return monitorUptimeCache.data
+  }
+
+  const body = new URLSearchParams({
+    api_key: apiKey,
+    format: 'json',
+    custom_uptime_ratios: '1-7-30',
+    logs: '1',
+    logs_limit: '10',
+  })
+  const resposta = await fetch('https://api.uptimerobot.com/v2/getMonitors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  })
+  const raw = uptimeRobotResponseSchema.parse(await resposta.json())
+
+  if (raw.stat !== 'ok') {
+    return { configurado: true, monitores: [], erro: raw.error?.message ?? 'UptimeRobot retornou erro' }
+  }
+
+  const monitores: MonitorUptimeEntry[] = (raw.monitors ?? []).map((m) => {
+    const ratios = (m.custom_uptime_ratio ?? '').split('-').map((r) => Number.parseFloat(r))
+    return {
+      id_monitor: String(m.id),
+      nome_monitor: m.friendly_name,
+      url_monitor: m.url,
+      status_monitor: mapearStatusUptimeRobot(m.status),
+      uptime_1d: Number.isFinite(ratios[0]) ? ratios[0] : null,
+      uptime_7d: Number.isFinite(ratios[1]) ? ratios[1] : null,
+      uptime_30d: Number.isFinite(ratios[2]) ? ratios[2] : null,
+      eventos_monitor: (m.logs ?? []).map((log) => ({
+        tipo_evento_monitor: log.type === 1 ? 'QUEDA' as const : log.type === 2 ? 'RETORNO' as const : 'OUTRO' as const,
+        data_evento_monitor: new Date(log.datetime * 1000).toISOString(),
+        duracao_segundos_evento_monitor: log.duration,
+        motivo_evento_monitor: log.reason?.detail ?? null,
+      })),
+    }
+  })
+
+  const data: MonitorUptimeResponse = { configurado: true, monitores }
+  monitorUptimeCache = { data, expiresAt: Date.now() + 30_000 }
+  return data
+}
+
+adminSecurityRouter.get('/monitor-uptime', async (_req, res, next) => {
+  try {
+    res.json(await fetchMonitorUptime())
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ---------------------------------------------------------------------------
 // GET /segredos — status de rotacao de secrets
 // ---------------------------------------------------------------------------
 

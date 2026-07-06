@@ -94,6 +94,7 @@ const CriarCotacaoSchemaBase = z.object({
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional: z.enum(['I', 'II', 'III']).optional(),
   observacoes_carga_perigosa_cotacao_bid_frete_internacional: z.string().max(500).optional(),
   incluir_armazenagem_cotacao_bid_frete_internacional: z.boolean().default(false),
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional: z.array(z.string().min(1).max(200)).max(20).optional(),
   fornecedor_ids: z.array(z.string()).optional(),
   disparar_ao_criar: z.boolean().default(false),
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
@@ -235,6 +236,20 @@ function prepararCamposOpcaoPortoAeroportoCotacao(dados: DadosCotacaoBase) {
       dados.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional ?? [],
     ),
   }
+}
+
+/** Nomes de armazém só persistem quando o comprador optou por incluir armazenagem; vazios são descartados. */
+function nomesArmazemAlfandegadoParaPersistencia(
+  dados: Pick<
+    DadosCotacaoBase,
+    'incluir_armazenagem_cotacao_bid_frete_internacional' | 'nomes_armazem_alfandegado_cotacao_bid_frete_internacional'
+  >,
+): string[] | null {
+  if (!dados.incluir_armazenagem_cotacao_bid_frete_internacional) return null
+  const nomes = (dados.nomes_armazem_alfandegado_cotacao_bid_frete_internacional ?? [])
+    .map((nome) => nome.trim())
+    .filter(Boolean)
+  return nomes.length > 0 ? nomes : null
 }
 
 async function prepararRotaComValidacaoCadastros(
@@ -390,6 +405,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       data: {
         ...camposPersistencia,
         ...camposOpcaoPortoAeroporto,
+        nomes_armazem_alfandegado_cotacao_bid_frete_internacional:
+          nomesArmazemAlfandegadoParaPersistencia(camposCotacao),
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),

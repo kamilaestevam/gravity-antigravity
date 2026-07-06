@@ -1,11 +1,22 @@
-﻿{
+{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "My Journey", "docs": "Manuals", "builders": "Gravity Partner", "produtos_gravity": "Gravity Products" },
+    "nav": {
+      "academy": "Onboarding",
+      "minha_jornada": "My Journey",
+      "docs": "Manuals",
+      "builders": "Gravity Partner",
+      "produtos_gravity": "Gravity Products"
+    },
     "academy": {
       "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."
     },
-    "badge": { "em_breve": "Coming Soon", "restrito": "Restricted", "nova_empresa": "New company", "convidar_usuario": "Invite user" },
+    "badge": {
+      "em_breve": "Coming Soon",
+      "restrito": "Restricted",
+      "nova_empresa": "New company",
+      "convidar_usuario": "Invite user"
+    },
     "produto": {
       "login": "Login",
       "navegacao": "Navigation",
@@ -28,21 +39,54 @@
       "em_construcao": "Under construction",
       "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
     },
-    "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey", "concluida": "Completed" },
-    "aula": { "voltar": "Back", "marcar_concluida": "Mark as complete", "inicio": "Start", "fim": "End of module" },
-    "grupo": { "comece_aqui": "Start here", "seus_produtos": "Your products", "explorar": "Explore more" },
-    "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules", "total": "Total:" },
-    "progresso": { "produtos_contratados": "Progress on contracted products", "concluidos": "completed" },
+    "acao": {
+      "continuar": "Continue",
+      "iniciar_jornada": "Start journey",
+      "concluida": "Completed"
+    },
+    "aula": {
+      "voltar": "Back",
+      "marcar_concluida": "Mark as complete",
+      "inicio": "Start",
+      "fim": "End of module"
+    },
+    "grupo": {
+      "comece_aqui": "Start here",
+      "seus_produtos": "Your products",
+      "explorar": "Explore more"
+    },
+    "trilha": {
+      "modulos_one": "{{count}} module",
+      "modulos_other": "{{count}} modules",
+      "total": "Total:"
+    },
+    "progresso": {
+      "produtos_contratados": "Progress on contracted products",
+      "concluidos": "completed"
+    },
     "dica": {
       "titulo": "Tips and Explanations",
       "habilitadas": "Enabled — tips appear on hover",
       "desabilitadas": "Disabled — no tips are shown"
     },
-    "busca": { "organizacao": "Search organization…" },
-    "jornada": { "pontos": "Points", "concluidas": "Completed", "em_andamento": "In progress", "certificados": "Certificates" },
-    "vazio": { "em_breve": "{{secao}} — coming soon" },
-    "docs": { "descricao": "Manuals and videos for the whole platform — GABI's knowledge base." },
-    "builders": { "descricao": "Pointers for integrators and developers (API Cockpit)." }
+    "busca": {
+      "organizacao": "Search organization…"
+    },
+    "jornada": {
+      "pontos": "Points",
+      "concluidas": "Completed",
+      "em_andamento": "In progress",
+      "certificados": "Certificates"
+    },
+    "vazio": {
+      "em_breve": "{{secao}} — coming soon"
+    },
+    "docs": {
+      "descricao": "Manuals and videos for the whole platform — GABI's knowledge base."
+    },
+    "builders": {
+      "descricao": "Pointers for integrators and developers (API Cockpit)."
+    }
   },
   "BIDFRETE": {
     "NOVA_COTACAO": {
@@ -55,13 +99,52 @@
       "insights": "Insights",
       "lista": "List",
       "dashboard": "Dashboard",
-      "kanban": "Kanban"
+      "kanban": "Kanban",
+      "cotacoes": "Quotes",
+      "importar": "Import Quotes",
+      "fornecedores": "Suppliers",
+      "configuracoes": "Settings"
+    },
+    "page_meta": {
+      "lista": "All freight quotes in table view",
+      "cotacoes": "International freight quotes",
+      "importar": "Bulk import quotes via spreadsheet",
+      "configuracoes": "Customize cards, columns and product statuses",
+      "detalhe_cotacao": {
+        "titulo": "Quote Details",
+        "subtitulo": "Information, proposals and quote actions"
+      },
+      "detalhe_fornecedor": {
+        "titulo": "Supplier Details",
+        "subtitulo": "History, rating and carrier data"
+      },
+      "comparativo": {
+        "subtitulo": "Compare proposals and select the best option"
+      },
+      "responder_cotacao": {
+        "subtitulo": "Send your proposal for this quote"
+      },
+      "fornecedor": {
+        "dashboard": "Overview of your quotes and performance",
+        "lista": "All opportunities in table view",
+        "cotacoes_pendentes": "Quotes awaiting your proposal",
+        "propostas": "Proposals you sent",
+        "tabelas_valor": "Your rate tables",
+        "desempenho": "Metrics and rating",
+        "configuracoes": "Customize cards, columns and kanban in your view"
+      }
     },
     "lista": {
+      "abrir_cotacao": "Open quote",
+      "abrir_cotacao_numero": "Open quote {{numero}}",
       "label_bid_one": "bid",
       "label_bid_other": "bids",
       "label_cotacao_one": "quote",
-      "label_cotacao_other": "quotes"
+      "label_cotacao_other": "quotes",
+      "colunas": {
+        "data_aprovacao": "Data approval",
+        "data_cancelamento": "Data cancelamento"
+      }
     },
     "nova_cotacao": {
       "tipo_operacao_cotacao_bid_frete_internacional": "Operation Type",
@@ -84,6 +167,9 @@
       "criar": "Create Quote",
       "criando": "Creating...",
       "modal_operacao": "Modal & Operation",
+      "numero_cotacao": "Quote No.",
+      "numero_cotacao_hint": "Auto-generated; you can customize it before creating.",
+      "numero_cotacao_placeholder": "COT-YYYYMMDD-NNNN",
       "titulo": "New Freight Quote",
       "titulo_internacional": "New International Freight Quote",
       "tipo_operacao": "Operation Type",
@@ -209,7 +295,62 @@
       "incotermFasDesc": "Seller delivers alongside the ship",
       "incotermFasResp": "Buyer pays loading + freight",
       "adicionar_outra_bid": "Add another quote to the BID",
-      "subtitulo_vinculada_bid": "Quote linked to BID — fill in the details to find the best freight options"
+      "subtitulo_vinculada_bid": "Quote linked to BID — fill in the details to find the best freight options",
+      "step_origem_destino": "Origin & Destination",
+      "step_carga_incoterm": "Cargo & Incoterm",
+      "step_armazenagem": "Storage",
+      "operacao_desc_importacao": "Bring cargo from other countries into the domestic market.",
+      "operacao_desc_exportacao": "Send domestic products to international buyers.",
+      "modal_desc_maritimo": "High volume, lower cost",
+      "modal_desc_aereo": "Fast, express delivery",
+      "modal_desc_rodoviario": "Flexible door-to-door",
+      "label_fcl_completo": "FCL — Full Container",
+      "label_lcl_fracionada": "LCL — Consolidated Cargo",
+      "carga_perigosa_secao": "Dangerous goods",
+      "carga_perigosa_label": "Dangerous Goods",
+      "carga_perigosa_desc": "UN-classified goods (IMDG / ADR / IATA DGR). Enter the UN number in the Cargo step.",
+      "incoterm_grupo_e": "Group E — Seller departure",
+      "incoterm_grupo_f": "Group F — Main carriage unpaid (maritime)",
+      "incoterm_grupo_c": "Group C — Main carriage paid",
+      "incoterm_grupo_d": "Group D — Arrival at destination",
+      "incoterm_grupo_label": "Group",
+      "exibir_campos_origem": "Show fields: Origin City, Origin State/Province and Origin Country",
+      "exibir_campos_destino": "Show fields: Destination City, Destination State/Province and Destination Country",
+      "legenda_origem_aeroporto": "Enter the departure airport. Check the option below if you need to add address or country.",
+      "legenda_origem_porto": "Enter the port of loading. Check the option below if you need to add address or country.",
+      "legenda_origem_rodoviario": "Enter country, state/province and pickup city (Latin America).",
+      "legenda_destino_aeroporto": "Enter the arrival airport. Check the option below if you need to add address or country.",
+      "legenda_destino_porto": "Enter the destination port. Check the option below if you need to add address or country.",
+      "legenda_destino_rodoviario": "Enter country, state/province and delivery city (Latin America).",
+      "titulo_aeroporto_origem": "Origin Airport",
+      "titulo_aeroporto_destino": "Destination Airport",
+      "titulo_local_rodoviario_origem": "Road origin location",
+      "titulo_local_rodoviario_destino": "Road destination location",
+      "sim": "Yes",
+      "nao": "No",
+      "selecione": "Select",
+      "hint_armazenagem": "Available for Maritime LCL shipments. Indicate whether the quote should include storage.",
+      "campo_incluir_armazenagem": "Include storage",
+      "label_armazenagem": "Storage",
+      "resumo_incluir_armazenagem": "Include storage",
+      "resumo_nao_incluir_armazenagem": "Do not include storage",
+      "resumo_containers": "Containers",
+      "resumo_tipo_volume": "Volume type",
+      "anonima_desc_long": "Hide your company name in the initial bidding market for full confidentiality.",
+      "erro_criar_cotacao": "Error creating quote: {{detalhe}}",
+      "disparo_nao_configurado": "Dispatch not configured",
+      "disparo_nao_configurado_detalhe": "Select at least one channel (Email) and suppliers in the previous step.",
+      "disparo_nao_realizado": "Dispatch not performed",
+      "disparo_nao_realizado_detalhe": "No supplier selected for sending.",
+      "embalagem_unidade": "Unit (UN)",
+      "embalagem_caixa": "Box",
+      "embalagem_pallet": "Pallet",
+      "embalagem_volume": "Volume",
+      "embalagem_fardo": "Bale",
+      "embalagem_saco": "Bag",
+      "embalagem_tambor": "Drum",
+      "embalagem_big_bag": "Big Bag",
+      "fornecedores_disparo": "Suppliers & dispatch"
     },
     "novo_bid": {
       "titulo": "New BID",
@@ -283,12 +424,241 @@
       "goalDays": "Goal: {{count}} days",
       "openAmountUsd": "Open amount (USD)",
       "accumulatedUsd": "Accumulated (USD)",
-      "totalAmountUsd": "Total amount (USD)"
+      "totalAmountUsd": "Total amount (USD)",
+      "subtitulo_pagina": "Configurable KPIs and widgets",
+      "subtitulo_pagina_fornecedor": "Supplier configurable KPIs and widgets",
+      "painel_criado_sucesso": "Panel \"{{nome}}\" created.",
+      "painel_criado_erro": "Could not save the panel.",
+      "faixa_paineis": "Dashboard panels",
+      "paineis_secao": "Dashboard panels",
+      "gabi_insight_anterior": "Previous insight",
+      "gabi_proximo_insight": "Next insight",
+      "gabi_ao_vivo": "live",
+      "widget_adicionado_sucesso": "Widget \"{{title}}\" added to your dashboard successfully.",
+      "widgets": {
+        "kpi_saving_total": "Total Saving",
+        "kpi_valor_medio": "Average Won Value",
+        "kpi_transit_time": "Average Transit Time",
+        "kpi_ganho_percentual": "Percentage Gain",
+        "gabi_insights": "GABI AI · Insights",
+        "volume_mensal_chart": "Monthly Quote Volume",
+        "section_alertas": "Alerts and Operational Flows",
+        "kpi_cotacoes_andamento": "Quotes in Progress",
+        "kpi_cotacoes_passadas": "Past Quotes",
+        "kpi_valor_aprovado": "Total Approved Value",
+        "status_dist_chart": "Quotes by Status",
+        "kpi_pendentes_fornecedor": "Awaiting response",
+        "kpi_propostas_enviadas_fornecedor": "Proposals sent",
+        "kpi_taxa_resposta_fornecedor": "Response rate",
+        "kpi_taxa_aprovacao_fornecedor": "Approval rate",
+        "gabi_insights_fornecedor": "GABI AI · Insights",
+        "volume_mensal_fornecedor": "Monthly proposal volume",
+        "section_funil_fornecedor": "Funnel and results",
+        "kpi_em_analise_fornecedor": "Under review",
+        "kpi_aprovadas_fornecedor": "Approved",
+        "kpi_reprovadas_fornecedor": "Declined",
+        "funil_dist_fornecedor": "Proposal funnel"
+      },
+      "catalog": {
+        "saving_total": "Total Saving (Gain vs Target)",
+        "valor_medio_ganho_bid_frete_internacional": "Average Won Value",
+        "cotacoes_status": "Quotes by Status",
+        "ganho_percentual_ganho_bid_frete_internacional": "Average Percentage Gain",
+        "transit_time": "Average Transit Time (Days)",
+        "volume_mensal": "Monthly Quote Volume",
+        "cotacoes_andamento": "Quotes in Progress",
+        "cotacoes_passadas": "Past Quotes",
+        "valor_andamento_usd": "Total In-Progress Value (USD)",
+        "valor_aprovado_usd": "Total Approved Value (USD)"
+      },
+      "catalog_dimensao": {
+        "status_cotacao": "Quote Status"
+      },
+      "status_toolbar": {
+        "rascunho": "Draft",
+        "em_cotacao": "In Quoting",
+        "aguardando_aprovacao": "Pending Approval",
+        "aprovada": "Approved"
+      },
+      "derivadas": {
+        "saving_medio_por_cotacao": {
+          "label": "Average Saving per Quote",
+          "description": "Average amount saved per completed quote in the period"
+        },
+        "taxa_conclusao_cotacoes": {
+          "label": "Quote Completion Rate",
+          "description": "Percentage of past quotes relative to total (in progress + past)"
+        },
+        "ticket_medio_aprovado": {
+          "label": "Average Approved Ticket",
+          "description": "Average value of approved proposals"
+        }
+      },
+      "sugestoes": {
+        "distribuicao_titulo": "Distribution of {{dimLabel}}",
+        "distribuicao_descricao": "Proportion between {{fields}}",
+        "tendencia_mes_titulo": "{{label}} by Month",
+        "tendencia_mes_descricao": "Volume trend of {{label}} over the last 12 months",
+        "evolucao_titulo": "Trend — {{label}}",
+        "evolucao_descricao": "Monthly time series of {{label}}",
+        "comparativo_qty_titulo": "Quantity Comparison — {{domainLabel}}"
+      },
+      "insights": {
+        "rascunhos_ativos": {
+          "tag": "Attention · Pending Drafts",
+          "texto_one": "{{count}} quote in draft. Finalize and send for freight negotiation.",
+          "texto_other": "{{count}} quotes in draft. Finalize and send for freight negotiation.",
+          "stat_label": "In draft",
+          "link": "View quotes"
+        },
+        "cotacoes_andamento": {
+          "tag": "Operational · In Quoting",
+          "texto_one": "{{count}} active freight quote round in the market.",
+          "texto_other": "{{count}} active freight quote rounds in the market.",
+          "stat_valor": "Value in quoting",
+          "stat_ativas": "Active quotes",
+          "link": "Track BIDs"
+        },
+        "saving_total": {
+          "tag": "Financial · Accumulated Saving",
+          "texto": "Saving generated in freight negotiations totals {{valor}}.",
+          "stat_reducao": "Average reduction",
+          "stat_total": "Total saved",
+          "link": "View comparisons"
+        },
+        "valor_aprovado": {
+          "tag": "Financial · Awarded",
+          "texto": "International freight awards total {{valor}} in approved proposals.",
+          "stat_ticket": "Average won ticket",
+          "link": "View awarded"
+        },
+        "tendencia_volume": {
+          "tag": "Trend · Closed BIDs",
+          "texto_cresceu": "Volume of awarded quotes grew {{pct}} compared to the previous period.",
+          "texto_caiu": "Volume of awarded quotes fell {{pct}} compared to the previous period.",
+          "stat_anterior": "Previous period",
+          "link": "Explore data"
+        },
+        "status_ok": {
+          "tag": "Gabi AI · All clear",
+          "texto": "No critical pending items or operational anomalies identified in the selected period.",
+          "stat_periodo": "Period",
+          "link": "View quotes"
+        }
+      },
+      "vazio_widget": {
+        "gabi_tag": "GABI · No data in period",
+        "ampliar_para": "Expand to:",
+        "experimente": "Try:",
+        "editar_campos": "Edit fields",
+        "remover_widget": "Remove widget",
+        "campo_generico": "this field",
+        "conector_e": "and",
+        "distribuicao": "No records found to distribute {{field}} in the selected period. Adjust filters to continue.",
+        "tendencia": "No trend data for {{field}} in this interval. Try expanding the period.",
+        "barras": "No activity recorded to compare {{field}} in the current period.",
+        "generico": "No data available for this widget in the selected period. Expand the interval or adjust fields."
+      }
     },
     "config": {
       "sidebar": {
+        "grupo_visualizacoes": "VIEWS",
+        "cards": "Cards",
+        "tabela": "Table",
+        "colunas": "Columns",
+        "casas_decimais": "Decimal Places",
+        "formato_data": "Date Format",
+        "personalizadas": "Custom",
+        "campos_calculados": "Calculated Fields",
+        "kanban": "Kanban",
+        "kanban_colunas": "Columns",
+        "card": "Card",
+        "modal": "Modal",
         "dashboard_kpi": "Overview",
-        "grupo_bidfrete": "BID International Freight"
+        "grupo_bidfrete": "BID INTERNATIONAL FREIGHT",
+        "status": "Quote Status",
+        "status_bid": "BID Status",
+        "numeracao": "Numbering",
+        "taxa_cambio": "Exchange Rate"
+      },
+      "acao": {
+        "salvar": "save",
+        "restaurar_padrao": "Restaurar padrão",
+        "cancelar": "Cancelar",
+        "descartar": "Descartar",
+        "arrastar": "Arrastar para reordenar"
+      },
+      "cards": {
+        "msg_salvo": "Preferências de cards salvas com success.",
+        "total_cotacoes": "Total de quotes",
+        "total_cotacoes_desc": "Total de quotes de freight iniciadas no período",
+        "valor_total_frete": "Valor Total de freight",
+        "valor_total_frete_desc": "Valor acumulado das proposals de freight approveds",
+        "propostas_recebidas": "proposals Recebidas",
+        "propostas_recebidas_desc": "Quantidade total de respostas recebidas de supplieres",
+        "saving_total": "Saving Total",
+        "saving_total_desc": "Economia gerada comparando a proposta vencedora com o teto",
+        "tempo_medio_resposta": "Tempo Médio de Resposta",
+        "tempo_medio_resposta_desc": "Tempo médio de resposta dos armadores e agentes de carga",
+        "cotacoes_expiradas": "quotes Expiradas",
+        "cotacoes_expiradas_desc": "quotes de freight expiradas sem approval",
+        "cotacoes_em_atraso": "quotes em Atraso",
+        "cotacoes_em_atraso_desc": "quotes com deadline de resposta vencido e ainda waiting retorno",
+        "cotacoes_acima_meta": "Quantidade quotes acima da meta",
+        "cotacoes_acima_meta_desc": "quotes cuja melhor proposta ou valor aprovado supera o valor meta"
+      },
+      "status": {
+        "titulo": "Status de quote",
+        "descricao": "Arraste para reordenar · status de sistema são fixos (sem editar ou excluir)",
+        "novo_status": "Novo Status",
+        "badge_sistema": "sistema",
+        "tooltip_sistema": "Status padrão do sistema — não pode ser editado, excluído ou ocultado",
+        "editar_tooltip": "Editar status",
+        "excluir_tooltip": "Excluir status",
+        "aria_editar": "Editar status",
+        "aria_excluir": "Excluir status",
+        "placeholder_novo": "Nome do novo status (ex.: Em Análise do Armador)",
+        "cor": "Cor",
+        "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
+        "msg_salvo": "Status saved successfully."
+      },
+      "status_bid": {
+        "titulo": "Manage BID Status",
+        "descricao": "Configure statuses for the BID group (quote batch container)."
+      },
+      "kanban": {
+        "card_msg_salvo": "Card do Kanban salvo com success."
+      },
+      "dashboard_kpi": {
+        "titulo": "Visão Geral — KPIs do topo",
+        "descricao": "Escolha qual status de quote cada um dos 4 cards fixos do panel Visão Geral representa.",
+        "cards_topo": "CARDS DO TOPO",
+        "card_status": "Card {{n}} — Status",
+        "sem_status": "Nenhum status cadastrado. Configure em Status primeiro.",
+        "selecionar_status": "Selecionar status",
+        "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo",
+        "preview": "Preview — como ficará na Visão Geral",
+        "msg_salvo": "Preferências dos KPIs da Visão Geral salvas com success."
+      },
+      "colunas": {
+        "casas_decimais": {
+          "descricao": "Define quantas casas decimais são exibidas em colunas numéricas. Padrão: 2.",
+          "grupo_personalizadas": "Personalizadas",
+          "titulo": "Casas decimais por coluna"
+        },
+        "formato_data": {
+          "descricao": "Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.",
+          "preview_label": "Preview com a data de hoje:",
+          "titulo": "Formato de Data"
+        }
+      },
+      "tabela": {
+        "descricao": "Configure paginação e destaque visual na listgem de quotes.",
+        "destacar_expirar": "Destacar quotes prestes a expirar",
+        "destacar_expirar_desc": "Aplica borda sutil avermelhada a quotes com menos de 2 horas restantes para expiração.",
+        "linhas_por_pagina": "Linhas por página padrão",
+        "preferencias": "Preferências de exibição",
+        "titulo": "Preferências da Tabela"
       }
     },
     "tabela": {
@@ -367,7 +737,9 @@
           "tooltipAguardandoEnvio": "Waiting to send",
           "tooltipPropostas": "With proposals",
           "tooltipSla": "Average SLA",
-          "tooltipSlaDias": "{{val}} days"
+          "tooltipSlaDias": "{{val}} days",
+          "tooltipEmCotacao": "Em quote",
+          "tooltipEnviada": "Enviada ao supplier"
         },
         "saving": {
           "titulo": "Total Saving",
@@ -375,7 +747,8 @@
           "tooltipTotal": "Total saving",
           "tooltipMedia": "Average",
           "tooltipMaritimo": "Maritime",
-          "tooltipAereo": "Air"
+          "tooltipAereo": "Air",
+          "tooltipCotacoes": "quotes com saving"
         },
         "aguardandoAprovacao": {
           "titulo": "Pending Approval",
@@ -385,7 +758,8 @@
           "tooltipTempoDias": "{{val}} days",
           "tooltipDecisao": "Decision",
           "tooltipUrgencia": "Urgency",
-          "tooltipUrgenciaAlto": "High"
+          "tooltipUrgenciaAlto": "High",
+          "tooltipPropostas": "proposals recebidas"
         },
         "expiradas": {
           "titulo": "Expired",
@@ -395,7 +769,34 @@
           "tooltipMotivo": "Main reason",
           "tooltipMotivoValor": "No suppliers",
           "tooltipAcao": "Action",
-          "tooltipAcaoValor": "Reopen or archive"
+          "tooltipAcaoValor": "Reopen or archive",
+          "tooltipComProposta": "Com pelo menos 1 proposta",
+          "tooltipSemProposta": "Sem proposta recebida"
+        },
+        "emAtraso": {
+          "titulo": "quotes em Atraso",
+          "subtexto": "deadline de resposta vencido",
+          "tooltipTotal": "Total em atraso",
+          "tooltipCriterio": "Critério",
+          "tooltipCriterioValor": "deadline anterior a hoje · em aberto",
+          "tooltipExpiradas": "Já marcadas como expiradas"
+        },
+        "acimaMeta": {
+          "titulo": "Quantidade quotes acima da meta",
+          "subtextoComMedia": "+{{percentual}}% acima da meta (média)",
+          "subtextoVazio": "no quote acima da meta",
+          "tooltipPeriodo": "Período",
+          "tooltipPeriodoValor": "Últimos 30 dias",
+          "tooltipTotal": "Acima da meta",
+          "tooltipComMeta": "Com meta e proposta",
+          "tooltipPercentualPeriodo": "% do período",
+          "tooltipMediaAcima": "Média acima da meta",
+          "tooltipVazio": "no nos últimos 30 dias"
+        },
+        "custom": {
+          "tooltipCampo": "Campo base",
+          "tooltipFormula": "Fórmula / nota",
+          "tooltipTipo": "Agregação"
         }
       }
     },
@@ -444,7 +845,14 @@
       "modal_aprovar_secao_proposta": "Full proposal details",
       "modal_aprovar_campo_moeda": "Currency",
       "modal_aprovar_campo_escalas": "Legs / stops",
-      "modal_reprovar_desc": "Provide the reason for rejecting all suppliers."
+      "modal_reprovar_desc": "Provide the reason for rejecting all suppliers.",
+      "aprovada": "approved",
+      "reprovada": "rejected",
+      "tag_melhor_preco": "Melhor preço",
+      "tag_melhor_transit": "Melhor trânsito",
+      "tag_melhor_avaliacao": "Melhor avaliação",
+      "erro_aprovar": "error ao aprovar quote",
+      "erro_aprovar_mock": "Esta proposta é apenas demonstração (mock) e não pode ser approved. Use respostas reais de supplieres."
     },
     "configuracoes": {
       "titulo": "Settings",
@@ -586,7 +994,21 @@
       "modal_cor": "Color",
       "modal_formula": "Simplified Formula",
       "cancelar": "Cancel",
-      "criar": "Create"
+      "criar": "Create",
+      "cor_label": "Cor",
+      "status_ativos_label": "STATUS ATIVOS",
+      "placeholder_novo_status": "Ex: Em Análise do Armador",
+      "adicionar_status": "Adicionar Status",
+      "seus_templates_label": "SEUS TEMPLATES",
+      "novo_template_nome": "Novo Template PDF",
+      "prazo_limite_titulo": "deadline Limite Padrão (Horas)",
+      "prazo_limite_desc": "Define o tempo limite recomendado para respostas dos supplieres.",
+      "categorias_registradas_label": "CATEGORIAS REGISTRADAS",
+      "categorias_count": "categorias",
+      "placeholder_nova_categoria": "Ex: Certificado de origin",
+      "ativos_label": "ATIVOS",
+      "suas_colunas_label": "SUAS COLUNAS",
+      "colunas_count": "colunas"
     },
     "fornecedores": {
       "titulo": "Suppliers",
@@ -611,7 +1033,22 @@
       "kpi_total": "Total Suppliers",
       "novo_fornecedor": "New Supplier",
       "todos_tipos": "All types",
-      "ver_detalhes": "View details"
+      "ver_detalhes": "View details",
+      "todos_status": "Todos",
+      "vazio_desc": "Nenhum supplier encontrado com os filtros selecionados.",
+      "aria_tabela": "list de supplieres",
+      "kpi_total_sub": "Cadastrados na organização",
+      "kpi_ativos_sub": "Disponíveis para quote",
+      "kpi_inativos_sub": "Fora de operação",
+      "kpi_rating_sub": "Média de classificação global",
+      "modal": {
+        "titulo": "Novo supplier",
+        "subtitulo": "Cadastre agente de carga, armador ou transportadora",
+        "salvar": "Cadastrar supplier",
+        "salvando": "Salvando...",
+        "sucesso": "supplier cadastrado com success.",
+        "erro_salvar": "error ao cadastrar supplier"
+      }
     },
     "detalhe_fornecedor": {
       "carregando": "Loading supplier...",
@@ -652,7 +1089,8 @@
       "field_resposta_automatica": "Automatic response",
       "field_cadastrado_em": "Registered on",
       "sim": "Yes",
-      "nao": "No"
+      "nao": "No",
+      "nota_global_classificacao_bid_frete_internacional": "Nota global"
     },
     "importar": {
       "titulo": "Import Quotes in Bulk",
@@ -770,7 +1208,8 @@
         "horas_restantes_one": "{{count}} hour remaining",
         "horas_restantes_other": "{{count}} hours remaining",
         "min_restantes_one": "{{count}} minute remaining",
-        "min_restantes_other": "{{count}} minutes remaining"
+        "min_restantes_other": "{{count}} minutes remaining",
+        "unidades": "units"
       },
       "meu_desempenho": {
         "titulo": "My Performance",
@@ -872,7 +1311,15 @@
         "cabecalho_importador": "Importer",
         "cabecalho_exportador": "Exporter",
         "cabecalho_cliente_oculto": "Client chose to remain hidden",
-        "voltar": "Back"
+        "voltar": "Back",
+        "moeda_selecionar": "Selecionar moeda",
+        "moeda_erro": "error ao carregar moedas: {{error}}",
+        "moeda_sem_cadastro": "no moeda cadastrada",
+        "taxas_adicionar_manual": "Adicionar taxa manual",
+        "taxas_moeda": "Moeda",
+        "taxas_nome": "Taxa",
+        "taxas_placeholder_nome_manual": "Nome da taxa (digitação livre)",
+        "taxas_valor": "Valor"
       },
       "publico": {
         "carregando": "Loading quote...",
@@ -884,7 +1331,13 @@
         "campos_obrigatorios": "Please fill in required fields: Currency, Freight Value, Transit Time, Validity, Payment term, and Free Time (when FCL)",
         "header_titulo": "BID International Freight — Respond to Quote",
         "erro_envio": "Error submitting response",
-        "placeholder_observacoes": "Additional information, special conditions, notes..."
+        "placeholder_observacoes": "Additional information, special conditions, notes...",
+        "armazenagem_invalida": "Preencha os períodos de armazenagem: dias, tipo de tarifa e valor. Mínimo em R$ é opcional.",
+        "atualizando": "Atualizando proposta...",
+        "atualizar_proposta": "Atualizar Proposta",
+        "aviso_edicao": "Você pode editar sua proposta enquanto o deadline de resposta estiver aberto.",
+        "obrigado_atualizacao_desc": "Sua proposta foi atualizada com success e será analisada pelo comprador.",
+        "obrigado_atualizacao_titulo": "Proposta atualizada"
       },
       "tabela_precos": {
         "titulo": "Price Table",
@@ -1038,9 +1491,41 @@
         "col_prazo": "Response deadline",
         "col_recebido": "Received on",
         "acao_abrir": "Open",
-        "toggle_visao": "Switch view"
+        "toggle_visao": "Switch view",
+        "col_destino": "destination",
+        "col_modalidade": "Modalidade",
+        "col_origem": "origin",
+        "col_referencia": "Referência",
+        "col_status_funil": "Status",
+        "kpi_oportunidades": "Oportunidades",
+        "kpi_oportunidades_desc": "Convites e quotes no seu funil",
+        "kpi_propostas_enviadas": "proposals enviadas",
+        "kpi_propostas_enviadas_desc": "Respostas que você já enviou",
+        "kpi_valor_aprovado": "Valor aprovado",
+        "kpi_valor_aprovado_desc": "Soma das suas proposals approveds no período",
+        "toggle_lista": "List",
+        "toggle_kanban": "Kanban",
+        "buscar_curto": "Search",
+        "erro_carregar": "Error loading opportunities",
+        "col_data_cotacao": "Quote date",
+        "col_solicitante": "Requester",
+        "col_valor_total": "Total value",
+        "solicitante_oculto": "Hidden",
+        "painel_criado_sucesso": "Panel saved successfully.",
+        "painel_criado_erro": "Could not save the panel.",
+        "vazio_sem_filtro": "No opportunities available at the moment.",
+        "acao_excluir": "Remove from list",
+        "excluir": "Remove from list",
+        "excluir_desc": "Removes selected opportunities from your list.",
+        "excluir_selecionados": "Remove {{count}} selected",
+        "excluir_sucesso": "Opportunity(ies) removed from the list.",
+        "export_titulo": "Export opportunities",
+        "modal_excluir_titulo": "Remove from list?",
+        "modal_excluir_desc": "This removes opportunities from your view without cancelling the quote.",
+        "modal_excluir_n_itens": "Remove {{count}} selected opportunity(ies)?"
       },
       "kanban": {
+        "subtitulo": "Your quotes and proposals by stage",
         "aguardando_resposta": "Awaiting response",
         "em_analise": "Under review",
         "aprovada": "Approved",
@@ -1193,7 +1678,8 @@
       "campos_obrigatorios": "Fill required fields: currency, freight value, transit time, validity, payment term and free time (when FCL)",
       "header_titulo": "BID International Freight — respond to quote",
       "erro_envio": "Error sending response",
-      "placeholder_observacoes": "Additional information, special conditions, notes..."
+      "placeholder_observacoes": "Additional information, special conditions, notes...",
+      "armazenagem_invalida": "Preencha os períodos de armazenagem: dias, tipo de tarifa e valor. Mínimo em R$ é opcional."
     },
     "detalhe_cotacao": {
       "aprovado": "Approved",
@@ -1264,7 +1750,166 @@
       "cronograma_ultima_resposta": "Last response",
       "cronograma_ultima_atualizacao": "Last updated",
       "cockpit_combat_matrix": "Response ranking",
-      "cockpit_comentarios": "Comments"
+      "cockpit_comentarios": "Comments",
+      "data_envio": "Data de envio",
+      "data_resposta": "Data de resposta",
+      "card_detalhes_gerais": "details Gerais",
+      "card_rota": "Rota",
+      "card_detalhes_carga": "details da Carga",
+      "fluxo_rascunho_concluido": "draft Concluído. Criada em {{data}}",
+      "fluxo_cotacao_enviada": "quote Enviada",
+      "fluxo_aguardando_propostas": "waiting proposals (Em Progresso)",
+      "fluxo_pendente": "pending",
+      "fluxo_concluido": "Concluído",
+      "status": "Status",
+      "selecionar_status": "Selecione o status",
+      "erro_status": "error ao alterar status",
+      "kpi": {
+        "grupo": "Resumo da quote",
+        "cotacoes": "quotes",
+        "cotacoes_avulsa": "quote avulsa",
+        "cotacoes_no_bid": "No BID {{numero}}",
+        "fornecedores": "supplieres",
+        "fornecedores_sub": "Contatados no disparo",
+        "propostas": "proposals",
+        "propostas_sub": "Respostas recebidas"
+      },
+      "ver_comparativo": "Ver comparativo completo",
+      "resposta_colocacao": "{{posicao}}ª de {{total}}",
+      "resposta_score": "Score",
+      "resposta_vs_melhor": "vs 1º preço",
+      "resposta_vs_media": "vs média",
+      "resposta_melhor_preco": "Melhor preço",
+      "resposta_rank_preco": "Preço",
+      "resposta_rank_transito": "Trânsito",
+      "resposta_rank_avaliacao": "Avaliação",
+      "resposta_carregando_ranking": "Calculando colocação...",
+      "resposta_ordenar_por": "Ordenar por",
+      "resposta_ordem_score": "Score geral",
+      "resposta_ordem_preco": "Menor preço",
+      "resposta_ordem_transito": "Melhor trânsito",
+      "resposta_ordem_avaliacao": "Melhor avaliação",
+      "resposta_ordem_transbordo": "Menor transbordo",
+      "resposta_ordem_free_time": "Maior free time",
+      "resposta_posicao_por_criterio": "{{posicao}}º por {{criterio}}",
+      "resposta_rank_score_tooltip": "Colocação no score geral",
+      "info_tempo_resposta": "Tempo de resposta",
+      "info_melhor_valor": "Melhor valor",
+      "info_ranking": "Ranking",
+      "info_transito": "Trânsito",
+      "info_transito_comparativo": "Comparativo de trânsito",
+      "info_resumo_proposta": "Melhor proposta",
+      "info_valor_frete": "Valor do freight",
+      "info_valor_taxas": "Valor taxas",
+      "info_valor_total": "Valor total",
+      "info_transito_total": "Trânsito total",
+      "info_num_transbordo": "Nº transbordo",
+      "info_free_time": "Free time",
+      "spark_melhor_proposta": "Melhor proposta (ganhador)",
+      "spark_igual_ganhador": "Igual ao ganhador",
+      "spark_pior_vs_ganhador": "+{{diff}} vs ganhador",
+      "spark_melhor_vs_ganhador": "{{diff}} melhor que o ganhador",
+      "spark_pior_vs_ganhador_menos": "−{{diff}} vs ganhador",
+      "spark_melhor_vs_ganhador_mais": "+{{diff}} vs ganhador",
+      "spark_sufixo_escala": "escala(s)",
+      "spark_tooltip_vs_outras": "Vs outras quotes",
+      "spark_tooltip_media_outras": "Média das outras",
+      "spark_tooltip_n_propostas": "{{n}} proposta(s)",
+      "spark_diff_igual": "Igual",
+      "spark_diff_igual_a": "Igual a {{alvo}}",
+      "spark_maior_que": "maior",
+      "spark_menor_que": "menor",
+      "spark_alvo_proposta_card": "a proposta do card",
+      "spark_alvo_outras_cotacoes": "as outras quotes",
+      "spark_diff_legenda": "{{diff}} {{maior_menor}} que {{alvo}}",
+      "spark_tooltip_analise": "Análise",
+      "spark_pct_mais_rapido_que": "{{pct}} mais rápido que {{nome}}",
+      "spark_pct_mais_lento_que": "{{pct}} mais lento que {{nome}}",
+      "spark_pct_mais_barato_que": "{{pct}} mais barato que {{nome}}",
+      "spark_pct_mais_caro_que": "{{pct}} mais caro que {{nome}}",
+      "spark_pct_mais_free_time_que": "{{pct}} mais free time que {{nome}}",
+      "spark_pct_menos_free_time_que": "{{pct}} menos free time que {{nome}}",
+      "spark_pct_menos_escalas_que": "{{pct}} menos escalas que {{nome}}",
+      "spark_pct_mais_escalas_que": "{{pct}} mais escalas que {{nome}}",
+      "spark_pct_melhor_que": "{{pct}} melhor que {{nome}}",
+      "spark_pct_pior_que": "{{pct}} pior que {{nome}}",
+      "barra_metrica_melhor": "Melhor",
+      "barra_metrica_colocacao": "{{n}}º",
+      "barra_metrica_delta_vs_melhor": "{{delta}} vs melhor",
+      "colocacao_grade_titulo": "Colocação por eixo",
+      "colocacao_eixo_frete_total": "freight total",
+      "colocacao_eixo_transit": "Transit time",
+      "colocacao_eixo_rota": "Escala / transbordo",
+      "colocacao_eixo_prazo": "deadline pagamento",
+      "colocacao_eixo_de_total": "{{rank}}º de {{total}}",
+      "colocacao_sem_dado": "—",
+      "colocacao_escalas_n": "{{n}} escala(s)",
+      "colocacao_transbordos_n": "{{n}} transbordo(s)",
+      "info_resposta_rapida": "Mais rápido: {{tempo}} ({{supplier}})",
+      "info_aguardando_respostas": "{{n}} disparos · waiting",
+      "info_economia_2": "−{{pct}}% vs 2º",
+      "info_score_lider": "Score {{score}}",
+      "info_respostas_n": "{{n}} respostas",
+      "info_legenda": "Insights com base em {{n}} proposals recebidas",
+      "info_minutos": "min",
+      "info_horas": "h",
+      "abrir_link": "Abrir",
+      "cockpit_abas": "Abas",
+      "cockpit_aviso_graficos_passo_aguardando_1": "Melhor proposta e métricas Transit / Free Time / Escala dependem de proposals recebidas.",
+      "cockpit_aviso_graficos_passo_aguardando_2": "Com 2 ou mais respostas, as barras comparativas são exibidas em todos os cards.",
+      "cockpit_aviso_graficos_passo_parcial_1": "Aguarde mais uma resposta ou convide supplieres adicionais.",
+      "cockpit_aviso_graficos_passo_parcial_2": "Com 2+ proposals, o ranking e a Melhor proposta exibem barras comparativas.",
+      "cockpit_aviso_graficos_passo_rascunho_1": "Finalize os dados e dispare a quote.",
+      "cockpit_aviso_graficos_passo_rascunho_2": "Com as respostas, liberamos Melhor proposta, ranking e mini-gráficos.",
+      "cockpit_aviso_graficos_passo_rascunho_3": "O termômetro histórico usa dados reais após aprovações na mesma rota.",
+      "cockpit_aviso_graficos_passo_sem_dados_1": "Envie a quote aos supplieres cadastrados.",
+      "cockpit_aviso_graficos_passo_sem_dados_2": "Os mini-gráficos só comparam valores entre proposals recebidas.",
+      "cockpit_aviso_graficos_termometro": "O termômetro histórico exibe série ilustrativa até existirem quotes approveds na mesma rota e condições.",
+      "cockpit_aviso_graficos_texto_aguardando": "{{n}} disparo(s) enviado(s). Os gráficos comparativos aparecem assim que chegar a primeira resposta.",
+      "cockpit_aviso_graficos_texto_parcial": "Já existe 1 proposta. Os mini-gráficos de Transit Time, Free Time e Escala aparecem quando houver pelo menos 2 respostas para comparar.",
+      "cockpit_aviso_graficos_texto_rascunho": "Esta quote ainda está em draft. Envie aos supplieres para iniciar o leilão e popular o panel.",
+      "cockpit_aviso_graficos_texto_sem_dados": "Não há proposals nesta quote. Dispare ou aguarde respostas para ativar os insights visuais.",
+      "cockpit_aviso_graficos_titulo_aguardando": "waiting proposals dos supplieres",
+      "cockpit_aviso_graficos_titulo_parcial": "Comparativo visual quase pronto",
+      "cockpit_aviso_graficos_titulo_rascunho": "Gráficos liberados após o disparo",
+      "cockpit_aviso_graficos_titulo_sem_dados": "Sem dados para gráficos ainda",
+      "cockpit_documentos": "Documentos",
+      "cockpit_em_breve": "Em breve",
+      "cockpit_escala": "Escala",
+      "cockpit_insights": "Insights",
+      "cockpit_media_6_meses": "Média 6 Meses",
+      "cockpit_melhor_proposta": "Melhor proposta",
+      "cockpit_metricas_competicao": "Métricas da competição",
+      "cockpit_painel_titulo": "panel de Insights Inteligente",
+      "cockpit_recusas": "Recusas",
+      "cockpit_respostas": "Respostas",
+      "cockpit_savings_valor": "Valor do saving",
+      "cockpit_termometro": "Termômetro histórico",
+      "cockpit_termometro_contexto": "Mesma origin, destination, modal, container e incoterm",
+      "cockpit_termometro_demo": "Preview",
+      "cockpit_termometro_demo_legenda": "Dados ilustrativos — waiting quotes approveds nas mesmas condições.",
+      "cockpit_transit_time": "Transit Time",
+      "dados_gerais_expandir_todas": "expand todas",
+      "dados_gerais_recolher_todas": "collapse todas",
+      "erro_envio_sem_detalhe": "Serviço de e-mail indisponível ou URL incorreta (verifique EMAIL_SERVICE_URL na porta 8008)",
+      "ir_aba_disparos": "Ir para Disparos",
+      "ir_aba_recusas": "Ir para Recusas",
+      "ir_aba_respostas": "Ir para proposals",
+      "link_resposta": "Link resposta",
+      "motivo_erro": "Motivo",
+      "nao_encontrada": "quote não encontrada",
+      "resposta_metricas_comparativo": "Comparativo entre proposals",
+      "spark_esta_proposta": "Esta proposta",
+      "spark_tooltip_frete_total": "freight total",
+      "spark_tooltip_posicao": "{{pos}}º nesta métrica",
+      "spark_tooltip_ranking_geral": "Ranking geral",
+      "spark_tooltip_referencia": "Referência",
+      "spark_tooltip_resumo_proposta": "Resumo da proposta",
+      "spark_tooltip_valor_metrica": "Valor",
+      "spark_tooltip_valor_referencia": "Valor referência",
+      "spark_tooltip_vs_referencia": "Vs proposta do card",
+      "vazio_recusas": "Nenhum disparo sem resposta no momento",
+      "erro_carregar": "Error loading quote"
     },
     "colunas": {
       "processo": "Process (DATI)",
@@ -1299,7 +1944,27 @@
       "direcionada": "Directed",
       "sim": "Yes",
       "nao": "No",
-      "anonima": "Anonymous"
+      "anonima": "Anonymous",
+      "numeroCotacao": "Quote No.",
+      "id": "ID",
+      "organizacao": "Organization",
+      "produtoGravity": "Gravity Product",
+      "usuario": "User",
+      "workspace": "Workspace",
+      "referenciaInterna": "Internal Reference",
+      "portoOrigem": "Origin port",
+      "aeroportoOrigem": "Origin airport",
+      "enderecoOrigem": "Origin address",
+      "portoDestino": "Destination port",
+      "aeroportoDestino": "Destination airport",
+      "enderecoDestino": "Destination address",
+      "zipcodeOrigem": "Origin ZIP code",
+      "zipcodeDestino": "Destination ZIP code",
+      "valorMeta": "Target value",
+      "moedaMeta": "Target currency",
+      "fornecedorVencedor": "Winning supplier",
+      "ganhoEstimado": "Estimated savings",
+      "ganhoPercentual": "Savings (%)"
     },
     "visao_geral": {
       "em_construcao": "Overview — Under construction"
@@ -1350,6 +2015,284 @@
       "marca_feature_3_desc": "The platform is 100% free to quote. No subscriptions or hidden fees: you only pay the success fee if the freight is closed with you.",
       "marca_feature_4_titulo": "More business for you",
       "marca_feature_4_desc": "Create your account and join more international freight bids with Gravity's importer network."
+    },
+    "disparo": {
+      "titulo": "Enviar quote aos supplieres",
+      "enviar": "Enviar aos supplieres",
+      "enviando": "Enviando...",
+      "canais": "Canais",
+      "hint_aberta": "A quote será enviada a todos os supplieres ativos que aceitam quote aberta.",
+      "hint_direcionada": "Selecione os supplieres que receberão o pedido de quote por e-mail.",
+      "sem_fornecedores": "Nenhum supplier ativo cadastrado.",
+      "erro_sem_canal": "Selecione ao menos um canal de envio.",
+      "erro_sem_fornecedor": "Selecione ao menos um supplier.",
+      "erro_envio": "error ao enviar quote",
+      "erro_carregar_fornecedores": "error ao carregar supplieres",
+      "toast_sucesso": "quote enviada aos supplieres com success."
+    },
+    "app": {
+      "rota_visao_geral": "Visão Geral",
+      "rota_cotacoes": "quotes",
+      "rota_nova_cotacao": "Nova quote",
+      "rota_importar_cotacoes": "Importar quotes",
+      "rota_fornecedores": "supplieres",
+      "rota_configuracoes": "Configurações",
+      "rota_portal_dashboard": "Portal — Dashboard",
+      "rota_cotacoes_pendentes": "quotes pendings",
+      "rota_respostas": "Respostas",
+      "rota_tabela_precos": "Tabela de Preços",
+      "rota_desempenho": "Desempenho",
+      "usuario_fallback": "Usuário",
+      "membro_fallback": "Membro"
+    },
+    "kanban": {
+      "subtitulo": "Quotes organized by status",
+      "localizar": "Find quote...",
+      "referencia_prefixo": "Ref:",
+      "propostas_contagem_one": "{{count}} proposal",
+      "propostas_contagem_other": "{{count}} proposals",
+      "semCotacoes": "No quotes",
+      "totalCotacoes_one": "{{count}} quote",
+      "totalCotacoes_other": "{{count}} quotes"
+    },
+    "status_cotacao": {
+      "RASCUNHO": "Draft",
+      "ENVIADA_FORNECEDORES": "Sent to supplier",
+      "EM_COTACAO": "In quoting",
+      "AGUARDANDO_APROVACAO": "Pending approval",
+      "APROVADA": "Approved",
+      "REPROVADA": "Rejected",
+      "CANCELADA": "Cancelled",
+      "FALTA_INFORMACAO": "Missing information",
+      "EXPIRADA": "Expired"
+    },
+    "status_disparo": {
+      "PENDENTE": "Pending",
+      "ENVIADO": "Sent",
+      "VISUALIZADO": "Viewed",
+      "RESPONDIDO": "Responded",
+      "EXPIRADO": "Expired",
+      "ERRO_ENVIO": "Send error"
+    },
+    "enums": {
+      "canal": {
+        "EMAIL": "Email",
+        "WHATSAPP": "WhatsApp",
+        "API": "API",
+        "PORTAL": "Portal"
+      },
+      "operacao": {
+        "IMPORTACAO": "Import",
+        "EXPORTACAO": "Export"
+      },
+      "modal": {
+        "MARITIMO": "Maritime",
+        "AEREO": "Air",
+        "RODOVIARIO": "Road"
+      },
+      "modalidade": {
+        "FCL": "FCL",
+        "LCL": "LCL",
+        "AEREO_GERAL": "General Air",
+        "RODOVIARIO_FTL": "FTL",
+        "RODOVIARIO_LTL": "LTL"
+      }
+    },
+    "colunas_datas_motivos": {
+      "data_limite_resposta": "Response deadline",
+      "data_aprovacao": "Approval date",
+      "data_cancelamento": "Cancellation date",
+      "motivo_reprovacao": "Rejection reason",
+      "motivo_cancelamento": "Cancellation reason"
+    },
+    "insights": {
+      "subtitulo": "Summary of international freight quotes",
+      "kpi": {
+        "aguardando_aprovacao": {
+          "titulo": "Quotes awaiting approval",
+          "subtexto": "{{count}} in scope · USD {{valor}} open",
+          "tooltip_volume": "Open volume",
+          "coluna_data": "Responded"
+        },
+        "aguardando_resposta": {
+          "titulo": "Quotes awaiting response",
+          "subtexto": "{{enviadas}} sent · {{em_cotacao}} in quoting",
+          "tooltip_volume_meta": "Target volume (USD)",
+          "coluna_data": "Sent"
+        },
+        "tempo_medio_resposta": {
+          "titulo": "Average Response Time",
+          "meta_dias": "Goal: {{count}} days",
+          "valor_dias": "{{count}} d",
+          "tooltip_media": "Average response time",
+          "tooltip_meta_sla": "SLA goal",
+          "tooltip_aprovacoes_prazo": "On-time approvals",
+          "sem_dados": "No data",
+          "dias": "{{count}} days"
+        }
+      },
+      "alertas": {
+        "titulo": "Alerts",
+        "hoje": "Today",
+        "dia_anterior_aria": "Previous day",
+        "proximo_dia_aria": "Next day",
+        "vence_hoje": "Quotes expiring today",
+        "resposta": "Pending responses",
+        "aprovacao": "Awaiting approval",
+        "nova": "New quotes (7 days)"
+      },
+      "funil": {
+        "titulo": "Quote Funnel"
+      },
+      "rankings": {
+        "titulo": "Global Rankings",
+        "live_feed": "LIVE FEED",
+        "tab_origens": "Origins",
+        "tab_destinos": "Destinations",
+        "tab_modais": "Modes",
+        "subtitulo_filtros": "{{filtros}} active filter(s) • {{count}} quotes",
+        "subtitulo_tempo_real": "Real-time rankings • {{count}} quotes",
+        "subtitulo_demo": "Real-time rankings • 200 bids",
+        "contagem_bids_one": "{{count}} bid",
+        "contagem_bids_other": "{{count}} bids",
+        "vazio_filtros": "No quotes match the selected filters."
+      },
+      "mapa": {
+        "titulo": "Global Quote Overview",
+        "vazio_coordenadas": "No quotes with map coordinates yet.",
+        "descricao_bids": "Strategic locations, active bids and accumulated savings by terminal ({{arraste}})",
+        "arraste_mover": "Drag to Move",
+        "arraste_girar": "Drag to Rotate",
+        "modo_bids_ativos": "Active Bids",
+        "modo_transit_time": "Transit Time",
+        "refinar": {
+          "titulo": "Refine map",
+          "recolher": "Collapse Refine map",
+          "expandir": "Expand Refine map",
+          "aria_filtros": "Map filters",
+          "aria_filtros_compacto": "Map filters (compact)",
+          "expandir_todas": "Expand all",
+          "recolher_todas": "Collapse all",
+          "expandir_todas_secoes": "Expand all sections",
+          "recolher_todas_secoes": "Collapse all sections",
+          "limpar": "Clear",
+          "limpar_filtros": "Clear filters",
+          "todos": "All",
+          "secao_sem_restricao": "{{titulo}}: no restriction — shows all on the map",
+          "secao_filtros_ativos": "{{titulo}}: {{count}} active filter(s) in this section",
+          "resumo_todos": "Showing all · {{terminais}} terminals · {{rotas}} routes",
+          "resumo_filtrado": "{{pinsAtivos}}/{{pinsBase}} terminals · {{rotasAtivas}}/{{rotasBase}} routes · {{filtros}} filter(s)",
+          "localizar": "Search",
+          "localizar_aria": "Find terminal by name or code",
+          "limpar_busca": "Clear search",
+          "busca_sem_resultado": "No terminal matches your search.",
+          "vazio_origem": "No origin terminals in current routes.",
+          "vazio_destino": "No destination terminals in current routes."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operation",
+            "modal": "Mode",
+            "origem": "Origin",
+            "destino": "Destination",
+            "status": "Status"
+          },
+          "status": {
+            "ENVIADA_FORNECEDORES": "Sent",
+            "AGUARDANDO_APROVACAO": "Pending approval"
+          },
+          "operacao_modal": {
+            "IMPORTACAO": {
+              "tooltip": "Quotes with origin outside Brazil and destination in Brazil"
+            },
+            "EXPORTACAO": {
+              "tooltip": "Quotes with origin in Brazil and destination abroad"
+            },
+            "MARITIMO": {
+              "tooltip": "Routes with maritime mode"
+            },
+            "AEREO": {
+              "tooltip": "Routes with air mode"
+            },
+            "RODOVIARIO": {
+              "tooltip": "Routes with road mode"
+            }
+          }
+        },
+        "benchmark": {
+          "titulo": "Transit Benchmark",
+          "ativo": "ACTIVE",
+          "subtitulo": "Your Company vs. Market Average",
+          "descricao_global": "Global Transit Time benchmarking (Your Company vs. Market Average)",
+          "eficiencia_media": "Overall Average Efficiency",
+          "mais_rapido_pct": "+{{pct}}% faster",
+          "resumo_dias": "Your active routes are on average {{dias}} days ahead of the international logistics benchmark.",
+          "sua_empresa_vs_mercado_inline": "Your Company: {{empresa}}d vs Market: {{mercado}}d",
+          "rota_mais_rapido": "+{{dias}}d faster",
+          "rota_na_media": "Within average",
+          "rota_atrasado": "{{dias}}d delayed",
+          "modal_maritimo": "Maritime",
+          "modal_aereo": "Air",
+          "indisponivel": "Transit benchmark unavailable — awaiting proposals on the route.",
+          "titulo_transit_time": "Transit Time Benchmarking",
+          "comparativo_mais_rapido": "+{{pct}}% ({{dias}} day(s) faster than proposal average)",
+          "comparativo_mais_lento": "{{pct}}% ({{dias}} day(s) above proposal average)",
+          "comparativo_igual": "Equal to proposal average on the route",
+          "stat_respostas": "Responses",
+          "stat_melhor_preco": "Best Price",
+          "stat_saving": "Saving",
+          "stat_transit_time": "Transit Time",
+          "stat_dias": "{{count}} days"
+        }
+      },
+      "graficos": {
+        "cotacoes_por_mes": {
+          "titulo": "Quotes by Month",
+          "subtitulo": "Last 6 months",
+          "legenda_aprovadas": "Approved",
+          "legenda_andamento": "In progress",
+          "legenda_recusadas": "Declined",
+          "sem_dados": "No quotes in the last 6 months for the selected workspaces."
+        },
+        "distribuicao_modal": {
+          "titulo": "Distribution by Mode",
+          "centro_cotacoes": "quotes",
+          "sem_dados": "No quotes to distribute by mode."
+        },
+        "ptax": {
+          "titulo": "PTAX Exchange Rate (BACEN)",
+          "tab_hoje": "Today",
+          "tab_historico": "History",
+          "tab_futuro": "Future",
+          "selecionar_data": "SELECT PTAX DATE",
+          "horizonte_hedge": "HEDGE HORIZON",
+          "indisponivel": "PTAX unavailable. Sync in Configurator › Currency Rates.",
+          "erro_carregar": "Failed to load PTAX"
+        },
+        "spread": {
+          "titulo": "Average Applied Spread",
+          "sem_dados": "Configure rates in BID Frete › Settings › Exchange Rate to calculate spread.",
+          "rodape": "Spread = difference between product-configured rate and today's PTAX (BACEN)."
+        },
+        "melhor_cotacao": {
+          "titulo": "Best Quote of the Month",
+          "dias_one": "{{count}} day",
+          "dias_other": "{{count}} days",
+          "saving": "{{pct}}% saving",
+          "sem_dados": "No approved quotes this month in the selected scope."
+        },
+        "top_incoterms": {
+          "titulo": "Top Incoterms",
+          "sem_dados": "No incoterms recorded in scope quotes."
+        },
+        "taxa_aprovacao": {
+          "titulo": "Approval Rate",
+          "em_tempo_centro": "on time",
+          "legenda_em_tempo": "On time: {{pct}}%",
+          "legenda_atrasadas": "Delayed: {{pct}}%",
+          "legenda_sem_resposta": "No response: {{pct}}%"
+        }
+      }
     }
   },
   "comum": {
@@ -1828,6 +2771,7 @@
       "col_alterados": "Modified",
       "col_removidos": "Removed",
       "col_status": "Status",
+      "col_erro": "Error message",
       "col_duracao": "Duration",
       "historico_titulo": "Sync History ({{count}} records)",
       "alerta_texto": "The NCM table is outdated — last sync was on {{data}}. Click Sync Now to update.",
@@ -4762,7 +5706,7 @@
       "moeda_item_titulo": "Item currency",
       "aviso_impacto_moeda": "Changing the currency will also change the Item Unit Value and Total Order/Item Value",
       "aviso_impacto_moeda_cambio": "Changes to the exchange currency will also change Total Exchange Value.",
-      "moedas_cambio_divergentes": "Exchange currency differs from item currency",
+      "moedas_cambio_divergentes": "Divergent exchange currencies among items",
       "unidade_comercializada": "Commercialized Unit",
       "unidade_comercializada_titulo_linha_pedido": "Commercialized Unit of the Order",
       "unidade_comercializada_item_titulo": "Commercialized Unit of the Item",
@@ -4777,7 +5721,6 @@
       "aviso_impacto_unidade_cancelada": "Changing the unit will also change Commercialized Unit, Initial Qty., Ready Qty., Transferred Qty. and Balance",
       "datas_emissao_divergentes": "Divergent issue dates among items",
       "coberturas_cambiais_divergentes": "Divergent exchange rate coverages among items",
-      "moedas_cambio_divergentes": "Divergent exchange currencies among items",
       "moeda_cambio": "Exchange Currency",
       "taxa_cambio_estimada": "Estimated Exchange Rate",
       "valor_total_cambio": "Total Exchange Value",

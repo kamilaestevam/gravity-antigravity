@@ -1,7 +1,9 @@
 import React from 'react'
+import type { TFunction } from 'i18next'
 import type { GTColuna, GTMapaColunasFilho, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
+import { Anchor, AirplaneTilt, ArrowSquareOut, Truck } from '@phosphor-icons/react'
+import { rotaDetalheCotacaoBidFreteInternacional } from '../shared/rotas-bid-frete-internacional'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
@@ -32,6 +34,21 @@ import {
   CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
 } from '../shared/ordem-colunas-lista-bid-frete-internacional'
+import { traduzirLabelColunaListaBidFrete } from '../shared/traduzir-coluna-lista-bid-frete-internacional'
+import {
+  opcoesAnonimaListaBidFrete,
+  opcoesModalidadeListaBidFrete,
+  opcoesModalListaBidFrete,
+  opcoesOperacaoListaBidFrete,
+  opcoesStatusPadraoListaBidFrete,
+  opcoesVisibilidadeListaBidFrete,
+  traduzirModalKanbanBidFrete,
+  traduzirModalidadeKanbanBidFrete,
+  traduzirOperacaoKanbanBidFrete,
+  traduzirSimNaoBidFrete,
+  traduzirStatusCotacaoBidFrete,
+  traduzirVisibilidadeBidFrete,
+} from '../shared/traduzir-enums-bid-frete-internacional'
 
 export { CAMPOS_NAO_EDITAVEIS_LISTA }
 
@@ -44,10 +61,16 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
   default: { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
 }
 
-export function RenderBadgeStatus(valor: unknown): React.ReactNode {
+export function RenderBadgeStatus(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const status = valor as StatusCotacao
   const variante = STATUS_BADGE[status] || 'default'
   const cores = BADGE_COLORS[variante]
+  const label = t
+    ? traduzirStatusCotacaoBidFrete(t, status)
+    : (STATUS_LABELS[status] || status)
   return (
     <span style={{
       display: 'inline-flex',
@@ -59,7 +82,7 @@ export function RenderBadgeStatus(valor: unknown): React.ReactNode {
       background: cores.bg,
       color: cores.color,
     }}>
-      {STATUS_LABELS[status] || status}
+      {label}
     </span>
   )
 }
@@ -77,24 +100,35 @@ export const ESTILO_BADGE_OPERACAO_EXPORTACAO: React.CSSProperties = {
   border: '1px solid rgba(52,211,153,0.2)',
 }
 
-export function RenderBadgeOperacao(valor: unknown): React.ReactNode {
+export function RenderBadgeOperacao(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const op = valor as TipoOperacao
   const isImport = op === 'IMPORTACAO'
+  const label = t
+    ? traduzirOperacaoKanbanBidFrete(t, op)
+    : (OPERACAO_LABELS[op] || op)
   return (
     <StatusBadgeGlobal
-      valor={OPERACAO_LABELS[op] || op}
+      valor={label}
       genero="feminino"
       style={isImport ? ESTILO_BADGE_OPERACAO_IMPORTACAO : ESTILO_BADGE_OPERACAO_EXPORTACAO}
     />
   )
 }
 
-export function RenderBadgeVisibilidade(valor: unknown): React.ReactNode {
+export function RenderBadgeVisibilidade(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const vis = valor as Visibilidade
   const isAberta = vis === 'ABERTA'
   const bg = isAberta ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAberta ? 'var(--success, #22c55e)' : 'var(--accent, #6366f1)'
-  const label = isAberta ? 'Aberta' : 'Direcionada'
+  const label = t
+    ? traduzirVisibilidadeBidFrete(t, vis)
+    : (isAberta ? 'Aberta' : 'Direcionada')
   return (
     <span style={{
       display: 'inline-flex',
@@ -111,11 +145,16 @@ export function RenderBadgeVisibilidade(valor: unknown): React.ReactNode {
   )
 }
 
-export function RenderBadgeAnonima(valor: unknown): React.ReactNode {
+export function RenderBadgeAnonima(
+  valor: unknown,
+  t?: TFunction | null,
+): React.ReactNode {
   const isAnonima = !!valor
   const bg = isAnonima ? 'rgba(148,163,184,0.15)' : 'rgba(59,130,246,0.15)'
   const color = isAnonima ? 'var(--text-muted, #64748b)' : 'var(--accent, #6366f1)'
-  const label = isAnonima ? 'Sim' : 'Não'
+  const label = t
+    ? traduzirSimNaoBidFrete(t, isAnonima)
+    : (isAnonima ? 'Sim' : 'Não')
   return (
     <span style={{
       display: 'inline-flex',
@@ -284,6 +323,7 @@ const OPCOES_STATUS_PADRAO = (Object.entries(STATUS_LABELS) as Array<[StatusCota
 function aplicarConfigEdicaoColuna(
   col: GTColuna<Cotacao>,
   opcoes: OpcoesColunasLista,
+  t?: TFunction | null,
 ): GTColuna<Cotacao> {
   const key = col.key as string
   if (!key || CAMPOS_NAO_EDITAVEIS_LISTA.has(key)) {
@@ -304,20 +344,22 @@ function aplicarConfigEdicaoColuna(
     case 'status_cotacao_bid_frete_internacional':
       return {
         ...base,
-        opcoes: opcoes.statusOpcoes?.length ? opcoes.statusOpcoes : OPCOES_STATUS_PADRAO,
+        opcoes: opcoes.statusOpcoes?.length
+          ? opcoes.statusOpcoes
+          : (t ? opcoesStatusPadraoListaBidFrete(t) : OPCOES_STATUS_PADRAO),
       }
     case 'tipo_operacao_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_OPERACAO }
+      return { ...base, opcoes: t ? opcoesOperacaoListaBidFrete(t) : OPCOES_OPERACAO }
     case 'modal_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_MODAL }
+      return { ...base, opcoes: t ? opcoesModalListaBidFrete(t) : OPCOES_MODAL }
     case 'modalidade_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_MODALIDADE }
+      return { ...base, opcoes: t ? opcoesModalidadeListaBidFrete(t) : OPCOES_MODALIDADE }
     case 'visibilidade_cotacao_bid_frete_internacional':
-      return { ...base, opcoes: OPCOES_VISIBILIDADE }
+      return { ...base, opcoes: t ? opcoesVisibilidadeListaBidFrete(t) : OPCOES_VISIBILIDADE }
     case 'anonima_cotacao_bid_frete_internacional':
       return {
         ...base,
-        opcoes: OPCOES_ANONIMA,
+        opcoes: t ? opcoesAnonimaListaBidFrete(t) : OPCOES_ANONIMA,
         getValorEditar: (item: Cotacao) => String(!!item.anonima_cotacao_bid_frete_internacional),
       }
     case 'incoterm_cotacao_bid_frete_internacional':
@@ -448,18 +490,28 @@ function aplicarConfigEdicaoColuna(
             || '—',
       }
     case 'tipo_container_cotacao_bid_frete_internacional': {
-      const rotuloContainer = (codigo: string) =>
-        rotuloCadastroLista(codigo, opcoes.containersOpcoes ?? []) || codigo
+      const opcoesTipoVolume = [
+        ...(opcoes.containersOpcoes ?? []),
+        ...(opcoes.unidadesEmbalagemOpcoes ?? []),
+      ]
+      const ehFcl = (item: Cotacao) =>
+        item.modal_cotacao_bid_frete_internacional === 'MARITIMO'
+        && item.modalidade_cotacao_bid_frete_internacional === 'FCL'
+      const rotuloTipoVolume = (item: Cotacao, codigo: string) =>
+        rotuloCadastroLista(
+          codigo,
+          ehFcl(item) ? (opcoes.containersOpcoes ?? []) : (opcoes.unidadesEmbalagemOpcoes ?? []),
+        ) || codigo
       return {
         ...base,
-        opcoes: opcoes.containersOpcoes,
+        opcoes: opcoesTipoVolume,
         getValorEditar: (item: Cotacao) => item.tipo_container_cotacao_bid_frete_internacional ?? '',
         findDisplay: (item: Cotacao) =>
           item.tipo_container_cotacao_bid_frete_internacional
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
                 item.quantidade_cotacao_bid_frete_internacional,
-                rotuloContainer,
+                (codigo) => rotuloTipoVolume(item, codigo),
               )
             : '—',
         render: (_val: unknown, item: Cotacao) =>
@@ -467,7 +519,7 @@ function aplicarConfigEdicaoColuna(
             ? formatarContainersPersistidosParaExibicao(
                 item.tipo_container_cotacao_bid_frete_internacional,
                 item.quantidade_cotacao_bid_frete_internacional,
-                rotuloContainer,
+                (codigo) => rotuloTipoVolume(item, codigo),
               )
             : '—',
       }
@@ -642,34 +694,52 @@ export function formatValorExportColuna(
 
 /** Todas as colunas escalares de `cotacao_bid_frete_internacional` (fragment.prisma). */
 function buildColunasCotacoesBase(
-  _t: unknown,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
-  return [
+  const colunas: GTColuna<Cotacao>[] = [
     {
       key: 'numero_cotacao_bid_frete_internacional',
       label: 'Nº da cotação',
       tipo: 'texto',
+      linkPopoverEdicao: onAbrirCotacao
+        ? (item: Cotacao) => ({
+            label: t
+              ? t('bidfrete.lista.abrir_cotacao', { defaultValue: 'Abrir cotação' })
+              : 'Abrir cotação',
+            href: rotaDetalheCotacaoBidFreteInternacional(item.id_cotacao_bid_frete_internacional),
+          })
+        : undefined,
       render: (val: unknown, item: Cotacao) => {
-        const numero = val as string
-
-        if (!onAbrirCotacao) {
-          return <span className="gtv-celula-link bf-lista-link-cotacao">{numero}</span>
-        }
+        const numero = String(val ?? '')
 
         return (
-          <button
-            type="button"
-            aria-label={`Abrir cotação ${numero}`}
-            className="gtv-celula-link bf-lista-link-cotacao"
-            onClick={(e) => {
-              e.stopPropagation()
-              onAbrirCotacao(item)
-            }}
-          >
-            {numero}
-          </button>
+          <span className="bf-lista-numero-cotacao-celula">
+            <span className="bf-lista-numero-cotacao-valor" title={numero}>
+              {numero}
+            </span>
+            {onAbrirCotacao ? (
+              <button
+                type="button"
+                aria-label={
+                  t
+                    ? t('bidfrete.lista.abrir_cotacao_numero', {
+                        defaultValue: 'Abrir cotação {{numero}}',
+                        numero,
+                      })
+                    : `Abrir cotação ${numero}`
+                }
+                className="bf-lista-numero-cotacao-abrir"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onAbrirCotacao(item)
+                }}
+              >
+                <ArrowSquareOut size={14} weight="bold" aria-hidden />
+              </button>
+            ) : null}
+          </span>
         )
       },
     },
@@ -723,13 +793,13 @@ function buildColunasCotacoesBase(
       key: 'tipo_operacao_cotacao_bid_frete_internacional',
       label: 'Operação',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeOperacao(val),
+      render: (val: unknown) => RenderBadgeOperacao(val, t),
     },
     {
       key: 'status_cotacao_bid_frete_internacional',
       label: 'Status',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeStatus(val),
+      render: (val: unknown) => RenderBadgeStatus(val, t),
     },
     {
       key: 'data_criacao_cotacao_bid_frete_internacional',
@@ -751,10 +821,13 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => {
         const modal = val as ModalFrete
+        const label = t
+          ? traduzirModalKanbanBidFrete(t, modal)
+          : (MODAL_LABELS[modal] ?? modal)
         return (
           <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
             {RenderModalIcon(modal)}
-            {MODAL_LABELS[modal] ?? modal}
+            {label}
           </span>
         )
       },
@@ -765,6 +838,9 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown) => {
         const mod = val as ModalidadeCarga
+        if (t) {
+          return traduzirModalidadeKanbanBidFrete(t, mod)
+        }
         return MODALIDADE_LABELS[mod] ?? (val as string | null ?? '—')
       },
     },
@@ -919,13 +995,13 @@ function buildColunasCotacoesBase(
       key: 'visibilidade_cotacao_bid_frete_internacional',
       label: 'Visibilidade',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeVisibilidade(val),
+      render: (val: unknown) => RenderBadgeVisibilidade(val, t),
     },
     {
       key: 'anonima_cotacao_bid_frete_internacional',
       label: 'Anônima',
       tipo: 'texto',
-      render: (val: unknown) => RenderBadgeAnonima(val),
+      render: (val: unknown) => RenderBadgeAnonima(val, t),
     },
     ...criarColunasDatasMotivosCotacaoLista(),
     {
@@ -969,6 +1045,15 @@ function buildColunasCotacoesBase(
       ),
     },
   ]
+
+  return colunas.map((col) => {
+    const chave = String(col.key ?? '')
+    const padraoPt = String(col.label ?? '')
+    return {
+      ...col,
+      label: traduzirLabelColunaListaBidFrete(t, chave, padraoPt),
+    }
+  })
 }
 
 function ordenarColunasListaPorOrdemCanonica(
@@ -993,7 +1078,7 @@ function ordenarColunasListaPorOrdemCanonica(
 }
 
 function buildColunasCotacoesBaseOrdenadas(
-  t: unknown,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
@@ -1009,7 +1094,7 @@ function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao>
 }
 
 export function buildColunasCotacoes(
-  t: unknown,
+  t: TFunction | null | undefined,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
@@ -1017,6 +1102,7 @@ export function buildColunasCotacoes(
     aplicarConfigEdicaoColuna(
       garantirFiltravelColunaLista({ ...col, align: 'center' }),
       opcoes,
+      t,
     ),
   )
 }
@@ -1064,7 +1150,7 @@ export function buildColunasPaiListaDeColunasCotacao(
 
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
 export function buildColunasPaiLista(
-  t: unknown,
+  t: TFunction,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<LinhaPaiLista>[] {
@@ -1142,7 +1228,7 @@ export function buildMapaColunasFilhoDeColunas(
 }
 
 export function buildMapaColunasFilho(
-  t: unknown,
+  t: TFunction,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): Record<string, GTMapaColunasFilho<LinhaFilhaLista>> {

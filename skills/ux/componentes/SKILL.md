@@ -138,6 +138,8 @@ import { ModalPassoPassoGlobal, StepperPassoPassoGlobal } from '@nucleo/modal-pa
 - Para modais simples sem passos — usar `ModalGlobal`
 - Para confirmações — usar `ConfirmarGlobal`
 
+**Modais empilhados (wizard + confirmação):** `ModalPassoPassoGlobal` usa `Z_INDEX_MODAL_PASSO_PASSO` (9999). Confirmações cascateadas via `ModalOverlay` devem passar `zIndex` **acima** desse valor (ex.: `Z_INDEX_MODAL_PASSO_PASSO + 51` no Novo Pedido).
+
 ---
 
 ### ModalGlobal
@@ -149,6 +151,8 @@ import { ModalGlobal, type ModalConfig } from '@nucleo/modal-global'
 ```
 
 **Capacidades incluídas:** header, body e footer padronizados, múltiplas abas, botões padrão, tamanhos configuráveis.
+
+**Prop `zIndex` (opt-in):** sobrescreve o default CSS (`1000`) quando o modal abre **sobre** outro overlay (ex.: wizard em `Z_INDEX_MODAL_PASSO_PASSO`).
 
 **Quando NÃO usar:**
 - Para confirmações simples — usar `ConfirmarGlobal`

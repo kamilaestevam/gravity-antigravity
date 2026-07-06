@@ -9,6 +9,7 @@
 
 import cron, { type ScheduledTask } from 'node-cron'
 import { getPrisma } from './lib/prisma.js'
+import { cronNcmHabilitadoNoAmbiente } from './lib/ncm-cron-ambiente.js'
 import { executarSync } from './services/motor-sync-ncm.js'
 
 // ── Estado do job ─────────────────────────────────────────────────────────────
@@ -50,6 +51,13 @@ export function reagendarJob(novoCron: string, ativo: boolean): void {
 
   if (!ativo) {
     console.log('[ncm-sync] Job desativado pelo admin.')
+    return
+  }
+
+  if (!cronNcmHabilitadoNoAmbiente()) {
+    console.log(
+      '[ncm-sync] Agendamento ATIVO no banco, mas cron local desligado (NCM_CRON_ENABLED != 1).',
+    )
     return
   }
 

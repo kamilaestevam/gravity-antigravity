@@ -31,6 +31,8 @@ vi.mock(
 import type { LeituraLegado } from '../../../../../../../servicos-global/produto/smart-read/server/src/schemas/leitura-smart-read.js'
 import { leiturasSmartReadRouter } from '../../../../../../../servicos-global/produto/smart-read/server/src/routes/leituras-smart-read.js'
 import * as escopoWorkspace from '../../../../../../../servicos-global/produto/smart-read/server/src/lib/escopo-workspace-leitura-smart-read.js'
+import * as assegurarVinculo from '../../../../../../../servicos-global/produto/smart-read/server/src/lib/assegurar-vinculo-leitura-workspace-smart-read.js'
+import * as registrarVinculo from '../../../../../../../servicos-global/produto/smart-read/server/src/lib/registrar-vinculo-leitura-usuario-smart-read.js'
 
 function leituraLegadoProcessando(): LeituraLegado {
   return {
@@ -141,6 +143,27 @@ describe('TST-FUN-SMTRD-NOVA-LEITURA-PASSO-DOIS-000152', () => {
       )
       expect(vinculada).toBe(false)
     })
+
+    it('F05: GET com legado ok heal-on-read quando vínculo Postgres ausente', async () => {
+      vi.spyOn(escopoWorkspace, 'leituraVinculadaAoWorkspaceSmartRead').mockResolvedValue(false)
+      const heal = vi.spyOn(assegurarVinculo, 'tentarRecuperarVinculoLeituraWorkspaceSmartRead')
+      mockObterLeitura.mockResolvedValue(leituraLegadoCompleta())
+      const app = criarApp()
+      const res = await request(app)
+        .get(`/api/v1/smart-read/leituras/${ID_LEITURA}`)
+        .set('x-id-organizacao', ORG_A)
+        .set('x-id-usuario', USUARIO)
+        .set('x-id-workspace', WS_A)
+
+      expect(res.status).toBe(200)
+      expect(res.body.status_leitura).toBe('COMPLETED')
+      expect(heal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          idLeitura: ID_LEITURA,
+          leituraExisteNoLegado: true,
+        }),
+      )
+    })
   })
 
   describe('ETAPA 4 — Headers obrigatórios', () => {
@@ -152,6 +175,43 @@ describe('TST-FUN-SMTRD-NOVA-LEITURA-PASSO-DOIS-000152', () => {
 
       expect(res.status).toBe(400)
       expect(res.body.error.code).toBe('ORGANIZACAO_AUSENTE')
+    })
+  })
+
+  describe('ETAPA 5 — POST upload com falha de vínculo', () => {
+    it('F06: POST retorna 202 mesmo se registrarVinculo falhar (heal-on-read no GET)', async () => {
+      vi.mocked(registrarVinculo.registrarVinculoLeituraUsuarioSmartRead).mockRejectedValueOnce(
+        new Error('table progresso_leitura_smart_read does not exist'),
+      )
+      const app = express()
+      app.use((req: Request & { prisma?: unknown; idOrganizacao?: string }, _res, next) => {
+        req.prisma = {
+          snapshotLeituraSmartRead: { findFirst: vi.fn().mockResolvedValue(null) },
+          progressoLeituraSmartRead: { findFirst: vi.fn().mockResolvedValue(null) },
+        }
+        next()
+      })
+      app.use('/api/v1/smart-read/leituras', leiturasSmartReadRouter)
+      app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
+        res.status(err.statusCode ?? 500).json({ error: { code: err.code ?? 'ERRO', message: err.message } })
+      })
+
+      const { criarLeituraLegado, enviarArquivoLegado } = await import(
+        '../../../../../../../servicos-global/produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
+      )
+      vi.mocked(criarLeituraLegado).mockResolvedValue(ID_LEITURA)
+      vi.mocked(enviarArquivoLegado).mockResolvedValue('arq-fun-001')
+
+      const res = await request(app)
+        .post('/api/v1/smart-read/leituras')
+        .set('x-id-organizacao', ORG_A)
+        .set('x-id-usuario', USUARIO)
+        .set('x-id-workspace', WS_A)
+        .attach('arquivo', Buffer.from('%PDF-1.4'), 'amostra.pdf')
+
+      expect(res.status).toBe(202)
+      expect(res.body.id_leitura).toBe(ID_LEITURA)
+      expect(res.body.status_leitura).toBe('PROCESSING')
     })
   })
 })

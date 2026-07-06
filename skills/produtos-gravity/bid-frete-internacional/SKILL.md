@@ -107,6 +107,20 @@ Doc: [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/prod
 
 Ícone ▾ em todas colunas visíveis; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`. Colunas manuais: `filtravel: true` + `_colunas_usuario[col.id]` (`valores-colunas-usuario-bid-frete-internacional.ts`, localStorage WIP). Teste: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`.
 
+### Nº da cotação editável (TASK-000407)
+
+| Peça | Caminho / contrato |
+|------|-------------------|
+| Campo Prisma | `numero_cotacao_bid_frete_internacional` — auto no create; editável via PATCH |
+| Wizard passo 1 | `modal-nova-cotacao-bid-frete-internacional.tsx` — `gerarNumeroCotacaoFreteInternacional()` + POST opcional |
+| Lista inline | `colunas-lista-bid-frete-internacional.ts` — texto editável + ↗ abrir detalhe |
+| Persistência | `shared/salvar-campo-cotacao-bid-frete-internacional.ts` + `mapCotacaoToServer` em `api.ts` |
+| API | `PATCH /cotacoes/:id` e `POST /cotacoes` aceitam `numero_cotacao_bid_frete_internacional` |
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 · [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação
+
+**Testes UNI:** `lista/map-cotacao-to-server.test.ts`, `lista/salvar-campo-numero-cotacao.test.ts` · **FUN:** `lista/cotacoes-routes.test.ts` (PATCH numero)
+
 ### Criação (menu Novo → Buscar Frete)
 
 O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
@@ -139,6 +153,16 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catálogo completo do Cadastros no scroll (100/página) e fazem busca remota no banco inteiro (150 resultados, ≥2 chars). SSOT de limites: `shared/limites-catalogo-logistica-bid-frete-internacional.ts`; hook `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`; proxies e rotas Cadastros aceitam `offset` e devolvem `total`; `SelectGlobal` ganhou props `buscaRemota`/`aoMudarBusca`/`aoScrollFimLista`/`totalOpcoesCatalogo`. Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
 
 **Pin de selecionados (§8.3):** todo código selecionado precisa ser garantido na lista em memória, senão o SelectGlobal mostra placeholder ao voltar de passo (catálogo paginado raramente contém o código na 1ª página). O hook aceita `codigoSelecionado` (principal) e `codigosSelecionados: string[]` (locais adicionais aceitos) — ambos usam `garantirSelecionado` + Map de pins. Ao consumir o hook para um select com valor persistido, **sempre** repassar o(s) código(s) selecionado(s).
+
+**Regra anti-ponto-cego (TASK-000415):** o Cadastros tem ~17k portos ativos e toda página carregada em memória (client ou server) é um **recorte**. Nenhum fluxo pode tratar «não está no contexto carregado» como «não existe». Três aplicações concretas:
+
+| Fluxo | Mecanismo | Arquivo |
+|-------|-----------|---------|
+| Selects do wizard (passo 2) | Sem `?pais=` — busca global paginada + pin | `use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts` (§8.1–8.3) |
+| Gravação `POST`/`PATCH` (snapshot de rota) | `garantirTerminaisRotaNoContextoCatalogo` resolve origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto antes de validar | `server/src/lib/carregar-contexto-catalogo-rota-bid-frete-internacional.ts` (modal §8.4) |
+| Importação por planilha | `enriquecerContextoCatalogoLocaisImportacaoBid` busca remotamente (`?q=valor`) os locais que não resolveram contra a página base e anexa ao contexto do preview | `client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts` (CATALOGO doc) |
+
+Sintoma clássico do ponto cego no server: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)` — o snapshot caiu no fallback «nome = código» porque o porto estava fora da página do contexto. Testes UNI: `catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
 
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 
@@ -223,6 +247,15 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 **Mapa (`GET /dashboard/mapa-cotacoes`):** pins e coordenadas vêm do **Cadastros** por código (IATA/UNLOCODE), não do nome gravado na cotação. Divergência nome/país → `alerta_divergencia_cadastros_*` no hover. SSOT: `shared/divergencia-cadastros-rota-bid-frete-internacional.ts` (mapa = alerta; gravação = bloqueio).
 
+**Resolução Cadastros — metadados vs coordenadas (TASK-000405):**
+
+| Uso | Função server | Exige lat/long? |
+|-----|---------------|-----------------|
+| Validação `POST`/`PATCH` cotação | `resolverMetadadosLocalCadastrosBidFreteInternacional` | **Não** — porto/aeroporto ativo basta |
+| Mapa Insights / pins | `resolverLocalCadastrosBidFreteInternacional` | **Sim** — sem coordenadas o pin é omitido |
+
+Arquivo: `server/src/lib/resolver-local-cadastros-bid-frete-internacional.ts` · chamada na gravação: `validarRotaCotacaoContraCadastros`. Erro HTTP Cadastros (≠ 404) → `console.warn` com código; 404 = código inexistente (sem log ruidoso).
+
 **Validação rota na cotação:** `prepararRotaComValidacaoCadastros` em `cotacoes.ts` — catálogo portos/aeroportos + `prepararCamposRotaCotacaoPersistencia(input, ctx)` no `POST` e no `PATCH` quando body toca campos de rota. País comparado em ISO alpha-2 (`normalizarPaisIsoParaComparacao`).
 
 **Testes UNI (mapa/validação):** `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`
@@ -250,6 +283,50 @@ Cadastros é SSOT; BID resolve ao vivo no motor de disparo.
 **Testes UNI:** `resolver-contatos-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
 
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.5 · Cadastros: [EMPRESA-FORNECEDOR-OPERACAO.md](../../../documentos-tecnicos/produtos-gravity/cadastros/EMPRESA-FORNECEDOR-OPERACAO.md) § Contatos
+
+---
+
+## Disparo — envio assíncrono + feedback honesto (PRs #622–#632, TASK-000405)
+
+**Regra inviolável (REGRA 08):** a UI só afirma entrega quando o banco confirma `ENVIADO`. Nunca `alert()` nativo; nunca banner verde para disparo não confirmado.
+
+**Backend:** `POST /cotacoes` com `disparar_ao_criar` responde 201 + `disparo_pendente: true` **antes** do envio (Resend excede timeout Railway ~30s). Job em background via `res.on('finish')` + `res.on('close')`, Prisma dedicado `withTenantIsolation`. E-mail via sidecar `127.0.0.1:8008` quando `BID_FRETE_SIDECAR=1`.
+
+**Garantias anti-PENDENTE-eterno:**
+
+1. **Watchdog pós-job** (`cotacoes.ts`): disparo ainda `PENDENTE` ao fim do job → `ERRO_ENVIO` com mensagem diagnóstica
+2. **Cron 5min roda TAMBÉM em sidecar** (`startCronJobs()` incondicional em `server/src/index.ts`) — reenvia `PENDENTE` 2min–24h; >24h vira `ERRO_ENVIO` **sem reenvio**
+3. Logs Railway com prefixo `[disparo-bg]`
+
+> ⚠️ Armadilha que causou o bug de prod (#632): condicionar cron/jobs a `!BID_FRETE_SIDECAR` desliga a rotina exatamente no ambiente de produção. Todo job vital do produto DEVE rodar também em modo sidecar.
+
+**Frontend (wizard):** polling `aguardarConfirmacaoDisparoCotacao` (2s, máx 45s) até disparos saírem de `PENDENTE`; falha de rede no GET **não lança** (retenta). Estados: `aguardando` (amarelo) → `sucesso` / `parcial` / `erro` / `nao_confirmado`. Cotação salva + polling falho ≠ "Erro ao criar cotação".
+
+**Testes UNI:** `aguardar-confirmacao-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.3–5.4
+
+---
+
+## Portos/Aeroportos alternativos opcionais (TASK-000405)
+
+Cotação pode oferecer locais logísticos alternativos além do principal (origem/destino). Comprador configura no wizard; fornecedor escolhe qual usa ao responder.
+
+| Peça | Caminho |
+|------|---------|
+| SSOT regras + parse JSON | `shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.ts` |
+| Hooks UI (rótulos Cadastros) | `client/src/shared/locais-opcionais-cotacao-bid-frete-internacional.ts` |
+| Wizard passo 2 + resumo | `modal-nova-cotacao-bid-frete-internacional.tsx` |
+| Detalhe comprador (card Rota) | `cotacao-detalhe.tsx` |
+| Form fornecedor + validação | `formulario-resposta-cotacao-bid-frete-internacional.tsx` |
+| Payload POST proposta | `montar-payload-proposta-resposta-bid-frete-internacional.ts` |
+| Persistência local na proposta | `shared/local-proposta-resposta-bid-frete-internacional.ts` (marcador em `observacoes_proposta_*`) |
+| Validação server | `server/src/lib/validar-locais-proposta-resposta-bid-frete-internacional.ts` |
+| Normalização GET cotação | `mapCotacaoFromServer` — `parseCodigosOpcaoPortoAeroportoFromDb` |
+
+**Campos cotação (Prisma):** `habilitar_opcao_porto_aeroporto_{origem,destino}_*` + `codigos_opcao_porto_aeroporto_{origem,destino}_*` (JSONB).
+
+**Regra fornecedor:** se há opcionais no lado, select obrigatório; elegíveis = principal + opcionais. Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais · wizard: [MODAL-NOVA-COTACAO](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1.
 
 ---
 
@@ -369,6 +446,7 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 - Confundir **status de cotação** (`status_cotacao_config_*`) com **status de BID** (`status_bid_config_*`).
 - Usar `destino_nome` da cotação para posicionar pin no mapa Insights — usar código + Cadastros (ver INSIGHTS §7).
 - Gravar rota de cotação sem validar contra catálogo Cadastros quando modal ≠ rodoviário — usar `prepararRotaComValidacaoCadastros`.
+- Tratar «código ausente do contexto de catálogo em memória» como «porto/aeroporto inexistente» — o contexto é uma página de ~17k itens; resolver individualmente no Cadastros antes de reprovar (ver Catálogo § Regra anti-ponto-cego, TASK-000415).
 
 ---
 
@@ -395,7 +473,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Proposta tabela + BRL estimado: `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
 - Funcionais: `testes/testes-funcionais/produto-gravity/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
-- Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+- Nº cotação editável: `lista/map-cotacao-to-server.test.ts`, `lista/salvar-campo-numero-cotacao.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 

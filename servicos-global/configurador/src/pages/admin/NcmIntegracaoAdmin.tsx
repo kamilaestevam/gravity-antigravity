@@ -214,6 +214,36 @@ export function NcmIntegracaoAdmin() {
       render: (_v, row) => <StatusBadge status={row.status_ncm_sync_log} />,
     },
     {
+      key: 'mensagem_erro_ncm_sync_log',
+      label: t('admin.ncm.col_erro'),
+      tipo: 'texto',
+      tooltipTitulo: 'Mensagem de erro',
+      tooltipDescricao: 'Detalhe técnico quando a sincronização falha — útil para suporte e diagnóstico.',
+      render: (_v, row) => {
+        if (row.status_ncm_sync_log !== 'ERRO' || !row.mensagem_erro_ncm_sync_log) {
+          return <span style={{ color: '#475569' }}>—</span>
+        }
+        const msg = row.mensagem_erro_ncm_sync_log.split('\n')[0]?.trim() ?? row.mensagem_erro_ncm_sync_log
+        return (
+          <span
+            title={row.mensagem_erro_ncm_sync_log}
+            style={{
+              color: '#fca5a5',
+              fontSize: '0.75rem',
+              lineHeight: 1.35,
+              display: 'block',
+              maxWidth: '22rem',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {msg}
+          </span>
+        )
+      },
+    },
+    {
       key: 'data_conclusao_ncm_sync_log',
       label: t('admin.ncm.col_duracao'),
       tipo: 'texto',

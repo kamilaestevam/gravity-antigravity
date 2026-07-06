@@ -1,11 +1,22 @@
-﻿{
+{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais", "builders": "Gravity Partner", "produtos_gravity": "Produtos Gravity" },
+    "nav": {
+      "academy": "Onboarding",
+      "minha_jornada": "Minha Jornada",
+      "docs": "Manuais",
+      "builders": "Gravity Partner",
+      "produtos_gravity": "Produtos Gravity"
+    },
     "academy": {
       "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
     },
-    "badge": { "em_breve": "Em Breve", "restrito": "Restrito", "nova_empresa": "Nova empresa", "convidar_usuario": "Convidar usuário" },
+    "badge": {
+      "em_breve": "Em Breve",
+      "restrito": "Restrito",
+      "nova_empresa": "Nova empresa",
+      "convidar_usuario": "Convidar usuário"
+    },
     "produto": {
       "login": "Login",
       "navegacao": "Navegação",
@@ -28,21 +39,54 @@
       "em_construcao": "Em construção",
       "descricao": "Hub único de aprendizado da plataforma — onboarding por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
     },
-    "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar jornada", "concluida": "Concluída" },
-    "aula": { "voltar": "Voltar", "marcar_concluida": "Marcar como concluída", "inicio": "Início", "fim": "Fim do módulo" },
-    "grupo": { "comece_aqui": "Comece por aqui", "seus_produtos": "Seus produtos", "explorar": "Explorar outros" },
-    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
-    "progresso": { "produtos_contratados": "Progresso nos produtos contratados", "concluidos": "concluídos" },
+    "acao": {
+      "continuar": "Continuar",
+      "iniciar_jornada": "Iniciar jornada",
+      "concluida": "Concluída"
+    },
+    "aula": {
+      "voltar": "Voltar",
+      "marcar_concluida": "Marcar como concluída",
+      "inicio": "Início",
+      "fim": "Fim do módulo"
+    },
+    "grupo": {
+      "comece_aqui": "Comece por aqui",
+      "seus_produtos": "Seus produtos",
+      "explorar": "Explorar outros"
+    },
+    "trilha": {
+      "modulos_one": "{{count}} módulo",
+      "modulos_other": "{{count}} módulos",
+      "total": "Total:"
+    },
+    "progresso": {
+      "produtos_contratados": "Progresso nos produtos contratados",
+      "concluidos": "concluídos"
+    },
     "dica": {
       "titulo": "Dicas e Explicações",
       "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",
       "desabilitadas": "Desabilitadas — nenhuma dica é exibida"
     },
-    "busca": { "organizacao": "Buscar organização…" },
-    "jornada": { "pontos": "Pontos", "concluidas": "Concluídas", "em_andamento": "Em andamento", "certificados": "Certificados" },
-    "vazio": { "em_breve": "{{secao}} — em breve" },
-    "docs": { "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI." },
-    "builders": { "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)." }
+    "busca": {
+      "organizacao": "Buscar organização…"
+    },
+    "jornada": {
+      "pontos": "Pontos",
+      "concluidas": "Concluídas",
+      "em_andamento": "Em andamento",
+      "certificados": "Certificados"
+    },
+    "vazio": {
+      "em_breve": "{{secao}} — em breve"
+    },
+    "docs": {
+      "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI."
+    },
+    "builders": {
+      "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)."
+    }
   },
   "comum": {
     "salvar": "Salvar",
@@ -1636,6 +1680,7 @@
       "col_alterados": "Alterados",
       "col_removidos": "Removidos",
       "col_status": "Status",
+      "col_erro": "Mensagem de erro",
       "col_duracao": "Duração",
       "historico_titulo": "Histórico de Sincronizações ({{count}} registros)",
       "alerta_texto": "A tabela NCM está desatualizada — a última sincronização foi em {{data}}. Clique em Sincronizar Agora para atualizar.",
@@ -2314,13 +2359,48 @@
       "insights": "Insights",
       "lista": "Lista",
       "dashboard": "Dashboard",
-      "kanban": "Kanban"
+      "kanban": "Kanban",
+      "cotacoes": "Cotações",
+      "importar": "Importar Cotações",
+      "fornecedores": "Fornecedores",
+      "configuracoes": "Configurações"
+    },
+    "page_meta": {
+      "lista": "Todas as cotações de frete em tabela",
+      "cotacoes": "Cotações de frete internacional",
+      "importar": "Importar cotações em massa via planilha",
+      "configuracoes": "Personalize cards, colunas e status do produto",
+      "detalhe_cotacao": {
+        "titulo": "Detalhe da Cotação",
+        "subtitulo": "Informações, propostas e ações da cotação"
+      },
+      "detalhe_fornecedor": {
+        "titulo": "Detalhe do Fornecedor",
+        "subtitulo": "Histórico, rating e dados do transportador"
+      },
+      "comparativo": {
+        "subtitulo": "Compare propostas e selecione a melhor opção"
+      },
+      "responder_cotacao": {
+        "subtitulo": "Envie sua proposta para esta cotação"
+      },
+      "fornecedor": {
+        "dashboard": "Visão geral das suas cotações e desempenho",
+        "lista": "Todas as oportunidades em tabela",
+        "cotacoes_pendentes": "Cotações aguardando sua proposta",
+        "propostas": "Propostas que você enviou",
+        "tabelas_valor": "Suas tabelas de valor",
+        "desempenho": "Métricas e classificação",
+        "configuracoes": "Personalize cards, colunas e kanban da sua visão"
+      }
     },
     "lista": {
-      "label_bid_one": "bid",
-      "label_bid_other": "bids",
-      "label_cotacao_one": "cotação",
-      "label_cotacao_other": "cotações"
+      "abrir_cotacao": "Abrir cotação",
+      "abrir_cotacao_numero": "Abrir cotação {{numero}}",
+      "colunas": {
+        "data_aprovacao": "Data aprovação",
+        "data_cancelamento": "Data cancelamento"
+      }
     },
     "dashboard": {
       "titulo": "Visão Geral",
@@ -2369,12 +2449,162 @@
       "goalDays": "Meta: {{count}} dias",
       "openAmountUsd": "Valor em aberto (USD)",
       "accumulatedUsd": "Acumulado (USD)",
-      "totalAmountUsd": "Valor total (USD)"
+      "totalAmountUsd": "Valor total (USD)",
+      "subtitulo_pagina": "KPIs e widgets configuráveis",
+      "subtitulo_pagina_fornecedor": "KPIs e widgets configuráveis do fornecedor",
+      "painel_criado_sucesso": "Painel \"{{nome}}\" criado.",
+      "painel_criado_erro": "Não foi possível salvar o painel.",
+      "faixa_paineis": "Painéis do dashboard",
+      "paineis_secao": "Painéis do dashboard",
+      "gabi_insight_anterior": "Insight anterior",
+      "gabi_proximo_insight": "Próximo insight",
+      "gabi_ao_vivo": "ao vivo",
+      "widget_adicionado_sucesso": "Widget \"{{title}}\" adicionado com sucesso ao seu dashboard.",
+      "widgets": {
+        "kpi_saving_total": "Saving Total",
+        "kpi_valor_medio": "Valor Médio Ganho",
+        "kpi_transit_time": "Transit Time Médio",
+        "kpi_ganho_percentual": "Ganho Percentual",
+        "gabi_insights": "GABI AI · Insights",
+        "volume_mensal_chart": "Volume Mensal de Cotações",
+        "section_alertas": "Alertas e Fluxos Operacionais",
+        "kpi_cotacoes_andamento": "Cotações em Andamento",
+        "kpi_cotacoes_passadas": "Cotações Passadas",
+        "kpi_valor_aprovado": "Valor Total Aprovado",
+        "status_dist_chart": "Cotações por Status",
+        "kpi_pendentes_fornecedor": "Aguardando resposta",
+        "kpi_propostas_enviadas_fornecedor": "Propostas enviadas",
+        "kpi_taxa_resposta_fornecedor": "Taxa de resposta",
+        "kpi_taxa_aprovacao_fornecedor": "Taxa de aprovação",
+        "gabi_insights_fornecedor": "GABI AI · Insights",
+        "volume_mensal_fornecedor": "Volume mensal de propostas",
+        "section_funil_fornecedor": "Funil e resultados",
+        "kpi_em_analise_fornecedor": "Em análise",
+        "kpi_aprovadas_fornecedor": "Aprovadas",
+        "kpi_reprovadas_fornecedor": "Reprovadas",
+        "funil_dist_fornecedor": "Funil das propostas"
+      },
+      "catalog": {
+        "saving_total": "Saving Total (Ganho vs Meta)",
+        "valor_medio_ganho_bid_frete_internacional": "Valor Médio Ganho",
+        "cotacoes_status": "Cotações por Status",
+        "ganho_percentual_ganho_bid_frete_internacional": "Ganho Percentual Médio",
+        "transit_time": "Transit Time Médio (Dias)",
+        "volume_mensal": "Volume Mensal de Cotações",
+        "cotacoes_andamento": "Cotações em Andamento",
+        "cotacoes_passadas": "Cotações Passadas",
+        "valor_andamento_usd": "Valor Total em Andamento (USD)",
+        "valor_aprovado_usd": "Valor Total Aprovado (USD)"
+      },
+      "catalog_dimensao": {
+        "status_cotacao": "Status de Cotação"
+      },
+      "status_toolbar": {
+        "rascunho": "Rascunho",
+        "em_cotacao": "Em Cotação",
+        "aguardando_aprovacao": "Pendente Aprovação",
+        "aprovada": "Aprovadas"
+      },
+      "derivadas": {
+        "saving_medio_por_cotacao": {
+          "label": "Saving Médio por Cotação",
+          "description": "Valor médio economizado por cotação finalizada no período"
+        },
+        "taxa_conclusao_cotacoes": {
+          "label": "Taxa de Conclusão de Cotações",
+          "description": "Percentual de cotações passadas em relação ao total (andamento + passadas)"
+        },
+        "ticket_medio_aprovado": {
+          "label": "Ticket Médio Aprovado",
+          "description": "Valor médio das propostas aprovadas"
+        }
+      },
+      "sugestoes": {
+        "distribuicao_titulo": "Distribuição de {{dimLabel}}",
+        "distribuicao_descricao": "Proporção entre {{fields}}",
+        "tendencia_mes_titulo": "{{label}} por Mês",
+        "tendencia_mes_descricao": "Evolução do volume de {{label}} nos últimos 12 meses",
+        "evolucao_titulo": "Evolução — {{label}}",
+        "evolucao_descricao": "Série temporal mensal de {{label}}",
+        "comparativo_qty_titulo": "Comparativo de Quantidades — {{domainLabel}}"
+      },
+      "insights": {
+        "rascunhos_ativos": {
+          "tag": "Atenção · Rascunhos Pendentes",
+          "texto_one": "{{count}} cotação em rascunho. Finalize e envie para negociação de frete.",
+          "texto_other": "{{count}} cotações em rascunho. Finalize e envie para negociação de frete.",
+          "stat_label": "Em rascunho",
+          "link": "Ver cotações"
+        },
+        "cotacoes_andamento": {
+          "tag": "Operacional · Em Cotação",
+          "texto_one": "{{count}} rodada de cotação de frete ativa no mercado.",
+          "texto_other": "{{count}} rodadas de cotação de frete ativas no mercado.",
+          "stat_valor": "Valor em cotação",
+          "stat_ativas": "Cotações ativas",
+          "link": "Acompanhar BIDs"
+        },
+        "saving_total": {
+          "tag": "Financeiro · Saving Acumulado",
+          "texto": "Economia gerada (saving) nas negociações de frete acumulada em {{valor}}.",
+          "stat_reducao": "Redução média",
+          "stat_total": "Total economizado",
+          "link": "Ver comparativos"
+        },
+        "valor_aprovado": {
+          "tag": "Financeiro · Adjudicado",
+          "texto": "Adjudicação de frete internacional totaliza {{valor}} em propostas aprovadas.",
+          "stat_ticket": "Ticket médio ganho",
+          "link": "Ver adjudicadas"
+        },
+        "tendencia_volume": {
+          "tag": "Tendência · BIDs Fechados",
+          "texto_cresceu": "Volume de cotações adjudicadas cresceu {{pct}} em relação ao período anterior.",
+          "texto_caiu": "Volume de cotações adjudicadas caiu {{pct}} em relação ao período anterior.",
+          "stat_anterior": "Período anterior",
+          "link": "Explorar dados"
+        },
+        "status_ok": {
+          "tag": "Gabi AI · Tudo em dia",
+          "texto": "Nenhuma pendência crítica ou anomalia operacional identificada no período selecionado.",
+          "stat_periodo": "Período",
+          "link": "Ver cotações"
+        }
+      },
+      "vazio_widget": {
+        "gabi_tag": "GABI · Sem dados no período",
+        "ampliar_para": "Ampliar para:",
+        "experimente": "Experimente:",
+        "editar_campos": "Editar campos",
+        "remover_widget": "Remover widget",
+        "campo_generico": "este campo",
+        "conector_e": "e",
+        "distribuicao": "Nenhum registro encontrado para distribuir {{field}} no período selecionado. Ajuste os filtros para prosseguir.",
+        "tendencia": "Sem dados de tendência para {{field}} neste intervalo. Experimente ampliar o período.",
+        "barras": "Nenhuma movimentação registrada para comparar {{field}} no período atual.",
+        "generico": "Não há dados disponíveis para este widget no período selecionado. Amplie o intervalo ou ajuste os campos."
+      }
     },
     "config": {
       "sidebar": {
+        "grupo_visualizacoes": "VISUALIZAÇÕES",
+        "cards": "Cards",
+        "tabela": "Tabela",
+        "colunas": "Colunas",
+        "casas_decimais": "Casas Decimais",
+        "formato_data": "Formato de Data",
+        "personalizadas": "Personalizadas",
+        "campos_calculados": "Campos Calculados",
+        "kanban": "Kanban",
+        "kanban_colunas": "Colunas",
+        "card": "Card",
+        "modal": "Modal",
         "dashboard_kpi": "Visão Geral",
-        "grupo_bidfrete": "BID Frete Internacional"
+        "grupo_bidfrete": "BID FRETE INTERNACIONAL",
+        "status": "Status Cotação",
+        "status_bid": "Status BID",
+        "numeracao": "Numeração",
+        "taxa_cambio": "Taxa de Câmbio"
       },
       "acao": {
         "salvar": "Salvar",
@@ -2416,6 +2646,10 @@
         "cor": "Cor",
         "nenhum_status": "Nenhum status configurado. Clique em \"Novo Status\" para criar.",
         "msg_salvo": "Status salvos com sucesso."
+      },
+      "status_bid": {
+        "titulo": "Gerenciar Status do BID",
+        "descricao": "Configure status do conjunto BID (agrupador de pedidos de cotação)."
       },
       "kanban": {
         "card_msg_salvo": "Card do Kanban salvo com sucesso."
@@ -2625,6 +2859,9 @@
       "criar": "Criar Cotação",
       "criando": "Criando...",
       "modal_operacao": "Modal e Operação",
+      "numero_cotacao": "Nº da cotação",
+      "numero_cotacao_hint": "Gerado automaticamente; você pode personalizar antes de criar.",
+      "numero_cotacao_placeholder": "COT-YYYYMMDD-NNNN",
       "titulo": "Nova Cotação de Frete",
       "titulo_internacional": "Nova Cotação de Frete Internacional",
       "tipo_operacao": "Tipo de Operação",
@@ -2752,7 +2989,61 @@
       "incotermFasDesc": "Vendedor entrega ao lado do navio",
       "incotermFasResp": "Comprador paga embarque + frete",
       "adicionar_outra_bid": "Adicionar outra cotação ao BID",
-      "subtitulo_vinculada_bid": "Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete"
+      "subtitulo_vinculada_bid": "Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete",
+      "step_origem_destino": "Origem e Destino",
+      "step_carga_incoterm": "Carga e Incoterm",
+      "step_armazenagem": "Armazenagem",
+      "operacao_desc_importacao": "Trazer cargas de outros países para o território nacional.",
+      "operacao_desc_exportacao": "Enviar produtos nacionais para compradores internacionais.",
+      "modal_desc_maritimo": "Alto volume, menor custo",
+      "modal_desc_aereo": "Entrega rápida e expressa",
+      "modal_desc_rodoviario": "Flexível e porta a porta",
+      "label_fcl_completo": "FCL — Container Completo",
+      "label_lcl_fracionada": "LCL — Carga Fracionada",
+      "carga_perigosa_secao": "Carga perigosa",
+      "carga_perigosa_label": "Carga Perigosa",
+      "carga_perigosa_desc": "Mercadoria classificada ONU (IMDG / ADR / IATA DGR). Informe o número ONU no passo Carga.",
+      "incoterm_grupo_e": "Grupo E — Saída do vendedor",
+      "incoterm_grupo_f": "Grupo F — Principal não pago (marítimo)",
+      "incoterm_grupo_c": "Grupo C — Principal pago",
+      "incoterm_grupo_d": "Grupo D — Entrega no destino",
+      "incoterm_grupo_label": "Grupo",
+      "exibir_campos_origem": "Exibir campos: Cidade de Origem, Estado ou Província de Origem e País de Origem",
+      "exibir_campos_destino": "Exibir campos: Cidade de Destino, Estado ou Província de Destino e País de Destino",
+      "legenda_origem_aeroporto": "Informe o aeroporto de partida. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_origem_porto": "Informe o porto de embarque. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_origem_rodoviario": "Informe país, estado/província e cidade de coleta (América Latina).",
+      "legenda_destino_aeroporto": "Informe o aeroporto de chegada. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_destino_porto": "Informe o porto de destino. Marque a opção abaixo se precisar complementar endereço ou país.",
+      "legenda_destino_rodoviario": "Informe país, estado/província e cidade de entrega (América Latina).",
+      "titulo_aeroporto_origem": "Aeroporto de Origem",
+      "titulo_aeroporto_destino": "Aeroporto de Destino",
+      "titulo_local_rodoviario_origem": "Local rodoviário de Origem",
+      "titulo_local_rodoviario_destino": "Local rodoviário de Destino",
+      "sim": "Sim",
+      "nao": "Não",
+      "selecione": "Selecionar",
+      "hint_armazenagem": "Disponível para embarques Marítimo LCL. Informe se a cotação deve incluir armazenagem.",
+      "campo_incluir_armazenagem": "Incluir armazenagem",
+      "label_armazenagem": "Armazenagem",
+      "resumo_incluir_armazenagem": "Incluir armazenagem",
+      "resumo_nao_incluir_armazenagem": "Não incluir armazenagem",
+      "resumo_containers": "Containers",
+      "resumo_tipo_volume": "Tipo de volume",
+      "anonima_desc_long": "Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.",
+      "erro_criar_cotacao": "Erro ao criar cotação: {{detalhe}}",
+      "disparo_nao_configurado": "Disparo não configurado",
+      "disparo_nao_configurado_detalhe": "Marque ao menos um canal (E-mail) e selecione fornecedores no passo anterior.",
+      "disparo_nao_realizado": "Disparo não realizado",
+      "disparo_nao_realizado_detalhe": "Nenhum fornecedor selecionado para envio.",
+      "embalagem_unidade": "Unidade (UN)",
+      "embalagem_caixa": "Caixa",
+      "embalagem_pallet": "Palete / Pallet",
+      "embalagem_volume": "Volume",
+      "embalagem_fardo": "Fardo",
+      "embalagem_saco": "Saco / Bag",
+      "embalagem_tambor": "Tambor",
+      "embalagem_big_bag": "Big Bag"
     },
     "novo_bid": {
       "titulo": "Novo BID",
@@ -3187,7 +3478,8 @@
         "horas_restantes_one": "{{count}} hora restante",
         "horas_restantes_other": "{{count}} horas restantes",
         "min_restantes_one": "{{count}} minuto restante",
-        "min_restantes_other": "{{count}} minutos restantes"
+        "min_restantes_other": "{{count}} minutos restantes",
+        "unidades": "un"
       },
       "meu_desempenho": {
         "titulo": "Meu Desempenho",
@@ -3480,9 +3772,30 @@
         "kpi_propostas_enviadas": "Propostas enviadas",
         "kpi_propostas_enviadas_desc": "Respostas que você já enviou",
         "kpi_valor_aprovado": "Valor aprovado",
-        "kpi_valor_aprovado_desc": "Soma das suas propostas aprovadas no período"
+        "kpi_valor_aprovado_desc": "Soma das suas propostas aprovadas no período",
+        "toggle_lista": "Lista",
+        "toggle_kanban": "Kanban",
+        "buscar_curto": "Buscar",
+        "erro_carregar": "Erro ao carregar oportunidades",
+        "col_data_cotacao": "Data cotação",
+        "col_solicitante": "Solicitante",
+        "col_valor_total": "Valor total",
+        "solicitante_oculto": "Oculto",
+        "painel_criado_sucesso": "Painel salvo com sucesso.",
+        "painel_criado_erro": "Não foi possível salvar o painel.",
+        "vazio_sem_filtro": "Nenhuma oportunidade disponível no momento.",
+        "acao_excluir": "Remover da lista",
+        "excluir": "Remover da lista",
+        "excluir_desc": "Remove as oportunidades selecionadas da sua lista.",
+        "excluir_selecionados": "Remover {{count}} selecionada(s)",
+        "excluir_sucesso": "Oportunidade(s) removida(s) da lista.",
+        "export_titulo": "Exportar oportunidades",
+        "modal_excluir_titulo": "Remover da lista?",
+        "modal_excluir_desc": "Esta ação remove as oportunidades da sua visualização, sem cancelar a cotação.",
+        "modal_excluir_n_itens": "Remover {{count}} oportunidade(s) selecionada(s)?"
       },
       "kanban": {
+        "subtitulo": "Suas cotações e propostas por etapa",
         "aguardando_resposta": "Aguardando resposta",
         "em_analise": "Em análise",
         "aprovada": "Aprovada",
@@ -3865,7 +4178,8 @@
       "spark_tooltip_valor_metrica": "Valor",
       "spark_tooltip_valor_referencia": "Valor referência",
       "spark_tooltip_vs_referencia": "Vs proposta do card",
-      "vazio_recusas": "Nenhum disparo sem resposta no momento"
+      "vazio_recusas": "Nenhum disparo sem resposta no momento",
+      "erro_carregar": "Erro ao carregar cotação"
     },
     "colunas": {
       "processo": "Processo (DATI)",
@@ -3900,7 +4214,27 @@
       "direcionada": "Direcionada",
       "sim": "Sim",
       "nao": "Não",
-      "anonima": "Anônima"
+      "anonima": "Anônima",
+      "numeroCotacao": "Nº da cotação",
+      "id": "ID",
+      "organizacao": "Organização",
+      "produtoGravity": "Produto Gravity",
+      "usuario": "Usuário",
+      "workspace": "Workspace",
+      "referenciaInterna": "Referência Interna",
+      "portoOrigem": "Porto origem",
+      "aeroportoOrigem": "Aeroporto origem",
+      "enderecoOrigem": "Endereço origem",
+      "portoDestino": "Porto destino",
+      "aeroportoDestino": "Aeroporto destino",
+      "enderecoDestino": "Endereço destino",
+      "zipcodeOrigem": "Zipcode origem",
+      "zipcodeDestino": "Zipcode destino",
+      "valorMeta": "Valor meta",
+      "moedaMeta": "Moeda meta",
+      "fornecedorVencedor": "Fornecedor vencedor",
+      "ganhoEstimado": "Ganho estimado",
+      "ganhoPercentual": "Ganho (%)"
     },
     "visao_geral": {
       "em_construcao": "Visão Geral — Em construção"
@@ -3968,15 +4302,252 @@
       "membro_fallback": "Membro"
     },
     "kanban": {
+      "subtitulo": "Cotações organizadas por status",
       "localizar": "Localizar cotação...",
-      "propostas_contagem": "{{count}} proposta(s)",
+      "referencia_prefixo": "Ref:",
+      "propostas_contagem_one": "{{count}} proposta",
+      "propostas_contagem_other": "{{count}} propostas",
       "semCotacoes": "Nenhuma cotação",
-      "totalCotacoes": "{{count}} cotações"
+      "totalCotacoes_one": "{{count}} cotação",
+      "totalCotacoes_other": "{{count}} cotações"
     },
-    "lista": {
-      "colunas": {
-        "data_aprovacao": "Data aprovação",
-        "data_cancelamento": "Data cancelamento"
+    "status_cotacao": {
+      "RASCUNHO": "Rascunho",
+      "ENVIADA_FORNECEDORES": "Enviada ao fornecedor",
+      "EM_COTACAO": "Em cotação",
+      "AGUARDANDO_APROVACAO": "Aprovação pendente",
+      "APROVADA": "Aprovada",
+      "REPROVADA": "Reprovada",
+      "CANCELADA": "Cancelada",
+      "FALTA_INFORMACAO": "Falta de informação",
+      "EXPIRADA": "Expirada"
+    },
+    "status_disparo": {
+      "PENDENTE": "Pendente",
+      "ENVIADO": "Enviado",
+      "VISUALIZADO": "Visualizado",
+      "RESPONDIDO": "Respondido",
+      "EXPIRADO": "Expirado",
+      "ERRO_ENVIO": "Erro de envio"
+    },
+    "enums": {
+      "canal": {
+        "EMAIL": "Email",
+        "WHATSAPP": "WhatsApp",
+        "API": "API",
+        "PORTAL": "Portal"
+      },
+      "operacao": {
+        "IMPORTACAO": "Importação",
+        "EXPORTACAO": "Exportação"
+      },
+      "modal": {
+        "MARITIMO": "Marítimo",
+        "AEREO": "Aéreo",
+        "RODOVIARIO": "Rodoviário"
+      },
+      "modalidade": {
+        "FCL": "FCL",
+        "LCL": "LCL",
+        "AEREO_GERAL": "Aéreo Geral",
+        "RODOVIARIO_FTL": "FTL",
+        "RODOVIARIO_LTL": "LTL"
+      }
+    },
+    "colunas_datas_motivos": {
+      "data_limite_resposta": "Prazo resposta",
+      "data_aprovacao": "Data aprovação",
+      "data_cancelamento": "Data cancelamento",
+      "motivo_reprovacao": "Motivo reprovação",
+      "motivo_cancelamento": "Motivo cancelamento"
+    },
+    "insights": {
+      "subtitulo": "Resumo das cotações de frete internacional",
+      "kpi": {
+        "aguardando_aprovacao": {
+          "titulo": "Cotações aguardando aprovação",
+          "subtexto": "{{count}} no escopo · USD {{valor}} em aberto",
+          "tooltip_volume": "Volume em aberto",
+          "coluna_data": "Respondido"
+        },
+        "aguardando_resposta": {
+          "titulo": "Cotações aguardando resposta",
+          "subtexto": "{{enviadas}} enviadas · {{em_cotacao}} em cotação",
+          "tooltip_volume_meta": "Volume meta (USD)",
+          "coluna_data": "Envio"
+        },
+        "tempo_medio_resposta": {
+          "titulo": "Tempo Médio de Resposta",
+          "meta_dias": "Meta: {{count}} dias",
+          "valor_dias": "{{count}} d",
+          "tooltip_media": "Média de resposta",
+          "tooltip_meta_sla": "Meta SLA",
+          "tooltip_aprovacoes_prazo": "Aprovações no prazo",
+          "sem_dados": "Sem dados",
+          "dias": "{{count}} dias"
+        }
+      },
+      "alertas": {
+        "titulo": "Alertas",
+        "hoje": "Hoje",
+        "dia_anterior_aria": "Dia anterior",
+        "proximo_dia_aria": "Próximo dia",
+        "vence_hoje": "Cotações vencem hoje",
+        "resposta": "Respostas pendentes",
+        "aprovacao": "Aguardando aprovação",
+        "nova": "Novas cotações (7 dias)"
+      },
+      "funil": {
+        "titulo": "Funil de Cotações"
+      },
+      "rankings": {
+        "titulo": "Rankings Globais",
+        "live_feed": "LIVE FEED",
+        "tab_origens": "Origens",
+        "tab_destinos": "Destinos",
+        "tab_modais": "Modais",
+        "subtitulo_filtros": "{{filtros}} filtro(s) ativo(s) • {{count}} cotações",
+        "subtitulo_tempo_real": "Rankings em tempo real • {{count}} cotações",
+        "subtitulo_demo": "Rankings em tempo real • 200 bids",
+        "contagem_bids_one": "{{count}} bid",
+        "contagem_bids_other": "{{count}} bids",
+        "vazio_filtros": "Nenhuma cotação para os filtros selecionados."
+      },
+      "mapa": {
+        "titulo": "Visão Geral Global de Cotações",
+        "vazio_coordenadas": "Nenhuma cotação com coordenadas no mapa ainda.",
+        "descricao_bids": "Localizações estratégicas, bids ativos e saving acumulado por terminal ({{arraste}})",
+        "arraste_mover": "Arrastar para Mover",
+        "arraste_girar": "Arrastar para Girar",
+        "modo_bids_ativos": "Bids Ativos",
+        "modo_transit_time": "Transit Time",
+        "refinar": {
+          "titulo": "Refinar mapa",
+          "recolher": "Recolher Refinar mapa",
+          "expandir": "Expandir Refinar mapa",
+          "aria_filtros": "Filtros do mapa",
+          "aria_filtros_compacto": "Filtros do mapa (compacto)",
+          "expandir_todas": "Expandir todas",
+          "recolher_todas": "Recolher todas",
+          "expandir_todas_secoes": "Expandir todas as seções",
+          "recolher_todas_secoes": "Recolher todas as seções",
+          "limpar": "Limpar",
+          "limpar_filtros": "Limpar filtros",
+          "todos": "Todos",
+          "secao_sem_restricao": "{{titulo}}: sem restrição — exibe todos no mapa",
+          "secao_filtros_ativos": "{{titulo}}: {{count}} filtro(s) ativo(s) nesta seção",
+          "resumo_todos": "Exibindo todos · {{terminais}} terminais · {{rotas}} rotas",
+          "resumo_filtrado": "{{pinsAtivos}}/{{pinsBase}} terminais · {{rotasAtivas}}/{{rotasBase}} rotas · {{filtros}} filtro(s)",
+          "localizar": "Localizar",
+          "localizar_aria": "Localizar terminal por nome ou código",
+          "limpar_busca": "Limpar busca",
+          "busca_sem_resultado": "Nenhum terminal corresponde à busca.",
+          "vazio_origem": "Nenhum terminal de origem nas rotas atuais.",
+          "vazio_destino": "Nenhum terminal de destino nas rotas atuais."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operação",
+            "modal": "Modal",
+            "origem": "Origem",
+            "destino": "Destino",
+            "status": "Status"
+          },
+          "status": {
+            "ENVIADA_FORNECEDORES": "Enviada",
+            "AGUARDANDO_APROVACAO": "Aprovação"
+          },
+          "operacao_modal": {
+            "IMPORTACAO": {
+              "tooltip": "Cotações com origem fora do Brasil e destino no Brasil"
+            },
+            "EXPORTACAO": {
+              "tooltip": "Cotações com origem no Brasil e destino no exterior"
+            },
+            "MARITIMO": {
+              "tooltip": "Rotas com modal marítimo"
+            },
+            "AEREO": {
+              "tooltip": "Rotas com modal aéreo"
+            },
+            "RODOVIARIO": {
+              "tooltip": "Rotas com modal rodoviário"
+            }
+          }
+        },
+        "benchmark": {
+          "titulo": "Transit Benchmark",
+          "ativo": "ATIVO",
+          "subtitulo": "Sua Empresa vs. Média de Mercado",
+          "descricao_global": "Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)",
+          "eficiencia_media": "Eficiência Média Geral",
+          "mais_rapido_pct": "+{{pct}}% mais rápido",
+          "resumo_dias": "Suas rotas ativas estão em média {{dias}} dias à frente do benchmark logístico internacional.",
+          "sua_empresa_vs_mercado_inline": "Sua Empresa: {{empresa}}d vs Mercado: {{mercado}}d",
+          "rota_mais_rapido": "+{{dias}}d mais rápido",
+          "rota_na_media": "Dentro da média",
+          "rota_atrasado": "{{dias}}d atrasado",
+          "modal_maritimo": "Marítimo",
+          "modal_aereo": "Aéreo",
+          "indisponivel": "Benchmark de trânsito indisponível — aguardando propostas na rota.",
+          "titulo_transit_time": "Benchmarking Transit Time",
+          "comparativo_mais_rapido": "+{{pct}}% ({{dias}} dia(s) mais rápido que a média das propostas)",
+          "comparativo_mais_lento": "{{pct}}% ({{dias}} dia(s) acima da média das propostas)",
+          "comparativo_igual": "Igual à média das propostas na rota",
+          "stat_respostas": "Respostas",
+          "stat_melhor_preco": "Melhor Preço",
+          "stat_saving": "Saving",
+          "stat_transit_time": "Transit Time",
+          "stat_dias": "{{count}} dias"
+        }
+      },
+      "graficos": {
+        "cotacoes_por_mes": {
+          "titulo": "Cotações por Mês",
+          "subtitulo": "Últimos 6 meses",
+          "legenda_aprovadas": "Aprovadas",
+          "legenda_andamento": "Em andamento",
+          "legenda_recusadas": "Recusadas",
+          "sem_dados": "Nenhuma cotação nos últimos 6 meses para os workspaces selecionados."
+        },
+        "distribuicao_modal": {
+          "titulo": "Distribuição por Modal",
+          "centro_cotacoes": "cotações",
+          "sem_dados": "Nenhuma cotação para distribuir por modal."
+        },
+        "ptax": {
+          "titulo": "Câmbio PTAX (BACEN)",
+          "tab_hoje": "Hoje",
+          "tab_historico": "Histórico",
+          "tab_futuro": "Futuro",
+          "selecionar_data": "SELECIONAR DATA PTAX",
+          "horizonte_hedge": "HORIZONTE HEDGE",
+          "indisponivel": "PTAX indisponível. Sincronize em Configurador › Taxas de Moeda.",
+          "erro_carregar": "Falha ao carregar PTAX"
+        },
+        "spread": {
+          "titulo": "Spread Médio Aplicado",
+          "sem_dados": "Configure taxas em BID Frete › Configurações › Taxa de Câmbio para calcular o spread.",
+          "rodape": "Spread = diferença entre taxa configurada no produto e PTAX (BACEN) de hoje."
+        },
+        "melhor_cotacao": {
+          "titulo": "Melhor Cotação do Mês",
+          "dias_one": "{{count}} dia",
+          "dias_other": "{{count}} dias",
+          "saving": "{{pct}}% saving",
+          "sem_dados": "Nenhuma cotação aprovada neste mês no escopo selecionado."
+        },
+        "top_incoterms": {
+          "titulo": "Top Incoterms",
+          "sem_dados": "Nenhum incoterm registrado nas cotações do escopo."
+        },
+        "taxa_aprovacao": {
+          "titulo": "Taxa de Aprovação",
+          "em_tempo_centro": "em tempo",
+          "legenda_em_tempo": "Em tempo: {{pct}}%",
+          "legenda_atrasadas": "Atrasadas: {{pct}}%",
+          "legenda_sem_resposta": "Sem resposta: {{pct}}%"
+        }
       }
     }
   },

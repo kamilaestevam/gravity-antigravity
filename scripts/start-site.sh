@@ -167,5 +167,17 @@ else
   echo "[start-site] Smart Read legado configurado (sidecar 8033)."
 fi
 
+# Drift check: banco real × schema Prisma de cada serviço (inclusive Email via
+# servicos-plataforma). Detecta o que `migrate status` não vê — coluna renomeada
+# sem migration (causa do outage de 04/07/2026). Com DRIFT_PRISMA_ENFORCAR=1,
+# drift aborta o deploy aqui e o Railway mantém o deployment anterior no ar.
+echo "[start-site] Verificando drift Prisma de todos os serviços..."
+if ! npx tsx scripts/ativamente/verificar-drift-prisma-servicos.ts; then
+  echo "[start-site] ERRO CRITICO: drift Prisma detectado com enforcement ligado — deploy abortado."
+  exit 1
+fi
+
 echo "[start-site] Subindo Configurador + sidecars..."
+export NCM_CRON_ENABLED="${NCM_CRON_ENABLED:-1}"
+echo "[start-site] NCM cron automático: ${NCM_CRON_ENABLED}"
 exec node servicos-global/configurador/dist/server.mjs

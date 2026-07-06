@@ -36,7 +36,7 @@ import {
   rotaBidFreteInternacional,
   rotaDetalheCotacaoBidFreteInternacional,
 } from './shared/rotas-bid-frete-internacional'
-import { resolverPageMetaTopo } from './shared/page-meta-topo'
+import { traduzirPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
 import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
@@ -245,8 +245,8 @@ function AppInner() {
   }, [location.pathname])
 
   const pageMeta = useMemo(
-    () => resolverPageMetaTopo(location.pathname, location.search),
-    [location.pathname, location.search],
+    () => traduzirPageMetaTopo(location.pathname, location.search, t),
+    [location.pathname, location.search, t],
   )
 
   const initials = currentUser.name
@@ -324,6 +324,7 @@ function AppInner() {
         <ToastContainer />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
+            {/* /bid-frete/* (splat longo) — usuário logado ou rota protegida legada */}
             <Route
               path="/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
               element={<VisaoFornecedorCondicoesPlataforma />}
@@ -348,6 +349,7 @@ function AppInner() {
               path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}
             />
+            {/* /bid-frete/.../publico/* (splat = só o token) — link do e-mail sem login */}
             <Route
               path=":token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}

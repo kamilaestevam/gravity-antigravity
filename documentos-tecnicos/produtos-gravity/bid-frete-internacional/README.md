@@ -38,6 +38,13 @@
 
 ---
 
+## Entregas recentes (2026-07)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| TASK-000407 (2026-07-04) | Nº da cotação editável: wizard passo 1 (auto-gerado + customizável no POST), lista inline (PATCH), UX texto vs ícone abrir — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 e [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação |
+| TASK-000405 (2026-07-04) | Portos/aeroportos alternativos opcionais: wizard passo 2 + resumo, card Rota no detalhe, seleção obrigatória na resposta do fornecedor — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 · [COTACAO-DETALHE-COCKPIT](./COTACAO-DETALHE-COCKPIT-TECNICO.md) §6 · [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais |
+
 ## Entregas recentes (2026-06)
 
 | PR / entrega | Escopo |
@@ -68,7 +75,7 @@
 
 | Task / entrega | Escopo |
 |----------------|--------|
-| TASK-000415 (2026-07-05) | Lista de portos/aeroportos incompleta: remove filtro invisível por país no wizard; busca global no Cadastros (Hamburg, Frankfurt, etc.) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
+| TASK-000415 (2026-07-05) | Pontos cegos do catálogo de portos/aeroportos eliminados em 3 frentes: (1) wizard sem filtro invisível por país — busca global (Hamburg, Frankfurt); (2) server resolve origem/destino individualmente no snapshot de rota (`garantirTerminaisRotaNoContextoCatalogo`) — fim do erro «Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)»; (3) importação por planilha enriquece o contexto com busca remota dos locais fora da página (`enriquecerContextoCatalogoLocaisImportacaoBid`) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2/§8.4 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
 | Catálogo paginado + busca remota (2026-07-05) | Hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional`, limites SSOT, `offset`/`total` no Cadastros e proxy BID — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1 |
 
 ## Entregas recentes (2026-05)

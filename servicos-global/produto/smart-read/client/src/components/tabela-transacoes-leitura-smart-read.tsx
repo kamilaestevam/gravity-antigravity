@@ -4,13 +4,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
-import { Trash, CaretDoubleDown, CaretDoubleUp } from '@phosphor-icons/react'
+import { Trash, CaretDoubleDown, CaretDoubleUp, X } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
+  FiltroChips,
   FiltroPopoverColuna,
   TabelaVirtualGlobal,
 } from '@nucleo/tabela-virtual-global'
@@ -120,6 +122,17 @@ export function TabelaTransacoesLeituraSmartRead({
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const origemPedido = searchParams.get('origem') === 'pedido'
+
+  useEffect(() => {
+    if (searchParams.get('origem') === 'pedido' && searchParams.get('acao') === 'nova-leitura') {
+      setModalNovaLeituraAberto(true)
+      const next = new URLSearchParams(searchParams)
+      next.delete('acao')
+      setSearchParams(next, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   const handleExpandidosMudar = useCallback((count: number) => {
     setTemExpandido(count > 0)
@@ -276,6 +289,21 @@ export function TabelaTransacoesLeituraSmartRead({
     }
   }, [painelAtualId, persistirPainelAtualImediato, montarEstadoPainel, filtrosAtivosLista])
 
+  const handleLimparTodosFiltrosColuna = useCallback(() => {
+    setFiltrosAtivosLista({})
+    if (termoBusca.trim()) onBuscar('')
+    if (painelAtualId) {
+      persistirPainelAtualImediato({
+        preferencias,
+        abaAtiva: segmento,
+        sortCampo: 'data_envio',
+        sortDir: 'desc',
+        busca: '',
+        filtrosAtivos: {},
+      })
+    }
+  }, [onBuscar, painelAtualId, persistirPainelAtualImediato, preferencias, segmento, termoBusca])
+
   const acoesExportacao = useMemo(
     () => montarAcoesExportacaoListaSmartRead({
       colunas,
@@ -389,9 +417,51 @@ export function TabelaTransacoesLeituraSmartRead({
             onClick={() => setModalExcluirAberto(true)}
           />
         </TooltipGlobal>
+
+        {(Object.keys(filtrosAtivosLista).length > 0 || termoBusca.trim()) && (
+          <div className="sr-lista-acoes-barra__chips">
+            <FiltroChips
+              colunas={colunas}
+              filtrosAtivos={filtrosAtivosLista}
+              onLimparFiltro={handleLimparFiltroColuna}
+              onLimparTodos={handleLimparTodosFiltrosColuna}
+              onEditarFiltro={onFiltroColuna}
+              thresholdConsolidar={2}
+              prefixo={termoBusca.trim() ? (
+                <span className="fc-chip">
+                  <span className="fc-chip-label">
+                    {t('smart_read.lista.chip_busca', { defaultValue: 'Busca' })}:
+                  </span>
+                  <span className="fc-chip-valor">{termoBusca}</span>
+                  <button
+                    type="button"
+                    className="fc-chip-remove"
+                    onClick={() => onBuscar('')}
+                    aria-label={t('smart_read.lista.remover_busca', { defaultValue: 'Remover busca' })}
+                  >
+                    <X size={10} weight="bold" />
+                  </button>
+                </span>
+              ) : null}
+            />
+          </div>
+        )}
       </div>
     ),
-    [abrirNovaLeitura, excluindo, leiturasSelecionadas.length, temExpandido],
+    [
+      abrirNovaLeitura,
+      colunas,
+      excluindo,
+      filtrosAtivosLista,
+      handleLimparFiltroColuna,
+      handleLimparTodosFiltrosColuna,
+      leiturasSelecionadas.length,
+      onBuscar,
+      onFiltroColuna,
+      t,
+      temExpandido,
+      termoBusca,
+    ],
   )
 
   const colunaFiltroAberta = popoverFiltroAberto
@@ -490,6 +560,7 @@ export function TabelaTransacoesLeituraSmartRead({
         aberto={modalNovaLeituraAberto}
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
+        origemPedido={origemPedido}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])

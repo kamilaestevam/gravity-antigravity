@@ -493,6 +493,51 @@
   text-align: left;
 }
 
+/* Nº da cotação — valor editável (clique na célula) + ícone separado para abrir detalhe. */
+.bf-lista-page .bf-lista-numero-cotacao-celula {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.bf-lista-page .bf-lista-numero-cotacao-valor {
+  font: inherit;
+  font-size: inherit;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bf-lista-page .bf-lista-numero-cotacao-abrir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--gtv-link, var(--accent-primary));
+  cursor: pointer;
+}
+
+.bf-lista-page .bf-lista-numero-cotacao-abrir:hover {
+  background: color-mix(in srgb, var(--gtv-link, var(--accent-primary)) 12%, transparent);
+}
+
+.bf-lista-page .bf-lista-numero-cotacao-abrir:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 1px;
+}
+
 .bf-lista-page .bf-lista-valor-numerico {
   font: inherit;
   font-size: inherit;

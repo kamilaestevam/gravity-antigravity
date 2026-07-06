@@ -45,6 +45,19 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
+// Blindagem do monolito: um sidecar (Email, Pedido, BID, ...) NUNCA pode derrubar
+// os outros. Sem estes handlers o Node 22 mata o processo inteiro em qualquer
+// promise rejeitada sem catch — foi exatamente o que tirou a prod do ar em
+// 04/07/2026 (P2022 do Email em rota async sem catch → crash-loop de 12h).
+// Logar alto e seguir vivo; o erro real continua visível nos Deploy Logs.
+process.on('unhandledRejection', (motivo) => {
+  const msg = motivo instanceof Error ? (motivo.stack ?? motivo.message) : String(motivo)
+  console.error('[FATAL-EVITADO] unhandledRejection (processo segue vivo):', msg)
+})
+process.on('uncaughtException', (err, origem) => {
+  console.error(`[FATAL-EVITADO] uncaughtException via ${origem} (processo segue vivo):`, err.stack ?? err.message)
+})
+
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -102,7 +115,9 @@ if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
     const proto = req.headers['x-forwarded-proto'] ?? req.protocol
     if (proto === 'http' || host.startsWith('www.')) {
       const canonical = `https://usegravity.com.br${req.originalUrl}`
-      res.redirect(301, canonical)
+      // 308 preserva POST/PATCH/DELETE no redirect www → apex (301 virava GET e quebrava criar cotação)
+      const redirectCode = req.originalUrl.startsWith('/api/') ? 308 : 301
+      res.redirect(redirectCode, canonical)
       return
     }
     next()
@@ -385,9 +400,11 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   // Browser autenticado deve enviar x-id-organizacao/x-id-usuario via shell (/me).
 
   let bodyBuf: Buffer | undefined
-  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+  const metodoComCorpo = req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH'
+  if (metodoComCorpo && req.body !== undefined && typeof req.body === 'object') {
     bodyBuf = Buffer.from(JSON.stringify(req.body))
     headers['content-length'] = String(bodyBuf.length)
+    delete headers['transfer-encoding']
   }
 
   const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
@@ -411,7 +428,7 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
   } else {
-    proxyReq.end()
+    req.pipe(proxyReq)
   }
 }
 
@@ -768,7 +785,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   if (devPm2) {
     console.log(
-      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033)',
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033/8008)',
     )
   }
 
@@ -995,6 +1012,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   // Sidecar 6: Smart Read BFF (porta 8033) — adapter legado dati; sem banco próprio
   process.env.PORT = '8033'
+  process.env.SMART_READ_SIDECAR = '1'
   process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
   process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
     ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -1005,7 +1023,25 @@ if (process.env.NODE_ENV !== 'test') {
     )
   }
   try {
-    await import('../../produto/smart-read/server/src/index.js')
+    if (process.env.NODE_ENV !== 'production') {
+      const { execSync } = await import('node:child_process')
+      const repoRoot = resolve(__dir, '../../..')
+      console.log('[configurador] Dev — prisma generate Smart Read...')
+      execSync('node servicos-global/produto/smart-read/prisma/compose-schema.js', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+      execSync('npx prisma generate --schema=servicos-global/produto/smart-read/prisma/schema.prisma', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+    }
+    const modSmartRead = await import('../../produto/smart-read/server/src/index.js') as {
+      sidecarListenReady?: Promise<void>
+    }
+    await aguardarSidecarEmbutido(8033, modSmartRead.sidecarListenReady)
     const { deveUsarMockLegadoSmartRead } = await import(
       '../../produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
     )
@@ -1023,6 +1059,33 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Smart Read:', msg)
   }
 
+  // Sidecar Email tenant (porta 8008) — Resend S2S; antes do BID (disparo de cotação)
+  const orgUrlEmail =
+    process.env.ORGANIZACAO_DATABASE_URL ??
+    process.env.SERVICOS_PLATAFORMA_DATABASE_URL ??
+    process.env.TENANT_DATABASE_URL
+  if (orgUrlEmail) {
+    process.env.ORGANIZACAO_DATABASE_URL = orgUrlEmail
+    process.env.PORT = '8008'
+    process.env.DATABASE_URL = orgUrlEmail
+    process.env.EMAIL_SIDECAR = '1'
+    try {
+      const modEmail = await import('../../servicos-plataforma/email/server/index.js') as {
+        sidecarListenReady?: Promise<void>
+      }
+      await aguardarSidecarEmbutido(8008, modEmail.sidecarListenReady)
+      _sidecarStatus['email'] = { ok: true }
+      console.log('[configurador] Sidecar Email iniciado na porta 8008')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['email'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar Email:', msg)
+    }
+  } else {
+    _sidecarStatus['email'] = { ok: false, error: 'ORGANIZACAO_DATABASE_URL ausente' }
+    console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — sidecar Email desativado')
+  }
+
   // Sidecar 6: BID Frete Internacional (porta 8023) — antes do GABI (tools bid_frete.*)
   if (process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
     await aplicarMigrationsBidFreteDev()
@@ -1036,9 +1099,14 @@ if (process.env.NODE_ENV !== 'test') {
     process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
     process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
     process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+    process.env.EMAIL_SERVICE_URL =
+      process.env.EMAIL_SERVICE_URL?.trim()
+      || process.env.TENANT_EMAIL_SERVICE_URL?.trim()
+      || 'http://127.0.0.1:8008'
     process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
       ? `https://${process.env.CANONICAL_DOMAIN}`
       : 'https://usegravity.com.br'
+    process.env.APP_URL = process.env.APP_URL?.trim() || process.env.CLIENT_URL
     process.env.BID_FRETE_SIDECAR = '1'
 
     const _origExitBid = process.exit
@@ -1099,6 +1167,8 @@ if (process.env.NODE_ENV !== 'test') {
   // Sidecars embutidos — sempre loopback; ignora URLs externas legadas no Railway
   process.env.API_COCKPIT_SERVICE_URL = 'http://127.0.0.1:8016'
   process.env.GABI_SERVICE_URL = 'http://127.0.0.1:8009'
+  process.env.EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
+  process.env.TENANT_EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
   process.env.BID_FRETE_INTERNATIONAL_SERVICE_URL = 'http://127.0.0.1:8023'
   process.env.PEDIDO_SERVICE_URL = 'http://127.0.0.1:8030'
   process.env.CONFIGURADOR_SERVICE_URL = configuradorLoopbackUrl

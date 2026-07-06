@@ -202,8 +202,12 @@ export default function ResponderPublico() {
       modal: cotacao?.modal_cotacao_bid_frete_internacional,
       modalidade: cotacao?.modalidade_cotacao_bid_frete_internacional,
       incluirArmazenagem: cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
+      cotacao,
       mensagemCamposObrigatorios: t('bidfrete.portal.publico.campos_obrigatorios'),
       mensagemArmazenagemInvalida: t('bidfrete.portal.publico.armazenagem_invalida'),
+      mensagemLocalObrigatorio: t('bidfrete.portal.publico.local_obrigatorio', {
+        defaultValue: 'Selecione o porto/aeroporto utilizado na proposta',
+      }),
     })
     if (erroValidacao) {
       setErro(erroValidacao)
@@ -222,6 +226,7 @@ export default function ResponderPublico() {
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
         cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
+        cotacao?.modalidade_cotacao_bid_frete_internacional,
       )
 
       await enviarPropostaPublicoApi(token, payload)
@@ -436,6 +441,8 @@ export default function ResponderPublico() {
           <FormPropostaRespostaCotacao
 
             form={form}
+
+            cotacaoLocais={cotacao}
 
             modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
 

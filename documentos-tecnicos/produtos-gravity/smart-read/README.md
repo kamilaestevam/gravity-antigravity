@@ -11,6 +11,7 @@
 | Documento | Conte�do |
 |-----------|----------|
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extra��o); Postgres Gravity = snapshot, progresso, pain�is |
+| [SMART-READ-CRIAR-PEDIDO-TECNICO.md](./SMART-READ-CRIAR-PEDIDO-TECNICO.md) | **Ponte Pedido (+ Novo → Smart Docs):** rotas S2S, 4 camadas, migration `conversao_leitura_pedido_smart_read` (TASK-000408) |
 | [REQUISITOS-TECNICOS.md](./REQUISITOS-TECNICOS.md) | **Rate limit (100 req/min)**, chamadas HTTP no mount da Lista, upload 50 MB, pagina��o, erro 429 � SSOT limites e API |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor respons�vel, contrato BFF, rankings |
 | [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/pagina��o/pain�is, BFF leituras, progresso por usu�rio, nome do wizard, **KPI cards �13**, **status de fluxo �14** (funda��o + wiring pendente) |
@@ -126,3 +127,4 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | Refatora��o Insights | Fonte �nica acerto/erro por edi��o do usu�rio; emissor respons�vel por tipo de documento; `dados_original` no contrato bilateral |
 | **TASK-000357** | Contador discreto tokens Gemini (sidebar passo 2+), tabela `log_uso_llm_leitura_smart_read`, rotas `GET /leituras/tokens/*` - ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) secao 3.1 e [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) secao 6 |
 | **TASK-000403** | Passo 4 (Resultado): fix download "Baixar pacote DATI". O DATI responde HTTP 404 "Task result data not found" no `GET /download-tasks/{id}` enquanto o worker `GENERATE_READING_DOWNLOAD` ainda gera o ZIP. `obterStatusTarefaDownloadLegado` (BFF) passa a tratar esse 404 especifico como status `processing` (nao-terminal), deixando o poll do front (limite 120s) prosseguir ate `completed` ou timeout honesto; outros 404 (ex.: "Task not found") continuam ruidosos (Mand. 08). Front emite `console.warn` estruturado UNICO no timeout (nunca por poll). Testes: `testes/testes-unitarios/produto-gravity/smart-read/obter-status-tarefa-download-legado.test.ts` (3 casos) + suite FUN 000368 |
+| **TASK-000408** | Ponte **Pedido → Smart Docs → criar pedido:** `+ Novo` redirect, wizard passo 4, S2S Pedido, tabela `conversao_leitura_pedido_smart_read`, migration `20260703230000` — ver [SMART-READ-CRIAR-PEDIDO-TECNICO.md](./SMART-READ-CRIAR-PEDIDO-TECNICO.md) |

@@ -3183,6 +3183,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
           ? form.opcao_incluir_armazenagem_cotacao === 'sim'
           : false,
+        nomes_armazem_alfandegado_cotacao_bid_frete_internacional:
+          ehMaritimoLclCotacaoBidFreteInternacional(
+            form.modal_cotacao_bid_frete_internacional,
+            modalidadeEfetivaNovaCotacao(form),
+          ) && form.opcao_incluir_armazenagem_cotacao === 'sim'
+            ? form.linhas_armazem_alfandegado_cotacao
+                .map((linha) => linha.nome_armazem_alfandegado.trim())
+                .filter(Boolean)
+            : undefined,
         ...(form.eh_carga_perigosa_cotacao_bid_frete_internacional
           ? {
               numero_onu_cotacao_bid_frete_internacional: form.numero_onu_cotacao_bid_frete_internacional,

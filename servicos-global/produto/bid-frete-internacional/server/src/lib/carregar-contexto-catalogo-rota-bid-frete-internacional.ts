@@ -4,7 +4,7 @@
 
 import { extrairCodigoDeRotuloImportacao } from '../../../shared/rotulo-cadastro-importacao-bid-frete-internacional.js'
 import { fetchCadastrosJson } from './cadastros-client.js'
-import { resolverLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
+import { resolverMetadadosLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
 import type { CamposRotaModalCotacao, ContextoCatalogoRota } from './rota-cotacao-bid-frete-internacional.js'
 
 type PortoCadastros = {
@@ -99,7 +99,7 @@ export async function garantirTerminaisRotaNoContextoCatalogo(
     ].filter((c) => c && !portoNoContexto(ctx, c))
 
     for (const codigo of [...new Set(codigos)]) {
-      const local = await resolverLocalCadastrosBidFreteInternacional(codigo, {
+      const local = await resolverMetadadosLocalCadastrosBidFreteInternacional(codigo, {
         id_organizacao: idOrganizacao,
         modal,
       })
@@ -120,7 +120,7 @@ export async function garantirTerminaisRotaNoContextoCatalogo(
   ].filter((c) => c && !aeroportoNoContexto(ctx, c))
 
   for (const codigo of [...new Set(codigos)]) {
-    const local = await resolverLocalCadastrosBidFreteInternacional(codigo, {
+    const local = await resolverMetadadosLocalCadastrosBidFreteInternacional(codigo, {
       id_organizacao: idOrganizacao,
       modal,
     })

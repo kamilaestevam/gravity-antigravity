@@ -910,6 +910,7 @@ export default function DetalheCotacao() {
           variante="combate"
           exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
+          ctxLocaisOpcionaisCotacao={ctxLocaisOpcionaisCotacao}
         />
       )}
       </>

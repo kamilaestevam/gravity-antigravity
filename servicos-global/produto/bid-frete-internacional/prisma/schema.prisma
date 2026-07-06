@@ -293,6 +293,8 @@ model CotacaoBidFreteInternacional {
 
   // Armazenagem (Marítimo LCL — comprador opta; fornecedor informa valor e período na proposta)
   incluir_armazenagem_cotacao_bid_frete_internacional            Boolean  @default(false)
+  // Nomes dos armazéns alfandegados de preferência da desova (texto livre; só quando incluir_armazenagem = true)
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional      Json?
 
   // Termos
   incoterm_cotacao_bid_frete_internacional            String              // FOB, EXW, CIF, etc.

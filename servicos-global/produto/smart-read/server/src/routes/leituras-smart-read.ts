@@ -12,17 +12,22 @@ import { AppError } from '../lib/app-error.js'
 import {
   criarLeituraLegado,
   enviarArquivoLegado,
+  excluirLeituraLegado,
+  falhaExclusaoLegadoPermiteEspelhoGravity,
   obterArquivoLegado,
   obterLeituraLegado,
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
 import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
 import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
+import { tentarRecuperarVinculoLeituraWorkspaceSmartRead } from '../lib/assegurar-vinculo-leitura-workspace-smart-read.js'
 import {
+  clausulaWorkspaceLeituraSmartRead,
   leituraVinculadaAoWorkspaceSmartRead,
   resolverIdWorkspaceLeituraSmartRead,
 } from '../lib/escopo-workspace-leitura-smart-read.js'
 import { registrarVinculoLeituraUsuarioSmartRead } from '../lib/registrar-vinculo-leitura-usuario-smart-read.js'
+import { removerEspelhoGravityLeituraSmartRead } from '../lib/remover-espelho-gravity-leitura-smart-read.js'
 import {
   obterLeituraDoProgresso,
   obterLeituraDoSnapshot,
@@ -42,6 +47,8 @@ import {
   normalizarLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
+import { CriarPedidoDeLeituraSmartReadRequestSchema } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
+import { dispararCriacaoPedidoDeLeituraSmartRead } from '../lib/disparar-criacao-pedido-de-leitura-smart-read.js'
 import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.js'
 import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 import { qaLeituraSmartReadRouter } from './qa-leitura-smart-read.js'
@@ -169,13 +176,21 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     })
 
     if (req.prisma) {
-      await registrarVinculoLeituraUsuarioSmartRead({
-        prisma: req.prisma,
-        idOrganizacao,
-        idUsuario,
-        idWorkspace,
-        idLeitura,
-      })
+      try {
+        await registrarVinculoLeituraUsuarioSmartRead({
+          prisma: req.prisma,
+          idOrganizacao,
+          idUsuario,
+          idWorkspace,
+          idLeitura,
+        })
+      } catch (erro) {
+        console.error('[smart-read][vinculo] POST criou leitura no legado mas vínculo Postgres falhou — GET heal-on-read', {
+          idLeitura,
+          idWorkspace,
+          erro,
+        })
+      }
     }
 
     const resposta = CriarLeituraRespostaSchema.parse({
@@ -201,21 +216,33 @@ router.get(
   async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
     try {
       const idOrganizacao = organizacaoDaRequisicao(req)
-      idUsuarioDaRequisicao(req)
+      const idUsuario = idUsuarioDaRequisicao(req)
       const { id_leitura, id_arquivo } = IdArquivoLeituraSchema.parse(req.params)
       const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+
+      const companyId = await resolverCompanyLegado(idOrganizacao)
 
       if (req.prisma) {
         const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
         if (!doSnapshot) {
-          const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
-          if (!vinculada) {
-            throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
+          try {
+            await obterLeituraLegado(companyId, id_leitura)
+            await tentarRecuperarVinculoLeituraWorkspaceSmartRead({
+              prisma: req.prisma,
+              idOrganizacao,
+              idUsuario,
+              idWorkspace,
+              idLeitura: id_leitura,
+              leituraExisteNoLegado: true,
+            })
+          } catch {
+            const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
+            if (!vinculada) {
+              throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
+            }
           }
         }
       }
-
-      const companyId = await resolverCompanyLegado(idOrganizacao)
       const arquivo = await obterArquivoLegado(companyId, id_leitura, id_arquivo)
 
       res.setHeader('Content-Type', arquivo.contentType)
@@ -239,16 +266,21 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     const idUsuario = idUsuarioDaRequisicao(req)
     const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
 
-    if (req.prisma) {
-      const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
-      if (!vinculada) {
-        throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
-      }
-    }
-
     const companyId = await resolverCompanyLegado(idOrganizacao)
     try {
       const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
+
+      if (req.prisma) {
+        await tentarRecuperarVinculoLeituraWorkspaceSmartRead({
+          prisma: req.prisma,
+          idOrganizacao,
+          idUsuario,
+          idWorkspace,
+          idLeitura: id_leitura,
+          leituraExisteNoLegado: true,
+        })
+      }
+
       let leitura = normalizarLeitura(leituraLegado)
       let doSnapshot: Awaited<ReturnType<typeof obterLeituraDoSnapshot>> = null
 
@@ -317,9 +349,87 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
   }
 })
 
-router.delete('/:id_leitura', async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_leitura/snapshot-id', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
-    throw new AppError('Exclusao de leitura ainda nao disponivel no legado', 501, 'NAO_IMPLEMENTADO')
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    if (!req.prisma) {
+      throw new AppError('Banco Smart Read indisponivel', 503, 'PRISMA_INDISPONIVEL')
+    }
+    const filtro = clausulaWorkspaceLeituraSmartRead(idWorkspace)
+    const snap = await req.prisma.snapshotLeituraSmartRead.findFirst({
+      where: {
+        ...filtro,
+        id_leitura_legado_snapshot_leitura_smart_read: id_leitura,
+        id_organizacao: idOrganizacao,
+      },
+      select: { id_snapshot_leitura_smart_read: true },
+    })
+    if (!snap) {
+      throw new AppError('Snapshot nao encontrado', 404, 'SNAPSHOT_NAO_ENCONTRADO')
+    }
+    res.json({ id_snapshot_leitura_smart_read: snap.id_snapshot_leitura_smart_read })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post('/:id_leitura/criar-pedido', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    const idUsuario = idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    if (!req.prisma) {
+      throw new AppError('Banco Smart Read indisponivel', 503, 'PRISMA_INDISPONIVEL')
+    }
+    const body = CriarPedidoDeLeituraSmartReadRequestSchema.parse({
+      id_leitura,
+      ...((req.body && typeof req.body === 'object') ? req.body : {}),
+    })
+    const resultado = await dispararCriacaoPedidoDeLeituraSmartRead({
+      prisma: req.prisma,
+      idOrganizacao,
+      idUsuario,
+      idWorkspace,
+      body,
+    })
+    res.status(201).json(resultado)
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    idUsuarioDaRequisicao(req)
+    const { id_leitura } = IdLeituraSchema.parse(req.params)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+    const companyId = await resolverCompanyLegado(idOrganizacao)
+
+    try {
+      await excluirLeituraLegado(companyId, id_leitura)
+    } catch (err) {
+      if (!falhaExclusaoLegadoPermiteEspelhoGravity(err)) {
+        throw err
+      }
+      console.warn(
+        '[smart-read][delete] legado nao removeu leitura — limpando espelho Gravity para ocultar da lista',
+        { id_leitura, idWorkspace, erro: err instanceof AppError ? err.message : err },
+      )
+    }
+
+    if (req.prisma) {
+      await removerEspelhoGravityLeituraSmartRead({
+        prisma: req.prisma,
+        idLeitura: id_leitura,
+        idWorkspace,
+      })
+    }
+
+    res.status(204).send()
   } catch (err) {
     next(err)
   }

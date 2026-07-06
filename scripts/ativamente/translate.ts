@@ -45,6 +45,12 @@ const LANGUAGE_NAMES: Record<string, string> = {
 
 type FlatMap = Record<string, string>
 
+function readJsonFile(filePath: string): Record<string, unknown> {
+  let raw = fs.readFileSync(filePath, 'utf-8')
+  if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1)
+  return JSON.parse(raw) as Record<string, unknown>
+}
+
 function flatten(obj: Record<string, unknown>, prefix = ''): FlatMap {
   const result: FlatMap = {}
   for (const [key, value] of Object.entries(obj)) {
@@ -197,7 +203,7 @@ async function main() {
 
   // Carregar pt.json (fonte da verdade)
   const ptPath = path.join(LOCALES_DIR, 'pt.json')
-  const ptData = JSON.parse(fs.readFileSync(ptPath, 'utf-8'))
+  const ptData = readJsonFile(ptPath)
   const ptFlat = flatten(ptData)
 
   console.log(`\n📖 pt.json: ${Object.keys(ptFlat).length} chaves totais`)
@@ -211,7 +217,7 @@ async function main() {
     // Carregar arquivo existente ou criar vazio
     let existingData: Record<string, unknown> = {}
     if (fs.existsSync(langPath)) {
-      existingData = JSON.parse(fs.readFileSync(langPath, 'utf-8'))
+      existingData = readJsonFile(langPath)
     }
     const existingFlat = flatten(existingData)
 

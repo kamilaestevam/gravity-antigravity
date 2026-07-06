@@ -126,7 +126,7 @@ cd ../..
 echo "[build-site] Building marketplace vitrine..."
 cd servicos-global/marketplace
 # Garantir deps locais (react-i18next e outros vêm do root, mas vite precisa do node_modules local)
-npm ci --prefer-offline 2>/dev/null || npm install --prefer-offline || true
+npm ci --prefer-offline 2>/dev/null || npm install --prefer-offline
 NODE_ENV=production npx vite build
 cd ../..
 

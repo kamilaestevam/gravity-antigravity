@@ -30,12 +30,12 @@ export function BidFreteDashboardFaixaPaineis({
   return (
     <nav
       className="lp-faixa-navegacao"
-      aria-label={t('bid_frete_internacional.dashboard.faixa_paineis', { defaultValue: 'Painéis do dashboard' })}
+      aria-label={t('bidfrete.dashboard.faixa_paineis', { defaultValue: 'Painéis do dashboard' })}
       data-testid="dashboard-faixa-paineis"
     >
       <section
         className="lp-faixa-navegacao__paineis"
-        aria-label={t('bid_frete_internacional.dashboard.paineis_secao', { defaultValue: 'Painéis do dashboard' })}
+        aria-label={t('bidfrete.dashboard.paineis_secao', { defaultValue: 'Painéis do dashboard' })}
       >
         <BidFreteListaPainelBar
           paineis={paineis}

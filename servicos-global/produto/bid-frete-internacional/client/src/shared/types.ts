@@ -215,6 +215,7 @@ export interface Cotacao {
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional?: string[] | null
   incoterm_cotacao_bid_frete_internacional: string
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null

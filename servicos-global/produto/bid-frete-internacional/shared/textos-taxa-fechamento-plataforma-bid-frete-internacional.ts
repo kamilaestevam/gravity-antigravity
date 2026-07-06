@@ -73,3 +73,23 @@ export function montarTextoAceiteCondicoesPortalRespostaBidFrete(
     + 'fechar o frete com sua empresa.'
   )
 }
+
+/** Aviso no modal Confirmar Aprovação — perspectiva do comprador na plataforma. */
+export function montarTextoAvisoTaxaModalAprovarPropostaBidFrete(params: {
+  pagador: EmpresaPagadoraTaxaFechamentoPlataformaGravity
+  nomeFornecedor: string
+}): string {
+  const fornecedor = params.nomeFornecedor.trim() || 'o fornecedor selecionado'
+
+  if (ehContratanteGravityPagadorTaxaFechamento(params.pagador)) {
+    return (
+      `Ao confirmar, a taxa de fechamento de ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} será paga pela sua `
+      + `organização (contratante Gravity). ${fornecedor} não será cobrado por essa taxa.`
+    )
+  }
+
+  return (
+    `Ao confirmar, a taxa de fechamento de ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} será cobrada de `
+    + `${fornecedor} via boleto mensal na Gravity, somente se o frete for fechado na plataforma.`
+  )
+}

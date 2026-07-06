@@ -304,6 +304,8 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 **Testes UNI:** `aguardar-confirmacao-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
 
+**Validade do link público (e-mail + `GET /publico/:token`):** `calcularDataExpiracaoTokenDisparoBidFreteInternacional` — igual ao prazo de resposta quando informado; sem prazo, **360 dias** (proibido fixar 7 dias). SSOT: `shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.ts` · teste UNI homônimo.
+
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.3–5.4
 
 ---
@@ -327,6 +329,23 @@ Cotação pode oferecer locais logísticos alternativos além do principal (orig
 **Campos cotação (Prisma):** `habilitar_opcao_porto_aeroporto_{origem,destino}_*` + `codigos_opcao_porto_aeroporto_{origem,destino}_*` (JSONB).
 
 **Regra fornecedor:** se há opcionais no lado, select obrigatório; elegíveis = principal + opcionais. Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais · wizard: [MODAL-NOVA-COTACAO](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1.
+
+> ⚠️ **Cuidado em merge:** o PR #642 removeu por engano toda a UI de locais opcionais de `formulario-resposta-cotacao-bid-frete-internacional.tsx` (restaurada no PR #646). O server segue exigindo a seleção — remover a UI quebra o envio da proposta em silêncio.
+
+---
+
+## Armazéns de preferência (PR #646)
+
+Cotação Marítimo LCL com `incluir_armazenagem_cotacao_bid_frete_internacional = true` persiste os armazéns alfandegados de preferência em `nomes_armazem_alfandegado_cotacao_bid_frete_internacional` (JSONB `string[] | null`, migration `20260705200000`).
+
+| Peça | Caminho |
+|------|---------|
+| Wizard → payload POST | `modal-nova-cotacao-bid-frete-internacional.tsx` (`linhas_armazem_alfandegado_cotacao`) |
+| Zod + normalização | `server/src/routes/cotacoes.ts` — `nomesArmazemAlfandegadoParaPersistencia` |
+| Portal fornecedor (exibição) | `formulario-resposta-cotacao-bid-frete-internacional.tsx` — `SecaoDetalhesCotacaoResposta` |
+| E-mail de disparo | `shared/formatar-email-disparo-bid-frete-internacional.ts` + `motor-bid-frete-internacional.ts` |
+
+Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Armazéns de preferência.
 
 ---
 

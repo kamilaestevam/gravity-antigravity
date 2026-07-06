@@ -75,6 +75,7 @@
 
 | Task / entrega | Escopo |
 |----------------|--------|
+| PR #646 (2026-07-05) | Portal fornecedor: restaura locais alternativos removidos por engano no PR #642 + persistência/exibição dos armazéns de preferência (coluna JSONB, migration `20260705200000`, wizard, portal, e-mail) — ver [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) §§ Resposta — locais opcionais · Armazéns de preferência |
 | TASK-000415 (2026-07-05) | Pontos cegos do catálogo de portos/aeroportos eliminados em 3 frentes: (1) wizard sem filtro invisível por país — busca global (Hamburg, Frankfurt); (2) server resolve origem/destino individualmente no snapshot de rota (`garantirTerminaisRotaNoContextoCatalogo`) — fim do erro «Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)»; (3) importação por planilha enriquece o contexto com busca remota dos locais fora da página (`enriquecerContextoCatalogoLocaisImportacaoBid`) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2/§8.4 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
 | Catálogo paginado + busca remota (2026-07-05) | Hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional`, limites SSOT, `offset`/`total` no Cadastros e proxy BID — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1 |
 

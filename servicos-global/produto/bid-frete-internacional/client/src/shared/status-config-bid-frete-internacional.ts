@@ -21,7 +21,7 @@ export const statusCotacaoConfigItemSchema = z.object({
   rotulo: z.string(),
   cor: z.string(),
   ordem: z.number(),
-  is_sistema: z.boolean(),
+  gerenciado_sistema: z.boolean(),
 })
 
 export const statusCotacaoConfigArraySchema = z
@@ -38,23 +38,39 @@ export const EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL =
   'bid-frete:config:status-atualizado'
 
 export const STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL: StatusCotacaoConfigBidFreteInternacional[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
+  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
+  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
+  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, gerenciado_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, gerenciado_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, gerenciado_sistema: false },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, gerenciado_sistema: false },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, gerenciado_sistema: false },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, gerenciado_sistema: false },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, gerenciado_sistema: false },
 ]
+
+function migrarItemStatusCotacaoConfigLegado(item: unknown): unknown {
+  if (!item || typeof item !== 'object') return item
+  const record = item as Record<string, unknown>
+  if ('is_sistema' in record && !('gerenciado_sistema' in record)) {
+    const { is_sistema, ...rest } = record
+    return { ...rest, gerenciado_sistema: is_sistema }
+  }
+  return item
+}
+
+export function migrarArrayStatusCotacaoConfigLegado(parsed: unknown): unknown {
+  if (!Array.isArray(parsed)) return parsed
+  return parsed.map(migrarItemStatusCotacaoConfigLegado)
+}
 
 export function lerStatusCotacaoConfigBidFreteInternacional(): StatusCotacaoConfigBidFreteInternacional[] {
   try {
     const raw = localStorage.getItem(CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL)
     if (raw) {
       const parsed: unknown = JSON.parse(raw)
-      const resultado = statusCotacaoConfigArraySchema.safeParse(parsed)
+      const migrado = migrarArrayStatusCotacaoConfigLegado(parsed)
+      const resultado = statusCotacaoConfigArraySchema.safeParse(migrado)
       if (resultado.success) {
         return resultado.data
       }

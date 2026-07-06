@@ -40,6 +40,7 @@ import {
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
+import { calcularDataExpiracaoTokenDisparoBidFreteInternacional } from '../../../shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
@@ -525,7 +526,8 @@ export const motorBid = {
       nomesArmazensTexto: montarTextoNomesArmazensDisparo(
         cotacao.nomes_armazem_alfandegado_cotacao_bid_frete_internacional,
       ),
-      dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+      data_limite_resposta_cotacao_bid_frete_internacional:
+        cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
       nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
       anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,

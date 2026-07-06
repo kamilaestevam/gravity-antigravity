@@ -2361,13 +2361,10 @@ export default function Configuracoes() {
                   }}
                   posicao="auto"
                 />
-                <p
-                  className="cfg-hint"
-                  style={{ marginTop: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                >
+                <p className="cfg-hint cfg-hint--compacto" style={{ marginTop: '0.5rem', maxWidth: '42rem' }}>
                   {t(
                     'bidfrete.configuracoes.pref_pagador_taxa_desc',
-                    'Define quem paga a taxa de success fee (USD 10,00) ao fechar o frete na plataforma; reflete no email de disparo e na mensagem da cotação para o fornecedor.',
+                    'Define quem paga a taxa de success fee (USD 10,00) ao fechar o frete na plataforma. Reflete no e-mail de disparo e na mensagem da cotação para o fornecedor.',
                   )}
                 </p>
               </div>

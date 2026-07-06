@@ -70,6 +70,16 @@ export function resolverNomeClienteOperacaoCotacaoResposta(input: {
   return input.mapaNomesWorkspace.get(idWorkspace) ?? null
 }
 
+/** Resolve nome do workspace para e-mail de aprovação — sempre exibe, mesmo em cotação anônima. */
+export async function resolverNomeClienteEmailAprovacaoBidFreteInternacional(input: {
+  id_workspace?: string | null
+}): Promise<string> {
+  const idWorkspace = input.id_workspace?.trim()
+  if (!idWorkspace) return 'Cliente Gravity'
+  const mapa = await obterMapaNomesWorkspacePorIds([idWorkspace])
+  return mapa.get(idWorkspace)?.trim() || 'Cliente Gravity'
+}
+
 /** Resolve nome do workspace (exportador/importador) para disparo de e-mail/WhatsApp. */
 export async function resolverNomeClienteOperacaoCotacaoDisparo(input: {
   id_workspace?: string | null

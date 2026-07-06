@@ -148,6 +148,12 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8 · Atlas `ddd-atlas/bid-frete/01-campos.md`
 
+### Prazo para respostas (wizard passo Fornecedores — #654)
+
+- Passo **Fornecedores:** `data_limite_resposta_cotacao_bid_frete_internacional` **obrigatório** (data + hora); `CampoCalendarioGlobal` em `modoUnico` + `permitirLimpar={false}` (data única de vencimento); hora com máscara **HH:mm** e ícone `Clock` (sem `type=time` nativo).
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §3.1
+
 ### Catálogo portos/aeroportos paginado (Nova Cotação — passo 2)
 
 Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catálogo completo do Cadastros no scroll (100/página) e fazem busca remota no banco inteiro (150 resultados, ≥2 chars). SSOT de limites: `shared/limites-catalogo-logistica-bid-frete-internacional.ts`; hook `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`; proxies e rotas Cadastros aceitam `offset` e devolvem `total`; `SelectGlobal` ganhou props `buscaRemota`/`aoMudarBusca`/`aoScrollFimLista`/`totalOpcoesCatalogo`. Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.

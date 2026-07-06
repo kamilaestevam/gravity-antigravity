@@ -74,6 +74,7 @@ enum BidFreteInternacionalStatusProposta {
   MELHOR_TRANSIT
   MELHOR_AVALIACAO
   APROVADA
+  APROVACAO_RECEBIDA
   REPROVADA
   @@map("bid_frete_internacional_status_proposta")
 }
@@ -399,6 +400,10 @@ model PropostaBidFreteInternacional {
   classificacao_transito_proposta_bid_frete_internacional     Int?              // posicao no ranking de transit time
   classificacao_avaliacao_proposta_bid_frete_internacional   Int?              // posicao no ranking de avaliacao do fornecedor
 
+  // Aceite público do ganhador (e-mail pós-aprovação)
+  token_aceite_aprovacao_proposta_bid_frete_internacional   String?           @unique
+  data_aceite_aprovacao_proposta_bid_frete_internacional   DateTime?
+
   // Origem da resposta
   via_tabela_proposta_bid_frete_internacional   Boolean           @default(false)  // veio da tabela de precos
   via_api_proposta_bid_frete_internacional             Boolean           @default(false)   // veio de API do fornecedor
@@ -425,6 +430,7 @@ model PropostaBidFreteInternacional {
   @@index([id_organizacao, id_bid_bid_frete_internacional])
   @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
   @@index([id_organizacao, valor_total_proposta_bid_frete_internacional])
+  @@index([token_aceite_aprovacao_proposta_bid_frete_internacional])
   @@map("proposta_bid_frete_internacional")
 }
 

@@ -10,6 +10,7 @@ import {
 } from './condicoes-plataforma-fornecedor-bid-frete-internacional.js'
 import {
   EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
+  ehContratanteGravityPagadorTaxaFechamento,
   normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
   rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
   type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
@@ -42,6 +43,35 @@ const COR_AVISO_FUNDO = '#fef3c7'
 const COR_AVISO_BORDA = '#fcd34d'
 const COR_AVISO_ACENTO = '#f59e0b'
 const COR_AVISO_TEXTO = '#92400e'
+const COR_INFO_FUNDO = '#f8fafc'
+const COR_INFO_BORDA = '#e2e8f0'
+const COR_INFO_ACENTO = '#94a3b8'
+const COR_INFO_TEXTO = '#64748b'
+
+function resolverEstilosCaixaAvisoTaxaEmailDisparoBidFrete(
+  pagador: EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+): {
+  fundo: string
+  borda: string
+  acento: string
+  textoAviso: string
+} {
+  if (ehContratanteGravityPagadorTaxaFechamento(pagador)) {
+    return {
+      fundo: COR_INFO_FUNDO,
+      borda: COR_INFO_BORDA,
+      acento: COR_INFO_ACENTO,
+      textoAviso: COR_INFO_TEXTO,
+    }
+  }
+
+  return {
+    fundo: COR_AVISO_FUNDO,
+    borda: COR_AVISO_BORDA,
+    acento: COR_AVISO_ACENTO,
+    textoAviso: COR_AVISO_TEXTO,
+  }
+}
 
 const SUFIXO_INTRO_EMAIL =
   'Confira o resumo abaixo e envie sua proposta pelo botão.'
@@ -256,6 +286,7 @@ export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(
   const pagadorNormalizado = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagador)
   const urlCondicoes = resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(linkResposta)
   const urlHtml = escapeHtmlTextoEmailBidFrete(urlCondicoes)
+  const estilosCaixa = resolverEstilosCaixaAvisoTaxaEmailDisparoBidFrete(pagadorNormalizado)
   const avisoTextoPlano = montarTextoAvisoTaxaEmailDisparoBidFrete({
     pagador: pagadorNormalizado,
     urlCondicoes,
@@ -265,12 +296,12 @@ export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(
     pagador: pagadorNormalizado,
     urlCondicoesHtml: urlHtml,
     corTexto: COR_TEXTO,
-    corAvisoTexto: COR_AVISO_TEXTO,
+    corAvisoTexto: estilosCaixa.textoAviso,
     corIndigo: COR_INDIGO,
   })
 
   const avisoHtml = `
-              <div style="margin:0 0 24px;padding:14px 16px;background:${COR_AVISO_FUNDO};border:1px solid ${COR_AVISO_BORDA};border-radius:8px;border-left:4px solid ${COR_AVISO_ACENTO};">
+              <div style="margin:0 0 24px;padding:14px 16px;background:${estilosCaixa.fundo};border:1px solid ${estilosCaixa.borda};border-radius:8px;border-left:4px solid ${estilosCaixa.acento};">
                 ${corpoParagrafo}
               </div>`
 
@@ -457,7 +488,7 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
   const link = escapeHtmlTextoEmailBidFrete(params.linkResposta)
   const rodapeValidadeHtml = validade
     ? `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Link válido até <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(validade)}</strong>.</p>`
-    : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Este link expira em ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias.</p>`
+    : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">${escapeHtmlTextoEmailBidFrete(montarTextoRodapeValidadeLinkEmailDisparoBidFrete(null))}</p>`
 
   const tabelaLinhas = linhas.map(([rotulo, valor]) => linhaTabelaHtml(rotulo, valor)).join('')
 

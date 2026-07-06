@@ -43,26 +43,11 @@ import {
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
-import { calcularDataExpiracaoTokenDisparoBidFreteInternacional } from '../../../shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
-function resolverAppUrlShellBidFreteInternacional(): string {
-  const bruto =
-    process.env.APP_URL
-    ?? process.env.APP_BASE_URL
-    ?? process.env.FRONTEND_URL
-    ?? process.env.CLIENT_URL
-  if (bruto?.trim()) return bruto.trim().replace(/\/$/, '')
-  if (process.env.NODE_ENV !== 'production' && process.env.GRAVITY_AGENTE_WORKTREE === '1') {
-    const porta = process.env.VITE_DEV_UI_PORT ?? '8001'
-    return `http://localhost:${porta}`
-  }
-  return 'http://localhost:8000'
-}
-
-const APP_URL = resolverAppUrlShellBidFreteInternacional()
+const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
 const DISPARO_HTTP_TIMEOUT_MS = 30_000
 
 /** Texto das alternativas de porto/aeroporto para o e-mail — nomes completos via Cadastros. */
@@ -571,8 +556,7 @@ export const motorBid = {
       nomesArmazensTexto: montarTextoNomesArmazensDisparo(
         cotacao.nomes_armazem_alfandegado_cotacao_bid_frete_internacional,
       ),
-      data_limite_resposta_cotacao_bid_frete_internacional:
-        cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+      dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
       nomeClienteOperacao,
       anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,

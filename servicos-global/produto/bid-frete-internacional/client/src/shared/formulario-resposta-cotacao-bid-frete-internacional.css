@@ -1710,12 +1710,24 @@ select.brc-input {
   margin: 0;
   padding: 0.6rem 0.85rem;
   border-radius: var(--radius-md, 8px);
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.28);
-  border-left: 3px solid rgba(245, 158, 11, 0.75);
+  border: 1px solid transparent;
+  border-left-width: 3px;
   font-size: 0.75rem;
   line-height: 1.5;
+}
+
+.brc-aceite-condicoes--cobranca-fornecedor {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.28);
+  border-left-color: rgba(245, 158, 11, 0.75);
   color: #fcd34d;
+}
+
+.brc-aceite-condicoes--informativo {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.24);
+  border-left-color: rgba(148, 163, 184, 0.6);
+  color: #94a3b8;
 }
 
 .brc-aceite-condicoes__link {

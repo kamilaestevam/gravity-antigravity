@@ -294,10 +294,18 @@ export function PainelDadosGeraisCotacaoBidFreteInternacional({
         <CampoDadoGlobal
           icone={<Hash weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.numero_cotacao', 'Número')}
-          valor={cotacao.numero_cotacao_bid_frete_internacional}
-          modo="somente_leitura"
+          modo={modoCampo('numero_cotacao_bid_frete_internacional')}
           statusPreenchimento={statusPreenchimento(cotacao.numero_cotacao_bid_frete_internacional)}
-        />
+        >
+          <EdicaoTextoCampoCotacaoBidFreteInternacional
+            label={t('bidfrete.detalhe_cotacao.numero_cotacao', 'Número')}
+            valor={cotacao.numero_cotacao_bid_frete_internacional}
+            permiteEditar={cotacaoCampoEditavel('numero_cotacao_bid_frete_internacional')}
+            salvando={salvandoCampo === 'numero_cotacao_bid_frete_internacional'}
+            onConfirmar={(texto) =>
+              salvarCampo('numero_cotacao_bid_frete_internacional', texto)}
+          />
+        </CampoDadoGlobal>
         <CampoDadoGlobal
           icone={<IdentificationCard weight="duotone" size={14} />}
           label={t('bidfrete.detalhe_cotacao.referencia_interna', 'Referência interna')}

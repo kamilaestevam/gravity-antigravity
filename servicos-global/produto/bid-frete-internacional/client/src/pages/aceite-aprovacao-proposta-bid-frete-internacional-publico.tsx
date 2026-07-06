@@ -6,16 +6,16 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { ConteudoCarregandoBidFreteInternacional } from '../../shared/pagina-carregando-bid-frete-internacional'
+import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import {
   confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico,
   getAceiteAprovacaoPropostaBidFreteInternacionalPublico,
-} from '../../shared/api'
-import { formatarMoedaBidFrete } from '../../shared/exibir-taxas-proposta-bid-frete-internacional'
+} from '../shared/api'
+import { formatarMoedaBidFrete } from '../shared/exibir-taxas-proposta-bid-frete-internacional'
 import {
   EstadoMensagemRespostaCotacao,
   ShellPaginaRespostaCotacao,
-} from '../../shared/formulario-resposta-cotacao-bid-frete-internacional'
+} from '../shared/formulario-resposta-cotacao-bid-frete-internacional'
 
 type PageState = 'loading' | 'invalid' | 'ready' | 'success' | 'expired'
 

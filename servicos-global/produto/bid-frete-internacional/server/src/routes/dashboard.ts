@@ -18,7 +18,6 @@ import {
 } from '../services/gabi-insights-bid-frete-internacional.js'
 import {
   montarMapaCotacoesVisaoGeralBidFreteInternacional,
-  STATUS_MAPA_VISAO_GERAL,
 } from '../lib/mapa-cotacoes-visao-geral-bid-frete-internacional.js'
 import { agregarInsightsGraficosBidFreteInternacional } from '../lib/agregar-insights-graficos-bid-frete-internacional.js'
 import {
@@ -456,12 +455,13 @@ router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunct
     await assertWorkspacesAutorizadosNoRequest(req)
     const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
     const idOrganizacao =
-      typeof req.headers['x-id-organizacao'] === 'string' ? req.headers['x-id-organizacao'] : undefined
+      req.tenantId
+      ?? (typeof req.headers['x-id-organizacao'] === 'string' ? req.headers['x-id-organizacao'] : undefined)
 
     const cotacoes = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
-        status_cotacao_bid_frete_internacional: { in: [...STATUS_MAPA_VISAO_GERAL] },
+        status_cotacao_bid_frete_internacional: { not: 'CANCELADA' },
         ...(filtroWorkspace),
       },
       select: {

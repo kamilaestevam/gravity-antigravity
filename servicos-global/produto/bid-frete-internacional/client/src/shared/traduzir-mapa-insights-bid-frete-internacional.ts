@@ -76,22 +76,35 @@ export function traduzirResumoMapaFiltrado(
   t: TFunction,
   opcoes: {
     totalFiltrosAtivos: number
+    totalCotacoes: number
+    totalCotacoesBase: number
     pinsAtivos: number
     pinsBase: number
     rotasAtivas: number
     rotasBase: number
   },
 ): string {
-  const { totalFiltrosAtivos, pinsAtivos, pinsBase, rotasAtivas, rotasBase } = opcoes
+  const {
+    totalFiltrosAtivos,
+    totalCotacoes,
+    totalCotacoesBase,
+    pinsAtivos,
+    pinsBase,
+    rotasAtivas,
+    rotasBase,
+  } = opcoes
   if (totalFiltrosAtivos === 0) {
     return t(`${PREFIXO}.refinar.resumo_todos`, {
-      defaultValue: `Exibindo todos · ${pinsAtivos} terminais · ${rotasAtivas} rotas`,
+      defaultValue: `Exibindo todos · ${totalCotacoes} cotações · ${pinsAtivos} terminais · ${rotasAtivas} rotas`,
+      cotacoes: totalCotacoes,
       terminais: pinsAtivos,
       rotas: rotasAtivas,
     })
   }
   return t(`${PREFIXO}.refinar.resumo_filtrado`, {
-    defaultValue: `${pinsAtivos}/${pinsBase} terminais · ${rotasAtivas}/${rotasBase} rotas · ${totalFiltrosAtivos} filtro(s)`,
+    defaultValue: `${totalCotacoes}/${totalCotacoesBase} cotações · ${pinsAtivos}/${pinsBase} terminais · ${rotasAtivas}/${rotasBase} rotas · ${totalFiltrosAtivos} filtro(s)`,
+    totalCotacoes,
+    totalCotacoesBase,
     pinsAtivos,
     pinsBase,
     rotasAtivas,

@@ -95,6 +95,12 @@ import {
   STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE,
   publicarColunasPersonalizadasBidFreteAtualizadas,
 } from '../shared/colunas-personalizadas-lista-bid-frete-internacional'
+import type {
+  ColunaUsuario as ColunaUsuarioModal,
+  PayloadSalvarColunaUsuarioBidFreteInternacional,
+} from '../shared/types-coluna-usuario-bid-frete-internacional'
+import { ModalNovaColunaUsuarioBidFreteInternacional } from '../components/ConfiguracaoColunas/ModalNovaColunaUsuarioBidFreteInternacional'
+import { SecaoBoletimCambialConfigBidFreteInternacional } from '../components/ConfiguracaoColunas/SecaoBoletimCambialConfigBidFreteInternacional'
 import {
   EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
   normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
@@ -177,21 +183,69 @@ interface CategoriaAnexo {
   sistema: boolean
 }
 
-interface NovaColuna {
-  nome: string
-  tipo: TipoColunaUsuario
-  escopo: EscopoColunaUsuario
-  visibilidade_cotacao_bid_frete_internacional: VisibilidadeColunaUsuario
-  obrigatorio: boolean
-  valor_padrao: string
-  descricao: string
-  opcoes: string[]
-  formula_expressao: string
+function colunaConfigParaModal(col: ColunaUsuario): ColunaUsuarioModal {
+  return {
+    id: col.id,
+    chave: col.chave,
+    nome: col.nome,
+    tipo: col.tipo,
+    escopo: col.escopo,
+    visibilidade: col.visibilidade_cotacao_bid_frete_internacional,
+    obrigatorio: col.obrigatorio,
+    valor_padrao: col.tipo === 'formula' ? (col.formula_expressao || col.valor_padrao) : col.valor_padrao,
+    descricao: col.descricao,
+    opcoes: col.opcoes,
+    formula_expressao: col.formula_expressao,
+    ativo: col.ativo,
+  }
 }
 
-type SaldoToken =
-  | { tipo: 'campo'; chave: string; label: string }
-  | { tipo: 'op'; valor: string }
+function aplicarPayloadColunaModal(
+  payload: PayloadSalvarColunaUsuarioBidFreteInternacional & { id?: string; tipo: TipoColunaUsuario },
+  colunasAtuais: ColunaUsuario[],
+): { colunas: ColunaUsuario[]; idCriado?: string } {
+  const vis = payload.visibilidade
+  if (payload.id) {
+    return {
+      colunas: colunasAtuais.map(c => {
+        if (c.id !== payload.id) return c
+        return {
+          ...c,
+          nome: payload.nome,
+          escopo: payload.escopo,
+          visibilidade_cotacao_bid_frete_internacional: vis,
+          obrigatorio: payload.obrigatorio,
+          descricao: payload.descricao ?? '',
+          opcoes: payload.opcoes ?? [],
+          valor_padrao: payload.tipo === 'formula' ? '' : payload.valor_padrao,
+          formula_expressao: payload.tipo === 'formula' ? (payload.formula_expressao ?? payload.valor_padrao) : '',
+        }
+      }),
+    }
+  }
+  const idCriado = `col_${Date.now()}`
+  const chave = payload.nome.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+  return {
+    idCriado,
+    colunas: [
+      ...colunasAtuais,
+      {
+        id: idCriado,
+        chave,
+        nome: payload.nome,
+        tipo: payload.tipo,
+        escopo: payload.escopo,
+        visibilidade_cotacao_bid_frete_internacional: vis,
+        obrigatorio: payload.obrigatorio,
+        valor_padrao: payload.tipo === 'formula' ? '' : payload.valor_padrao,
+        descricao: payload.descricao ?? '',
+        opcoes: payload.opcoes ?? [],
+        formula_expressao: payload.tipo === 'formula' ? (payload.formula_expressao ?? payload.valor_padrao) : '',
+        ativo: true,
+      },
+    ],
+  }
+}
 
 // ─── Constants & Catalogs ────────────────────────────────────────────────────────
 
@@ -236,11 +290,10 @@ const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'bidfrete.config.sidebar.grupo_visualizacoes' },
   { tipo: 'item',   id: 'cards',                 label: 'Cards',             labelKey: 'bidfrete.config.sidebar.cards',             icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'tabela',                label: 'Tabela',            labelKey: 'bidfrete.config.sidebar.tabela',            icone: <Table size={15} weight="duotone" />, ativo: true },
-  { tipo: 'parent', id: 'colunas-casas-decimais',label: 'Colunas',           labelKey: 'bidfrete.config.sidebar.colunas',           icone: <Columns size={15} weight="duotone" />, ativo: true, filhos: ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados'] },
+  { tipo: 'parent', id: 'colunas-casas-decimais',label: 'Colunas',           labelKey: 'bidfrete.config.sidebar.colunas',           icone: <Columns size={15} weight="duotone" />, ativo: true, filhos: ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas'] },
   { tipo: 'sub',    id: 'colunas-casas-decimais',label: 'Casas Decimais',    labelKey: 'bidfrete.config.sidebar.casas_decimais',    icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'colunas-formato-data',  label: 'Formato de Data',   labelKey: 'bidfrete.config.sidebar.formato_data',      icone: <CalendarBlank size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'colunas-personalizadas',label: 'Personalizadas',    labelKey: 'bidfrete.config.sidebar.personalizadas',    icone: <Columns size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'colunas-campos-calculados', label: 'Campos Calculados', labelKey: 'bidfrete.config.sidebar.campos_calculados', icone: <MathOperations size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'kanban',                label: 'Kanban',            labelKey: 'bidfrete.config.sidebar.kanban',            icone: <Columns size={15} weight="duotone" />, ativo: true, filhos: ['kanban-colunas', 'kanban-card', 'kanban-modal'] },
   { tipo: 'sub',    id: 'kanban-colunas',        label: 'Colunas',           labelKey: 'bidfrete.config.sidebar.kanban_colunas',    icone: <Sliders size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-card',           label: 'Card',              labelKey: 'bidfrete.config.sidebar.card',              icone: <SquaresFour size={15} weight="duotone" />, ativo: true },
@@ -248,7 +301,6 @@ const SIDEBAR_ITEMS = [
   
   { tipo: 'grupo',  label: 'BID FRETE INTERNACIONAL', labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
   { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'preferencias',          label: 'Preferências',      labelKey: 'bidfrete.config.sidebar.preferencias',      icone: <Sliders size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'taxa-cambio',           label: 'Taxa de Câmbio',    labelKey: 'bidfrete.config.sidebar.taxa_cambio',       icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
@@ -266,7 +318,6 @@ const COLUNAS_FILHOS = [
   'colunas-casas-decimais',
   'colunas-formato-data',
   'colunas-personalizadas',
-  'colunas-campos-calculados',
 ] as const
 
 const TIPOS_COLUNA = [
@@ -279,12 +330,6 @@ const TIPOS_COLUNA = [
   { id: 'tipo_documento', label: 'Tipo Documento',icone: <Tag size={16} weight="duotone" /> },
   { id: 'formula',        label: 'Fórmula',       icone: <MathOperations size={16} weight="duotone" /> },
   { id: 'anexo',          label: 'Anexo',         icone: <Paperclip size={16} weight="duotone" /> },
-]
-
-const FORMULA_FIELDS = [
-  { chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
-  { chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' },
-  { chave: 'taxas_destino_proposta_bid_frete_internacional', label: 'Taxas Destino' },
 ]
 
 // ─── Sub-Components (Sortable and Helpers) ───────────────────────────────────────
@@ -484,13 +529,12 @@ function CardDisponivel({
 }
 
 function ColunaSortavel({
-  col, onToggleAtivo, onRemover, onEditar, editando,
+  col, onToggleAtivo, onRemover, onEditar,
 }: {
   col: ColunaUsuario
   onToggleAtivo: () => void
   onRemover: () => void
   onEditar: () => void
-  editando: boolean
 }) {
   const tipoInfo = TIPOS_COLUNA.find(t => t.id === col.tipo)
 
@@ -507,7 +551,7 @@ function ColunaSortavel({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}`}>
+    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}`}>
       <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
         <DotsSixVertical size={15} weight="bold" />
       </button>
@@ -516,7 +560,7 @@ function ColunaSortavel({
         <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
       </div>
       <TooltipGlobal descricao="Editar propriedades">
-        <button type="button" className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`} onClick={onEditar} aria-label={`Editar ${col.nome}`}>
+        <button type="button" className="cfg-kanban-campo-btn" onClick={onEditar} aria-label={`Editar ${col.nome}`}>
           <PencilSimple size={14} weight="duotone" />
         </button>
       </TooltipGlobal>
@@ -730,49 +774,6 @@ function ToggleRow({ label, desc, checked, onChange, id }: { label: string; desc
   )
 }
 
-// ─── Modal Nova Coluna ──────────────────────────────────────────────────────────
-
-function ModalNovaColunaUsuario({
-  onFechar, onSalvo
-}: {
-  onFechar: () => void
-  onSalvo: (col: { nome: string; tipo: TipoColunaUsuario; escopo: EscopoColunaUsuario; visibilidade_cotacao_bid_frete_internacional: VisibilidadeColunaUsuario }) => void
-}) {
-  const [nome, setNome] = useState('')
-  const [tipo, setTipo] = useState<TipoColunaUsuario>('texto')
-
-  const handleSalvar = () => {
-    if (!nome.trim()) return
-    onSalvo({ nome, tipo, escopo: 'ambos', visibilidade_cotacao_bid_frete_internacional: 'todos' })
-  }
-
-  return (
-    <div className="mcu-overlay" onClick={onFechar} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
-      <div className="mcu-modal" onClick={e => e.stopPropagation()} style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', width: '420px' }}>
-        <h3 className="mcu-header__titulo" style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '1rem' }}>Nova Coluna Personalizada</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Nome da Coluna
-            <input type="text" value={nome} onChange={e => setNome(e.target.value)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }} />
-          </label>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            Tipo de Dado
-            <select value={tipo} onChange={e => setTipo(e.target.value as TipoColunaUsuario)} style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#f1f5f9' }}>
-              {TIPOS_COLUNA.map(t => (
-                <option key={t.id} value={t.id}>{t.label}</option>
-              ))}
-            </select>
-          </label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-            <button type="button" onClick={onFechar} style={{ padding: '6px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#f1f5f9', cursor: 'pointer' }}>Cancelar</button>
-            <button type="button" onClick={handleSalvar} style={{ padding: '6px 16px', borderRadius: '8px', border: 'none', background: '#818cf8', color: '#fff', cursor: 'pointer' }}>Criar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── Main Component ──────────────────────────────────────────────────────────────
 
 export default function Configuracoes() {
@@ -781,7 +782,13 @@ export default function Configuracoes() {
   const [searchParams] = useSearchParams()
 
   const tabParam = searchParams.get('tab') as string | null
-  const [categoria, setCategoria] = useState<string>(tabParam ?? 'cards')
+  const categoriaInicial =
+    tabParam === 'status-bid-frete-internacional'
+      ? 'status'
+      : tabParam === 'colunas-campos-calculados'
+        ? 'colunas-personalizadas'
+        : (tabParam ?? 'cards')
+  const [categoria, setCategoria] = useState<string>(categoriaInicial)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     'colunas-casas-decimais': COLUNAS_FILHOS.includes(tabParam as typeof COLUNAS_FILHOS[number]),
     'kanban': ['kanban-colunas', 'kanban-card', 'kanban-modal'].includes(tabParam ?? ''),
@@ -796,7 +803,7 @@ export default function Configuracoes() {
         const raw = localStorage.getItem(storageKey)
         if (raw) {
           const parsed: unknown = JSON.parse(raw)
-          if (key === 'status' || key === 'status-bid-frete-internacional') {
+          if (key === 'status') {
             return migrarArrayStatusCotacaoConfigLegado(parsed) as T
           }
           return parsed as T
@@ -808,9 +815,13 @@ export default function Configuracoes() {
 
     const isDirty = JSON.stringify(currentState) !== JSON.stringify(savedState)
 
-    const save = () => {
-      localStorage.setItem(storageKey, JSON.stringify(currentState))
-      setSavedState(currentState)
+    const save = (override?: T) => {
+      const payload = override ?? currentState
+      localStorage.setItem(storageKey, JSON.stringify(payload))
+      setSavedState(payload)
+      if (override !== undefined) {
+        setCurrentState(payload)
+      }
       if (storageKey === CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL) {
         window.dispatchEvent(
           new CustomEvent(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL),
@@ -887,7 +898,14 @@ export default function Configuracoes() {
     setTabelaConfig({ ...DEFAULT_TABELA_CONFIG_BID_FRETE })
   }, [])
 
-  const [colunasPersonalizadas, setColunasPersonalizadas] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
+  const [
+    colunasPersonalizadas,
+    setColunasPersonalizadas,
+    ,
+    salvarColunasPersonalizadasConfig,
+    restaurarColunasPersonalizadasConfig,
+    colunasPersonalizadasDirty,
+  ] = useConfigState<ColunaUsuario[]>('colunas-personalizadas', [
     { id: 'col_margem', chave: 'margem', nome: 'Margem Comercial', tipo: 'numero', escopo: 'pedido', visibilidade_cotacao_bid_frete_internacional: 'todos', obrigatorio: false, valor_padrao: '', descricao: 'Margem do frete', opcoes: [], formula_expressao: '', ativo: true }
   ])
 
@@ -949,12 +967,6 @@ export default function Configuracoes() {
     setPendingFormato(formatoDataSalvo)
   }, [formatoDataSalvo])
 
-  const [saldoTokens, setSaldoTokens] = useConfigState<SaldoToken[]>('campos-calculados', [
-    { tipo: 'campo', chave: 'valor_frete_proposta_bid_frete_internacional', label: 'Valor do Frete' },
-    { tipo: 'op', valor: '+' },
-    { tipo: 'campo', chave: 'taxas_origem_proposta_bid_frete_internacional', label: 'Taxas Origem' }
-  ])
-
   const [
     statusList,
     setStatusList,
@@ -984,14 +996,6 @@ export default function Configuracoes() {
       return igual ? prev : resultado
     })
   }, [setStatusList])
-
-  const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
-    { id: 'em_andamento', nome: 'EM_ANDAMENTO', rotulo: 'Em andamento', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
-    { id: 'parcial', nome: 'PARCIALMENTE_CONCLUIDO', rotulo: 'Parcialmente concluído', cor: '#fbbf24', ordem: 3, gerenciado_sistema: false },
-    { id: 'concluido', nome: 'CONCLUIDO', rotulo: 'Concluído', cor: '#10b981', ordem: 4, gerenciado_sistema: false },
-    { id: 'cancelado', nome: 'CANCELADO', rotulo: 'Cancelado', cor: '#6b7280', ordem: 5, gerenciado_sistema: true },
-  ])
 
   const [numeracaoConfig, setNumeracaoConfig] = useConfigState<NumeracaoConfig>('numeracao', {
     prefixo: 'BID-',
@@ -1031,11 +1035,6 @@ export default function Configuracoes() {
     { id: 'bl', nome: 'Bill of Lading (B/L)', sistema: true },
     { id: 'proposta', nome: 'Proposta do Fornecedor', sistema: false }
   ])
-
-  const [taxasCambio, setTaxasCambio] = useConfigState<Record<string, number>>('taxa-cambio', {
-    USD: 5.25,
-    EUR: 5.65,
-  })
 
   const [notificacoesConfig, setNotificacoesConfig] = useConfigState<NotificacoesConfig>('notificacoes', {
     respostaFornecedor: true,
@@ -1093,7 +1092,8 @@ export default function Configuracoes() {
 
   const [criandoCard, setCriandoCard] = useState(false)
   const [criandoColuna, setCriandoColuna] = useState(false)
-  const [editandoColunaId, setEditandoColunaId] = useState<string | null>(null)
+  const [editandoColuna, setEditandoColuna] = useState<ColunaUsuario | null>(null)
+  const [confirmarExcluirColunaId, setConfirmarExcluirColunaId] = useState<string | null>(null)
   
   // Status editing substate
   const [editandoStatusId, setEditandoStatusId] = useState<string | null>(null)
@@ -1130,9 +1130,41 @@ export default function Configuracoes() {
     setColunasPersonalizadas(prev => {
       const oldIdx = prev.findIndex(p => p.id === active.id)
       const newIdx = prev.findIndex(p => p.id === over.id)
+      if (oldIdx < 0 || newIdx < 0) return prev
       return arrayMove(prev, oldIdx, newIdx)
     })
   }
+
+  const handleToggleAtivoColuna = useCallback((id: string) => {
+    setColunasPersonalizadas(prev => prev.map(c => (c.id === id ? { ...c, ativo: !c.ativo } : c)))
+  }, [setColunasPersonalizadas])
+
+  const handleSalvarColunaViaModal = useCallback(async (
+    payload: PayloadSalvarColunaUsuarioBidFreteInternacional & { id?: string; tipo: TipoColunaUsuario },
+  ) => {
+    const { colunas, idCriado } = aplicarPayloadColunaModal(payload, colunasPersonalizadas)
+    if (idCriado && tipoColunaUsaCasasDecimais(payload.tipo)) {
+      setPendingCasas(prev => ({ ...prev, [idCriado]: PADRAO_CASAS_COLUNA_PERSONALIZADA }))
+    }
+    salvarColunasPersonalizadasConfig(colunas)
+    setCriandoColuna(false)
+    setEditandoColuna(null)
+  }, [colunasPersonalizadas, salvarColunasPersonalizadasConfig])
+
+  const excluirColunaPersonalizadaConfirmada = useCallback(async () => {
+    const id = confirmarExcluirColunaId
+    if (!id) return
+    const nomeColuna = colunasPersonalizadas.find(c => c.id === id)?.nome ?? ''
+    const colunas = colunasPersonalizadas.filter(c => c.id !== id)
+    salvarColunasPersonalizadasConfig(colunas)
+    setConfirmarExcluirColunaId(null)
+    addNotification({
+      type: 'success',
+      message: t('pedido.config.colunas.personalizadas.msg_excluida', { nome: nomeColuna, defaultValue: `Coluna "${nomeColuna}" excluída.` }),
+    })
+  }, [confirmarExcluirColunaId, colunasPersonalizadas, salvarColunasPersonalizadasConfig, addNotification, t])
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   const kanbanCardCampos = useCallback(() => {
     return (kanbanCardConfig.campos ?? KANBAN_BF_CARD_PADRAO.campos).map(c => ({
@@ -1748,94 +1780,64 @@ export default function Configuracoes() {
               </div>
             </div>
 
-            <ConfiguracaoSecaoGlobal label="SUAS COLUNAS" count={`${colunasPersonalizadas.length} colunas`} />
-            
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
-              <SortableContext items={colunasPersonalizadas.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-                  {colunasPersonalizadas.map(col => (
-                    <ColunaSortavel
-                      key={col.id}
-                      col={col}
-                      editando={editandoColunaId === col.id}
-                      onToggleAtivo={() => setColunasPersonalizadas(prev => prev.map(c => c.id === col.id ? { ...c, ativo: !c.ativo } : c))}
-                      onEditar={() => setEditandoColunaId(col.id === editandoColunaId ? null : col.id)}
-                      onRemover={() => setColunasPersonalizadas(prev => prev.filter(c => c.id !== col.id))}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-
-            {editandoColunaId && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: '#334155', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f1f5f9' }}>Editar descrição</p>
-                <input
-                  type="text"
-                  className="cfg-input"
-                  style={{ width: '100%', marginTop: '0.5rem', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '6px' }}
-                  value={colunasPersonalizadas.find(c => c.id === editandoColunaId)?.descricao ?? ''}
-                  onChange={e => setColunasPersonalizadas(prev => prev.map(c => c.id === editandoColunaId ? { ...c, descricao: e.target.value } : c))}
-                />
-              </div>
-            )}
-
-            <div style={{ marginTop: '1.5rem' }}>
-              <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => setCriandoColuna(true)}>
-                <Plus size={14} weight="bold" /> Criar Coluna Personalizada
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <ConfiguracaoSecaoGlobal
+                label={t('pedido.config.colunas.personalizadas.label_ativas', 'SUAS COLUNAS')}
+                count={String(colunasPersonalizadas.length)}
+                hint={t('pedido.config.colunas.personalizadas.hint_ativas', 'Arraste para reordenar')}
+              />
+              <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
+                <Plus size={16} weight="bold" />
+                {t('pedido.config.colunas.personalizadas.btn_criar_coluna', 'Criar Coluna')}
               </BotaoGlobal>
             </div>
-          </section>
-        )}
 
-        {categoria === 'colunas-campos-calculados' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">
-                  {t('bidfrete.configuracoes.campos_calculados_titulo', 'Campos Calculados')}
-                </h2>
-                <p className="cfg-secao__desc">
-                  {t('bidfrete.configuracoes.campos_calculados_desc', 'Configure fórmulas matemáticas customizadas com campos nativos de frete.')}
+            {colunasPersonalizadas.length === 0 ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: '0.5rem', padding: '1.5rem', textAlign: 'center',
+                background: 'rgba(255,255,255,0.02)', borderRadius: '8px',
+                border: '1px dashed rgba(255,255,255,0.08)', marginTop: '0.5rem',
+              }}>
+                <Columns size={28} weight="duotone" style={{ color: 'var(--ws-muted, #64748b)' }} />
+                <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>
+                  {t('pedido.config.colunas.personalizadas.empty_titulo', 'Nenhuma coluna personalizada')}
+                </p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
+                  {t('pedido.config.colunas.personalizadas.empty_desc', 'Crie colunas para enriquecer a lista de cotações.')}
                 </p>
               </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>Custo Total Estimado do Frete</p>
-              <div className="mcu-formula-area mcu-formula-area--ok" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '10px', background: '#0f172a', borderRadius: '8px', border: '1px solid #818cf8' }}>
-                {saldoTokens.map((tk, idx) => (
-                  <span key={idx} className={`mcu-token ${tk.tipo === 'campo' ? 'mcu-token--campo' : 'mcu-token--op'}`}>
-                    <span>{tk.tipo === 'campo' ? tk.label : tk.valor}</span>
-                    <button type="button" className="mcu-token__remove" onClick={() => setSaldoTokens(prev => prev.filter((_, i) => i !== idx))}>
-                      <X size={9} weight="bold" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-
-              <div className="mcu-ops">
-                {['+', '-', '*', '/'].map(op => (
-                  <button key={op} type="button" className="mcu-op-btn" onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'op', valor: op }])}>{op}</button>
-                ))}
-              </div>
-
-              <div>
-                <span className="cfg-list-section-label" style={{ marginBottom: '0.5rem' }}>Campos disponíveis</span>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {FORMULA_FIELDS.map(f => (
-                    <button
-                      key={f.chave}
-                      type="button"
-                      className="mcu-chip-campo"
-                      onClick={() => setSaldoTokens(prev => [...prev, { tipo: 'campo', chave: f.chave, label: f.label }])}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+            ) : (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
+                    <SortableContext items={colunasPersonalizadas.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {colunasPersonalizadas.map(col => (
+                        <ColunaSortavel
+                          key={col.id}
+                          col={col}
+                          onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
+                          onRemover={() => setConfirmarExcluirColunaId(col.id)}
+                          onEditar={() => setEditandoColuna(col)}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
-              </div>
-            </div>
+                <div className="cfg-secao__footer" style={{ marginTop: '0.75rem' }}>
+                  <BotaoCancelar
+                    dirty={colunasPersonalizadasDirty}
+                    rotulo={t('pedido.config.colunas.personalizadas.btn_descartar', 'Descartar')}
+                    onClick={restaurarColunasPersonalizadasConfig}
+                  />
+                  <BotaoSalvar
+                    dirty={colunasPersonalizadasDirty}
+                    rotulo={t('pedido.config.colunas.personalizadas.btn_salvar_ordem', 'Salvar ordem')}
+                    onClick={() => salvarColunasPersonalizadasConfig()}
+                  />
+                </div>
+              </>
+            )}
           </section>
         )}
 
@@ -2286,33 +2288,6 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ── CATEGORIA: STATUS BID ── */}
-        {categoria === 'status-bid-frete-internacional' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">
-                  {t('bidfrete.config.status_bid.titulo', 'Gerenciar Status do BID')}
-                </h2>
-                <p className="cfg-secao__desc">
-                  {t('bidfrete.config.status_bid.descricao', 'Configure status do conjunto BID (agrupador de pedidos de cotação).')}
-                </p>
-              </div>
-            </div>
-
-            <ConfiguracaoSecaoGlobal label="STATUS BID ATIVOS" count={`${statusBidList.length} status`} />
-
-            <div className="cfg-cards-lista" style={{ marginTop: '0.5rem' }}>
-              {statusBidList.map(s => (
-                <div key={s.id} className="cfg-status-row">
-                  <span className="cfg-status-dot" style={{ background: s.cor }} />
-                  <span className="cfg-status-label">{s.rotulo}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* ── CATEGORIA: NUMERAÇÃO ── */}
         {categoria === 'preferencias' && (
           <section className="cfg-secao">
@@ -2603,37 +2578,8 @@ export default function Configuracoes() {
           </section>
         )}
 
-        {/* ── CATEGORIA: TAXA DE CÂMBIO ── */}
         {categoria === 'taxa-cambio' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">
-                  {t('bidfrete.configuracoes.boletim_cambial_titulo', 'Boletim Cambial')}
-                </h2>
-                <p className="cfg-secao__desc">
-                  {t('bidfrete.configuracoes.boletim_cambial_desc', 'Configure as cotações das moedas de referência para as cotações internacionais de frete.')}
-                </p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {Object.entries(taxasCambio).map(([moeda_ganho_bid_frete_internacional, valor]) => (
-                <div key={moeda_ganho_bid_frete_internacional} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CurrencyCircleDollar size={20} style={{ color: '#10b981' }} />
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{moeda_ganho_bid_frete_internacional} / BRL</span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={valor}
-                    onChange={e => setTaxasCambio(prev => ({ ...prev, [moeda_ganho_bid_frete_internacional]: Number(e.target.value) }))}
-                    style={{ width: '100px', padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', textAlign: 'center' }}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
+          <SecaoBoletimCambialConfigBidFreteInternacional />
         )}
 
         {/* ── CATEGORIA: SNAPSHOT CADASTROS ── */}
@@ -2752,34 +2698,30 @@ export default function Configuracoes() {
       )}
 
       {criandoColuna && (
-        <ModalNovaColunaUsuario
+        <ModalNovaColunaUsuarioBidFreteInternacional
           onFechar={() => setCriandoColuna(false)}
-          onSalvo={col => {
-            const newId = `col_${Date.now()}`
-            setColunasPersonalizadas(prev => [...prev, {
-              id: newId,
-              chave: col.nome.toLowerCase().replace(/\s+/g, '_'),
-              nome: col.nome,
-              tipo: col.tipo,
-              escopo: col.escopo,
-              visibilidade_cotacao_bid_frete_internacional: col.visibilidade_cotacao_bid_frete_internacional,
-              obrigatorio: false,
-              valor_padrao: '',
-              descricao: 'Nova coluna personalizada',
-              opcoes: [],
-              formula_expressao: '',
-              ativo: true
-            }])
-            if (tipoColunaUsaCasasDecimais(col.tipo)) {
-              setPendingCasas(prev => ({
-                ...prev,
-                [newId]: PADRAO_CASAS_COLUNA_PERSONALIZADA,
-              }))
-            }
-            setCriandoColuna(false)
-          }}
+          onSalvar={handleSalvarColunaViaModal}
+          todasColunas={colunasPersonalizadas.map(colunaConfigParaModal)}
         />
       )}
+
+      {editandoColuna && (
+        <ModalNovaColunaUsuarioBidFreteInternacional
+          colunaEdicao={colunaConfigParaModal(editandoColuna)}
+          onFechar={() => setEditandoColuna(null)}
+          onSalvar={handleSalvarColunaViaModal}
+          todasColunas={colunasPersonalizadas.map(colunaConfigParaModal)}
+        />
+      )}
+
+      <ModalConfirmarExcluirGlobal
+        aberto={confirmarExcluirColunaId !== null}
+        titulo={String(t('pedido.config.colunas.personalizadas.modal_excluir_titulo', 'Excluir coluna?'))}
+        descricao={String(t('pedido.config.colunas.personalizadas.modal_excluir_descricao', 'Esta ação não pode ser desfeita.'))}
+        nomeItem={colunasPersonalizadas.find(c => c.id === confirmarExcluirColunaId)?.nome}
+        aoConfirmar={excluirColunaPersonalizadaConfirmada}
+        aoCancelar={() => setConfirmarExcluirColunaId(null)}
+      />
     </div>
   )
 }

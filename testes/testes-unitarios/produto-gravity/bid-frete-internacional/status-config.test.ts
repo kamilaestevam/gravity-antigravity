@@ -5,7 +5,7 @@ const SEED_MODULE =
   '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/seedStatusPadrao.js'
 
 describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internacional)', () => {
-  it('deve criar 9 status canônicos via $transaction', async () => {
+  it('deve criar 10 status canônicos via $transaction', async () => {
     const mockCreate = vi.fn().mockResolvedValue({})
     const mockTransaction = vi.fn().mockImplementation((promises: Promise<unknown>[]) => Promise.all(promises))
     const mockPrisma = {
@@ -17,7 +17,7 @@ describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internaciona
     await seedStatusPadrao(mockPrisma as never, 'org_test_123')
 
     expect(mockTransaction).toHaveBeenCalledTimes(1)
-    expect(mockCreate).toHaveBeenCalledTimes(9)
+    expect(mockCreate).toHaveBeenCalledTimes(10)
 
     for (const call of mockCreate.mock.calls) {
       expect(call[0].data.id_organizacao).toBe('org_test_123')
@@ -31,6 +31,7 @@ describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internaciona
     expect(nomes).toContain('RASCUNHO')
     expect(nomes).toContain('ENVIADA_FORNECEDORES')
     expect(nomes).toContain('EM_COTACAO')
+    expect(nomes).toContain('COTACAO_ALTERADA')
     expect(nomes).toContain('AGUARDANDO_APROVACAO')
     expect(nomes).toContain('APROVADA')
     expect(nomes).toContain('REPROVADA')
@@ -68,7 +69,7 @@ describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internaciona
     expect(rascunhoCall![0].data.padrao_status_cotacao_config_bid_frete_internacional).toBe(true)
   })
 
-  it('deve atribuir ordens de 1 a 9 sequencialmente', async () => {
+  it('deve atribuir ordens de 1 a 10 sequencialmente', async () => {
     const mockCreate = vi.fn().mockResolvedValue({})
     const mockTransaction = vi.fn().mockImplementation((promises: Promise<unknown>[]) => Promise.all(promises))
     const mockPrisma = {
@@ -84,6 +85,6 @@ describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internaciona
         (c[0] as { data: { ordem_status_cotacao_config_bid_frete_internacional: number } }).data
           .ordem_status_cotacao_config_bid_frete_internacional,
     )
-    expect(ordens).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    expect(ordens).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   })
 })

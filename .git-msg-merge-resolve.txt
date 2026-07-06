@@ -1,0 +1,5 @@
+merge(master): resolve conflitos PR #649 com origin/master
+
+Integra master (TASK-000415 catalogo, armazens no e-mail, portal locais)
+mantendo entregas TASK-000419: lista full-height, condicoes/taxa e-mail,
+status COTACAO_ALTERADA, auditoria Pedido e University.

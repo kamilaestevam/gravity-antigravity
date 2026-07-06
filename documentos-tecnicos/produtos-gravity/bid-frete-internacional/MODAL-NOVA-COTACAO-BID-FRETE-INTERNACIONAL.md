@@ -290,7 +290,27 @@ Os hooks `usePortosPorPais` / `useAeroportosPorPais` no passo **Origem e Destino
 
 **Correção:** o hook `useSelectCatalogoLogisticaCadastros...` ganhou o parâmetro `codigosSelecionados?: string[]` (plural), com o mesmo mecanismo de pin do `codigoSelecionado` principal: cada código ausente do catálogo em memória é garantido via `garantirSelecionado` (busca `?q=<código>`) e fixado num `Map` código→item, prependado em toda troca de página/busca. O modal passa a união `origem + destino` dos códigos de locais adicionais aos hooks `usePortosPorPais`/`useAeroportosPorPais` «alternativos». A chave de efeito é a string ordenada `join('|')` dos códigos — evita refetch quando o array é recriado com o mesmo conteúdo.
 
-### 8.4 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
+---
+
+## 8.4 Resumo, e-mail de disparo e portal do fornecedor — todos os campos preenchidos + HS Code (2026-07-05)
+
+**Critério do dono:** todo campo preenchido na cotação aparece (a) no passo **Resumo** do wizard, (b) no **e-mail de disparo** ao fornecedor e (c) no **portal público de resposta** — com formatação idêntica (ícone, truncamento e tooltip quando longo). Campos internos sensíveis (valor alvo, fornecedores selecionados, canais de disparo) aparecem **apenas** no Resumo, nunca em comunicação externa.
+
+| Camada | SSOT |
+|--------|------|
+| Resumo (wizard) | `modal-nova-cotacao-bid-frete-internacional.tsx` — linhas condicionais `nc-receipt-row`; mercadoria trunca em 200 chars + tooltip; locais opcionais «Sigla — Nome, País» até 100 chars via cache cumulativo `rotulosLocaisCatalogoRef` |
+| E-mail | `shared/formatar-email-disparo-bid-frete-internacional.ts` — `linhasResumoEmailDisparo` só adiciona linha quando o campo tem valor (NCM, HS Code, peso ton, dimensões C×L×A, carga perigosa, armazenagem, alternativas origem/destino, prazo) |
+| Nomes de locais no server | `server/src/lib/resolver-rotulos-locais-opcionais-disparo-bid-frete-internacional.ts` — resolve códigos no Cadastros para o e-mail/portal |
+| Portal fornecedor | `client/src/shared/formulario-resposta-cotacao-bid-frete-internacional.tsx` — `SecaoDetalhesCotacaoResposta` com linhas condicionais; select ampliado em `enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.ts` |
+| Testes UNI | `testes/testes-unitarios/produto-gravity/bid-frete-internacional/formatar-email-disparo-bid-frete-internacional.test.ts` |
+
+### HS Code no banco (padrão DDD)
+
+Coluna `hs_code_cotacao_bid_frete_internacional String?` ao lado de `ncm_cotacao_bid_frete_internacional` — migration `20260705170000_add_hs_code_dimensoes_cubagem_cotacao_bid_frete_internacional` (aplicada no banco local e no Railway em 2026-07-05; a mesma migration criou as colunas físicas de dimensões de cubagem). Fluxo completo: wizard envia no `POST` → `cotacoes.ts` valida com Zod (`max 10`) e persiste → e-mail exibe linha «HS Code» → portal exibe em Detalhes da Cotação. O campo saiu da lista `CAMPOS_COTACAO_APENAS_CLIENTE` do `api.ts`.
+
+> **Deploy 2026-07-05:** PR #642 (squash do escopo da sessão sobre o master) + hotfix #644 (export `exibeCampoFreeTimeRespostaCotacao` que só existia na evolução do master e foi perdido na substituição do formulário — quebrou o `vite build` do configurador no Railway).
+
+### 8.5 Server — snapshot de rota resolve terminal individualmente (TASK-000415)
 
 Na gravação (POST/PATCH de cotação), o server deriva o snapshot de rota a partir de uma página do catálogo do Cadastros (`carregar-contexto-catalogo-rota-bid-frete-internacional.ts`). Como o Cadastros tem mais portos ativos que o limite da página, um porto fora da página faria o snapshot cair no fallback «nome = código» e reprovar na validação (ex.: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)`). A função `garantirTerminaisRotaNoContextoCatalogo` resolve cada código de origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto quando ausente — o snapshot nunca depende do tamanho ou da ordenação do catálogo.
 

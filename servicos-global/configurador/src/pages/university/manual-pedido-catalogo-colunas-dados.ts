@@ -3,12 +3,15 @@ export type ManualPedidoColunaCatalogo = {
   ordem: number
   coluna: string
   descricao: string
-  formatacao: string
-  edicaoPedido: string
-  edicaoItem: string
-  soma: string
-  espelha: string
+  formatacao?: string
+  edicaoPedido?: string
+  edicaoItem?: string
+  edicaoMassaPedido?: string
+  edicaoMassaItem?: string
+  soma?: string
+  espelha?: string
   fixa?: boolean
+  visivelPadrao?: boolean
 }
 
 export type ManualPedidoGrupoCatalogoColunas = {
@@ -19,6 +22,10 @@ export type ManualPedidoGrupoCatalogoColunas = {
 }
 
 export const TOTAL_COLUNAS_CATALOGO_PEDIDO = 236
+
+export const TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO = 121
+
+export const TOTAL_COLUNAS_EDICAO_MASSA_LISTA_PEDIDO = 117
 
 export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] = [
   {
@@ -34,6 +41,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -45,6 +54,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Pill",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens"
       },
@@ -56,6 +67,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Importador"
       },
@@ -67,6 +80,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -78,6 +93,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -89,6 +106,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -100,6 +119,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -111,6 +132,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -122,6 +145,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -133,6 +158,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Pill",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -144,6 +171,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -155,6 +184,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Anexo",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -166,6 +197,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Anexo",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -177,6 +210,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Anexo",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       }
@@ -195,6 +230,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Condicional",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -206,6 +243,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Condicional",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Workspace"
       },
@@ -217,6 +256,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -228,6 +269,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -239,6 +282,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -250,6 +295,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -261,6 +308,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -272,6 +321,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -283,6 +334,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -294,6 +347,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -305,6 +360,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -316,6 +373,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -327,6 +386,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -338,6 +399,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -349,6 +412,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -360,6 +425,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -371,6 +438,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -382,6 +451,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -393,6 +464,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -404,6 +477,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -415,6 +490,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -426,6 +503,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -437,6 +516,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -448,6 +529,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -459,6 +542,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -470,6 +555,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -481,6 +568,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -492,6 +581,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -503,6 +594,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -514,6 +607,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -525,6 +620,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -536,6 +633,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -547,6 +646,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -558,6 +659,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       }
@@ -576,6 +679,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -587,6 +692,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total da Qtd. Inicial do Pedido (soma de todos os itens)",
         "espelha": "—"
       },
@@ -598,6 +705,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total da Qtd Pronta do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
         "espelha": "—"
       },
@@ -609,6 +718,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Saldo do Pedido (soma dos itens na mesma unidade) · Fórmula configurada",
         "espelha": "—"
       },
@@ -620,6 +731,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total da Qtd. Transferida do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
         "espelha": "—"
       },
@@ -631,6 +744,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total da Qtd. Cancelada do Pedido (soma dos itens) · Soma apenas se todas unidades dos itens forem iguais",
         "espelha": "—"
       },
@@ -642,6 +757,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -653,6 +770,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "Total de volumes do Pedido(soma dos itens)",
         "espelha": "—"
       }
@@ -671,6 +790,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -682,6 +803,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total do Pedido — soma total dos itens na mesma moeda · Valor Total do Item = Valor unitário do item x Qtd inicial do item",
         "espelha": "—"
       },
@@ -693,6 +816,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -704,6 +829,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -715,6 +842,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -726,6 +855,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -737,6 +868,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       }
@@ -755,6 +888,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       },
@@ -766,6 +901,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       },
@@ -777,6 +914,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       },
@@ -788,6 +927,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       },
@@ -799,6 +940,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       },
@@ -810,6 +953,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Espelhado com itens e pedido"
       }
@@ -828,6 +973,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Replica pedido → item"
       },
@@ -839,6 +986,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "Total do pedido (soma dos itens)",
         "espelha": "—"
       },
@@ -850,6 +999,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "Total do pedido (soma dos itens)",
         "espelha": "—"
       },
@@ -861,6 +1012,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       }
@@ -879,6 +1032,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total do peso líquido do pedido (soma dos itens)",
         "espelha": "—"
       },
@@ -890,6 +1045,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total do peso bruto do pedido (soma dos itens)",
         "espelha": "—"
       },
@@ -901,6 +1058,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "Total do pedido (soma dos itens)",
         "espelha": "—"
       }
@@ -919,6 +1078,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -930,6 +1091,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -941,6 +1104,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -952,6 +1117,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -963,6 +1130,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -974,6 +1143,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -985,6 +1156,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -996,6 +1169,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1007,6 +1182,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1018,6 +1195,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1029,6 +1208,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1040,6 +1221,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1051,6 +1234,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1062,6 +1247,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1073,6 +1260,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1084,6 +1273,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1095,6 +1286,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1106,6 +1299,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1117,6 +1312,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1128,6 +1325,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1139,6 +1338,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1150,6 +1351,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1161,6 +1364,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1172,6 +1377,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1183,6 +1390,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1194,6 +1403,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1205,6 +1416,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1216,6 +1429,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1227,6 +1442,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1238,6 +1455,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1249,6 +1468,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1260,6 +1481,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1271,6 +1494,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1282,6 +1507,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1293,6 +1520,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1304,6 +1533,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1315,6 +1546,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1326,6 +1559,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1337,6 +1572,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1348,6 +1585,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1359,6 +1598,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1370,6 +1611,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1381,6 +1624,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1392,6 +1637,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1403,6 +1650,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       }
@@ -1421,6 +1670,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1432,6 +1683,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1443,6 +1696,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1454,6 +1709,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Pill",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1465,6 +1722,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1476,6 +1735,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1487,6 +1748,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1498,6 +1761,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1509,6 +1774,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1520,6 +1787,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1531,6 +1800,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1542,6 +1813,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1553,6 +1826,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1564,6 +1839,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1575,6 +1852,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1586,6 +1865,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1597,6 +1878,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1608,6 +1891,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       }
@@ -1626,6 +1911,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1637,6 +1924,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1648,6 +1937,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1659,6 +1950,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1670,6 +1963,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1681,6 +1976,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1692,6 +1989,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1703,6 +2002,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "Total do Pedido — soma total dos itens na mesma moeda",
         "espelha": "—"
       },
@@ -1714,6 +2015,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1725,6 +2028,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1736,6 +2041,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
         "edicaoItem": "Sim",
+        "edicaoMassaPedido": "Sim",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1747,6 +2054,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       }
@@ -1765,6 +2074,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1776,6 +2087,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -1787,6 +2100,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1798,6 +2113,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Anexo",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -1809,6 +2126,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1820,6 +2139,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1831,6 +2152,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1842,6 +2165,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1853,6 +2178,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1864,6 +2191,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1875,6 +2204,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1886,6 +2217,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1897,6 +2230,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1908,6 +2243,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1919,6 +2256,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1930,6 +2269,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1941,6 +2282,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1952,6 +2295,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1963,6 +2308,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1974,6 +2321,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1985,6 +2334,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -1996,6 +2347,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2007,6 +2360,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2018,6 +2373,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2029,6 +2386,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2040,6 +2399,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2051,6 +2412,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2062,6 +2425,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2073,6 +2438,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2084,6 +2451,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2095,6 +2464,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2106,6 +2477,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2117,6 +2490,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2128,6 +2503,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Data",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "Aplicar em todos os itens"
       },
@@ -2139,6 +2516,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2150,6 +2529,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2161,6 +2542,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2172,6 +2555,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2183,6 +2568,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2194,6 +2581,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2205,6 +2594,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2216,6 +2607,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2227,6 +2620,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2238,6 +2633,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2249,6 +2646,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2260,6 +2659,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2271,6 +2672,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2282,6 +2685,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2293,6 +2698,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2304,6 +2711,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2315,6 +2724,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2326,6 +2737,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2337,6 +2750,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2348,6 +2763,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2359,6 +2776,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2370,6 +2789,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2381,6 +2802,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2392,6 +2815,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2403,6 +2828,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2414,6 +2841,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2425,6 +2854,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2436,6 +2867,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2447,6 +2880,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2458,6 +2893,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2469,6 +2906,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2480,6 +2919,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2491,6 +2932,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2502,6 +2945,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2513,6 +2958,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2524,6 +2971,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2535,6 +2984,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2546,6 +2997,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2557,6 +3010,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2568,6 +3023,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2579,6 +3036,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2590,6 +3049,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2601,6 +3062,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2612,6 +3075,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2623,6 +3088,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2634,6 +3101,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       },
@@ -2645,6 +3114,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Não",
         "soma": "—",
         "espelha": "—"
       }
@@ -2663,6 +3134,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -2674,6 +3147,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -2685,6 +3160,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Número",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       },
@@ -2696,6 +3173,8 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "formatacao": "Texto",
         "edicaoPedido": "Não",
         "edicaoItem": "Não",
+        "edicaoMassaPedido": "Não",
+        "edicaoMassaItem": "Sim",
         "soma": "—",
         "espelha": "—"
       }

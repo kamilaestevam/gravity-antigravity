@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 409,
+  "proximo_numero": 411,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000410",
+      "ordinal": 134,
+      "titulo_canonico": "PEDIDO-LISTA-DUV-GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+      "titulo_exibicao": "TASK-000410 | [Pedido] Lista | DUV — O que falta para gerar documentos (PO, SO, Proforma, Invoice, Packing List, CO)",
+      "status": "ABR",
+      "area": "PEDIDO",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "DUV",
+      "resumo": "GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+      "data_criacao": "2026-07-04T23:18:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000410.json"
+    },
     {
       "referencia": "TASK-000408",
       "ordinal": 132,
@@ -63,6 +80,23 @@
       "tempo_liquido_horas": 3.5,
       "tokens_estimados_total": 140000,
       "arquivo_ficha": "registros/TASK-000406.json"
+    },
+    {
+      "referencia": "TASK-000405",
+      "ordinal": 129,
+      "titulo_canonico": "BIDFRT-COTACOES-BUG-ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
+      "titulo_exibicao": "TASK-000405 | [BID Frete] Cotações · Nova | BUG — Origem AEJEA não encontrada no Cadastros ao criar cotação",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "COTACOES",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
+      "data_criacao": "2026-07-03T14:55:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000405.json"
     },
     {
       "referencia": "TASK-000404",

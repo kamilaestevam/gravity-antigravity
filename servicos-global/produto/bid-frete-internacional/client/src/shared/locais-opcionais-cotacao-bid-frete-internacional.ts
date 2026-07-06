@@ -1,40 +1,171 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { TFunction } from 'i18next'
+import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
+  codigosElegiveisSelecaoLocalFornecedorBidFrete,
+  exigeSelecaoLocalFornecedorRespostaBidFrete,
   modalCotacaoExigeAeroportoLocal,
   modalCotacaoExigePortoLocal,
   montarTextoLocaisOpcionaisCotacaoBidFrete,
   type ContextoLocaisOpcionaisCotacaoBidFrete,
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
-import { formatarRotuloLocalLogistico } from './formatacao-local-logistico-bid-frete-internacional'
+import {
+  chaveCodigoLocalBidFrete,
+  coletarCodigosLocaisCotacaoBidFrete,
+  resolverRotuloLocalFornecedorRespostaBidFrete,
+  rotuloLocalFromSnapshotCotacaoBidFrete,
+  type ContextoLocaisComNomesSnapshot,
+} from '../../../shared/rotulos-locais-resposta-fornecedor-bid-frete-internacional'
+import {
+  rotuloAeroportoCadastroLogistica,
+  rotuloPortoCadastroLogistica,
+} from '../../../shared/rotulo-cadastro-logistica-bid-frete-internacional'
+import { cadastrosApi } from './cadastrosApi'
 import { useAeroportosPorPais, usePortosPorPais } from './useCadastrosLogistica'
 
-export function useResolverRotuloLocalLogisticoCotacaoBidFrete(
-  ctx: ContextoLocaisOpcionaisCotacaoBidFrete,
-) {
+const LIMITE_BUSCA_ROTULO_LOCAL = 25
+
+async function buscarRotuloLocalCadastrosBidFrete(
+  codigo: string,
+  modal: ContextoLocaisOpcionaisCotacaoBidFrete['modal_cotacao_bid_frete_internacional'],
+): Promise<string | null> {
+  const alvo = chaveCodigoLocalBidFrete(codigo)
+  if (!alvo) return null
+
+  try {
+    if (modalCotacaoExigePortoLocal(modal)) {
+      const resp = await cadastrosApi.listarPortos({ q: alvo, limit: LIMITE_BUSCA_ROTULO_LOCAL })
+      const hit = resp.itens.find((p) => chaveCodigoLocalBidFrete(p.codigo_unlocode_porto) === alvo)
+      if (hit) return rotuloPortoCadastroLogistica(hit)
+    }
+    if (modalCotacaoExigeAeroportoLocal(modal)) {
+      const resp = await cadastrosApi.listarAeroportos({ q: alvo, limit: LIMITE_BUSCA_ROTULO_LOCAL })
+      const hit = resp.itens.find(
+        (a) =>
+          chaveCodigoLocalBidFrete(a.codigo_iata_aeroporto ?? '') === alvo
+          || chaveCodigoLocalBidFrete(a.codigo_unlocode_aeroporto) === alvo,
+      )
+      if (hit) return rotuloAeroportoCadastroLogistica(hit)
+    }
+  } catch {
+    return null
+  }
+
+  return null
+}
+
+function useMapaRotulosLocaisCotacaoBidFrete(ctx: ContextoLocaisComNomesSnapshot) {
   const exigePorto = modalCotacaoExigePortoLocal(ctx.modal_cotacao_bid_frete_internacional)
   const exigeAeroporto = modalCotacaoExigeAeroportoLocal(ctx.modal_cotacao_bid_frete_internacional)
   const { portos } = usePortosPorPais('', exigePorto)
   const { aeroportos } = useAeroportosPorPais('', exigeAeroporto)
 
-  return useCallback(
-    (codigo: string) => {
-      if (exigePorto) {
-        const porto = portos.find((p) => p.codigo_unlocode_porto === codigo)
-        if (porto) return formatarRotuloLocalLogistico(porto.nome_porto, codigo)
-      }
-      if (exigeAeroporto) {
-        const aeroporto = aeroportos.find((a) => a.codigo_iata_aeroporto === codigo)
-        if (aeroporto) return formatarRotuloLocalLogistico(aeroporto.nome_aeroporto, codigo)
-      }
-      return codigo
-    },
-    [aeroportos, exigeAeroporto, exigePorto, portos],
+  const codigos = useMemo(() => coletarCodigosLocaisCotacaoBidFrete(ctx), [ctx])
+  const chaveCodigos = codigos.map(chaveCodigoLocalBidFrete).sort().join('|')
+
+  const [mapaRemoto, setMapaRemoto] = useState<Map<string, string>>(() => new Map())
+  const [carregandoRemoto, setCarregandoRemoto] = useState(false)
+
+  useEffect(() => {
+    if (codigos.length === 0) {
+      setMapaRemoto(new Map())
+      return
+    }
+
+    let ativo = true
+    setCarregandoRemoto(true)
+
+    void Promise.all(
+      codigos.map(async (codigo) => {
+        const chave = chaveCodigoLocalBidFrete(codigo)
+
+        for (const lado of ['origem', 'destino'] as const) {
+          const snapshot = rotuloLocalFromSnapshotCotacaoBidFrete(ctx, lado, codigo)
+          if (snapshot) return [chave, snapshot] as const
+        }
+
+        const remoto = await buscarRotuloLocalCadastrosBidFrete(codigo, ctx.modal_cotacao_bid_frete_internacional)
+        if (remoto) return [chave, remoto] as const
+
+        return [chave, codigo] as const
+      }),
+    )
+      .then((pares) => {
+        if (!ativo) return
+        setMapaRemoto(new Map(pares))
+      })
+      .finally(() => {
+        if (ativo) setCarregandoRemoto(false)
+      })
+
+    return () => {
+      ativo = false
+    }
+  }, [
+    chaveCodigos,
+    ctx.modal_cotacao_bid_frete_internacional,
+    ctx.origem_nome_cotacao_bid_frete_internacional,
+    ctx.destino_nome_cotacao_bid_frete_internacional,
+  ])
+
+  const resolverRotulo = useCallback(
+    (codigo: string): string =>
+      resolverRotuloLocalFornecedorRespostaBidFrete(ctx, codigo, portos, aeroportos, mapaRemoto),
+    [aeroportos, ctx, mapaRemoto, portos],
   )
+
+  return { resolverRotulo, carregandoRemoto }
+}
+
+export function useResolverRotuloLocalLogisticoCotacaoBidFrete(
+  ctx: ContextoLocaisComNomesSnapshot,
+) {
+  const { resolverRotulo } = useMapaRotulosLocaisCotacaoBidFrete(ctx)
+  return resolverRotulo
+}
+
+export function useLocaisSelecaoFornecedorRespostaBidFrete(
+  ctx: ContextoLocaisComNomesSnapshot,
+) {
+  const { resolverRotulo, carregandoRemoto } = useMapaRotulosLocaisCotacaoBidFrete(ctx)
+
+  const opcoesOrigem = useMemo((): SelectOpcao[] => {
+    if (!exigeSelecaoLocalFornecedorRespostaBidFrete(ctx, 'origem')) return []
+    return codigosElegiveisSelecaoLocalFornecedorBidFrete(ctx, 'origem').map((codigo) => ({
+      valor: codigo,
+      rotulo: resolverRotulo(codigo),
+    }))
+  }, [ctx, resolverRotulo])
+
+  const opcoesDestino = useMemo((): SelectOpcao[] => {
+    if (!exigeSelecaoLocalFornecedorRespostaBidFrete(ctx, 'destino')) return []
+    return codigosElegiveisSelecaoLocalFornecedorBidFrete(ctx, 'destino').map((codigo) => ({
+      valor: codigo,
+      rotulo: resolverRotulo(codigo),
+    }))
+  }, [ctx, resolverRotulo])
+
+  return {
+    resolverRotulo,
+    opcoesOrigem,
+    opcoesDestino,
+    carregando: carregandoRemoto,
+  }
+}
+
+export function useOpcoesSelecaoLocalFornecedorRespostaBidFrete(
+  ctx: ContextoLocaisComNomesSnapshot,
+  lado: 'origem' | 'destino',
+): { opcoes: SelectOpcao[]; carregando: boolean } {
+  const { opcoesOrigem, opcoesDestino, carregando } = useLocaisSelecaoFornecedorRespostaBidFrete(ctx)
+  return {
+    opcoes: lado === 'origem' ? opcoesOrigem : opcoesDestino,
+    carregando,
+  }
 }
 
 export function useTextosLocaisOpcionaisCotacaoBidFrete(
-  ctx: ContextoLocaisOpcionaisCotacaoBidFrete,
+  ctx: ContextoLocaisComNomesSnapshot,
 ) {
   const resolverRotulo = useResolverRotuloLocalLogisticoCotacaoBidFrete(ctx)
   return useMemo(
@@ -93,3 +224,5 @@ export function rotuloSelecaoLocalFornecedorRespostaBidFrete(
       defaultValue: 'Aeroporto de destino utilizado na proposta',
     })
 }
+
+export type { ContextoLocaisComNomesSnapshot }

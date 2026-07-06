@@ -87,7 +87,7 @@ const insightsValido = {
   insights: [
     { id: 'i1', variante: 'default', tag: 'INFO',  texto: 'Carteira do periodo totaliza R$ 4M.' },
     { id: 'i2', variante: 'warn',    tag: 'ALERTA',texto: '5 pedidos em rascunho ainda nao enviados.', stat: { label: 'Em rascunho', valor: '5' } },
-    { id: 'i3', variante: 'default', tag: 'TENDENCIA', texto: 'Pedidos cresceram 12% vs periodo anterior.', textoLink: 'Ver detalhes', rota: '/pedidos/lista' },
+    { id: 'i3', variante: 'default', tag: 'TENDENCIA', texto: 'Pedidos cresceram 12% vs periodo anterior.', textoLink: 'Ver detalhes', rota: '/pedido/pedidos/lista' },
   ],
 }
 

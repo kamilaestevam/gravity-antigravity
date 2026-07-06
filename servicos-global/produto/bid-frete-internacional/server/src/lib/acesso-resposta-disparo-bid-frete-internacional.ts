@@ -15,6 +15,7 @@ export type CodigoBloqueioRespostaDisparoBidFreteInternacional =
   | 'PROPOSTA_APROVADA'
   | 'PROPOSTA_REPROVADA'
   | 'PRAZO_RESPOSTA_ENCERRADO'
+  | 'EDICAO_PROPOSTA_NAO_PERMITIDA'
 
 export interface EntradaAcessoRespostaDisparoBidFreteInternacional {
   token_valido: boolean
@@ -24,6 +25,8 @@ export interface EntradaAcessoRespostaDisparoBidFreteInternacional {
   possui_proposta: boolean
   disparo_respondido: boolean
   data_limite_resposta_cotacao_bid_frete_internacional: Date | string | null | undefined
+  /** Quando false, fornecedor não pode editar proposta já enviada. Ausente/null = true (legado). */
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional?: boolean | null
   agora?: Date
 }
 
@@ -101,6 +104,10 @@ export function avaliarAcessoRespostaDisparoBidFreteInternacional(
   }
 
   if (jaRespondeu) {
+    const podeAlterar = entrada.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional !== false
+    if (!podeAlterar) {
+      return bloqueado('EDICAO_PROPOSTA_NAO_PERMITIDA')
+    }
     return {
       modo_acesso_resposta_disparo_bid_frete_internacional: 'editar',
       codigo_bloqueio_resposta_disparo_bid_frete_internacional: null,

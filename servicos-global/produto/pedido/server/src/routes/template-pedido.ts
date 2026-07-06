@@ -32,8 +32,20 @@ import {
   resolverStorageKey,
   salvarArquivoLocal,
 } from '../services/anexosService.js'
+import {
+  montarDadosDocumentoComercialPedido,
+  montarHtmlDocumentoComercialPedido,
+  NOME_ARQUIVO_DOCUMENTO_COMERCIAL,
+  type TipoDocumentoComercialPedido,
+  type IdiomaDocumentoPedido,
+} from '../services/documentos-comerciais-pedido.js'
+import { exigirPermissao } from '../permissoes.js'
 
 export const templatePedidoRota = Router()
+
+/** Geração/listagem na Lista — exige lista:editar / lista:ver (não configuracao:editar). */
+const exigirListaVer = exigirPermissao('lista', 'ver')
+const exigirListaEditar = exigirPermissao('lista', 'editar')
 
 // ── ACL: PedidoItem DDD → shape legado consumido por pdfService ──────────────
 // pdfService consome chaves antigas (part_number, descricao_item, ncm, etc.).
@@ -112,14 +124,23 @@ const GerarPdfSchema = z.object({
 
 const GerarDocumentoSchema = z.object({
   pedido_id: z.string().min(1),
-  tipo_documento: z.enum(['pedido_de_venda', 'proforma_invoice', 'invoice']),
+  tipo_documento: z.enum([
+    'pedido_de_compra',
+    'pedido_de_venda',
+    'proforma_invoice',
+    'invoice',
+    'packing_list',
+    'certificado_origem',
+  ]),
   idioma: z.enum(['pt', 'en', 'es', 'zh', 'ja', 'ar']),
   salvar_como_anexo: z.boolean().default(true),
+  /** IDs de itens selecionados na lista — quando presente, o documento sai só com esses itens. */
+  item_ids: z.array(z.string().min(1)).min(1).optional(),
 })
 
 // ── GET / — Lista templates do tenant ────────────────────────────────────────
 
-templatePedidoRota.get('/', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.get('/', exigirListaVer, async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,7 +161,7 @@ templatePedidoRota.get('/', async (req: Request, res: Response, next: NextFuncti
 
 // ── POST /gerar — Gera PDF a partir de template ──────────────────────────────
 
-templatePedidoRota.post('/gerar', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.post('/gerar', exigirListaEditar, async (req: Request, res: Response, next: NextFunction) => {
   const bodyParse = GerarPdfSchema.safeParse(req.body)
   if (!bodyParse.success) {
     return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
@@ -236,13 +257,13 @@ templatePedidoRota.post('/gerar', async (req: Request, res: Response, next: Next
 
 // ── POST /documentos/gerar — Gera documento por idioma/tipo ──────────────────
 
-templatePedidoRota.post('/documentos/gerar', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.post('/documentos/gerar', exigirListaEditar, async (req: Request, res: Response, next: NextFunction) => {
   const bodyParse = GerarDocumentoSchema.safeParse(req.body)
   if (!bodyParse.success) {
     return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
   }
 
-  const { pedido_id, tipo_documento, idioma, salvar_como_anexo } = bodyParse.data
+  const { pedido_id, tipo_documento, idioma, salvar_como_anexo, item_ids } = bodyParse.data
 
   try {
     await withOrganizacao(req, async (rawDb) => {
@@ -252,42 +273,42 @@ templatePedidoRota.post('/documentos/gerar', async (req: Request, res: Response,
       const idOrganizacao = ctx.idOrganizacao
       const idUsuario     = ctx.idUsuario ?? 'system'
 
-      // 1. Buscar pedido com itens
+      // 1. Buscar pedido com itens (filtrados pela seleção quando item_ids veio no payload)
       const pedido = await db.pedido.findFirst({
         where:   { id_pedido: pedido_id, id_organizacao: idOrganizacao },
-        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: {
+          itens_pedido: {
+            ...(item_ids ? { where: { id_item: { in: item_ids } } } : {}),
+            orderBy: { sequencia_item_pedido: 'asc' },
+          },
+        },
       })
 
       if (!pedido) {
         throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
       }
 
-      // ACL: traduz itens DDD → shape legado consumido por pdfService
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pedidoTyped = mapearPedidoParaPdfService(pedido as any)
-
-      // 2. Selecionar template Handlebars baseado no tipo_documento
-      const templateMap: Record<string, string> = {
-        pedido_de_venda:  'purchase-order',
-        proforma_invoice: 'proforma-invoice',
-        invoice:          'commercial-invoice',
+      const itensDoPedido = (pedido as { itens_pedido?: unknown[] }).itens_pedido ?? []
+      if (item_ids && itensDoPedido.length === 0) {
+        throw new AppError('Nenhum item selecionado pertence a este pedido', 400, 'ITENS_NAO_ENCONTRADOS')
       }
-      const templateNome = templateMap[tipo_documento]
 
-      // 3. Compilar variáveis passando o idioma ao contexto
-      const tenantNome = process.env.TENANT_NOME ?? idOrganizacao
-      const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
-      const variaveisComIdioma = { ...variaveis, idioma, tipo_documento }
+      // 2. Montar HTML do documento comercial (layout real por tipo/idioma)
+      const tipoDocumento = tipo_documento as TipoDocumentoComercialPedido
+      const idiomaDocumento = idioma as IdiomaDocumentoPedido
+      const nomeOrganizacao = process.env.TENANT_NOME ?? idOrganizacao
+      const dadosDocumento = montarDadosDocumentoComercialPedido(
+        pedido as Record<string, unknown>,
+        nomeOrganizacao,
+      )
+      const htmlFinal = montarHtmlDocumentoComercialPedido(tipoDocumento, idiomaDocumento, dadosDocumento)
+      const templateNome = NOME_ARQUIVO_DOCUMENTO_COMERCIAL[tipoDocumento]
 
-      // 4. Renderizar template (fallback: HTML inline mínimo se template não existir)
-      const htmlFallback = `<h1>${templateNome}</h1><p>${pedidoTyped.numero_pedido}</p><p>Lang: ${idioma}</p>`
-      const htmlFinal = renderizarTemplate(htmlFallback, variaveisComIdioma)
-
-      // 5. Gerar PDF (ou HTML fallback)
+      // 3. Gerar PDF (ou HTML fallback)
       const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
 
-      // 6. Salvar no storage e criar anexo
-      const nomeArquivo = gerarNomeArquivoPdf(templateNome, pedidoTyped.numero_pedido)
+      // 4. Salvar no storage e criar anexo
+      const nomeArquivo = gerarNomeArquivoPdf(`${templateNome}-${idioma}`, dadosDocumento.numero_pedido)
       const uuid: string = randomUUID()
       const storageKey = resolverStorageKey(idOrganizacao, pedido_id, uuid, nomeArquivo)
       salvarArquivoLocal(buffer, storageKey)

@@ -58,14 +58,15 @@ describe('avaliarAcessoRespostaDisparoBidFreteInternacional', () => {
     expect(r.codigo_bloqueio_resposta_disparo_bid_frete_internacional).toBe('PRAZO_RESPOSTA_ENCERRADO')
   })
 
-  it('permite editar após prazo se ja enviou proposta', () => {
+  it('bloqueia edicao quando cotacao nao permite alterar proposta', () => {
     const r = avaliarAcessoRespostaDisparoBidFreteInternacional({
       ...base,
       possui_proposta: true,
       disparo_respondido: true,
-      data_limite_resposta_cotacao_bid_frete_internacional: '2020-01-01T00:00:00.000Z',
-      agora: new Date('2026-01-01T00:00:00.000Z'),
+      status_proposta_bid_frete_internacional: 'RECEBIDA',
+      fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: false,
     })
-    expect(r.modo_acesso_resposta_disparo_bid_frete_internacional).toBe('editar')
+    expect(r.modo_acesso_resposta_disparo_bid_frete_internacional).toBe('bloqueado')
+    expect(r.codigo_bloqueio_resposta_disparo_bid_frete_internacional).toBe('EDICAO_PROPOSTA_NAO_PERMITIDA')
   })
 })

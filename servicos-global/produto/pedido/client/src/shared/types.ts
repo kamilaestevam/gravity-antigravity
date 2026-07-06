@@ -973,7 +973,13 @@ export interface GerarPdfResultado {
 
 // ── Gerar Documento (multilíngue) ────────────────────────────────────────────
 
-export type TipoDocumentoGerar = 'pedido_de_venda' | 'proforma_invoice' | 'invoice'
+export type TipoDocumentoGerar =
+  | 'pedido_de_compra'
+  | 'pedido_de_venda'
+  | 'proforma_invoice'
+  | 'invoice'
+  | 'packing_list'
+  | 'certificado_origem'
 export type IdiomaDocumento = 'pt' | 'en' | 'es' | 'zh' | 'ja' | 'ar'
 
 export interface GerarDocumentoPayload {
@@ -981,6 +987,8 @@ export interface GerarDocumentoPayload {
   tipo_documento: TipoDocumentoGerar
   idioma: IdiomaDocumento
   salvar_como_anexo: boolean
+  /** IDs dos itens selecionados — quando presente, o documento sai só com esses itens. */
+  item_ids?: string[]
 }
 
 // ── Colunas do Usuário ────────────────────────────────────────────────────────

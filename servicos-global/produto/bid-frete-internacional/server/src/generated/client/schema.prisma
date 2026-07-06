@@ -62,6 +62,7 @@ enum BidFreteInternacionalStatusCotacao {
   CANCELADA
   FALTA_INFORMACAO
   EXPIRADA
+  COTACAO_ALTERADA
 
   @@map("bid_frete_internacional_status_cotacao")
 }
@@ -315,6 +316,9 @@ model CotacaoBidFreteInternacional {
   valor_meta_cotacao_bid_frete_internacional           Float? // valor referencial que quer atingir
   moeda_meta_cotacao_bid_frete_internacional           String? @default("USD")
   dias_prazo_pagamento_cotacao_bid_frete_internacional Int? // prazo de pagamento em dias
+
+  // Regra de edição de proposta pelo fornecedor (definida na criação)
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional Boolean @default(true)
 
   // Prazos e datas
   data_limite_resposta_cotacao_bid_frete_internacional DateTime?

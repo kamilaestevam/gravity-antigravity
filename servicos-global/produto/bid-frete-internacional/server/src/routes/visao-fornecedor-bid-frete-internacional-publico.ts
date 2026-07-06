@@ -177,6 +177,7 @@ function mensagemBloqueioPublico(codigo: string): string {
     PROPOSTA_APROVADA: 'Proposta aprovada — nao pode ser alterada',
     PROPOSTA_REPROVADA: 'Proposta reprovada — nao pode ser alterada',
     PRAZO_RESPOSTA_ENCERRADO: 'Prazo de resposta encerrado',
+    EDICAO_PROPOSTA_NAO_PERMITIDA: 'Esta cotacao nao permite alterar a proposta apos o envio',
   }
   return map[codigo] ?? 'Nao e possivel alterar esta proposta'
 }

@@ -210,7 +210,7 @@ function buildFeatureCandidates(
       texto: `Você tem ${kpis.pedidos_abertos} pedido${kpis.pedidos_abertos > 1 ? 's' : ''} em aberto. É possível transferir itens para separar volumes ou originar novos pedidos derivados.`,
       stat: { label: 'Pedidos prontos para transferir', valor: fmtNum(kpis.pedidos_abertos) },
       textoLink: 'Ver pedidos',
-      rota: '/pedidos/lista?status=aberto',
+      rota: '/pedido/pedidos/lista?status=aberto',
       score: 10,
     })
   }
@@ -285,7 +285,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_atrasados} pedido${kpis.pedidos_atrasados > 1 ? 's' : ''} com prazo vencido. Ação imediata recomendada.`,
       stat: { label: 'Taxa de atraso', valor: fmtPct(kpis.taxa_atraso) },
       textoLink: 'Ver atrasados',
-      rota: '/pedidos/lista?status=atrasado',
+      rota: '/pedido/pedidos/lista?status=atrasado',
       score: weights.atrasados ?? 0,
     })
   }
@@ -298,7 +298,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       tag: 'Atenção · Sem Exportador',
       texto: `${kpis.pedidos_sem_exportador} pedido${kpis.pedidos_sem_exportador > 1 ? 's' : ''} sem exportador vinculado. Bloqueio de faturamento em risco.`,
       textoLink: 'Corrigir agora',
-      rota: '/pedidos/lista?sem_exportador=true',
+      rota: '/pedido/pedidos/lista?sem_exportador=true',
       score: weights.sem_exportador ?? 0,
     })
   }
@@ -314,7 +314,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
         ? { label: 'Qtd. já transferida', valor: fmtNum(kpis.qtd_transferida_total) }
         : undefined,
       textoLink: 'Ver pedidos',
-      rota: '/pedidos/lista?status=aberto',
+      rota: '/pedido/pedidos/lista?status=aberto',
       score: weights.abertos ?? 0,
     })
   }
@@ -371,7 +371,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_cancelados} pedido${kpis.pedidos_cancelados > 1 ? 's' : ''} cancelado${kpis.pedidos_cancelados > 1 ? 's' : ''} no período (${pctCancel}% do total).`,
       stat: { label: 'Total no período', valor: fmtNum(kpis.total_pedidos) },
       textoLink: 'Ver cancelados',
-      rota: '/pedidos/lista?status=cancelado',
+      rota: '/pedido/pedidos/lista?status=cancelado',
       score: weights.cancelados ?? 0,
     })
   }
@@ -387,7 +387,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
         ? { label: 'Taxa de transferência', valor: fmtPct(kpis.taxa_transferencia) }
         : { label: 'Qtd. transferida', valor: fmtNum(kpis.qtd_transferida_total) },
       textoLink: 'Ver em andamento',
-      rota: '/pedidos/lista?status=transferencia',
+      rota: '/pedido/pedidos/lista?status=transferencia',
       score: (weights.abertos ?? 0) * 0.9,
     })
   }
@@ -404,7 +404,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_consolidados} pedido${kpis.pedidos_consolidados > 1 ? 's' : ''} consolidado${kpis.pedidos_consolidados > 1 ? 's' : ''} no período — ${pctConc}% de conclusão.`,
       stat: { label: 'Total no período', valor: fmtNum(kpis.total_pedidos) },
       textoLink: 'Ver consolidados',
-      rota: '/pedidos/lista?status=consolidado',
+      rota: '/pedido/pedidos/lista?status=consolidado',
       score: (weights.financeiro ?? 0) * 0.7,
     })
   }
@@ -462,7 +462,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_sem_incoterm} pedido${kpis.pedidos_sem_incoterm > 1 ? 's' : ''} sem incoterm definido — campo obrigatório para documentação de exportação.`,
       stat: { label: 'Pedidos sem incoterm', valor: fmtNum(kpis.pedidos_sem_incoterm) },
       textoLink: 'Corrigir pedidos',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.sem_incoterm ?? 0,
     })
   }
@@ -476,7 +476,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_sem_fabricante} pedido${kpis.pedidos_sem_fabricante > 1 ? 's' : ''} sem fabricante vinculado.`,
       stat: { label: 'Total no período', valor: fmtNum(kpis.total_pedidos) },
       textoLink: 'Ver pedidos',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.sem_fabricante ?? 0,
     })
   }
@@ -495,7 +495,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
           : `${kpis.pedidos_sem_invoice} pedido${kpis.pedidos_sem_invoice > 1 ? 's' : ''} aguardando número de invoice.`,
       stat: { label: 'Pedidos incompletos', valor: fmtNum(sem_doc) },
       textoLink: 'Ver documentação',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.sem_documentos ?? 0,
     })
   }
@@ -509,7 +509,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${fmtNum(kpis.itens_sem_cobertura)} ite${kpis.itens_sem_cobertura > 1 ? 'ns' : 'm'} sem cobertura cambial contratada — exposição ao risco de variação.`,
       stat: { label: 'Itens totais', valor: fmtNum(kpis.qtd_inicial_total > 0 ? kpis.qtd_inicial_total : 0) },
       textoLink: 'Analisar exposição',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.exposicao_cambial ?? 0,
     })
   }
@@ -525,7 +525,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
         ? { label: 'Exposição total (BRL)', valor: fmtBRL(kpis.valor_total_brl) }
         : { label: 'Moedas no período', valor: fmtNum(kpis.moedas_distintas) },
       textoLink: 'Ver carteira',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.multimoeda ?? 0,
     })
   }
@@ -562,7 +562,7 @@ function buildCandidates(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${fmtNum(kpis.qtd_cancelada_total)} unidades canceladas no período — ${pctCancelado}% do volume inicial.`,
       stat: { label: 'Volume inicial', valor: fmtNum(kpis.qtd_inicial_total) },
       textoLink: 'Ver itens',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: weights.qtd_cancelada ?? 0,
     })
   }
@@ -587,7 +587,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${fmtNum(kpis.qtd_pronta_total)} unidades prontas para embarque, mas ${kpis.pedidos_sem_exportador} pedido${kpis.pedidos_sem_exportador > 1 ? 's' : ''} sem exportador vinculado.`,
       stat: { label: 'Qtd. pronta bloqueada', valor: fmtNum(kpis.qtd_pronta_total) },
       textoLink: 'Corrigir exportador',
-      rota: '/pedidos/lista?exportador=nenhum',
+      rota: '/pedido/pedidos/lista?exportador=nenhum',
       score: (weights.sem_exportador ?? 0) * 1.3,
     })
   }
@@ -602,7 +602,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${sobreposicao} pedido${sobreposicao > 1 ? 's' : ''} ativo${sobreposicao > 1 ? 's' : ''} sem incoterm — pode atrasar documentação de embarque.`,
       stat: { label: 'Pedidos em aberto', valor: fmtNum(kpis.pedidos_abertos) },
       textoLink: 'Corrigir agora',
-      rota: '/pedidos/lista?status=aberto',
+      rota: '/pedido/pedidos/lista?status=aberto',
       score: (weights.sem_incoterm ?? 0) * 1.2,
     })
   }
@@ -617,7 +617,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${(kpis.pedidos_rascunho ?? 0)} rascunho${(kpis.pedidos_rascunho ?? 0) > 1 ? 's' : ''} representa${(kpis.pedidos_rascunho ?? 0) > 1 ? 'm' : ''} aprox. ${fmtBRL(valorRepresado)} em valor potencial aguardando envio.`,
       stat: { label: 'Ticket médio', valor: fmtBRL(kpis.ticket_medio) },
       textoLink: 'Ver rascunhos',
-      rota: '/pedidos/lista?status=rascunho',
+      rota: '/pedido/pedidos/lista?status=rascunho',
       score: (weights.financeiro ?? 0) * 0.9,
     })
   }
@@ -634,7 +634,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${pctExpostos}% dos itens sem cobertura cambial numa carteira de ${fmtBRL(kpis.valor_total)}.`,
       stat: { label: 'Itens sem cobertura', valor: fmtNum(kpis.itens_sem_cobertura) },
       textoLink: 'Analisar exposição',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: (weights.exposicao_cambial ?? 0) * 1.1,
     })
   }
@@ -650,7 +650,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
         ? { label: 'Exposição total (BRL)', valor: fmtBRL(kpis.valor_total_brl) }
         : { label: 'Moedas no período', valor: fmtNum(kpis.moedas_distintas) },
       textoLink: 'Ver carteira',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: (weights.exposicao_cambial ?? 0) * 1.2,
     })
   }
@@ -664,7 +664,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `Há transferências ativas e ${fmtNum(kpis.qtd_cancelada_total)} unidades canceladas no período — revisar saldo dos itens em andamento.`,
       stat: { label: 'Pedidos em andamento', valor: fmtNum(kpis.pedidos_em_andamento) },
       textoLink: 'Ver em andamento',
-      rota: '/pedidos/lista?status=transferencia',
+      rota: '/pedido/pedidos/lista?status=transferencia',
       score: (weights.em_andamento ?? 0) * 0.9,
     })
   }
@@ -678,7 +678,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_sem_fabricante} importaç${kpis.pedidos_sem_fabricante > 1 ? 'ões' : 'ão'} sem fabricante vinculado — necessário para Licença de Importação.`,
       stat: { label: 'Total importações', valor: fmtNum(kpis.pedidos_importacao) },
       textoLink: 'Corrigir',
-      rota: '/pedidos/lista',
+      rota: '/pedido/pedidos/lista',
       score: (weights.sem_fabricante ?? 0) * 1.2,
     })
   }
@@ -706,7 +706,7 @@ function buildCrossInsights(kpis: KpiSnapshot, role: UserRole): GabiInsight[] {
       texto: `${kpis.pedidos_sem_proforma} pedido${kpis.pedidos_sem_proforma > 1 ? 's' : ''} em aberto sem número de proforma — pode atrasar o processo de embarque.`,
       stat: { label: 'Pedidos em aberto', valor: fmtNum(kpis.pedidos_abertos) },
       textoLink: 'Ver pendentes',
-      rota: '/pedidos/lista?status=aberto',
+      rota: '/pedido/pedidos/lista?status=aberto',
       score: (weights.sem_documentos ?? 0) * 1.1,
     })
   }

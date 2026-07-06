@@ -15,6 +15,7 @@ import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/reso
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
 import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
+import { patchDeveMarcarCotacaoAlterada } from '../../../shared/status-cotacao-alterada-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
@@ -83,7 +84,8 @@ const CriarCotacaoSchemaBase = z.object({
   moeda_meta_cotacao_bid_frete_internacional: z.string().default('USD'),
   visibilidade_cotacao_bid_frete_internacional: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
-  data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime().optional(),
+  data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime(),
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: z.boolean(),
   eh_carga_perigosa_cotacao_bid_frete_internacional: z.boolean().default(false),
   numero_onu_cotacao_bid_frete_internacional: z.string().optional(),
   nome_tecnico_embarque_cotacao_bid_frete_internacional: z.string().optional(),
@@ -334,6 +336,7 @@ const AtualizarStatusSchema = z.object({
     'RASCUNHO',
     'ENVIADA_FORNECEDORES',
     'EM_COTACAO',
+    'COTACAO_ALTERADA',
     'AGUARDANDO_APROVACAO',
     'APROVADA',
     'REPROVADA',
@@ -409,7 +412,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         ...(id_bid_bid_frete_internacional ? { id_bid_bid_frete_internacional } : {}),
         numero_cotacao_bid_frete_internacional: gerarNumeroCotacao(),
-        data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso ? new Date(dataLimiteIso) : null,
+        data_limite_resposta_cotacao_bid_frete_internacional: new Date(dataLimiteIso),
       },
     })
 
@@ -709,6 +712,13 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 
     if (corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_OPCAO_PORTO_AEROPORTO_COTACAO)) {
       Object.assign(data, prepararCamposOpcaoPortoAeroportoCotacao(merged as DadosCotacaoBase))
+    }
+
+    if (patchDeveMarcarCotacaoAlterada(
+      existing.status_cotacao_bid_frete_internacional,
+      parsed.data as Record<string, unknown>,
+    )) {
+      data.status_cotacao_bid_frete_internacional = 'COTACAO_ALTERADA'
     }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({

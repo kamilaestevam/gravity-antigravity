@@ -207,7 +207,12 @@ export function ManualInfograficoPedidoListaCustomizacao() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        Preferências de coluna, ordem e painel são <strong style={{ color: '#cbd5e1' }}>por usuário</strong>. Cada pessoa salva o próprio layout sem afetar os colegas do workspace.
+        <p style={{ margin: 0, fontWeight: 800, color: '#fde68a', fontSize: '.72rem', lineHeight: 1.4 }}>
+          Ocultar + Exibir + Arrastar + Criar colunas = customização completa
+        </p>
+        <p style={{ margin: '6px 0 0' }}>
+          Abaixo, o passo a passo de cada ação com print da tela.
+        </p>
       </div>
     </div>
   )

@@ -23,6 +23,7 @@ import {
   atualizarCardUsuarioSchema,
   reordenarCardsSchema,
 } from './cards-usuario-pedido-schemas.js'
+import { auditPedidoRequisicao204 } from '../utils/audit-pedido-requisicao.js'
 
 export const cardsUsuarioRouter = Router()
 
@@ -172,6 +173,12 @@ cardsUsuarioRouter.delete('/:id', async (req: Request, res: Response, next: Next
 
       await db.cardUsuarioPedido.delete({
         where: { id_card_usuario_pedido: req.params.id },
+      })
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'EXCLUIR',
+        tipo_recurso_historico_log: 'CardUsuarioPedido',
+        id_recurso_historico_log: req.params.id,
+        detalhe_acao_historico_log: `Removeu card KPI ${(existe as { nome_card_usuario_pedido?: string }).nome_card_usuario_pedido ?? req.params.id}`,
       })
       res.status(204).end()
     })

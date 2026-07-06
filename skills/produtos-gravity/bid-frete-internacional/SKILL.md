@@ -97,7 +97,7 @@ Modelo: Lista de Pedidos — `{total pai} pedidos · {total filhos} itens · pá
 | Lista fornecedor | `lista-visao-fornecedor-bid-frete-internacional.tsx` — sem segmento “bids” no rodapé |
 | Linhas/página | `tabelaConfig.linhasPorPagina` — `shared/tabela-config-bid-frete.ts` (`bid-frete:config:tabela`) |
 | i18n rodapé | `bidfrete.lista.label_bid_*`, `label_cotacao_*` |
-| Altura grid (WIP) | `bid-frete-page-shell.css` — `min-height: 620px` até layout flex fechar |
+| Altura grid | `shared/altura-tabela-lista-bid-frete-internacional.ts` + `lista-bid-frete-internacional-layout.css` — `flex: 1` até o fim da viewport (paridade Pedido; pino 620px removido na TASK-000419) |
 
 **Regra:** 1º segmento = linhas pai paginadas (`totalItens`), 2º = cotações filtradas (`totalFilhos`). Paginação **client-side** (dataset já carregado).
 
@@ -385,6 +385,12 @@ Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-
 | `ganho_bid_frete_internacional` | `GanhoBidFreteInternacional` |
 
 Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema.prisma`.
+
+**HS Code (2026-07-05):** `hs_code_cotacao_bid_frete_internacional String?` ao lado do NCM — migration `20260705170000` (aplicada local + Railway; inclui colunas físicas de dimensões de cubagem). Zod `max 10` no create/patch de `cotacoes.ts`; wizard envia; e-mail e portal exibem.
+
+**Regra de exibição (dono):** todo campo preenchido da cotação aparece no Resumo do wizard, no e-mail de disparo e no portal do fornecedor com formatação idêntica (ícone, truncamento, tooltip); campos internos (valor alvo, fornecedores, canais) só no Resumo. SSOT: `shared/formatar-email-disparo-bid-frete-internacional.ts` + `SecaoDetalhesCotacaoResposta` — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md` §8.4.
+
+**E-mail de disparo — intro e taxa (TASK-000419+):** intro condicional por `anonima_cotacao_bid_frete_internacional` (nome visível vs cliente oculto); tag amarela com cotação gratuita + taxa USD 10,00 no fechamento + link «Leia aqui as condições». Cobrança: **boleto mensal** consolidando as taxas do mês. Aviso de aceite também no formulário de resposta (`.brc-aceite-condicoes`, acima do botão Enviar Proposta — público e logado). SSOT condições: `shared/condicoes-plataforma-fornecedor-bid-frete-internacional.ts` · doc `CONDICOES-PLATAFORMA-FORNECEDOR-BID-FRETE-INTERNACIONAL.md` · rota pública `/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma`.
 
 ---
 

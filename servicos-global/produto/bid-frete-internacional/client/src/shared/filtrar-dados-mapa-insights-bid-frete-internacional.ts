@@ -81,9 +81,17 @@ export const FILTROS_STATUS_MAPA_INSIGHTS: ReadonlyArray<{
   { id: 'REPROVADA', label: STATUS_LABELS.REPROVADA, cor: '#ef4444' },
 ]
 
-export function filtrosMapaInsightsVazios(): FiltrosMapaInsightsBidFreteInternacional {
+export const OPERACOES_FILTRO_MAPA_INSIGHTS = ['IMPORTACAO', 'EXPORTACAO'] as const
+export const MODAIS_FILTRO_MAPA_INSIGHTS = ['MARITIMO', 'AEREO', 'RODOVIARIO'] as const
+
+/**
+ * Estado inicial dos filtros do mapa — operação/modal são opt-out:
+ * todos os cards começam ativos (aceso = mostra; apagado = oculta).
+ * Origem/destino/status seguem opt-in (vazio = sem restrição).
+ */
+export function filtrosMapaInsightsIniciais(): FiltrosMapaInsightsBidFreteInternacional {
   return {
-    operacaoModal: new Set(),
+    operacaoModal: new Set(FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.map((f) => f.id)),
     status: new Set(),
     codigos_origem: new Set(),
     codigos_destino: new Set(),
@@ -102,11 +110,20 @@ export function filtrosMapaInsightsIgnorandoDimensao(
   return { ...filtros, codigos_destino: new Set() }
 }
 
+/**
+ * Conta restrições aplicadas. Operação/modal são opt-out: cada card
+ * desligado conta como um filtro ativo (todos ligados = 0 restrições).
+ */
 export function contarFiltrosMapaAtivos(
   filtros: FiltrosMapaInsightsBidFreteInternacional,
 ): number {
+  const operacoesDesligadas = OPERACOES_FILTRO_MAPA_INSIGHTS
+    .filter((f) => !filtros.operacaoModal.has(f)).length
+  const modaisDesligados = MODAIS_FILTRO_MAPA_INSIGHTS
+    .filter((f) => !filtros.operacaoModal.has(f)).length
   return (
-    filtros.operacaoModal.size +
+    operacoesDesligadas +
+    modaisDesligados +
     filtros.status.size +
     filtros.codigos_origem.size +
     filtros.codigos_destino.size
@@ -188,15 +205,22 @@ function modalDaRota(rota: ArcRouteBidFrete): 'MARITIMO' | 'AEREO' | 'RODOVIARIO
   return rota.modal_cotacao_bid_frete_internacional ?? rota.mode
 }
 
+/**
+ * Semântica opt-out: card ativo = mostra; card inativo = oculta.
+ * Grupo com todos os cards ativos = sem restrição (inclui rotas sem
+ * tipo de operação inferível). Grupo com todos inativos = oculta tudo.
+ */
 function rotaAtendeFiltrosOperacaoModal(
   rota: ArcRouteBidFrete,
   pinPorId: Map<number, MapPinBidFrete>,
   filtros: ReadonlySet<FiltroOperacaoModalMapaInsights>,
 ): boolean {
-  if (filtros.size === 0) return true
+  const operacoesAtivas = OPERACOES_FILTRO_MAPA_INSIGHTS.filter((f) => filtros.has(f))
+  const modaisAtivos = MODAIS_FILTRO_MAPA_INSIGHTS.filter((f) => filtros.has(f))
+  const todasOperacoesAtivas = operacoesAtivas.length === OPERACOES_FILTRO_MAPA_INSIGHTS.length
+  const todosModaisAtivos = modaisAtivos.length === MODAIS_FILTRO_MAPA_INSIGHTS.length
 
-  const filtrosOperacao = (['IMPORTACAO', 'EXPORTACAO'] as const).filter((f) => filtros.has(f))
-  const filtrosModal = (['AEREO', 'MARITIMO', 'RODOVIARIO'] as const).filter((f) => filtros.has(f))
+  if (todasOperacoesAtivas && todosModaisAtivos) return true
 
   const fromPin = pinPorId.get(rota.fromId)
   const toPin = pinPorId.get(rota.toId)
@@ -206,9 +230,9 @@ function rotaAtendeFiltrosOperacaoModal(
   const modal = modalDaRota(rota)
 
   const operacaoOk =
-    filtrosOperacao.length === 0 ||
-    (tipoOperacao != null && filtrosOperacao.includes(tipoOperacao))
-  const modalOk = filtrosModal.length === 0 || filtrosModal.includes(modal)
+    todasOperacoesAtivas ||
+    (tipoOperacao != null && operacoesAtivas.includes(tipoOperacao))
+  const modalOk = todosModaisAtivos || modaisAtivos.includes(modal)
 
   return operacaoOk && modalOk
 }
@@ -243,6 +267,23 @@ function rotaAtendeFiltrosLocais(
   return origemOk && destinoOk
 }
 
+/**
+ * Compat com o formato legado (Set opt-in): grupo ausente no Set
+ * significava «sem restrição» — expande para todos os cards do grupo.
+ */
+function normalizarOperacaoModalLegado(
+  filtros: ReadonlySet<FiltroOperacaoModalMapaInsights>,
+): Set<FiltroOperacaoModalMapaInsights> {
+  const normalizado = new Set(filtros)
+  if (!OPERACOES_FILTRO_MAPA_INSIGHTS.some((f) => normalizado.has(f))) {
+    for (const f of OPERACOES_FILTRO_MAPA_INSIGHTS) normalizado.add(f)
+  }
+  if (!MODAIS_FILTRO_MAPA_INSIGHTS.some((f) => normalizado.has(f))) {
+    for (const f of MODAIS_FILTRO_MAPA_INSIGHTS) normalizado.add(f)
+  }
+  return normalizado
+}
+
 export function filtrarDadosMapaInsightsBidFreteInternacional(
   pins: MapPinBidFrete[],
   routes: ArcRouteBidFrete[],
@@ -251,19 +292,14 @@ export function filtrarDadosMapaInsightsBidFreteInternacional(
   const filtrosNormalizados: FiltrosMapaInsightsBidFreteInternacional =
     filtros instanceof Set
       ? {
-          operacaoModal: filtros,
+          operacaoModal: normalizarOperacaoModalLegado(filtros),
           status: new Set(),
           codigos_origem: new Set(),
           codigos_destino: new Set(),
         }
       : filtros
 
-  if (
-    filtrosNormalizados.operacaoModal.size === 0 &&
-    filtrosNormalizados.status.size === 0 &&
-    filtrosNormalizados.codigos_origem.size === 0 &&
-    filtrosNormalizados.codigos_destino.size === 0
-  ) {
+  if (contarFiltrosMapaAtivos(filtrosNormalizados) === 0) {
     return { pins, routes }
   }
 

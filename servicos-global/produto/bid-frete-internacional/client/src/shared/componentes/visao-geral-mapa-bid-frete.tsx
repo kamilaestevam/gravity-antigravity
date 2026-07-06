@@ -44,7 +44,7 @@ import {
   filtrarDadosMapaInsightsBidFreteInternacional,
   filtrarTerminaisMapaInsightsPorBusca,
   filtrosMapaInsightsIgnorandoDimensao,
-  filtrosMapaInsightsVazios,
+  filtrosMapaInsightsIniciais,
   listarTerminaisDestinoMapaInsights,
   listarTerminaisOrigemMapaInsights,
   type FiltroOperacaoModalMapaInsights,
@@ -1014,6 +1014,8 @@ interface SecaoFiltroMapaInsightsProps {
   colapsada: boolean
   onToggle: () => void
   children: React.ReactNode
+  /** Opt-out (operação/modal): todos ativos = sem restrição; opt-in (origem/destino/status): vazio = sem restrição. */
+  semanticaOptOut?: boolean
 }
 
 function SecaoFiltroMapaInsights({
@@ -1025,9 +1027,10 @@ function SecaoFiltroMapaInsights({
   colapsada,
   onToggle,
   children,
+  semanticaOptOut = false,
 }: SecaoFiltroMapaInsightsProps) {
   const { t } = useTranslation()
-  const semRestricao = ativos === 0
+  const semRestricao = semanticaOptOut ? ativos === total : ativos === 0
   const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
   const rotuloMeta = semRestricao
     ? t('bidfrete.insights.mapa.refinar.todos', { defaultValue: 'Todos' })
@@ -1113,7 +1116,7 @@ export function VisaoGeralMapaBidFrete({
   const pinsBase = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
   const rotasBase = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
   const [filtrosMapaInsights, setFiltrosMapaInsights] =
-    useState<FiltrosMapaInsightsBidFreteInternacional>(() => filtrosMapaInsightsVazios())
+    useState<FiltrosMapaInsightsBidFreteInternacional>(() => filtrosMapaInsightsIniciais())
 
   const alternarFiltroOperacaoModal = (filtro: FiltroOperacaoModalMapaInsights) => {
     setFiltrosMapaInsights((prev) => {
@@ -1152,7 +1155,7 @@ export function VisaoGeralMapaBidFrete({
   }
 
   const limparFiltrosMapaInsights = () => {
-    setFiltrosMapaInsights(filtrosMapaInsightsVazios())
+    setFiltrosMapaInsights(filtrosMapaInsightsIniciais())
     setBuscaLocaisOrigemMapa('')
     setBuscaLocaisDestinoMapa('')
   }
@@ -2559,7 +2562,7 @@ export function VisaoGeralMapaBidFrete({
                     <span className="bfd-map-panel__row-flag">{item.flag}</span>
                     <div className="bfd-map-panel__row-info">
                       <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                      <span className="bfd-map-panel__row-code">{` — ${item.code}`}</span>
                     </div>
                     <span className="bfd-map-panel__row-bids">
                       {t('bidfrete.insights.rankings.contagem_bids', {
@@ -2602,7 +2605,7 @@ export function VisaoGeralMapaBidFrete({
                     <span className="bfd-map-panel__row-flag">{item.flag}</span>
                     <div className="bfd-map-panel__row-info">
                       <span className="bfd-map-panel__row-city">{item.name}</span>
-                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                      <span className="bfd-map-panel__row-code">{` — ${item.code}`}</span>
                     </div>
                     <span className="bfd-map-panel__row-bids">
                       {t('bidfrete.insights.rankings.contagem_bids', {
@@ -2960,6 +2963,7 @@ export function VisaoGeralMapaBidFrete({
             total={filtrosOperacao.length}
             colapsada={secoesFiltroMapaColapsadas.has('operacao')}
             onToggle={() => alternarSecaoFiltroMapa('operacao')}
+            semanticaOptOut
           >
             <div className="bfd-map-filtros-panel__operacao-grid">
               {filtrosOperacao.map((filtro) => {
@@ -2992,6 +2996,7 @@ export function VisaoGeralMapaBidFrete({
             total={filtrosModal.length}
             colapsada={secoesFiltroMapaColapsadas.has('modal')}
             onToggle={() => alternarSecaoFiltroMapa('modal')}
+            semanticaOptOut
           >
             <div className="bfd-map-filtros-panel__modal-grid">
               {filtrosModal.map((filtro) => {

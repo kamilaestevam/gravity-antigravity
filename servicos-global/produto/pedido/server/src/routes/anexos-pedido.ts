@@ -33,6 +33,7 @@ import {
   lerArquivoLocal,
   arquivoExiste,
 } from '../services/anexosService.js'
+import { auditPedidoRequisicao204 } from '../utils/audit-pedido-requisicao.js'
 
 export const anexosRouter = Router()
 
@@ -286,6 +287,17 @@ anexosRouter.delete('/:id_anexo_pedido', async (req: Request, res: Response, nex
 
       await db.pedidoAnexo.delete({
         where: { id_anexo_pedido: id },
+      })
+
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'EXCLUIR',
+        tipo_recurso_historico_log: 'AnexoPedido',
+        id_recurso_historico_log: id,
+        detalhe_acao_historico_log: `Removeu anexo ${typedAnexo.chave_storage_anexo_pedido.split('/').pop() ?? id}`,
+        estado_anterior_historico_log: {
+          id_anexo_pedido: id,
+          nome_arquivo_anexo_pedido: (anexo as { nome_arquivo_anexo_pedido?: string }).nome_arquivo_anexo_pedido,
+        },
       })
 
       res.status(204).send()

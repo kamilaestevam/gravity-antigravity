@@ -38,6 +38,10 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, CARDS_PADRAO, type CardPreferencia, type CardDefinicao } from '../shared/useCardPreferences'
+import {
+  resolverPendingCardsAposSyncExterno,
+  resolverPeriodoAposSyncExterno,
+} from '../shared/cardsPrefsSync'
 import { useCardsUsuario } from '../shared/useCardsUsuario'
 import { rotuloMetricaCard } from '../shared/cardMetricaCatalog'
 import { ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
@@ -578,10 +582,14 @@ type CategoriaId = string
 
 // ─── Tipos locais ─────────────────────────────────────────────────────────────
 
-interface TabelaConfig {
-  linhasPorPagina: 25 | 50 | 100 | 200
-  destacarAtrasados: boolean
-}
+import {
+  carregarTabelaConfigPedido,
+  DEFAULT_TABELA_CONFIG_PEDIDO,
+  salvarTabelaConfigPedido,
+  type TabelaConfigPedido,
+} from '../shared/tabela-config-pedido'
+
+type TabelaConfig = TabelaConfigPedido
 
 interface NumeracaoConfig {
   prefixo: string
@@ -642,20 +650,8 @@ const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string; de
   { valor: 'privado', label: 'Só eu',           descricao: 'Coluna visível apenas para você'            },
 ]
 
-const TABELA_CONFIG_KEY = 'pedido:tabela_config'
-
-const TABELA_CONFIG_PADRAO: TabelaConfig = {
-  linhasPorPagina: 100,
-  destacarAtrasados: true,
-}
-
-function carregarTabelaConfig(): TabelaConfig {
-  try {
-    const raw = localStorage.getItem(TABELA_CONFIG_KEY)
-    if (raw) return { ...TABELA_CONFIG_PADRAO, ...JSON.parse(raw) as Partial<TabelaConfig> }
-  } catch { /* ignore */ }
-  return { ...TABELA_CONFIG_PADRAO }
-}
+const TABELA_CONFIG_PADRAO: TabelaConfig = DEFAULT_TABELA_CONFIG_PEDIDO
+const carregarTabelaConfig = carregarTabelaConfigPedido
 
 const CASAS_KEY     = 'pedido:casas_decimais'
 const CASAS_VERSION = 2  // bump quando os defaults mudarem — invalida dados antigos
@@ -1566,6 +1562,16 @@ export default function Configuracoes() {
   const [pendingPeriodoCards, setPendingPeriodoCards] = useState<CardPeriodoCodigo>(periodoSalvo)
   const [cardsPrefsBaseline, setCardsPrefsBaseline] = useState<CardPreferencia[]>(cardsSalvos)
   const [periodoCardsBaseline, setPeriodoCardsBaseline] = useState<CardPeriodoCodigo>(periodoSalvo)
+  const cardsPrefsBaselineRef = useRef(cardsPrefsBaseline)
+  const periodoCardsBaselineRef = useRef(periodoCardsBaseline)
+
+  useEffect(() => {
+    cardsPrefsBaselineRef.current = cardsPrefsBaseline
+  }, [cardsPrefsBaseline])
+
+  useEffect(() => {
+    periodoCardsBaselineRef.current = periodoCardsBaseline
+  }, [periodoCardsBaseline])
 
   const normalizarPrefsCards = useCallback((prefs: CardPreferencia[]) => {
     if (carregandoCardsUsuario) return prefs
@@ -1574,10 +1580,19 @@ export default function Configuracoes() {
   }, [cardsUsuario, carregandoCardsUsuario])
 
   useEffect(() => {
-    const normalizado = normalizarPrefsCards(cardsSalvos)
-    setPendingCardsPrefs(normalizado)
-    setCardsPrefsBaseline(normalizado)
-    setPendingPeriodoCards(periodoSalvo)
+    const normalizadoSalvos = normalizarPrefsCards(cardsSalvos)
+    setPendingCardsPrefs(prev => resolverPendingCardsAposSyncExterno(
+      prev,
+      cardsPrefsBaselineRef.current,
+      normalizadoSalvos,
+      normalizarPrefsCards,
+    ))
+    setCardsPrefsBaseline(normalizadoSalvos)
+    setPendingPeriodoCards(prev => resolverPeriodoAposSyncExterno(
+      prev,
+      periodoCardsBaselineRef.current,
+      periodoSalvo,
+    ))
     setPeriodoCardsBaseline(periodoSalvo)
   }, [cardsSalvos, periodoSalvo, normalizarPrefsCards])
 
@@ -1601,7 +1616,10 @@ export default function Configuracoes() {
         return
       }
     }
-    addNotification({ type: 'success', message: t('pedido.config.cards.msg_salvo') })
+    addNotification({
+      type: 'success',
+      message: t('pedido.config.cards.msg_salvo', { defaultValue: 'Preferências de cards salvas.' }),
+    })
   }, [
     pendingCardsPrefs, pendingPeriodoCards, persistirCards, persistirPeriodoCards,
     addNotification, t, mapaCardsUsuario, reordenarCardsUsuario,
@@ -1644,7 +1662,9 @@ export default function Configuracoes() {
   const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
 
   function salvarTabelaConfig() {
-    try { localStorage.setItem(TABELA_CONFIG_KEY, JSON.stringify(tabelaConfig)) } catch { /* ignore */ }
+    try {
+      salvarTabelaConfigPedido(tabelaConfig)
+    } catch { /* ignore */ }
     setTabelaConfigSalva(tabelaConfig)
     addNotification({ type: 'success', message: t('pedido.config.tabela.msg_salvo') })
   }

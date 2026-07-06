@@ -95,7 +95,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       incluirArmazenagem: true,
       opcoesOrigemTexto: 'BRSSZ — Santos, BR · BRPNG — Paranaguá, BR',
       opcoesDestinoTexto: 'CNNGB — Ningbo, CN',
-      dataLimiteResposta: '2026-07-20T12:00:00.000Z',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',
       dataExpiracaoToken: new Date('2026-07-20T12:00:00.000Z'),
     })
     expect(html).toContain('Referência interna')
@@ -121,7 +121,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
   it('exibe Link válido até separado quando difere do prazo de resposta', () => {
     const html = montarHtmlEmailDisparo({
       ...base,
-      dataLimiteResposta: '2026-08-08T12:00:00.000Z',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-08-08T12:00:00.000Z',
       dataExpiracaoToken: new Date('2026-06-30T12:00:00.000Z'),
     })
     expect(html).toContain('Prazo de resposta')

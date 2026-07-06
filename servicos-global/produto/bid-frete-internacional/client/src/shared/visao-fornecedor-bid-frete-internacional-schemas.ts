@@ -89,6 +89,7 @@ const codigoBloqueioRespostaDisparoSchema = z.enum([
   'PROPOSTA_APROVADA',
   'PROPOSTA_REPROVADA',
   'PRAZO_RESPOSTA_ENCERRADO',
+  'EDICAO_PROPOSTA_NAO_PERMITIDA',
 ]).nullable()
 
 export const visaoFornecedorBidFreteInternacionalPublicoDisparoResponseSchema = z.object({

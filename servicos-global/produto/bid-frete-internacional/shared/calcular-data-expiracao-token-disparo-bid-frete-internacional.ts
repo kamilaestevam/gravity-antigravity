@@ -9,13 +9,16 @@ const MS_POR_DIA = 24 * 60 * 60 * 1000
  * Sem prazo → expira em 360 dias (link de longa duração, não 7 dias fixos).
  */
 export function calcularDataExpiracaoTokenDisparoBidFreteInternacional(
-  dataLimiteResposta: Date | string | null | undefined,
+  data_limite_resposta_cotacao_bid_frete_internacional: Date | string | null | undefined,
   agora: Date = new Date(),
 ): Date {
-  if (dataLimiteResposta != null && String(dataLimiteResposta).trim() !== '') {
-    const limite = dataLimiteResposta instanceof Date
-      ? new Date(dataLimiteResposta.getTime())
-      : new Date(dataLimiteResposta)
+  if (
+    data_limite_resposta_cotacao_bid_frete_internacional != null
+    && String(data_limite_resposta_cotacao_bid_frete_internacional).trim() !== ''
+  ) {
+    const limite = data_limite_resposta_cotacao_bid_frete_internacional instanceof Date
+      ? new Date(data_limite_resposta_cotacao_bid_frete_internacional.getTime())
+      : new Date(data_limite_resposta_cotacao_bid_frete_internacional)
     if (!Number.isNaN(limite.getTime())) {
       return limite
     }

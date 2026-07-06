@@ -525,7 +525,8 @@ export const motorBid = {
       nomesArmazensTexto: montarTextoNomesArmazensDisparo(
         cotacao.nomes_armazem_alfandegado_cotacao_bid_frete_internacional,
       ),
-      dataLimiteResposta: cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+      data_limite_resposta_cotacao_bid_frete_internacional:
+        cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
       dataExpiracaoToken,
       nomeClienteOperacao: cotacao.nome_cliente_operacao_cotacao_bid_frete_internacional,
       anonimaCotacao: cotacao.anonima_cotacao_bid_frete_internacional === true,

@@ -89,6 +89,7 @@ import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-pr
 import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+  migrarArrayStatusCotacaoConfigLegado,
 } from '../shared/status-config-bid-frete-internacional'
 import {
   STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE,
@@ -533,7 +534,7 @@ interface PedidoStatusConfig {
   rotulo: string
   cor: string
   ordem: number
-  is_sistema: boolean
+  gerenciado_sistema: boolean
 }
 
 const NOMES_STATUS_COTACAO_SISTEMA = new Set([
@@ -548,20 +549,20 @@ const NOMES_STATUS_COTACAO_SISTEMA = new Set([
   'EXPIRADA',
 ])
 
-function ehStatusCotacaoSistema(status: Pick<PedidoStatusConfig, 'nome' | 'is_sistema'>): boolean {
-  return status.is_sistema || NOMES_STATUS_COTACAO_SISTEMA.has(status.nome)
+function ehStatusCotacaoSistema(status: Pick<PedidoStatusConfig, 'nome' | 'gerenciado_sistema'>): boolean {
+  return status.gerenciado_sistema || NOMES_STATUS_COTACAO_SISTEMA.has(status.nome)
 }
 
 const STATUS_COTACAO_PADRAO: PedidoStatusConfig[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: true },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: true },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: true },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: true },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: true },
+  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
+  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
+  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, gerenciado_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, gerenciado_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, gerenciado_sistema: true },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, gerenciado_sistema: true },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, gerenciado_sistema: true },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, gerenciado_sistema: true },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, gerenciado_sistema: true },
 ]
 
 function StatusSortavel({
@@ -785,7 +786,13 @@ export default function Configuracoes() {
     const [savedState, setSavedState] = useState<T>(() => {
       try {
         const raw = localStorage.getItem(storageKey)
-        if (raw) return JSON.parse(raw) as T
+        if (raw) {
+          const parsed: unknown = JSON.parse(raw)
+          if (key === 'status' || key === 'status-bid-frete-internacional') {
+            return migrarArrayStatusCotacaoConfigLegado(parsed) as T
+          }
+          return parsed as T
+        }
       } catch { /* ignored */ }
       return initial
     })
@@ -955,7 +962,7 @@ export default function Configuracoes() {
       const mesclado = STATUS_COTACAO_PADRAO.map(padrao => {
         const existente = porNome.get(padrao.nome)
         if (!existente) return padrao
-        return { ...existente, is_sistema: true }
+        return { ...existente, gerenciado_sistema: true }
       })
       const customizados = prev.filter(s => !NOMES_STATUS_COTACAO_SISTEMA.has(s.nome))
       const resultado = [...mesclado, ...customizados].map((s, idx) => ({ ...s, ordem: idx + 1 }))
@@ -964,18 +971,18 @@ export default function Configuracoes() {
         resultado.every((s, i) =>
           s.id === prev[i]?.id &&
           s.nome === prev[i]?.nome &&
-          s.is_sistema === prev[i]?.is_sistema,
+          s.gerenciado_sistema === prev[i]?.gerenciado_sistema,
         )
       return igual ? prev : resultado
     })
   }, [setStatusList])
 
   const [statusBidList, setStatusBidList] = useConfigState<PedidoStatusConfig[]>('status-bid-frete-internacional', [
-    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-    { id: 'em_andamento', nome: 'EM_ANDAMENTO', rotulo: 'Em andamento', cor: '#60a5fa', ordem: 2, is_sistema: true },
-    { id: 'parcial', nome: 'PARCIALMENTE_CONCLUIDO', rotulo: 'Parcialmente concluído', cor: '#fbbf24', ordem: 3, is_sistema: false },
-    { id: 'concluido', nome: 'CONCLUIDO', rotulo: 'Concluído', cor: '#10b981', ordem: 4, is_sistema: false },
-    { id: 'cancelado', nome: 'CANCELADO', rotulo: 'Cancelado', cor: '#6b7280', ordem: 5, is_sistema: true },
+    { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
+    { id: 'em_andamento', nome: 'EM_ANDAMENTO', rotulo: 'Em andamento', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
+    { id: 'parcial', nome: 'PARCIALMENTE_CONCLUIDO', rotulo: 'Parcialmente concluído', cor: '#fbbf24', ordem: 3, gerenciado_sistema: false },
+    { id: 'concluido', nome: 'CONCLUIDO', rotulo: 'Concluído', cor: '#10b981', ordem: 4, gerenciado_sistema: false },
+    { id: 'cancelado', nome: 'CANCELADO', rotulo: 'Cancelado', cor: '#6b7280', ordem: 5, gerenciado_sistema: true },
   ])
 
   const [numeracaoConfig, setNumeracaoConfig] = useConfigState<NumeracaoConfig>('numeracao', {
@@ -1271,7 +1278,7 @@ export default function Configuracoes() {
       rotulo: statusNovoLabel.trim(),
       cor: statusNovoCor,
       ordem,
-      is_sistema: false,
+      gerenciado_sistema: false,
     }])
     setStatusNovoLabel('')
     setStatusNovoCor('#818cf8')

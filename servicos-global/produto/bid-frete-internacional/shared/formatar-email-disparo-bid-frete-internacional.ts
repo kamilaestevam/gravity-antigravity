@@ -52,7 +52,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   cargaPerigosaTexto?: string | null
   incluirArmazenagem?: boolean | null
   nomesArmazensTexto?: string | null
-  dataLimiteResposta?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
   dataExpiracaoToken?: string | Date | null
   nomeClienteOperacao?: string | null
   anonimaCotacao?: boolean
@@ -254,7 +254,9 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
     cubagemM3: params.cubagemM3,
     linhaVolume,
   })
-  const prazoResposta = formatarDataEmailDisparoBidFrete(params.dataLimiteResposta)
+  const prazoResposta = formatarDataEmailDisparoBidFrete(
+    params.data_limite_resposta_cotacao_bid_frete_internacional,
+  )
   const validadeLink = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
   const linhas: Array<[string, string]> = [['Número', params.numeroCotacao]]

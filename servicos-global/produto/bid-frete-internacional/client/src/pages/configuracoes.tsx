@@ -98,6 +98,7 @@ import {
   REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   type RegrasConfigBidFreteInternacional,
 } from '../../../shared/regras-config-bid-frete-internacional'
+import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
 

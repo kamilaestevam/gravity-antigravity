@@ -304,6 +304,8 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 **Testes UNI:** `aguardar-confirmacao-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
 
+**Validade do link público (e-mail + `GET /publico/:token`):** `calcularDataExpiracaoTokenDisparoBidFreteInternacional` — igual ao prazo de resposta quando informado; sem prazo, **360 dias** (proibido fixar 7 dias). SSOT: `shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.ts` · teste UNI homônimo.
+
 Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.3–5.4
 
 ---
@@ -327,6 +329,23 @@ Cotação pode oferecer locais logísticos alternativos além do principal (orig
 **Campos cotação (Prisma):** `habilitar_opcao_porto_aeroporto_{origem,destino}_*` + `codigos_opcao_porto_aeroporto_{origem,destino}_*` (JSONB).
 
 **Regra fornecedor:** se há opcionais no lado, select obrigatório; elegíveis = principal + opcionais. Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais · wizard: [MODAL-NOVA-COTACAO](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1.
+
+> ⚠️ **Cuidado em merge:** o PR #642 removeu por engano toda a UI de locais opcionais de `formulario-resposta-cotacao-bid-frete-internacional.tsx` (restaurada no PR #646). O server segue exigindo a seleção — remover a UI quebra o envio da proposta em silêncio.
+
+---
+
+## Armazéns de preferência (PR #646)
+
+Cotação Marítimo LCL com `incluir_armazenagem_cotacao_bid_frete_internacional = true` persiste os armazéns alfandegados de preferência em `nomes_armazem_alfandegado_cotacao_bid_frete_internacional` (JSONB `string[] | null`, migration `20260705200000`).
+
+| Peça | Caminho |
+|------|---------|
+| Wizard → payload POST | `modal-nova-cotacao-bid-frete-internacional.tsx` (`linhas_armazem_alfandegado_cotacao`) |
+| Zod + normalização | `server/src/routes/cotacoes.ts` — `nomesArmazemAlfandegadoParaPersistencia` |
+| Portal fornecedor (exibição) | `formulario-resposta-cotacao-bid-frete-internacional.tsx` — `SecaoDetalhesCotacaoResposta` |
+| E-mail de disparo | `shared/formatar-email-disparo-bid-frete-internacional.ts` + `motor-bid-frete-internacional.ts` |
+
+Doc: [DDD-VISAO-FORNECEDOR](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Armazéns de preferência.
 
 ---
 
@@ -391,6 +410,8 @@ Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema
 **Regra de exibição (dono):** todo campo preenchido da cotação aparece no Resumo do wizard, no e-mail de disparo e no portal do fornecedor com formatação idêntica (ícone, truncamento, tooltip); campos internos (valor alvo, fornecedores, canais) só no Resumo. SSOT: `shared/formatar-email-disparo-bid-frete-internacional.ts` + `SecaoDetalhesCotacaoResposta` — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md` §8.4.
 
 **E-mail de disparo — intro e taxa (TASK-000419+):** intro condicional por `anonima_cotacao_bid_frete_internacional` (nome visível vs cliente oculto); tag amarela com cotação gratuita + taxa USD 10,00 no fechamento + link «Leia aqui as condições». Cobrança: **boleto mensal** consolidando as taxas do mês. Aviso de aceite também no formulário de resposta (`.brc-aceite-condicoes`, acima do botão Enviar Proposta — público e logado). SSOT condições: `shared/condicoes-plataforma-fornecedor-bid-frete-internacional.ts` · doc `CONDICOES-PLATAFORMA-FORNECEDOR-BID-FRETE-INTERNACIONAL.md` · rota pública `/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma`.
+
+**Aviso de Condições Comerciais — documento legal (TASK-000411):** a página pública é um aviso **pré-contratual** formal (12 seções, versionado via `VERSAO_*`/`DATA_VIGENCIA_*` no SSOT) — NÃO é contrato: o contrato («li e aceito») é celebrado só no Fechamento. Regras de negócio embutidas no texto: USD 10,00 é indexador (cobrança em BRL, PTAX venda D-1 da emissão — Lei 14.286/2022); atraso > 5 dias corridos no boleto suspende o fornecedor até quitação (`DIAS_ATRASO_SUSPENSAO_FORNECEDOR_BID_FRETE_INTERNACIONAL`); confidencialidade do solicitante vale só na cotação (identidade revelada no Fechamento); envio de proposta = declaração de ciência, não aceite. Alterar o texto exige incrementar versão/data de vigência e validação jurídica — ver doc técnico §Natureza jurídica.
 
 ---
 

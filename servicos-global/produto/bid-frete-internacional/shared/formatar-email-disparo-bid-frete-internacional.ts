@@ -73,7 +73,7 @@ export interface ParametrosEmailDisparoBidFreteInternacional {
   cargaPerigosaTexto?: string | null
   incluirArmazenagem?: boolean | null
   nomesArmazensTexto?: string | null
-  dataLimiteResposta?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
   dataExpiracaoToken?: string | Date | null
   nomeClienteOperacao?: string | null
   anonimaCotacao?: boolean
@@ -290,7 +290,9 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
     cubagemM3: params.cubagemM3,
     linhaVolume,
   })
-  const prazoResposta = formatarDataEmailDisparoBidFrete(params.dataLimiteResposta)
+  const prazoResposta = formatarDataEmailDisparoBidFrete(
+    params.data_limite_resposta_cotacao_bid_frete_internacional,
+  )
   const validadeLink = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
   const linhas: Array<[string, string]> = [['Número', params.numeroCotacao]]
@@ -360,7 +362,7 @@ function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternac
       params.empresaPagadoraTaxaFechamentoPlataformaGravity,
     ),
   ])
-  if (validadeLink) {
+  if (validadeLink && validadeLink !== prazoResposta) {
     linhas.push(['Link válido até', validadeLink])
   }
 
@@ -383,9 +385,24 @@ export function montarAssuntoEmailDisparo(
   return `Cotação ${params.numeroCotacao} · ${rota} · ${modal}`
 }
 
+export function montarTextoRodapeValidadeLinkEmailDisparoBidFrete(
+  dataExpiracaoToken: string | Date | null | undefined,
+): string {
+  const validade = formatarDataEmailDisparoBidFrete(dataExpiracaoToken)
+  if (validade) {
+    return `Este link é válido até ${validade}.`
+  }
+  return 'Este link expira conforme o prazo de resposta da cotação.'
+}
+
 export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { rotuloPreheader } = montarIntroClienteEmailDisparoBidFrete(params)
-  return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — válido por 7 dias.`
+  const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
+  const sufixoValidade = validade ? `válido até ${validade}` : 'válido conforme prazo da cotação'
+  if (params.anonimaCotacao) {
+    return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — ${sufixoValidade}.`
+  }
+  return `${rotuloPreheader} solicitou cotação ${params.numeroCotacao}. Responda pelo link — ${sufixoValidade}.`
 }
 
 export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
@@ -395,7 +412,6 @@ export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFr
     params.empresaPagadoraTaxaFechamentoPlataformaGravity ?? undefined,
   )
   const linhas = linhasResumoEmailDisparo(params)
-  const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
 
   const corpo = [
     'Gravity — BID Frete Internacional',
@@ -411,7 +427,7 @@ export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFr
     'Responder cotação:',
     params.linkResposta,
     '',
-    validade ? `Este link é válido até ${validade}.` : 'Este link expira em 7 dias.',
+    montarTextoRodapeValidadeLinkEmailDisparoBidFrete(params.dataExpiracaoToken),
     '',
     'Não responda este e-mail — use o link acima para enviar sua proposta.',
     '',
@@ -439,6 +455,9 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
   const preheader = montarPreheaderEmailDisparo(params)
   const link = escapeHtmlTextoEmailBidFrete(params.linkResposta)
+  const rodapeValidadeHtml = validade
+    ? `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Link válido até <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(validade)}</strong>.</p>`
+    : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Este link expira em ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias.</p>`
 
   const tabelaLinhas = linhas.map(([rotulo, valor]) => linhaTabelaHtml(rotulo, valor)).join('')
 
@@ -482,7 +501,7 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
                 Se o botão não funcionar, copie e cole este link no navegador:<br />
                 <a href="${link}" style="color:${COR_INDIGO};">${link}</a>
               </p>
-              ${validade ? `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Link válido até <strong style="color:${COR_TEXTO};">${escapeHtmlTextoEmailBidFrete(validade)}</strong>.</p>` : `<p style="margin:16px 0 0;font-size:13px;color:${COR_MUTED};">Este link expira em 7 dias.</p>`}
+              ${rodapeValidadeHtml}
             </td>
           </tr>
           <tr>

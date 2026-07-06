@@ -38,10 +38,18 @@
 
 ### 3.1 Prazo para respostas
 
-- Campo opcional: `data_limite_resposta_cotacao_bid_frete_internacional`
+- Campo **obrigatório**: `data_limite_resposta_cotacao_bid_frete_internacional`
 - **UI:** `CampoCalendarioGlobal` (data) + `<input type="time">` (hora) — grid `.nc-prazo-data-hora`
 - **Estado no form:** string `"YYYY-MM-DDTHH:mm"` (sem timezone)
+- **Sugestão:** preenchida automaticamente a partir de `prazoPadraoHoras` (Configurações › Regras)
 - **POST:** convertido para ISO via `new Date(...).toISOString()` antes do envio (exigência `z.string().datetime()` no backend)
+- **Token do link público:** expira na mesma data/hora do prazo (sem fallback de 360 dias)
+
+### 3.1b Fornecedor pode alterar proposta
+
+- Campo **obrigatório no wizard** (sem pré-seleção — escolha explícita Sim/Não): `fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional`
+- **Padrão da organização:** `fornecedorPodeAlterarPropostaPadrao: true` em Configurações › Regras (sugere o hint, mas não pré-marca o wizard)
+- **Estado transitório no form:** `opcao_fornecedor_pode_alterar_proposta` (`''` \| `'sim'` \| `'nao'`)
 
 ### 3.2 Visibilidade da cotação
 
@@ -134,7 +142,8 @@ export async function criarCotacaoComDisparo(input): Promise<{
 {
   visibilidade_cotacao_bid_frete_internacional: 'ABERTA' | 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: boolean,
-  data_limite_resposta_cotacao_bid_frete_internacional?: string, // ISO
+  data_limite_resposta_cotacao_bid_frete_internacional: string, // ISO — obrigatório
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: boolean, // obrigatório
   fornecedor_ids?: string[],           // DIRECIONADA: selecionados; ABERTA: elegíveis − excluídos UI
   disparar_ao_criar: boolean,          // ABERTA: true se ids elegíveis restantes > 0
   canais_disparo: ('EMAIL' | 'WHATSAPP')[],

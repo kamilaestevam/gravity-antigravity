@@ -13,10 +13,10 @@ import type { StatusCotacaoConfigBidFreteInternacional } from './status-config-b
 
 export function traduzirStatusColunaKanbanBidFrete(
   t: TFunction,
-  status: Pick<StatusCotacaoConfigBidFreteInternacional, 'nome' | 'rotulo' | 'is_sistema'>,
+  status: Pick<StatusCotacaoConfigBidFreteInternacional, 'nome' | 'rotulo' | 'gerenciado_sistema'>,
 ): string {
   const canonico = STATUS_LABELS[status.nome as StatusCotacao]
-  if (status.is_sistema && canonico) {
+  if (status.gerenciado_sistema && canonico) {
     return t(`bidfrete.status_cotacao.${status.nome}`, { defaultValue: canonico })
   }
   if (canonico) {

@@ -106,6 +106,10 @@ Público: `bidfrete.visao_fornecedor_bid_frete_internacional_publico.*`
 `motor-bid-disparo-utils.ts` →  
 `/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/{token}`
 
+**Intro cotação anônima:** `montarIntroClienteEmailDisparoBidFrete` em `shared/formatar-email-disparo-bid-frete-internacional.ts` — «Um cliente, que optou em manter seu nome oculto, enviou uma solicitação de cotação.» (nome do workspace nunca aparece no corpo).
+
+**Validade do link público:** `calcularDataExpiracaoTokenDisparoBidFreteInternacional` — expira na **mesma data** do prazo de resposta quando informado; sem prazo, **360 dias** (nunca mais 7 dias fixos). O e-mail omite a linha «Link válido até» quando coincide com «Prazo de resposta».
+
 ---
 
 ## Termos proibidos na visão fornecedor
@@ -131,6 +135,8 @@ Campo Prisma `via_portal_proposta_bid_frete_internacional` permanece (flag hist�
 ## Resposta — locais opcionais (TASK-000405)
 
 Quando a cotação tem portos/aeroportos alternativos (`habilitar_opcao_*` + `codigos_opcao_*`), o fornecedor **deve** informar qual local utiliza na proposta.
+
+> ⚠️ **Regressão conhecida (2026-07-05):** o merge do PR #642 removeu por engano a exibição dos locais alternativos e os selects de escolha em `formulario-resposta-cotacao-bid-frete-internacional.tsx` — o server continuava exigindo a seleção e o envio da proposta quebrava. Restaurado no PR #646. Ao mexer nesse arquivo em merges grandes, conferir que a seção de locais opcionais (imports, interfaces, estado, validação e UI) permanece intacta.
 
 ### Exibição (detalhes da cotação)
 
@@ -167,3 +173,23 @@ SSOT: `shared/local-proposta-resposta-bid-frete-internacional.ts` (`serializarLo
 | Auth | `visao-fornecedor-bid-frete-internacional-responder-cotacao.tsx` — idem |
 
 Schema Zod POST: `server/src/schemas/enviar-proposta-bid-frete-internacional-schema.ts`.
+
+---
+
+## Armazéns de preferência (PR #646, 2026-07-05)
+
+Cotação Marítimo LCL com armazenagem (`incluir_armazenagem_cotacao_bid_frete_internacional = true`) pode listar os armazéns alfandegados de preferência da desova. Texto livre, informado pelo comprador no wizard.
+
+### Persistência
+
+Coluna JSONB `nomes_armazem_alfandegado_cotacao_bid_frete_internacional` (`string[] | null`) em `CotacaoBidFreteInternacional` — migration `20260705200000`. Fonte: `fragment.prisma` (compose regenera `schema.prisma`).
+
+### Pipeline
+
+| Etapa | Arquivo |
+|-------|---------|
+| Wizard envia no POST (só LCL + armazenagem ligada) | `modal-nova-cotacao-bid-frete-internacional.tsx` — mapeia `linhas_armazem_alfandegado_cotacao` |
+| Zod + normalização (trim, descarta vazios, `null` se flag off) | `server/src/routes/cotacoes.ts` — `nomesArmazemAlfandegadoParaPersistencia` |
+| Select no GET disparo | `COTACAO_SELECT_RESPOSTA_FORNECEDOR` em `enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.ts` |
+| Exibição no portal (card ao lado de Armazenagem) | `SecaoDetalhesCotacaoResposta` em `formulario-resposta-cotacao-bid-frete-internacional.tsx` |
+| Linha "Armazéns de preferência" no e-mail de disparo | `shared/formatar-email-disparo-bid-frete-internacional.ts` + `montarTextoNomesArmazensDisparo` em `motor-bid-frete-internacional.ts` |

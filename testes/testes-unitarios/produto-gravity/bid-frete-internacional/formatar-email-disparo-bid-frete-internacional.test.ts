@@ -147,10 +147,9 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       cargaPerigosaTexto: 'Sim — UN 1263 · Classe 3',
       incluirArmazenagem: true,
       opcoesOrigemTexto: 'BRSSZ — Santos, BR · BRPNG — Paranaguá, BR',
-      opcoesDestinoTexto: 'CNNGB — Ningbo, CN',
       localizacaoOrigemTexto: 'País: CN · Endereço: Rua A',
       localizacaoDestinoTexto: 'País: BR · Cidade: Itajaí · Endereço: Av. B',
-      dataLimiteResposta: '2026-07-20T12:00:00.000Z',
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',
       dataExpiracaoToken: new Date('2026-07-12T12:00:00.000Z'),
     })
     expect(html).toContain('Referência interna')
@@ -174,7 +173,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(html).toContain('Destino')
     expect(html).toContain('Av. B')
     expect(html).toContain('Prazo de resposta')
-    expect(html).toContain('Link válido até')
+    expect(html).toContain('>Link válido até</td>')
 
     const idxRota = html.indexOf('Rota')
     const idxAltOrig = html.indexOf('Alternativas (origem)')
@@ -185,6 +184,26 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(idxOrigem).toBeGreaterThan(idxAltOrig)
     expect(idxAltDest).toBeGreaterThan(idxOrigem)
     expect(idxModal).toBeGreaterThan(idxAltDest)
+  })
+
+  it('exibe Link válido até separado quando difere do prazo de resposta', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-08-08T12:00:00.000Z',
+      dataExpiracaoToken: new Date('2026-06-30T12:00:00.000Z'),
+    })
+    expect(html).toContain('Prazo de resposta')
+    expect(html).toContain('>Link válido até</td>')
+  })
+
+  it('nao duplica Link valido ate quando coincide com prazo de resposta', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',
+      dataExpiracaoToken: new Date('2026-07-20T12:00:00.000Z'),
+    })
+    expect(html).toContain('Prazo de resposta')
+    expect(html).not.toContain('>Link válido até</td>')
   })
 
   it('texto plano acompanha as mesmas linhas', () => {

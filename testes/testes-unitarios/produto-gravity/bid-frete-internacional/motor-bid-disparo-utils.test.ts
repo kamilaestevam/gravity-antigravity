@@ -135,8 +135,7 @@ describe('motor-bid-disparo-utils', () => {
       anonimaCotacao: true,
       nomeClienteOperacao: 'Não deve aparecer',
     })
-    expect(intro.introTextoPlano).toContain('identidade oculta')
-    expect(intro.introTextoPlano).toContain('anônima')
+    expect(intro.introTextoPlano).toContain('optou em manter seu nome oculto')
     expect(intro.rotuloPreheader).toBe('Cotação anônima')
 
     const html = montarHtmlEmailDisparo({
@@ -144,7 +143,7 @@ describe('motor-bid-disparo-utils', () => {
       anonimaCotacao: true,
       nomeClienteOperacao: null,
     })
-    expect(html).toContain('identidade oculta')
+    expect(html).toContain('optou em manter seu nome oculto')
     expect(html).not.toContain('Acme Import')
   })
 

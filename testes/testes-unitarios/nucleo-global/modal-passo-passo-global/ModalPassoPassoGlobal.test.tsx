@@ -6,7 +6,7 @@
  */
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { ModalPassoPassoGlobal } from '../../../../nucleo-global/Modais/modal-passo-passo-global/src/ModalPassoPassoGlobal'
 
 const PASSOS_MOCK = [
@@ -134,6 +134,34 @@ describe('ModalPassoPassoGlobal — props de evolucao', () => {
       )
 
       expect(screen.getByText('Texto simples')).toBeTruthy()
+    })
+  })
+
+  describe('fecharAoClicarFora e fecharComTeclaEscape', () => {
+    it('fecha ao clicar no overlay por padrao', () => {
+      const onFechar = vi.fn()
+      render(
+        <ModalPassoPassoGlobal {...defaultProps} onFechar={onFechar}>
+          <div>Conteudo</div>
+        </ModalPassoPassoGlobal>,
+      )
+
+      const overlay = document.querySelector('.mpg-overlay')
+      expect(overlay).not.toBeNull()
+      fireEvent.click(overlay as Element)
+      expect(onFechar).toHaveBeenCalledTimes(1)
+    })
+
+    it('nao fecha ao clicar no overlay quando fecharAoClicarFora = false', () => {
+      const onFechar = vi.fn()
+      render(
+        <ModalPassoPassoGlobal {...defaultProps} onFechar={onFechar} fecharAoClicarFora={false}>
+          <div>Conteudo</div>
+        </ModalPassoPassoGlobal>,
+      )
+
+      fireEvent.click(document.querySelector('.mpg-overlay') as Element)
+      expect(onFechar).not.toHaveBeenCalled()
     })
   })
 

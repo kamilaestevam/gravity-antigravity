@@ -33,6 +33,25 @@ function resolverLimitePortos(query: {
   return Math.min(Math.max(limitRaw, 1), teto)
 }
 
+router.get('/portos/:codigo', async (req: Request, res: Response) => {
+  try {
+    const codigo = req.params.codigo.trim().toUpperCase()
+    const porto = await fetchCadastrosJson<PortoCadastros>(
+      `/api/v1/cadastros/portos/${encodeURIComponent(codigo)}`,
+    )
+    res.json({
+      porto: {
+        codigo: porto.codigo_unlocode_porto,
+        nome: porto.nome_porto,
+        pais_codigo_porto_bid_frete_internacional: porto.codigo_pais_porto ?? '',
+        tipo: 'porto',
+      },
+    })
+  } catch {
+    res.status(404).json({ error: { message: 'Porto não encontrado' } })
+  }
+})
+
 router.get('/portos', async (req: Request, res: Response) => {
   try {
     const { q, tipo, pais, limit = '50', offset = '0' } = req.query as {

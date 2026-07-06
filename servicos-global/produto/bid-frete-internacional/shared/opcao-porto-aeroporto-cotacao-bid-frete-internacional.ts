@@ -1,22 +1,87 @@
 import { z } from 'zod'
 
+export const entradaOpcaoPortoAeroportoObjetoSchema = z.object({
+  codigo: z.string().min(1),
+  rotulo: z.string().min(1).optional(),
+})
+
+export const entradaOpcaoPortoAeroportoSchema = z.union([
+  z.string().min(1),
+  entradaOpcaoPortoAeroportoObjetoSchema,
+])
+
+export type EntradaOpcaoPortoAeroporto = z.infer<typeof entradaOpcaoPortoAeroportoSchema>
+
+/** @deprecated Preferir parseEntradasOpcaoPortoAeroportoFromDb — mantém retrocompat com string[]. */
 export const codigosOpcaoPortoAeroportoCotacaoSchema = z.array(z.string().min(1))
 
 export type CodigosOpcaoPortoAeroportoCotacao = z.infer<typeof codigosOpcaoPortoAeroportoCotacaoSchema>
 
+function chaveCodigoOpcaoPortoAeroporto(codigo: string): string {
+  return codigo.trim().toUpperCase()
+}
+
+export function extrairCodigoEntradaOpcaoPortoAeroporto(entrada: EntradaOpcaoPortoAeroporto): string {
+  return typeof entrada === 'string' ? entrada.trim() : entrada.codigo.trim()
+}
+
+export function extrairRotuloEntradaOpcaoPortoAeroporto(entrada: EntradaOpcaoPortoAeroporto): string | null {
+  if (typeof entrada === 'string') return null
+  const rotulo = entrada.rotulo?.trim()
+  return rotulo || null
+}
+
+export function parseEntradasOpcaoPortoAeroportoFromDb(valor: unknown): EntradaOpcaoPortoAeroporto[] {
+  if (valor == null || !Array.isArray(valor)) return []
+  return valor.flatMap((item) => {
+    const parsed = entradaOpcaoPortoAeroportoSchema.safeParse(item)
+    return parsed.success ? [parsed.data] : []
+  })
+}
+
 export function parseCodigosOpcaoPortoAeroportoFromDb(valor: unknown): string[] {
-  if (valor == null) return []
-  const parsed = codigosOpcaoPortoAeroportoCotacaoSchema.safeParse(valor)
-  return parsed.success ? parsed.data : []
+  return parseEntradasOpcaoPortoAeroportoFromDb(valor).map(extrairCodigoEntradaOpcaoPortoAeroporto)
+}
+
+export function mapaRotulosOpcionaisPersistidosCotacaoBidFrete(
+  ctx: Pick<
+    ContextoLocaisOpcionaisCotacaoBidFrete,
+    | 'codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional'
+    | 'codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional'
+  >,
+): Record<string, string> {
+  const mapa: Record<string, string> = {}
+  for (const raw of [
+    ctx.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+    ctx.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+  ]) {
+    for (const entrada of parseEntradasOpcaoPortoAeroportoFromDb(raw)) {
+      const rotulo = extrairRotuloEntradaOpcaoPortoAeroporto(entrada)
+      if (!rotulo) continue
+      mapa[chaveCodigoOpcaoPortoAeroporto(extrairCodigoEntradaOpcaoPortoAeroporto(entrada))] = rotulo
+    }
+  }
+  return mapa
 }
 
 export function codigosOpcaoPortoAeroportoParaPersistencia(
   habilitado: boolean,
-  codigos: string[],
-): string[] | null {
+  entradas: Array<string | { codigo: string; rotulo?: string | null }>,
+): unknown[] | null {
   if (!habilitado) return null
-  const limpos = codigos.map((c) => c.trim()).filter(Boolean)
-  return limpos.length > 0 ? limpos : null
+  const limpos = entradas
+    .map((entrada) => {
+      if (typeof entrada === 'string') {
+        const codigo = entrada.trim()
+        return codigo ? { codigo, rotulo: null as string | null } : null
+      }
+      const codigo = entrada.codigo.trim()
+      const rotulo = entrada.rotulo?.trim() || null
+      return codigo ? { codigo, rotulo } : null
+    })
+    .filter((item): item is { codigo: string; rotulo: string | null } => item != null)
+  if (limpos.length === 0) return null
+  return limpos.map(({ codigo, rotulo }) => (rotulo ? { codigo, rotulo } : codigo))
 }
 
 export function formatarCodigosOpcaoPortoAeroportoExibicao(

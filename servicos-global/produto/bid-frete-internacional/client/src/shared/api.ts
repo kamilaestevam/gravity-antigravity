@@ -619,6 +619,9 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
         raw.empresa_pagadora_taxa_fechamento_plataforma_gravity,
       ),
+    mapa_rotulos_locais_resposta_bid_frete_internacional:
+      (raw.mapa_rotulos_locais_resposta_bid_frete_internacional as Record<string, string> | null | undefined) ??
+      null,
   }
 }
 
@@ -640,6 +643,7 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
   'empresa_pagadora_taxa_fechamento_plataforma_gravity',
+  'mapa_rotulos_locais_resposta_bid_frete_internacional',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 

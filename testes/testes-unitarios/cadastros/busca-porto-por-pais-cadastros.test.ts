@@ -2,6 +2,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   buscaPortoDeveFiltrarSomentePorPais,
+  buscaUnlocodeExatoDeveUsarMatchDireto,
+  ehBuscaUnlocodeExato,
   filtrarCodigosPaisPorBuscaPorto,
   montarWhereBuscaPortoCadastros,
   type PaisReferenciaBuscaPorto,
@@ -77,5 +79,25 @@ describe('montarWhereBuscaPortoCadastros', () => {
       paisesReferencia: PAISES_REF,
     })
     expect(where.OR).toHaveLength(4)
+  })
+
+  it('busca UN/LOCODE usa match exato quando prefixo bate com pais resolvido', () => {
+    expect(ehBuscaUnlocodeExato('BRRIO')).toBe(true)
+    expect(buscaUnlocodeExatoDeveUsarMatchDireto('BRRIO', ['BR'])).toBe(true)
+    expect(buscaUnlocodeExatoDeveUsarMatchDireto('CHINA', ['CN'])).toBe(false)
+
+    const where = montarWhereBuscaPortoCadastros({
+      q: 'BRRIO',
+      apenasAtivos: true,
+      codigosPaisResolvidos: ['BR'],
+      paisesReferencia: PAISES_REF,
+    })
+    expect(where).toEqual({
+      ativo_porto: true,
+      OR: [
+        { codigo_unlocode_porto: 'BRRIO' },
+        { codigo_iata_porto: 'BRRIO' },
+      ],
+    })
   })
 })

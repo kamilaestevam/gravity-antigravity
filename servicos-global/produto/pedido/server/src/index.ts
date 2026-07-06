@@ -281,7 +281,7 @@ app.use('/api/v1/pedidos/cards-usuario',              exigirPermissao('configura
 app.use(gabiProxyRouter)
 app.use(behaviorTrackingRouter)
 app.use('/api/v1/pedidos/anexos',                      exigirPorMetodo('lista'), anexosRouter)
-app.use('/api/v1/pedidos/template-pedido',             exigirPermissao('configuracao', 'editar'), templatePedidoRota)
+app.use('/api/v1/pedidos/template-pedido',             templatePedidoRota)
 app.use('/api/v1/pedidos/alteracoes-status-lote',      exigirPermissao('lista', 'editar'), loteRouter)
 app.use('/api/v1/pedidos/kanban',                      exigirPorMetodo('kanban'), kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               exigirPorMetodo('configuracao'), casasDecimaisRouter)

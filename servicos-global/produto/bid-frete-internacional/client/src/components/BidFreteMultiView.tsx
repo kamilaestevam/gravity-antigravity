@@ -15,6 +15,7 @@ import {
 } from './acoes-toolbar-visualizacao-bid-frete-internacional'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import './BidFreteVisualizacaoTabs.css'
+import './BidFreteMultiView.css'
 
 const VisaoGeralCliente = lazy(() => import('../pages/visao-geral'))
 const DashboardCliente = lazy(() => import('../pages/dashboard'))

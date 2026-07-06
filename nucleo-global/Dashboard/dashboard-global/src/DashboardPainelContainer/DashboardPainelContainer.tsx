@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import {
   DotsThreeVertical,
@@ -71,7 +72,7 @@ function WidgetSkeleton() {
   )
 }
 
-// ─── Menu de opções (inline, sem portal) ───────────────────────────────────────
+// ─── Menu de opções (dropdown em portal — evita clip do react-grid-layout) ───
 
 interface OptionsMenuProps {
   layoutModo?: WidgetLayoutModo
@@ -81,6 +82,8 @@ interface OptionsMenuProps {
   onRedimensionar?: () => void
   onConcluirLayout?: () => void
 }
+
+const MENU_DROPDOWN_MIN_WIDTH = 170
 
 function OptionsMenu({
   layoutModo,
@@ -92,41 +95,60 @@ function OptionsMenu({
 }: OptionsMenuProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
   const emInteracaoLayout = layoutModo != null
+
+  const atualizarMenuPos = useCallback(() => {
+    if (!buttonRef.current) return
+    const r = buttonRef.current.getBoundingClientRect()
+    setMenuPos({
+      top: r.bottom + 4,
+      left: Math.max(8, r.right - MENU_DROPDOWN_MIN_WIDTH),
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!open) {
+      setMenuPos(null)
+      return
+    }
+    atualizarMenuPos()
+    window.addEventListener('resize', atualizarMenuPos)
+    window.addEventListener('scroll', atualizarMenuPos, true)
+    return () => {
+      window.removeEventListener('resize', atualizarMenuPos)
+      window.removeEventListener('scroll', atualizarMenuPos, true)
+    }
+  }, [open, atualizarMenuPos])
 
   useEffect(() => {
     if (!open) return
     function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      const target = e.target as Node
+      if (menuRef.current?.contains(target)) return
+      if (buttonRef.current?.contains(target)) return
+      setOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
-  return (
-    <div ref={menuRef} className="db-no-drag" style={{ position: 'relative' }}>
-      <button
-        type="button"
-        style={styles.menuBtn}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
-        aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
-        title={t('nucleo.dashboard.painel.opcoes')}
-        data-testid="dashboard-widget-menu-btn"
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <DotsThreeVertical size={18} weight="bold" />
-      </button>
-
-      {open && (
+  const dropdown = open && menuPos
+    ? createPortal(
         <div
-          style={styles.menuDropdown}
+          ref={menuRef}
+          style={{
+            ...styles.menuDropdown,
+            position: 'fixed',
+            top: menuPos.top,
+            left: menuPos.left,
+            right: 'auto',
+            marginTop: 0,
+          }}
           role="menu"
-          data-dashboard-widget-menu-version="v2-mover-tamanho"
+          data-dashboard-widget-menu-version="v2-mover-tamanho-portal"
         >
           <button
             type="button"
@@ -207,8 +229,28 @@ function OptionsMenu({
               </button>
             </>
           )}
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <div className="db-no-drag" style={{ position: 'relative' }}>
+      <button
+        ref={buttonRef}
+        type="button"
+        style={styles.menuBtn}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
+        aria-label={t('nucleo.dashboard.painel.opcoes_widget_aria')}
+        title={t('nucleo.dashboard.painel.opcoes')}
+        data-testid="dashboard-widget-menu-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <DotsThreeVertical size={18} weight="bold" />
+      </button>
+      {dropdown}
     </div>
   )
 }

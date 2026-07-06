@@ -29,6 +29,8 @@ export interface CalendarioCampoGlobalProps extends Omit<CampoGeralGlobalProps, 
    * uma data única, não um intervalo.
    */
   modoUnico?: boolean
+  /** Quando false, oculta o botão de limpar (campos obrigatórios). */
+  permitirLimpar?: boolean
 }
 
 const MESES_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -46,6 +48,7 @@ export function CampoCalendarioGlobal({
   initialOpen = false,
   semTrigger = false,
   modoUnico = false,
+  permitirLimpar = true,
   className,
   ...geralProps
 }: CalendarioCampoGlobalProps) {
@@ -304,9 +307,11 @@ export function CampoCalendarioGlobal({
     setViewAno(a)
   }
 
-  const textoDisplay = (valor.inicio && valor.fim)
-    ? `${formatarDataBR(valor.inicio)} a ${formatarDataBR(valor.fim)}`
-    : valor.inicio ? formatarDataBR(valor.inicio) : ''
+  const textoDisplay = modoUnico
+    ? (valor.inicio ? formatarDataBR(valor.inicio) : '')
+    : (valor.inicio && valor.fim)
+      ? `${formatarDataBR(valor.inicio)} a ${formatarDataBR(valor.fim)}`
+      : valor.inicio ? formatarDataBR(valor.inicio) : ''
 
   function renderPanel(inline = false) {
     return (
@@ -491,7 +496,7 @@ export function CampoCalendarioGlobal({
               </div>
 
               <div className="sg-acoes">
-                {!disabled ? (
+                {permitirLimpar && !disabled ? (
                   <button
                     title={t('campo.limpar')}
                     className="sg-btn-limpar"

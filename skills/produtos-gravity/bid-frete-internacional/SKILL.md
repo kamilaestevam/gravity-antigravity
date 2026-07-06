@@ -97,7 +97,7 @@ Modelo: Lista de Pedidos — `{total pai} pedidos · {total filhos} itens · pá
 | Lista fornecedor | `lista-visao-fornecedor-bid-frete-internacional.tsx` — sem segmento “bids” no rodapé |
 | Linhas/página | `tabelaConfig.linhasPorPagina` — `shared/tabela-config-bid-frete.ts` (`bid-frete:config:tabela`) |
 | i18n rodapé | `bidfrete.lista.label_bid_*`, `label_cotacao_*` |
-| Altura grid (WIP) | `bid-frete-page-shell.css` — `min-height: 620px` até layout flex fechar |
+| Altura grid | `shared/altura-tabela-lista-bid-frete-internacional.ts` + `lista-bid-frete-internacional-layout.css` — `flex: 1` até o fim da viewport (paridade Pedido; pino 620px removido na TASK-000419) |
 
 **Regra:** 1º segmento = linhas pai paginadas (`totalItens`), 2º = cotações filtradas (`totalFilhos`). Paginação **client-side** (dataset já carregado).
 
@@ -153,6 +153,16 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 Selects de porto/aeroporto (origem, destino, locais adicionais) paginam o catálogo completo do Cadastros no scroll (100/página) e fazem busca remota no banco inteiro (150 resultados, ≥2 chars). SSOT de limites: `shared/limites-catalogo-logistica-bid-frete-internacional.ts`; hook `client/src/shared/use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`; proxies e rotas Cadastros aceitam `offset` e devolvem `total`; `SelectGlobal` ganhou props `buscaRemota`/`aoMudarBusca`/`aoScrollFimLista`/`totalOpcoesCatalogo`. Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
 
 **Pin de selecionados (§8.3):** todo código selecionado precisa ser garantido na lista em memória, senão o SelectGlobal mostra placeholder ao voltar de passo (catálogo paginado raramente contém o código na 1ª página). O hook aceita `codigoSelecionado` (principal) e `codigosSelecionados: string[]` (locais adicionais aceitos) — ambos usam `garantirSelecionado` + Map de pins. Ao consumir o hook para um select com valor persistido, **sempre** repassar o(s) código(s) selecionado(s).
+
+**Regra anti-ponto-cego (TASK-000415):** o Cadastros tem ~17k portos ativos e toda página carregada em memória (client ou server) é um **recorte**. Nenhum fluxo pode tratar «não está no contexto carregado» como «não existe». Três aplicações concretas:
+
+| Fluxo | Mecanismo | Arquivo |
+|-------|-----------|---------|
+| Selects do wizard (passo 2) | Sem `?pais=` — busca global paginada + pin | `use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts` (§8.1–8.3) |
+| Gravação `POST`/`PATCH` (snapshot de rota) | `garantirTerminaisRotaNoContextoCatalogo` resolve origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) e injeta no contexto antes de validar | `server/src/lib/carregar-contexto-catalogo-rota-bid-frete-internacional.ts` (modal §8.4) |
+| Importação por planilha | `enriquecerContextoCatalogoLocaisImportacaoBid` busca remotamente (`?q=valor`) os locais que não resolveram contra a página base e anexa ao contexto do preview | `client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts` (CATALOGO doc) |
+
+Sintoma clássico do ponto cego no server: `Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)` — o snapshot caiu no fallback «nome = código» porque o porto estava fora da página do contexto. Testes UNI: `catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
 
 ### Filtros de coluna (paridade Pedido — TASK-000269)
 
@@ -395,6 +405,12 @@ Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-
 
 Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema.prisma`.
 
+**HS Code (2026-07-05):** `hs_code_cotacao_bid_frete_internacional String?` ao lado do NCM — migration `20260705170000` (aplicada local + Railway; inclui colunas físicas de dimensões de cubagem). Zod `max 10` no create/patch de `cotacoes.ts`; wizard envia; e-mail e portal exibem.
+
+**Regra de exibição (dono):** todo campo preenchido da cotação aparece no Resumo do wizard, no e-mail de disparo e no portal do fornecedor com formatação idêntica (ícone, truncamento, tooltip); campos internos (valor alvo, fornecedores, canais) só no Resumo. SSOT: `shared/formatar-email-disparo-bid-frete-internacional.ts` + `SecaoDetalhesCotacaoResposta` — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md` §8.4.
+
+**E-mail de disparo — intro e taxa (TASK-000419+):** intro condicional por `anonima_cotacao_bid_frete_internacional` (nome visível vs cliente oculto); tag amarela com cotação gratuita + taxa USD 10,00 no fechamento + link «Leia aqui as condições». Cobrança: **boleto mensal** consolidando as taxas do mês. Aviso de aceite também no formulário de resposta (`.brc-aceite-condicoes`, acima do botão Enviar Proposta — público e logado). SSOT condições: `shared/condicoes-plataforma-fornecedor-bid-frete-internacional.ts` · doc `CONDICOES-PLATAFORMA-FORNECEDOR-BID-FRETE-INTERNACIONAL.md` · rota pública `/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma`.
+
 ---
 
 ## API (rotas novas / críticas)
@@ -449,6 +465,7 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 - Confundir **status de cotação** (`status_cotacao_config_*`) com **status de BID** (`status_bid_config_*`).
 - Usar `destino_nome` da cotação para posicionar pin no mapa Insights — usar código + Cadastros (ver INSIGHTS §7).
 - Gravar rota de cotação sem validar contra catálogo Cadastros quando modal ≠ rodoviário — usar `prepararRotaComValidacaoCadastros`.
+- Tratar «código ausente do contexto de catálogo em memória» como «porto/aeroporto inexistente» — o contexto é uma página de ~17k itens; resolver individualmente no Cadastros antes de reprovar (ver Catálogo § Regra anti-ponto-cego, TASK-000415).
 
 ---
 

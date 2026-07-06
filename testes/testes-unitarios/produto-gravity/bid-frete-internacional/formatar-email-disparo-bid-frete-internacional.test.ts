@@ -2,10 +2,13 @@ import { describe, it, expect } from 'vitest'
 import {
   formatarCargaPerigosaEmailDisparoBidFrete,
   formatarDimensoesCubagemEmailDisparoBidFrete,
+  montarAvisoTaxaPlataformaEmailDisparoBidFrete,
   montarHtmlEmailDisparo,
+  montarIntroClienteEmailDisparoBidFrete,
   montarTextoPlanoEmailDisparo,
   type ParametrosEmailDisparoBidFreteInternacional,
 } from '../../../../servicos-global/produto/bid-frete-internacional/shared/formatar-email-disparo-bid-frete-internacional'
+import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../../servicos-global/produto/bid-frete-internacional/shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
 
 const base: ParametrosEmailDisparoBidFreteInternacional = {
   nomeFornecedor: 'Maersk',
@@ -20,6 +23,43 @@ const base: ParametrosEmailDisparoBidFreteInternacional = {
   incoterm: 'FOB',
   linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
 }
+
+describe('montarIntroClienteEmailDisparoBidFrete', () => {
+  it('exibe nome da empresa quando a cotação não é anônima', () => {
+    const { introHtml, introTextoPlano } = montarIntroClienteEmailDisparoBidFrete({
+      anonimaCotacao: false,
+      nomeClienteOperacao: 'Empresa ABC',
+      tipoOperacao: 'IMPORTACAO',
+    })
+    expect(introHtml).toContain('Empresa ABC')
+    expect(introHtml).toContain('selecionou você para uma cotação de frete internacional')
+    expect(introTextoPlano).toContain('Empresa ABC selecionou você')
+    expect(introHtml).not.toContain('oculto')
+  })
+
+  it('exibe texto de cliente oculto quando a cotação é anônima', () => {
+    const { introHtml, introTextoPlano } = montarIntroClienteEmailDisparoBidFrete({
+      anonimaCotacao: true,
+      nomeClienteOperacao: 'Empresa ABC',
+      tipoOperacao: 'IMPORTACAO',
+    })
+    expect(introHtml).toContain('preferiu ficar oculto para a cotação')
+    expect(introTextoPlano).toContain('Um cliente (que preferiu ficar oculto para a cotação)')
+    expect(introHtml).not.toContain('Empresa ABC')
+  })
+})
+
+describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
+  it('inclui aviso gratuito, taxa USD 10,00 e link das condições', () => {
+    const { avisoHtml, avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(base.linkResposta)
+    expect(avisoHtml).toContain('Cotação gratuita na plataforma')
+    expect(avisoHtml).toContain('USD 10,00')
+    expect(avisoHtml).toContain('Leia aqui as condições')
+    expect(avisoHtml).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
+    expect(avisoTextoPlano).toContain('USD 10,00')
+    expect(avisoTextoPlano).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
+  })
+})
 
 describe('formatarDimensoesCubagemEmailDisparoBidFrete', () => {
   it('monta texto com as 3 dimensões e unidade em minúsculo', () => {
@@ -138,5 +178,19 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
     expect(texto).toContain('NCM: 8471.30.19')
     expect(texto).toContain('HS Code: 8471.30')
     expect(texto).toContain('Carga perigosa: Sim — UN 1263')
+    expect(texto).toContain('Cotação gratuita na plataforma')
+  })
+
+  it('HTML inclui tag de taxa entre tabela e botão', () => {
+    const html = montarHtmlEmailDisparo({
+      ...base,
+      nomeClienteOperacao: 'Empresa ABC',
+      anonimaCotacao: false,
+    })
+    expect(html).toContain('Empresa ABC')
+    expect(html).toContain('Cotação gratuita na plataforma')
+    expect(html).toContain('Leia aqui as condições')
+    expect(html.indexOf('Cotação gratuita na plataforma')).toBeGreaterThan(html.indexOf('Incoterm'))
+    expect(html.indexOf('Responder cotação')).toBeGreaterThan(html.indexOf('Cotação gratuita na plataforma'))
   })
 })

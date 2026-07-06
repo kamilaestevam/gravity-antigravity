@@ -5,7 +5,10 @@
 
 import { MAPAS_ROTULO_ENUM_IMPORTACAO_BID } from './template-importacao-config-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from './rota-cotacao-bid-frete-internacional.js'
-import { DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL } from './calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
+import {
+  resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional,
+  ROTULO_TAXA_FECHAMENTO_FRETE_USD,
+} from './condicoes-plataforma-fornecedor-bid-frete-internacional.js'
 
 const ROTULOS_MODAL = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modal_cotacao_bid_frete_internacional ?? {}
 const ROTULOS_MODALIDADE = MAPAS_ROTULO_ENUM_IMPORTACAO_BID.modalidade_cotacao_bid_frete_internacional ?? {}
@@ -26,6 +29,13 @@ const COR_TEXTO = '#0f172a'
 const COR_MUTED = '#64748b'
 const COR_BORDA = '#e2e8f0'
 const COR_FUNDO = '#f8fafc'
+const COR_AVISO_FUNDO = '#fef3c7'
+const COR_AVISO_BORDA = '#fcd34d'
+const COR_AVISO_ACENTO = '#f59e0b'
+const COR_AVISO_TEXTO = '#92400e'
+
+const SUFIXO_INTRO_EMAIL =
+  'Confira o resumo abaixo e envie sua proposta pelo botão.'
 
 export interface ParametrosEmailDisparoBidFreteInternacional {
   nomeFornecedor: string
@@ -192,53 +202,62 @@ export function montarIntroClienteEmailDisparoBidFrete(
   params: Pick<ParametrosEmailDisparoBidFreteInternacional, 'anonimaCotacao' | 'nomeClienteOperacao' | 'tipoOperacao'>,
 ): { introHtml: string; introTextoPlano: string; rotuloPreheader: string } {
   if (params.anonimaCotacao) {
+    const introTextoPlano =
+      'Um cliente (que preferiu ficar oculto para a cotação) selecionou você para uma cotação de frete internacional.'
     return {
       introHtml:
-        '<strong>Um cliente</strong>, que optou em manter seu nome oculto, enviou uma solicitação de cotação. '
-        + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
-      introTextoPlano:
-        'Um cliente, que optou em manter seu nome oculto, enviou uma solicitação de cotação.',
-      rotuloPreheader: 'Cotação anônima',
+        'Um cliente (<strong>que preferiu ficar oculto para a cotação</strong>) selecionou você para uma '
+        + `cotação de frete internacional. ${SUFIXO_INTRO_EMAIL}`,
+      introTextoPlano,
+      rotuloPreheader: 'Cliente oculto',
     }
   }
 
   const nome = params.nomeClienteOperacao?.trim()
   if (nome) {
-    const tipo = params.tipoOperacao?.trim().toUpperCase()
-    if (tipo === 'IMPORTACAO') {
-      return {
-        introHtml:
-          `O importador <strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
-          + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
-        introTextoPlano: `O importador ${nome} enviou uma solicitação de cotação.`,
-        rotuloPreheader: nome,
-      }
-    }
-    if (tipo === 'EXPORTACAO') {
-      return {
-        introHtml:
-          `O exportador <strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
-          + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
-        introTextoPlano: `O exportador ${nome} enviou uma solicitação de cotação.`,
-        rotuloPreheader: nome,
-      }
-    }
+    const nomeHtml = escapeHtmlTextoEmailBidFrete(nome)
+    const introTextoPlano = `${nome} selecionou você para uma cotação de frete internacional.`
     return {
       introHtml:
-        `<strong>${escapeHtmlTextoEmailBidFrete(nome)}</strong> enviou uma solicitação de cotação. `
-        + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
-      introTextoPlano: `${nome} enviou uma solicitação de cotação.`,
+        `<strong>${nomeHtml}</strong> selecionou você para uma cotação de frete internacional. ${SUFIXO_INTRO_EMAIL}`,
+      introTextoPlano,
       rotuloPreheader: nome,
     }
   }
 
   return {
     introHtml:
-      '<strong>Um cliente</strong> enviou uma solicitação de cotação. '
-      + 'Confira o resumo abaixo e envie sua proposta pelo botão.',
-    introTextoPlano: 'Um cliente enviou uma solicitação de cotação.',
+      'Um cliente selecionou você para uma cotação de frete internacional. '
+      + SUFIXO_INTRO_EMAIL,
+    introTextoPlano: 'Um cliente selecionou você para uma cotação de frete internacional.',
     rotuloPreheader: 'Um cliente',
   }
+}
+
+export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(linkResposta: string): {
+  avisoHtml: string
+  avisoTextoPlano: string
+} {
+  const urlCondicoes = resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(linkResposta)
+  const urlHtml = escapeHtmlTextoEmailBidFrete(urlCondicoes)
+  const avisoTextoPlano =
+    `Cotação gratuita na plataforma: nada é cobrado para participar e enviar sua proposta. `
+    + `Caso o cliente feche o frete com sua empresa, será debitado ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} da sua conta na Gravity. `
+    + `Condições: ${urlCondicoes}`
+
+  const avisoHtml = `
+              <div style="margin:0 0 24px;padding:14px 16px;background:${COR_AVISO_FUNDO};border:1px solid ${COR_AVISO_BORDA};border-radius:8px;border-left:4px solid ${COR_AVISO_ACENTO};">
+                <p style="margin:0;font-size:14px;line-height:1.55;color:${COR_AVISO_TEXTO};">
+                  <strong style="color:${COR_TEXTO};">Cotação gratuita na plataforma.</strong>
+                  Nada é cobrado para participar e enviar sua proposta.
+                  Caso o cliente feche o frete com sua empresa, será debitado
+                  <strong style="color:${COR_TEXTO};">${ROTULO_TAXA_FECHAMENTO_FRETE_USD}</strong>
+                  da sua conta na Gravity.
+                  <a href="${urlHtml}" style="color:${COR_INDIGO};font-weight:600;text-decoration:underline;">Leia aqui as condições</a>.
+                </p>
+              </div>`
+
+  return { avisoHtml, avisoTextoPlano }
 }
 
 function linhasResumoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): Array<[string, string]> {
@@ -340,15 +359,13 @@ export function montarTextoRodapeValidadeLinkEmailDisparoBidFrete(
   if (validade) {
     return `Este link é válido até ${validade}.`
   }
-  return `Este link expira em ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias.`
+  return 'Este link expira conforme o prazo de resposta da cotação.'
 }
 
 export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { rotuloPreheader } = montarIntroClienteEmailDisparoBidFrete(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
-  const sufixoValidade = validade
-    ? `válido até ${validade}`
-    : `válido por ${DIAS_EXPIRACAO_TOKEN_DISPARO_SEM_PRAZO_RESPOSTA_BID_FRETE_INTERNACIONAL} dias`
+  const sufixoValidade = validade ? `válido até ${validade}` : 'válido conforme prazo da cotação'
   if (params.anonimaCotacao) {
     return `${rotuloPreheader} — cotação ${params.numeroCotacao}. Responda pelo link — ${sufixoValidade}.`
   }
@@ -357,6 +374,7 @@ export function montarPreheaderEmailDisparo(params: ParametrosEmailDisparoBidFre
 
 export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { introTextoPlano } = montarIntroClienteEmailDisparoBidFrete(params)
+  const { avisoTextoPlano } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(params.linkResposta)
   const linhas = linhasResumoEmailDisparo(params)
 
   const corpo = [
@@ -364,7 +382,9 @@ export function montarTextoPlanoEmailDisparo(params: ParametrosEmailDisparoBidFr
     '',
     `Olá, ${params.nomeFornecedor.trim()},`,
     '',
-    `${introTextoPlano} Confira o resumo e responda pelo link.`,
+    `${introTextoPlano} ${SUFIXO_INTRO_EMAIL}`,
+    '',
+    avisoTextoPlano,
     '',
     ...linhas.map(([rotulo, valor]) => `${rotulo}: ${valor}`),
     '',
@@ -391,6 +411,7 @@ function linhaTabelaHtml(rotulo: string, valor: string): string {
 
 export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInternacional): string {
   const { introHtml } = montarIntroClienteEmailDisparoBidFrete(params)
+  const { avisoHtml } = montarAvisoTaxaPlataformaEmailDisparoBidFrete(params.linkResposta)
   const linhas = linhasResumoEmailDisparo(params)
   const validade = formatarDataEmailDisparoBidFrete(params.dataExpiracaoToken)
   const preheader = montarPreheaderEmailDisparo(params)
@@ -426,9 +447,10 @@ export function montarHtmlEmailDisparo(params: ParametrosEmailDisparoBidFreteInt
               <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:${COR_MUTED};">
                 ${introHtml}
               </p>
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;border:1px solid ${COR_BORDA};border-radius:8px;overflow:hidden;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:24px;border:1px solid ${COR_BORDA};border-radius:8px;overflow:hidden;">
                 ${tabelaLinhas}
               </table>
+              ${avisoHtml}
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 auto 20px;">
                 <tr>
                   <td style="border-radius:8px;background:${COR_INDIGO};">

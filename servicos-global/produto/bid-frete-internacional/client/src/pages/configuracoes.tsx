@@ -95,6 +95,10 @@ import {
   STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE,
   publicarColunasPersonalizadasBidFreteAtualizadas,
 } from '../shared/colunas-personalizadas-lista-bid-frete-internacional'
+import {
+  REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
+  type RegrasConfigBidFreteInternacional,
+} from '../../../shared/regras-config-bid-frete-internacional'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -151,12 +155,7 @@ interface NumeracaoConfig {
   automaticoCriar: boolean
 }
 
-interface RegrasConfig {
-  respostaAutomatica: boolean
-  prazoPadraoHoras: number
-  alertasDivergencia: boolean
-  aprovarAbaixoDoTeto: boolean
-}
+type RegrasConfig = RegrasConfigBidFreteInternacional
 
 interface TemplateLocal {
   id: string
@@ -541,6 +540,7 @@ const NOMES_STATUS_COTACAO_SISTEMA = new Set([
   'RASCUNHO',
   'ENVIADA_FORNECEDORES',
   'EM_COTACAO',
+  'COTACAO_ALTERADA',
   'AGUARDANDO_APROVACAO',
   'APROVADA',
   'REPROVADA',
@@ -557,12 +557,13 @@ const STATUS_COTACAO_PADRAO: PedidoStatusConfig[] = [
   { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
   { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
   { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, gerenciado_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, gerenciado_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, gerenciado_sistema: true },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, gerenciado_sistema: true },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, gerenciado_sistema: true },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, gerenciado_sistema: true },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, gerenciado_sistema: true },
+  { id: 'cotacao_alterada', nome: 'COTACAO_ALTERADA', rotulo: 'Cotação alterada', cor: '#f97316', ordem: 4, gerenciado_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 5, gerenciado_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 6, gerenciado_sistema: true },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 7, gerenciado_sistema: true },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 8, gerenciado_sistema: true },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 9, gerenciado_sistema: true },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 10, gerenciado_sistema: true },
 ]
 
 function StatusSortavel({
@@ -998,10 +999,7 @@ export default function Configuracoes() {
   ])
 
   const [regrasConfig, setRegrasConfig] = useConfigState<RegrasConfig>('regras', {
-    respostaAutomatica: true,
-    prazoPadraoHoras: 72,
-    alertasDivergencia: true,
-    aprovarAbaixoDoTeto: false,
+    ...REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   })
 
   const [categoriasAnexos, setCategoriasAnexos] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
@@ -2443,6 +2441,13 @@ export default function Configuracoes() {
                   style={{ width: '80px', padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', textAlign: 'center' }}
                 />
               </div>
+              <ToggleRow
+                id="reg-fornecedor-alterar"
+                label="Fornecedor pode alterar proposta"
+                desc="Padrão da organização quando uma nova cotação é criada. No wizard, a escolha por cotação continua obrigatória."
+                checked={regrasConfig.fornecedorPodeAlterarPropostaPadrao}
+                onChange={v => setRegrasConfig(prev => ({ ...prev, fornecedorPodeAlterarPropostaPadrao: v }))}
+              />
               <ToggleRow
                 id="reg-div"
                 label="Alertar Divergências de Incoterms"

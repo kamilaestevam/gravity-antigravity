@@ -10,25 +10,25 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 421,
+  "proximo_numero": 411,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
-      "referencia": "TASK-000417",
-      "ordinal": 141,
-      "titulo_canonico": "BIDFRT-COTACOES-MEL-AJUSTES-GERAIS-COTACAO",
-      "titulo_exibicao": "TASK-000417 | [Bid Frete] Cotações | MEL — Ajustes gerais menores na cotação",
-      "status": "RES",
-      "area": "BIDFRT",
-      "subarea": "COTACOES",
-      "visualizacao": null,
-      "tipo_entrega": "MEL",
-      "resumo": "AJUSTES-GERAIS-COTACAO",
-      "data_criacao": "2026-07-05T12:18:00.000Z",
-      "data_encerramento": "2026-07-05T22:51:00.000Z",
-      "tempo_liquido_horas": 5.5,
-      "tokens_estimados_total": 460000,
-      "arquivo_ficha": "registros/TASK-000417.json"
+      "referencia": "TASK-000410",
+      "ordinal": 134,
+      "titulo_canonico": "PEDIDO-LISTA-DUV-GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+      "titulo_exibicao": "TASK-000410 | [Pedido] Lista | DUV — O que falta para gerar documentos (PO, SO, Proforma, Invoice, Packing List, CO)",
+      "status": "ABR",
+      "area": "PEDIDO",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "DUV",
+      "resumo": "GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+      "data_criacao": "2026-07-04T23:18:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000410.json"
     },
     {
       "referencia": "TASK-000408",
@@ -84,18 +84,18 @@
     {
       "referencia": "TASK-000405",
       "ordinal": 129,
-      "titulo_canonico": "BIDFRT-LISTA-BUG-AEJEA-CADASTROS",
-      "titulo_exibicao": "TASK-000405 | [Bid Frete] Nova Cotação | Portos/aeroportos opcionais + wizard fixes",
-      "status": "RES",
+      "titulo_canonico": "BIDFRT-COTACOES-BUG-ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
+      "titulo_exibicao": "TASK-000405 | [BID Frete] Cotações · Nova | BUG — Origem AEJEA não encontrada no Cadastros ao criar cotação",
+      "status": "ABR",
       "area": "BIDFRT",
-      "subarea": null,
-      "visualizacao": "LISTA",
+      "subarea": "COTACOES",
+      "visualizacao": null,
       "tipo_entrega": "BUG",
-      "resumo": "AEJEA-CADASTROS-LOCAIS-OPCIONAIS",
+      "resumo": "ORIGEM-CODIGO-NAO-ENCONTRADO-CADASTROS",
       "data_criacao": "2026-07-03T14:55:00.000Z",
-      "data_encerramento": "2026-07-05T22:53:00.000Z",
-      "tempo_liquido_horas": 12,
-      "tokens_estimados_total": 350000,
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000405.json"
     },
     {
@@ -145,7 +145,7 @@
       "resumo": "ONBOARDING-PLANILHA-DDD-PLANO-REFATORACAO",
       "data_criacao": "2026-04-24T18:58:26.000Z",
       "data_encerramento": "2026-04-24T21:24:12.000Z",
-      "tempo_liquido_horas": 2,
+      "tempo_liquido_horas": 2.0,
       "tokens_estimados_total": 26747,
       "arquivo_ficha": "registros/TASK-000001.json"
     },
@@ -247,7 +247,7 @@
       "resumo": "NAO-ESPELHA-LISTA",
       "data_criacao": "2026-06-15T14:00:00.000Z",
       "data_encerramento": "2026-06-15T21:00:00.000Z",
-      "tempo_liquido_horas": 2,
+      "tempo_liquido_horas": 2.0,
       "tokens_estimados_total": 40000,
       "arquivo_ficha": "registros/TASK-000265.json"
     },
@@ -264,7 +264,7 @@
       "resumo": "AGENDAMENTO-COTACAO-ATUAL-FUTURA",
       "data_criacao": "2026-06-15T20:00:00.000Z",
       "data_encerramento": "2026-06-16T02:30:00.000Z",
-      "tempo_liquido_horas": 5,
+      "tempo_liquido_horas": 5.0,
       "tokens_estimados_total": 120000,
       "arquivo_ficha": "registros/TASK-000266.json"
     },
@@ -332,7 +332,7 @@
       "resumo": "EXCLUSAO-NAO-ATUALIZA-TELA",
       "data_criacao": "2026-06-16T18:00:00.000Z",
       "data_encerramento": "2026-06-16T23:45:00.000Z",
-      "tempo_liquido_horas": 1,
+      "tempo_liquido_horas": 1.0,
       "tokens_estimados_total": 50000,
       "arquivo_ficha": "registros/TASK-000275.json"
     },
@@ -349,7 +349,7 @@
       "resumo": "SCROLL-VERTICAL-TELA",
       "data_criacao": "2026-06-16T12:00:00.000Z",
       "data_encerramento": "2026-06-16T23:30:00.000Z",
-      "tempo_liquido_horas": 1,
+      "tempo_liquido_horas": 1.0,
       "tokens_estimados_total": 55000,
       "arquivo_ficha": "registros/TASK-000274.json"
     },
@@ -400,7 +400,7 @@
       "resumo": "STATUS-VISAO-COTACOES",
       "data_criacao": "2026-06-17T00:00:00.000Z",
       "data_encerramento": "2026-06-17T17:30:00.000Z",
-      "tempo_liquido_horas": 4,
+      "tempo_liquido_horas": 4.0,
       "tokens_estimados_total": 185000,
       "arquivo_ficha": "registros/TASK-000278.json"
     },
@@ -502,7 +502,7 @@
       "resumo": "SEQUENCIA-DEFAULT-PRODUCAO",
       "data_criacao": "2026-06-17T23:30:00.000Z",
       "data_encerramento": "2026-06-18T02:15:00.000Z",
-      "tempo_liquido_horas": 1,
+      "tempo_liquido_horas": 1.0,
       "tokens_estimados_total": 45000,
       "arquivo_ficha": "registros/TASK-000287.json"
     },
@@ -689,7 +689,7 @@
       "resumo": "ORGANIZACAO-OBRIGATORIA-SUPER-ADMIN",
       "data_criacao": "2026-06-19T15:22:00.000Z",
       "data_encerramento": "2026-06-21T12:28:29.644Z",
-      "tempo_liquido_horas": 6,
+      "tempo_liquido_horas": 6.0,
       "tokens_estimados_total": 300000,
       "arquivo_ficha": "registros/TASK-000302.json"
     },
@@ -740,7 +740,7 @@
       "resumo": "PLANOS-TESTE-COBERTURA-WORKSPACES-RBAC",
       "data_criacao": "2026-06-21T18:00:00.000Z",
       "data_encerramento": "2026-06-22T01:10:00.000Z",
-      "tempo_liquido_horas": 3,
+      "tempo_liquido_horas": 3.0,
       "tokens_estimados_total": 120000,
       "arquivo_ficha": "registros/TASK-000305.json"
     },
@@ -757,7 +757,7 @@
       "resumo": "AVALIAR-VIABILIDADE-DASHBOARD",
       "data_criacao": "2026-06-21T22:41:00.000Z",
       "data_encerramento": "2026-06-21T23:15:00.000Z",
-      "tempo_liquido_horas": 1,
+      "tempo_liquido_horas": 1.0,
       "tokens_estimados_total": 180000,
       "arquivo_ficha": "registros/TASK-000306.json"
     },
@@ -842,7 +842,7 @@
       "resumo": "PADRAO-TAMANHO-PAGINACAO-PAINEIS",
       "data_criacao": "2026-06-22T01:18:00.000Z",
       "data_encerramento": "2026-06-23T15:59:46.088Z",
-      "tempo_liquido_horas": 4,
+      "tempo_liquido_horas": 4.0,
       "tokens_estimados_total": 265000,
       "arquivo_ficha": "registros/TASK-000311.json"
     },
@@ -876,7 +876,7 @@
       "resumo": "EXIBIR-TABELA-VALOR-TOTAL-PROPOSTAS",
       "data_criacao": "2026-06-23T12:00:00.000Z",
       "data_encerramento": "2026-06-23T21:30:00.000Z",
-      "tempo_liquido_horas": 4,
+      "tempo_liquido_horas": 4.0,
       "tokens_estimados_total": 150000,
       "arquivo_ficha": "registros/TASK-000313.json"
     },
@@ -1063,7 +1063,7 @@
       "resumo": "REMOVER-CONFIG-MAPEAMENTO-KPIS-TOPO",
       "data_criacao": "2026-06-23T12:00:00.000Z",
       "data_encerramento": "2026-06-23T18:00:00.000Z",
-      "tempo_liquido_horas": 2,
+      "tempo_liquido_horas": 2.0,
       "tokens_estimados_total": 165000,
       "arquivo_ficha": "registros/TASK-000325.json"
     },
@@ -1216,7 +1216,7 @@
       "resumo": "COMANDO-PR-ESCOPO-CONVERSA-PREVIEW-HUB-20-PORTAS",
       "data_criacao": "2026-06-25T12:00:00.000Z",
       "data_encerramento": "2026-06-27T16:10:00.000Z",
-      "tempo_liquido_horas": 3,
+      "tempo_liquido_horas": 3.0,
       "tokens_estimados_total": 80000,
       "arquivo_ficha": "registros/TASK-000339.json"
     },
@@ -1522,7 +1522,7 @@
       "resumo": "ANALISE-RENOMEAR-SMART-READ-SMART-DOCUMENT",
       "data_criacao": "2026-06-27T02:00:00.000Z",
       "data_encerramento": "2026-06-27T10:54:26.173Z",
-      "tempo_liquido_horas": 5,
+      "tempo_liquido_horas": 5.0,
       "tokens_estimados_total": 800000,
       "arquivo_ficha": "registros/TASK-000359.json"
     },
@@ -2035,40 +2035,6 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000399.json"
-    },
-    {
-      "referencia": "TASK-000420",
-      "ordinal": 142,
-      "titulo_canonico": "BIDFRT-COTACOES-NOV-HS-CODE-EMAIL-PORTAL-TODOS-CAMPOS",
-      "titulo_exibicao": "TASK-000420 | [Bid Frete] Cotações | NOV — HS Code no banco + e-mail/portal com todos os campos preenchidos",
-      "status": "RES",
-      "area": "BIDFRT",
-      "subarea": "COTACOES",
-      "visualizacao": null,
-      "tipo_entrega": "NOV",
-      "resumo": "HS-CODE-EMAIL-PORTAL-TODOS-CAMPOS",
-      "data_criacao": "2026-07-05T16:24:00.000Z",
-      "data_encerramento": "2026-07-05T23:05:00.000Z",
-      "tempo_liquido_horas": 5,
-      "tokens_estimados_total": 400000,
-      "arquivo_ficha": "registros/TASK-000420.json"
-    },
-    {
-      "referencia": "TASK-000421",
-      "ordinal": 143,
-      "titulo_canonico": "BIDFRT-COTACOES-BUG-PORTAL-LOCAIS-ALTERNATIVOS-ARMAZENS-PREFERENCIA",
-      "titulo_exibicao": "TASK-000421 | [Bid Frete] Cotações | BUG — Portal sem portos/aeroportos alternativos e armazéns de preferência",
-      "status": "RES",
-      "area": "BIDFRT",
-      "subarea": "COTACOES",
-      "visualizacao": null,
-      "tipo_entrega": "BUG",
-      "resumo": "PORTAL-LOCAIS-ALTERNATIVOS-ARMAZENS-PREFERENCIA",
-      "data_criacao": "2026-07-05T18:32:00.000Z",
-      "data_encerramento": "2026-07-05T23:10:00.000Z",
-      "tempo_liquido_horas": 3,
-      "tokens_estimados_total": 335000,
-      "arquivo_ficha": "registros/TASK-000421.json"
     }
   ]
 }

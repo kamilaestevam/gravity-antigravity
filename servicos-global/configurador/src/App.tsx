@@ -424,6 +424,15 @@ export default function App() {
           path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/*"
           element={<BidFreteInternacionalPublicoRoute />}
         />
+        {/* Condições da plataforma (link do e-mail de disparo) — pública, sem login. */}
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
         <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />

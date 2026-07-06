@@ -6,13 +6,13 @@ describe('validarPropostaEnvioModalidadeCotacaoBidFreteInternacional', () => {
     expect(
       validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
         { dias_free_time_proposta_bid_frete_internacional: null },
-        'FCL',
+        { modalidade_cotacao_bid_frete_internacional: 'FCL' },
       ),
     ).toBeTruthy()
     expect(
       validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
         { dias_free_time_proposta_bid_frete_internacional: 0 },
-        'FCL',
+        { modalidade_cotacao_bid_frete_internacional: 'FCL' },
       ),
     ).toBeNull()
   })
@@ -21,7 +21,7 @@ describe('validarPropostaEnvioModalidadeCotacaoBidFreteInternacional', () => {
     expect(
       validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
         { dias_free_time_proposta_bid_frete_internacional: null },
-        'LCL',
+        { modalidade_cotacao_bid_frete_internacional: 'LCL' },
       ),
     ).toBeNull()
   })

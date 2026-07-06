@@ -23,7 +23,7 @@ type AeroportoCadastros = {
 
 type ListaCadastros<T> = { itens: T[]; total: number }
 
-const LIMITE_PORTOS = 500
+const LIMITE_PORTOS = 10_000
 const LIMITE_AEROPORTOS = 10_000
 
 export async function carregarContextoCatalogoRotaBidFreteInternacional(

@@ -1,4 +1,6 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import { PASSOS_MANUAL_SMART_READ_CONFIGURACOES } from './manual-smart-read-configuracoes-conteudo'
+import { PASSOS_MANUAL_SMART_READ_HISTORICO } from './manual-smart-read-historico-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -7,11 +9,21 @@ const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
 const LINK_MANUAL_SMART_READ_CONFIGURACOES =
   '{{link:/university-gravity/docs/smart-read#doc-sec-7|Configurações}}'
+const LINK_MANUAL_PEDIDO_LISTA =
+  '{{link:/university-gravity/docs/pedido#doc-sec-5|Pedido · Visão Lista}}'
+const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
+  '{{link:/university-gravity/docs/smart-read#manual-passo-lista-9|5.09 Painéis}}'
 const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API Cockpit}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
  * Copiar: `pwsh scripts/copiar-screenshots-manual-smart-docs.ps1`
+ * - tela_smart_read_lista_filtro_seta.png → smart-docs-lista-filtro-seta.png
+ * - tela_smart_read_lista_filtro_modal.png → smart-docs-lista-filtro-modal.png
+ * - tela_smart_read_lista_filtro_final.png → smart-docs-lista-filtro-final.png
+ * - tela_smart_read_lista_exportar_planilha.png → smart-docs-lista-exportar-planilha.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validar → smart-docs-lista-paineis-novo-nome-validar.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validado → smart-docs-lista-paineis-novo-nome-validado.png
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
@@ -29,6 +41,10 @@ const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA =
   '/university/screenshots/smart-docs-lista-exportar-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL =
   '/university/screenshots/smart-docs-lista-exportar-modal.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD =
+  '/university/screenshots/smart-docs-lista-exportar-download.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA =
+  '/university/screenshots/smart-docs-lista-exportar-planilha.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_SETA = '/university/screenshots/smart-docs-lista-expandir-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_LINHA_EXPANDIDA =
   '/university/screenshots/smart-docs-lista-linha-expandida.png'
@@ -41,6 +57,8 @@ const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-seta.png'
+const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR =
+  '/university/screenshots/smart-docs-lista-paineis-novo-nome-validar.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-validado.png'
 const SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API = '/university/screenshots/smart-docs-lista-transacoes-api.png'
@@ -59,6 +77,16 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-anexado.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXEMPLO_ERRO =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-exemplo-erro.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_LINK =
+  '/university/screenshots/smart-docs-lista-fluxo-edicao-link.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_CONFERENCIA =
+  '/university/screenshots/smart-docs-lista-fluxo-edicao-conferencia.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_SETA =
+  '/university/screenshots/smart-docs-lista-filtro-seta.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_MODAL =
+  '/university/screenshots/smart-docs-lista-filtro-modal.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL =
+  '/university/screenshots/smart-docs-lista-filtro-final.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -157,16 +185,6 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       titulo: 'Visão Lista',
       tituloSumario: 'Visão Lista',
-      paragrafos: [
-        'A **Lista** concentra as leituras do workspace: busca, **edição**, colunas **personalizáveis**, **expansão** de linhas, exclusão, exportação, **painéis** salvos e visão **Transações (API)**.',
-      ],
-      calloutAposParagrafo: {
-        indice: 0,
-        callout: {
-          tipo: 'dica',
-          texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
-        },
-      },
       prefixoPassosVisuais: 'Lista',
       ancoraPassosPrefix: 'lista',
       mostrarMapaSubtopicosPassos: true,
@@ -177,14 +195,35 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A **Lista** é a forma mais **rápida** e **direta** de gerenciar e agir sobre as leituras do workspace: se assemelha a um **Excel**, mas **inteligente** e **integrado** à plataforma Gravity.',
+            'A **Lista** concentra as leituras do workspace: busca, **edição**, colunas **personalizáveis**, **expansão** de linhas, exclusão, exportação, **painéis** salvos e visão **Transações (API)**.',
           ],
+          calloutAposParagrafo: {
+            indice: 0,
+            callout: {
+              tipo: 'dica',
+              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
+            },
+          },
+        },
+        {
+          titulo: 'Detalhamento das colunas',
+          tituloCurto: 'Detalhamento das colunas',
+          paragrafos: [
+            'O menu **Colunas** oferece **260 campos nativos** (**15** na linha mãe da leitura + **245** na linha filha do documento). **15** já vêm ligados no painel **Padrão**; o restante você exibe quando precisar.',
+            'Abaixo, o catálogo completo com **edição** e **descrição** — referência antes de customizar a tabela.',
+          ],
+          mostrarCatalogoColunasListaSmartRead: true,
+          calloutAposTabelaColunasPadrao: {
+            tipo: 'dica',
+            texto:
+              'Todas as colunas acima vêm do **catálogo fixo** da plataforma. **15** já aparecem no painel **Padrão**; as demais você liga no menu **Colunas**. A cada leitura, o que muda é **quais** campos a IA preencheu — os vazios ficam **—** na Lista.',
+          },
         },
         {
           titulo: 'Expandir linhas',
           tituloCurto: 'Expandir',
           paragrafos: [
-            'Clique na **seta** à esquerda da linha para expandir os documentos sem sair da lista.',
+            'Clique na **seta** à esquerda da linha para expandir.',
             'A **linha mãe** é a leitura (ex.: Leitura 477). As **linhas filhas** são cada documento extraído nessa leitura — ex.: 3 Invoices + 1 Packing List + 1 BL = **5 linhas filhas**.',
             'Na **primeira coluna** do cabeçalho da tabela, clique na **seta** ao lado do checkbox para **expandir** ou **recolher** todas as leituras visíveis na página de uma vez.',
             'Com todas expandidas, cada leitura mostra suas linhas filhas — o mesmo efeito de abrir linha a linha, em massa.',
@@ -200,15 +239,22 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               imagem: SCREENSHOT_SMART_DOCS_LISTA_LINHA_EXPANDIDA,
               legenda: 'Linha mãe e filhas expandidas',
             },
+          ],
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 2,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_SETA,
-              legenda: 'Seta Expandir todos no cabeçalho',
-            },
-            {
-              indice: 3,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_EXPANDIDO,
-              legenda: 'Todas as leituras expandidas',
+              colunas: 2,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: 'Seta Expandir todos no cabeçalho',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_SETA,
+                },
+                {
+                  legenda: 'Todas as leituras expandidas',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_TODOS_EXPANDIDO,
+                },
+              ],
             },
           ],
         },
@@ -219,29 +265,125 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             'A **Lista** do Smart Docs é **altamente customizável**: você monta a visualização ideal no menu **Colunas**, salva no **painel** ativo e o layout volta automaticamente na sua próxima visita.',
           ],
           mostrarInfograficoSmartDocsListaCustomizacao: true,
-          mostrarTabelaColunasPadraoLista: true,
           galeriaTelasAposTabela: [
             {
               legenda: '01 · Ocultar e exibir colunas nativas',
+              pilaresCustomizacao: ['01', '02'],
               imagem: SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR,
               paragrafoAntes:
                 'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** métricas da leitura ou campos do catálogo; **marque** de volta para **exibir**.',
-              paragrafoDepois:
-                'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+              calloutDepois: {
+                tipo: 'dica',
+                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+              },
             },
             {
               legenda: '03 · Arrastar com sua preferência',
+              pilaresCustomizacao: ['03'],
               imagem: SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR_ARRASTAR,
               paragrafoAntes:
                 'No mesmo menu, **arraste** os itens para definir a **ordem** das colunas na tabela.',
-              paragrafoDepois:
-                'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+              },
             },
           ],
-          paragrafoAposGaleriaTabela:
-            'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
-            LINK_MANUAL_SMART_READ_CONFIGURACOES +
-            '.',
+          calloutAposGaleriaTabela: {
+            tipo: 'dica',
+            texto:
+              'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
+              LINK_MANUAL_SMART_READ_CONFIGURACOES +
+              '.',
+          },
+        },
+        {
+          titulo: 'Edição na tabela',
+          tituloCurto: 'Edição',
+          paragrafos: [
+            'Diferente da **Lista** do ' +
+              LINK_MANUAL_PEDIDO_LISTA +
+              ', a **Lista** do Smart Docs é **somente para visualização**: você **consulta** leituras e documentos extraídos, mas **não edita** células **in place** na tabela.',
+            'Ao passar o mouse sobre uma célula de dado, o cursor exibe **bloqueio** — círculo vermelho com traço diagonal. Para **corrigir** valores, abra a leitura pelo **Nome da leitura** e use a etapa **Conferência**.',
+          ],
+          mostrarIndicadorCursorVisualizacao: true,
+          indicadorCursorVisualizacaoAposParagrafo: 1,
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 2,
+              telas: [
+                {
+                  legenda: 'Abrir leitura pelo link',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_LINK,
+                  paragrafoAntes: 'Clique no **Nome da leitura** na Lista',
+                },
+                {
+                  legenda: 'Conferência — editar campos',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_CONFERENCIA,
+                  paragrafoAntes: 'Na etapa **Conferência**, revise e corrija os campos extraídos',
+                },
+              ],
+            },
+          ],
+          calloutAposParagrafo: {
+            indice: 1,
+            callout: {
+              tipo: 'dica',
+              texto:
+                'Para **corrigir** dados extraídos, clique no **Nome da leitura** (link) e use o fluxo de **Conferência** — a edição não ocorre diretamente na Lista.',
+            },
+          },
+        },
+        {
+          titulo: 'Filtro das colunas',
+          tituloCurto: 'Filtro das colunas',
+          paragrafos: [
+            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
+            'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
+            'Filtros ativos viram **chips** na barra da tabela, no formato **`Nome da coluna: valor`**. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece **Limpar todos**.',
+            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
+              LINK_MANUAL_SMART_READ_LISTA_PAINEIS +
+              ') e reutilize depois.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_SETA,
+                  paragrafoAntes: '**Ícone de funil** no cabeçalho da coluna',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_MODAL,
+                  paragrafoAntes: 'Popover: **ordenar** e **filtrar**',
+                },
+              ],
+            },
+            {
+              indice: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL,
+                  paragrafoAntes:
+                    'Chip **`Coluna: valor`** na barra — **combinação** de filtros e **Limpar todos**',
+                },
+              ],
+            },
+          ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+          },
         },
         {
           titulo: 'Excluir',
@@ -271,62 +413,87 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           titulo: 'Exportar',
           tituloCurto: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual (filtros + página visível).',
-            'Escolha o formato — **Excel**, **CSV**, **PDF** ou **JSON** — mesmo padrão dos demais produtos Gravity com lista virtual.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'No modal, escolha um dos **formatos** permitidos abaixo:',
           ],
-          figurasAposParagrafo: [
-            {
-              indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA,
-              legenda: 'Menu Exportar',
-            },
+          mostrarFormatosExportacaoPedidoLista: true,
+          formatosExportacaoPedidoAposParagrafo: 1,
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
-              legenda: 'Formatos disponíveis',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA,
+                  paragrafoAntes: '**Abra** o menu **Exportar** na barra',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
+                  paragrafoAntes: '**Escolha** o formato no modal',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD,
+                  paragrafoAntes: '**Download** imediato na sua máquina',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA,
+                  paragrafoAntes: 'Ex.: **Excel** (.xlsx) aberto na planilha',
+                },
+              ],
             },
           ],
           callout: {
             tipo: 'dica',
-            texto: 'O **download** inicia **imediatamente** na sua máquina — não é necessário aguardar processamento adicional.',
+            texto:
+              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
           },
         },
         {
           titulo: 'Painéis',
           tituloCurto: 'Painéis',
-          paragrafos: [
-            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
-            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
-          ],
+          paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
-          imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
-          imagemAbaixoTexto: true,
-        },
-        {
-          titulo: 'Criar painel',
-          tituloCurto: 'Novo painel',
-          paragrafos: [
-            '1. Clique em **+** na faixa de painéis.',
-            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Finalizadas**, **Conferidas** ou **Por região**).',
-            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte — as mudanças salvam automaticamente no painel ativo.',
-          ],
-          figurasAposParagrafo: [
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
-              legenda: 'Novo painel',
-            },
-            {
-              indice: 1,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
-              legenda: 'Nome do painel',
-            },
-            {
-              indice: 2,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
-              legenda: 'Nome validado',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
+                  paragrafoAntes: '**01.** Clique em **+** na faixa de painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
+                  paragrafoAntes:
+                    '**02.** Informe um **nome** único (ex.: **Em andamento**, **Finalizadas**, **Conferidas**)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
+                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
+                  paragrafoAntes:
+                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                },
+              ],
             },
           ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+          },
         },
         {
           titulo: 'Transações (API)',
@@ -334,17 +501,24 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A aba **Transações API** destaca leituras criadas por **integração** (`origem_leitura: API`) — o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
-            'Na **Visão geral** aparecem **todos** os envios do workspace; em **Transações API** permanecem apenas os marcados como **API** pelo processamento legado (tipicamente envios via ' +
+            'A aba **Transações API** destaca leituras criadas pela **integração entre a Gravity e sistemas externos** — **ERP**, **sistemas de comércio exterior** e outros conectados via ' +
               LINK_MANUAL_API_COCKPIT +
-              ' ou ERP conectado). Leituras iniciadas pelo wizard **+ Novo** ou pela interface registram **`INTERFACE`** e **não** entram nesta aba.',
-            '**Busca**, **Colunas**, **Exportar** e **painéis** funcionam igual à Visão geral — só muda o filtro de origem. Se a mesma leitura foi registrada como API em algum momento, a origem **API prevalece** na lista.',
+              ' (`origem_leitura: API`). É o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
           ],
-          callout: {
+          calloutAposImagem: {
             tipo: 'dica',
             texto:
               'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API — ausência de linhas aqui não significa falha da Lista inteira.',
           },
+          paragrafosAposImagem: [
+            'Para **enviar um documento** do **Sistema Externo** e **receber a leitura de volta**, existem **três camadas**: **Sistema Externo** (ERP, COMEX…), **fronteira Gravity** (**API Cockpit** + token) e **Smart Docs** (IA + extração). O mapa abaixo usa um **PDF de Pedido de Compra** como exemplo.',
+            '**Token + API** é a porta de entrada (Camada A → B): no ' +
+              LINK_MANUAL_API_COCKPIT +
+              ', o admin gera um token com **permissão de escrita** e **workspace** correto; o **Sistema Externo** faz **POST** do documento e recebe o **id da leitura**.',
+            'Na **Camada C**, a **IA classifica** o arquivo e **extrai os campos** (nº pedido, itens, valores…). Para o **retorno**, o **Sistema Externo** consulta a **API** (GET) **ou** recebe um **Webhook** e então busca os dados completos com o mesmo token.',
+            '**Webhook sozinho não substitui token** — ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
+          ],
+          mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit: true,
         },
       ]),
     },
@@ -485,10 +659,29 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       titulo: 'Configurações',
       tituloSumario: 'Configurações',
+      prefixoPassosVisuais: 'Configurações',
+      ancoraPassosPrefix: 'configuracoes',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'No menu lateral, **Configurações** reúne as preferências do Smart Docs no workspace — entre elas, a criação de **colunas customizadas** (**texto**, **número**, **data**, **fórmula** e outros tipos) para personalizar a **Lista** além das colunas nativas e do catálogo.',
       ],
-      passosVisuais: [],
+      passosVisuais: PASSOS_MANUAL_SMART_READ_CONFIGURACOES,
+    },
+    {
+      titulo: 'Histórico',
+      tituloSumario: 'Histórico',
+      prefixoPassosVisuais: 'Histórico',
+      ancoraPassosPrefix: 'historico',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Smart Docs** — filtrada automaticamente para o workspace ativo.',
+        'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'O acesso exige permissão **historico:ver** no workspace.',
+      },
+      passosVisuais: PASSOS_MANUAL_SMART_READ_HISTORICO,
     },
     {
       titulo: 'Requisitos técnicos',

@@ -68,6 +68,9 @@ const VisaoFornecedorDesempenho = lazy(() => import('./pages/visao-fornecedor-bi
 const VisaoFornecedorConfiguracoes = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-configuracoes'))
 const VisaoFornecedorResponderCotacao = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-cotacao'))
 const VisaoFornecedorResponderPublico = lazy(() => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-responder-publico'))
+const VisaoFornecedorCondicoesPlataforma = lazy(
+  () => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-condicoes-plataforma-bid-frete-internacional'),
+)
 
 injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
 injectUserGetter(() => useShellStore.getState().currentUser?.id)
@@ -283,10 +286,14 @@ function AppInner() {
   const isRespostaPublica = location.pathname.includes(
     '/visao-fornecedor-bid-frete-internacional/publico/',
   )
+  const isCondicoesPlataforma = location.pathname.includes(
+    '/visao-fornecedor-bid-frete-internacional/condicoes-plataforma',
+  )
+  const isPaginaPublicaFornecedor = isRespostaPublica || isCondicoesPlataforma
 
   const isVisaoFornecedor =
     location.pathname.includes('visao-fornecedor-bid-frete-internacional')
-    && !isRespostaPublica
+    && !isPaginaPublicaFornecedor
 
   const productModoBadgeLabel = isVisaoFornecedor
     ? t('bidfrete.visao_fornecedor_bid_frete_internacional.identidade.badge_fornecedor', 'Visão Fornecedor')
@@ -311,13 +318,33 @@ function AppInner() {
     return nav.map(item => mapNavItem(item, t))
   }, [isVisaoFornecedor, t])
 
-  if (isRespostaPublica) {
+  if (isPaginaPublicaFornecedor) {
     return (
       <>
         <ToastContainer />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* /bid-frete/* (splat longo) — usuário logado ou rota protegida legada */}
+            <Route
+              path="/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+              element={<VisaoFornecedorCondicoesPlataforma />}
+            />
+            <Route
+              path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+              element={<VisaoFornecedorCondicoesPlataforma />}
+            />
+            <Route
+              path="visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+              element={<VisaoFornecedorCondicoesPlataforma />}
+            />
+            <Route
+              path="/bid-frete/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
+              element={<VisaoFornecedorResponderPublico />}
+            />
+            <Route
+              path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
+              element={<VisaoFornecedorResponderPublico />}
+            />
             <Route
               path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}

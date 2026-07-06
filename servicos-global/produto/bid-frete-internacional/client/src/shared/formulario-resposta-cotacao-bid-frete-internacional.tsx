@@ -56,6 +56,7 @@ import {
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
 import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
+import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
 import {
   exigeSelecaoLocalFornecedorRespostaBidFrete,
   type ContextoLocaisOpcionaisCotacaoBidFrete,
@@ -1084,6 +1085,20 @@ export function FormPropostaRespostaCotacao({
         {erro ? <p className="brc-erro" role="alert">{erro}</p> : null}
 
         <div className="brc-acoes-form">
+          <p className="brc-aceite-condicoes">
+            {t(
+              'bidfrete.portal.responder.aviso_aceite_condicoes',
+              'Cotar é grátis — nada é cobrado nesta etapa. Ao enviar a proposta você declara ciência das condições da plataforma: USD 10,00, cobrados via boleto mensal, somente se o cliente fechar o frete com sua empresa.',
+            )}{' '}
+            <a
+              className="brc-aceite-condicoes__link"
+              href={ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t('bidfrete.portal.responder.aviso_aceite_condicoes_link', 'Leia as condições')}
+            </a>
+          </p>
           <BotaoGlobal
             type="submit"
             variante="primario"

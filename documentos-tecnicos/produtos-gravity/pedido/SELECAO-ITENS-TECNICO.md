@@ -81,7 +81,7 @@ titulo={
 }
 ```
 
-Botões que se comportam assim hoje: **Duplicar**, **Transferir**.
+Botões que se comportam assim hoje: **Duplicar**, **Transferir**, **Gerar Documento**.
 
 | Botão | Aceita só pedido | Aceita só item | Aceita misto |
 |---|:-:|:-:|:-:|
@@ -89,8 +89,10 @@ Botões que se comportam assim hoje: **Duplicar**, **Transferir**.
 | Duplicar | ✅ | ✅ | ✅ |
 | Consolidar | ✅ (≥2) | ❌ | ❌ |
 | Editar em Massa | ✅ | — | — |
-| Gerar Documento | ✅ | — | — |
+| Gerar Documento | ✅ | ✅ | ✅ |
 | Excluir | ✅ | (via dropdown da linha) | — |
+
+**Gerar Documento com itens (TASK-000410):** itens avulsos são agrupados por `pedido_id` e enviados como `item_ids[]` no payload `POST /api/v1/pedidos/template-pedido/documentos/gerar` — o backend filtra `itens_pedido` pela seleção. Pedido pai marcado prevalece (documento sai com todos os itens). Tipos disponíveis (multi-select): `pedido_de_compra`, `pedido_de_venda`, `proforma_invoice`, `invoice`, `packing_list`, `certificado_origem` — layouts em `server/src/services/documentos-comerciais-pedido.ts` (6 idiomas, RTL para árabe).
 
 ---
 

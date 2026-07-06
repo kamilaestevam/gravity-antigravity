@@ -1705,6 +1705,30 @@ select.brc-input {
   gap: 0.65rem;
 }
 
+/* Aviso de aceite das condições da plataforma — acima do botão Enviar Proposta */
+.brc-aceite-condicoes {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-left: 3px solid rgba(245, 158, 11, 0.75);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #fcd34d;
+}
+
+.brc-aceite-condicoes__link {
+  color: #a5b4fc;
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.brc-aceite-condicoes__link:hover {
+  color: #c7d2fe;
+}
+
 .brc-acoes-form .gb-btn {
   width: 100%;
   justify-content: center;

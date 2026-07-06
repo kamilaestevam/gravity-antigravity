@@ -1,12 +1,13 @@
 import type { CSSProperties } from 'react'
 
-/** Altura calibrada do bloco da tabela na Lista (cliente + fornecedor). */
-export const ALTURA_TABELA_LISTA_BID_FRETE_PX = 620
-
+/**
+ * Altura do bloco da tabela na Lista (cliente + fornecedor) — paridade Pedido:
+ * o wrapper estica até o fim da viewport (flex: 1) e a grade rola internamente.
+ * O pino legado de 620px (TASK-000419) deixava faixa vazia abaixo da tabela.
+ */
 export const estiloWrapperTabelaListaBidFreteInternacional: CSSProperties = {
-  flex: `0 0 ${ALTURA_TABELA_LISTA_BID_FRETE_PX}px`,
-  height: ALTURA_TABELA_LISTA_BID_FRETE_PX,
-  minHeight: ALTURA_TABELA_LISTA_BID_FRETE_PX,
+  flex: 1,
+  minHeight: 0,
 }
 
 export const estiloChromeTabelaListaBidFreteInternacional: CSSProperties = {

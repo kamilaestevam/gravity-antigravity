@@ -4,7 +4,7 @@
 
 import React, { useEffect, useId, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { BellRinging, CheckCircle, CurrencyDollar, Info, Trophy, WarningCircle } from '@phosphor-icons/react'
+import { BellRinging, CheckCircle, CurrencyDollar, HandCoins, Info, Trophy, WarningCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { useShellStore } from '@gravity/shell'
@@ -12,6 +12,13 @@ import { aprovarResposta, BidFreteApiError } from './api'
 import { isPropostaRespostaDemonstracao } from './proposta-elegivel-aprovacao-bid-frete-internacional'
 import type { Cotacao, PropostaRankingBidFreteInternacional } from './types'
 import { TabelaResumoPropostaReadonlyBidFreteInternacional } from './tabela-resumo-proposta-readonly-bid-frete-internacional'
+import {
+  ehContratanteGravityPagadorTaxaFechamento,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
+import { montarTextoAvisoTaxaModalAprovarPropostaBidFrete } from '../../../shared/textos-taxa-fechamento-plataforma-bid-frete-internacional'
 
 const formatMoeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -131,6 +138,7 @@ export interface ModalAprovarPropostaBidFreteInternacionalProps {
   aberto: boolean
   id_cotacao_bid_frete_internacional: string
   proposta: PropostaRankingBidFreteInternacional | null
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
   onFechar: () => void
   /** Chamado após o usuário confirmar sucesso no modal (cotação já persistida). */
   onAprovado: (cotacao: Cotacao) => void
@@ -195,10 +203,51 @@ function DestaqueGanhadorAvisoAprovacao({ children }: { children?: React.ReactNo
   )
 }
 
+function AvisoTaxaFechamentoModalAprovar({
+  pagador,
+  nomeFornecedor,
+}: {
+  pagador: EmpresaPagadoraTaxaFechamentoPlataformaGravity
+  nomeFornecedor: string
+}) {
+  const { t } = useTranslation()
+  const pagadorNormalizado = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagador)
+  const ehGravity = ehContratanteGravityPagadorTaxaFechamento(pagadorNormalizado)
+  const texto = montarTextoAvisoTaxaModalAprovarPropostaBidFrete({
+    pagador: pagadorNormalizado,
+    nomeFornecedor,
+  })
+
+  return (
+    <div
+      className={
+        ehGravity
+          ? 'bf-aprovacao-taxa bf-aprovacao-taxa--informativo'
+          : 'bf-aprovacao-taxa bf-aprovacao-taxa--cobranca-fornecedor'
+      }
+      role="note"
+    >
+      <HandCoins weight="duotone" size={20} className="bf-aprovacao-taxa-icone" aria-hidden />
+      <div className="bf-aprovacao-taxa-conteudo">
+        <div className="bf-aprovacao-taxa-cabecalho">
+          <span className="bf-aprovacao-taxa-label">
+            {t('bidfrete.comparativo.modal_aprovar_taxa_label', 'Taxa de fechamento paga por')}
+          </span>
+          <strong className="bf-aprovacao-taxa-pagador">
+            {rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagadorNormalizado)}
+          </strong>
+        </div>
+        <p className="bf-aprovacao-taxa-texto">{texto}</p>
+      </div>
+    </div>
+  )
+}
+
 export function ModalAprovarPropostaBidFreteInternacional({
   aberto,
   id_cotacao_bid_frete_internacional,
   proposta,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   onFechar,
   onAprovado,
 }: ModalAprovarPropostaBidFreteInternacionalProps) {
@@ -221,6 +270,9 @@ export function ModalAprovarPropostaBidFreteInternacional({
 
   const fornecedorFallback = t('bidfrete.comparativo.fornecedor', 'Fornecedor')
   const nome = proposta ? nomeFornecedor(proposta, fornecedorFallback) : fornecedorFallback
+  const pagadorTaxaFechamento = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+    empresa_pagadora_taxa_fechamento_plataforma_gravity,
+  )
   const tituloModal = t('bidfrete.comparativo.modal_aprovar', 'Confirmar Aprovação')
   const subtituloModal = t('bidfrete.comparativo.modal_aprovar_subtitulo', {
     fornecedor: nome,
@@ -379,6 +431,11 @@ export function ModalAprovarPropostaBidFreteInternacional({
               </div>
             </div>
 
+            <AvisoTaxaFechamentoModalAprovar
+              pagador={pagadorTaxaFechamento}
+              nomeFornecedor={nome}
+            />
+
             <h4 className="bf-aprovacao-secao-titulo">
               <Info weight="duotone" size={16} aria-hidden />
               {t('bidfrete.comparativo.modal_aprovar_secao_proposta', 'Dados completos da proposta')}
@@ -508,6 +565,69 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
     font-size: 0.9375rem;
     font-weight: 700;
     color: var(--text-primary, #f8fafc);
+  }
+  .bf-aprovacao-taxa {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    border-left-width: 3px;
+  }
+  .bf-aprovacao-taxa--cobranca-fornecedor {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.28);
+    border-left-color: rgba(245, 158, 11, 0.75);
+  }
+  .bf-aprovacao-taxa--cobranca-fornecedor .bf-aprovacao-taxa-icone {
+    color: #f59e0b;
+  }
+  .bf-aprovacao-taxa--cobranca-fornecedor .bf-aprovacao-taxa-texto {
+    color: #fcd34d;
+  }
+  .bf-aprovacao-taxa--informativo {
+    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.24);
+    border-left-color: rgba(148, 163, 184, 0.6);
+  }
+  .bf-aprovacao-taxa--informativo .bf-aprovacao-taxa-icone {
+    color: #94a3b8;
+  }
+  .bf-aprovacao-taxa--informativo .bf-aprovacao-taxa-texto {
+    color: #94a3b8;
+  }
+  .bf-aprovacao-taxa-icone {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .bf-aprovacao-taxa-conteudo {
+    min-width: 0;
+    flex: 1;
+  }
+  .bf-aprovacao-taxa-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+  .bf-aprovacao-taxa-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #94a3b8);
+  }
+  .bf-aprovacao-taxa-pagador {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-taxa-texto {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.55;
   }
   .bf-aprovacao-secao-titulo {
     display: flex;

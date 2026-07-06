@@ -101,6 +101,14 @@ function BadgeStatusProposta({
       </span>
     )
   }
+  if (status === 'APROVACAO_RECEBIDA') {
+    return (
+      <span className="dc-prop-badge-aprovada">
+        <CheckCircle weight="fill" size={13} />
+        {t('bidfrete.comparativo.aprovacao_recebida', 'Aprovação recebida')}
+      </span>
+    )
+  }
   if (status === 'REPROVADA') {
     return (
       <span className="dc-prop-badge-reprovada">
@@ -788,6 +796,7 @@ export interface ListaPropostasDetalheCotacaoProps {
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking?: boolean
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
   variante?: 'padrao' | 'combate'
   /** Na aba Respostas: exibe ordenação; no card de insights permanece oculto. */
@@ -802,6 +811,7 @@ export function ListaPropostasDetalheCotacao({
   status_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking = false,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   variante = 'padrao',
   exibirToolbarOrdenacao = false,
   onCotacaoAtualizada,
@@ -1008,6 +1018,9 @@ export function ListaPropostasDetalheCotacao({
         aberto={modalAprovar}
         id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
         proposta={propostaSelecionada}
+        empresa_pagadora_taxa_fechamento_plataforma_gravity={
+          empresa_pagadora_taxa_fechamento_plataforma_gravity
+        }
         onFechar={fecharModalAprovar}
         onAprovado={aoAprovarProposta}
       />

@@ -1256,6 +1256,7 @@ export async function getAvaliacoes(fornecedorId: string): Promise<AvaliacaoBidF
 }
 
 const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
+const ACEITE_APROVACAO_PUBLICO_BASE = `${API_BASE}/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico`
 
 export interface DashboardVisaoFornecedorBidFreteInternacional {
   metricas: MetricasVisaoFornecedorBidFreteInternacional
@@ -1448,6 +1449,49 @@ export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(
   )
   const raw = await handleResponse<unknown>(res)
   visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema.parse(raw)
+}
+
+const aceiteAprovacaoPublicoResponseSchema = z.object({
+  proposta: z.object({
+    id_proposta_bid_frete_internacional: z.string(),
+    status_proposta_bid_frete_internacional: z.string(),
+    nome_fornecedor_bid_frete_internacional: z.string(),
+    numero_cotacao_bid_frete_internacional: z.string(),
+    valor_total_proposta_bid_frete_internacional: z.number(),
+    moeda_proposta_bid_frete_internacional: z.string(),
+    data_aceite_aprovacao_proposta_bid_frete_internacional: z.string().nullable(),
+  }),
+  pode_confirmar: z.boolean(),
+  token_expirado: z.boolean(),
+  ja_confirmado: z.boolean(),
+})
+
+const confirmarAceiteAprovacaoResponseSchema = z.object({
+  status_proposta_bid_frete_internacional: z.literal('APROVACAO_RECEBIDA'),
+  data_aceite_aprovacao_proposta_bid_frete_internacional: z.string(),
+})
+
+export type AceiteAprovacaoPropostaPublicoCarregado = z.infer<typeof aceiteAprovacaoPublicoResponseSchema>
+
+export async function getAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<AceiteAprovacaoPropostaPublicoCarregado> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}`,
+  )
+  const raw = await handleResponse<unknown>(res)
+  return aceiteAprovacaoPublicoResponseSchema.parse(raw)
+}
+
+export async function confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<z.infer<typeof confirmarAceiteAprovacaoResponseSchema>> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}/confirmar`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+  )
+  const raw = await handleResponse<unknown>(res)
+  return confirmarAceiteAprovacaoResponseSchema.parse(raw)
 }
 
 /** @deprecated use getVisaoFornecedorBidFreteInternacionalDashboard */

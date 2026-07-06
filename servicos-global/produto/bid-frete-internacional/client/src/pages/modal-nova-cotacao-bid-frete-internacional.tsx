@@ -533,51 +533,6 @@ function criarFormInicialNovaCotacao(): FormState {
   }
 }
 
-function InputNumeroComSufixoNovaCotacao({
-  sufixo,
-  className,
-  ...props
-}: { sufixo: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const ajustarQuantidade = (direcao: 'up' | 'down') => {
-    const el = inputRef.current
-    if (!el) return
-    if (direcao === 'up') el.stepUp()
-    else el.stepDown()
-    el.dispatchEvent(new Event('input', { bubbles: true }))
-    el.dispatchEvent(new Event('change', { bubbles: true }))
-  }
-
-  return (
-    <div className="nc-input-group">
-      <input
-        ref={inputRef}
-        className={`nc-input nc-input--with-suffix nc-input--with-stepper${className ? ` ${className}` : ''}`}
-        type="number"
-        {...props}
-      />
-      <div className="nc-input-stepper">
-        <button
-          type="button"
-          className="nc-input-stepper-btn nc-input-stepper-btn--up"
-          tabIndex={-1}
-          aria-label="Aumentar"
-          onClick={() => ajustarQuantidade('up')}
-        />
-        <button
-          type="button"
-          className="nc-input-stepper-btn nc-input-stepper-btn--down"
-          tabIndex={-1}
-          aria-label="Diminuir"
-          onClick={() => ajustarQuantidade('down')}
-        />
-      </div>
-      <span className="nc-input-suffix">{sufixo}</span>
-    </div>
-  )
-}
-
 function aplicarMascaraHoraInput(valor: string): string {
   const digitos = valor.replace(/\D/g, '').slice(0, 4)
   if (digitos.length <= 2) return digitos
@@ -1646,51 +1601,20 @@ const NC_ESTILOS_CONTEUDO = `
           display: flex;
           align-items: center;
         }
-        .nc-input--with-suffix,
-        .nc-input--with-stepper {
-          padding-right: 5.5rem;
+        .nc-input--with-suffix {
+          padding-right: 4.25rem;
         }
         .nc-input-suffix {
           position: absolute;
-          right: 0.5rem;
+          right: 1.85rem;
           font-size: 0.75rem;
           font-weight: 700;
           color: var(--text-secondary, #94a3b8);
           pointer-events: none;
           text-transform: uppercase;
         }
-        .nc-input-stepper {
-          position: absolute;
-          right: 3.1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          z-index: 1;
-        }
-        .nc-input-stepper-btn {
-          width: 11px;
-          height: 6px;
-          border: none;
-          padding: 0;
-          margin: 0;
-          cursor: pointer;
-          background-color: transparent;
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: 11px 5px;
-          opacity: 0.85;
-          transition: opacity 0.15s ease;
-        }
-        .nc-input-stepper-btn:hover {
-          opacity: 1;
-        }
-        .nc-input-stepper-btn--up {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 0.5L1.5 4.5h8z'/%3E%3C/svg%3E");
-        }
-        .nc-input-stepper-btn--down {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 4.5L1.5 0.5h8z'/%3E%3C/svg%3E");
+        .nc-input-group .nc-input[type="number"] {
+          padding-right: 4.25rem;
         }
         .nc-input:focus ~ .nc-input-suffix {
           color: var(--nc-accent);
@@ -2106,15 +2030,44 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-secondary-light, #94a3b8);
         }
 
-        /* Spinner numérico custom — botões ▲/▼ ao lado do sufixo (KG, TON, CTN…) */
+        /* Spinner numérico — compacto, alinhado ao sufixo (KG, TON, CTN…) */
         .nc-step-content input[type="number"] {
           color-scheme: light;
-          -moz-appearance: textfield;
         }
         .nc-step-content input[type="number"]::-webkit-inner-spin-button,
         .nc-step-content input[type="number"]::-webkit-outer-spin-button {
           -webkit-appearance: none;
-          margin: 0;
+          appearance: none;
+          width: 11px;
+          height: 5px;
+          margin: 0 0.15rem 0 0;
+          cursor: pointer;
+          opacity: 0.85;
+          transition: opacity 0.15s ease;
+        }
+        .nc-step-content input[type="number"]::-webkit-inner-spin-button {
+          background:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 0.5L1.5 4.5h8z'/%3E%3C/svg%3E")
+            no-repeat center / 11px 5px;
+        }
+        .nc-step-content input[type="number"]::-webkit-outer-spin-button {
+          background:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 4.5L1.5 0.5h8z'/%3E%3C/svg%3E")
+            no-repeat center / 11px 5px;
+        }
+        .nc-step-content input[type="number"]::-webkit-inner-spin-button:hover,
+        .nc-step-content input[type="number"]::-webkit-outer-spin-button:hover {
+          opacity: 1;
+        }
+        .nc-step-content .nc-input-group input[type="number"] {
+          padding-right: 4.25rem;
+        }
+        .nc-step-content .nc-input-group .nc-input-suffix {
+          right: 1.85rem;
+          font-size: 0.75rem;
+        }
+        .nc-step-content .nc-input--with-suffix {
+          padding-right: 4.25rem;
         }
 
         .nc-switch {
@@ -4126,29 +4079,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         />
                       </Field>
                       <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
-                        <InputNumeroComSufixoNovaCotacao
-                          sufixo="ctn"
-                          min={0}
-                          step={1}
-                          placeholder="Ex: 1"
-                          value={linha.quantidade > 0 ? linha.quantidade : ''}
-                          onChange={(e) => {
-                            const bruto = e.target.value
-                            if (bruto === '') {
-                              atualizarLinhaContainerFcl(linha.id, { quantidade: 0 })
-                              return
-                            }
-                            const quantidade = parseInt(bruto, 10)
-                            if (Number.isFinite(quantidade) && quantidade >= 0) {
-                              atualizarLinhaContainerFcl(linha.id, { quantidade })
-                            }
-                          }}
-                          onBlur={() => {
-                            if (linha.quantidade <= 0) {
-                              atualizarLinhaContainerFcl(linha.id, { quantidade: 1 })
-                            }
-                          }}
-                        />
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            min={0}
+                            step={1}
+                            placeholder="Ex: 1"
+                            value={linha.quantidade > 0 ? linha.quantidade : ''}
+                            onChange={(e) => {
+                              const bruto = e.target.value
+                              if (bruto === '') {
+                                atualizarLinhaContainerFcl(linha.id, { quantidade: 0 })
+                                return
+                              }
+                              const quantidade = parseInt(bruto, 10)
+                              if (Number.isFinite(quantidade) && quantidade >= 0) {
+                                atualizarLinhaContainerFcl(linha.id, { quantidade })
+                              }
+                            }}
+                            onBlur={() => {
+                              if (linha.quantidade <= 0) {
+                                atualizarLinhaContainerFcl(linha.id, { quantidade: 1 })
+                              }
+                            }}
+                          />
+                          <span className="nc-input-suffix">ctn</span>
+                        </div>
                       </Field>
                       <button
                         type="button"
@@ -4183,33 +4140,37 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     </Field>
 
                     <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
-                      <InputNumeroComSufixoNovaCotacao
-                        sufixo={sufixoQtd}
-                        min={0}
-                        step={1}
-                        placeholder="Ex: 10"
-                        value={
-                          form.quantidade_volume_cotacao_bid_frete_internacional > 0
-                            ? form.quantidade_volume_cotacao_bid_frete_internacional
-                            : ''
-                        }
-                        onChange={(e) => {
-                          const bruto = e.target.value
-                          if (bruto === '') {
-                            set('quantidade_volume_cotacao_bid_frete_internacional', 0)
-                            return
+                      <div className="nc-input-group">
+                        <input
+                          className="nc-input nc-input--with-suffix"
+                          type="number"
+                          min={0}
+                          step={1}
+                          placeholder="Ex: 10"
+                          value={
+                            form.quantidade_volume_cotacao_bid_frete_internacional > 0
+                              ? form.quantidade_volume_cotacao_bid_frete_internacional
+                              : ''
                           }
-                          const quantidade = parseInt(bruto, 10)
-                          if (Number.isFinite(quantidade) && quantidade >= 0) {
-                            set('quantidade_volume_cotacao_bid_frete_internacional', quantidade)
-                          }
-                        }}
-                        onBlur={() => {
-                          if (form.quantidade_volume_cotacao_bid_frete_internacional <= 0) {
-                            set('quantidade_volume_cotacao_bid_frete_internacional', 1)
-                          }
-                        }}
-                      />
+                          onChange={(e) => {
+                            const bruto = e.target.value
+                            if (bruto === '') {
+                              set('quantidade_volume_cotacao_bid_frete_internacional', 0)
+                              return
+                            }
+                            const quantidade = parseInt(bruto, 10)
+                            if (Number.isFinite(quantidade) && quantidade >= 0) {
+                              set('quantidade_volume_cotacao_bid_frete_internacional', quantidade)
+                            }
+                          }}
+                          onBlur={() => {
+                            if (form.quantidade_volume_cotacao_bid_frete_internacional <= 0) {
+                              set('quantidade_volume_cotacao_bid_frete_internacional', 1)
+                            }
+                          }}
+                        />
+                        <span className="nc-input-suffix">{sufixoQtd}</span>
+                      </div>
                     </Field>
                   </div>
                 </>
@@ -4228,31 +4189,27 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </p>
               <div className="nc-cargo-subsecao-grid-peso">
                 <Field label="PESO (KG)" icone={<Scales {...ICONE_FIELD} />}>
-                  <InputNumeroComSufixoNovaCotacao
-                    sufixo="Kg"
-                    placeholder="Ex: 12000"
-                    value={form.peso_kg_cotacao_bid_frete_internacional}
-                    onChange={(e) => {
+                  <div className="nc-input-group">
+                    <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => {
                       const val = e.target.value
                       set('peso_kg_cotacao_bid_frete_internacional', val)
                       if (val) set('peso_ton_cotacao_bid_frete_internacional', (parseFloat(val) / 1000).toFixed(3))
                       else set('peso_ton_cotacao_bid_frete_internacional', '')
-                    }}
-                  />
+                    }} />
+                    <span className="nc-input-suffix">Kg</span>
+                  </div>
                 </Field>
 
                 <Field label="PESO (TON)" icone={<Scales {...ICONE_FIELD} />}>
-                  <InputNumeroComSufixoNovaCotacao
-                    sufixo="TON"
-                    placeholder="Ex: 12.0"
-                    value={form.peso_ton_cotacao_bid_frete_internacional}
-                    onChange={(e) => {
+                  <div className="nc-input-group">
+                    <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12.0" value={form.peso_ton_cotacao_bid_frete_internacional} onChange={e => {
                       const val = e.target.value
                       set('peso_ton_cotacao_bid_frete_internacional', val)
                       if (val) set('peso_kg_cotacao_bid_frete_internacional', (parseFloat(val) * 1000).toFixed(0))
                       else set('peso_kg_cotacao_bid_frete_internacional', '')
-                    }}
-                  />
+                    }} />
+                    <span className="nc-input-suffix">TON</span>
+                  </div>
                 </Field>
               </div>
 
@@ -4316,14 +4273,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <InputNumeroComSufixoNovaCotacao
-                          sufixo={unidadeCubagemSufixo}
-                          placeholder="Ex: 120"
-                          value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
-                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
-                            comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                          })}
-                        />
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 120"
+                            value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
                       </Field>
 
                       <Field
@@ -4332,14 +4293,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <InputNumeroComSufixoNovaCotacao
-                          sufixo={unidadeCubagemSufixo}
-                          placeholder="Ex: 80"
-                          value={form.largura_cubagem_cotacao_bid_frete_internacional}
-                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
-                            largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                          })}
-                        />
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 80"
+                            value={form.largura_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
                       </Field>
 
                       <Field
@@ -4348,25 +4313,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <InputNumeroComSufixoNovaCotacao
-                          sufixo={unidadeCubagemSufixo}
-                          placeholder="Ex: 90"
-                          value={form.altura_cubagem_cotacao_bid_frete_internacional}
-                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
-                            altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                          })}
-                        />
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 90"
+                            value={form.altura_cubagem_cotacao_bid_frete_internacional}
+                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
+                              altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                            })}
+                          />
+                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
+                        </div>
                       </Field>
                     </div>
 
                     <div className="nc-cargo-subsecao-grid-cubagem-m3" style={{ marginTop: '1rem' }}>
                       <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
-                        <InputNumeroComSufixoNovaCotacao
-                          sufixo="m³"
-                          placeholder="Ex: 33.2"
-                          value={form.cubagem_m3_cotacao_bid_frete_internacional}
-                          onChange={(e) => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
-                        />
+                        <div className="nc-input-group">
+                          <input
+                            className="nc-input nc-input--with-suffix"
+                            type="number"
+                            placeholder="Ex: 33.2"
+                            value={form.cubagem_m3_cotacao_bid_frete_internacional}
+                            onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
+                          />
+                          <span className="nc-input-suffix">m³</span>
+                        </div>
                       </Field>
                     </div>
 

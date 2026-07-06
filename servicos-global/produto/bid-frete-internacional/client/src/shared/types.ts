@@ -22,6 +22,7 @@ export type StatusCotacao =
   | 'COTACAO_ALTERADA'
   | 'AGUARDANDO_APROVACAO'
   | 'APROVADA'
+  | 'FECHADA'
   | 'REPROVADA'
   | 'CANCELADA'
   | 'FALTA_INFORMACAO'
@@ -78,6 +79,7 @@ export const STATUS_LABELS: Record<StatusCotacao, string> = {
   COTACAO_ALTERADA: 'Cotação alterada',
   AGUARDANDO_APROVACAO: 'Aprovação pendente',
   APROVADA: 'Aprovada',
+  FECHADA: 'Fechada',
   REPROVADA: 'Reprovada',
   CANCELADA: 'Cancelada',
   FALTA_INFORMACAO: 'Falta de informação',
@@ -91,6 +93,7 @@ export const STATUS_BADGE: Record<StatusCotacao, 'info' | 'warning' | 'success' 
   COTACAO_ALTERADA: 'warning',
   AGUARDANDO_APROVACAO: 'warning',
   APROVADA: 'success',
+  FECHADA: 'success',
   REPROVADA: 'danger',
   CANCELADA: 'default',
   FALTA_INFORMACAO: 'warning',
@@ -246,6 +249,8 @@ export interface Cotacao {
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
   data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  data_fechamento_cotacao_bid_frete_internacional?: string | null
+  id_usuario_fechamento_cotacao_bid_frete_internacional?: string | null
   /** Preenchido pelo GET /cotacoes/:id quando status APROVADA (registro de ganho). */
   id_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
   nome_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
@@ -349,6 +354,7 @@ export interface PropostaBidFreteInternacional {
   dias_periodo_armazenagem_proposta_bid_frete_internacional?: number | null
   valor_armazenagem_reais_proposta_bid_frete_internacional?: number | null
   status_proposta_bid_frete_internacional: string
+  data_aceite_aprovacao_proposta_bid_frete_internacional?: string | null
   classificacao_valor_proposta_bid_frete_internacional?: number | null
   classificacao_transito_proposta_bid_frete_internacional?: number | null
   classificacao_avaliacao_proposta_bid_frete_internacional?: number | null

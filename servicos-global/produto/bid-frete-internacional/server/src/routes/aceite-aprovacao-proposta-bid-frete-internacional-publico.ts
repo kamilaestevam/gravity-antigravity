@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { prisma } from '../middleware/isolamento-tenant.js'
 import { AppError } from '../lib/erros.js'
 import { DIAS_VALIDADE_TOKEN_ACEITE_APROVACAO_BID_FRETE_INTERNACIONAL } from '../../../shared/aceite-aprovacao-proposta-bid-frete-internacional.js'
+import { processarPosAceiteAprovacaoBidFreteInternacional } from '../services/processar-pos-aceite-aprovacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -162,6 +163,17 @@ router.post('/:token_aceite_aprovacao_proposta_bid_frete_internacional/confirmar
         status_proposta_bid_frete_internacional: 'APROVACAO_RECEBIDA',
         data_aceite_aprovacao_proposta_bid_frete_internacional: agora,
       },
+    })
+
+    void processarPosAceiteAprovacaoBidFreteInternacional({
+      prisma,
+      id_proposta_bid_frete_internacional: proposta.id_proposta_bid_frete_internacional,
+      data_aceite: agora,
+    }).catch((err: unknown) => {
+      console.warn(
+        '[Aceite] Falha pós-aceite (notificação/e-mail):',
+        err instanceof Error ? err.message : err,
+      )
     })
 
     const payload = {

@@ -29,6 +29,7 @@ import {
   SortDescending,
   Confetti,
   Package,
+  SealCheck,
 } from '@phosphor-icons/react'
 
 import { rankingCotacoesBidFreteInternacional, reprovarTodas, getCotacao } from '../shared/api'
@@ -37,6 +38,18 @@ import type { PropostaRankingBidFreteInternacional, Cotacao } from '../shared/ty
 import {
   ModalAprovarPropostaBidFreteInternacional,
 } from '../shared/modal-aprovar-proposta-bid-frete-internacional'
+import {
+  BannerEstadoAceiteComparativoBidFreteInternacional,
+  BANNER_ESTADO_ACEITE_COMPARATIVO_STYLES,
+} from '../shared/banner-estado-aceite-comparativo-bid-frete-internacional'
+import {
+  ModalFecharCotacaoBidFreteInternacional,
+  resolverNomeFornecedorGanhadorCotacao,
+} from '../shared/modal-fechar-cotacao-bid-frete-internacional'
+import {
+  resolverEstadoAceiteGanhadorComparativoBidFreteInternacional,
+  resolverPropostaGanhadoraCotacaoBidFreteInternacional,
+} from '../../../shared/estado-aceite-ganhador-comparativo-bid-frete-internacional'
 import { ModalOverlay } from '@nucleo/modal-global'
 
 // ─── Formatacao ─────────────────────────────────────────────────────────────
@@ -141,6 +154,9 @@ export default function Comparativo() {
   // Resultado pos-aprovacao
   const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
 
+  // Fechamento na plataforma
+  const [modalFechar, setModalFechar] = useState(false)
+
   const SORT_OPTIONS: SortOption[] = [
     { key: 'ranking_geral',       label: t('bidfrete.comparativo.score_total'),  icone: <Trophy weight="duotone" size={14} /> },
     { key: 'valor_total_proposta_bid_frete_internacional',       label: t('bidfrete.comparativo.preco'),         icone: <CurrencyDollar weight="duotone" size={14} /> },
@@ -190,7 +206,7 @@ export default function Comparativo() {
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 
-  const acoesComparativo = !resultadoAprovacao ? (
+  const acoesComparativo = !resultadoAprovacao && cotacao?.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO' ? (
     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
       <button className="btn btn-danger-outline" type="button" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
         <XCircle weight="duotone" size={16} />
@@ -407,6 +423,24 @@ export default function Comparativo() {
 
   const permiteAprovar = cotacao?.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
 
+  const propostaGanhadora = useMemo(
+    () => resolverPropostaGanhadoraCotacaoBidFreteInternacional(
+      cotacao?.propostas_bid_frete_internacional,
+      cotacao?.id_fornecedor_vencedor_cotacao_bid_frete_internacional,
+    ),
+    [cotacao?.propostas_bid_frete_internacional, cotacao?.id_fornecedor_vencedor_cotacao_bid_frete_internacional],
+  )
+
+  const estadoAceiteGanhador = useMemo(
+    () => resolverEstadoAceiteGanhadorComparativoBidFreteInternacional({
+      status_cotacao_bid_frete_internacional: cotacao?.status_cotacao_bid_frete_internacional,
+      proposta_ganhadora: propostaGanhadora,
+    }),
+    [cotacao?.status_cotacao_bid_frete_internacional, propostaGanhadora],
+  )
+
+  const nomeFornecedorGanhador = resolverNomeFornecedorGanhadorCotacao(cotacao)
+
   const acoes: TabelaGlobalAcao<PropostaRankingBidFreteInternacional>[] = permiteAprovar
     ? [
     {
@@ -475,6 +509,27 @@ export default function Comparativo() {
   return (
     <PaginaGlobal className="bf-comparativo bid-frete-page-shell">
       {acoesComparativo}
+      {!carregando && cotacao ? (
+        <BannerEstadoAceiteComparativoBidFreteInternacional
+          status_cotacao_bid_frete_internacional={cotacao.status_cotacao_bid_frete_internacional}
+          proposta_ganhadora={propostaGanhadora}
+          data_fechamento_cotacao_bid_frete_internacional={
+            cotacao.data_fechamento_cotacao_bid_frete_internacional
+          }
+          acaoFechamento={
+            estadoAceiteGanhador === 'aceite_confirmado' ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setModalFechar(true)}
+              >
+                <SealCheck weight="bold" size={14} />
+                {t('bidfrete.comparativo.fechar_plataforma', 'Fechar na plataforma')}
+              </button>
+            ) : null
+          }
+        />
+      ) : null}
       {/* ════════ Sort Buttons ════════ */}
       <div className="bf-sort-bar">
         <span className="bf-sort-label">{t('bidfrete.comparativo.ordenar_por')}:</span>
@@ -575,6 +630,17 @@ export default function Comparativo() {
         }
         onFechar={fecharModalAprovar}
         onAprovado={aoAprovarProposta}
+      />
+
+      <ModalFecharCotacaoBidFreteInternacional
+        aberto={modalFechar}
+        cotacao={cotacao}
+        nomeFornecedor={nomeFornecedorGanhador}
+        aoFechar={() => setModalFechar(false)}
+        aoSucesso={(cotacaoAtualizada) => {
+          setCotacao(cotacaoAtualizada)
+          setModalFechar(false)
+        }}
       />
 
       {/* ════════ Modal Reprovar ════════ */}
@@ -1007,4 +1073,6 @@ const comparativoStyles = `
   .btn-danger-outline:hover:not(:disabled) {
     background: rgba(239,68,68,0.1);
   }
+
+  ${BANNER_ESTADO_ACEITE_COMPARATIVO_STYLES}
 `

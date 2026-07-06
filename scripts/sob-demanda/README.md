@@ -24,6 +24,17 @@ Scripts utilitários executados sob demanda — backfills, migrações pontuais,
 | `seed-test-user.ts` | Seed | Cria usuário de teste |
 | `setup-dev.ts` | Setup | Bootstrap inicial do ambiente de dev |
 | `start-configurador-backend.bat` | Dev | Sobe backend do Configurador (Windows) |
+| `consultar-codigos-asia-africa.ts` | Cadastros | Consulta códigos ISO/países para leva Ásia/África (portos) |
+| `consultar-portos-faltantes-americas.ts` | Cadastros | Lista portos candidatos ausentes — leva Américas |
+| `consultar-portos-faltantes-oceania-oriente.ts` | Cadastros | Lista portos candidatos ausentes — Oceania/Oriente |
+| `upsert-portos-faltantes-leva-americas.ts` | Cadastros | Upsert portos leva Américas (`CADASTROS_DATABASE_URL`) |
+| `upsert-portos-faltantes-leva-oceania-oriente.ts` | Cadastros | Upsert portos leva Oceania/Oriente |
+| `upsert-portos-faltantes-todas-levas.ts` | Cadastros | Upsert consolidado — todas as levas (DATI) |
+| `verificar-candidatos-upsert-portos.ts` | Cadastros | Valida candidatos antes do upsert |
+| `verificar-portos-china-cadastros.ts` | Cadastros | Audita portos China hub vs cadastros |
+| `verificar-portos-leva-*-cadastros.ts` | Cadastros | Audita cobertura por leva geográfica |
+| `verificar-aeroportos-leva-*-cadastros.ts` | Cadastros | Audita aeroportos por leva geográfica |
+| `data/portos-*.ts`, `data/aeroportos-*.ts` | Dados | SSOT local dos lotes de upsert/verificação |
 
 ---
 

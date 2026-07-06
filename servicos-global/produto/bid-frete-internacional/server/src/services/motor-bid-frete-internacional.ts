@@ -24,6 +24,7 @@ import {
   formatarDimensoesCubagemEmailDisparoBidFrete,
 } from '../../../shared/formatar-email-disparo-bid-frete-internacional.js'
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import { calcularDataExpiracaoTokenDisparoBidFreteInternacional } from '../../../shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
 import {
   montarTextoRotulosLocaisOpcionaisDisparoBidFrete,
   resolverRotulosLocaisOpcionaisDisparoBidFrete,
@@ -173,7 +174,9 @@ export const motorBid = {
 
       for (const canal_disparo_cotacao_bid_frete_internacional of canais) {
         const token = randomUUID()
-        const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        const tokenExpira = calcularDataExpiracaoTokenDisparoBidFreteInternacional(
+          cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+        )
 
         const disparo_cotacao = await (prisma as any).disparoCotacaoBidFreteInternacional.create({
           data: {

@@ -18,6 +18,7 @@ export type StatusCotacao =
   | 'RASCUNHO'
   | 'ENVIADA_FORNECEDORES'
   | 'EM_COTACAO'
+  | 'COTACAO_ALTERADA'
   | 'AGUARDANDO_APROVACAO'
   | 'APROVADA'
   | 'REPROVADA'
@@ -73,6 +74,7 @@ export const STATUS_LABELS: Record<StatusCotacao, string> = {
   RASCUNHO: 'Rascunho',
   ENVIADA_FORNECEDORES: 'Enviada ao fornecedor',
   EM_COTACAO: 'Em cotação',
+  COTACAO_ALTERADA: 'Cotação alterada',
   AGUARDANDO_APROVACAO: 'Aprovação pendente',
   APROVADA: 'Aprovada',
   REPROVADA: 'Reprovada',
@@ -85,6 +87,7 @@ export const STATUS_BADGE: Record<StatusCotacao, 'info' | 'warning' | 'success' 
   RASCUNHO: 'default',
   ENVIADA_FORNECEDORES: 'info',
   EM_COTACAO: 'info',
+  COTACAO_ALTERADA: 'warning',
   AGUARDANDO_APROVACAO: 'warning',
   APROVADA: 'success',
   REPROVADA: 'danger',
@@ -230,6 +233,7 @@ export interface Cotacao {
   valor_meta_cotacao_bid_frete_internacional: number | null
   moeda_meta_cotacao_bid_frete_internacional: string | null
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: boolean
   valor_aprovado_ganho_bid_frete_internacional?: number | null
   moeda_aprovada?: string | null
   ganho_valor_cotacao_bid_frete_internacional: number | null

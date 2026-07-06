@@ -3,6 +3,9 @@ import {
   filtrarDadosMapaInsightsBidFreteInternacional,
   filtrarTerminaisMapaInsightsPorBusca,
   inferirTipoOperacaoRotaMapa,
+  OPERACOES_FILTRO_MAPA_INSIGHTS,
+  MODAIS_FILTRO_MAPA_INSIGHTS,
+  type FiltroOperacaoModalMapaInsights,
 } from '../../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/filtrar-dados-mapa-insights-bid-frete-internacional'
 import type {
   ArcRouteBidFrete,
@@ -55,6 +58,10 @@ const rotaExportacaoAerea: ArcRouteBidFrete = {
   modal_cotacao_bid_frete_internacional: 'AEREO',
   tipo_operacao_cotacao_bid_frete_internacional: 'EXPORTACAO',
 }
+
+/** Semântica opt-out: «sem restrição de operação/modal» = todos os cards ativos. */
+const operacaoModalTodosAtivos = (): Set<FiltroOperacaoModalMapaInsights> =>
+  new Set([...OPERACOES_FILTRO_MAPA_INSIGHTS, ...MODAIS_FILTRO_MAPA_INSIGHTS])
 
 describe('inferirTipoOperacaoRotaMapa', () => {
   it('infere importação quando destino é BR e origem não é BR', () => {
@@ -121,7 +128,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
       statuses_cotacao_bid_frete_internacional: ['APROVADA'],
     }
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaComStatus, rotaOutroStatus], {
-      operacaoModal: new Set(),
+      operacaoModal: operacaoModalTodosAtivos(),
       status: new Set(['RASCUNHO']),
       codigos_origem: new Set(),
       codigos_destino: new Set(),
@@ -131,7 +138,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('mantém rota sem status quando filtro de status está ativo', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaImportacao], {
-      operacaoModal: new Set(),
+      operacaoModal: operacaoModalTodosAtivos(),
       status: new Set(['RASCUNHO']),
       codigos_origem: new Set(),
       codigos_destino: new Set(),
@@ -141,7 +148,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('filtra por terminal de origem', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
+      operacaoModal: operacaoModalTodosAtivos(),
       status: new Set(),
       codigos_origem: new Set(['CNSHA']),
       codigos_destino: new Set(),
@@ -152,7 +159,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('filtra por terminal de destino', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
+      operacaoModal: operacaoModalTodosAtivos(),
       status: new Set(),
       codigos_origem: new Set(),
       codigos_destino: new Set(['USNYC']),
@@ -163,7 +170,7 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
 
   it('combina filtro de origem e destino', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
-      operacaoModal: new Set(),
+      operacaoModal: operacaoModalTodosAtivos(),
       status: new Set(),
       codigos_origem: new Set(['BRSSZ']),
       codigos_destino: new Set(['USNYC']),

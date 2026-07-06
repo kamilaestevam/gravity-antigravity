@@ -43,7 +43,10 @@ import {
 } from '../../../shared/parsear-planilha-importacao-bid-frete-internacional'
 import { analisarArquivoImportacaoBidFreteInternacional } from '../shared/analisar-importacao-bid-frete-internacional'
 import { baixarTemplateImportacaoBidFreteInternacional } from '../shared/baixar-template-importacao-bid-frete-internacional'
-import { carregarContextoCatalogoRotaImportacaoBid } from '../shared/carregar-contexto-catalogo-importacao-bid-frete-internacional'
+import {
+  carregarContextoCatalogoRotaImportacaoBid,
+  enriquecerContextoCatalogoLocaisImportacaoBid,
+} from '../shared/carregar-contexto-catalogo-importacao-bid-frete-internacional'
 import type { ContextoCatalogoRota } from '../../../shared/rota-cotacao-bid-frete-internacional'
 import type {
   ColunaMapeadaBidFreteInternacional,
@@ -133,10 +136,25 @@ export default function ImportarBidFreteInternacional() {
     }
   }, [])
 
+  // Valores porto/aeroporto já buscados remotamente — evita repetir busca de irresolvíveis.
+  const locaisBuscadosRef = useRef<Set<string>>(new Set())
+
   useEffect(() => {
     if (linhasBrutas.length === 0 || mapeamento.length === 0) return
     const linhas = aplicarMapeamentoImportacaoBid(linhasBrutas, mapeamento)
     setRows(linhasParaPreview(linhas, ctxCatalogo))
+
+    // Locais fora da página carregada do catálogo (TASK-000415): busca remota
+    // dos valores não resolvidos e reinjeção no contexto — o preview recalcula.
+    let ativo = true
+    void enriquecerContextoCatalogoLocaisImportacaoBid(ctxCatalogo, linhas, locaisBuscadosRef.current)
+      .then(enriquecido => {
+        if (ativo && enriquecido) setCtxCatalogo(enriquecido)
+      })
+      .catch(() => undefined)
+    return () => {
+      ativo = false
+    }
   }, [ctxCatalogo, linhasBrutas, mapeamento])
 
   const passos = useMemo<PassoConfig[]>(() => [

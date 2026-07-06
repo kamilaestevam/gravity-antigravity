@@ -53,7 +53,11 @@ export interface OpcoesEnvioProposta {
 export function avaliarAcessoDisparoCarregado(disparo: {
   proposta?: { status_proposta_bid_frete_internacional?: string } | null
   status_disparo_cotacao_bid_frete_internacional?: string
-  cotacao?: { status_cotacao_bid_frete_internacional?: string; data_limite_resposta_cotacao_bid_frete_internacional?: Date | string | null } | null
+  cotacao?: {
+    status_cotacao_bid_frete_internacional?: string
+    data_limite_resposta_cotacao_bid_frete_internacional?: Date | string | null
+    fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional?: boolean | null
+  } | null
   data_expiracao_token_disparo_cotacao_bid_frete_internacional?: Date | string | null
 }, opcoes: { token_valido?: boolean; token_expirado?: boolean } = {}): ResultadoAcessoRespostaDisparoBidFreteInternacional {
   const tokenExpirado =
@@ -72,6 +76,8 @@ export function avaliarAcessoDisparoCarregado(disparo: {
     disparo_respondido: disparo.status_disparo_cotacao_bid_frete_internacional === 'RESPONDIDO',
     data_limite_resposta_cotacao_bid_frete_internacional:
       disparo.cotacao?.data_limite_resposta_cotacao_bid_frete_internacional,
+    fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
+      disparo.cotacao?.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional,
   })
 }
 
@@ -98,6 +104,7 @@ export async function enviarPropostaDisparoBidFreteInternacional(
           numero_cotacao_bid_frete_internacional: true,
           status_cotacao_bid_frete_internacional: true,
           data_limite_resposta_cotacao_bid_frete_internacional: true,
+          fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: true,
           modalidade_cotacao_bid_frete_internacional: true,
           incluir_armazenagem_cotacao_bid_frete_internacional: true,
         },
@@ -295,6 +302,7 @@ function mensagemErroCodigoBloqueio(codigo: string): string {
     PROPOSTA_APROVADA: 'Proposta aprovada — nao pode ser alterada',
     PROPOSTA_REPROVADA: 'Proposta reprovada — nao pode ser alterada',
     PRAZO_RESPOSTA_ENCERRADO: 'Prazo de resposta encerrado',
+    EDICAO_PROPOSTA_NAO_PERMITIDA: 'Esta cotacao nao permite alterar a proposta apos o envio',
   }
   return mensagens[codigo] ?? 'Acesso negado para alterar proposta'
 }

@@ -612,6 +612,8 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       parseCodigosOpcaoPortoAeroportoFromDb(
         raw.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
       ),
+    fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
+      raw.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional !== false,
   }
 }
 

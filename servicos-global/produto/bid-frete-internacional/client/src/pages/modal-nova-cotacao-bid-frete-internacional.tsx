@@ -88,7 +88,15 @@ import {
   rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
 } from '../shared/locais-opcionais-cotacao-bid-frete-internacional'
 import { codigosLocaisOpcionaisCotacaoBidFrete } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
+import {
+  montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete,
+  temLocalizacaoComplementarResumoNovaCotacaoBidFrete,
+} from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional'
 import { calcularCubagemAutoDimensoesPorModalBidFreteInternacional } from '../../../shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
+import {
+  calcularDataLimiteRespostaSugeridaBidFreteInternacional,
+  lerRegrasConfigBidFreteInternacional,
+} from '../../../shared/regras-config-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import {
   filtrarFornecedoresDisparoBidFreteInternacional,
@@ -429,6 +437,8 @@ interface FormState {
   endereco_destino_cotacao_bid_frete_internacional: string
   zipcode_destino_cotacao_bid_frete_internacional: string
   data_limite_resposta_cotacao_bid_frete_internacional: string
+  /** '' até o comprador escolher Sim/Não — fornecedor pode editar proposta no prazo */
+  opcao_fornecedor_pode_alterar_proposta: '' | 'sim' | 'nao'
   /** Marítimo LCL — '' até o comprador escolher Sim/Não no passo Armazenagem */
   opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
   linhas_armazem_alfandegado_cotacao: LinhaArmazemAlfandegadoCotacao[]
@@ -494,6 +504,7 @@ const INITIAL_FORM: FormState = {
   endereco_destino_cotacao_bid_frete_internacional: '',
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
+  opcao_fornecedor_pode_alterar_proposta: '',
   opcao_incluir_armazenagem_cotacao: '',
   linhas_armazem_alfandegado_cotacao: [linhaArmazemAlfandegadoVazia(1)],
   exibir_cubagem_detalhada_cotacao: false,
@@ -2716,6 +2727,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     () => traduzirOpcoesSimNaoNovaCotacao(t),
     [t],
   )
+  const regrasOrganizacao = useMemo(() => lerRegrasConfigBidFreteInternacional(), [])
   const incluirCubagemDetalhada = form.exibir_cubagem_detalhada_cotacao
   const unidadeCubagemSufixo = form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'
   const passosWizard = useMemo(
@@ -2741,6 +2753,18 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       setStep(totalPassos)
     }
   }, [step, totalPassos])
+
+  useEffect(() => {
+    if (tipoPassoAtual !== 'fornecedores') return
+    if (form.data_limite_resposta_cotacao_bid_frete_internacional) return
+    const sugerida = calcularDataLimiteRespostaSugeridaBidFreteInternacional(
+      regrasOrganizacao.prazoPadraoHoras,
+    )
+    setForm((prev) => ({
+      ...prev,
+      data_limite_resposta_cotacao_bid_frete_internacional: sugerida,
+    }))
+  }, [tipoPassoAtual, form.data_limite_resposta_cotacao_bid_frete_internacional, regrasOrganizacao.prazoPadraoHoras])
 
   const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
     if (passoId < step) return 'feito'
@@ -2996,8 +3020,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         return form.opcao_incluir_armazenagem_cotacao === 'sim'
           || form.opcao_incluir_armazenagem_cotacao === 'nao'
       case 'fornecedores':
-        if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') return true
+        if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
+          return !!form.data_limite_resposta_cotacao_bid_frete_internacional
+            && (form.opcao_fornecedor_pode_alterar_proposta === 'sim'
+              || form.opcao_fornecedor_pode_alterar_proposta === 'nao')
+        }
         return fornecedorIdsSelecionados.length > 0
+          && !!form.data_limite_resposta_cotacao_bid_frete_internacional
+          && (form.opcao_fornecedor_pode_alterar_proposta === 'sim'
+            || form.opcao_fornecedor_pode_alterar_proposta === 'nao')
       case 'resumo': return true
       default: return false
     }
@@ -3031,6 +3062,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             form.cidade_origem_rodoviario_cotacao_bid_frete_internacional || null,
           cidade_destino_rodoviario_cotacao_bid_frete_internacional:
             form.cidade_destino_rodoviario_cotacao_bid_frete_internacional || null,
+          origem_pais_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'origem')
+            ? form.origem_pais_cotacao_bid_frete_internacional || null
+            : null,
+          destino_pais_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'destino')
+            ? form.destino_pais_cotacao_bid_frete_internacional || null
+            : null,
         },
         { portos: [...portosOrigem, ...portosDestino], aeroportos: [...aeroportosOrigem, ...aeroportosDestino] },
       )
@@ -3159,9 +3196,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             }
           : {}),
         // Form guarda "YYYY-MM-DDTHH:mm" (sem timezone) — converter para ISO completo exigido pelo z.string().datetime() do backend
-        data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional
-          ? new Date(form.data_limite_resposta_cotacao_bid_frete_internacional).toISOString()
-          : undefined,
+        data_limite_resposta_cotacao_bid_frete_internacional: new Date(
+          form.data_limite_resposta_cotacao_bid_frete_internacional,
+        ).toISOString(),
+        fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
+          form.opcao_fornecedor_pode_alterar_proposta === 'sim',
         id_bid_bid_frete_internacional: idBid ?? undefined,
         fornecedor_ids: idsFornecedoresDisparo.length > 0 ? idsFornecedoresDisparo : undefined,
         disparar_ao_criar: pretendiaDisparar,
@@ -4440,7 +4479,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <NcSubsecaoTitle id="nc-prazo-respostas" icone={<CalendarBlank {...ICONE_LABEL_SECAO} />}>
                 {t('bidfrete.nova_cotacao.prazo_respostas')}
               </NcSubsecaoTitle>
-              <p className="nc-cargo-subsecao-hint">{t('bidfrete.nova_cotacao.hint_prazo_respostas', { defaultValue: 'Opcional — define até quando os fornecedores podem enviar propostas.' })}</p>
+              <p className="nc-cargo-subsecao-hint">{t('bidfrete.nova_cotacao.hint_prazo_respostas_obrigatorio', { defaultValue: 'Obrigatório — define até quando os fornecedores podem enviar ou alterar propostas.' })}</p>
               <div className="nc-prazo-data-hora">
                 <Field label={t('bidfrete.nova_cotacao.prazo_respostas')} icone={<CalendarBlank {...ICONE_FIELD} />}>
                   <CampoCalendarioGlobal
@@ -4478,6 +4517,37 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   />
                 </Field>
               </div>
+            </section>
+
+            <section className="nc-cargo-subsecao" style={{ marginBottom: '1.5rem' }} aria-labelledby="nc-fornecedor-alterar-proposta">
+              <NcSubsecaoTitle id="nc-fornecedor-alterar-proposta" icone={<NotePencil {...ICONE_LABEL_SECAO} />}>
+                {t('bidfrete.nova_cotacao.fornecedor_pode_alterar_proposta', { defaultValue: 'Fornecedor pode alterar proposta' })}
+              </NcSubsecaoTitle>
+              <p className="nc-cargo-subsecao-hint">
+                {t('bidfrete.nova_cotacao.hint_fornecedor_pode_alterar_proposta', {
+                  defaultValue: 'Enquanto o prazo estiver aberto. Padrão da organização: {{padrao}} — escolha obrigatória nesta cotação.',
+                  padrao: regrasOrganizacao.fornecedorPodeAlterarPropostaPadrao
+                    ? t('bidfrete.nova_cotacao.sim', { defaultValue: 'Sim' })
+                    : t('bidfrete.nova_cotacao.nao', { defaultValue: 'Não' }),
+                })}
+              </p>
+              <Field
+                label={t('bidfrete.nova_cotacao.campo_fornecedor_pode_alterar', { defaultValue: 'Permitir edição da proposta' })}
+                icone={<NotePencil {...ICONE_FIELD} />}
+                required
+              >
+                <SelectGlobal
+                  id="nc-fornecedor-pode-alterar"
+                  opcoes={opcoesIncluirArmazenagem}
+                  valor={form.opcao_fornecedor_pode_alterar_proposta || null}
+                  aoMudarValor={(v) => {
+                    const valor = v == null ? '' : String(v) as '' | 'sim' | 'nao'
+                    set('opcao_fornecedor_pode_alterar_proposta', valor)
+                  }}
+                  placeholder={t('bidfrete.nova_cotacao.selecione', { defaultValue: 'Selecionar' })}
+                  posicao="auto"
+                />
+              </Field>
             </section>
 
             <NcSectionTitle icone={<Eye {...ICONE_LABEL_SECAO} />} obrigatorio>
@@ -4583,8 +4653,36 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               form.cidade_origem_rodoviario_cotacao_bid_frete_internacional || null,
             cidade_destino_rodoviario_cotacao_bid_frete_internacional:
               form.cidade_destino_rodoviario_cotacao_bid_frete_internacional || null,
+            origem_pais_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'origem')
+              ? form.origem_pais_cotacao_bid_frete_internacional || null
+              : null,
+            destino_pais_cotacao_bid_frete_internacional: exibirCamposExtrasLocalizacao(form, 'destino')
+              ? form.destino_pais_cotacao_bid_frete_internacional || null
+              : null,
           },
           { portos: [...portosOrigem, ...portosDestino], aeroportos: [...aeroportosOrigem, ...aeroportosDestino] },
+        )
+        const exibirExtrasOrigemResumo = exibirCamposExtrasLocalizacao(form, 'origem')
+        const exibirExtrasDestinoResumo = exibirCamposExtrasLocalizacao(form, 'destino')
+        const dadosLocalizacaoComplementarOrigemResumo = {
+          paisCodigo: form.origem_pais_cotacao_bid_frete_internacional,
+          paisNome: form.origem_pais_nome,
+          estadoProvincia: form.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional,
+          cidade: form.cidade_origem_rodoviario_cotacao_bid_frete_internacional,
+          endereco: form.endereco_origem_cotacao_bid_frete_internacional,
+        }
+        const dadosLocalizacaoComplementarDestinoResumo = {
+          paisCodigo: form.destino_pais_cotacao_bid_frete_internacional,
+          paisNome: form.destino_pais_nome,
+          estadoProvincia: form.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional,
+          cidade: form.cidade_destino_rodoviario_cotacao_bid_frete_internacional,
+          endereco: form.endereco_destino_cotacao_bid_frete_internacional,
+        }
+        const complementoOrigemResumo = montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete(
+          dadosLocalizacaoComplementarOrigemResumo,
+        )
+        const complementoDestinoResumo = montarPartesLocalizacaoComplementarResumoNovaCotacaoBidFrete(
+          dadosLocalizacaoComplementarDestinoResumo,
         )
         const origemName = rotaResumo.origem_nome_cotacao_bid_frete_internacional
         const destinoName = rotaResumo.destino_nome_cotacao_bid_frete_internacional
@@ -4746,6 +4844,96 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   </div>
                 </div>
               </div>
+
+              {((exibirExtrasOrigemResumo
+                && temLocalizacaoComplementarResumoNovaCotacaoBidFrete(dadosLocalizacaoComplementarOrigemResumo))
+                || (exibirExtrasDestinoResumo
+                  && temLocalizacaoComplementarResumoNovaCotacaoBidFrete(dadosLocalizacaoComplementarDestinoResumo))) ? (
+                <div className="nc-receipt-details nc-receipt-details--localizacao-complementar">
+                  {exibirExtrasOrigemResumo
+                    && temLocalizacaoComplementarResumoNovaCotacaoBidFrete(dadosLocalizacaoComplementarOrigemResumo) ? (
+                    <>
+                      {complementoOrigemResumo.pais ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <GlobeHemisphereWest size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_pais_origem', { defaultValue: 'País de origem' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoOrigemResumo.pais}</span>
+                        </div>
+                      ) : null}
+                      {complementoOrigemResumo.estadoProvincia ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <MapPin size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_estado_origem', { defaultValue: 'Estado ou província de origem' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoOrigemResumo.estadoProvincia}</span>
+                        </div>
+                      ) : null}
+                      {complementoOrigemResumo.cidade ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <Buildings size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_cidade_origem', { defaultValue: 'Cidade de origem' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoOrigemResumo.cidade}</span>
+                        </div>
+                      ) : null}
+                      {complementoOrigemResumo.endereco ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <MapPin size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_endereco_origem', { defaultValue: 'Endereço de origem' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoOrigemResumo.endereco}</span>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                  {exibirExtrasDestinoResumo
+                    && temLocalizacaoComplementarResumoNovaCotacaoBidFrete(dadosLocalizacaoComplementarDestinoResumo) ? (
+                    <>
+                      {complementoDestinoResumo.pais ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <GlobeHemisphereWest size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_pais_destino', { defaultValue: 'País de destino' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoDestinoResumo.pais}</span>
+                        </div>
+                      ) : null}
+                      {complementoDestinoResumo.estadoProvincia ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <MapPin size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_estado_destino', { defaultValue: 'Estado ou província de destino' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoDestinoResumo.estadoProvincia}</span>
+                        </div>
+                      ) : null}
+                      {complementoDestinoResumo.cidade ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <Buildings size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_cidade_destino', { defaultValue: 'Cidade de destino' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoDestinoResumo.cidade}</span>
+                        </div>
+                      ) : null}
+                      {complementoDestinoResumo.endereco ? (
+                        <div className="nc-receipt-row">
+                          <span className="nc-receipt-label">
+                            <MapPin size={14} />
+                            {t('bidfrete.nova_cotacao.resumo_endereco_destino', { defaultValue: 'Endereço de destino' })}
+                          </span>
+                          <span className="nc-receipt-value">{complementoDestinoResumo.endereco}</span>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
 
               {(textoLocaisOpcionaisOrigemResumo || textoLocaisOpcionaisDestinoResumo) ? (
                 <div className="nc-receipt-details nc-receipt-details--locais-opcionais">
@@ -4946,6 +5134,17 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><CalendarBlank size={14} />{t('bidfrete.nova_cotacao.prazo_respostas')}</span>
                     <span className="nc-receipt-value">{textoPrazoRespostasResumo}</span>
+                  </div>
+                )}
+                {(form.opcao_fornecedor_pode_alterar_proposta === 'sim'
+                  || form.opcao_fornecedor_pode_alterar_proposta === 'nao') && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label"><NotePencil size={14} />{t('bidfrete.nova_cotacao.fornecedor_pode_alterar_proposta', { defaultValue: 'Fornecedor pode alterar proposta' })}</span>
+                    <span className="nc-receipt-value">
+                      {form.opcao_fornecedor_pode_alterar_proposta === 'sim'
+                        ? t('bidfrete.nova_cotacao.sim', { defaultValue: 'Sim' })
+                        : t('bidfrete.nova_cotacao.nao', { defaultValue: 'Não' })}
+                    </span>
                   </div>
                 )}
                 {textoCanaisDisparoResumo && (

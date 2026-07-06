@@ -24,6 +24,8 @@ import {
   fornecedorDetalheResponseSchema,
 } from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -614,6 +616,10 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       ),
     fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
       raw.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional !== false,
+    empresa_pagadora_taxa_fechamento_plataforma_gravity:
+      normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+        raw.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ),
   }
 }
 
@@ -634,6 +640,7 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'aeroporto_destino_cotacao_bid_frete_internacional',
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
+  'empresa_pagadora_taxa_fechamento_plataforma_gravity',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 
@@ -877,6 +884,7 @@ export interface CriarCotacaoPayload extends Partial<Cotacao> {
   disparar_ao_criar?: boolean
   canais_disparo?: CanalDisparo[]
   emails_por_fornecedor?: Record<string, string[]>
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
 }
 
 export interface ResultadoDisparoCriacaoCotacao {
@@ -912,6 +920,10 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
   if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
   if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
   if (input.emails_por_fornecedor) serverInput.emails_por_fornecedor = input.emails_por_fornecedor
+  if (input.empresa_pagadora_taxa_fechamento_plataforma_gravity) {
+    serverInput.empresa_pagadora_taxa_fechamento_plataforma_gravity =
+      input.empresa_pagadora_taxa_fechamento_plataforma_gravity
+  }
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),

@@ -96,6 +96,12 @@ import {
   publicarColunasPersonalizadasBidFreteAtualizadas,
 } from '../shared/colunas-personalizadas-lista-bid-frete-internacional'
 import {
+  EMPRESA_PAGADORA_TAXA_FECHAMENTO_PADRAO_BID_FRETE_INTERNACIONAL,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  ROTULOS_EMPRESA_PAGADORA_TAXA_FECHAMENTO_PLATAFORMA_GRAVITY,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
+import {
   REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   type RegrasConfigBidFreteInternacional,
 } from '../../../shared/regras-config-bid-frete-internacional'
@@ -243,6 +249,7 @@ const SIDEBAR_ITEMS = [
   { tipo: 'grupo',  label: 'BID FRETE INTERNACIONAL', labelKey: 'bidfrete.config.sidebar.grupo_bidfrete' },
   { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'preferencias',          label: 'Preferências',      labelKey: 'bidfrete.config.sidebar.preferencias',      icone: <Sliders size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'taxa-cambio',           label: 'Taxa de Câmbio',    labelKey: 'bidfrete.config.sidebar.taxa_cambio',       icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
 ]
@@ -998,9 +1005,27 @@ export default function Configuracoes() {
     { id: 'tpl_resumo', nome: 'Resumo do Bid de Frete', documento_tipo: 'pdf', codigo_fonte: '<h1>Bid de Frete {{numero_cotacao_bid_frete_internacional}}</h1>', created_at: new Date().toISOString() }
   ])
 
-  const [regrasConfig, setRegrasConfig] = useConfigState<RegrasConfig>('regras', {
+  const [regrasConfig, setRegrasConfig, , salvarRegrasConfig, , regrasConfigDirty] = useConfigState<RegrasConfig>('regras', {
     ...REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   })
+
+  const restaurarPreferenciasPadrao = useCallback(() => {
+    setRegrasConfig(prev => ({
+      ...prev,
+      fornecedorPodeAlterarPropostaPadrao:
+        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.fornecedorPodeAlterarPropostaPadrao,
+      empresaPagadoraTaxaFechamentoPlataformaGravity:
+        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.empresaPagadoraTaxaFechamentoPlataformaGravity,
+    }))
+  }, [setRegrasConfig])
+
+  const opcoesPagadorTaxaFechamento = useMemo(
+    () =>
+      (Object.entries(ROTULOS_EMPRESA_PAGADORA_TAXA_FECHAMENTO_PLATAFORMA_GRAVITY) as Array<
+        [EmpresaPagadoraTaxaFechamentoPlataformaGravity, string]
+      >).map(([valor, rotulo]) => ({ valor, rotulo })),
+    [],
+  )
 
   const [categoriasAnexos, setCategoriasAnexos] = useConfigState<CategoriaAnexo[]>('categorias-anexos', [
     { id: 'bl', nome: 'Bill of Lading (B/L)', sistema: true },
@@ -2289,6 +2314,79 @@ export default function Configuracoes() {
         )}
 
         {/* ── CATEGORIA: NUMERAÇÃO ── */}
+        {categoria === 'preferencias' && (
+          <section className="cfg-secao">
+            <div className="cfg-secao__header">
+              <div>
+                <h2 className="cfg-secao__titulo">
+                  {t('bidfrete.configuracoes.preferencias_titulo', 'Preferências')}
+                </h2>
+                <p className="cfg-secao__desc">
+                  {t('bidfrete.configuracoes.preferencias_desc', 'Padrões da organização aplicados ao criar novas cotações.')}
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <ToggleRow
+                id="pref-fornecedor-alterar"
+                label={t(
+                  'bidfrete.configuracoes.pref_fornecedor_alterar_label',
+                  'O fornecedor pode alterar dados da cotação até a validade',
+                )}
+                desc={t(
+                  'bidfrete.configuracoes.pref_fornecedor_alterar_desc',
+                  'Quando desligado (padrão), o fornecedor não pode editar a proposta após o envio. No wizard, a escolha por cotação continua obrigatória.',
+                )}
+                checked={regrasConfig.fornecedorPodeAlterarPropostaPadrao}
+                onChange={v => setRegrasConfig(prev => ({ ...prev, fornecedorPodeAlterarPropostaPadrao: v }))}
+              />
+              <ConfiguracaoSecaoGlobal
+                label={t(
+                  'bidfrete.configuracoes.pref_pagador_taxa_label',
+                  'Empresa que deve pagar a taxa de fechamento da plataforma Gravity',
+                )}
+              />
+              <div style={{ maxWidth: '28rem' }}>
+                <SelectGlobal
+                  id="pref-pagador-taxa-fechamento"
+                  opcoes={opcoesPagadorTaxaFechamento}
+                  valor={regrasConfig.empresaPagadoraTaxaFechamentoPlataformaGravity}
+                  aoMudarValor={(v) => {
+                    if (v == null) return
+                    setRegrasConfig(prev => ({
+                      ...prev,
+                      empresaPagadoraTaxaFechamentoPlataformaGravity:
+                        normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(String(v)),
+                    }))
+                  }}
+                  posicao="auto"
+                />
+                <p
+                  className="cfg-hint"
+                  style={{ marginTop: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                  {t(
+                    'bidfrete.configuracoes.pref_pagador_taxa_desc',
+                    'Define quem paga a taxa de success fee (USD 10,00) ao fechar o frete na plataforma; reflete no email de disparo e na mensagem da cotação para o fornecedor.',
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="cfg-secao__footer">
+              <BotaoCancelar
+                dirty={regrasConfigDirty}
+                rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
+                onClick={restaurarPreferenciasPadrao}
+              />
+              <BotaoSalvar
+                dirty={regrasConfigDirty}
+                rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
+                onClick={salvarRegrasConfig}
+              />
+            </div>
+          </section>
+        )}
+
         {categoria === 'numeracao' && (
           <section className="cfg-secao">
             <div className="cfg-secao__header">
@@ -2441,13 +2539,6 @@ export default function Configuracoes() {
                   style={{ width: '80px', padding: '6px 12px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', textAlign: 'center' }}
                 />
               </div>
-              <ToggleRow
-                id="reg-fornecedor-alterar"
-                label="Fornecedor pode alterar proposta"
-                desc="Padrão da organização quando uma nova cotação é criada. No wizard, a escolha por cotação continua obrigatória."
-                checked={regrasConfig.fornecedorPodeAlterarPropostaPadrao}
-                onChange={v => setRegrasConfig(prev => ({ ...prev, fornecedorPodeAlterarPropostaPadrao: v }))}
-              />
               <ToggleRow
                 id="reg-div"
                 label="Alertar Divergências de Incoterms"

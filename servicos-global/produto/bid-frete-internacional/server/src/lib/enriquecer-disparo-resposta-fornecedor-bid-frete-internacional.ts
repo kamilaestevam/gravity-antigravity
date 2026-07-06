@@ -2,6 +2,7 @@ import {
   obterMapaNomesWorkspacePorIds,
   resolverNomeClienteOperacaoCotacaoResposta,
 } from './resolver-nome-cliente-cotacao-resposta-bid-frete-internacional.js'
+import { lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional } from './snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from './resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 
 type DisparoComCotacao = {
@@ -32,6 +33,12 @@ export const COTACAO_SELECT_RESPOSTA_FORNECEDOR = {
   origem_pais_cotacao_bid_frete_internacional: true,
   destino_nome_cotacao_bid_frete_internacional: true,
   destino_pais_cotacao_bid_frete_internacional: true,
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: true,
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: true,
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional: true,
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional: true,
+  endereco_origem_cotacao_bid_frete_internacional: true,
+  endereco_destino_cotacao_bid_frete_internacional: true,
   porto_origem_cotacao_bid_frete_internacional: true,
   porto_destino_cotacao_bid_frete_internacional: true,
   aeroporto_origem_cotacao_bid_frete_internacional: true,
@@ -112,6 +119,9 @@ function enriquecerCotacaoComMapa(
     ...cotacao,
     nome_cliente_operacao_cotacao_bid_frete_internacional: nomeCliente,
     nome_usuario_solicitante_bid_frete_internacional: nomeUsuarioSolicitante,
+    empresa_pagadora_taxa_fechamento_plataforma_gravity: lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+      cotacao.id_cotacao_bid_frete_internacional as string | undefined,
+    ),
   }
 }
 

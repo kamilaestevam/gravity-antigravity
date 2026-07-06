@@ -42,6 +42,7 @@ import {
   Ruler,
   Warehouse,
   PaperPlaneTilt,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -97,6 +98,7 @@ import {
   calcularDataLimiteRespostaSugeridaBidFreteInternacional,
   lerRegrasConfigBidFreteInternacional,
 } from '../../../shared/regras-config-bid-frete-internacional'
+import { rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import {
   filtrarFornecedoresDisparoBidFreteInternacional,
@@ -514,11 +516,66 @@ const INITIAL_FORM: FormState = {
   moeda_meta_cotacao_bid_frete_internacional: 'USD',
 }
 
+function opcaoFornecedorPodeAlterarPadraoOrganizacao(): '' | 'sim' | 'nao' {
+  const regras = lerRegrasConfigBidFreteInternacional()
+  return regras.fornecedorPodeAlterarPropostaPadrao ? 'sim' : 'nao'
+}
+
 function criarFormInicialNovaCotacao(): FormState {
+  const regras = lerRegrasConfigBidFreteInternacional()
   return {
     ...INITIAL_FORM,
     numero_cotacao_bid_frete_internacional: gerarNumeroCotacaoFreteInternacional(),
+    data_limite_resposta_cotacao_bid_frete_internacional: calcularDataLimiteRespostaSugeridaBidFreteInternacional(
+      regras.prazoPadraoHoras,
+    ),
+    opcao_fornecedor_pode_alterar_proposta: opcaoFornecedorPodeAlterarPadraoOrganizacao(),
   }
+}
+
+function InputNumeroComSufixoNovaCotacao({
+  sufixo,
+  className,
+  ...props
+}: { sufixo: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const ajustarQuantidade = (direcao: 'up' | 'down') => {
+    const el = inputRef.current
+    if (!el) return
+    if (direcao === 'up') el.stepUp()
+    else el.stepDown()
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+    el.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+
+  return (
+    <div className="nc-input-group">
+      <input
+        ref={inputRef}
+        className={`nc-input nc-input--with-suffix nc-input--with-stepper${className ? ` ${className}` : ''}`}
+        type="number"
+        {...props}
+      />
+      <div className="nc-input-stepper">
+        <button
+          type="button"
+          className="nc-input-stepper-btn nc-input-stepper-btn--up"
+          tabIndex={-1}
+          aria-label="Aumentar"
+          onClick={() => ajustarQuantidade('up')}
+        />
+        <button
+          type="button"
+          className="nc-input-stepper-btn nc-input-stepper-btn--down"
+          tabIndex={-1}
+          aria-label="Diminuir"
+          onClick={() => ajustarQuantidade('down')}
+        />
+      </div>
+      <span className="nc-input-suffix">{sufixo}</span>
+    </div>
+  )
 }
 
 function aplicarMascaraHoraInput(valor: string): string {
@@ -872,7 +929,7 @@ function LinhaOpcaoPortoAeroportoLocalizacao({
                 onClick={() => persistirLinhas(linhasLocais.filter((_, i) => i !== indice))}
                 aria-label={t('bidfrete.nova_cotacao.remover_local', { defaultValue: 'Remover local' })}
               >
-                <Trash size={18} weight="duotone" />
+                <Trash size={14} weight="bold" aria-hidden />
               </button>
             </div>
           ))}
@@ -1391,22 +1448,27 @@ const NC_ESTILOS_CONTEUDO = `
           align-items: end;
           margin-bottom: 0.75rem;
         }
+        .nc-linha-armazem-row .nc-btn-remover-linha,
+        .nc-linha-container-row .nc-btn-remover-linha {
+          align-self: end;
+        }
         .nc-btn-remover-linha {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 2.5rem;
-          height: 2.5rem;
-          margin-bottom: 0.125rem;
-          border: 1px solid rgba(248, 113, 113, 0.35);
+          flex-shrink: 0;
+          width: 1.875rem;
+          height: 2.25rem;
+          padding: 0;
+          border: none;
           border-radius: var(--radius-md, 8px);
-          background: rgba(248, 113, 113, 0.08);
+          background: rgba(239, 68, 68, 0.1);
           color: #f87171;
           cursor: pointer;
           transition: background 0.15s ease;
         }
         .nc-btn-remover-linha:hover:not(:disabled) {
-          background: rgba(248, 113, 113, 0.18);
+          background: rgba(239, 68, 68, 0.22);
         }
         .nc-btn-remover-linha:disabled {
           opacity: 0.35;
@@ -1584,17 +1646,51 @@ const NC_ESTILOS_CONTEUDO = `
           display: flex;
           align-items: center;
         }
-        .nc-input--with-suffix {
-          padding-right: 3rem;
+        .nc-input--with-suffix,
+        .nc-input--with-stepper {
+          padding-right: 5.5rem;
         }
         .nc-input-suffix {
           position: absolute;
-          right: 1rem;
-          font-size: 0.8125rem;
+          right: 0.5rem;
+          font-size: 0.75rem;
           font-weight: 700;
           color: var(--text-secondary, #94a3b8);
           pointer-events: none;
           text-transform: uppercase;
+        }
+        .nc-input-stepper {
+          position: absolute;
+          right: 3.1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+          z-index: 1;
+        }
+        .nc-input-stepper-btn {
+          width: 11px;
+          height: 6px;
+          border: none;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          background-color: transparent;
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 11px 5px;
+          opacity: 0.85;
+          transition: opacity 0.15s ease;
+        }
+        .nc-input-stepper-btn:hover {
+          opacity: 1;
+        }
+        .nc-input-stepper-btn--up {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 0.5L1.5 4.5h8z'/%3E%3C/svg%3E");
+        }
+        .nc-input-stepper-btn--down {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 5'%3E%3Cpath fill='%2394a3b8' d='M5.5 4.5L1.5 0.5h8z'/%3E%3C/svg%3E");
         }
         .nc-input:focus ~ .nc-input-suffix {
           color: var(--nc-accent);
@@ -1934,72 +2030,42 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-secondary-light, #cbd5e1);
         }
 
-        /* Visibilidade & Fornecedores */
-        .nc-visibilidade_cotacao_bid_frete_internacional-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 1.25rem;
-          margin-bottom: 2.25rem;
+        /* Visibilidade — cards + anônima dentro da mesma subseção com borda */
+        .nc-visibilidade-subsecao .nc-options-grid-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+          margin-bottom: 0;
+        }
+        .nc-visibilidade-subsecao .nc-option-btn {
+          padding: 10px 12px;
+          gap: 10px;
+        }
+        .nc-visibilidade-subsecao .nc-option-icon {
+          width: 32px;
+          height: 32px;
+        }
+        .nc-visibilidade-subsecao .nc-option-icon svg {
+          width: 20px;
+          height: 20px;
+        }
+        .nc-visibilidade-subsecao .nc-option-label {
+          font-size: 12px;
+        }
+        .nc-visibilidade-subsecao .nc-option-desc {
+          font-size: 10px;
+        }
+        .nc-visibilidade-subsecao .nc-switch-row {
+          background: transparent;
+          border: none;
+          border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+          border-radius: 0;
+          margin-top: 1rem;
+          padding: 1rem 0 0;
         }
 
-        .nc-vis-card {
-          display: flex;
-          align-items: flex-start;
-          gap: 1.25rem;
-          padding: 1.25rem 1.5rem;
-          background: var(--ws-bg-body, var(--bg-body, #0f172a));
-          border: 1.5px solid var(--nc-accent-border);
-          border-radius: var(--radius-md, 8px);
-          cursor: pointer;
-          transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-          text-align: left;
-          font-family: inherit;
-        }
-        .nc-vis-card:hover:not(.nc-vis-card--selected) {
-          border-color: var(--nc-accent);
-          background: var(--nc-accent-dim);
-        }
-        .nc-vis-card--selected {
-          border-color: var(--nc-accent);
-          background: var(--nc-accent-dim);
-          box-shadow: var(--nc-focus-ring);
-        }
-        .nc-vis-card--selected:hover {
-          border-color: var(--nc-accent);
-          background: var(--nc-accent-dim);
-          box-shadow: var(--nc-focus-ring);
-        }
-
-        .nc-vis-icon-wrap {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 44px;
-          height: 44px;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
-          color: var(--text-secondary, #94a3b8);
-          flex-shrink: 0;
-        }
-        .nc-vis-card--selected .nc-vis-icon-wrap {
-          background: color-mix(in srgb, var(--nc-accent) 20%, transparent);
-          color: var(--nc-accent);
-        }
-
-        .nc-vis-info {
-          display: flex;
-          flex-direction: column;
-          gap: 0.35rem;
-        }
-        .nc-vis-title {
-          font-size: 0.9375rem;
-          font-weight: 700;
-          color: var(--text-primary, #f8fafc);
-        }
-        .nc-vis-desc {
-          font-size: 0.875rem;
-          color: var(--text-secondary-light, #cbd5e1);
-          line-height: 1.45;
+        /* Visibilidade & Fornecedores — mesma linha compacta (nc-options-grid-2) */
+        .nc-visibilidade-inline {
+          margin-bottom: 0;
         }
 
         /* Custom Alternator Switch Component */
@@ -2030,8 +2096,25 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-primary, #f8fafc);
         }
         .nc-switch-desc {
-          font-size: 0.875rem;
-          color: var(--text-secondary-light, #cbd5e1);
+          font-size: 0.8125rem;
+          line-height: 1.45;
+          color: var(--text-secondary-light, #94a3b8);
+        }
+        .nc-visibilidade-subsecao .nc-switch-desc {
+          font-size: 0.8125rem;
+          line-height: 1.45;
+          color: var(--text-secondary-light, #94a3b8);
+        }
+
+        /* Spinner numérico custom — botões ▲/▼ ao lado do sufixo (KG, TON, CTN…) */
+        .nc-step-content input[type="number"] {
+          color-scheme: light;
+          -moz-appearance: textfield;
+        }
+        .nc-step-content input[type="number"]::-webkit-inner-spin-button,
+        .nc-step-content input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
         }
 
         .nc-switch {
@@ -2430,12 +2513,17 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     indisponivel: unidadesEmbalagemIndisponiveis,
   } = useOpcoesUnidadeEmbalagemBidFreteInternacional()
 
+  const passoFornecedoresWizard = React.useMemo(
+    () =>
+      sequenciaPassosWizardNovaCotacao(
+        form.modal_cotacao_bid_frete_internacional,
+        form.modalidade_cotacao_bid_frete_internacional,
+      ).indexOf('fornecedores') + 1,
+    [form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional],
+  )
+
   useEffect(() => {
-    const passoFornecedores = sequenciaPassosWizardNovaCotacao(
-      form.modal_cotacao_bid_frete_internacional,
-      form.modalidade_cotacao_bid_frete_internacional,
-    ).indexOf('fornecedores') + 1
-    if (step !== passoFornecedores) return
+    if (step !== passoFornecedoresWizard) return
     let cancelado = false
     setCarregandoFornecedores(true)
     getFornecedores({ limit: 200, status: 'ATIVO' })
@@ -2449,7 +2537,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         if (!cancelado) setCarregandoFornecedores(false)
       })
     return () => { cancelado = true }
-  }, [step, form.visibilidade_cotacao_bid_frete_internacional, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
+  }, [step, passoFornecedoresWizard, form.visibilidade_cotacao_bid_frete_internacional])
 
   const modalDisparo = form.modal_cotacao_bid_frete_internacional as ModalFrete
   const fornecedoresDisparoElegiveis = React.useMemo(
@@ -2472,7 +2560,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }, [form.visibilidade_cotacao_bid_frete_internacional])
 
   useEffect(() => {
-    if (step !== 4 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
+    if (step !== passoFornecedoresWizard || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
     if (carregandoFornecedores || fornecedoresDisparoElegiveis.length === 0) return
     if (fornecedorIdsSelecionados.length === 0) {
       setFornecedorIdsSelecionados(
@@ -2481,6 +2569,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     }
   }, [
     step,
+    passoFornecedoresWizard,
     form.visibilidade_cotacao_bid_frete_internacional,
     carregandoFornecedores,
     fornecedoresDisparoElegiveis,
@@ -2751,7 +2840,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     () => traduzirOpcoesSimNaoNovaCotacao(t),
     [t],
   )
-  const regrasOrganizacao = useMemo(() => lerRegrasConfigBidFreteInternacional(), [])
+  const regrasOrganizacao = lerRegrasConfigBidFreteInternacional()
   const incluirCubagemDetalhada = form.exibir_cubagem_detalhada_cotacao
   const unidadeCubagemSufixo = form.codigo_unidade_cubagem_cotacao_bid_frete_internacional || '—'
   const passosWizard = useMemo(
@@ -3242,6 +3331,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           idsFornecedoresDisparo,
           emailsPorFornecedorDisparo,
         ),
+        empresa_pagadora_taxa_fechamento_plataforma_gravity:
+          regrasOrganizacao.empresaPagadoraTaxaFechamentoPlataformaGravity,
       })
       idCotacaoSalva = cotacao.id_cotacao_bid_frete_internacional
       setCotacaoId(idCotacaoSalva)
@@ -4035,33 +4126,29 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         />
                       </Field>
                       <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
-                        <div className="nc-input-group">
-                          <input
-                            className="nc-input nc-input--with-suffix"
-                            type="number"
-                            min={0}
-                            step={1}
-                            placeholder="Ex: 1"
-                            value={linha.quantidade > 0 ? linha.quantidade : ''}
-                            onChange={(e) => {
-                              const bruto = e.target.value
-                              if (bruto === '') {
-                                atualizarLinhaContainerFcl(linha.id, { quantidade: 0 })
-                                return
-                              }
-                              const quantidade = parseInt(bruto, 10)
-                              if (Number.isFinite(quantidade) && quantidade >= 0) {
-                                atualizarLinhaContainerFcl(linha.id, { quantidade })
-                              }
-                            }}
-                            onBlur={() => {
-                              if (linha.quantidade <= 0) {
-                                atualizarLinhaContainerFcl(linha.id, { quantidade: 1 })
-                              }
-                            }}
-                          />
-                          <span className="nc-input-suffix">ctn</span>
-                        </div>
+                        <InputNumeroComSufixoNovaCotacao
+                          sufixo="ctn"
+                          min={0}
+                          step={1}
+                          placeholder="Ex: 1"
+                          value={linha.quantidade > 0 ? linha.quantidade : ''}
+                          onChange={(e) => {
+                            const bruto = e.target.value
+                            if (bruto === '') {
+                              atualizarLinhaContainerFcl(linha.id, { quantidade: 0 })
+                              return
+                            }
+                            const quantidade = parseInt(bruto, 10)
+                            if (Number.isFinite(quantidade) && quantidade >= 0) {
+                              atualizarLinhaContainerFcl(linha.id, { quantidade })
+                            }
+                          }}
+                          onBlur={() => {
+                            if (linha.quantidade <= 0) {
+                              atualizarLinhaContainerFcl(linha.id, { quantidade: 1 })
+                            }
+                          }}
+                        />
                       </Field>
                       <button
                         type="button"
@@ -4071,7 +4158,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         onClick={() => removerLinhaContainerFcl(linha.id)}
                         aria-label="Remover container"
                       >
-                        <Trash size={18} weight="duotone" />
+                        <Trash size={14} weight="bold" aria-hidden />
                       </button>
                     </div>
                   ))}
@@ -4096,37 +4183,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     </Field>
 
                     <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
-                      <div className="nc-input-group">
-                        <input
-                          className="nc-input nc-input--with-suffix"
-                          type="number"
-                          min={0}
-                          step={1}
-                          placeholder="Ex: 10"
-                          value={
-                            form.quantidade_volume_cotacao_bid_frete_internacional > 0
-                              ? form.quantidade_volume_cotacao_bid_frete_internacional
-                              : ''
+                      <InputNumeroComSufixoNovaCotacao
+                        sufixo={sufixoQtd}
+                        min={0}
+                        step={1}
+                        placeholder="Ex: 10"
+                        value={
+                          form.quantidade_volume_cotacao_bid_frete_internacional > 0
+                            ? form.quantidade_volume_cotacao_bid_frete_internacional
+                            : ''
+                        }
+                        onChange={(e) => {
+                          const bruto = e.target.value
+                          if (bruto === '') {
+                            set('quantidade_volume_cotacao_bid_frete_internacional', 0)
+                            return
                           }
-                          onChange={(e) => {
-                            const bruto = e.target.value
-                            if (bruto === '') {
-                              set('quantidade_volume_cotacao_bid_frete_internacional', 0)
-                              return
-                            }
-                            const quantidade = parseInt(bruto, 10)
-                            if (Number.isFinite(quantidade) && quantidade >= 0) {
-                              set('quantidade_volume_cotacao_bid_frete_internacional', quantidade)
-                            }
-                          }}
-                          onBlur={() => {
-                            if (form.quantidade_volume_cotacao_bid_frete_internacional <= 0) {
-                              set('quantidade_volume_cotacao_bid_frete_internacional', 1)
-                            }
-                          }}
-                        />
-                        <span className="nc-input-suffix">{sufixoQtd}</span>
-                      </div>
+                          const quantidade = parseInt(bruto, 10)
+                          if (Number.isFinite(quantidade) && quantidade >= 0) {
+                            set('quantidade_volume_cotacao_bid_frete_internacional', quantidade)
+                          }
+                        }}
+                        onBlur={() => {
+                          if (form.quantidade_volume_cotacao_bid_frete_internacional <= 0) {
+                            set('quantidade_volume_cotacao_bid_frete_internacional', 1)
+                          }
+                        }}
+                      />
                     </Field>
                   </div>
                 </>
@@ -4145,27 +4228,31 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </p>
               <div className="nc-cargo-subsecao-grid-peso">
                 <Field label="PESO (KG)" icone={<Scales {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12000" value={form.peso_kg_cotacao_bid_frete_internacional} onChange={e => {
+                  <InputNumeroComSufixoNovaCotacao
+                    sufixo="Kg"
+                    placeholder="Ex: 12000"
+                    value={form.peso_kg_cotacao_bid_frete_internacional}
+                    onChange={(e) => {
                       const val = e.target.value
                       set('peso_kg_cotacao_bid_frete_internacional', val)
                       if (val) set('peso_ton_cotacao_bid_frete_internacional', (parseFloat(val) / 1000).toFixed(3))
                       else set('peso_ton_cotacao_bid_frete_internacional', '')
-                    }} />
-                    <span className="nc-input-suffix">Kg</span>
-                  </div>
+                    }}
+                  />
                 </Field>
 
                 <Field label="PESO (TON)" icone={<Scales {...ICONE_FIELD} />}>
-                  <div className="nc-input-group">
-                    <input className="nc-input nc-input--with-suffix" type="number" placeholder="Ex: 12.0" value={form.peso_ton_cotacao_bid_frete_internacional} onChange={e => {
+                  <InputNumeroComSufixoNovaCotacao
+                    sufixo="TON"
+                    placeholder="Ex: 12.0"
+                    value={form.peso_ton_cotacao_bid_frete_internacional}
+                    onChange={(e) => {
                       const val = e.target.value
                       set('peso_ton_cotacao_bid_frete_internacional', val)
                       if (val) set('peso_kg_cotacao_bid_frete_internacional', (parseFloat(val) * 1000).toFixed(0))
                       else set('peso_kg_cotacao_bid_frete_internacional', '')
-                    }} />
-                    <span className="nc-input-suffix">TON</span>
-                  </div>
+                    }}
+                  />
                 </Field>
               </div>
 
@@ -4229,18 +4316,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <div className="nc-input-group">
-                          <input
-                            className="nc-input nc-input--with-suffix"
-                            type="number"
-                            placeholder="Ex: 120"
-                            value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
-                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                              comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                            })}
-                          />
-                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
-                        </div>
+                        <InputNumeroComSufixoNovaCotacao
+                          sufixo={unidadeCubagemSufixo}
+                          placeholder="Ex: 120"
+                          value={form.comprimento_cubagem_cotacao_bid_frete_internacional}
+                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
+                            comprimento_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                          })}
+                        />
                       </Field>
 
                       <Field
@@ -4249,18 +4332,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <div className="nc-input-group">
-                          <input
-                            className="nc-input nc-input--with-suffix"
-                            type="number"
-                            placeholder="Ex: 80"
-                            value={form.largura_cubagem_cotacao_bid_frete_internacional}
-                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                              largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                            })}
-                          />
-                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
-                        </div>
+                        <InputNumeroComSufixoNovaCotacao
+                          sufixo={unidadeCubagemSufixo}
+                          placeholder="Ex: 80"
+                          value={form.largura_cubagem_cotacao_bid_frete_internacional}
+                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
+                            largura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                          })}
+                        />
                       </Field>
 
                       <Field
@@ -4269,33 +4348,25 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                         })}
                         icone={<Ruler {...ICONE_FIELD} />}
                       >
-                        <div className="nc-input-group">
-                          <input
-                            className="nc-input nc-input--with-suffix"
-                            type="number"
-                            placeholder="Ex: 90"
-                            value={form.altura_cubagem_cotacao_bid_frete_internacional}
-                            onChange={e => aplicarDimensaoCubagemComAutoCalc({
-                              altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
-                            })}
-                          />
-                          <span className="nc-input-suffix">{unidadeCubagemSufixo}</span>
-                        </div>
+                        <InputNumeroComSufixoNovaCotacao
+                          sufixo={unidadeCubagemSufixo}
+                          placeholder="Ex: 90"
+                          value={form.altura_cubagem_cotacao_bid_frete_internacional}
+                          onChange={(e) => aplicarDimensaoCubagemComAutoCalc({
+                            altura_cubagem_cotacao_bid_frete_internacional: e.target.value,
+                          })}
+                        />
                       </Field>
                     </div>
 
                     <div className="nc-cargo-subsecao-grid-cubagem-m3" style={{ marginTop: '1rem' }}>
                       <Field label="CUBAGEM (M³)" icone={<Scales {...ICONE_FIELD} />}>
-                        <div className="nc-input-group">
-                          <input
-                            className="nc-input nc-input--with-suffix"
-                            type="number"
-                            placeholder="Ex: 33.2"
-                            value={form.cubagem_m3_cotacao_bid_frete_internacional}
-                            onChange={e => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
-                          />
-                          <span className="nc-input-suffix">m³</span>
-                        </div>
+                        <InputNumeroComSufixoNovaCotacao
+                          sufixo="m³"
+                          placeholder="Ex: 33.2"
+                          value={form.cubagem_m3_cotacao_bid_frete_internacional}
+                          onChange={(e) => set('cubagem_m3_cotacao_bid_frete_internacional', e.target.value)}
+                        />
                       </Field>
                     </div>
 
@@ -4489,7 +4560,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       onClick={() => removerLinhaArmazemAlfandegado(linha.id)}
                       aria-label="Remover armazém"
                     >
-                      <Trash size={18} weight="duotone" />
+                      <Trash size={14} weight="bold" aria-hidden />
                     </button>
                   </div>
                 ))}
@@ -4611,61 +4682,58 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </Field>
             </section>
 
-            <NcSectionTitle icone={<Eye {...ICONE_LABEL_SECAO} />} obrigatorio>
-              {t('bidfrete.nova_cotacao.visibilidade')}
-            </NcSectionTitle>
-            
-            <div className="nc-visibilidade_cotacao_bid_frete_internacional-grid">
-              <button
-                type="button"
-                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'DIRECIONADA')}
-              >
-                <div className="nc-vis-icon-wrap">
-                  <Users weight="duotone" size={24} />
-                </div>
-                <div className="nc-vis-info">
-                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.direcionada_label')}</span>
-                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_direcionada')}</span>
-                </div>
-              </button>
-              
-              <button
-                type="button"
-                className={`nc-vis-card ${form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA' ? 'nc-vis-card--selected' : ''}`}
-                onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'ABERTA')}
-              >
-                <div className="nc-vis-icon-wrap">
-                  <Users weight="duotone" size={24} />
-                </div>
-                <div className="nc-vis-info">
-                  <span className="nc-vis-title">{t('bidfrete.nova_cotacao.aberta_label')}</span>
-                  <span className="nc-vis-desc">{t('bidfrete.nova_cotacao.hint_aberta')}</span>
-                </div>
-              </button>
-            </div>
+            <section
+              className="nc-cargo-subsecao nc-visibilidade-subsecao"
+              style={{ marginBottom: '1.5rem' }}
+              aria-labelledby="nc-visibilidade-cotacao"
+            >
+              <NcSubsecaoTitle id="nc-visibilidade-cotacao" icone={<Eye {...ICONE_LABEL_SECAO} />} obrigatorio>
+                {t('bidfrete.nova_cotacao.visibilidade')}
+              </NcSubsecaoTitle>
 
-            {/* Custom Premium Alternator Switch para Anônima */}
-            <div className="nc-switch-row">
-              <label className="nc-switch-label">
-                <div className="nc-switch-text">
-                  <span className="nc-switch-title">{t('bidfrete.nova_cotacao.anonima_label')}</span>
-                  <span className="nc-switch-desc">{t('bidfrete.nova_cotacao.anonima_desc_long', {
-                    defaultValue:
-                      'Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.',
-                  })}</span>
-                </div>
-                <div className="nc-switch">
-                  <input type="checkbox" checked={form.anonima_cotacao_bid_frete_internacional} onChange={e => set('anonima_cotacao_bid_frete_internacional', e.target.checked)} />
-                  <span className="nc-switch-slider"></span>
-                </div>
-              </label>
-            </div>
+              <div className="nc-options-grid-2 nc-visibilidade-inline">
+                <OptionButton
+                  selected={form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'}
+                  onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'DIRECIONADA')}
+                  icon={<Users weight="duotone" size={20} />}
+                  label={t('bidfrete.nova_cotacao.direcionada_label')}
+                  description={t('bidfrete.nova_cotacao.hint_direcionada')}
+                />
+                <OptionButton
+                  selected={form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'}
+                  onClick={() => set('visibilidade_cotacao_bid_frete_internacional', 'ABERTA')}
+                  icon={<Users weight="duotone" size={20} />}
+                  label={t('bidfrete.nova_cotacao.aberta_label')}
+                  description={t('bidfrete.nova_cotacao.hint_aberta')}
+                />
+              </div>
 
-            <div style={{ marginTop: '2rem' }}>
-              <NcSectionTitle icone={<Users {...ICONE_LABEL_SECAO} />}>
+              <div className="nc-switch-row">
+                <label className="nc-switch-label">
+                  <div className="nc-switch-text">
+                    <span className="nc-switch-title">{t('bidfrete.nova_cotacao.anonima_label')}</span>
+                    <span className="nc-switch-desc">{t('bidfrete.nova_cotacao.anonima_desc_long', {
+                      defaultValue:
+                        'Ocultar o nome da sua empresa no mercado inicial de lances para total confidencialidade.',
+                    })}</span>
+                  </div>
+                  <div className="nc-switch">
+                    <input type="checkbox" checked={form.anonima_cotacao_bid_frete_internacional} onChange={e => set('anonima_cotacao_bid_frete_internacional', e.target.checked)} />
+                    <span className="nc-switch-slider"></span>
+                  </div>
+                </label>
+              </div>
+            </section>
+
+            <section className="nc-cargo-subsecao" style={{ marginBottom: '1.5rem' }} aria-labelledby="nc-fornecedores-envio">
+              <NcSubsecaoTitle id="nc-fornecedores-envio" icone={<Users {...ICONE_LABEL_SECAO} />}>
                 {t('bidfrete.nova_cotacao.fornecedores_disparo', 'Fornecedores e envio')}
-              </NcSectionTitle>
+              </NcSubsecaoTitle>
+              <p className="nc-cargo-subsecao-hint">
+                {t('bidfrete.nova_cotacao.hint_fornecedores_disparo', {
+                  defaultValue: 'Selecione os fornecedores que receberão o pedido de cotação por e-mail.',
+                })}
+              </p>
               <SelecaoFornecedoresDisparo
                 visibilidade={form.visibilidade_cotacao_bid_frete_internacional}
                 fornecedores={fornecedoresDisparoElegiveis}
@@ -4690,7 +4758,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     .catch(() => undefined)
                 }}
               />
-            </div>
+            </section>
           </div>
         )
       }
@@ -5208,6 +5276,19 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     </span>
                   </div>
                 )}
+                <div className="nc-receipt-row">
+                  <span className="nc-receipt-label">
+                    <CurrencyCircleDollar size={14} />
+                    {t('bidfrete.nova_cotacao.resumo_pagador_taxa_fechamento', {
+                      defaultValue: 'Taxa de fechamento paga por',
+                    })}
+                  </span>
+                  <span className="nc-receipt-value">
+                    {rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+                      regrasOrganizacao.empresaPagadoraTaxaFechamentoPlataformaGravity,
+                    )}
+                  </span>
+                </div>
                 {textoCanaisDisparoResumo && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><PaperPlaneTilt size={14} />{t('bidfrete.nova_cotacao.resumo_canais_disparo', { defaultValue: 'Canais de disparo' })}</span>

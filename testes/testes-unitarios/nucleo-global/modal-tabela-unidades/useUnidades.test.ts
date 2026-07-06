@@ -113,6 +113,24 @@ describe('useUnidades — ordenação por categoria (UX)', () => {
     const ordem = result.current.unidades.map((u) => `${u.tipo_unidade}:${u.codigo_unidade}`)
     expect(ordem).toEqual(['peso:KG', 'volume:LT', 'embalagem:EMBAL', 'caixa:CX10'])
   })
+
+  it('UN vem primeiro entre unidades de contagem', async () => {
+    const respostaContagem = {
+      itens: [
+        { codigo_unidade: 'MILHEI', nome_unidade: 'Milheiro', tipo_unidade: 'contagem', ativo_unidade: true },
+        { codigo_unidade: 'PARES', nome_unidade: 'Pares', tipo_unidade: 'contagem', ativo_unidade: true },
+        { codigo_unidade: 'PC', nome_unidade: 'Peça', tipo_unidade: 'contagem', ativo_unidade: true },
+        { codigo_unidade: 'UN', nome_unidade: 'Unidade', tipo_unidade: 'contagem', ativo_unidade: true },
+      ],
+      total: 4,
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(respostaContagem), { status: 200 })))
+
+    const { result } = renderHook(() => useUnidades())
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    expect(result.current.unidades.map((u) => u.codigo_unidade)).toEqual(['UN', 'MILHEI', 'PARES', 'PC'])
+  })
 })
 
 describe('useUnidades — recarregar', () => {

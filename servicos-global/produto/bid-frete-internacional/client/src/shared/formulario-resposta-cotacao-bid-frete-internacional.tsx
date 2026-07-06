@@ -58,6 +58,12 @@ import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-fr
 import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
 import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
 import {
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
+import { montarTextoAceiteCondicoesPortalRespostaBidFrete } from '../../../shared/textos-taxa-fechamento-plataforma-bid-frete-internacional'
+import {
   exigeSelecaoLocalFornecedorRespostaBidFrete,
   type ContextoLocaisOpcionaisCotacaoBidFrete,
 } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
@@ -69,6 +75,7 @@ import {
 } from './locais-opcionais-cotacao-bid-frete-internacional'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
 import { urlMarketplaceBidFreteInternacional } from './url-marketplace-gravity-bid-frete-internacional'
+import { montarTextoLocalizacaoComplementarEmailDisparoBidFrete } from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
 
 const PROP_LINK_MARKETPLACE = {
@@ -128,6 +135,14 @@ export interface DetalhesCotacaoResposta {
   nome_cliente_operacao_cotacao_bid_frete_internacional?: string | null
   origem_nome_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
+  origem_pais_cotacao_bid_frete_internacional?: string | null
+  destino_pais_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  endereco_origem_cotacao_bid_frete_internacional?: string | null
+  endereco_destino_cotacao_bid_frete_internacional?: string | null
   modal_cotacao_bid_frete_internacional?: ModalFrete
   modalidade_cotacao_bid_frete_internacional?: ModalidadeCarga
   incoterm_cotacao_bid_frete_internacional: string
@@ -161,6 +176,7 @@ export interface DetalhesCotacaoResposta {
   codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: string[] | null
   habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
   codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
 }
 
 /** "120 × 100 × 90 cm" — só quando as 3 dimensões da cubagem foram preenchidas. */
@@ -501,6 +517,22 @@ export function SecaoDetalhesCotacaoResposta({
 }) {
   const { t } = useTranslation()
   const textosOpcionais = useTextosLocaisOpcionaisCotacaoBidFrete(cotacao ?? {})
+  const localizacaoOrigemTexto = cotacao
+    ? montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+      paisCodigo: cotacao.origem_pais_cotacao_bid_frete_internacional,
+      estadoProvincia: cotacao.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional,
+      cidade: cotacao.cidade_origem_rodoviario_cotacao_bid_frete_internacional,
+      endereco: cotacao.endereco_origem_cotacao_bid_frete_internacional,
+    })
+    : null
+  const localizacaoDestinoTexto = cotacao
+    ? montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+      paisCodigo: cotacao.destino_pais_cotacao_bid_frete_internacional,
+      estadoProvincia: cotacao.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional,
+      cidade: cotacao.cidade_destino_rodoviario_cotacao_bid_frete_internacional,
+      endereco: cotacao.endereco_destino_cotacao_bid_frete_internacional,
+    })
+    : null
   const partesCarga: string[] = []
   if (cotacao?.descricao_mercadoria_cotacao_bid_frete_internacional) {
     partesCarga.push(cotacao.descricao_mercadoria_cotacao_bid_frete_internacional)
@@ -576,12 +608,28 @@ export function SecaoDetalhesCotacaoResposta({
             <span className="brc-detalhe-valor">{textosOpcionais.origem}</span>
           </div>
         ) : null}
+        {localizacaoOrigemTexto ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.origem_complementar', { defaultValue: 'Origem' })}
+            </span>
+            <span className="brc-detalhe-valor">{localizacaoOrigemTexto}</span>
+          </div>
+        ) : null}
         {textosOpcionais.destino ? (
           <div className="brc-detalhe brc-detalhe--wide">
             <span className="brc-detalhe-label">
               {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', cotacao ?? {})}
             </span>
             <span className="brc-detalhe-valor">{textosOpcionais.destino}</span>
+          </div>
+        ) : null}
+        {localizacaoDestinoTexto ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.destino_complementar', { defaultValue: 'Destino' })}
+            </span>
+            <span className="brc-detalhe-valor">{localizacaoDestinoTexto}</span>
           </div>
         ) : null}
         <div className="brc-detalhe">
@@ -654,6 +702,18 @@ export function SecaoDetalhesCotacaoResposta({
             <span className="brc-detalhe-valor">{prazoResposta}</span>
           </div>
         ) : null}
+        <div className="brc-detalhe">
+          <span className="brc-detalhe-label">
+            {t('bidfrete.portal.detalhes.pagador_taxa_fechamento', {
+              defaultValue: 'Taxa de fechamento paga por',
+            })}
+          </span>
+          <span className="brc-detalhe-valor">
+            {rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+              cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+            )}
+          </span>
+        </div>
         {cargaPerigosaTexto ? (
           <div className="brc-detalhe brc-detalhe--wide">
             <span className="brc-detalhe-label">
@@ -806,6 +866,10 @@ export function FormPropostaRespostaCotacao({
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
   const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
   const mostrarArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(incluirArmazenagemCotacao)
+  const pagadorTaxaFechamento = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+    cotacaoLocais?.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+  )
+  const textoAceiteCondicoes = montarTextoAceiteCondicoesPortalRespostaBidFrete(pagadorTaxaFechamento)
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
@@ -1088,7 +1152,7 @@ export function FormPropostaRespostaCotacao({
           <p className="brc-aceite-condicoes">
             {t(
               'bidfrete.portal.responder.aviso_aceite_condicoes',
-              'Cotar é grátis — nada é cobrado nesta etapa. Ao enviar a proposta você declara ciência das condições da plataforma: USD 10,00, cobrados via boleto mensal, somente se o cliente fechar o frete com sua empresa.',
+              textoAceiteCondicoes,
             )}{' '}
             <a
               className="brc-aceite-condicoes__link"

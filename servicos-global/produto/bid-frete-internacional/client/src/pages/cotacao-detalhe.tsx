@@ -42,6 +42,7 @@ import {
   Globe,
   UsersThree,
   Clock,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 
 import {
@@ -99,6 +100,7 @@ import {
 } from '../shared/types'
 import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -750,6 +752,13 @@ export default function DetalheCotacao() {
                   ? t('bidfrete.nova_cotacao.tipo_aberta')
                   : t('bidfrete.nova_cotacao.tipo_direcionada')
               }
+            />
+            <InfoRowComIcone
+              icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.pagador_taxa_fechamento', 'Taxa de fechamento paga por')}
+              value={rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+                cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+              )}
             />
           </CardSecaoDados>
 

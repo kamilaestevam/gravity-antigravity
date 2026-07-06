@@ -174,6 +174,7 @@ export default defineConfig(({ command }) => {
   },
   optimizeDeps: {
     include: [
+      '@babel/core',
       'react',
       'react-dom',
       'react-dom/client',

@@ -709,11 +709,13 @@ export default function DetalheCotacao() {
         >
           {t('bidfrete.detalhe_cotacao.tab_respostas', 'Propostas')}
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_comentarios', 'Comentários')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_documentos', 'Documentos')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
       </nav>
 

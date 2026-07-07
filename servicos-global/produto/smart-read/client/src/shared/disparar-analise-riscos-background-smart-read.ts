@@ -99,6 +99,12 @@ export function dispararAnaliseRiscosBackgroundSmartRead({
   requisicoesEmVoo.set(chave, promessa)
 }
 
+export function obterRequisicaoAnaliseRiscosEmVooSmartRead(
+  chave: string,
+): Promise<AnaliseRiscosLeituraResponse> | null {
+  return requisicoesEmVoo.get(chave) ?? null
+}
+
 export function limparRequisicoesAnaliseRiscosEmVooSmartRead(): void {
   requisicoesEmVoo.clear()
 }

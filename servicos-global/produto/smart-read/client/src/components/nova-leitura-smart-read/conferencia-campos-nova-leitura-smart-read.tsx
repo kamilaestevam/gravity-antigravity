@@ -8,6 +8,7 @@ import {
   Anchor,
   Buildings,
   CaretDown,
+  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -38,6 +39,12 @@ import {
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
 import { isCampoEditadoLeitura } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 import { CampoLinhaConferenciaNovaLeituraSmartRead } from './campo-linha-conferencia-nova-leitura-smart-read'
+import { resolverChaveCampoConferenciaLeitura } from '../../shared/foco-conferencia-campos-nova-leitura-smart-read'
+import {
+  chaveCampoConferenciaUsuario,
+  contarConferenciaManualChecklist,
+  usarCamposMarcacaoConferencia,
+} from '../../shared/checklist-marcacao-usuario-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
@@ -148,6 +155,24 @@ export function ConferenciaCamposNovaLeituraSmartRead({
     () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),
     [extracao?.dados],
   )
+
+  const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
+  const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido, marcados: camposConferidos } =
+    usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
+
+  const chavesCamposConferencia = useMemo(
+    () =>
+      secoes.flatMap((secao) =>
+        secao.campos.map((campo) => chaveCampoConferenciaUsuario(campo.chave)),
+      ),
+    [secoes],
+  )
+
+  const resumoConferenciaManual = useMemo(
+    () => contarConferenciaManualChecklist(camposConferidos, chavesCamposConferencia),
+    [camposConferidos, chavesCamposConferencia],
+  )
+
   const stats = useMemo(
     () =>
       calcularEstatisticasConferencia(secoes, {
@@ -176,8 +201,14 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   }, [arquivo.id_arquivo_local, indiceDocumento])
 
   useEffect(() => {
-    if (!campoFoco?.trim()) return
-    const chave = campoFoco.trim()
+    const chave = resolverChaveCampoConferenciaLeitura(
+      typeof campoFoco === 'string' ? campoFoco : null,
+      secoes,
+    )
+    if (!chave) {
+      if (typeof campoFoco === 'string' && campoFoco.trim()) onCampoFocoConsumido?.()
+      return
+    }
     const secaoAlvo = secoes.find((secao) => secao.campos.some((c) => c.chave === chave))
     if (!secaoAlvo) {
       onCampoFocoConsumido?.()
@@ -354,6 +385,16 @@ export function ConferenciaCamposNovaLeituraSmartRead({
               <span className="sr-conf-progresso-pct">{stats.percentual}%</span>
             </div>
 
+            {resumoConferenciaManual.total > 0 && (
+              <div className="sr-conf-progresso-conferencia-manual" role="status" aria-live="polite">
+                <Check size={12} weight="bold" aria-hidden />
+                <span>
+                  {resumoConferenciaManual.marcados}/{resumoConferenciaManual.total} campos conferidos
+                  manualmente ({resumoConferenciaManual.percentual}%)
+                </span>
+              </div>
+            )}
+
             <div className="sr-conf-progresso-metricas" aria-label="Resumo da conferência">
               <button
                 type="button"
@@ -521,6 +562,10 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         valor={campoAssinado.valor}
                         alterado={ehAlterado('isSigned')}
                         tipo="booleano"
+                        conferido={campoEstaConferido(chaveCampoConferenciaUsuario('isSigned'))}
+                        onAlternarConferido={() =>
+                          alternarCampoConferido(chaveCampoConferenciaUsuario('isSigned'))
+                        }
                         aoSalvar={(novo) => onEditarCampo?.('isSigned', novo)}
                       />
                     )}
@@ -532,6 +577,10 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         valor={campo.valor}
                         alterado={ehAlterado(campo.chave)}
                         destacado={campoDestacado === campo.chave}
+                        conferido={campoEstaConferido(chaveCampoConferenciaUsuario(campo.chave))}
+                        onAlternarConferido={() =>
+                          alternarCampoConferido(chaveCampoConferenciaUsuario(campo.chave))
+                        }
                         aoSalvar={(novo) => onEditarCampo?.(campo.chave, novo)}
                       />
                     ))}

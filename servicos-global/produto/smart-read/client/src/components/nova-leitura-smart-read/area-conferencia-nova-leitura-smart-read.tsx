@@ -10,6 +10,7 @@ import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-le
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
+import { ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead } from './resumo-conferencia-analise-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
@@ -58,6 +59,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
   const [campoFocoConferencia, setCampoFocoConferencia] = useState<string | null>(null)
+  const [riscoExpandirId, setRiscoExpandirId] = useState<string | null>(null)
 
   const arquivosCompletos = arquivos.filter(
     (item) => item.status_arquivo_local === 'completo' && item.leitura,
@@ -113,6 +115,20 @@ export function AreaConferenciaNovaLeituraSmartRead({
         })}
       </div>
 
+      {arquivosCompletos.length > 0 && arquivoAtual && (
+        <ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead
+          arquivo={arquivoAtual}
+          indiceDocumento={indiceDocumento}
+          abaAtiva={aba}
+          idLeituraLegado={idLeituraLegado}
+          onIrAnaliseRiscos={() => setAba('riscos')}
+          onVerRiscoDoChecklist={(riscoId) => {
+            setAba('riscos')
+            setRiscoExpandirId(riscoId)
+          }}
+        />
+      )}
+
       {aba === 'campos' && (
         <>
           {arquivosCompletos.length === 0 ? (
@@ -162,6 +178,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
               setAba('campos')
               setCampoFocoConferencia(foco.campo)
             }}
+            riscoExpandirId={riscoExpandirId}
+            onRiscoExpandirConsumido={() => setRiscoExpandirId(null)}
             idLeituraLegado={idLeituraLegado}
             onTokensAtualizados={onTokensAtualizados}
             onIaInicio={onIaInicio}

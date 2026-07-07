@@ -17,6 +17,11 @@
   color: #f1f5f9;
 }
 
+/* Dashboard configurável (aba Dashboard) — gap 1rem como Pedido; visão geral mantém 1.5rem */
+.bid-frete-page-shell.bfd-dashboard {
+  gap: 1rem;
+}
+
 .bfd-dashboard--fornecedor .cg-card.bfd-kpi--destacado {
   border: 1px solid rgba(251, 191, 36, 0.45) !important;
   background: rgba(251, 191, 36, 0.08) !important;

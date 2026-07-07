@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { Fragment, useState, useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ClipboardText,
@@ -22,6 +22,9 @@ import {
   CaretDown,
   CaretUp,
   BuildingOffice,
+  ChartLineUp,
+  Cube,
+  Cpu,
 } from '@phosphor-icons/react'
 import { OnboardingPreview } from '../components/flows/OnboardingPreview'
 import { PaywallDrawer } from '../components/flows/ModalPaywallDrawer'
@@ -576,7 +579,7 @@ export function Home() {
           {/* Efeito 3D Interativo: Giro Flat ao clicar, com Reset ao sair com o mouse */}
           <div
             className={`stack-3d-container ${selectedScreen ? 'has-active-layer' : ''}`}
-            style={{ '--active-layer-rgb': activeRgb } as React.CSSProperties}
+            style={{ '--active-layer-rgb': activeRgb } as CSSProperties}
             aria-hidden
           >
             {/* Lasers de Conexão (somem no hover) */}
@@ -607,27 +610,27 @@ export function Home() {
             </svg>
 
             {/* Rótulos Flutuantes de Informações */}
-            <div className="stack-label-float" style={{ bottom: '40px', left: '-50px', '--layer-color': '#818cf8' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '40px', left: '-50px', '--layer-color': '#818cf8' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#818cf8' }}>MÓDULO 01</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Gestão de Pedidos</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '110px', right: '-60px', left: 'auto', '--layer-color': '#fbbf24' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '110px', right: '-60px', left: 'auto', '--layer-color': '#fbbf24' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#fbbf24' }}>MÓDULO 02</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>BID Frete Intel.</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '180px', left: '-60px', '--layer-color': '#06b6d4' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '180px', left: '-60px', '--layer-color': '#06b6d4' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#06b6d4' }}>MÓDULO 03</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>BID Câmbio Corretor</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '250px', right: '-70px', left: 'auto', '--layer-color': '#10b981' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '250px', right: '-70px', left: 'auto', '--layer-color': '#10b981' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#10b981' }}>MÓDULO 04</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Simula Custo Fiscal</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '320px', left: '-50px', '--layer-color': '#3b82f6' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '320px', left: '-50px', '--layer-color': '#3b82f6' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#3b82f6' }}>MÓDULO 05</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>NF Entrada Automática</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '390px', right: '-50px', left: 'auto', '--layer-color': '#a855f7' } as React.CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '390px', right: '-50px', left: 'auto', '--layer-color': '#a855f7' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#a855f7' }}>MÓDULO 06</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Smart Read IA</span>
             </div>
@@ -905,334 +908,246 @@ export function Home() {
         </div>
       </section>
 
-      {/* ===== MULTI-WORKSPACE (PREPARADO PARA MULTI-EMPRESAS) ===== */}
-      <section className="section multi-workspace-section" style={{ background: 'var(--bg-body)', borderTop: '1px solid rgba(255, 255, 255, 0.03)', borderBottom: '1px solid rgba(255, 255, 255, 0.03)', position: 'relative', padding: '6rem 0', overflow: 'hidden' }}>
-        {/* Ambient neon glows */}
-        <div className="ambient-glow glow-purple" style={{ top: '-10%', right: '10%', opacity: 0.15, width: '400px', height: '400px' }} />
-        <div className="ambient-glow glow-cyan" style={{ bottom: '-10%', left: '5%', opacity: 0.1, width: '400px', height: '400px' }} />
+            {/* ===== PREMIUM 3D MULTI-WORKSPACE ECOSYSTEM ===== */}
+      <section className="section multi-workspace-premium" style={{ 
+        background: '#02040a', 
+        position: 'relative', 
+        padding: '8rem 0', 
+        overflow: 'hidden',
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+      }}>
+        {/* Deep Space / Premium Glows */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-10%', right: '0%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 60%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', left: '0%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(244,63,94,0.05) 0%, transparent 60%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
-        <div className="container">
-          <div className="section-title text-center" style={{ marginBottom: '4rem' }}>
-            <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Padrão Enterprise</p>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 850, letterSpacing: '-0.02em', color: '#fff' }}>Preparado para Multi-Empresas</h2>
-            <p style={{ maxWidth: '700px', margin: '0 auto', color: 'var(--text-secondary)' }}>Uma única conta, múltiplos CNPJs. Gerencie filiais, importadoras e exportadoras de forma consolidada e agregue dados operacionais com segurança de dados baseada em papéis.</p>
+        <div className="container" style={{ position: 'relative', zIndex: 10 }}>
+          <div className="text-center" style={{ marginBottom: '5rem' }}>
+            <span style={{ 
+              display: 'inline-block', padding: '6px 16px', borderRadius: '30px', 
+              background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)',
+              color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase',
+              marginBottom: '1.5rem'
+            }}>Ecossistema Multi-Empresas 3D</span>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', marginBottom: '1.5rem', lineHeight: 1.1 }}>
+              O Poder do <span style={{ background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Gravity</span><br/>em Toda a sua Rede
+            </h2>
+            <p style={{ maxWidth: '650px', margin: '0 auto', color: '#94a3b8', fontSize: '1.125rem', lineHeight: 1.6 }}>
+              Experimente a percepção total dos seus dados. Selecione um, alguns ou todos os workspaces e veja o ecossistema consolidar informações em tempo real, impulsionando decisões estratégicas.
+            </p>
           </div>
 
-          <div className="multi-workspace-grid">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '350px 1fr', 
+            gap: '4rem', 
+            alignItems: 'center',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            borderRadius: '32px',
+            padding: '4rem',
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)'
+          }}>
             
-            {/* Coluna Esquerda: Texto + Simulador do Popover Filtro */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>Filtro e Consolidação em Tempo Real</h3>
-                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '0.95rem' }}>
-                  No Gravity, usuários com nível de acesso gerencial podem selecionar quais filiais (workspaces) desejam consolidar nas telas de listagem. Ao marcar ou desmarcar filiais no seletor, o sistema recalcula e consolida os dados de forma agregada em tempo real.
-                </p>
+            {/* Control Panel */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem' }}>Painel de Controle</h3>
+                <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Ative ou desative workspaces para visualizar o fluxo de dados no ecossistema.</p>
               </div>
 
-              {/* Interatividade: Simulação de Popover de Filtro */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {[
+                  { id: 'matriz', name: 'Gravity São Paulo', type: 'Matriz', icon: <BuildingOffice weight="duotone" />, color: '#818cf8', activeBg: 'rgba(129, 140, 248, 0.15)' },
+                  { id: 'sul', name: 'Gravity Santa Catarina', type: 'Filial Logística', icon: <Buildings weight="duotone" />, color: '#10b981', activeBg: 'rgba(16, 185, 129, 0.15)' },
+                  { id: 'rj', name: 'Gravity Rio de Janeiro', type: 'Centro de Distribuição', icon: <Buildings weight="duotone" />, color: '#f43f5e', activeBg: 'rgba(244, 63, 94, 0.15)' }
+                ].map(ws => (
+                  <div 
+                    key={ws.id}
+                    onClick={() => setCheckedWorkspaces(prev => ({ ...prev, [ws.id]: !prev[ws.id] }))}
+                    style={{
+                      display: 'flex', alignItems: 'center', padding: '16px', borderRadius: '16px', cursor: 'pointer',
+                      background: checkedWorkspaces[ws.id] ? ws.activeBg : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${checkedWorkspaces[ws.id] ? ws.color : 'rgba(255,255,255,0.05)'}`,
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transform: checkedWorkspaces[ws.id] ? 'scale(1.02)' : 'scale(1)',
+                      boxShadow: checkedWorkspaces[ws.id] ? `0 10px 30px -10px ${ws.color}66` : 'none'
+                    }}
+                  >
+                    <div style={{ 
+                      width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: checkedWorkspaces[ws.id] ? ws.color : 'rgba(255,255,255,0.05)',
+                      color: checkedWorkspaces[ws.id] ? '#fff' : '#64748b',
+                      fontSize: '24px', transition: 'all 0.3s'
+                    }}>
+                      {ws.icon}
+                    </div>
+                    <div style={{ marginLeft: '16px', flex: 1 }}>
+                      <div style={{ color: checkedWorkspaces[ws.id] ? '#fff' : '#94a3b8', fontWeight: 800, fontSize: '1rem', transition: 'color 0.3s' }}>{ws.name}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, marginTop: '2px' }}>{ws.type}</div>
+                    </div>
+                    <div style={{ 
+                      width: '24px', height: '24px', borderRadius: '50%', border: `2px solid ${checkedWorkspaces[ws.id] ? ws.color : '#475569'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s',
+                      background: checkedWorkspaces[ws.id] ? ws.color : 'transparent'
+                    }}>
+                      {checkedWorkspaces[ws.id] && <Check size={14} weight="bold" color="#fff" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => setCheckedWorkspaces({ matriz: true, sul: true, rj: true })}
+                  style={{ flex: 1, padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                >Habilitar Todos</button>
+                <button 
+                  onClick={() => setCheckedWorkspaces({ matriz: false, sul: false, rj: false })}
+                  style={{ flex: 1, padding: '12px', borderRadius: '12px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244,63,94,0.1)'; e.currentTarget.style.color = '#f43f5e'; e.currentTarget.style.borderColor = '#f43f5e'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                >Desabilitar</button>
+              </div>
+            </div>
+
+            {/* 3D Visualizer */}
+            <div style={{ position: 'relative', height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: '1500px' }}>
+              
+              {/* Central Core (SSOT) */}
               <div style={{
-                background: 'rgba(18, 22, 48, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px'
+                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                width: '160px', height: '160px', borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                border: '1px dashed rgba(255,255,255,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: 10,
+                boxShadow: Object.values(checkedWorkspaces).some(v => v) ? '0 0 80px rgba(255,255,255,0.2)' : 'none',
+                transition: 'all 0.5s'
+              }}>
+                <div style={{
+                  width: '80px', height: '80px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.8)',
+                  transform: 'translateZ(50px)',
+                  zIndex: 11
+                }}>
+                  <ShieldCheck size={40} weight="duotone" color="#0f172a" />
+                </div>
+                <div style={{ position: 'absolute', bottom: '-40px', color: '#fff', fontWeight: 800, fontSize: '0.875rem', letterSpacing: '0.1em' }}>SSOT CORE</div>
+              </div>
+
+              {/* Orbital Rings & Nodes */}
+              <div style={{
+                position: 'absolute', width: '100%', height: '100%',
+                transformStyle: 'preserve-3d',
+                transform: 'rotateX(60deg) rotateZ(0deg)',
+                animation: 'spin 40s linear infinite'
+              }}>
+                <style>{`
+                  @keyframes spin { 0% { transform: rotateX(60deg) rotateZ(0deg); } 100% { transform: rotateX(60deg) rotateZ(360deg); } }
+                  @keyframes data-flow { 0% { stroke-dashoffset: 20; } 100% { stroke-dashoffset: 0; } }
+                  .node-container { transform-style: preserve-3d; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+                  .node-container.inactive { opacity: 0.3; transform: translateZ(0) scale(0.8) !important; filter: grayscale(1); }
+                  .data-beam { stroke-dasharray: 6 4; animation: data-flow 1s linear infinite; transition: opacity 0.3s; }
+                `}</style>
+
+                {/* Main Ring */}
+                <div style={{ position: 'absolute', top: '10%', left: '10%', width: '80%', height: '80%', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)' }} />
+                
+                {[
+                  { id: 'matriz', angle: 0, color: '#818cf8' },
+                  { id: 'sul', angle: 120, color: '#10b981' },
+                  { id: 'rj', angle: 240, color: '#f43f5e' }
+                ].map(ws => (
+                  <Fragment key={ws.id}>
+                    {/* Beam to Center */}
+                    <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                      <line 
+                        x1="50%" y1="50%" 
+                        x2={`${50 + Math.cos(ws.angle * Math.PI / 180) * 40}%`} 
+                        y2={`${50 + Math.sin(ws.angle * Math.PI / 180) * 40}%`}
+                        stroke={ws.color} strokeWidth="3"
+                        className="data-beam"
+                        style={{ opacity: checkedWorkspaces[ws.id] ? 0.8 : 0 }}
+                      />
+                    </svg>
+
+                    {/* Node */}
+                    <div 
+                      className={`node-container ${!checkedWorkspaces[ws.id] ? 'inactive' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        top: `calc(${50 + Math.sin(ws.angle * Math.PI / 180) * 40}% - 40px)`,
+                        left: `calc(${50 + Math.cos(ws.angle * Math.PI / 180) * 40}% - 40px)`,
+                        width: '80px', height: '80px',
+                        transform: `translateZ(${checkedWorkspaces[ws.id] ? '80px' : '0px'})`
+                      }}
+                    >
+                      {/* Node Shadow/Glow on the plane */}
+                      <div style={{ position: 'absolute', top: '100%', left: '0', width: '80px', height: '80px', background: ws.color, filter: 'blur(30px)', opacity: 0.5, transform: 'translateZ(-80px)' }} />
+                      
+                      {/* Node Body (Counter-rotate to face camera slightly) */}
+                      <div style={{
+                        width: '100%', height: '100%', borderRadius: '20px',
+                        background: `linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))`,
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${ws.color}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: `inset 0 0 20px ${ws.color}40, 0 10px 20px rgba(0,0,0,0.5)`,
+                        transform: 'rotateZ(-45deg) rotateX(-60deg)'
+                      }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: ws.color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 20px ${ws.color}` }}>
+                          <Buildings size={24} color="#fff" weight="fill" />
+                        </div>
+                      </div>
+                    </div>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Aggregated Dashboard */}
+          <div style={{ 
+            marginTop: '4rem', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem',
+            opacity: Object.values(checkedWorkspaces).some(v => v) ? 1 : 0.4,
+            transition: 'opacity 0.5s',
+            transform: Object.values(checkedWorkspaces).some(v => v) ? 'translateY(0)' : 'translateY(20px)'
+          }}>
+            {[
+              { label: 'RECEITA AGREGADA', value: `USD ${((checkedWorkspaces.matriz ? 1.2 : 0) + (checkedWorkspaces.sul ? 0.45 : 0) + (checkedWorkspaces.rj ? 0.18 : 0)).toFixed(2)}M`, icon: <ChartLineUp size={24} weight="duotone" color="#10b981" /> },
+              { label: 'VOLUME DE CARGAS', value: `${(checkedWorkspaces.matriz ? 2400 : 0) + (checkedWorkspaces.sul ? 1100 : 0) + (checkedWorkspaces.rj ? 650 : 0)} TEUs`, icon: <Cube size={24} weight="duotone" color="#818cf8" /> },
+              { label: 'OPERADORES ATIVOS', value: `${(checkedWorkspaces.matriz ? 12 : 0) + (checkedWorkspaces.sul ? 5 : 0) + (checkedWorkspaces.rj ? 3 : 0)}`, icon: <Users size={24} weight="duotone" color="#f43f5e" /> },
+              { label: 'STATUS DO SISTEMA', value: Object.values(checkedWorkspaces).some(v => v) ? 'SINCRONIZADO' : 'STANDBY', icon: <Cpu size={24} weight="duotone" color={Object.values(checkedWorkspaces).some(v => v) ? '#10b981' : '#64748b'} /> }
+            ].map((stat, i) => (
+              <div key={i} style={{ 
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '1.5rem',
+                display: 'flex', flexDirection: 'column', gap: '1rem',
+                position: 'relative', overflow: 'hidden'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}>
-                    <Funnel size={14} weight="bold" />
-                    <span style={{ fontWeight: 800, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Filtro de Workspaces (Filiais)</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      onClick={() => setCheckedWorkspaces({ matriz: true, sul: true, rj: true })}
-                      style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      Selecionar tudo
-                    </button>
-                    <div style={{ width: '1px', height: '10px', background: 'rgba(255,255,255,0.1)' }} />
-                    <button 
-                      onClick={() => setCheckedWorkspaces({ matriz: false, sul: false, rj: false })}
-                      style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      Limpar
-                    </button>
-                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em' }}>{stat.label}</span>
+                  {stat.icon}
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[
-                    { id: 'matriz', label: 'CNPJ Matriz (SP) - Gravity SP', color: '#818cf8' },
-                    { id: 'sul', label: 'CNPJ Filial Sul (SC) - Gravity Itajaí', color: '#0d9488' },
-                    { id: 'rj', label: 'CNPJ Filial Rio (RJ) - Gravity RJ', color: '#fbbf24' }
-                  ].map(ws => (
-                    <label 
-                      key={ws.id}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        padding: '12px 16px', 
-                        background: 'rgba(255,255,255,0.02)', 
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        borderRadius: '10px', 
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        userSelect: 'none'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <input 
-                          type="checkbox" 
-                          checked={checkedWorkspaces[ws.id]}
-                          onChange={(e) => setCheckedWorkspaces({ ...checkedWorkspaces, [ws.id]: e.target.checked })}
-                          style={{ accentColor: 'var(--accent)', cursor: 'pointer' }}
-                        />
-                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#cbd5e1' }}>{ws.label}</span>
-                      </div>
-                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: ws.color }} />
-                    </label>
-                  ))}
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', fontFamily: 'monospace' }}>
+                  {stat.value}
                 </div>
-
-                {/* Displaying Aggregated Mock List Data */}
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 700 }}>DADOS AGREGADOS EM TEMPO REAL</span>
-                    {Object.values(checkedWorkspaces).some(Boolean) && (
-                      <span style={{
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        color: '#10b981',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '9px',
-                        fontWeight: 800,
-                        letterSpacing: '0.02em'
-                      }}>
-                        {Object.values(checkedWorkspaces).filter(Boolean).length} Workspaces Ativos
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Aggr KPIs or Empty state */}
-                  {!Object.values(checkedWorkspaces).some(Boolean) ? (
-                    <div style={{ padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                      <ShieldCheck size={28} style={{ color: '#ef4444', opacity: 0.8 }} />
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444' }}>Lista Vazia (Regra SSOT)</div>
-                        <div style={{ fontSize: '9px', color: '#64748b', marginTop: '2px' }}>Desmarcar todos os workspaces esvazia as listagens automaticamente por segurança.</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                      <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                        <div style={{ fontSize: '8px', color: '#64748b', fontWeight: 700, letterSpacing: '0.02em' }}>PEDIDOS TOTAIS</div>
-                        <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginTop: '4px' }}>
-                          {(checkedWorkspaces.matriz ? 24 : 0) + (checkedWorkspaces.sul ? 12 : 0) + (checkedWorkspaces.rj ? 6 : 0)}
-                        </div>
-                      </div>
-                      <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                        <div style={{ fontSize: '8px', color: '#64748b', fontWeight: 700, letterSpacing: '0.02em' }}>COTAÇÕES DE FRETE</div>
-                        <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginTop: '4px' }}>
-                          {(checkedWorkspaces.matriz ? 8 : 0) + (checkedWorkspaces.sul ? 4 : 0) + (checkedWorkspaces.rj ? 2 : 0)}
-                        </div>
-                      </div>
-                      <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                        <div style={{ fontSize: '8px', color: '#64748b', fontWeight: 700, letterSpacing: '0.02em' }}>OPERADORES ATIVOS</div>
-                        <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginTop: '4px' }}>
-                          {(checkedWorkspaces.matriz ? 4 : 0) + (checkedWorkspaces.sul ? 2 : 0) + (checkedWorkspaces.rj ? 3 : 0)}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Subtle highlight */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, height: '2px', width: '40%', background: 'linear-gradient(90deg, #818cf8, transparent)' }} />
               </div>
-            </div>
-
-            {/* Coluna Direita: Isometric 3D Layered Workspaces */}
-            <div className="workspace-3d-visualizer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', height: '420px' }}>
-              <div className="workspace-3d-stage" style={{ transformStyle: 'preserve-3d', perspective: '1200px', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-                
-                {/* 3D Connecting Neon Lines (SVG Overlay) */}
-                <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 10 }}>
-                  {/* Lines linking layers to the center SSOT database */}
-                  <path d="M 230 140 L 230 300" fill="none" stroke={checkedWorkspaces.matriz ? '#818cf8' : 'rgba(255,255,255,0.05)'} strokeWidth="1.5" strokeDasharray="4 4" style={{ transition: 'stroke 0.3s' }} />
-                  <path d="M 230 215 L 230 300" fill="none" stroke={checkedWorkspaces.sul ? '#0d9488' : 'rgba(255,255,255,0.05)'} strokeWidth="1.5" strokeDasharray="4 4" style={{ transition: 'stroke 0.3s' }} />
-                  <path d="M 230 290 L 230 300" fill="none" stroke={checkedWorkspaces.rj ? '#fbbf24' : 'rgba(255,255,255,0.05)'} strokeWidth="1.5" strokeDasharray="4 4" style={{ transition: 'stroke 0.3s' }} />
-                </svg>
-
-                {/* Database Core - Bottom Layer */}
-                <div className="workspace-core-node" style={{
-                  position: 'absolute',
-                  bottom: '0px',
-                  width: '140px',
-                  height: '140px',
-                  background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transform: 'rotateX(55deg) rotateZ(-30deg)',
-                  boxShadow: '0 0 30px rgba(99,102,241,0.3)',
-                  border: '1px solid rgba(99,102,241,0.4)',
-                  zIndex: 2
-                }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(99,102,241,0.8)' }}>
-                    <ShieldCheck size={20} color="#fff" />
-                  </div>
-                  <div style={{ position: 'absolute', top: '105%', whiteSpace: 'nowrap', fontSize: '9px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', transform: 'rotateZ(30deg) rotateX(-55deg)' }}>SSOT Segura</div>
-                </div>
-
-                {/* Layer 1: Matriz SP */}
-                <div 
-                  onClick={() => setSelectedWorkspace('matriz')}
-                  className={"workspace-layer-slab slab-matriz " + (selectedWorkspace === 'matriz' ? 'active' : '') + " " + (checkedWorkspaces.matriz ? 'checked' : '')}
-                  style={{
-                    '--slab-index': 2,
-                    '--layer-color-rgb': '129, 140, 248',
-                  } as React.CSSProperties}
-                >
-                  <div className="slab-face slab-top">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <BuildingOffice size={16} weight="duotone" style={{ color: '#818cf8' }} />
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>Gravity SP (Matriz)</span>
-                        <span style={{ fontSize: '8px', color: '#64748b' }}>CNPJ: 00.123.456/0001-90</span>
-                      </div>
-                    </div>
-                    {checkedWorkspaces.matriz && <CheckCircle size={14} weight="fill" style={{ color: '#10b981', marginLeft: 'auto' }} />}
-                  </div>
-                  <div className="slab-face slab-left"></div>
-                  <div className="slab-face slab-front"></div>
-                </div>
-
-                {/* Layer 2: Filial Sul */}
-                <div 
-                  onClick={() => setSelectedWorkspace('sul')}
-                  className={"workspace-layer-slab slab-sul " + (selectedWorkspace === 'sul' ? 'active' : '') + " " + (checkedWorkspaces.sul ? 'checked' : '')}
-                  style={{
-                    '--slab-index': 1,
-                    '--layer-color-rgb': '13, 148, 136',
-                  } as React.CSSProperties}
-                >
-                  <div className="slab-face slab-top">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Buildings size={16} weight="duotone" style={{ color: '#0d9488' }} />
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>Gravity Itajaí (Filial)</span>
-                        <span style={{ fontSize: '8px', color: '#64748b' }}>CNPJ: 00.123.456/0002-70</span>
-                      </div>
-                    </div>
-                    {checkedWorkspaces.sul && <CheckCircle size={14} weight="fill" style={{ color: '#10b981', marginLeft: 'auto' }} />}
-                  </div>
-                  <div className="slab-face slab-left"></div>
-                  <div className="slab-face slab-front"></div>
-                </div>
-
-                {/* Layer 3: Filial Rio */}
-                <div 
-                  onClick={() => setSelectedWorkspace('rj')}
-                  className={"workspace-layer-slab slab-rj " + (selectedWorkspace === 'rj' ? 'active' : '') + " " + (checkedWorkspaces.rj ? 'checked' : '')}
-                  style={{
-                    '--slab-index': 0,
-                    '--layer-color-rgb': '251, 191, 36',
-                  } as React.CSSProperties}
-                >
-                  <div className="slab-face slab-top">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Buildings size={16} weight="duotone" style={{ color: '#eab308' }} />
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>Gravity RJ (Logística)</span>
-                        <span style={{ fontSize: '8px', color: '#64748b' }}>CNPJ: 00.123.456/0003-50</span>
-                      </div>
-                    </div>
-                    {checkedWorkspaces.rj && <CheckCircle size={14} weight="fill" style={{ color: '#10b981', marginLeft: 'auto' }} />}
-                  </div>
-                  <div className="slab-face slab-left"></div>
-                  <div className="slab-face slab-front"></div>
-                </div>
-
-              </div>
-
-              {/* Inspector Card - Details of the selected workspace in 3D Stage */}
-              <div style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                width: '240px',
-                background: 'rgba(3, 5, 12, 0.85)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '12px',
-                padding: '16px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
-                zIndex: 100,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Users size={14} style={{ color: 'var(--accent)' }} />
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>WORKSPACE INSPECTOR</span>
-                </div>
-                
-                {selectedWorkspace === 'matriz' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Responsável</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>Diretoria Executiva</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Usuários Habilitados</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>12 operadores</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Volume Mensal</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#10b981' }}>USD 1.2M</span>
-                    </div>
-                  </div>
-                ) : selectedWorkspace === 'sul' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Responsável</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>Gerente Filial Sul</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Usuários Habilitados</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>5 operadores</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Volume Mensal</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#10b981' }}>USD 450k</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Responsável</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>Supervisor RJ</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '6px' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Usuários Habilitados</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>3 operadores</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '9px', color: '#64748b' }}>Volume Mensal</span>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#10b981' }}>USD 180k</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
+            ))}
           </div>
+
         </div>
       </section>
-
-      {/* ===== MÓDULOS ===== */}
+{/* ===== MÓDULOS ===== */}
       <section className="section" style={{ background: 'var(--bg-body-dark)', position: 'relative' }}>
         {/* Glow in modules background */}
         <div className="ambient-glow glow-cyan" style={{ bottom: '10%', left: '10%', opacity: 0.1 }} />

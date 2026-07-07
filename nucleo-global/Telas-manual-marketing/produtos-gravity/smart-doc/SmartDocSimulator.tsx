@@ -25,7 +25,6 @@ import {
   TruckTrailer,
   Warehouse,
   ShieldStar,
-  UploadSimple,
   ListChecks,
   Files,
   Timer,
@@ -44,19 +43,17 @@ import {
   GlobeHemisphereWest,
 } from '@phosphor-icons/react'
 import './smart-doc-simulator.css'
-
-interface SmartDocSimulatorProps {
-  onClose: () => void
-}
+import { NovaLeituraSimuladorSmartDoc } from './nova-leitura-simulador-smart-doc'
+import {
+  formatarSavingSimulador,
+  PERFIS_EMPRESA_SIMULADOR,
+  type PeriodoPresetSimulador,
+  type TipoParticipanteSimulador,
+} from './dados-cliente-maduro-simulador-smart-doc'
 
 type AbaVisualizacao = 'insights' | 'lista'
-type PeriodoPreset = 7 | 30 | 60 | 90
-type TipoParticipante =
-  | 'exportador'
-  | 'agente_carga'
-  | 'transportadora_rodoviaria'
-  | 'armazem_alfandegado'
-  | 'despachante_aduaneiro'
+type PeriodoPreset = PeriodoPresetSimulador
+type TipoParticipante = TipoParticipanteSimulador
 
 const PERIODOS: PeriodoPreset[] = [7, 30, 60, 90]
 
@@ -92,100 +89,7 @@ function descricaoParticipanteSimulador(tipo: TipoParticipante): string {
   return DESCRICAO_PARTICIPANTE[tipo]
 }
 
-type PontoChartDia = {
-  date: string
-  val: number
-  documentos: number
-  acertos: number
-  erros: number
-}
-
-const CHART_POR_PERIODO: Record<PeriodoPreset, PontoChartDia[]> = {
-  7: [
-    { date: '30/06', val: 228, documentos: 3, acertos: 226, erros: 2 },
-    { date: '01/07', val: 114, documentos: 2, acertos: 114, erros: 0 },
-    { date: '02/07', val: 294, documentos: 4, acertos: 293, erros: 1 },
-    { date: '03/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
-    { date: '04/07', val: 573, documentos: 8, acertos: 572, erros: 1 },
-    { date: '05/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
-    { date: '06/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
-  ],
-  30: [
-    { date: '07/06', val: 180, documentos: 2, acertos: 179, erros: 1 },
-    { date: '14/06', val: 320, documentos: 5, acertos: 318, erros: 2 },
-    { date: '21/06', val: 410, documentos: 6, acertos: 409, erros: 1 },
-    { date: '28/06', val: 573, documentos: 8, acertos: 572, erros: 1 },
-    { date: '05/07', val: 445, documentos: 7, acertos: 444, erros: 1 },
-  ],
-  60: [
-    { date: 'Mai', val: 890, documentos: 12, acertos: 886, erros: 4 },
-    { date: 'Jun', val: 1240, documentos: 18, acertos: 1236, erros: 4 },
-    { date: 'Jul', val: 980, documentos: 14, acertos: 978, erros: 2 },
-  ],
-  90: [
-    { date: 'Abr', val: 720, documentos: 10, acertos: 717, erros: 3 },
-    { date: 'Mai', val: 1100, documentos: 15, acertos: 1096, erros: 4 },
-    { date: 'Jun', val: 1450, documentos: 21, acertos: 1446, erros: 4 },
-    { date: 'Jul', val: 890, documentos: 12, acertos: 888, erros: 2 },
-  ],
-}
-
-const RANKINGS_POR_TIPO: Record<
-  TipoParticipante,
-  { acertos: { name: string; stats: string; pct: string }[]; erros: { name: string; stats: string; err: string }[] }
-> = {
-  exportador: {
-    acertos: [
-      { name: 'LUEN TAI P.C.B. FACTORY CO., LTD.', stats: '26 doc. · 1485 ✓ · 0 ✗', pct: '100.0%' },
-      { name: 'Exportador ABC', stats: '1 doc. · 66 ✓ · 0 ✗', pct: '100.0%' },
-    ],
-    erros: [
-      { name: 'LUEN TAI P.C.B. FACTORY CO., LTD.', stats: '26 doc. · 1485 ✓ · 0 ✗', err: '0 err.' },
-      { name: 'Exportador ABC', stats: '1 doc. · 66 ✓ · 0 ✗', err: '0 err.' },
-    ],
-  },
-  agente_carga: {
-    acertos: [
-      { name: 'Maersk Logistics Asia', stats: '12 doc. · 620 ✓ · 0 ✗', pct: '100.0%' },
-      { name: 'DHL Global Forwarding', stats: '8 doc. · 410 ✓ · 1 ✗', pct: '99.8%' },
-    ],
-    erros: [
-      { name: 'DHL Global Forwarding', stats: '8 doc. · 410 ✓ · 1 ✗', err: '1 err.' },
-      { name: 'Maersk Logistics Asia', stats: '12 doc. · 620 ✓ · 0 ✗', err: '0 err.' },
-    ],
-  },
-  transportadora_rodoviaria: {
-    acertos: [
-      { name: 'Transcargo Rodoviário SP', stats: '5 doc. · 88 ✓ · 0 ✗', pct: '100.0%' },
-    ],
-    erros: [{ name: 'Transcargo Rodoviário SP', stats: '5 doc. · 88 ✓ · 0 ✗', err: '0 err.' }],
-  },
-  armazem_alfandegado: {
-    acertos: [
-      { name: 'Terminal Santos Bonded', stats: '9 doc. · 210 ✓ · 0 ✗', pct: '100.0%' },
-    ],
-    erros: [{ name: 'Terminal Santos Bonded', stats: '9 doc. · 210 ✓ · 0 ✗', err: '0 err.' }],
-  },
-  despachante_aduaneiro: {
-    acertos: [
-      { name: 'Despachante Alfa COMEX', stats: '3 doc. · 45 ✓ · 0 ✗', pct: '100.0%' },
-    ],
-    erros: [{ name: 'Despachante Alfa COMEX', stats: '3 doc. · 45 ✓ · 0 ✗', err: '0 err.' }],
-  },
-}
-
-const LISTA_LEITURAS = [
-  { id: '1', nome: 'Invoice #INV-2026-4482', status: 'Conferido', docs: 3, data: '06/07/2026' },
-  { id: '2', nome: 'Packing List — PO-9821', status: 'Processando', docs: 2, data: '05/07/2026' },
-  { id: '3', nome: 'BL SUDU198276-2', status: 'Conferido', docs: 1, data: '04/07/2026' },
-  { id: '4', nome: 'Proforma — Master Trade', status: 'Rascunho', docs: 1, data: '03/07/2026' },
-]
-
-const EMPRESAS = [
-  { id: 'matriz-sp-importador', nome: 'Matriz SP Importador', plano: 'Enterprise', docs: 128, campos: 8420, saving: '22h 10m' },
-  { id: 'filial-sc-importador', nome: 'Filial SC Importador', plano: 'Pro', docs: 45, campos: 2816, saving: '7h 35m' },
-  { id: 'filial-pr-exportador', nome: 'Exportador PR Exportador', plano: 'Pro', docs: 32, campos: 1940, saving: '5h 20m' },
-] as const
+const EMPRESAS = Object.values(PERFIS_EMPRESA_SIMULADOR)
 
 type IdEmpresa = (typeof EMPRESAS)[number]['id']
 
@@ -195,13 +99,17 @@ const MEU_ESPACO_ITENS = [
   { id: 'whatsapp', label: 'WhatsApp', icon: <WhatsappLogo size={14} weight="duotone" /> },
 ] as const
 
+function formatarNumeroSimulador(valor: number): string {
+  return valor.toLocaleString('pt-BR')
+}
+
 function formatarPercentualSimulador(valor: number): string {
-  return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
+  return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
 }
 
 function formatarErrosEvitadosSimulador(errados: number): string {
   if (errados <= 0) return '0'
-  return String(Math.round(errados))
+  return errados.toLocaleString('pt-BR')
 }
 
 function LinkBaseCalculoSimulador() {
@@ -212,26 +120,9 @@ function LinkBaseCalculoSimulador() {
   )
 }
 
-function metricasInsightsEmpresa(empresa: (typeof EMPRESAS)[number]) {
-  const camposErrados = empresa.id === 'filial-sc-importador' ? 1 : empresa.id === 'matriz-sp-importador' ? 2 : 0
-  const camposCorretos = Math.max(0, empresa.campos - camposErrados)
-  const taxaAcerto = empresa.campos > 0 ? (camposCorretos / empresa.campos) * 100 : 100
-
-  return {
-    totalDocumentos: empresa.docs,
-    amostraLeituras: Math.max(3, Math.round(empresa.docs * 0.27)),
-    tiposDocumento: 3,
-    totalCampos: empresa.campos,
-    camposCorretos,
-    camposErrados,
-    taxaAcerto,
-    savingErrosMinutos: camposErrados > 0 ? '12min' : '0min',
-  }
-}
-
-export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
+export function SmartDocSimulator() {
   const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('insights')
-  const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoPreset>(7)
+  const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoPreset>(30)
   const [tipoParticipante, setTipoParticipante] = useState<TipoParticipante>('exportador')
   const [productDropdownOpen, setProductDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -242,15 +133,19 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
   const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
   const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>('insights')
   const [modalNovoAberto, setModalNovoAberto] = useState(false)
-  const [passoNovaLeitura, setPassoNovaLeitura] = useState(1)
-  const [arquivoAnexado, setArquivoAnexado] = useState(false)
   const [barraDestaque, setBarraDestaque] = useState<number | null>(null)
   const [linhaListaExpandida, setLinhaListaExpandida] = useState<string | null>(null)
   const [rankingSelecionado, setRankingSelecionado] = useState<number | null>(null)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
   const [iconeParticipanteTooltip, setIconeParticipanteTooltip] = useState<TipoParticipante | null>(null)
 
-  const chartTooltip = useHoverTooltipInsightsSimulador<PontoChartDia>()
+  const chartTooltip = useHoverTooltipInsightsSimulador<{
+    date: string
+    val: number
+    documentos: number
+    acertos: number
+    erros: number
+  }>()
   const funilTooltip = useHoverTooltipInsightsSimulador<{ label: string; val: number; pct: number }>()
   const rankingTooltip = useHoverTooltipInsightsSimulador<{
     nome: string
@@ -261,14 +156,27 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
   const acertosTooltip = useHoverTooltipInsightsSimulador<'corretos' | 'errados'>()
 
   const empresaAtiva = EMPRESAS.find((e) => e.id === idEmpresaAtiva) ?? EMPRESAS[0]
-  const metricas = useMemo(() => metricasInsightsEmpresa(empresaAtiva), [empresaAtiva])
+  const metricas = useMemo(
+    () => empresaAtiva.metricasPorPeriodo[periodoAtivo],
+    [empresaAtiva, periodoAtivo],
+  )
+  const chartBarras = empresaAtiva.chartPorPeriodo[periodoAtivo]
+  const tiposDocumento = empresaAtiva.tiposDocumentoPorPeriodo[periodoAtivo]
+  const listaLeituras = empresaAtiva.listaLeituras
+  const rankings = empresaAtiva.rankingsPorTipo[tipoParticipante]
+  const pctCorretosDonut = metricas.taxaAcerto
+  const pctErradosDonut = Math.max(0, 100 - pctCorretosDonut)
 
   const chartMax = useMemo(() => {
-    const bars = CHART_POR_PERIODO[periodoAtivo]
-    return Math.max(...bars.map((b) => b.val), 1)
-  }, [periodoAtivo])
+    return Math.max(...chartBarras.map((b) => b.val), 1)
+  }, [chartBarras])
 
-  const rankings = RANKINGS_POR_TIPO[tipoParticipante]
+  const marcasEixoGrafico = useMemo(
+    () => [1, 0.75, 0.5, 0.25, 0].map((tick) => Math.round((1 - tick) * chartMax)),
+    [chartMax],
+  )
+
+
   const empresasFiltradas = EMPRESAS.filter((e) =>
     e.nome.toLowerCase().includes(empresaSearch.toLowerCase()),
   )
@@ -278,8 +186,6 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
 
   function fecharModalNovo() {
     setModalNovoAberto(false)
-    setPassoNovaLeitura(1)
-    setArquivoAnexado(false)
   }
 
   function renderInsights() {
@@ -290,16 +196,24 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             className="sds-kpi-grid__card"
             titulo="DOCUMENTOS LIDOS"
             icone={<Files weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
-            valor={metricas.totalDocumentos}
+            valor={formatarNumeroSimulador(metricas.totalDocumentos)}
             tooltip={
               <>
                 <p className="cg-tooltip__row">
+                  <span>Cliente desde</span>
+                  <strong>{empresaAtiva.mesesUso} meses</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Ritmo mensal</span>
+                  <strong>{formatarNumeroSimulador(empresaAtiva.leiturasPorMes)} leituras</strong>
+                </p>
+                <p className="cg-tooltip__row">
                   <span>Documentos extraídos</span>
-                  <strong>{metricas.totalDocumentos}</strong>
+                  <strong>{formatarNumeroSimulador(metricas.totalDocumentos)}</strong>
                 </p>
                 <p className="cg-tooltip__row">
                   <span>Leituras na amostra</span>
-                  <strong>{metricas.amostraLeituras}</strong>
+                  <strong>{formatarNumeroSimulador(metricas.amostraLeituras)}</strong>
                 </p>
                 <p className="cg-tooltip__row">
                   <span>Tipos distintos</span>
@@ -312,7 +226,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             className="sds-kpi-grid__card"
             titulo="CAMPOS LIDOS"
             icone={<ListChecks weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
-            valor={metricas.totalCampos}
+            valor={formatarNumeroSimulador(metricas.totalCampos)}
             tooltip={
               <>
                 <p className="cg-tooltip__row">
@@ -338,13 +252,13 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             className="sds-kpi-grid__card"
             titulo="SAVING DIGITAÇÃO"
             icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={empresaAtiva.saving}
+            valor={formatarSavingSimulador(metricas.savingDigitaçãoMinutos)}
             variante="sucesso"
             tooltip={
               <>
                 <p className="cg-tooltip__row">
                   <span>Tempo economizado</span>
-                  <strong>{empresaAtiva.saving}</strong>
+                  <strong>{formatarSavingSimulador(metricas.savingDigitaçãoMinutos)}</strong>
                 </p>
                 <p className="cg-tooltip__row cg-tooltip__row--link-only">
                   <LinkBaseCalculoSimulador />
@@ -365,7 +279,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                 </p>
                 <p className="cg-tooltip__row">
                   <span>Tempo economizado</span>
-                  <strong>{metricas.savingErrosMinutos}</strong>
+                  <strong>{formatarSavingSimulador(metricas.savingErrosMinutos)}</strong>
                 </p>
                 <p className="cg-tooltip__row cg-tooltip__row--link-only">
                   <LinkBaseCalculoSimulador />
@@ -402,7 +316,12 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             </div>
             <div className="sr-insights-tt-host">
               <div className="sds-chart-bars" ref={chartTooltip.containerRef}>
-                {CHART_POR_PERIODO[periodoAtivo].map((b, i) => (
+                <div className="sds-chart-grid-y" aria-hidden>
+                  {marcasEixoGrafico.map((val) => (
+                    <span key={val}>{val}</span>
+                  ))}
+                </div>
+                {chartBarras.map((b, i) => (
                   <div
                     key={`${periodoAtivo}-${b.date}`}
                     className={`sds-chart-bar-col${barraDestaque === i ? ' sds-chart-bar-col--active' : ''}`}
@@ -416,11 +335,10 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                       </span>
                     )}
                     <div
-                      className="sds-chart-bar"
+                      className={`sds-chart-bar${barraDestaque === i ? ' sds-chart-bar--destaque' : ''}`}
                       style={{
                         height: b.val > 0 ? `${Math.max(8, (b.val / chartMax) * 140)}px` : 0,
                         opacity: barraDestaque === null || barraDestaque === i ? 1 : 0.35,
-                        background: barraDestaque === i ? '#818cf8' : '#10b981',
                       }}
                     />
                     <span style={{ fontSize: 9, fontWeight: 700, color: '#64748b', position: 'absolute', bottom: 2 }}>
@@ -471,7 +389,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                   onMouseLeave={acertosTooltip.aoSair}
                 >
                   <span style={{ fontSize: 10, color: '#64748b' }}>Corretos</span>
-                  <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 800, color: '#10b981' }}>{metricas.camposCorretos}</p>
+                  <p className="sds-campos-box__valor sds-text-success">{formatarNumeroSimulador(metricas.camposCorretos)}</p>
                 </div>
                 <div
                   className="sds-campos-box sds-campos-box--erro"
@@ -479,7 +397,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                   onMouseLeave={acertosTooltip.aoSair}
                 >
                   <span style={{ fontSize: 10, color: '#64748b' }}>Errados</span>
-                  <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 800, color: '#ef4444' }}>{metricas.camposErrados}</p>
+                  <p className="sds-campos-box__valor sds-text-error">{formatarNumeroSimulador(metricas.camposErrados)}</p>
                 </div>
               </div>
               {acertosTooltip.estado && (
@@ -508,21 +426,22 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, flex: 1 }}>
                 <div
+                  className="sds-donut-ring"
                   style={{
-                    width: 90,
-                    height: 90,
-                    borderRadius: '50%',
-                    background: 'conic-gradient(#10b981 0% 99.9%, #ef4444 99.9% 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    background: `conic-gradient(var(--sds-success) 0% ${pctCorretosDonut}%, var(--sds-error) ${pctCorretosDonut}% 100%)`,
                   }}
                 >
-                  <div style={{ width: 62, height: 62, background: '#1c1f2e', borderRadius: '50%' }} />
+                  <div className="sds-donut-hole" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, fontWeight: 600 }}>
-                  <span style={{ color: '#cbd5e1' }}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#10b981', marginRight: 6 }} />Corretos 100%</span>
-                  <span style={{ color: '#cbd5e1' }}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#ef4444', marginRight: 6 }} />Errados 0%</span>
+                  <span style={{ color: '#cbd5e1' }}>
+                    <span className="sds-dot-success" />
+                    Corretos {formatarPercentualSimulador(pctCorretosDonut)}
+                  </span>
+                  <span style={{ color: '#cbd5e1' }}>
+                    <span className="sds-dot-error" />
+                    Errados {formatarPercentualSimulador(pctErradosDonut)}
+                  </span>
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{formatarPercentualSimulador(metricas.taxaAcerto)} acerto</span>
                 </div>
               </div>
@@ -537,11 +456,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
               TIPOS DE DOCUMENTO
             </div>
             <div className="sr-insights-tt-host" ref={funilTooltip.containerRef}>
-            {[
-              { label: 'Invoice', val: 21, pct: 47, w: '80%' },
-              { label: 'Packing List', val: 13, pct: 29, w: '50%' },
-              { label: 'Bill of Lading', val: 7, pct: 16, w: '25%' },
-            ].map((d) => (
+            {tiposDocumento.map((d) => (
               <div
                 key={d.label}
                 className="sds-funil-row"
@@ -573,18 +488,23 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             )}
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 12, marginTop: 'auto' }}>
-              <div className="sds-card__title" style={{ color: '#fbbf24', marginBottom: 10 }}>
+              <div className="sds-card__title" style={{ color: '#f59e0b', marginBottom: 10 }}>
                 <CurrencyDollar size={12} weight="bold" />
                 ECONOMIA ESTIMADA
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <div style={{ flex: 1, border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, padding: 10 }}>
-                  <span style={{ fontSize: 10, color: '#64748b' }}>Digitação evitada</span>
-                  <p style={{ margin: '4px 0 0', fontWeight: 800, color: '#10b981' }}>7h 35min</p>
+              <div className="sds-economia-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="sds-campos-box sds-campos-box--ok">
+                  <span className="sds-campos-box__rotulo">Digitação evitada</span>
+                  <p className="sds-campos-box__valor sds-campos-box__valor--economia sds-text-success">
+                    {formatarSavingSimulador(metricas.savingDigitaçãoMinutos)}
+                  </p>
                 </div>
-                <div style={{ flex: 1, border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, padding: 10 }}>
-                  <span style={{ fontSize: 10, color: '#64748b' }}>Correção de erros</span>
-                  <p style={{ margin: '4px 0 0', fontWeight: 800, color: '#10b981' }}>1 campo</p>
+                <div className="sds-campos-box sds-campos-box--erro">
+                  <span className="sds-campos-box__rotulo">Correção de erros</span>
+                  <p className="sds-campos-box__valor sds-campos-box__valor--economia sds-text-accent">
+                    {formatarNumeroSimulador(metricas.camposErrados)}
+                    <span className="sds-campos-box__unidade"> campos</span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -592,7 +512,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
 
           <div className="sds-card sds-card--com-tooltip">
             <div className="sds-card__head">
-              <div className="sds-card__title" style={{ color: '#fbbf24' }}>
+              <div className="sds-card__title" style={{ color: '#f59e0b' }}>
                 <Sparkle size={12} weight="bold" />
                 RESULTADO POR TIPO DE FORNECEDOR
               </div>
@@ -652,10 +572,10 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                         <span style={{ color: '#64748b', marginRight: 6 }}>{idx + 1}</span>
                         {f.name}
                       </span>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981' }}>{f.pct}</span>
+                      <span className="sds-text-success" style={{ fontSize: 10, fontWeight: 800 }}>{f.pct}</span>
                     </div>
                     <span style={{ fontSize: 10, color: '#64748b', marginLeft: 18 }}>{f.stats}</span>
-                    <div style={{ height: 2, background: '#10b981', borderRadius: 1, marginTop: 4 }} />
+                    <div className="sds-ranking-bar--acerto" />
                   </div>
                 ))}
               </div>
@@ -681,10 +601,10 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                         <span style={{ color: '#64748b', marginRight: 6 }}>{idx + 1}</span>
                         {f.name}
                       </span>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: '#ef4444' }}>{f.err}</span>
+                      <span className="sds-text-error" style={{ fontSize: 10, fontWeight: 800 }}>{f.err}</span>
                     </div>
                     <span style={{ fontSize: 10, color: '#64748b', marginLeft: 18 }}>{f.stats}</span>
-                    <div style={{ height: 2, background: 'rgba(239,68,68,0.25)', borderRadius: 1, marginTop: 4 }} />
+                    <div className="sds-ranking-bar--erro" />
                   </div>
                 ))}
               </div>
@@ -727,7 +647,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             </tr>
           </thead>
           <tbody>
-            {LISTA_LEITURAS.map((row) => (
+            {listaLeituras.map((row) => (
               <Fragment key={row.id}>
                 <tr
                   className={`sds-lista-row${linhaListaExpandida === row.id ? ' sds-lista-row--expanded' : ''}`}
@@ -747,7 +667,7 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
                     <td colSpan={4} style={{ background: 'rgba(99,102,241,0.04)', padding: '12px 16px' }}>
                       <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                          Workspace: {empresaAtiva.nome} · Campos extraídos: 42 · Conferidos: 41
+                          Workspace: {empresaAtiva.nome} · {empresaAtiva.mesesUso} meses · ~{empresaAtiva.leiturasPorMes.toLocaleString('pt-BR')} leituras/mês · Campos extraídos: {row.camposExtraidos} · Conferidos: {row.camposConferidos}
                         </span>
                         <button
                           type="button"
@@ -1083,85 +1003,17 @@ export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
             </div>
           )}
           {abaAtiva === 'insights' ? renderInsights() : renderLista()}
-
-          <div className="sds-footer-actions">
-            <button type="button" className="sds-btn-secondary" onClick={onClose}>
-              Voltar
-            </button>
-            <button type="button" className="sds-btn-primary" onClick={onClose}>
-              Salvar e Fechar
-            </button>
-          </div>
         </div>
       </div>
 
-      {modalNovoAberto && (
-        <div className="sds-modal-overlay" onClick={fecharModalNovo}>
-          <div className="sds-modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{ fontWeight: 800, fontSize: 15 }}>Nova Leitura</span>
-              <button type="button" onClick={fecharModalNovo} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="sds-modal__steps">
-              {[1, 2, 3, 4].map((s) => (
-                <div key={s} className={`sds-modal__step${passoNovaLeitura >= s ? ' sds-modal__step--done' : ''}`} />
-              ))}
-            </div>
-            {passoNovaLeitura === 1 && (
-              <>
-                <p style={{ margin: '0 0 12px', color: '#94a3b8', fontSize: 12 }}>Passo 1 — Anexe os documentos da operação</p>
-                <div
-                  className={`sds-upload-zone${arquivoAnexado ? ' sds-upload-zone--active' : ''}`}
-                  onClick={() => setArquivoAnexado(true)}
-                >
-                  {arquivoAnexado ? (
-                    <>
-                      <CheckCircle size={32} weight="fill" style={{ color: '#10b981', marginBottom: 8 }} />
-                      <p style={{ margin: 0, fontWeight: 700 }}>invoice_po9821.pdf anexado</p>
-                    </>
-                  ) : (
-                    <>
-                      <UploadSimple size={32} style={{ color: '#818cf8', marginBottom: 8 }} />
-                      <p style={{ margin: 0, fontWeight: 700 }}>Clique para anexar ou arraste arquivos</p>
-                      <p style={{ margin: '6px 0 0', fontSize: 11, color: '#64748b' }}>PDF, PNG, JPG — até 20 MB</p>
-                    </>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="sds-btn-novo"
-                  style={{ width: '100%', justifyContent: 'center', marginTop: 16, opacity: arquivoAnexado ? 1 : 0.5 }}
-                  disabled={!arquivoAnexado}
-                  onClick={() => setPassoNovaLeitura(2)}
-                >
-                  Continuar
-                  <ArrowRight size={14} />
-                </button>
-              </>
-            )}
-            {passoNovaLeitura >= 2 && (
-              <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                <Sparkle size={40} weight="fill" style={{ color: '#818cf8', marginBottom: 12 }} />
-                <p style={{ fontWeight: 800, margin: '0 0 8px' }}>IA extraindo campos…</p>
-                <p style={{ color: '#64748b', fontSize: 12, margin: '0 0 20px' }}>Simulação concluída — leitura pronta para conferência.</p>
-                <button
-                  type="button"
-                  className="sds-btn-novo"
-                  onClick={() => {
-                    fecharModalNovo()
-                    setAbaAtiva('lista')
-                    setLinhaListaExpandida('1')
-                  }}
-                >
-                  Ver na Lista
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <NovaLeituraSimuladorSmartDoc
+        aberto={modalNovoAberto}
+        onFechar={fecharModalNovo}
+        onIrParaLista={() => {
+          setAbaAtiva('lista')
+          setLinhaListaExpandida('1')
+        }}
+      />
     </div>
   )
 }

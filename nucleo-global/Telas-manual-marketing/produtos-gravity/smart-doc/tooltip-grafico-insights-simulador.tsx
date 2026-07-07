@@ -28,6 +28,10 @@ const MARGEM_HORIZONTAL = 48
 const LIMIAR_ACIMA = 92
 const ALTURA_ESTIMADA_TOOLTIP_PX = 128
 
+export function formatarPercentualTooltipInsightsSimulador(pct: number): string {
+  return `${pct.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+}
+
 function resolverPosicaoTooltip(
   ancora: AncoraTooltipInsights,
   container: HTMLElement | null,
@@ -115,7 +119,7 @@ export function TooltipGraficoInsightsSimulador({
           </span>
           <strong>
             {linha.valor}
-            {linha.pct != null && <em>{linha.pct.toFixed(0)}%</em>}
+            {linha.pct != null && <em>{formatarPercentualTooltipInsightsSimulador(linha.pct)}</em>}
           </strong>
         </div>
       ))}

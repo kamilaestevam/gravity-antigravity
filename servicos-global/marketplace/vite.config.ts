@@ -26,6 +26,7 @@ export default defineConfig({
   },
   server: {
     port: 8888,
+    strictPort: true,
     host: true,
     fs: {
       allow: [

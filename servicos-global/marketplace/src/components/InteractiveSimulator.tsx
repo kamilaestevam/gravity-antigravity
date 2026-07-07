@@ -78,7 +78,7 @@ function InteractiveSimulatorContent({ productId, onClose }: SimulatorProps) {
   // 1. SMART DOCS SIMULATOR
   // =========================================================================
   if (productId === 'smart-read') {
-    return <SmartDocSimulator onClose={onClose} />
+    return <SmartDocSimulator />
   }
   // =========================================================================
   // 2. BID FRETE SIMULATOR

@@ -1,0 +1,224 @@
+/* Passo 4 — Resultado das leituras */
+
+.sds-nl-principal-resultado {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sds-nl-resultado-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.sds-nl-metricas--resultado {
+  grid-template-columns: repeat(2, 1fr);
+  flex-shrink: 0;
+}
+
+.sds-nl-res-perf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sds-nl-res-perf-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4375rem;
+}
+
+.sds-nl-res-perf-linha strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+  min-width: 3.25rem;
+}
+
+.sds-nl-res-perf-linha span {
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--sds-nl-text-muted, #64748b);
+}
+
+.sds-nl-res-perf-linha--ok strong,
+.sds-nl-res-perf-linha--ok svg {
+  color: #34d399;
+}
+
+.sds-nl-res-perf-linha--alt strong,
+.sds-nl-res-perf-linha--alt svg {
+  color: #f87171;
+}
+
+.sds-nl-resultado-painel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  border-radius: 0.625rem;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(129, 140, 248, 0.14);
+  overflow: hidden;
+}
+
+.sds-nl-resultado-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.sds-nl-resultado-cabecalho svg {
+  color: var(--sds-nl-destaque, #818cf8);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.sds-nl-resultado-cabecalho h2 {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+}
+
+.sds-nl-resultado-cabecalho p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--sds-nl-text-muted, #64748b);
+  line-height: 1.45;
+}
+
+.sds-nl-res-lista-corpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.sds-nl-res-lista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sds-nl-res-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.375rem 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.sds-nl-res-item--sel {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.sds-nl-res-item-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.sds-nl-res-item-nome {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sds-nl-res-item-docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  grid-column: 1;
+  grid-row: 2;
+  padding-left: 1.375rem;
+}
+
+.sds-nl-res-doc-chip {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #c4b5fd;
+  background: rgba(129, 140, 248, 0.12);
+  padding: 0.125rem 0.4375rem;
+  border-radius: 999px;
+}
+
+.sds-nl-res-item > .sds-nl-btn {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.sds-nl-res-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.875rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  flex-shrink: 0;
+}
+
+.sds-nl-res-todos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+  cursor: pointer;
+}
+
+.sds-nl-res-barra-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.sds-nl-res-barra-info {
+  font-size: 0.75rem;
+  color: var(--sds-nl-text-muted, #64748b);
+}
+
+@media (max-width: 760px) {
+  .sds-nl-metricas--resultado {
+    grid-template-columns: 1fr;
+  }
+
+  .sds-nl-res-item {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .sds-nl-res-item > .sds-nl-btn {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: start;
+  }
+}

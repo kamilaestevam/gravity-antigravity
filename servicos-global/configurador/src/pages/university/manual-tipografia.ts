@@ -12,7 +12,7 @@ export const MANUAL_ESPACO_PARAGRAFO_PX = 12
 export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16
 
 /** Espaço entre bloco de texto e screenshot em subtópico recolhível. */
-export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 28
+export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 10
 
 /** Raio de chips/badges nos manuais (igual aos cards Versão · Produto · URL). */
 export const MANUAL_RAIO_CHIP = 10

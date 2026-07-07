@@ -10,8 +10,6 @@ const S = screenshotBidFreteInt
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_HUB_PRODUTOS =
   '{{link:/university-gravity/docs/hub#doc-sec-3|Seus Produtos Gravity}}'
-const LINK_MANUAL_GRAVITY_STORE_CONTRATADO =
-  '{{link:/university-gravity/docs/store|contratado}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
   '{{link:/university-gravity/docs/bid-frete#doc-sec-6|Configurações}}'
 
@@ -51,12 +49,8 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       titulo: 'Como acessar o produto',
       tituloSumario: 'Como acessar o produto',
       modoCenarios: true,
-      cenariosLadoALado: true,
-      cenariosImagensAlinhadas: true,
       paragrafos: [
-        'Com o **BID Frete** ' +
-          LINK_MANUAL_GRAVITY_STORE_CONTRATADO +
-          ' e habilitado no workspace, abra pelo **Hub** ou pelo **menu lateral**.',
+        'Com o **BID Frete** contratado e habilitado no workspace, abra pelo **Hub** ou pelo **menu lateral**.',
       ],
       passosVisuais: renumerarPassos([
         {
@@ -84,11 +78,11 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ancoraPassosPrefix: 'insights',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'A aba **Insights** é o **cockpit gráfico**: **KPIs**, gráficos, funil, câmbio e indicadores de cotações (cards configuráveis em ' +
+        'A aba **Insights** reúne **KPIs**, gráficos, funil, câmbio e o **mapa global** de cotações (cards em ' +
           LINK_MANUAL_BID_FRETE_CONFIGURACOES +
           ').',
-        'Na mesma tela, o **mapa global** permite **visualizar rotas**, **consultar cotações** nos pins e abrir o detalhe ao clicar. Pelo botão **+ Nova** (canto superior direito) você inicia **cotação avulsa** ou **BID**.',
-        'O print e o mapa das métricas abaixo resumem os blocos da tela; os subtópicos detalham **tooltips dos KPIs**, **mapa global** e painel **Refinar mapa**.',
+        'Consulte **rotas** e pins no mapa, abra o detalhe ao clicar e use **+ Nova** para cotação avulsa ou **BID**.',
+        'O mapa das métricas abaixo resume os **10 blocos** da tela; os subtópicos detalham **tooltips**, **mapa** e **Refinar mapa**.',
       ],
       figurasAposParagrafo: [
         {
@@ -100,19 +94,137 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       mostrarInfograficoBidFreteInsights: true,
       passosVisuais: renumerarPassos([
         {
+          titulo: 'Mapa',
+          tituloCurto: 'Mapa',
+          paragrafos: [
+            'O **mapa global** é o **hub de cotações** do escopo: além de visualizar **rotas** e **pins**, você **acessa**, **consulta** e **age** sobre propostas direto na tela **Insights** — sem trocar de aba.',
+          ],
+          mostrarInfograficoBidFreteMapa: true,
+          galeriaTelasAposTabela: [
+            {
+              legenda: '01 · Selecionar rota no mapa',
+              pilaresMapaBidFrete: ['01'],
+              imagem: S('insight_mapa_seta'),
+              paragrafoAntes:
+                'Clique em uma **rota** ou **pin** no mapa global para focalizar o trecho operacional e abrir o fluxo de cotações vinculadas.',
+            },
+            {
+              legenda: '02 · Modal de cotações — visão geral',
+              pilaresMapaBidFrete: ['02'],
+              imagem: S('insight_mapa_acesso_cotacoes_1'),
+              paragrafoAntes:
+                'O modal lista todas as **cotações vinculadas** à rota selecionada, com status, melhor proposta e atalhos para o detalhe.',
+            },
+            {
+              legenda: '03 · Detalhe da cotação no modal',
+              pilaresMapaBidFrete: ['03'],
+              imagem: S('insight_mapa_acesso_cotacoes_2'),
+              paragrafoAntes:
+                'Expanda uma proposta para ver **rota**, **carga**, **valores** e o comparativo da melhor oferta sem sair da tela **Insights**.',
+            },
+            {
+              legenda: '04 · Lista e ações no modal',
+              pilaresMapaBidFrete: ['04'],
+              imagem: S('insight_mapa_acesso_cotacoes_3'),
+              paragrafoAntes:
+                'Na lista do modal, **aprove**, **recuse** ou **navegue** para a cotação completa — as ações refletem o status configurado do workspace.',
+            },
+          ],
+        },
+        {
+          titulo: 'Refinar mapa — filtros',
+          tituloCurto: 'Filtros do Mapa',
+          paragrafos: [
+            'O painel **Refinar mapa** é onde você **explora e combina** as opções do escopo, como **importação**, **exportação**, **modal**, **origem**, **destino**, **status** e demais critérios configurados. Cada filtro recalcula pins e rotas; o hub de cotações no mapa reflete só o que importa para sua análise.',
+          ],
+          mostrarInfograficoBidFreteFiltrosMapa: true,
+          galeriaTelasAposTabela: [
+            {
+              legenda: 'Tipo de Operação',
+              pilaresFiltrosMapaBidFrete: ['01'],
+              imagensCompostas: [
+                {
+                  figuras: [
+                    {
+                      imagem: S('insight_menu_mapa_botoes_operacoes'),
+                      paragrafoAntes: 'Selecione o **tipo de operação**',
+                    },
+                    {
+                      imagem: S('insight_menu_mapa_botoes_operacoes_resultado'),
+                      paragrafoAntes: 'O **mapa** irá exibir a seleção',
+                    },
+                  ],
+                },
+              ],
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Como padrão, o mapa vem com **Importação** e **Exportação** selecionadas. Ajuste a seleção para refinar o escopo.',
+              },
+            },
+            {
+              legenda: 'Modal',
+              pilaresFiltrosMapaBidFrete: ['02'],
+              imagensCompostas: [
+                {
+                  figuras: [
+                    {
+                      imagem: S('insight_menu_mapa_botoes_modal'),
+                      paragrafoAntes: 'Escolha entre **um**, **dois** ou **todos** os modais',
+                    },
+                    {
+                      imagem: S('insight_menu_mapa_botoes_modal_resultado'),
+                      paragrafoAntes: 'Mapa exibe os **modais** selecionados',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              legenda: 'Origem',
+              pilaresFiltrosMapaBidFrete: ['03'],
+              imagensCompostas: [
+                {
+                  figuras: [
+                    {
+                      imagem: S('insight_menu_mapa_botoes_origem'),
+                      paragrafoAntes: 'Expanda **Origem** e selecione o terminal ou região de partida',
+                    },
+                    {
+                      imagem: S('insight_menu_mapa_botoes_origem_resultado'),
+                      paragrafoAntes: 'Mapa exibe a **origem** selecionada',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              legenda: 'Destino',
+              pilaresFiltrosMapaBidFrete: ['04'],
+              paragrafoAntes:
+                'Expanda **Destino** e selecione o terminal ou região de chegada. Os filtros anteriores (**Tipo de Operação**, **Modal** e **Origem**) permanecem ativos; o mapa refina as rotas com base na combinação.',
+              imagem: S('insight_menu_mapa_botoes_destino_resultado'),
+            },
+            {
+              legenda: 'Status da cotação',
+              pilaresFiltrosMapaBidFrete: ['05'],
+              paragrafoAntes:
+                'Em **Status**, marque os status configurados do workspace. O mapa limita pins e rotas às cotações nesses estágios.',
+              imagem: S('insight_menu_mapa_botoes_status'),
+            },
+          ],
+          calloutAposGaleriaTabela: {
+            tipo: 'dica',
+            texto:
+              'Os filtros são **cumulativos**: combinar **Tipo de Operação** + **Origem**, por exemplo, estreita o hub antes de acessar as cotações no mapa. Desmarque as opções no acordeão para restaurar a visão completa.',
+          },
+        },
+        {
           titulo: 'Tooltips dos KPIs',
           tituloCurto: 'Tooltips KPIs',
           paragrafos: [
-            'Passe o mouse sobre os cards **Aguardando aprovação**, **Aguardando resposta** e **Tempo médio de resposta** para abrir tooltips com **volume**, **contagem por modal** e **lista de cotações** (drill-down para a Lista).',
+            'Nos tooltips da tela **Insights**, passe o mouse sobre **Aguardando aprovação**, **Aguardando resposta** e **Tempo médio de resposta** para ver volume, modais e lista de cotações. Pelo **link** de cada item, acesse a cotação direto.',
           ],
-          calloutAposParagrafo: {
-            indice: 0,
-            callout: {
-              tipo: 'dica',
-              texto:
-                '**Aguardando aprovação** exibe as cotações que aguardam **autorização de quem solicitou**: volume em aberto, quantidade e IDs das cotações pendentes.',
-            },
-          },
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
@@ -122,63 +234,27 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: S('insight_tooltip_1_seta'),
-                  paragrafoAntes: '**01.** Passe o mouse para ver as cotações aguardando aprovação de quem solicitou. Através do link pode acessar direto a cotação',
+                  paragrafoAntes: '**Aguardando aprovação**: passe o mouse para ver as cotações pendentes; pelo **link**, acesse direto a cotação',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_tooltip_1_tela'),
-                  paragrafoAntes: '**02.** Analise e clique em **Aprovar cotação**',
+                  paragrafoAntes: '**Aprovar cotação**: acesso direto via **link** anterior',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_tooltip_2_seta'),
-                  paragrafoAntes: '**03.** Passe o mouse para ver todas as cotações enviadas e não respondidas. Através do link pode acessar direto a cotação',
+                  paragrafoAntes: '**Aguardando resposta**: passe o mouse para ver cotações enviadas e não respondidas; pelo **link**, acesse direto a cotação',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_tooltip_2_tela'),
-                  paragrafoAntes: '**04.** Detalhes completos da cotação — status, solicitações, rota e carga',
+                  paragrafoAntes: '**Detalhes da cotação** — status, solicitações, rota e carga',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_tooltip_3'),
-                  paragrafoAntes: '**05.** Tempo médio de resposta — SLA e aprovações no prazo',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          titulo: 'Mapa — rotas e cotações',
-          tituloCurto: 'Mapa e rotas',
-          paragrafos: [
-            'O **mapa global** exibe pins e rotas operacionais do escopo. Clique em uma **rota** ou pin para abrir o modal com **cotações vinculadas** e detalhes da melhor proposta.',
-          ],
-          galeriaComparacaoAposParagrafo: [
-            {
-              indice: 0,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: S('insight_mapa_seta'),
-                  paragrafoAntes: '**01.** Selecionar rota no mapa',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_mapa_acesso_cotacoes_1'),
-                  paragrafoAntes: '**02.** Modal de cotações — visão geral',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_mapa_acesso_cotacoes_2'),
-                  paragrafoAntes: '**03.** Modal — detalhe da cotação',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_mapa_acesso_cotacoes_3'),
-                  paragrafoAntes: '**04.** Modal — lista e ações',
+                  paragrafoAntes: '**Tempo médio de resposta** — SLA e aprovações no prazo',
                 },
               ],
             },
@@ -188,89 +264,17 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Refinar mapa — painel',
           tituloCurto: 'Painel Refinar',
           paragrafos: [
-            'O painel lateral **Refinar mapa** concentra filtros e atalhos. Use o botão no topo para **expandir** ou **recolher**; quando recolhido, ícones compactos mantêm acesso rápido aos filtros.',
+            'Os **ícones indicados** no print abaixo **expandem** ou **recolhem** o painel **Refinar mapa**; no rail compacto, cada atalho abre o filtro correspondente.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 2,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa'),
-                  paragrafoAntes: '**01.** Painel Refinar mapa — visão geral',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_expandir_menu'),
-                  paragrafoAntes: '**02.** Expandir painel Refinar mapa',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_recolher_menu'),
-                  paragrafoAntes: '**03.** Recolher — rail compacto de ícones',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes'),
-                  paragrafoAntes: '**04.** Visão geral dos botões de filtro',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          titulo: 'Refinar mapa — filtros',
-          tituloCurto: 'Filtros do mapa',
-          paragrafos: [
-            'Cada acordeão do painel (**Operação**, **Modal**, **Origem**, **Destino**, **Status**) abre opções de filtro; ao aplicar, o mapa recalcula pins e rotas visíveis.',
-          ],
-          galeriaComparacaoAposParagrafo: [
-            {
-              indice: 0,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_operacoes'),
-                  paragrafoAntes: '**01.** Filtro Operação — opções',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_operacoes_resultado'),
-                  paragrafoAntes: '**02.** Operação — mapa filtrado',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_status'),
-                  paragrafoAntes: '**03.** Filtro Status',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_origem'),
-                  paragrafoAntes: '**04.** Filtro Origem — opções',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_origem_resultado'),
-                  paragrafoAntes: '**05.** Origem — mapa filtrado',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_destino_resultado'),
-                  paragrafoAntes: '**06.** Destino — mapa filtrado',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_modal'),
-                  paragrafoAntes: '**07.** Filtro Modal — opções',
-                },
-                {
-                  legenda: '',
-                  imagem: S('insight_menu_mapa_botoes_modal_resultado'),
-                  paragrafoAntes: '**08.** Modal — mapa filtrado',
                 },
               ],
             },
@@ -282,56 +286,57 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           paragrafos: [
             'Na barra superior do mapa, alterne **globo** e **mapa plano**, aplique **zoom**, **restaure** a vista padrão e **oculte ou exiba** linhas de rota.',
           ],
+          mostrarInfograficoBidFreteControlesMapa: true,
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 2,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_globo'),
-                  paragrafoAntes: '**01.** Vista globo',
+                  paragrafoAntes: '**Vista globo**',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_globo_mapa'),
-                  paragrafoAntes: '**02.** Vista mapa plano',
+                  paragrafoAntes: '**Vista mapa plano**',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_zoom_in_1'),
-                  paragrafoAntes: '**03.** Zoom in — passo 1',
+                  paragrafoAntes: '**Zoom in** — primeiro clique',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_zoom_in_2'),
-                  paragrafoAntes: '**04.** Zoom in — passo 2',
+                  paragrafoAntes: '**Zoom in** — segundo clique',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_zoom_out_1'),
-                  paragrafoAntes: '**05.** Zoom out — passo 1',
+                  paragrafoAntes: '**Zoom out** — primeiro clique',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_zoom_out_2'),
-                  paragrafoAntes: '**06.** Zoom out — passo 2',
+                  paragrafoAntes: '**Zoom out** — segundo clique',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_restaurar_mapa'),
-                  paragrafoAntes: '**07.** Restaurar mapa',
+                  paragrafoAntes: '**Restaurar mapa**',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_ocultar_exibir_linha'),
-                  paragrafoAntes: '**08.** Ocultar linhas de rota',
+                  paragrafoAntes: '**Ocultar linhas** de rota',
                 },
                 {
                   legenda: '',
                   imagem: S('insight_menu_mapa_ocultar_exibir_linha_resultado'),
-                  paragrafoAntes: '**09.** Exibir linhas de rota',
+                  paragrafoAntes: '**Exibir linhas** de rota',
                 },
               ],
             },
@@ -401,22 +406,22 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: S('lista_paineis'),
-                  paragrafoAntes: '**01.** Faixa de **painéis** abaixo da barra de busca',
+                  paragrafoAntes: '**Faixa de painéis** abaixo da barra de busca',
                 },
                 {
                   legenda: '',
                   imagem: S('lista_paineis_NOVO_1'),
-                  paragrafoAntes: '**02.** Criar **novo painel** — passo 1',
+                  paragrafoAntes: '**Criar novo painel** — passo 1',
                 },
                 {
                   legenda: '',
                   imagem: S('lista_paineis_NOVO_2'),
-                  paragrafoAntes: '**03.** Novo painel — passo 2',
+                  paragrafoAntes: '**Novo painel** — passo 2',
                 },
                 {
                   legenda: '',
                   imagem: S('lista_paineis_NOVO_3'),
-                  paragrafoAntes: '**04.** Novo painel — passo 3',
+                  paragrafoAntes: '**Novo painel** — passo 3',
                 },
               ],
             },
@@ -428,12 +433,12 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: S('lista_paineis_editar_1'),
-                  paragrafoAntes: '**05.** **Editar** painel — filtros e colunas',
+                  paragrafoAntes: '**Editar painel** — filtros e colunas',
                 },
                 {
                   legenda: '',
                   imagem: S('lista_paineis_editar_2'),
-                  paragrafoAntes: '**06.** Edição de painel — detalhe',
+                  paragrafoAntes: '**Edição de painel** — detalhe',
                 },
               ],
             },

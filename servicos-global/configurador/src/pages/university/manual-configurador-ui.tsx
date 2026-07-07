@@ -63,12 +63,23 @@ import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-v
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
 import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import {
+  ManualInfograficoBidFreteMapa,
+  ManualPilaresMapaBidFreteChips,
+  type ManualPilarMapaBidFreteId,
+} from './manual-bid-frete-infografico-mapa'
+import {
+  ManualInfograficoBidFreteFiltrosMapa,
+  ManualPilaresFiltrosMapaBidFreteChips,
+  type ManualPilarFiltrosMapaBidFreteId,
+} from './manual-bid-frete-infografico-filtros-mapa'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
 import { ManualInfograficoBidFreteNovaCotacaoFluxo } from './manual-bid-frete-infografico-nova-cotacao-fluxo'
+import { ManualInfograficoBidFreteControlesMapa } from './manual-bid-frete-infografico-controles-mapa'
 import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
 import { ManualInfograficoPedidoListaConsolidarPasso2Regras } from './manual-pedido-infografico-lista-consolidar-passo2-regras'
 import { ManualInfograficoPedidoListaConsolidarResultadoEsperado } from './manual-pedido-infografico-lista-consolidar-resultado-esperado'
@@ -122,8 +133,7 @@ const MANUAL_ESTILO_CORPO: React.CSSProperties = {
 
 const MANUAL_LINK_STYLE: React.CSSProperties = {
   color: '#818cf8',
-  textDecoration: 'underline',
-  textUnderlineOffset: 2,
+  textDecoration: 'none',
 }
 
 type ManualPilarCustomizacaoId = '01' | '02' | '03' | '04'
@@ -630,10 +640,14 @@ function ManualGaleriaCabecalhoPasso({
   legendaPasso,
   pilaresImportarFormas,
   pilaresCustomizacao,
+  pilaresMapaBidFrete,
+  pilaresFiltrosMapaBidFrete,
 }: {
   legendaPasso: string
   pilaresImportarFormas?: ManualPilarImportarFormaId[]
   pilaresCustomizacao?: ManualPilarCustomizacaoId[]
+  pilaresMapaBidFrete?: ManualPilarMapaBidFreteId[]
+  pilaresFiltrosMapaBidFrete?: ManualPilarFiltrosMapaBidFreteId[]
 }) {
   return (
     <div style={{
@@ -641,12 +655,16 @@ function ManualGaleriaCabecalhoPasso({
       gap: 12,
       alignItems: 'center',
       flexWrap: 'wrap',
-      marginBottom: 10,
+      marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX,
     }}>
       {pilaresImportarFormas?.length ? (
         <ManualPilaresImportarFormasChips pilares={pilaresImportarFormas} />
       ) : pilaresCustomizacao?.length ? (
         <ManualPilaresCustomizacaoChips pilares={pilaresCustomizacao} />
+      ) : pilaresMapaBidFrete?.length ? (
+        <ManualPilaresMapaBidFreteChips pilares={pilaresMapaBidFrete} />
+      ) : pilaresFiltrosMapaBidFrete?.length ? (
+        <ManualPilaresFiltrosMapaBidFreteChips pilares={pilaresFiltrosMapaBidFrete} />
       ) : null}
       <ManualGaleriaTelaLegendaStep legenda={legendaPasso} alinhamento="left" />
     </div>
@@ -1203,18 +1221,36 @@ function ManualGaleriaLegendaPrintPasso({
   texto,
   entreLinhas = false,
   margemAbaixo,
+  modoTituloSubtopico = false,
 }: {
   texto: string
   entreLinhas?: boolean
   /** Sobrescreve margin-bottom padrão (ex.: print largura total → `MANUAL_ESPACO_PARAGRAFO_PX`). */
   margemAbaixo?: number
+  /** Subtópico em acordeão — título + print (paridade Pedido §Lista), sem chip «Passo NN». */
+  modoTituloSubtopico?: boolean
 }) {
-  const match = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
+  const matchNumerado = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
+  const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+
+  if (modoTituloSubtopico) {
+    const textoTitulo = matchNumerado ? matchNumerado[2].trim() : texto
+    return (
+      <div style={{
+        marginBottom,
+        textAlign: 'left',
+        minHeight: entreLinhas ? undefined : '2.75rem',
+      }}>
+        <ManualParagrafo texto={textoTitulo} marginBottom={0} />
+      </div>
+    )
+  }
+
+  const match = matchNumerado
   if (!match) {
     return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} />
   }
   const [, numero, legenda] = match
-  const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
   return (
     <div style={{
       display: 'flex',
@@ -1352,7 +1388,7 @@ function ManualGaleriaTelaFigurasCompostas({
   legendaPrincipal: string
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_PARAGRAFO_PX }}>
       {linhas.map((linha, indiceLinha) => {
         const centralizar = linha.centralizar ?? linha.figuras.length === 1
         const figurasLinha = centralizar && linha.figuras.length === 1 ? (
@@ -1377,7 +1413,7 @@ function ManualGaleriaTelaFigurasCompostas({
             style={{
               display: 'grid',
               gridTemplateColumns: `repeat(${linha.figuras.length}, minmax(0, 1fr))`,
-              gap: 14,
+              gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
               alignItems: 'start',
             }}
           >
@@ -1413,7 +1449,12 @@ function ManualGaleriaTelaFigurasCompostas({
 }
 
 function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
-  const pilares = tela.pilaresCustomizacao
+  const pilaresCustomizacao = tela.pilaresCustomizacao
+  const pilaresMapaBidFrete = tela.pilaresMapaBidFrete
+  const pilaresFiltrosMapaBidFrete = tela.pilaresFiltrosMapaBidFrete
+  const temPilares = Boolean(
+    pilaresCustomizacao?.length || pilaresMapaBidFrete?.length || pilaresFiltrosMapaBidFrete?.length,
+  )
 
   const figuras = tela.imagensCompostas?.length
     ? (
@@ -1429,11 +1470,11 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
   const restoAposParagrafo = (
     <>
       {tela.tooltipKpi ? (
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualTooltipKpiCard tooltip={tela.tooltipKpi} />
         </div>
       ) : null}
-      {!pilares?.length && tela.legendaAlinhamento !== 'left' ? (
+      {!temPilares && tela.legendaAlinhamento !== 'left' ? (
         <ManualGaleriaTelaLegendaStep
           legenda={tela.legenda}
           alinhamento={tela.legendaAlinhamento ?? 'center'}
@@ -1441,18 +1482,18 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
       ) : null}
       {figuras}
       {tela.calloutDepois ? (
-        <ManualCalloutBloco callout={tela.calloutDepois} marginTop={12} />
+        <ManualCalloutBloco callout={tela.calloutDepois} marginTop={MANUAL_ESPACO_PARAGRAFO_PX} />
       ) : tela.paragrafoDepois ? (
-        <div style={{ marginTop: 10, textAlign: 'left' }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, textAlign: 'left' }}>
           <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
         </div>
       ) : null}
     </>
   )
 
-  if (!pilares?.length) {
+  if (!temPilares) {
     const legendaEsquerda = tela.legendaAlinhamento === 'left' ? (
-      <div style={{ marginBottom: 10 }}>
+      <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX }}>
         <ManualGaleriaTelaLegendaStep legenda={tela.legenda} alinhamento="left" />
       </div>
     ) : null
@@ -1461,7 +1502,7 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
       <div>
         {legendaEsquerda}
         {tela.paragrafoAntes ? (
-          <div style={{ marginBottom: 10, textAlign: 'left' }}>
+          <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, textAlign: 'left' }}>
             <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
           </div>
         ) : null}
@@ -1474,10 +1515,12 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
     <div>
       <ManualGaleriaCabecalhoPasso
         legendaPasso={tela.legenda}
-        pilaresCustomizacao={pilares}
+        pilaresCustomizacao={pilaresCustomizacao}
+        pilaresMapaBidFrete={pilaresMapaBidFrete}
+        pilaresFiltrosMapaBidFrete={pilaresFiltrosMapaBidFrete}
       />
       {tela.paragrafoAntes ? (
-        <div style={{ marginBottom: 10, textAlign: 'left' }}>
+        <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, textAlign: 'left' }}>
           <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
         </div>
       ) : null}
@@ -2237,6 +2280,9 @@ function ManualBlocoPassoVisual({
           && (passo.bidFreteNovaCotacaoInfograficoAposParagrafo ?? 1) === i ? (
             <ManualInfograficoBidFreteNovaCotacaoFluxo />
           ) : null}
+          {passo.mostrarInfograficoBidFreteControlesMapa && i === 0 ? (
+            <ManualInfograficoBidFreteControlesMapa />
+          ) : null}
           {(() => {
             const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
             return galeriasParagrafo.map((galeria, idxGaleria) => (
@@ -2362,7 +2408,11 @@ function ManualBlocoPassoVisual({
     ? <ManualInfograficoSmartDocsListaCustomizacao />
     : passo.mostrarInfograficoPedidoListaCustomizacao
       ? <ManualInfograficoPedidoListaCustomizacao />
-      : null
+      : passo.mostrarInfograficoBidFreteMapa
+        ? <ManualInfograficoBidFreteMapa />
+        : passo.mostrarInfograficoBidFreteFiltrosMapa
+          ? <ManualInfograficoBidFreteFiltrosMapa />
+          : null
 
   const infograficoCatalogoColunasPedido = passo.mostrarInfograficoPedidoCatalogoColunasLista
     ? <ManualInfograficoPedidoCatalogoColunasLista />
@@ -2381,9 +2431,12 @@ function ManualBlocoPassoVisual({
     : null
 
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
-    <div style={{ marginTop: 24 }}>
-      {passo.galeriaTelasAposTabela.map((tela) => (
-        <div key={tela.legenda} style={{ marginTop: 20 }}>
+    <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+      {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
+        <div
+          key={tela.legenda}
+          style={{ marginTop: indiceGaleria === 0 ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX }}
+        >
           <ManualGaleriaTelaCelula tela={tela} />
         </div>
       ))}
@@ -3110,6 +3163,7 @@ function ManualGaleriaComparacaoIntro({
     && !infograficoEdicaoMassaPasso2Regras
     && !infograficoEdicaoMassaResultadoEsperado
   ) return null
+  const modoTituloSubtopico = emAcordeaoSubtopico && textoAcimaEstiloCorpo
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
   const printLarguraTotal = colunasGrade === 1
   const espacoParagrafoGaleriaPx = emAcordeaoSubtopico
@@ -3181,6 +3235,7 @@ function ManualGaleriaComparacaoIntro({
             <ManualGaleriaLegendaPrintPasso
               texto={tela.paragrafoAntes}
               margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
+              modoTituloSubtopico={modoTituloSubtopico}
             />
           )
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />

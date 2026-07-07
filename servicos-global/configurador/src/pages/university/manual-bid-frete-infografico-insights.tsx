@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import {
   Bell,
   ChartBar,
@@ -30,7 +30,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 1,
     rotulo: 'KPIs do topo',
     descricao:
-      'Três cards fixos: **Aguardando aprovação** (cotações pendentes de autorização de quem solicitou), **Aguardando resposta** e **Tempo médio de resposta**, com contagem, volume USD/meta e tooltip com lista de cotações e distribuição por modal.',
+      'Três cards: **Aguardando aprovação**, **Aguardando resposta** e **Tempo médio de resposta**, com contagem, volume USD e tooltip.',
     icone: Warning,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.28)',
@@ -40,7 +40,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 2,
     rotulo: 'Mapa global',
     descricao:
-      'Globo ou mapa plano com **rotas** operacionais, pins por terminal e painel **Refinar mapa** (operação, modal, origem, destino, status). Clique na rota abre o detalhe.',
+      'Globo ou mapa plano com **rotas**, pins por terminal e painel **Refinar mapa**. Clique na rota abre o detalhe.',
     icone: Globe,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.28)',
@@ -50,7 +50,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 3,
     rotulo: 'Alertas do dia',
     descricao:
-      'Cards de atenção (vencimentos, respostas, aprovações, novas cotações) com contagem por **dia de referência**. Setas ◀▶ trocam a data; clique abre modal com a lista.',
+      'Cards de atenção (vencimentos, respostas, aprovações, novas cotações) por **dia**. Setas trocam a data; clique abre a lista.',
     icone: Bell,
     cor: '#f87171',
     borda: 'rgba(248,113,113,.28)',
@@ -60,7 +60,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 4,
     rotulo: 'Funil por status',
     descricao:
-      'Barras horizontais mostram a distribuição das **cotações ativas** em cada status configurado do workspace (paridade com a config de status).',
+      'Barras horizontais com a distribuição das **cotações ativas** em cada status do workspace.',
     icone: Funnel,
     cor: '#818cf8',
     borda: 'rgba(129,140,248,.28)',
@@ -70,7 +70,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 5,
     rotulo: 'Evolução mensal',
     descricao:
-      'Gráfico de barras por mês: cotações **aprovadas**, **em andamento** e **recusadas** nos últimos seis meses do escopo selecionado.',
+      'Barras por mês: cotações **aprovadas**, **em andamento** e **recusadas** nos últimos seis meses.',
     icone: ChartBar,
     cor: '#3b82f6',
     borda: 'rgba(59,130,246,.28)',
@@ -80,7 +80,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 6,
     rotulo: 'Distribuição por modal',
     descricao:
-      'Donut com a divisão **Marítimo × Aéreo × Rodoviário** e legenda com contagem e percentual por modal.',
+      'Donut **Marítimo × Aéreo × Rodoviário** com contagem e percentual por modal.',
     icone: ChartPie,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.28)',
@@ -90,7 +90,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 7,
     rotulo: 'Câmbio PTAX',
     descricao:
-      'Taxas **BACEN** (USD, EUR, CNY…) em abas **Hoje**, **Histórico** e **Futuro**; ao lado, **spread médio** compara a taxa configurada no produto com a PTAX.',
+      'Taxas **BACEN** (USD, EUR, CNY…) em **Hoje**, **Histórico** e **Futuro**; **spread médio** vs PTAX.',
     icone: CurrencyDollar,
     cor: '#3b82f6',
     borda: 'rgba(59,130,246,.28)',
@@ -100,7 +100,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 8,
     rotulo: 'Melhor cotação',
     descricao:
-      'Destaque da cotação de **maior saving** do mês: rota origem→destino, transit time, percentual e valor USD ganho.',
+      'Cotação de **maior saving** do mês: rota origem→destino, transit time e valor USD ganho.',
     icone: Trophy,
     cor: '#f59e0b',
     borda: 'rgba(245,158,11,.28)',
@@ -110,7 +110,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 9,
     rotulo: 'Top Incoterms',
     descricao:
-      'Ranking dos **Incoterms** mais usados nas cotações, com barra de progresso e percentual por termo.',
+      'Ranking dos **Incoterms** mais usados, com barra de progresso e percentual por termo.',
     icone: ListBullets,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.28)',
@@ -120,13 +120,18 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 10,
     rotulo: 'Taxa de aprovação',
     descricao:
-      'Donut de prazos: cotações **em tempo**, **atrasadas** e **sem resposta** no fluxo de aprovação do workspace.',
+      'Donut de prazos: cotações **em tempo**, **atrasadas** e **sem resposta** no fluxo de aprovação.',
     icone: ThumbsUp,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.28)',
     fundo: 'rgba(52,211,153,.08)',
   },
 ]
+
+const BLOCOS_UX10_LINHA1 = BLOCOS_UX10.slice(0, 6)
+const BLOCOS_UX10_LINHA2 = BLOCOS_UX10.slice(6)
+
+const GRID_UX10_COLUNAS = 'repeat(6, minmax(0, 1fr))'
 
 function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
   const Icone = bloco.icone
@@ -137,10 +142,13 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
         padding: '12px 14px',
         background: bloco.fundo,
         border: `1px solid ${bloco.borda}`,
+        boxSizing: 'border-box',
         height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flex: 1 }}>
         <div
           style={{
             flexShrink: 0,
@@ -181,6 +189,21 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
 }
 
 export function ManualInfograficoBidFreteInsights() {
+  const linha1Ref = useRef<HTMLDivElement>(null)
+  const [alturaLinha1Px, setAlturaLinha1Px] = useState<number | undefined>()
+
+  useLayoutEffect(() => {
+    const el = linha1Ref.current
+    if (!el) return undefined
+
+    const atualizar = () => setAlturaLinha1Px(el.offsetHeight)
+    atualizar()
+
+    const observer = new ResizeObserver(atualizar)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
       style={{
@@ -207,10 +230,33 @@ export function ManualInfograficoBidFreteInsights() {
       <p style={{ margin: '0 0 16px', fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
         O que cada bloco da tela Insights mostra
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
-        {BLOCOS_UX10.map(bloco => (
-          <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
-        ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div
+          ref={linha1Ref}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: GRID_UX10_COLUNAS,
+            gap: 10,
+            alignItems: 'stretch',
+          }}
+        >
+          {BLOCOS_UX10_LINHA1.map(bloco => (
+            <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
+          ))}
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: GRID_UX10_COLUNAS,
+            gap: 10,
+            alignItems: 'stretch',
+            minHeight: alturaLinha1Px,
+          }}
+        >
+          {BLOCOS_UX10_LINHA2.map(bloco => (
+            <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
+          ))}
+        </div>
       </div>
     </div>
   )

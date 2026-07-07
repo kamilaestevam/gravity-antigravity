@@ -177,8 +177,14 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoListaTransferirFluxo?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Transferir (padrão: 1). */
   transferirInfograficoAposParagrafo?: number
+  /** Manual BID Frete §03 — infográfico das quatro interações do mapa global. */
+  mostrarInfograficoBidFreteMapa?: boolean
+  /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
+  mostrarInfograficoBidFreteFiltrosMapa?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
+  /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
+  mostrarInfograficoBidFreteControlesMapa?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
   bidFreteNovaCotacaoInfograficoAposParagrafo?: number
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
@@ -292,6 +298,10 @@ export interface DocGaleriaTela {
   calloutDepois?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Chips numerados do infográfico de customização (ex.: ['01', '02'] = ocultar + exibir). */
   pilaresCustomizacao?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico do mapa BID Frete (ex.: ['01'] = selecionar rota). */
+  pilaresMapaBidFrete?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
+  pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }

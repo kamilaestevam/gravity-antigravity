@@ -38,6 +38,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'insight_1': '/university/screenshots/bid-frete-int-insight-1.png',
   'insight_2': '/university/screenshots/bid-frete-int-insight-2.png',
   'insight_3': '/university/screenshots/bid-frete-int-insight-3.png',
+  'insight_controle_exibicao': '/university/screenshots/bid-frete-int-insight-controle-exibicao.png',
   'insight_mapa_acesso_cotacoes_1': '/university/screenshots/bid-frete-int-insight-mapa-acesso-cotacoes-1.png',
   'insight_mapa_acesso_cotacoes_2': '/university/screenshots/bid-frete-int-insight-mapa-acesso-cotacoes-2.png',
   'insight_mapa_acesso_cotacoes_3': '/university/screenshots/bid-frete-int-insight-mapa-acesso-cotacoes-3.png',
@@ -64,6 +65,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'insight_menu_mapa_zoom_out_1': '/university/screenshots/bid-frete-int-insight-menu-mapa-zoom-out-1.png',
   'insight_menu_mapa_zoom_out_2': '/university/screenshots/bid-frete-int-insight-menu-mapa-zoom-out-2.png',
   'insight_menu_mapa': '/university/screenshots/bid-frete-int-insight-menu-mapa.png',
+  'insight_modal_refinar_mapa': '/university/screenshots/bid-frete-int-insight-modal-refinar-mapa.png',
   'insight_tooltip_1_seta': '/university/screenshots/bid-frete-int-insight-tooltip-1-seta.png',
   'insight_tooltip_1_tela': '/university/screenshots/bid-frete-int-insight-tooltip-1-tela.png',
   'insight_tooltip_2_seta': '/university/screenshots/bid-frete-int-insight-tooltip-2-seta.png',
@@ -188,6 +190,7 @@ export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TAXA_CAMBIO = screenshotBidF
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_1 = screenshotBidFreteInt('insight_1')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_2 = screenshotBidFreteInt('insight_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_3 = screenshotBidFreteInt('insight_3')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_CONTROLE_EXIBICAO = screenshotBidFreteInt('insight_controle_exibicao')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MAPA_ACESSO_COTACOES_1 = screenshotBidFreteInt('insight_mapa_acesso_cotacoes_1')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MAPA_ACESSO_COTACOES_2 = screenshotBidFreteInt('insight_mapa_acesso_cotacoes_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MAPA_ACESSO_COTACOES_3 = screenshotBidFreteInt('insight_mapa_acesso_cotacoes_3')
@@ -214,6 +217,7 @@ export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA_ZOOM_IN_2 = screenshotBi
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA_ZOOM_OUT_1 = screenshotBidFreteInt('insight_menu_mapa_zoom_out_1')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA_ZOOM_OUT_2 = screenshotBidFreteInt('insight_menu_mapa_zoom_out_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA = screenshotBidFreteInt('insight_menu_mapa')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MODAL_REFINAR_MAPA = screenshotBidFreteInt('insight_modal_refinar_mapa')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_1_SETA = screenshotBidFreteInt('insight_tooltip_1_seta')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_1_TELA = screenshotBidFreteInt('insight_tooltip_1_tela')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_2_SETA = screenshotBidFreteInt('insight_tooltip_2_seta')

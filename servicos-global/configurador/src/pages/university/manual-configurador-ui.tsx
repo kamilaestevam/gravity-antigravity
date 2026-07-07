@@ -6,7 +6,7 @@ import {
   UserPlus, IdentificationCard, ArrowRight, ShieldCheck, User, Key, Check,
   Package, Truck, ArrowDown, ArrowUp, EnvelopeSimple, Desktop,
   Eye, EyeSlash, PlusCircle, ArrowsOutLineVertical, PencilSimple, UploadSimple, ArrowsLeftRight, Sparkle,
-  Plus, MinusCircle, Warning, FunnelSimple, CubeTransparent, TextT,
+  Plus, MinusCircle, Warning, FunnelSimple, CubeTransparent, TextT, Anchor,
   List, SquaresFour, ChartBar, ListChecks,
   ShieldStar, UserGear, Boat, Airplane, TruckTrailer, Warehouse, Bank, Factory,
   Circle, CheckCircle, CircleHalf, Prohibit,
@@ -63,12 +63,28 @@ import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-v
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
 import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import {
+  ManualInfograficoBidFreteMapa,
+  ManualPilaresMapaBidFreteChips,
+  type ManualPilarMapaBidFreteId,
+} from './manual-bid-frete-infografico-mapa'
+import {
+  ManualInfograficoBidFreteFiltrosMapa,
+  ManualPilaresFiltrosMapaBidFreteChips,
+  type ManualPilarFiltrosMapaBidFreteId,
+} from './manual-bid-frete-infografico-filtros-mapa'
+import {
+  ManualInfograficoBidFreteControlesMapa,
+  ManualPilaresControlesMapaBidFreteChips,
+  type ManualPilarControlesMapaBidFreteId,
+} from './manual-bid-frete-infografico-controles-mapa'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
 import { ManualInfograficoBidFreteNovaCotacaoFluxo } from './manual-bid-frete-infografico-nova-cotacao-fluxo'
+import { ManualInfograficoBotaoInline } from './manual-infografico-rich-text'
 import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
 import { ManualInfograficoPedidoListaConsolidarPasso2Regras } from './manual-pedido-infografico-lista-consolidar-passo2-regras'
 import { ManualInfograficoPedidoListaConsolidarResultadoEsperado } from './manual-pedido-infografico-lista-consolidar-resultado-esperado'
@@ -122,8 +138,7 @@ const MANUAL_ESTILO_CORPO: React.CSSProperties = {
 
 const MANUAL_LINK_STYLE: React.CSSProperties = {
   color: '#818cf8',
-  textDecoration: 'underline',
-  textUnderlineOffset: 2,
+  textDecoration: 'none',
 }
 
 type ManualPilarCustomizacaoId = '01' | '02' | '03' | '04'
@@ -628,27 +643,51 @@ function ManualChipEdicaoMassaExemplo({ id }: { id: DocChipEdicaoMassaExemploId 
 
 function ManualGaleriaCabecalhoPasso({
   legendaPasso,
+  textoCorpo,
   pilaresImportarFormas,
   pilaresCustomizacao,
+  pilaresMapaBidFrete,
+  pilaresFiltrosMapaBidFrete,
+  pilaresControlesMapaBidFrete,
 }: {
   legendaPasso: string
+  /** Parágrafo ao lado do chip — usa o espaço horizontal do cabeçalho. */
+  textoCorpo?: string
   pilaresImportarFormas?: ManualPilarImportarFormaId[]
   pilaresCustomizacao?: ManualPilarCustomizacaoId[]
+  pilaresMapaBidFrete?: ManualPilarMapaBidFreteId[]
+  pilaresFiltrosMapaBidFrete?: ManualPilarFiltrosMapaBidFreteId[]
+  pilaresControlesMapaBidFrete?: ManualPilarControlesMapaBidFreteId[]
 }) {
   return (
     <div style={{
       display: 'flex',
       gap: 12,
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      marginBottom: 10,
+      alignItems: 'flex-start',
+      flexWrap: 'nowrap',
+      marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX,
     }}>
       {pilaresImportarFormas?.length ? (
         <ManualPilaresImportarFormasChips pilares={pilaresImportarFormas} />
       ) : pilaresCustomizacao?.length ? (
         <ManualPilaresCustomizacaoChips pilares={pilaresCustomizacao} />
+      ) : pilaresMapaBidFrete?.length ? (
+        <ManualPilaresMapaBidFreteChips pilares={pilaresMapaBidFrete} />
+      ) : pilaresFiltrosMapaBidFrete?.length ? (
+        <ManualPilaresFiltrosMapaBidFreteChips pilares={pilaresFiltrosMapaBidFrete} />
+      ) : pilaresControlesMapaBidFrete?.length ? (
+        <ManualPilaresControlesMapaBidFreteChips pilares={pilaresControlesMapaBidFrete} />
       ) : null}
-      <ManualGaleriaTelaLegendaStep legenda={legendaPasso} alinhamento="left" />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {legendaPasso.trim() ? (
+          <ManualGaleriaTelaLegendaStep legenda={legendaPasso} alinhamento="left" />
+        ) : null}
+        {textoCorpo ? (
+          <div style={{ marginTop: legendaPasso.trim() ? 4 : 0 }}>
+            <ManualParagrafo texto={textoCorpo} marginBottom={0} />
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -789,13 +828,6 @@ function gridColunasGaleriaTelas(quantidade: number): string {
   return 'repeat(3, minmax(0, 1fr))'
 }
 
-const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
-  display: 'inline-flex',
-  verticalAlign: 'text-bottom',
-  margin: '0 3px',
-  color: MANUAL_TIPO.secundario,
-}
-
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
   destaque: { bg: 'rgba(251,191,36,.1)', borda: 'rgba(251,191,36,.38)', label: 'Bom saber', cor: '#fbbf24' },
   aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso', cor: '#f87171' },
@@ -808,6 +840,62 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
   fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
   textAlign: MANUAL_ALINHAMENTO_CORPO, textJustify: 'inter-word',
+}
+
+/** Ícones inline: token `{{icone:slug}}` — paridade ONBOARDING §9 */
+const MANUAL_ICONES_PHOSPHOR: Record<string, Icon> = {
+  olho: Eye,
+  'olho-riscado': EyeSlash,
+}
+
+const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
+  display: 'inline-flex',
+  verticalAlign: 'text-bottom',
+  margin: '0 3px',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+/** Pin marítimo do mapa Insights — paridade `bfd-map-pin__dot` (visão geral BID Frete). */
+function ManualIconePinMapaBidFreteInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Pin do mapa — terminal no hub de cotações"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'text-bottom',
+        marginLeft: 3,
+        marginRight: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 18,
+        height: 18,
+        borderRadius: '50%',
+        backgroundColor: '#34d399',
+        boxShadow: '0 0 8px rgba(52, 211, 153, 0.6)',
+      }}
+    >
+      <Anchor size={11} weight="bold" color="#000000" aria-hidden />
+    </span>
+  )
+}
+
+function ManualIconeInline({ slug }: { slug: string }) {
+  if (slug === 'pin-mapa-bid-frete') {
+    return <ManualIconePinMapaBidFreteInline />
+  }
+  const Icone = MANUAL_ICONES_PHOSPHOR[slug]
+  if (!Icone) return <>{`{{icone:${slug}}}`}</>
+  return (
+    <span style={MANUAL_ICONE_INLINE_STYLE} aria-hidden>
+      <Icone size={16} />
+    </span>
+  )
+}
+
+function ManualBotaoInline({ slug }: { slug: string }) {
+  return <ManualInfograficoBotaoInline slug={slug} />
 }
 
 function ManualTextoRich({ texto }: { texto: string }) {
@@ -846,7 +934,7 @@ function ManualTextoRichSegmento({ texto }: { texto: string }) {
 
 function ManualTextoRichLinha({ texto }: { texto: string }) {
   const partes: React.ReactNode[] = []
-  const re = /(https:\/\/[^\s]+|\{\{link:([^|]+)\|([^}]+)\}\})/g
+  const re = /(https:\/\/[^\s]+|\{\{link:([^|]+)\|([^}]+)\}\}|\{\{icone:([a-z0-9-]+)\}\}|\{\{botao:([a-z0-9-]+)\}\})/g
   let ultimo = 0
   let match: RegExpExecArray | null
   let ki = 0
@@ -860,6 +948,10 @@ function ManualTextoRichLinha({ texto }: { texto: string }) {
           {match[1]}
         </a>,
       )
+    } else if (match[5] !== undefined) {
+      partes.push(<ManualBotaoInline key={match.index} slug={match[5]} />)
+    } else if (match[4] !== undefined) {
+      partes.push(<ManualIconeInline key={match.index} slug={match[4]} />)
     } else if (match[2] !== undefined) {
       partes.push(
         <ManualLinkInterno key={match.index} href={match[2]} rotulo={match[3]} />,
@@ -1203,18 +1295,36 @@ function ManualGaleriaLegendaPrintPasso({
   texto,
   entreLinhas = false,
   margemAbaixo,
+  modoTituloSubtopico = false,
 }: {
   texto: string
   entreLinhas?: boolean
   /** Sobrescreve margin-bottom padrão (ex.: print largura total → `MANUAL_ESPACO_PARAGRAFO_PX`). */
   margemAbaixo?: number
+  /** Subtópico em acordeão — título + print (paridade Pedido §Lista), sem chip «Passo NN». */
+  modoTituloSubtopico?: boolean
 }) {
-  const match = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
+  const matchNumerado = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
+  const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+
+  if (modoTituloSubtopico) {
+    const textoTitulo = matchNumerado ? matchNumerado[2].trim() : texto
+    return (
+      <div style={{
+        marginBottom,
+        textAlign: 'left',
+        minHeight: entreLinhas ? undefined : '2.75rem',
+      }}>
+        <ManualParagrafo texto={textoTitulo} marginBottom={0} />
+      </div>
+    )
+  }
+
+  const match = matchNumerado
   if (!match) {
     return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} />
   }
   const [, numero, legenda] = match
-  const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
   return (
     <div style={{
       display: 'flex',
@@ -1352,7 +1462,7 @@ function ManualGaleriaTelaFigurasCompostas({
   legendaPrincipal: string
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_PARAGRAFO_PX }}>
       {linhas.map((linha, indiceLinha) => {
         const centralizar = linha.centralizar ?? linha.figuras.length === 1
         const figurasLinha = centralizar && linha.figuras.length === 1 ? (
@@ -1377,7 +1487,7 @@ function ManualGaleriaTelaFigurasCompostas({
             style={{
               display: 'grid',
               gridTemplateColumns: `repeat(${linha.figuras.length}, minmax(0, 1fr))`,
-              gap: 14,
+              gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
               alignItems: 'start',
             }}
           >
@@ -1413,7 +1523,14 @@ function ManualGaleriaTelaFigurasCompostas({
 }
 
 function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
-  const pilares = tela.pilaresCustomizacao
+  const pilaresCustomizacao = tela.pilaresCustomizacao
+  const pilaresMapaBidFrete = tela.pilaresMapaBidFrete
+  const pilaresFiltrosMapaBidFrete = tela.pilaresFiltrosMapaBidFrete
+  const pilaresControlesMapaBidFrete = tela.pilaresControlesMapaBidFrete
+  const temPilares = Boolean(
+    pilaresCustomizacao?.length || pilaresMapaBidFrete?.length || pilaresFiltrosMapaBidFrete?.length
+      || pilaresControlesMapaBidFrete?.length,
+  )
 
   const figuras = tela.imagensCompostas?.length
     ? (
@@ -1429,11 +1546,11 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
   const restoAposParagrafo = (
     <>
       {tela.tooltipKpi ? (
-        <div style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualTooltipKpiCard tooltip={tela.tooltipKpi} />
         </div>
       ) : null}
-      {!pilares?.length && tela.legendaAlinhamento !== 'left' ? (
+      {!temPilares && tela.legendaAlinhamento !== 'left' ? (
         <ManualGaleriaTelaLegendaStep
           legenda={tela.legenda}
           alinhamento={tela.legendaAlinhamento ?? 'center'}
@@ -1441,18 +1558,18 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
       ) : null}
       {figuras}
       {tela.calloutDepois ? (
-        <ManualCalloutBloco callout={tela.calloutDepois} marginTop={12} />
+        <ManualCalloutBloco callout={tela.calloutDepois} marginTop={MANUAL_ESPACO_PARAGRAFO_PX} />
       ) : tela.paragrafoDepois ? (
-        <div style={{ marginTop: 10, textAlign: 'left' }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, textAlign: 'left' }}>
           <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
         </div>
       ) : null}
     </>
   )
 
-  if (!pilares?.length) {
+  if (!temPilares) {
     const legendaEsquerda = tela.legendaAlinhamento === 'left' ? (
-      <div style={{ marginBottom: 10 }}>
+      <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX }}>
         <ManualGaleriaTelaLegendaStep legenda={tela.legenda} alinhamento="left" />
       </div>
     ) : null
@@ -1461,7 +1578,7 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
       <div>
         {legendaEsquerda}
         {tela.paragrafoAntes ? (
-          <div style={{ marginBottom: 10, textAlign: 'left' }}>
+          <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, textAlign: 'left' }}>
             <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
           </div>
         ) : null}
@@ -1474,13 +1591,12 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
     <div>
       <ManualGaleriaCabecalhoPasso
         legendaPasso={tela.legenda}
-        pilaresCustomizacao={pilares}
+        textoCorpo={tela.paragrafoAntes}
+        pilaresCustomizacao={pilaresCustomizacao}
+        pilaresMapaBidFrete={pilaresMapaBidFrete}
+        pilaresFiltrosMapaBidFrete={pilaresFiltrosMapaBidFrete}
+        pilaresControlesMapaBidFrete={pilaresControlesMapaBidFrete}
       />
-      {tela.paragrafoAntes ? (
-        <div style={{ marginBottom: 10, textAlign: 'left' }}>
-          <ManualParagrafo texto={tela.paragrafoAntes} marginBottom={0} />
-        </div>
-      ) : null}
       {restoAposParagrafo}
     </div>
   )
@@ -2362,7 +2478,13 @@ function ManualBlocoPassoVisual({
     ? <ManualInfograficoSmartDocsListaCustomizacao />
     : passo.mostrarInfograficoPedidoListaCustomizacao
       ? <ManualInfograficoPedidoListaCustomizacao />
-      : null
+      : passo.mostrarInfograficoBidFreteMapa
+        ? <ManualInfograficoBidFreteMapa />
+        : passo.mostrarInfograficoBidFreteFiltrosMapa
+          ? <ManualInfograficoBidFreteFiltrosMapa />
+          : passo.mostrarInfograficoBidFreteControlesMapa
+            ? <ManualInfograficoBidFreteControlesMapa />
+            : null
 
   const infograficoCatalogoColunasPedido = passo.mostrarInfograficoPedidoCatalogoColunasLista
     ? <ManualInfograficoPedidoCatalogoColunasLista />
@@ -2381,9 +2503,12 @@ function ManualBlocoPassoVisual({
     : null
 
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
-    <div style={{ marginTop: 24 }}>
-      {passo.galeriaTelasAposTabela.map((tela) => (
-        <div key={tela.legenda} style={{ marginTop: 20 }}>
+    <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+      {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
+        <div
+          key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
+          style={{ marginTop: indiceGaleria === 0 ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX }}
+        >
           <ManualGaleriaTelaCelula tela={tela} />
         </div>
       ))}
@@ -3110,6 +3235,7 @@ function ManualGaleriaComparacaoIntro({
     && !infograficoEdicaoMassaPasso2Regras
     && !infograficoEdicaoMassaResultadoEsperado
   ) return null
+  const modoTituloSubtopico = emAcordeaoSubtopico && textoAcimaEstiloCorpo
   const colunasGrade = colunas ?? Math.min(telas.length, 2)
   const printLarguraTotal = colunasGrade === 1
   const espacoParagrafoGaleriaPx = emAcordeaoSubtopico
@@ -3181,6 +3307,7 @@ function ManualGaleriaComparacaoIntro({
             <ManualGaleriaLegendaPrintPasso
               texto={tela.paragrafoAntes}
               margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
+              modoTituloSubtopico={modoTituloSubtopico}
             />
           )
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />

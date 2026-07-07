@@ -22,10 +22,9 @@ function NotFound() {
 }
 
 export function App() {
-  // Pré-lançamento: todo o site público mostra a contagem regressiva.
-  // No horário de lançamento (ver launch.ts) a vitrine completa é liberada
-  // automaticamente, sem necessidade de novo deploy.
-  if (!isLancado()) {
+  // Pré-lançamento: contagem regressiva em produção.
+  // Em dev (npm run dev) a vitrine completa fica disponível para preview local.
+  if (!isLancado() && !import.meta.env.DEV) {
     return <ComingSoon />
   }
 

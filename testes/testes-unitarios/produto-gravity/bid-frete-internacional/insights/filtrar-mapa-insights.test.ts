@@ -4,6 +4,7 @@ import {
   filtrarDadosMapaInsightsBidFreteInternacional,
   filtrarTerminaisMapaInsightsPorBusca,
   filtrosMapaInsightsIniciais,
+  FILTROS_STATUS_MAPA_INSIGHTS,
   inferirTipoOperacaoRotaMapa,
   OPERACOES_FILTRO_MAPA_INSIGHTS,
   MODAIS_FILTRO_MAPA_INSIGHTS,
@@ -136,12 +137,28 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
     expect(resultado.routes).toEqual([rotaComStatus])
   })
 
-  it('mantém rota sem status quando filtro de status está ativo', () => {
+  it('oculta rota sem status quando filtro de status está ativo', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaImportacao], {
       ...filtrosMapaInsightsIniciais(),
       status: new Set(['RASCUNHO']),
     })
-    expect(resultado.routes).toEqual([rotaImportacao])
+    expect(resultado.routes).toEqual([])
+  })
+
+  it('não restringe quando todos os status estão selecionados', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      ...filtrosMapaInsightsIniciais(),
+      status: new Set(FILTROS_STATUS_MAPA_INSIGHTS.map((f) => f.id)),
+    })
+    expect(resultado.routes).toHaveLength(2)
+  })
+
+  it('não restringe quando todos os terminais de origem estão selecionados', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      ...filtrosMapaInsightsIniciais(),
+      codigos_origem: new Set(['CNSHA', 'BRSSZ', 'USNYC']),
+    })
+    expect(resultado.routes).toHaveLength(2)
   })
 
   it('filtra por terminal de origem', () => {

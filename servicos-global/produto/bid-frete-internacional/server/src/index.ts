@@ -35,6 +35,7 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { dashboardPaineisRouter } from './routes/dashboard-paineis.js'
 import { listaPaineisBidFreteRouter } from './routes/lista-bid-frete-internacional-paineis.js'
 import { preferenciaEscopoWorkspacesBidFreteRouter } from './routes/preferencia-escopo-workspaces-bid-frete-internacional.js'
+import { preferenciaNotificacaoBidFreteRouter } from './routes/preferencia-notificacao-bid-frete-internacional.js'
 import { templateImportacaoBidHandler } from './routes/importacao-template-bid-frete-internacional.js'
 import { importacaoAnalisarBidRouter } from './routes/importacao-analisar-bid-frete-internacional.js'
 import { startCronJobs } from './services/tarefas-agendadas.js'
@@ -170,6 +171,7 @@ app.use('/api/v1/bid-frete-internacional/dashboard', dashboardWidgetsRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardPaineisRouter)
 app.use('/api/v1/bid-frete-internacional/lista', listaPaineisBidFreteRouter)
 app.use('/api/v1/bid-frete-internacional/config', preferenciaEscopoWorkspacesBidFreteRouter)
+app.use('/api/v1/bid-frete-internacional/config', preferenciaNotificacaoBidFreteRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

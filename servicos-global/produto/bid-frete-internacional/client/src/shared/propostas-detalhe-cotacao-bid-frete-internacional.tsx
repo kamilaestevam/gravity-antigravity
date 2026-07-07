@@ -112,6 +112,54 @@ function BadgeStatusProposta({
   return null
 }
 
+function SecaoAlteracaoPropostaCard({
+  proposta,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  t: TFunction
+}) {
+  const [expandido, setExpandido] = useState(false)
+  const registro =
+    proposta.ultimo_registro_alteracao_proposta_bid_frete_internacional
+    ?? proposta.registros_alteracao_proposta_bid_frete_internacional?.[0]
+
+  if (!registro || registro.tipo_registro_alteracao_proposta_bid_frete_internacional !== 'ATUALIZAR') {
+    return null
+  }
+
+  const alteracoes = registro.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  const data = new Date(registro.data_registro_alteracao_proposta_bid_frete_internacional).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return (
+    <div className="dc-prop-alteracao">
+      <button
+        type="button"
+        className="dc-prop-alteracao-chip"
+        onClick={() => setExpandido(v => !v)}
+        aria-expanded={expandido}
+      >
+        {t('bidfrete.detalhe_cotacao.proposta_atualizada_em', 'Atualizada em {{data}}', { data })}
+      </button>
+      {expandido && alteracoes.length > 0 ? (
+        <ul className="dc-prop-alteracao-lista">
+          {alteracoes.map(item => (
+            <li key={item.campo}>
+              {item.rotulo}: {String(item.valor_antes)} → {String(item.valor_depois)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  )
+}
+
 function nomeFornecedorProposta(
   proposta: PropostaRankingBidFreteInternacional,
   t: TFunction,
@@ -624,6 +672,7 @@ function CardProposta({
                 <h3 className="dc-prop-fornecedor">{nome}</h3>
                 <BadgeStatusProposta proposta={proposta} t={t} />
               </div>
+              <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
               <span className="dc-prop-total-valor">
                 {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
               </span>
@@ -685,6 +734,7 @@ function CardProposta({
                   </span>
                 )}
               </div>
+              <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
               <TagsCardProposta tags={metricas.tags} t={t} />
             </div>
           </div>
@@ -748,6 +798,7 @@ function CardProposta({
                 </span>
               )}
             </div>
+            <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
             <TagsCardProposta tags={metricas.tags} t={t} />
           </div>
         </div>

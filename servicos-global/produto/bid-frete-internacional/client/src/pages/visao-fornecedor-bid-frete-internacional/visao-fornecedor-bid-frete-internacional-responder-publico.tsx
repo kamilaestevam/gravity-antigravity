@@ -45,6 +45,8 @@ import {
 
   AvisoEdicaoPropostaResposta,
 
+  FaixaUltimaAlteracaoPropostaResposta,
+
   chaveDescricaoBloqueioRespostaPublico,
 
   chaveTituloBloqueioRespostaPublico,
@@ -419,6 +421,11 @@ export default function ResponderPublico() {
             <AvisoEdicaoPropostaResposta texto={t('bidfrete.portal.publico.aviso_edicao')} />
 
           ) : null}
+
+          <FaixaUltimaAlteracaoPropostaResposta
+            registro={disparo?.proposta?.ultimo_registro_alteracao_proposta_bid_frete_internacional}
+            t={t}
+          />
 
           <SecaoDetalhesCotacaoResposta
 

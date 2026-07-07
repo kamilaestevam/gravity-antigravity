@@ -133,10 +133,8 @@ export function DropdownNovoBidFreteInternacional({
       icon: 'upload',
       label: t('bidfrete.novo_bid.importacao'),
       desc: t('bidfrete.novo_bid.importacao_desc'),
-      action: () => {
-        navigate('/bid-frete/cotacoes/importar')
-        fechar()
-      },
+      badge: t('comum.em_breve'),
+      disabled: true,
     },
     {
       icon: 'api',
@@ -168,10 +166,8 @@ export function DropdownNovoBidFreteInternacional({
       icon: 'upload',
       label: t('bidfrete.novo_bid.importacao'),
       desc: t('bidfrete.novo_bid.importacao_desc'),
-      action: () => {
-        navigate('/bid-frete/cotacoes/importar?contexto=bid')
-        fechar()
-      },
+      badge: t('comum.em_breve'),
+      disabled: true,
     },
     {
       icon: 'api',

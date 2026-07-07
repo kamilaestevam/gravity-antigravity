@@ -1382,11 +1382,8 @@ export default function Cotacoes() {
                           icon: 'upload' as const,
                           label: t('bidfrete.novo_bid.importacao'),
                           desc: t('bidfrete.novo_bid.importacao_desc'),
-                          action: () => {
-                            navigate('/bid-frete/cotacoes/importar')
-                            setNovoDropdownAberto(false)
-                            setNovoSubmenu(null)
-                          },
+                          badge: t('comum.em_breve'),
+                          disabled: true,
                         },
                         {
                           icon: 'api' as const,
@@ -1484,11 +1481,8 @@ export default function Cotacoes() {
                           icon: 'upload' as const,
                           label: t('bidfrete.novo_bid.importacao'),
                           desc: t('bidfrete.novo_bid.importacao_desc'),
-                          action: () => {
-                            navigate('/bid-frete/cotacoes/importar?contexto=bid')
-                            setNovoDropdownAberto(false)
-                            setNovoSubmenu(null)
-                          },
+                          badge: t('comum.em_breve'),
+                          disabled: true,
                         },
                         {
                           icon: 'api' as const,

@@ -35,6 +35,7 @@ export type RotaMapaVisaoFornecedorBidFreteInternacional = {
   numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: string | null
   dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: number | null
   dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: number | null
+  statuses_cotacao_mapa_visao_fornecedor_bid_frete_internacional: string[]
 }
 
 type DisparoComCotacao = {
@@ -51,6 +52,7 @@ type DisparoComCotacao = {
     destino_pais_cotacao_bid_frete_internacional: string
     modal_cotacao_bid_frete_internacional: string
     tipo_operacao_cotacao_bid_frete_internacional?: string
+    status_cotacao_bid_frete_internacional?: string
   }
   proposta?: {
     valor_total_proposta_bid_frete_internacional?: number | null
@@ -87,6 +89,7 @@ type RotaAcumulada = {
   valoresProposta: number[]
   diasTransito: number[]
   melhorProposta: MelhorPropostaRota | null
+  statuses: Set<string>
 }
 
 function normalizarTipoOperacao(tipo: string | undefined): 'IMPORTACAO' | 'EXPORTACAO' | null {
@@ -240,6 +243,7 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
       valoresProposta: [],
       diasTransito: [],
       melhorProposta: null,
+      statuses: new Set<string>(),
     }
     rotaAtual.quantidade += 1
     if (vinculadoBid) {
@@ -255,6 +259,10 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
     const dias = disparo.proposta?.dias_transito_proposta_bid_frete_internacional
     if (dias != null && Number.isFinite(dias)) {
       rotaAtual.diasTransito.push(dias)
+    }
+    const statusCotacao = cotacao.status_cotacao_bid_frete_internacional?.trim()
+    if (statusCotacao) {
+      rotaAtual.statuses.add(statusCotacao)
     }
     rotas.set(rotaKey, rotaAtual)
   }
@@ -341,6 +349,7 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
         rota.melhorProposta?.numero_bid_bid_frete_internacional ?? null,
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: diasMedio,
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: null,
+      statuses_cotacao_mapa_visao_fornecedor_bid_frete_internacional: [...rota.statuses],
     })
     totalCotacoesExibidas += rota.quantidade
   }

@@ -481,6 +481,7 @@ router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunct
         destino_pais_cotacao_bid_frete_internacional: true,
         modal_cotacao_bid_frete_internacional: true,
         tipo_operacao_cotacao_bid_frete_internacional: true,
+        status_cotacao_bid_frete_internacional: true,
         propostas: {
           select: {
             valor_total_proposta_bid_frete_internacional: true,

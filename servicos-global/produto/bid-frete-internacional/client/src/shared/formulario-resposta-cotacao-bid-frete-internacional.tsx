@@ -1187,6 +1187,44 @@ export function AvisoEdicaoPropostaResposta({ texto }: { texto: string }) {
   )
 }
 
+export function FaixaUltimaAlteracaoPropostaResposta({
+  registro,
+  t,
+}: {
+  registro: import('./types').RegistroAlteracaoPropostaBidFreteInternacional | null | undefined
+  t: TFunction
+}) {
+  if (!registro || registro.tipo_registro_alteracao_proposta_bid_frete_internacional !== 'ATUALIZAR') {
+    return null
+  }
+
+  const alteracoes = registro.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  if (alteracoes.length === 0) return null
+
+  const data = new Date(registro.data_registro_alteracao_proposta_bid_frete_internacional).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return (
+    <div className="brc-aviso-edicao brc-aviso-edicao--alteracao" role="status">
+      <p className="brc-aviso-edicao__titulo">
+        {t('bidfrete.portal.publico.ultima_alteracao_titulo', 'Última alteração em {{data}}', { data })}
+      </p>
+      <ul className="brc-aviso-edicao__lista">
+        {alteracoes.map(item => (
+          <li key={item.campo}>
+            {item.rotulo}: {String(item.valor_antes)} → {String(item.valor_depois)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export type VarianteMensagemRespostaCotacao = 'sucesso' | 'invalido' | 'bloqueado' | 'carregando'
 
 function FundoGravityRespostaPublica() {

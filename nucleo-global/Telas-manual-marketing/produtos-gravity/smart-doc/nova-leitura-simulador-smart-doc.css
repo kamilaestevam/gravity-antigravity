@@ -731,6 +731,10 @@
   flex-direction: column;
 }
 
+.sds-nl-principal-conferencia {
+  padding-top: 0;
+}
+
 /* Passo 1 — dropzone */
 .sds-nl-dropzone {
   flex: 1;

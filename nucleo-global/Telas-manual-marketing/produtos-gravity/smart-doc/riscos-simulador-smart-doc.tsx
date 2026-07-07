@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   CaretDown,
   CaretRight,
@@ -13,17 +13,92 @@ import type { ArquivoDemoSimulador } from './arquivos-demo-simulador-smart-doc'
 import type { DocumentoSimulador } from './documentos-preview-simulador-smart-doc'
 import {
   calcularPercentualChecklistVerde,
-  calcularPercentualConformidade,
+  calcularPercentualSemCriticosAbertos,
   filtrarRiscosPorBusca,
   montarLegendaSegmentosRisco,
   montarResumoRiscosSimulador,
   obterContagemChecklistSimulador,
   obterRiscosSimulador,
   rotuloSeveridadeRisco,
+  type ResumoRiscosSimuladorSmartDoc,
   type RiscoSimuladorSmartDoc,
 } from './dados-riscos-simulador-smart-doc'
+import {
+  ChecklistLinhaRiscoSimuladorSmartDoc,
+  ModalChecklistSimuladorSmartDoc,
+} from './checklist-simulador-smart-doc'
+import { GraficoAprovacaoRiscosSimulador } from './grafico-aprovacao-riscos-simulador'
+import {
+  TooltipGraficoInsightsSimulador,
+  useTooltipFixoInsightsSimulador,
+  type ConteudoTooltipInsights,
+} from './tooltip-grafico-insights-simulador'
+import './checklist-simulador-smart-doc.css'
 import '../../../../servicos-global/produto/processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 import './riscos-simulador-smart-doc.css'
+
+type SegmentoBarraRisco = 'critico' | 'atencao' | 'informativo'
+
+const COR_CRITICO_BARRA = '#f87171'
+const COR_ATENCAO_BARRA = '#fbbf24'
+const COR_INFORMATIVO_BARRA = '#60a5fa'
+
+function montarBarraTooltipDistribuicaoRiscos(resumo: ResumoRiscosSimuladorSmartDoc) {
+  if (resumo.total === 0) return []
+  return [
+    ...(resumo.criticos > 0
+      ? [{ cor: COR_CRITICO_BARRA, pct: (resumo.criticos / resumo.total) * 100 }]
+      : []),
+    ...(resumo.atencao > 0
+      ? [{ cor: COR_ATENCAO_BARRA, pct: (resumo.atencao / resumo.total) * 100 }]
+      : []),
+    ...(resumo.informativos > 0
+      ? [{ cor: COR_INFORMATIVO_BARRA, pct: (resumo.informativos / resumo.total) * 100 }]
+      : []),
+  ]
+}
+
+function montarConteudoTooltipBarraRiscos(
+  segmento: SegmentoBarraRisco,
+  resumo: ResumoRiscosSimuladorSmartDoc,
+): ConteudoTooltipInsights {
+  const barra = montarBarraTooltipDistribuicaoRiscos(resumo)
+  const total = resumo.total
+
+  if (segmento === 'critico') {
+    const pct = total > 0 ? Math.round((resumo.criticos / total) * 100) : 0
+    return {
+      titulo: 'Crítico',
+      subtitulo: `${total} ${total === 1 ? 'risco analisado' : 'riscos analisados'}`,
+      total: resumo.criticos,
+      totalRotulo: resumo.criticos === 1 ? 'risco' : 'riscos',
+      barra,
+      linhas: [{ cor: COR_CRITICO_BARRA, rotulo: 'Crítico', valor: resumo.criticos, pct }],
+    }
+  }
+
+  if (segmento === 'atencao') {
+    const pct = total > 0 ? Math.round((resumo.atencao / total) * 100) : 0
+    return {
+      titulo: 'Atenção',
+      subtitulo: `${total} ${total === 1 ? 'risco analisado' : 'riscos analisados'}`,
+      total: resumo.atencao,
+      totalRotulo: resumo.atencao === 1 ? 'risco' : 'riscos',
+      barra,
+      linhas: [{ cor: COR_ATENCAO_BARRA, rotulo: 'Atenção', valor: resumo.atencao, pct }],
+    }
+  }
+
+  const pct = total > 0 ? Math.round((resumo.informativos / total) * 100) : 0
+  return {
+    titulo: 'Informativo',
+    subtitulo: `${total} ${total === 1 ? 'risco analisado' : 'riscos analisados'}`,
+    total: resumo.informativos,
+    totalRotulo: resumo.informativos === 1 ? 'risco' : 'riscos',
+    barra,
+    linhas: [{ cor: COR_INFORMATIVO_BARRA, rotulo: 'Informativo', valor: resumo.informativos, pct }],
+  }
+}
 
 type SelecaoConferencia = {
   idArquivo: string
@@ -34,50 +109,53 @@ type Props = {
   arquivos: ArquivoDemoSimulador[]
   selecao: SelecaoConferencia | null
   onCompararArquivo?: () => void
-  onIrConferenciaCampos?: () => void
 }
 
 function PainelDetalheRiscoSimulador({
   risco,
+  tipoDocumento,
   onCompararArquivo,
-  onIrConferenciaCampos,
 }: {
   risco: RiscoSimuladorSmartDoc
+  tipoDocumento: DocumentoSimulador['tipo']
   onCompararArquivo?: () => void
-  onIrConferenciaCampos?: () => void
 }) {
   const [colapsado, setColapsado] = useState(false)
+  const checklistRef = useRef<HTMLDivElement>(null)
+  const painelCorpoId = `sds-risco-painel-corpo-${risco.id}`
+
+  useEffect(() => {
+    setColapsado(false)
+  }, [risco.id])
+
+  function irConferenciaChecklist() {
+    checklistRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
 
   return (
     <div className="sr-risco-inline-painel">
       <div className="sr-risco-inline-cabecalho">
         <p className="sr-risco-modal-resumo-linha">{risco.motivo}</p>
-        {(onCompararArquivo || onIrConferenciaCampos) && (
-          <div className="sr-risco-modal-acoes">
-            {onCompararArquivo && (
-              <button
-                type="button"
-                className="sr-risco-modal-btn-icone"
-                onClick={onCompararArquivo}
-                aria-label="Ver no documento"
-                title="Ver no documento"
-              >
-                <Eye size={18} weight="duotone" />
-              </button>
-            )}
-            {risco.correcao_sugerida && onIrConferenciaCampos && (
-              <button
-                type="button"
-                className="sr-risco-modal-btn-icone sr-risco-modal-btn-icone--primario"
-                onClick={onIrConferenciaCampos}
-                aria-label="Ir para Conferência de Campos"
-                title="Ir para Conferência de Campos"
-              >
-                <ClipboardText size={18} weight="duotone" />
-              </button>
-            )}
-          </div>
-        )}
+        <div className="sr-risco-modal-acoes">
+          <button
+            type="button"
+            className="sr-risco-modal-btn-icone"
+            onClick={onCompararArquivo}
+            aria-label="Ver no documento"
+            title="Ver no documento"
+          >
+            <Eye size={18} weight="duotone" />
+          </button>
+          <button
+            type="button"
+            className="sr-risco-modal-btn-icone sr-risco-modal-btn-icone--primario"
+            onClick={irConferenciaChecklist}
+            aria-label="Conferência checklist"
+            title="Conferência checklist"
+          >
+            <ClipboardText size={18} weight="duotone" />
+          </button>
+        </div>
       </div>
 
       <div className="sr-risco-inline-secoes">
@@ -90,6 +168,7 @@ function PainelDetalheRiscoSimulador({
             className="dt-secao-header"
             onClick={() => setColapsado((p) => !p)}
             aria-expanded={!colapsado}
+            aria-controls={painelCorpoId}
           >
             <div className="dt-secao-title">
               <CaretDown
@@ -102,11 +181,16 @@ function PainelDetalheRiscoSimulador({
                 <ShieldWarning weight="duotone" size={18} />
               </span>
               <h2>Risco, análise e correção</h2>
+              <span
+                className={`sr-conf-risco-badge sr-conf-risco-badge--${risco.severidade} sr-conf-risco-painel-badge`}
+              >
+                {rotuloSeveridadeRisco(risco.severidade)}
+              </span>
             </div>
           </button>
 
           {!colapsado && (
-            <div className="sr-conf-risco-painel-corpo">
+            <div id={painelCorpoId} className="sr-conf-risco-painel-corpo">
               <div className="sr-conf-risco-painel-principal">
                 <div className="sr-conf-risco-campo">
                   <span className="sr-conf-risco-campo-rotulo">Risco</span>
@@ -126,23 +210,15 @@ function PainelDetalheRiscoSimulador({
                   </>
                 )}
               </div>
-
-              {risco.evidencias.length > 0 && (
-                <div className="sr-conf-risco-evidencias sr-conf-risco-evidencias--compacto">
-                  <strong>Evidências</strong>
-                  <ul>
-                    {risco.evidencias.map((ev, idx) => (
-                      <li key={`${risco.id}-ev-${idx}`}>
-                        <span className="sr-conf-risco-ev-campo">{ev.campo ?? ev.documento}</span>
-                        {ev.valor && <span className="sr-conf-risco-ev-valor">{ev.valor}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           )}
         </section>
+
+        <ChecklistLinhaRiscoSimuladorSmartDoc
+          tipo={tipoDocumento}
+          riscoId={risco.id}
+          anchorRef={checklistRef}
+        />
       </div>
     </div>
   )
@@ -176,6 +252,7 @@ function ItemListaRiscoSimulador({
           className="sr-conf-risco-item-lista-botao"
           onClick={onToggleExpandir}
           aria-expanded={expandido}
+          aria-controls={`sds-risco-corpo-${risco.id}`}
           aria-label={`${expandido ? 'Recolher' : 'Expandir'} detalhe do risco: ${risco.titulo}`}
         >
           <div className="dt-secao-title">
@@ -214,77 +291,11 @@ function ItemListaRiscoSimulador({
       </div>
 
       {expandido && children ? (
-        <div className="sr-conf-risco-item-lista-corpo">{children}</div>
+        <div id={`sds-risco-corpo-${risco.id}`} className="sr-conf-risco-item-lista-corpo">
+          {children}
+        </div>
       ) : null}
     </section>
-  )
-}
-
-function ModalChecklistSimulador({
-  aberto,
-  onFechar,
-  percentualVerde,
-  contagem,
-}: {
-  aberto: boolean
-  onFechar: () => void
-  percentualVerde: number
-  contagem: ReturnType<typeof obterContagemChecklistSimulador>
-}) {
-  if (!aberto) return null
-
-  const itens = [
-    { id: 'M1', regra: 'Dados gerais', item: 'Número da invoice preenchido', resultado: 'INV-2026-4482', status: 'verde' },
-    { id: 'M2', regra: 'Importador', item: 'CNPJ válido e ativo', resultado: '47.829.103/0001-56', status: 'verde' },
-    { id: 'M3', regra: 'Mercadoria', item: 'Peso líquido conferido', resultado: 'Divergência detectada', status: 'vermelho' },
-    { id: 'M4', regra: 'Mercadoria', item: 'NCM por item', resultado: 'Item 12 pendente IA', status: 'amarelo' },
-    { id: 'M5', regra: 'Valores', item: 'Moeda declarada', resultado: 'USD', status: 'verde' },
-    { id: 'M6', regra: 'Embarque', item: 'Incoterm x porto', resultado: 'FOB Hamburg', status: 'amarelo' },
-  ] as const
-
-  return (
-    <div className="sds-nl-riscos-modal-overlay" role="dialog" aria-modal aria-label="Checklist matriz" onClick={onFechar}>
-      <div className="sds-nl-riscos-modal-painel" onClick={(e) => e.stopPropagation()}>
-        <header className="sds-nl-riscos-modal-cabecalho">
-          <div>
-            <strong>Checklist matriz</strong>
-            <span>{percentualVerde}% conforme · {contagem.verde} ok · {contagem.amarelo} atenção · {contagem.vermelho} falha</span>
-          </div>
-          <button type="button" className="sds-nl-riscos-modal-fechar" onClick={onFechar} aria-label="Fechar">
-            <X size={18} weight="bold" />
-          </button>
-        </header>
-        <div className="sds-nl-riscos-modal-corpo">
-          <table className="sr-conf-chk-tabela">
-            <thead>
-              <tr>
-                <th scope="col">Regra</th>
-                <th scope="col">Item</th>
-                <th scope="col">Resultado</th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {itens.map((item) => (
-                <tr key={item.id} className={`sr-conf-chk-linha sr-conf-chk-linha--${item.status}`}>
-                  <td><span className="sr-conf-chk-regra-id">{item.id}</span></td>
-                  <td>
-                    <span className="sr-conf-chk-item-nome">{item.item}</span>
-                    <span className="sr-conf-chk-item-motor">{item.regra}</span>
-                  </td>
-                  <td><span className="sr-conf-chk-resultado">{item.resultado}</span></td>
-                  <td>
-                    <span className={`sr-conf-chk-veredito sr-conf-chk-veredito--${item.status === 'verde' ? 'verde' : item.status === 'amarelo' ? 'amarelo' : 'vermelho'}`}>
-                      {item.status === 'verde' ? 'Conforme' : item.status === 'amarelo' ? 'Atenção' : 'Falha'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -292,7 +303,6 @@ export function RiscosSimuladorSmartDoc({
   arquivos,
   selecao,
   onCompararArquivo,
-  onIrConferenciaCampos,
 }: Props) {
   const [busca, setBusca] = useState('')
   const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
@@ -339,8 +349,17 @@ export function RiscosSimuladorSmartDoc({
 
   const resumo = useMemo(() => montarResumoRiscosSimulador(riscosBase), [riscosBase])
   const riscosVisiveis = useMemo(() => filtrarRiscosPorBusca(riscosBase, busca), [riscosBase, busca])
-  const legendaSegmentos = montarLegendaSegmentosRisco(resumo)
-  const percentualConformidade = calcularPercentualConformidade(resumo)
+  const percentualSemCriticos = useMemo(() => calcularPercentualSemCriticosAbertos(resumo), [resumo])
+  const legendaSegmentosRisco = useMemo(() => montarLegendaSegmentosRisco(resumo), [resumo])
+  const barraTooltip = useTooltipFixoInsightsSimulador<SegmentoBarraRisco>()
+
+  const numeracaoRiscos = useMemo(() => {
+    const mapa = new Map<string, number>()
+    riscosVisiveis.forEach((risco, indice) => mapa.set(risco.id, indice + 1))
+    return mapa
+  }, [riscosVisiveis])
+
+  const riscosConferidos = riscosSelecionados.size
 
   const contagemChecklist = useMemo(
     () => (documentoAtual ? obterContagemChecklistSimulador(documentoAtual.tipo) : { verde: 0, amarelo: 0, vermelho: 0, pendente: 0 }),
@@ -354,6 +373,10 @@ export function RiscosSimuladorSmartDoc({
 
   const todosVisiveisSelecionados =
     riscosVisiveis.length > 0 && riscosVisiveis.every((r) => riscosSelecionados.has(r.id))
+
+  function toggleExpandirRisco(riscoId: string) {
+    setRiscoExpandidoId((prev) => (prev === riscoId ? null : riscoId))
+  }
 
   function toggleSelecaoRisco(id: string) {
     setRiscosSelecionados((prev) => {
@@ -413,55 +436,104 @@ export function RiscosSimuladorSmartDoc({
             <div className="sr-conf-riscos-cabecalho-titulo-linha">
               <strong className="sr-conf-riscos-cabecalho-titulo">Análise de riscos</strong>
               <span className="sr-conf-riscos-cabecalho-subtitulo">
-                {percentualConformidade}% sem críticos abertos
+                {percentualSemCriticos}% sem críticos abertos
               </span>
             </div>
 
             {resumo.total > 0 && (
               <>
-                <div className="sr-conf-riscos-seg-bar" role="img" aria-label={`Distribuição: ${legendaSegmentos ?? ''}`}>
-                  {resumo.criticos > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__critico"
-                      style={{ width: `${(resumo.criticos / resumo.total) * 100}%` }}
-                    />
-                  )}
-                  {resumo.atencao > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__atencao"
-                      style={{ width: `${(resumo.atencao / resumo.total) * 100}%` }}
-                    />
-                  )}
-                  {resumo.informativos > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__informativo"
-                      style={{ width: `${(resumo.informativos / resumo.total) * 100}%` }}
+                <div className="sr-insights-tt-host sds-riscos-barra-tt-host" ref={barraTooltip.containerRef}>
+                  <div
+                    className="sr-conf-riscos-seg-bar"
+                    role="img"
+                    aria-label={`Distribuição: ${legendaSegmentosRisco ?? ''}`}
+                  >
+                    {resumo.criticos > 0 && (
+                      <span
+                        className="sr-conf-riscos-seg-bar__critico"
+                        style={{ width: `${(resumo.criticos / resumo.total) * 100}%` }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Ver detalhe dos riscos críticos"
+                        onClick={(e) => barraTooltip.aoClicar(e, 'critico')}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            barraTooltip.aoClicar(e, 'critico')
+                          }
+                        }}
+                      />
+                    )}
+                    {resumo.atencao > 0 && (
+                      <span
+                        className="sr-conf-riscos-seg-bar__atencao"
+                        style={{ width: `${(resumo.atencao / resumo.total) * 100}%` }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Ver detalhe dos riscos de atenção"
+                        onClick={(e) => barraTooltip.aoClicar(e, 'atencao')}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            barraTooltip.aoClicar(e, 'atencao')
+                          }
+                        }}
+                      />
+                    )}
+                    {resumo.informativos > 0 && (
+                      <span
+                        className="sr-conf-riscos-seg-bar__informativo"
+                        style={{ width: `${(resumo.informativos / resumo.total) * 100}%` }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Ver detalhe dos riscos informativos"
+                        onClick={(e) => barraTooltip.aoClicar(e, 'informativo')}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            barraTooltip.aoClicar(e, 'informativo')
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+                  {barraTooltip.estado && (
+                    <TooltipGraficoInsightsSimulador
+                      ancora={barraTooltip.estado.ancora}
+                      containerRef={barraTooltip.containerRef}
+                      conteudo={montarConteudoTooltipBarraRiscos(barraTooltip.estado.dados, resumo)}
+                      onFechar={barraTooltip.fechar}
                     />
                   )}
                 </div>
-                {legendaSegmentos && (
+                {legendaSegmentosRisco && (
                   <p className="sr-conf-riscos-seg-legenda">
-                    {resumo.total} {resumo.total === 1 ? 'risco' : 'riscos'} · {legendaSegmentos}
+                    {resumo.total} {resumo.total === 1 ? 'risco' : 'riscos'} · {legendaSegmentosRisco}
                   </p>
                 )}
               </>
             )}
           </div>
 
-          <div className="sr-conf-progresso-busca">
-            <div className="dt-header-busca">
-              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+          <div className="sr-conf-progresso-busca sds-riscos-busca">
+            <div className="sds-riscos-busca-campo">
+              <MagnifyingGlass weight="duotone" size={13} className="sds-riscos-busca-icone" aria-hidden />
               <input
                 type="search"
-                className="dt-toc-busca-input"
+                className="sds-riscos-busca-input"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Localizar riscos"
                 aria-label="Localizar riscos"
               />
               {busca && (
-                <button type="button" className="dt-toc-busca-limpar" onClick={() => setBusca('')} aria-label="Limpar busca">
-                  <X size={12} weight="bold" />
+                <button
+                  type="button"
+                  className="sds-riscos-busca-limpar"
+                  onClick={() => setBusca('')}
+                  aria-label="Limpar busca"
+                >
+                  <X size={11} weight="bold" />
                 </button>
               )}
             </div>
@@ -481,6 +553,13 @@ export function RiscosSimuladorSmartDoc({
             {contagemChecklist.verde} ok · {contagemChecklist.amarelo} atenção · {contagemChecklist.vermelho} falha ·{' '}
             {contagemChecklist.pendente} pendente
           </span>
+          {riscosConferidos > 0 && (
+            <GraficoAprovacaoRiscosSimulador
+              marcados={riscosConferidos}
+              total={riscosBase.length}
+              classe="sds-riscos-grafico-aprovacao--cabecalho"
+            />
+          )}
           {riscosVisiveis.length > 0 && (
             <label className="sr-conf-riscos-selecionar-compacto">
               <input
@@ -496,11 +575,12 @@ export function RiscosSimuladorSmartDoc({
         </div>
       </section>
 
-      <ModalChecklistSimulador
+      <ModalChecklistSimuladorSmartDoc
         aberto={modalChecklistAberto}
         onFechar={() => setModalChecklistAberto(false)}
-        percentualVerde={percentualChecklistVerde}
-        contagem={contagemChecklist}
+        tipo={documentoAtual.tipo}
+        rotuloDocumento={documentoAtual.rotulo}
+        nomeArquivo={arquivoAtual?.nome ?? ''}
       />
 
       <main className="dt-main sr-conf-riscos-main">
@@ -530,23 +610,23 @@ export function RiscosSimuladorSmartDoc({
           <p className="sr-conf-vazio">Nenhum risco encontrado para a busca atual.</p>
         ) : (
           <div className="sr-conf-riscos-lista sr-conf-riscos-lista-plana">
-            {riscosVisiveis.map((risco, idx) => {
+            {riscosVisiveis.map((risco) => {
               const expandido = riscoExpandidoId === risco.id
               return (
                 <ItemListaRiscoSimulador
                   key={risco.id}
                   risco={risco}
-                  numero={idx + 1}
-                  selecionado={riscosSelecionados.has(risco.id)}
+                  numero={numeracaoRiscos.get(risco.id) ?? 0}
                   expandido={expandido}
-                  onToggleExpandir={() => setRiscoExpandidoId((prev) => (prev === risco.id ? null : risco.id))}
+                  selecionado={riscosSelecionados.has(risco.id)}
+                  onToggleExpandir={() => toggleExpandirRisco(risco.id)}
                   onToggleSelecao={() => toggleSelecaoRisco(risco.id)}
                 >
                   {expandido ? (
                     <PainelDetalheRiscoSimulador
                       risco={risco}
+                      tipoDocumento={documentoAtual.tipo}
                       onCompararArquivo={onCompararArquivo}
-                      onIrConferenciaCampos={onIrConferenciaCampos}
                     />
                   ) : null}
                 </ItemListaRiscoSimulador>

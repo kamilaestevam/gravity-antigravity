@@ -1,4 +1,5 @@
-import type { TipoDocumentoSimulador } from './documentos-preview-simulador-smart-doc'
+import type { DocumentoSimulador, TipoDocumentoSimulador } from './documentos-preview-simulador-smart-doc'
+import { contarItensChecklistSimulador, obterItensChecklistSimulador } from './dados-checklist-simulador-smart-doc'
 
 export type SeveridadeRiscoSimulador = 'critico' | 'atencao' | 'informativo'
 
@@ -26,6 +27,19 @@ export type ContagemChecklistSimulador = {
   amarelo: number
   vermelho: number
   pendente: number
+}
+
+/** Barra de riscos em escala de campos do documento (ex.: 100 campos, 10 em risco = 10%). */
+export type MetricasBarraCamposRiscoSimulador = {
+  totalCampos: number
+  camposConformes: number
+  camposCriticos: number
+  camposAtencao: number
+  camposEmRisco: number
+  percentualConforme: number
+  percentualCritico: number
+  percentualAtencao: number
+  percentualEmRisco: number
 }
 
 const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
@@ -137,9 +151,13 @@ export function montarResumoRiscosSimulador(riscos: RiscoSimuladorSmartDoc[]): R
 }
 
 export function obterContagemChecklistSimulador(tipo: TipoDocumentoSimulador): ContagemChecklistSimulador {
-  if (tipo === 'packing-list') return { verde: 6, amarelo: 1, vermelho: 1, pendente: 0 }
-  if (tipo === 'bill-of-lading') return { verde: 5, amarelo: 0, vermelho: 0, pendente: 1 }
-  return { verde: 18, amarelo: 3, vermelho: 2, pendente: 1 }
+  const contagem = contarItensChecklistSimulador(obterItensChecklistSimulador(tipo))
+  return {
+    verde: contagem.verde,
+    amarelo: contagem.amarelo,
+    vermelho: contagem.vermelho,
+    pendente: contagem.pendente,
+  }
 }
 
 export function calcularPercentualChecklistVerde(contagem: ContagemChecklistSimulador): number {
@@ -148,9 +166,63 @@ export function calcularPercentualChecklistVerde(contagem: ContagemChecklistSimu
   return Math.round((contagem.verde / total) * 100)
 }
 
-export function calcularPercentualConformidade(resumo: ResumoRiscosSimuladorSmartDoc): number {
-  if (resumo.total === 0) return 100
-  return Math.round(((resumo.total - resumo.criticos) / resumo.total) * 100)
+export function obterMetricasBarraCamposRiscoSimulador(
+  documento: DocumentoSimulador | TipoDocumentoSimulador,
+): MetricasBarraCamposRiscoSimulador {
+  const tipo = typeof documento === 'string' ? documento : documento.tipo
+  const totalCampos =
+    typeof documento === 'string' ? (tipo === 'invoice' ? 100 : 10) : documento.quantidadeItens
+
+  let camposCriticos = 0
+  let camposAtencao = 0
+
+  if (tipo === 'invoice') {
+    // 100 campos · 10 em risco (10%) → 5 críticos + 5 atenção
+    camposCriticos = 5
+    camposAtencao = 5
+  } else if (tipo === 'packing-list') {
+    // 10 campos · 1 em risco (10%) → atenção
+    camposAtencao = 1
+  }
+
+  const camposEmRisco = camposCriticos + camposAtencao
+  const camposConformes = Math.max(0, totalCampos - camposEmRisco)
+
+  return {
+    totalCampos,
+    camposConformes,
+    camposCriticos,
+    camposAtencao,
+    camposEmRisco,
+    percentualConforme: totalCampos > 0 ? Math.round((camposConformes / totalCampos) * 100) : 100,
+    percentualCritico: totalCampos > 0 ? Math.round((camposCriticos / totalCampos) * 100) : 0,
+    percentualAtencao: totalCampos > 0 ? Math.round((camposAtencao / totalCampos) * 100) : 0,
+    percentualEmRisco: totalCampos > 0 ? Math.round((camposEmRisco / totalCampos) * 100) : 0,
+  }
+}
+
+export function montarLegendaBarraCamposRisco(
+  metricas: MetricasBarraCamposRiscoSimulador,
+  resumo: ResumoRiscosSimuladorSmartDoc,
+): string {
+  const partes: string[] = [
+    `${metricas.totalCampos} campos`,
+    metricas.camposEmRisco > 0
+      ? `${metricas.camposEmRisco} em risco`
+      : `${metricas.percentualConforme}% conforme`,
+  ]
+
+  if (metricas.camposCriticos > 0) {
+    partes.push(`${metricas.camposCriticos} crítico${metricas.camposCriticos > 1 ? 's' : ''}`)
+  }
+  if (metricas.camposAtencao > 0) {
+    partes.push(`${metricas.camposAtencao} atenção`)
+  }
+  if (resumo.total > 0) {
+    partes.push(`${resumo.total} achado${resumo.total > 1 ? 's' : ''}`)
+  }
+
+  return partes.join(' · ')
 }
 
 export function filtrarRiscosPorBusca(riscos: RiscoSimuladorSmartDoc[], busca: string): RiscoSimuladorSmartDoc[] {
@@ -169,6 +241,11 @@ export function rotuloSeveridadeRisco(severidade: SeveridadeRiscoSimulador): str
   if (severidade === 'critico') return 'Crítico'
   if (severidade === 'atencao') return 'Atenção'
   return 'Informativo'
+}
+
+export function calcularPercentualSemCriticosAbertos(resumo: ResumoRiscosSimuladorSmartDoc): number {
+  if (resumo.total === 0) return 100
+  return Math.round(((resumo.total - resumo.criticos) / resumo.total) * 100)
 }
 
 export function montarLegendaSegmentosRisco(resumo: ResumoRiscosSimuladorSmartDoc): string | null {

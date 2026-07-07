@@ -1,0 +1,364 @@
+/* Consultor Inteligente — paridade com sr-conf-qa do Smart Read (escopo simulador) */
+
+.sds-nl-dialog .sr-conf-qa {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sds-nl-dialog .sr-conf-vazio--inline {
+  flex-shrink: 0;
+  margin: 0 0 0.375rem;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-thread {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.125rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-thread--ativa {
+  min-height: 4rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-dock {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.sds-nl-dialog .sr-conf-qa-acoes {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.125rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(129, 140, 248, 0.2) transparent;
+}
+
+.sds-nl-dialog .sr-conf-qa-acoes::-webkit-scrollbar {
+  height: 3px;
+}
+
+.sds-nl-dialog .sr-conf-qa-acoes::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(129, 140, 248, 0.22);
+}
+
+.sds-nl-dialog .sr-conf-qa-acao {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1875rem;
+  width: 3.625rem;
+  padding: 0.25rem 0.125rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sds-nl-dialog .sr-conf-qa-acao:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.sds-nl-dialog .sr-conf-qa-acao:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+}
+
+.sds-nl-dialog .sr-conf-qa-acao:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sds-nl-dialog .sr-conf-qa-acao-icone {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.5rem;
+  color: var(--sds-nl-destaque, #818cf8);
+  background: rgba(129, 140, 248, 0.1);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sds-nl-dialog .sr-conf-qa-acao:hover:not(:disabled) .sr-conf-qa-acao-icone {
+  background: rgba(129, 140, 248, 0.18);
+  color: #a5b4fc;
+}
+
+.sds-nl-dialog .sr-conf-qa-acao-rotulo {
+  max-width: 100%;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: var(--sds-nl-text-muted, #64748b);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sds-nl-dialog .sr-conf-qa-acao:hover:not(:disabled) .sr-conf-qa-acao-rotulo {
+  color: var(--sds-nl-text-secondary, #94a3b8);
+}
+
+.sds-nl-dialog .sr-conf-qa-disclaimer {
+  margin: 0;
+  text-align: center;
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: var(--sds-nl-text-muted, #64748b);
+  opacity: 0.75;
+}
+
+.sds-nl-dialog .sr-conf-qa-turnos {
+  margin: 0;
+  padding: 0 0 0.375rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-turno {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-turno-pergunta {
+  display: inline-flex;
+  align-items: flex-start;
+  align-self: flex-end;
+  gap: 0.375rem;
+  max-width: 85%;
+  margin: 0;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.75rem 0.75rem 0.125rem 0.75rem;
+  background: rgba(129, 140, 248, 0.12);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+}
+
+.sds-nl-dialog .sr-conf-qa-turno-pergunta svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--sds-nl-destaque, #818cf8);
+  opacity: 0.85;
+}
+
+.sds-nl-dialog .sr-conf-qa-card {
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.sds-nl-dialog .sr-conf-qa-card--erro {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.06);
+}
+
+.sds-nl-dialog .sr-conf-qa-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.4375rem;
+  color: var(--sds-nl-destaque, #818cf8);
+}
+
+.sds-nl-dialog .sr-conf-qa-card-header h3 {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+}
+
+.sds-nl-dialog .sr-conf-qa-card-subtitulo {
+  margin-left: auto;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--sds-nl-text-muted, #64748b);
+}
+
+.sds-nl-dialog .sr-conf-qa-card-corpo {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+}
+
+.sds-nl-dialog .sr-conf-qa-md-paragrafo {
+  margin: 0 0 0.625rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-md-paragrafo:last-child {
+  margin-bottom: 0;
+}
+
+.sds-nl-dialog .sr-conf-qa-md-h3 {
+  margin: 0.75rem 0 0.4375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--sds-nl-text-primary, #f1f5f9);
+}
+
+.sds-nl-dialog .sr-conf-qa-md-h3:first-child {
+  margin-top: 0;
+}
+
+.sds-nl-dialog .sr-conf-qa-md-h4 {
+  margin: 0.625rem 0 0.3125rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--sds-nl-text-primary, #f1f5f9);
+}
+
+.sds-nl-dialog .sr-conf-qa-md-list {
+  margin: 0.3125rem 0 0.625rem;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-md-list li {
+  padding-left: 0.125rem;
+  line-height: 1.55;
+  color: var(--sds-nl-text-secondary, #cbd5e1);
+  font-size: 0.8125rem;
+}
+
+.sds-nl-dialog .sr-conf-qa-md-list li::marker {
+  color: var(--sds-nl-destaque, #818cf8);
+}
+
+.sds-nl-dialog .sr-conf-qa-md strong {
+  font-weight: 600;
+  color: var(--sds-nl-text-primary, #f1f5f9);
+}
+
+.sds-nl-dialog .sr-conf-qa-md code {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  color: #c4b5fd;
+}
+
+.sds-nl-dialog .sr-conf-qa-card-corpo--carregando {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--sds-nl-text-muted, #64748b);
+}
+
+.sds-nl-dialog .sr-conf-qa-aviso {
+  margin: 0.625rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: #fcd34d;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.3125rem 0.3125rem 0.3125rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(129, 140, 248, 0.18);
+  background: rgba(15, 23, 42, 0.4);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer-icone {
+  flex-shrink: 0;
+  color: var(--sds-nl-destaque, #818cf8);
+  opacity: 0.65;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer:focus-within {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.sds-nl-dialog .sr-conf-qa-composer input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.375rem 0;
+  border: none;
+  background: transparent;
+  color: var(--sds-nl-text-primary, #e2e8f0);
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer input::placeholder {
+  color: var(--sds-nl-text-muted, #64748b);
+}
+
+.sds-nl-dialog .sr-conf-qa-composer input:focus {
+  outline: none;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer-enviar {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: none;
+  background: var(--sds-nl-destaque, #818cf8);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer-enviar:hover:not(:disabled) {
+  background: #6366f1;
+}
+
+.sds-nl-dialog .sr-conf-qa-composer-enviar:disabled,
+.sds-nl-dialog .sr-conf-qa-acao:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sds-nl-dialog .sr-conf-qa-spinner {
+  animation: sds-nl-qa-girar 0.8s linear infinite;
+}
+
+@keyframes sds-nl-qa-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sds-nl-conf-tab-panel .sr-conf-qa {
+  flex: 1;
+  min-height: 0;
+}

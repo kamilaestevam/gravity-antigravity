@@ -30,7 +30,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
     for (const arq of arquivosCompletos) {
       documentos += arq.documentosIdentificados.length
       for (const doc of arq.documentosIdentificados) {
-        const secoes = obterSecoesConferenciaSimulador(doc.tipo)
+        const secoes = obterSecoesConferenciaSimulador(doc)
         const stats = calcularEstatisticasConferenciaSimulador(secoes)
         total += stats.total
         preenchidos += stats.preenchidos

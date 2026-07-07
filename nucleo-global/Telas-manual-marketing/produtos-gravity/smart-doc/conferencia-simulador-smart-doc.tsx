@@ -1,18 +1,25 @@
-import { useMemo, useState, type ComponentType } from 'react'
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import {
+  Airplane,
+  Anchor,
   Buildings,
   CaretDown,
   CheckCircle,
   Circle,
   ClipboardText,
+  CurrencyDollar,
   FileText,
+  GlobeHemisphereWest,
   MagnifyingGlass,
   Package,
   PencilSimple,
+  Receipt,
   ShieldCheck,
   ShieldWarning,
   Sparkle,
+  Truck,
   User,
+  Users,
   X,
 } from '@phosphor-icons/react'
 import type { IconProps } from '@phosphor-icons/react'
@@ -25,6 +32,7 @@ import {
 } from './dados-conferencia-simulador-smart-doc'
 import { CampoLinhaConferenciaSimuladorSmartDoc } from './campo-linha-conferencia-simulador-smart-doc'
 import { RiscosSimuladorSmartDoc } from './riscos-simulador-smart-doc'
+import { QaSimuladorSmartDoc } from './qa-simulador-smart-doc'
 import '../../../../servicos-global/produto/processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 import './conferencia-simulador-smart-doc.css'
 
@@ -32,8 +40,8 @@ type AbaConferencia = 'campos' | 'qa' | 'riscos'
 
 const ABAS: { id: AbaConferencia; rotulo: string; Icone: ComponentType<IconProps> }[] = [
   { id: 'campos', rotulo: 'Conferência de Campos', Icone: ClipboardText },
-  { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
   { id: 'riscos', rotulo: 'Análise de Riscos', Icone: ShieldWarning },
+  { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
 ]
 
 type SelecaoConferencia = {
@@ -47,12 +55,34 @@ type Props = {
   onCompararArquivo?: () => void
 }
 
+const ICONE_SECAO: Record<string, ReactNode> = {
+  'Dados gerais': <FileText weight="duotone" size={18} />,
+  'Nome do transportador': <Truck weight="duotone" size={18} />,
+  Exportador: <Buildings weight="duotone" size={18} />,
+  Importador: <User weight="duotone" size={18} />,
+  Notify: <Users weight="duotone" size={18} />,
+  'Origem e destino': <GlobeHemisphereWest weight="duotone" size={18} />,
+  Mercadoria: <Package weight="duotone" size={18} />,
+  Embalagem: <Package weight="duotone" size={18} />,
+  Frete: <Truck weight="duotone" size={18} />,
+  Embarque: <Anchor weight="duotone" size={18} />,
+  'Valores declarados': <CurrencyDollar weight="duotone" size={18} />,
+  'Dados bancários': <Receipt weight="duotone" size={18} />,
+  'Campos adicionais': <FileText weight="duotone" size={18} />,
+  Containers: <Anchor weight="duotone" size={18} />,
+  'Informações AWB': <Airplane weight="duotone" size={18} />,
+}
+
 function iconeSecao(titulo: string) {
+  const exato = ICONE_SECAO[titulo]
+  if (exato) return exato
+  if (/^Item \d+$/i.test(titulo)) return <Package weight="duotone" size={18} />
+  if (/^Container \d+$/i.test(titulo)) return <Anchor weight="duotone" size={18} />
   const t = titulo.toLowerCase()
   if (t.includes('importador') || t.includes('consignee')) return <User weight="duotone" size={18} />
   if (t.includes('exportador')) return <Buildings weight="duotone" size={18} />
   if (t.includes('mercadoria') || t.includes('embalagem')) return <Package weight="duotone" size={18} />
-  if (t.includes('embarque')) return <FileText weight="duotone" size={18} />
+  if (t.includes('embarque')) return <Anchor weight="duotone" size={18} />
   return <FileText weight="duotone" size={18} />
 }
 
@@ -81,9 +111,21 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
   }, [arquivoAtual, selecao])
 
   const secoesBase = useMemo(
-    () => (documentoAtual ? obterSecoesConferenciaSimulador(documentoAtual.tipo) : []),
+    () => (documentoAtual ? obterSecoesConferenciaSimulador(documentoAtual) : []),
     [documentoAtual],
   )
+
+  useEffect(() => {
+    setSecoesColapsadas(
+      new Set(
+        secoesBase
+          .filter((s) => /^Item \d+$/i.test(s.titulo) || /^Container \d+$/i.test(s.titulo))
+          .map((s) => s.id),
+      ),
+    )
+    setBusca('')
+    setFiltro('todos')
+  }, [documentoAtual?.id, secoesBase.length])
 
   const secoesVisiveis = useMemo(() => {
     const buscaNorm = busca.trim().toLowerCase()
@@ -301,11 +343,11 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
 
       {aba === 'qa' && (
         <div className="sds-nl-conf-tab-panel">
-          <div className="sds-nl-conf-placeholder">
-            <Sparkle size={32} weight="duotone" />
-            <strong>Consultor Inteligente</strong>
-            <p>Faça perguntas sobre os documentos da leitura. Demonstração interativa na landing.</p>
-          </div>
+          <QaSimuladorSmartDoc
+            arquivos={arquivos}
+            documentoAtual={documentoAtual}
+            tituloContexto={tituloContexto}
+          />
         </div>
       )}
 
@@ -315,7 +357,6 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
             arquivos={arquivos}
             selecao={selecao}
             onCompararArquivo={onCompararArquivo}
-            onIrConferenciaCampos={() => setAba('campos')}
           />
         </div>
       )}

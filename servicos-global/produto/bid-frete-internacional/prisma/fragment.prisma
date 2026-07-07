@@ -833,9 +833,9 @@ model RegistroAlteracaoPropostaBidFreteInternacional {
   proposta PropostaBidFreteInternacional @relation(fields: [id_proposta_bid_frete_internacional], references: [id_proposta_bid_frete_internacional], onDelete: Cascade)
   cotacao  CotacaoBidFreteInternacional  @relation(fields: [id_cotacao_bid_frete_internacional], references: [id_cotacao_bid_frete_internacional], onDelete: Cascade)
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_produto_gravity])
-  @@index([id_organizacao, id_cotacao_bid_frete_internacional])
-  @@index([id_organizacao, id_proposta_bid_frete_internacional])
+  @@index([id_organizacao], map: "reg_alt_prop_bfi_id_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "reg_alt_prop_bfi_id_org_prod_idx")
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional], map: "reg_alt_prop_bfi_id_org_cotacao_idx")
+  @@index([id_organizacao, id_proposta_bid_frete_internacional], map: "reg_alt_prop_bfi_id_org_prop_idx")
   @@map("registro_alteracao_proposta_bid_frete_internacional")
 }

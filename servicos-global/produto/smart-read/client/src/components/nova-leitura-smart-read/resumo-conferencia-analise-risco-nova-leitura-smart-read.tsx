@@ -1,12 +1,12 @@
 /**
- * ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead — conferência manual + atalho para riscos
+ * ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead — conferência usuária, Gravity e riscos
  */
 
 import { useMemo, useState } from 'react'
-import { CaretRight, ClipboardText, ShieldWarning } from '@phosphor-icons/react'
+import { CaretRight, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
-import { resolverArquivoApiLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { resolverArquivoApiLeitura, extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { extrairSecoesConferenciaLeitura } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
 import {
   chaveCampoConferenciaUsuario,
@@ -15,6 +15,10 @@ import {
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 import { montarDocumentosAnaliseRiscoDeArquivoLocal } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
+import type {
+  ResumoRiscosAduaneirosLeitura,
+  RiscoAduaneiroLeitura,
+} from '../../../../shared/analise-riscos-leitura-smart-read'
 import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import {
   montarChaveAnaliseRiscosSessaoSmartRead,
@@ -33,6 +37,29 @@ type Props = {
   idLeituraLegado?: string | null
   onIrAnaliseRiscos: () => void
   onVerRiscoDoChecklist?: (riscoId: string) => void
+}
+
+function filtrarRiscosPorRotuloDocumento(
+  riscos: readonly RiscoAduaneiroLeitura[],
+  rotulo: string | null,
+): RiscoAduaneiroLeitura[] {
+  if (!rotulo) return [...riscos]
+  return riscos.filter((risco) => risco.evidencias.some((evidencia) => evidencia.documento === rotulo))
+}
+
+function montarResumoRiscosFiltrados(
+  riscos: readonly RiscoAduaneiroLeitura[],
+): ResumoRiscosAduaneirosLeitura {
+  const criticos = riscos.filter((risco) => risco.severidade === 'critico').length
+  const atencao = riscos.filter((risco) => risco.severidade === 'atencao').length
+  const informativos = riscos.filter((risco) => risco.severidade === 'informativo').length
+  return {
+    riscos: [...riscos],
+    total: riscos.length,
+    criticos,
+    atencao,
+    informativos,
+  }
 }
 
 function legendaRiscos(resumo: {
@@ -93,6 +120,14 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     return todos.filter((doc) => doc.indice === indiceDocumento)
   }, [arquivo, indiceDocumento])
 
+  const rotuloDocumentoAtual = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    if (!documentoAtual) return null
+    const tipoNorm = documentoAtual.tipo_documento.trim() || `Documento ${indiceDocumento + 1}`
+    return `${arquivo.arquivo.name} · ${tipoNorm}`
+  }, [arquivo, indiceDocumento])
+
   const chaveAnaliseRiscos = useMemo(
     () => montarChaveAnaliseRiscosSessaoSmartRead(idLeituraLegado, [arquivo]),
     [arquivo, idLeituraLegado],
@@ -100,14 +135,20 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
   const resumoRiscos = useMemo(() => {
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
-    if (emCache?.resumo.total) return emCache.resumo
+    if (emCache?.resumo.total) {
+      const riscosDocumento = filtrarRiscosPorRotuloDocumento(
+        emCache.resumo.riscos,
+        rotuloDocumentoAtual,
+      )
+      return montarResumoRiscosFiltrados(riscosDocumento)
+    }
 
     if (documentosRiscoAtivos.length === 0) {
       return { total: 0, criticos: 0, atencao: 0, informativos: 0, riscos: [] as const }
     }
 
     return executarAuditoriaV1AnaliseRiscosLeitura(documentosRiscoAtivos).resumo
-  }, [chaveAnaliseRiscos, documentosRiscoAtivos])
+  }, [chaveAnaliseRiscos, documentosRiscoAtivos, rotuloDocumentoAtual])
 
   const emCacheRiscos = useMemo(
     () => obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos),
@@ -171,13 +212,19 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
   return (
     <>
-    <section className="sr-conf-resumo-triplo" aria-label="Resumo de conferência, riscos e checklist">
+    <section
+      className="sr-conf-resumo-triplo"
+      aria-label="Resumo de conferência usuária, conferência Gravity e análise de risco"
+    >
       <div className="sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia">
         <TooltipGlobal
-          titulo="Conferência"
+          titulo="Conferência usuária"
           descricao="Campos que você marcou como revisados neste documento"
         >
-          <span className="sr-conf-resumo-rotulo">Conferência</span>
+          <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
+            <UserCheck size={12} weight="duotone" aria-hidden />
+            Conferência usuária
+          </span>
         </TooltipGlobal>
 
         <div className="sr-conf-resumo-linha-barra">
@@ -200,9 +247,50 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         </div>
 
         <p className="sr-conf-resumo-legenda">
-          {resumoConferencia.marcados}/{resumoConferencia.total} campos conferidos
+          {resumoConferencia.marcados}/{resumoConferencia.total} campos conferidos por você
         </p>
       </div>
+
+      <button
+        type="button"
+        className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--checklist${modalChecklistAberto ? ' sr-conf-resumo-bloco--checklist-ativo' : ''}`}
+        onClick={() => setModalChecklistAberto(true)}
+        aria-haspopup="dialog"
+        aria-label="Abrir conferência Gravity — checklist matriz completo"
+      >
+        <div className="sr-conf-resumo-riscos-topo">
+          <TooltipGlobal
+            titulo="Conferência Gravity"
+            descricao="Resultado total da Gravity sobre todas as regras da matriz — clique para ver o detalhe"
+          >
+            <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
+              <ClipboardText size={12} weight="duotone" aria-hidden />
+              Conferência Gravity
+            </span>
+          </TooltipGlobal>
+          <CaretRight size={12} weight="bold" className="sr-conf-resumo-seta" aria-hidden />
+        </div>
+
+        <div className="sr-conf-resumo-linha-barra">
+          <span className="sr-conf-resumo-checklist-pct">{percentualChecklistVerde}%</span>
+          <span className="sr-conf-resumo-checklist-conforme">conforme na matriz</span>
+        </div>
+
+        <BarraStatusChecklistSmartRead
+          verde={contagemChecklist.verde}
+          amarelo={contagemChecklist.amarelo}
+          vermelho={contagemChecklist.vermelho}
+          pendente={contagemChecklist.pendente}
+          na={contagemChecklist.na}
+          total={contagemChecklist.total}
+          classe="sr-conf-resumo-checklist-barra"
+        />
+
+        <p className="sr-conf-resumo-legenda">
+          {contagemChecklist.verde} ok · {contagemChecklist.amarelo} atenção ·{' '}
+          {contagemChecklist.vermelho} falha · {contagemChecklist.pendente} pendente
+        </p>
+      </button>
 
       <button
         type="button"
@@ -213,18 +301,18 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         aria-current={riscosAtivo ? 'page' : undefined}
         aria-label={
           riscosAtivo
-            ? 'Análise de Risco — aba ativa'
-            : 'Abrir aba Análise de Riscos'
+            ? 'Análise de risco — aba ativa'
+            : 'Abrir análise de risco — problemas detectados'
         }
       >
         <div className="sr-conf-resumo-riscos-topo">
           <TooltipGlobal
-            titulo="Análise de Risco"
-            descricao="Alertas fiscais e documentais detectados na leitura — clique para abrir"
+            titulo="Análise de risco"
+            descricao="Problemas acionáveis que a Gravity detectou — clique para ver a lista"
           >
             <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
               <ShieldWarning size={12} weight="duotone" aria-hidden />
-              Análise de Risco
+              Análise de risco
             </span>
           </TooltipGlobal>
           {!riscosAtivo && <CaretRight size={12} weight="bold" className="sr-conf-resumo-seta" aria-hidden />}
@@ -233,7 +321,9 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         <p className="sr-conf-resumo-riscos-subtitulo">
           {carregandoRiscos && resumoRiscos.total === 0
             ? 'Analisando documentos…'
-            : `${percentualSemCriticos}% sem críticos abertos`}
+            : resumoRiscos.total === 0
+              ? 'Nenhum problema detectado'
+              : `${percentualSemCriticos}% sem críticos abertos`}
         </p>
 
         {resumoRiscos.total > 0 && (
@@ -264,52 +354,11 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
             </div>
             {legendaSegmentos && (
               <p className="sr-conf-resumo-legenda">
-                {resumoRiscos.total} {resumoRiscos.total === 1 ? 'risco' : 'riscos'} · {legendaSegmentos}
+                {resumoRiscos.total} {resumoRiscos.total === 1 ? 'problema' : 'problemas'} · {legendaSegmentos}
               </p>
             )}
           </>
         )}
-      </button>
-
-      <button
-        type="button"
-        className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--checklist${modalChecklistAberto ? ' sr-conf-resumo-bloco--checklist-ativo' : ''}`}
-        onClick={() => setModalChecklistAberto(true)}
-        aria-haspopup="dialog"
-        aria-label="Abrir checklist matriz de conformidade"
-      >
-        <div className="sr-conf-resumo-riscos-topo">
-          <TooltipGlobal
-            titulo="Checklist matriz"
-            descricao="Regras de conformidade da invoice — clique para ver o detalhe completo"
-          >
-            <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
-              <ClipboardText size={12} weight="duotone" aria-hidden />
-              Checklist matriz
-            </span>
-          </TooltipGlobal>
-          <CaretRight size={12} weight="bold" className="sr-conf-resumo-seta" aria-hidden />
-        </div>
-
-        <div className="sr-conf-resumo-linha-barra">
-          <span className="sr-conf-resumo-checklist-pct">{percentualChecklistVerde}%</span>
-          <span className="sr-conf-resumo-checklist-conforme">conforme</span>
-        </div>
-
-        <BarraStatusChecklistSmartRead
-          verde={contagemChecklist.verde}
-          amarelo={contagemChecklist.amarelo}
-          vermelho={contagemChecklist.vermelho}
-          pendente={contagemChecklist.pendente}
-          na={contagemChecklist.na}
-          total={contagemChecklist.total}
-          classe="sr-conf-resumo-checklist-barra"
-        />
-
-        <p className="sr-conf-resumo-legenda">
-          {contagemChecklist.verde} ok · {contagemChecklist.amarelo} atenção ·{' '}
-          {contagemChecklist.vermelho} falha · {contagemChecklist.pendente} pendente
-        </p>
       </button>
     </section>
 

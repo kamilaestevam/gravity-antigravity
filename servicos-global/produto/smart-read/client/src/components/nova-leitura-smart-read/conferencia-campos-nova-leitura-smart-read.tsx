@@ -8,7 +8,6 @@ import {
   Anchor,
   Buildings,
   CaretDown,
-  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -42,7 +41,6 @@ import { CampoLinhaConferenciaNovaLeituraSmartRead } from './campo-linha-confere
 import { resolverChaveCampoConferenciaLeitura } from '../../shared/foco-conferencia-campos-nova-leitura-smart-read'
 import {
   chaveCampoConferenciaUsuario,
-  contarConferenciaManualChecklist,
   usarCamposMarcacaoConferencia,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
@@ -157,21 +155,8 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   )
 
   const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
-  const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido, marcados: camposConferidos } =
+  const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido } =
     usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
-
-  const chavesCamposConferencia = useMemo(
-    () =>
-      secoes.flatMap((secao) =>
-        secao.campos.map((campo) => chaveCampoConferenciaUsuario(campo.chave)),
-      ),
-    [secoes],
-  )
-
-  const resumoConferenciaManual = useMemo(
-    () => contarConferenciaManualChecklist(camposConferidos, chavesCamposConferencia),
-    [camposConferidos, chavesCamposConferencia],
-  )
 
   const stats = useMemo(
     () =>
@@ -335,7 +320,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
               size={14}
               className={`dt-caret${progressoColapsado ? ' dt-caret--colapsado' : ''}`}
             />
-            <strong className="sr-conf-progresso-titulo">Progresso da Conferência</strong>
+            <strong className="sr-conf-progresso-titulo">Filtros dos campos</strong>
           </div>
           <div
             className="sr-conf-progresso-busca"
@@ -368,34 +353,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
 
         {!progressoColapsado && (
           <div id="sr-conf-progresso-corpo" className="sr-conf-progresso-corpo">
-            <div className="sr-conf-progresso-linha">
-              <div
-                className="sr-conf-progresso-barra"
-                role="progressbar"
-                aria-valuenow={stats.percentual}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${stats.percentual}% dos campos preenchidos`}
-              >
-                <div
-                  className="sr-conf-progresso-barra-fill"
-                  style={{ width: `${stats.percentual}%` }}
-                />
-              </div>
-              <span className="sr-conf-progresso-pct">{stats.percentual}%</span>
-            </div>
-
-            {resumoConferenciaManual.total > 0 && (
-              <div className="sr-conf-progresso-conferencia-manual" role="status" aria-live="polite">
-                <Check size={12} weight="bold" aria-hidden />
-                <span>
-                  {resumoConferenciaManual.marcados}/{resumoConferenciaManual.total} campos conferidos
-                  manualmente ({resumoConferenciaManual.percentual}%)
-                </span>
-              </div>
-            )}
-
-            <div className="sr-conf-progresso-metricas" aria-label="Resumo da conferência">
+            <div className="sr-conf-progresso-metricas" aria-label="Filtros da conferência de campos">
               <button
                 type="button"
                 className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--todos${filtro === 'todos' ? ' sr-conf-progresso-metrica--ativo' : ''}`}

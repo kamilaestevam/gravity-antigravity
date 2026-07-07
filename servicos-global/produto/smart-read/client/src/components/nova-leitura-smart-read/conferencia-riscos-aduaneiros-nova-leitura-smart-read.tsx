@@ -275,13 +275,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos],
   )
 
-  const percentualConformidade = useMemo(() => {
-    if (resumoExibicao.total === 0) return 100
-    return Math.round(
-      ((resumoExibicao.total - resumoExibicao.criticos) / resumoExibicao.total) * 100,
-    )
-  }, [resumoExibicao.total, resumoExibicao.criticos])
-
   const riscosVisiveis = useMemo(
     () => filtrarRiscosPorBusca(riscosEfetivos, busca),
     [riscosEfetivos, busca],
@@ -324,21 +317,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     riscosVisiveis.forEach((risco, indice) => mapa.set(risco.id, indice + 1))
     return mapa
   }, [riscosVisiveis])
-
-  const legendaSegmentosRisco =
-    resumoExibicao.total === 0
-      ? null
-      : [
-          resumoExibicao.criticos > 0
-            ? `${resumoExibicao.criticos} crítico${resumoExibicao.criticos === 1 ? '' : 's'}`
-            : null,
-          resumoExibicao.atencao > 0 ? `${resumoExibicao.atencao} atenção` : null,
-          resumoExibicao.informativos > 0
-            ? `${resumoExibicao.informativos} informativo${resumoExibicao.informativos === 1 ? '' : 's'}`
-            : null,
-        ]
-          .filter((parte): parte is string => parte !== null)
-          .join(' · ')
 
   function aplicarRespostaAnaliseRiscos(
     resposta: Awaited<ReturnType<typeof smartReadApi.analisarRiscosLeitura>>,
@@ -443,54 +421,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         </p>
       )}
 
-      <section className="sr-conf-riscos-cabecalho" aria-label="Resumo da análise de riscos">
+      <section className="sr-conf-riscos-cabecalho" aria-label="Ferramentas da lista de riscos">
         <div className="sr-conf-riscos-cabecalho-principal">
-          <div className="sr-conf-riscos-cabecalho-resumo">
-            <div className="sr-conf-riscos-cabecalho-titulo-linha">
-              <strong className="sr-conf-riscos-cabecalho-titulo">Análise de riscos</strong>
-              <span className="sr-conf-riscos-cabecalho-subtitulo">
-                {percentualConformidade}% sem críticos abertos
-              </span>
-            </div>
-
-            {resumoExibicao.total > 0 && (
-              <>
-                <div
-                  className="sr-conf-riscos-seg-bar"
-                  role="img"
-                  aria-label={`Distribuição: ${legendaSegmentosRisco ?? ''}`}
-                >
-                  {resumoExibicao.criticos > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__critico"
-                      style={{ width: `${(resumoExibicao.criticos / resumoExibicao.total) * 100}%` }}
-                    />
-                  )}
-                  {resumoExibicao.atencao > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__atencao"
-                      style={{ width: `${(resumoExibicao.atencao / resumoExibicao.total) * 100}%` }}
-                    />
-                  )}
-                  {resumoExibicao.informativos > 0 && (
-                    <span
-                      className="sr-conf-riscos-seg-bar__informativo"
-                      style={{ width: `${(resumoExibicao.informativos / resumoExibicao.total) * 100}%` }}
-                    />
-                  )}
-                </div>
-                {legendaSegmentosRisco && (
-                  <p className="sr-conf-riscos-seg-legenda">
-                    {resumoExibicao.total} {resumoExibicao.total === 1 ? 'risco' : 'riscos'} ·{' '}
-                    {legendaSegmentosRisco}
-                  </p>
-                )}
-              </>
-            )}
-
-          </div>
-
-          <div className="sr-conf-progresso-busca">
+          <div className="sr-conf-progresso-busca sr-conf-progresso-busca--solo">
             <div className="dt-header-busca">
               <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
               <input

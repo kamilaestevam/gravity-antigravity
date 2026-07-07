@@ -194,6 +194,15 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   }, [passo, arquivos])
 
   useEffect(() => {
+    if (passo !== 2 || !analiseCompleta) return
+    setArquivos((lista) => {
+      const primeiro = lista.find((a) => a.documentosIdentificados.length > 0)
+      if (!primeiro || primeiro.expandido) return lista
+      return lista.map((a) => (a.id === primeiro.id ? { ...a, expandido: true } : a))
+    })
+  }, [passo, analiseCompleta])
+
+  useEffect(() => {
     if (passo !== 2 || analiseCompleta) return
     const id = window.setInterval(() => {
       setElapsedSegundos((s) => {
@@ -312,7 +321,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
         </div>
 
         <div className="sds-nl-lateral-lista" data-sds-tutorial-alvo="nl-arquivos-lateral">
-          {arquivos.map((arq) => {
+          {arquivos.map((arq, indiceArq) => {
             const qtdDocumentos = arq.documentosIdentificados.length
             const temDocumentos = qtdDocumentos > 0
             const podeExpandir = passo >= 2 && temDocumentos
@@ -326,7 +335,10 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 className={`sds-nl-card-arquivo${arq.expandido ? ' sds-nl-card-arquivo--expandido' : ''}`}
               >
                 <div className="sds-nl-card-arquivo-cabecalho">
-                  <span className="sds-nl-card-arquivo-icone-wrap">
+                  <span
+                    className="sds-nl-card-arquivo-icone-wrap"
+                    {...(passo >= 2 && indiceArq === 0 ? { 'data-sds-tutorial-alvo': 'nl-icone-pdf-arquivo' } : {})}
+                  >
                     <FilePdf size={18} weight="duotone" />
                   </span>
                   <div className="sds-nl-card-arquivo-info">
@@ -337,7 +349,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                       <button
                         type="button"
                         className="sds-nl-card-btn-icone"
-                        data-sds-tutorial-alvo="nl-visualizar-icone"
+                        {...(passo >= 2 && indiceArq === 0 ? { 'data-sds-tutorial-alvo': 'nl-visualizar-original' } : {})}
                         title="Visualizar documento original"
                         aria-label={`Visualizar original ${arq.nome}`}
                         onClick={() => visualizarArquivo(arq)}
@@ -354,6 +366,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                         <button
                           type="button"
                           className="sds-nl-card-btn-icone"
+                          {...(indiceArq === 0 ? { 'data-sds-tutorial-alvo': 'nl-expandir-arquivo' } : {})}
                           title={arq.expandido ? 'Recolher documentos identificados' : 'Expandir documentos identificados'}
                           aria-expanded={arq.expandido}
                           onClick={() => alternarExpandido(arq.id)}
@@ -397,15 +410,17 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                     className="sds-nl-card-documentos"
                     {...(conferenciaAtiva ? { 'data-sds-tutorial-alvo': 'conf-documentos-lateral' } : {})}
                   >
-                    {arq.documentosIdentificados.map((doc) => {
+                    {arq.documentosIdentificados.map((doc, indiceDoc) => {
                       const ativoConferencia =
                         conferenciaAtiva &&
                         selecaoConferencia?.idArquivo === arq.id &&
                         selecaoConferencia?.idDocumento === doc.id
+                      const alvoTutorialPasso2 = passo === 2 && indiceArq === 0 && indiceDoc === 0
                       return (
                       <li
                         key={doc.id}
                         className={ativoConferencia ? 'sds-nl-card-documentos-item--ativo' : undefined}
+                        {...(alvoTutorialPasso2 ? { 'data-sds-tutorial-alvo': 'nl-documento-extraido' } : {})}
                       >
                         <button
                           type="button"
@@ -424,6 +439,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                         <button
                           type="button"
                           className="sds-nl-card-btn-icone"
+                          {...(alvoTutorialPasso2 ? { 'data-sds-tutorial-alvo': 'nl-visualizar-documento' } : {})}
                           title={`Visualizar ${doc.rotulo}`}
                           aria-label={`Visualizar ${doc.rotulo}`}
                           onClick={() => visualizarDocumento(arq, doc)}

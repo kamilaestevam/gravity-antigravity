@@ -1,0 +1,61 @@
+{
+  "referencia": "TASK-000413",
+  "ordinal": 137,
+  "id_transcript": null,
+  "titulo_canonico": "BIDFRT-DASHBOARD-MEL-DISTANCIA-PEDIDO",
+  "titulo_exibicao": "TASK-000413 | [Bid Frete] Dashboard | MEL — Alinhar distância ao modelo do Pedido",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
+  "area": "BIDFRT",
+  "area_descricao": "Produto BID Frete Internacional (servicos-global/produto/bid-frete-internacional/)",
+  "subarea": null,
+  "subarea_descricao": null,
+  "visualizacao": "DASHBOARD",
+  "visualizacao_descricao": "Aba Dashboard configurável (KPIs, GABI, grid de widgets)",
+  "tipo_entrega": "MEL",
+  "tipo_entrega_descricao": "Melhoria de layout — paridade visual com Dashboard do Pedido",
+  "resumo": "DISTANCIA-DASHBOARD-PEDIDO",
+  "resumo_descricao": "Corrigir distância/spacing incorreto entre toolbar e widgets no Dashboard BID Frete",
+  "resumo_detalhado": "Sessão iniciada com inventário de ambiente (branch site-gravity-8888 na :8000). Entrega principal: alinhar CSS do Dashboard BID Frete ao modelo do Pedido — toolbar sem colapso (gtv-container), gap 1rem toolbar→grid, padding do layout de visualização e estilos GABI embedded. Commit em fix/bid-frete-dashboard-distancia-pedido; PR #673 mergeado e deploy ativo.",
+  "data_criacao": "2026-07-07T15:13:00.000Z",
+  "data_encerramento": "2026-07-07T15:32:00.000Z",
+  "duracao_horas": 0.35,
+  "tempo_bruto_horas": 0.32,
+  "tempo_agente_horas": 0.25,
+  "tempo_dono_horas": 0.1,
+  "tempo_liquido_horas": 0.35,
+  "tokens_estimados_entrada": 22000,
+  "tokens_estimados_saida": 38000,
+  "tokens_estimados_total": 60000,
+  "branch_alvo": "site-gravity-8888",
+  "preview_porta_alvo": 8000,
+  "preview_url_alvo": "http://127.0.0.1:8000/",
+  "fases_concluidas": [
+    "inventario_ambiente_branch_porta",
+    "diagnostico_css_dashboard",
+    "implementacao_paridade_pedido",
+    "commit_pr_deploy"
+  ],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "nao", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
+    "doc_skill": { "valor": "nao", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy ou migration executado (/deploy)" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    { "item": "teste_local", "mensagem": "Testes locais não executados — invocar /testes-criar ou validar em tela antes de considerar task fechada." },
+    { "item": "code_review", "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada." },
+    { "item": "doc_skill", "mensagem": "Documentos técnicos e/ou skills não atualizados — invocar /docs-skills se necessário." },
+    { "item": "qa", "mensagem": "QA não executado — invocar /qa antes de considerar task fechada." },
+    { "item": "teste_producao", "mensagem": "Teste em produção/staging não registrado (deploy concluído sem smoke test documentado do dashboard)." }
+  ],
+  "entregas": [
+    "servicos-global/produto/bid-frete-internacional/client/src/pages/dashboard.css",
+    "servicos-global/produto/bid-frete-internacional/client/src/components/BidFreteVisualizacaoTabs.css",
+    "servicos-global/produto/bid-frete-internacional/client/src/shared/bid-frete-visao-geral-layout.css",
+    "https://github.com/dmmltda/gravity-antigravity/pull/673"
+  ]
+}

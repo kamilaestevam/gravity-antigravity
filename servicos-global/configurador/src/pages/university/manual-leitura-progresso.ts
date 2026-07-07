@@ -1,4 +1,5 @@
-import type { DocFluxo, DocSecao } from './manual-configurador-conteudo'
+import type { DocFluxo, DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import { achatarPassosVisuais, encontrarPassoPorNum } from './manual-configurador-conteudo'
 
 export type ManualEstadoLeitura = 'nao_lido' | 'parcial' | 'lido'
 
@@ -14,7 +15,24 @@ export function idPassoManual(ancoraPrefix: string, passoNum: number): string {
 
 export function idsPassosFluxo(fluxo: DocFluxo): string[] {
   if (!fluxo.ancoraPassosPrefix || !(fluxo.passosVisuais?.length ?? 0)) return []
-  return fluxo.passosVisuais.map(p => idPassoManual(fluxo.ancoraPassosPrefix!, p.num))
+  return achatarPassosVisuais(fluxo.passosVisuais).map(p =>
+    idPassoManual(fluxo.ancoraPassosPrefix!, p.num),
+  )
+}
+
+/** Abre acordeões pais antes do passo alvo (navegação pelo sumário ou hash). */
+export function abrirCadeiaPassoManual(
+  prefix: string,
+  passos: DocPassoVisual[],
+  num: number,
+  abrir: (prefix: string, num: number) => void,
+): void {
+  const passo = encontrarPassoPorNum(passos, num)
+  if (!passo) return
+  if (passo.numPai != null) {
+    abrirCadeiaPassoManual(prefix, passos, passo.numPai, abrir)
+  }
+  abrir(prefix, num)
 }
 
 export function extrairSlugManualDaRota(pathname: string): string | null {

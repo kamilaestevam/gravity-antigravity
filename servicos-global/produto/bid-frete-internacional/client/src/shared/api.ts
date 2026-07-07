@@ -614,6 +614,8 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     propostas_bid_frete_internacional: propostas,
     bid_bid_frete_internacional: bidMapeado,
     historico_aprovado: raw.historico_aprovado as Cotacao['historico_aprovado'],
+    historico_propostas_recebidas:
+      raw.historico_propostas_recebidas as Cotacao['historico_propostas_recebidas'],
     id_usuario_aprovacao_ganho_bid_frete_internacional:
       (raw.id_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_aprovacao_ganho_bid_frete_internacional:

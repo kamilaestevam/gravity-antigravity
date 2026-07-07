@@ -2146,6 +2146,80 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   flex-shrink: 0;
 }
 
+.dc-smart-termometro-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0 0.65rem 0.35rem;
+}
+
+.dc-smart-termometro-filtro-componente {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dc-smart-termometro-filtro-componente select {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.35rem;
+}
+
+.dc-smart-termometro-filtro-incoterm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+}
+
+.dc-smart-termometro-dele-mercado {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.dc-smart-termometro-preco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.dc-smart-termometro-preco--mercado {
+  text-align: right;
+}
+
+.dc-smart-termometro-preco-rotulo {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+}
+
+.dc-smart-valor-hero--secundario {
+  font-size: 1.125rem;
+  color: #a5b4fc;
+}
+
+.dc-smart-termometro-dele-mercado .dc-smart-savings-pill {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 0.15rem;
+}
+
 .dc-smart-termometro-sub {
   display: block;
   margin-top: 0.15rem;
@@ -2164,6 +2238,64 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.dc-smart-card-head--termometro {
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.dc-smart-termometro-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.dc-smart-termometro-seletor {
+  display: inline-flex;
+  padding: 0.1rem;
+  border-radius: var(--radius-pill, 9999px);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.dc-smart-termometro-seletor-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.28rem 0.5rem;
+  border-radius: var(--radius-pill, 9999px);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dc-smart-termometro-seletor-btn.is-ativo {
+  background: rgba(99, 102, 241, 0.22);
+  color: #c7d2fe;
+}
+
+.dc-smart-card-body--termometro-vazio {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dc-smart-card-body--termometro-vazio .dc-empty {
+  flex: 1 1 auto;
+  min-height: 8rem;
+}
+
+.dc-smart-termometro-contexto--vazio {
+  display: block;
+  margin-top: 0.35rem;
+  max-width: 16rem;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.35;
 }
 
 .dc-smart-savings-pill {

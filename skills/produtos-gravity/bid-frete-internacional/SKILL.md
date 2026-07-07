@@ -377,6 +377,12 @@ Quando `status_cotacao_bid_frete_internacional === 'APROVADA'`:
 
 Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md)
 
+### Termômetro histórico — Dele vs Mercado
+
+Card no Painel de Insights: matching rota/modal/faixa/componente, seletores Contratado/Propostas, incoterm opcional.
+
+> **SSOT:** [TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md) · código `shared/filtro-historico-termometro-bid-frete-internacional.ts`
+
 ### Aba Propostas — tabela de composição + estimativa BRL (TASK-000313)
 
 Paridade com portal do agente no detalhe da cotação (comprador).

@@ -111,7 +111,13 @@ Helpers: `conversao-estimada-brl-proposta-bid-frete-internacional.ts`, `montarMa
 
 ---
 
-## 6. Anti-padrões
+## 7. Termômetro histórico
+
+Card no grid do Painel de Insights (`CardTermometroHistoricoSmart`). Regras de matching, faixas, componente de preço e Dele vs Mercado: **[TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](./TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md)** (SSOT).
+
+---
+
+## 8. Anti-padrões
 
 - Duplicar faixa de aprovação na aba Visão geral (`dc-aprovado`).
 - Exibir banner comparativo com 1 proposta quando status já é `APROVADA`.

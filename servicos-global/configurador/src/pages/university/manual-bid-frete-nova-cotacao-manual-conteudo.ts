@@ -20,20 +20,41 @@ function grade(
 
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR: GaleriaNovaCotacao[] = [
   grade({
-    tituloEtapa: 'Abrir o wizard na Lista',
-    telas: [
-      fig('lista_cotacao_nova_1', '**01.** Clique em **Nova cotação** na barra superior'),
-      fig('lista_cotacao_nova_2', '**02.** Escolha **Cotação avulsa manual**'),
-      fig('lista_cotacao_nova_cotacao_avulsa_', '**03.** Atalho **Cotação avulsa** no menu'),
-      fig('lista_cotacao_nova_cotacao_avulsa_manual', '**04.** Wizard **Nova cotação avulsa manual** aberto'),
+    tituloEtapa: 'Abrir nova cotação',
+    iconesEscopoBidFrete: { preset: 'universal' },
+    cenariosAcesso: [
+      {
+        titulo: 'Via Insight',
+        texto: 'Clique no botão **+ novo** na aba **Insights**',
+        imagem: S('insight_nova_cotacao_tela_1'),
+        printsApos: [
+          {
+            imagem: S('insight_nova_cotacao_tela_3'),
+            paragrafoAntesPrint: 'Clique em **Buscar Frete**',
+          },
+        ],
+      },
+      {
+        titulo: 'Via Lista',
+        texto: 'Clique no botão **+ novo** na lista',
+        paragrafoAntesPrint: '**01.** Clique em **Nova cotação** na barra superior',
+        imagem: S('lista_cotacao_nova_1'),
+        printsApos: [
+          {
+            imagem: S('insight_nova_cotacao_tela_2'),
+            paragrafoAntesPrint: '**02.** Escolha **Manual** em **Cotação avulsa**',
+          },
+        ],
+      },
     ],
+    telas: [],
   }),
 ]
 
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM: GaleriaNovaCotacao[] = [
   grade({
     tituloEtapa: 'Início comum (passos 05–08)',
-    mostrarChipsBidFreteModalTransporte: true,
+    iconesEscopoBidFrete: { preset: 'inicio-comum' },
     textoIntro:
       'Antes de ramificar por **modal** (passo **09**) e por **tipo de carga** (passo **39**), o assistente compartilha cabeçalho e identificação da cotação — **válido para Marítimo, Aéreo e Rodoviário**.',
     telas: [
@@ -298,17 +319,81 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
   }),
 ]
 
-/** @deprecated Use exports por subtópico — mantido para compatibilidade de import. */
-export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL: GaleriaNovaCotacao[] = [
+/** §4.01 — abrir nova cotação (Via Insight / Via Lista) até escolher Manual. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL: GaleriaNovaCotacao[] = [
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
+]
+
+/** §4.02.01 — wizard manual aberto + passos comuns, NCM, envio e resultado. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
+  grade({
+    tituloEtapa: 'Fluxo único até o modal',
+    colunas: 1,
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual', '**03.** Wizard **Nova cotação avulsa manual** aberto'),
+    ],
+  }),
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+]
+
+/** §4.02.01.x — ramo Marítimo (locais + FCL + LCL), após wizard comum. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_RAMO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
+]
+
+/** §4.02.01.x — ramo Aéreo (locais + volumes). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_RAMO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
+]
+
+/** §4.02.01.x — ramo Rodoviário (locais + volumes). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_RAMO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
+]
+
+/** §4.02–4.04 — trilha pós-visão geral (legado / compat). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_POS_VISAO_GERAL: GaleriaNovaCotacao[] = [
+  grade({
+    tituloEtapa: 'Wizard Nova cotação avulsa manual',
+    colunas: 2,
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_', '**03.** Atalho **Cotação avulsa** no menu'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual', '**04.** Wizard **Nova cotação avulsa manual** aberto'),
+    ],
+  }),
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+]
+
+/** §4.02 — trilha comum pós-visão + locais Marítimo + bifurcação FCL e LCL (legado). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_COMPLETO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_POS_VISAO_GERAL,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_RAMO,
+]
+
+/** §4.03 — locais Aéreo + volumes (legado). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_COMPLETO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_RAMO,
+]
+
+/** §4.04 — locais Rodoviário + volumes (legado). */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_COMPLETO: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_RAMO,
+]
+
+/** @deprecated Use exports por subtópico — mantido para compatibilidade de import. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL: GaleriaNovaCotacao[] = [
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_COMPLETO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_COMPLETO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_COMPLETO,
 ]

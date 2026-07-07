@@ -30,14 +30,14 @@ function propostaMock(
 }
 
 describe('termômetro histórico — mesmas condições', () => {
-  it('usa série demonstrativa quando não há histórico aprovado', () => {
+  it('usa estado aguardando quando não há histórico aprovado', () => {
     const propostas = [propostaMock(797, 'p1'), propostaMock(920, 'p2')]
     const termometro = buildSerieTermometro(propostas)
 
     expect(termometro.termometroDadosDemonstracao).toBe(true)
-    expect(termometro.termometroMedia6Meses).not.toBeNull()
+    expect(termometro.termometroMedia6Meses).toBeNull()
     expect(termometro.quantidadeHistoricoMesmasCondicoes).toBe(0)
-    expect(termometro.serieHistorico6Meses.some((p) => p.valor > 0)).toBe(true)
+    expect(termometro.serieHistorico6Meses.every((p) => p.valor === 0)).toBe(true)
   })
 
   it('calcula média e savings a partir de cotações aprovadas no período', () => {
@@ -52,6 +52,7 @@ describe('termômetro histórico — mesmas condições', () => {
         data_aprovacao_cotacao_bid_frete_internacional: dataDoisMesesAtras,
         propostas: [
           {
+            valor_frete_proposta_bid_frete_internacional: 1000,
             valor_total_proposta_bid_frete_internacional: 1000,
             moeda_proposta_bid_frete_internacional: 'USD',
           },
@@ -59,12 +60,44 @@ describe('termômetro histórico — mesmas condições', () => {
       },
     ]
 
-    const termometro = buildSerieTermometro(propostas, historico)
+    const termometro = buildSerieTermometro(propostas, historico, 'CONTRATADO')
 
     expect(termometro.serieHistorico6Meses).toHaveLength(6)
     expect(termometro.termometroMedia6Meses).toBe(1000)
-    expect(termometro.termometroSavingsValor).toBe(203)
+    expect(termometro.termometroValorDele).toBe(558)
+    expect(termometro.termometroSavingsValor).toBe(442)
     expect(termometro.quantidadeHistoricoMesmasCondicoes).toBe(1)
+    expect(termometro.termometroDadosDemonstracao).toBe(false)
+  })
+
+  it('modo propostas recebidas usa melhor proposta e data da primeira resposta', () => {
+    const propostas = [propostaMock(650, 'p1')]
+    const agora = new Date()
+    const dataTresMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 3, 10).toISOString()
+
+    const historico = [
+      {
+        id_cotacao_bid_frete_internacional: 'cot-prev-2',
+        numero_cotacao_bid_frete_internacional: 'BID-20260210-0002',
+        propostas: [
+          {
+            data_criacao_proposta_bid_frete_internacional: dataTresMesesAtras,
+            valor_total_proposta_bid_frete_internacional: 900,
+            moeda_proposta_bid_frete_internacional: 'USD',
+          },
+          {
+            data_criacao_proposta_bid_frete_internacional: dataTresMesesAtras,
+            valor_total_proposta_bid_frete_internacional: 820,
+            moeda_proposta_bid_frete_internacional: 'USD',
+          },
+        ],
+      },
+    ]
+
+    const termometro = buildSerieTermometro(propostas, historico, 'PROPOSTAS_RECEBIDAS', 'TOTAL')
+
+    expect(termometro.termometroMedia6Meses).toBe(820)
+    expect(termometro.termometroSavingsValor).toBe(170)
     expect(termometro.termometroDadosDemonstracao).toBe(false)
   })
 
@@ -75,6 +108,34 @@ describe('termômetro histórico — mesmas condições', () => {
     )
     expect(plot.some((p) => p.valor > 0)).toBe(true)
     expect(plot).toHaveLength(6)
+  })
+
+  it('componente TOTAL altera média e valor Dele', () => {
+    const propostas = [propostaMock(797, 'p1')]
+    const agora = new Date()
+    const dataDoisMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 2, 15).toISOString()
+
+    const historico = [
+      {
+        id_cotacao_bid_frete_internacional: 'cot-prev-3',
+        numero_cotacao_bid_frete_internacional: 'BID-20260330-0003',
+        data_aprovacao_cotacao_bid_frete_internacional: dataDoisMesesAtras,
+        propostas: [
+          {
+            valor_frete_proposta_bid_frete_internacional: 400,
+            valor_total_proposta_bid_frete_internacional: 1200,
+            moeda_proposta_bid_frete_internacional: 'USD',
+          },
+        ],
+      },
+    ]
+
+    const frete = buildSerieTermometro(propostas, historico, 'CONTRATADO', 'FRETE_BASE')
+    const total = buildSerieTermometro(propostas, historico, 'CONTRATADO', 'TOTAL')
+
+    expect(frete.termometroMedia6Meses).toBe(400)
+    expect(total.termometroMedia6Meses).toBe(1200)
+    expect(total.termometroValorDele).toBe(797)
   })
 
   it('calcularPainelSmartInsights expõe dados do termômetro', () => {

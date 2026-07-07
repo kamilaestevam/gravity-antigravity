@@ -187,8 +187,11 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
     explorar: [
       { titulo: 'Etapas da análise', descricao: 'Veja o progresso em tempo real na área principal', idAlvo: 'nl-analise-progresso' },
       { titulo: 'Animação central', descricao: 'O ícone de cérebro indica processamento ativo da IA', idAlvo: 'nl-analise-cerebro' },
-      { titulo: 'Arquivos na lateral', descricao: 'Expanda o PDF para listar Invoice, Packing List e demais documentos', idAlvo: 'nl-arquivos-lateral' },
-      { titulo: 'Ícone de visualizar', descricao: 'Abra a prévia do original ou de cada documento extraído', idAlvo: 'nl-visualizar-icone' },
+      { titulo: 'Ícone PDF', descricao: 'Identifica o arquivo original enviado na simulação', idAlvo: 'nl-icone-pdf-arquivo' },
+      { titulo: 'Expandir documentos', descricao: 'Clique na seta para listar Invoice, Packing List e demais tipos extraídos', idAlvo: 'nl-expandir-arquivo' },
+      { titulo: 'Documento extraído', descricao: 'Cada linha mostra o tipo identificado e a quantidade de itens lidos', idAlvo: 'nl-documento-extraido' },
+      { titulo: 'Visualizar original', descricao: 'Abre a prévia do PDF completo anexado na leitura', idAlvo: 'nl-visualizar-original' },
+      { titulo: 'Visualizar documento', descricao: 'Prévia só do documento extraído (ex.: Invoice) com a contagem de itens', idAlvo: 'nl-visualizar-documento' },
     ],
     avancar: {
       acao: 'Passo 2 de 4',

@@ -1,3 +1,5 @@
+import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplicacao'
+
 export type ConfiguradorManualSlug =
   | 'visao-geral'
   | 'organizacao'
@@ -68,6 +70,14 @@ export interface DocPassoVisual {
     tituloEtapa?: string
     /** Parágrafo introdutório logo abaixo do título da etapa. */
     textoIntro?: string
+    /** Blocos «Via Hub» / «Via Lista» com borda lateral (paridade passo visual modo cenários). */
+    cenariosAcesso?: {
+      titulo: string
+      texto: string
+      imagem?: string
+      paragrafoAntesPrint?: string
+      printsApos?: { imagem: string; paragrafoAntesPrint?: string }[]
+    }[]
     /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
     textoAoLado?: string[]
     /** Infográfico compacto das colunas de mapeamento ao lado do print 08. */
@@ -78,6 +88,10 @@ export interface DocPassoVisual {
     chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
     /** Manual BID Frete § Nova cotação — chips Marítimo / Aéreo / Rodoviário acima da grade. */
     mostrarChipsBidFreteModalTransporte?: boolean
+    /** Com `mostrarChipsBidFreteModalTransporte`, alinha «válido para» + chips à direita do título da etapa. */
+    chipsBidFreteModalTransporteAoLadoTitulo?: boolean
+    /** Manual BID Frete — ícones discretos de escopo (Operação · Modal) ao lado do título. */
+    iconesEscopoBidFrete?: ManualBidFreteEscopoConfig
     /** Manual BID Frete § Nova cotação — badge do modal no título da etapa. */
     chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
@@ -114,6 +128,10 @@ export interface DocPassoVisual {
     layoutEdicaoMassaExemplosPasso1?: boolean
     /** Manual Pedido § Edição em massa — grade 1+3 de exemplos do passo 2. */
     layoutEdicaoMassaExemplosPasso2?: boolean
+    /** Primeiro(s) print(s) em largura total; demais em grade (ex.: BID Frete § Abrir nova cotação). */
+    layoutPrimeiroPrintLarguraTotal?: boolean
+    /** Com `layoutPrimeiroPrintLarguraTotal`, quantos prints iniciais ocupam linha inteira (padrão: 1). */
+    layoutPrimeirosPrintsLarguraTotal?: number
     /** Dica(s) logo abaixo desta grade (ex.: entre duas linhas de prints). */
     calloutApos?: DocCalloutManual | DocCalloutManual[]
     /** Manual Pedido §06 Dashboard — ícone de mão (grab) + área vermelha de guia ao mover. */
@@ -187,10 +205,22 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFreteFiltrosMapa?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
+  /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
+  mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */
+  bidFreteCotacaoAvulsaFormasInfograficoAposParagrafo?: number
   /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
   mostrarInfograficoBidFreteControlesMapa?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
   bidFreteNovaCotacaoInfograficoAposParagrafo?: number
+  /** Manual BID Frete § Nova cotação — barra de escopo Operação · Modal · Carga. */
+  barraEscopoBidFrete?: ManualBidFreteEscopoConfig
+  /** Índice do parágrafo após o qual inserir a barra de escopo (padrão: mesmo do infográfico). */
+  barraEscopoBidFreteAposParagrafo?: number
+  /** Manual BID Frete § Nova cotação — legenda dos ícones de escopo (exibir no 4.01). */
+  mostrarLegendaEscopoIconesBidFrete?: boolean
+  /** Índice do parágrafo após o qual inserir a legenda (padrão: mesmo do infográfico). */
+  legendaEscopoIconesBidFreteAposParagrafo?: number
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
   mostrarTabelaAlertasPedidoLista?: boolean
   /** Manual Pedido §05 — ícones dos formatos de exportação da Lista. */
@@ -232,6 +262,16 @@ export interface DocPassoVisual {
   etapaWizard?: number
   /** Cabeçalho só com mini-stepper (sem pill `02` + prefixo nem título duplicado). */
   estiloTituloWizard?: boolean
+  /** Subpassos aninhados (accordion dentro do accordion). */
+  passosFilhos?: DocPassoVisual[]
+  /** Rótulo hierárquico relativo ao capítulo (ex.: `02.01.03`). */
+  rotuloSecao?: string
+  /** `num` do passo pai — abre cadeia de acordeões ao navegar pelo sumário. */
+  numPai?: number
+}
+
+export type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'passosFilhos'> & {
+  passosFilhos?: PassoSemNumero[]
 }
 
 export interface DocColunaTabela {
@@ -543,8 +583,6 @@ const LINK_MANUAL_WORKSPACES_CAP = '{{link:/university-gravity/docs/configurador
 const LINK_MANUAL_WORKSPACE = '{{link:/university-gravity/docs/configurador/workspaces|workspace}}'
 /** Sumário §05 do manual Usuários — fluxo «Permissões do usuário». */
 export const LINK_MANUAL_PERMISSOES = '{{link:/university-gravity/docs/configurador/usuarios#doc-sec-5|permissões}}'
-
-type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 interface PassoAreaExtras {
   paragrafos?: string[]
@@ -930,7 +968,68 @@ export function passosComAcessoPadrao(
 }
 
 export function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
-  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
+  let contador = 0
+  function processar(lista: PassoSemNumero[], numPai?: number, rotuloPai?: string): DocPassoVisual[] {
+    return lista.map((passo, indice) => {
+      contador += 1
+      const num = contador
+      const sufixo = String(indice + 1).padStart(2, '0')
+      const rotuloSecao = rotuloPai ? `${rotuloPai}.${sufixo}` : sufixo
+      const { passosFilhos, ...resto } = passo
+      const filhos = passosFilhos?.length
+        ? processar(passosFilhos, num, rotuloSecao)
+        : undefined
+      return {
+        ...resto,
+        num,
+        numPai,
+        rotuloSecao,
+        passosFilhos: filhos,
+      }
+    })
+  }
+  return processar(passos)
+}
+
+/** Lista em profundidade (pais antes dos filhos). */
+export function achatarPassosVisuais(passos: DocPassoVisual[]): DocPassoVisual[] {
+  const saida: DocPassoVisual[] = []
+  for (const passo of passos) {
+    saida.push(passo)
+    if (passo.passosFilhos?.length) {
+      saida.push(...achatarPassosVisuais(passo.passosFilhos))
+    }
+  }
+  return saida
+}
+
+export function contarPassosVisuais(passos: DocPassoVisual[]): number {
+  return achatarPassosVisuais(passos).length
+}
+
+export function encontrarPassoPorNum(passos: DocPassoVisual[], num: number): DocPassoVisual | undefined {
+  for (const passo of passos) {
+    if (passo.num === num) return passo
+    if (passo.passosFilhos?.length) {
+      const filho = encontrarPassoPorNum(passo.passosFilhos, num)
+      if (filho) return filho
+    }
+  }
+  return undefined
+}
+
+export function rotuloPassoNoCapitulo(secaoNum: number, passo: DocPassoVisual): string {
+  const rotulo = passo.rotuloSecao ?? String(passo.num).padStart(2, '0')
+  return `${secaoNum}.${rotulo}`
+}
+
+/** Rótulo curto no sumário — só o segmento do nível (ex.: `02.01.03` → `03`). */
+export function rotuloSumarioCurtoPasso(passo: DocPassoVisual): string {
+  if (passo.rotuloSecao) {
+    const partes = passo.rotuloSecao.split('.')
+    return partes[partes.length - 1] ?? passo.rotuloSecao
+  }
+  return String(passo.num).padStart(2, '0')
 }
 
 function fluxoEmBreve(tituloFluxo: string, texto: string): DocFluxo {
@@ -951,6 +1050,10 @@ export interface DocItemSumarioManual {
   /** Âncora interna do subtópico (`manual-passo-*`). */
   elementoScroll?: string
   subitem?: boolean
+  /** Profundidade no sumário (1 = subtópico direto; 2+ = aninhado). */
+  subitemNivel?: number
+  /** Número exibido no sumário (segmento do nível, ex.: `01` em vez de `4.02.01`). */
+  rotuloExibicao?: string
   /** Número do capítulo (itens principais do sumário — compat. testes). */
   num?: number
 }
@@ -976,15 +1079,22 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
       && fluxo.ancoraPassosPrefix
       && (fluxo.passosVisuais?.length ?? 0) > 0
     ) {
-      fluxo.passosVisuais!.forEach((passo) => {
-        itens.push({
-          rotulo: `${secaoNum}.${String(passo.num).padStart(2, '0')}`,
-          titulo: passo.tituloCurto ?? passo.titulo,
-          secaoAcordeao: secaoNum,
-          elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
-          subitem: true,
+      function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
+        passos.forEach((passo) => {
+          itens.push({
+            rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
+            titulo: passo.tituloCurto ?? passo.titulo,
+            secaoAcordeao: secaoNum,
+            elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
+            subitem: true,
+            subitemNivel,
+          })
+          if (passo.passosFilhos?.length) {
+            adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)
+          }
         })
-      })
+      }
+      adicionarPassosSumario(fluxo.passosVisuais!, 1)
     }
   })
   return itens
@@ -993,6 +1103,34 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
 export interface DocEntradaSumarioManual {
   capitulo: DocItemSumarioManual
   subitens?: DocItemSumarioManual[]
+}
+
+export interface DocItemSumarioManualArvore extends DocItemSumarioManual {
+  filhos?: DocItemSumarioManualArvore[]
+}
+
+/** Converte lista plana (ordem depth-first) em árvore pelo `subitemNivel`. */
+export function montarArvoreSubitensSumario(
+  subitens: DocItemSumarioManual[],
+): DocItemSumarioManualArvore[] {
+  const raiz: DocItemSumarioManualArvore[] = []
+  const pilha: DocItemSumarioManualArvore[] = []
+
+  for (const item of subitens) {
+    const nivel = item.subitemNivel ?? 1
+    const no: DocItemSumarioManualArvore = { ...item }
+
+    while (pilha.length >= nivel) pilha.pop()
+
+    if (pilha.length === 0) raiz.push(no)
+    else {
+      const pai = pilha[pilha.length - 1]
+      if (!pai.filhos) pai.filhos = []
+      pai.filhos.push(no)
+    }
+    pilha.push(no)
+  }
+  return raiz
 }
 
 /** Agrupa capítulos principais e subtópicos (ex.: passos da Visão Lista) para o sumário hierárquico. */

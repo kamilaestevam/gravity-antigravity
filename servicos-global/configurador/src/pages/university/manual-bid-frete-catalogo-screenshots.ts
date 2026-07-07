@@ -66,15 +66,22 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'insight_menu_mapa_zoom_out_2': '/university/screenshots/bid-frete-int-insight-menu-mapa-zoom-out-2.png',
   'insight_menu_mapa': '/university/screenshots/bid-frete-int-insight-menu-mapa.png',
   'insight_modal_refinar_mapa': '/university/screenshots/bid-frete-int-insight-modal-refinar-mapa.png',
+  'insight_nova_cotacao_tela_1': '/university/screenshots/bid-frete-int-insight-nova-cotacao-tela-1.png',
+  'insight_nova_cotacao_tela_2': '/university/screenshots/bid-frete-int-insight-nova-cotacao-tela-2.png',
+  'insight_nova_cotacao_tela_3': '/university/screenshots/bid-frete-int-insight-nova-cotacao-tela-3.png',
   'insight_tooltip_1_seta': '/university/screenshots/bid-frete-int-insight-tooltip-1-seta.png',
   'insight_tooltip_1_tela': '/university/screenshots/bid-frete-int-insight-tooltip-1-tela.png',
   'insight_tooltip_2_seta': '/university/screenshots/bid-frete-int-insight-tooltip-2-seta.png',
   'insight_tooltip_2_tela': '/university/screenshots/bid-frete-int-insight-tooltip-2-tela.png',
   'insight_tooltip_3': '/university/screenshots/bid-frete-int-insight-tooltip-3.png',
   'insight_visao_globo_pausar': '/university/screenshots/bid-frete-int-insight-visao-globo-pausar.png',
+  'insight_visão_globo_pausar': '/university/screenshots/bid-frete-int-insight-visão-globo-pausar.png',
   'insight_visao_globo': '/university/screenshots/bid-frete-int-insight-visao-globo.png',
+  'insight_visão_globo': '/university/screenshots/bid-frete-int-insight-visão-globo.png',
   'insight_visao_mapa_restaurar': '/university/screenshots/bid-frete-int-insight-visao-mapa-restaurar.png',
+  'insight_visão_mapa_restaurar': '/university/screenshots/bid-frete-int-insight-visão-mapa-restaurar.png',
   'insight_visao_mapa': '/university/screenshots/bid-frete-int-insight-visao-mapa.png',
+  'insight_visão_mapa': '/university/screenshots/bid-frete-int-insight-visão-mapa.png',
   'lista_cotacao_nova_1': '/university/screenshots/bid-frete-int-lista-cotacao-nova-1.png',
   'lista_cotacao_nova_2': '/university/screenshots/bid-frete-int-lista-cotacao-nova-2.png',
   'lista_cotacao_nova_cotacao_avulsa_': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-.png',
@@ -222,15 +229,22 @@ export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA_ZOOM_OUT_1 = screenshotB
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA_ZOOM_OUT_2 = screenshotBidFreteInt('insight_menu_mapa_zoom_out_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MENU_MAPA = screenshotBidFreteInt('insight_menu_mapa')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_MODAL_REFINAR_MAPA = screenshotBidFreteInt('insight_modal_refinar_mapa')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_NOVA_COTACAO_TELA_1 = screenshotBidFreteInt('insight_nova_cotacao_tela_1')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_NOVA_COTACAO_TELA_2 = screenshotBidFreteInt('insight_nova_cotacao_tela_2')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_NOVA_COTACAO_TELA_3 = screenshotBidFreteInt('insight_nova_cotacao_tela_3')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_1_SETA = screenshotBidFreteInt('insight_tooltip_1_seta')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_1_TELA = screenshotBidFreteInt('insight_tooltip_1_tela')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_2_SETA = screenshotBidFreteInt('insight_tooltip_2_seta')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_2_TELA = screenshotBidFreteInt('insight_tooltip_2_tela')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_TOOLTIP_3 = screenshotBidFreteInt('insight_tooltip_3')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_GLOBO_PAUSAR = screenshotBidFreteInt('insight_visao_globo_pausar')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_GLOBO_PAUSAR = screenshotBidFreteInt('insight_visão_globo_pausar')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_GLOBO = screenshotBidFreteInt('insight_visao_globo')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_GLOBO = screenshotBidFreteInt('insight_visão_globo')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_MAPA_RESTAURAR = screenshotBidFreteInt('insight_visao_mapa_restaurar')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA_RESTAURAR = screenshotBidFreteInt('insight_visão_mapa_restaurar')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_MAPA = screenshotBidFreteInt('insight_visao_mapa')
+export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA = screenshotBidFreteInt('insight_visão_mapa')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_1 = screenshotBidFreteInt('lista_cotacao_nova_1')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_2 = screenshotBidFreteInt('lista_cotacao_nova_2')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_ = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_')

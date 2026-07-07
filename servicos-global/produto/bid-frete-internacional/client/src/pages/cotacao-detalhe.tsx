@@ -922,6 +922,9 @@ export default function DetalheCotacao() {
           exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
           ctxLocaisOpcionaisCotacao={ctxLocaisOpcionaisCotacao}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
         />
       )}
       </>

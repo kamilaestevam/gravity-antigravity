@@ -56,6 +56,8 @@ describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
     expect(avisoHtml).toContain('USD 10,00')
     expect(avisoHtml).toContain('da sua conta na Gravity')
     expect(avisoHtml).toContain('Leia aqui as condições')
+    expect(avisoHtml).toContain('#fef3c7')
+    expect(avisoHtml).not.toContain('#f8fafc')
     expect(avisoHtml).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
     expect(avisoTextoPlano).toContain('USD 10,00')
     expect(avisoTextoPlano).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
@@ -71,6 +73,8 @@ describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
     expect(avisoTextoPlano).not.toContain('da sua conta na Gravity')
     expect(avisoHtml).toContain('contratante Gravity')
     expect(avisoHtml).not.toContain('da sua conta na Gravity')
+    expect(avisoHtml).toContain('#f8fafc')
+    expect(avisoHtml).not.toContain('#fef3c7')
   })
 })
 
@@ -147,6 +151,7 @@ describe('montarHtmlEmailDisparo — todos os campos preenchidos', () => {
       cargaPerigosaTexto: 'Sim — UN 1263 · Classe 3',
       incluirArmazenagem: true,
       opcoesOrigemTexto: 'BRSSZ — Santos, BR · BRPNG — Paranaguá, BR',
+      opcoesDestinoTexto: 'CNNGB — Ningbo, CN',
       localizacaoOrigemTexto: 'País: CN · Endereço: Rua A',
       localizacaoDestinoTexto: 'País: BR · Cidade: Itajaí · Endereço: Av. B',
       data_limite_resposta_cotacao_bid_frete_internacional: '2026-07-20T12:00:00.000Z',

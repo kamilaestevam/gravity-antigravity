@@ -11,6 +11,8 @@ import { motorComparativo } from '../services/motor-comparativo-bid-frete-intern
 import { AppError } from '../lib/erros.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, gabiIntegration } from '../services/integracoes-tenant.js'
+import { enviarEmailsResultadoAprovacaoBidFreteInternacional } from '../services/enviar-emails-aprovacao-bid-frete-internacional.js'
+import { motorFechamentoBidFreteInternacional } from '../services/motor-fechamento-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -65,6 +67,22 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
       cotacao?.id_organizacao
         ? await resolverNomeUsuarioOrganizacaoBidFreteInternacional(cotacao.id_organizacao, userId)
         : null
+
+    if (tenantId && cotacao?.id_organizacao) {
+      void enviarEmailsResultadoAprovacaoBidFreteInternacional({
+        prisma: req.prisma!,
+        id_cotacao_bid_frete_internacional: req.params.cotacaoId,
+        id_proposta_ganhadora: id_proposta_bid_frete_internacional,
+        id_organizacao: cotacao.id_organizacao,
+        id_usuario: userId,
+        nome_usuario_aprovacao: nome_usuario_aprovacao_ganho_bid_frete_internacional,
+      }).catch((err: unknown) => {
+        console.warn(
+          '[Comparativo] Falha ao enviar e-mails de resultado da aprovação:',
+          err instanceof Error ? err.message : err,
+        )
+      })
+    }
 
     res.json({
       cotacao: {
@@ -124,6 +142,78 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
     }
 
     res.json({ cotacao })
+  } catch (err) {
+    next(err)
+  }
+})
+
+const fecharCotacaoResponseSchema = z.object({
+  fechada: z.literal(true),
+  data_fechamento_cotacao_bid_frete_internacional: z.string(),
+  fornecedor_nome: z.string(),
+  cobranca: z.object({
+    taxa_cobrada: z.number(),
+    status: z.enum(['PENDENTE', 'PAGA', 'ISENTA']),
+    empresa_pagadora_taxa_fechamento_plataforma_gravity: z.string(),
+    motivo_isencao: z.string().optional(),
+  }),
+  cotacao: z.record(z.unknown()),
+})
+
+// POST /:cotacaoId/fechar — Fechamento na plataforma (após aceite do ganhador)
+router.post('/:cotacaoId/fechar', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
+
+    const resultado = await motorFechamentoBidFreteInternacional.fechar(
+      req.prisma!,
+      req.params.cotacaoId,
+      userId,
+    )
+
+    const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({
+      where: { id_cotacao_bid_frete_internacional: req.params.cotacaoId },
+      include: {
+        propostas: {
+          include: {
+            fornecedor: {
+              select: {
+                id_fornecedor_bid_frete_internacional: true,
+                nome_fornecedor_bid_frete_internacional: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const tenantId = (req as any).tenantId
+    if (tenantId && cotacao) {
+      void notificacoesIntegration.cotacaoFechada(tenantId, userId, {
+        cotacao_numero: String(cotacao.numero_cotacao_bid_frete_internacional ?? req.params.cotacaoId),
+        fornecedor_nome: resultado.fornecedor_nome,
+        id_cotacao_bid_frete_internacional: req.params.cotacaoId,
+      })
+      void historicoIntegration.cotacaoFechada(
+        tenantId,
+        userId,
+        {
+          id: req.params.cotacaoId,
+          numero_cotacao_bid_frete_internacional: String(
+            cotacao.numero_cotacao_bid_frete_internacional ?? req.params.cotacaoId,
+          ),
+        },
+        resultado.fornecedor_nome,
+      )
+    }
+
+    const payload = {
+      ...resultado,
+      cotacao,
+    }
+    fecharCotacaoResponseSchema.parse(payload)
+    res.json(payload)
   } catch (err) {
     next(err)
   }

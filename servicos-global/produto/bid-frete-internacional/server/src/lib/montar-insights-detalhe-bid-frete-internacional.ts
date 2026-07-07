@@ -195,7 +195,7 @@ function resolverPrimeiroEnvioDisparo(disparos: DisparoRow[]): Date | null {
 }
 
 function corStatusProposta(status: string): string {
-  if (status === 'APROVADA') return '#34d399'
+  if (status === 'APROVADA' || status === 'APROVACAO_RECEBIDA') return '#34d399'
   if (status === 'REPROVADA' || status === 'RECUSADA') return '#f87171'
   if (status === 'PENDENTE' || status === 'EM_ANALISE') return '#fbbf24'
   return '#60a5fa'

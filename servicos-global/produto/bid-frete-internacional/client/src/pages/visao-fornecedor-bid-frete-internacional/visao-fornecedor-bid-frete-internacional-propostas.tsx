@@ -42,6 +42,7 @@ const STATUS_PROPOSTA_NAO_EXCLUIVEL = new Set(['APROVADA', 'REPROVADA'])
 
 function getRespostaStatus(r: PropostaBidFreteInternacional): RespostaStatus {
   if (r.status_proposta_bid_frete_internacional === 'APROVADA') return 'aprovada'
+  if (r.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA') return 'aprovada'
   if (r.status_proposta_bid_frete_internacional === 'REPROVADA') return 'reprovada'
   return 'pendente'
 }

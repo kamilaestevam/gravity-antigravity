@@ -198,6 +198,52 @@ export const notificacoesIntegration = {
     })
   },
 
+  /** Ganhador confirmou aceite da aprovação */
+  async aprovacaoRecebidaFornecedor(
+    tenantId: string,
+    userId: string,
+    data: {
+      cotacao_numero: string
+      fornecedor_nome: string
+      id_cotacao_bid_frete_internacional: string
+      data_aceite: string
+    },
+  ) {
+    const dataFmt = new Date(data.data_aceite).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+    await this.enviar(tenantId, {
+      id_usuario: userId,
+      tipo: 'BID_ACEITE_RECEBIDO',
+      titulo: `Aceite confirmado — ${data.cotacao_numero}`,
+      mensagem: `${data.fornecedor_nome} confirmou o recebimento da aprovação em ${dataFmt}. Você já pode fechar o frete na plataforma.`,
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
+    })
+  },
+
+  /** Frete fechado na plataforma */
+  async cotacaoFechada(
+    tenantId: string,
+    userId: string,
+    data: {
+      cotacao_numero: string
+      fornecedor_nome: string
+      id_cotacao_bid_frete_internacional: string
+    },
+  ) {
+    await this.enviar(tenantId, {
+      id_usuario: userId,
+      tipo: 'BID_FECHADA',
+      titulo: `Frete fechado — ${data.cotacao_numero}`,
+      mensagem: `Fechamento confirmado com ${data.fornecedor_nome}. Taxa de plataforma registrada para faturamento.`,
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
+    })
+  },
+
   /** Cotação expirou */
   async cotacaoExpirada(tenantId: string, userId: string, data: { cotacao_numero: string; id_cotacao_bid_frete_internacional: string }) {
     await this.enviar(tenantId, {
@@ -295,6 +341,45 @@ export const historicoIntegration = {
       valor_antes: 'AGUARDANDO_APROVACAO',
       valor_depois: 'APROVADA',
       detalhes: `Cotação ${cotacao.numero_cotacao_bid_frete_internacional} aprovada. Fornecedor: ${fornecedorNome}. Valor: USD ${valor}`,
+    })
+  },
+
+  /** Ganhador confirmou aceite */
+  async aceiteAprovacaoRecebida(
+    tenantId: string,
+    userId: string,
+    cotacao: { id: string; numero_cotacao_bid_frete_internacional: string },
+    fornecedorNome: string,
+    dataAceite: Date,
+  ) {
+    await this.registrar(tenantId, {
+      id_usuario: userId,
+      acao: 'ACEITE_APROVACAO',
+      entidade: 'proposta',
+      entidade_id: cotacao.id,
+      campo: 'status_proposta_bid_frete_internacional',
+      valor_antes: 'APROVADA',
+      valor_depois: 'APROVACAO_RECEBIDA',
+      detalhes: `${fornecedorNome} confirmou aceite da cotação ${cotacao.numero_cotacao_bid_frete_internacional} em ${dataAceite.toISOString()}`,
+    })
+  },
+
+  /** Fechamento confirmado na plataforma */
+  async cotacaoFechada(
+    tenantId: string,
+    userId: string,
+    cotacao: { id: string; numero_cotacao_bid_frete_internacional: string },
+    fornecedorNome: string,
+  ) {
+    await this.registrar(tenantId, {
+      id_usuario: userId,
+      acao: 'FECHAR',
+      entidade: 'cotacao',
+      entidade_id: cotacao.id,
+      campo: 'status',
+      valor_antes: 'APROVADA',
+      valor_depois: 'FECHADA',
+      detalhes: `Cotação ${cotacao.numero_cotacao_bid_frete_internacional} fechada com ${fornecedorNome}. Taxa de plataforma registrada.`,
     })
   },
 

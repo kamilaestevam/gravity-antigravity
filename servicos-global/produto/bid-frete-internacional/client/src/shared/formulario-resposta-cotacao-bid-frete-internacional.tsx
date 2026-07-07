@@ -58,6 +58,7 @@ import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-fr
 import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
 import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
 import {
+  ehContratanteGravityPagadorTaxaFechamento,
   normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
   rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
   type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
@@ -177,6 +178,7 @@ export interface DetalhesCotacaoResposta {
   habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
   codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
   empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
 }
 
 /** "120 × 100 × 90 cm" — só quando as 3 dimensões da cubagem foram preenchidas. */
@@ -1149,7 +1151,13 @@ export function FormPropostaRespostaCotacao({
         {erro ? <p className="brc-erro" role="alert">{erro}</p> : null}
 
         <div className="brc-acoes-form">
-          <p className="brc-aceite-condicoes">
+          <p
+            className={
+              ehContratanteGravityPagadorTaxaFechamento(pagadorTaxaFechamento)
+                ? 'brc-aceite-condicoes brc-aceite-condicoes--informativo'
+                : 'brc-aceite-condicoes brc-aceite-condicoes--cobranca-fornecedor'
+            }
+          >
             {t(
               'bidfrete.portal.responder.aviso_aceite_condicoes',
               textoAceiteCondicoes,

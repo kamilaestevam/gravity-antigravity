@@ -447,6 +447,10 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
         }
       : {}),
     status_proposta_bid_frete_internacional: raw.status_proposta_bid_frete_internacional as string,
+    data_aceite_aprovacao_proposta_bid_frete_internacional:
+      raw.data_aceite_aprovacao_proposta_bid_frete_internacional != null
+        ? String(raw.data_aceite_aprovacao_proposta_bid_frete_internacional)
+        : null,
     classificacao_valor_proposta_bid_frete_internacional:
       raw.classificacao_valor_proposta_bid_frete_internacional as number | null | undefined,
     classificacao_transito_proposta_bid_frete_internacional:
@@ -591,6 +595,13 @@ export function mapPropostaRankingBidFreteInternacionalFromServer(
     classificacao_avaliacao_proposta_bid_frete_internacional:
       (raw.classificacao_avaliacao_proposta_bid_frete_internacional as number | undefined) ??
       base.classificacao_avaliacao_proposta_bid_frete_internacional,
+    status_proposta_bid_frete_internacional:
+      (raw.status_proposta_bid_frete_internacional as string | undefined)
+      ?? base.status_proposta_bid_frete_internacional,
+    data_aceite_aprovacao_proposta_bid_frete_internacional:
+      raw.data_aceite_aprovacao_proposta_bid_frete_internacional != null
+        ? String(raw.data_aceite_aprovacao_proposta_bid_frete_internacional)
+        : base.data_aceite_aprovacao_proposta_bid_frete_internacional ?? null,
   }
 }
 
@@ -609,7 +620,11 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     []
 
   const propostas = propostasRaw.map(mapPropostaBidFreteInternacionalFromServer)
-  const aprovada = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+  const aprovada = propostas.find(
+    (p) =>
+      p.status_proposta_bid_frete_internacional === 'APROVADA'
+      || p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
+  )
 
   const bidRaw = raw.bid_bid_frete_internacional as Record<string, unknown> | null | undefined
   const bidMapeado = bidRaw
@@ -671,6 +686,9 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
           ).map(mapRegistroAlteracaoPropostaFromServer),
         }
       : {}),
+    mapa_rotulos_locais_resposta_bid_frete_internacional:
+      (raw.mapa_rotulos_locais_resposta_bid_frete_internacional as Record<string, string> | null | undefined) ??
+      null,
   }
 }
 
@@ -693,6 +711,7 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
   'empresa_pagadora_taxa_fechamento_plataforma_gravity',
+  'mapa_rotulos_locais_resposta_bid_frete_internacional',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 
@@ -1269,6 +1288,34 @@ export async function reprovarTodas(cotacaoId: string, motivo: string): Promise<
   return mapCotacaoFromServer(data.cotacao)
 }
 
+const fecharCotacaoResponseSchema = z.object({
+  fechada: z.literal(true),
+  data_fechamento_cotacao_bid_frete_internacional: z.string(),
+  fornecedor_nome: z.string(),
+  cobranca: z.object({
+    taxa_cobrada: z.number(),
+    status: z.enum(['PENDENTE', 'PAGA', 'ISENTA']),
+    empresa_pagadora_taxa_fechamento_plataforma_gravity: z.string(),
+    motivo_isencao: z.string().optional(),
+  }),
+  cotacao: z.unknown(),
+})
+
+export async function fecharCotacaoBidFreteInternacional(
+  id_cotacao_bid_frete_internacional: string,
+): Promise<z.infer<typeof fecharCotacaoResponseSchema> & { cotacao: Cotacao }> {
+  const res = await fetch(
+    `${API_BASE}/bid-frete-internacional/comparativo/${id_cotacao_bid_frete_internacional}/fechar`,
+    { method: 'POST', headers: headers() },
+  )
+  const raw = await handleResponse<unknown>(res)
+  const parsed = fecharCotacaoResponseSchema.parse(raw)
+  return {
+    ...parsed,
+    cotacao: mapCotacaoFromServer(parsed.cotacao),
+  }
+}
+
 // ─── Fornecedores ───────────────────────────────────────────────────────────
 
 export interface FornecedoresListParams {
@@ -1323,6 +1370,7 @@ export async function getAvaliacoes(fornecedorId: string): Promise<AvaliacaoBidF
 }
 
 const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
+const ACEITE_APROVACAO_PUBLICO_BASE = `${API_BASE}/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico`
 
 export interface DashboardVisaoFornecedorBidFreteInternacional {
   metricas: MetricasVisaoFornecedorBidFreteInternacional
@@ -1515,6 +1563,49 @@ export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(
   )
   const raw = await handleResponse<unknown>(res)
   visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema.parse(raw)
+}
+
+const aceiteAprovacaoPublicoResponseSchema = z.object({
+  proposta: z.object({
+    id_proposta_bid_frete_internacional: z.string(),
+    status_proposta_bid_frete_internacional: z.string(),
+    nome_fornecedor_bid_frete_internacional: z.string(),
+    numero_cotacao_bid_frete_internacional: z.string(),
+    valor_total_proposta_bid_frete_internacional: z.number(),
+    moeda_proposta_bid_frete_internacional: z.string(),
+    data_aceite_aprovacao_proposta_bid_frete_internacional: z.string().nullable(),
+  }),
+  pode_confirmar: z.boolean(),
+  token_expirado: z.boolean(),
+  ja_confirmado: z.boolean(),
+})
+
+const confirmarAceiteAprovacaoResponseSchema = z.object({
+  status_proposta_bid_frete_internacional: z.literal('APROVACAO_RECEBIDA'),
+  data_aceite_aprovacao_proposta_bid_frete_internacional: z.string(),
+})
+
+export type AceiteAprovacaoPropostaPublicoCarregado = z.infer<typeof aceiteAprovacaoPublicoResponseSchema>
+
+export async function getAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<AceiteAprovacaoPropostaPublicoCarregado> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}`,
+  )
+  const raw = await handleResponse<unknown>(res)
+  return aceiteAprovacaoPublicoResponseSchema.parse(raw)
+}
+
+export async function confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<z.infer<typeof confirmarAceiteAprovacaoResponseSchema>> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}/confirmar`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+  )
+  const raw = await handleResponse<unknown>(res)
+  return confirmarAceiteAprovacaoResponseSchema.parse(raw)
 }
 
 /** @deprecated use getVisaoFornecedorBidFreteInternacionalDashboard */

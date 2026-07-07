@@ -1,0 +1,250 @@
+/**
+ * Manual BID Frete § Nova cotação avulsa manual — todas as telas do Drive (115 prints).
+ * Paridade Pedido § Transferir: trilha comum + ramos modal (Marítimo/Aéreo/Rodoviário) + ramos carga (FCL/LCL/Aéreo-LCL-Rodo).
+ */
+import type { DocPassoVisual } from './manual-configurador-conteudo'
+import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
+
+type GaleriaNovaCotacao = NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number]
+
+const S = screenshotBidFreteInt
+
+function fig(sufixoDrive: string, paragrafoAntes: string) {
+  return { legenda: '', imagem: S(sufixoDrive), paragrafoAntes }
+}
+
+function grade(
+  partial: Omit<GaleriaNovaCotacao, 'indice' | 'telas'> & { telas: ReturnType<typeof fig>[] },
+): GaleriaNovaCotacao {
+  return { indice: 1, colunas: 4, textoAcimaEstiloCorpo: true, ...partial }
+}
+
+/** Grade completa — inserir em `galeriaComparacaoAposParagrafo` do passo «Nova cotação avulsa manual». */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL: GaleriaNovaCotacao[] = [
+  grade({
+    tituloEtapa: '**Abrir o wizard na Lista:**',
+    telas: [
+      fig('lista_cotacao_nova_1', '**01.** Clique em **Nova cotação** na barra superior'),
+      fig('lista_cotacao_nova_2', '**02.** Escolha **Cotação avulsa manual**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_', '**03.** Atalho **Cotação avulsa** no menu'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual', '**04.** Wizard **Nova cotação avulsa manual** aberto'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Início comum (passos 05–09) — válido para Marítimo, Aéreo e Rodoviário:**',
+    mostrarChipsBidFreteModalTransporte: true,
+    textoIntro:
+      'Antes de ramificar por **modal** (passo **09**) e por **tipo de carga** (passo **18**), o assistente compartilha cabeçalho e identificação da cotação.',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_numero_cotacao', '**05.** Informe o **número da cotação**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_tipo_operacao', '**06.** Selecione o **tipo de operação**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_tipo_operacao_selecionado', '**07.** Tipo de operação **selecionado**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal', '**08.** Escolha o **modal de transporte**'),
+    ],
+    calloutApos: {
+      tipo: 'dica',
+      texto:
+        'A partir do **passo 10**, os campos de **origem/destino** mudam conforme o modal. No Drive atual há sequência completa para **Marítimo**; **Aéreo** e **Rodoviário** usam o mesmo passo 01 + tela genérica do passo 02.',
+    },
+  }),
+  grade({
+    tituloEtapa: '**Passo 09 — Modal selecionado (três ramos):**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_maritimo', '**09a.** **Marítimo** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_aereo', '**09b.** **Aéreo** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_rodoviario', '**09c.** **Rodoviário** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_MODAL', '**10.** Passo 2 — visão geral do modal **Locais**'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 11 — Locais Marítimo · porto de embarque:**',
+    chipBidFreteModalTransporte: 'maritimo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque', '**11.** Campo **porto de embarque**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_selecionar', '**12.** Abrir seleção de porto'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_selecionado', '**13.** Porto de embarque **selecionado**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_portos_preferenciais', '**14.** Lista de **portos preferenciais**'),
+    ],
+  }),
+  grade({
+    chipBidFreteModalTransporte: 'maritimo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_portos_preferenciais_adicionar_novo_porto', '**15.** **Adicionar novo porto** preferencial'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_portos_preferenciais_adicionar_porto', '**16.** Fluxo **adicionar porto**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_embarque_portos_preferenciais_novo_porto', '**17.** Novo porto preferencial **preenchido**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_seta', '**18.** Avançar para **porto de destino**'),
+    ],
+  }),
+  grade({
+    chipBidFreteModalTransporte: 'maritimo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_selecao', '**19.** Seleção do **porto de destino**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_selecionado', '**20.** Porto de destino **selecionado**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_seta', '**21.** **Portos preferenciais** de destino'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_adicionar_seta', '**22.** **Adicionar** porto preferencial de destino'),
+    ],
+  }),
+  grade({
+    chipBidFreteModalTransporte: 'maritimo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_novo_preenchido', '**23.** Novo porto de destino **preenchido**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_segundo', '**24.** Segundo porto preferencial de destino'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_origem_seta', '**25.** **Local de origem** — seta de foco'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_origem_campos', '**26.** Campos do **local de origem**'),
+    ],
+  }),
+  grade({
+    chipBidFreteModalTransporte: 'maritimo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_destino_seta', '**27.** **Local de destino** — seta de foco'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_destino_campos', '**28.** Campos do **local de destino**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_proximo', '**29.** Clique em **Próximo** (Marítimo)'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 10–29 — Locais Aéreo (trilha resumida no Drive):**',
+    chipBidFreteModalTransporte: 'aereo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_aereo', '**10.** Com **Aéreo** selecionado no passo 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_MODAL', '**11.** Mesma etapa **Locais** — aeroportos e endereços'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_proximo', '**12.** **Próximo** para mercadoria e volumes'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 10–29 — Locais Rodoviário (trilha resumida no Drive):**',
+    chipBidFreteModalTransporte: 'rodoviario',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_rodoviario', '**10.** Com **Rodoviário** selecionado no passo 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_MODAL', '**11.** Mesma etapa **Locais** — trechos e pontos'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_proximo', '**12.** **Próximo** para mercadoria e volumes'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 30 — NCM e mercadoria (comum a todos os modais):**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_seta', '**30.** Campo **NCM** — seta'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_pesquisar_seta', '**31.** Abrir **pesquisa NCM**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_pesquisar_modal', '**32.** Modal de **pesquisa NCM**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_pesquisar_ncm_resultado', '**33.** Resultado por **código NCM**'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_pesquisar_palavra_resultado', '**34.** Resultado por **palavra-chave**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_pesquisar_ncm_ultima_sincronizacao', '**35.** **Última sincronização** do catálogo NCM'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_ncm_nao_encontrado', '**36.** NCM **não encontrado**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_hs_code', '**37.** Campo **HS Code**'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_descricao', '**38.** **Descrição** da mercadoria'),
+    ],
+    calloutApos: {
+      tipo: 'dica',
+      texto: 'Do **passo 39** em diante, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo.',
+    },
+  }),
+  grade({
+    tituloEtapa: '**Passo 39 — Tipo de carga FCL:**',
+    chipBidFreteTipoCarga: 'fcl',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_fcl_tela_1', '**39.** Selecionar **FCL**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_fcl_tela_2', '**40.** Detalhes do **container FCL**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_tela_fcl_3', '**41.** Revisão **FCL**'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 39 — Tipo de carga LCL:**',
+    chipBidFreteTipoCarga: 'lcl',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_lcl_tela_1', '**39.** Selecionar **LCL**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_lcl_tela_2', '**40.** Volumes **LCL** — linha 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_lcl_tela_3', '**41.** Volumes **LCL** — linha 2'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_lcl_tela_4', '**42.** Totais **LCL**'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 39 — Aéreo / LCL / Rodoviário (volumes):**',
+    chipBidFreteTipoCarga: 'air_lcl_rodo',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_tela_air_lcl_rodo_quantidade', '**39.** Informar **quantidade** de volumes'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_air_lcl_rodo_adicionar_container', '**40.** **Adicionar** volume/container'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_air_lcl_rodo_adicionado_container', '**41.** Volume **adicionado**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_tipo_volume_excluir_container', '**42.** **Excluir** volume/container'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 43 — Cubagem, Incoterm e valor alvo (comum aos três tipos de carga):**',
+    mostrarChipsBidFreteTipoCarga: true,
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_cubagem_1', '**43.** Campo **cubagem** na tela'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_cubagem_modal', '**44.** Modal de **cubagem (m³)**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_cubagem_modal_preenchido', '**45.** Cubagem **preenchida**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_incoterm', '**46.** Selecionar **Incoterm**'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_valor_alvo', '**47.** **Valor alvo** da cotação'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_03_proximo', '**48.** **Próximo** — armazéns e locais adicionais'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 49 — Locais adicionais / armazéns (passo 4):**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_04_modal', '**49.** Modal **locais adicionais**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_04_modal_01', '**50.** Detalhe do modal **passo 4**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_04_modal_novo_armazem', '**51.** **Novo armazém**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_04_proximo', '**52.** **Próximo** — fornecedores e envio'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 53 — Fornecedores, visibilidade e prazo:**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal', '**53.** Modal **Fornecedores e envio**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_visibilidade_direcionada_aberta', '**54.** **Visibilidade direcionada**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_visibilidade_anonima', '**55.** **Visibilidade anônima**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_calendario', '**56.** **Calendário** — data de vencimento'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_hora', '**57.** **Hora** limite do vencimento'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_alterar_proposta', '**58.** **Alterar proposta**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_alterar_proposta_tela', '**59.** Tela de **edição da proposta**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_alterar_proposta_configuracaoes', '**60.** **Configurações** da proposta'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 61 — Envio aos fornecedores:**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_1', '**61.** Revisão do **envio**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_editar', '**62.** **Editar** envio'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_editar_1', '**63.** Editar contato — tela 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_editar_2', '**64.** Editar contato — tela 2'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_excluir_1', '**65.** **Excluir** destinatário'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_adicionar_email_1', '**66.** **Adicionar e-mail** — passo 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_adicionar_email_2', '**67.** **Adicionar e-mail** — passo 2'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_05_modal_envio_selecionar_fornecedores_emails', '**68.** **Selecionar fornecedores** e e-mails'),
+    ],
+  }),
+  grade({
+    tituloEtapa: '**Passo 69 — Confirmação e passo 6:**',
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_06_modal_1', '**69.** Modal **passo 6** — confirmação 1'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_06_modal_2', '**70.** Modal **passo 6** — confirmação 2'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_gerada_aviso', '**71.** Aviso — **cotação gerada**'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao', '**72.** **Processo de cotação** na Lista'),
+    ],
+  }),
+  grade({
+    telas: [
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao', '**73.** Status **solicitação enviada** aos fornecedores'),
+    ],
+  }),
+]

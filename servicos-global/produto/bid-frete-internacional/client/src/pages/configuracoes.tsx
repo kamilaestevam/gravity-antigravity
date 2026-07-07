@@ -112,6 +112,8 @@ import {
   type RegrasConfigBidFreteInternacional,
 } from '../../../shared/regras-config-bid-frete-internacional'
 import './configuracoes.css'
+import { bidFreteConfigApi } from '../shared/api'
+import { PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO } from '../../../shared/preferencias-notificacao-bid-frete-internacional'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
 
@@ -146,6 +148,7 @@ type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
 
 interface NotificacoesConfig {
   respostaFornecedor: boolean
+  avisarAlteracaoPropostaFornecedor: boolean
   novaCotacao: boolean
   cotacaoExpirada: boolean
   cotacaoAprovada: boolean
@@ -1038,11 +1041,49 @@ export default function Configuracoes() {
 
   const [notificacoesConfig, setNotificacoesConfig] = useConfigState<NotificacoesConfig>('notificacoes', {
     respostaFornecedor: true,
+    avisarAlteracaoPropostaFornecedor:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.avisar_alteracao_proposta_fornecedor,
     novaCotacao: true,
     cotacaoExpirada: false,
     cotacaoAprovada: true,
     erroIntegracao: true,
   })
+
+  const prefsNotificacaoBackendRef = useRef(PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO)
+
+  useEffect(() => {
+    let cancelado = false
+    void bidFreteConfigApi
+      .obterPreferenciasNotificacao()
+      .then(res => {
+        if (cancelado) return
+        const prefs = res.data.preferencias_notificacao_bid_frete_internacional
+        prefsNotificacaoBackendRef.current = prefs
+        setNotificacoesConfig(prev => ({
+          ...prev,
+          avisarAlteracaoPropostaFornecedor: prefs.avisar_alteracao_proposta_fornecedor,
+        }))
+      })
+      .catch(() => { /* mantém localStorage / padrão */ })
+    return () => {
+      cancelado = true
+    }
+  }, [setNotificacoesConfig])
+
+  const persistirAvisarAlteracaoProposta = useCallback((ativo: boolean) => {
+    const merged = {
+      ...prefsNotificacaoBackendRef.current,
+      avisar_alteracao_proposta_fornecedor: ativo,
+    }
+    void bidFreteConfigApi
+      .salvarPreferenciasNotificacao(merged)
+      .then(res => {
+        prefsNotificacaoBackendRef.current = res.data.preferencias_notificacao_bid_frete_internacional
+      })
+      .catch(err => {
+        console.warn('[configuracoes] falha ao salvar preferência de alteração de proposta', err)
+      })
+  }, [])
 
   const [exportConfig, setExportConfig] = useConfigState<ExportacaoConfig>('exportacao', {
     formatoPadrao: 'xlsx',
@@ -2607,6 +2648,16 @@ export default function Configuracoes() {
                 desc="Notifica o analista quando armadores ou agentes enviam uma proposta de frete."
                 checked={notificacoesConfig.respostaFornecedor}
                 onChange={v => setNotificacoesConfig(prev => ({ ...prev, respostaFornecedor: v }))}
+              />
+              <ToggleRow
+                id="not-alteracao-proposta"
+                label="Avisar quando fornecedor alterar proposta"
+                desc="Sininho quando o fornecedor editar valores após a primeira resposta (por usuário)."
+                checked={notificacoesConfig.avisarAlteracaoPropostaFornecedor}
+                onChange={v => {
+                  setNotificacoesConfig(prev => ({ ...prev, avisarAlteracaoPropostaFornecedor: v }))
+                  persistirAvisarAlteracaoProposta(v)
+                }}
               />
               <ToggleRow
                 id="not-nova"

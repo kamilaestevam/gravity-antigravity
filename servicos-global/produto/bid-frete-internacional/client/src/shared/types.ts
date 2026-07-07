@@ -260,6 +260,7 @@ export interface Cotacao {
   motivo_cancelamento_cotacao_bid_frete_internacional?: string | null
   disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
   propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  registros_alteracao_proposta_cotacao_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional[]
   /** Valores de colunas criadas pelo usuário (paridade Pedido — keyed por col.id). */
   _colunas_usuario?: Record<string, string>
   historico_aprovado?: Array<{
@@ -363,6 +364,25 @@ export interface PropostaBidFreteInternacional {
   cotacao?: Cotacao
   taxas_origem?: TaxaOrigemPropostaBidFreteInternacional[]
   taxas_destino?: TaxaDestinoPropostaBidFreteInternacional[]
+  registros_alteracao_proposta_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional[]
+  ultimo_registro_alteracao_proposta_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional | null
+}
+
+export interface ItemAlteracaoPropostaBidFreteInternacional {
+  campo: string
+  rotulo: string
+  valor_antes: number | string
+  valor_depois: number | string
+}
+
+export interface RegistroAlteracaoPropostaBidFreteInternacional {
+  id_registro_alteracao_proposta_bid_frete_internacional: string
+  id_proposta_bid_frete_internacional: string
+  id_cotacao_bid_frete_internacional: string
+  tipo_registro_alteracao_proposta_bid_frete_internacional: 'CRIAR' | 'ATUALIZAR'
+  origem_registro_alteracao_proposta_bid_frete_internacional: 'PORTAL' | 'LINK_PUBLICO'
+  alteracoes_registro_alteracao_proposta_bid_frete_internacional: ItemAlteracaoPropostaBidFreteInternacional[]
+  data_registro_alteracao_proposta_bid_frete_internacional: string
 }
 
 export interface TaxaOrigemPropostaBidFreteInternacional {

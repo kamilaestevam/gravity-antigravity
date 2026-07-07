@@ -13,7 +13,15 @@ import { persistirTaxasProposta, type TaxaInputProposta } from '../lib/persistir
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 import { validarLocaisPropostaRespostaBidFreteInternacional } from '../lib/validar-locais-proposta-resposta-bid-frete-internacional.js'
 import { serializarLocaisPropostaObservacoes } from '../../../shared/local-proposta-resposta-bid-frete-internacional.js'
+import { montarLinhasTextoAlteracaoProposta } from '../../../shared/alteracao-proposta-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from './integracoes-tenant.js'
+import {
+  registrarAlteracaoPropostaBidFreteInternacional,
+  type ResultadoRegistroAlteracaoProposta,
+  type OrigemRegistroAlteracaoProposta,
+} from '../lib/registrar-alteracao-proposta-bid-frete-internacional.js'
+import { enviarEmailAlteracaoPropostaBidFreteInternacional } from './enviar-email-alteracao-proposta-bid-frete-internacional.js'
+import { lerPreferenciasNotificacaoBidFreteInternacional } from '../lib/ler-preferencias-notificacao-bid-frete-internacional.js'
 
 export interface DadosPropostaDisparo {
   moeda_proposta_bid_frete_internacional: string
@@ -99,6 +107,13 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     where: { id_disparo_cotacao_bid_frete_internacional },
     include: {
       proposta: true,
+      fornecedor: {
+        select: {
+          id_fornecedor_bid_frete_internacional: true,
+          nome_fornecedor_bid_frete_internacional: true,
+          email_fornecedor_bid_frete_internacional: true,
+        },
+      },
       cotacao: {
         select: {
           id_cotacao_bid_frete_internacional: true,
@@ -157,7 +172,11 @@ export async function enviarPropostaDisparoBidFreteInternacional(
   )
 
   const modo = acesso.modo_acesso_resposta_disparo_bid_frete_internacional
-  const propostaExistente = disparo.proposta as { id_proposta_bid_frete_internacional: string } | null
+  const propostaExistente = disparo.proposta as Record<string, unknown> | null
+  const snapshotAntesEdicao =
+    modo === 'editar' && propostaExistente
+      ? { ...propostaExistente }
+      : null
 
   if (exigePropostaExistenteParaSalvar(modo) && !propostaExistente) {
     throw erroAcesso('PROPOSTA_NAO_ENCONTRADA', 'Proposta nao encontrada para atualizacao', 404)
@@ -190,22 +209,23 @@ export async function enviarPropostaDisparoBidFreteInternacional(
   let proposta: { id_proposta_bid_frete_internacional: string }
 
   if (modo === 'editar' && propostaExistente) {
+    const idProposta = propostaExistente.id_proposta_bid_frete_internacional as string
     proposta = await (prisma as any).propostaBidFreteInternacional.update({
-      where: { id_proposta_bid_frete_internacional: propostaExistente.id_proposta_bid_frete_internacional },
+      where: { id_proposta_bid_frete_internacional: idProposta },
       data: dadosProposta,
     })
 
     if (taxas !== undefined) {
       await (prisma as any).taxaOrigemBidFreteInternacional.deleteMany({
-        where: { id_proposta_bid_frete_internacional: propostaExistente.id_proposta_bid_frete_internacional },
+        where: { id_proposta_bid_frete_internacional: idProposta },
       })
       await (prisma as any).taxaDestinoBidFreteInternacional.deleteMany({
-        where: { id_proposta_bid_frete_internacional: propostaExistente.id_proposta_bid_frete_internacional },
+        where: { id_proposta_bid_frete_internacional: idProposta },
       })
       if (taxas.length > 0) {
         await persistirTaxasProposta(prisma, {
           id_organizacao: disparo.id_organizacao,
-          id_proposta_bid_frete_internacional: propostaExistente.id_proposta_bid_frete_internacional,
+          id_proposta_bid_frete_internacional: idProposta,
           taxas: taxas as TaxaInputProposta[],
         })
       }
@@ -219,7 +239,15 @@ export async function enviarPropostaDisparoBidFreteInternacional(
       },
     })
 
-    await posRespostaFornecedorSincronizarCotacao(prisma, disparo, valorTotal, opcoes)
+    const propostaDepois = { ...snapshotAntesEdicao, ...dadosProposta, ...proposta }
+    await posSalvarPropostaComRastreabilidade(prisma, disparo, {
+      modo: 'editar',
+      propostaAntes: snapshotAntesEdicao,
+      propostaDepois,
+      id_proposta_bid_frete_internacional: idProposta,
+      valorTotal,
+      opcoes,
+    })
 
     return proposta
   }
@@ -257,9 +285,91 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     },
   })
 
-  await posRespostaFornecedorSincronizarCotacao(prisma, disparo, valorTotal, opcoes)
+  await posSalvarPropostaComRastreabilidade(prisma, disparo, {
+    modo: 'criar',
+    propostaAntes: null,
+    propostaDepois: { ...proposta, ...dadosProposta },
+    id_proposta_bid_frete_internacional: proposta.id_proposta_bid_frete_internacional,
+    valorTotal,
+    opcoes,
+  })
 
   return proposta
+}
+
+function resolverOrigemRegistroAlteracao(opcoes: OpcoesEnvioProposta): OrigemRegistroAlteracaoProposta {
+  if (opcoes.via_portal_proposta_bid_frete_internacional) return 'PORTAL'
+  return 'LINK_PUBLICO'
+}
+
+async function posSalvarPropostaComRastreabilidade(
+  prisma: PrismaClient,
+  disparo: {
+    id_organizacao: string
+    id_cotacao_bid_frete_internacional: string
+    id_fornecedor_bid_frete_internacional: string
+    token_resposta_disparo_cotacao_bid_frete_internacional?: string | null
+    fornecedor?: {
+      nome_fornecedor_bid_frete_internacional?: string | null
+      email_fornecedor_bid_frete_internacional?: string | null
+    } | null
+    cotacao?: {
+      id_cotacao_bid_frete_internacional: string
+      id_usuario: string
+      numero_cotacao_bid_frete_internacional: string
+      status_cotacao_bid_frete_internacional?: string | null
+    } | null
+  },
+  ctx: {
+    modo: 'criar' | 'editar'
+    propostaAntes: Record<string, unknown> | null
+    propostaDepois: Record<string, unknown>
+    id_proposta_bid_frete_internacional: string
+    valorTotal: number
+    opcoes: OpcoesEnvioProposta
+  },
+): Promise<void> {
+  const tenantId = ctx.opcoes.tenantId ?? disparo.id_organizacao
+  const origem = resolverOrigemRegistroAlteracao(ctx.opcoes)
+  const tipoRegistro = ctx.modo === 'editar' ? 'ATUALIZAR' : 'CRIAR'
+
+  const registro = await registrarAlteracaoPropostaBidFreteInternacional(prisma, {
+    id_organizacao: disparo.id_organizacao,
+    id_proposta_bid_frete_internacional: ctx.id_proposta_bid_frete_internacional,
+    id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional,
+    tipo: tipoRegistro,
+    origem,
+    propostaAntes: ctx.propostaAntes,
+    propostaDepois: ctx.propostaDepois,
+  })
+
+  const cotacao = disparo.cotacao
+  const fornecedorNome =
+    disparo.fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor'
+  const emailFornecedor = disparo.fornecedor?.email_fornecedor_bid_frete_internacional?.trim()
+  const token = disparo.token_resposta_disparo_cotacao_bid_frete_internacional
+
+  if (emailFornecedor && token && cotacao) {
+    await enviarEmailAlteracaoPropostaBidFreteInternacional({
+      id_organizacao: disparo.id_organizacao,
+      id_usuario: ctx.opcoes.id_usuario,
+      email_destino: emailFornecedor,
+      numero_cotacao: cotacao.numero_cotacao_bid_frete_internacional,
+      nome_fornecedor: fornecedorNome,
+      token_resposta: token,
+      tipo: ctx.modo === 'editar' ? 'atualizar' : 'criar',
+      moeda: registro.snapshot_depois.moeda_proposta_bid_frete_internacional,
+      alteracoes: registro.alteracoes,
+    })
+  }
+
+  await posRespostaFornecedorSincronizarCotacao(prisma, disparo, ctx.valorTotal, {
+    ...ctx.opcoes,
+    tenantId,
+    ehPrimeiraResposta: ctx.modo === 'criar',
+    registroAlteracao: registro,
+    fornecedorNome,
+  })
 }
 
 async function posRespostaFornecedorSincronizarCotacao(
@@ -275,7 +385,11 @@ async function posRespostaFornecedorSincronizarCotacao(
     } | null
   },
   valorTotal: number,
-  opcoes: OpcoesEnvioProposta,
+  opcoes: OpcoesEnvioProposta & {
+    ehPrimeiraResposta?: boolean
+    registroAlteracao?: ResultadoRegistroAlteracaoProposta
+    fornecedorNome?: string
+  },
 ): Promise<void> {
   const cotacao = disparo.cotacao
   if (!cotacao) return
@@ -286,7 +400,7 @@ async function posRespostaFornecedorSincronizarCotacao(
     cotacao.status_cotacao_bid_frete_internacional,
   )
 
-  if (proximoStatus === 'AGUARDANDO_APROVACAO' && opcoes.tenantId) {
+  if (proximoStatus === 'AGUARDANDO_APROVACAO' && opcoes.tenantId && opcoes.ehPrimeiraResposta !== false) {
     const totalRespondidos = await (prisma as any).disparoCotacaoBidFreteInternacional.count({
       where: {
         id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional,
@@ -304,25 +418,65 @@ async function posRespostaFornecedorSincronizarCotacao(
     })
   }
 
-  if (opcoes.tenantId) {
-    const fornecedor = await (prisma as any).fornecedorBidFreteInternacional.findFirst({
-      where: { id_fornecedor_bid_frete_internacional: disparo.id_fornecedor_bid_frete_internacional },
-      select: { nome_fornecedor_bid_frete_internacional: true },
-    })
+  if (!opcoes.tenantId) return
+
+  const fornecedorNome =
+    opcoes.fornecedorNome
+    ?? (
+      await (prisma as any).fornecedorBidFreteInternacional.findFirst({
+        where: { id_fornecedor_bid_frete_internacional: disparo.id_fornecedor_bid_frete_internacional },
+        select: { nome_fornecedor_bid_frete_internacional: true },
+      })
+    )?.nome_fornecedor_bid_frete_internacional
+    ?? 'Fornecedor'
+
+  const cotacaoRef = {
+    id: cotacao.id_cotacao_bid_frete_internacional,
+    numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
+  }
+
+  if (opcoes.ehPrimeiraResposta !== false) {
     notificacoesIntegration.fornecedorRespondeu(opcoes.tenantId, cotacao.id_usuario, {
       cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
-      fornecedor_nome: fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
+      fornecedor_nome: fornecedorNome,
       id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
     })
     historicoIntegration.fornecedorRespondeu(
       opcoes.tenantId,
-      fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
-      {
-        id: cotacao.id_cotacao_bid_frete_internacional,
-        numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
-      },
+      fornecedorNome,
+      cotacaoRef,
       valorTotal,
     )
+    return
+  }
+
+  const registro = opcoes.registroAlteracao
+  if (!registro) return
+
+  const resumoAlteracoes = montarLinhasTextoAlteracaoProposta(
+    registro.alteracoes,
+    registro.snapshot_depois.moeda_proposta_bid_frete_internacional,
+  ).join('; ')
+
+  historicoIntegration.propostaAtualizada(
+    opcoes.tenantId,
+    fornecedorNome,
+    cotacaoRef,
+    resumoAlteracoes || 'Valores atualizados',
+  )
+
+  const prefs = await lerPreferenciasNotificacaoBidFreteInternacional(
+    prisma,
+    opcoes.tenantId,
+    cotacao.id_usuario,
+  )
+  if (prefs.avisar_alteracao_proposta_fornecedor) {
+    await notificacoesIntegration.propostaAtualizadaFornecedor(opcoes.tenantId, cotacao.id_usuario, {
+      cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
+      fornecedor_nome: fornecedorNome,
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      resumo_alteracoes: resumoAlteracoes,
+    })
   }
 }
 

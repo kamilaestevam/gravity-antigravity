@@ -53,6 +53,7 @@ const mapaCotacoesPayloadSchema = z.object({
       numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.string().nullable().optional(),
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
+      statuses_cotacao_mapa_visao_fornecedor_bid_frete_internacional: z.array(z.string()).optional(),
     }),
   ),
   resumo_cobertura_mapa_visao_fornecedor_bid_frete_internacional: resumoCoberturaMapaSchema,

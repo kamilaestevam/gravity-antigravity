@@ -34,6 +34,7 @@ import {
   Truck,
   SidebarSimple,
   TrafficSign,
+  SelectionAll,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { corOficialProdutoGravity } from '@nucleo/logo-produtos'
@@ -1036,7 +1037,9 @@ function SecaoFiltroMapaInsights({
   semanticaOptOut = false,
 }: SecaoFiltroMapaInsightsProps) {
   const { t } = useTranslation()
-  const semRestricao = semanticaOptOut ? ativos === total : ativos === 0
+  const semRestricao = semanticaOptOut
+    ? ativos === total
+    : ativos === 0 || ativos === total
   const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
   const rotuloMeta = semRestricao
     ? t('bidfrete.insights.mapa.refinar.todos', { defaultValue: 'Todos' })
@@ -1230,7 +1233,44 @@ export function VisaoGeralMapaBidFrete({
     () => listarTerminaisDestinoMapaInsights(pinsBase, rotasContextoListaDestino),
     [pinsBase, rotasContextoListaDestino],
   )
-  const totalFiltrosAtivos = contarFiltrosMapaAtivos(filtrosMapaInsights)
+
+  const selecionarTodosOrigemMapa = () => {
+    setFiltrosMapaInsights((prev) => ({
+      ...prev,
+      codigos_origem: new Set(terminaisOrigemMapa.map((terminal) => terminal.portCode)),
+    }))
+  }
+
+  const limparSelecaoOrigemMapa = () => {
+    setFiltrosMapaInsights((prev) => ({ ...prev, codigos_origem: new Set() }))
+  }
+
+  const selecionarTodosDestinoMapa = () => {
+    setFiltrosMapaInsights((prev) => ({
+      ...prev,
+      codigos_destino: new Set(terminaisDestinoMapa.map((terminal) => terminal.portCode)),
+    }))
+  }
+
+  const limparSelecaoDestinoMapa = () => {
+    setFiltrosMapaInsights((prev) => ({ ...prev, codigos_destino: new Set() }))
+  }
+
+  const selecionarTodosStatusMapa = () => {
+    setFiltrosMapaInsights((prev) => ({
+      ...prev,
+      status: new Set(FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => filtro.id)),
+    }))
+  }
+
+  const limparSelecaoStatusMapa = () => {
+    setFiltrosMapaInsights((prev) => ({ ...prev, status: new Set() }))
+  }
+
+  const totalFiltrosAtivos = contarFiltrosMapaAtivos(filtrosMapaInsights, {
+    total_terminais_origem: terminaisOrigemMapa.length,
+    total_terminais_destino: terminaisDestinoMapa.length,
+  })
 
   const totalCotacoesBaseMapa = useMemo(
     () =>
@@ -2705,6 +2745,38 @@ export function VisaoGeralMapaBidFrete({
     )
   }
 
+  function renderToolbarSelecaoDimensaoMapa(
+    total: number,
+    ativos: number,
+    onSelecionarTodos: () => void,
+    onLimparSelecao: () => void,
+  ) {
+    if (total === 0) return null
+    const semRestricaoDimensao = ativos === 0 || ativos === total
+
+    return (
+      <div className="bfd-map-filtros-panel__secao-toolbar">
+        <button
+          type="button"
+          className="bfd-map-filtros-panel__toolbar-btn"
+          onClick={onSelecionarTodos}
+        >
+          <SelectionAll size={12} weight="bold" />
+          {t('tabela.selecionar_tudo', { defaultValue: 'Selecionar tudo' })}
+        </button>
+        {!semRestricaoDimensao ? (
+          <button
+            type="button"
+            className="bfd-map-filtros-panel__toolbar-btn"
+            onClick={onLimparSelecao}
+          >
+            {t('bidfrete.insights.mapa.refinar.limpar_selecao', { defaultValue: 'Limpar seleção' })}
+          </button>
+        ) : null}
+      </div>
+    )
+  }
+
   function renderListaLocaisFiltroMapa(
     terminais: MapPinBidFrete[],
     selecionados: ReadonlySet<string>,
@@ -3071,6 +3143,12 @@ export function VisaoGeralMapaBidFrete({
             colapsada={secoesFiltroMapaColapsadas.has('origem')}
             onToggle={() => alternarSecaoFiltroMapa('origem')}
           >
+            {renderToolbarSelecaoDimensaoMapa(
+              terminaisOrigemMapa.length,
+              origemAtivos,
+              selecionarTodosOrigemMapa,
+              limparSelecaoOrigemMapa,
+            )}
             {renderListaLocaisFiltroMapa(
               terminaisOrigemMapa,
               filtrosMapaInsights.codigos_origem,
@@ -3093,6 +3171,12 @@ export function VisaoGeralMapaBidFrete({
             colapsada={secoesFiltroMapaColapsadas.has('destino')}
             onToggle={() => alternarSecaoFiltroMapa('destino')}
           >
+            {renderToolbarSelecaoDimensaoMapa(
+              terminaisDestinoMapa.length,
+              destinoAtivos,
+              selecionarTodosDestinoMapa,
+              limparSelecaoDestinoMapa,
+            )}
             {renderListaLocaisFiltroMapa(
               terminaisDestinoMapa,
               filtrosMapaInsights.codigos_destino,
@@ -3115,6 +3199,12 @@ export function VisaoGeralMapaBidFrete({
             colapsada={secoesFiltroMapaColapsadas.has('status')}
             onToggle={() => alternarSecaoFiltroMapa('status')}
           >
+            {renderToolbarSelecaoDimensaoMapa(
+              FILTROS_STATUS_MAPA_INSIGHTS.length,
+              statusAtivos,
+              selecionarTodosStatusMapa,
+              limparSelecaoStatusMapa,
+            )}
             <div className="bfd-map-filtros-panel__status-lista">
               {FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => {
                 const ativo = filtrosMapaInsights.status.has(filtro.id)

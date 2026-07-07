@@ -168,6 +168,27 @@ Nesta leitura há alertas de **atenção** (NCM, pesos) e itens **informativos**
     }
   }
 
+  if (
+    /^(oi|olá|ola|hey|hi|hello|bom dia|boa tarde|boa noite)\b/.test(perguntaNorm) ||
+    perguntaNorm === 'e aí' ||
+    perguntaNorm === 'eai'
+  ) {
+    const docs =
+      contexto.arquivos.flatMap((a) => a.documentosIdentificados).map((d) => d.rotulo).join(', ') ||
+      'os documentos desta leitura'
+    return {
+      resposta: `Olá! Analisei **${docs}** nesta leitura.
+
+Posso ajudar com:
+- **Comparativo** entre Invoice, Packing List e Bill of Lading
+- **Exportador** e **Importador**
+- **Campos faltando** ou em **conflito**
+- **Valores**, **datas** e **resumo** da operação
+
+Use os atalhos abaixo ou pergunte algo específico — por exemplo: *"Quais campos estão vazios?"*`,
+    }
+  }
+
   return {
     resposta: `Com base nos documentos de **${contexto.tituloContexto || 'esta leitura'}**, posso detalhar exportador, importador, valores, datas e pendências.
 

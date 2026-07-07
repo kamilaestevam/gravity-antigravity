@@ -52,8 +52,8 @@ const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
       'Divergência superior a 50% entre invoice e packing list pode gerar retenção na conferência aduaneira e exigência de esclarecimento à RFB.',
     correcao_sugerida: 'Conferir unidade de medida e totalizadores; alinhar Net Weight com o packing list antes do registro.',
     evidencias: [
-      { documento: 'Invoice #INV-9821', campo: 'Net Weight', valor: '18.420,00 KG' },
-      { documento: 'Packing List', campo: 'Net Weight', valor: '8.420,00 KG' },
+      { documento: 'Invoice #INV-9821', campo: 'items.totalNetWeight', valor: '18.420,00 KG' },
+      { documento: 'Packing List', campo: 'packages.totalNetWeight', valor: '8.420,00 KG' },
     ],
     origem: 'v1',
   },
@@ -66,8 +66,8 @@ const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
       'Inconsistência entre Incoterm e local de embarque pode impactar a base de cálculo do frete internacional na DI.',
     correcao_sugerida: 'Padronizar porto de embarque como Hamburg, DE em todos os documentos da leitura.',
     evidencias: [
-      { documento: 'Invoice #INV-9821', campo: 'Incoterm', valor: 'FOB Hamburg' },
-      { documento: 'Bill of Lading', campo: 'Port of Loading', valor: 'Hamburg, DE' },
+      { documento: 'Invoice #INV-9821', campo: 'document.incoterm', valor: 'FOB Hamburg' },
+      { documento: 'Bill of Lading', campo: 'shipment.portOfLoading', valor: 'Hamburg, DE' },
     ],
     origem: 'v1',
   },
@@ -80,7 +80,7 @@ const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
       'Classificação fiscal incorreta pode resultar em tributação indevida e multa por classificação errada (IN RFB 1.861/2018).',
     correcao_sugerida: 'Revisar NCM do item 12 com base na descrição técnica e validar no Portal Único Siscomex.',
     evidencias: [
-      { documento: 'Invoice #INV-9821', campo: 'Item 12 · NCM', valor: '8479.89.99' },
+      { documento: 'Invoice #INV-9821', campo: 'items[12].ncm', valor: '8479.89.99' },
     ],
     origem: 'llm',
   },
@@ -91,7 +91,7 @@ const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
     motivo: 'CNPJ 47.829.103/0001-56 consta como ativo na base da RFB.',
     analise: 'Situação cadastral regular. Nenhuma ação corretiva necessária para este ponto.',
     evidencias: [
-      { documento: 'Invoice #INV-9821', campo: 'CNPJ', valor: '47.829.103/0001-56' },
+      { documento: 'Invoice #INV-9821', campo: 'importer.cnpj', valor: '47.829.103/0001-56' },
     ],
     origem: 'v1',
   },
@@ -99,30 +99,69 @@ const RISCOS_INVOICE: RiscoSimuladorSmartDoc[] = [
 
 const RISCOS_PACKING: RiscoSimuladorSmartDoc[] = [
   {
-    id: 'risco-embalagem-total',
+    id: 'risco-data-emissao',
     severidade: 'atencao',
-    titulo: 'Total de volumes não confere com Bill of Lading',
-    motivo: 'Packing list indica 24 volumes; Bill of Lading registra 22 volumes.',
-    analise: 'Divergência de volumes pode exigir retificação do conhecimento de embarque.',
-    correcao_sugerida: 'Confirmar contagem física e atualizar packing list ou solicitar retificação do B/L.',
-    evidencias: [
-      { documento: 'Packing List', campo: 'Total Packages', valor: '24' },
-      { documento: 'Bill of Lading', campo: 'Packages', valor: '22' },
-    ],
+    titulo: 'Data de emissão fora do intervalo esperado',
+    motivo: 'Data de emissão 2024-06-19 está fora do intervalo aceito para despacho (documento antigo ou OCR incorreto).',
+    analise:
+      'Emissão fora do prazo operacional pode exigir justificativa na DUIMP e reforço de conferência documental.',
+    correcao_sugerida: 'Confirmar data de emissão com o exportador e reenviar packing list com data legível e atualizada.',
+    evidencias: [{ documento: 'Packing List', campo: 'document.issueDate', valor: '2024-06-19' }],
     origem: 'v1',
   },
   {
-    id: 'risco-peso-bruto',
+    id: 'risco-ncm-ausente',
+    severidade: 'critico',
+    titulo: 'NCM ausente — classificação fiscal a definir',
+    motivo: 'Linha 1 não contém código NCM válido; o campo traz texto de part number em vez de classificação fiscal.',
+    analise:
+      'Ausência de NCM por item impede registro correto no Siscomex e pode gerar retenção na conferência aduaneira.',
+    correcao_sugerida: 'Informar NCM de 8 dígitos por item, alinhado à descrição técnica e à Tabela TIPI.',
+    evidencias: [
+      {
+        documento: 'Packing List',
+        campo: 'items[0].ncm',
+        valor: 'PCIFNOSP1LPORTEIROIPR1010MI 4510135/5',
+      },
+    ],
+    origem: 'llm',
+  },
+  {
+    id: 'risco-unidade-medida',
     severidade: 'informativo',
-    titulo: 'Gross Weight dentro da tolerância',
-    motivo: 'Gross Weight (9.050,00 KG) compatível com soma de net weight + embalagem estimada.',
-    analise: 'Relação peso bruto/líquido coerente com o tipo de embalagem declarado.',
-    evidencias: [{ documento: 'Packing List', campo: 'Gross Weight', valor: '9.050,00 KG' }],
+    titulo: 'Unidade de medida ausente — linha 1',
+    motivo: 'Item 1 sem unidade de medida declarada (KG, UN, PCS).',
+    analise: 'Unidade ausente dificulta cruzamento com invoice e pode gerar alerta na matriz de checklist.',
+    correcao_sugerida: 'Preencher unidade de medida em todas as linhas do packing list.',
+    evidencias: [{ documento: 'Packing List', campo: 'items[0].unitOfMeasure', valor: null }],
+    origem: 'v1',
+  },
+  {
+    id: 'risco-hs-code',
+    severidade: 'critico',
+    titulo: 'HS Code ausente — classificação fiscal a definir',
+    motivo: 'Linha 1 sem HS Code informado para cruzamento com NCM e descrição do item.',
+    analise: 'HS Code ausente reduz rastreabilidade fiscal internacional e consistência com a invoice.',
+    correcao_sugerida: 'Incluir HS Code por item, coerente com NCM e descrição comercial.',
+    evidencias: [{ documento: 'Packing List', campo: 'items[0].hsCode', valor: null }],
     origem: 'v1',
   },
 ]
 
 const RISCOS_BOL: RiscoSimuladorSmartDoc[] = [
+  {
+    id: 'risco-volumes-bl',
+    severidade: 'atencao',
+    titulo: 'Total de volumes não confere com Packing List',
+    motivo: 'Bill of Lading indica 22 volumes; Packing List registra 24 volumes.',
+    analise: 'Divergência de volumes entre BL e packing list pode exigir retificação do conhecimento de embarque.',
+    correcao_sugerida: 'Confirmar contagem física e alinhar volumes entre Packing List e Bill of Lading.',
+    evidencias: [
+      { documento: 'Bill of Lading', campo: 'shipment.totalPackages', valor: '22' },
+      { documento: 'Packing List', campo: 'packages.totalCount', valor: '24' },
+    ],
+    origem: 'v1',
+  },
   {
     id: 'risco-porto',
     severidade: 'informativo',
@@ -130,8 +169,8 @@ const RISCOS_BOL: RiscoSimuladorSmartDoc[] = [
     motivo: 'Porto de embarque Hamburg, DE e destino Santos, BR alinhados com Incoterm FOB.',
     analise: 'Rota marítima padrão para importação industrial Brasil–Alemanha.',
     evidencias: [
-      { documento: 'Bill of Lading', campo: 'Port of Loading', valor: 'Hamburg, DE' },
-      { documento: 'Bill of Lading', campo: 'Port of Discharge', valor: 'Santos, BR' },
+      { documento: 'Bill of Lading', campo: 'shipment.portOfLoading', valor: 'Hamburg, DE' },
+      { documento: 'Bill of Lading', campo: 'shipment.portOfDischarge', valor: 'Santos, BR' },
     ],
     origem: 'v1',
   },
@@ -181,7 +220,10 @@ export function obterMetricasBarraCamposRiscoSimulador(
     camposCriticos = 5
     camposAtencao = 5
   } else if (tipo === 'packing-list') {
-    // 10 campos · 1 em risco (10%) → atenção
+    // 10 campos · 4 em risco (40%) → 2 críticos + 1 atenção + 1 informativo
+    camposCriticos = 2
+    camposAtencao = 1
+  } else if (tipo === 'bill-of-lading') {
     camposAtencao = 1
   }
 

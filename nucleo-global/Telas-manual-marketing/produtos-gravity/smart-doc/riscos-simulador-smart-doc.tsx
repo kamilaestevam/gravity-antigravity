@@ -27,7 +27,7 @@ import {
   ChecklistLinhaRiscoSimuladorSmartDoc,
   ModalChecklistSimuladorSmartDoc,
 } from './checklist-simulador-smart-doc'
-import { GraficoAprovacaoRiscosSimulador } from './grafico-aprovacao-riscos-simulador'
+import { AcoesCorrecaoRiscoSimuladorSmartDoc } from './acoes-correcao-risco-simulador-smart-doc'
 import {
   TooltipGraficoInsightsSimulador,
   useTooltipFixoInsightsSimulador,
@@ -109,6 +109,7 @@ type Props = {
   arquivos: ArquivoDemoSimulador[]
   selecao: SelecaoConferencia | null
   onCompararArquivo?: () => void
+  onConferenciaManualChange?: (marcados: number, total: number) => void
 }
 
 function PainelDetalheRiscoSimulador({
@@ -303,6 +304,7 @@ export function RiscosSimuladorSmartDoc({
   arquivos,
   selecao,
   onCompararArquivo,
+  onConferenciaManualChange,
 }: Props) {
   const [busca, setBusca] = useState('')
   const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
@@ -349,6 +351,10 @@ export function RiscosSimuladorSmartDoc({
 
   const resumo = useMemo(() => montarResumoRiscosSimulador(riscosBase), [riscosBase])
   const riscosVisiveis = useMemo(() => filtrarRiscosPorBusca(riscosBase, busca), [riscosBase, busca])
+  const riscosSelecionadosLista = useMemo(
+    () => riscosBase.filter((r) => riscosSelecionados.has(r.id)),
+    [riscosBase, riscosSelecionados],
+  )
   const percentualSemCriticos = useMemo(() => calcularPercentualSemCriticosAbertos(resumo), [resumo])
   const legendaSegmentosRisco = useMemo(() => montarLegendaSegmentosRisco(resumo), [resumo])
   const barraTooltip = useTooltipFixoInsightsSimulador<SegmentoBarraRisco>()
@@ -360,6 +366,10 @@ export function RiscosSimuladorSmartDoc({
   }, [riscosVisiveis])
 
   const riscosConferidos = riscosSelecionados.size
+
+  useEffect(() => {
+    onConferenciaManualChange?.(riscosConferidos, riscosBase.length)
+  }, [onConferenciaManualChange, riscosConferidos, riscosBase.length])
 
   const contagemChecklist = useMemo(
     () => (documentoAtual ? obterContagemChecklistSimulador(documentoAtual.tipo) : { verde: 0, amarelo: 0, vermelho: 0, pendente: 0 }),
@@ -553,13 +563,6 @@ export function RiscosSimuladorSmartDoc({
             {contagemChecklist.verde} ok · {contagemChecklist.amarelo} atenção · {contagemChecklist.vermelho} falha ·{' '}
             {contagemChecklist.pendente} pendente
           </span>
-          {riscosConferidos > 0 && (
-            <GraficoAprovacaoRiscosSimulador
-              marcados={riscosConferidos}
-              total={riscosBase.length}
-              classe="sds-riscos-grafico-aprovacao--cabecalho"
-            />
-          )}
           {riscosVisiveis.length > 0 && (
             <label className="sr-conf-riscos-selecionar-compacto">
               <input
@@ -570,6 +573,9 @@ export function RiscosSimuladorSmartDoc({
               />
               <span>Selecionar ({riscosVisiveis.length})</span>
             </label>
+          )}
+          {riscosSelecionadosLista.length > 0 && (
+            <AcoesCorrecaoRiscoSimuladorSmartDoc riscos={riscosSelecionadosLista} />
           )}
           <span className="sr-conf-riscos-disclaimer-compacto">V1 + IA + NCM — apoio à conferência</span>
         </div>

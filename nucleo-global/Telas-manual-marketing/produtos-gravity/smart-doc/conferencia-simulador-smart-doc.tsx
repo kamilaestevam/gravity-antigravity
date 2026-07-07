@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import {
   Airplane,
   Anchor,
@@ -33,6 +33,7 @@ import {
 import { CampoLinhaConferenciaSimuladorSmartDoc } from './campo-linha-conferencia-simulador-smart-doc'
 import { RiscosSimuladorSmartDoc } from './riscos-simulador-smart-doc'
 import { QaSimuladorSmartDoc } from './qa-simulador-smart-doc'
+import { GraficoAprovacaoRiscosSimulador } from './grafico-aprovacao-riscos-simulador'
 import '../../../../servicos-global/produto/processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 import './conferencia-simulador-smart-doc.css'
 
@@ -92,6 +93,11 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
   const [filtro, setFiltro] = useState<'todos' | 'preenchidos' | 'vazios'>('todos')
   const [busca, setBusca] = useState('')
+  const [conferenciaManualRiscos, setConferenciaManualRiscos] = useState({ marcados: 0, total: 0 })
+
+  const aoMudarConferenciaManualRiscos = useCallback((marcados: number, total: number) => {
+    setConferenciaManualRiscos({ marcados, total })
+  }, [])
 
   const arquivosCompletos = arquivos.filter((a) => a.status === 'completo')
 
@@ -173,23 +179,35 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
 
   return (
     <div className="sds-nl-principal-conferencia">
-      <div className="sds-nl-conf-tabs" role="tablist" aria-label="Conferência da leitura">
-        {ABAS.map(({ id, rotulo, Icone }) => {
-          const ativo = aba === id
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={ativo}
-              className={`sds-nl-conf-tab${ativo ? ' sds-nl-conf-tab--ativo' : ''}`}
-              onClick={() => setAba(id)}
-            >
-              <Icone className="sds-nl-conf-tab-icone" size={16} weight="regular" aria-hidden />
-              <span className="sds-nl-conf-tab-rotulo">{rotulo}</span>
-            </button>
-          )
-        })}
+      <div className="sds-nl-conf-tabs-bar">
+        <div className="sds-nl-conf-tabs" role="tablist" aria-label="Conferência da leitura">
+          {ABAS.map(({ id, rotulo, Icone }) => {
+            const ativo = aba === id
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={ativo}
+                className={`sds-nl-conf-tab${ativo ? ' sds-nl-conf-tab--ativo' : ''}`}
+                onClick={() => setAba(id)}
+              >
+                <Icone className="sds-nl-conf-tab-icone" size={16} weight="regular" aria-hidden />
+                <span className="sds-nl-conf-tab-rotulo">{rotulo}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {aba === 'riscos' && conferenciaManualRiscos.marcados > 0 && (
+          <div className="sds-nl-conf-tabs-conferencia" aria-live="polite">
+            <GraficoAprovacaoRiscosSimulador
+              marcados={conferenciaManualRiscos.marcados}
+              total={conferenciaManualRiscos.total}
+              classe="sds-riscos-grafico-aprovacao--tabs"
+            />
+          </div>
+        )}
       </div>
 
       {aba === 'campos' && (
@@ -357,6 +375,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
             arquivos={arquivos}
             selecao={selecao}
             onCompararArquivo={onCompararArquivo}
+            onConferenciaManualChange={aoMudarConferenciaManualRiscos}
           />
         </div>
       )}

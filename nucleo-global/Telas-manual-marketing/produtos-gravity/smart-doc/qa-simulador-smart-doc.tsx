@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ComponentType } from 'react'
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import {
   BuildingOffice,
   CalendarBlank,
@@ -72,6 +72,17 @@ export function QaSimuladorSmartDoc({
   const conversaIniciada = turnos.length > 0
   const chaveDocumento = `${documentoAtual?.id ?? ''}:${tituloContexto}`
 
+  const resumoLeituraQa = useMemo(() => {
+    const documentos = arquivosCompletos.flatMap((a) => a.documentosIdentificados)
+    const rotulos = [...new Set(documentos.map((d) => d.rotulo))]
+    return {
+      totalArquivos: arquivosCompletos.length,
+      totalDocumentos: documentos.length,
+      rotulosDocumentos: rotulos,
+      documentoFoco: documentoAtual?.rotulo ?? rotulos[0] ?? null,
+    }
+  }, [arquivosCompletos, documentoAtual])
+
   useEffect(() => {
     setTurnos([])
     setPergunta('')
@@ -131,6 +142,64 @@ export function QaSimuladorSmartDoc({
         className={`sr-conf-qa-thread${conversaIniciada ? ' sr-conf-qa-thread--ativa' : ''}`}
         aria-live="polite"
       >
+        {!conversaIniciada && !semDocumentos && (
+          <section className="sr-conf-qa-hero" aria-label="Boas-vindas do Consultor Inteligente">
+            <div className="sr-conf-qa-hero-marca">
+              <span className="sr-conf-qa-hero-icone" aria-hidden>
+                <Sparkle size={22} weight="fill" />
+              </span>
+              <div>
+                <h2 className="sr-conf-qa-hero-titulo">Rafa — Consultor Inteligente</h2>
+                <p className="sr-conf-qa-hero-subtitulo">{NOME_PRODUTO_EXIBICAO}</p>
+              </div>
+            </div>
+
+            <p className="sr-conf-qa-hero-texto">
+              Li <strong>{resumoLeituraQa.totalDocumentos} documentos</strong> desta leitura
+              {resumoLeituraQa.documentoFoco ? (
+                <>
+                  {' '}
+                  — foco atual: <strong>{resumoLeituraQa.documentoFoco}</strong>
+                </>
+              ) : null}
+              . Posso comparar Invoice, Packing List e Bill of Lading, apontar faltantes e resumir a
+              operação em linguagem de COMEX.
+            </p>
+
+            {resumoLeituraQa.rotulosDocumentos.length > 0 && (
+              <ul className="sr-conf-qa-hero-docs" aria-label="Documentos analisados">
+                {resumoLeituraQa.rotulosDocumentos.map((rotulo) => (
+                  <li key={rotulo}>{rotulo}</li>
+                ))}
+              </ul>
+            )}
+
+            <p className="sr-conf-qa-hero-dica">Escolha um atalho para ver a resposta em segundos:</p>
+
+            <div className="sr-conf-qa-hero-sugestoes" role="group" aria-label="Perguntas sugeridas">
+              {SUGESTOES.map(({ id, rotulo, texto, Icone }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`sr-conf-qa-hero-sugestao${id === 'comparativo' ? ' sr-conf-qa-hero-sugestao--destaque' : ''}`}
+                  disabled={enviando}
+                  title={texto}
+                  onClick={() => void enviarPergunta(texto)}
+                >
+                  <span className="sr-conf-qa-hero-sugestao-icone" aria-hidden>
+                    <Icone size={18} weight="duotone" />
+                  </span>
+                  <span className="sr-conf-qa-hero-sugestao-rotulo">{rotulo}</span>
+                  <span className="sr-conf-qa-hero-sugestao-desc">{texto}</span>
+                  {id === 'comparativo' && (
+                    <span className="sr-conf-qa-hero-sugestao-badge">Recomendado</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
         {conversaIniciada && (
           <ul className="sr-conf-qa-turnos">
             {turnos.map((turno) => (

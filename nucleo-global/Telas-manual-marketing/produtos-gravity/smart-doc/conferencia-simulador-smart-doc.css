@@ -8,12 +8,30 @@
   flex-direction: column;
 }
 
-.sds-nl-conf-tabs {
+.sds-nl-conf-tabs-bar {
   display: flex;
-  gap: 0.125rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   flex-shrink: 0;
+  min-height: 2.25rem;
+}
+
+.sds-nl-conf-tabs {
+  display: flex;
+  gap: 0.125rem;
+  margin-bottom: 0;
+  border-bottom: none;
+  flex: 1;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.sds-nl-conf-tabs-conferencia {
+  flex-shrink: 0;
+  padding-bottom: 0.3125rem;
 }
 
 .sds-nl-conf-tab {

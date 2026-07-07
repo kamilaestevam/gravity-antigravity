@@ -21,6 +21,14 @@ export default defineConfig({
       '@nucleo/card-global': path.resolve(
         __dirname,
         '../../nucleo-global/Layout/card-global/src/index.ts'
+      ),
+      '@nucleo/campo-select-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-select-global/src/index.ts'
+      ),
+      '@nucleo/campo-geral-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-geral-global/src/index.ts'
       )
     }
   },

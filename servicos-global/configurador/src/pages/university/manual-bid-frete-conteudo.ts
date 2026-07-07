@@ -1,6 +1,18 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
-import { GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL } from './manual-bid-frete-nova-cotacao-manual-conteudo'
+import {
+  GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
+} from './manual-bid-frete-nova-cotacao-manual-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
@@ -9,14 +21,14 @@ const S = screenshotBidFreteInt
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/docs/bid-frete#doc-sec-6|Configurações}}'
+  '{{link:/university-gravity/docs/bid-frete#doc-sec-7|Configurações}}'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
 
 export const DOC_BID_FRETE_SUBTITULO =
-  'Cotações de frete internacional: Insights, Lista, nova cotação manual e comparativo de propostas'
+  'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
 
 export const DOC_BID_FRETE_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '0.1' },
@@ -35,7 +47,8 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
   galeriaComparacaoAposParagrafo: [
     {
       indice: 1,
-      colunas: 1,
+      colunas: 2,
+      textoAcimaEstiloCorpo: true,
       telas: [
         { legenda: 'Insights', imagem: S('insight_1') },
         { legenda: 'Lista', imagem: S('lista') },
@@ -79,7 +92,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         'A aba **Insights** consolida **KPIs**, funil, câmbio e o **mapa global** de cotações. Personalize os cards em ' +
           LINK_MANUAL_BID_FRETE_CONFIGURACOES +
           '.',
-        'Cruze **rotas** e pins{{icone:pin-mapa-bid-frete}} no mapa e lance cotações avulsas ou **BIDs** com {{botao:novo-bid-frete}}.',
+        'Cruze **rotas** e pins{{icone:pin-mapa-bid-frete}} no mapa, abra o **Painel da Cotação** na rota selecionada e lance cotações avulsas ou **BIDs** com {{botao:novo-bid-frete}}.',
       ],
       figurasAposParagrafo: [
         {
@@ -100,28 +113,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
               pilaresMapaBidFrete: ['01'],
               imagem: S('insight_mapa_seta'),
               paragrafoAntes:
-                'Selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir as **cotações vinculadas**.',
-            },
-            {
-              legenda: 'Modal de cotações e visão geral',
-              pilaresMapaBidFrete: ['02'],
-              imagem: S('insight_mapa_acesso_cotacoes_1'),
-              paragrafoAntes:
-                'Consulte **status**, **melhor proposta** e atalhos de cada cotação vinculada à rota.',
-            },
-            {
-              legenda: 'Detalhamento no modal',
-              pilaresMapaBidFrete: ['03'],
-              imagem: S('insight_mapa_acesso_cotacoes_2'),
-              paragrafoAntes:
-                'Compare a **melhor oferta** no resumo expandido e avance para a **cotação completa** quando precisar.',
-            },
-            {
-              legenda: 'Lista e ações no modal',
-              pilaresMapaBidFrete: ['04'],
-              imagem: S('insight_mapa_acesso_cotacoes_3'),
-              paragrafoAntes:
-                'Gerencie aprovações, recusas e navegação no modal conforme o **status** configurado do workspace.',
+                'Selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir o **Painel da Cotação**.',
             },
           ],
         },
@@ -197,14 +189,32 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
               pilaresFiltrosMapaBidFrete: ['04'],
               paragrafoAntes:
                 'Selecione o **Destino** desejado. O mapa cruza essa escolha com **Tipo de Operação**, **Modal** e **Origem** e refina as rotas visíveis.',
-              imagem: S('insight_menu_mapa_botoes_destino_resultado'),
+              imagensCompostas: [
+                {
+                  centralizar: false,
+                  figuras: [
+                    {
+                      imagem: S('insight_menu_mapa_botoes_destino_resultado'),
+                    },
+                  ],
+                },
+              ],
             },
             {
               legenda: 'Status da cotação',
               pilaresFiltrosMapaBidFrete: ['05'],
               paragrafoAntes:
                 'Marque as etapas em **Status** para afunilar a busca. O mapa exibe só cotações compatíveis com os critérios escolhidos.',
-              imagem: S('insight_menu_mapa_botoes_status'),
+              imagensCompostas: [
+                {
+                  centralizar: false,
+                  figuras: [
+                    {
+                      imagem: S('insight_menu_mapa_botoes_status'),
+                    },
+                  ],
+                },
+              ],
             },
           ],
           calloutAposGaleriaTabela: {
@@ -283,67 +293,218 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Controles do mapa',
           tituloCurto: 'Controles',
           paragrafos: [
-            'Gerencie a visualização do mapa por meio da barra de ferramentas. Alterne entre os modos globo e plano, aplique zoom, restaure a câmera e configure a exibição das rotas.',
+            'Gerencie a visualização do mapa por meio da barra de ferramentas. Alterne entre os modos globo e plano, aplique zoom, restaure a câmera, pause a rotação do globo e configure a exibição das rotas.',
           ],
           mostrarInfograficoBidFreteControlesMapa: true,
           galeriaTelasAposTabela: [
             {
-              legenda: 'Vista globo',
+              legenda: 'Visualização em Globo',
               pilaresControlesMapaBidFrete: ['vista'],
               paragrafoAntes:
-                'Ative a visão **Globo** para enxergar rotas e cotações no contexto geográfico completo.',
-              imagem: S('insight_menu_mapa_globo'),
+                'Utilize o globo interativo para explorar o mapa mundial e acompanhar a distribuição geográfica das suas cotações ativas.',
+              imagem: S('insight_visao_globo'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para acessar a **visualização em globo**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:globo-mapa-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Vista mapa plano',
               pilaresControlesMapaBidFrete: ['vista'],
               paragrafoAntes:
-                'Alterne para **Mapa plano** quando precisar de leitura mais direta das rotas na tela.',
-              imagem: S('insight_menu_mapa_globo_mapa'),
+                'Utilize a visualização em **Mapa plano** para obter uma leitura direta e simultânea de todas as rotas ativas na sua tela.',
+              imagem: S('insight_visao_mapa'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para acessar a **visualização em mapa plano**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:mapa-plano-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Zoom in',
               pilaresControlesMapaBidFrete: ['zoom'],
-              paragrafoAntes: 'Use **Zoom in** para aproximar a região inicial do mapa.',
+              paragrafoAntes:
+                'Aplique o **Zoom in** para focar em uma área restrita do mapa e inspecionar as conexões logísticas de perto.',
               imagem: S('insight_menu_mapa_zoom_in_1'),
-            },
-            {
-              legenda: 'Zoom in',
-              pilaresControlesMapaBidFrete: ['zoom'],
-              paragrafoAntes: 'Continue com **Zoom in** até o nível máximo de detalhe da área.',
-              imagem: S('insight_menu_mapa_zoom_in_2'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para aplicar **Zoom in**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:zoom-in-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Zoom out',
               pilaresControlesMapaBidFrete: ['zoom'],
-              paragrafoAntes: 'Use **Zoom out** para afastar a vista e recuperar contexto regional.',
+              paragrafoAntes:
+                'Utilize o recurso **Zoom out** para afastar a visualização e recuperar o contexto geográfico das suas operações.',
               imagem: S('insight_menu_mapa_zoom_out_1'),
-            },
-            {
-              legenda: 'Zoom out',
-              pilaresControlesMapaBidFrete: ['zoom'],
-              paragrafoAntes: 'Amplie o **Zoom out** para enxergar o escopo completo das rotas.',
-              imagem: S('insight_menu_mapa_zoom_out_2'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para aplicar **Zoom out**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:zoom-out-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Restaurar mapa',
               pilaresControlesMapaBidFrete: ['restaurar'],
               paragrafoAntes:
-                'Clique em **Restaurar** para voltar à posição e escala padrão da câmera.',
-              imagem: S('insight_menu_mapa_restaurar_mapa'),
+                'Clique em **Restaurar** para redefinir o enquadramento e voltar à visão padrão de todas as suas rotas.',
+              imagem: S('insight_visao_mapa_restaurar'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para **restaurar** o enquadramento do mapa, abra o **mapa** na aba **Insights** e clique no ícone {{icone:restaurar-mapa-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Ocultar linhas de rota',
               pilaresControlesMapaBidFrete: ['linhas'],
-              paragrafoAntes: 'Oculte as **linhas de rota** para reduzir ruído visual no mapa.',
-              imagem: S('insight_menu_mapa_ocultar_exibir_linha'),
+              paragrafoAntes:
+                'Desative as **linhas de rota** para limpar a visualização do mapa e facilitar a leitura direta das suas localizações ativas.',
+              imagem: S('insight_menu_mapa_ocultar_exibir_linha_resultado'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para **ocultar as linhas de rota**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:ocultar-linhas-bid-frete}} na barra de controles.',
+              },
             },
             {
               legenda: 'Exibir linhas de rota',
               pilaresControlesMapaBidFrete: ['linhas'],
               paragrafoAntes:
-                'Reexiba as **linhas de rota** para comparar trechos e conexões entre origem e destino.',
-              imagem: S('insight_menu_mapa_ocultar_exibir_linha_resultado'),
+                'Ative as **linhas de rota** para mapear visualmente os trajetos e analisar as conexões ativas na sua operação internacional.',
+              imagem: S('insight_menu_mapa_ocultar_exibir_linha'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para **exibir as linhas de rota**, abra o **mapa** na aba **Insights** e clique no ícone {{icone:exibir-linhas-bid-frete}} na barra de controles.',
+              },
+            },
+            {
+              legenda: 'Pausar rotação do globo',
+              pilaresControlesMapaBidFrete: ['rotacao'],
+              paragrafoAntes:
+                'Interrompa a **rotação automática** do globo para fixar a visualização e examinar rotas e terminais com mais precisão.',
+              imagem: S('insight_visao_globo_pausar'),
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Para **pausar a rotação** do globo, abra o **mapa** na aba **Insights**, acesse a **visualização em globo** e clique no ícone {{icone:pausar-globo-bid-frete}} na barra de controles.',
+              },
+            },
+          ],
+        },
+      ]),
+    },
+    {
+      titulo: 'Nova cotação',
+      tituloSumario: 'Nova cotação',
+      prefixoPassosVisuais: 'Nova cotação',
+      ancoraPassosPrefix: 'nova-cotacao',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'O wizard **Cotação avulsa manual** conduz do **número da cotação** ao **disparo aos fornecedores**, com trilha comum e ramos por **modal de transporte** (**Marítimo**, **Aéreo**, **Rodoviário**) e **tipo de carga** (**FCL**, **LCL**, **Aéreo/LCL/Rodo**).',
+        'Como no **Transferir** do manual do **Pedido**, os passos iniciais são **iguais para todos**; a partir do **modal** (passo **09**) e do **tipo de carga** (passo **39**) cada ramo segue telas próprias até o **envio** e o **resultado na Lista**.',
+      ],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Mapa do wizard',
+          tituloCurto: 'Mapa',
+          mostrarInfograficoBidFreteNovaCotacaoFluxo: true,
+        },
+        {
+          titulo: 'Abrir o wizard na Lista',
+          tituloCurto: 'Abrir wizard',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
+        },
+        {
+          titulo: 'Início comum',
+          tituloCurto: 'Início comum',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
+        },
+        {
+          titulo: 'Locais Marítimo',
+          tituloCurto: 'Marítimo',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
+        },
+        {
+          titulo: 'Locais Aéreo',
+          tituloCurto: 'Aéreo',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
+        },
+        {
+          titulo: 'Locais Rodoviário',
+          tituloCurto: 'Rodoviário',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
+        },
+        {
+          titulo: 'NCM e mercadoria',
+          tituloCurto: 'NCM',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
+        },
+        {
+          titulo: 'Tipo de carga FCL',
+          tituloCurto: 'FCL',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
+        },
+        {
+          titulo: 'Tipo de carga LCL',
+          tituloCurto: 'LCL',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
+        },
+        {
+          titulo: 'Volumes Aéreo / LCL / Rodo',
+          tituloCurto: 'Aéreo/LCL/Rodo',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
+        },
+        {
+          titulo: 'Cubagem, fornecedores e envio',
+          tituloCurto: 'Envio',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
+        },
+        {
+          titulo: 'Resultado esperado',
+          tituloCurto: 'Resultado',
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+        },
+      ]),
+    },
+    {
+      titulo: 'Painel da Cotação',
+      tituloSumario: 'Painel da Cotação',
+      prefixoPassosVisuais: 'Painel da Cotação',
+      ancoraPassosPrefix: 'painel-cotacao',
+      paragrafos: [
+        'Após selecionar uma **rota** no mapa de **Insights**, o **Painel da Cotação** concentra **status**, **melhor proposta**, detalhamento e ações sobre cada cotação vinculada ao trecho.',
+      ],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Painel da Cotação',
+          tituloCurto: 'Visão geral',
+          ocultarRotuloPasso: true,
+          mostrarInfograficoBidFretePainelCotacao: true,
+          galeriaTelasAposTabela: [
+            {
+              legenda: 'Visão geral das cotações',
+              pilaresPainelCotacaoBidFrete: ['01'],
+              imagem: S('insight_mapa_acesso_cotacoes_1'),
+              paragrafoAntes:
+                'Consulte **status**, **melhor proposta** e atalhos de cada cotação vinculada à rota.',
+            },
+            {
+              legenda: 'Detalhamento da proposta',
+              pilaresPainelCotacaoBidFrete: ['02'],
+              imagem: S('insight_mapa_acesso_cotacoes_2'),
+              paragrafoAntes:
+                'Compare a **melhor oferta** no resumo expandido e avance para a **cotação completa** quando precisar.',
+            },
+            {
+              legenda: 'Lista e ações',
+              pilaresPainelCotacaoBidFrete: ['03'],
+              imagem: S('insight_mapa_acesso_cotacoes_3'),
+              paragrafoAntes:
+                'Gerencie aprovações, recusas e navegação no painel conforme o **status** configurado do workspace.',
             },
           ],
         },
@@ -453,17 +614,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
             texto:
               'Os filtros permanecem **salvos no painel ativo**. Ao trocar de aba, cada painel restaura seus chips.',
           },
-        },
-        {
-          titulo: 'Nova cotação avulsa manual',
-          tituloCurto: 'Nova cotação manual',
-          paragrafos: [
-            'O wizard **Cotação avulsa manual** conduz do **número da cotação** ao **disparo aos fornecedores**, com trilha comum e ramos por **modal de transporte** (**Marítimo**, **Aéreo**, **Rodoviário**) e **tipo de carga** (**FCL**, **LCL**, **Aéreo/LCL/Rodo**).',
-            'A estrutura segue o padrão do **Transferir** no manual do **Pedido**: trilha compartilhada até a bifurcação e passo a passo por ramo.',
-          ],
-          mostrarInfograficoBidFreteNovaCotacaoFluxo: true,
-          bidFreteNovaCotacaoInfograficoAposParagrafo: 1,
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL,
         },
       ]),
     },

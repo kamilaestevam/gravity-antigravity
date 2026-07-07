@@ -86,6 +86,8 @@ export interface DocPassoVisual {
     chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
     /** Manual Pedido § Transferir — mapa UX 10 do resultado esperado (saldos e quantidades). */
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
+    /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
+    infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */
@@ -177,8 +179,10 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoListaTransferirFluxo?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Transferir (padrão: 1). */
   transferirInfograficoAposParagrafo?: number
-  /** Manual BID Frete §03 — infográfico das quatro interações do mapa global. */
+  /** Manual BID Frete § Insights — infográfico da seleção de rota no mapa global. */
   mostrarInfograficoBidFreteMapa?: boolean
+  /** Manual BID Frete § Painel da Cotação — infográfico das três etapas do painel. */
+  mostrarInfograficoBidFretePainelCotacao?: boolean
   /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
   mostrarInfograficoBidFreteFiltrosMapa?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
@@ -300,10 +304,12 @@ export interface DocGaleriaTela {
   pilaresCustomizacao?: Array<'01' | '02' | '03' | '04'>
   /** Chips numerados do infográfico do mapa BID Frete (ex.: ['01'] = selecionar rota). */
   pilaresMapaBidFrete?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico do Painel da Cotação BID Frete (ex.: ['01'] = visão geral). */
+  pilaresPainelCotacaoBidFrete?: Array<'01' | '02' | '03'>
   /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
   pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
-  pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas'>
+  pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }

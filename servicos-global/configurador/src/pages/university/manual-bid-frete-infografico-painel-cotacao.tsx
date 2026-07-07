@@ -1,21 +1,13 @@
 import React from 'react'
-import {
-  CheckCircle,
-  FileText,
-  Globe,
-  ListBullets,
-  MapPin,
-  Sparkle,
-  type Icon,
-} from '@phosphor-icons/react'
+import { CheckCircle, FileText, ListBullets, Sparkle, type Icon } from '@phosphor-icons/react'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
-export type ManualPilarMapaBidFreteId = '01' | '02' | '03' | '04'
+export type ManualPilarPainelCotacaoBidFreteId = '01' | '02' | '03'
 
-type PilarMapaBidFrete = {
-  num: ManualPilarMapaBidFreteId
+type PilarPainelCotacao = {
+  num: ManualPilarPainelCotacaoBidFreteId
   rotulo: string
   descricao: string
   icone: Icon
@@ -24,29 +16,19 @@ type PilarMapaBidFrete = {
   fundo: string
 }
 
-export const MANUAL_PILARES_MAPA_BID_FRETE: Record<
-  ManualPilarMapaBidFreteId,
+export const MANUAL_PILARES_PAINEL_COTACAO_BID_FRETE: Record<
+  ManualPilarPainelCotacaoBidFreteId,
   { icone: Icon; cor: string; borda: string; fundo: string }
 > = {
-  '01': { icone: MapPin, cor: '#f87171', borda: 'rgba(248,113,113,.32)', fundo: 'rgba(239,68,68,.08)' },
-  '02': { icone: ListBullets, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
-  '03': { icone: FileText, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
-  '04': { icone: CheckCircle, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(139,92,246,.08)' },
+  '01': { icone: ListBullets, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
+  '02': { icone: FileText, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
+  '03': { icone: CheckCircle, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(139,92,246,.08)' },
 }
 
-const PILARES: PilarMapaBidFrete[] = [
+const PILARES: PilarPainelCotacao[] = [
   {
     num: '01',
-    rotulo: 'Selecionar rota no mapa',
-    descricao: 'Selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} e abra as **cotações** do trecho em tempo real.',
-    icone: MapPin,
-    cor: '#f87171',
-    borda: 'rgba(248,113,113,.32)',
-    fundo: 'rgba(239,68,68,.08)',
-  },
-  {
-    num: '02',
-    rotulo: 'Modal de cotações e visão geral',
+    rotulo: 'Visão geral das cotações',
     descricao: 'Consulte **status**, **melhor proposta** e atalhos de cada cotação vinculada à rota selecionada.',
     icone: ListBullets,
     cor: '#34d399',
@@ -54,8 +36,8 @@ const PILARES: PilarMapaBidFrete[] = [
     fundo: 'rgba(52,211,153,.08)',
   },
   {
-    num: '03',
-    rotulo: 'Detalhamento no modal',
+    num: '02',
+    rotulo: 'Detalhamento da proposta',
     descricao: 'Compare a **melhor oferta** no resumo expandido e avance para a **cotação completa** quando precisar.',
     icone: FileText,
     cor: '#60a5fa',
@@ -63,9 +45,9 @@ const PILARES: PilarMapaBidFrete[] = [
     fundo: 'rgba(96,165,250,.08)',
   },
   {
-    num: '04',
-    rotulo: 'Lista e ações no modal',
-    descricao: 'Gerencie aprovações, recusas e navegação sem sair da tela **Insights**.',
+    num: '03',
+    rotulo: 'Lista e ações',
+    descricao: 'Gerencie aprovações, recusas e navegação no **Painel da Cotação** conforme o **status** do workspace.',
     icone: CheckCircle,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -77,7 +59,7 @@ function renderizarNegrito(texto: string) {
   return <ManualInfograficoRichText texto={texto} />
 }
 
-function CardPilar({ pilar }: { pilar: PilarMapaBidFrete }) {
+function CardPilar({ pilar }: { pilar: PilarPainelCotacao }) {
   const Icone = pilar.icone
   return (
     <div style={{
@@ -135,7 +117,7 @@ function CardPilar({ pilar }: { pilar: PilarMapaBidFrete }) {
   )
 }
 
-export function ManualPilaresMapaBidFreteChips({ pilares }: { pilares: ManualPilarMapaBidFreteId[] }) {
+export function ManualPilaresPainelCotacaoBidFreteChips({ pilares }: { pilares: ManualPilarPainelCotacaoBidFreteId[] }) {
   return (
     <div
       style={{
@@ -145,10 +127,10 @@ export function ManualPilaresMapaBidFreteChips({ pilares }: { pilares: ManualPil
         flexShrink: 0,
         paddingTop: 2,
       }}
-      aria-label={`Assuntos ${pilares.join(' e ')} do mapa global`}
+      aria-label={`Assuntos ${pilares.join(' e ')} do painel da cotação`}
     >
       {pilares.map((num) => {
-        const pilar = MANUAL_PILARES_MAPA_BID_FRETE[num]
+        const pilar = MANUAL_PILARES_PAINEL_COTACAO_BID_FRETE[num]
         const Icone = pilar.icone
         return (
           <div
@@ -178,11 +160,11 @@ export function ManualPilaresMapaBidFreteChips({ pilares }: { pilares: ManualPil
   )
 }
 
-/** Manual BID Frete §05 Insights — seleção de rota no mapa global */
-export function ManualInfograficoBidFreteMapa() {
+/** Manual BID Frete §04 — três etapas do Painel da Cotação no mapa */
+export function ManualInfograficoBidFretePainelCotacao() {
   return (
     <div style={{
-      background: 'linear-gradient(165deg, rgba(251,191,36,.09) 0%, rgba(148,163,184,.04) 42%, rgba(129,140,248,.05) 100%)',
+      background: 'linear-gradient(165deg, rgba(52,211,153,.09) 0%, rgba(148,163,184,.04) 42%, rgba(129,140,248,.05) 100%)',
       border: '1px solid rgba(148,163,184,.18)',
       borderRadius: 14,
       padding: '18px 18px 16px',
@@ -199,7 +181,7 @@ export function ManualInfograficoBidFreteMapa() {
       }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <Globe size={18} weight="duotone" color="#fbbf24" />
+            <ListBullets size={18} weight="duotone" color="#34d399" />
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -208,14 +190,14 @@ export function ManualInfograficoBidFreteMapa() {
               fontWeight: 800,
               letterSpacing: '.08em',
               textTransform: 'uppercase',
-              color: '#fde68a',
-              background: 'rgba(251,191,36,.12)',
-              border: '1px solid rgba(251,191,36,.32)',
+              color: '#6ee7b7',
+              background: 'rgba(52,211,153,.12)',
+              border: '1px solid rgba(52,211,153,.32)',
               borderRadius: 999,
               padding: '4px 10px',
             }}>
               <Sparkle size={12} weight="fill" />
-              Mapa operacional · seleção de rota
+              Painel da Cotação · mapa Insights
             </span>
           </div>
           <p style={{
@@ -226,7 +208,7 @@ export function ManualInfograficoBidFreteMapa() {
             lineHeight: 1.35,
             letterSpacing: '-.01em',
           }}>
-            <ManualInfograficoRichText texto="Selecione a **rota** para abrir o Painel da Cotação" />
+            <ManualInfograficoRichText texto="Do resumo às **ações** na rota selecionada" />
           </p>
           <p style={{
             margin: '8px 0 0',
@@ -234,9 +216,20 @@ export function ManualInfograficoBidFreteMapa() {
             lineHeight: 1.5,
             color: CORPO_70,
           }}>
-            <ManualInfograficoRichText texto="Clique em uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir as **cotações vinculadas**." />
+            <ManualInfograficoRichText texto="Após selecionar uma **rota** no mapa, o **Painel da Cotação** concentra status, detalhamento e decisões." />
           </p>
         </div>
+      </div>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: 12,
+        marginBottom: 14,
+      }}>
+        {PILARES.map((pilar) => (
+          <CardPilar key={pilar.num} pilar={pilar} />
+        ))}
       </div>
 
       <div style={{
@@ -248,11 +241,11 @@ export function ManualInfograficoBidFreteMapa() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        <p style={{ margin: 0, fontWeight: 800, color: '#fde68a', fontSize: '.72rem', lineHeight: 1.4 }}>
-          Selecionar rota = ponto de partida do Painel da Cotação
+        <p style={{ margin: 0, fontWeight: 800, color: '#6ee7b7', fontSize: '.72rem', lineHeight: 1.4 }}>
+          Visão geral + Detalhamento + Ações = painel completo na rota
         </p>
         <p style={{ margin: '6px 0 0' }}>
-          <ManualInfograficoRichText texto="O fluxo completo do painel está no capítulo **Painel da Cotação**." />
+          Abaixo, cada etapa com print da tela.
         </p>
       </div>
     </div>

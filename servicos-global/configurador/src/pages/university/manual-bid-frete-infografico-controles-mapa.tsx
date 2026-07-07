@@ -7,6 +7,8 @@ import {
   MagnifyingGlassMinus,
   MagnifyingGlassPlus,
   MapTrifold,
+  Pause,
+  Play,
   SlidersHorizontal,
   type Icon,
 } from '@phosphor-icons/react'
@@ -27,7 +29,7 @@ type GrupoControlesMapa = {
   itens: ItemControleMapa[]
 }
 
-export type ManualPilarControlesMapaBidFreteId = 'vista' | 'zoom' | 'restaurar' | 'linhas'
+export type ManualPilarControlesMapaBidFreteId = 'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'
 
 export const MANUAL_PILARES_CONTROLES_MAPA_BID_FRETE: Record<
   ManualPilarControlesMapaBidFreteId,
@@ -37,6 +39,7 @@ export const MANUAL_PILARES_CONTROLES_MAPA_BID_FRETE: Record<
   zoom: { icone: MagnifyingGlassPlus, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
   restaurar: { icone: ArrowCounterClockwise, cor: '#fbbf24', borda: 'rgba(251,191,36,.32)', fundo: 'rgba(251,191,36,.08)' },
   linhas: { icone: Eye, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(139,92,246,.08)' },
+  rotacao: { icone: Pause, cor: '#f472b6', borda: 'rgba(244,114,182,.32)', fundo: 'rgba(244,114,182,.08)' },
 }
 
 export function ManualPilaresControlesMapaBidFreteChips({ pilares }: { pilares: ManualPilarControlesMapaBidFreteId[] }) {
@@ -113,6 +116,16 @@ const GRUPOS_CONTROLES: GrupoControlesMapa[] = [
     itens: [
       { icone: EyeSlash, rotulo: 'Ocultar' },
       { icone: Eye, rotulo: 'Exibir' },
+    ],
+  },
+  {
+    rotulo: 'Rotação',
+    cor: '#f472b6',
+    borda: 'rgba(244,114,182,.32)',
+    fundo: 'rgba(244,114,182,.08)',
+    itens: [
+      { icone: Pause, rotulo: 'Pausar' },
+      { icone: Play, rotulo: 'Iniciar' },
     ],
   },
 ]
@@ -319,7 +332,7 @@ export function ManualInfograficoBidFreteControlesMapa() {
         }}
       >
         <p style={{ margin: 0, fontWeight: 800, color: '#cbd5e1', fontSize: '.72rem', lineHeight: 1.4 }}>
-          Vista, Zoom, Restaurar e Linhas
+          Vista, Zoom, Restaurar, Linhas e Rotação
         </p>
         <p style={{ margin: '6px 0 0' }}>
           Acompanhe a seguir a demonstração visual de cada controle aplicado diretamente na interface.

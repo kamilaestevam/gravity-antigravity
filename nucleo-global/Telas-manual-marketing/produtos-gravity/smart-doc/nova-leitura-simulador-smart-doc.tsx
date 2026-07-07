@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Brain,
   CaretDown,
@@ -35,8 +35,17 @@ import {
 } from './arquivos-demo-simulador-smart-doc'
 import { PreviewDocumentoSimuladorSmartDoc } from './preview-documento-simulador-smart-doc'
 import { EdicaoNomeLeituraSimuladorSmartDoc } from './edicao-nome-leitura-simulador-smart-doc'
-import { ConferenciaSimuladorSmartDoc } from './conferencia-simulador-smart-doc'
+import {
+  ConferenciaSimuladorSmartDoc,
+  type AbaConferenciaSimulador,
+} from './conferencia-simulador-smart-doc'
 import { ResultadoSimuladorSmartDoc } from './resultado-simulador-smart-doc'
+import {
+  resolverIdTelaConferenciaSimulador,
+  resolverIdTelaNovaLeituraSimulador,
+} from './dados-tutorial-opcional-simulador-smart-doc'
+import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador-smart-doc'
+import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-simulador-smart-doc'
 
 const PASSOS = [
   { id: 1, label: 'Anexar arquivo' },
@@ -143,9 +152,12 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   const [enviando, setEnviando] = useState(false)
   const [analiseCompleta, setAnaliseCompleta] = useState(false)
   const [elapsedSegundos, setElapsedSegundos] = useState(0)
-  const [arrastando, setArrastando] = useState(false)
   const [preview, setPreview] = useState<PreviewSimulador | null>(null)
   const [selecaoConferencia, setSelecaoConferencia] = useState<SelecaoConferenciaSimulador | null>(null)
+  const [abaConferencia, setAbaConferencia] = useState<AbaConferenciaSimulador>('campos')
+  const refRaizTutorial = useRef<HTMLDivElement>(null)
+  const [alvoTutorialDestacado, setAlvoTutorialDestacado] = useState<string | null>(null)
+  useEfeitoDestaqueTutorialSimulador(alvoTutorialDestacado, refRaizTutorial)
 
   useEffect(() => {
     if (!aberto) {
@@ -155,6 +167,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
       setAnaliseCompleta(false)
       setElapsedSegundos(0)
       setPreview(null)
+      setAbaConferencia('campos')
       setSelecaoConferencia(null)
       return
     }
@@ -285,18 +298,20 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
 
   function renderLateral() {
     return (
-      <aside className="sds-nl-lateral">
+      <aside className="sds-nl-lateral" data-sds-tutorial-alvo="nl-lateral">
+        <div data-sds-tutorial-alvo="nl-nome-leitura">
         <EdicaoNomeLeituraSimuladorSmartDoc
           nomeLeitura={nomeLeitura}
           onConfirmar={setNomeLeitura}
         />
+        </div>
 
         <div className="sds-nl-lateral-secao">
           <span className="sds-nl-lateral-secao-titulo">Arquivos enviados</span>
           <span className="sds-nl-lateral-badge">{arquivos.length}</span>
         </div>
 
-        <div className="sds-nl-lateral-lista">
+        <div className="sds-nl-lateral-lista" data-sds-tutorial-alvo="nl-arquivos-lateral">
           {arquivos.map((arq) => {
             const qtdDocumentos = arq.documentosIdentificados.length
             const temDocumentos = qtdDocumentos > 0
@@ -322,6 +337,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                       <button
                         type="button"
                         className="sds-nl-card-btn-icone"
+                        data-sds-tutorial-alvo="nl-visualizar-icone"
                         title="Visualizar documento original"
                         aria-label={`Visualizar original ${arq.nome}`}
                         onClick={() => visualizarArquivo(arq)}
@@ -377,7 +393,10 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 )}
 
                 {arq.expandido && temDocumentos && (
-                  <ul className="sds-nl-card-documentos">
+                  <ul
+                    className="sds-nl-card-documentos"
+                    {...(conferenciaAtiva ? { 'data-sds-tutorial-alvo': 'conf-documentos-lateral' } : {})}
+                  >
                     {arq.documentosIdentificados.map((doc) => {
                       const ativoConferencia =
                         conferenciaAtiva &&
@@ -432,6 +451,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 className="sds-nl-btn sds-nl-btn--prim"
                 disabled={arquivos.length === 0 || enviando}
                 onClick={enviar}
+                data-sds-tutorial-alvo="nl-enviar-lateral"
               >
                 {enviando ? 'Enviando…' : 'Enviar'}
               </button>
@@ -447,6 +467,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 className="sds-nl-btn sds-nl-btn--prim"
                 disabled={!analiseCompleta}
                 onClick={() => setPasso(3)}
+                data-sds-tutorial-alvo="nl-continuar-lateral"
               >
                 Continuar
               </button>
@@ -457,7 +478,12 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
               <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={() => setPasso(2)}>
                 Voltar
               </button>
-              <button type="button" className="sds-nl-btn sds-nl-btn--prim" onClick={() => setPasso(4)}>
+              <button
+                type="button"
+                className="sds-nl-btn sds-nl-btn--prim"
+                onClick={() => setPasso(4)}
+                data-sds-tutorial-alvo="nl-continuar-lateral"
+              >
                 Continuar
               </button>
             </div>
@@ -486,25 +512,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
 
   function renderPassoAnexar() {
     return (
-      <div
-        className={`sds-nl-dropzone${arrastando ? ' sds-nl-dropzone--ativa' : ''}`}
-        role="button"
-        tabIndex={0}
-        onClick={anexarArquivo}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') anexarArquivo()
-        }}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setArrastando(true)
-        }}
-        onDragLeave={() => setArrastando(false)}
-        onDrop={(e) => {
-          e.preventDefault()
-          setArrastando(false)
-          anexarArquivo()
-        }}
-      >
+      <div className="sds-nl-dropzone">
         <div className="sds-nl-dropzone-inner">
           <div className="sds-nl-dropzone-meio">
             <div className="sds-nl-dropzone-boas-vindas">
@@ -512,12 +520,30 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 <FileMagnifyingGlass size={20} weight="duotone" className="sds-nl-dropzone-titulo-icone" />
                 <h2>Bem-vindo ao Smart Docs</h2>
               </div>
-              <p className="sds-nl-dropzone-subtitulo">Envie o documento que deseja extrair as informações.</p>
+              <p className="sds-nl-dropzone-subtitulo">
+                Demonstração interativa — clique abaixo para simular o envio de um PDF.
+              </p>
             </div>
-            <div className="sds-nl-dropzone-box">
+            <div
+              className={`sds-nl-dropzone-box${alvoTutorialDestacado === 'nl-dropzone' ? ' sds-nl-dropzone-box--guia-ativo' : ''}`}
+              data-sds-tutorial-alvo="nl-dropzone"
+              role="button"
+              tabIndex={0}
+              aria-label="Clique aqui para simular o anexo de PDF de demonstração"
+              onClick={anexarArquivo}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') anexarArquivo()
+              }}
+            >
+              {alvoTutorialDestacado === 'nl-dropzone' && (
+                <span className="sds-nl-dropzone-guia-badge" aria-hidden>
+                  Clique aqui
+                </span>
+              )}
+              <span className="sds-nl-dropzone-demo-chip">Demo · sem upload real</span>
               <CloudArrowUp size={36} weight="duotone" />
-              <strong>Clique ou arraste o arquivo desejado</strong>
-              <span>Você será informado caso o formato do arquivo não seja compatível com a plataforma.</span>
+              <strong>Clique aqui para simular o anexo</strong>
+              <span>Um PDF de demonstração será carregado automaticamente. Não é necessário selecionar arquivo.</span>
             </div>
             <section className="sds-nl-formatos" aria-label="Formatos aceitos">
               <p className="sds-nl-formatos-titulo">Formatos aceitos pela plataforma</p>
@@ -537,7 +563,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
               </span>
             </div>
           </div>
-          <div className="sds-nl-dropzone-aviso" role="note">
+          <div className="sds-nl-dropzone-aviso" role="note" data-sds-tutorial-alvo="nl-aviso-multidoc">
             <Info size={16} weight="duotone" />
             <p>
               Caso o arquivo tenha mais de um documento, estes serão separados automaticamente e contabilizados de
@@ -608,7 +634,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
             </article>
           </div>
 
-          <section className="sds-nl-analise-painel" aria-label="Progresso das análises">
+          <section className="sds-nl-analise-painel" aria-label="Progresso das análises" data-sds-tutorial-alvo="nl-analise-progresso">
             <div className="sds-nl-analise-corpo">
               <div className="sds-nl-analise-lista">
                 {etapas.map((etapa) => (
@@ -634,6 +660,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
 
               <div
                 className={`sds-nl-cerebro-wrap${!analiseCompleta ? ' sds-nl-cerebro-wrap--ativo' : ''}`}
+                data-sds-tutorial-alvo="nl-analise-cerebro"
               >
                 <svg className="sds-nl-cerebro-anel" viewBox="0 0 200 200" aria-hidden>
                   <circle cx="100" cy="100" r="88" className="sds-nl-cerebro-anel-trilha" />
@@ -664,6 +691,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
       <ConferenciaSimuladorSmartDoc
         arquivos={arquivos}
         selecao={selecaoConferencia}
+        onAbaChange={setAbaConferencia}
         onCompararArquivo={() => {
           const arq = arquivos.find((a) => a.id === selecaoConferencia?.idArquivo)
           if (arq) visualizarArquivo(arq)
@@ -683,7 +711,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   }
 
   return (
-    <div className="sds-nl-overlay" onClick={onFechar}>
+    <div className="sds-nl-overlay" ref={refRaizTutorial} onClick={onFechar}>
       <div className="sds-nl-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal aria-label="Nova Leitura">
         <header className="sds-nl-cabecalho">
           <div className="sds-nl-cabecalho-marca">
@@ -711,6 +739,22 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
         </div>
       </div>
 
+      {(() => {
+        const idTelaTutorial = preview
+          ? 'preview-documento'
+          : passo === 3
+            ? resolverIdTelaConferenciaSimulador(abaConferencia)
+            : resolverIdTelaNovaLeituraSimulador({ passo, previewAberto: false })
+        if (!idTelaTutorial) return null
+        return (
+          <TutorialOpcionalSimuladorSmartDoc
+            idTela={idTelaTutorial}
+            usarAvancarAposAnexo={passo === 1 && arquivos.length > 0}
+            onAlvoDestacadoChange={setAlvoTutorialDestacado}
+          />
+        )
+      })()}
+
       {preview && (
         <div
           className="sds-nl-prev-overlay"
@@ -720,7 +764,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
           onClick={() => setPreview(null)}
         >
           <div className="sds-nl-prev-painel" onClick={(e) => e.stopPropagation()}>
-            <header className="sds-nl-prev-cabecalho">
+            <header className="sds-nl-prev-cabecalho" data-sds-tutorial-alvo="nl-preview-cabecalho">
               <div className="sds-nl-prev-cabecalho-titulo">
                 <Eye size={20} weight="duotone" className="sds-nl-prev-cabecalho-icone" />
                 <strong title={preview.tituloArquivo}>{preview.tituloArquivo}</strong>
@@ -731,12 +775,13 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                   className="sds-nl-prev-cabecalho-fechar"
                   onClick={() => setPreview(null)}
                   aria-label="Fechar"
+                  data-sds-tutorial-alvo="nl-preview-fechar"
                 >
                   <X size={18} weight="bold" />
                 </button>
               </div>
             </header>
-            <div className="sds-nl-prev-corpo">
+            <div className="sds-nl-prev-corpo" data-sds-tutorial-alvo="nl-preview-area">
               <PreviewDocumentoSimuladorSmartDoc
                 documento={preview.documento}
                 nomeArquivo={preview.tituloArquivo}

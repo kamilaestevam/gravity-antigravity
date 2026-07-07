@@ -37,9 +37,9 @@ import { GraficoAprovacaoRiscosSimulador } from './grafico-aprovacao-riscos-simu
 import '../../../../servicos-global/produto/processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 import './conferencia-simulador-smart-doc.css'
 
-type AbaConferencia = 'campos' | 'qa' | 'riscos'
+export type AbaConferenciaSimulador = 'campos' | 'qa' | 'riscos'
 
-const ABAS: { id: AbaConferencia; rotulo: string; Icone: ComponentType<IconProps> }[] = [
+const ABAS: { id: AbaConferenciaSimulador; rotulo: string; Icone: ComponentType<IconProps> }[] = [
   { id: 'campos', rotulo: 'Conferência de Campos', Icone: ClipboardText },
   { id: 'riscos', rotulo: 'Análise de Riscos', Icone: ShieldWarning },
   { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
@@ -54,6 +54,7 @@ type Props = {
   arquivos: ArquivoDemoSimulador[]
   selecao: SelecaoConferencia | null
   onCompararArquivo?: () => void
+  onAbaChange?: (aba: AbaConferenciaSimulador) => void
 }
 
 const ICONE_SECAO: Record<string, ReactNode> = {
@@ -87,8 +88,8 @@ function iconeSecao(titulo: string) {
   return <FileText weight="duotone" size={18} />
 }
 
-export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArquivo }: Props) {
-  const [aba, setAba] = useState<AbaConferencia>('campos')
+export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArquivo, onAbaChange }: Props) {
+  const [aba, setAba] = useState<AbaConferenciaSimulador>('campos')
   const [progressoColapsado, setProgressoColapsado] = useState(false)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
   const [filtro, setFiltro] = useState<'todos' | 'preenchidos' | 'vazios'>('todos')
@@ -98,6 +99,14 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
   const aoMudarConferenciaManualRiscos = useCallback((marcados: number, total: number) => {
     setConferenciaManualRiscos({ marcados, total })
   }, [])
+
+  useEffect(() => {
+    onAbaChange?.(aba)
+  }, [aba, onAbaChange])
+
+  function selecionarAba(id: AbaConferenciaSimulador) {
+    setAba(id)
+  }
 
   const arquivosCompletos = arquivos.filter((a) => a.status === 'completo')
 
@@ -180,7 +189,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
   return (
     <div className="sds-nl-principal-conferencia">
       <div className="sds-nl-conf-tabs-bar">
-        <div className="sds-nl-conf-tabs" role="tablist" aria-label="Conferência da leitura">
+        <div className="sds-nl-conf-tabs" role="tablist" aria-label="Conferência da leitura" data-sds-tutorial-alvo="conf-abas-principais">
           {ABAS.map(({ id, rotulo, Icone }) => {
             const ativo = aba === id
             return (
@@ -190,7 +199,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
                 role="tab"
                 aria-selected={ativo}
                 className={`sds-nl-conf-tab${ativo ? ' sds-nl-conf-tab--ativo' : ''}`}
-                onClick={() => setAba(id)}
+                onClick={() => selecionarAba(id)}
               >
                 <Icone className="sds-nl-conf-tab-icone" size={16} weight="regular" aria-hidden />
                 <span className="sds-nl-conf-tab-rotulo">{rotulo}</span>
@@ -219,13 +228,18 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
               <div className="sds-nl-conf-contexto-linha">
                 <span className="sds-nl-conf-contexto-texto">{tituloContexto}</span>
                 {onCompararArquivo && (
-                  <button type="button" className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm" onClick={onCompararArquivo}>
+                  <button
+                    type="button"
+                    className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
+                    onClick={onCompararArquivo}
+                    data-sds-tutorial-alvo="conf-comparar"
+                  >
                     Comparar arquivo
                   </button>
                 )}
               </div>
 
-              <section className={`sds-nl-conf-progresso-bloco${progressoColapsado ? ' sds-nl-conf-progresso-bloco--colapsado' : ''}`}>
+              <section className={`sds-nl-conf-progresso-bloco${progressoColapsado ? ' sds-nl-conf-progresso-bloco--colapsado' : ''}`} data-sds-tutorial-alvo="conf-progresso">
                 <button
                   type="button"
                   className="sds-nl-conf-progresso-header"
@@ -268,7 +282,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
                       </div>
                       <span className="sds-nl-conf-progresso-pct">{stats.percentual}%</span>
                     </div>
-                    <div className="sds-nl-conf-progresso-metricas">
+                    <div className="sds-nl-conf-progresso-metricas" data-sds-tutorial-alvo="conf-filtros">
                       <button type="button" className={`sds-nl-conf-progresso-metrica sds-nl-conf-progresso-metrica--todos${filtro === 'todos' ? ' sds-nl-conf-progresso-metrica--ativo' : ''}`} onClick={() => setFiltro('todos')} aria-pressed={filtro === 'todos'}>
                         <span className="sds-nl-conf-progresso-metrica-valor">{stats.total}</span>
                         <span className="sds-nl-conf-progresso-metrica-rotulo">
@@ -315,12 +329,16 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
                 {secoesVisiveis.length === 0 ? (
                   <p className="sds-nl-conf-vazio">Nenhum campo encontrado para este documento.</p>
                 ) : (
-                  secoesVisiveis.map((secao: SecaoConferenciaSimulador) => {
+                  secoesVisiveis.map((secao: SecaoConferenciaSimulador, indiceSecao) => {
                     const preenchidosSecao = secao.campos.filter((c) => c.status === 'preenchido').length
                     const pctSecao = secao.campos.length ? Math.round((preenchidosSecao / secao.campos.length) * 100) : 0
                     const colapsada = secoesColapsadas.has(secao.id)
                     return (
-                      <section key={secao.id} className={`dt-secao${colapsada ? ' dt-secao--colapsada' : ''}`}>
+                      <section
+                        key={secao.id}
+                        className={`dt-secao${colapsada ? ' dt-secao--colapsada' : ''}`}
+                        {...(indiceSecao === 0 ? { 'data-sds-tutorial-alvo': 'conf-secoes' } : {})}
+                      >
                         <button type="button" className="dt-secao-header" onClick={() => toggleSecao(secao.id)} aria-expanded={!colapsada}>
                           <div className="dt-secao-title">
                             <CaretDown weight="bold" size={14} className={`dt-caret${colapsada ? ' dt-caret--colapsado' : ''}`} />
@@ -337,7 +355,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
                           </div>
                         </button>
                         {!colapsada && (
-                          <div className="dt-grid">
+                          <div className="dt-grid" {...(indiceSecao === 0 ? { 'data-sds-tutorial-alvo': 'conf-campos' } : {})}>
                             {secao.campos.map((campo) => (
                               <CampoLinhaConferenciaSimuladorSmartDoc
                                 key={campo.chave}
@@ -379,6 +397,7 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
           />
         </div>
       )}
+
     </div>
   )
 }

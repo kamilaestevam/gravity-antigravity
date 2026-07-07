@@ -144,6 +144,7 @@ function PainelDetalheRiscoSimulador({
             onClick={onCompararArquivo}
             aria-label="Ver no documento"
             title="Ver no documento"
+            data-sds-tutorial-alvo="riscos-comparar"
           >
             <Eye size={18} weight="duotone" />
           </button>
@@ -457,6 +458,7 @@ export function RiscosSimuladorSmartDoc({
                     className="sr-conf-riscos-seg-bar"
                     role="img"
                     aria-label={`Distribuição: ${legendaSegmentosRisco ?? ''}`}
+                    data-sds-tutorial-alvo="riscos-grafico"
                   >
                     {resumo.criticos > 0 && (
                       <span
@@ -564,7 +566,7 @@ export function RiscosSimuladorSmartDoc({
             {contagemChecklist.pendente} pendente
           </span>
           {riscosVisiveis.length > 0 && (
-            <label className="sr-conf-riscos-selecionar-compacto">
+            <label className="sr-conf-riscos-selecionar-compacto" data-sds-tutorial-alvo="riscos-conferencia-manual">
               <input
                 type="checkbox"
                 checked={todosVisiveisSelecionados}
@@ -615,7 +617,7 @@ export function RiscosSimuladorSmartDoc({
         ) : riscosVisiveis.length === 0 ? (
           <p className="sr-conf-vazio">Nenhum risco encontrado para a busca atual.</p>
         ) : (
-          <div className="sr-conf-riscos-lista sr-conf-riscos-lista-plana">
+          <div className="sr-conf-riscos-lista sr-conf-riscos-lista-plana" data-sds-tutorial-alvo="riscos-lista">
             {riscosVisiveis.map((risco) => {
               const expandido = riscoExpandidoId === risco.id
               return (

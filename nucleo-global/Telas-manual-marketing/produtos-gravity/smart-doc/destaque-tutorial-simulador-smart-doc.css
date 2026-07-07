@@ -1,0 +1,126 @@
+/* Destaque de alvo — sincronizado com hover no guia da Gabi
+   Primário alinhado ao BotaoGlobal (#6366f1)
+   Anel via ::after acima do conteúdo (inset ficava atrás dos filhos) */
+
+.sds-tutorial-alvo--destacado:not(.sds-btn-novo):not(.sds-nl-btn--prim) {
+  position: relative;
+  z-index: 12 !important;
+  outline: none !important;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.sds-tutorial-alvo--destacado:not(.sds-btn-novo):not(.sds-nl-btn--prim)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(99, 102, 241, 0.84);
+  box-shadow: inset 0 0 26px rgba(99, 102, 241, 0.18);
+  pointer-events: none;
+  z-index: 80;
+}
+
+/* Wizard Nova Leitura — painéis com borda cortada pelos ancestrais */
+.sds-nl-overlay.sds-tutorial-destaque-ativo .sds-nl-principal,
+.sds-nl-overlay.sds-tutorial-destaque-ativo .sds-nl-principal-analise,
+.sds-nl-overlay.sds-tutorial-destaque-ativo .sds-nl-analise-painel,
+.sds-nl-overlay.sds-tutorial-destaque-ativo .sds-nl-analise-corpo {
+  overflow: visible !important;
+}
+
+.sds-nl-analise-painel.sds-tutorial-alvo--destacado,
+.sds-nl-cerebro-wrap.sds-tutorial-alvo--destacado {
+  z-index: 14 !important;
+}
+
+.sds-kpi-grid.sds-tutorial-alvo--destacado,
+.sds-chart-bar-col.sds-tutorial-alvo--destacado,
+.sds-ranking-item.sds-tutorial-alvo--destacado,
+.sds-card.sds-tutorial-alvo--destacado {
+  border-radius: 8px;
+}
+
+/* Botões — cor #6366f1 intacta + halo externo largo e suave (não cobre o fill) */
+.sds-btn-novo.sds-tutorial-alvo--destacado,
+.sds-nl-btn--prim.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 20 !important;
+  isolation: isolate;
+  background: #6366f1 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.32) !important;
+  outline: none !important;
+  overflow: visible !important;
+}
+
+.sds-btn-novo.sds-tutorial-alvo--destacado::after,
+.sds-nl-btn--prim.sds-tutorial-alvo--destacado::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(0.5rem + 8px);
+  border: 2px solid rgba(165, 180, 252, 0.6);
+  box-shadow:
+    0 0 0 5px rgba(99, 102, 241, 0.22),
+    0 0 0 12px rgba(99, 102, 241, 0.11),
+    0 0 24px rgba(99, 102, 241, 0.14);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.sds-root.sds-tutorial-destaque-ativo .smart-read-vis-toolbar,
+.sds-root.sds-tutorial-destaque-ativo .smart-read-vis-toolbar__acoes,
+.sds-root.sds-tutorial-destaque-ativo .sr-dropdown-novo,
+.sds-nl-overlay.sds-tutorial-destaque-ativo .sds-nl-lateral-rodape {
+  overflow: visible !important;
+}
+
+.sds-btn-novo.sds-tutorial-alvo--destacado:hover,
+.sds-nl-btn--prim.sds-tutorial-alvo--destacado:hover,
+.sds-nl-btn--prim.sds-tutorial-alvo--destacado:hover:not(:disabled) {
+  background: #6366f1 !important;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.32) !important;
+}
+
+.sr-dropdown-novo.sds-tutorial-alvo--destacado {
+  box-shadow: none;
+  overflow: visible !important;
+}
+
+.sr-dropdown-novo.sds-tutorial-alvo--destacado .sds-btn-novo {
+  background: #6366f1 !important;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.32) !important;
+  outline: none !important;
+}
+
+.sds-nl-dropzone-box.sds-tutorial-alvo--destacado {
+  border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sds-tutorial-alvo--destacado:not(.sds-btn-novo):not(.sds-nl-btn--prim)::after {
+    border-width: 2px;
+    border-color: rgba(99, 102, 241, 0.84);
+    box-shadow: inset 0 0 26px rgba(99, 102, 241, 0.18);
+  }
+
+  .sds-btn-novo.sds-tutorial-alvo--destacado,
+  .sds-nl-btn--prim.sds-tutorial-alvo--destacado,
+  .sr-dropdown-novo.sds-tutorial-alvo--destacado .sds-btn-novo {
+    background: #6366f1 !important;
+    box-shadow: 0 1px 3px rgba(99, 102, 241, 0.32) !important;
+    outline: none !important;
+  }
+
+  .sds-btn-novo.sds-tutorial-alvo--destacado::after,
+  .sds-nl-btn--prim.sds-tutorial-alvo--destacado::after {
+    border-color: rgba(165, 180, 252, 0.6);
+    box-shadow:
+      0 0 0 5px rgba(99, 102, 241, 0.22),
+      0 0 0 12px rgba(99, 102, 241, 0.11),
+      0 0 24px rgba(99, 102, 241, 0.14);
+  }
+}

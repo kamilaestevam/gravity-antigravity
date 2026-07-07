@@ -1,7 +1,10 @@
 /* Smart Doc Simulator — espelho visual do Insights Smart Read (marketing) */
+@import './tutorial-opcional-simulador-smart-doc.css';
 
 .sds-root {
-  --sds-accent: #818cf8;
+  --sds-accent: #6366f1;
+  --sds-accent-hover: #4f46e5;
+  --sds-accent-ring: #a5b4fc;
   --sds-bg: #0f172a;
   --sds-sidebar: #0f172a;
   --sds-card: rgba(255, 255, 255, 0.04);
@@ -377,13 +380,14 @@
 .smart-read-vis-toolbar__acoes {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
   margin-left: auto;
   overflow: visible;
 }
 
 .sds-btn-novo {
-  background: var(--sds-accent);
+  background: #6366f1;
   color: #fff;
   border: none;
   border-radius: 0.5rem;
@@ -394,13 +398,15 @@
   align-items: center;
   gap: 0.375rem;
   cursor: pointer;
-  transition: filter 0.15s, background 0.15s;
+  transition: background 0.15s, box-shadow 0.15s;
   font-family: inherit;
   line-height: 1.2;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
 }
 
 .sds-btn-novo:hover {
-  filter: brightness(1.06);
+  background: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 .sr-dropdown-novo {

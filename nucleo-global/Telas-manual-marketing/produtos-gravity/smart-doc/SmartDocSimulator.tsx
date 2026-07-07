@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState, type CSSProperties } from 'react'
+import { Fragment, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { CardKpiSimulador } from './card-kpi-simulador'
 import {
   TooltipGraficoInsightsSimulador,
@@ -44,6 +44,9 @@ import {
 } from '@phosphor-icons/react'
 import './smart-doc-simulator.css'
 import { NovaLeituraSimuladorSmartDoc } from './nova-leitura-simulador-smart-doc'
+import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador-smart-doc'
+import { resolverIdTelaShellSimulador } from './dados-tutorial-opcional-simulador-smart-doc'
+import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-simulador-smart-doc'
 import {
   formatarSavingSimulador,
   PERFIS_EMPRESA_SIMULADOR,
@@ -139,6 +142,18 @@ export function SmartDocSimulator() {
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
   const [iconeParticipanteTooltip, setIconeParticipanteTooltip] = useState<TipoParticipante | null>(null)
 
+  const idTelaTutorial = resolverIdTelaShellSimulador({
+    abaAtiva,
+    sidebarAtivo,
+    meuEspacoItemAtivo,
+    modalNovoAberto,
+    linhaListaExpandida,
+  })
+
+  const refRaizTutorial = useRef<HTMLDivElement>(null)
+  const [alvoTutorialDestacado, setAlvoTutorialDestacado] = useState<string | null>(null)
+  useEfeitoDestaqueTutorialSimulador(alvoTutorialDestacado, refRaizTutorial)
+
   const chartTooltip = useHoverTooltipInsightsSimulador<{
     date: string
     val: number
@@ -191,7 +206,7 @@ export function SmartDocSimulator() {
   function renderInsights() {
     return (
       <>
-        <div className="sds-kpi-grid">
+        <div className="sds-kpi-grid" data-sds-tutorial-alvo="insights-kpis">
           <CardKpiSimulador
             className="sds-kpi-grid__card"
             titulo="DOCUMENTOS LIDOS"
@@ -290,7 +305,7 @@ export function SmartDocSimulator() {
         </div>
 
         <div className="sds-row-2">
-          <div className="sds-card sds-card--grafico sds-card--com-tooltip">
+          <div className="sds-card sds-card--grafico sds-card--com-tooltip" data-sds-tutorial-alvo="insights-evolucao">
             <div className="sds-card__head">
               <div className="sds-card__title">
                 <ChartBar size={12} weight="duotone" style={{ color: '#3b82f6' }} />
@@ -376,7 +391,7 @@ export function SmartDocSimulator() {
             </div>
           </div>
 
-          <div className="sds-card sds-card--com-tooltip">
+          <div className="sds-card sds-card--com-tooltip" data-sds-tutorial-alvo="insights-donut">
             <div className="sds-card__title" style={{ marginBottom: 12 }}>
               <ChartPie size={12} weight="duotone" style={{ color: '#34d399' }} />
               CAMPOS LIDOS — CORRETOS × ERRADOS
@@ -450,7 +465,7 @@ export function SmartDocSimulator() {
         </div>
 
         <div className="sds-row-3">
-          <div className="sds-card sds-card--com-tooltip">
+          <div className="sds-card sds-card--com-tooltip" data-sds-tutorial-alvo="insights-tipos-documento">
             <div className="sds-card__title" style={{ marginBottom: 12 }}>
               <FileText size={12} weight="duotone" style={{ color: '#818cf8' }} />
               TIPOS DE DOCUMENTO
@@ -510,7 +525,7 @@ export function SmartDocSimulator() {
             </div>
           </div>
 
-          <div className="sds-card sds-card--com-tooltip">
+          <div className="sds-card sds-card--com-tooltip" data-sds-tutorial-alvo="insights-ranking">
             <div className="sds-card__head">
               <div className="sds-card__title" style={{ color: '#f59e0b' }}>
                 <Sparkle size={12} weight="bold" />
@@ -636,7 +651,7 @@ export function SmartDocSimulator() {
 
   function renderLista() {
     return (
-      <div className="sds-card" style={{ minHeight: 480 }}>
+      <div className="sds-card" style={{ minHeight: 480 }} data-sds-tutorial-alvo="lista-tabela">
         <table className="sds-lista-table">
           <thead>
             <tr>
@@ -647,15 +662,19 @@ export function SmartDocSimulator() {
             </tr>
           </thead>
           <tbody>
-            {listaLeituras.map((row) => (
+            {listaLeituras.map((row, indice) => (
               <Fragment key={row.id}>
                 <tr
                   className={`sds-lista-row${linhaListaExpandida === row.id ? ' sds-lista-row--expanded' : ''}`}
                   onClick={() => setLinhaListaExpandida(linhaListaExpandida === row.id ? null : row.id)}
+                  {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'lista-linha' } : {})}
                 >
                   <td style={{ fontWeight: 700 }}>{row.nome}</td>
                   <td>
-                    <span className={`sds-pill ${row.status === 'Conferido' ? 'sds-pill--ok' : 'sds-pill--proc'}`}>
+                    <span
+                      className={`sds-pill ${row.status === 'Conferido' ? 'sds-pill--ok' : 'sds-pill--proc'}`}
+                      {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'lista-status' } : {})}
+                    >
                       {row.status}
                     </span>
                   </td>
@@ -665,7 +684,10 @@ export function SmartDocSimulator() {
                 {linhaListaExpandida === row.id && (
                   <tr>
                     <td colSpan={4} style={{ background: 'rgba(99,102,241,0.04)', padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <div
+                        style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}
+                        data-sds-tutorial-alvo="lista-detalhe-metricas"
+                      >
                         <span style={{ fontSize: 11, color: '#94a3b8' }}>
                           Workspace: {empresaAtiva.nome} · {empresaAtiva.mesesUso} meses · ~{empresaAtiva.leiturasPorMes.toLocaleString('pt-BR')} leituras/mês · Campos extraídos: {row.camposExtraidos} · Conferidos: {row.camposConferidos}
                         </span>
@@ -673,6 +695,7 @@ export function SmartDocSimulator() {
                           type="button"
                           className="sds-btn-novo"
                           style={{ fontSize: 10, padding: '4px 10px' }}
+                          data-sds-tutorial-alvo="lista-detalhe-insights"
                           onClick={(e) => {
                             e.stopPropagation()
                             setAbaAtiva('insights')
@@ -693,8 +716,8 @@ export function SmartDocSimulator() {
   }
 
   return (
-    <div className="sds-root" onClick={(e) => e.stopPropagation()}>
-      <aside className="sds-sidebar">
+    <div className="sds-root" ref={refRaizTutorial} onClick={(e) => e.stopPropagation()}>
+      <aside className="sds-sidebar" data-sds-tutorial-alvo="shell-nav-lateral">
         <div style={{ position: 'relative' }}>
           <div
             className={`sds-brand${productDropdownOpen ? ' sds-brand--open' : ''}`}
@@ -747,7 +770,7 @@ export function SmartDocSimulator() {
           )}
         </div>
 
-        <div className="sds-empresa-wrapper">
+        <div className="sds-empresa-wrapper" data-sds-tutorial-alvo="insights-seletor-filial">
           <button
             type="button"
             className={`sds-empresa${empresaDropdownOpen ? ' sds-empresa--open' : ''}`}
@@ -818,7 +841,7 @@ export function SmartDocSimulator() {
           )}
         </div>
 
-        <div className={`sds-nav-group${meuEspacoAberto ? ' sds-nav-group--open' : ''}`}>
+        <div className={`sds-nav-group${meuEspacoAberto ? ' sds-nav-group--open' : ''}`} data-sds-tutorial-alvo="shell-meu-espaco-submenu">
           <button
             type="button"
             className={`sds-nav-item sds-nav-parent${meuEspacoAberto ? ' sds-nav-item--active' : ''}`}
@@ -927,6 +950,7 @@ export function SmartDocSimulator() {
                 aria-selected={abaAtiva === 'insights'}
                 className={`srt-tab${abaAtiva === 'insights' ? ' srt-tab--active' : ''}`}
                 onClick={() => setAbaAtiva('insights')}
+                data-sds-tutorial-alvo="shell-aba-insights"
               >
                 <ChartPieSlice weight="duotone" size={16} />
                 <span>Insights</span>
@@ -937,6 +961,7 @@ export function SmartDocSimulator() {
                 aria-selected={abaAtiva === 'lista'}
                 className={`srt-tab${abaAtiva === 'lista' ? ' srt-tab--active' : ''}`}
                 onClick={() => setAbaAtiva('lista')}
+                data-sds-tutorial-alvo="insights-aba-lista"
               >
                 <ListBullets weight="duotone" size={16} />
                 <span>Lista</span>
@@ -947,6 +972,7 @@ export function SmartDocSimulator() {
                 <button
                   type="button"
                   className="sds-btn-novo"
+                  data-sds-tutorial-alvo="insights-novo"
                   aria-expanded={novoDropdownAberto}
                   aria-haspopup="menu"
                   onClick={() => setNovoDropdownAberto((v) => !v)}
@@ -986,19 +1012,28 @@ export function SmartDocSimulator() {
           </div>
         </div>
 
-        <div className="sds-content">
+        <div className="sds-content" data-sds-tutorial-alvo="shell-conteudo">
           {meuEspacoItemAtivo && (
-            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+            <div
+              style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}
+              data-sds-tutorial-alvo="shell-banner-preview"
+            >
               {MEU_ESPACO_ITENS.find((i) => i.id === meuEspacoItemAtivo)?.label} — módulo em breve no tenant (simulação).
             </div>
           )}
           {sidebarAtivo === 'historico' && abaAtiva === 'insights' && !meuEspacoItemAtivo && (
-            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+            <div
+              style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}
+              data-sds-tutorial-alvo="shell-banner-historico"
+            >
               Histórico — {empresaAtiva.nome} · últimos 30 dias (simulação).
             </div>
           )}
           {sidebarAtivo === 'config' && (
-            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+            <div
+              style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}
+              data-sds-tutorial-alvo="shell-banner-config"
+            >
               Configurações — colunas e preferências de leitura (simulação).
             </div>
           )}
@@ -1014,6 +1049,14 @@ export function SmartDocSimulator() {
           setLinhaListaExpandida('1')
         }}
       />
+
+      {idTelaTutorial && (
+        <TutorialOpcionalSimuladorSmartDoc
+          idTela={idTelaTutorial}
+          habilitado
+          onAlvoDestacadoChange={setAlvoTutorialDestacado}
+        />
+      )}
     </div>
   )
 }

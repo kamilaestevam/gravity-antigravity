@@ -77,6 +77,7 @@ export function AcoesCorrecaoRiscoSimuladorSmartDoc({ riscos }: Props) {
           type="button"
           className={`sds-nl-btn sds-nl-btn--sec sds-nl-btn--sm sds-nl-btn--icone${modo === 'email' ? ' sr-conf-risco-acoes-btn--ativo' : ''}`}
           onClick={() => setModo((m) => (m === 'email' ? null : 'email'))}
+          data-sds-tutorial-alvo="riscos-email-fornecedor"
         >
           <EnvelopeSimple size={16} weight="duotone" aria-hidden />
           <span>{rotuloEmail}</span>

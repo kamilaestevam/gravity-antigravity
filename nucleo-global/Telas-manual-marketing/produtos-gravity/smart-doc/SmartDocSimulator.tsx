@@ -1,0 +1,1167 @@
+import { Fragment, useMemo, useState, type CSSProperties } from 'react'
+import { CardKpiSimulador } from './card-kpi-simulador'
+import {
+  TooltipGraficoInsightsSimulador,
+  useHoverTooltipInsightsSimulador,
+} from './tooltip-grafico-insights-simulador'
+import '../../../Layout/card-global/src/card.css'
+import {
+  FileText,
+  MagnifyingGlass,
+  Plus,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Sparkle,
+  Truck,
+  CurrencyDollar,
+  X,
+  Check,
+  Gear,
+  CaretDown,
+  CaretUp,
+  Package,
+  UserGear,
+  TruckTrailer,
+  Warehouse,
+  ShieldStar,
+  UploadSimple,
+  ListChecks,
+  Files,
+  Timer,
+  TrendUp,
+  ChartBar,
+  ChartPie,
+  ChartPieSlice,
+  ListBullets,
+  FileMagnifyingGlass,
+  UserCircle,
+  EnvelopeSimple,
+  WhatsappLogo,
+  Buildings,
+  GraduationCap,
+  Info,
+  GlobeHemisphereWest,
+} from '@phosphor-icons/react'
+import './smart-doc-simulator.css'
+
+interface SmartDocSimulatorProps {
+  onClose: () => void
+}
+
+type AbaVisualizacao = 'insights' | 'lista'
+type PeriodoPreset = 7 | 30 | 60 | 90
+type TipoParticipante =
+  | 'exportador'
+  | 'agente_carga'
+  | 'transportadora_rodoviaria'
+  | 'armazem_alfandegado'
+  | 'despachante_aduaneiro'
+
+const PERIODOS: PeriodoPreset[] = [7, 30, 60, 90]
+
+const PRODUTOS_DROPDOWN = [
+  { name: 'Pedido', icon: <Package size={14} weight="duotone" style={{ color: '#d97706' }} /> },
+  { name: 'Bid Frete Internacional', icon: <Truck size={14} weight="duotone" style={{ color: '#2563eb' }} /> },
+  { name: 'Bid Cambio', icon: <CurrencyDollar size={14} weight="duotone" style={{ color: '#0d9488' }} /> },
+  { name: 'NF Import', icon: <FileText size={14} weight="duotone" style={{ color: '#7c3aed' }} /> },
+  { name: 'Smart Docs', icon: <Sparkle size={14} weight="fill" style={{ color: '#818cf8' }} />, selected: true },
+  { name: 'Processos', icon: <Files size={14} weight="duotone" style={{ color: '#eab308' }} />, subtitle: 'Visão unificada dos Prod...' },
+]
+
+const ICONES_PARTICIPANTE: Record<
+  TipoParticipante,
+  { cor: string; rotulo: string; render: () => JSX.Element }
+> = {
+  exportador: { cor: '#34d399', rotulo: 'Exportador', render: () => <Truck weight="duotone" size={14} /> },
+  agente_carga: { cor: '#c084fc', rotulo: 'Agente de carga', render: () => <UserGear weight="duotone" size={14} /> },
+  transportadora_rodoviaria: { cor: '#a3e635', rotulo: 'Transportadora rodoviária', render: () => <TruckTrailer weight="duotone" size={14} /> },
+  armazem_alfandegado: { cor: '#fb923c', rotulo: 'Armazém alfandegado', render: () => <Warehouse weight="duotone" size={14} /> },
+  despachante_aduaneiro: { cor: '#f472b6', rotulo: 'Despachante aduaneiro', render: () => <ShieldStar weight="duotone" size={14} /> },
+}
+
+const DESCRICAO_PARTICIPANTE: Record<TipoParticipante, string> = {
+  exportador: 'Emissor em Invoice, Packing e documentos comerciais',
+  agente_carga: 'Emissor em BL, AWB e conhecimentos de transporte',
+  transportadora_rodoviaria: 'Transportadora do trecho rodoviário na operação',
+  armazem_alfandegado: 'Recinto alfandegado ou terminal de armazenagem',
+  despachante_aduaneiro: 'Despachante responsável pelo desembaraço aduaneiro',
+}
+
+function descricaoParticipanteSimulador(tipo: TipoParticipante): string {
+  return DESCRICAO_PARTICIPANTE[tipo]
+}
+
+type PontoChartDia = {
+  date: string
+  val: number
+  documentos: number
+  acertos: number
+  erros: number
+}
+
+const CHART_POR_PERIODO: Record<PeriodoPreset, PontoChartDia[]> = {
+  7: [
+    { date: '30/06', val: 228, documentos: 3, acertos: 226, erros: 2 },
+    { date: '01/07', val: 114, documentos: 2, acertos: 114, erros: 0 },
+    { date: '02/07', val: 294, documentos: 4, acertos: 293, erros: 1 },
+    { date: '03/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
+    { date: '04/07', val: 573, documentos: 8, acertos: 572, erros: 1 },
+    { date: '05/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
+    { date: '06/07', val: 0, documentos: 0, acertos: 0, erros: 0 },
+  ],
+  30: [
+    { date: '07/06', val: 180, documentos: 2, acertos: 179, erros: 1 },
+    { date: '14/06', val: 320, documentos: 5, acertos: 318, erros: 2 },
+    { date: '21/06', val: 410, documentos: 6, acertos: 409, erros: 1 },
+    { date: '28/06', val: 573, documentos: 8, acertos: 572, erros: 1 },
+    { date: '05/07', val: 445, documentos: 7, acertos: 444, erros: 1 },
+  ],
+  60: [
+    { date: 'Mai', val: 890, documentos: 12, acertos: 886, erros: 4 },
+    { date: 'Jun', val: 1240, documentos: 18, acertos: 1236, erros: 4 },
+    { date: 'Jul', val: 980, documentos: 14, acertos: 978, erros: 2 },
+  ],
+  90: [
+    { date: 'Abr', val: 720, documentos: 10, acertos: 717, erros: 3 },
+    { date: 'Mai', val: 1100, documentos: 15, acertos: 1096, erros: 4 },
+    { date: 'Jun', val: 1450, documentos: 21, acertos: 1446, erros: 4 },
+    { date: 'Jul', val: 890, documentos: 12, acertos: 888, erros: 2 },
+  ],
+}
+
+const RANKINGS_POR_TIPO: Record<
+  TipoParticipante,
+  { acertos: { name: string; stats: string; pct: string }[]; erros: { name: string; stats: string; err: string }[] }
+> = {
+  exportador: {
+    acertos: [
+      { name: 'LUEN TAI P.C.B. FACTORY CO., LTD.', stats: '26 doc. · 1485 ✓ · 0 ✗', pct: '100.0%' },
+      { name: 'Exportador ABC', stats: '1 doc. · 66 ✓ · 0 ✗', pct: '100.0%' },
+    ],
+    erros: [
+      { name: 'LUEN TAI P.C.B. FACTORY CO., LTD.', stats: '26 doc. · 1485 ✓ · 0 ✗', err: '0 err.' },
+      { name: 'Exportador ABC', stats: '1 doc. · 66 ✓ · 0 ✗', err: '0 err.' },
+    ],
+  },
+  agente_carga: {
+    acertos: [
+      { name: 'Maersk Logistics Asia', stats: '12 doc. · 620 ✓ · 0 ✗', pct: '100.0%' },
+      { name: 'DHL Global Forwarding', stats: '8 doc. · 410 ✓ · 1 ✗', pct: '99.8%' },
+    ],
+    erros: [
+      { name: 'DHL Global Forwarding', stats: '8 doc. · 410 ✓ · 1 ✗', err: '1 err.' },
+      { name: 'Maersk Logistics Asia', stats: '12 doc. · 620 ✓ · 0 ✗', err: '0 err.' },
+    ],
+  },
+  transportadora_rodoviaria: {
+    acertos: [
+      { name: 'Transcargo Rodoviário SP', stats: '5 doc. · 88 ✓ · 0 ✗', pct: '100.0%' },
+    ],
+    erros: [{ name: 'Transcargo Rodoviário SP', stats: '5 doc. · 88 ✓ · 0 ✗', err: '0 err.' }],
+  },
+  armazem_alfandegado: {
+    acertos: [
+      { name: 'Terminal Santos Bonded', stats: '9 doc. · 210 ✓ · 0 ✗', pct: '100.0%' },
+    ],
+    erros: [{ name: 'Terminal Santos Bonded', stats: '9 doc. · 210 ✓ · 0 ✗', err: '0 err.' }],
+  },
+  despachante_aduaneiro: {
+    acertos: [
+      { name: 'Despachante Alfa COMEX', stats: '3 doc. · 45 ✓ · 0 ✗', pct: '100.0%' },
+    ],
+    erros: [{ name: 'Despachante Alfa COMEX', stats: '3 doc. · 45 ✓ · 0 ✗', err: '0 err.' }],
+  },
+}
+
+const LISTA_LEITURAS = [
+  { id: '1', nome: 'Invoice #INV-2026-4482', status: 'Conferido', docs: 3, data: '06/07/2026' },
+  { id: '2', nome: 'Packing List — PO-9821', status: 'Processando', docs: 2, data: '05/07/2026' },
+  { id: '3', nome: 'BL SUDU198276-2', status: 'Conferido', docs: 1, data: '04/07/2026' },
+  { id: '4', nome: 'Proforma — Master Trade', status: 'Rascunho', docs: 1, data: '03/07/2026' },
+]
+
+const EMPRESAS = [
+  { id: 'matriz-sp-importador', nome: 'Matriz SP Importador', plano: 'Enterprise', docs: 128, campos: 8420, saving: '22h 10m' },
+  { id: 'filial-sc-importador', nome: 'Filial SC Importador', plano: 'Pro', docs: 45, campos: 2816, saving: '7h 35m' },
+  { id: 'filial-pr-exportador', nome: 'Exportador PR Exportador', plano: 'Pro', docs: 32, campos: 1940, saving: '5h 20m' },
+] as const
+
+type IdEmpresa = (typeof EMPRESAS)[number]['id']
+
+const MEU_ESPACO_ITENS = [
+  { id: 'atividades', label: 'Minhas Atividades', icon: <CheckCircle size={14} weight="duotone" /> },
+  { id: 'email', label: 'Email', icon: <EnvelopeSimple size={14} weight="duotone" /> },
+  { id: 'whatsapp', label: 'WhatsApp', icon: <WhatsappLogo size={14} weight="duotone" /> },
+] as const
+
+function formatarPercentualSimulador(valor: number): string {
+  return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
+}
+
+function formatarErrosEvitadosSimulador(errados: number): string {
+  if (errados <= 0) return '0'
+  return String(Math.round(errados))
+}
+
+function LinkBaseCalculoSimulador() {
+  return (
+    <button type="button" className="sr-insights-link-metodologia">
+      Base de cálculo →
+    </button>
+  )
+}
+
+function metricasInsightsEmpresa(empresa: (typeof EMPRESAS)[number]) {
+  const camposErrados = empresa.id === 'filial-sc-importador' ? 1 : empresa.id === 'matriz-sp-importador' ? 2 : 0
+  const camposCorretos = Math.max(0, empresa.campos - camposErrados)
+  const taxaAcerto = empresa.campos > 0 ? (camposCorretos / empresa.campos) * 100 : 100
+
+  return {
+    totalDocumentos: empresa.docs,
+    amostraLeituras: Math.max(3, Math.round(empresa.docs * 0.27)),
+    tiposDocumento: 3,
+    totalCampos: empresa.campos,
+    camposCorretos,
+    camposErrados,
+    taxaAcerto,
+    savingErrosMinutos: camposErrados > 0 ? '12min' : '0min',
+  }
+}
+
+export function SmartDocSimulator({ onClose }: SmartDocSimulatorProps) {
+  const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('insights')
+  const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoPreset>(7)
+  const [tipoParticipante, setTipoParticipante] = useState<TipoParticipante>('exportador')
+  const [productDropdownOpen, setProductDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [empresaDropdownOpen, setEmpresaDropdownOpen] = useState(false)
+  const [empresaSearch, setEmpresaSearch] = useState('')
+  const [idEmpresaAtiva, setIdEmpresaAtiva] = useState<IdEmpresa>('filial-sc-importador')
+  const [meuEspacoAberto, setMeuEspacoAberto] = useState(false)
+  const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
+  const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>('insights')
+  const [modalNovoAberto, setModalNovoAberto] = useState(false)
+  const [passoNovaLeitura, setPassoNovaLeitura] = useState(1)
+  const [arquivoAnexado, setArquivoAnexado] = useState(false)
+  const [barraDestaque, setBarraDestaque] = useState<number | null>(null)
+  const [linhaListaExpandida, setLinhaListaExpandida] = useState<string | null>(null)
+  const [rankingSelecionado, setRankingSelecionado] = useState<number | null>(null)
+  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [iconeParticipanteTooltip, setIconeParticipanteTooltip] = useState<TipoParticipante | null>(null)
+
+  const chartTooltip = useHoverTooltipInsightsSimulador<PontoChartDia>()
+  const funilTooltip = useHoverTooltipInsightsSimulador<{ label: string; val: number; pct: number }>()
+  const rankingTooltip = useHoverTooltipInsightsSimulador<{
+    nome: string
+    stats: string
+    metrica: string
+    tipo: 'acerto' | 'erro'
+  }>()
+  const acertosTooltip = useHoverTooltipInsightsSimulador<'corretos' | 'errados'>()
+
+  const empresaAtiva = EMPRESAS.find((e) => e.id === idEmpresaAtiva) ?? EMPRESAS[0]
+  const metricas = useMemo(() => metricasInsightsEmpresa(empresaAtiva), [empresaAtiva])
+
+  const chartMax = useMemo(() => {
+    const bars = CHART_POR_PERIODO[periodoAtivo]
+    return Math.max(...bars.map((b) => b.val), 1)
+  }, [periodoAtivo])
+
+  const rankings = RANKINGS_POR_TIPO[tipoParticipante]
+  const empresasFiltradas = EMPRESAS.filter((e) =>
+    e.nome.toLowerCase().includes(empresaSearch.toLowerCase()),
+  )
+  const produtosFiltrados = PRODUTOS_DROPDOWN.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
+
+  function fecharModalNovo() {
+    setModalNovoAberto(false)
+    setPassoNovaLeitura(1)
+    setArquivoAnexado(false)
+  }
+
+  function renderInsights() {
+    return (
+      <>
+        <div className="sds-kpi-grid">
+          <CardKpiSimulador
+            className="sds-kpi-grid__card"
+            titulo="DOCUMENTOS LIDOS"
+            icone={<Files weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
+            valor={metricas.totalDocumentos}
+            tooltip={
+              <>
+                <p className="cg-tooltip__row">
+                  <span>Documentos extraídos</span>
+                  <strong>{metricas.totalDocumentos}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Leituras na amostra</span>
+                  <strong>{metricas.amostraLeituras}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Tipos distintos</span>
+                  <strong>{metricas.tiposDocumento}</strong>
+                </p>
+              </>
+            }
+          />
+          <CardKpiSimulador
+            className="sds-kpi-grid__card"
+            titulo="CAMPOS LIDOS"
+            icone={<ListChecks weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+            valor={metricas.totalCampos}
+            tooltip={
+              <>
+                <p className="cg-tooltip__row">
+                  <span>Total de campos</span>
+                  <strong>{metricas.totalCampos}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Corretos</span>
+                  <strong>{metricas.camposCorretos}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Errados</span>
+                  <strong>{formatarErrosEvitadosSimulador(metricas.camposErrados)}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Taxa de acerto</span>
+                  <strong>{formatarPercentualSimulador(metricas.taxaAcerto)}</strong>
+                </p>
+              </>
+            }
+          />
+          <CardKpiSimulador
+            className="sds-kpi-grid__card"
+            titulo="SAVING DIGITAÇÃO"
+            icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={empresaAtiva.saving}
+            variante="sucesso"
+            tooltip={
+              <>
+                <p className="cg-tooltip__row">
+                  <span>Tempo economizado</span>
+                  <strong>{empresaAtiva.saving}</strong>
+                </p>
+                <p className="cg-tooltip__row cg-tooltip__row--link-only">
+                  <LinkBaseCalculoSimulador />
+                </p>
+              </>
+            }
+          />
+          <CardKpiSimulador
+            className="sds-kpi-grid__card"
+            titulo="SAVING EM ERROS"
+            icone={<TrendUp weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
+            valor={formatarErrosEvitadosSimulador(metricas.camposErrados)}
+            tooltip={
+              <>
+                <p className="cg-tooltip__row">
+                  <span>Erros evitados (estudo)</span>
+                  <strong>{formatarErrosEvitadosSimulador(metricas.camposErrados)}</strong>
+                </p>
+                <p className="cg-tooltip__row">
+                  <span>Tempo economizado</span>
+                  <strong>{metricas.savingErrosMinutos}</strong>
+                </p>
+                <p className="cg-tooltip__row cg-tooltip__row--link-only">
+                  <LinkBaseCalculoSimulador />
+                </p>
+              </>
+            }
+          />
+        </div>
+
+        <div className="sds-row-2">
+          <div className="sds-card sds-card--grafico sds-card--com-tooltip">
+            <div className="sds-card__head">
+              <div className="sds-card__title">
+                <ChartBar size={12} weight="duotone" style={{ color: '#3b82f6' }} />
+                EVOLUÇÃO DIÁRIA
+              </div>
+              <div className="sds-periodo" role="group" aria-label="Período do gráfico">
+                {PERIODOS.map((dias) => (
+                  <button
+                    key={dias}
+                    type="button"
+                    className={`sds-periodo__btn${periodoAtivo === dias ? ' sds-periodo__btn--active' : ''}`}
+                    aria-pressed={periodoAtivo === dias}
+                    onClick={() => {
+                      setPeriodoAtivo(dias)
+                      setBarraDestaque(null)
+                      chartTooltip.aoSair()
+                    }}
+                  >
+                    {dias}d
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="sr-insights-tt-host">
+              <div className="sds-chart-bars" ref={chartTooltip.containerRef}>
+                {CHART_POR_PERIODO[periodoAtivo].map((b, i) => (
+                  <div
+                    key={`${periodoAtivo}-${b.date}`}
+                    className={`sds-chart-bar-col${barraDestaque === i ? ' sds-chart-bar-col--active' : ''}`}
+                    onMouseEnter={(e) => b.val > 0 && chartTooltip.aoEntrar(e, b)}
+                    onMouseLeave={chartTooltip.aoSair}
+                    onClick={() => setBarraDestaque(barraDestaque === i ? null : i)}
+                  >
+                    {b.val > 0 && (
+                      <span className="sds-chart-bar-val" style={{ color: barraDestaque === i ? '#818cf8' : '#fff' }}>
+                        {b.val}
+                      </span>
+                    )}
+                    <div
+                      className="sds-chart-bar"
+                      style={{
+                        height: b.val > 0 ? `${Math.max(8, (b.val / chartMax) * 140)}px` : 0,
+                        opacity: barraDestaque === null || barraDestaque === i ? 1 : 0.35,
+                        background: barraDestaque === i ? '#818cf8' : '#10b981',
+                      }}
+                    />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#64748b', position: 'absolute', bottom: 2 }}>
+                      {b.date}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {chartTooltip.estado && (() => {
+                const p = chartTooltip.estado.dados
+                const total = p.val
+                const pctAcerto = total > 0 ? (p.acertos / total) * 100 : 0
+                const pctErro = total > 0 ? (p.erros / total) * 100 : 0
+                return (
+                  <TooltipGraficoInsightsSimulador
+                    ancora={chartTooltip.estado.ancora}
+                    containerRef={chartTooltip.containerRef}
+                    conteudo={{
+                      titulo: p.date,
+                      subtitulo: `${p.documentos} ${p.documentos === 1 ? 'documento' : 'documentos'}`,
+                      total,
+                      totalRotulo: 'campos lidos',
+                      barra: [
+                        { cor: '#34d399', pct: pctAcerto },
+                        { cor: '#f87171', pct: pctErro },
+                      ],
+                      linhas: [
+                        { cor: '#34d399', rotulo: 'Acertos', valor: p.acertos, pct: pctAcerto },
+                        { cor: '#f87171', rotulo: 'Erros (editados)', valor: p.erros, pct: pctErro },
+                      ],
+                    }}
+                  />
+                )
+              })()}
+            </div>
+          </div>
+
+          <div className="sds-card sds-card--com-tooltip">
+            <div className="sds-card__title" style={{ marginBottom: 12 }}>
+              <ChartPie size={12} weight="duotone" style={{ color: '#34d399' }} />
+              CAMPOS LIDOS — CORRETOS × ERRADOS
+            </div>
+            <div className="sr-insights-tt-host" ref={acertosTooltip.containerRef}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                <div
+                  className="sds-campos-box sds-campos-box--ok"
+                  onMouseEnter={(e) => acertosTooltip.aoEntrar(e, 'corretos')}
+                  onMouseLeave={acertosTooltip.aoSair}
+                >
+                  <span style={{ fontSize: 10, color: '#64748b' }}>Corretos</span>
+                  <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 800, color: '#10b981' }}>{metricas.camposCorretos}</p>
+                </div>
+                <div
+                  className="sds-campos-box sds-campos-box--erro"
+                  onMouseEnter={(e) => acertosTooltip.aoEntrar(e, 'errados')}
+                  onMouseLeave={acertosTooltip.aoSair}
+                >
+                  <span style={{ fontSize: 10, color: '#64748b' }}>Errados</span>
+                  <p style={{ margin: '4px 0 0', fontSize: 18, fontWeight: 800, color: '#ef4444' }}>{metricas.camposErrados}</p>
+                </div>
+              </div>
+              {acertosTooltip.estado && (
+                <TooltipGraficoInsightsSimulador
+                  ancora={acertosTooltip.estado.ancora}
+                  containerRef={acertosTooltip.containerRef}
+                  preferirAcima
+                  conteudo={{
+                    titulo: acertosTooltip.estado.dados === 'corretos' ? 'Campos corretos' : 'Campos errados',
+                    total: acertosTooltip.estado.dados === 'corretos' ? metricas.camposCorretos : metricas.camposErrados,
+                    totalRotulo: 'na amostra',
+                    linhas: [
+                      {
+                        cor: '#34d399',
+                        rotulo: 'Taxa de acerto',
+                        valor: formatarPercentualSimulador(metricas.taxaAcerto),
+                      },
+                      {
+                        cor: '#f87171',
+                        rotulo: 'Total de campos',
+                        valor: metricas.totalCampos,
+                      },
+                    ],
+                  }}
+                />
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24, flex: 1 }}>
+                <div
+                  style={{
+                    width: 90,
+                    height: 90,
+                    borderRadius: '50%',
+                    background: 'conic-gradient(#10b981 0% 99.9%, #ef4444 99.9% 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div style={{ width: 62, height: 62, background: '#1c1f2e', borderRadius: '50%' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, fontWeight: 600 }}>
+                  <span style={{ color: '#cbd5e1' }}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#10b981', marginRight: 6 }} />Corretos 100%</span>
+                  <span style={{ color: '#cbd5e1' }}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#ef4444', marginRight: 6 }} />Errados 0%</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{formatarPercentualSimulador(metricas.taxaAcerto)} acerto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="sds-row-3">
+          <div className="sds-card sds-card--com-tooltip">
+            <div className="sds-card__title" style={{ marginBottom: 12 }}>
+              <FileText size={12} weight="duotone" style={{ color: '#818cf8' }} />
+              TIPOS DE DOCUMENTO
+            </div>
+            <div className="sr-insights-tt-host" ref={funilTooltip.containerRef}>
+            {[
+              { label: 'Invoice', val: 21, pct: 47, w: '80%' },
+              { label: 'Packing List', val: 13, pct: 29, w: '50%' },
+              { label: 'Bill of Lading', val: 7, pct: 16, w: '25%' },
+            ].map((d) => (
+              <div
+                key={d.label}
+                className="sds-funil-row"
+                onMouseEnter={(e) => funilTooltip.aoEntrar(e, d)}
+                onMouseLeave={funilTooltip.aoSair}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#cbd5e1' }}>{d.label}</span>
+                <div className="sds-funil-bar">
+                  <div className="sds-funil-fill" style={{ width: d.w }} />
+                </div>
+                <span style={{ fontWeight: 700 }}>{d.val}</span>
+                <span style={{ color: '#64748b', fontSize: 10 }}>{d.pct}%</span>
+              </div>
+            ))}
+            {funilTooltip.estado && (
+              <TooltipGraficoInsightsSimulador
+                ancora={funilTooltip.estado.ancora}
+                containerRef={funilTooltip.containerRef}
+                conteudo={{
+                  titulo: funilTooltip.estado.dados.label,
+                  total: funilTooltip.estado.dados.val,
+                  totalRotulo: 'documentos',
+                  linhas: [
+                    { cor: '#818cf8', rotulo: 'Participação', valor: `${funilTooltip.estado.dados.pct}%` },
+                    { cor: '#818cf8', rotulo: 'Total lidos', valor: metricas.totalDocumentos },
+                  ],
+                }}
+              />
+            )}
+            </div>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 12, marginTop: 'auto' }}>
+              <div className="sds-card__title" style={{ color: '#fbbf24', marginBottom: 10 }}>
+                <CurrencyDollar size={12} weight="bold" />
+                ECONOMIA ESTIMADA
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ flex: 1, border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, padding: 10 }}>
+                  <span style={{ fontSize: 10, color: '#64748b' }}>Digitação evitada</span>
+                  <p style={{ margin: '4px 0 0', fontWeight: 800, color: '#10b981' }}>7h 35min</p>
+                </div>
+                <div style={{ flex: 1, border: '1px solid rgba(16,185,129,0.2)', borderRadius: 8, padding: 10 }}>
+                  <span style={{ fontSize: 10, color: '#64748b' }}>Correção de erros</span>
+                  <p style={{ margin: '4px 0 0', fontWeight: 800, color: '#10b981' }}>1 campo</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="sds-card sds-card--com-tooltip">
+            <div className="sds-card__head">
+              <div className="sds-card__title" style={{ color: '#fbbf24' }}>
+                <Sparkle size={12} weight="bold" />
+                RESULTADO POR TIPO DE FORNECEDOR
+              </div>
+              <div className="sds-tab-icones" role="tablist" aria-label="Tipo de emissor">
+                {(Object.keys(ICONES_PARTICIPANTE) as TipoParticipante[]).map((tipo) => {
+                  const icone = ICONES_PARTICIPANTE[tipo]
+                  const ativo = tipoParticipante === tipo
+                  return (
+                    <div key={tipo} className="sds-tab-icone-wrap">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={ativo}
+                        aria-label={icone.rotulo}
+                        className={`sds-tab-icone${ativo ? ' sds-tab-icone--active' : ''}`}
+                        style={{ '--tab-cor': icone.cor, color: icone.cor } as CSSProperties}
+                        onClick={() => {
+                          setTipoParticipante(tipo)
+                          setRankingSelecionado(null)
+                        }}
+                        onMouseEnter={() => setIconeParticipanteTooltip(tipo)}
+                        onMouseLeave={() => setIconeParticipanteTooltip(null)}
+                      >
+                        {icone.render()}
+                      </button>
+                      {iconeParticipanteTooltip === tipo && (
+                        <div className="sds-icone-tt" role="tooltip">
+                          <strong>{icone.rotulo}</strong>
+                          <span>{descricaoParticipanteSimulador(tipo)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="sr-insights-tt-host" ref={rankingTooltip.containerRef} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, flex: 1 }}>
+              <div className="sds-ranking-col">
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#cbd5e1' }}>Maiores acertos</span>
+                {rankings.acertos.map((f, idx) => (
+                  <div
+                    key={f.name}
+                    className={`sds-ranking-item${rankingSelecionado === idx ? ' sds-ranking-item--selected' : ''}`}
+                    onMouseEnter={(e) =>
+                      rankingTooltip.aoEntrar(e, {
+                        nome: f.name,
+                        stats: f.stats,
+                        metrica: f.pct,
+                        tipo: 'acerto',
+                      })
+                    }
+                    onMouseLeave={rankingTooltip.aoSair}
+                    onClick={() => setRankingSelecionado(rankingSelecionado === idx ? null : idx)}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800 }}>
+                        <span style={{ color: '#64748b', marginRight: 6 }}>{idx + 1}</span>
+                        {f.name}
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#10b981' }}>{f.pct}</span>
+                    </div>
+                    <span style={{ fontSize: 10, color: '#64748b', marginLeft: 18 }}>{f.stats}</span>
+                    <div style={{ height: 2, background: '#10b981', borderRadius: 1, marginTop: 4 }} />
+                  </div>
+                ))}
+              </div>
+              <div className="sds-ranking-col">
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#cbd5e1' }}>Maiores erros</span>
+                {rankings.erros.map((f, idx) => (
+                  <div
+                    key={f.name}
+                    className={`sds-ranking-item${rankingSelecionado === idx + 10 ? ' sds-ranking-item--selected' : ''}`}
+                    onMouseEnter={(e) =>
+                      rankingTooltip.aoEntrar(e, {
+                        nome: f.name,
+                        stats: f.stats,
+                        metrica: f.err,
+                        tipo: 'erro',
+                      })
+                    }
+                    onMouseLeave={rankingTooltip.aoSair}
+                    onClick={() => setRankingSelecionado(rankingSelecionado === idx + 10 ? null : idx + 10)}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800 }}>
+                        <span style={{ color: '#64748b', marginRight: 6 }}>{idx + 1}</span>
+                        {f.name}
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#ef4444' }}>{f.err}</span>
+                    </div>
+                    <span style={{ fontSize: 10, color: '#64748b', marginLeft: 18 }}>{f.stats}</span>
+                    <div style={{ height: 2, background: 'rgba(239,68,68,0.25)', borderRadius: 1, marginTop: 4 }} />
+                  </div>
+                ))}
+              </div>
+              {rankingTooltip.estado && (
+                <TooltipGraficoInsightsSimulador
+                  ancora={rankingTooltip.estado.ancora}
+                  containerRef={rankingTooltip.containerRef}
+                  conteudo={{
+                    titulo: rankingTooltip.estado.dados.nome,
+                    subtitulo: ICONES_PARTICIPANTE[tipoParticipante].rotulo,
+                    total: rankingTooltip.estado.dados.metrica,
+                    totalRotulo: rankingTooltip.estado.dados.tipo === 'acerto' ? 'acerto' : 'erros',
+                    linhas: [
+                      {
+                        cor: rankingTooltip.estado.dados.tipo === 'acerto' ? '#34d399' : '#f87171',
+                        rotulo: 'Detalhe',
+                        valor: rankingTooltip.estado.dados.stats,
+                      },
+                    ],
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  function renderLista() {
+    return (
+      <div className="sds-card" style={{ minHeight: 480 }}>
+        <table className="sds-lista-table">
+          <thead>
+            <tr>
+              <th>LEITURA</th>
+              <th>STATUS</th>
+              <th>DOCUMENTOS</th>
+              <th>DATA</th>
+            </tr>
+          </thead>
+          <tbody>
+            {LISTA_LEITURAS.map((row) => (
+              <Fragment key={row.id}>
+                <tr
+                  className={`sds-lista-row${linhaListaExpandida === row.id ? ' sds-lista-row--expanded' : ''}`}
+                  onClick={() => setLinhaListaExpandida(linhaListaExpandida === row.id ? null : row.id)}
+                >
+                  <td style={{ fontWeight: 700 }}>{row.nome}</td>
+                  <td>
+                    <span className={`sds-pill ${row.status === 'Conferido' ? 'sds-pill--ok' : 'sds-pill--proc'}`}>
+                      {row.status}
+                    </span>
+                  </td>
+                  <td>{row.docs}</td>
+                  <td style={{ color: '#64748b' }}>{row.data}</td>
+                </tr>
+                {linhaListaExpandida === row.id && (
+                  <tr>
+                    <td colSpan={4} style={{ background: 'rgba(99,102,241,0.04)', padding: '12px 16px' }}>
+                      <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                          Workspace: {empresaAtiva.nome} · Campos extraídos: 42 · Conferidos: 41
+                        </span>
+                        <button
+                          type="button"
+                          className="sds-btn-novo"
+                          style={{ fontSize: 10, padding: '4px 10px' }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setAbaAtiva('insights')
+                          }}
+                        >
+                          Ver no Insights
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  return (
+    <div className="sds-root" onClick={(e) => e.stopPropagation()}>
+      <aside className="sds-sidebar">
+        <div style={{ position: 'relative' }}>
+          <div
+            className={`sds-brand${productDropdownOpen ? ' sds-brand--open' : ''}`}
+            onClick={() => setProductDropdownOpen((v) => !v)}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkle size={16} weight="fill" style={{ color: '#818cf8' }} />
+                <span style={{ fontWeight: 800, fontSize: 14 }}>Smart Docs</span>
+              </div>
+              <span style={{ fontSize: 10, color: '#64748b', marginLeft: 24 }}>by Gravity</span>
+            </div>
+            {productDropdownOpen ? <CaretUp size={14} /> : <CaretDown size={14} style={{ color: '#64748b' }} />}
+          </div>
+
+          {productDropdownOpen && (
+            <div className="sds-dropdown" onClick={(e) => e.stopPropagation()}>
+              <div style={{ position: 'relative' }}>
+                <MagnifyingGlass size={12} style={{ position: 'absolute', left: 8, top: 9, color: '#475569' }} />
+                <input
+                  type="text"
+                  className="sds-dropdown__search"
+                  placeholder="Buscar produto..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              {produtosFiltrados.map((prod) => (
+                <div
+                  key={prod.name}
+                  className={`sds-dropdown__item${prod.selected ? ' sds-dropdown__item--selected' : ''}`}
+                  onClick={() => prod.selected && setProductDropdownOpen(false)}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {prod.icon}
+                    <div>
+                      <span style={{ fontSize: 11, fontWeight: prod.selected ? 700 : 600, color: prod.selected ? '#818cf8' : '#cbd5e1' }}>
+                        {prod.name}
+                      </span>
+                      {prod.subtitle && (
+                        <span style={{ display: 'block', fontSize: 9, color: '#64748b' }}>{prod.subtitle}</span>
+                      )}
+                    </div>
+                  </div>
+                  {prod.selected && <Check size={12} weight="bold" style={{ color: '#818cf8' }} />}
+                  {!prod.selected && prod.subtitle && <ArrowRight size={12} style={{ color: '#64748b' }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="sds-empresa-wrapper">
+          <button
+            type="button"
+            className={`sds-empresa${empresaDropdownOpen ? ' sds-empresa--open' : ''}`}
+            aria-expanded={empresaDropdownOpen}
+            aria-haspopup="listbox"
+            onClick={() => {
+              setEmpresaDropdownOpen((v) => !v)
+              setProductDropdownOpen(false)
+            }}
+          >
+            <div className="sds-empresa__avatar">
+              <Buildings size={14} weight="duotone" />
+            </div>
+            <div className="sds-empresa__info">
+              <span className="sds-empresa__nome">{empresaAtiva.nome}</span>
+              <span className="sds-empresa__plano">{empresaAtiva.plano}</span>
+            </div>
+            {empresaDropdownOpen ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
+          </button>
+
+          {empresaDropdownOpen && (
+            <div className="sds-empresa-dropdown" role="listbox" onClick={(e) => e.stopPropagation()}>
+              <div className="sds-empresa-dropdown__search-wrap">
+                <MagnifyingGlass size={12} />
+                <input
+                  type="text"
+                  className="sds-empresa-dropdown__search"
+                  placeholder="Buscar empresa…"
+                  value={empresaSearch}
+                  onChange={(e) => setEmpresaSearch(e.target.value)}
+                />
+              </div>
+              {empresasFiltradas.map((empresa) => {
+                const ativa = empresa.id === idEmpresaAtiva
+                return (
+                  <button
+                    key={empresa.id}
+                    type="button"
+                    role="option"
+                    aria-selected={ativa}
+                    className={`sds-empresa-item${ativa ? ' sds-empresa-item--ativa' : ''}`}
+                    onClick={() => {
+                      setIdEmpresaAtiva(empresa.id)
+                      setEmpresaDropdownOpen(false)
+                      setEmpresaSearch('')
+                    }}
+                  >
+                    <div className="sds-empresa-item__avatar">{empresa.nome.charAt(0)}</div>
+                    <div className="sds-empresa-item__info">
+                      <span className="sds-empresa-item__nome">{empresa.nome}</span>
+                      <span className="sds-empresa-item__plano">{empresa.plano}</span>
+                    </div>
+                    {ativa && <Check size={12} weight="bold" style={{ color: '#818cf8' }} />}
+                  </button>
+                )
+              })}
+              <div className="sds-empresa-dropdown__footer">
+                <button type="button" className="sds-empresa-action">
+                  <Plus size={12} weight="bold" />
+                  Criar empresa
+                </button>
+                <button type="button" className="sds-empresa-action">
+                  <Gear size={12} weight="duotone" />
+                  Gerenciar empresas
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className={`sds-nav-group${meuEspacoAberto ? ' sds-nav-group--open' : ''}`}>
+          <button
+            type="button"
+            className={`sds-nav-item sds-nav-parent${meuEspacoAberto ? ' sds-nav-item--active' : ''}`}
+            onClick={() => setMeuEspacoAberto((v) => !v)}
+          >
+            <UserCircle size={16} weight="duotone" />
+            <span style={{ flex: 1 }}>Meu Espaço</span>
+            {meuEspacoAberto ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
+          </button>
+          {meuEspacoAberto && (
+            <div className="sds-submenu">
+              {MEU_ESPACO_ITENS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`sds-nav-item sds-submenu-item${meuEspacoItemAtivo === item.id ? ' sds-nav-item--active' : ''}`}
+                  onClick={() => {
+                    setMeuEspacoItemAtivo(item.id)
+                    setSidebarAtivo('insights')
+                  }}
+                >
+                  {item.icon}
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  <span className="sds-nav-badge">Em Breve</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#475569', letterSpacing: '0.05em' }}>SMART DOCS</span>
+          <button
+            type="button"
+            className={`sds-nav-item${sidebarAtivo === 'historico' ? ' sds-nav-item--active' : ''}`}
+            onClick={() => {
+              setSidebarAtivo('historico')
+              setMeuEspacoItemAtivo(null)
+            }}
+            style={{ marginTop: 6 }}
+          >
+            <Clock size={14} />
+            Histórico
+          </button>
+          <button
+            type="button"
+            className={`sds-nav-item${sidebarAtivo === 'config' ? ' sds-nav-item--active' : ''}`}
+            onClick={() => {
+              setSidebarAtivo('config')
+              setMeuEspacoItemAtivo(null)
+            }}
+          >
+            <Gear size={14} />
+            Configurações
+          </button>
+        </div>
+      </aside>
+
+      <div className="sds-main">
+        <div className="sds-main-header">
+          <header className="sds-mtg-header" role="banner">
+            <div className="sds-mtg-left">
+              <div className="sds-mtg-page-header">
+                <span className="sds-mtg-page-icon" aria-hidden="true">
+                  {abaAtiva === 'insights' ? (
+                    <FileText size={22} weight="duotone" />
+                  ) : (
+                    <ListBullets size={22} weight="duotone" />
+                  )}
+                </span>
+                <span className="sds-mtg-page-title">
+                  {abaAtiva === 'insights' ? 'Insights' : 'Lista'}
+                </span>
+              </div>
+            </div>
+            <div className="sds-mtg-right">
+              <button type="button" className="sds-mtg-nav-btn" aria-label="Voltar ao Hub">
+                <GlobeHemisphereWest size={13} weight="duotone" />
+                Hub
+              </button>
+              <button type="button" className="sds-mtg-icon-btn" aria-label="Buscar na tela">
+                <MagnifyingGlass size={17} />
+              </button>
+              <button type="button" className="sds-mtg-icon-btn" aria-label="Gravity University">
+                <GraduationCap size={17} weight="duotone" />
+              </button>
+              <button type="button" className="sds-mtg-icon-btn" aria-label="Dicas" style={{ color: '#818cf8' }}>
+                <Info size={17} weight="fill" />
+              </button>
+              <button type="button" className="sds-mtg-lang-btn" aria-label="Idioma">
+                BR
+              </button>
+              <button type="button" className="sds-mtg-icon-btn" aria-label="Configurações">
+                <Gear size={17} weight="duotone" />
+              </button>
+              <div className="sds-mtg-sep" aria-hidden="true" />
+              <div className="sds-mtg-avatar" aria-hidden="true">D</div>
+            </div>
+          </header>
+
+          <div className="smart-read-vis-toolbar">
+            <nav className="srt-tabs" aria-label="Modo de visualização do Smart Docs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={abaAtiva === 'insights'}
+                className={`srt-tab${abaAtiva === 'insights' ? ' srt-tab--active' : ''}`}
+                onClick={() => setAbaAtiva('insights')}
+              >
+                <ChartPieSlice weight="duotone" size={16} />
+                <span>Insights</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={abaAtiva === 'lista'}
+                className={`srt-tab${abaAtiva === 'lista' ? ' srt-tab--active' : ''}`}
+                onClick={() => setAbaAtiva('lista')}
+              >
+                <ListBullets weight="duotone" size={16} />
+                <span>Lista</span>
+              </button>
+            </nav>
+            <div className="smart-read-vis-toolbar__acoes">
+              <div className="sr-dropdown-novo">
+                <button
+                  type="button"
+                  className="sds-btn-novo"
+                  aria-expanded={novoDropdownAberto}
+                  aria-haspopup="menu"
+                  onClick={() => setNovoDropdownAberto((v) => !v)}
+                >
+                  <Plus size={14} weight="bold" />
+                  Novo
+                  <CaretDown
+                    size={12}
+                    weight="bold"
+                    style={{
+                      marginLeft: 2,
+                      transition: 'transform 0.15s',
+                      transform: novoDropdownAberto ? 'rotate(180deg)' : 'none',
+                    }}
+                  />
+                </button>
+                {novoDropdownAberto && (
+                  <div className="sr-dropdown-novo-menu sr-dropdown-novo-menu--direita" role="menu">
+                    <button
+                      type="button"
+                      className="sr-dropdown-novo-item"
+                      role="menuitem"
+                      onClick={() => {
+                        setNovoDropdownAberto(false)
+                        setModalNovoAberto(true)
+                      }}
+                    >
+                      <span className="sr-dropdown-novo-item-icone">
+                        <FileMagnifyingGlass size={13} weight="duotone" />
+                      </span>
+                      <span>Nova Leitura</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="sds-content">
+          {meuEspacoItemAtivo && (
+            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+              {MEU_ESPACO_ITENS.find((i) => i.id === meuEspacoItemAtivo)?.label} — módulo em breve no tenant (simulação).
+            </div>
+          )}
+          {sidebarAtivo === 'historico' && abaAtiva === 'insights' && !meuEspacoItemAtivo && (
+            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+              Histórico — {empresaAtiva.nome} · últimos 30 dias (simulação).
+            </div>
+          )}
+          {sidebarAtivo === 'config' && (
+            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}>
+              Configurações — colunas e preferências de leitura (simulação).
+            </div>
+          )}
+          {abaAtiva === 'insights' ? renderInsights() : renderLista()}
+
+          <div className="sds-footer-actions">
+            <button type="button" className="sds-btn-secondary" onClick={onClose}>
+              Voltar
+            </button>
+            <button type="button" className="sds-btn-primary" onClick={onClose}>
+              Salvar e Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {modalNovoAberto && (
+        <div className="sds-modal-overlay" onClick={fecharModalNovo}>
+          <div className="sds-modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontWeight: 800, fontSize: 15 }}>Nova Leitura</span>
+              <button type="button" onClick={fecharModalNovo} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="sds-modal__steps">
+              {[1, 2, 3, 4].map((s) => (
+                <div key={s} className={`sds-modal__step${passoNovaLeitura >= s ? ' sds-modal__step--done' : ''}`} />
+              ))}
+            </div>
+            {passoNovaLeitura === 1 && (
+              <>
+                <p style={{ margin: '0 0 12px', color: '#94a3b8', fontSize: 12 }}>Passo 1 — Anexe os documentos da operação</p>
+                <div
+                  className={`sds-upload-zone${arquivoAnexado ? ' sds-upload-zone--active' : ''}`}
+                  onClick={() => setArquivoAnexado(true)}
+                >
+                  {arquivoAnexado ? (
+                    <>
+                      <CheckCircle size={32} weight="fill" style={{ color: '#10b981', marginBottom: 8 }} />
+                      <p style={{ margin: 0, fontWeight: 700 }}>invoice_po9821.pdf anexado</p>
+                    </>
+                  ) : (
+                    <>
+                      <UploadSimple size={32} style={{ color: '#818cf8', marginBottom: 8 }} />
+                      <p style={{ margin: 0, fontWeight: 700 }}>Clique para anexar ou arraste arquivos</p>
+                      <p style={{ margin: '6px 0 0', fontSize: 11, color: '#64748b' }}>PDF, PNG, JPG — até 20 MB</p>
+                    </>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="sds-btn-novo"
+                  style={{ width: '100%', justifyContent: 'center', marginTop: 16, opacity: arquivoAnexado ? 1 : 0.5 }}
+                  disabled={!arquivoAnexado}
+                  onClick={() => setPassoNovaLeitura(2)}
+                >
+                  Continuar
+                  <ArrowRight size={14} />
+                </button>
+              </>
+            )}
+            {passoNovaLeitura >= 2 && (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Sparkle size={40} weight="fill" style={{ color: '#818cf8', marginBottom: 12 }} />
+                <p style={{ fontWeight: 800, margin: '0 0 8px' }}>IA extraindo campos…</p>
+                <p style={{ color: '#64748b', fontSize: 12, margin: '0 0 20px' }}>Simulação concluída — leitura pronta para conferência.</p>
+                <button
+                  type="button"
+                  className="sds-btn-novo"
+                  onClick={() => {
+                    fecharModalNovo()
+                    setAbaAtiva('lista')
+                    setLinhaListaExpandida('1')
+                  }}
+                >
+                  Ver na Lista
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

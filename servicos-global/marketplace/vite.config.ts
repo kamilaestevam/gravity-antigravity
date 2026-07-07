@@ -17,11 +17,15 @@ export default defineConfig({
       '@nucleo/tooltip-global': path.resolve(
         __dirname,
         '../../nucleo-global/Feedback/tooltip-global/src/index.ts'
+      ),
+      '@nucleo/card-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Layout/card-global/src/index.ts'
       )
     }
   },
   server: {
-    port: 5010,
+    port: 8888,
     host: true,
     fs: {
       allow: [

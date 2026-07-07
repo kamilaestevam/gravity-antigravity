@@ -152,9 +152,15 @@ export function AreaConferenciaNovaLeituraSmartRead({
             indiceDocumentoConferencia={indiceDocumento}
             tituloContextoDocumento={tituloContextoDocumento}
             onVerEvidencia={onVerEvidencia}
-            onIrConferenciaCampos={(campo) => {
+            onIrConferenciaCampos={(foco) => {
+              if (foco.id_arquivo_local != null && foco.indice_documento != null) {
+                onSelecionarDocumento({
+                  idArquivoLocal: foco.id_arquivo_local,
+                  indiceDocumento: foco.indice_documento,
+                })
+              }
               setAba('campos')
-              setCampoFocoConferencia(campo)
+              setCampoFocoConferencia(foco.campo)
             }}
             idLeituraLegado={idLeituraLegado}
             onTokensAtualizados={onTokensAtualizados}

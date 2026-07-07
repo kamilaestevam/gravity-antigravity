@@ -15,8 +15,19 @@ export type FocoConferenciaCamposNovaLeituraSmartRead = {
   indice_documento: number | null
 }
 
+function textoCampoEvidencia(valor: unknown): string | null {
+  if (valor == null) return null
+  if (typeof valor === 'string') {
+    const limpo = valor.trim()
+    return limpo || null
+  }
+  if (typeof valor === 'number' || typeof valor === 'boolean') return String(valor)
+  return null
+}
+
 function rotuloDocumentoConferencia(nomeArquivo: string, tipoDocumento: string, indice: number): string {
-  return `${nomeArquivo} · ${tipoDocumento.trim() || `Documento ${indice + 1}`}`
+  const tipo = typeof tipoDocumento === 'string' ? tipoDocumento.trim() : String(tipoDocumento ?? '')
+  return `${nomeArquivo} · ${tipo || `Documento ${indice + 1}`}`
 }
 
 function normalizarRotuloEvidencia(rotulo: string): string {
@@ -66,9 +77,9 @@ export function montarFocoConferenciaDeRisco(
   risco: Pick<RiscoAduaneiroLeitura, 'evidencias'>,
   arquivos: ArquivoLocalNovaLeitura[],
 ): FocoConferenciaCamposNovaLeituraSmartRead {
-  const evidencia = risco.evidencias.find((ev) => ev.campo) ?? risco.evidencias[0]
-  const campo = evidencia?.campo?.trim() ?? null
-  const documento = evidencia?.documento?.trim()
+  const evidencia = risco.evidencias.find((ev) => textoCampoEvidencia(ev.campo)) ?? risco.evidencias[0]
+  const campo = textoCampoEvidencia(evidencia?.campo)
+  const documento = textoCampoEvidencia(evidencia?.documento)
 
   if (!documento) {
     return { campo, id_arquivo_local: null, indice_documento: null }

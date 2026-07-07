@@ -206,6 +206,46 @@
   color: var(--sds-nl-text-muted, #64748b);
 }
 
+.sds-nl-res-feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4375rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.sds-nl-res-feedback--progresso {
+  color: #c4b5fd;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.sds-nl-res-feedback--sucesso {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.sds-nl-res-feedback--erro {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+.sds-nl-res-feedback-spin {
+  animation: sds-nl-res-spin 0.85s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sds-nl-res-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 760px) {
   .sds-nl-metricas--resultado {
     grid-template-columns: 1fr;

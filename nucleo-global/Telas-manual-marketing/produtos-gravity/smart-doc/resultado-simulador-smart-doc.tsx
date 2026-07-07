@@ -1,27 +1,38 @@
 import { useMemo, useState } from 'react'
 import {
   CheckCircle,
+  CircleNotch,
   Clock,
   DownloadSimple,
   FileText,
   TrendDown,
   TrendUp,
+  WarningCircle,
 } from '@phosphor-icons/react'
 import type { ArquivoDemoSimulador } from './arquivos-demo-simulador-smart-doc'
 import {
   calcularEstatisticasConferenciaSimulador,
   obterSecoesConferenciaSimulador,
 } from './dados-conferencia-simulador-smart-doc'
+import { executarDownloadExportacaoSimuladorSmartDoc } from './executar-download-exportacao-simulador-smart-doc'
 import './resultado-simulador-smart-doc.css'
 
 type Props = {
   arquivos: ArquivoDemoSimulador[]
   tempoSegundos: number
+  rotuloLeitura: string
 }
 
-export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
+type FeedbackDownload = {
+  tipo: 'progresso' | 'sucesso' | 'erro'
+  mensagem: string
+} | null
+
+export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeitura }: Props) {
   const arquivosCompletos = arquivos.filter((a) => a.status === 'completo')
   const [selecionados, setSelecionados] = useState<Set<string>>(() => new Set())
+  const [baixando, setBaixando] = useState(false)
+  const [feedback, setFeedback] = useState<FeedbackDownload>(null)
 
   const metricas = useMemo(() => {
     let total = 0
@@ -63,6 +74,43 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
         ? new Set()
         : new Set(arquivosCompletos.map((a) => a.id)),
     )
+  }
+
+  async function executarDownload(alvo: ArquivoDemoSimulador[]) {
+    if (baixando) return
+    setBaixando(true)
+    setFeedback({ tipo: 'progresso', mensagem: 'Preparando exportação…' })
+
+    try {
+      await executarDownloadExportacaoSimuladorSmartDoc({
+        arquivos: alvo,
+        rotuloLeitura,
+        aoAtualizarEtapa: (_etapa, rotulo) => {
+          setFeedback({
+            tipo: _etapa === 'concluido' ? 'sucesso' : 'progresso',
+            mensagem: rotulo,
+          })
+        },
+      })
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : 'Não foi possível gerar o download.'
+      setFeedback({ tipo: 'erro', mensagem })
+    } finally {
+      setBaixando(false)
+    }
+  }
+
+  function baixarIndividual(arq: ArquivoDemoSimulador) {
+    void executarDownload([arq])
+  }
+
+  function baixarSelecionados() {
+    const alvo = arquivosCompletos.filter((a) => selecionados.has(a.id))
+    void executarDownload(alvo)
+  }
+
+  function baixarTodos() {
+    void executarDownload(arquivosCompletos)
   }
 
   const todosMarcados =
@@ -117,6 +165,19 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
             </div>
           </header>
 
+          {feedback && (
+            <div
+              className={`sds-nl-res-feedback sds-nl-res-feedback--${feedback.tipo}`}
+              role="status"
+              aria-live="polite"
+            >
+              {feedback.tipo === 'progresso' && <CircleNotch size={16} className="sds-nl-res-feedback-spin" />}
+              {feedback.tipo === 'sucesso' && <CheckCircle size={16} weight="fill" />}
+              {feedback.tipo === 'erro' && <WarningCircle size={16} weight="fill" />}
+              <span>{feedback.mensagem}</span>
+            </div>
+          )}
+
           <div className="sds-nl-res-lista-corpo">
             <div className="sds-nl-res-lista">
               {arquivosCompletos.map((arq) => {
@@ -131,6 +192,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
                         type="checkbox"
                         checked={selecionado}
                         onChange={() => alternarSelecao(arq.id)}
+                        disabled={baixando}
                       />
                       <span className="sds-nl-res-item-nome">
                         <FileText size={16} weight="duotone" />
@@ -144,7 +206,12 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
                         </span>
                       ))}
                     </div>
-                    <button type="button" className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm" disabled>
+                    <button
+                      type="button"
+                      className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
+                      disabled={baixando}
+                      onClick={() => baixarIndividual(arq)}
+                    >
                       <DownloadSimple size={14} />
                       Baixar pacote DATI
                     </button>
@@ -160,17 +227,32 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos }: Props) {
             {arquivosCompletos.length > 0 && (
               <div className="sds-nl-res-barra">
                 <label className="sds-nl-res-todos">
-                  <input type="checkbox" checked={todosMarcados} onChange={alternarTodos} />
+                  <input
+                    type="checkbox"
+                    checked={todosMarcados}
+                    onChange={alternarTodos}
+                    disabled={baixando}
+                  />
                   Selecionar todos
                 </label>
                 <div className="sds-nl-res-barra-acoes">
                   <span className="sds-nl-res-barra-info">
                     {selecionados.size > 0 ? `${selecionados.size} selecionado(s)` : 'Nenhum selecionado'}
                   </span>
-                  <button type="button" className="sds-nl-btn sds-nl-btn--sec sds-nl-btn--sm" disabled>
+                  <button
+                    type="button"
+                    className="sds-nl-btn sds-nl-btn--sec sds-nl-btn--sm"
+                    disabled={baixando || selecionados.size === 0}
+                    onClick={baixarSelecionados}
+                  >
                     Baixar selecionados
                   </button>
-                  <button type="button" className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm" disabled>
+                  <button
+                    type="button"
+                    className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
+                    disabled={baixando}
+                    onClick={baixarTodos}
+                  >
                     Baixar todos
                   </button>
                 </div>

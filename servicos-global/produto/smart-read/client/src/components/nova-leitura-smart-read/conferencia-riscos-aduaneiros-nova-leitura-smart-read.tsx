@@ -22,6 +22,7 @@ import {
   obterCacheAnaliseRiscosSessaoSmartRead,
   salvarCacheAnaliseRiscosSessaoSmartRead,
 } from '../../shared/cache-analise-riscos-sessao-smart-read'
+import { obterRequisicaoAnaliseRiscosEmVooSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
 import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
@@ -242,6 +243,13 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     return auditoriaV1Local?.resumo.riscos ?? []
   }, [resumo, auditoriaV1Local])
 
+  const resumoExibicao = useMemo(() => {
+    if (resumo.total > 0) return resumo
+    const v1 = auditoriaV1Local?.resumo
+    if (!v1 || v1.total === 0) return resumo
+    return v1
+  }, [resumo, auditoriaV1Local])
+
   const parametrosChecklist = useMemo(
     () => ({
       regras: regrasEfetivas,
@@ -274,21 +282,23 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const percentualChecklistVerde = resumoGeralChecklist?.percentual_global ?? 0
 
   const percentualConformidade = useMemo(() => {
-    if (resumo.total === 0) return 100
-    return Math.round(((resumo.total - resumo.criticos) / resumo.total) * 100)
-  }, [resumo.total, resumo.criticos])
+    if (resumoExibicao.total === 0) return 100
+    return Math.round(
+      ((resumoExibicao.total - resumoExibicao.criticos) / resumoExibicao.total) * 100,
+    )
+  }, [resumoExibicao.total, resumoExibicao.criticos])
 
   const riscosVisiveis = useMemo(
-    () => filtrarRiscosPorBusca(resumo.riscos, busca),
-    [resumo.riscos, busca],
+    () => filtrarRiscosPorBusca(riscosEfetivos, busca),
+    [riscosEfetivos, busca],
   )
 
   const riscosSelecionadosLista = useMemo(
     () =>
-      resumo.riscos
+      riscosEfetivos
         .filter((r) => riscosSelecionados.has(r.id))
         .map(aplicarCorrecaoSugeridaPadraoRisco),
-    [resumo.riscos, riscosSelecionados],
+    [riscosEfetivos, riscosSelecionados],
   )
 
   const todosVisiveisSelecionados =
@@ -322,33 +332,43 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   }, [riscosVisiveis])
 
   const legendaSegmentosRisco =
-    resumo.total === 0
+    resumoExibicao.total === 0
       ? null
       : [
-          resumo.criticos > 0 ? `${resumo.criticos} crítico${resumo.criticos === 1 ? '' : 's'}` : null,
-          resumo.atencao > 0 ? `${resumo.atencao} atenção` : null,
-          resumo.informativos > 0
-            ? `${resumo.informativos} informativo${resumo.informativos === 1 ? '' : 's'}`
+          resumoExibicao.criticos > 0
+            ? `${resumoExibicao.criticos} crítico${resumoExibicao.criticos === 1 ? '' : 's'}`
+            : null,
+          resumoExibicao.atencao > 0 ? `${resumoExibicao.atencao} atenção` : null,
+          resumoExibicao.informativos > 0
+            ? `${resumoExibicao.informativos} informativo${resumoExibicao.informativos === 1 ? '' : 's'}`
             : null,
         ]
           .filter((parte): parte is string => parte !== null)
           .join(' · ')
+
+  function aplicarRespostaAnaliseRiscos(
+    resposta: Awaited<ReturnType<typeof smartReadApi.analisarRiscosLeitura>>,
+  ) {
+    salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
+    setResumo(resposta.resumo)
+    setRegrasContexto(resposta.contexto_v1.regras)
+    setLlmHabilitado(resposta.llm_ativo)
+    setAviso(resposta.aviso ?? null)
+    setPipelineConcluido(true)
+    onTokensAtualizados?.(resposta.uso_llm_leitura, resposta.uso_llm_chamada)
+  }
 
   useEffect(() => {
     if (documentos.length === 0) return
 
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
     if (emCache) {
-      setResumo(emCache.resumo)
-      setRegrasContexto(emCache.contexto_v1.regras)
-      setLlmHabilitado(emCache.llm_ativo)
-      setAviso(emCache.aviso ?? null)
-      setPipelineConcluido(true)
+      aplicarRespostaAnaliseRiscos(emCache)
       setCarregando(false)
-      onTokensAtualizados?.(emCache.uso_llm_leitura, emCache.uso_llm_chamada)
       return
     }
 
+    const emVoo = obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise)
     const seq = ++requisicaoSeq.current
     setCarregando(true)
     setErro(null)
@@ -356,21 +376,18 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     setPipelineConcluido(false)
     onIaInicio?.()
 
-    smartReadApi
-      .analisarRiscosLeitura({
+    const promessa =
+      emVoo ??
+      smartReadApi.analisarRiscosLeitura({
         documentos,
         incluir_llm: true,
         id_leitura_legado: idLeituraLegado ?? undefined,
       })
+
+    promessa
       .then((resposta) => {
         if (requisicaoSeq.current !== seq) return
-        salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
-        setResumo(resposta.resumo)
-        setRegrasContexto(resposta.contexto_v1.regras)
-        setLlmHabilitado(resposta.llm_ativo)
-        setAviso(resposta.aviso ?? null)
-        setPipelineConcluido(true)
-        onTokensAtualizados?.(resposta.uso_llm_leitura, resposta.uso_llm_chamada)
+        aplicarRespostaAnaliseRiscos(resposta)
       })
       .catch((ex: unknown) => {
         if (requisicaoSeq.current !== seq) return
@@ -428,7 +445,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       {carregando && (
         <p className="sr-conf-riscos-carregando" role="status">
           <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
-          {resumo.total > 0 ? 'Enriquecendo com IA e validação NCM…' : 'Analisando documentos…'}
+          {resumoExibicao.total > 0 ? 'Enriquecendo com IA e validação NCM…' : 'Analisando documentos…'}
         </p>
       )}
 
@@ -454,35 +471,36 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
               </span>
             </div>
 
-            {resumo.total > 0 && (
+            {resumoExibicao.total > 0 && (
               <>
                 <div
                   className="sr-conf-riscos-seg-bar"
                   role="img"
                   aria-label={`Distribuição: ${legendaSegmentosRisco ?? ''}`}
                 >
-                  {resumo.criticos > 0 && (
+                  {resumoExibicao.criticos > 0 && (
                     <span
                       className="sr-conf-riscos-seg-bar__critico"
-                      style={{ width: `${(resumo.criticos / resumo.total) * 100}%` }}
+                      style={{ width: `${(resumoExibicao.criticos / resumoExibicao.total) * 100}%` }}
                     />
                   )}
-                  {resumo.atencao > 0 && (
+                  {resumoExibicao.atencao > 0 && (
                     <span
                       className="sr-conf-riscos-seg-bar__atencao"
-                      style={{ width: `${(resumo.atencao / resumo.total) * 100}%` }}
+                      style={{ width: `${(resumoExibicao.atencao / resumoExibicao.total) * 100}%` }}
                     />
                   )}
-                  {resumo.informativos > 0 && (
+                  {resumoExibicao.informativos > 0 && (
                     <span
                       className="sr-conf-riscos-seg-bar__informativo"
-                      style={{ width: `${(resumo.informativos / resumo.total) * 100}%` }}
+                      style={{ width: `${(resumoExibicao.informativos / resumoExibicao.total) * 100}%` }}
                     />
                   )}
                 </div>
                 {legendaSegmentosRisco && (
                   <p className="sr-conf-riscos-seg-legenda">
-                    {resumo.total} {resumo.total === 1 ? 'risco' : 'riscos'} · {legendaSegmentosRisco}
+                    {resumoExibicao.total} {resumoExibicao.total === 1 ? 'risco' : 'riscos'} ·{' '}
+                    {legendaSegmentosRisco}
                   </p>
                 )}
               </>
@@ -578,7 +596,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
           </div>
         )}
 
-        {!carregando && resumo.riscos.length === 0 && !erro ? (
+        {!carregando && riscosEfetivos.length === 0 && !erro ? (
           <p className="sr-conf-riscos-ok">Nenhum risco identificado na leitura atual.</p>
         ) : riscosVisiveis.length === 0 ? (
           <p className="sr-conf-vazio">Nenhum risco encontrado para a busca atual.</p>

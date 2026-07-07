@@ -4,14 +4,11 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-const STORAGE_PREFIX = 'smart-read-chk-marcados:'
+const STORAGE_PREFIX_CHECKLIST = 'smart-read-chk-marcados:'
+const STORAGE_PREFIX_CAMPOS = 'smart-read-campo-marcados:'
 
-export function chaveItemChecklistUsuario(regraId: string, rotuloInvoice?: string | null): string {
-  return rotuloInvoice ? `${regraId}@${rotuloInvoice}` : regraId
-}
-
-export function usarChecklistMarcacaoUsuario(chaveSessao: string) {
-  const storageKey = `${STORAGE_PREFIX}${chaveSessao}`
+function usarMarcacaoSessaoUsuario(storagePrefix: string, chaveSessao: string) {
+  const storageKey = `${storagePrefix}${chaveSessao}`
 
   const [marcados, setMarcados] = useState<Set<string>>(() => {
     if (!chaveSessao) return new Set()
@@ -42,6 +39,22 @@ export function usarChecklistMarcacaoUsuario(chaveSessao: string) {
   }, [])
 
   return { estaMarcado, alternarMarcado, marcados }
+}
+
+export function chaveItemChecklistUsuario(regraId: string, rotuloInvoice?: string | null): string {
+  return rotuloInvoice ? `${regraId}@${rotuloInvoice}` : regraId
+}
+
+export function chaveCampoConferenciaUsuario(chaveCampo: string): string {
+  return chaveCampo
+}
+
+export function usarChecklistMarcacaoUsuario(chaveSessao: string) {
+  return usarMarcacaoSessaoUsuario(STORAGE_PREFIX_CHECKLIST, chaveSessao)
+}
+
+export function usarCamposMarcacaoConferencia(chaveSessao: string) {
+  return usarMarcacaoSessaoUsuario(STORAGE_PREFIX_CAMPOS, chaveSessao)
 }
 
 export type ResumoConferenciaManualChecklist = {

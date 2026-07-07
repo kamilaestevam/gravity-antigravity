@@ -1,5 +1,18 @@
 import React from 'react'
-import { Anchor, CaretDown, Plus } from '@phosphor-icons/react'
+import {
+  Anchor,
+  ArrowCounterClockwise,
+  CaretDown,
+  Eye,
+  EyeSlash,
+  Globe,
+  MapTrifold,
+  Minus,
+  Pause,
+  Play,
+  Plus,
+  type Icon,
+} from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 
 /** Pin marítimo do mapa Insights — paridade `bfd-map-pin__dot`. */
@@ -27,9 +40,89 @@ export function ManualInfograficoPinMapaBidFreteInline() {
   )
 }
 
+/** Botão compacto inline — paridade `bfd-map-control-btn`, com contraste sobre callout escuro. */
+export function ManualIconeControleMapaBidFreteInlineCompact({
+  icone: Icone,
+  ariaLabel,
+  rotasOcultas = false,
+}: {
+  icone: Icon
+  ariaLabel: string
+  rotasOcultas?: boolean
+}) {
+  return (
+    <span
+      role="img"
+      aria-label={ariaLabel}
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        margin: '0 2px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 20,
+        height: 20,
+        borderRadius: 5,
+        border: rotasOcultas
+          ? '1px solid rgba(251, 191, 36, 0.35)'
+          : '1px solid rgba(96, 165, 250, 0.42)',
+        background: rotasOcultas
+          ? 'rgba(251, 191, 36, 0.12)'
+          : 'rgba(8, 12, 24, 0.92)',
+        boxShadow: '0 1px 4px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+        color: rotasOcultas ? '#fbbf24' : '#ffffff',
+        flexShrink: 0,
+      }}
+    >
+      <Icone size={11} weight="bold" aria-hidden />
+    </span>
+  )
+}
+
+/** Globo compacto inline — paridade `bfd-map-control-btn`, com contraste sobre callout escuro. */
+export function ManualIconeGloboMapaBidFreteInlineCompact() {
+  return (
+    <ManualIconeControleMapaBidFreteInlineCompact
+      icone={Globe}
+      ariaLabel="Controle Globo do mapa"
+    />
+  )
+}
+
+const ICONES_CONTROLE_MAPA_BID_FRETE: Record<string, { icone: Icon; ariaLabel: string; rotasOcultas?: boolean }> = {
+  'globo-mapa-bid-frete': { icone: Globe, ariaLabel: 'Controle Globo do mapa' },
+  'mapa-plano-bid-frete': { icone: MapTrifold, ariaLabel: 'Controle Mapa plano' },
+  'zoom-in-bid-frete': { icone: Plus, ariaLabel: 'Controle Zoom in' },
+  'zoom-out-bid-frete': { icone: Minus, ariaLabel: 'Controle Zoom out' },
+  'restaurar-mapa-bid-frete': { icone: ArrowCounterClockwise, ariaLabel: 'Controle Restaurar mapa' },
+  'ocultar-linhas-bid-frete': { icone: Eye, ariaLabel: 'Controle Ocultar linhas de rota' },
+  'exibir-linhas-bid-frete': { icone: EyeSlash, ariaLabel: 'Controle Exibir linhas de rota', rotasOcultas: true },
+  'pausar-globo-bid-frete': { icone: Pause, ariaLabel: 'Controle Pausar rotação do globo' },
+  'iniciar-globo-bid-frete': { icone: Play, ariaLabel: 'Controle Iniciar rotação do globo' },
+}
+
+export function isIconeControleMapaBidFrete(slug: string): slug is keyof typeof ICONES_CONTROLE_MAPA_BID_FRETE {
+  return slug in ICONES_CONTROLE_MAPA_BID_FRETE
+}
+
+export function ManualInfograficoIconeControleMapaBidFreteInline({ slug }: { slug: string }) {
+  const config = ICONES_CONTROLE_MAPA_BID_FRETE[slug]
+  if (!config) return null
+  return (
+    <ManualIconeControleMapaBidFreteInlineCompact
+      icone={config.icone}
+      ariaLabel={config.ariaLabel}
+      rotasOcultas={config.rotasOcultas}
+    />
+  )
+}
+
 function ManualInfograficoIconeInline({ slug }: { slug: string }) {
   if (slug === 'pin-mapa-bid-frete') {
     return <ManualInfograficoPinMapaBidFreteInline />
+  }
+  if (isIconeControleMapaBidFrete(slug)) {
+    return <ManualInfograficoIconeControleMapaBidFreteInline slug={slug} />
   }
   return <>{`{{icone:${slug}}}`}</>
 }

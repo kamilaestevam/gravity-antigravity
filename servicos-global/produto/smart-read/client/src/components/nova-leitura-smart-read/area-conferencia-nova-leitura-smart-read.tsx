@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
 import type { IconProps } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
@@ -91,28 +92,36 @@ export function AreaConferenciaNovaLeituraSmartRead({
 
   return (
     <div className="sr-wizard-principal sr-wizard-principal--conferencia">
-      <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
-        {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
-          const ativo = aba === id
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={ativo}
-              className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
-              onClick={() => setAba(id)}
-            >
-              <Icone
-                className="sr-conf-tab-icone"
-                size={16}
-                weight="regular"
-                aria-hidden
-              />
-              <span className="sr-conf-tab-rotulo">{rotulo}</span>
-            </button>
-          )
-        })}
+      <div className="sr-conf-cabecalho-tabs">
+        <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
+          {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
+            const ativo = aba === id
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={ativo}
+                className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
+                onClick={() => setAba(id)}
+              >
+                <Icone
+                  className="sr-conf-tab-icone"
+                  size={16}
+                  weight="regular"
+                  aria-hidden
+                />
+                <span className="sr-conf-tab-rotulo">{rotulo}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {arquivoAtual && onCompararArquivo && (
+          <BotaoGlobal variante="primario" tamanho="pequeno" onClick={onCompararArquivo}>
+            Comparar arquivo
+          </BotaoGlobal>
+        )}
       </div>
 
       {arquivosCompletos.length > 0 && arquivoAtual && (
@@ -138,7 +147,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
               key={`${arquivoAtual.id_arquivo_local}:${indiceDocumento}`}
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
-              onCompararArquivo={onCompararArquivo}
+              ocultarComparar
               campoFoco={campoFocoConferencia}
               onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
             />

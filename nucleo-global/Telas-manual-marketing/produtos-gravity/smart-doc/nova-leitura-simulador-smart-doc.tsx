@@ -673,7 +673,13 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   }
 
   function renderPassoResultado() {
-    return <ResultadoSimuladorSmartDoc arquivos={arquivos} tempoSegundos={elapsedSegundos + 120} />
+    return (
+      <ResultadoSimuladorSmartDoc
+        arquivos={arquivos}
+        tempoSegundos={elapsedSegundos + 120}
+        rotuloLeitura={nomeLeitura}
+      />
+    )
   }
 
   return (

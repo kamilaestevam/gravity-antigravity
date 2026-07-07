@@ -7,7 +7,7 @@ export function DocBidFreteManual() {
       secao={DOC_BID_FRETE_SECAO}
       metadados={DOC_BID_FRETE_METADADOS}
       manualSlug="bid-frete"
-      secoesAbertasInicial={[1, 2, 3, 4, 5, 6]}
+      secoesAbertasInicial={[1, 2, 3, 4, 5, 6, 7]}
     />
   )
 }

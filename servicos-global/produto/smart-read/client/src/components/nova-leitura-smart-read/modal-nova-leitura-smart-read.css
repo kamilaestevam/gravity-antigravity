@@ -2452,6 +2452,27 @@
   gap: 0.75rem;
 }
 
+.sr-conf-cabecalho-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sr-conf-cabecalho-tabs .sr-conf-tabs {
+  margin-bottom: 0;
+  border-bottom: none;
+  min-width: 0;
+}
+
+.sr-conf-cabecalho-tabs > .gb-btn {
+  flex-shrink: 0;
+  margin-bottom: 0.375rem;
+}
+
 .sr-conf-tabs {
   display: flex;
   gap: 0.25rem;
@@ -2706,6 +2727,16 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   flex: 0 1 280px;
   max-width: 320px;
   min-width: 12rem;
+}
+
+.sr-conf-progresso-busca--solo {
+  flex: 1 1 auto;
+  max-width: none;
+  width: 100%;
+}
+
+.sr-conf-riscos-cabecalho-principal:has(.sr-conf-progresso-busca--solo) {
+  width: 100%;
 }
 
 .sr-conf-progresso-busca .dt-header-busca {

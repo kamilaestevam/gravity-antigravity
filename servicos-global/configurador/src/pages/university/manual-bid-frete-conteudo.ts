@@ -136,12 +136,12 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
             {
               legenda: 'Tipo de Operação',
               pilaresFiltrosMapaBidFrete: ['01'],
+              paragrafoAntes: 'Defina o **Tipo de Operação** desejado',
               imagensCompostas: [
                 {
                   figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_operacoes'),
-                      paragrafoAntes: 'Defina o **Tipo de Operação** desejado',
                     },
                     {
                       imagem: S('insight_menu_mapa_botoes_operacoes_resultado'),
@@ -159,12 +159,12 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
             {
               legenda: 'Modal',
               pilaresFiltrosMapaBidFrete: ['02'],
+              paragrafoAntes: 'Combine os **modais** na sua busca',
               imagensCompostas: [
                 {
                   figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_modal'),
-                      paragrafoAntes: 'Combine os **modais** na sua busca',
                     },
                     {
                       imagem: S('insight_menu_mapa_botoes_modal_resultado'),
@@ -177,12 +177,12 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
             {
               legenda: 'Origem',
               pilaresFiltrosMapaBidFrete: ['03'],
+              paragrafoAntes: 'Selecione a **origem** da busca',
               imagensCompostas: [
                 {
                   figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_origem'),
-                      paragrafoAntes: 'Selecione a **origem** da busca',
                     },
                     {
                       imagem: S('insight_menu_mapa_botoes_origem_resultado'),

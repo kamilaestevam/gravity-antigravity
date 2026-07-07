@@ -302,6 +302,8 @@ export interface DocGaleriaTela {
   pilaresMapaBidFrete?: Array<'01' | '02' | '03' | '04'>
   /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
   pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
+  /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
+  pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }

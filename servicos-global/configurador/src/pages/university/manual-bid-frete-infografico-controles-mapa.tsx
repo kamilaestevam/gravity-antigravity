@@ -27,6 +27,56 @@ type GrupoControlesMapa = {
   itens: ItemControleMapa[]
 }
 
+export type ManualPilarControlesMapaBidFreteId = 'vista' | 'zoom' | 'restaurar' | 'linhas'
+
+export const MANUAL_PILARES_CONTROLES_MAPA_BID_FRETE: Record<
+  ManualPilarControlesMapaBidFreteId,
+  { icone: Icon; cor: string; borda: string; fundo: string }
+> = {
+  vista: { icone: Globe, cor: '#60a5fa', borda: 'rgba(96,165,250,.32)', fundo: 'rgba(96,165,250,.08)' },
+  zoom: { icone: MagnifyingGlassPlus, cor: '#34d399', borda: 'rgba(52,211,153,.32)', fundo: 'rgba(52,211,153,.08)' },
+  restaurar: { icone: ArrowCounterClockwise, cor: '#fbbf24', borda: 'rgba(251,191,36,.32)', fundo: 'rgba(251,191,36,.08)' },
+  linhas: { icone: Eye, cor: '#a78bfa', borda: 'rgba(167,139,250,.32)', fundo: 'rgba(139,92,246,.08)' },
+}
+
+export function ManualPilaresControlesMapaBidFreteChips({ pilares }: { pilares: ManualPilarControlesMapaBidFreteId[] }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 6,
+        flexShrink: 0,
+        paddingTop: 2,
+      }}
+      aria-label={`Controles ${pilares.join(' e ')} do mapa`}
+    >
+      {pilares.map((id) => {
+        const pilar = MANUAL_PILARES_CONTROLES_MAPA_BID_FRETE[id]
+        const Icone = pilar.icone
+        return (
+          <div
+            key={id}
+            title={id}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 8,
+              border: `1px solid ${pilar.borda}`,
+              background: pilar.fundo,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icone size={18} weight="duotone" color={pilar.cor} aria-hidden />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 const GRUPOS_CONTROLES: GrupoControlesMapa[] = [
   {
     rotulo: 'Vista',
@@ -147,7 +197,14 @@ function GrupoToolbar({ grupo }: { grupo: GrupoControlesMapa }) {
       >
         {grupo.rotulo}
       </span>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <div style={{
+        display: 'flex',
+        gap: 8,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+      }}>
         {grupo.itens.map(item => (
           <BotaoToolbar
             key={item.rotulo}
@@ -219,13 +276,10 @@ export function ManualInfograficoBidFreteControlesMapa() {
               letterSpacing: '-.01em',
             }}
           >
-            Controles rápidos de leitura do hub
+            Controles rápidos do mapa
           </p>
           <p style={{ margin: '8px 0 0', fontSize: '.74rem', lineHeight: 1.5, color: CORPO_70 }}>
-            Quatro grupos na barra: alternar <strong style={{ color: '#cbd5e1' }}>vista</strong>, ajustar{' '}
-            <strong style={{ color: '#cbd5e1' }}>zoom</strong>,{' '}
-            <strong style={{ color: '#cbd5e1' }}>restaurar</strong> a posição e{' '}
-            <strong style={{ color: '#cbd5e1' }}>ocultar/exibir linhas</strong> de rota.
+            Utilize os atalhos para personalizar a sua experiência de navegação e facilitar a leitura dos dados espaciais.
           </p>
         </div>
       </div>
@@ -265,10 +319,10 @@ export function ManualInfograficoBidFreteControlesMapa() {
         }}
       >
         <p style={{ margin: 0, fontWeight: 800, color: '#cbd5e1', fontSize: '.72rem', lineHeight: 1.4 }}>
-          Vista · Zoom · Restaurar · Linhas
+          Vista, Zoom, Restaurar e Linhas
         </p>
         <p style={{ margin: '6px 0 0' }}>
-          Abaixo, cada controle com print da tela.
+          Acompanhe a seguir a demonstração visual de cada controle aplicado diretamente na interface.
         </p>
       </div>
     </div>

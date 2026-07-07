@@ -39,7 +39,7 @@ const PILARES: PilarFiltrosMapaBidFrete[] = [
   {
     num: '01',
     rotulo: 'Tipo de Operação',
-    descricao: 'Explore **Importação** e **Exportação** — opções que definem o fluxo operacional visível no mapa.',
+    descricao: 'Defina **Importação** e **Exportação** e controle o fluxo operacional visível no mapa.',
     icone: ArrowsDownUp,
     cor: '#f87171',
     borda: 'rgba(248,113,113,.32)',
@@ -48,7 +48,7 @@ const PILARES: PilarFiltrosMapaBidFrete[] = [
   {
     num: '02',
     rotulo: 'Modal',
-    descricao: 'Escolha o **modal de transporte** — marítimo, aéreo e demais opções configuradas no workspace.',
+    descricao: 'Combine **modal de transporte**, marítimo, aéreo e demais opções do workspace.',
     icone: Airplane,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -57,7 +57,7 @@ const PILARES: PilarFiltrosMapaBidFrete[] = [
   {
     num: '03',
     rotulo: 'Origem',
-    descricao: 'Selecione **terminal** ou **região de saída** para focalizar rotas a partir desse ponto.',
+    descricao: 'Selecione **terminal** ou **região de saída** e focalize rotas a partir desse ponto.',
     icone: MapPin,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
@@ -66,7 +66,7 @@ const PILARES: PilarFiltrosMapaBidFrete[] = [
   {
     num: '04',
     rotulo: 'Destino',
-    descricao: 'Aplique o mesmo critério na **chegada** — o mapa exibe só trechos compatíveis.',
+    descricao: 'Aplique o critério na **chegada**. O mapa destaca só trechos compatíveis.',
     icone: Flag,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -75,7 +75,7 @@ const PILARES: PilarFiltrosMapaBidFrete[] = [
   {
     num: '05',
     rotulo: 'Status',
-    descricao: 'Filtre por **status** das cotações — e combine com as demais dimensões do painel.',
+    descricao: 'Filtre **status** das cotações e combine com as demais dimensões do painel.',
     icone: CircleDashed,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.32)',
@@ -268,9 +268,11 @@ function RodapeCombinacoesFiltrosMapa() {
       </div>
 
       <p style={{ margin: 0 }}>
-        Misture <strong style={{ color: '#cbd5e1' }}>Tipo de Operação</strong>, <strong style={{ color: '#cbd5e1' }}>Modal</strong>,{' '}
-        <strong style={{ color: '#cbd5e1' }}>Origem</strong>, <strong style={{ color: '#cbd5e1' }}>Destino</strong> e{' '}
-        <strong style={{ color: '#cbd5e1' }}>Status</strong> em qualquer ordem. Cada ajuste recalcula pins, rotas e cotações visíveis na hora.
+        Cruze <strong style={{ color: '#cbd5e1' }}>Tipo de Operação</strong>,{' '}
+        <strong style={{ color: '#cbd5e1' }}>Modal</strong>, <strong style={{ color: '#cbd5e1' }}>Origem</strong>,{' '}
+        <strong style={{ color: '#cbd5e1' }}>Destino</strong> e <strong style={{ color: '#cbd5e1' }}>Status</strong>{' '}
+        em qualquer ordem. Cada ajuste recalcula <em style={{ color: '#94a3b8', fontStyle: 'italic' }}>pins</em>, rotas e
+        cotações na hora.
       </p>
     </div>
   )
@@ -324,7 +326,7 @@ export function ManualInfograficoBidFreteFiltrosMapa() {
             lineHeight: 1.35,
             letterSpacing: '-.01em',
           }}>
-            Refinar mapa: explore as opções
+            Refinar mapa: combine filtros
           </p>
         </div>
       </div>

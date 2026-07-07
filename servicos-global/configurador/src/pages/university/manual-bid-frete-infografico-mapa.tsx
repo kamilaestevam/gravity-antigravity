@@ -8,6 +8,7 @@ import {
   Sparkle,
   type Icon,
 } from '@phosphor-icons/react'
+import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -37,7 +38,7 @@ const PILARES: PilarMapaBidFrete[] = [
   {
     num: '01',
     rotulo: 'Selecionar rota no mapa',
-    descricao: 'Clique em uma **rota** ou **pin** para abrir o acesso às **cotações** daquele trecho operacional.',
+    descricao: 'Selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} e abra as **cotações** do trecho em tempo real.',
     icone: MapPin,
     cor: '#f87171',
     borda: 'rgba(248,113,113,.32)',
@@ -45,8 +46,8 @@ const PILARES: PilarMapaBidFrete[] = [
   },
   {
     num: '02',
-    rotulo: 'Modal de cotações — visão geral',
-    descricao: 'O modal lista todas as **cotações vinculadas** à rota selecionada, com status e melhor proposta.',
+    rotulo: 'Modal de cotações e visão geral',
+    descricao: 'Consulte **status**, **melhor proposta** e atalhos de cada cotação vinculada à rota selecionada.',
     icone: ListBullets,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -54,8 +55,8 @@ const PILARES: PilarMapaBidFrete[] = [
   },
   {
     num: '03',
-    rotulo: 'Detalhe da cotação',
-    descricao: 'Expanda uma proposta para ver **rota**, **carga**, **valores** e o comparativo da melhor oferta.',
+    rotulo: 'Detalhamento no modal',
+    descricao: 'Compare a **melhor oferta** no resumo expandido e avance para a **cotação completa** quando precisar.',
     icone: FileText,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
@@ -64,7 +65,7 @@ const PILARES: PilarMapaBidFrete[] = [
   {
     num: '04',
     rotulo: 'Lista e ações no modal',
-    descricao: 'Aprove, recuse ou **navegue** para a cotação completa sem sair da tela **Insights**.',
+    descricao: 'Gerencie aprovações, recusas e navegação sem sair da tela **Insights**.',
     icone: CheckCircle,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -73,11 +74,7 @@ const PILARES: PilarMapaBidFrete[] = [
 ]
 
 function renderizarNegrito(texto: string) {
-  return texto.split('**').map((parte, i) =>
-    i % 2 === 1
-      ? <strong key={i} style={{ color: '#cbd5e1', fontWeight: 700 }}>{parte}</strong>
-      : parte,
-  )
+  return <ManualInfograficoRichText texto={texto} />
 }
 
 function CardPilar({ pilar }: { pilar: PilarMapaBidFrete }) {
@@ -229,7 +226,7 @@ export function ManualInfograficoBidFreteMapa() {
             lineHeight: 1.35,
             letterSpacing: '-.01em',
           }}>
-            O mapa global é hub de cotações — não só visualização
+            <ManualInfograficoRichText texto="O mapa como **Hub de Cotações**" />
           </p>
           <p style={{
             margin: '8px 0 0',
@@ -237,7 +234,15 @@ export function ManualInfograficoBidFreteMapa() {
             lineHeight: 1.5,
             color: CORPO_70,
           }}>
-            Quatro interações no <strong style={{ color: '#cbd5e1' }}>mapa</strong> transformam rotas e pins em <strong style={{ color: '#cbd5e1' }}>acesso direto</strong> às cotações vinculadas — consultar, detalhar e agir sem sair de <strong style={{ color: '#cbd5e1' }}>Insights</strong>.
+            <ManualInfograficoRichText texto="Quatro atalhos transformam o **mapa** em hub operacional de **cotações vinculadas**." />
+          </p>
+          <p style={{
+            margin: '6px 0 0',
+            fontSize: '.74rem',
+            lineHeight: 1.5,
+            color: CORPO_70,
+          }}>
+            <ManualInfograficoRichText texto="Gerencie propostas sem trocar de aba." />
           </p>
         </div>
       </div>

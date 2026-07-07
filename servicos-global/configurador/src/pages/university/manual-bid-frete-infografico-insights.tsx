@@ -12,6 +12,7 @@ import {
   Warning,
   type Icon,
 } from '@phosphor-icons/react'
+import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -30,7 +31,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 1,
     rotulo: 'KPIs do topo',
     descricao:
-      'Três cards: **Aguardando aprovação**, **Aguardando resposta** e **Tempo médio de resposta**, com contagem, volume USD e tooltip.',
+      'Consulte **Aguardando aprovação**, **Aguardando resposta** e **Tempo médio** com volume na moeda e detalhes nos tooltips.',
     icone: Warning,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.28)',
@@ -40,7 +41,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 2,
     rotulo: 'Mapa global',
     descricao:
-      'Globo ou mapa plano com **rotas**, pins por terminal e painel **Refinar mapa**. Clique na rota abre o detalhe.',
+      'Cruze **rotas** e pins{{icone:pin-mapa-bid-frete}} e filtre pelo **Refinar mapa** para focar operações relevantes.',
     icone: Globe,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.28)',
@@ -50,7 +51,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 3,
     rotulo: 'Alertas do dia',
     descricao:
-      'Cards de atenção (vencimentos, respostas, aprovações, novas cotações) por **dia**. Setas trocam a data; clique abre a lista.',
+      'Monitore vencimentos, respostas pendentes, aprovações e novas cotações do dia.',
     icone: Bell,
     cor: '#f87171',
     borda: 'rgba(248,113,113,.28)',
@@ -60,7 +61,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 4,
     rotulo: 'Funil por status',
     descricao:
-      'Barras horizontais com a distribuição das **cotações ativas** em cada status do workspace.',
+      'Distribuição das **cotações ativas** separadas por cada etapa do workspace.',
     icone: Funnel,
     cor: '#818cf8',
     borda: 'rgba(129,140,248,.28)',
@@ -70,7 +71,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 5,
     rotulo: 'Evolução mensal',
     descricao:
-      'Barras por mês: cotações **aprovadas**, **em andamento** e **recusadas** nos últimos seis meses.',
+      'Histórico de volume dos últimos seis meses, comparando cotações **aprovadas**, **em andamento** e **recusadas**.',
     icone: ChartBar,
     cor: '#3b82f6',
     borda: 'rgba(59,130,246,.28)',
@@ -80,7 +81,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 6,
     rotulo: 'Distribuição por modal',
     descricao:
-      'Donut **Marítimo × Aéreo × Rodoviário** com contagem e percentual por modal.',
+      'Compare volume entre **Marítimo**, **Aéreo** e **Rodoviário**.',
     icone: ChartPie,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.28)',
@@ -90,7 +91,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 7,
     rotulo: 'Câmbio PTAX',
     descricao:
-      'Taxas **BACEN** (USD, EUR, CNY…) em **Hoje**, **Histórico** e **Futuro**; **spread médio** vs PTAX.',
+      'Taxas do **BACEN** (cenário **Atual**, **Histórico** e **Futuro**) e comparativo do **spread médio** aplicado em relação à PTAX.',
     icone: CurrencyDollar,
     cor: '#3b82f6',
     borda: 'rgba(59,130,246,.28)',
@@ -100,7 +101,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 8,
     rotulo: 'Melhor cotação',
     descricao:
-      'Cotação de **maior saving** do mês: rota origem→destino, transit time e valor USD ganho.',
+      'Operação com maior saving do mês: rota, transit time e valor economizado em USD.',
     icone: Trophy,
     cor: '#f59e0b',
     borda: 'rgba(245,158,11,.28)',
@@ -110,7 +111,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 9,
     rotulo: 'Top Incoterms',
     descricao:
-      'Ranking dos **Incoterms** mais usados, com barra de progresso e percentual por termo.',
+      'Ranking e percentual de utilização dos **Incoterms** nas suas cotações.',
     icone: ListBullets,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.28)',
@@ -120,7 +121,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
     num: 10,
     rotulo: 'Taxa de aprovação',
     descricao:
-      'Donut de prazos: cotações **em tempo**, **atrasadas** e **sem resposta** no fluxo de aprovação.',
+      'Desempenho do fluxo de aprovação, categorizando os prazos em **no tempo**, **atrasadas** e **sem resposta**.',
     icone: ThumbsUp,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.28)',
@@ -172,15 +173,7 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
             {bloco.rotulo}
           </p>
           <p style={{ margin: '6px 0 0', fontSize: '.72rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {bloco.descricao.split('**').map((parte, i) =>
-              i % 2 === 1 ? (
-                <strong key={i} style={{ color: '#cbd5e1', fontWeight: 700 }}>
-                  {parte}
-                </strong>
-              ) : (
-                parte
-              ),
-            )}
+            <ManualInfograficoRichText texto={bloco.descricao} />
           </p>
         </div>
       </div>
@@ -225,10 +218,13 @@ export function ManualInfograficoBidFreteInsights() {
           margin: '0 0 6px',
         }}
       >
-        Mapa das métricas · UX 10
+        Mapa de métricas
       </p>
-      <p style={{ margin: '0 0 16px', fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
-        O que cada bloco da tela Insights mostra
+      <p style={{ margin: '0 0 6px', fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
+        Visão detalhada dos indicadores da tela Insights
+      </p>
+      <p style={{ margin: '0 0 16px', fontSize: '.72rem', lineHeight: 1.5, color: CORPO_70 }}>
+        <ManualInfograficoRichText texto="Consulte cada indicador abaixo e avance nos subtópicos para **tooltips**, **mapa** e **Controle de Exibição do Mapa**." />
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div

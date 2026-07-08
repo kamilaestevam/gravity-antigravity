@@ -177,6 +177,11 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'lista_tooltip_3': '/university/screenshots/bid-frete-int-lista-tooltip-3.png',
   'lista': '/university/screenshots/bid-frete-int-lista.png',
   'manual_modal_operaca': '/university/screenshots/bid-frete-int-manual-modal-operaca.png',
+  'manual_origem_destino': '/university/screenshots/bid-frete-int-manual-origem-destino.png',
+  'manual_origem_porto_origem_dados_pais_cidade_estado': '/university/screenshots/bid-frete-int-manual-origem-porto-origem-dados-pais-cidade-estado.png',
+  'manual_origem_porto_origem_pais': '/university/screenshots/bid-frete-int-manual-origem-porto-origem-pais.png',
+  'manual_origem_porto_origem_preferencias': '/university/screenshots/bid-frete-int-manual-origem-porto-origem-preferencias.png',
+  'manual_origem_porto_origem': '/university/screenshots/bid-frete-int-manual-origem-porto-origem.png',
 }
 
 // ── Atalhos nomeados (imports diretos nos conteudos) ──
@@ -342,3 +347,8 @@ export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_2 = screenshotBidFreteInt('l
 export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_3 = screenshotBidFreteInt('lista_tooltip_3')
 export const SCREENSHOT_BID_FRETE_INT_LISTA = screenshotBidFreteInt('lista')
 export const SCREENSHOT_BID_FRETE_INT_MANUAL_MODAL_OPERACA = screenshotBidFreteInt('manual_modal_operaca')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_DESTINO = screenshotBidFreteInt('manual_origem_destino')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_DADOS_PAIS_CIDADE_ESTADO = screenshotBidFreteInt('manual_origem_porto_origem_dados_pais_cidade_estado')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_PAIS = screenshotBidFreteInt('manual_origem_porto_origem_pais')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_PREFERENCIAS = screenshotBidFreteInt('manual_origem_porto_origem_preferencias')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM = screenshotBidFreteInt('manual_origem_porto_origem')

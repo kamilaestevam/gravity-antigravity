@@ -366,6 +366,42 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNo
   ],
 })
 
+/** §4.02.01 — 3º tópico: origem e destino (após Modal e Operação). */
+export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao = grade({
+  tituloEtapa: 'Origem e Destino',
+  textoIntro: 'Tela para seleção e configuração da origem e destino',
+  chipBidFreteFormaManual: true,
+  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
+  colunas: 1,
+  telas: [fig('manual_origem_destino', '')],
+  infograficoBidFreteOrigemDestinoCampos: true,
+  textoAposInfograficoBidFreteOrigemDestinoCampos:
+    'Acompanhe nas imagens a seguir como configurar o local de origem. O exemplo ilustra uma operação marítima para demonstrar a lógica padrão de busca e seleção.',
+  telasAposInfograficoBidFreteOrigemDestinoCampos: [
+    fig('manual_origem_porto_origem', '**11.** Campo **porto de origem**'),
+    fig('manual_origem_porto_origem_pais', '**12.** Seleção de **país**'),
+    fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
+    fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
+  ],
+  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos: {
+    tipo: 'dica',
+    texto:
+      'Acelere o preenchimento do formulário buscando o local desejado pelo nome exato ou pelas iniciais.',
+  },
+  calloutApos: [
+    {
+      tipo: 'dica',
+      texto:
+        'É possível incluir **portos alternativos** de origem e destino para que o agente tenha opções de cotação (ex.: **Itajaí** e **Itapoá**).',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'No **Aéreo** e **Rodoviário**, os campos de origem/destino mudam — consulte os ramos por modal.',
+    },
+  ],
+})
+
 /** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotacao[] = [
   grade({
@@ -379,13 +415,11 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotac
   }),
 ]
 
-/** §4.02.01 — wizard manual aberto + passos comuns, NCM, envio e resultado. */
+/** §4.02.01 — wizard manual: início, Modal e Operação, origem/destino e resultado. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM,
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
+  GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
 ]
 

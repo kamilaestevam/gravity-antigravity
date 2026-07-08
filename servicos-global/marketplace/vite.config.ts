@@ -29,6 +29,10 @@ export default defineConfig({
       '@nucleo/campo-geral-global': path.resolve(
         __dirname,
         '../../nucleo-global/Campos/campo-geral-global/src/index.ts'
+      ),
+      '@nucleo/status-badge-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Feedback/status-badge-global/src/index.ts'
       )
     }
   },

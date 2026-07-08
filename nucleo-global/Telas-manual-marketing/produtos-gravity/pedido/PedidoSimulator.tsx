@@ -26,17 +26,21 @@ import {
   Info,
   ListBullets,
   Kanban,
-  ClipboardText,
+  ChartPieSlice,
+  SquaresFour,
+  ClockCounterClockwise,
+  SidebarSimple,
 } from '@phosphor-icons/react'
 import {
   PERFIS_EMPRESA_SIMULADOR,
   resolverRotuloEscopoEmpresasSimulador,
 } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
-import { PEDIDOS_LISTA_DEMO_SIMULADOR } from './dados-kanban-simulador-pedido'
+import { InsightsSimuladorPedido } from './insights-simulador-pedido'
 import { KanbanSimuladorPedido } from './kanban-simulador-pedido'
+import { ListaSimuladorPedido } from './lista-simulador-pedido'
 import './pedido-simulator.css'
 
-type AbaVisualizacao = 'lista' | 'pipeline'
+type AbaVisualizacao = 'insights' | 'lista' | 'dashboard' | 'kanban'
 
 const PRODUTOS_DROPDOWN = [
   { name: 'Pedido', icon: <Package size={14} weight="duotone" style={{ color: '#d97706' }} />, selected: true },
@@ -57,7 +61,7 @@ const MEU_ESPACO_ITENS = [
 ] as const
 
 export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () => void }) {
-  const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('pipeline')
+  const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('insights')
   const [productDropdownOpen, setProductDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [empresaDropdownOpen, setEmpresaDropdownOpen] = useState(false)
@@ -67,8 +71,8 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
   )
   const [meuEspacoAberto, setMeuEspacoAberto] = useState(false)
   const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
-  const [sidebarAtivo, setSidebarAtivo] = useState<'operacao' | 'config'>('operacao')
-  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [sidebarAtivo, setSidebarAtivo] = useState<'historico' | 'config'>('historico')
+  const [menuLateralContraida, setMenuLateralContraida] = useState(false)
 
   const prodDropdownRef = useRef<HTMLDivElement>(null)
   const empresaDropdownRef = useRef<HTMLDivElement>(null)
@@ -99,14 +103,46 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
     [empresasSelecionadas],
   )
 
+  const tituloPagina = useMemo(() => {
+    if (abaAtiva === 'insights') return 'Insights'
+    if (abaAtiva === 'lista') return 'Lista'
+    if (abaAtiva === 'dashboard') return 'Dashboard'
+    return 'Kanban'
+  }, [abaAtiva])
+
+  const subtituloPagina = useMemo(() => {
+    if (abaAtiva === 'insights') return 'Panorama dos pedidos — volume, status, valores e prazos'
+    if (abaAtiva === 'lista') return 'Pedidos de importação e exportação em tabela virtual'
+    if (abaAtiva === 'dashboard') return 'Indicadores operacionais em tempo real'
+    return 'Pipeline visual por etapa do pedido'
+  }, [abaAtiva])
+
+  const iconePagina = useMemo(() => {
+    if (abaAtiva === 'insights') return <ChartPieSlice size={22} weight="duotone" />
+    if (abaAtiva === 'lista') return <ListBullets size={22} weight="duotone" />
+    if (abaAtiva === 'dashboard') return <SquaresFour size={22} weight="duotone" />
+    return <Kanban size={22} weight="duotone" />
+  }, [abaAtiva])
+
   const todosFiltradosSelecionados =
     empresasFiltradas.length > 0 &&
     empresasFiltradas.every((empresa) => idsEmpresasEscopo.includes(empresa.id))
 
+  function alternarMenuLateral() {
+    setMenuLateralContraida((v) => !v)
+    setProductDropdownOpen(false)
+    setEmpresaDropdownOpen(false)
+    setMeuEspacoAberto(false)
+  }
+
   function alternarEmpresaEscopo(id: IdEmpresa) {
-    setIdsEmpresasEscopo((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    )
+    setIdsEmpresasEscopo((atual) => {
+      if (atual.includes(id)) {
+        if (atual.length === 1) return atual
+        return atual.filter((item) => item !== id)
+      }
+      return [...atual, id]
+    })
   }
 
   function definirEscopoEmpresasFiltradas(selecionar: boolean) {
@@ -131,37 +167,6 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  function renderLista() {
-    return (
-      <div className="pds-lista-wrap">
-        <table className="pds-lista-tabela">
-          <thead>
-            <tr>
-              <th>Nº Pedido</th>
-              <th>Cliente</th>
-              <th>Etapa</th>
-              <th>Valor FOB</th>
-              <th>Abertura</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PEDIDOS_LISTA_DEMO_SIMULADOR.map((pedido) => (
-              <tr key={pedido.id}>
-                <td style={{ fontWeight: 700 }}>{pedido.numero}</td>
-                <td>{pedido.cliente}</td>
-                <td>
-                  <span className="pds-pill-etapa">{pedido.etapa}</span>
-                </td>
-                <td style={{ fontFamily: 'ui-monospace, monospace', color: '#fbbf24' }}>{pedido.valor}</td>
-                <td>{pedido.data}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-
   return (
     <div className="pds-shell-wrap">
       {onFecharSimulador && (
@@ -180,23 +185,36 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
       )}
 
       <div className="sds-root pds-root" onClick={(e) => e.stopPropagation()}>
-        <aside className="sds-sidebar">
+        <aside className={`sds-sidebar${menuLateralContraida ? ' sds-sidebar--collapsed' : ''}`}>
+          <button
+            type="button"
+            className="pds-sidebar-toggle"
+            onClick={alternarMenuLateral}
+            aria-label={menuLateralContraida ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+            title={menuLateralContraida ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          >
+            <SidebarSimple size={16} weight={menuLateralContraida ? 'duotone' : 'regular'} />
+          </button>
+
           <div className="sds-brand-wrapper" ref={prodDropdownRef}>
             <div
-              className={`sds-brand${productDropdownOpen ? ' sds-brand--open' : ''}`}
+              className={`sds-brand${productDropdownOpen ? ' sds-brand--open' : ''}${menuLateralContraida ? ' sds-brand--collapsed' : ''}`}
               onClick={() => {
                 setEmpresaDropdownOpen(false)
                 setProductDropdownOpen((v) => !v)
               }}
+              title={menuLateralContraida ? 'Pedido by Gravity' : undefined}
             >
-              <div>
+              <div className="pds-sidebar-brand-inner">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Package size={16} weight="duotone" style={{ color: '#d97706' }} />
-                  <span style={{ fontWeight: 800, fontSize: 14 }}>Pedido</span>
+                  <Package size={16} weight="duotone" style={{ color: '#d97706', flexShrink: 0 }} />
+                  <span className="pds-sidebar-hide-when-collapsed" style={{ fontWeight: 800, fontSize: 14 }}>Pedido</span>
                 </div>
-                <span style={{ fontSize: 10, color: '#64748b', marginLeft: 24 }}>by Gravity</span>
+                <span className="pds-sidebar-hide-when-collapsed" style={{ fontSize: 10, color: '#64748b', marginLeft: 24 }}>by Gravity</span>
               </div>
-              {productDropdownOpen ? <CaretUp size={14} /> : <CaretDown size={14} style={{ color: '#64748b' }} />}
+              {!menuLateralContraida && (
+                productDropdownOpen ? <CaretUp size={14} /> : <CaretDown size={14} style={{ color: '#64748b' }} />
+              )}
             </div>
 
             {productDropdownOpen && (
@@ -251,9 +269,10 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
           <div className="sds-empresa-wrapper" ref={empresaDropdownRef}>
             <button
               type="button"
-              className={`sds-empresa${empresaDropdownOpen ? ' sds-empresa--open' : ''}`}
+              className={`sds-empresa${empresaDropdownOpen ? ' sds-empresa--open' : ''}${menuLateralContraida ? ' sds-empresa--collapsed' : ''}`}
               aria-expanded={empresaDropdownOpen}
               aria-haspopup="listbox"
+              title={menuLateralContraida ? rotuloEmpresaEscopo.nome : undefined}
               onClick={() => {
                 setEmpresaDropdownOpen((v) => !v)
                 setProductDropdownOpen(false)
@@ -266,11 +285,13 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                   <Buildings size={14} weight="duotone" />
                 )}
               </div>
-              <div className="sds-empresa__info">
+              <div className="sds-empresa__info pds-sidebar-hide-when-collapsed">
                 <span className="sds-empresa__nome">{rotuloEmpresaEscopo.nome}</span>
                 <span className="sds-empresa__plano">{rotuloEmpresaEscopo.plano}</span>
               </div>
-              {empresaDropdownOpen ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
+              {!menuLateralContraida && (
+                empresaDropdownOpen ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />
+              )}
             </button>
 
             {empresaDropdownOpen && (
@@ -324,21 +345,37 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     )
                   })}
                 </div>
+                <div className="sds-empresa-dropdown__footer">
+                  <button type="button" className="sds-empresa-action">
+                    <Plus size={12} weight="bold" />
+                    Criar empresa
+                  </button>
+                  <button type="button" className="sds-empresa-action">
+                    <Gear size={12} weight="duotone" />
+                    Gerenciar empresas
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className={`sds-nav-group${meuEspacoAberto ? ' sds-nav-group--open' : ''}`}>
+          <div className={`sds-nav-group${meuEspacoAberto ? ' sds-nav-group--open' : ''}${menuLateralContraida ? ' sds-nav-group--collapsed' : ''}`}>
             <button
               type="button"
               className={`sds-nav-item sds-nav-parent${meuEspacoAberto ? ' sds-nav-item--active' : ''}`}
-              onClick={() => setMeuEspacoAberto((v) => !v)}
+              title={menuLateralContraida ? 'Meu Espaço' : undefined}
+              onClick={() => {
+                if (menuLateralContraida) return
+                setMeuEspacoAberto((v) => !v)
+              }}
             >
               <UserCircle size={16} weight="duotone" />
-              <span style={{ flex: 1 }}>Meu Espaço</span>
-              {meuEspacoAberto ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
+              <span className="pds-sidebar-hide-when-collapsed" style={{ flex: 1 }}>Meu Espaço</span>
+              {!menuLateralContraida && (
+                meuEspacoAberto ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />
+              )}
             </button>
-            {meuEspacoAberto && (
+            {meuEspacoAberto && !menuLateralContraida && (
               <div className="sds-submenu">
                 {MEU_ESPACO_ITENS.map((item) => (
                   <button
@@ -347,7 +384,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     className={`sds-nav-item sds-submenu-item${meuEspacoItemAtivo === item.id ? ' sds-nav-item--active' : ''}`}
                     onClick={() => {
                       setMeuEspacoItemAtivo(item.id)
-                      setSidebarAtivo('operacao')
+                      setSidebarAtivo('historico')
                     }}
                   >
                     {item.icon}
@@ -359,30 +396,31 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
             )}
           </div>
 
-          <div>
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#475569', letterSpacing: '0.05em' }}>PEDIDO</span>
+          <div className="pds-sidebar-nav-pedido">
+            <span className="pds-sidebar-hide-when-collapsed pds-sidebar-section-label">PEDIDO</span>
             <button
               type="button"
-              className={`sds-nav-item${sidebarAtivo === 'operacao' ? ' sds-nav-item--active' : ''}`}
+              className={`sds-nav-item${sidebarAtivo === 'historico' ? ' sds-nav-item--active' : ''}`}
+              title={menuLateralContraida ? 'Histórico' : undefined}
               onClick={() => {
-                setSidebarAtivo('operacao')
+                setSidebarAtivo('historico')
                 setMeuEspacoItemAtivo(null)
               }}
-              style={{ marginTop: 6 }}
             >
-              <ClipboardText size={14} />
-              Operações
+              <ClockCounterClockwise size={14} />
+              <span className="pds-sidebar-hide-when-collapsed">Histórico</span>
             </button>
             <button
               type="button"
               className={`sds-nav-item${sidebarAtivo === 'config' ? ' sds-nav-item--active' : ''}`}
+              title={menuLateralContraida ? 'Configurações' : undefined}
               onClick={() => {
                 setSidebarAtivo('config')
                 setMeuEspacoItemAtivo(null)
               }}
             >
               <Gear size={14} />
-              Configurações
+              <span className="pds-sidebar-hide-when-collapsed">Configurações</span>
             </button>
           </div>
         </aside>
@@ -393,13 +431,12 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
               <div className="sds-mtg-left">
                 <div className="sds-mtg-page-header">
                   <span className="sds-mtg-page-icon" aria-hidden="true">
-                    {abaAtiva === 'lista' ? (
-                      <ListBullets size={22} weight="duotone" />
-                    ) : (
-                      <Kanban size={22} weight="duotone" />
-                    )}
+                    {iconePagina}
                   </span>
-                  <span className="sds-mtg-page-title">{abaAtiva === 'lista' ? 'Lista' : 'Pipeline'}</span>
+                  <div className="pds-mtg-titulo-grupo">
+                    <span className="sds-mtg-page-title">{tituloPagina}</span>
+                    <span className="pds-mtg-subtitulo">{subtituloPagina}</span>
+                  </div>
                 </div>
               </div>
               <div className="sds-mtg-right">
@@ -429,9 +466,19 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
               </div>
             </header>
 
-            {sidebarAtivo === 'operacao' && (
+            {sidebarAtivo === 'historico' && (
               <div className="smart-read-vis-toolbar">
                 <nav className="srt-tabs" aria-label="Modo de visualização do Pedido" role="tablist">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={abaAtiva === 'insights'}
+                    className={`srt-tab${abaAtiva === 'insights' ? ' srt-tab--active' : ''}`}
+                    onClick={() => setAbaAtiva('insights')}
+                  >
+                    <ChartPieSlice weight="duotone" size={16} />
+                    <span>Insights</span>
+                  </button>
                   <button
                     type="button"
                     role="tab"
@@ -445,47 +492,24 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                   <button
                     type="button"
                     role="tab"
-                    aria-selected={abaAtiva === 'pipeline'}
-                    className={`srt-tab${abaAtiva === 'pipeline' ? ' srt-tab--active' : ''}`}
-                    onClick={() => setAbaAtiva('pipeline')}
+                    aria-selected={abaAtiva === 'dashboard'}
+                    className={`srt-tab${abaAtiva === 'dashboard' ? ' srt-tab--active' : ''}`}
+                    onClick={() => setAbaAtiva('dashboard')}
+                  >
+                    <SquaresFour weight="duotone" size={16} />
+                    <span>Dashboard</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={abaAtiva === 'kanban'}
+                    className={`srt-tab${abaAtiva === 'kanban' ? ' srt-tab--active' : ''}`}
+                    onClick={() => setAbaAtiva('kanban')}
                   >
                     <Kanban weight="duotone" size={16} />
-                    <span>Pipeline</span>
+                    <span>Kanban</span>
                   </button>
                 </nav>
-                <div className="smart-read-vis-toolbar__acoes">
-                  <div className="sr-dropdown-novo">
-                    <button
-                      type="button"
-                      className="sds-btn-novo"
-                      aria-expanded={novoDropdownAberto}
-                      aria-haspopup="menu"
-                      onClick={() => setNovoDropdownAberto((v) => !v)}
-                    >
-                      <Plus size={14} weight="bold" />
-                      Novo
-                      <CaretDown
-                        size={12}
-                        weight="bold"
-                        style={{
-                          marginLeft: 2,
-                          transition: 'transform 0.15s',
-                          transform: novoDropdownAberto ? 'rotate(180deg)' : 'none',
-                        }}
-                      />
-                    </button>
-                    {novoDropdownAberto && (
-                      <div className="sr-dropdown-novo-menu sr-dropdown-novo-menu--direita" role="menu">
-                        <button type="button" className="sr-dropdown-novo-item" role="menuitem">
-                          <span className="sr-dropdown-novo-item-icone">
-                            <ClipboardText size={13} weight="duotone" />
-                          </span>
-                          <span>Novo Pedido</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -495,8 +519,14 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
               <div className="pds-banner-config">
                 Configurações — etapas do pipeline e colunas da lista (simulação).
               </div>
+            ) : abaAtiva === 'insights' ? (
+              <InsightsSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
             ) : abaAtiva === 'lista' ? (
-              renderLista()
+              <ListaSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
+            ) : abaAtiva === 'dashboard' ? (
+              <div className="pds-banner-config">
+                Dashboard operacional — visão em tempo real (simulação).
+              </div>
             ) : (
               <KanbanSimuladorPedido />
             )}

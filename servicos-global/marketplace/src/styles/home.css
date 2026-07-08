@@ -351,11 +351,11 @@
 }
 
 /* Relação de Cores e Tags */
-.stack-layer-pedido       { --layer-color: #818cf8; --layer-color-rgb: 129, 140, 248; --layer-index: 0; }
-.stack-layer-bid-frete     { --layer-color: #fbbf24; --layer-color-rgb: 251, 191, 36;  --layer-index: 1; }
-.stack-layer-bid-cambio    { --layer-color: #06b6d4; --layer-color-rgb: 6, 182, 212;  --layer-index: 2; }
-.stack-layer-simula-custo  { --layer-color: #10b981; --layer-color-rgb: 16, 185, 129; --layer-index: 3; }
-.stack-layer-nf-importacao { --layer-color: #3b82f6; --layer-color-rgb: 59, 130, 246;  --layer-index: 4; }
+.stack-layer-pedido       { --layer-color: #d97706; --layer-color-rgb: 217, 119, 6;   --layer-index: 4; }
+.stack-layer-bid-frete     { --layer-color: #fbbf24; --layer-color-rgb: 251, 191, 36;  --layer-index: 0; }
+.stack-layer-bid-cambio    { --layer-color: #06b6d4; --layer-color-rgb: 6, 182, 212;  --layer-index: 1; }
+.stack-layer-simula-custo  { --layer-color: #10b981; --layer-color-rgb: 16, 185, 129; --layer-index: 2; }
+.stack-layer-nf-importacao { --layer-color: #3b82f6; --layer-color-rgb: 59, 130, 246;  --layer-index: 3; }
 .stack-layer-smart-read    { --layer-color: #a855f7; --layer-color-rgb: 168, 85, 247; --layer-index: 5; }
 
 /* Faces 3D da placa (Acrílico 3D) */
@@ -641,8 +641,9 @@
   isolation: isolate;
 }
 
-/* Smart Read: tooltips do simulador não podem ser cortados pela placa */
-.stack-layer-smart-read.active .slab-top {
+/* Smart Read / Pedido: tooltips do simulador não podem ser cortados pela placa */
+.stack-layer-smart-read.active .slab-top,
+.stack-layer-pedido.active .slab-top {
   overflow: visible;
 }
 

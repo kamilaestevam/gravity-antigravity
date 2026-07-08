@@ -2,6 +2,7 @@ import { Fragment, useState, useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ClipboardText,
+  Package,
   Truck,
   CurrencyDollar,
   Calculator as CalcIcon,
@@ -34,15 +35,15 @@ import '../styles/home.css'
 const PRODUCTS = [
   {
     id: 'pedido',
-    icon: <ClipboardText size={26} weight="duotone" />,
+    icon: <Package size={26} weight="duotone" />,
     name: 'Pedido',
-    tagline: 'Gestão de processos de importação e exportação',
-    desc: 'Controle completo de pedidos com saldo automático, etapas customizáveis e rastreabilidade de ponta a ponta.',
-    tags: ['Saldo automático', 'Rastreabilidade', 'Etapas'],
+    tagline: 'Insights, lista, pipeline e gestão de processos COMEX',
+    desc: 'Panorama de pedidos com globo animado, KPIs, lista operacional e Kanban por etapa — saldo automático e rastreabilidade ponta a ponta.',
+    tags: ['Insights', 'Kanban', 'Rastreabilidade'],
     cat: 'Operações',
-    catColor: '#818cf8',
-    catBg: 'rgba(99,102,241,0.1)',
-    catBorder: 'rgba(99,102,241,0.2)',
+    catColor: '#fbbf24',
+    catBg: 'rgba(217,119,6,0.1)',
+    catBorder: 'rgba(251,191,36,0.25)',
     price: 'R$ 1,99',
     unit: '/ processo',
   },
@@ -105,7 +106,7 @@ const PRODUCTS = [
   {
     id: 'smart-read',
     icon: <Sparkle size={26} weight="duotone" />,
-    name: 'Smart Read',
+    name: 'Smart Docs',
     tagline: 'Inteligência documental com IA para COMEX',
     desc: 'Extração automática, conferência, análise de riscos e Q&A com IA sobre qualquer documento de comércio exterior.',
     tags: ['Extração com IA', 'Q&A documental', 'Riscos'],
@@ -124,7 +125,7 @@ const CALC_ITEMS = [
   { id: 'bid-cambio',  label: 'BID Câmbio',    desc: 'Cotações de câmbio comercial',       price: 2.99,  unit: 'cotações',  fixed: false },
   { id: 'simula-custo',label: 'Simula Custo',  desc: 'Mensalidade fixa',                   price: 10.99, unit: '',          fixed: true  },
   { id: 'nf-importacao',label: 'NF Importação',desc: 'Notas fiscais de importação',        price: 1.99,  unit: 'documentos',fixed: false },
-  { id: 'smart-read',  label: 'Smart Read',    desc: 'Análises com IA',                    price: 2.00,  unit: 'análises',  fixed: false },
+  { id: 'smart-read',  label: 'Smart Docs',    desc: 'Análises com IA',                    price: 2.00,  unit: 'análises',  fixed: false },
 ]
 
 const PARTNERS = [
@@ -292,7 +293,7 @@ function PricingCalculator() {
 const TESTIMONIALS = [
   { name: 'Mariana Alves', role: 'Coordenadora de COMEX, Grupo Têxtil SP', text: 'Reduzimos 40% do tempo de abertura de processo com o módulo Pedido. A rastreabilidade de saldo foi o que mais nos impressionou.' },
   { name: 'Ricardo Fonseca', role: 'Gerente de Importação, Importadora Litoral', text: 'O BID Frete nos deu visibilidade real dos nossos fretes. Antes ficávamos dependentes de planilha. Hoje em 2 cliques sabemos quem é o melhor fornecedor.' },
-  { name: 'Juliana Motta', role: 'Head de Operações, Tradings Brasil', text: 'O Smart Read transformou a conferência documental. O que levava 3 horas nossa equipe agora faz em 15 minutos com a IA.' },
+  { name: 'Juliana Motta', role: 'Head de Operações, Tradings Brasil', text: 'O Smart Docs transformou a conferência documental. O que levava 3 horas nossa equipe agora faz em 15 minutos com a IA.' },
 ]
 
 export function Home() {
@@ -310,17 +311,17 @@ export function Home() {
   })
 
   const consoleTabsList = [
-    { id: 'pedido', label: 'Pedido', icon: <ClipboardText size={16} /> },
+    { id: 'pedido', label: 'Pedido', icon: <Package size={16} /> },
     { id: 'bid-frete', label: 'BID Frete', icon: <Truck size={16} /> },
     { id: 'bid-cambio', label: 'BID Câmbio', icon: <CurrencyDollar size={16} /> },
     { id: 'simula-custo', label: 'Simula Custo', icon: <CalcIcon size={16} /> },
     { id: 'nf-importacao', label: 'NF Importação', icon: <FileText size={16} /> },
-    { id: 'smart-read', label: 'Smart Read', icon: <Sparkle size={16} /> },
+    { id: 'smart-read', label: 'Smart Docs', icon: <Sparkle size={16} /> },
   ]
 
   const activeProduct = PRODUCTS.find(p => p.id === selectedScreen)
   const activeRgb = activeProduct
-    ? (activeProduct.id === 'pedido' ? '129, 140, 248' :
+    ? (activeProduct.id === 'pedido' ? '217, 119, 6' :
        activeProduct.id === 'bid-frete' ? '251, 191, 36' :
        activeProduct.id === 'bid-cambio' ? '6, 182, 212' :
        activeProduct.id === 'simula-custo' ? '16, 185, 129' :
@@ -593,8 +594,8 @@ export function Home() {
 
             {/* Linhas de conexão SVG — ocultas (coordenadas fixas geravam artefatos sobre a pilha/simulador) */}
             <svg className="stack-connector-svg" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5, overflow: 'visible' }}>
-              <path d="M -20 460 L 60 460 L 150 400" fill="none" stroke="#818cf8" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
-              <circle cx="150" cy="400" r="3" fill="#818cf8" />
+              <path d="M -20 460 L 60 460 L 150 400" fill="none" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+              <circle cx="150" cy="400" r="3" fill="#fbbf24" />
               
               <path d="M 430 390 L 350 390 L 250 350" fill="none" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
               <circle cx="250" cy="350" r="3" fill="#fbbf24" />
@@ -608,39 +609,42 @@ export function Home() {
               <path d="M -20 180 L 60 180 L 150 140" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
               <circle cx="150" cy="140" r="3" fill="#3b82f6" />
               
-              <path d="M 420 110 L 340 110 L 250 70" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
-              <circle cx="250" cy="70" r="3" fill="#a855f7" />
+              <path d="M 420 110 L 340 110 L 250 70" fill="none" stroke="#d97706" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+              <circle cx="250" cy="70" r="3" fill="#d97706" />
+              
+              <path d="M -20 50 L 60 50 L 150 20" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+              <circle cx="150" cy="20" r="3" fill="#a855f7" />
             </svg>
 
             {/* Rótulos Flutuantes de Informações */}
-            <div className="stack-label-float" style={{ bottom: '40px', left: '-50px', '--layer-color': '#818cf8' } as CSSProperties}>
-              <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#818cf8' }}>MÓDULO 01</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Gestão de Pedidos</span>
-            </div>
-            <div className="stack-label-float" style={{ bottom: '110px', right: '-60px', left: 'auto', '--layer-color': '#fbbf24' } as CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '40px', left: '-50px', '--layer-color': '#fbbf24' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#fbbf24' }}>MÓDULO 02</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>BID Frete Intel.</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '180px', left: '-60px', '--layer-color': '#06b6d4' } as CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '110px', right: '-60px', left: 'auto', '--layer-color': '#06b6d4' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#06b6d4' }}>MÓDULO 03</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>BID Câmbio Corretor</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '250px', right: '-70px', left: 'auto', '--layer-color': '#10b981' } as CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '180px', left: '-60px', '--layer-color': '#10b981' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#10b981' }}>MÓDULO 04</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Simula Custo Fiscal</span>
             </div>
-            <div className="stack-label-float" style={{ bottom: '320px', left: '-50px', '--layer-color': '#3b82f6' } as CSSProperties}>
+            <div className="stack-label-float" style={{ bottom: '250px', right: '-70px', left: 'auto', '--layer-color': '#3b82f6' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#3b82f6' }}>MÓDULO 05</span>
               <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>NF Entrada Automática</span>
             </div>
+            <div className="stack-label-float" style={{ bottom: '320px', left: '-50px', '--layer-color': '#d97706' } as CSSProperties}>
+              <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#d97706' }}>MÓDULO 01</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Pedido · Insights</span>
+            </div>
             <div className="stack-label-float" style={{ bottom: '390px', right: '-50px', left: 'auto', '--layer-color': '#a855f7' } as CSSProperties}>
               <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', color: '#a855f7' }}>MÓDULO 06</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Smart Read IA</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Smart Docs</span>
             </div>
 
             {/* Palco Isométrico 3D */}
             <div className={`stack-3d-wrapper ${selectedScreen ? 'has-active-layer' : ''}`}>
-              {/* Placa 06: Smart Read */}
+              {/* Placa 06: Smart Docs */}
               <div
                 className={`stack-layer stack-layer-smart-read ${selectedScreen === 'smart-read' ? 'active' : ''}`}
                 role="button"
@@ -662,9 +666,39 @@ export function Home() {
                       <div className="slab-image-bg" style={{ backgroundImage: "url('/telas/tela_site_smart_doc.png')" }} />
                       <div className="slab-content">
                         <span className="slab-icon"><Sparkle size={16} weight="duotone" /></span>
-                        <span className="slab-title">Smart Read</span>
+                        <span className="slab-title">Smart Docs</span>
                       </div>
                       <span className="slab-tag">IA</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Placa 02: Pedido (Insights) */}
+              <div
+                className={`stack-layer stack-layer-pedido ${selectedScreen === 'pedido' ? 'active' : ''}`}
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (selectedScreen !== 'pedido') {
+                    setSelectedScreen('pedido')
+                  }
+                }}
+              >
+                <div className="slab-left" />
+                <div className="slab-front" />
+                <div className="slab-top">
+                  {selectedScreen === 'pedido' ? (
+                    <InteractiveSimulator productId="pedido" onClose={closeScreen} />
+                  ) : (
+                    <>
+                      <div className="slab-image-bg" style={{ backgroundImage: "url('/telas/tela_site_pedido_insights.png')" }} />
+                      <div className="slab-content">
+                        <span className="slab-icon"><Package size={16} weight="duotone" /></span>
+                        <span className="slab-title">Pedido</span>
+                      </div>
+                      <span className="slab-tag">Insights</span>
                     </>
                   )}
                 </div>
@@ -799,36 +833,6 @@ export function Home() {
                         <span className="slab-title">BID Frete</span>
                       </div>
                       <span className="slab-tag">Logística</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Placa 01: Pedido */}
-              <div
-                className={`stack-layer stack-layer-pedido ${selectedScreen === 'pedido' ? 'active' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (selectedScreen !== 'pedido') {
-                    setSelectedScreen('pedido')
-                  }
-                }}
-              >
-                <div className="slab-left" />
-                <div className="slab-front" />
-                <div className="slab-top">
-                  {selectedScreen === 'pedido' ? (
-                    <InteractiveSimulator productId="pedido" onClose={closeScreen} />
-                  ) : (
-                    <>
-                      <div className="slab-image-bg" style={{ backgroundImage: "url('/telas/tela_site_pedido.png')" }} />
-                      <div className="slab-content">
-                        <span className="slab-icon"><ClipboardText size={16} weight="duotone" /></span>
-                        <span className="slab-title">Pedido</span>
-                      </div>
-                      <span className="slab-tag">Processo</span>
                     </>
                   )}
                 </div>

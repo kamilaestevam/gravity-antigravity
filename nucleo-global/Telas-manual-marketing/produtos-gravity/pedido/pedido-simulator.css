@@ -28,47 +28,6 @@
   background: rgba(217, 119, 6, 0.12);
 }
 
-.pds-lista-wrap {
-  flex: 1;
-  overflow: auto;
-  padding: 14px;
-}
-
-.pds-lista-tabela {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-
-.pds-lista-tabela th {
-  text-align: left;
-  padding: 8px 10px;
-  color: #64748b;
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.pds-lista-tabela td {
-  padding: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #e2e8f0;
-}
-
-.pds-lista-tabela tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.pds-pill-etapa {
-  display: inline-flex;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 9px;
-  font-weight: 700;
-  background: rgba(217, 119, 6, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.2);
-}
-
 .pds-banner-config {
   margin-bottom: 12px;
   padding: 8px 12px;
@@ -76,4 +35,167 @@
   border-radius: 8px;
   font-size: 11px;
   color: #94a3b8;
+}
+
+.pds-mtg-titulo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pds-mtg-subtitulo {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Seletor de empresas — layout Smart Doc, cores Pedido (âmbar) */
+.pds-root .sds-empresa:hover,
+.pds-root .sds-empresa--open {
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.pds-root .sds-empresa__avatar {
+  background: rgba(217, 119, 6, 0.15);
+  color: var(--sds-accent-ring);
+}
+
+.pds-root .sds-empresa-dropdown__toolbar-btn {
+  color: var(--sds-accent-ring);
+}
+
+.pds-root .sds-empresa-item--ativa {
+  background: rgba(217, 119, 6, 0.1);
+}
+
+.pds-root .sds-empresa-item__avatar {
+  color: var(--sds-accent-ring);
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.pds-root .sds-dropdown__item--selected {
+  background: rgba(217, 119, 6, 0.08);
+}
+
+/* ── Sidebar recolhível (paridade MenuLateralGlobal / Bid Frete) ── */
+.pds-root .sds-sidebar {
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
+}
+
+.pds-root .sds-sidebar--collapsed {
+  width: 72px;
+  min-width: 72px;
+  padding: 16px 8px;
+}
+
+.pds-sidebar-toggle {
+  position: absolute;
+  right: -13px;
+  top: 138px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  padding: 0;
+}
+
+.pds-sidebar-toggle:hover {
+  background: #d97706;
+  color: #fff;
+  border-color: #fbbf24;
+  transform: scale(1.12);
+  box-shadow: 0 2px 12px rgba(217, 119, 6, 0.35);
+}
+
+.pds-root .sds-sidebar--collapsed .pds-sidebar-toggle {
+  top: 82px;
+}
+
+.pds-root .sds-sidebar--collapsed .pds-sidebar-hide-when-collapsed {
+  display: none !important;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-brand {
+  justify-content: center;
+  padding: 8px 4px;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-brand--collapsed .pds-sidebar-brand-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-brand--collapsed .pds-sidebar-brand-inner > div {
+  margin: 0 !important;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-empresa {
+  justify-content: center;
+  padding: 8px;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-empresa--collapsed .sds-empresa__avatar {
+  margin: 0;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-nav-item {
+  justify-content: center;
+  padding: 8px;
+  gap: 0;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-nav-parent {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.pds-root .sds-sidebar--collapsed .pds-sidebar-nav-pedido .sds-nav-item {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.pds-sidebar-section-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.pds-sidebar-nav-pedido .sds-nav-item + .sds-nav-item {
+  margin-top: 2px;
+}
+
+.pds-root .sds-sidebar--collapsed .pds-sidebar-nav-pedido .sds-nav-item:first-of-type {
+  margin-top: 0;
+}
+
+.pds-root .sds-sidebar--collapsed .sds-dropdown,
+.pds-root .sds-sidebar--collapsed .sds-empresa-dropdown {
+  left: calc(100% + 8px);
+  top: 0;
+  min-width: 240px;
+}
+
+.pds-root .sds-nav-item--active {
+  background: rgba(217, 119, 6, 0.12);
+  color: #fbbf24;
 }

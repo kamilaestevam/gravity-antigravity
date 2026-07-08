@@ -1,0 +1,223 @@
+.pds-mapa-globo {
+  min-height: var(--pds-insights-linha-altura, 300px);
+  max-height: var(--pds-insights-linha-altura, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pds-mapa-globo__header {
+  flex-shrink: 0;
+}
+
+.pds-mapa-globo__subtitulo {
+  margin: 0;
+  font-size: 0.5625rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.pds-mapa-globo__canvas-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: 10px;
+  overflow: visible;
+  user-select: none;
+  touch-action: none;
+}
+
+.pds-mapa-globo__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px;
+}
+
+.pds-mapa-globo__legenda {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: 0.5625rem;
+  color: #94a3b8;
+  z-index: 12;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.pds-mapa-globo__legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pds-mapa-globo__controles {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 20;
+}
+
+.pds-mapa-globo__controle-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pds-mapa-globo__controle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pds-mapa-globo__pin {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+  z-index: 15;
+  cursor: pointer;
+}
+
+.pds-mapa-globo__pin--ativo {
+  z-index: 30;
+}
+
+.pds-mapa-globo__pin-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1.5px solid #f59e0b;
+  opacity: 0;
+  animation: pdsMapaPinPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
+}
+
+.pds-mapa-globo__pin-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.pds-mapa-globo__pin:hover .pds-mapa-globo__pin-dot {
+  transform: scale(1.15);
+}
+
+.pds-mapa-globo__tooltip {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 220px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  font-size: 0.625rem;
+  color: #cbd5e1;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  z-index: 40;
+}
+
+.pds-mapa-globo__tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pds-mapa-globo__tooltip-flag {
+  font-size: 1rem;
+}
+
+.pds-mapa-globo__tooltip-header strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 0.6875rem;
+}
+
+.pds-mapa-globo__tooltip-header span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.5625rem;
+}
+
+.pds-mapa-globo__tooltip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pds-mapa-globo__tooltip-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.pds-mapa-globo__tooltip-stat strong {
+  color: #f8fafc;
+  font-size: 0.625rem;
+}
+
+.pds-mapa-globo__tooltip-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pds-mapa-globo__tooltip-footer strong {
+  color: #f8fafc;
+}
+
+.pds-mapa-globo__tooltip-hint {
+  color: #64748b;
+  font-size: 0.5625rem;
+}
+
+@keyframes pdsMapaPinPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.pds-insights-globe-row .pds-mapa-globo.pds-insights-card {
+  padding-bottom: 10px;
+}

@@ -35,17 +35,3 @@ export const CARDS_KANBAN_INICIAIS_PEDIDO_SIMULADOR: CardKanbanPedidoSimulador[]
     valor: 'USD 89.400',
   },
 ]
-
-export const PEDIDOS_LISTA_DEMO_SIMULADOR = CARDS_KANBAN_INICIAIS_PEDIDO_SIMULADOR.map((card) => ({
-  id: card.id,
-  numero: card.titulo.split(' - ')[0] ?? card.titulo,
-  cliente: card.cliente,
-  etapa:
-    card.status === 'abertura'
-      ? 'Abertura'
-      : card.status === 'anuencia'
-        ? 'Anuência'
-        : 'Desembaraço',
-  valor: card.valor,
-  data: card.data,
-}))

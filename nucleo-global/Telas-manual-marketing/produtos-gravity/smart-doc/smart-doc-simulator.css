@@ -1,6 +1,13 @@
 /* Smart Doc Simulator — espelho visual do Insights Smart Read (marketing) */
 @import './tutorial-opcional-simulador-smart-doc.css';
 
+.sds-shell-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
 .sds-root {
   --sds-accent: #6366f1;
   --sds-accent-hover: #4f46e5;

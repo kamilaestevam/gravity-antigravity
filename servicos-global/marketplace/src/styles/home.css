@@ -665,7 +665,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 2200;
+  z-index: 2600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -682,11 +682,6 @@
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   transform: translate(50%, -50%);
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
-}
-
-/* Nova Leitura aberta — só o X do wizard; evita dois fechar no mesmo canto */
-.interactive-simulator-shell:has(.sds-nl-overlay) .interactive-simulator-close {
-  display: none;
 }
 
 .interactive-simulator-close:hover {

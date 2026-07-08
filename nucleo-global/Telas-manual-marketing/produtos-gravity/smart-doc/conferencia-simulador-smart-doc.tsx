@@ -53,6 +53,7 @@ type SelecaoConferencia = {
 type Props = {
   arquivos: ArquivoDemoSimulador[]
   selecao: SelecaoConferencia | null
+  abaAtiva?: AbaConferenciaSimulador
   onCompararArquivo?: () => void
   onAbaChange?: (aba: AbaConferenciaSimulador) => void
 }
@@ -88,8 +89,14 @@ function iconeSecao(titulo: string) {
   return <FileText weight="duotone" size={18} />
 }
 
-export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArquivo, onAbaChange }: Props) {
-  const [aba, setAba] = useState<AbaConferenciaSimulador>('campos')
+export function ConferenciaSimuladorSmartDoc({
+  arquivos,
+  selecao,
+  abaAtiva,
+  onCompararArquivo,
+  onAbaChange,
+}: Props) {
+  const [aba, setAba] = useState<AbaConferenciaSimulador>(abaAtiva ?? 'campos')
   const [progressoColapsado, setProgressoColapsado] = useState(false)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
   const [filtro, setFiltro] = useState<'todos' | 'preenchidos' | 'vazios'>('todos')
@@ -103,6 +110,12 @@ export function ConferenciaSimuladorSmartDoc({ arquivos, selecao, onCompararArqu
   useEffect(() => {
     onAbaChange?.(aba)
   }, [aba, onAbaChange])
+
+  useEffect(() => {
+    if (abaAtiva && abaAtiva !== aba) {
+      setAba(abaAtiva)
+    }
+  }, [abaAtiva, aba])
 
   function selecionarAba(id: AbaConferenciaSimulador) {
     setAba(id)

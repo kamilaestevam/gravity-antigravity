@@ -51,6 +51,14 @@ import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador
 import { resolverIdTelaShellSimulador } from './dados-tutorial-opcional-simulador-smart-doc'
 import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-simulador-smart-doc'
 import {
+  deveExibirDespedidaShellSimulador,
+  resolverConteudoDespedidaShellSimulador,
+  URL_CONSULTOR_SMART_DOCS_SIMULADOR,
+  type DestinoDespedidaSimulador,
+  type PendenciaDespedidaSimulador,
+} from './despedida-saida-nova-leitura-simulador-smart-doc'
+import { ModalDespedidaSimuladorSmartDoc } from './modal-despedida-simulador-smart-doc'
+import {
   formatarSavingSimulador,
   PERFIS_EMPRESA_SIMULADOR,
   agregarInsightsEmpresasSimulador,
@@ -128,7 +136,7 @@ function LinkBaseCalculoSimulador() {
   )
 }
 
-export function SmartDocSimulator() {
+export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: () => void }) {
   const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('insights')
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoPreset>(30)
   const [tipoParticipante, setTipoParticipante] = useState<TipoParticipante>('exportador')
@@ -143,6 +151,10 @@ export function SmartDocSimulator() {
   const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
   const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>('insights')
   const [modalNovoAberto, setModalNovoAberto] = useState(false)
+  const [despedidaShellAberta, setDespedidaShellAberta] = useState(false)
+  const [destinoNovaLeitura, setDestinoNovaLeitura] = useState<DestinoDespedidaSimulador | null>(null)
+  const [wizardIniciado, setWizardIniciado] = useState(false)
+  const [wizardCompletado, setWizardCompletado] = useState(false)
   const [barraDestaque, setBarraDestaque] = useState<number | null>(null)
   const [linhaListaExpandida, setLinhaListaExpandida] = useState<string | null>(null)
   const [rankingSelecionado, setRankingSelecionado] = useState<number | null>(null)
@@ -156,6 +168,50 @@ export function SmartDocSimulator() {
     modalNovoAberto,
     linhaListaExpandida,
   })
+  const conteudoDespedidaShell = useMemo(
+    () =>
+      resolverConteudoDespedidaShellSimulador(
+        idTelaTutorial ?? 'insights',
+        wizardIniciado,
+        wizardCompletado,
+      ),
+    [idTelaTutorial, wizardIniciado, wizardCompletado],
+  )
+
+  function fecharModalNovo() {
+    setModalNovoAberto(false)
+  }
+
+  function solicitarFecharShell() {
+    if (!onFecharSimulador) return
+    if (
+      !deveExibirDespedidaShellSimulador(wizardCompletado) ||
+      !conteudoDespedidaShell
+    ) {
+      onFecharSimulador()
+      return
+    }
+    setDespedidaShellAberta(true)
+  }
+
+  function falarComConsultorShell() {
+    setDespedidaShellAberta(false)
+    window.open(URL_CONSULTOR_SMART_DOCS_SIMULADOR, '_blank', 'noopener,noreferrer')
+  }
+
+  function fecharSairShell() {
+    setDespedidaShellAberta(false)
+    setModalNovoAberto(false)
+    onFecharSimulador?.()
+  }
+
+  function irParaPendenciaShell(pendencia: PendenciaDespedidaSimulador) {
+    if (!pendencia.destino) return
+    setDespedidaShellAberta(false)
+    setWizardIniciado(true)
+    setDestinoNovaLeitura(pendencia.destino)
+    setModalNovoAberto(true)
+  }
 
   const refRaizTutorial = useRef<HTMLDivElement>(null)
   const prodDropdownRef = useRef<HTMLDivElement>(null)
@@ -256,10 +312,6 @@ export function SmartDocSimulator() {
   const produtosFiltrados = PRODUTOS_DROPDOWN.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
-
-  function fecharModalNovo() {
-    setModalNovoAberto(false)
-  }
 
   function renderInsights() {
     return (
@@ -774,6 +826,22 @@ export function SmartDocSimulator() {
   }
 
   return (
+    <div className="sds-shell-wrap">
+      {onFecharSimulador && (
+        <button
+          type="button"
+          className="interactive-simulator-close"
+          aria-label="Fechar demonstração"
+          title="Fechar"
+          onClick={(e) => {
+            e.stopPropagation()
+            solicitarFecharShell()
+          }}
+        >
+          <X size={20} weight="bold" />
+        </button>
+      )}
+
     <div className="sds-root" ref={refRaizTutorial} onClick={(e) => e.stopPropagation()}>
       <aside className="sds-sidebar" data-sds-tutorial-alvo="shell-nav-lateral">
         <div className="sds-brand-wrapper" ref={prodDropdownRef}>
@@ -1081,6 +1149,7 @@ export function SmartDocSimulator() {
                       role="menuitem"
                       onClick={() => {
                         setNovoDropdownAberto(false)
+                        setWizardIniciado(true)
                         setModalNovoAberto(true)
                       }}
                     >
@@ -1128,7 +1197,12 @@ export function SmartDocSimulator() {
       <NovaLeituraSimuladorSmartDoc
         aberto={modalNovoAberto}
         onFechar={fecharModalNovo}
+        onSairDemonstracao={fecharSairShell}
+        onFluxoCompleto={() => setWizardCompletado(true)}
+        destinoInicial={destinoNovaLeitura}
+        onDestinoInicialConsumido={() => setDestinoNovaLeitura(null)}
         onIrParaLista={() => {
+          setWizardCompletado(true)
           setAbaAtiva('lista')
           setLinhaListaExpandida('1')
         }}
@@ -1139,6 +1213,18 @@ export function SmartDocSimulator() {
           idTela={idTelaTutorial}
           habilitado
           onAlvoDestacadoChange={setAlvoTutorialDestacado}
+        />
+      )}
+    </div>
+
+      {conteudoDespedidaShell && (
+        <ModalDespedidaSimuladorSmartDoc
+          aberto={despedidaShellAberta}
+          conteudo={conteudoDespedidaShell}
+          onContinuar={() => setDespedidaShellAberta(false)}
+          onSair={falarComConsultorShell}
+          onFecharSair={fecharSairShell}
+          onPendencia={irParaPendenciaShell}
         />
       )}
     </div>

@@ -46,6 +46,14 @@ import {
 } from './dados-tutorial-opcional-simulador-smart-doc'
 import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador-smart-doc'
 import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-simulador-smart-doc'
+import {
+  deveExibirDespedidaNovaLeituraSimulador,
+  resolverConteudoDespedidaNovaLeituraSimulador,
+  URL_CONSULTOR_SMART_DOCS_SIMULADOR,
+  type DestinoDespedidaSimulador,
+  type PendenciaDespedidaSimulador,
+} from './despedida-saida-nova-leitura-simulador-smart-doc'
+import { ModalDespedidaSimuladorSmartDoc } from './modal-despedida-simulador-smart-doc'
 
 const PASSOS = [
   { id: 1, label: 'Anexar arquivo' },
@@ -142,10 +150,22 @@ type SelecaoConferenciaSimulador = {
 type Props = {
   aberto: boolean
   onFechar: () => void
+  onSairDemonstracao?: () => void
   onIrParaLista?: () => void
+  onFluxoCompleto?: () => void
+  destinoInicial?: DestinoDespedidaSimulador | null
+  onDestinoInicialConsumido?: () => void
 }
 
-export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }: Props) {
+export function NovaLeituraSimuladorSmartDoc({
+  aberto,
+  onFechar,
+  onSairDemonstracao,
+  onIrParaLista,
+  onFluxoCompleto,
+  destinoInicial = null,
+  onDestinoInicialConsumido,
+}: Props) {
   const [passo, setPasso] = useState(1)
   const [nomeLeitura, setNomeLeitura] = useState('Leitura 448')
   const [arquivos, setArquivos] = useState<ArquivoSimulador[]>([])
@@ -155,6 +175,10 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   const [preview, setPreview] = useState<PreviewSimulador | null>(null)
   const [selecaoConferencia, setSelecaoConferencia] = useState<SelecaoConferenciaSimulador | null>(null)
   const [abaConferencia, setAbaConferencia] = useState<AbaConferenciaSimulador>('campos')
+  const [abasConferenciaVisitadas, setAbasConferenciaVisitadas] = useState<Set<AbaConferenciaSimulador>>(
+    () => new Set(['campos']),
+  )
+  const [despedidaAberta, setDespedidaAberta] = useState(false)
   const refRaizTutorial = useRef<HTMLDivElement>(null)
   const [alvoTutorialDestacado, setAlvoTutorialDestacado] = useState<string | null>(null)
   useEfeitoDestaqueTutorialSimulador(alvoTutorialDestacado, refRaizTutorial)
@@ -168,11 +192,36 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
       setElapsedSegundos(0)
       setPreview(null)
       setAbaConferencia('campos')
+      setAbasConferenciaVisitadas(new Set(['campos']))
+      setDespedidaAberta(false)
       setSelecaoConferencia(null)
       return
     }
     setNomeLeitura(gerarNumeroLeituraAleatorio())
   }, [aberto])
+
+  function aplicarDestinoDemonstracao(destino: DestinoDespedidaSimulador) {
+    if (destino.passo >= 2) {
+      setArquivos(gerarArquivosDemoIniciais().map(marcarArquivoAnaliseCompleta))
+      setAnaliseCompleta(true)
+      setElapsedSegundos(8)
+    } else {
+      setArquivos(gerarArquivosDemoIniciais())
+      setAnaliseCompleta(false)
+      setElapsedSegundos(0)
+    }
+    setPasso(destino.passo)
+    if (destino.abaConferencia) {
+      setAbaConferencia(destino.abaConferencia)
+      setAbasConferenciaVisitadas((prev) => new Set([...prev, destino.abaConferencia!]))
+    }
+  }
+
+  useEffect(() => {
+    if (!aberto || !destinoInicial) return
+    aplicarDestinoDemonstracao(destinoInicial)
+    onDestinoInicialConsumido?.()
+  }, [aberto, destinoInicial, onDestinoInicialConsumido])
 
   useEffect(() => {
     if (passo !== 3) return
@@ -192,6 +241,16 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
       return { idArquivo: primeiro.id, idDocumento: primeiroDoc.id }
     })
   }, [passo, arquivos])
+
+  useEffect(() => {
+    if (passo !== 3) return
+    setAbasConferenciaVisitadas((prev) => {
+      if (prev.has(abaConferencia)) return prev
+      const next = new Set(prev)
+      next.add(abaConferencia)
+      return next
+    })
+  }, [passo, abaConferencia])
 
   useEffect(() => {
     if (passo !== 2 || !analiseCompleta) return
@@ -224,8 +283,46 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   const progressoGeral = Math.round(
     etapas.reduce((acc, e) => acc + e.progresso, 0) / etapas.length,
   )
+  const conteudoDespedida = useMemo(
+    () =>
+      resolverConteudoDespedidaNovaLeituraSimulador(
+        passo,
+        abasConferenciaVisitadas,
+        analiseCompleta,
+        arquivos.length > 0,
+      ),
+    [passo, abasConferenciaVisitadas, analiseCompleta, arquivos.length],
+  )
 
   if (!aberto) return null
+
+  function solicitarFechar() {
+    if (!deveExibirDespedidaNovaLeituraSimulador(passo)) {
+      onFechar()
+      return
+    }
+    setDespedidaAberta(true)
+  }
+
+  function falarComConsultor() {
+    setDespedidaAberta(false)
+    window.open(URL_CONSULTOR_SMART_DOCS_SIMULADOR, '_blank', 'noopener,noreferrer')
+  }
+
+  function fecharSairDemonstracao() {
+    setDespedidaAberta(false)
+    if (onSairDemonstracao) {
+      onSairDemonstracao()
+      return
+    }
+    onFechar()
+  }
+
+  function irParaPendenciaDespedida(pendencia: PendenciaDespedidaSimulador) {
+    if (!pendencia.destino) return
+    setDespedidaAberta(false)
+    aplicarDestinoDemonstracao(pendencia.destino)
+  }
 
   function anexarArquivo() {
     if (arquivos.length > 0) return
@@ -497,7 +594,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
         <div className="sds-nl-lateral-rodape">
           {passo === 1 && (
             <div className="sds-nl-lateral-botoes">
-              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={onFechar}>
+              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={solicitarFechar}>
                 Cancelar
               </button>
               <button
@@ -551,6 +648,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 type="button"
                 className="sds-nl-btn sds-nl-btn--prim"
                 onClick={() => {
+                  onFluxoCompleto?.()
                   onFechar()
                   onIrParaLista?.()
                 }}
@@ -749,6 +847,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
       <ConferenciaSimuladorSmartDoc
         arquivos={arquivos}
         selecao={selecaoConferencia}
+        abaAtiva={abaConferencia}
         onAbaChange={setAbaConferencia}
         onCompararArquivo={() => {
           const arq = arquivos.find((a) => a.id === selecaoConferencia?.idArquivo)
@@ -779,7 +878,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
               <span className="sds-nl-cabecalho-sub">{nomeLeitura}</span>
             </div>
           </div>
-          <button type="button" className="sds-nl-fechar" onClick={onFechar} aria-label="Fechar">
+          <button type="button" className="sds-nl-fechar" onClick={solicitarFechar} aria-label="Fechar">
             <X size={18} />
           </button>
         </header>
@@ -812,6 +911,17 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
           />
         )
       })()}
+
+      {despedidaAberta && conteudoDespedida && (
+        <ModalDespedidaSimuladorSmartDoc
+          aberto={despedidaAberta}
+          conteudo={conteudoDespedida}
+          onContinuar={() => setDespedidaAberta(false)}
+          onSair={falarComConsultor}
+          onFecharSair={fecharSairDemonstracao}
+          onPendencia={irParaPendenciaDespedida}
+        />
+      )}
 
       {preview && (
         <div

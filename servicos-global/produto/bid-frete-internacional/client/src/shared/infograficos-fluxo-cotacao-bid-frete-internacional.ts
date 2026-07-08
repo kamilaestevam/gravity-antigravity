@@ -11,6 +11,7 @@ import type {
 } from './types'
 import {
   type ComponentePrecoTermometro,
+  type SelecaoComponentesTermometro,
   type ItemHistoricoTermometro,
   type TipoBaseTermometroHistorico,
   dataReferenciaHistoricoTermometro,
@@ -38,7 +39,7 @@ export interface PontoSerieHistoricoTermometro {
 
 export type HistoricoAprovadoMesmasCondicoes = ItemHistoricoTermometro[]
 
-export type { TipoBaseTermometroHistorico, ComponentePrecoTermometro }
+export type { TipoBaseTermometroHistorico, ComponentePrecoTermometro, SelecaoComponentesTermometro }
 
 export type CotacaoHistoricoTermometroMesmasCondicoes = ItemHistoricoTermometro[]
 
@@ -341,7 +342,7 @@ function buildSerieTermometroDemonstracao(
 
 function resolverValorDeleTermometro(
   propostas: PropostaRankingBidFreteInternacional[],
-  componente: ComponentePrecoTermometro,
+  componente: SelecaoComponentesTermometro,
 ): number | null {
   return melhorValorComponentePropostas(
     propostas as ItemHistoricoTermometro['propostas'],
@@ -350,16 +351,51 @@ function resolverValorDeleTermometro(
   )
 }
 
-/** Histórico de mercado vs valor Dele (últimos 6 meses). */
+/** Uma base do termômetro (Contratado ou Propostas) com seu histórico já filtrado. */
+export type EntradaBaseTermometro = {
+  tipoBase: TipoBaseTermometroHistorico
+  historico?: HistoricoAprovadoMesmasCondicoes
+}
+
+/** Histórico de mercado vs valor Dele (últimos 6 meses) — base única. */
 export function buildSerieTermometro(
   propostas: PropostaRankingBidFreteInternacional[],
   historicoMesmasCondicoes?: HistoricoAprovadoMesmasCondicoes,
   tipoBase: TipoBaseTermometroHistorico = 'CONTRATADO',
-  componente: ComponentePrecoTermometro = 'FRETE_BASE',
+  componente: SelecaoComponentesTermometro = 'FRETE_BASE',
+): ResultadoSerieTermometro {
+  return buildSerieTermometroBases(
+    propostas,
+    [{ tipoBase, historico: historicoMesmasCondicoes }],
+    componente,
+  )
+}
+
+/**
+ * Histórico de mercado vs valor Dele (últimos 6 meses) — aceita múltiplas bases.
+ * Cotação presente em mais de uma base conta uma vez só (primeira entrada vence,
+ * ex.: aprovada vale pela regra do Contratado, não pela melhor proposta).
+ */
+export function buildSerieTermometroBases(
+  propostas: PropostaRankingBidFreteInternacional[],
+  entradas: EntradaBaseTermometro[],
+  componente: SelecaoComponentesTermometro = 'FRETE_BASE',
 ): ResultadoSerieTermometro {
   const meses = ultimos6MesesRotulos()
 
-  if (!historicoMesmasCondicoes || historicoMesmasCondicoes.length === 0) {
+  const idsVistos = new Set<string>()
+  const itensPorBase = entradas.map((entrada) => {
+    const itens = (entrada.historico ?? []).filter((item) => {
+      const id = item.id_cotacao_bid_frete_internacional
+      if (idsVistos.has(id)) return false
+      idsVistos.add(id)
+      return true
+    })
+    return { tipoBase: entrada.tipoBase, itens }
+  })
+
+  const totalHistorico = itensPorBase.reduce((acc, b) => acc + b.itens.length, 0)
+  if (totalHistorico === 0) {
     return comSeriePlotavelGarantida(
       buildSerieTermometroDemonstracao(propostas, meses),
       propostas,
@@ -374,21 +410,23 @@ export function buildSerieTermometro(
 
   const serie = meses.map((mes) => ({ mes, valor: 0, count: 0 }))
 
-  historicoMesmasCondicoes.forEach((cotacaoHistorico) => {
-    const valor = valorHistoricoCotacaoTermometro(cotacaoHistorico, tipoBase, componente)
-    if (valor == null) return
+  itensPorBase.forEach(({ tipoBase, itens }) => {
+    itens.forEach((cotacaoHistorico) => {
+      const valor = valorHistoricoCotacaoTermometro(cotacaoHistorico, tipoBase, componente)
+      if (valor == null) return
 
-    const dataReferencia = dataReferenciaHistoricoTermometro(cotacaoHistorico, tipoBase)
-    if (dataReferencia == null) return
+      const dataReferencia = dataReferenciaHistoricoTermometro(cotacaoHistorico, tipoBase)
+      if (dataReferencia == null) return
 
-    const slotIdx = slotsData.findIndex(
-      (slotDate) => slotDate.getFullYear() === dataReferencia.getFullYear()
-        && slotDate.getMonth() === dataReferencia.getMonth(),
-    )
-    if (slotIdx !== -1) {
-      serie[slotIdx].valor += valor
-      serie[slotIdx].count += 1
-    }
+      const slotIdx = slotsData.findIndex(
+        (slotDate) => slotDate.getFullYear() === dataReferencia.getFullYear()
+          && slotDate.getMonth() === dataReferencia.getMonth(),
+      )
+      if (slotIdx !== -1) {
+        serie[slotIdx].valor += valor
+        serie[slotIdx].count += 1
+      }
+    })
   })
 
   const validSlots = serie.filter((s) => s.count > 0)
@@ -396,7 +434,7 @@ export function buildSerieTermometro(
     return comSeriePlotavelGarantida(
       {
         ...buildSerieTermometroDemonstracao(propostas, meses),
-        quantidadeHistoricoMesmasCondicoes: historicoMesmasCondicoes.length,
+        quantidadeHistoricoMesmasCondicoes: totalHistorico,
       },
       propostas,
       meses,
@@ -417,7 +455,7 @@ export function buildSerieTermometro(
       termometroMedia6Meses: Math.round(media),
       termometroValorDele: valorDele,
       termometroSavingsValor: savings,
-      quantidadeHistoricoMesmasCondicoes: historicoMesmasCondicoes.length,
+      quantidadeHistoricoMesmasCondicoes: totalHistorico,
       termometroDadosDemonstracao: false,
     },
     propostas,

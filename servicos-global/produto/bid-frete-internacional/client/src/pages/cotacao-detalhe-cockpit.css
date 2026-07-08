@@ -126,6 +126,8 @@
 }
 
 .dc-cockpit-insights-row .dc-smart-card--termometro {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   justify-content: flex-start;
   min-height: 0;
@@ -150,12 +152,20 @@
   min-height: 0;
 }
 
-.dc-cockpit-insights-row .dc-smart-card--termometro .dc-smart-card-body--termometro {
-  flex: 0 0 auto;
-  min-height: auto;
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-smart-termometro-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
-/* Melhor proposta — mesma altura dos cards Ranking e Termômetro */
+.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.5rem 0.35rem 0.35rem;
+}
 .dc-cockpit-insights-row .dc-smart-card--melhor,
 .dc-cockpit-insights-row .dc-smart-card--melhor-compacto {
   display: flex;
@@ -220,18 +230,6 @@
   flex-shrink: 0;
   position: relative;
   z-index: 3;
-}
-
-/* Termômetro — gráfico ocupa o espaço restante dentro da altura compartilhada */
-.dc-cockpit-insights-row .dc-smart-card--termometro .dc-term-chart-slot {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding-top: 0;
-  padding-bottom: 0.35rem;
 }
 
 .dc-cockpit-insights-row .dc-term-plot-spark-mock {
@@ -2140,54 +2138,282 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 
 .dc-smart-termometro-topo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   flex-shrink: 0;
 }
 
 .dc-smart-termometro-filtros {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  padding: 0 0.65rem 0.35rem;
+  display: none;
 }
 
-.dc-smart-termometro-filtro-componente {
+.dc-smart-card--termometro {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.dc-termometro-head-acoes {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.5625rem;
-  font-weight: 600;
-  color: var(--text-secondary, #94a3b8);
+  gap: 0.4rem;
+  flex-shrink: 0;
 }
 
-.dc-smart-termometro-filtro-componente select {
+.dc-termometro-head-resumo {
   font-size: 0.5625rem;
   font-weight: 700;
-  color: #e2e8f0;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.35rem;
-  padding: 0.2rem 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
 }
 
-.dc-smart-termometro-filtro-incoterm {
+.dc-termometro-filtros-botao {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.5625rem;
-  font-weight: 600;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.55);
   color: var(--text-secondary, #94a3b8);
   cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.dc-termometro-filtros-botao:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  color: #e0e7ff;
+}
+
+.dc-termometro-filtros-botao--destacado {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.dc-termometro-filtros-painel {
+  position: fixed;
+  z-index: 1200;
+  min-width: 11.5rem;
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dc-termometro-filtros-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dc-termometro-filtros-secao-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.25rem 0.15rem;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #818cf8;
+}
+
+.dc-termometro-filtros-opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.3rem 0.35rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.dc-termometro-filtros-opcao:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: #e2e8f0;
+}
+
+.dc-termometro-filtros-opcao--ativa {
+  background: rgba(99, 102, 241, 0.18);
+  color: #e0e7ff;
+}
+
+.dc-termometro-filtros-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  color: #a5b4fc;
+}
+
+.dc-termometro-filtros-check--caixa {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.dc-termometro-filtros-check--marcado {
+  border-color: rgba(129, 140, 248, 0.7);
+  background: rgba(99, 102, 241, 0.35);
+  color: #e0e7ff;
+}
+
+.dc-termometro-filtros-separador {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.dc-termometro-filtros-secao--switch {
+  gap: 0.3rem;
+  padding: 0 0.25rem 0.1rem;
+}
+
+.dc-termometro-filtros-secao--switch .sg-container {
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.dc-termometro-filtros-secao--switch .sg-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dc-smart-termometro-incoterm-badge {
+  align-self: flex-start;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #c7d2fe;
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.dc-smart-termometro-canvas {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-smart-termometro-canvas-metricas {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.5rem 0.15rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dc-smart-termometro-canvas-vazio {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  text-align: center;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.6875rem;
+  line-height: 1.35;
+}
+
+.dc-term-chart-slot--aguardando {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.32) 100%);
+  border-radius: 8px;
+  margin: 0.25rem 0.35rem 0.35rem;
+  min-height: 0;
 }
 
 .dc-smart-termometro-dele-mercado {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.35rem 0.5rem;
   align-items: end;
+}
+
+.dc-smart-termometro-canvas-metricas .dc-smart-valor-hero {
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
+.dc-smart-termometro-canvas-metricas .dc-smart-valor-hero--secundario {
+  font-size: 0.9375rem;
+}
+
+.dc-smart-termometro-canvas-metricas .dc-smart-savings-pill {
+  align-self: center;
+  font-size: 0.5625rem;
+  padding: 0.15rem 0.4rem;
+}
+
+body.light-theme .dc-termometro-filtros-botao {
+  background: rgba(255, 255, 255, 0.92);
+  color: #475569;
+}
+
+body.light-theme .dc-termometro-filtros-botao--destacado {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4338ca;
+}
+
+body.light-theme .dc-termometro-filtros-painel {
+  background: rgba(255, 255, 255, 0.99);
+  border-color: rgba(148, 163, 184, 0.32);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+}
+
+body.light-theme .dc-termometro-filtros-opcao {
+  color: #475569;
+}
+
+body.light-theme .dc-termometro-filtros-opcao:hover,
+body.light-theme .dc-termometro-filtros-opcao--ativa {
+  color: #3730a3;
+}
+
+body.light-theme .dc-termometro-filtros-check--caixa {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(100, 116, 139, 0.45);
+}
+
+body.light-theme .dc-termometro-filtros-check--marcado {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.6);
+  color: #4338ca;
 }
 
 .dc-smart-termometro-preco {
@@ -2215,9 +2441,8 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 }
 
 .dc-smart-termometro-dele-mercado .dc-smart-savings-pill {
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: 0.15rem;
+  justify-self: end;
+  align-self: end;
 }
 
 .dc-smart-termometro-sub {
@@ -2310,25 +2535,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   white-space: nowrap;
 }
 
-.dc-smart-card--termometro {
-  overflow: visible;
-  min-height: 0;
-}
-
-.dc-smart-card-body--termometro {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  min-height: auto;
-  gap: 0.35rem;
-}
-
-/* Slot do gráfico: filho direto do card, fora do body com min-height:0 do cockpit */
 .dc-term-chart-slot {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  padding: 0 1rem;
+  padding: 0;
   box-sizing: border-box;
 }
 

@@ -2,7 +2,8 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo, useState, useEffect, type CSSProperties } from 'react'
+import React, { useMemo, useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -20,12 +21,15 @@ import {
   PaperPlaneTilt,
   XCircle,
   Info,
+  FunnelSimple,
+  Check,
 } from '@phosphor-icons/react'
+import { SwitchGlobal } from '@nucleo/switch-global'
 import type { StatusCotacao } from './types'
 import {
   calcularInfograficosFluxoCotacao,
   calcularPainelSmartInsights,
-  buildSerieTermometro,
+  buildSerieTermometroBases,
   FLUXO_ETAPAS_RESUMIDAS,
   formatarHorasResposta,
   indiceFluxoPorStatus,
@@ -753,9 +757,65 @@ function CardTermometroHistoricoSmart({
   historico_propostas_recebidas?: Cotacao['historico_propostas_recebidas']
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
-  const [tipoBase, setTipoBase] = useState<TipoBaseTermometroHistorico>('CONTRATADO')
-  const [componente, setComponente] = useState<ComponentePrecoTermometro>('FRETE_BASE')
+  const [bases, setBases] = useState<TipoBaseTermometroHistorico[]>(['CONTRATADO'])
+  const [componentes, setComponentes] = useState<ComponentePrecoTermometro[]>(['FRETE_BASE'])
   const [filtrarIncoterm, setFiltrarIncoterm] = useState(false)
+
+  const alternarBase = useCallback((item: TipoBaseTermometroHistorico) => {
+    setBases((atual) => {
+      const proximo = atual.includes(item)
+        ? atual.filter((b) => b !== item)
+        : [...atual, item]
+      // Nunca deixar a seleção vazia
+      return proximo.length > 0 ? proximo : atual
+    })
+  }, [])
+
+  const alternarComponente = useCallback((item: ComponentePrecoTermometro) => {
+    setComponentes((atual) => {
+      // TOTAL já é a soma completa da proposta — seleção exclusiva
+      if (item === 'TOTAL') return ['TOTAL']
+      const semTotal = atual.filter((c) => c !== 'TOTAL')
+      const proximo = semTotal.includes(item)
+        ? semTotal.filter((c) => c !== item)
+        : [...semTotal, item]
+      // Nunca deixar a seleção vazia
+      return proximo.length > 0 ? proximo : atual
+    })
+  }, [])
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false)
+  const filtroBotaoRef = useRef<HTMLDivElement>(null)
+  const filtroPainelRef = useRef<HTMLDivElement>(null)
+  const [filtroCoords, setFiltroCoords] = useState({ top: 0, right: 0 })
+
+  const atualizarFiltroCoords = useCallback(() => {
+    if (!filtroBotaoRef.current) return
+    const r = filtroBotaoRef.current.getBoundingClientRect()
+    setFiltroCoords({ top: r.bottom + 6, right: window.innerWidth - r.right })
+  }, [])
+
+  useEffect(() => {
+    if (!filtrosAbertos) return
+    atualizarFiltroCoords()
+    window.addEventListener('resize', atualizarFiltroCoords)
+    window.addEventListener('scroll', atualizarFiltroCoords, true)
+    return () => {
+      window.removeEventListener('resize', atualizarFiltroCoords)
+      window.removeEventListener('scroll', atualizarFiltroCoords, true)
+    }
+  }, [filtrosAbertos, atualizarFiltroCoords])
+
+  useEffect(() => {
+    if (!filtrosAbertos) return
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node
+      if (filtroBotaoRef.current?.contains(target)) return
+      if (filtroPainelRef.current?.contains(target)) return
+      setFiltrosAbertos(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [filtrosAbertos])
 
   const referenciaTermometro = useMemo(() => {
     if (cotacao == null) return null
@@ -774,21 +834,27 @@ function CardTermometroHistoricoSmart({
     }
   }, [cotacao])
 
-  const historicoBruto = useMemo(
-    () => (tipoBase === 'CONTRATADO' ? historico_aprovado : historico_propostas_recebidas),
-    [tipoBase, historico_aprovado, historico_propostas_recebidas],
-  )
-
-  const historicoAtivo = useMemo(() => {
-    if (referenciaTermometro == null) return historicoBruto
-    return filtrarHistoricoTermometro(referenciaTermometro, historicoBruto, {
-      filtrar_incoterm: filtrarIncoterm,
+  const entradasBases = useMemo(() => {
+    return bases.map((tipoBase) => {
+      const bruto = tipoBase === 'CONTRATADO' ? historico_aprovado : historico_propostas_recebidas
+      const historico = referenciaTermometro == null
+        ? bruto
+        : filtrarHistoricoTermometro(referenciaTermometro, bruto, {
+          filtrar_incoterm: filtrarIncoterm,
+        })
+      return { tipoBase, historico }
     })
-  }, [referenciaTermometro, historicoBruto, filtrarIncoterm])
+  }, [
+    bases,
+    historico_aprovado,
+    historico_propostas_recebidas,
+    referenciaTermometro,
+    filtrarIncoterm,
+  ])
 
   const termometro = useMemo(
-    () => buildSerieTermometro(propostas, historicoAtivo, tipoBase, componente),
-    [propostas, historicoAtivo, tipoBase, componente],
+    () => buildSerieTermometroBases(propostas, entradasBases, componentes),
+    [propostas, entradasBases, componentes],
   )
 
   const aguardandoDados = termometro.termometroDadosDemonstracao
@@ -807,15 +873,146 @@ function CardTermometroHistoricoSmart({
     'bidfrete.detalhe_cotacao.cockpit_termometro_contexto_resumo',
     'Mesma operação, rota e modal — ver documentação para faixas',
   )
-  const mensagemAguardando = tipoBase === 'CONTRATADO'
+  const mensagemAguardando = bases.length > 1
     ? t(
-      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados',
-      'Aguardando cotações aprovadas nas mesmas condições.',
+      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_ambas',
+      'Aguardando cotações aprovadas ou com proposta nas mesmas condições.',
     )
-    : t(
-      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_propostas',
-      'Aguardando cotações com proposta nas mesmas condições.',
-    )
+    : bases[0] === 'CONTRATADO'
+      ? t(
+        'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados',
+        'Aguardando cotações aprovadas nas mesmas condições.',
+      )
+      : t(
+        'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_propostas',
+        'Aguardando cotações com proposta nas mesmas condições.',
+      )
+
+  const incotermCotacao = cotacao?.incoterm_cotacao_bid_frete_internacional?.trim() ?? ''
+  const filtrosDestacados =
+    bases.length !== 1
+    || bases[0] !== 'CONTRATADO'
+    || componentes.length !== 1
+    || componentes[0] !== 'FRETE_BASE'
+    || filtrarIncoterm
+
+  const rotuloBase = (['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const)
+    .filter((item) => bases.includes(item))
+    .map((item) => item === 'CONTRATADO'
+      ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
+      : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas'))
+    .join(' + ')
+
+  const rotuloComponentes = componentes
+    .map((item) => rotuloComponenteTermometro(item, t))
+    .join(' + ')
+
+  const painelFiltros = filtrosAbertos && typeof document !== 'undefined'
+    ? createPortal(
+        <div
+          ref={filtroPainelRef}
+          className="dc-termometro-filtros-painel"
+          style={{ top: filtroCoords.top, right: filtroCoords.right }}
+          role="dialog"
+          aria-label={t(
+            'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_aria',
+            'Filtros do termômetro histórico',
+          )}
+        >
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_seletor_aria',
+              'Base do termômetro histórico',
+            )}
+          >
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_label', 'Base')}
+            </span>
+            {(['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const).map((item) => {
+              const ativo = bases.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={ativo}
+                  className={`dc-termometro-filtros-opcao${ativo ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+                  onClick={() => alternarBase(item)}
+                >
+                  <span
+                    className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${ativo ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                    aria-hidden
+                  >
+                    {ativo ? <Check size={11} weight="bold" /> : null}
+                  </span>
+                  {item === 'CONTRATADO'
+                    ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
+                    : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')}
+                </button>
+              )
+            })}
+          </div>
+          <div className="dc-termometro-filtros-separador" role="separator" />
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_componente_aria',
+              'Componente de preço',
+            )}
+          >
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_componente', 'Componente')}
+            </span>
+            {COMPONENTES_TERMOMETRO.map((item) => {
+              const ativo = componentes.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={ativo}
+                  className={`dc-termometro-filtros-opcao${ativo ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+                  onClick={() => alternarComponente(item)}
+                >
+                  <span
+                    className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${ativo ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                    aria-hidden
+                  >
+                    {ativo ? <Check size={11} weight="bold" /> : null}
+                  </span>
+                  {rotuloComponenteTermometro(item, t)}
+                </button>
+              )
+            })}
+          </div>
+          <div className="dc-termometro-filtros-separador" role="separator" />
+          <div className="dc-termometro-filtros-secao dc-termometro-filtros-secao--switch">
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_label', 'Incoterm')}
+              {incotermCotacao !== '' && (
+                <span className="dc-smart-termometro-incoterm-badge">{incotermCotacao}</span>
+              )}
+            </span>
+            <SwitchGlobal
+              id="termometro-filtrar-incoterm"
+              label={t(
+                'bidfrete.detalhe_cotacao.cockpit_termometro_filtrar_incoterm_curto',
+                'Filtrar',
+              )}
+              checked={filtrarIncoterm}
+              disabled={incotermCotacao === ''}
+              onChange={setFiltrarIncoterm}
+            />
+          </div>
+        </div>,
+        document.body,
+      )
+    : null
 
   return (
     <article
@@ -823,76 +1020,30 @@ function CardTermometroHistoricoSmart({
     >
       <header className="dc-smart-card-head dc-smart-card-head--termometro">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
-        <div className="dc-smart-termometro-acoes">
-          <div
-            className="dc-smart-termometro-seletor"
-            role="group"
+        <div className="dc-termometro-head-acoes" ref={filtroBotaoRef}>
+          <span className="dc-termometro-head-resumo" title={rotuloComponentes}>
+            {rotuloBase}
+          </span>
+          <button
+            type="button"
+            className={`dc-termometro-filtros-botao${filtrosDestacados ? ' dc-termometro-filtros-botao--destacado' : ''}`}
+            aria-haspopup="dialog"
+            aria-expanded={filtrosAbertos}
             aria-label={t(
-              'bidfrete.detalhe_cotacao.cockpit_termometro_seletor_aria',
-              'Base do termômetro histórico',
+              'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_aria',
+              'Filtros do termômetro histórico',
             )}
+            title={t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+            onClick={() => setFiltrosAbertos((v) => !v)}
           >
-            <button
-              type="button"
-              className={`dc-smart-termometro-seletor-btn${tipoBase === 'CONTRATADO' ? ' is-ativo' : ''}`}
-              aria-pressed={tipoBase === 'CONTRATADO'}
-              onClick={() => setTipoBase('CONTRATADO')}
-            >
-              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')}
-            </button>
-            <button
-              type="button"
-              className={`dc-smart-termometro-seletor-btn${tipoBase === 'PROPOSTAS_RECEBIDAS' ? ' is-ativo' : ''}`}
-              aria-pressed={tipoBase === 'PROPOSTAS_RECEBIDAS'}
-              onClick={() => setTipoBase('PROPOSTAS_RECEBIDAS')}
-            >
-              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')}
-            </button>
-          </div>
+            <FunnelSimple weight={filtrosDestacados ? 'fill' : 'duotone'} size={14} aria-hidden />
+          </button>
         </div>
       </header>
-      <div className="dc-smart-termometro-filtros">
-        <label className="dc-smart-termometro-filtro-componente">
-          <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro_componente', 'Componente')}</span>
-          <select
-            value={componente}
-            onChange={(e) => setComponente(e.target.value as ComponentePrecoTermometro)}
-            aria-label={t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_aria', 'Componente de preço')}
-          >
-            {COMPONENTES_TERMOMETRO.map((item) => (
-              <option key={item} value={item}>
-                {rotuloComponenteTermometro(item, t)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="dc-smart-termometro-filtro-incoterm">
-          <input
-            type="checkbox"
-            checked={filtrarIncoterm}
-            onChange={(e) => setFiltrarIncoterm(e.target.checked)}
-          />
-          <span>
-            {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtrar_incoterm', 'Filtrar incoterm')}
-            {cotacao?.incoterm_cotacao_bid_frete_internacional
-              ? ` (${cotacao.incoterm_cotacao_bid_frete_internacional})`
-              : ''}
-          </span>
-        </label>
-      </div>
-      {aguardandoDados ? (
-        <div className="dc-smart-card-body dc-smart-card-body--termometro dc-smart-card-body--termometro-vazio">
-          <div className="dc-empty">
-            <ChartLineUp weight="duotone" size={40} style={{ opacity: 0.3 }} />
-            <p>{mensagemAguardando}</p>
-            <span className="dc-smart-termometro-contexto dc-smart-termometro-contexto--vazio" title={contexto}>
-              {contexto}
-            </span>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="dc-smart-card-body dc-smart-card-body--termometro">
+      {painelFiltros}
+      <div className="dc-smart-termometro-canvas">
+        {!aguardandoDados && (
+          <div className="dc-smart-termometro-canvas-metricas">
             <div className="dc-smart-termometro-dele-mercado">
               <div className="dc-smart-termometro-preco">
                 <span className="dc-smart-termometro-preco-rotulo">
@@ -919,21 +1070,34 @@ function CardTermometroHistoricoSmart({
               )}
             </div>
             <span className="dc-smart-termometro-contexto" title={contexto}>
-              {contexto}
-              {' · '}
-              {rotuloComponenteTermometro(componente, t)}
+              {rotuloComponentes}
             </span>
           </div>
-          <div className="dc-term-chart-slot">
+        )}
+        <div
+          className={`dc-term-chart-slot${aguardandoDados ? ' dc-term-chart-slot--aguardando' : ''}`}
+        >
+          {aguardandoDados ? (
+            <div className="dc-smart-termometro-canvas-vazio">
+              <ChartLineUp weight="duotone" size={32} style={{ opacity: 0.28 }} />
+              <p>{mensagemAguardando}</p>
+              <span
+                className="dc-smart-termometro-contexto dc-smart-termometro-contexto--vazio"
+                title={contexto}
+              >
+                {contexto}
+              </span>
+            </div>
+          ) : (
             <GraficoAreaTermometro
               serie={termometro.serieHistorico6Meses ?? []}
               moeda={info.melhorValorMoeda}
               mediaFallback={termometro.termometroMedia6Meses}
               modoDemonstracao={false}
             />
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
     </article>
   )
 }

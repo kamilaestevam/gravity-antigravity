@@ -26,6 +26,7 @@ import {
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
 import { normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { parseHistoricoTermometroListaFromServer } from '../../../shared/cotacao-historico-termometro-api-schema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -560,6 +561,21 @@ export function mapPropostaRankingBidFreteInternacionalFromServer(
   }
 }
 
+function parseHistoricoTermometroCotacao(
+  raw: unknown,
+  campo: 'historico_aprovado' | 'historico_propostas_recebidas',
+): Cotacao['historico_aprovado'] {
+  try {
+    return parseHistoricoTermometroListaFromServer(raw, campo)
+  } catch {
+    throw new BidFreteApiError(
+      `Campo ${campo} inválido na resposta GET cotação`,
+      500,
+      'INVALID_RESPONSE',
+    )
+  }
+}
+
 export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
   if (rawUnknown == null || typeof rawUnknown !== 'object') {
     throw new BidFreteApiError('Payload de cotação inválido', 500, 'INVALID_RESPONSE')
@@ -613,9 +629,11 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     disparo_cotacao_bid_frete_internacional: disparosRaw.map(mapDisparoCotacaoBidFreteInternacionalFromServer),
     propostas_bid_frete_internacional: propostas,
     bid_bid_frete_internacional: bidMapeado,
-    historico_aprovado: raw.historico_aprovado as Cotacao['historico_aprovado'],
-    historico_propostas_recebidas:
-      raw.historico_propostas_recebidas as Cotacao['historico_propostas_recebidas'],
+    historico_aprovado: parseHistoricoTermometroCotacao(raw.historico_aprovado, 'historico_aprovado'),
+    historico_propostas_recebidas: parseHistoricoTermometroCotacao(
+      raw.historico_propostas_recebidas,
+      'historico_propostas_recebidas',
+    ),
     id_usuario_aprovacao_ganho_bid_frete_internacional:
       (raw.id_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_aprovacao_ganho_bid_frete_internacional:

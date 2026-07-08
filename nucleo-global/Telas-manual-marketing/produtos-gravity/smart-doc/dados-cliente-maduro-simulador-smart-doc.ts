@@ -399,10 +399,147 @@ export const PERFIL_FILIAL_PR: PerfilEmpresaSimulador = {
   listaLeituras: LISTA_FILIAL_SC.slice(0, 4),
 }
 
+const CHART_IMPORTADOR_LTDA_7D: PontoChartDiaSimulador[] = [
+  pontoChart('30/06', 1920, 35, 90.4),
+  pontoChart('01/07', 1480, 27, 91.2),
+  pontoChart('02/07', 2080, 39, 92.1),
+  pontoChart('03/07', 1120, 21, 89.6),
+  pontoChart('04/07', 1960, 36, 90.8),
+  pontoChart('05/07', 760, 14, 92.6),
+  pontoChart('06/07', 840, 16, 90.9),
+]
+
+const CHART_IMPORTADOR_LTDA_30D: PontoChartDiaSimulador[] = [
+  pontoChart('09/06', 9280, 162, 90.2),
+  pontoChart('16/06', 10240, 178, 91.0),
+  pontoChart('23/06', 11080, 193, 91.6),
+  pontoChart('30/06', 9680, 169, 89.9),
+  pontoChart('06/07', 9840, 172, 91.1),
+]
+
+const CHART_IMPORTADOR_LTDA_60D: PontoChartDiaSimulador[] = [
+  pontoChart('Mai', 39800, 694, 89.8),
+  pontoChart('Jun', 44480, 776, 90.6),
+  pontoChart('Jul', 46680, 814, 91.0),
+]
+
+const CHART_IMPORTADOR_LTDA_90D: PontoChartDiaSimulador[] = [
+  pontoChart('Abr', 34320, 598, 89.4),
+  pontoChart('Mai', 39800, 694, 89.8),
+  pontoChart('Jun', 44480, 776, 90.6),
+  pontoChart('Jul', 31120, 542, 91.2),
+]
+
+export const PERFIL_IMPORTADOR_LTDA: PerfilEmpresaSimulador = {
+  id: 'importador-ltda',
+  nome: 'Importador Ltda',
+  plano: 'Pro',
+  mesesUso: 10,
+  leiturasPorMes: 640,
+  chartPorPeriodo: {
+    7: CHART_IMPORTADOR_LTDA_7D,
+    30: CHART_IMPORTADOR_LTDA_30D,
+    60: CHART_IMPORTADOR_LTDA_60D,
+    90: CHART_IMPORTADOR_LTDA_90D,
+  },
+  metricasPorPeriodo: {
+    7: metricasDePontos(CHART_IMPORTADOR_LTDA_7D, 148, 4, 2040, 312),
+    30: metricasDePontos(CHART_IMPORTADOR_LTDA_30D, 640, 4, 8420, 1334),
+    60: metricasDePontos(CHART_IMPORTADOR_LTDA_60D, 1268, 4, 16680, 2640),
+    90: metricasDePontos(CHART_IMPORTADOR_LTDA_90D, 1884, 4, 24760, 3910),
+  },
+  tiposDocumentoPorPeriodo: {
+    7: tiposDocumentoDeVolume(188, DISTRIBUICAO_TIPOS),
+    30: tiposDocumentoDeVolume(814, DISTRIBUICAO_TIPOS),
+    60: tiposDocumentoDeVolume(2284, DISTRIBUICAO_TIPOS),
+    90: tiposDocumentoDeVolume(2610, DISTRIBUICAO_TIPOS),
+  },
+  rankingsPorTipo: RANKINGS_FILIAL_SC,
+  listaLeituras: LISTA_FILIAL_SC.slice(2, 8),
+}
+
+const CHART_EXPORTADOR_LTDA_7D: PontoChartDiaSimulador[] = [
+  pontoChart('30/06', 1240, 23, 90.8),
+  pontoChart('01/07', 980, 18, 91.4),
+  pontoChart('02/07', 1420, 26, 92.2),
+  pontoChart('03/07', 780, 14, 89.8),
+  pontoChart('04/07', 1180, 22, 91.0),
+  pontoChart('05/07', 480, 9, 92.4),
+  pontoChart('06/07', 560, 10, 90.6),
+]
+
+const CHART_EXPORTADOR_LTDA_30D: PontoChartDiaSimulador[] = [
+  pontoChart('09/06', 6180, 114, 90.4),
+  pontoChart('16/06', 6880, 126, 91.2),
+  pontoChart('23/06', 7380, 135, 91.8),
+  pontoChart('30/06', 6540, 120, 90.0),
+  pontoChart('06/07', 6580, 120, 91.0),
+]
+
+const CHART_EXPORTADOR_LTDA_60D: PontoChartDiaSimulador[] = [
+  pontoChart('Mai', 27900, 513, 90.0),
+  pontoChart('Jun', 29760, 548, 90.8),
+  pontoChart('Jul', 30180, 556, 91.2),
+]
+
+const CHART_EXPORTADOR_LTDA_90D: PontoChartDiaSimulador[] = [
+  pontoChart('Abr', 24300, 447, 89.6),
+  pontoChart('Mai', 27900, 513, 90.0),
+  pontoChart('Jun', 29760, 548, 90.8),
+  pontoChart('Jul', 20100, 372, 91.0),
+]
+
+export const PERFIL_EXPORTADOR_LTDA: PerfilEmpresaSimulador = {
+  id: 'exportador-ltda',
+  nome: 'Exportador Ltda',
+  plano: 'Pro',
+  mesesUso: 8,
+  leiturasPorMes: 480,
+  chartPorPeriodo: {
+    7: CHART_EXPORTADOR_LTDA_7D,
+    30: CHART_EXPORTADOR_LTDA_30D,
+    60: CHART_EXPORTADOR_LTDA_60D,
+    90: CHART_EXPORTADOR_LTDA_90D,
+  },
+  metricasPorPeriodo: {
+    7: metricasDePontos(CHART_EXPORTADOR_LTDA_7D, 112, 3, 1540, 238),
+    30: metricasDePontos(CHART_EXPORTADOR_LTDA_30D, 480, 3, 6320, 998),
+    60: metricasDePontos(CHART_EXPORTADOR_LTDA_60D, 948, 3, 12480, 1970),
+    90: metricasDePontos(CHART_EXPORTADOR_LTDA_90D, 1408, 3, 18520, 2920),
+  },
+  tiposDocumentoPorPeriodo: {
+    7: tiposDocumentoDeVolume(120, DISTRIBUICAO_TIPOS),
+    30: tiposDocumentoDeVolume(558, DISTRIBUICAO_TIPOS),
+    60: tiposDocumentoDeVolume(1620, DISTRIBUICAO_TIPOS),
+    90: tiposDocumentoDeVolume(1926, DISTRIBUICAO_TIPOS),
+  },
+  rankingsPorTipo: {
+    exportador: {
+      acertos: [
+        { name: 'Distribuidora Norte Europa SA', stats: '28 doc. · 1180 ✓ · 102 ✗', pct: '92.0%' },
+        { name: 'Pacific Trade Holdings', stats: '24 doc. · 980 ✓ · 94 ✗', pct: '91.2%' },
+        { name: 'Mercado Andino Import', stats: '16 doc. · 640 ✓ · 68 ✗', pct: '90.4%' },
+      ],
+      erros: [
+        { name: 'Pacific Trade Holdings', stats: '24 doc. · 980 ✓ · 94 ✗', err: '94 err.' },
+        { name: 'Distribuidora Norte Europa SA', stats: '28 doc. · 1180 ✓ · 102 ✗', err: '102 err.' },
+        { name: 'Mercado Andino Import', stats: '16 doc. · 640 ✓ · 68 ✗', err: '68 err.' },
+      ],
+    },
+    agente_carga: RANKINGS_FILIAL_SC.agente_carga,
+    transportadora_rodoviaria: RANKINGS_FILIAL_SC.transportadora_rodoviaria,
+    armazem_alfandegado: RANKINGS_FILIAL_SC.armazem_alfandegado,
+    despachante_aduaneiro: RANKINGS_FILIAL_SC.despachante_aduaneiro,
+  },
+  listaLeituras: LISTA_FILIAL_SC.slice(4, 10),
+}
+
 export const PERFIS_EMPRESA_SIMULADOR: Record<string, PerfilEmpresaSimulador> = {
   [PERFIL_FILIAL_SC_IMPORTADOR.id]: PERFIL_FILIAL_SC_IMPORTADOR,
   [PERFIL_MATRIZ_SP.id]: PERFIL_MATRIZ_SP,
   [PERFIL_FILIAL_PR.id]: PERFIL_FILIAL_PR,
+  [PERFIL_IMPORTADOR_LTDA.id]: PERFIL_IMPORTADOR_LTDA,
+  [PERFIL_EXPORTADOR_LTDA.id]: PERFIL_EXPORTADOR_LTDA,
 }
 
 export function formatarSavingSimulador(minutos: number): string {
@@ -417,4 +554,136 @@ export function formatarErrosCorrecaoSimulador(camposErrados: number): string {
   if (camposErrados <= 0) return '0 campos'
   if (camposErrados === 1) return '1 campo'
   return `${camposErrados.toLocaleString('pt-BR')} campos`
+}
+
+export function resolverRotuloEscopoEmpresasSimulador(empresas: PerfilEmpresaSimulador[]) {
+  if (empresas.length === 1) {
+    return {
+      nome: empresas[0].nome,
+      plano: empresas[0].plano,
+      avatarLetra: empresas[0].nome.charAt(0),
+    }
+  }
+  return {
+    nome: `${empresas.length} empresas`,
+    plano: 'Escopo consolidado',
+    avatarLetra: String(empresas.length),
+  }
+}
+
+function parsePercentualRanking(valor: string): number {
+  return Number.parseFloat(valor.replace('%', '').replace(',', '.')) || 0
+}
+
+export function agregarInsightsEmpresasSimulador(
+  empresas: PerfilEmpresaSimulador[],
+  periodo: PeriodoPresetSimulador,
+  tipoParticipante: TipoParticipanteSimulador,
+) {
+  const metricasBrutas = empresas.map((e) => e.metricasPorPeriodo[periodo])
+  const camposCorretos = metricasBrutas.reduce((s, m) => s + m.camposCorretos, 0)
+  const camposErrados = metricasBrutas.reduce((s, m) => s + m.camposErrados, 0)
+  const totalCampos = camposCorretos + camposErrados
+
+  const metricas: MetricasPeriodoSimulador = {
+    amostraLeituras: metricasBrutas.reduce((s, m) => s + m.amostraLeituras, 0),
+    totalDocumentos: metricasBrutas.reduce((s, m) => s + m.totalDocumentos, 0),
+    totalCampos,
+    camposCorretos,
+    camposErrados,
+    taxaAcerto: totalCampos > 0 ? (camposCorretos / totalCampos) * 100 : 0,
+    tiposDocumento: metricasBrutas.reduce((s, m) => s + m.tiposDocumento, 0),
+    savingDigitaçãoMinutos: metricasBrutas.reduce((s, m) => s + m.savingDigitaçãoMinutos, 0),
+    savingErrosMinutos: metricasBrutas.reduce((s, m) => s + m.savingErrosMinutos, 0),
+  }
+
+  const chartMap = new Map<string, PontoChartDiaSimulador>()
+  for (const empresa of empresas) {
+    for (const ponto of empresa.chartPorPeriodo[periodo]) {
+      const atual = chartMap.get(ponto.date)
+      if (!atual) {
+        chartMap.set(ponto.date, { ...ponto })
+        continue
+      }
+      chartMap.set(ponto.date, {
+        date: ponto.date,
+        val: atual.val + ponto.val,
+        documentos: atual.documentos + ponto.documentos,
+        acertos: atual.acertos + ponto.acertos,
+        erros: atual.erros + ponto.erros,
+      })
+    }
+  }
+  const chartBarras = [...chartMap.values()]
+
+  const tiposMap = new Map<string, number>()
+  for (const empresa of empresas) {
+    for (const tipo of empresa.tiposDocumentoPorPeriodo[periodo]) {
+      tiposMap.set(tipo.label, (tiposMap.get(tipo.label) ?? 0) + tipo.val)
+    }
+  }
+  const totalTipos = [...tiposMap.values()].reduce((s, v) => s + v, 0)
+  const tiposDocumento: TipoDocumentoSimulador[] =
+    empresas.length === 1
+      ? empresas[0].tiposDocumentoPorPeriodo[periodo]
+      : [...tiposMap.entries()]
+          .map(([label, val]) => {
+            const pctBruto = totalTipos > 0 ? (val / totalTipos) * 100 : 0
+            const pct = Math.round(pctBruto * 10) / 10
+            return {
+              label,
+              val,
+              pct,
+              w: `${Math.max(4, pct)}%`,
+            }
+          })
+          .sort((a, b) => b.val - a.val)
+
+  const rankingAcertosMap = new Map<string, RankingFornecedorSimulador>()
+  const rankingErrosMap = new Map<string, RankingErroSimulador>()
+  for (const empresa of empresas) {
+    const ranking = empresa.rankingsPorTipo[tipoParticipante]
+    for (const item of ranking.acertos) {
+      const atual = rankingAcertosMap.get(item.name)
+      if (!atual || parsePercentualRanking(item.pct) > parsePercentualRanking(atual.pct)) {
+        rankingAcertosMap.set(item.name, item)
+      }
+    }
+    for (const item of ranking.erros) {
+      const atual = rankingErrosMap.get(item.name)
+      if (!atual || parsePercentualRanking(item.err) > parsePercentualRanking(atual.err)) {
+        rankingErrosMap.set(item.name, item)
+      }
+    }
+  }
+
+  const rankings = {
+    acertos: [...rankingAcertosMap.values()]
+      .sort((a, b) => parsePercentualRanking(b.pct) - parsePercentualRanking(a.pct))
+      .slice(0, 4),
+    erros: [...rankingErrosMap.values()]
+      .sort((a, b) => parsePercentualRanking(b.err) - parsePercentualRanking(a.err))
+      .slice(0, 4),
+  }
+
+  const listaLeituras = empresas.flatMap((empresa) =>
+    empresa.listaLeituras.map((leitura) => ({
+      ...leitura,
+      id: `${empresa.id}-${leitura.id}`,
+      nome: `${leitura.nome}`,
+    })),
+  )
+
+  const mesesUso = Math.max(...empresas.map((e) => e.mesesUso))
+  const leiturasPorMes = empresas.reduce((s, e) => s + e.leiturasPorMes, 0)
+
+  return {
+    metricas,
+    chartBarras,
+    tiposDocumento,
+    rankings,
+    listaLeituras,
+    mesesUso,
+    leiturasPorMes,
+  }
 }

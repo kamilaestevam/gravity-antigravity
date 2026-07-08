@@ -646,6 +646,56 @@
   overflow: visible;
 }
 
+/* Moldura do simulador interativo (Smart Read, BID Frete, Pedido) */
+.interactive-simulator-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  border-radius: 24px;
+  border: 18px solid #000;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    0 0 0 2px rgba(255, 255, 255, 0.1);
+  background: #090b14;
+}
+
+.interactive-simulator-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 2px solid rgba(168, 85, 247, 0.55);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #f8fafc;
+  cursor: pointer;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  transform: translate(50%, -50%);
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+/* Nova Leitura aberta — só o X do wizard; evita dois fechar no mesmo canto */
+.interactive-simulator-shell:has(.sds-nl-overlay) .interactive-simulator-close {
+  display: none;
+}
+
+.interactive-simulator-close:hover {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.65);
+  color: #fff;
+  transform: translate(50%, -50%) scale(1.04);
+}
+
 .stack-layer.active .slab-image-bg {
   opacity: 1;
   filter: saturate(1.15);

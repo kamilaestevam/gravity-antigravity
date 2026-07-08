@@ -41,6 +41,14 @@
   flex-direction: column;
   padding: 16px 12px;
   gap: 20px;
+  position: relative;
+  z-index: 4;
+  overflow: visible;
+}
+
+.sds-brand-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .sds-brand {
@@ -63,16 +71,27 @@
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  width: 240px;
+  right: 0;
+  width: auto;
   background: #1b1d2a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
   padding: 8px;
-  z-index: 1000;
+  z-index: 1200;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: min(320px, 42vh);
+  overflow: hidden;
+}
+
+.sds-dropdown__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .sds-dropdown__search {
@@ -91,10 +110,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s;
+  min-width: 0;
 }
 
 .sds-dropdown__item:hover {
@@ -1431,11 +1452,13 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
-  z-index: 1100;
+  z-index: 1200;
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  max-height: min(360px, 48vh);
+  overflow: hidden;
 }
 
 .sds-empresa-dropdown__search-wrap {
@@ -1457,6 +1480,46 @@
   color: #fff;
   font-size: 11px;
   outline: none;
+}
+
+.sds-empresa-dropdown__toolbar {
+  display: flex;
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 4px;
+}
+
+.sds-empresa-dropdown__toolbar-btn {
+  background: none;
+  border: none;
+  color: #818cf8;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: inherit;
+}
+
+.sds-empresa-dropdown__toolbar-btn:hover {
+  text-decoration: underline;
+}
+
+.sds-empresa-dropdown__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+.sds-empresa-item__check {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  line-height: 0;
 }
 
 .sds-empresa-item {

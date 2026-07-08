@@ -524,8 +524,11 @@ export function Home() {
       {/* ===== HERO ===== */}
       <section
         className="hero"
-        onMouseLeave={closeScreen}
+        onMouseLeave={() => {
+          if (!selectedScreen) closeScreen()
+        }}
         onClick={(e) => {
+          if (selectedScreen) return
           const target = e.target as HTMLElement
           if (target.closest('a') || target.closest('button') || target.closest('input') || target.closest('select')) {
             return
@@ -644,9 +647,7 @@ export function Home() {
                 tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (selectedScreen === 'smart-read') {
-                    closeScreen()
-                  } else {
+                  if (selectedScreen !== 'smart-read') {
                     setSelectedScreen('smart-read')
                   }
                 }}
@@ -780,9 +781,7 @@ export function Home() {
                 tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (selectedScreen === 'bid-frete') {
-                    closeScreen()
-                  } else {
+                  if (selectedScreen !== 'bid-frete') {
                     setSelectedScreen('bid-frete')
                   }
                 }}
@@ -812,9 +811,7 @@ export function Home() {
                 tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (selectedScreen === 'pedido') {
-                    closeScreen()
-                  } else {
+                  if (selectedScreen !== 'pedido') {
                     setSelectedScreen('pedido')
                   }
                 }}

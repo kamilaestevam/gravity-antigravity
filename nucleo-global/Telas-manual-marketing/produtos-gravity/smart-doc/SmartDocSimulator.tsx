@@ -1,7 +1,8 @@
-import { Fragment, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { CardKpiSimulador } from './card-kpi-simulador'
 import {
   TooltipGraficoInsightsSimulador,
+  formatarPercentualTooltipInsightsSimulador,
   useHoverTooltipInsightsSimulador,
 } from './tooltip-grafico-insights-simulador'
 import '../../../Layout/card-global/src/card.css'
@@ -17,6 +18,8 @@ import {
   CurrencyDollar,
   X,
   Check,
+  Square,
+  CheckSquare,
   Gear,
   CaretDown,
   CaretUp,
@@ -50,6 +53,8 @@ import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-s
 import {
   formatarSavingSimulador,
   PERFIS_EMPRESA_SIMULADOR,
+  agregarInsightsEmpresasSimulador,
+  resolverRotuloEscopoEmpresasSimulador,
   type PeriodoPresetSimulador,
   type TipoParticipanteSimulador,
 } from './dados-cliente-maduro-simulador-smart-doc'
@@ -131,7 +136,9 @@ export function SmartDocSimulator() {
   const [searchQuery, setSearchQuery] = useState('')
   const [empresaDropdownOpen, setEmpresaDropdownOpen] = useState(false)
   const [empresaSearch, setEmpresaSearch] = useState('')
-  const [idEmpresaAtiva, setIdEmpresaAtiva] = useState<IdEmpresa>('filial-sc-importador')
+  const [idsEmpresasEscopo, setIdsEmpresasEscopo] = useState<IdEmpresa[]>(() =>
+    EMPRESAS.map((empresa) => empresa.id),
+  )
   const [meuEspacoAberto, setMeuEspacoAberto] = useState(false)
   const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
   const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>('insights')
@@ -151,8 +158,26 @@ export function SmartDocSimulator() {
   })
 
   const refRaizTutorial = useRef<HTMLDivElement>(null)
+  const prodDropdownRef = useRef<HTMLDivElement>(null)
+  const empresaDropdownRef = useRef<HTMLDivElement>(null)
   const [alvoTutorialDestacado, setAlvoTutorialDestacado] = useState<string | null>(null)
   useEfeitoDestaqueTutorialSimulador(alvoTutorialDestacado, refRaizTutorial)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (prodDropdownRef.current && !prodDropdownRef.current.contains(target)) {
+        setProductDropdownOpen(false)
+      }
+      if (empresaDropdownRef.current && !empresaDropdownRef.current.contains(target)) {
+        setEmpresaDropdownOpen(false)
+      }
+    }
+    if (productDropdownOpen || empresaDropdownOpen) {
+      document.addEventListener('mousedown', handler)
+    }
+    return () => document.removeEventListener('mousedown', handler)
+  }, [productDropdownOpen, empresaDropdownOpen])
 
   const chartTooltip = useHoverTooltipInsightsSimulador<{
     date: string
@@ -170,15 +195,25 @@ export function SmartDocSimulator() {
   }>()
   const acertosTooltip = useHoverTooltipInsightsSimulador<'corretos' | 'errados'>()
 
-  const empresaAtiva = EMPRESAS.find((e) => e.id === idEmpresaAtiva) ?? EMPRESAS[0]
-  const metricas = useMemo(
-    () => empresaAtiva.metricasPorPeriodo[periodoAtivo],
-    [empresaAtiva, periodoAtivo],
+  const empresasSelecionadas = useMemo(
+    () => EMPRESAS.filter((empresa) => idsEmpresasEscopo.includes(empresa.id)),
+    [idsEmpresasEscopo],
   )
-  const chartBarras = empresaAtiva.chartPorPeriodo[periodoAtivo]
-  const tiposDocumento = empresaAtiva.tiposDocumentoPorPeriodo[periodoAtivo]
-  const listaLeituras = empresaAtiva.listaLeituras
-  const rankings = empresaAtiva.rankingsPorTipo[tipoParticipante]
+  const rotuloEmpresaEscopo = useMemo(
+    () => resolverRotuloEscopoEmpresasSimulador(empresasSelecionadas),
+    [empresasSelecionadas],
+  )
+  const insightsEscopo = useMemo(
+    () => agregarInsightsEmpresasSimulador(empresasSelecionadas, periodoAtivo, tipoParticipante),
+    [empresasSelecionadas, periodoAtivo, tipoParticipante],
+  )
+  const metricas = insightsEscopo.metricas
+  const chartBarras = insightsEscopo.chartBarras
+  const tiposDocumento = insightsEscopo.tiposDocumento
+  const listaLeituras = insightsEscopo.listaLeituras
+  const rankings = insightsEscopo.rankings
+  const mesesUsoEscopo = insightsEscopo.mesesUso
+  const leiturasPorMesEscopo = insightsEscopo.leiturasPorMes
   const pctCorretosDonut = metricas.taxaAcerto
   const pctErradosDonut = Math.max(0, 100 - pctCorretosDonut)
 
@@ -195,6 +230,29 @@ export function SmartDocSimulator() {
   const empresasFiltradas = EMPRESAS.filter((e) =>
     e.nome.toLowerCase().includes(empresaSearch.toLowerCase()),
   )
+  const idsEmpresasFiltradas = empresasFiltradas.map((empresa) => empresa.id)
+  const todosFiltradosSelecionados =
+    idsEmpresasFiltradas.length > 0 &&
+    idsEmpresasFiltradas.every((id) => idsEmpresasEscopo.includes(id))
+
+  function alternarEmpresaEscopo(id: IdEmpresa) {
+    setIdsEmpresasEscopo((atual) => {
+      if (atual.includes(id)) {
+        if (atual.length === 1) return atual
+        return atual.filter((item) => item !== id)
+      }
+      return [...atual, id]
+    })
+  }
+
+  function definirEscopoEmpresasFiltradas(selecionar: boolean) {
+    if (selecionar) {
+      setIdsEmpresasEscopo((atual) => [...new Set([...atual, ...idsEmpresasFiltradas])])
+      return
+    }
+    const restante = idsEmpresasEscopo.filter((id) => !idsEmpresasFiltradas.includes(id))
+    setIdsEmpresasEscopo(restante.length > 0 ? restante : [idsEmpresasFiltradas[0]])
+  }
   const produtosFiltrados = PRODUTOS_DROPDOWN.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
@@ -216,11 +274,11 @@ export function SmartDocSimulator() {
               <>
                 <p className="cg-tooltip__row">
                   <span>Cliente desde</span>
-                  <strong>{empresaAtiva.mesesUso} meses</strong>
+                  <strong>{mesesUsoEscopo} meses</strong>
                 </p>
                 <p className="cg-tooltip__row">
                   <span>Ritmo mensal</span>
-                  <strong>{formatarNumeroSimulador(empresaAtiva.leiturasPorMes)} leituras</strong>
+                  <strong>{formatarNumeroSimulador(leiturasPorMesEscopo)} leituras</strong>
                 </p>
                 <p className="cg-tooltip__row">
                   <span>Documentos extraídos</span>
@@ -483,7 +541,7 @@ export function SmartDocSimulator() {
                   <div className="sds-funil-fill" style={{ width: d.w }} />
                 </div>
                 <span style={{ fontWeight: 700 }}>{d.val}</span>
-                <span style={{ color: '#64748b', fontSize: 10 }}>{d.pct}%</span>
+                <span style={{ color: '#64748b', fontSize: 10 }}>{formatarPercentualSimulador(d.pct)}</span>
               </div>
             ))}
             {funilTooltip.estado && (
@@ -495,7 +553,7 @@ export function SmartDocSimulator() {
                   total: funilTooltip.estado.dados.val,
                   totalRotulo: 'documentos',
                   linhas: [
-                    { cor: '#818cf8', rotulo: 'Participação', valor: `${funilTooltip.estado.dados.pct}%` },
+                    { cor: '#818cf8', rotulo: 'Participação', valor: formatarPercentualTooltipInsightsSimulador(funilTooltip.estado.dados.pct) },
                     { cor: '#818cf8', rotulo: 'Total lidos', valor: metricas.totalDocumentos },
                   ],
                 }}
@@ -689,7 +747,7 @@ export function SmartDocSimulator() {
                         data-sds-tutorial-alvo="lista-detalhe-metricas"
                       >
                         <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                          Workspace: {empresaAtiva.nome} · {empresaAtiva.mesesUso} meses · ~{empresaAtiva.leiturasPorMes.toLocaleString('pt-BR')} leituras/mês · Campos extraídos: {row.camposExtraidos} · Conferidos: {row.camposConferidos}
+                          Workspace: {rotuloEmpresaEscopo.nome} · {mesesUsoEscopo} meses · ~{leiturasPorMesEscopo.toLocaleString('pt-BR')} leituras/mês · Campos extraídos: {row.camposExtraidos} · Conferidos: {row.camposConferidos}
                         </span>
                         <button
                           type="button"
@@ -718,10 +776,13 @@ export function SmartDocSimulator() {
   return (
     <div className="sds-root" ref={refRaizTutorial} onClick={(e) => e.stopPropagation()}>
       <aside className="sds-sidebar" data-sds-tutorial-alvo="shell-nav-lateral">
-        <div style={{ position: 'relative' }}>
+        <div className="sds-brand-wrapper" ref={prodDropdownRef}>
           <div
             className={`sds-brand${productDropdownOpen ? ' sds-brand--open' : ''}`}
-            onClick={() => setProductDropdownOpen((v) => !v)}
+            onClick={() => {
+              setEmpresaDropdownOpen(false)
+              setProductDropdownOpen((v) => !v)
+            }}
           >
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -745,11 +806,14 @@ export function SmartDocSimulator() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <div className="sds-dropdown__list">
               {produtosFiltrados.map((prod) => (
                 <div
                   key={prod.name}
                   className={`sds-dropdown__item${prod.selected ? ' sds-dropdown__item--selected' : ''}`}
-                  onClick={() => prod.selected && setProductDropdownOpen(false)}
+                  onClick={() => {
+                    if (prod.selected) setProductDropdownOpen(false)
+                  }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {prod.icon}
@@ -762,15 +826,16 @@ export function SmartDocSimulator() {
                       )}
                     </div>
                   </div>
-                  {prod.selected && <Check size={12} weight="bold" style={{ color: '#818cf8' }} />}
-                  {!prod.selected && prod.subtitle && <ArrowRight size={12} style={{ color: '#64748b' }} />}
+                  {prod.selected && <Check size={12} weight="bold" style={{ color: '#818cf8', flexShrink: 0 }} />}
+                  {!prod.selected && prod.subtitle && <ArrowRight size={12} style={{ color: '#64748b', flexShrink: 0 }} />}
                 </div>
               ))}
+              </div>
             </div>
           )}
         </div>
 
-        <div className="sds-empresa-wrapper" data-sds-tutorial-alvo="insights-seletor-filial">
+        <div className="sds-empresa-wrapper" ref={empresaDropdownRef} data-sds-tutorial-alvo="insights-seletor-filial">
           <button
             type="button"
             className={`sds-empresa${empresaDropdownOpen ? ' sds-empresa--open' : ''}`}
@@ -782,11 +847,15 @@ export function SmartDocSimulator() {
             }}
           >
             <div className="sds-empresa__avatar">
-              <Buildings size={14} weight="duotone" />
+              {empresasSelecionadas.length === 1 ? (
+                <span>{rotuloEmpresaEscopo.avatarLetra}</span>
+              ) : (
+                <Buildings size={14} weight="duotone" />
+              )}
             </div>
             <div className="sds-empresa__info">
-              <span className="sds-empresa__nome">{empresaAtiva.nome}</span>
-              <span className="sds-empresa__plano">{empresaAtiva.plano}</span>
+              <span className="sds-empresa__nome">{rotuloEmpresaEscopo.nome}</span>
+              <span className="sds-empresa__plano">{rotuloEmpresaEscopo.plano}</span>
             </div>
             {empresaDropdownOpen ? <CaretUp size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
           </button>
@@ -803,30 +872,45 @@ export function SmartDocSimulator() {
                   onChange={(e) => setEmpresaSearch(e.target.value)}
                 />
               </div>
+              {empresasFiltradas.length > 1 && (
+                <div className="sds-empresa-dropdown__toolbar">
+                  <button
+                    type="button"
+                    className="sds-empresa-dropdown__toolbar-btn"
+                    onClick={() => definirEscopoEmpresasFiltradas(!todosFiltradosSelecionados)}
+                  >
+                    {todosFiltradosSelecionados ? 'Desmarcar tudo' : 'Selecionar tudo'}
+                  </button>
+                </div>
+              )}
+              <div className="sds-empresa-dropdown__list">
               {empresasFiltradas.map((empresa) => {
-                const ativa = empresa.id === idEmpresaAtiva
+                const selecionada = idsEmpresasEscopo.includes(empresa.id)
                 return (
                   <button
                     key={empresa.id}
                     type="button"
                     role="option"
-                    aria-selected={ativa}
-                    className={`sds-empresa-item${ativa ? ' sds-empresa-item--ativa' : ''}`}
-                    onClick={() => {
-                      setIdEmpresaAtiva(empresa.id)
-                      setEmpresaDropdownOpen(false)
-                      setEmpresaSearch('')
-                    }}
+                    aria-selected={selecionada}
+                    className={`sds-empresa-item${selecionada ? ' sds-empresa-item--ativa' : ''}`}
+                    onClick={() => alternarEmpresaEscopo(empresa.id)}
                   >
+                    <span className="sds-empresa-item__check" aria-hidden>
+                      {selecionada ? (
+                        <CheckSquare size={16} weight="fill" style={{ color: '#818cf8' }} />
+                      ) : (
+                        <Square size={16} weight="regular" style={{ color: '#64748b' }} />
+                      )}
+                    </span>
                     <div className="sds-empresa-item__avatar">{empresa.nome.charAt(0)}</div>
                     <div className="sds-empresa-item__info">
                       <span className="sds-empresa-item__nome">{empresa.nome}</span>
                       <span className="sds-empresa-item__plano">{empresa.plano}</span>
                     </div>
-                    {ativa && <Check size={12} weight="bold" style={{ color: '#818cf8' }} />}
                   </button>
                 )
               })}
+              </div>
               <div className="sds-empresa-dropdown__footer">
                 <button type="button" className="sds-empresa-action">
                   <Plus size={12} weight="bold" />
@@ -1026,7 +1110,7 @@ export function SmartDocSimulator() {
               style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}
               data-sds-tutorial-alvo="shell-banner-historico"
             >
-              Histórico — {empresaAtiva.nome} · últimos 30 dias (simulação).
+              Histórico — {rotuloEmpresaEscopo.nome} · últimos 30 dias (simulação).
             </div>
           )}
           {sidebarAtivo === 'config' && (

@@ -1578,7 +1578,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
                 titulo: 'Entrar na grade de permissões',
                 imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
                 paragrafos: [
-                  'O modal **Editar usuário** abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
+                  'O modal *_Editar usuário_* abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
                 ],
               },
             ],
@@ -1593,7 +1593,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '**Permissão especial: Pode cotar frete internacional** — Para habilitar fornecedores como agentes de carga, marque esta opção no produto **BID Frete Internacional**. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e **acessar o painel BID Frete Internacional, Fornecedor**. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -1986,7 +1986,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     callout: {
       tipo: 'dica',
-      texto: 'O modal **Editar assinatura** é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
+      texto: 'O modal *_Editar assinatura_* é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
     },
     fluxos: [
       {
@@ -2205,7 +2205,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Confirmar no modal',
             imagem: '/university/screenshots/configurador-assinaturas-cancelar-modal.png',
             paragrafos: [
-              'O modal **Cancelar Assinatura** exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
+              'O modal *_Cancelar Assinatura_* exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
             ],
           },
           {

@@ -64,7 +64,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Menu lateral: acesso rápido',
           paragrafos: [
-            'A partir de qualquer outro **Produto Gravity**, clique no **seletor** localizado no topo do menu lateral e escolha a opção **BID Frete Internacional**.',
+            'A partir de qualquer outro **Produto Gravity**, clique no **seletor** localizado no topo do menu lateral e escolha a opção *_BID Frete Internacional_*.',
           ],
           imagem: S('acesso_via_menu_lateral'),
           imagemAbaixoTexto: true,

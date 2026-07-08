@@ -67,12 +67,7 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM: GaleriaNovaCotacao[] 
       {
         tipo: 'dica',
         texto:
-          'A partir do **passo 09**, os campos de **origem/destino** mudam conforme o modal escolhido.',
-      },
-      {
-        tipo: 'dica',
-        texto:
-          'A partir do **passo 39**, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo, com trilha comum de **cubagem e envio** depois.',
+          'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
       },
     ],
   }),
@@ -356,12 +351,7 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNo
     {
       tipo: 'dica',
       texto:
-        'A partir do **passo 09**, os campos de **origem/destino** mudam conforme o modal escolhido.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'A partir do **passo 39**, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo, com trilha comum de **cubagem e envio** depois.',
+        'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
     },
   ],
 })
@@ -399,12 +389,12 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
     {
       tipo: 'dica',
       texto:
-        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção **Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem**.',
+        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção *_Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem_*.',
     },
     {
       tipo: 'dica',
       texto:
-        'Clique em **Selecione portos próximos que você aceita na proposta, além do porto de preferência acima.**',
+        'Clique em *_Selecione portos próximos que você aceita na proposta, além do porto de preferência acima._*',
     },
   ],
 })

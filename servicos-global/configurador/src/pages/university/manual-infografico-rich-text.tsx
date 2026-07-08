@@ -163,16 +163,44 @@ export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   return <>{`{{botao:${slug}}}`}</>
 }
 
+function renderizarMarkupManual(texto: string, keyPrefix: string) {
+  const partes: React.ReactNode[] = []
+  const re = /(\*\*([^*]+)\*\*|\*\_([^*]+)\_\*|\*([^*]+)\*)/g
+  let ultimo = 0
+  let match: RegExpExecArray | null
+  let ki = 0
+  while ((match = re.exec(texto)) !== null) {
+    if (match.index > ultimo) {
+      partes.push(texto.slice(ultimo, match.index))
+    }
+    if (match[2] !== undefined) {
+      partes.push(
+        <strong key={`${keyPrefix}-b-${ki++}`} style={{ color: '#cbd5e1', fontWeight: 700 }}>
+          {match[2]}
+        </strong>,
+      )
+    } else if (match[3] !== undefined) {
+      partes.push(
+        <em key={`${keyPrefix}-is-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic', fontWeight: 600 }}>
+          {match[3]}
+        </em>,
+      )
+    } else if (match[4] !== undefined) {
+      partes.push(
+        <em key={`${keyPrefix}-i-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic' }}>
+          {match[4]}
+        </em>,
+      )
+    }
+    ultimo = re.lastIndex
+  }
+  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  return partes
+}
+
+/** @deprecated Use renderizarMarkupManual — mantido para chamadas legadas no arquivo */
 function renderizarNegrito(texto: string, keyPrefix: string) {
-  return texto.split('**').map((parte, i) =>
-    i % 2 === 1 ? (
-      <strong key={`${keyPrefix}-b-${i}`} style={{ color: '#cbd5e1', fontWeight: 700 }}>
-        {parte}
-      </strong>
-    ) : (
-      parte
-    ),
-  )
+  return renderizarMarkupManual(texto, keyPrefix)
 }
 
 /** Texto de infográfico com `**negrito**`, `{{icone:…}}` e `{{botao:…}}`. */

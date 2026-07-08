@@ -35,7 +35,7 @@ const CARDS: CardKanbanCabecalho[] = [
     fundo: 'rgba(129,140,248,.08)',
     linhas: [
       'Badge numérico no cabeçalho — quantidade de **cartões** na coluna naquele status.',
-      'Com **Localizar pedido…** ativo, a contagem (e o total **X pedidos** na barra) recalculam só com os pedidos que passam no filtro por número, parceiro, incoterm ou status.',
+      'Com *_Localizar pedido…_* ativo, a contagem (e o total **X pedidos** na barra) recalculam só com os pedidos que passam no filtro por número, parceiro, incoterm ou status.',
     ],
   },
   {

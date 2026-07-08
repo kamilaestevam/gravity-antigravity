@@ -201,7 +201,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             indice: 0,
             callout: {
               tipo: 'dica',
-              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
+              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
             },
           },
         },
@@ -342,7 +342,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           paragrafos: [
             'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Filtros ativos viram **chips** na barra da tabela, no formato **`Nome da coluna: valor`**. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece **Limpar todos**.',
+            'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
             'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
               LINK_MANUAL_SMART_READ_LISTA_PAINEIS +
               ') e reutilize depois.',
@@ -374,7 +374,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL,
                   paragrafoAntes:
-                    'Chip **`Coluna: valor`** na barra — **combinação** de filtros e **Limpar todos**',
+                    'Chip *_Coluna: valor_* na barra — **combinação** de filtros e *_Limpar todos_*',
                 },
               ],
             },
@@ -390,7 +390,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Excluir',
           paragrafos: [
             'Selecione a linha e use **Excluir** na barra de ações.',
-            'O modal confirma a remoção: **Excluir 1 leitura selecionada?** — a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
+            'O modal confirma a remoção: *_Excluir 1 leitura selecionada?_* — a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
           ],
           figurasAposParagrafo: [
             {

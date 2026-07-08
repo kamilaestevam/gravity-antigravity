@@ -474,7 +474,7 @@ O ícone de olho {{icone:olho}} à direita da senha revela ou oculta o que você
 
 | Arquivo | Constantes / helpers |
 |---------|----------------------|
-| `manual-tipografia.ts` | `MANUAL_ESPACO_PARAGRAFO_PX`, `manualMargemParagrafo()`, `MANUAL_ALINHAMENTO_CORPO` — §9.1.1 e §9.1.2 |
+| `manual-tipografia.ts` | `MANUAL_ESPACO_PARAGRAFO_PX`, `manualMargemParagrafo()`, `MANUAL_ALINHAMENTO_CORPO`, `MANUAL_MARKUP_*` — §9.1.1, §9.1.2 e §9.7 |
 | `manual-configurador-ui.tsx` | `MANUAL_TITULO_COR`, `MANUAL_CORPO_70`, estilos de passo/callout, `ManualParagrafo`, `ManualTextoRich` |
 | `UniversityGravity.tsx` | Mesmo padrão para manual Login (`DOC_LOGIN_SECOES`) |
 
@@ -501,3 +501,57 @@ O bloco **Sumário** lista `secao.titulo` (item 1) e `fluxo.tituloSumario ?? flu
 **Obrigatório:** `titulo` da seção colapsável e `tituloSumario` do fluxo devem seguir o **mesmo** padrão do sumário (o usuário clica no sumário e vê o mesmo texto no cabeçalho da seção).
 
 **SSOT no código:** `montarItensSumario()` em `manual-configurador-ui.tsx`; conteúdo em `DOC_*_SECOES` / `manual-*-conteudo.ts`.
+
+#### 9.7 Marcação rich text — cópia literal da UI vs botão
+
+Em strings de `manual-*-conteudo.ts`, callouts e parágrafos parseados por `ManualTextoRich` (`manual-configurador-ui.tsx` → `ManualTextoRichSegmento`):
+
+| Sintaxe | Render | Quando usar |
+|---------|--------|-------------|
+| `**texto**` | Negrito (`fontWeight: 700`) | **Botões** e ações clicáveis curtas: `**Próximo**`, `**Transferir**`, `**+ Novo**`, `**Excluir**`, `**Salvar**`, `**Assinar**` |
+| `*_texto_*` | Itálico semi-negrito (`fontStyle: italic`, `fontWeight: 600`) | **Cópia literal** da interface que não é botão: frases inteiras de link/checkbox, placeholders (`Buscar produto…`), títulos de modal (`Revogar token?`), rótulos longos de opção/checkbox, caminhos de menu (`Configurações › Kanban`) |
+| `*texto*` | Itálico simples | Reservado; preferir `*_…_*` para texto exato da UI |
+
+**Regra de decisão (agentes):**
+
+1. Aparece em «Clique em …» / «clique em …» e é **ação de botão** (1–4 palavras) → `**…**`.
+2. É **frase completa** copiada da tela, checkbox, link, placeholder, título de modal ou item de menu com **5+ palavras** ou pontuação (`…`, `?`, `:`) → `*_…_*`.
+3. Conceito de negócio (**Importação**, **EXW**, **workspace**) → negrito normal `**…**` ou texto sem marcação.
+
+**Exemplos (BID Frete › Origem e Destino):**
+
+```
+Clique em *_Selecione portos próximos que você aceita na proposta, além do porto de preferência acima._*
+marque a opção *_Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem_*
+… e avance com **Próximo** antes da etapa de mercadoria.
+```
+
+**SSOT no código:** `manual-tipografia.ts` (`MANUAL_MARKUP_*`); parser em `ManualTextoRichSegmento`; infográficos em `manual-infografico-rich-text.tsx` (`ManualInfograficoRichText`). **Skill:** `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`.
+
+#### 9.7 Marcação rich text — negrito vs. frase literal da UI
+
+Conteúdo em `manual-*-conteudo.ts`, callouts e parágrafos parseados por `ManualTextoRich` / `ManualTextoRichSegmento` (`manual-configurador-ui.tsx`).
+
+| Sintaxe no `.ts` | Render | Quando usar |
+|------------------|--------|-------------|
+| `**rótulo**` | Negrito 700, cor título | **Botões** e ações clicáveis curtas (`**Próximo**`, `**Transferir**`, `**+ Novo**`, `**Salvar**`, `**Excluir**`) |
+| `*_frase literal da tela_*` | Itálico + semi-negrito 600 | **Cópia exata** da UI que não é botão: links longos, checkbox, placeholder, título de modal, item de menu, faixa de filtro, permissão nomeada |
+| `*frase*` | Só itálico 400 | Uso raro; preferir `*_…_*` para literal da tela |
+
+**Regra obrigatória (agentes e autores):**
+
+1. **Botão** = ação primária que o usuário clica (`Clique em **Confirmar**`) → permanece `**…**`.
+2. **Frase literal** = texto que aparece na interface como está (mesmo que longo) → `*_…_*`.
+3. **Conceito** (importação, workspace, modal marítimo) → texto normal ou `**termo**` curto se for ênfase editorial, não cópia da UI.
+4. Ao criar ou revisar manual, aplicar esta tabela **automaticamente** — ver skill `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`.
+
+**Exemplos (BID Frete › Origem e Destino):**
+
+```
+✅ Clique em *_Selecione portos próximos que você aceita na proposta, além do porto de preferência acima._*
+✅ marque a opção *_Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem_*
+✅ No modal *_Revogar token?_*, clique em **Excluir**
+❌ Clique em **Selecione portos próximos…**  (frase longa não é botão)
+```
+
+**SSOT no código:** `manual-tipografia.ts` (`MANUAL_MARKUP_*`); parser em `ManualTextoRichSegmento`; infográficos em `manual-infografico-rich-text.tsx` (`ManualInfograficoRichText`).

@@ -504,7 +504,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             indice: 1,
             callout: {
               tipo: 'dica',
-              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne os **pedidos** e **itens** dos workspaces selecionados.',
+              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*) e confirme. A **Lista** reúne os **pedidos** e **itens** dos workspaces selecionados.',
             },
           },
         },
@@ -675,7 +675,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           paragrafos: [
             'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Filtros ativos viram **chips** na barra da tabela, no formato **`Nome da coluna: valor`**. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece **Limpar todos**.',
+            'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
             'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Incoterm** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
               LINK_MANUAL_PEDIDO_LISTA_PAINEIS +
               ') e reutilize depois.',
@@ -711,7 +711,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO_2,
-                  paragrafoAntes: '**Combinação** de filtros + **Limpar todos**',
+                  paragrafoAntes: '**Combinação** de filtros + *_Limpar todos_*',
                 },
               ],
             },
@@ -1382,7 +1382,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               calloutApos: {
                 tipo: 'dica',
                 texto:
-                  'Com **Fundir itens** ativo, linhas com o mesmo **part number** viram **uma única linha** no PO novo, somando quantidades; sem a opção, todos os itens são **copiados** para o consolidado.',
+                  'Com *_Fundir itens_* ativo, linhas com o mesmo **part number** viram **uma única linha** no PO novo, somando quantidades; sem a opção, todos os itens são **copiados** para o consolidado.',
               },
             },
             {
@@ -1916,7 +1916,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Período, status e demais filtros **ativos** aparecem na **barra**, em **chips** abaixo dela ou na faixa **Filtros ativos** — sempre visíveis para você conferir o recorte. Use **Limpar** para resetar sem trocar de painel.',
+              'Período, status e demais filtros **ativos** aparecem na **barra**, em **chips** abaixo dela ou na faixa *_Filtros ativos_* — sempre visíveis para você conferir o recorte. Use **Limpar** para resetar sem trocar de painel.',
           },
         },
         {
@@ -1924,7 +1924,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           tituloCurto: 'Adicionar widget',
           paragrafos: [
             'Clique em **+** na barra do Dashboard. O menu oferece **dois caminhos** — escolha **um** (não é preciso fazer os dois).',
-            '**Caminho A — Explorar sugestões:** widgets prontos gerados pelo catálogo do Pedido — basta **Adicionar**. **Caminho B — Criar do zero:** wizard em **3 passos** (**Campos** → **Operação** → **Visualizar**), montando campo, operação e formato você mesmo.',
+            '*_Caminho A — Explorar sugestões:_* widgets prontos gerados pelo catálogo do Pedido — basta **Adicionar**. *_Caminho B — Criar do zero:_* wizard em **3 passos** (**Campos** → **Operação** → **Visualizar**), montando campo, operação e formato você mesmo.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -2258,7 +2258,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Colunas **somente leitura** (ex.: Consolidado) não aceitam cartões — o arraste é bloqueado. Configure status e colunas em **Configurações › Kanban**.',
+              'Colunas **somente leitura** (ex.: Consolidado) não aceitam cartões — o arraste é bloqueado. Configure status e colunas em *_Configurações › Kanban_*.',
           },
         },
         {

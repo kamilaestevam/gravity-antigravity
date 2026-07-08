@@ -1051,19 +1051,33 @@ function ManualTextoRich({ texto }: { texto: string }) {
 }
 
 function ManualTextoRichSegmento({ texto }: { texto: string }) {
-  if (!texto.includes('**')) return texto
+  if (!texto.includes('**') && !texto.includes('*')) return texto
   const partes: React.ReactNode[] = []
-  const re = /\*\*([^*]+)\*\*/g
+  const re = /(\*\*([^*]+)\*\*|\*\_([^*]+)\_\*|\*([^*]+)\*)/g
   let ultimo = 0
   let match: RegExpExecArray | null
   let ki = 0
   while ((match = re.exec(texto)) !== null) {
     if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
-    partes.push(
-      <strong key={`b-${ki++}`} style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>
-        {match[1]}
-      </strong>,
-    )
+    if (match[2] !== undefined) {
+      partes.push(
+        <strong key={`b-${ki++}`} style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>
+          {match[2]}
+        </strong>,
+      )
+    } else if (match[3] !== undefined) {
+      partes.push(
+        <em key={`is-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic', fontWeight: 600 }}>
+          {match[3]}
+        </em>,
+      )
+    } else if (match[4] !== undefined) {
+      partes.push(
+        <em key={`i-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic' }}>
+          {match[4]}
+        </em>,
+      )
+    }
     ultimo = re.lastIndex
   }
   if (ultimo < texto.length) partes.push(texto.slice(ultimo))

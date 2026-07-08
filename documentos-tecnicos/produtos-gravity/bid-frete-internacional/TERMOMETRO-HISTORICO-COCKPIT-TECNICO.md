@@ -43,7 +43,7 @@ O **Termômetro histórico** compara o preço **Dele** (cotação aberta) com o 
 
 ## 3. Controles do card (UI)
 
-Os filtros vivem em um **painel flutuante (popover)** aberto pelo botão de funil no cabeçalho do card (renderizado via `createPortal`, fecha em clique externo/scroll). Todos os grupos são **multi-seleção**:
+Os filtros vivem em um **painel flutuante (popover)** aberto pelo botão de filtros no cabeçalho do card (renderizado via `createPortal`, fecha em clique externo/scroll). Todos os grupos são **multi-seleção**:
 
 | Controle | Valores | Padrão | Efeito |
 |:---|:---|:---|:---|
@@ -53,6 +53,13 @@ Os filtros vivem em um **painel flutuante (popover)** aberto pelo botão de funi
 | **Exibição** | Dele + Mercado | — | Mercado = média 6m; Dele = melhor atual; savings se Dele &lt; Mercado |
 
 **Invariantes da UI:** base e componente nunca ficam com seleção vazia; incoterm vazio significa «Todos».
+
+**Botão de filtros (`dc-termometro-filtros-botao`) — dois estados, por descoberta:**
+
+| Estado | Aparência | Por quê |
+|:---|:---|:---|
+| Sem filtro ativo (padrão) | **Pill índigo** com funil `FunnelSimple` bold + rótulo «Filtros» visível | O filtro é o recurso central do card — só o ícone de funil era discreto demais e o usuário não descobria |
+| Com filtro ativo | Funil compacto **preenchido** (`fill`), sem rótulo | O chip de resumo ao lado já comunica «Filtros: …» — repetir o texto no botão seria redundante no header curto |
 
 **Chip de resumo no cabeçalho:** quando qualquer filtro difere do padrão, o cabeçalho exibe o chip `Filtros: …` — até 2 seleções aparecem por nome; 3+ consolidam em «N selecionados» com tooltip listando todas. O `X` do chip restaura os padrões (`Contratado` + `Frete base` + todos os incoterms).
 

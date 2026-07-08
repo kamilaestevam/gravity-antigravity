@@ -147,6 +147,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
               key={`${arquivoAtual.id_arquivo_local}:${indiceDocumento}`}
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
+              idLeituraLegado={idLeituraLegado}
               ocultarComparar
               campoFoco={campoFocoConferencia}
               onCampoFocoConsumido={() => setCampoFocoConferencia(null)}

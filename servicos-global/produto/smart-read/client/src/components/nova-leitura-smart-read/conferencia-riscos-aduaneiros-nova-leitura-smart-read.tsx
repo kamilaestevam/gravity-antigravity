@@ -118,23 +118,6 @@ function ItemListaRisco({
       <div className="dt-secao-header sr-conf-risco-item-lista-cabecalho">
         <button
           type="button"
-          className="sr-conf-risco-check-btn"
-          onClick={(e) => {
-            e.stopPropagation()
-            onAlternarConferido()
-          }}
-          aria-label={
-            conferido
-              ? `Desmarcar conferência do risco: ${risco.titulo}`
-              : `Marcar risco como conferido: ${risco.titulo}`
-          }
-          aria-pressed={conferido}
-          title={conferido ? 'Conferido — clique para desmarcar' : 'Marcar como conferido'}
-        >
-          <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
-        </button>
-        <button
-          type="button"
           className="sr-conf-risco-item-lista-botao"
           onClick={() => onToggleExpandir(riscoBruto)}
           aria-expanded={expandido}
@@ -161,18 +144,23 @@ function ItemListaRisco({
           >
             {rotuloSeveridade(risco.severidade)}
           </span>
-          <label
-            className="sr-conf-riscos-secao-selecionar sr-conf-risco-item-lista-selecao"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            className={`sr-conf-risco-check-btn${conferido ? ' sr-conf-risco-check-btn--ativo' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              onAlternarConferido()
+            }}
+            aria-label={
+              conferido
+                ? `Desmarcar conferência do risco: ${risco.titulo}`
+                : `Marcar risco como conferido: ${risco.titulo}`
+            }
+            aria-pressed={conferido}
+            title={conferido ? 'Conferido — clique para desmarcar' : 'Marcar como conferido'}
           >
-            <input
-              type="checkbox"
-              checked={selecionado}
-              onChange={() => onToggleSelecao(risco.id)}
-              aria-label={`Selecionar risco: ${risco.titulo}`}
-            />
-          </label>
+            <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
+          </button>
         </div>
       </div>
 
@@ -227,7 +215,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     arquivoConferencia != null
       ? `${arquivoConferencia.id_arquivo_local}:${indiceDocumentoConferencia}`
       : ''
-  const { estaMarcado: riscoEstaConferido, alternarMarcado: alternarRiscoConferido } =
+  const { estaMarcado: riscoEstaConferido, alternarMarcado: alternarRiscoConferido, alternarMarcadosLote: alternarRiscosConferidosLote } =
     usarRiscosMarcacaoConferencia(chaveMarcacaoRiscos)
 
   const arquivosAnalisaveis = useMemo(
@@ -323,6 +311,15 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
 
   const todosVisiveisSelecionados =
     riscosVisiveis.length > 0 && riscosVisiveis.every((r) => riscosSelecionados.has(r.id))
+
+  const chavesRiscosVisiveis = useMemo(
+    () => riscosVisiveis.map((risco) => chaveRiscoConferenciaUsuario(risco.id)),
+    [riscosVisiveis],
+  )
+
+  const todosRiscosVisiveisConferidos =
+    chavesRiscosVisiveis.length > 0 &&
+    chavesRiscosVisiveis.every((chave) => riscoEstaConferido(chave))
 
   function toggleSelecaoRisco(id: string) {
     setRiscosSelecionados((prev) => {
@@ -483,15 +480,35 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
 
         <div className="sr-conf-riscos-cabecalho-rodape">
           {riscosVisiveis.length > 0 && (
-            <label className="sr-conf-riscos-selecionar-compacto">
-              <input
-                type="checkbox"
-                checked={todosVisiveisSelecionados}
-                onChange={toggleSelecionarTodosVisiveis}
-                aria-label="Selecionar todos os riscos visíveis"
-              />
-              <span>Selecionar ({riscosVisiveis.length})</span>
-            </label>
+            <>
+              <label className="sr-conf-riscos-conferir-todos">
+                <input
+                  type="checkbox"
+                  className="sr-conf-chk-checkbox"
+                  checked={todosRiscosVisiveisConferidos}
+                  onChange={() =>
+                    alternarRiscosConferidosLote(
+                      chavesRiscosVisiveis,
+                      !todosRiscosVisiveisConferidos,
+                    )
+                  }
+                  aria-label="Conferir todos os riscos visíveis"
+                />
+                <span className="sr-conf-riscos-conferir-todos-icone" aria-hidden>
+                  <Check size={12} weight={todosRiscosVisiveisConferidos ? 'bold' : 'regular'} />
+                </span>
+                <span>Conferir todos ({riscosVisiveis.length})</span>
+              </label>
+              <label className="sr-conf-riscos-selecionar-compacto">
+                <input
+                  type="checkbox"
+                  checked={todosVisiveisSelecionados}
+                  onChange={toggleSelecionarTodosVisiveis}
+                  aria-label="Selecionar todos os riscos visíveis para ações"
+                />
+                <span>Selecionar ({riscosVisiveis.length})</span>
+              </label>
+            </>
           )}
           {riscosSelecionadosLista.length > 0 && (
             <AcoesCorrecaoRiscoNovaLeituraSmartRead riscos={riscosSelecionadosLista} />

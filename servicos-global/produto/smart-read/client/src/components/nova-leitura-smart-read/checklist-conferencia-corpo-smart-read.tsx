@@ -2,7 +2,7 @@
  * checklist-conferencia-corpo-smart-read.tsx — corpo tabular do checklist (inline ou modal)
  */
 
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDown, Check } from '@phosphor-icons/react'
 import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
@@ -118,6 +118,10 @@ type Props = {
   rotuloInvoice?: string | null
   estaMarcado?: (chave: string) => boolean
   alternarMarcado?: (chave: string) => void
+  chavesMarcacaoLote?: readonly string[]
+  todosMarcadosLote?: boolean
+  onAlternarMarcadosLote?: (marcar: boolean) => void
+  onAlternarChavesLote?: (chaves: readonly string[], marcar: boolean) => void
   idPrefixo?: string
   classeCorpo?: string
   classificacaoProduto?: LinhaClassificacaoProdutoChecklist[]
@@ -132,18 +136,47 @@ export function ChecklistConferenciaCorpoSmartRead({
   rotuloInvoice,
   estaMarcado,
   alternarMarcado,
+  chavesMarcacaoLote,
+  todosMarcadosLote = false,
+  onAlternarMarcadosLote,
+  onAlternarChavesLote,
   idPrefixo = 'sr-checklist',
   classeCorpo = 'sr-conf-checklist-corpo',
   classificacaoProduto,
 }: Props) {
+  const exibirSelecionarTudo =
+    Boolean(chavesMarcacaoLote?.length) && Boolean(onAlternarMarcadosLote)
+
   return (
     <div className={classeCorpo}>
+      {exibirSelecionarTudo && (
+        <label className="sr-conf-chk-lote-selecionar">
+          <input
+            type="checkbox"
+            className="sr-conf-chk-checkbox"
+            checked={todosMarcadosLote}
+            onChange={() => onAlternarMarcadosLote?.(!todosMarcadosLote)}
+            aria-label={`Selecionar todos os ${chavesMarcacaoLote?.length ?? 0} itens do checklist`}
+          />
+          <span className="sr-conf-chk-lote-icone" aria-hidden>
+            <Check size={12} weight={todosMarcadosLote ? 'bold' : 'regular'} />
+          </span>
+          <span className="sr-conf-chk-lote-rotulo">
+            Selecionar tudo ({chavesMarcacaoLote?.length ?? 0})
+          </span>
+        </label>
+      )}
       {secoes.map(({ secao, itens }) => {
         const secaoId = `${idPrefixo}-secao-${secao}`
         const colapsada = !todasSecoesAbertas && (secoesColapsadas?.has(secaoId) ?? false)
         const veredito = vereditoSecaoChecklist(itens)
         const falhas = itens.filter((i) => i.status === 'vermelho' || i.status === 'amarelo').length
         const contagemSecao = contarChecklistPorStatus(itens)
+        const chavesSecao = itens.map((item) =>
+          chaveItemChecklistUsuario(item.regra.id, rotuloInvoice),
+        )
+        const todosSecaoMarcados =
+          chavesSecao.length > 0 && chavesSecao.every((chave) => estaMarcado?.(chave) ?? false)
 
         const cabecalhoConteudo = (
           <>
@@ -202,7 +235,24 @@ export function ChecklistConferenciaCorpoSmartRead({
                   <thead>
                     <tr>
                       <th scope="col" className="sr-conf-chk-col-check">
-                        <span className="sr-conf-chk-th-check">✓</span>
+                        {alternarMarcado && rotuloInvoice ? (
+                          <input
+                            type="checkbox"
+                            className="sr-conf-chk-checkbox sr-conf-chk-checkbox--cabecalho"
+                            checked={todosSecaoMarcados}
+                            onChange={() =>
+                              onAlternarChavesLote
+                                ? onAlternarChavesLote(chavesSecao, !todosSecaoMarcados)
+                                : undefined
+                            }
+                            aria-label={`Selecionar todos os itens da seção ${ROTULO_SECAO_MATRIZ_INVOICE[secao]}`}
+                            title="Selecionar seção"
+                          />
+                        ) : (
+                          <span className="sr-conf-chk-th-check" aria-hidden>
+                            <Check size={10} weight="bold" />
+                          </span>
+                        )}
                       </th>
                       <th scope="col" className="sr-conf-chk-col-regra">
                         Regra

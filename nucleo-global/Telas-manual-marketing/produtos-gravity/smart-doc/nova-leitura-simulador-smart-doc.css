@@ -1393,3 +1393,114 @@
   font-weight: 600;
   color: #e2e8f0;
 }
+
+/* Despedida ao sair antes do fim da demonstração */
+.sds-nl-despedida-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 5, 12, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.sds-nl-despedida {
+  width: min(440px, 100%);
+  padding: 28px 26px 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  background: linear-gradient(165deg, #1a1d2e 0%, #12141f 100%);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  text-align: center;
+}
+
+.sds-nl-despedida-icone {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(129, 140, 248, 0.25);
+}
+
+.sds-nl-despedida-saudacao {
+  margin: 0 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.sds-nl-despedida-titulo {
+  margin: 0 0 10px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.sds-nl-despedida-contexto {
+  margin: 0 0 14px;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.sds-nl-despedida-lista {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  list-style: none;
+  text-align: left;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sds-nl-despedida-lista li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.sds-nl-despedida-lista li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+.sds-nl-despedida-pergunta {
+  margin: 0 0 18px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.sds-nl-despedida-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sds-nl-despedida-acoes .sds-nl-btn {
+  width: 100%;
+  justify-content: center;
+}

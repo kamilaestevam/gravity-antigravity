@@ -78,7 +78,7 @@ function InteractiveSimulatorContent({ productId, onClose }: SimulatorProps) {
   // 1. SMART DOCS SIMULATOR
   // =========================================================================
   if (productId === 'smart-read') {
-    return <SmartDocSimulator />
+    return <SmartDocSimulator onFecharSimulador={onClose} />
   }
   // =========================================================================
   // 2. BID FRETE SIMULATOR
@@ -599,6 +599,7 @@ export function InteractiveSimulator(props: SimulatorProps) {
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
+      {props.productId !== 'smart-read' && (
       <button
         type="button"
         className="interactive-simulator-close"
@@ -611,6 +612,7 @@ export function InteractiveSimulator(props: SimulatorProps) {
       >
         <X size={20} weight="bold" />
       </button>
+      )}
       <InteractiveSimulatorContent {...props} />
     </div>
   )

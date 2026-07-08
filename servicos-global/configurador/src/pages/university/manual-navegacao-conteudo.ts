@@ -252,7 +252,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       tituloSumario: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
       paragrafos: [
         'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub — desde que o workspace atual tenha **mais de um produto** habilitado para você.',
-        'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca **Buscar produto…**. O produto aberto fica marcado com ✓.',
+        'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca *_Buscar produto…_*. O produto aberto fica marcado com ✓.',
       ],
       callout: {
         tipo: 'dica',
@@ -286,7 +286,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       ],
       callout: {
         tipo: 'dica',
-        texto: 'No rodapé do painel: **+ Criar workspace** e **Gerenciar workspace** levam ao Configurador para cadastrar ou editar filiais.',
+        texto: 'No rodapé do painel: **+ Criar workspace** e *_Gerenciar workspace_* levam ao Configurador para cadastrar ou editar filiais.',
       },
       calloutAposPassos: true,
       passosVisuais: renumerarPassos([
@@ -301,11 +301,11 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
         {
           titulo: 'Lista de workspaces',
           paragrafos: [
-            'O painel lista os **workspaces** disponíveis para você. No modo **único** (padrão), ao escolher outro workspace a tela **recarrega** no novo contexto. No modo **múltiplo** (ex.: **Pedido**), use as caixas de seleção e os atalhos **Selecionar tudo** / **Desmarcar tudo**. Com mais de quatro itens, use **Buscar workspace…** no topo.',
+            'O painel lista os **workspaces** disponíveis para você. No modo **único** (padrão), ao escolher outro workspace a tela **recarrega** no novo contexto. No modo **múltiplo** (ex.: **Pedido**), use as caixas de seleção e os atalhos *_Selecionar tudo_* / *_Desmarcar tudo_*. Com mais de quatro itens, use *_Buscar workspace…_* no topo.',
           ],
           callout: {
             tipo: 'destaque',
-            texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (**Selecionar tudo**). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
+            texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
           },
           calloutAoLadoTexto: true,
           imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_WORKSPACE_ABERTO,

@@ -118,6 +118,14 @@ export interface DocPassoVisual {
     textoAposInfograficoBidFreteOrigemDestinoCampos?: string
     /** Manual BID Frete §4.02.01 — DICA entre a 1ª e a 2ª linha da grade de prints (11–12 / 13–14). */
     calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — parágrafo da seção destino (após DICAS de origem, antes dos prints 15–18). */
+    textoSecaoDestinoAposCalloutOrigemDestinoBidFrete?: string
+    /** Manual BID Frete §4.02.01 — prints da seção destino (após DICAS de origem). */
+    telasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — DICA entre linhas da grade destino (15–16 / 17–18). */
+    calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — DICAS após prints destino. */
+    calloutAposSecaoDestinoOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */
@@ -1578,7 +1586,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
                 titulo: 'Entrar na grade de permissões',
                 imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
                 paragrafos: [
-                  'O modal **Editar usuário** abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
+                  'O modal *_Editar usuário_* abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
                 ],
               },
             ],
@@ -1593,7 +1601,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '**Permissão especial: Pode cotar frete internacional** — Para habilitar fornecedores como agentes de carga, marque esta opção no produto **BID Frete Internacional**. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e **acessar o painel BID Frete Internacional, Fornecedor**. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -1986,7 +1994,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     callout: {
       tipo: 'dica',
-      texto: 'O modal **Editar assinatura** é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
+      texto: 'O modal *_Editar assinatura_* é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
     },
     fluxos: [
       {
@@ -2205,7 +2213,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Confirmar no modal',
             imagem: '/university/screenshots/configurador-assinaturas-cancelar-modal.png',
             paragrafos: [
-              'O modal **Cancelar Assinatura** exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
+              'O modal *_Cancelar Assinatura_* exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
             ],
           },
           {

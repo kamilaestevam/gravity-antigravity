@@ -90,33 +90,10 @@ interface OpcoesOrdemPlanilhaImportacao {
   anchorImportacaoMs: number
 }
 
-const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
-  // NOTA: 'numero_pedido' NAO entra aqui — é o campo de vinculo que liga ITEM ao PEDIDO pai.
-  // Apenas campos AGREGADOS de pedido sao bloqueados em linhas ITEM.
-  'valor_total_pedido',
-  'quantidade_total_pedido',
-  'quantidade_volumes_pedido',
-  'valor_total_cambio_pedido',
-])
-const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
-  'sequencia_item_pedido',
-  'part_number_item',
-  'ncm_item',
-  'descricao_item',
-  'quantidade_inicial_item',
-  'quantidade_atual_item',
-  'quantidade_transferida_item',
-  'quantidade_pronta_item',
-  'quantidade_cancelada_item',
-  'valor_por_unidade_item',
-  'nome_exportador_item',
-  'nome_importador_item',
-  'nome_fabricante_item',
-  'peso_liquido_unitario_item',
-  'peso_bruto_unitario_item',
-  'cubagem_unitaria_item',
-  'data_embarque_item',
-])
+import {
+  CAMPOS_BLOQ_PARA_PEDIDO,
+  CAMPOS_BLOQ_PARSER_PARA_ITEM,
+} from '../../../shared/smart-import-template-bloqueio.js'
 
 // CAMPOS_PRISMA_EXTRAS_MAPEAMENTO removido (Onda 1 — 2026-06-11): as colunas
 // "Edicao em Massa" entraram no SSOT campos-pedido-ddd.ts e agora resolvem
@@ -960,7 +937,7 @@ export class SmartImportService {
           // P15.3 — Filtrar campos do nivel errado (seguranca no parser)
           const tipoLinha = String(dados['tipo_linha'] ?? '').trim().toUpperCase()
           if (tipoLinha === 'ITEM') {
-            for (const campo of CAMPOS_BLOQ_PARA_ITEM) delete dados[campo]
+            for (const campo of CAMPOS_BLOQ_PARSER_PARA_ITEM) delete dados[campo]
           } else if (tipoLinha === 'PEDIDO') {
             for (const campo of CAMPOS_BLOQ_PARA_PEDIDO) delete dados[campo]
           }

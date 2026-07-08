@@ -75,7 +75,7 @@ export const DOC_STORE_SECAO: DocSecao = {
           imagem: SCREENSHOT_STORE_MENU_SEGMENTADO,
           imagemAbaixoTexto: true,
           paragrafos: [
-            '**Buscar** filtra por nome ou descrição. O menu **Todos · Ativo · Assinar · Em breve** rola até a linha correspondente e destaca a aba ativa conforme você navega.',
+            '**Buscar** filtra por nome ou descrição. O menu *_Todos · Ativo · Assinar · Em breve_* rola até a linha correspondente e destaca a aba ativa conforme você navega.',
             'Os chips de **categoria** (Comercial, Importação, Frete, Câmbio…) refinam a lista sem mudar de linha.',
           ],
         },

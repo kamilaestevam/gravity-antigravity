@@ -43,7 +43,7 @@ export const FLUXO_ACESSO_GRAVITY_STORE: DocFluxo = {
       dicaAoLadoImagem: {
         callout: {
           tipo: 'dica',
-          texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha **Ir para Gravity Store**.',
+          texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha *_Ir para Gravity Store_*.',
         },
         imagem: SCREENSHOT_HUB_MENU_USUARIO_STORE,
         legenda: 'Menu do usuário — Ir para Gravity Store',
@@ -117,7 +117,7 @@ export const DOC_HUB_SECAO: DocSecao = {
         {
           titulo: 'Sem produto contratado',
           paragrafos: [
-            'Quando nenhum **Produto Gravity** está contratado, os **ícones dos produtos** aparecem em prévia (cinza) e um banner convida a **Ativar na Gravity Store**.',
+            'Quando nenhum **Produto Gravity** está contratado, os **ícones dos produtos** aparecem em prévia (cinza) e um banner convida a *_Ativar na Gravity Store_*.',
           ],
           imagem: SCREENSHOT_HUB_SEM_PRODUTO_PUZZLES_OPACO,
           imagemAbaixoTexto: true,

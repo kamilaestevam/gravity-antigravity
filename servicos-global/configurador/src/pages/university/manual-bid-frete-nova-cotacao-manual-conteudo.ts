@@ -67,12 +67,7 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM: GaleriaNovaCotacao[] 
       {
         tipo: 'dica',
         texto:
-          'A partir do **passo 09**, os campos de **origem/destino** mudam conforme o modal escolhido.',
-      },
-      {
-        tipo: 'dica',
-        texto:
-          'A partir do **passo 39**, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo, com trilha comum de **cubagem e envio** depois.',
+          'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
       },
     ],
   }),
@@ -356,12 +351,7 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNo
     {
       tipo: 'dica',
       texto:
-        'A partir do **passo 09**, os campos de **origem/destino** mudam conforme o modal escolhido.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'A partir do **passo 39**, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo, com trilha comum de **cubagem e envio** depois.',
+        'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
     },
   ],
 })
@@ -378,7 +368,7 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
   textoAposInfograficoBidFreteOrigemDestinoCampos:
     'Acompanhe nas imagens a seguir como configurar o local de origem. O exemplo ilustra uma operação marítima para demonstrar a lógica padrão de busca e seleção.',
   telasAposInfograficoBidFreteOrigemDestinoCampos: [
-    fig('manual_origem_porto_origem', '**11.** Campo **porto de origem**'),
+    fig('manual_origem_porto_origem', '**11.** Campo **porto/aeroporto e local de origem**'),
     fig('manual_origem_porto_origem_pais', '**12.** Seleção de **país**'),
     fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
     fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
@@ -399,12 +389,44 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
     {
       tipo: 'dica',
       texto:
-        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção **Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem**.',
+        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção *_Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem_*.',
     },
     {
       tipo: 'dica',
       texto:
-        'Clique em **Selecione portos próximos que você aceita na proposta, além do porto de preferência acima.**',
+        'Clique em *_Selecione portos próximos que você aceita na proposta, além do porto de preferência acima._*',
+    },
+  ],
+  textoSecaoDestinoAposCalloutOrigemDestinoBidFrete:
+    'Acompanhe nas imagens a seguir como configurar o local de destino. O exemplo ilustra uma operação marítima para demonstrar a mesma lógica de busca e seleção.',
+  telasSecaoDestinoAposCalloutOrigemDestinoBidFrete: [
+    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_seta', '**15.** Campo **porto/aeroporto e local de destino**'),
+    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_selecao', '**16.** Seleção de **país**'),
+    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_seta', '**17.** **Portos preferenciais**'),
+    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_destino_campos', '**18.** Dados de **país, cidade e estado**'),
+  ],
+  calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete: [
+    {
+      tipo: 'dica',
+      texto:
+        'Acelere o preenchimento do formulário buscando o local desejado pelo **nome exato ou pelas iniciais**.',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'Pesquise diretamente pelo **nome do país** para listar todos os portos ou aeroportos associados a ele.',
+    },
+  ],
+  calloutAposSecaoDestinoOrigemDestinoBidFrete: [
+    {
+      tipo: 'dica',
+      texto:
+        'Caso precise cotar a **entrega no destino**, marque a opção *_Exibir campos: Cidade de Destino, Estado ou Província de Destino e País de Destino_*.',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'Marque *_Autorizar cotações em outros portos próximos ao destino preferencial_* para aceitar portos alternativos na proposta.',
     },
   ],
 })

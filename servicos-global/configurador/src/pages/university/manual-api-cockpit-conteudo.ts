@@ -264,7 +264,7 @@ export const DOC_API_COCKPIT_SECAO: DocSecao = {
                   legenda: '10 · Confirmar revogação',
                   imagem: IMG_TOKENS_REVOGAR_MODAL,
                   paragrafoAntes:
-                    'No modal **Revogar token?**, leia o aviso e clique em **Excluir** para confirmar. A revogação é **imediata**: requisições com aquele token passam a retornar erro de autenticação.',
+                    'No modal *_Revogar token?_*, leia o aviso e clique em **Excluir** para confirmar. A revogação é **imediata**: requisições com aquele token passam a retornar erro de autenticação.',
                 },
               ],
             },

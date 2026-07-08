@@ -1051,19 +1051,33 @@ function ManualTextoRich({ texto }: { texto: string }) {
 }
 
 function ManualTextoRichSegmento({ texto }: { texto: string }) {
-  if (!texto.includes('**')) return texto
+  if (!texto.includes('**') && !texto.includes('*')) return texto
   const partes: React.ReactNode[] = []
-  const re = /\*\*([^*]+)\*\*/g
+  const re = /(\*\*([^*]+)\*\*|\*\_([^*]+)\_\*|\*([^*]+)\*)/g
   let ultimo = 0
   let match: RegExpExecArray | null
   let ki = 0
   while ((match = re.exec(texto)) !== null) {
     if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
-    partes.push(
-      <strong key={`b-${ki++}`} style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>
-        {match[1]}
-      </strong>,
-    )
+    if (match[2] !== undefined) {
+      partes.push(
+        <strong key={`b-${ki++}`} style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>
+          {match[2]}
+        </strong>,
+      )
+    } else if (match[3] !== undefined) {
+      partes.push(
+        <em key={`is-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic', fontWeight: 600 }}>
+          {match[3]}
+        </em>,
+      )
+    } else if (match[4] !== undefined) {
+      partes.push(
+        <em key={`i-${ki++}`} style={{ color: '#cbd5e1', fontStyle: 'italic' }}>
+          {match[4]}
+        </em>,
+      )
+    }
     ultimo = re.lastIndex
   }
   if (ultimo < texto.length) partes.push(texto.slice(ultimo))
@@ -2607,6 +2621,10 @@ function ManualBlocoPassoVisual({
                   telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
                   textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
                   calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
+                  textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                  telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                  calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                  calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
                   infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
                   infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
                   layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
@@ -2696,6 +2714,10 @@ function ManualBlocoPassoVisual({
                 telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
                 textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
                 calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
+                textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
                 infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
                 infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
                 layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
@@ -2771,6 +2793,10 @@ function ManualBlocoPassoVisual({
               telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
               textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
               calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
+              textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
               mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
@@ -3561,6 +3587,10 @@ function ManualGaleriaComparacaoIntro({
   telasAposInfograficoBidFreteOrigemDestinoCampos,
   textoAposInfograficoBidFreteOrigemDestinoCampos,
   calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos,
+  textoSecaoDestinoAposCalloutOrigemDestinoBidFrete,
+  telasSecaoDestinoAposCalloutOrigemDestinoBidFrete,
+  calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete,
+  calloutAposSecaoDestinoOrigemDestinoBidFrete,
   infograficoConsolidarPasso2Regras,
   infograficoConsolidarResultadoEsperado,
   layoutConsolidarResultadoUnificado,
@@ -3618,6 +3648,10 @@ function ManualGaleriaComparacaoIntro({
   telasAposInfograficoBidFreteOrigemDestinoCampos?: DocGaleriaComparacaoTela[]
   textoAposInfograficoBidFreteOrigemDestinoCampos?: string
   calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual | DocCalloutManual[]
+  textoSecaoDestinoAposCalloutOrigemDestinoBidFrete?: string
+  telasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocGaleriaComparacaoTela[]
+  calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+  calloutAposSecaoDestinoOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
   infograficoConsolidarPasso2Regras?: boolean
   infograficoConsolidarResultadoEsperado?: boolean
   layoutConsolidarResultadoUnificado?: boolean
@@ -4209,6 +4243,70 @@ function ManualGaleriaComparacaoIntro({
       ) : null}
       {calloutApos ? (
         (Array.isArray(calloutApos) ? calloutApos : [calloutApos]).map((callout, idx) => (
+          <ManualCalloutBloco
+            key={callout.texto.slice(0, 32)}
+            callout={callout}
+            marginTop={idx === 0 ? 12 : 8}
+            marginBottom={0}
+          />
+        ))
+      ) : null}
+      {textoSecaoDestinoAposCalloutOrigemDestinoBidFrete ? (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualParagrafo
+            texto={textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+            marginBottom={emAcordeaoSubtopico
+              ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+              : MANUAL_ESPACO_PARAGRAFO_PX}
+            alinhamentoAcordeao={emAcordeaoSubtopico}
+          />
+        </div>
+      ) : null}
+      {telasSecaoDestinoAposCalloutOrigemDestinoBidFrete?.length ? (
+        <div style={{
+          marginTop: textoSecaoDestinoAposCalloutOrigemDestinoBidFrete
+            ? 0
+            : MANUAL_ESPACO_PARAGRAFO_PX,
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
+            alignItems: 'stretch',
+          }}>
+            {telasSecaoDestinoAposCalloutOrigemDestinoBidFrete.slice(0, 2).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
+          </div>
+          {(Array.isArray(calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete)
+            ? calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete
+            : calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete
+              ? [calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete]
+              : []
+          ).map((callout, idx) => (
+            <ManualCalloutBloco
+              key={callout.texto.slice(0, 40)}
+              callout={callout}
+              marginTop={idx === 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 8}
+              marginBottom={0}
+            />
+          ))}
+          {telasSecaoDestinoAposCalloutOrigemDestinoBidFrete.length > 2 ? (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
+              alignItems: 'stretch',
+              marginTop: MANUAL_ESPACO_GRADE_GALERIA_PX,
+            }}>
+              {telasSecaoDestinoAposCalloutOrigemDestinoBidFrete.slice(2).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {calloutAposSecaoDestinoOrigemDestinoBidFrete ? (
+        (Array.isArray(calloutAposSecaoDestinoOrigemDestinoBidFrete)
+          ? calloutAposSecaoDestinoOrigemDestinoBidFrete
+          : [calloutAposSecaoDestinoOrigemDestinoBidFrete]
+        ).map((callout, idx) => (
           <ManualCalloutBloco
             key={callout.texto.slice(0, 32)}
             callout={callout}

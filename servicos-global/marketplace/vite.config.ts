@@ -30,9 +30,25 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/Campos/campo-geral-global/src/index.ts'
       ),
+      '@nucleo/campo-ncm-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-ncm-global/src/index.ts'
+      ),
+      '@nucleo/campo-decimal-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-decimal-global/src/index.ts'
+      ),
+      '@nucleo/campo-calendario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-calendario-global/src/index.ts'
+      ),
       '@nucleo/status-badge-global': path.resolve(
         __dirname,
         '../../nucleo-global/Feedback/status-badge-global/src/index.ts'
+      ),
+      '@nucleo/botao-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Botoes/botao-global/src/index.ts'
       )
     }
   },

@@ -583,6 +583,19 @@ import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador
 
 ---
 
+## Gravity University — manuais descritivos
+
+Manuais em `servicos-global/configurador/src/pages/university/manual-*-conteudo.ts` seguem tipografia e marcação rich text do ONBOARDING-DOCUMENTO.md **§9**.
+
+| Marcação | Uso |
+|----------|-----|
+| `**texto**` | Botões e ações clicáveis |
+| `*_texto_*` | Cópia literal da UI (link, checkbox, placeholder, modal) |
+
+**Skill obrigatória ao editar texto do manual:** `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`
+
+---
+
 ## Checklist — Antes de Entregar o Configurador
 
 - [ ] Workspace lista Workspaces corretamente (somente status ATIVA)?

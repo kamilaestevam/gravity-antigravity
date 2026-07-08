@@ -1,0 +1,267 @@
+/* Variáveis no dialog (mpg-dialog) — o ModalPassoPasso portaliza direto no body */
+.pds-mnp-dialog {
+  --bg-base: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-elevated: #334155;
+  --bg-body: #0f172a;
+  --bg-hover: rgba(129, 140, 248, 0.1);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #94a3b8;
+  --border-default: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(129, 140, 248, 0.12);
+  --border-accent: rgba(129, 140, 248, 0.2);
+  --ws-accent: #818cf8;
+  --ws-accent-border: rgba(129, 140, 248, 0.2);
+  --ws-bg-body: #0f172a;
+  --ws-surface: #1e293b;
+  --ws-text: #f1f5f9;
+  --ws-muted: #94a3b8;
+  --accent: #6366f1;
+  --radius-md: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.pds-mnp-dialog.mpg-dialog {
+  max-width: min(920px, 96vw) !important;
+  height: min(620px, 90vh) !important;
+}
+
+.pds-mnp-dialog .mpg-content-wrap {
+  min-height: 0;
+}
+
+.pds-mnp-dialog .pds-mnp-input {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  min-height: 2.5rem;
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--ws-accent-border, rgba(129, 140, 248, 0.2));
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  padding: 0.5625rem 0.875rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pds-mnp-dialog .pds-mnp-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.pds-mnp-dialog .pds-mnp-input:focus {
+  border-color: var(--ws-accent, #818cf8);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
+
+.pds-mnp-dialog .pds-mnp-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pds-mnp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pds-mnp-secao {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem;
+}
+
+.pds-mnp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pds-mnp-grid--full {
+  grid-column: 1 / -1;
+}
+
+.pds-mnp-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pds-mnp-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+}
+
+.pds-mnp-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pds-mnp-link-nova {
+  border: none;
+  background: transparent;
+  color: var(--ws-accent, #818cf8);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pds-mnp-link-nova:hover {
+  text-decoration: underline;
+}
+
+.pds-mnp-locked {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-elevated, #334155);
+  border: 1px solid var(--bg-elevated, #334155);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+}
+
+.pds-mnp-itens-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.875rem;
+}
+
+.pds-mnp-item-card {
+  position: relative;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: var(--bg-base, #0f172a);
+  border: 1px solid var(--border-default, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
+}
+
+.pds-mnp-item-remover {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  opacity: 0.6;
+  padding: 0.2rem;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  display: flex;
+}
+
+.pds-mnp-item-remover:hover {
+  color: #ef4444;
+  opacity: 1;
+}
+
+/* SelectGlobal — paridade com ModalPedidoNovo real */
+.pds-mnp-dialog .sg-wrapper-inner {
+  --ws-bg-body: #0f172a;
+  --ws-surface: #1e293b;
+  --ws-accent-border: rgba(129, 140, 248, 0.2);
+  --ws-accent: #818cf8;
+  --ws-text: #f1f5f9;
+  --ws-muted: #94a3b8;
+}
+
+.pds-mnp-dialog .sg-campo {
+  min-height: 2.5rem;
+  padding: 0.5625rem 0.875rem;
+  font-size: 0.875rem;
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--ws-accent-border, rgba(129, 140, 248, 0.2));
+}
+
+.pds-mnp-dialog .sg-label,
+.pds-mnp-dialog .cg-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.pds-mnp-dialog .banner-requisitos {
+  margin-top: 0.75rem;
+}
+
+.pds-mnp-dialog .banner-requisitos__titulo {
+  font-size: 0.75rem;
+}
+
+.pds-mnp-dialog .banner-requisitos__lista {
+  font-size: 0.75rem;
+}
+
+/* NCM — paridade com ModalPedidoNovo (input escuro + lupa índigo) */
+.pds-mnp-dialog .pds-mnp-ncm,
+.pds-mnp-dialog .pds-mnp-item-card {
+  --ws-input-bg: #0f172a;
+  --ws-border: rgba(129, 140, 248, 0.2);
+  --ws-text: #f1f5f9;
+  --ws-muted: #94a3b8;
+}
+
+.pds-mnp-dialog .pds-mnp-ncm .cg-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+}
+
+.pds-mnp-dialog .pds-mnp-item-card input:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: var(--bg-elevated, #334155) !important;
+  border-color: var(--ws-accent-border, rgba(129, 140, 248, 0.2)) !important;
+}
+
+/* Data Emissão — paridade com ModalPedidoNovo (CampoCalendarioGlobal) */
+.pds-mnp-dialog .pds-mnp-campo-data .tg-trigger {
+  display: flex;
+  width: 100%;
+}
+
+.pds-mnp-dialog .pds-mnp-campo-data .sg-campo--com-icone {
+  min-height: 2.5rem;
+  padding: 0.5625rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+.pds-mnp-dialog .pds-mnp-campo-data .sg-icone-esquerda {
+  color: var(--ws-accent, #818cf8);
+}
+
+@keyframes pds-mnp-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pds-mnp-dialog .pds-mnp-ncm [style*="animation: spin"] {
+  animation: pds-mnp-spin 1s linear infinite !important;
+}
+
+@media (max-width: 640px) {
+  .pds-mnp-grid {
+    grid-template-columns: 1fr;
+  }
+}

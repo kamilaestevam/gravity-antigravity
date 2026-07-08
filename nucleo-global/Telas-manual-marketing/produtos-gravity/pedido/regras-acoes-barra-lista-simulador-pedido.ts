@@ -17,6 +17,7 @@ export type HabilitacaoAcoesBarraListaSimulador = {
   podeTransferir: boolean
   podeEditarMassa: boolean
   podeConsolidar: boolean
+  podeDuplicar: boolean
   podeGerarPdf: boolean
   podeExcluir: boolean
   totalPedidosConsolidar: number
@@ -73,6 +74,7 @@ export function calcularHabilitacaoAcoesBarraListaSimulador(
     podeTransferir: podeEditarLista && temSelecao,
     podeEditarMassa: podeEditarLista && temSelecao,
     podeConsolidar: podeEditarLista && totalPedidosConsolidar >= 2 && !tiposIncompativeis,
+    podeDuplicar: podeEditarLista && temSelecao,
     podeGerarPdf: temSelecao,
     podeExcluir: podeEditarLista && temSelecao,
     totalPedidosConsolidar,
@@ -185,6 +187,36 @@ export function tooltipGerarPdfListaSimulador(selecao: SelecaoListaSimuladorPedi
   }
   return {
     titulo: 'Gerar documento',
+    descricao: 'Selecione ao menos um pedido ou item na lista.',
+  }
+}
+
+export function tooltipDuplicarListaSimulador(selecao: SelecaoListaSimuladorPedido): {
+  titulo: string
+  descricao: string
+} {
+  if (selecao.pedidos.length > 0 && selecao.itens.length > 0) {
+    return {
+      titulo: `Duplicar · ${selecao.pedidos.length} pedido(s) + ${selecao.itens.length} item(ns)`,
+      descricao: 'Cria cópias dos pedidos inteiros e duplica itens avulsos dentro do pedido pai.',
+    }
+  }
+  if (selecao.pedidos.length > 0) {
+    const n = selecao.pedidos.length
+    return {
+      titulo: `Duplicar · ${n} pedido${n !== 1 ? 's' : ''}`,
+      descricao: 'Cria novos pedidos com todos os itens copiados.',
+    }
+  }
+  if (selecao.itens.length > 0) {
+    const n = selecao.itens.length
+    return {
+      titulo: `Duplicar · ${n} item${n !== 1 ? 's' : ''}`,
+      descricao: 'Duplica os itens selecionados dentro do pedido pai.',
+    }
+  }
+  return {
+    titulo: 'Duplicar',
     descricao: 'Selecione ao menos um pedido ou item na lista.',
   }
 }

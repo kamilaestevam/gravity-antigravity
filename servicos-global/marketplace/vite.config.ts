@@ -49,7 +49,11 @@ export default defineConfig({
       '@nucleo/botao-global': path.resolve(
         __dirname,
         '../../nucleo-global/Botoes/botao-global/src/index.ts'
-      )
+      ),
+      '@nucleo/modal-confirmar-excluir-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'
+      ),
     }
   },
   server: {
@@ -67,7 +71,7 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react'],
+    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react', 'exceljs', 'xlsx'],
   },
 })
 

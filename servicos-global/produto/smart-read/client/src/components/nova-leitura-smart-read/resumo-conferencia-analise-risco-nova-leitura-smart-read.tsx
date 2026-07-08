@@ -3,7 +3,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { CaretRight, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
+import { CaretRight, Check, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { resolverArquivoApiLeitura, extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
@@ -100,8 +100,10 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   )
 
   const chaveMarcacaoSessao = `${arquivo.id_arquivo_local}:${indiceDocumento}`
-  const { marcados: camposConferidos } = usarCamposMarcacaoConferencia(chaveMarcacaoSessao)
-  const { marcados: riscosConferidos } = usarRiscosMarcacaoConferencia(chaveMarcacaoSessao)
+  const { marcados: camposConferidos, alternarMarcadosLote: alternarCamposConferidosLote } =
+    usarCamposMarcacaoConferencia(chaveMarcacaoSessao)
+  const { marcados: riscosConferidos, alternarMarcadosLote: alternarRiscosConferidosLote } =
+    usarRiscosMarcacaoConferencia(chaveMarcacaoSessao)
 
   const chavesCamposConferencia = useMemo(
     () =>
@@ -227,6 +229,15 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     [camposConferidos, riscosConferidos, chavesCamposConferencia, chavesRiscosConferencia],
   )
 
+  const todosItensConferidos =
+    resumoConferencia.total > 0 && resumoConferencia.marcados === resumoConferencia.total
+
+  const alternarConferirTodosItens = () => {
+    const marcar = !todosItensConferidos
+    alternarCamposConferidosLote(chavesCamposConferencia, marcar)
+    alternarRiscosConferidosLote(chavesRiscosConferencia, marcar)
+  }
+
   const legendaConferenciaUsuario = useMemo(() => {
     if (resumoConferencia.total === 0) return 'Nenhum item para conferir neste documento'
     const partes: string[] = []
@@ -253,17 +264,36 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
       >
         <div className="sr-conf-resumo-bloco-topo">
-          <span className="sr-conf-resumo-icone-bloco sr-conf-resumo-icone-bloco--usuario" aria-hidden>
-            <UserCheck size={14} weight="duotone" />
-          </span>
-          <TooltipGlobal
-            titulo="Conferência usuário"
-            descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
-          >
-            <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
-              Conferência usuário
+          <div className="sr-conf-resumo-bloco-titulo">
+            <span className="sr-conf-resumo-icone-bloco sr-conf-resumo-icone-bloco--usuario" aria-hidden>
+              <UserCheck size={14} weight="duotone" />
             </span>
-          </TooltipGlobal>
+            <TooltipGlobal
+              titulo="Conferência usuário"
+              descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
+            >
+              <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
+                Conferência usuário
+              </span>
+            </TooltipGlobal>
+          </div>
+          {resumoConferencia.total > 0 && (
+            <label className="sr-conf-resumo-conferir-todos">
+              <input
+                type="checkbox"
+                className="sr-conf-chk-checkbox"
+                checked={todosItensConferidos}
+                onChange={alternarConferirTodosItens}
+                aria-label={`Selecionar todos os ${resumoConferencia.total} itens deste documento`}
+              />
+              <span className="sr-conf-resumo-conferir-todos-icone" aria-hidden>
+                <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} />
+              </span>
+              <span className="sr-conf-resumo-conferir-todos-rotulo">
+                Selecionar tudo ({resumoConferencia.total})
+              </span>
+            </label>
+          )}
         </div>
 
         <div className="sr-conf-resumo-linha-barra">

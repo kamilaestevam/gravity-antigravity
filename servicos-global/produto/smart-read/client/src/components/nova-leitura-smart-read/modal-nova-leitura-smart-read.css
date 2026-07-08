@@ -2439,6 +2439,23 @@
   border: 1px solid rgba(129, 140, 248, 0.14);
 }
 
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--conferencia-ativo,
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--checklist-ativo,
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--riscos-ativo {
+  border: 2px solid #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.45);
+  background: rgba(96, 165, 250, 0.07);
+}
+
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .dt-secao {
   padding: 0.75rem 1.5rem 1.5rem;
   border-radius: 0.625rem;
@@ -2564,8 +2581,57 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 .sr-conf-resumo-bloco-topo {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   min-width: 0;
+}
+
+.sr-conf-resumo-bloco-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.sr-conf-resumo-conferir-todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.4375rem;
+  border-radius: 0.4375rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sr-conf-resumo-conferir-todos:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+  color: var(--text-primary);
+}
+
+.sr-conf-resumo-conferir-todos-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.sr-conf-resumo-conferir-todos input {
+  margin: 0;
+}
+
+.sr-conf-resumo-conferir-todos-rotulo {
+  line-height: 1.2;
 }
 
 .sr-conf-resumo-icone-bloco {

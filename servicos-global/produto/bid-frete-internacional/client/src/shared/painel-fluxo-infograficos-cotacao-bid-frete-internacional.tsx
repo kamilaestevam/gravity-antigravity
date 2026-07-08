@@ -23,8 +23,9 @@ import {
   Info,
   FunnelSimple,
   Check,
+  X,
 } from '@phosphor-icons/react'
-import { SwitchGlobal } from '@nucleo/switch-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { StatusCotacao } from './types'
 import {
   calcularInfograficosFluxoCotacao,
@@ -63,6 +64,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
 } from './types'
+import { INCOTERMS } from './types'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { listarUsuariosOrganizacao, getApiContext } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
@@ -759,7 +761,14 @@ function CardTermometroHistoricoSmart({
 }) {
   const [bases, setBases] = useState<TipoBaseTermometroHistorico[]>(['CONTRATADO'])
   const [componentes, setComponentes] = useState<ComponentePrecoTermometro[]>(['FRETE_BASE'])
-  const [filtrarIncoterm, setFiltrarIncoterm] = useState(false)
+  // Vazio = todos os incoterms (sem filtro)
+  const [incotermsSelecionados, setIncotermsSelecionados] = useState<string[]>([])
+
+  const alternarIncoterm = useCallback((item: string) => {
+    setIncotermsSelecionados((atual) => (
+      atual.includes(item) ? atual.filter((i) => i !== item) : [...atual, item]
+    ))
+  }, [])
 
   const alternarBase = useCallback((item: TipoBaseTermometroHistorico) => {
     setBases((atual) => {
@@ -840,7 +849,7 @@ function CardTermometroHistoricoSmart({
       const historico = referenciaTermometro == null
         ? bruto
         : filtrarHistoricoTermometro(referenciaTermometro, bruto, {
-          filtrar_incoterm: filtrarIncoterm,
+          incoterms: incotermsSelecionados,
         })
       return { tipoBase, historico }
     })
@@ -849,7 +858,7 @@ function CardTermometroHistoricoSmart({
     historico_aprovado,
     historico_propostas_recebidas,
     referenciaTermometro,
-    filtrarIncoterm,
+    incotermsSelecionados,
   ])
 
   const termometro = useMemo(
@@ -894,18 +903,36 @@ function CardTermometroHistoricoSmart({
     || bases[0] !== 'CONTRATADO'
     || componentes.length !== 1
     || componentes[0] !== 'FRETE_BASE'
-    || filtrarIncoterm
-
-  const rotuloBase = (['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const)
-    .filter((item) => bases.includes(item))
-    .map((item) => item === 'CONTRATADO'
-      ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
-      : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas'))
-    .join(' + ')
+    || incotermsSelecionados.length > 0
 
   const rotuloComponentes = componentes
     .map((item) => rotuloComponenteTermometro(item, t))
     .join(' + ')
+
+  // Lista de seleções ativas para o chip de filtros (padrão fc-chip da plataforma)
+  const selecoesFiltros = [
+    ...(['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const)
+      .filter((item) => bases.includes(item))
+      .map((item) => item === 'CONTRATADO'
+        ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
+        : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')),
+    ...componentes.map((item) => rotuloComponenteTermometro(item, t)),
+    ...incotermsSelecionados,
+  ]
+
+  // Híbrido (padrão rotulofiltro): até 2 nomes diretos; 3+ consolida em "N selecionados"
+  const valorChipFiltros = selecoesFiltros.length <= 2
+    ? selecoesFiltros.join(', ')
+    : t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros_n', {
+      n: selecoesFiltros.length,
+      defaultValue: `${selecoesFiltros.length} selecionados`,
+    })
+
+  const limparFiltrosTermometro = () => {
+    setBases(['CONTRATADO'])
+    setComponentes(['FRETE_BASE'])
+    setIncotermsSelecionados([])
+  }
 
   const painelFiltros = filtrosAbertos && typeof document !== 'undefined'
     ? createPortal(
@@ -991,23 +1018,57 @@ function CardTermometroHistoricoSmart({
             })}
           </div>
           <div className="dc-termometro-filtros-separador" role="separator" />
-          <div className="dc-termometro-filtros-secao dc-termometro-filtros-secao--switch">
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_aria',
+              'Filtrar por incoterm',
+            )}
+          >
             <span className="dc-termometro-filtros-secao-titulo">
               {t('bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_label', 'Incoterm')}
-              {incotermCotacao !== '' && (
-                <span className="dc-smart-termometro-incoterm-badge">{incotermCotacao}</span>
-              )}
             </span>
-            <SwitchGlobal
-              id="termometro-filtrar-incoterm"
-              label={t(
-                'bidfrete.detalhe_cotacao.cockpit_termometro_filtrar_incoterm_curto',
-                'Filtrar',
-              )}
-              checked={filtrarIncoterm}
-              disabled={incotermCotacao === ''}
-              onChange={setFiltrarIncoterm}
-            />
+            <button
+              type="button"
+              role="option"
+              aria-selected={incotermsSelecionados.length === 0}
+              className={`dc-termometro-filtros-opcao${incotermsSelecionados.length === 0 ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+              onClick={() => setIncotermsSelecionados([])}
+            >
+              <span
+                className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${incotermsSelecionados.length === 0 ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                aria-hidden
+              >
+                {incotermsSelecionados.length === 0 ? <Check size={11} weight="bold" /> : null}
+              </span>
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_todos', 'Todos')}
+            </button>
+            <div className="dc-termometro-filtros-incoterm-grid">
+              {INCOTERMS.map((item) => {
+                const ativo = incotermsSelecionados.includes(item)
+                const daCotacao = item === incotermCotacao
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    role="option"
+                    aria-selected={ativo}
+                    className={`dc-termometro-filtros-incoterm-chip${ativo ? ' dc-termometro-filtros-incoterm-chip--ativo' : ''}${daCotacao ? ' dc-termometro-filtros-incoterm-chip--cotacao' : ''}`}
+                    title={daCotacao
+                      ? t(
+                        'bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_da_cotacao',
+                        'Incoterm desta cotação',
+                      )
+                      : undefined}
+                    onClick={() => alternarIncoterm(item)}
+                  >
+                    {item}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>,
         document.body,
@@ -1021,9 +1082,57 @@ function CardTermometroHistoricoSmart({
       <header className="dc-smart-card-head dc-smart-card-head--termometro">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
         <div className="dc-termometro-head-acoes" ref={filtroBotaoRef}>
-          <span className="dc-termometro-head-resumo" title={rotuloComponentes}>
-            {rotuloBase}
-          </span>
+          {filtrosDestacados && (
+            <span className="dc-termometro-chip" role="status">
+              <TooltipGlobal
+                titulo={t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+                descricao={(
+                  <ol
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      listStyle: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.125rem',
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {selecoesFiltros.map((item, i) => (
+                      <li key={item} style={{ display: 'flex', gap: '0.45rem' }}>
+                        <span style={{ opacity: 0.55, minWidth: '1.4rem', textAlign: 'right' }}>
+                          {i + 1}.
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              >
+                <button
+                  type="button"
+                  className="dc-termometro-chip-body"
+                  onClick={() => setFiltrosAbertos(true)}
+                >
+                  <span className="dc-termometro-chip-label">
+                    {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}:
+                  </span>
+                  <span className="dc-termometro-chip-valor">{valorChipFiltros}</span>
+                </button>
+              </TooltipGlobal>
+              <button
+                type="button"
+                className="dc-termometro-chip-remove"
+                aria-label={t(
+                  'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_limpar',
+                  'Limpar filtros do termômetro',
+                )}
+                onClick={limparFiltrosTermometro}
+              >
+                <X size={9} weight="bold" aria-hidden />
+              </button>
+            </span>
+          )}
           <button
             type="button"
             className={`dc-termometro-filtros-botao${filtrosDestacados ? ' dc-termometro-filtros-botao--destacado' : ''}`}

@@ -51,7 +51,10 @@ export type ItemHistoricoTermometro = CotacaoReferenciaTermometro & {
 }
 
 export type OpcoesFiltroHistoricoTermometro = {
+  /** true = candidato precisa ter o mesmo incoterm da cotação de referência. */
   filtrar_incoterm?: boolean
+  /** Lista explícita de incoterms aceitos — vazia/ausente = todos. */
+  incoterms?: readonly string[]
 }
 
 const STATUS_PROPOSTA_CONTRATADA = new Set(['APROVADA', 'APROVACAO_RECEBIDA'])
@@ -225,6 +228,11 @@ export function cotacaoCompativelTermometro(
     const incRef = referencia.incoterm_cotacao_bid_frete_internacional ?? ''
     const incCand = candidato.incoterm_cotacao_bid_frete_internacional ?? ''
     if (incRef !== incCand) return false
+  }
+
+  if (opcoes.incoterms != null && opcoes.incoterms.length > 0) {
+    const incCand = candidato.incoterm_cotacao_bid_frete_internacional?.trim() ?? ''
+    if (!opcoes.incoterms.includes(incCand)) return false
   }
 
   return mesmaFaixaCargaTermometro(referencia, candidato)

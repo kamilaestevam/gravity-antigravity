@@ -35,6 +35,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'configuracoes_status': '/university/screenshots/bid-frete-int-configuracoes-status.png',
   'configuracoes_tabela': '/university/screenshots/bid-frete-int-configuracoes-tabela.png',
   'configuracoes_taxa_cambio': '/university/screenshots/bid-frete-int-configuracoes-taxa-cambio.png',
+  'cotacao_avulsa': '/university/screenshots/bid-frete-int-cotacao-avulsa.png',
   'insight_1': '/university/screenshots/bid-frete-int-insight-1.png',
   'insight_2': '/university/screenshots/bid-frete-int-insight-2.png',
   'insight_3': '/university/screenshots/bid-frete-int-insight-3.png',
@@ -175,6 +176,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'lista_tooltip_2': '/university/screenshots/bid-frete-int-lista-tooltip-2.png',
   'lista_tooltip_3': '/university/screenshots/bid-frete-int-lista-tooltip-3.png',
   'lista': '/university/screenshots/bid-frete-int-lista.png',
+  'manual_modal_operaca': '/university/screenshots/bid-frete-int-manual-modal-operaca.png',
 }
 
 // ── Atalhos nomeados (imports diretos nos conteudos) ──
@@ -198,6 +200,7 @@ export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PREFERENCIA = screenshotBidF
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_STATUS = screenshotBidFreteInt('configuracoes_status')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA = screenshotBidFreteInt('configuracoes_tabela')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TAXA_CAMBIO = screenshotBidFreteInt('configuracoes_taxa_cambio')
+export const SCREENSHOT_BID_FRETE_INT_COTACAO_AVULSA = screenshotBidFreteInt('cotacao_avulsa')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_1 = screenshotBidFreteInt('insight_1')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_2 = screenshotBidFreteInt('insight_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_3 = screenshotBidFreteInt('insight_3')
@@ -338,3 +341,4 @@ export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_1 = screenshotBidFreteInt('l
 export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_2 = screenshotBidFreteInt('lista_tooltip_2')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_3 = screenshotBidFreteInt('lista_tooltip_3')
 export const SCREENSHOT_BID_FRETE_INT_LISTA = screenshotBidFreteInt('lista')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_MODAL_OPERACA = screenshotBidFreteInt('manual_modal_operaca')

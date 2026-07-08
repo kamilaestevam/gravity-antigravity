@@ -94,6 +94,8 @@ export interface DocPassoVisual {
     iconesEscopoBidFrete?: ManualBidFreteEscopoConfig
     /** Manual BID Frete § Nova cotação — badge do modal no título da etapa. */
     chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
+    /** Manual BID Frete §4.02.01 — chip 01 + lápis da forma Manual no título da etapa. */
+    chipBidFreteFormaManual?: boolean
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
     mostrarChipsBidFreteTipoCarga?: boolean
     /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
@@ -102,6 +104,12 @@ export interface DocPassoVisual {
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
     /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
     infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+    /** Manual BID Frete §4.02.01 — cards dos campos do passo Modal e Operação (após o print). */
+    infograficoBidFreteModalOperacaoCampos?: boolean
+    /** Manual BID Frete §4.02.01 — print(s) após infográfico «Campos deste passo», antes das DICAS. */
+    telasAposInfograficoBidFreteModalOperacaoCampos?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — parágrafo entre infográfico e print anotado (ritmo §9.1.1). */
+    textoAposInfograficoBidFreteModalOperacaoCampos?: string
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */

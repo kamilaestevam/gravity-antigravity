@@ -152,16 +152,21 @@ export function contarConferenciaManualChecklist(
 
 export function resolverRotuloInvoiceChecklistInicial(
   rotuloDocumentoPreferido: string | null | undefined,
-  invoices: readonly { rotulo: string }[],
+  documentos: readonly { rotulo: string; indice?: number }[],
   valorTodas: string,
+  indiceDocumentoPreferido?: number | null,
 ): string {
+  if (indiceDocumentoPreferido != null) {
+    const porIndice = documentos.find((doc) => doc.indice === indiceDocumentoPreferido)
+    if (porIndice) return porIndice.rotulo
+  }
   if (
     rotuloDocumentoPreferido &&
-    invoices.some((invoice) => invoice.rotulo === rotuloDocumentoPreferido)
+    documentos.some((doc) => doc.rotulo === rotuloDocumentoPreferido)
   ) {
     return rotuloDocumentoPreferido
   }
-  return invoices[0]?.rotulo ?? valorTodas
+  return documentos[0]?.rotulo ?? valorTodas
 }
 
 export function contarConferenciaUsuarioCamposERiscos(
@@ -169,18 +174,25 @@ export function contarConferenciaUsuarioCamposERiscos(
   marcadosRiscos: Set<string>,
   chavesCampos: readonly string[],
   chavesRiscos: readonly string[],
+  marcadosChecklist?: Set<string>,
+  chavesChecklist?: readonly string[],
 ): ResumoConferenciaManualChecklist & {
   marcadosCampos: number
   marcadosRiscos: number
+  marcadosChecklist: number
   totalCampos: number
   totalRiscos: number
+  totalChecklist: number
 } {
   const totalCampos = chavesCampos.length
   const totalRiscos = chavesRiscos.length
-  const total = totalCampos + totalRiscos
+  const totalChecklist = chavesChecklist?.length ?? 0
+  const total = totalCampos + totalRiscos + totalChecklist
   const marcadosCamposCount = chavesCampos.filter((chave) => marcadosCampos.has(chave)).length
   const marcadosRiscosCount = chavesRiscos.filter((chave) => marcadosRiscos.has(chave)).length
-  const marcados = marcadosCamposCount + marcadosRiscosCount
+  const marcadosChecklistCount =
+    chavesChecklist?.filter((chave) => marcadosChecklist?.has(chave)).length ?? 0
+  const marcados = marcadosCamposCount + marcadosRiscosCount + marcadosChecklistCount
 
   return {
     total,
@@ -188,7 +200,9 @@ export function contarConferenciaUsuarioCamposERiscos(
     percentual: total === 0 ? 0 : Math.round((marcados / total) * 100),
     marcadosCampos: marcadosCamposCount,
     marcadosRiscos: marcadosRiscosCount,
+    marcadosChecklist: marcadosChecklistCount,
     totalCampos,
     totalRiscos,
+    totalChecklist,
   }
 }

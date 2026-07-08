@@ -118,6 +118,14 @@ export interface DocPassoVisual {
     textoAposInfograficoBidFreteOrigemDestinoCampos?: string
     /** Manual BID Frete §4.02.01 — DICA entre a 1ª e a 2ª linha da grade de prints (11–12 / 13–14). */
     calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — parágrafo da seção destino (após DICAS de origem, antes dos prints 15–18). */
+    textoSecaoDestinoAposCalloutOrigemDestinoBidFrete?: string
+    /** Manual BID Frete §4.02.01 — prints da seção destino (após DICAS de origem). */
+    telasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — DICA entre linhas da grade destino (15–16 / 17–18). */
+    calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — DICAS após prints destino. */
+    calloutAposSecaoDestinoOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */

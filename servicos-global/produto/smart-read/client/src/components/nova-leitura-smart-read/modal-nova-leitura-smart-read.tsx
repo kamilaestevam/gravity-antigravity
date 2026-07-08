@@ -49,6 +49,7 @@ import {
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
+import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 
 import {
   carregarBlobArquivoLeituraSmartRead,
@@ -282,7 +283,13 @@ export function ModalNovaLeituraSmartRead({
       }
 
       try {
-        const leituraEfetiva = salvo?.leitura ?? leitura
+        const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leitura, salvo?.leitura)
+        if (!leituraEfetiva) {
+          if (!ativo.current) return
+          setArquivos([])
+          setPasso(1)
+          return
+        }
         await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
       } catch {
         if (!ativo.current) return

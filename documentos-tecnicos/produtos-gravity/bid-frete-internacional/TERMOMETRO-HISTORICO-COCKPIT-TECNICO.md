@@ -133,10 +133,11 @@ O **Termômetro histórico** compara o preço **Dele** (cotação aberta) com o 
 | Peça | Caminho |
 |:---|:---|
 | Matching SSOT | `shared/filtro-historico-termometro-bid-frete-internacional.ts` |
+| Contrato Zod GET | `shared/cotacao-historico-termometro-api-schema.ts` |
 | Série / média | `client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional.ts` |
 | Card UI | `client/src/shared/painel-fluxo-infograficos-cotacao-bid-frete-internacional.tsx` |
 | GET | `server/src/routes/cotacoes.ts` |
-| Testes | `testes/.../filtro-historico-termometro-bid-frete-internacional.test.ts`, `painel-smart-insights-termometro.test.ts` |
+| Testes | `testes/.../filtro-historico-termometro-bid-frete-internacional.test.ts`, `painel-smart-insights-termometro.test.ts`, `TST-FUN-BIDFRT-000124-cotacao-historico-termometro.test.ts` |
 
 ---
 

@@ -230,10 +230,14 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   function anexarArquivo() {
     if (arquivos.length > 0) return
     setArquivos(gerarArquivosDemoIniciais())
+    setAnaliseCompleta(false)
+    setElapsedSegundos(0)
   }
 
   function removerArquivo(id: string) {
     setArquivos((lista) => lista.filter((a) => a.id !== id))
+    setAnaliseCompleta(false)
+    setElapsedSegundos(0)
   }
 
   function alternarExpandido(id: string) {
@@ -265,9 +269,34 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
     window.setTimeout(() => {
       setEnviando(false)
       setPasso(2)
+      if (analiseCompleta) {
+        setArquivos((lista) => lista.map(marcarArquivoAnaliseCompleta))
+        return
+      }
       setArquivos((lista) => lista.map((a) => ({ ...a, status: 'analisando' as const })))
       setElapsedSegundos(0)
     }, 600)
+  }
+
+  function voltarPasso() {
+    setPasso((atual) => {
+      if (atual <= 1) return atual
+      const destino = atual - 1
+      if (destino === 1) {
+        setArquivos((lista) =>
+          lista.map((a) => ({
+            ...a,
+            status: 'anexado' as const,
+            expandido: false,
+          })),
+        )
+        setPreview(null)
+      }
+      if (destino === 2) {
+        setPreview(null)
+      }
+      return destino
+    })
   }
 
   function renderStepper() {
@@ -484,7 +513,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
           )}
           {passo === 2 && (
             <div className="sds-nl-lateral-botoes">
-              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={() => setPasso(1)}>
+              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={voltarPasso}>
                 Voltar
               </button>
               <button
@@ -500,7 +529,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
           )}
           {passo === 3 && (
             <div className="sds-nl-lateral-botoes">
-              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={() => setPasso(2)}>
+              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={voltarPasso}>
                 Voltar
               </button>
               <button
@@ -515,7 +544,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
           )}
           {passo === 4 && (
             <div className="sds-nl-lateral-botoes">
-              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={() => setPasso(3)}>
+              <button type="button" className="sds-nl-btn sds-nl-btn--sec" onClick={voltarPasso}>
                 Voltar
               </button>
               <button
@@ -740,7 +769,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
   }
 
   return (
-    <div className="sds-nl-overlay" ref={refRaizTutorial} onClick={onFechar}>
+    <div className="sds-nl-overlay" ref={refRaizTutorial}>
       <div className="sds-nl-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal aria-label="Nova Leitura">
         <header className="sds-nl-cabecalho">
           <div className="sds-nl-cabecalho-marca">

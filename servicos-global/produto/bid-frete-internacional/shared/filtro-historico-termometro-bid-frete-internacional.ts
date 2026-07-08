@@ -11,6 +11,11 @@ export type ComponentePrecoTermometro =
   | 'TAXAS_DESTINO'
   | 'TOTAL'
 
+/** Um componente único ou uma lista (multi-seleção — valores somados). */
+export type SelecaoComponentesTermometro =
+  | ComponentePrecoTermometro
+  | readonly ComponentePrecoTermometro[]
+
 export type FaixaAereoTermometro = 'MIN_45' | 'P45' | 'P100' | 'P300' | 'P400_MAIS'
 
 export type FaixaRodoviarioTermometro = 'ATE_15' | '15_24' | '24_30' | 'ACIMA_30'
@@ -46,7 +51,10 @@ export type ItemHistoricoTermometro = CotacaoReferenciaTermometro & {
 }
 
 export type OpcoesFiltroHistoricoTermometro = {
+  /** true = candidato precisa ter o mesmo incoterm da cotação de referência. */
   filtrar_incoterm?: boolean
+  /** Lista explícita de incoterms aceitos — vazia/ausente = todos. */
+  incoterms?: readonly string[]
 }
 
 const STATUS_PROPOSTA_CONTRATADA = new Set(['APROVADA', 'APROVACAO_RECEBIDA'])
@@ -62,7 +70,13 @@ export function listarPropostasItemHistoricoTermometro(
   return item.propostas ?? item.propostas_bid_frete_internacional ?? []
 }
 
-export function extrairValorComponenteProposta(
+export function normalizarSelecaoComponentesTermometro(
+  selecao: SelecaoComponentesTermometro,
+): ComponentePrecoTermometro[] {
+  return Array.isArray(selecao) ? [...selecao] : [selecao as ComponentePrecoTermometro]
+}
+
+function extrairValorComponenteUnico(
   proposta: PropostaHistoricoTermometro,
   componente: ComponentePrecoTermometro,
 ): number | null {
@@ -78,6 +92,31 @@ export function extrairValorComponenteProposta(
     default:
       return null
   }
+}
+
+/**
+ * Valor do(s) componente(s) selecionado(s) — multi-seleção soma os componentes.
+ * TOTAL na seleção prevalece (já representa a soma completa da proposta).
+ */
+export function extrairValorComponenteProposta(
+  proposta: PropostaHistoricoTermometro,
+  selecao: SelecaoComponentesTermometro,
+): number | null {
+  const componentes = normalizarSelecaoComponentesTermometro(selecao)
+  if (componentes.length === 0) return null
+  if (componentes.includes('TOTAL')) {
+    return extrairValorComponenteUnico(proposta, 'TOTAL')
+  }
+  let soma = 0
+  let encontrouValor = false
+  for (const componente of componentes) {
+    const valor = extrairValorComponenteUnico(proposta, componente)
+    if (valor != null) {
+      soma += valor
+      encontrouValor = true
+    }
+  }
+  return encontrouValor ? soma : null
 }
 
 export function resolverToneladasCotacao(cotacao: CotacaoReferenciaTermometro): number {
@@ -191,6 +230,11 @@ export function cotacaoCompativelTermometro(
     if (incRef !== incCand) return false
   }
 
+  if (opcoes.incoterms != null && opcoes.incoterms.length > 0) {
+    const incCand = candidato.incoterm_cotacao_bid_frete_internacional?.trim() ?? ''
+    if (!opcoes.incoterms.includes(incCand)) return false
+  }
+
   return mesmaFaixaCargaTermometro(referencia, candidato)
 }
 
@@ -205,7 +249,7 @@ export function filtrarHistoricoTermometro<T extends ItemHistoricoTermometro>(
 
 export function melhorValorComponentePropostas(
   propostas: PropostaHistoricoTermometro[],
-  componente: ComponentePrecoTermometro,
+  selecao: SelecaoComponentesTermometro,
   tipoBase: TipoBaseTermometroHistorico,
 ): number | null {
   if (propostas.length === 0) return null
@@ -216,14 +260,14 @@ export function melhorValorComponentePropostas(
         && STATUS_PROPOSTA_CONTRATADA.has(p.status_proposta_bid_frete_internacional),
     )
     if (contratada != null) {
-      return extrairValorComponenteProposta(contratada, componente)
+      return extrairValorComponenteProposta(contratada, selecao)
     }
     const primeira = propostas[0]
-    return primeira != null ? extrairValorComponenteProposta(primeira, componente) : null
+    return primeira != null ? extrairValorComponenteProposta(primeira, selecao) : null
   }
 
   const valores = propostas
-    .map((p) => extrairValorComponenteProposta(p, componente))
+    .map((p) => extrairValorComponenteProposta(p, selecao))
     .filter((v): v is number => v != null)
   if (valores.length === 0) return null
   return Math.min(...valores)
@@ -232,10 +276,10 @@ export function melhorValorComponentePropostas(
 export function valorHistoricoCotacaoTermometro(
   item: ItemHistoricoTermometro,
   tipoBase: TipoBaseTermometroHistorico,
-  componente: ComponentePrecoTermometro,
+  selecao: SelecaoComponentesTermometro,
 ): number | null {
   const propostas = listarPropostasItemHistoricoTermometro(item)
-  return melhorValorComponentePropostas(propostas, componente, tipoBase)
+  return melhorValorComponentePropostas(propostas, selecao, tipoBase)
 }
 
 export function dataReferenciaHistoricoTermometro(

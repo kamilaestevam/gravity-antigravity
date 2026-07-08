@@ -89,7 +89,21 @@ function usarMarcacaoSessaoUsuario(storagePrefix: string, chaveSessao: string) {
     [chaveSessao, storageKey],
   )
 
-  return { estaMarcado, alternarMarcado, marcados }
+  const alternarMarcadosLote = useCallback(
+    (chaves: readonly string[], marcar: boolean) => {
+      if (!chaveSessao || chaves.length === 0) return
+      const atual = obterMarcadosCache(storageKey)
+      const next = new Set(atual)
+      for (const chave of chaves) {
+        if (marcar) next.add(chave)
+        else next.delete(chave)
+      }
+      persistirMarcados(storageKey, next)
+    },
+    [chaveSessao, storageKey],
+  )
+
+  return { estaMarcado, alternarMarcado, alternarMarcadosLote, marcados }
 }
 
 export function chaveItemChecklistUsuario(regraId: string, rotuloInvoice?: string | null): string {
@@ -134,6 +148,20 @@ export function contarConferenciaManualChecklist(
     marcados: marcadosCount,
     percentual: Math.round((marcadosCount / total) * 100),
   }
+}
+
+export function resolverRotuloInvoiceChecklistInicial(
+  rotuloDocumentoPreferido: string | null | undefined,
+  invoices: readonly { rotulo: string }[],
+  valorTodas: string,
+): string {
+  if (
+    rotuloDocumentoPreferido &&
+    invoices.some((invoice) => invoice.rotulo === rotuloDocumentoPreferido)
+  ) {
+    return rotuloDocumentoPreferido
+  }
+  return invoices[0]?.rotulo ?? valorTodas
 }
 
 export function contarConferenciaUsuarioCamposERiscos(

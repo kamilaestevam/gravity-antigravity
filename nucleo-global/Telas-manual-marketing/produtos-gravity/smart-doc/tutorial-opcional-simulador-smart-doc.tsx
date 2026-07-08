@@ -2,7 +2,7 @@
  * tutorial-opcional-simulador-smart-doc.tsx — guia opcional da Gabi por tela
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
   Compass,
@@ -39,6 +39,15 @@ export function TutorialOpcionalSimuladorSmartDoc({
   const [explorarAlvoHover, setExplorarAlvoHover] = useState<string | null>(null)
   const [cardAvancarHover, setCardAvancarHover] = useState(false)
   const telasVistasRef = useRef<Set<string>>(new Set())
+  const refPainel = useRef<HTMLElement>(null)
+  const refCardAvancar = useRef<HTMLElement>(null)
+  const refFab = useRef<HTMLButtonElement>(null)
+
+  const fecharPainel = useCallback(() => {
+    setPainelAberto(false)
+    setExplorarAlvoHover(null)
+    setCardAvancarHover(false)
+  }, [])
 
   const avancarEfetivo: AvancarTutorialOpcional | undefined = useMemo(() => {
     if (!tela) return undefined
@@ -79,12 +88,23 @@ export function TutorialOpcionalSimuladorSmartDoc({
     onAlvoDestacadoChange?.(alvoDestaque)
   }, [alvoDestaque, onAlvoDestacadoChange])
 
-  if (!habilitado || !tela || !avancarEfetivo) return null
+  useEffect(() => {
+    if (!painelAberto || !habilitado) return
 
-  function fecharPainel() {
-    setPainelAberto(false)
-    setExplorarAlvoHover(null)
-  }
+    function aoPointerFora(ev: MouseEvent) {
+      const alvo = ev.target
+      if (!(alvo instanceof Node)) return
+      if (refPainel.current?.contains(alvo)) return
+      if (refCardAvancar.current?.contains(alvo)) return
+      if (refFab.current?.contains(alvo)) return
+      fecharPainel()
+    }
+
+    document.addEventListener('mousedown', aoPointerFora, true)
+    return () => document.removeEventListener('mousedown', aoPointerFora, true)
+  }, [painelAberto, habilitado, fecharPainel])
+
+  if (!habilitado || !tela || !avancarEfetivo) return null
 
   function vincularDestaqueItem(idAlvo?: string) {
     return {
@@ -127,6 +147,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
       {painelAberto && (
         <>
           <aside
+            ref={refPainel}
             id="sds-tutorial-painel"
             className="sds-tutorial__painel"
             role="complementary"
@@ -186,6 +207,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
           </aside>
 
           <aside
+            ref={refCardAvancar}
             key={avancarEfetivo.titulo}
             className={`sds-tutorial__card-avancar${cardAvancarHover ? ' sds-tutorial__card-avancar--ativo' : ''}`}
             role="complementary"
@@ -210,6 +232,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
       )}
 
       <button
+        ref={refFab}
         type="button"
         className={`sds-tutorial__gabi-fab${painelAberto ? ' sds-tutorial__gabi-fab--ativo' : ''}`}
         aria-expanded={painelAberto}

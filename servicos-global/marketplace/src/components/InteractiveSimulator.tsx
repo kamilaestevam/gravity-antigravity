@@ -594,19 +594,23 @@ export function InteractiveSimulator(props: SimulatorProps) {
   // O scale do active layer no home.css foi aumentado para 3.6. A placa base tem 280x180.
   // 280 * 3.6 = 1008px. 180 * 3.6 = 648px.
   return (
-    <div 
+    <div
+      className="interactive-simulator-shell"
       onClick={(e) => e.stopPropagation()}
-      style={{
-      position: 'absolute',
-      inset: '0',
-      width: '100%',
-      height: '100%',
-      overflow: 'visible',
-      borderRadius: '24px', 
-      border: '18px solid #000',
-      boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,255,255,0.1)',
-      background: '#090b14', 
-    }}>
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        className="interactive-simulator-close"
+        aria-label="Fechar demonstração"
+        title="Fechar"
+        onClick={(e) => {
+          e.stopPropagation()
+          props.onClose()
+        }}
+      >
+        <X size={20} weight="bold" />
+      </button>
       <InteractiveSimulatorContent {...props} />
     </div>
   )

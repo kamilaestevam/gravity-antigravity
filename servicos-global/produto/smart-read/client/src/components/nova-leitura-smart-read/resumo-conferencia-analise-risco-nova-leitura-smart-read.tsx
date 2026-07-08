@@ -252,15 +252,19 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       <div
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
       >
-        <TooltipGlobal
-          titulo="Conferência usuário"
-          descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
-        >
-          <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
-            <UserCheck size={12} weight="duotone" aria-hidden />
-            Conferência usuário
+        <div className="sr-conf-resumo-bloco-topo">
+          <span className="sr-conf-resumo-icone-bloco sr-conf-resumo-icone-bloco--usuario" aria-hidden>
+            <UserCheck size={14} weight="duotone" />
           </span>
-        </TooltipGlobal>
+          <TooltipGlobal
+            titulo="Conferência usuário"
+            descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
+          >
+            <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
+              Conferência usuário
+            </span>
+          </TooltipGlobal>
+        </div>
 
         <div className="sr-conf-resumo-linha-barra">
           <div
@@ -401,6 +405,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       documentos={documentosRisco}
       parametrosChecklist={parametrosChecklist}
       chaveMarcacaoChecklist={chaveAnaliseRiscos}
+      rotuloDocumentoInicial={rotuloDocumentoAtual}
       onVerRisco={(riscoId) => {
         setModalChecklistAberto(false)
         onIrAnaliseRiscos()

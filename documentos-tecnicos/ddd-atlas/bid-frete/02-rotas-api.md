@@ -144,6 +144,17 @@ Localizacao: `servicos-global/produto/bid-frete/server/src/routes/`
 
 Quando `status_cotacao_bid_frete_internacional === 'APROVADA'`, a resposta inclui os mesmos campos computados acima (`id_usuario` do último `ganho_bid_frete_internacional` + nome resolvido).
 
+**Termômetro histórico (2026-07-07)** — campos adicionais em `cotacao` para o card cockpit:
+
+| Campo | Tipo | Descrição |
+|:---|:---|:---|
+| `historico_aprovado` | `ItemHistoricoTermometro[]` | Cotações `APROVADA` na mesma org, pré-filtradas por operação/rota/modal/faixa (server: `filtrarHistoricoTermometro`, `filtrar_incoterm: false`) |
+| `historico_propostas_recebidas` | `ItemHistoricoTermometro[]` | Cotações com ≥1 proposta (≠ RASCUNHO), mesmo filtro de matching |
+
+Cada item inclui campos de matching (`tipo_operacao`, `modal`, `origem_codigo`, `destino_codigo`, `modalidade`, `tipo_container`, `incoterm`, `peso_kg`, `peso_ton`, `cubagem_m3`, datas) e `propostas[]` com componentes de preço (`valor_frete`, `taxas_origem`, `taxas_destino`, `valor_total`, `moeda`, `status`, `data_criacao`).
+
+Contrato Zod front: `shared/cotacao-historico-termometro-api-schema.ts`. Regras de negócio: [TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](../../produtos-gravity/bid-frete-internacional/TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md).
+
 Doc UX: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md`
 
 ### POST `/api/v1/bid-frete-internacional/comparativo/:id_cotacao/reprovar` (rota #13)

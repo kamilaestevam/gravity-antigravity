@@ -3617,7 +3617,7 @@ function ManualGaleriaComparacaoIntro({
   infograficoBidFreteOrigemDestinoCampos?: boolean
   telasAposInfograficoBidFreteOrigemDestinoCampos?: DocGaleriaComparacaoTela[]
   textoAposInfograficoBidFreteOrigemDestinoCampos?: string
-  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual
+  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual | DocCalloutManual[]
   infograficoConsolidarPasso2Regras?: boolean
   infograficoConsolidarResultadoEsperado?: boolean
   layoutConsolidarResultadoUnificado?: boolean
@@ -4181,22 +4181,26 @@ function ManualGaleriaComparacaoIntro({
           }}>
             {telasAposInfograficoBidFreteOrigemDestinoCampos.slice(0, 2).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
           </div>
-          {calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos ? (
+          {(Array.isArray(calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos)
+            ? calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos
+            : calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos
+              ? [calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos]
+              : []
+          ).map((callout, idx) => (
             <ManualCalloutBloco
-              callout={calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
-              marginTop={MANUAL_ESPACO_PARAGRAFO_PX}
+              key={callout.texto.slice(0, 40)}
+              callout={callout}
+              marginTop={idx === 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 8}
               marginBottom={0}
             />
-          ) : null}
+          ))}
           {telasAposInfograficoBidFreteOrigemDestinoCampos.length > 2 ? (
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
               gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
               alignItems: 'stretch',
-              marginTop: calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos
-                ? 0
-                : MANUAL_ESPACO_GRADE_GALERIA_PX,
+              marginTop: MANUAL_ESPACO_GRADE_GALERIA_PX,
             }}>
               {telasAposInfograficoBidFreteOrigemDestinoCampos.slice(2).map((tela) => renderTela(tela, { alinharLegendaChipGrade: true }))}
             </div>

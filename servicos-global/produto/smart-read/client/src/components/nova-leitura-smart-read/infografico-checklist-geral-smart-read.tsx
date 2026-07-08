@@ -119,7 +119,7 @@ export function InfograficoChecklistGeralSmartRead({
                       selecaoInvoice.aoMudarValor(v == null ? null : String(v))
                     }
                     buscavel
-                    placeholder="Selecione a invoice…"
+                    placeholder="Selecione o documento…"
                     posicao="baixo"
                   />
                 </div>

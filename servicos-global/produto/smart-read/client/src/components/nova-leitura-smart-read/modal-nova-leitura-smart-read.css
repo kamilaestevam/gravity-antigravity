@@ -3536,7 +3536,7 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 .sr-conf-chk-checkbox {
   width: 0.9375rem;
   height: 0.9375rem;
-  accent-color: #34d399;
+  accent-color: #818cf8;
   cursor: pointer;
 }
 
@@ -4456,7 +4456,7 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 }
 
 .sr-conf-toolbar-selecionar-conferencia svg {
-  color: #34d399;
+  color: #818cf8;
   flex-shrink: 0;
 }
 

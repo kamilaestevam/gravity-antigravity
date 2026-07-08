@@ -202,6 +202,11 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         `${resumoConferencia.marcadosRiscos}/${resumoConferencia.totalRiscos} risco${resumoConferencia.totalRiscos === 1 ? '' : 's'}`,
       )
     }
+    if (resumoConferencia.totalChecklist > 0) {
+      partes.push(
+        `${resumoConferencia.marcadosChecklist}/${resumoConferencia.totalChecklist} matriz`,
+      )
+    }
     return `${resumoConferencia.marcados}/${resumoConferencia.total} conferidos por você (${partes.join(' · ')})`
   }, [resumoConferencia])
 
@@ -220,7 +225,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           </span>
           <TooltipGlobal
             titulo="Conferência usuário"
-            descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
+            descricao="Campos, riscos e regras Gravity que você marcou como revisados neste documento"
           >
             <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
               Conferência usuário
@@ -368,6 +373,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       parametrosChecklist={parametrosChecklist}
       chaveMarcacaoChecklist={chaveAnaliseRiscos}
       rotuloDocumentoInicial={rotuloDocumentoAtual}
+      indiceDocumentoInicial={indiceDocumento}
       onVerRisco={(riscoId) => {
         setModalChecklistAberto(false)
         onIrAnaliseRiscos()

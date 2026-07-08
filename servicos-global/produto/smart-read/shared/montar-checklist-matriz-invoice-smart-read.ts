@@ -190,6 +190,36 @@ export function rotuloDocumentoChecklistInvoice(
   return `${nomeArquivo} · ${tipoDocumento.trim() || `Documento ${indice + 1}`}`
 }
 
+export type DocumentoOpcaoChecklist = {
+  rotulo: string
+  nome_arquivo: string
+  tipo_documento: string
+  indice: number
+  numero_invoice: string | null
+}
+
+/** Todos os subdocumentos da leitura — usado no select do checklist (sidebar → modal). */
+export function listarDocumentosOpcoesChecklist(
+  documentos: DocumentoAnaliseRisco[],
+): DocumentoOpcaoChecklist[] {
+  return documentos.map((doc) => {
+    const mapa = achatarCamposDadosLeitura(doc.dados)
+    const numero =
+      doc.tipo_documento.toUpperCase().includes('INVOICE')
+        ? (valorTextoComparacaoCampo(mapa.get('document.invoiceNumber')) ??
+          valorTextoComparacaoCampo(mapa.get('invoiceNumber')) ??
+          valorTextoComparacaoCampo(mapa.get('document.number')))
+        : null
+    return {
+      rotulo: rotuloDocumentoChecklistInvoice(doc.nome_arquivo, doc.tipo_documento, doc.indice),
+      nome_arquivo: doc.nome_arquivo,
+      tipo_documento: doc.tipo_documento,
+      indice: doc.indice,
+      numero_invoice: numero,
+    }
+  })
+}
+
 export function listarInvoicesChecklist(documentos: DocumentoAnaliseRisco[]): InvoiceOpcaoChecklist[] {
   return documentos
     .filter((d) => d.tipo_documento.toUpperCase().includes('INVOICE'))

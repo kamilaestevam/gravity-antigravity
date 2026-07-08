@@ -8,7 +8,7 @@ import { ClipboardText, X } from '@phosphor-icons/react'
 import type { DocumentoAnaliseRisco } from '../../../../shared/analise-riscos-leitura-smart-read'
 import {
   agruparChecklistPorSecao,
-  listarInvoicesChecklist,
+  listarDocumentosOpcoesChecklist,
   montarChecklistMatrizInvoice,
   montarResumoGeralChecklistInvoices,
   VALOR_TODAS_INVOICES_CHECKLIST,
@@ -32,6 +32,7 @@ type Props = {
   parametrosChecklist: Omit<ParametrosChecklistMatrizInvoice, 'rotulo_documento'>
   chaveMarcacaoChecklist: string
   rotuloDocumentoInicial?: string | null
+  indiceDocumentoInicial?: number | null
   onVerRisco?: (riscoId: string) => void
 }
 
@@ -42,18 +43,20 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   parametrosChecklist,
   chaveMarcacaoChecklist,
   rotuloDocumentoInicial = null,
+  indiceDocumentoInicial = null,
   onVerRisco,
 }: Props) {
-  const invoices = useMemo(() => listarInvoicesChecklist(documentos), [documentos])
+  const documentosOpcoes = useMemo(() => listarDocumentosOpcoesChecklist(documentos), [documentos])
 
   const rotuloInicialPadrao = useMemo(
     () =>
       resolverRotuloInvoiceChecklistInicial(
         rotuloDocumentoInicial,
-        invoices,
+        documentosOpcoes,
         VALOR_TODAS_INVOICES_CHECKLIST,
+        indiceDocumentoInicial,
       ),
-    [invoices, rotuloDocumentoInicial],
+    [documentosOpcoes, rotuloDocumentoInicial, indiceDocumentoInicial],
   )
 
   const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(rotuloInicialPadrao)
@@ -89,13 +92,13 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   const opcoesInvoice = useMemo(
     () =>
-      invoices.map((inv) => ({
-        valor: inv.rotulo,
-        rotulo: inv.numero_invoice
-          ? `${inv.numero_invoice} · ${inv.nome_arquivo}`
-          : `${inv.nome_arquivo} · ${inv.tipo_documento}`,
+      documentosOpcoes.map((doc) => ({
+        valor: doc.rotulo,
+        rotulo: doc.numero_invoice
+          ? `${doc.numero_invoice} · ${doc.nome_arquivo}`
+          : `${doc.nome_arquivo} · ${doc.tipo_documento}`,
       })),
-    [invoices],
+    [documentosOpcoes],
   )
 
   const opcoesSelecaoGeral = useMemo(
@@ -217,8 +220,8 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
         </header>
 
         <div className="sr-chk-modal-corpo">
-          {invoices.length === 0 ? (
-            <p className="sr-conf-vazio">Nenhuma invoice INVOICE encontrada nesta leitura.</p>
+          {documentosOpcoes.length === 0 ? (
+            <p className="sr-conf-vazio">Nenhum documento encontrado nesta leitura.</p>
           ) : (
             <InfograficoChecklistGeralSmartRead
               resumo={resumoGeral}

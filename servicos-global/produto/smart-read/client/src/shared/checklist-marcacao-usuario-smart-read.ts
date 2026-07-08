@@ -160,10 +160,9 @@ export function resolverRotuloInvoiceChecklistInicial(
     const porIndice = documentos.find((doc) => doc.indice === indiceDocumentoPreferido)
     if (porIndice) return porIndice.rotulo
   }
-  if (
-    rotuloDocumentoPreferido &&
-    documentos.some((doc) => doc.rotulo === rotuloDocumentoPreferido)
-  ) {
+  if (rotuloDocumentoPreferido) {
+    const porRotuloExato = documentos.find((doc) => doc.rotulo === rotuloDocumentoPreferido)
+    if (porRotuloExato) return porRotuloExato.rotulo
     return rotuloDocumentoPreferido
   }
   return documentos[0]?.rotulo ?? valorTodas

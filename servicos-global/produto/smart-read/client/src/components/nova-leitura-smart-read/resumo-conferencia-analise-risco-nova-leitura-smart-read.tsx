@@ -14,7 +14,12 @@ import type {
   ResumoRiscosAduaneirosLeitura,
   RiscoAduaneiroLeitura,
 } from '../../../../shared/analise-riscos-leitura-smart-read'
-import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import {
+  aplicarFalhasMatrizAoResumoRiscos,
+  contarChecklistPorStatus,
+  montarChecklistMatrizInvoice,
+  montarResumoGeralChecklistInvoices,
+} from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import {
   montarChaveAnaliseRiscosSessaoSmartRead,
   obterRequisicaoAnaliseRiscosEmVooSmartRead,
@@ -142,22 +147,38 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   )
 
   const parametrosChecklist = useMemo(() => {
-    const riscosEfetivos =
+    const regrasEfetivas = emCacheRiscos?.contexto_v1.regras ?? auditoriaV1Arquivo?.contexto.regras ?? []
+    const riscosBrutos =
       emCacheRiscos && emCacheRiscos.resumo.total > 0
         ? emCacheRiscos.resumo.riscos
         : (auditoriaV1Arquivo?.resumo.riscos ?? [])
-    const regrasEfetivas = emCacheRiscos?.contexto_v1.regras ?? auditoriaV1Arquivo?.contexto.regras ?? []
+    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(regrasEfetivas, {
+      riscos: riscosBrutos,
+      total: riscosBrutos.length,
+      criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
+      atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
+      informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
+    })
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
 
     return {
       regras: regrasEfetivas,
-      riscos: riscosEfetivos,
+      riscos: resumoRiscosEfetivo.riscos,
       pipelineConcluido: Boolean(emCacheRiscos),
       llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
       carregando,
       documentos: documentosRisco,
     }
   }, [auditoriaV1Arquivo, chaveAnaliseRiscos, documentosRisco, emCacheRiscos])
+
+  const subdocumentosSidebar = useMemo(
+    () =>
+      extrairDocumentosArquivoLocal(arquivo).map((doc) => ({
+        indice: doc.indice,
+        tipo_documento: doc.tipo_documento,
+      })),
+    [arquivo],
+  )
 
   const resumoGeralChecklist = useMemo(
     () =>
@@ -167,16 +188,46 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     [documentosRisco.length, parametrosChecklist],
   )
 
-  const contagemChecklist = resumoGeralChecklist?.contagem_global ?? {
-    verde: 0,
-    amarelo: 0,
-    vermelho: 0,
-    pendente: 0,
-    na: 0,
-    total: 0,
-  }
+  const resumoChecklistDocumentoAtual = useMemo(() => {
+    if (!rotuloDocumentoAtual || documentosRisco.length === 0) return null
+    const porInvoice = resumoGeralChecklist?.por_invoice.find(
+      (inv) => inv.rotulo === rotuloDocumentoAtual,
+    )
+    if (porInvoice) {
+      return {
+        contagem: porInvoice.contagem,
+        percentual: porInvoice.percentual_conforme,
+      }
+    }
+    const itens = montarChecklistMatrizInvoice({
+      ...parametrosChecklist,
+      rotulo_documento: rotuloDocumentoAtual,
+    })
+    const contagem = contarChecklistPorStatus(itens)
+    const percentual =
+      contagem.total === 0
+        ? 0
+        : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
+    return { contagem, percentual }
+  }, [
+    documentosRisco.length,
+    parametrosChecklist,
+    resumoGeralChecklist?.por_invoice,
+    rotuloDocumentoAtual,
+  ])
 
-  const percentualChecklistVerde = resumoGeralChecklist?.percentual_global ?? 0
+  const contagemChecklist = resumoChecklistDocumentoAtual?.contagem ??
+    resumoGeralChecklist?.contagem_global ?? {
+      verde: 0,
+      amarelo: 0,
+      vermelho: 0,
+      pendente: 0,
+      na: 0,
+      total: 0,
+    }
+
+  const percentualChecklistVerde =
+    resumoChecklistDocumentoAtual?.percentual ?? resumoGeralChecklist?.percentual_global ?? 0
 
   const carregandoRiscos = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
 
@@ -370,6 +421,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       aberto={modalChecklistAberto}
       onFechar={() => setModalChecklistAberto(false)}
       documentos={documentosRisco}
+      nomeArquivo={arquivo.arquivo.name}
+      subdocumentosSidebar={subdocumentosSidebar}
       parametrosChecklist={parametrosChecklist}
       chaveMarcacaoChecklist={chaveAnaliseRiscos}
       rotuloDocumentoInicial={rotuloDocumentoAtual}

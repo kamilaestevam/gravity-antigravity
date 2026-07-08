@@ -116,20 +116,27 @@ export function extrairDetalheDadosRegraMatrizInvoice(
         break
       case 'S2-05':
         partes.push(
-          [
-            valorCampo(mapa, ['exporter.name', 'seller.name']),
-            valorCampo(mapa, ['exporter.taxId', 'exporter.taxId']),
-          ]
-            .filter(Boolean)
-            .join(' · ') || 'exportador não extraído',
+          valorCampo(mapa, ['exporter.name', 'seller.name']) ?? 'exportador não extraído',
         )
         break
       case 'S2-06':
         partes.push(
-          valorCampo(mapa, ['manufacturer.name', 'manufacturer']) ?? 'fabricante não extraído',
+          valorCampo(mapa, ['exporter.address', 'seller.address', 'shipper.address']) ??
+            'endereço do exportador não extraído',
         )
         break
       case 'S2-07':
+        partes.push(
+          valorCampo(mapa, ['manufacturer.name', 'manufacturer']) ?? 'fabricante não extraído',
+        )
+        break
+      case 'S2-08':
+        partes.push(
+          valorCampo(mapa, ['manufacturer.address', 'manufacturerAddress']) ??
+            'endereço do fabricante não extraído',
+        )
+        break
+      case 'S2-09':
         partes.push(
           valorCampo(mapa, ['notifyParty.name', 'delivery.name', 'consignee.name']) ??
             'notify/delivery não extraído',

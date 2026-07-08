@@ -27,7 +27,7 @@ function classeVeredito(veredito: string): string {
   }
 }
 
-function BarraStatusChecklistSimulador({
+export function BarraStatusChecklistSimulador({
   verde,
   amarelo,
   vermelho,
@@ -350,10 +350,10 @@ export function ModalChecklistSimuladorSmartDoc({
 
   useEffect(() => {
     if (aberto) {
-      setFiltro(VALOR_TODAS)
+      setFiltro(rotuloDocumento)
       setSecaoFoco(null)
     }
-  }, [aberto, tipo])
+  }, [aberto, rotuloDocumento, tipo])
 
   useEffect(() => {
     if (!aberto) return

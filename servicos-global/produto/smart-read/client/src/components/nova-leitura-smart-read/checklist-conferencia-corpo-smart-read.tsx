@@ -2,11 +2,13 @@
  * checklist-conferencia-corpo-smart-read.tsx — corpo tabular do checklist (inline ou modal)
  */
 
-import { CaretDown, Check } from '@phosphor-icons/react'
+import { CaretDown, Check, Info } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
   contarChecklistPorStatus,
+  TOOLTIP_STATUS_CHECKLIST_INVOICE,
   vereditoSecaoChecklist,
   type ItemChecklistMatrizInvoice,
   type RotuloStatusChecklistInvoice,
@@ -30,6 +32,22 @@ const ROTULO_MOTOR_MATRIZ: Record<ItemChecklistMatrizInvoice['regra']['motor'], 
   llm: 'IA',
   rag: 'RAG',
 }
+
+const ROTULO_PARA_STATUS: Record<RotuloStatusChecklistInvoice, StatusChecklistMatrizInvoice> = {
+  CONFORME: 'conforme',
+  'ATENÇÃO': 'amarelo',
+  FALHA: 'vermelho',
+  PENDENTE: 'pendente',
+  'N/A': 'na',
+}
+
+const ORDEM_ROTULOS_STATUS: RotuloStatusChecklistInvoice[] = [
+  'CONFORME',
+  'ATENÇÃO',
+  'FALHA',
+  'PENDENTE',
+  'N/A',
+]
 
 function classeStatusChecklistAviacao(status: StatusChecklistMatrizInvoice): string {
   return `sr-conf-chk-status sr-conf-chk-status--${status}`
@@ -85,16 +103,30 @@ function LinhaChecklistAviacao({
         <span className="sr-conf-chk-regra-id">{item.regra.id}</span>
       </td>
       <td className="sr-conf-chk-col-item">
-        <span className="sr-conf-chk-item-nome">{item.regra.item}</span>
-        <span className="sr-conf-chk-item-motor" title={item.regra.descricao}>
-          {ROTULO_MOTOR_MATRIZ[item.regra.motor]}
+        <span className="sr-conf-chk-item-linha">
+          <span className="sr-conf-chk-item-nome">{item.regra.item}</span>
+          <TooltipGlobal titulo={item.regra.item} descricao={item.regra.tooltip_conferencia}>
+            <button
+              type="button"
+              className="sr-conf-chk-item-info"
+              aria-label={`Regra de conferência: ${item.regra.item}`}
+            >
+              <Info size={14} weight="duotone" aria-hidden />
+            </button>
+          </TooltipGlobal>
         </span>
+        <span className="sr-conf-chk-item-motor">{ROTULO_MOTOR_MATRIZ[item.regra.motor]}</span>
       </td>
       <td className="sr-conf-chk-col-resultado" title={item.detalhe ?? undefined}>
         <span className="sr-conf-chk-resultado">{item.resultado}</span>
       </td>
       <td className="sr-conf-chk-col-status">
-        <span className={classeStatusChecklistAviacao(item.status)}>{item.rotulo_status}</span>
+        <TooltipGlobal
+          titulo={TOOLTIP_STATUS_CHECKLIST_INVOICE[item.rotulo_status].titulo}
+          descricao={TOOLTIP_STATUS_CHECKLIST_INVOICE[item.rotulo_status].descricao}
+        >
+          <span className={classeStatusChecklistAviacao(item.status)}>{item.rotulo_status}</span>
+        </TooltipGlobal>
         {item.risco_id && onVerRisco && (
           <button
             type="button"
@@ -166,6 +198,21 @@ export function ChecklistConferenciaCorpoSmartRead({
           </span>
         </label>
       )}
+      <p className="sr-conf-chk-legenda-status" aria-label="Legenda dos status do checklist">
+        {ORDEM_ROTULOS_STATUS.map((rotulo) => (
+          <TooltipGlobal
+            key={rotulo}
+            titulo={TOOLTIP_STATUS_CHECKLIST_INVOICE[rotulo].titulo}
+            descricao={TOOLTIP_STATUS_CHECKLIST_INVOICE[rotulo].descricao}
+          >
+            <span
+              className={`sr-conf-chk-legenda-pill ${classeStatusChecklistAviacao(ROTULO_PARA_STATUS[rotulo])}`}
+            >
+              {rotulo}
+            </span>
+          </TooltipGlobal>
+        ))}
+      </p>
       {secoes.map(({ secao, itens }) => {
         const secaoId = `${idPrefixo}-secao-${secao}`
         const colapsada = !todasSecoesAbertas && (secoesColapsadas?.has(secaoId) ?? false)

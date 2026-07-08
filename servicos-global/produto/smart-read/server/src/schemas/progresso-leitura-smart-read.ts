@@ -3,6 +3,7 @@
  */
 import { z } from 'zod'
 import { LeituraSchema } from './leitura-smart-read.js'
+import { normalizarPassoRegistroProgressoLeituraSmartRead } from '../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 
 export const EstadoProgressoLeituraSchema = z.object({
   passo: z.number().int().min(2).max(4),
@@ -21,8 +22,12 @@ export function montarRespostaProgressoLeitura(
   passo: number,
   dadosSessao: DadosSessaoProgressoLeitura,
 ): EstadoProgressoLeitura {
-  return EstadoProgressoLeituraSchema.parse({
+  const passoNormalizado = normalizarPassoRegistroProgressoLeituraSmartRead(
     passo,
+    dadosSessao.leitura.status_leitura,
+  )
+  return EstadoProgressoLeituraSchema.parse({
+    passo: passoNormalizado,
     nome: dadosSessao.nome,
     leitura: dadosSessao.leitura,
   })

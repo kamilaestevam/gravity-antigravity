@@ -12,6 +12,7 @@ import {
   Warning,
   X,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { smartReadApi } from '../../shared/api'
 import {
@@ -144,23 +145,31 @@ function ItemListaRisco({
           >
             {rotuloSeveridade(risco.severidade)}
           </span>
-          <button
-            type="button"
-            className={`sr-conf-risco-check-btn${conferido ? ' sr-conf-risco-check-btn--ativo' : ''}`}
-            onClick={(e) => {
-              e.stopPropagation()
-              onAlternarConferido()
-            }}
-            aria-label={
+          <TooltipGlobal
+            titulo={conferido ? 'Conferido' : 'Marcar como conferido'}
+            descricao={
               conferido
-                ? `Desmarcar conferência do risco: ${risco.titulo}`
-                : `Marcar risco como conferido: ${risco.titulo}`
+                ? 'Clique para desmarcar este risco'
+                : 'Indica que você revisou este risco manualmente'
             }
-            aria-pressed={conferido}
-            title={conferido ? 'Conferido — clique para desmarcar' : 'Marcar como conferido'}
           >
-            <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
-          </button>
+            <button
+              type="button"
+              className={`sr-conf-risco-check-btn${conferido ? ' sr-conf-risco-check-btn--ativo' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                onAlternarConferido()
+              }}
+              aria-label={
+                conferido
+                  ? `Desmarcar conferência do risco: ${risco.titulo}`
+                  : `Marcar risco como conferido: ${risco.titulo}`
+              }
+              aria-pressed={conferido}
+            >
+              <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 

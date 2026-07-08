@@ -324,16 +324,66 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL: GaleriaNovaCotacao[] =
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
 ]
 
-/** §4.02.01 — wizard manual aberto + passos comuns, NCM, envio e resultado. */
-export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
+const FLUXO_INICIO_AO_FIM_CABECALHO = {
+  tituloEtapa: 'Iniciando o fluxo manual',
+  textoIntro:
+    'Para acessar a tela principal, clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Manual**.',
+  chipBidFreteFormaManual: true,
+  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
+  colunas: 1,
+}
+
+/** §4.02.01 — 1º tópico: acesso pelo menu (+ Novo → Cotação Avulsa → Manual). */
+export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM: GaleriaNovaCotacao = grade({
+  ...FLUXO_INICIO_AO_FIM_CABECALHO,
+  telas: [fig('lista_cotacao_nova_cotacao_avulsa_manual', '')],
+})
+
+/** §4.02.01 — 2º tópico: passo Modal e Operação (wizard + infográfico de campos). */
+export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNovaCotacao = grade({
+  tituloEtapa: 'Modal e Operação',
+  textoIntro:
+    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado detalhadamente.',
+  chipBidFreteFormaManual: true,
+  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
+  colunas: 1,
+  telas: [fig('cotacao_avulsa', '')],
+  infograficoBidFreteModalOperacaoCampos: true,
+  textoAposInfograficoBidFreteModalOperacaoCampos:
+    'A imagem a seguir ilustra como a tela se comporta e valida os dados logo após você concluir as suas escolhas de preenchimento.',
+  telasAposInfograficoBidFreteModalOperacaoCampos: [fig('manual_modal_operaca', '')],
+  calloutApos: [
+    {
+      tipo: 'dica',
+      texto:
+        'A partir do **passo 09**, os campos de **origem/destino** mudam conforme o modal escolhido.',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'A partir do **passo 39**, escolha **FCL**, **LCL** ou **Aéreo/LCL/Rodo** — três ramos abaixo, com trilha comum de **cubagem e envio** depois.',
+    },
+  ],
+})
+
+/** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotacao[] = [
   grade({
-    tituloEtapa: 'Fluxo único até o modal',
-    colunas: 1,
+    tituloEtapa: 'Passo 09 — Modal selecionado (três ramos)',
     telas: [
-      fig('lista_cotacao_nova_cotacao_avulsa_manual', '**03.** Wizard **Nova cotação avulsa manual** aberto'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_maritimo', '**09a.** **Marítimo** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_aereo', '**09b.** **Aéreo** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_rodoviario', '**09c.** **Rodoviário** selecionado'),
+      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_MODAL', '**10.** Passo 2 — visão geral do modal **Locais**'),
     ],
   }),
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
+]
+
+/** §4.02.01 — wizard manual aberto + passos comuns, NCM, envio e resultado. */
+export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
+  GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM,
+  GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,

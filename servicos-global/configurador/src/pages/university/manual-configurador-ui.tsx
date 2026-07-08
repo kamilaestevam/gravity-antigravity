@@ -99,6 +99,7 @@ import { ManualInfograficoBidFreteCotacaoAvulsaFormas } from './manual-bid-frete
 import { ManualBidFreteBarraEscopo, ManualBidFreteIconesEscopo, ManualBidFreteInfograficoLegendaEscopoIcones } from './manual-bid-frete-escopo-aplicacao'
 import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplicacao'
 import { ManualInfograficoBidFreteNovaCotacaoResultadoEsperado } from './manual-bid-frete-infografico-nova-cotacao-resultado-esperado'
+import { ManualInfograficoBidFreteModalOperacaoCampos } from './manual-bid-frete-infografico-modal-operacao-campos'
 import { ManualInfograficoBotaoInline, ManualInfograficoIconeControleMapaBidFreteInline, isIconeControleMapaBidFrete } from './manual-infografico-rich-text'
 import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
 import { ManualInfograficoPedidoListaConsolidarPasso2Regras } from './manual-pedido-infografico-lista-consolidar-passo2-regras'
@@ -400,6 +401,39 @@ function ManualChipBidFreteModalTransporte({ id }: { id: ManualChipBidFreteModal
   )
 }
 
+function ManualChipBidFreteFormaManualPilar() {
+  return (
+    <div
+      title="Forma Manual"
+      style={{
+        width: 38,
+        height: 38,
+        borderRadius: 8,
+        border: '1px solid rgba(52,211,153,.35)',
+        background: 'rgba(52,211,153,.12)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1,
+        flexShrink: 0,
+      }}
+      aria-hidden
+    >
+      <span style={{
+        fontSize: '12px',
+        fontWeight: 800,
+        color: '#6ee7b7',
+        lineHeight: 1,
+        letterSpacing: '.04em',
+      }}>
+        01
+      </span>
+      <PencilSimple size={13} weight="duotone" color="#6ee7b7" />
+    </div>
+  )
+}
+
 function ManualChipsBidFreteModalTransporteInicioComum({ compacto = false }: { compacto?: boolean }) {
   return (
     <div
@@ -683,10 +717,12 @@ function ManualGaleriaCabecalhoEtapaRamo({
   chip,
   tituloMarkdown,
   subtituloMarkdown,
+  acoesDireita,
 }: {
   chip?: React.ReactNode
   tituloMarkdown: string
   subtituloMarkdown?: string
+  acoesDireita?: React.ReactNode
 }) {
   const temSubtitulo = Boolean(subtituloMarkdown?.trim())
   return (
@@ -699,21 +735,32 @@ function ManualGaleriaCabecalhoEtapaRamo({
       }}>
         {chip}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            fontSize: '14.5px',
-            fontWeight: 700,
-            color: '#818cf8',
-            margin: 0,
-            letterSpacing: '.04em',
-            lineHeight: 1.35,
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '8px 12px',
           }}>
-            <ManualTextoRich texto={tituloMarkdown} />
-          </p>
-          {temSubtitulo ? (
-            <div style={{ marginTop: 4 }}>
-              <ManualParagrafo texto={subtituloMarkdown!} marginBottom={0} />
+            <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+              <p style={{
+                fontSize: '14.5px',
+                fontWeight: 700,
+                color: '#818cf8',
+                margin: 0,
+                letterSpacing: '.04em',
+                lineHeight: 1.35,
+              }}>
+                <ManualTextoRich texto={tituloMarkdown} />
+              </p>
+              {temSubtitulo ? (
+                <div style={{ marginTop: 4 }}>
+                  <ManualParagrafo texto={subtituloMarkdown!} marginBottom={0} />
+                </div>
+              ) : null}
             </div>
-          ) : null}
+            {acoesDireita}
+          </div>
         </div>
       </div>
     </div>
@@ -1126,7 +1173,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '184'
+const MANUAL_SCREENSHOT_CACHE_KEY = '186'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -2552,6 +2599,9 @@ function ManualBlocoPassoVisual({
                   infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
                   infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
                   infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
+                  infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
+                  telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
+                  textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
                   infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
                   infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
                   layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
@@ -2634,6 +2684,9 @@ function ManualBlocoPassoVisual({
                 infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
                 infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
                 infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
+                infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
+                telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
+                textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
                 infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
                 infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
                 layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
@@ -2655,6 +2708,7 @@ function ManualBlocoPassoVisual({
               chipsBidFreteModalTransporteAoLadoTitulo={galeria.chipsBidFreteModalTransporteAoLadoTitulo}
               iconesEscopoBidFrete={galeria.iconesEscopoBidFrete}
               chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
+              chipBidFreteFormaManual={galeria.chipBidFreteFormaManual}
               mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
               chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
               calloutApos={galeria.calloutApos}
@@ -2701,12 +2755,16 @@ function ManualBlocoPassoVisual({
               infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
               infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
               infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
+              infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
+              telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
+              textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
               mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
               chipsBidFreteModalTransporteAoLadoTitulo={galeria.chipsBidFreteModalTransporteAoLadoTitulo}
               iconesEscopoBidFrete={galeria.iconesEscopoBidFrete}
               chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
+              chipBidFreteFormaManual={galeria.chipBidFreteFormaManual}
               mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
               chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
               calloutApos={galeria.calloutApos}
@@ -3483,6 +3541,9 @@ function ManualGaleriaComparacaoIntro({
   infograficoMapeamentoImportarColunas,
   infograficoTransferirResultadoEsperado,
   infograficoBidFreteNovaCotacaoResultadoEsperado,
+  infograficoBidFreteModalOperacaoCampos,
+  telasAposInfograficoBidFreteModalOperacaoCampos,
+  textoAposInfograficoBidFreteModalOperacaoCampos,
   infograficoConsolidarPasso2Regras,
   infograficoConsolidarResultadoEsperado,
   layoutConsolidarResultadoUnificado,
@@ -3504,6 +3565,7 @@ function ManualGaleriaComparacaoIntro({
   chipsBidFreteModalTransporteAoLadoTitulo,
   iconesEscopoBidFrete,
   chipBidFreteModalTransporte,
+  chipBidFreteFormaManual,
   mostrarChipsBidFreteTipoCarga,
   chipBidFreteTipoCarga,
   calloutApos,
@@ -3532,6 +3594,9 @@ function ManualGaleriaComparacaoIntro({
   infograficoMapeamentoImportarColunas?: boolean
   infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
   infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+  infograficoBidFreteModalOperacaoCampos?: boolean
+  telasAposInfograficoBidFreteModalOperacaoCampos?: DocGaleriaComparacaoTela[]
+  textoAposInfograficoBidFreteModalOperacaoCampos?: string
   infograficoConsolidarPasso2Regras?: boolean
   infograficoConsolidarResultadoEsperado?: boolean
   layoutConsolidarResultadoUnificado?: boolean
@@ -3553,6 +3618,7 @@ function ManualGaleriaComparacaoIntro({
   chipsBidFreteModalTransporteAoLadoTitulo?: boolean
   iconesEscopoBidFrete?: ManualBidFreteEscopoConfig
   chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
+  chipBidFreteFormaManual?: boolean
   mostrarChipsBidFreteTipoCarga?: boolean
   chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
@@ -3569,6 +3635,7 @@ function ManualGaleriaComparacaoIntro({
     && !textoIntro
     && !infograficoTransferirResultadoEsperado
     && !infograficoBidFreteNovaCotacaoResultadoEsperado
+    && !infograficoBidFreteModalOperacaoCampos
     && !infograficoConsolidarPasso2Regras
     && !infograficoConsolidarResultadoEsperado
     && !infograficoEdicaoMassaPasso1Regras
@@ -3723,6 +3790,15 @@ function ManualGaleriaComparacaoIntro({
           chip={<ManualChipTransferirTipo id={chipTransferirTituloEtapa} />}
           tituloMarkdown={tituloEtapa}
           subtituloMarkdown={subtituloEtapa}
+        />
+      ) : tituloEtapa && chipBidFreteFormaManual ? (
+        <ManualGaleriaCabecalhoEtapaRamo
+          chip={<ManualChipBidFreteFormaManualPilar />}
+          tituloMarkdown={tituloEtapa}
+          subtituloMarkdown={subtituloEtapa}
+          acoesDireita={iconesEscopoBidFrete
+            ? <ManualBidFreteIconesEscopo config={iconesEscopoBidFrete} />
+            : undefined}
         />
       ) : tituloEtapa && chipBidFreteModalTransporte ? (
         <ManualGaleriaCabecalhoEtapaRamo
@@ -4027,6 +4103,31 @@ function ManualGaleriaComparacaoIntro({
       {telas.map((tela) => renderTela(tela))}
       </div>
       )
+      ) : null}
+      {infograficoBidFreteModalOperacaoCampos ? (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualInfograficoBidFreteModalOperacaoCampos />
+        </div>
+      ) : null}
+      {textoAposInfograficoBidFreteModalOperacaoCampos ? (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualParagrafo
+            texto={textoAposInfograficoBidFreteModalOperacaoCampos}
+            marginBottom={emAcordeaoSubtopico
+              ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
+              : MANUAL_ESPACO_PARAGRAFO_PX}
+            alinhamentoAcordeao={emAcordeaoSubtopico}
+          />
+        </div>
+      ) : null}
+      {telasAposInfograficoBidFreteModalOperacaoCampos?.length ? (
+        <div style={{
+          marginTop: textoAposInfograficoBidFreteModalOperacaoCampos
+            ? 0
+            : MANUAL_ESPACO_PARAGRAFO_PX,
+        }}>
+          {telasAposInfograficoBidFreteModalOperacaoCampos.map((tela) => renderTela(tela, { forcarLarguraTotal: true }))}
+        </div>
       ) : null}
       {calloutApos ? (
         (Array.isArray(calloutApos) ? calloutApos : [calloutApos]).map((callout, idx) => (

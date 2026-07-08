@@ -126,6 +126,110 @@ describe('filtro-historico-termometro — faixas e matching', () => {
     expect(lista[0].id_cotacao_bid_frete_internacional).toBe('cot-outra')
   })
 
+  it('multi-seleção de componentes soma os valores da proposta', () => {
+    const proposta = {
+      valor_frete_proposta_bid_frete_internacional: 500,
+      taxas_origem_proposta_bid_frete_internacional: 80,
+      taxas_destino_proposta_bid_frete_internacional: 60,
+      valor_total_proposta_bid_frete_internacional: 700,
+    }
+
+    expect(extrairValorComponenteProposta(proposta, ['FRETE_BASE', 'TAXAS_ORIGEM'])).toBe(580)
+    expect(
+      extrairValorComponenteProposta(proposta, ['FRETE_BASE', 'TAXAS_ORIGEM', 'TAXAS_DESTINO']),
+    ).toBe(640)
+    // TOTAL na seleção prevalece — nunca soma em dobro
+    expect(extrairValorComponenteProposta(proposta, ['FRETE_BASE', 'TOTAL'])).toBe(700)
+    // Seleção vazia = sem valor
+    expect(extrairValorComponenteProposta(proposta, [])).toBeNull()
+  })
+
+  it('multi-seleção ignora componentes sem valor e retorna null se nenhum tem', () => {
+    const proposta = {
+      valor_frete_proposta_bid_frete_internacional: 500,
+      taxas_origem_proposta_bid_frete_internacional: null,
+    }
+
+    expect(extrairValorComponenteProposta(proposta, ['FRETE_BASE', 'TAXAS_ORIGEM'])).toBe(500)
+    expect(
+      extrairValorComponenteProposta(proposta, ['TAXAS_ORIGEM', 'TAXAS_DESTINO']),
+    ).toBeNull()
+  })
+
+  it('melhor valor em propostas recebidas com multi-componente usa a menor soma', () => {
+    const propostas = [
+      {
+        valor_frete_proposta_bid_frete_internacional: 500,
+        taxas_origem_proposta_bid_frete_internacional: 200,
+      },
+      {
+        valor_frete_proposta_bid_frete_internacional: 550,
+        taxas_origem_proposta_bid_frete_internacional: 90,
+      },
+    ]
+
+    // Somas: 700 vs 640 — vence a segunda
+    expect(
+      melhorValorComponentePropostas(propostas, ['FRETE_BASE', 'TAXAS_ORIGEM'], 'PROPOSTAS_RECEBIDAS'),
+    ).toBe(640)
+  })
+
+  it('filtro por lista de incoterms aceita só os selecionados; lista vazia = todos', () => {
+    const candCif = {
+      ...referenciaBase,
+      id_cotacao_bid_frete_internacional: 'cot-cif',
+      incoterm_cotacao_bid_frete_internacional: 'CIF',
+    }
+    const candFob = {
+      ...referenciaBase,
+      id_cotacao_bid_frete_internacional: 'cot-fob',
+      incoterm_cotacao_bid_frete_internacional: 'FOB',
+    }
+    const candSemIncoterm = {
+      ...referenciaBase,
+      id_cotacao_bid_frete_internacional: 'cot-vazio',
+      incoterm_cotacao_bid_frete_internacional: null,
+    }
+
+    expect(cotacaoCompativelTermometro(referenciaBase, candCif, { incoterms: ['CIF'] })).toBe(true)
+    expect(cotacaoCompativelTermometro(referenciaBase, candFob, { incoterms: ['CIF'] })).toBe(false)
+    expect(
+      cotacaoCompativelTermometro(referenciaBase, candFob, { incoterms: ['CIF', 'FOB'] }),
+    ).toBe(true)
+    expect(
+      cotacaoCompativelTermometro(referenciaBase, candSemIncoterm, { incoterms: ['CIF'] }),
+    ).toBe(false)
+    // Lista vazia = sem filtro
+    expect(cotacaoCompativelTermometro(referenciaBase, candFob, { incoterms: [] })).toBe(true)
+    expect(cotacaoCompativelTermometro(referenciaBase, candSemIncoterm, {})).toBe(true)
+  })
+
+  it('filtrarHistoricoTermometro aplica lista de incoterms na lista completa', () => {
+    const lista = filtrarHistoricoTermometro(
+      referenciaBase,
+      [
+        {
+          ...referenciaBase,
+          id_cotacao_bid_frete_internacional: 'h1',
+          incoterm_cotacao_bid_frete_internacional: 'CIF',
+        },
+        {
+          ...referenciaBase,
+          id_cotacao_bid_frete_internacional: 'h2',
+          incoterm_cotacao_bid_frete_internacional: 'EXW',
+        },
+        {
+          ...referenciaBase,
+          id_cotacao_bid_frete_internacional: 'h3',
+          incoterm_cotacao_bid_frete_internacional: 'CIF',
+        },
+      ],
+      { incoterms: ['CIF'] },
+    )
+
+    expect(lista.map((i) => i.id_cotacao_bid_frete_internacional)).toEqual(['h1', 'h3'])
+  })
+
   it('valorHistoricoCotacaoTermometro usa proposta aprovada em contratado', () => {
     const item = {
       ...referenciaBase,

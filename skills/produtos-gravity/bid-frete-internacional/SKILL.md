@@ -379,7 +379,7 @@ Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-
 
 ### Termômetro histórico — Dele vs Mercado
 
-Card no Painel de Insights: matching rota/modal/faixa/componente, seletores Contratado/Propostas, incoterm opcional.
+Card no Painel de Insights: matching rota/modal/faixa; popover de filtros **multi-seleção** — bases Contratado+Propostas combinadas com dedupe por cotação (Contratado prevalece), componentes de preço somados (TOTAL exclusivo), lista de incoterms (vazia = todos) — e chip de resumo dos filtros no header do card. Média do Mercado calculada antes da interpolação de meses vazios (nunca depois — dupla divisão).
 
 > **SSOT:** [TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md) · código `shared/filtro-historico-termometro-bid-frete-internacional.ts`
 

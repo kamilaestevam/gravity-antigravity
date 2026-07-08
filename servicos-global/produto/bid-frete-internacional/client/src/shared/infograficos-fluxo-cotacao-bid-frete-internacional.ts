@@ -441,9 +441,12 @@ export function buildSerieTermometroBases(
     )
   }
 
-  const serieHistorico6Meses = interpolarMesesVaziosSerie(serie)
+  // Média ANTES de interpolar — interpolarMesesVaziosSerie muta `serie` dividindo
+  // valor por count; dividir de novo aqui reduziria a média pela metade (ou mais)
+  // em meses com 2+ cotações.
   const valoresReferencia = validSlots.map((s) => Math.round(s.valor / s.count))
   const media = valoresReferencia.reduce((acc, v) => acc + v, 0) / valoresReferencia.length
+  const serieHistorico6Meses = interpolarMesesVaziosSerie(serie)
 
   const valorDeleBruto = resolverValorDeleTermometro(propostas, componente)
   const valorDele = valorDeleBruto != null ? Math.round(valorDeleBruto) : null

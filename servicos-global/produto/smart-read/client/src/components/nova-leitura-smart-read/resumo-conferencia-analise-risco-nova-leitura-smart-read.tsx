@@ -10,8 +10,10 @@ import { resolverArquivoApiLeitura, extrairDocumentosArquivoLocal } from '../../
 import { extrairSecoesConferenciaLeitura } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
 import {
   chaveCampoConferenciaUsuario,
-  contarConferenciaManualChecklist,
+  chaveRiscoConferenciaUsuario,
+  contarConferenciaUsuarioCamposERiscos,
   usarCamposMarcacaoConferencia,
+  usarRiscosMarcacaoConferencia,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 import { montarDocumentosAnaliseRiscoDeArquivoLocal } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
@@ -97,20 +99,18 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     [extracao?.dados],
   )
 
-  const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
-  const { marcados: camposConferidos } = usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
+  const chaveMarcacaoSessao = `${arquivo.id_arquivo_local}:${indiceDocumento}`
+  const { marcados: camposConferidos } = usarCamposMarcacaoConferencia(chaveMarcacaoSessao)
+  const { marcados: riscosConferidos } = usarRiscosMarcacaoConferencia(chaveMarcacaoSessao)
 
   const chavesCamposConferencia = useMemo(
     () =>
       secoes.flatMap((secao) =>
-        secao.campos.map((campo) => chaveCampoConferenciaUsuario(campo.chave)),
+        secao.campos
+          .filter((campo) => campo.preenchido)
+          .map((campo) => chaveCampoConferenciaUsuario(campo.chave)),
       ),
     [secoes],
-  )
-
-  const resumoConferencia = useMemo(
-    () => contarConferenciaManualChecklist(camposConferidos, chavesCamposConferencia),
-    [camposConferidos, chavesCamposConferencia],
   )
 
   const documentosRisco = useMemo(() => montarDocumentosAnaliseRiscoDeArquivoLocal(arquivo), [arquivo])
@@ -209,21 +209,56 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
   const legendaSegmentos = legendaRiscos(resumoRiscos)
   const riscosAtivo = abaAtiva === 'riscos'
+  const usuarioAtivo = abaAtiva === 'campos' || abaAtiva === 'qa'
+
+  const chavesRiscosConferencia = useMemo(
+    () => resumoRiscos.riscos.map((risco) => chaveRiscoConferenciaUsuario(risco.id)),
+    [resumoRiscos.riscos],
+  )
+
+  const resumoConferencia = useMemo(
+    () =>
+      contarConferenciaUsuarioCamposERiscos(
+        camposConferidos,
+        riscosConferidos,
+        chavesCamposConferencia,
+        chavesRiscosConferencia,
+      ),
+    [camposConferidos, riscosConferidos, chavesCamposConferencia, chavesRiscosConferencia],
+  )
+
+  const legendaConferenciaUsuario = useMemo(() => {
+    if (resumoConferencia.total === 0) return 'Nenhum item para conferir neste documento'
+    const partes: string[] = []
+    if (resumoConferencia.totalCampos > 0) {
+      partes.push(
+        `${resumoConferencia.marcadosCampos}/${resumoConferencia.totalCampos} campo${resumoConferencia.totalCampos === 1 ? '' : 's'}`,
+      )
+    }
+    if (resumoConferencia.totalRiscos > 0) {
+      partes.push(
+        `${resumoConferencia.marcadosRiscos}/${resumoConferencia.totalRiscos} risco${resumoConferencia.totalRiscos === 1 ? '' : 's'}`,
+      )
+    }
+    return `${resumoConferencia.marcados}/${resumoConferencia.total} conferidos por você (${partes.join(' · ')})`
+  }, [resumoConferencia])
 
   return (
     <>
     <section
       className="sr-conf-resumo-triplo"
-      aria-label="Resumo de conferência usuária, conferência Gravity e análise de risco"
+      aria-label="Resumo de conferência usuário, conferência Gravity e análise de risco"
     >
-      <div className="sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia">
+      <div
+        className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
+      >
         <TooltipGlobal
-          titulo="Conferência usuária"
-          descricao="Campos que você marcou como revisados neste documento"
+          titulo="Conferência usuário"
+          descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
         >
           <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
             <UserCheck size={12} weight="duotone" aria-hidden />
-            Conferência usuária
+            Conferência usuário
           </span>
         </TooltipGlobal>
 
@@ -234,7 +269,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
             aria-valuenow={resumoConferencia.percentual}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`${resumoConferencia.percentual}% dos campos conferidos manualmente`}
+            aria-label={`${resumoConferencia.percentual}% dos itens conferidos manualmente`}
           >
             <div
               className="sr-conf-progresso-barra-fill sr-conf-progresso-barra-fill--conferencia"
@@ -246,9 +281,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           </span>
         </div>
 
-        <p className="sr-conf-resumo-legenda">
-          {resumoConferencia.marcados}/{resumoConferencia.total} campos conferidos por você
-        </p>
+        <p className="sr-conf-resumo-legenda">{legendaConferenciaUsuario}</p>
       </div>
 
       <button

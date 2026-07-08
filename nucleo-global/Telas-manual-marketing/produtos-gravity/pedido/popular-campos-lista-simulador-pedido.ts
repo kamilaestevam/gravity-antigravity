@@ -80,7 +80,7 @@ const PAIS_POR_PORTO: Record<string, string> = {
 
 const AEROPORTOS = ['GRU', 'VCP', 'MIA', 'FRA', 'PVG', 'NRT', 'LHR']
 const ESTADOS = ['SP', 'PR', 'SC', 'RJ', 'BY', 'CA', 'TX']
-const INCOTERMS = ['FOB', 'CIF', 'EXW', 'CFR', 'DDP', 'FCA', 'DAP']
+const INCOTERMS = ['EXW', 'FCA', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP', 'FAS', 'FOB', 'CFR', 'CIF']
 const COBERTURAS = ['ACC', 'ACE', 'ACD', '—']
 const RELACOES_FAB = ['Mesmo grupo', 'Terceiro', 'Intermediário']
 const NCM_DEMO = ['8471.30.12', '8409.99.99', '8517.62.55', '7308.90.00', '3926.90.90']

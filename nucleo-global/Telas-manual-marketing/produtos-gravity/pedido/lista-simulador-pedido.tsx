@@ -1,21 +1,34 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties, type DragEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { EdicaoTextoPopoverGlobal } from '../../../Tabelas/tabela-virtual-global/src/EdicaoTextoPopoverGlobal'
+import { FiltroChips } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltroChips'
+import { FiltroPopoverColuna } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltroPopoverColuna'
+import { BotaoCompletoExportar } from '../../../Tabelas/tabela-virtual-global/src/BotaoCompletoExportar'
+import type { FiltroAtivo, FiltrosAtivosMap } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/tipos'
+import '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
+import '../../../Tabelas/tabela-virtual-global/src/botao-completo-exportar.css'
 import {
   ArrowCounterClockwise,
-  ArrowSquareOut,
+  ArrowRight,
+  CaretDoubleDown,
+  CaretDoubleUp,
   CaretDown,
   CaretRight,
-  Columns,
+  CurrencyDollar,
   DownloadSimple,
-  FileText,
-  GitBranch,
+  FilePdf,
+  GitMerge,
+  LinkSimple,
   MagnifyingGlass,
-  PencilSimple,
-  Plus,
-  Stack,
+  Package,
+  PencilLine,
   Trash,
   Warning,
+  X,
 } from '@phosphor-icons/react'
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
 import {
@@ -31,6 +44,7 @@ import {
   type ColunaListaSimuladorPedido,
 } from './colunas-lista-simulador-pedido'
 import './lista-simulador-pedido.css'
+import '../../../Tabelas/tabela-virtual-global/src/tabela-virtual.css'
 import { atualizarCelulaListaSimulador } from './atualizar-celula-lista-simulador-pedido'
 import { CelulaEditavelListaSimuladorPedido } from './celula-editavel-lista-simulador-pedido'
 import { EdicaoEnumPopoverSimuladorPedido } from './edicao-enum-popover-simulador-pedido'
@@ -38,22 +52,66 @@ import {
   resolverEstadoCelula,
   type NivelLinhaLista,
 } from './regras-celula-lista-simulador-pedido'
+import {
+  reordenarColunasListaSimulador,
+  resolverLadoDropColuna,
+  type LadoDropColuna,
+} from './reordenar-colunas-lista-simulador-pedido'
+import {
+  calcularValoresUnicosCampoListaSimulador,
+  colunaListaSimuladorFiltravel,
+  detectarTipoFiltroColunaSimulador,
+  getLabelsFiltroInversoSimulador,
+  linhaPassaFiltrosColuna,
+  montarColunasGtListaSimulador,
+  ordenarLinhasListaSimulador,
+} from './filtros-coluna-lista-simulador-pedido'
+import {
+  FaixaPaineisListaSimuladorPedido,
+  PAINEIS_LISTA_SIMULADOR_INICIAIS,
+  type PainelItemSimulador,
+} from './faixa-paineis-lista-simulador-pedido'
+import {
+  calcularHabilitacaoAcoesBarraListaSimulador,
+  resolverSelecaoListaSimulador,
+  rotuloTransferirListaSimulador,
+  tooltipConsolidarListaSimulador,
+  tooltipEditarMassaListaSimulador,
+  tooltipExcluirListaSimulador,
+  tooltipGerarPdfListaSimulador,
+  tooltipTransferirListaSimulador,
+} from './regras-acoes-barra-lista-simulador-pedido'
+import { MenuNovoListaSimuladorPedido, ToastDemoNovoSimuladorPedido } from './menu-novo-lista-simulador-pedido'
+import { ModalNovoPedidoSimulador } from './modal-novo-pedido-simulador'
+import { ModalNovoItemSimuladorPedido } from './modal-novo-item-simulador-pedido'
+import { montarLinhaNovoPedidoSimulador } from './montar-linha-novo-pedido-simulador'
+import type { FornecedorSimuladorNovoPedido } from './dados-fornecedores-simulador-novo-pedido'
+import type { FormNovoPedidoSimulador, ItemNovoPedidoSimulador } from './regras-modal-novo-pedido-simulador'
 
-type PainelListaSimulador = 'GERAL' | 'FINANCEIRO' | 'COMERCIAL'
 type FiltroAbaColunas = 'todas' | 'exibidas' | 'ocultas' | 'manuais'
 
 const STATUS_FILTROS: Array<{ id: string; label: string; cor: string; valor?: StatusListaPedidoSimulador }> = [
-  { id: 'todas', label: 'Todas', cor: '#94a3b8' },
-  { id: 'rascunho', label: 'Rascunho', cor: '#64748b', valor: 'RASCUNHO' },
-  { id: 'aberto', label: 'Aberto', cor: '#f59e0b', valor: 'ABERTO' },
-  { id: 'andamento', label: 'Em Andamento', cor: '#f97316', valor: 'EM ANDAMENTO' },
-  { id: 'transferido', label: 'Transferido', cor: '#14b8a6', valor: 'TRANSFERIDO' },
-  { id: 'consolidado', label: 'Consolidado', cor: '#8b5cf6', valor: 'CONSOLIDADO' },
+  { id: 'todas', label: 'Todos', cor: '#818cf8' },
+  { id: 'rascunho', label: 'Rascunho', cor: '#94a3b8', valor: 'RASCUNHO' },
+  { id: 'aberto', label: 'Aberto', cor: '#f472b6', valor: 'ABERTO' },
+  { id: 'andamento', label: 'Em Andamento', cor: '#fb923c', valor: 'EM ANDAMENTO' },
+  { id: 'transferido', label: 'Transferido', cor: '#2dd4bf', valor: 'TRANSFERIDO' },
+  { id: 'consolidado', label: 'Consolidado', cor: '#a78bfa', valor: 'CONSOLIDADO' },
 ]
 
 const EXPORTAR_OPCOES = ['Excel (.xlsx)', 'CSV', 'TXT', 'XML', 'JSON', 'PDF']
 
 const ITENS_POR_PAGINA = 10
+
+function IconeColunasToolbar() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="10" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="17" y="3" width="4" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
 
 const STATUS_CORES: Record<StatusListaPedidoSimulador, string> = {
   RASCUNHO: '#94a3b8',
@@ -81,8 +139,49 @@ function estiloStatusBadge(status: StatusListaPedidoSimulador): CSSProperties {
   }
 }
 
+function estiloChipStatusFiltro(id: string, cor: string, ativo: boolean): CSSProperties {
+  if (id === 'todas') {
+    return {
+      color: ativo ? '#c7d2fe' : '#94a3b8',
+      background: 'transparent',
+      borderColor: 'transparent',
+    }
+  }
+  if (ativo) {
+    return {
+      color: cor,
+      background: `${cor}2e`,
+      borderColor: `${cor}55`,
+      boxShadow: `0 0 0 1px ${cor}22`,
+    }
+  }
+  return {
+    color: '#94a3b8',
+    background: 'transparent',
+    borderColor: 'transparent',
+  }
+}
+
 type Props = {
   empresasSelecionadas: PerfilEmpresaSimulador[]
+  onAbrirMenuWorkspaces?: () => void
+}
+
+function ListaNumeradaWorkspacesTooltipSimulador({ nomes }: { nomes: readonly string[] }) {
+  if (nomes.length === 1) {
+    return <span>{nomes[0]}</span>
+  }
+
+  return (
+    <ul className="pds-lista-escopo-ws-tooltip-list">
+      {nomes.map((nome, indice) => (
+        <li key={`${indice}-${nome}`} className="pds-lista-escopo-ws-tooltip-item">
+          <span className="pds-lista-escopo-ws-tooltip-num" aria-hidden="true">{indice + 1}</span>
+          <span className="pds-lista-escopo-ws-tooltip-nome">{nome}</span>
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 type LinhaRenderLista =
@@ -102,8 +201,9 @@ function chaveCelula(linhaId: string, colunaId: string, itemId?: string): string
   return itemId ? `${linhaId}:${itemId}:${colunaId}` : `${linhaId}:${colunaId}`
 }
 
-export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
-  const [painelAtivo, setPainelAtivo] = useState<PainelListaSimulador>('GERAL')
+export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspaces }: Props) {
+  const [paineisLista, setPaineisLista] = useState<PainelItemSimulador[]>(PAINEIS_LISTA_SIMULADOR_INICIAIS)
+  const [painelAtualId, setPainelAtualId] = useState('geral')
   const [statusFiltro, setStatusFiltro] = useState('todas')
   const [busca, setBusca] = useState('')
   const [pagina, setPagina] = useState(1)
@@ -112,13 +212,130 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
   const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(criarEstadoColunasListaSimuladorPedido)
   const [filtroAbaColunas, setFiltroAbaColunas] = useState<FiltroAbaColunas>('todas')
   const [colunasAberto, setColunasAberto] = useState(false)
-  const [exportarAberto, setExportarAberto] = useState(false)
   const [buscaColuna, setBuscaColuna] = useState('')
   const [linhas, setLinhas] = useState<LinhaListaPedidoSimulador[]>([])
   const [celulaEmEdicao, setCelulaEmEdicao] = useState<CelulaEmEdicao | null>(null)
   const [salvandoEdicao, setSalvandoEdicao] = useState(false)
   const [resultadoEdicao, setResultadoEdicao] = useState<'sucesso' | 'erro' | null>(null)
   const [flashCelulas, setFlashCelulas] = useState<Map<string, 'salvo' | 'erro'>>(new Map())
+  const [dragColunaId, setDragColunaId] = useState<string | null>(null)
+  const [dragOverColunaId, setDragOverColunaId] = useState<string | null>(null)
+  const [ladoDropColuna, setLadoDropColuna] = useState<LadoDropColuna>('after')
+  const [filtrosAtivos, setFiltrosAtivos] = useState<FiltrosAtivosMap>({})
+  const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
+  const [popoverFiltroPos, setPopoverFiltroPos] = useState({ top: 0, left: 0 })
+  const [sortCampo, setSortCampo] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null)
+  const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
+  const [modalNovoItemAberto, setModalNovoItemAberto] = useState(false)
+  const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
+
+  const acoesExportacao = useMemo(
+    () => EXPORTAR_OPCOES.map((op) => ({
+      label: op,
+      icone: op.endsWith('PDF')
+        ? <FilePdf size={14} weight="duotone" aria-hidden />
+        : <DownloadSimple size={14} weight="duotone" aria-hidden />,
+      onClick: () => undefined,
+    })),
+    [],
+  )
+
+  const temExpandido = expandidos.size > 0
+
+  const toggleExpandirTodos = useCallback(() => {
+    if (temExpandido) {
+      setExpandidos(new Set())
+      return
+    }
+    setExpandidos(new Set(linhas.filter((l) => l.detalhesItens.length > 0).map((l) => l.id)))
+  }, [temExpandido, linhas])
+
+  const rotuloEscopoWorkspaces = useMemo(() => {
+    if (empresasSelecionadas.length === 0) return null
+    const nomes = empresasSelecionadas.map((empresa) => empresa.nome)
+    if (nomes.length === 1) return nomes[0]
+    if (nomes.length === 2) return nomes.join(', ')
+    return `${nomes.length} selecionados`
+  }, [empresasSelecionadas])
+
+  const tooltipEscopoWorkspaces = useMemo(() => {
+    if (empresasSelecionadas.length === 0) return null
+    const nomes = empresasSelecionadas.map((empresa) => empresa.nome)
+    if (nomes.length === 0) return null
+    return <ListaNumeradaWorkspacesTooltipSimulador nomes={nomes} />
+  }, [empresasSelecionadas])
+
+  const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
+  const colunasGt = useMemo(() => montarColunasGtListaSimulador(colunas), [colunas])
+
+  const workspacesNomes = useMemo(
+    () => Array.from(new Set(linhas.map((l) => l.workspace).filter(Boolean))).sort(),
+    [linhas],
+  )
+
+  const valoresUnicosPorCampo = useMemo(() => {
+    const result: Record<string, string[]> = {}
+    for (const col of colunasGt) {
+      if (!col.filtravel) continue
+      if (detectarTipoFiltroColunaSimulador(col) === 'numero') continue
+      const vals = calcularValoresUnicosCampoListaSimulador(
+        linhas,
+        col.key,
+        col.key === 'id_workspace' ? workspacesNomes : [],
+      )
+      if (vals.length > 0) result[col.key] = vals
+    }
+    return result
+  }, [colunasGt, linhas, workspacesNomes])
+
+  const aplicarReordenacaoColuna = useCallback((fromId: string, toId: string, lado: LadoDropColuna) => {
+    setColunas((prev) => reordenarColunasListaSimulador(prev, fromId, toId, lado))
+  }, [])
+
+  const handleColunaDragStart = useCallback((colunaId: string) => {
+    setDragColunaId(colunaId)
+  }, [])
+
+  const handleColunaDragOver = useCallback((
+    e: DragEvent<HTMLElement>,
+    colunaId: string,
+    horizontal = true,
+  ) => {
+    e.preventDefault()
+    if (!dragColunaId || dragColunaId === colunaId) return
+    setDragOverColunaId(colunaId)
+    setLadoDropColuna(resolverLadoDropColuna(e, horizontal))
+  }, [dragColunaId])
+
+  const handleColunaDrop = useCallback((
+    e: DragEvent<HTMLElement>,
+    colunaId: string,
+    horizontal = true,
+  ) => {
+    e.preventDefault()
+    if (!dragColunaId || dragColunaId === colunaId) {
+      setDragColunaId(null)
+      setDragOverColunaId(null)
+      return
+    }
+    const lado = resolverLadoDropColuna(e, horizontal)
+    aplicarReordenacaoColuna(dragColunaId, colunaId, lado)
+    setDragColunaId(null)
+    setDragOverColunaId(null)
+  }, [aplicarReordenacaoColuna, dragColunaId])
+
+  const handleColunaDragEnd = useCallback(() => {
+    setDragColunaId(null)
+    setDragOverColunaId(null)
+  }, [])
+
+  function classeDropColuna(colunaId: string, horizontal = true): string {
+    if (dragOverColunaId !== colunaId || !dragColunaId) return ''
+    return horizontal
+      ? (ladoDropColuna === 'before' ? 'pds-lista-th-col--drop-before' : 'pds-lista-th-col--drop-after')
+      : (ladoDropColuna === 'before' ? 'pds-lista-coluna-item--drop-before' : 'pds-lista-coluna-item--drop-after')
+  }
 
   useEffect(() => {
     setLinhas(listarPedidosEmpresasSimulador(empresasSelecionadas))
@@ -126,6 +343,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
     setSelecionados(new Set())
     setExpandidos(new Set())
     setCelulaEmEdicao(null)
+    setFiltrosAtivos({})
+    setPopoverFiltroAberto(null)
+    setSortCampo(null)
+    setSortDir(null)
   }, [empresasSelecionadas])
 
   const linhasBase = linhas
@@ -133,7 +354,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
   const linhasFiltradas = useMemo(() => {
     const statusValor = STATUS_FILTROS.find((s) => s.id === statusFiltro)?.valor
     const termo = busca.trim().toLowerCase()
-    return linhasBase.filter((l) => {
+    let resultado = linhasBase.filter((l) => {
       if (statusValor && l.status !== statusValor) return false
       if (!termo) return true
       return (
@@ -145,7 +366,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
         || Object.values(l.campos).some((v) => v?.toLowerCase().includes(termo))
       )
     })
-  }, [linhasBase, statusFiltro, busca])
+    if (Object.keys(filtrosAtivos).length > 0) {
+      resultado = resultado.filter((l) => linhaPassaFiltrosColuna(l, filtrosAtivos))
+    }
+    return ordenarLinhasListaSimulador(resultado, sortCampo, sortDir)
+  }, [linhasBase, statusFiltro, busca, filtrosAtivos, sortCampo, sortDir])
 
   const resumo = useMemo(() => resumirListaPedidosSimulador(linhasFiltradas), [linhasFiltradas])
 
@@ -156,6 +381,49 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
     const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA
     return linhasFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA)
   }, [linhasFiltradas, paginaAtual])
+
+  const chaveSelecao = useMemo(() => [...selecionados].sort().join('|'), [selecionados])
+
+  const selecaoLista = useMemo(
+    () => resolverSelecaoListaSimulador(selecionados, linhas),
+    [chaveSelecao, linhas, selecionados],
+  )
+
+  const acoesBarra = useMemo(
+    () => calcularHabilitacaoAcoesBarraListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
+
+  const todosPedidosPaginaSelecionados = useMemo(
+    () => linhasPagina.length > 0 && linhasPagina.every((l) => selecionados.has(l.id)),
+    [linhasPagina, selecionados],
+  )
+
+  const tooltipTransferir = useMemo(
+    () => tooltipTransferirListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
+  const tooltipEditar = useMemo(
+    () => tooltipEditarMassaListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
+  const tooltipConsolidar = useMemo(
+    () => tooltipConsolidarListaSimulador(selecaoLista, acoesBarra.totalPedidosConsolidar),
+    [selecaoLista, acoesBarra.totalPedidosConsolidar],
+  )
+  const tooltipPdf = useMemo(
+    () => tooltipGerarPdfListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
+  const tooltipExcluir = useMemo(
+    () => tooltipExcluirListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
+
+  const rotuloTransferir = useMemo(
+    () => rotuloTransferirListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
 
   const linhasRender = useMemo(() => {
     const resultado: LinhaRenderLista[] = []
@@ -209,12 +477,123 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
   }
 
   const toggleTodos = () => {
-    if (selecionados.size === linhasPagina.length) {
-      setSelecionados(new Set())
+    if (todosPedidosPaginaSelecionados) {
+      setSelecionados((prev) => {
+        const next = new Set(prev)
+        for (const linha of linhasPagina) next.delete(linha.id)
+        return next
+      })
     } else {
-      setSelecionados(new Set(linhasPagina.map((l) => l.id)))
+      setSelecionados((prev) => {
+        const next = new Set(prev)
+        for (const linha of linhasPagina) next.add(linha.id)
+        return next
+      })
     }
   }
+
+  const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
+    setFiltrosAtivos((prev) => ({ ...prev, [campo]: filtro }))
+    setPagina(1)
+    setPopoverFiltroAberto(null)
+  }, [])
+
+  const handleLimparFiltro = useCallback((campo: string) => {
+    setFiltrosAtivos((prev) => {
+      const next = { ...prev }
+      delete next[campo]
+      return next
+    })
+    setPagina(1)
+  }, [])
+
+  const handleLimparTodosFiltros = useCallback(() => {
+    setFiltrosAtivos({})
+    setPagina(1)
+  }, [])
+
+  const handleCriarPainelMenu = useCallback((nome: string) => {
+    const trimmed = nome.trim()
+    if (!trimmed) return
+    const ordem = paineisLista.reduce((max, p) => Math.max(max, p.ordem), -1) + 1
+    const criado: PainelItemSimulador = {
+      id: `painel-${Date.now()}`,
+      nome: trimmed,
+      ordem,
+    }
+    setPaineisLista((prev) => [...prev, criado])
+    setPainelAtualId(criado.id)
+  }, [paineisLista])
+
+  const handleSalvarNovoPedido = useCallback((
+    form: FormNovoPedidoSimulador,
+    itens: ItemNovoPedidoSimulador[],
+    fornecedores: FornecedorSimuladorNovoPedido[],
+  ) => {
+    const linha = montarLinhaNovoPedidoSimulador(form, itens, fornecedores, empresasSelecionadas[0])
+    setLinhas((prev) => [linha, ...prev])
+    setPagina(1)
+    setExpandidos((prev) => {
+      const next = new Set(prev)
+      next.add(linha.id)
+      return next
+    })
+    setToastDemo({
+      titulo: 'Pedido criado',
+      mensagem: `${form.numero_pedido} adicionado à lista (simulação).`,
+    })
+  }, [empresasSelecionadas])
+
+  const handleSalvarNovoItem = useCallback((pedidoId: string, partNumber: string, descricao: string) => {
+    setLinhas((prev) =>
+      prev.map((linha) => {
+        if (linha.id !== pedidoId) return linha
+        const seq = linha.detalhesItens.length + 1
+        const novoItem: ItemListaPedidoSimulador = {
+          id: `${linha.id}-item-${seq}`,
+          sequencia: seq,
+          numeroItem: `${linha.numeroPedido}-${String(seq).padStart(2, '0')}`,
+          alerta: false,
+          tipoOperacao: linha.tipoOperacao,
+          status: linha.status,
+          campos: {
+            part_number_item: partNumber,
+            descricao_item: descricao,
+            ncm_item: '',
+            quantidade_inicial_item: '1',
+            moeda_item: linha.moeda,
+            valor_por_unidade_item: '',
+          },
+        }
+        return {
+          ...linha,
+          itens: linha.itens + 1,
+          detalhesItens: [...linha.detalhesItens, novoItem],
+        }
+      }),
+    )
+    setExpandidos((prev) => new Set(prev).add(pedidoId))
+    setToastDemo({
+      titulo: 'Item adicionado',
+      mensagem: `${partNumber} vinculado ao pedido (simulação).`,
+    })
+  }, [])
+
+  const handleOrdenar = useCallback((campo: string, dir: 'asc' | 'desc') => {
+    setSortCampo(campo)
+    setSortDir(dir)
+    setPagina(1)
+    setPopoverFiltroAberto(null)
+  }, [])
+
+  const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
+    setPopoverFiltroAberto((prev) => (prev === key ? null : key))
+    const rect = anchor.getBoundingClientRect()
+    setPopoverFiltroPos({
+      top: rect.bottom + 4,
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - 292)),
+    })
+  }, [])
 
   const linhaEmEdicao = celulaEmEdicao
     ? linhas.find((l) => l.id === celulaEmEdicao.linhaId)
@@ -369,7 +748,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
       if (!valor) return <span className="pds-lista-vazio">—</span>
       return (
         <span className="pds-lista-exportador">
-          <ArrowSquareOut size={11} aria-hidden />
+          <LinkSimple size={12} weight="bold" aria-hidden />
           {valor}
         </span>
       )
@@ -420,87 +799,188 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
 
   return (
     <div className="pds-lista">
-      <div className="pds-lista-kpis">
-        <div className="pds-lista-kpi">
-          <span className="pds-lista-kpi-label">Valor Total</span>
-          <strong className="pds-lista-kpi-valor">{formatarValorListaPedidoSimulador(resumo.valorTotal)}</strong>
-          <span className="pds-lista-kpi-hint">Soma dos pedidos filtrados</span>
-        </div>
-        <div className="pds-lista-kpi">
-          <span className="pds-lista-kpi-label">Total de Pedidos</span>
-          <strong className="pds-lista-kpi-valor">{resumo.totalPedidos}</strong>
-          <span className="pds-lista-kpi-hint">{resumo.totalItens} total de itens</span>
+      <div className="lp-stats-row">
+        <div className="lp-cards">
+          <CardBasicoGlobal
+            titulo="Valor Total"
+            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={formatarValorListaPedidoSimulador(resumo.valorTotal)}
+            variante="sucesso"
+            subtexto="Soma dos pedidos filtrados"
+          />
+          <CardBasicoGlobal
+            titulo="Total de Pedidos"
+            icone={<Package weight="duotone" size={16} style={{ color: 'var(--pds-accent)' }} />}
+            valor={resumo.totalPedidos}
+            subtexto={`${resumo.totalItens} total de itens`}
+          />
         </div>
       </div>
 
-      <div className="pds-lista-paineis">
-        <span className="pds-lista-paineis-label">Painéis</span>
-        {(['GERAL', 'FINANCEIRO', 'COMERCIAL'] as PainelListaSimulador[]).map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={`pds-lista-painel-tab ${painelAtivo === p ? 'pds-lista-painel-tab--ativo' : ''}`}
-            onClick={() => setPainelAtivo(p)}
-          >
-            {p}
-            <span className="pds-lista-painel-menu">⋯</span>
-          </button>
-        ))}
-        <button type="button" className="pds-lista-painel-add" aria-label="Novo painel">+</button>
-      </div>
+      <div className="pds-lista-chrome">
+      <div className="pds-lista-faixa">
+      <FaixaPaineisListaSimuladorPedido
+        paineis={paineisLista}
+        painelAtualId={painelAtualId}
+        onPaineisChange={setPaineisLista}
+        onPainelAtualIdChange={setPainelAtualId}
+      />
 
       <div className="pds-lista-status-bar">
+        <span className="pds-lista-status-label">Status</span>
+        <div className="pds-lista-status-pills">
         {STATUS_FILTROS.map((s) => (
           <button
             key={s.id}
             type="button"
             className={`pds-lista-status-chip ${statusFiltro === s.id ? 'pds-lista-status-chip--ativo' : ''}`}
+            style={estiloChipStatusFiltro(s.id, s.cor, statusFiltro === s.id)}
             onClick={() => { setStatusFiltro(s.id); setPagina(1) }}
           >
             <span className="pds-lista-status-dot" style={{ background: s.cor }} />
             {s.label}
           </button>
         ))}
+        </div>
+      </div>
       </div>
 
-      <div className="pds-lista-toolbar">
-        <div className="pds-lista-toolbar-esq">
-          <div className="pds-lista-busca">
-            <MagnifyingGlass size={14} aria-hidden />
+      <div className="pds-lista-toolbar gtv-toolbar">
+        <div className="pds-lista-toolbar-esq gtv-toolbar-esquerda">
+          <div className="gtv-busca-wrapper">
+            <span className="gtv-busca-icone"><MagnifyingGlass size={14} aria-hidden /></span>
             <input
               type="search"
-              placeholder="Buscar pedido..."
+              className="gtv-busca-input pds-lista-busca-input"
+              placeholder="Buscar pedido."
               value={busca}
               onChange={(e) => { setBusca(e.target.value); setPagina(1) }}
             />
           </div>
-          <button type="button" className="pds-lista-btn-novo">
-            <Plus size={14} aria-hidden />
-            Novo
-            <CaretDown size={12} aria-hidden />
-          </button>
-          <button type="button" className="pds-lista-btn-acao" disabled>
-            <GitBranch size={14} aria-hidden />
-            Transferir
-          </button>
-          <div className="pds-lista-icones">
-            <button type="button" className="pds-lista-icone" disabled aria-label="Editar"><PencilSimple size={14} /></button>
-            <button type="button" className="pds-lista-icone" disabled aria-label="Consolidar"><Stack size={14} /></button>
-            <button type="button" className="pds-lista-icone" disabled aria-label="PDF"><FileText size={14} /></button>
-            <button type="button" className="pds-lista-icone pds-lista-icone--danger" disabled aria-label="Excluir"><Trash size={14} /></button>
-          </div>
+          <TooltipGlobal
+            descricao={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+          >
+            <button
+              type="button"
+              className="pds-lista-expandir-todos"
+              onClick={toggleExpandirTodos}
+              aria-label={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
+            >
+              {temExpandido
+                ? <CaretDoubleUp size={12} weight="bold" aria-hidden />
+                : <CaretDoubleDown size={12} weight="bold" aria-hidden />}
+            </button>
+          </TooltipGlobal>
+          <MenuNovoListaSimuladorPedido
+            onAbrirNovoPedidoManual={() => setModalNovoPedidoAberto(true)}
+            onAbrirNovoItemManual={() => setModalNovoItemAberto(true)}
+            onCriarPainel={handleCriarPainelMenu}
+            onDemoAcao={(titulo, mensagem) => setToastDemo({ titulo, mensagem })}
+          />
+          <span className="pds-lista-toolbar-divisor" aria-hidden="true" />
+          <TooltipGlobal titulo={tooltipTransferir.titulo} descricao={tooltipTransferir.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<ArrowRight size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeTransferir}
+            >
+              {rotuloTransferir}
+            </BotaoGlobal>
+          </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipEditar.titulo} descricao={tooltipEditar.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<PencilLine size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeEditarMassa}
+              aria-label={tooltipEditar.titulo}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipConsolidar.titulo} descricao={tooltipConsolidar.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<GitMerge size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeConsolidar}
+              aria-label={tooltipConsolidar.titulo}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipPdf.titulo} descricao={tooltipPdf.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<FilePdf size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeGerarPdf}
+              aria-label={tooltipPdf.titulo}
+            />
+          </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipExcluir.titulo} descricao={tooltipExcluir.descricao}>
+            <BotaoGlobal
+              variante="perigo"
+              tamanho="pequeno"
+              icone={<Trash size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeExcluir}
+              aria-label={tooltipExcluir.titulo}
+            />
+          </TooltipGlobal>
+          {(Object.keys(filtrosAtivos).length > 0 || busca.trim().length > 0 || rotuloEscopoWorkspaces) && (
+            <FiltroChips
+              colunas={colunasGt}
+              filtrosAtivos={filtrosAtivos}
+              onLimparFiltro={handleLimparFiltro}
+              onLimparTodos={handleLimparTodosFiltros}
+              onEditarFiltro={onFiltroColuna}
+              thresholdConsolidar={2}
+              prefixo={(
+                <>
+                  {rotuloEscopoWorkspaces ? (
+                    <TooltipGlobal
+                      titulo="Workspaces"
+                      descricao={tooltipEscopoWorkspaces ?? rotuloEscopoWorkspaces}
+                      interativo
+                      posicaoPreferida="abaixo"
+                    >
+                      <button
+                        type="button"
+                        className="fc-chip fc-chip--escopo fc-chip--escopo-btn"
+                        onClick={onAbrirMenuWorkspaces}
+                        aria-label="Alterar workspaces selecionados"
+                      >
+                        <span className="fc-chip-label">Workspaces:</span>
+                        <span className="fc-chip-valor">{rotuloEscopoWorkspaces}</span>
+                      </button>
+                    </TooltipGlobal>
+                  ) : null}
+                  {busca.trim().length > 0 ? (
+                    <span className="fc-chip">
+                      <span className="fc-chip-label">Busca:</span>
+                      <span className="fc-chip-valor">{busca}</span>
+                      <button
+                        type="button"
+                        className="fc-chip-remove"
+                        onClick={() => { setBusca(''); setPagina(1) }}
+                        aria-label="Remover busca"
+                      >
+                        <X size={10} weight="bold" />
+                      </button>
+                    </span>
+                  ) : null}
+                </>
+              )}
+            />
+          )}
         </div>
-        <div className="pds-lista-toolbar-dir">
-          <span className="pds-lista-workspaces-badge">
-            Workspaces: {empresasSelecionadas.length} selecionados
-          </span>
+        <div className="pds-lista-toolbar-dir gtv-toolbar-direita">
           <div className="pds-lista-dropdown-wrap">
             <button
               type="button"
-              className={`pds-lista-btn-sec ${colunasAberto ? 'pds-lista-btn-sec--ativo' : ''}`}
-              onClick={() => { setColunasAberto((v) => !v); setExportarAberto(false) }}
+              className={`gtv-btn${colunasAberto ? ' gtv-btn--ativo' : ''}`}
+              onClick={() => setColunasAberto((v) => !v)}
+              aria-label="Gerenciar colunas"
+              title="Colunas"
             >
-              <Columns size={14} aria-hidden />
+              <IconeColunasToolbar />
               Colunas
             </button>
             {colunasAberto && (
@@ -554,9 +1034,29 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
                 </div>
                 <ul className="pds-lista-colunas-lista">
                   {colunasFiltradas.map((c) => (
-                    <li key={c.id}>
+                    <li
+                      key={c.id}
+                      className={[
+                        'pds-lista-coluna-item',
+                        dragColunaId === c.id ? 'pds-lista-coluna-item--arrastando' : '',
+                        classeDropColuna(c.id, false),
+                      ].filter(Boolean).join(' ') || undefined}
+                      onDragOver={(e) => handleColunaDragOver(e, c.id, false)}
+                      onDrop={(e) => handleColunaDrop(e, c.id, false)}
+                    >
                       <label>
-                        <span className="pds-lista-coluna-handle">⠿</span>
+                        <span
+                          className="pds-lista-coluna-handle"
+                          draggable
+                          aria-label={`Arrastar coluna ${c.label}`}
+                          onDragStart={(e) => {
+                            e.stopPropagation()
+                            handleColunaDragStart(c.id)
+                          }}
+                          onDragEnd={handleColunaDragEnd}
+                        >
+                          ⠿
+                        </span>
                         <input
                           type="checkbox"
                           checked={c.visivel}
@@ -574,47 +1074,71 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
               </div>
             )}
           </div>
-          <div className="pds-lista-dropdown-wrap">
-            <button
-              type="button"
-              className={`pds-lista-btn-sec ${exportarAberto ? 'pds-lista-btn-sec--ativo' : ''}`}
-              onClick={() => { setExportarAberto((v) => !v); setColunasAberto(false) }}
-            >
-              <DownloadSimple size={14} aria-hidden />
-              Exportar
-            </button>
-            {exportarAberto && (
-              <ul className="pds-lista-dropdown pds-lista-dropdown--exportar">
-                {EXPORTAR_OPCOES.map((op) => (
-                  <li key={op}>
-                    <button type="button">
-                      {op.endsWith('PDF') ? <FileText size={14} aria-hidden /> : <DownloadSimple size={14} aria-hidden />}
-                      {op}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <BotaoCompletoExportar acoes={acoesExportacao} />
         </div>
       </div>
 
       <div className="pds-lista-tabela-wrap">
         <table className="pds-lista-tabela">
+          <colgroup>
+            <col className="pds-lista-col-expand" />
+            <col className="pds-lista-col-check" />
+            {colunasVisiveis.map((c) => (
+              <col key={c.id} className="pds-lista-col-dado" />
+            ))}
+          </colgroup>
           <thead>
             <tr>
               <th className="pds-lista-th-expand" aria-label="Expandir" />
               <th className="pds-lista-th-check">
                 <input
                   type="checkbox"
-                  checked={linhasPagina.length > 0 && selecionados.size === linhasPagina.length}
+                  className="gtv-checkbox"
+                  checked={todosPedidosPaginaSelecionados}
                   onChange={toggleTodos}
                   aria-label="Selecionar todos"
                 />
               </th>
-              {colunasVisiveis.map((c) => (
-                <th key={c.id} title={c.id}>{c.label}</th>
-              ))}
+              {colunasVisiveis.map((c) => {
+                const arrastando = dragColunaId === c.id
+                const filtravel = colunaListaSimuladorFiltravel(c.id)
+                const filtroAtivo = filtrosAtivosKeys.has(c.id)
+                return (
+                  <th
+                    key={c.id}
+                    title={c.label}
+                    draggable
+                    className={[
+                      'pds-lista-th-col',
+                      arrastando ? 'pds-lista-th-col--arrastando' : '',
+                      classeDropColuna(c.id, true),
+                    ].filter(Boolean).join(' ') || undefined}
+                    style={{ opacity: arrastando ? 0.45 : undefined }}
+                    onDragStart={() => handleColunaDragStart(c.id)}
+                    onDragOver={(e) => handleColunaDragOver(e, c.id, true)}
+                    onDrop={(e) => handleColunaDrop(e, c.id, true)}
+                    onDragEnd={handleColunaDragEnd}
+                  >
+                    <span className="pds-lista-th-col-label">{c.label}</span>
+                    {filtravel && (
+                      <button
+                        type="button"
+                        className={`gtv-filtro-btn${filtroAtivo ? ' gtv-filtro-btn--ativo' : ''}`}
+                        aria-label={`Filtrar por ${c.label}`}
+                        title={`Filtrar por ${c.label}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onFiltroColuna(c.id, e.currentTarget)
+                        }}
+                      >
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                          <path d="M0 1.5A.5.5 0 0 1 .5 1h9a.5.5 0 0 1 .354.854L6 5.707V9a.5.5 0 0 1-.724.447l-2-1A.5.5 0 0 1 3 8V5.707L.146 1.854A.5.5 0 0 1 0 1.5z" />
+                        </svg>
+                      </button>
+                    )}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
@@ -644,9 +1168,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
                         </button>
                       ) : null}
                     </td>
-                    <td>
+                    <td className="pds-lista-td-check">
                       <input
                         type="checkbox"
+                        className="gtv-checkbox"
                         checked={selecionados.has(linha.id)}
                         onChange={() => toggleSelecao(linha.id)}
                         aria-label={`Selecionar ${linha.numeroPedido}`}
@@ -669,9 +1194,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
               return (
                 <tr key={item.id} className={classes}>
                   <td className="pds-lista-td-expand" />
-                  <td>
+                  <td className="pds-lista-td-check">
                     <input
                       type="checkbox"
+                      className="gtv-checkbox gtv-checkbox--filho"
                       checked={selecionados.has(item.id)}
                       onChange={() => toggleSelecao(item.id)}
                       aria-label={`Selecionar item ${item.numeroItem}`}
@@ -718,8 +1244,49 @@ export function ListaSimuladorPedido({ empresasSelecionadas }: Props) {
           </button>
         </div>
       </footer>
+      </div>
 
       {renderPopoverEdicao()}
+
+      {popoverFiltroAberto && typeof document !== 'undefined' && (() => {
+        const col = colunasGt.find((c) => c.key === popoverFiltroAberto)
+        if (!col || !col.filtravel) return null
+        return createPortal(
+          <FiltroPopoverColuna
+            campo={col.key}
+            label={col.label}
+            tipo={detectarTipoFiltroColunaSimulador(col)}
+            filtroAtual={filtrosAtivos[col.key]}
+            valoresUnicos={valoresUnicosPorCampo[col.key] ?? []}
+            onAplicar={handleAplicarFiltro}
+            onLimpar={handleLimparFiltro}
+            onOrdenar={handleOrdenar}
+            onFechar={() => setPopoverFiltroAberto(null)}
+            anchorPos={popoverFiltroPos}
+            labelInverso={getLabelsFiltroInversoSimulador(col.key)}
+          />,
+          document.body,
+        )
+      })()}
+
+      <ModalNovoPedidoSimulador
+        aberto={modalNovoPedidoAberto}
+        onFechar={() => setModalNovoPedidoAberto(false)}
+        onSalvo={handleSalvarNovoPedido}
+      />
+      <ModalNovoItemSimuladorPedido
+        aberto={modalNovoItemAberto}
+        linhas={linhas}
+        onFechar={() => setModalNovoItemAberto(false)}
+        onSalvo={handleSalvarNovoItem}
+      />
+      {toastDemo && (
+        <ToastDemoNovoSimuladorPedido
+          titulo={toastDemo.titulo}
+          mensagem={toastDemo.mensagem}
+          onFechar={() => setToastDemo(null)}
+        />
+      )}
     </div>
   )
 }

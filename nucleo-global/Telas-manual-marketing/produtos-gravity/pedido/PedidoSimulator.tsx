@@ -38,12 +38,13 @@ import {
 import { InsightsSimuladorPedido } from './insights-simulador-pedido'
 import { KanbanSimuladorPedido } from './kanban-simulador-pedido'
 import { ListaSimuladorPedido } from './lista-simulador-pedido'
+import { instalarMockApiNcmSimuladorPedido } from './instalar-mock-api-ncm-simulador-pedido'
 import './pedido-simulator.css'
 
 type AbaVisualizacao = 'insights' | 'lista' | 'dashboard' | 'kanban'
 
 const PRODUTOS_DROPDOWN = [
-  { name: 'Pedido', icon: <Package size={14} weight="duotone" style={{ color: '#d97706' }} />, selected: true },
+  { name: 'Pedido', icon: <Package size={14} weight="duotone" style={{ color: '#818cf8' }} />, selected: true },
   { name: 'Bid Frete Internacional', icon: <Truck size={14} weight="duotone" style={{ color: '#2563eb' }} /> },
   { name: 'Bid Cambio', icon: <CurrencyDollar size={14} weight="duotone" style={{ color: '#0d9488' }} /> },
   { name: 'NF Import', icon: <FileText size={14} weight="duotone" style={{ color: '#7c3aed' }} /> },
@@ -76,6 +77,8 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
 
   const prodDropdownRef = useRef<HTMLDivElement>(null)
   const empresaDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => instalarMockApiNcmSimuladorPedido(), [])
 
   const produtosFiltrados = useMemo(
     () =>
@@ -189,7 +192,10 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
           <button
             type="button"
             className="pds-sidebar-toggle"
-            onClick={alternarMenuLateral}
+            onClick={(e) => {
+              e.stopPropagation()
+              alternarMenuLateral()
+            }}
             aria-label={menuLateralContraida ? 'Expandir menu lateral' : 'Recolher menu lateral'}
             title={menuLateralContraida ? 'Expandir menu lateral' : 'Recolher menu lateral'}
           >
@@ -207,7 +213,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
             >
               <div className="pds-sidebar-brand-inner">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Package size={16} weight="duotone" style={{ color: '#d97706', flexShrink: 0 }} />
+                  <Package size={16} weight="duotone" style={{ color: '#818cf8', flexShrink: 0 }} />
                   <span className="pds-sidebar-hide-when-collapsed" style={{ fontWeight: 800, fontSize: 14 }}>Pedido</span>
                 </div>
                 <span className="pds-sidebar-hide-when-collapsed" style={{ fontSize: 10, color: '#64748b', marginLeft: 24 }}>by Gravity</span>
@@ -245,7 +251,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                             style={{
                               fontSize: 11,
                               fontWeight: prod.selected ? 700 : 600,
-                              color: prod.selected ? '#fbbf24' : '#cbd5e1',
+                              color: prod.selected ? '#a78bfa' : '#cbd5e1',
                             }}
                           >
                             {prod.name}
@@ -255,7 +261,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                           )}
                         </div>
                       </div>
-                      {prod.selected && <Check size={12} weight="bold" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+                      {prod.selected && <Check size={12} weight="bold" style={{ color: '#a78bfa', flexShrink: 0 }} />}
                       {!prod.selected && prod.subtitle && (
                         <ArrowRight size={12} style={{ color: '#64748b', flexShrink: 0 }} />
                       )}
@@ -331,7 +337,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                       >
                         <span className="sds-empresa-item__check" aria-hidden>
                           {selecionada ? (
-                            <CheckSquare size={16} weight="fill" style={{ color: '#fbbf24' }} />
+                            <CheckSquare size={16} weight="fill" style={{ color: '#818cf8' }} />
                           ) : (
                             <Square size={16} weight="regular" style={{ color: '#64748b' }} />
                           )}
@@ -440,24 +446,24 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                 </div>
               </div>
               <div className="sds-mtg-right">
-                <button type="button" className="sds-mtg-nav-btn" aria-label="Voltar ao Hub">
-                  <GlobeHemisphereWest size={13} weight="duotone" />
+                  <button type="button" className="sds-mtg-nav-btn" aria-label="Voltar ao Hub">
+                  <GlobeHemisphereWest size={12} weight="duotone" />
                   Hub
                 </button>
                 <button type="button" className="sds-mtg-icon-btn" aria-label="Buscar na tela">
-                  <MagnifyingGlass size={17} />
+                  <MagnifyingGlass size={15} />
                 </button>
                 <button type="button" className="sds-mtg-icon-btn" aria-label="Gravity University">
-                  <GraduationCap size={17} weight="duotone" />
+                  <GraduationCap size={15} weight="duotone" />
                 </button>
-                <button type="button" className="sds-mtg-icon-btn" aria-label="Dicas" style={{ color: '#fbbf24' }}>
-                  <Info size={17} weight="fill" />
+                <button type="button" className="sds-mtg-icon-btn" aria-label="Dicas" style={{ color: '#818cf8' }}>
+                  <Info size={15} weight="fill" />
                 </button>
                 <button type="button" className="sds-mtg-lang-btn" aria-label="Idioma">
                   BR
                 </button>
                 <button type="button" className="sds-mtg-icon-btn" aria-label="Configurações">
-                  <Gear size={17} weight="duotone" />
+                  <Gear size={15} weight="duotone" />
                 </button>
                 <div className="sds-mtg-sep" aria-hidden="true" />
                 <div className="sds-mtg-avatar" aria-hidden="true">
@@ -476,7 +482,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     className={`srt-tab${abaAtiva === 'insights' ? ' srt-tab--active' : ''}`}
                     onClick={() => setAbaAtiva('insights')}
                   >
-                    <ChartPieSlice weight="duotone" size={16} />
+                    <ChartPieSlice weight="duotone" size={14} />
                     <span>Insights</span>
                   </button>
                   <button
@@ -486,7 +492,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     className={`srt-tab${abaAtiva === 'lista' ? ' srt-tab--active' : ''}`}
                     onClick={() => setAbaAtiva('lista')}
                   >
-                    <ListBullets weight="duotone" size={16} />
+                    <ListBullets weight="duotone" size={14} />
                     <span>Lista</span>
                   </button>
                   <button
@@ -496,7 +502,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     className={`srt-tab${abaAtiva === 'dashboard' ? ' srt-tab--active' : ''}`}
                     onClick={() => setAbaAtiva('dashboard')}
                   >
-                    <SquaresFour weight="duotone" size={16} />
+                    <SquaresFour weight="duotone" size={14} />
                     <span>Dashboard</span>
                   </button>
                   <button
@@ -506,7 +512,7 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
                     className={`srt-tab${abaAtiva === 'kanban' ? ' srt-tab--active' : ''}`}
                     onClick={() => setAbaAtiva('kanban')}
                   >
-                    <Kanban weight="duotone" size={16} />
+                    <Kanban weight="duotone" size={14} />
                     <span>Kanban</span>
                   </button>
                 </nav>
@@ -522,7 +528,13 @@ export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () 
             ) : abaAtiva === 'insights' ? (
               <InsightsSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
             ) : abaAtiva === 'lista' ? (
-              <ListaSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
+              <ListaSimuladorPedido
+                empresasSelecionadas={empresasSelecionadas}
+                onAbrirMenuWorkspaces={() => {
+                  setMenuLateralContraida(false)
+                  setEmpresaDropdownOpen(true)
+                }}
+              />
             ) : abaAtiva === 'dashboard' ? (
               <div className="pds-banner-config">
                 Dashboard operacional — visão em tempo real (simulação).

@@ -101,7 +101,10 @@ import {
 // 3.9 (P15.1)— Zona ESSENCIAL: unidade/moeda/valor_total/incoterm do ITEM
 //              bloqueados em linhas PEDIDO — usar par *_pedido no master.
 //              SSOT: shared/smart-import-template-bloqueio.ts
-const TEMPLATE_VERSAO = '3.9'
+// 4.0 (P15.2)— Pares propagáveis *_pedido bloqueados em linhas ITEM
+//              (ex.: unidade_comercializada_pedido, tipo_volume_pedido).
+//              Somente planilha — parser/lista/banco inalterados.
+const TEMPLATE_VERSAO = '4.0'
 
 import { exigirPermissao } from '../permissoes.js'
 
@@ -554,14 +557,17 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
         const cell = ws.getCell(`${colLetter}${row}`)
         if (ehBloqItem) {
-          cell.dataValidation = {
-            type:             'custom',
-            allowBlank:       true,
-            formulae:         [`$${colTipoLinha}${row}<>"ITEM"`],
-            showErrorMessage: true,
-            errorStyle:       'stop',
-            errorTitle:       'Campo exclusivo de PEDIDO',
-            error:            'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+          // P15.2: colunas com dropdown dinâmico mantêm list na linha PEDIDO — só CF preta na ITEM
+          if (!c.dropdownDinamico) {
+            cell.dataValidation = {
+              type:             'custom',
+              allowBlank:       true,
+              formulae:         [`$${colTipoLinha}${row}<>"ITEM"`],
+              showErrorMessage: true,
+              errorStyle:       'stop',
+              errorTitle:       'Campo exclusivo de PEDIDO',
+              error:            'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+            }
           }
         } else if (ehBloqPedido && ehNcm) {
           cell.dataValidation = {

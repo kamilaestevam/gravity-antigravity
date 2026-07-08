@@ -300,6 +300,11 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
         'moeda_item': 'Moeda do Item',
         'valor_total_item': 'Valor Total do Item',
         'unidade_comercializada_item': 'Unidade Comercializada do Item',
+        'unidade_comercializada_pedido': 'Unidade Comercializada do Pedido',
+        'tipo_volume_pedido': 'Tipo Volume Pedido',
+        'moeda_pedido': 'Moeda do Pedido',
+        'incoterm_pedido': 'Incoterm',
+        'referencia_exportador_pedido': 'Referencia Exportador',
       }
       const rotulo = campoMap[campo]
       if (rotulo && val.replace(/^\* /, '') === rotulo && col === -1) {
@@ -373,6 +378,20 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
       expect(v!.type).toBe('custom')
       expect(v!.formulae![0]).toContain('"PEDIDO"')
       expect(v!.errorTitle).toBe('Campo exclusivo de ITEM')
+    }
+  })
+
+  it('bloqueia pares propagaveis *_pedido em linhas ITEM (P15.2)', async () => {
+    const { wb } = await gerarTemplate()
+    const ws = wb.worksheets.find(s => s.name !== '_Listas')!
+    for (const campo of ['incoterm_pedido', 'referencia_exportador_pedido']) {
+      const col = encontrarColuna(ws, campo)
+      expect(col).toBeGreaterThan(0)
+      const v = ws.getCell(4, col).dataValidation
+      expect(v).toBeDefined()
+      expect(v!.type).toBe('custom')
+      expect(v!.formulae![0]).toContain('"ITEM"')
+      expect(v!.errorTitle).toBe('Campo exclusivo de PEDIDO')
     }
   })
 

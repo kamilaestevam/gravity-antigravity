@@ -376,13 +376,18 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
   telas: [fig('manual_origem_destino', '')],
   infograficoBidFreteOrigemDestinoCampos: true,
   textoAposInfograficoBidFreteOrigemDestinoCampos:
-    'A sequência abaixo ilustra o preenchimento do **porto de origem** no modal **Marítimo**.',
+    'Acompanhe nas imagens a seguir como configurar o local de origem. O exemplo ilustra uma operação marítima para demonstrar a lógica padrão de busca e seleção.',
   telasAposInfograficoBidFreteOrigemDestinoCampos: [
     fig('manual_origem_porto_origem', '**11.** Campo **porto de origem**'),
     fig('manual_origem_porto_origem_pais', '**12.** Seleção de **país**'),
     fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
     fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
   ],
+  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos: {
+    tipo: 'dica',
+    texto:
+      'Acelere o preenchimento do formulário buscando o local desejado pelo nome exato ou pelas iniciais.',
+  },
   calloutApos: [
     {
       tipo: 'dica',

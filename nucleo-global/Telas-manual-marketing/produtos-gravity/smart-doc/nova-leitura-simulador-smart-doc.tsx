@@ -328,6 +328,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
             const emProcessamento = arq.status === 'analisando'
             const completo = arq.status === 'completo'
             const conferenciaAtiva = passo >= 3
+            const alvoPrimeiroArquivo = indiceArq === 0
 
             return (
               <article
@@ -337,19 +338,23 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                 <div className="sds-nl-card-arquivo-cabecalho">
                   <span
                     className="sds-nl-card-arquivo-icone-wrap"
-                    {...(passo >= 2 && indiceArq === 0 ? { 'data-sds-tutorial-alvo': 'nl-icone-pdf-arquivo' } : {})}
+                    {...(alvoPrimeiroArquivo ? { 'data-sds-tutorial-alvo': 'nl-icone-pdf-arquivo' } : {})}
                   >
                     <FilePdf size={18} weight="duotone" />
                   </span>
                   <div className="sds-nl-card-arquivo-info">
-                    <span className="sds-nl-card-arquivo-nome" title={arq.nome}>
+                    <span
+                      className="sds-nl-card-arquivo-nome"
+                      title={arq.nome}
+                      {...(alvoPrimeiroArquivo ? { 'data-sds-tutorial-alvo': 'nl-nome-arquivo' } : {})}
+                    >
                       {arq.nome}
                     </span>
                     <div className="sds-nl-card-arquivo-acoes">
                       <button
                         type="button"
                         className="sds-nl-card-btn-icone"
-                        {...(passo >= 2 && indiceArq === 0 ? { 'data-sds-tutorial-alvo': 'nl-visualizar-original' } : {})}
+                        {...(alvoPrimeiroArquivo ? { 'data-sds-tutorial-alvo': 'nl-visualizar-original' } : {})}
                         title="Visualizar documento original"
                         aria-label={`Visualizar original ${arq.nome}`}
                         onClick={() => visualizarArquivo(arq)}
@@ -379,6 +384,7 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                         <button
                           type="button"
                           className="sds-nl-card-btn-icone sds-nl-card-btn-remover"
+                          {...(alvoPrimeiroArquivo ? { 'data-sds-tutorial-alvo': 'nl-remover-arquivo' } : {})}
                           aria-label={`Remover ${arq.nome}`}
                           onClick={() => removerArquivo(arq.id)}
                         >
@@ -389,7 +395,10 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
                   </div>
                 </div>
 
-                <div className="sds-nl-card-arquivo-status">
+                <div
+                  className="sds-nl-card-arquivo-status"
+                  {...(alvoPrimeiroArquivo ? { 'data-sds-tutorial-alvo': 'nl-status-arquivo' } : {})}
+                >
                   {emProcessamento && <CircleNotch size={14} className="sds-nl-card-spin" />}
                   {completo && <CheckCircle size={14} weight="fill" className="sds-nl-card-ok" />}
                   <span>{rotuloStatusArquivo(arq)}</span>
@@ -561,7 +570,11 @@ export function NovaLeituraSimuladorSmartDoc({ aberto, onFechar, onIrParaLista }
               <strong>Clique aqui para simular o anexo</strong>
               <span>Um PDF de demonstração será carregado automaticamente. Não é necessário selecionar arquivo.</span>
             </div>
-            <section className="sds-nl-formatos" aria-label="Formatos aceitos">
+            <section
+              className="sds-nl-formatos"
+              aria-label="Formatos aceitos"
+              data-sds-tutorial-alvo="nl-formatos-aceitos"
+            >
               <p className="sds-nl-formatos-titulo">Formatos aceitos pela plataforma</p>
               <div className="sds-nl-formatos-linha">
                 {FORMATOS.map(({ ext, Icon }) => (

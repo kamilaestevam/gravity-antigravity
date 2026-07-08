@@ -42,8 +42,7 @@
 }
 
 /* Botões — cor #6366f1 intacta + halo externo largo e suave (não cobre o fill) */
-.sds-btn-novo.sds-tutorial-alvo--destacado,
-.sds-nl-btn--prim.sds-tutorial-alvo--destacado {
+.sds-btn-novo.sds-tutorial-alvo--destacado {
   position: relative;
   z-index: 20 !important;
   isolation: isolate;
@@ -56,8 +55,7 @@
   overflow: visible !important;
 }
 
-.sds-btn-novo.sds-tutorial-alvo--destacado::after,
-.sds-nl-btn--prim.sds-tutorial-alvo--destacado::after {
+.sds-btn-novo.sds-tutorial-alvo--destacado::after {
   content: '';
   position: absolute;
   inset: -8px;
@@ -69,6 +67,31 @@
     0 0 24px rgba(99, 102, 241, 0.14);
   pointer-events: none;
   z-index: -1;
+}
+
+/* Wizard — box-shadow no próprio botão (dialog corta ::after externo) */
+.sds-nl-btn--prim.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 20 !important;
+  background: #6366f1 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.5rem;
+  outline: 2px solid rgba(165, 180, 252, 0.65) !important;
+  outline-offset: 3px;
+  overflow: visible !important;
+  box-shadow:
+    0 1px 3px rgba(99, 102, 241, 0.32),
+    0 0 0 2px rgba(165, 180, 252, 0.72),
+    0 0 0 6px rgba(99, 102, 241, 0.22),
+    0 0 20px rgba(99, 102, 241, 0.16) !important;
+}
+
+.sds-nl-overlay.sds-tutorial-destaque-ativo:has(.sds-nl-btn--prim.sds-tutorial-alvo--destacado) .sds-nl-dialog,
+.sds-nl-overlay.sds-tutorial-destaque-ativo:has(.sds-nl-btn--prim.sds-tutorial-alvo--destacado) .sds-nl-corpo,
+.sds-nl-overlay.sds-tutorial-destaque-ativo:has(.sds-nl-btn--prim.sds-tutorial-alvo--destacado) .sds-nl-lateral,
+.sds-nl-overlay.sds-tutorial-destaque-ativo:has(.sds-nl-btn--prim.sds-tutorial-alvo--destacado) .sds-nl-lateral-rodape {
+  overflow: visible !important;
 }
 
 .sds-root.sds-tutorial-destaque-ativo .smart-read-vis-toolbar,
@@ -100,6 +123,16 @@
   border-radius: 10px;
 }
 
+.sds-nl-card-btn-icone.sds-tutorial-alvo--destacado,
+.sds-nl-card-arquivo-icone-wrap.sds-tutorial-alvo--destacado {
+  border-radius: 6px;
+}
+
+.sds-nl-card-arquivo-nome.sds-tutorial-alvo--destacado,
+.sds-nl-card-arquivo-status.sds-tutorial-alvo--destacado {
+  border-radius: 6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sds-tutorial-alvo--destacado:not(.sds-btn-novo):not(.sds-nl-btn--prim)::after {
     border-width: 2px;
@@ -108,19 +141,28 @@
   }
 
   .sds-btn-novo.sds-tutorial-alvo--destacado,
-  .sds-nl-btn--prim.sds-tutorial-alvo--destacado,
   .sr-dropdown-novo.sds-tutorial-alvo--destacado .sds-btn-novo {
     background: #6366f1 !important;
     box-shadow: 0 1px 3px rgba(99, 102, 241, 0.32) !important;
     outline: none !important;
   }
 
-  .sds-btn-novo.sds-tutorial-alvo--destacado::after,
-  .sds-nl-btn--prim.sds-tutorial-alvo--destacado::after {
+  .sds-btn-novo.sds-tutorial-alvo--destacado::after {
     border-color: rgba(165, 180, 252, 0.6);
     box-shadow:
       0 0 0 5px rgba(99, 102, 241, 0.22),
       0 0 0 12px rgba(99, 102, 241, 0.11),
       0 0 24px rgba(99, 102, 241, 0.14);
+  }
+
+  .sds-nl-btn--prim.sds-tutorial-alvo--destacado {
+    background: #6366f1 !important;
+    outline: 2px solid rgba(165, 180, 252, 0.65) !important;
+    outline-offset: 3px;
+    box-shadow:
+      0 1px 3px rgba(99, 102, 241, 0.32),
+      0 0 0 2px rgba(165, 180, 252, 0.72),
+      0 0 0 6px rgba(99, 102, 241, 0.22),
+      0 0 20px rgba(99, 102, 241, 0.16) !important;
   }
 }

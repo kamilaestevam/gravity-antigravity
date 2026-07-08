@@ -1145,7 +1145,12 @@ function CardTermometroHistoricoSmart({
             title={t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
             onClick={() => setFiltrosAbertos((v) => !v)}
           >
-            <FunnelSimple weight={filtrosDestacados ? 'fill' : 'duotone'} size={14} aria-hidden />
+            <FunnelSimple weight={filtrosDestacados ? 'fill' : 'bold'} size={13} aria-hidden />
+            {!filtrosDestacados && (
+              <span className="dc-termometro-filtros-botao-rotulo">
+                {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+              </span>
+            )}
           </button>
         </div>
       </header>

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   CaretDown,
   CaretRight,
+  Check,
   CircleNotch,
   MagnifyingGlass,
   Warning,
@@ -33,6 +34,10 @@ import type {
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import { AcoesCorrecaoRiscoNovaLeituraSmartRead } from './acoes-correcao-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
+import {
+  chaveRiscoConferenciaUsuario,
+  usarRiscosMarcacaoConferencia,
+} from '../../shared/checklist-marcacao-usuario-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
@@ -87,6 +92,8 @@ function ItemListaRisco({
   numero,
   expandido,
   selecionado,
+  conferido,
+  onAlternarConferido,
   onToggleExpandir,
   onToggleSelecao,
   children,
@@ -95,6 +102,8 @@ function ItemListaRisco({
   numero: number
   expandido: boolean
   selecionado: boolean
+  conferido: boolean
+  onAlternarConferido: () => void
   onToggleExpandir: (risco: RiscoAduaneiroLeitura) => void
   onToggleSelecao: (id: string) => void
   children?: ReactNode
@@ -104,9 +113,26 @@ function ItemListaRisco({
   return (
     <section
       id={`sr-risco-${risco.id}`}
-      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${selecionado ? ' sr-conf-risco-item-lista--selecionado' : ''}`}
+      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${selecionado ? ' sr-conf-risco-item-lista--selecionado' : ''}${conferido ? ' sr-conf-risco-item-lista--conferido' : ''}`}
     >
       <div className="dt-secao-header sr-conf-risco-item-lista-cabecalho">
+        <button
+          type="button"
+          className="sr-conf-risco-check-btn"
+          onClick={(e) => {
+            e.stopPropagation()
+            onAlternarConferido()
+          }}
+          aria-label={
+            conferido
+              ? `Desmarcar conferência do risco: ${risco.titulo}`
+              : `Marcar risco como conferido: ${risco.titulo}`
+          }
+          aria-pressed={conferido}
+          title={conferido ? 'Conferido — clique para desmarcar' : 'Marcar como conferido'}
+        >
+          <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
+        </button>
         <button
           type="button"
           className="sr-conf-risco-item-lista-botao"
@@ -196,6 +222,13 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const [pipelineConcluido, setPipelineConcluido] = useState(false)
   const [llmHabilitado, setLlmHabilitado] = useState(false)
   const [riscoExpandidoId, setRiscoExpandidoId] = useState<string | null>(null)
+
+  const chaveMarcacaoRiscos =
+    arquivoConferencia != null
+      ? `${arquivoConferencia.id_arquivo_local}:${indiceDocumentoConferencia}`
+      : ''
+  const { estaMarcado: riscoEstaConferido, alternarMarcado: alternarRiscoConferido } =
+    usarRiscosMarcacaoConferencia(chaveMarcacaoRiscos)
 
   const arquivosAnalisaveis = useMemo(
     () => arquivos.filter((a) => a.status_arquivo_local === 'completo'),
@@ -503,6 +536,10 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                   key={risco.id}
                   risco={risco}
                   selecionado={riscosSelecionados.has(risco.id)}
+                  conferido={riscoEstaConferido(chaveRiscoConferenciaUsuario(risco.id))}
+                  onAlternarConferido={() =>
+                    alternarRiscoConferido(chaveRiscoConferenciaUsuario(risco.id))
+                  }
                   expandido={expandido}
                   onToggleExpandir={toggleExpandirRisco}
                   onToggleSelecao={toggleSelecaoRisco}

@@ -1,31 +1,20 @@
-import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import type { DocSecao } from './manual-configurador-conteudo'
+import { renumerarPassos } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
 import {
-  GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
-  GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_RAMO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_RAMO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_RAMO,
+  GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
-
-type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 const S = screenshotBidFreteInt
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
   '{{link:/university-gravity/docs/bid-frete#doc-sec-7|Configurações}}'
-
-function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
-  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
-}
 
 export const DOC_BID_FRETE_SUBTITULO =
   'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
@@ -403,70 +392,86 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       prefixoPassosVisuais: 'Nova cotação',
       ancoraPassosPrefix: 'nova-cotacao',
       mostrarMapaSubtopicosPassos: true,
-      paragrafos: [
-        'O wizard **Cotação avulsa manual** conduz do **número da cotação** ao **disparo aos fornecedores**, com trilha comum e ramos por **modal de transporte** (**Marítimo**, **Aéreo**, **Rodoviário**) e **tipo de carga** (**FCL**, **LCL**, **Aéreo/LCL/Rodo**).',
-        'Como no **Transferir** do manual do **Pedido**, os passos iniciais são **iguais para todos**; a partir do **modal** (passo **09**) e do **tipo de carga** (passo **39**) cada ramo segue telas próprias até o **envio** e o **resultado na Lista**.',
-      ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Mapa do wizard',
-          tituloCurto: 'Mapa',
+          titulo: 'Visão geral da Nova cotação',
+          tituloCurto: 'Visão geral',
+          paragrafos: [
+            'No **BID Frete**, toda solicitação nasce em **+ Novo → Buscar Frete**. Este capítulo cobre a **Cotação avulsa** — escolha a **forma de criar** (**Manual**, planilha, **API** ou **Smart Docs**) e, no fluxo **Manual**, o **modal** de transporte (**Marítimo**, **Aéreo** ou **Rodoviário**).',
+          ],
           mostrarInfograficoBidFreteNovaCotacaoFluxo: true,
+          bidFreteNovaCotacaoInfograficoAposParagrafo: 0,
+          mostrarLegendaEscopoIconesBidFrete: true,
+          legendaEscopoIconesBidFreteAposParagrafo: 0,
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL,
         },
         {
-          titulo: 'Abrir o wizard na Lista',
-          tituloCurto: 'Abrir wizard',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
-        },
-        {
-          titulo: 'Início comum',
-          tituloCurto: 'Início comum',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_INICIO_COMUM,
-        },
-        {
-          titulo: 'Locais Marítimo',
-          tituloCurto: 'Marítimo',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO,
-        },
-        {
-          titulo: 'Locais Aéreo',
-          tituloCurto: 'Aéreo',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO,
-        },
-        {
-          titulo: 'Locais Rodoviário',
-          tituloCurto: 'Rodoviário',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO,
-        },
-        {
-          titulo: 'NCM e mercadoria',
-          tituloCurto: 'NCM',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
-        },
-        {
-          titulo: 'Tipo de carga FCL',
-          tituloCurto: 'FCL',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_FCL,
-        },
-        {
-          titulo: 'Tipo de carga LCL',
-          tituloCurto: 'LCL',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_LCL,
-        },
-        {
-          titulo: 'Volumes Aéreo / LCL / Rodo',
-          tituloCurto: 'Aéreo/LCL/Rodo',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_AIR_LCL_RODO,
-        },
-        {
-          titulo: 'Cubagem, fornecedores e envio',
-          tituloCurto: 'Envio',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
-        },
-        {
-          titulo: 'Resultado esperado',
-          tituloCurto: 'Resultado',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+          titulo: 'Cotação avulsa',
+          tituloCurto: 'Cotação avulsa',
+          paragrafos: [
+            'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**. Neste capítulo, detalharemos exclusivamente o fluxo de criação através da opção **Manual**.',
+          ],
+          mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
+          passosFilhos: [
+            {
+              titulo: 'Cotação manual',
+              tituloCurto: 'Cotação manual',
+              paragrafos: [
+                'Preencha o **formulário** etapa por etapa seguindo um **fluxo único** até a escolha do **modal**.',
+              ],
+              galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+              passosFilhos: [
+                {
+                  titulo: 'Marítimo',
+                  tituloCurto: 'Marítimo',
+                  paragrafos: [
+                    'Com **Marítimo** selecionado, preencha **portos** preferenciais e locais door/port na etapa **Locais**. Na etapa de carga, bifurque em **FCL** ou **LCL**.',
+                  ],
+                  galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MARITIMO_RAMO,
+                },
+                {
+                  titulo: 'Aéreo',
+                  tituloCurto: 'Aéreo',
+                  paragrafos: [
+                    'Com **Aéreo** selecionado, informe **aeroportos** e endereços na etapa **Locais** e cadastre **volumes** no ramo **Aéreo/LCL/Rodo**. Complete antes os passos do **wizard comum** neste mesmo subtópico.',
+                  ],
+                  galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_AEREO_RAMO,
+                },
+                {
+                  titulo: 'Rodoviário',
+                  tituloCurto: 'Rodoviário',
+                  paragrafos: [
+                    'Com **Rodoviário** selecionado, informe trechos **door-to-door** na etapa **Locais** e cadastre **volumes** no ramo **Aéreo/LCL/Rodo**. Complete antes os passos do **wizard comum** neste mesmo subtópico.',
+                  ],
+                  galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_RODOVIARIO_RAMO,
+                },
+              ],
+            },
+            {
+              titulo: 'Cotação via planilha',
+              tituloCurto: 'Via planilha',
+              paragrafos: [
+                'Importe **Excel**, **CSV** ou **XML** para gerar a cotação avulsa. Recurso **em breve** no produto.',
+              ],
+              badgeEmDesenvolvimento: true,
+            },
+            {
+              titulo: 'Cotação via Smart Docs',
+              tituloCurto: 'Via Smart Docs',
+              paragrafos: [
+                'A **IA** extrai dados do documento comercial e pré-preenche a cotação. Recurso **em breve**.',
+              ],
+              badgeEmDesenvolvimento: true,
+            },
+            {
+              titulo: 'Cotação por API',
+              tituloCurto: 'Por API',
+              paragrafos: [
+                'Integre via **API Cockpit** ou **ERP** para criar cotações avulsas. Recurso **em breve**.',
+              ],
+              badgeEmDesenvolvimento: true,
+            },
+          ],
         },
       ]),
     },

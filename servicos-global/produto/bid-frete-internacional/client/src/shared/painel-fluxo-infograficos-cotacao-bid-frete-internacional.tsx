@@ -25,6 +25,7 @@ import type { StatusCotacao } from './types'
 import {
   calcularInfograficosFluxoCotacao,
   calcularPainelSmartInsights,
+  buildSerieTermometro,
   FLUXO_ETAPAS_RESUMIDAS,
   formatarHorasResposta,
   indiceFluxoPorStatus,
@@ -32,6 +33,7 @@ import {
   formatarMoedaInsightsBidFrete,
   resolverNomeGanhadorCotacao,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import { filtrarHistoricoTermometro } from '../../../shared/filtro-historico-termometro-bid-frete-internacional'
 import {
   calcularDatasEtapasFluxoTimeline,
   normalizarHistoricoTimeline,
@@ -42,6 +44,8 @@ import type {
   ComparativoMetricaPainel,
   InfograficosFluxoCotacao,
   PainelSmartInsightsDados,
+  TipoBaseTermometroHistorico,
+  ComponentePrecoTermometro,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import type { TFunction } from 'i18next'
 import {
@@ -535,13 +539,10 @@ function AvisoGraficosInsightsCotacao({
         </ul>
         {smart.termometroDadosDemonstracao && (
           <p className="dc-smart-aviso-graficos-nota-termometro">
-            <span className="dc-smart-demo-pill">
-              {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
-            </span>
             <span>
               {t(
                 'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_termometro',
-                'O termômetro histórico exibe série ilustrativa até existirem cotações aprovadas na mesma rota e condições.',
+                'O termômetro histórico será preenchido quando existirem dados nas mesmas condições.',
               )}
             </span>
           </p>
@@ -712,70 +713,226 @@ function CardMelhorPropostaSmart({
   )
 }
 
+const COMPONENTES_TERMOMETRO: ComponentePrecoTermometro[] = [
+  'FRETE_BASE',
+  'TAXAS_ORIGEM',
+  'TAXAS_DESTINO',
+  'TOTAL',
+]
+
+function rotuloComponenteTermometro(
+  componente: ComponentePrecoTermometro,
+  t: (k: string, d?: string) => string,
+): string {
+  switch (componente) {
+    case 'FRETE_BASE':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_frete', 'Frete base')
+    case 'TAXAS_ORIGEM':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_origem', 'Taxas origem')
+    case 'TAXAS_DESTINO':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_destino', 'Taxas destino')
+    case 'TOTAL':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_total', 'Total')
+    default:
+      return componente
+  }
+}
+
 function CardTermometroHistoricoSmart({
-  smart,
+  cotacao,
+  propostas,
+  info,
+  historico_aprovado,
+  historico_propostas_recebidas,
   t,
 }: {
-  smart: PainelSmartInsightsDados
+  cotacao: Cotacao | null | undefined
+  propostas: PropostaRankingBidFreteInternacional[]
+  info: InfograficosFluxoCotacao
+  historico_aprovado?: Cotacao['historico_aprovado']
+  historico_propostas_recebidas?: Cotacao['historico_propostas_recebidas']
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
-  const valorMedia = smart.termometroMedia6Meses != null
-    ? moeda(smart.termometroMedia6Meses, smart.termometroMoeda)
-    : '—'
-  const savings = smart.termometroSavingsValor != null && smart.termometroSavingsValor > 0
-    ? moeda(smart.termometroSavingsValor, smart.termometroMoeda)
-    : null
-  const contexto = t(
-    'bidfrete.detalhe_cotacao.cockpit_termometro_contexto',
-    'Mesma origem, destino, modal, container e incoterm',
+  const [tipoBase, setTipoBase] = useState<TipoBaseTermometroHistorico>('CONTRATADO')
+  const [componente, setComponente] = useState<ComponentePrecoTermometro>('FRETE_BASE')
+  const [filtrarIncoterm, setFiltrarIncoterm] = useState(false)
+
+  const referenciaTermometro = useMemo(() => {
+    if (cotacao == null) return null
+    return {
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      tipo_operacao_cotacao_bid_frete_internacional: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+      modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+      origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+      destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+      modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
+      tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
+      incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
+      peso_kg_cotacao_bid_frete_internacional: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      peso_ton_cotacao_bid_frete_internacional: cotacao.peso_ton_cotacao_bid_frete_internacional,
+      cubagem_m3_cotacao_bid_frete_internacional: cotacao.cubagem_m3_cotacao_bid_frete_internacional,
+    }
+  }, [cotacao])
+
+  const historicoBruto = useMemo(
+    () => (tipoBase === 'CONTRATADO' ? historico_aprovado : historico_propostas_recebidas),
+    [tipoBase, historico_aprovado, historico_propostas_recebidas],
   )
 
+  const historicoAtivo = useMemo(() => {
+    if (referenciaTermometro == null) return historicoBruto
+    return filtrarHistoricoTermometro(referenciaTermometro, historicoBruto, {
+      filtrar_incoterm: filtrarIncoterm,
+    })
+  }, [referenciaTermometro, historicoBruto, filtrarIncoterm])
+
+  const termometro = useMemo(
+    () => buildSerieTermometro(propostas, historicoAtivo, tipoBase, componente),
+    [propostas, historicoAtivo, tipoBase, componente],
+  )
+
+  const aguardandoDados = termometro.termometroDadosDemonstracao
+  const valorMercado = !aguardandoDados && termometro.termometroMedia6Meses != null
+    ? moeda(termometro.termometroMedia6Meses, info.melhorValorMoeda)
+    : '—'
+  const valorDele = termometro.termometroValorDele != null
+    ? moeda(termometro.termometroValorDele, info.melhorValorMoeda)
+    : '—'
+  const savings = !aguardandoDados
+    && termometro.termometroSavingsValor != null
+    && termometro.termometroSavingsValor > 0
+    ? moeda(termometro.termometroSavingsValor, info.melhorValorMoeda)
+    : null
+  const contexto = t(
+    'bidfrete.detalhe_cotacao.cockpit_termometro_contexto_resumo',
+    'Mesma operação, rota e modal — ver documentação para faixas',
+  )
+  const mensagemAguardando = tipoBase === 'CONTRATADO'
+    ? t(
+      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados',
+      'Aguardando cotações aprovadas nas mesmas condições.',
+    )
+    : t(
+      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_propostas',
+      'Aguardando cotações com proposta nas mesmas condições.',
+    )
+
   return (
-    <article className="dc-smart-card dc-smart-card--termometro">
-      <header className="dc-smart-card-head">
+    <article
+      className={`dc-smart-card dc-smart-card--termometro${aguardandoDados ? ' dc-smart-card--vazio' : ''}`}
+    >
+      <header className="dc-smart-card-head dc-smart-card-head--termometro">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
-        {smart.termometroDadosDemonstracao && (
-          <span className="dc-smart-demo-pill">
-            {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
-          </span>
-        )}
+        <div className="dc-smart-termometro-acoes">
+          <div
+            className="dc-smart-termometro-seletor"
+            role="group"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_seletor_aria',
+              'Base do termômetro histórico',
+            )}
+          >
+            <button
+              type="button"
+              className={`dc-smart-termometro-seletor-btn${tipoBase === 'CONTRATADO' ? ' is-ativo' : ''}`}
+              aria-pressed={tipoBase === 'CONTRATADO'}
+              onClick={() => setTipoBase('CONTRATADO')}
+            >
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')}
+            </button>
+            <button
+              type="button"
+              className={`dc-smart-termometro-seletor-btn${tipoBase === 'PROPOSTAS_RECEBIDAS' ? ' is-ativo' : ''}`}
+              aria-pressed={tipoBase === 'PROPOSTAS_RECEBIDAS'}
+              onClick={() => setTipoBase('PROPOSTAS_RECEBIDAS')}
+            >
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')}
+            </button>
+          </div>
+        </div>
       </header>
-      <div className="dc-smart-card-body dc-smart-card-body--termometro">
-        <div className="dc-smart-termometro-topo">
-          <div>
-            <p className="dc-smart-valor-hero">{valorMedia}</p>
-            <span className="dc-smart-termometro-sub">
-              {t('bidfrete.detalhe_cotacao.cockpit_media_6_meses', 'Média 6 Meses')}
-            </span>
-            <span className="dc-smart-termometro-contexto" title={contexto}>
+      <div className="dc-smart-termometro-filtros">
+        <label className="dc-smart-termometro-filtro-componente">
+          <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro_componente', 'Componente')}</span>
+          <select
+            value={componente}
+            onChange={(e) => setComponente(e.target.value as ComponentePrecoTermometro)}
+            aria-label={t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_aria', 'Componente de preço')}
+          >
+            {COMPONENTES_TERMOMETRO.map((item) => (
+              <option key={item} value={item}>
+                {rotuloComponenteTermometro(item, t)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="dc-smart-termometro-filtro-incoterm">
+          <input
+            type="checkbox"
+            checked={filtrarIncoterm}
+            onChange={(e) => setFiltrarIncoterm(e.target.checked)}
+          />
+          <span>
+            {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtrar_incoterm', 'Filtrar incoterm')}
+            {cotacao?.incoterm_cotacao_bid_frete_internacional
+              ? ` (${cotacao.incoterm_cotacao_bid_frete_internacional})`
+              : ''}
+          </span>
+        </label>
+      </div>
+      {aguardandoDados ? (
+        <div className="dc-smart-card-body dc-smart-card-body--termometro dc-smart-card-body--termometro-vazio">
+          <div className="dc-empty">
+            <ChartLineUp weight="duotone" size={40} style={{ opacity: 0.3 }} />
+            <p>{mensagemAguardando}</p>
+            <span className="dc-smart-termometro-contexto dc-smart-termometro-contexto--vazio" title={contexto}>
               {contexto}
             </span>
           </div>
-          {savings != null && (
-            <span className="dc-smart-savings-pill">
-              {t('bidfrete.detalhe_cotacao.cockpit_savings_valor', {
-                valor: savings,
-                defaultValue: `Savings de ${savings}`,
-              })}
-            </span>
-          )}
         </div>
-      </div>
-      <div className="dc-term-chart-slot">
-        <GraficoAreaTermometro
-          serie={smart.serieHistorico6Meses ?? []}
-          moeda={smart.termometroMoeda}
-          mediaFallback={smart.termometroMedia6Meses}
-          modoDemonstracao={smart.termometroDadosDemonstracao}
-        />
-      </div>
-      {smart.termometroDadosDemonstracao && (
-        <p className="dc-smart-termometro-demo-legenda">
-          {t(
-            'bidfrete.detalhe_cotacao.cockpit_termometro_demo_legenda',
-            'Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.',
-          )}
-        </p>
+      ) : (
+        <>
+          <div className="dc-smart-card-body dc-smart-card-body--termometro">
+            <div className="dc-smart-termometro-dele-mercado">
+              <div className="dc-smart-termometro-preco">
+                <span className="dc-smart-termometro-preco-rotulo">
+                  {t('bidfrete.detalhe_cotacao.cockpit_termometro_dele', 'Dele')}
+                </span>
+                <p className="dc-smart-valor-hero dc-smart-valor-hero--secundario">{valorDele}</p>
+              </div>
+              <div className="dc-smart-termometro-preco dc-smart-termometro-preco--mercado">
+                <span className="dc-smart-termometro-preco-rotulo">
+                  {t('bidfrete.detalhe_cotacao.cockpit_termometro_mercado', 'Mercado')}
+                </span>
+                <p className="dc-smart-valor-hero">{valorMercado}</p>
+                <span className="dc-smart-termometro-sub">
+                  {t('bidfrete.detalhe_cotacao.cockpit_media_6_meses', 'Média 6 Meses')}
+                </span>
+              </div>
+              {savings != null && (
+                <span className="dc-smart-savings-pill">
+                  {t('bidfrete.detalhe_cotacao.cockpit_savings_valor', {
+                    valor: savings,
+                    defaultValue: `Savings de ${savings}`,
+                  })}
+                </span>
+              )}
+            </div>
+            <span className="dc-smart-termometro-contexto" title={contexto}>
+              {contexto}
+              {' · '}
+              {rotuloComponenteTermometro(componente, t)}
+            </span>
+          </div>
+          <div className="dc-term-chart-slot">
+            <GraficoAreaTermometro
+              serie={termometro.serieHistorico6Meses ?? []}
+              moeda={info.melhorValorMoeda}
+              mediaFallback={termometro.termometroMedia6Meses}
+              modoDemonstracao={false}
+            />
+          </div>
+        </>
       )}
     </article>
   )
@@ -1104,7 +1261,14 @@ export function InsightsGridFluxoCotacao({
             t={t}
           />
         )}
-        <CardTermometroHistoricoSmart smart={smart} t={t} />
+        <CardTermometroHistoricoSmart
+          cotacao={cotacao}
+          propostas={propostas}
+          info={info}
+          historico_aprovado={cotacao?.historico_aprovado}
+          historico_propostas_recebidas={cotacao?.historico_propostas_recebidas}
+          t={t}
+        />
       </div>
       {propostas.length >= 2 && (
         <p className="dc-smart-legenda" aria-hidden>

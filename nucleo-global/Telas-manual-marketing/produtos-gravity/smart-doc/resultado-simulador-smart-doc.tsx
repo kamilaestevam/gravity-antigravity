@@ -119,7 +119,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
   return (
     <div className="sds-nl-principal-resultado">
       <div className="sds-nl-resultado-layout">
-        <div className="sds-nl-metricas sds-nl-metricas--resultado">
+        <div className="sds-nl-metricas sds-nl-metricas--resultado" data-sds-tutorial-alvo="nl-resultado-metricas">
           <article className="sds-nl-metrica-card sds-nl-metrica-card--superficie">
             <header>
               <CheckCircle size={18} weight="duotone" />
@@ -170,6 +170,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
               className={`sds-nl-res-feedback sds-nl-res-feedback--${feedback.tipo}`}
               role="status"
               aria-live="polite"
+              data-sds-tutorial-alvo="nl-resultado-feedback"
             >
               {feedback.tipo === 'progresso' && <CircleNotch size={16} className="sds-nl-res-feedback-spin" />}
               {feedback.tipo === 'sucesso' && <CheckCircle size={16} weight="fill" />}
@@ -180,7 +181,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
 
           <div className="sds-nl-res-lista-corpo">
             <div className="sds-nl-res-lista">
-              {arquivosCompletos.map((arq) => {
+              {arquivosCompletos.map((arq, indice) => {
                 const selecionado = selecionados.has(arq.id)
                 return (
                   <article
@@ -211,6 +212,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
                       className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
                       disabled={baixando}
                       onClick={() => baixarIndividual(arq)}
+                      {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'nl-baixar-dati' } : {})}
                     >
                       <DownloadSimple size={14} />
                       Baixar pacote DATI
@@ -225,7 +227,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
             </div>
 
             {arquivosCompletos.length > 0 && (
-              <div className="sds-nl-res-barra">
+              <div className="sds-nl-res-barra" data-sds-tutorial-alvo="nl-resultado-selecao">
                 <label className="sds-nl-res-todos">
                   <input
                     type="checkbox"
@@ -252,6 +254,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
                     className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
                     disabled={baixando}
                     onClick={baixarTodos}
+                    data-sds-tutorial-alvo="nl-resultado-baixar-todos"
                   >
                     Baixar todos
                   </button>

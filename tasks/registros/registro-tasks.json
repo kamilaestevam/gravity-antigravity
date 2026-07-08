@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 412,
+  "proximo_numero": 414,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000413",
+      "ordinal": 137,
+      "titulo_canonico": "BIDFRT-DASHBOARD-MEL-DISTANCIA-PEDIDO",
+      "titulo_exibicao": "TASK-000413 | [Bid Frete] Dashboard | MEL — Alinhar distância ao modelo do Pedido",
+      "status": "RES",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "DISTANCIA-DASHBOARD-PEDIDO",
+      "data_criacao": "2026-07-07T15:13:00.000Z",
+      "data_encerramento": "2026-07-07T15:32:00.000Z",
+      "tempo_liquido_horas": 0.35,
+      "tokens_estimados_total": 60000,
+      "arquivo_ficha": "registros/TASK-000413.json"
+    },
     {
       "referencia": "TASK-000411",
       "ordinal": 135,

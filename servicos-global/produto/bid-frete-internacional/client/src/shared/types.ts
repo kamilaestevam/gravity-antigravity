@@ -263,19 +263,32 @@ export interface Cotacao {
   registros_alteracao_proposta_cotacao_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional[]
   /** Valores de colunas criadas pelo usuário (paridade Pedido — keyed por col.id). */
   _colunas_usuario?: Record<string, string>
-  historico_aprovado?: Array<{
-    id_cotacao_bid_frete_internacional: string
-    numero_cotacao_bid_frete_internacional: string
-    data_criacao_cotacao_bid_frete_internacional?: string
-    data_aprovacao_cotacao_bid_frete_internacional: string
-    data_limite_resposta_cotacao_bid_frete_internacional?: string | null
-    data_atualizacao_cotacao_bid_frete_internacional?: string
-    disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
-    propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
-    propostas?: PropostaBidFreteInternacional[]
-    disparos_cotacao?: DisparoCotacaoBidFreteInternacional[]
-  }>
+  historico_aprovado?: CotacaoHistoricoTermometroMesmasCondicoes
+  historico_propostas_recebidas?: CotacaoHistoricoTermometroMesmasCondicoes
 }
+
+export type CotacaoHistoricoTermometroMesmasCondicoes = Array<{
+  id_cotacao_bid_frete_internacional: string
+  numero_cotacao_bid_frete_internacional: string
+  tipo_operacao_cotacao_bid_frete_internacional?: string
+  modal_cotacao_bid_frete_internacional?: string
+  origem_codigo_cotacao_bid_frete_internacional?: string
+  destino_codigo_cotacao_bid_frete_internacional?: string
+  modalidade_cotacao_bid_frete_internacional?: string | null
+  tipo_container_cotacao_bid_frete_internacional?: string | null
+  incoterm_cotacao_bid_frete_internacional?: string | null
+  peso_kg_cotacao_bid_frete_internacional?: number | null
+  peso_ton_cotacao_bid_frete_internacional?: number | null
+  cubagem_m3_cotacao_bid_frete_internacional?: number | null
+  data_criacao_cotacao_bid_frete_internacional?: string
+  data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
+  data_atualizacao_cotacao_bid_frete_internacional?: string
+  disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
+  propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  propostas?: PropostaBidFreteInternacional[]
+  disparos_cotacao?: DisparoCotacaoBidFreteInternacional[]
+}>
 
 export interface Fornecedor {
   id_fornecedor_bid_frete_internacional: string

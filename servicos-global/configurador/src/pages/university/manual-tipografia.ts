@@ -14,6 +14,9 @@ export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16
 /** Espaço entre bloco de texto e screenshot em subtópico recolhível. */
 export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 6
 
+/** Subtópico acordeão — sem recuo lateral (alinhado a infográficos e galerias). */
+export const MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX = 0
+
 /** Raio de chips/badges nos manuais (igual aos cards Versão · Produto · URL). */
 export const MANUAL_RAIO_CHIP = 10
 
@@ -43,8 +46,26 @@ export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX = 72
 /** Espaço entre o fim de um passo visual e a linha divisória do passo seguinte (≈ paddingTop do passo). */
 export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
 
+/** Parágrafo → infográfico/card full-width em subtópico acordeão (paridade margem inferior do card). */
+export const MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX = MANUAL_ESPACO_ENTRE_PASSOS_PX
+
 /** Gap horizontal entre colunas em galerias PASSO (prints lado a lado). */
 export const MANUAL_ESPACO_GRADE_GALERIA_PX = 24
+
+/** Hierarquia visual — subtópicos aninhados no acordeão (ex.: Cotação avulsa → Manual → Marítimo). */
+export const MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX = 22
+export const MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX = 20
+export const MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX = 28
+export const MANUAL_ACORDEON_SUBTOPICO_GAP_PX = 14
+export const MANUAL_ACORDEON_SUBTOPICO_COR_LINHA = 'rgba(129,140,248,.38)'
+export const MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA = `2px dotted ${MANUAL_ACORDEON_SUBTOPICO_COR_LINHA}`
+
+/** Sumário — árvore de subcapítulos (paridade visual com acordeão aninhado). */
+export const MANUAL_SUMARIO_SUBTOPICO_RECUO_PX = 18
+export const MANUAL_SUMARIO_SUBTOPICO_GAP_PX = 11
+export const MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX = 8
+export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX = 14
+export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX = 6
 
 /** Retorna margin-bottom: 12px entre parágrafos, 0 no último de cada bloco. */
 export function manualMargemParagrafo(indice: number, total: number): number {

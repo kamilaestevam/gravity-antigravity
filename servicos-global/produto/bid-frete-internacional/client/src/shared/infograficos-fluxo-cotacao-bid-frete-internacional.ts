@@ -9,6 +9,14 @@ import type {
   StatusCotacao,
   Cotacao,
 } from './types'
+import {
+  type ComponentePrecoTermometro,
+  type ItemHistoricoTermometro,
+  type TipoBaseTermometroHistorico,
+  dataReferenciaHistoricoTermometro,
+  melhorValorComponentePropostas,
+  valorHistoricoCotacaoTermometro,
+} from '../../../shared/filtro-historico-termometro-bid-frete-internacional'
 
 export interface ResumoMelhorPropostaFluxo {
   id_proposta_bid_frete_internacional: string
@@ -28,20 +36,11 @@ export interface PontoSerieHistoricoTermometro {
   valor: number
 }
 
-export type HistoricoAprovadoMesmasCondicoes = Array<{
-  id_cotacao_bid_frete_internacional: string
-  numero_cotacao_bid_frete_internacional: string
-  data_aprovacao_cotacao_bid_frete_internacional: string
-  propostas?: Array<{
-    valor_total_proposta_bid_frete_internacional?: number | string
-    moeda_proposta_bid_frete_internacional?: string
-  }>
-  /** Alias retornado em alguns payloads Prisma/API. */
-  propostas_bid_frete_internacional?: Array<{
-    valor_total_proposta_bid_frete_internacional?: number | string
-    moeda_proposta_bid_frete_internacional?: string
-  }>
-}>
+export type HistoricoAprovadoMesmasCondicoes = ItemHistoricoTermometro[]
+
+export type { TipoBaseTermometroHistorico, ComponentePrecoTermometro }
+
+export type CotacaoHistoricoTermometroMesmasCondicoes = ItemHistoricoTermometro[]
 
 export interface BarraComparativoInsight {
   valor: number
@@ -63,13 +62,21 @@ export interface ComparativoMetricaPainel {
   melhorMenor: boolean
 }
 
+export interface ResultadoSerieTermometro {
+  serieHistorico6Meses: PontoSerieHistoricoTermometro[]
+  termometroMedia6Meses: number | null
+  termometroValorDele: number | null
+  termometroSavingsValor: number | null
+  quantidadeHistoricoMesmasCondicoes: number
+  termometroDadosDemonstracao: boolean
+}
+
 export interface PainelSmartInsightsDados {
   termometroMedia6Meses: number | null
   termometroMoeda: string
   termometroSavingsValor: number | null
   serieHistorico6Meses: PontoSerieHistoricoTermometro[]
   quantidadeHistoricoMesmasCondicoes: number
-  /** true quando a série é ilustrativa (sem histórico aprovado real). */
   termometroDadosDemonstracao: boolean
   comparativoTransito: ComparativoMetricaPainel | null
   comparativoFreeTime: ComparativoMetricaPainel | null
@@ -284,20 +291,14 @@ function interpolarMesesVaziosSerie(
 }
 
 type PayloadTermometro = Pick<
-  PainelSmartInsightsDados,
+  ResultadoSerieTermometro,
   | 'serieHistorico6Meses'
   | 'termometroMedia6Meses'
+  | 'termometroValorDele'
   | 'termometroSavingsValor'
   | 'quantidadeHistoricoMesmasCondicoes'
   | 'termometroDadosDemonstracao'
 >
-
-function valorPropostaHistorico(item: HistoricoAprovadoMesmasCondicoes[number]): number | null {
-  const lista = item.propostas ?? item.propostas_bid_frete_internacional ?? []
-  const bruto = lista[0]?.valor_total_proposta_bid_frete_internacional
-  const n = Number(bruto)
-  return Number.isFinite(n) && n > 0 ? n : null
-}
 
 /** Se a série veio vazia mas há média (mock ou API parcial), força pontos plottáveis. */
 function comSeriePlotavelGarantida(
@@ -308,91 +309,57 @@ function comSeriePlotavelGarantida(
   if (payload.serieHistorico6Meses.some((p) => Number(p.valor) > 0)) {
     return payload
   }
-  const demo = buildSerieTermometroDemonstracao(propostas, meses)
-  return {
-    ...payload,
-    serieHistorico6Meses: demo.serieHistorico6Meses,
-    termometroMedia6Meses: payload.termometroMedia6Meses ?? demo.termometroMedia6Meses,
-    termometroDadosDemonstracao: payload.termometroDadosDemonstracao || demo.termometroDadosDemonstracao,
+  if (payload.termometroDadosDemonstracao) {
+    return payload
   }
-}
-
-/** Série ilustrativa para preview do gráfico quando não há histórico real. */
-function buildSerieTermometroDemonstracao(
-  propostas: PropostaRankingBidFreteInternacional[],
-  meses: string[],
-): Pick<
-  PainelSmartInsightsDados,
-  | 'serieHistorico6Meses'
-  | 'termometroMedia6Meses'
-  | 'termometroSavingsValor'
-  | 'quantidadeHistoricoMesmasCondicoes'
-  | 'termometroDadosDemonstracao'
-> {
-  const valoresDemoEstaticos = [220, 380, 340, 480, 520, 780]
-
-  if (propostas.length === 0) {
-    const media = valoresDemoEstaticos.reduce((acc, v) => acc + v, 0) / valoresDemoEstaticos.length
+  if (payload.termometroMedia6Meses != null && payload.termometroMedia6Meses > 0) {
     return {
-      serieHistorico6Meses: meses.map((mes, i) => ({
-        mes,
-        valor: valoresDemoEstaticos[i] ?? 400,
-      })),
-      termometroMedia6Meses: Math.round(media),
-      termometroSavingsValor: null,
-      quantidadeHistoricoMesmasCondicoes: 0,
-      termometroDadosDemonstracao: true,
+      ...payload,
+      serieHistorico6Meses: normalizarSerieTermometroParaPlot(
+        payload.serieHistorico6Meses,
+        payload.termometroMedia6Meses,
+      ),
     }
   }
+  return payload
+}
 
-  const valores = propostas
-    .map((p) => p.valor_total_proposta_bid_frete_internacional)
-    .filter((v) => Number.isFinite(v))
-    .sort((a, b) => a - b)
-  const melhor = valores[0] ?? 800
-  const media = valores.reduce((acc, v) => acc + v, 0) / valores.length
-  const maxVal = valores[valores.length - 1] ?? media
-
-  const serie = meses.map((mes, i) => {
-    const t = i / Math.max(1, meses.length - 1)
-    const interpolado = maxVal - (maxVal - melhor) * t * 0.82
-    return { mes, valor: Math.round(interpolado) }
-  })
-
-  if (valores.length >= 2) {
-    valores.forEach((valor, idx) => {
-      const slot = Math.min(Math.floor((idx / valores.length) * 6), 5)
-      serie[slot] = { ...serie[slot], valor: Math.round(valor) }
-    })
-  }
-
-  const melhorAtual = valores[0]
-  const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
-
+/** Sem histórico real — card exibe estado aguardando dados (sem série ilustrativa). */
+function buildSerieTermometroDemonstracao(
+  _propostas: PropostaRankingBidFreteInternacional[],
+  meses: string[],
+): ResultadoSerieTermometro {
   return {
-    serieHistorico6Meses: serie,
-    termometroMedia6Meses: Math.round(media),
-    termometroSavingsValor: savings,
+    serieHistorico6Meses: meses.map((mes) => ({ mes, valor: 0 })),
+    termometroMedia6Meses: null,
+    termometroValorDele: null,
+    termometroSavingsValor: null,
     quantidadeHistoricoMesmasCondicoes: 0,
     termometroDadosDemonstracao: true,
   }
 }
 
-/** Frete total pago em cotações aprovadas com mesma rota e condições operacionais (últimos 6 meses). */
+function resolverValorDeleTermometro(
+  propostas: PropostaRankingBidFreteInternacional[],
+  componente: ComponentePrecoTermometro,
+): number | null {
+  return melhorValorComponentePropostas(
+    propostas as ItemHistoricoTermometro['propostas'],
+    componente,
+    'PROPOSTAS_RECEBIDAS',
+  )
+}
+
+/** Histórico de mercado vs valor Dele (últimos 6 meses). */
 export function buildSerieTermometro(
   propostas: PropostaRankingBidFreteInternacional[],
-  historicoAprovado?: HistoricoAprovadoMesmasCondicoes,
-): Pick<
-  PainelSmartInsightsDados,
-  | 'serieHistorico6Meses'
-  | 'termometroMedia6Meses'
-  | 'termometroSavingsValor'
-  | 'quantidadeHistoricoMesmasCondicoes'
-  | 'termometroDadosDemonstracao'
-> {
+  historicoMesmasCondicoes?: HistoricoAprovadoMesmasCondicoes,
+  tipoBase: TipoBaseTermometroHistorico = 'CONTRATADO',
+  componente: ComponentePrecoTermometro = 'FRETE_BASE',
+): ResultadoSerieTermometro {
   const meses = ultimos6MesesRotulos()
 
-  if (!historicoAprovado || historicoAprovado.length === 0) {
+  if (!historicoMesmasCondicoes || historicoMesmasCondicoes.length === 0) {
     return comSeriePlotavelGarantida(
       buildSerieTermometroDemonstracao(propostas, meses),
       propostas,
@@ -407,14 +374,16 @@ export function buildSerieTermometro(
 
   const serie = meses.map((mes) => ({ mes, valor: 0, count: 0 }))
 
-  historicoAprovado.forEach((cotacaoHistorico) => {
-    const valor = valorPropostaHistorico(cotacaoHistorico)
+  historicoMesmasCondicoes.forEach((cotacaoHistorico) => {
+    const valor = valorHistoricoCotacaoTermometro(cotacaoHistorico, tipoBase, componente)
     if (valor == null) return
 
-    const dataAprov = new Date(cotacaoHistorico.data_aprovacao_cotacao_bid_frete_internacional)
+    const dataReferencia = dataReferenciaHistoricoTermometro(cotacaoHistorico, tipoBase)
+    if (dataReferencia == null) return
+
     const slotIdx = slotsData.findIndex(
-      (slotDate) => slotDate.getFullYear() === dataAprov.getFullYear()
-        && slotDate.getMonth() === dataAprov.getMonth(),
+      (slotDate) => slotDate.getFullYear() === dataReferencia.getFullYear()
+        && slotDate.getMonth() === dataReferencia.getMonth(),
     )
     if (slotIdx !== -1) {
       serie[slotIdx].valor += valor
@@ -427,7 +396,7 @@ export function buildSerieTermometro(
     return comSeriePlotavelGarantida(
       {
         ...buildSerieTermometroDemonstracao(propostas, meses),
-        quantidadeHistoricoMesmasCondicoes: historicoAprovado.length,
+        quantidadeHistoricoMesmasCondicoes: historicoMesmasCondicoes.length,
       },
       propostas,
       meses,
@@ -435,22 +404,20 @@ export function buildSerieTermometro(
   }
 
   const serieHistorico6Meses = interpolarMesesVaziosSerie(serie)
-  const valoresPagos = validSlots.map((s) => Math.round(s.valor / s.count))
-  const media = valoresPagos.reduce((acc, v) => acc + v, 0) / valoresPagos.length
+  const valoresReferencia = validSlots.map((s) => Math.round(s.valor / s.count))
+  const media = valoresReferencia.reduce((acc, v) => acc + v, 0) / valoresReferencia.length
 
-  const valoresAtuais = propostas
-    .map((p) => p.valor_total_proposta_bid_frete_internacional)
-    .filter((v) => Number.isFinite(v))
-    .sort((a, b) => a - b)
-  const melhorAtual = valoresAtuais[0]
-  const savings = melhorAtual != null ? Math.max(0, Math.round(media - melhorAtual)) : null
+  const valorDeleBruto = resolverValorDeleTermometro(propostas, componente)
+  const valorDele = valorDeleBruto != null ? Math.round(valorDeleBruto) : null
+  const savings = valorDele != null ? Math.max(0, Math.round(media - valorDele)) : null
 
   return comSeriePlotavelGarantida(
     {
       serieHistorico6Meses,
       termometroMedia6Meses: Math.round(media),
+      termometroValorDele: valorDele,
       termometroSavingsValor: savings,
-      quantidadeHistoricoMesmasCondicoes: historicoAprovado.length,
+      quantidadeHistoricoMesmasCondicoes: historicoMesmasCondicoes.length,
       termometroDadosDemonstracao: false,
     },
     propostas,

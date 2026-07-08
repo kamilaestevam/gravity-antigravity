@@ -18,6 +18,7 @@ import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-
 import { patchDeveMarcarCotacaoAlterada } from '../../../shared/status-cotacao-alterada-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
+import { filtrarHistoricoTermometro } from '../../../shared/filtro-historico-termometro-bid-frete-internacional.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
@@ -650,45 +651,106 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
     if (!cotacao) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    const historicoAprovado = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+    const whereBaseHistoricoTermometro = {
+      tipo_operacao_cotacao_bid_frete_internacional: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+      origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+      destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+      modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+      ...(cotacao.modal_cotacao_bid_frete_internacional === 'MARITIMO'
+        ? {
+            modalidade_cotacao_bid_frete_internacional:
+              cotacao.modalidade_cotacao_bid_frete_internacional,
+          }
+        : {}),
+      NOT: {
+        id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      },
+    }
+
+    const selectHistoricoTermometroMesmasCondicoes = {
+      id_cotacao_bid_frete_internacional: true,
+      numero_cotacao_bid_frete_internacional: true,
+      tipo_operacao_cotacao_bid_frete_internacional: true,
+      modal_cotacao_bid_frete_internacional: true,
+      modalidade_cotacao_bid_frete_internacional: true,
+      origem_codigo_cotacao_bid_frete_internacional: true,
+      destino_codigo_cotacao_bid_frete_internacional: true,
+      tipo_container_cotacao_bid_frete_internacional: true,
+      incoterm_cotacao_bid_frete_internacional: true,
+      peso_kg_cotacao_bid_frete_internacional: true,
+      peso_ton_cotacao_bid_frete_internacional: true,
+      cubagem_m3_cotacao_bid_frete_internacional: true,
+      data_criacao_cotacao_bid_frete_internacional: true,
+      data_atualizacao_cotacao_bid_frete_internacional: true,
+      data_limite_resposta_cotacao_bid_frete_internacional: true,
+      data_aprovacao_cotacao_bid_frete_internacional: true,
+      disparos_cotacao: {
+        select: {
+          data_envio_disparo_cotacao_bid_frete_internacional: true,
+          data_resposta_disparo_cotacao_bid_frete_internacional: true,
+        },
+      },
+      propostas: {
+        select: {
+          data_criacao_proposta_bid_frete_internacional: true,
+          status_proposta_bid_frete_internacional: true,
+          valor_frete_proposta_bid_frete_internacional: true,
+          taxas_origem_proposta_bid_frete_internacional: true,
+          taxas_destino_proposta_bid_frete_internacional: true,
+          valor_total_proposta_bid_frete_internacional: true,
+          moeda_proposta_bid_frete_internacional: true,
+        },
+      },
+    }
+
+    const referenciaTermometro = {
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      tipo_operacao_cotacao_bid_frete_internacional: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+      modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+      origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+      destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+      modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
+      tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
+      incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
+      peso_kg_cotacao_bid_frete_internacional: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      peso_ton_cotacao_bid_frete_internacional: cotacao.peso_ton_cotacao_bid_frete_internacional,
+      cubagem_m3_cotacao_bid_frete_internacional: cotacao.cubagem_m3_cotacao_bid_frete_internacional,
+    }
+
+    const historicoAprovadoBruto = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
       where: {
-        origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
-        destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
-        modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
-        modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
-        tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
-        incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
+        ...whereBaseHistoricoTermometro,
         status_cotacao_bid_frete_internacional: 'APROVADA',
-        NOT: {
-          id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-        },
       },
-      select: {
-        id_cotacao_bid_frete_internacional: true,
-        numero_cotacao_bid_frete_internacional: true,
-        data_criacao_cotacao_bid_frete_internacional: true,
-        data_atualizacao_cotacao_bid_frete_internacional: true,
-        data_limite_resposta_cotacao_bid_frete_internacional: true,
-        data_aprovacao_cotacao_bid_frete_internacional: true,
-        disparos_cotacao: {
-          select: {
-            data_envio_disparo_cotacao_bid_frete_internacional: true,
-            data_resposta_disparo_cotacao_bid_frete_internacional: true,
-          },
-        },
-        propostas: {
-          select: {
-            data_criacao_proposta_bid_frete_internacional: true,
-            status_proposta_bid_frete_internacional: true,
-            valor_total_proposta_bid_frete_internacional: true,
-            moeda_proposta_bid_frete_internacional: true,
-          },
-        },
-      },
+      select: selectHistoricoTermometroMesmasCondicoes,
       orderBy: {
         data_aprovacao_cotacao_bid_frete_internacional: 'desc',
       },
     })
+
+    const historicoPropostasRecebidasBruto = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+      where: {
+        ...whereBaseHistoricoTermometro,
+        status_cotacao_bid_frete_internacional: { not: 'RASCUNHO' },
+        propostas: { some: {} },
+      },
+      select: selectHistoricoTermometroMesmasCondicoes,
+      orderBy: {
+        data_atualizacao_cotacao_bid_frete_internacional: 'desc',
+      },
+    })
+
+    const historicoAprovado = filtrarHistoricoTermometro(
+      referenciaTermometro,
+      historicoAprovadoBruto,
+      { filtrar_incoterm: false },
+    )
+
+    const historicoPropostasRecebidas = filtrarHistoricoTermometro(
+      referenciaTermometro,
+      historicoPropostasRecebidasBruto,
+      { filtrar_incoterm: false },
+    )
 
     let id_usuario_aprovacao_ganho_bid_frete_internacional: string | null = null
     let nome_usuario_aprovacao_ganho_bid_frete_internacional: string | null = null
@@ -738,6 +800,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
             cotacao.id_cotacao_bid_frete_internacional,
           ),
         historico_aprovado: historicoAprovado,
+        historico_propostas_recebidas: historicoPropostasRecebidas,
         id_usuario_aprovacao_ganho_bid_frete_internacional,
         nome_usuario_aprovacao_ganho_bid_frete_internacional,
       },

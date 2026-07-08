@@ -127,7 +127,7 @@ export function QaSimuladorSmartDoc({
   return (
     <div className="sr-conf-qa">
       {tituloContexto && (
-        <div className="sr-conf-contexto-linha sr-conf-contexto-linha--sem-acao">
+        <div className="sr-conf-contexto-linha sr-conf-contexto-linha--sem-acao" data-sds-tutorial-alvo="qa-contexto">
           <span className="sr-conf-contexto-texto">{tituloContexto}</span>
         </div>
       )}
@@ -176,7 +176,7 @@ export function QaSimuladorSmartDoc({
 
             <p className="sr-conf-qa-hero-dica">Escolha um atalho para ver a resposta em segundos:</p>
 
-            <div className="sr-conf-qa-hero-sugestoes" role="group" aria-label="Perguntas sugeridas">
+            <div className="sr-conf-qa-hero-sugestoes" role="group" aria-label="Perguntas sugeridas" data-sds-tutorial-alvo="qa-sugestoes">
               {SUGESTOES.map(({ id, rotulo, texto, Icone }) => (
                 <button
                   key={id}
@@ -201,7 +201,7 @@ export function QaSimuladorSmartDoc({
         )}
 
         {conversaIniciada && (
-          <ul className="sr-conf-qa-turnos">
+          <ul className="sr-conf-qa-turnos" data-sds-tutorial-alvo="qa-respostas">
             {turnos.map((turno) => (
               <li key={turno.id} className="sr-conf-qa-turno">
                 <div className="sr-conf-qa-turno-pergunta">
@@ -239,7 +239,7 @@ export function QaSimuladorSmartDoc({
 
       <div className="sr-conf-qa-dock">
         {!semDocumentos && (
-          <div className="sr-conf-qa-acoes" role="group" aria-label="Sugestões de perguntas">
+          <div className="sr-conf-qa-acoes" role="group" aria-label="Sugestões de perguntas" data-sds-tutorial-alvo="qa-sugestoes">
             {SUGESTOES.map(({ id, rotulo, texto, Icone }) => (
               <button
                 key={id}
@@ -261,6 +261,7 @@ export function QaSimuladorSmartDoc({
 
         <form
           className="sr-conf-qa-composer"
+          data-sds-tutorial-alvo="qa-composer"
           onSubmit={(e) => {
             e.preventDefault()
             void enviarPergunta(pergunta)

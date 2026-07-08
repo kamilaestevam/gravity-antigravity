@@ -185,12 +185,11 @@ describe('templateHandler — dropdowns dinamicos S2S Cadastros', () => {
     const { wb } = await executarTemplateHandler()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
 
-    // Encontrar coluna com campo de moeda (via header linha 2)
+    // moeda_item vem antes na zona ESSENCIAL e agora tem bloqueio PEDIDO (custom) — usar Moeda do Pedido
     let colMoeda = -1
     ws.getRow(2).eachCell((cell, colNumber) => {
-      if (typeof cell.value === 'string' && cell.value.toLowerCase().includes('moeda')) {
-        if (colMoeda === -1) colMoeda = colNumber
-      }
+      const val = typeof cell.value === 'string' ? cell.value.replace(/^\* /, '') : ''
+      if (val === 'Moeda do Pedido' && colMoeda === -1) colMoeda = colNumber
     })
 
     if (colMoeda > 0) {
@@ -300,6 +299,7 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
         'incoterm_item': 'Incoterm (Item)',
         'moeda_item': 'Moeda do Item',
         'valor_total_item': 'Valor Total do Item',
+        'unidade_comercializada_item': 'Unidade Comercializada do Item',
       }
       const rotulo = campoMap[campo]
       if (rotulo && val.replace(/^\* /, '') === rotulo && col === -1) {
@@ -357,17 +357,22 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
     }
   })
 
-  it('NAO bloqueia campos propagaveis (incoterm_item, moeda_item, valor_total_item)', async () => {
+  it('bloqueia campos item essenciais em linhas PEDIDO (P15.1)', async () => {
     const { wb } = await gerarTemplate()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
-    for (const campo of ['incoterm_item', 'moeda_item', 'valor_total_item']) {
+    for (const campo of [
+      'incoterm_item',
+      'moeda_item',
+      'valor_total_item',
+      'unidade_comercializada_item',
+    ]) {
       const col = encontrarColuna(ws, campo)
       expect(col).toBeGreaterThan(0)
       const v = ws.getCell(3, col).dataValidation
-      if (v) {
-        expect(v.formulae![0]).not.toContain('"PEDIDO"')
-        expect(v.formulae![0]).not.toContain('"ITEM"')
-      }
+      expect(v).toBeDefined()
+      expect(v!.type).toBe('custom')
+      expect(v!.formulae![0]).toContain('"PEDIDO"')
+      expect(v!.errorTitle).toBe('Campo exclusivo de ITEM')
     }
   })
 

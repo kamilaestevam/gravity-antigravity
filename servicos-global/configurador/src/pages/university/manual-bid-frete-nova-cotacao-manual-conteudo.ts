@@ -366,6 +366,16 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNo
   ],
 })
 
+/** §4.02.01 — 3º tópico: origem e destino (após Modal e Operação). */
+export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao = grade({
+  tituloEtapa: 'Origem e Destino',
+  textoIntro: 'Tela para seleção e configuração da origem e destino',
+  chipBidFreteFormaManual: true,
+  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
+  colunas: 1,
+  telas: [fig('manual_origem_destino', '')],
+})
+
 /** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotacao[] = [
   grade({
@@ -379,13 +389,11 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotac
   }),
 ]
 
-/** §4.02.01 — wizard manual aberto + passos comuns, NCM, envio e resultado. */
+/** §4.02.01 — wizard manual: início, Modal e Operação, origem/destino e resultado. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM,
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_NCM,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO,
+  GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
 ]
 

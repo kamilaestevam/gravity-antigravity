@@ -177,6 +177,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'lista_tooltip_3': '/university/screenshots/bid-frete-int-lista-tooltip-3.png',
   'lista': '/university/screenshots/bid-frete-int-lista.png',
   'manual_modal_operaca': '/university/screenshots/bid-frete-int-manual-modal-operaca.png',
+  'manual_origem_destino': '/university/screenshots/bid-frete-int-manual-origem-destino.png',
 }
 
 // ── Atalhos nomeados (imports diretos nos conteudos) ──
@@ -342,3 +343,4 @@ export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_2 = screenshotBidFreteInt('l
 export const SCREENSHOT_BID_FRETE_INT_LISTA_TOOLTIP_3 = screenshotBidFreteInt('lista_tooltip_3')
 export const SCREENSHOT_BID_FRETE_INT_LISTA = screenshotBidFreteInt('lista')
 export const SCREENSHOT_BID_FRETE_INT_MANUAL_MODAL_OPERACA = screenshotBidFreteInt('manual_modal_operaca')
+export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_DESTINO = screenshotBidFreteInt('manual_origem_destino')

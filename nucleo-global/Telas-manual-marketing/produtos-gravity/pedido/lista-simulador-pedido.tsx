@@ -18,6 +18,7 @@ import {
   CaretDoubleUp,
   CaretDown,
   CaretRight,
+  Copy,
   CurrencyDollar,
   DownloadSimple,
   FilePdf,
@@ -76,6 +77,7 @@ import {
   resolverSelecaoListaSimulador,
   rotuloTransferirListaSimulador,
   tooltipConsolidarListaSimulador,
+  tooltipDuplicarListaSimulador,
   tooltipEditarMassaListaSimulador,
   tooltipExcluirListaSimulador,
   tooltipGerarPdfListaSimulador,
@@ -84,6 +86,12 @@ import {
 import { MenuNovoListaSimuladorPedido, ToastDemoNovoSimuladorPedido } from './menu-novo-lista-simulador-pedido'
 import { ModalNovoPedidoSimulador } from './modal-novo-pedido-simulador'
 import { ModalNovoItemSimuladorPedido } from './modal-novo-item-simulador-pedido'
+import { ModalDuplicarListaSimuladorPedido, mensagemToastDuplicacao } from './modal-duplicar-lista-simulador-pedido'
+import { ModalExcluirListaSimuladorPedido, mensagemToastExclusao } from './modal-excluir-lista-simulador-pedido'
+import {
+  duplicarSelecaoListaSimulador,
+  excluirSelecaoListaSimulador,
+} from './duplicar-excluir-lista-simulador-pedido'
 import { montarLinhaNovoPedidoSimulador } from './montar-linha-novo-pedido-simulador'
 import type { FornecedorSimuladorNovoPedido } from './dados-fornecedores-simulador-novo-pedido'
 import type { FormNovoPedidoSimulador, ItemNovoPedidoSimulador } from './regras-modal-novo-pedido-simulador'
@@ -228,6 +236,8 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null)
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
   const [modalNovoItemAberto, setModalNovoItemAberto] = useState(false)
+  const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
 
   const acoesExportacao = useMemo(
@@ -415,6 +425,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     () => tooltipGerarPdfListaSimulador(selecaoLista),
     [selecaoLista],
   )
+  const tooltipDuplicar = useMemo(
+    () => tooltipDuplicarListaSimulador(selecaoLista),
+    [selecaoLista],
+  )
   const tooltipExcluir = useMemo(
     () => tooltipExcluirListaSimulador(selecaoLista),
     [selecaoLista],
@@ -543,6 +557,35 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       mensagem: `${form.numero_pedido} adicionado à lista (simulação).`,
     })
   }, [empresasSelecionadas])
+
+  const handleConfirmarDuplicar = useCallback(() => {
+    const { linhas: proximas, resumo, idsNovosPedidos } = duplicarSelecaoListaSimulador(linhas, selecaoLista)
+    setLinhas(proximas)
+    setPagina(1)
+    setSelecionados(new Set())
+    setExpandidos((prev) => {
+      const next = new Set(prev)
+      for (const id of idsNovosPedidos) next.add(id)
+      return next
+    })
+    setModalDuplicarAberto(false)
+    setToastDemo({
+      titulo: 'Duplicação concluída',
+      mensagem: mensagemToastDuplicacao(resumo),
+    })
+  }, [linhas, selecaoLista])
+
+  const handleConfirmarExcluir = useCallback(() => {
+    const { linhas: proximas, resumo } = excluirSelecaoListaSimulador(linhas, selecaoLista)
+    setLinhas(proximas)
+    setPagina(1)
+    setSelecionados(new Set())
+    setModalExcluirAberto(false)
+    setToastDemo({
+      titulo: 'Exclusão concluída',
+      mensagem: mensagemToastExclusao(resumo),
+    })
+  }, [linhas, selecaoLista])
 
   const handleSalvarNovoItem = useCallback((pedidoId: string, partNumber: string, descricao: string) => {
     setLinhas((prev) =>
@@ -906,6 +949,16 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               aria-label={tooltipConsolidar.titulo}
             />
           </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipDuplicar.titulo} descricao={tooltipDuplicar.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<Copy size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeDuplicar}
+              aria-label={tooltipDuplicar.titulo}
+              onClick={() => setModalDuplicarAberto(true)}
+            />
+          </TooltipGlobal>
           <TooltipGlobal titulo={tooltipPdf.titulo} descricao={tooltipPdf.descricao}>
             <BotaoGlobal
               variante="secundario"
@@ -922,6 +975,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               icone={<Trash size={14} weight="duotone" />}
               disabled={!acoesBarra.podeExcluir}
               aria-label={tooltipExcluir.titulo}
+              onClick={() => setModalExcluirAberto(true)}
             />
           </TooltipGlobal>
           {(Object.keys(filtrosAtivos).length > 0 || busca.trim().length > 0 || rotuloEscopoWorkspaces) && (
@@ -1279,6 +1333,18 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         linhas={linhas}
         onFechar={() => setModalNovoItemAberto(false)}
         onSalvo={handleSalvarNovoItem}
+      />
+      <ModalDuplicarListaSimuladorPedido
+        aberto={modalDuplicarAberto}
+        selecao={selecaoLista}
+        onFechar={() => setModalDuplicarAberto(false)}
+        onConfirmar={handleConfirmarDuplicar}
+      />
+      <ModalExcluirListaSimuladorPedido
+        aberto={modalExcluirAberto}
+        selecao={selecaoLista}
+        onFechar={() => setModalExcluirAberto(false)}
+        onConfirmar={handleConfirmarExcluir}
       />
       {toastDemo && (
         <ToastDemoNovoSimuladorPedido

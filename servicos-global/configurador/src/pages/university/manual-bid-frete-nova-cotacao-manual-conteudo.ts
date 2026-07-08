@@ -383,21 +383,28 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
     fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
     fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
   ],
-  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos: {
-    tipo: 'dica',
-    texto:
-      'Acelere o preenchimento do formulário buscando o local desejado pelo nome exato ou pelas iniciais.',
-  },
-  calloutApos: [
+  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos: [
     {
       tipo: 'dica',
       texto:
-        'É possível incluir **portos alternativos** de origem e destino para que o agente tenha opções de cotação (ex.: **Itajaí** e **Itapoá**).',
+        'Acelere o preenchimento do formulário buscando o local desejado pelo **nome exato ou pelas iniciais**.',
     },
     {
       tipo: 'dica',
       texto:
-        'No **Aéreo** e **Rodoviário**, os campos de origem/destino mudam — consulte os ramos por modal.',
+        'Pesquise diretamente pelo **nome do país** para listar todos os portos ou aeroportos associados a ele.',
+    },
+  ],
+  calloutApos: [
+    {
+      tipo: 'dica',
+      texto:
+        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção **Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem**.',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'Clique em **Selecione portos próximos que você aceita na proposta, além do porto de preferência acima.**',
     },
   ],
 })

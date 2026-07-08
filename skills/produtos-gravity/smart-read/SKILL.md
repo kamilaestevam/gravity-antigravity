@@ -133,11 +133,17 @@ Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `0001
 
 | Aspecto | Regra |
 |---------|-------|
-| **Layout** | Grid `dt-*` (paridade Dados do Processo) + legenda filtros + seções colapsáveis |
+| **Layout** | Grid `dt-*` (paridade Dados do Processo) + resumo triplo + legenda filtros + seções colapsáveis |
+| **Três conferências** | Usuário (marcação manual) · Gravity (matriz automática + modal checklist) · Análise de risco (aba dedicada) |
+| **Unificação** | Checks da matriz Gravity somam na Conferência usuário (`use-conferencia-usuario-documento-smart-read.ts`) |
+| **Sidebar → modal** | Modal checklist abre no subdocumento ativo (`indiceDocumentoInicial`) |
+| **Toolbar** | «Selecionar toda conferência (N)» ao lado de Expandir/Recolher — marca campos + riscos + matriz |
+| **Checkbox** | `accent-color: #818cf8` (padrão Gravity) |
 | **Campo data** | Exibição **DD/MM/AAAA**; edição = input fino + ícone; calendário via **portal** (`CampoCalendarioGlobal` `modoUnico`); persistência **ISO `yyyy-mm-dd`** |
 | **SSOT data** | `data-campo-conferencia-leitura-smart-read.ts` + `campo-linha-conferencia-nova-leitura-smart-read.tsx` |
 | **Cores barra** | [padrao-dt-row-status-campos.md](../../../documentos-tecnicos/ux/design-system/padrao-dt-row-status-campos.md) |
 | **Tokens IA (sidebar)** | Discreto no rodapé lateral a partir do passo 2; `usageMetadata` Gemini real (QA, riscos, classificação fiscal); DATI passo 1–2 fora; migration `20260626220000` |
+| **Doc completo §7–12** | Conferência tripla, stores sessionStorage, modal checklist — ver doc técnico |
 
 ---
 

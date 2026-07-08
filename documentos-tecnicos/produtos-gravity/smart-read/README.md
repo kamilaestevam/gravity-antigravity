@@ -18,7 +18,7 @@
 | [ANALISE-DE-RISCOS-TECNICO.md](./ANALISE-DE-RISCOS-TECNICO.md) | **Aba An�lise de Riscos:** V1 determin�stico, piloto LLM (V2), fundamenta��o NCM/lei/RAG (V3) |
 | [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) | **Passo 1 � Anexar:** layout container stepper, upload, sidebar, checklist EMT 11 itens |
 | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) | **Passo 2 � An�lise:** dashboard m�tricas, pipeline IA, globo, polling, checklist EMT 10 itens, suite 000151�000155 |
-| [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) | **Passo 3 � Confer�ncia:** grid dt-*, **campo data** (DD/MM/AAAA + calend�rio portal + ISO), cores barra lateral |
+| [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) | **Passo 3 — Conferência:** grid dt-*, resumo triplo (usuário/Gravity/riscos), modal checklist, stores marcação, toolbar, campo data |
 | [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo �Alterado� na confer�ncia (Smart Docs); Processo sem estado roxo |
 
 ---

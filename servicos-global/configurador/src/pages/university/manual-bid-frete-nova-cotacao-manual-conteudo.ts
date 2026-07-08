@@ -374,6 +374,27 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
   iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
   colunas: 1,
   telas: [fig('manual_origem_destino', '')],
+  infograficoBidFreteOrigemDestinoCampos: true,
+  textoAposInfograficoBidFreteOrigemDestinoCampos:
+    'A sequência abaixo ilustra o preenchimento do **porto de origem** no modal **Marítimo**.',
+  telasAposInfograficoBidFreteOrigemDestinoCampos: [
+    fig('manual_origem_porto_origem', '**11.** Campo **porto de origem**'),
+    fig('manual_origem_porto_origem_pais', '**12.** Seleção de **país**'),
+    fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
+    fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
+  ],
+  calloutApos: [
+    {
+      tipo: 'dica',
+      texto:
+        'É possível incluir **portos alternativos** de origem e destino para que o agente tenha opções de cotação (ex.: **Itajaí** e **Itapoá**).',
+    },
+    {
+      tipo: 'dica',
+      texto:
+        'No **Aéreo** e **Rodoviário**, os campos de origem/destino mudam — consulte os ramos por modal.',
+    },
+  ],
 })
 
 /** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */

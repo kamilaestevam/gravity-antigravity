@@ -110,6 +110,12 @@ export interface DocPassoVisual {
     telasAposInfograficoBidFreteModalOperacaoCampos?: DocGaleriaComparacaoTela[]
     /** Manual BID Frete §4.02.01 — parágrafo entre infográfico e print anotado (ritmo §9.1.1). */
     textoAposInfograficoBidFreteModalOperacaoCampos?: string
+    /** Manual BID Frete §4.02.01 — cards dos campos do passo Origem e Destino (após o print). */
+    infograficoBidFreteOrigemDestinoCampos?: boolean
+    /** Manual BID Frete §4.02.01 — print(s) após infográfico Origem e Destino, antes das DICAS. */
+    telasAposInfograficoBidFreteOrigemDestinoCampos?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — parágrafo entre infográfico Origem e Destino e prints de exemplo. */
+    textoAposInfograficoBidFreteOrigemDestinoCampos?: string
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */

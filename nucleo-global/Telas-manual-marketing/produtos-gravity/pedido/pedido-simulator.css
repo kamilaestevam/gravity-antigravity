@@ -1,0 +1,79 @@
+@import '../smart-doc/smart-doc-simulator.css';
+
+.pds-shell-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pds-root {
+  --sds-accent: #d97706;
+  --sds-accent-hover: #b45309;
+  --sds-accent-ring: #fbbf24;
+}
+
+.pds-root .sds-btn-novo {
+  background: #d97706;
+  box-shadow: 0 1px 3px rgba(217, 119, 6, 0.3);
+}
+
+.pds-root .sds-btn-novo:hover {
+  background: #b45309;
+}
+
+.pds-root .srt-tab--active {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(217, 119, 6, 0.12);
+}
+
+.pds-lista-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: 14px;
+}
+
+.pds-lista-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.pds-lista-tabela th {
+  text-align: left;
+  padding: 8px 10px;
+  color: #64748b;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pds-lista-tabela td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+}
+
+.pds-lista-tabela tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pds-pill-etapa {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(217, 119, 6, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.pds-banner-config {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(217, 119, 6, 0.08);
+  border-radius: 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}

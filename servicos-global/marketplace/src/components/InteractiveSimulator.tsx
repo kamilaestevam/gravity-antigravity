@@ -1,4 +1,5 @@
 import { SmartDocSimulator } from '../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/smart-doc/SmartDocSimulator'
+import { PedidoSimulator } from '../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/PedidoSimulator'
 import { useState, useEffect } from 'react'
 import {
   Folder,
@@ -35,30 +36,6 @@ function InteractiveSimulatorContent({ productId, onClose }: SimulatorProps) {
   const [destPort, setDestPort] = useState('')
   const [containerQty, setContainerQty] = useState(1)
 
-  // Pedido Simulator State
-  const [kanbanCards, setKanbanCards] = useState([
-    { id: '1', title: 'PO-9821 - Master Trade', client: 'Master Importações', status: 'abertura', date: '06/07/2026', value: 'USD 45.600' },
-    { id: '2', title: 'PO-9822 - Log Tech', client: 'LogTech Brasil', status: 'anuencia', date: '05/07/2026', value: 'USD 12.800' },
-    { id: '3', title: 'PO-9823 - Global Imp', client: 'Global Trading', status: 'desembaraco', date: '04/07/2026', value: 'USD 89.400' },
-  ])
-  const [selectedCard, setSelectedCard] = useState<typeof kanbanCards[0] | null>(null)
-
-  // Drag and Drop handlers for Kanban
-  const handleDragStart = (e: React.DragEvent, cardId: string) => {
-    e.dataTransfer.setData('cardId', cardId)
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
-  const handleDrop = (e: React.DragEvent, targetStatus: string) => {
-    const cardId = e.dataTransfer.getData('cardId')
-    setKanbanCards(cards =>
-      cards.map(card => card.id === cardId ? { ...card, status: targetStatus } : card)
-    )
-  }
-
   // Reset states when product changes
   useEffect(() => {
     setBidStep(1)
@@ -66,7 +43,6 @@ function InteractiveSimulatorContent({ productId, onClose }: SimulatorProps) {
     setOriginPort('')
     setDestPort('')
     setContainerQty(1)
-    setSelectedCard(null)
   }, [productId])
 
   // Helper to format BRL
@@ -385,205 +361,7 @@ function InteractiveSimulatorContent({ productId, onClose }: SimulatorProps) {
   // 3. PEDIDO SIMULATOR
   // =========================================================================
   if (productId === 'pedido') {
-    return (
-      <div style={{
-        width: '100%', height: '100%', background: '#090b14', color: '#f8fafc',
-        fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '13px', textAlign: 'left',
-        display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(3, 5, 12, 0.4)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ClipboardText size={18} weight="duotone" style={{ color: '#818cf8' }} />
-            <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#fff', margin: 0 }}>Gestão de Pedidos (Kanban)</h3>
-          </div>
-          <span style={{ fontSize: '9px', color: '#818cf8', background: 'rgba(99,102,241,0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>MÓDULO OPERAÇÕES</span>
-        </div>
-
-        {/* Content Grid */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
-          {/* Kanban Columns */}
-          <div style={{
-            flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', padding: '14px',
-            overflowX: 'auto', background: 'rgba(0,0,0,0.15)',
-          }}>
-            {['abertura', 'anuencia', 'desembaraco'].map((colStatus) => {
-              const colTitle = colStatus === 'abertura' ? 'Abertura' : colStatus === 'anuencia' ? 'Anuência' : 'Desembaraço'
-              const colColor = colStatus === 'abertura' ? '#818cf8' : colStatus === 'anuencia' ? '#fbbf24' : '#10b981'
-              const colCards = kanbanCards.filter(c => c.status === colStatus)
-
-              return (
-                <div
-                  key={colStatus}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, colStatus)}
-                  style={{
-                    background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.04)',
-                    borderRadius: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px',
-                    minWidth: '150px',
-                  }}
-                >
-                  {/* Column Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '2px 4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colColor }} />
-                      <span style={{ fontWeight: 800, color: '#fff' }}>{colTitle}</span>
-                    </div>
-                    <span style={{ fontSize: '9px', background: 'rgba(255,255,255,0.05)', padding: '1px 5px', borderRadius: '3px' }}>
-                      {colCards.length}
-                    </span>
-                  </div>
-
-                  {/* Column Cards */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                    {colCards.map(card => (
-                      <div
-                        key={card.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, card.id)}
-                        onClick={() => setSelectedCard(card)}
-                        style={{
-                          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                          borderRadius: '6px', padding: '8px', cursor: 'grab', display: 'flex', flexDirection: 'column', gap: '6px',
-                          borderLeft: `2.5px solid ${colColor}`,
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.borderColor = colColor}
-                        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
-                      >
-                        <p style={{ fontWeight: 700, color: '#fff', margin: 0 }}>{card.title}</p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#64748b' }}>
-                          <span>{card.client}</span>
-                          <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{card.value}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Drawer side panel for selected card */}
-          {selectedCard && (
-            <div style={{
-              position: 'absolute', top: 0, right: 0, width: '45%', height: '100%',
-              background: '#06070c', borderLeft: '1px solid rgba(255,255,255,0.08)',
-              padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px',
-              animation: 'slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1)', zIndex: 10,
-            }}>
-              {/* Drawer Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '8px' }}>
-                <p style={{ fontWeight: 800, fontSize: '12px', color: '#fff', margin: 0 }}>Detalhamento do Processo</p>
-                <button
-                  onClick={() => setSelectedCard(null)}
-                  style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-
-              {/* Drawer Body */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div>
-                  <p style={{ fontSize: '9px', color: '#64748b', margin: '0 0 2px 0' }}>Referência</p>
-                  <p style={{ fontWeight: 700, color: '#fff', margin: 0 }}>{selectedCard.title}</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: '9px', color: '#64748b', margin: '0 0 2px 0' }}>Cliente</p>
-                  <p style={{ fontWeight: 600, color: '#cbd5e1', margin: 0 }}>{selectedCard.client}</p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <div>
-                    <p style={{ fontSize: '9px', color: '#64748b', margin: '0 0 2px 0' }}>Data de Abertura</p>
-                    <p style={{ fontWeight: 600, color: '#cbd5e1', margin: 0 }}>{selectedCard.date}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '9px', color: '#64748b', margin: '0 0 2px 0' }}>Valor Total FOB</p>
-                    <p style={{ fontWeight: 700, color: '#818cf8', fontFamily: 'monospace', margin: 0 }}>{selectedCard.value}</p>
-                  </div>
-                </div>
-
-                {/* Timeline */}
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '10px' }}>
-                  <p style={{ fontWeight: 700, color: '#94a3b8', margin: '0 0 8px 0' }}>Rastreabilidade de Etapas</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {[
-                      { step: 'Criação do Pedido', ok: true },
-                      { step: 'Vincular Cotação de Frete (BID)', ok: selectedCard.status !== 'abertura' },
-                      { step: 'Registrar Licença de Importação', ok: selectedCard.status === 'desembaraco' },
-                    ].map((t, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{
-                          width: '14px', height: '14px', borderRadius: '50%',
-                          background: t.ok ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.02)',
-                          color: t.ok ? '#10b981' : '#64748b', border: t.ok ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(255,255,255,0.1)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px',
-                        }}>
-                          {t.ok ? '✓' : '●'}
-                        </span>
-                        <span style={{ color: t.ok ? '#cbd5e1' : '#64748b', fontWeight: t.ok ? 600 : 400 }}>{t.step}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {selectedCard.status === 'abertura' && (
-                  <button
-                    onClick={() => {
-                      // Move card to next step
-                      setKanbanCards(cards =>
-                        cards.map(c => c.id === selectedCard.id ? { ...c, status: 'anuencia' } : c)
-                      )
-                      setSelectedCard(c => c ? { ...c, status: 'anuencia' } : null)
-                    }}
-                    className="btn btn-primary"
-                    style={{ background: '#818cf8', color: '#fff', justifyContent: 'center', padding: '6px 12px' }}
-                  >
-                    <span>Vincular Cotação (BID)</span>
-                    <ArrowRight size={12} />
-                  </button>
-                )}
-                {selectedCard.status === 'anuencia' && (
-                  <button
-                    onClick={() => {
-                      setKanbanCards(cards =>
-                        cards.map(c => c.id === selectedCard.id ? { ...c, status: 'desembaraco' } : c)
-                      )
-                      setSelectedCard(c => c ? { ...c, status: 'desembaraco' } : null)
-                    }}
-                    className="btn btn-primary"
-                    style={{ background: '#fbbf24', color: '#03050c', justifyContent: 'center', padding: '6px 12px' }}
-                  >
-                    <span>Registrar Anuência da LI</span>
-                    <ArrowRight size={12} />
-                  </button>
-                )}
-                {selectedCard.status === 'desembaraco' && (
-                  <button
-                    onClick={() => {
-                      // Show success message or document
-                      alert('Declaração de Importação vinculada com sucesso!')
-                      setSelectedCard(null)
-                    }}
-                    className="btn btn-primary"
-                    style={{ background: '#10b981', color: '#fff', justifyContent: 'center', padding: '6px 12px' }}
-                  >
-                    <CheckCircle size={14} />
-                    <span>Emitir Declaração de Importação</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
+    return <PedidoSimulator onFecharSimulador={onClose} />
   }
 
   return null
@@ -599,7 +377,7 @@ export function InteractiveSimulator(props: SimulatorProps) {
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {props.productId !== 'smart-read' && (
+      {props.productId !== 'smart-read' && props.productId !== 'pedido' && (
       <button
         type="button"
         className="interactive-simulator-close"

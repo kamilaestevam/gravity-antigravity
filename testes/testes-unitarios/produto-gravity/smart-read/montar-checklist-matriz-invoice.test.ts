@@ -20,7 +20,7 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(itens).toHaveLength(MATRIZ_VALIDACAO_INVOICE.length)
   })
 
-  it('marca regra de código como vermelha quando Passo 1 falha', () => {
+  it('marca regra de código como vermelha quando Passo 1 falha e gera risco_id', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [{ id: 'S4-04-INVOICE-items-0', passou: false, detalhe: 'NCM ausente' }],
       riscos: [],
@@ -32,6 +32,11 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(s404?.status).toBe('vermelho')
     expect(s404?.rotulo_status).toBe('FALHA')
     expect(s404?.resultado).toContain('NCM ausente')
+    expect(s404?.risco_id).toBe('risco-matriz-S4-04-INVOICE-items-0')
+  })
+
+  it('matriz SSOT tem 35 regras invoice', () => {
+    expect(MATRIZ_VALIDACAO_INVOICE).toHaveLength(35)
   })
 
   it('extrai resultado legível de detalhe com prefixo', () => {

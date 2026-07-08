@@ -1214,9 +1214,9 @@
 }
 
 .sds-nl-dialog .sr-conf-chk-resultado {
-  font-family: ui-monospace, monospace;
-  font-size: 0.6875rem;
-  line-height: 1.4;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.45;
   color: #e2e8f0;
 }
 

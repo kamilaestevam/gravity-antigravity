@@ -33,7 +33,9 @@ import {
 import { CampoLinhaConferenciaSimuladorSmartDoc } from './campo-linha-conferencia-simulador-smart-doc'
 import { RiscosSimuladorSmartDoc } from './riscos-simulador-smart-doc'
 import { QaSimuladorSmartDoc } from './qa-simulador-smart-doc'
-import { GraficoAprovacaoRiscosSimulador } from './grafico-aprovacao-riscos-simulador'
+import { ResumoConferenciaAnaliseRiscoSimuladorSmartDoc } from './resumo-conferencia-analise-risco-simulador-smart-doc'
+import { obterItensChecklistSimulador } from './dados-checklist-simulador-smart-doc'
+import { obterRiscosSimulador } from './dados-riscos-simulador-smart-doc'
 import '../../../../servicos-global/produto/processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 import './conferencia-simulador-smart-doc.css'
 
@@ -175,6 +177,30 @@ export function ConferenciaSimuladorSmartDoc({
 
   const stats = useMemo(() => calcularEstatisticasConferenciaSimulador(secoesBase), [secoesBase])
 
+  const resumoConferenciaUsuario = useMemo(() => {
+    const totalCampos = stats.preenchidos
+    const totalRiscos = documentoAtual ? obterRiscosSimulador(documentoAtual.tipo).length : 0
+    const totalChecklist =
+      documentoAtual?.tipo === 'invoice' ? obterItensChecklistSimulador('invoice').length : 0
+    const marcadosCampos = 0
+    const marcadosRiscos = conferenciaManualRiscos.marcados
+    const marcadosChecklist = 0
+    const total = totalCampos + totalRiscos + totalChecklist
+    const marcados = marcadosCampos + marcadosRiscos + marcadosChecklist
+    const percentual = total > 0 ? Math.round((marcados / total) * 100) : 0
+    return {
+      marcados,
+      total,
+      percentual,
+      marcadosCampos,
+      totalCampos,
+      marcadosRiscos,
+      totalRiscos,
+      marcadosChecklist,
+      totalChecklist,
+    }
+  }, [conferenciaManualRiscos.marcados, documentoAtual, stats.preenchidos])
+
   const tituloContexto = arquivoAtual
     ? `${arquivoAtual.nome}${documentoAtual ? ` | ${documentoAtual.rotulo}` : ''}`
     : ''
@@ -201,7 +227,7 @@ export function ConferenciaSimuladorSmartDoc({
 
   return (
     <div className="sds-nl-principal-conferencia">
-      <div className="sds-nl-conf-tabs-bar">
+      <div className="sds-nl-conf-cabecalho-tabs">
         <div className="sds-nl-conf-tabs" role="tablist" aria-label="Conferência da leitura" data-sds-tutorial-alvo="conf-abas-principais">
           {ABAS.map(({ id, rotulo, Icone }) => {
             const ativo = aba === id
@@ -221,16 +247,27 @@ export function ConferenciaSimuladorSmartDoc({
           })}
         </div>
 
-        {aba === 'riscos' && conferenciaManualRiscos.marcados > 0 && (
-          <div className="sds-nl-conf-tabs-conferencia" aria-live="polite">
-            <GraficoAprovacaoRiscosSimulador
-              marcados={conferenciaManualRiscos.marcados}
-              total={conferenciaManualRiscos.total}
-              classe="sds-riscos-grafico-aprovacao--tabs"
-            />
-          </div>
+        {arquivoAtual && onCompararArquivo && (
+          <button
+            type="button"
+            className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
+            onClick={onCompararArquivo}
+            data-sds-tutorial-alvo="conf-comparar"
+          >
+            Comparar arquivo
+          </button>
         )}
       </div>
+
+      {arquivoAtual && documentoAtual && (
+        <ResumoConferenciaAnaliseRiscoSimuladorSmartDoc
+          arquivoAtual={arquivoAtual}
+          documentoAtual={documentoAtual}
+          abaAtiva={aba}
+          resumoConferenciaUsuario={resumoConferenciaUsuario}
+          onIrAnaliseRiscos={() => setAba('riscos')}
+        />
+      )}
 
       {aba === 'campos' && (
         <div className="sds-nl-conf-campos dt-layout">
@@ -240,16 +277,6 @@ export function ConferenciaSimuladorSmartDoc({
             <>
               <div className="sds-nl-conf-contexto-linha">
                 <span className="sds-nl-conf-contexto-texto">{tituloContexto}</span>
-                {onCompararArquivo && (
-                  <button
-                    type="button"
-                    className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
-                    onClick={onCompararArquivo}
-                    data-sds-tutorial-alvo="conf-comparar"
-                  >
-                    Comparar arquivo
-                  </button>
-                )}
               </div>
 
               <section className={`sds-nl-conf-progresso-bloco${progressoColapsado ? ' sds-nl-conf-progresso-bloco--colapsado' : ''}`} data-sds-tutorial-alvo="conf-progresso">
@@ -265,7 +292,7 @@ export function ConferenciaSimuladorSmartDoc({
                       size={14}
                       className={`dt-caret${progressoColapsado ? ' dt-caret--colapsado' : ''}`}
                     />
-                    <strong className="sds-nl-conf-progresso-titulo">Progresso da Conferência</strong>
+                    <strong className="sds-nl-conf-progresso-titulo">Filtros dos campos</strong>
                   </div>
                   <div className="sds-nl-conf-progresso-busca" onClick={(e) => e.stopPropagation()}>
                     <div className="dt-header-busca">
@@ -289,12 +316,6 @@ export function ConferenciaSimuladorSmartDoc({
 
                 {!progressoColapsado && (
                   <div className="sds-nl-conf-progresso-corpo">
-                    <div className="sds-nl-conf-progresso-linha">
-                      <div className="sds-nl-conf-progresso-barra" role="progressbar" aria-valuenow={stats.percentual} aria-valuemin={0} aria-valuemax={100}>
-                        <div className="sds-nl-conf-progresso-barra-fill" style={{ width: `${stats.percentual}%` }} />
-                      </div>
-                      <span className="sds-nl-conf-progresso-pct">{stats.percentual}%</span>
-                    </div>
                     <div className="sds-nl-conf-progresso-metricas" data-sds-tutorial-alvo="conf-filtros">
                       <button type="button" className={`sds-nl-conf-progresso-metrica sds-nl-conf-progresso-metrica--todos${filtro === 'todos' ? ' sds-nl-conf-progresso-metrica--ativo' : ''}`} onClick={() => setFiltro('todos')} aria-pressed={filtro === 'todos'}>
                         <span className="sds-nl-conf-progresso-metrica-valor">{stats.total}</span>

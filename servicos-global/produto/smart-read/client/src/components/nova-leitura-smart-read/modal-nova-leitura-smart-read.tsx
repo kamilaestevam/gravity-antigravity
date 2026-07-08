@@ -31,7 +31,6 @@ import {
   criarArquivosLocaisDeLeitura,
   arquivoLocalTemBlobVisualizavel,
   consolidarLeituraDeArquivosLocais,
-  passoInicialLeituraSmartRead,
 
   todosArquivosAnaliseCompleta,
   algumArquivoEmAnalise,
@@ -50,6 +49,7 @@ import {
 } from '../../shared/persistencia-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
 import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
+import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 
 import {
   carregarBlobArquivoLeituraSmartRead,
@@ -253,7 +253,10 @@ export function ModalNovaLeituraSmartRead({
       )
       if (!ativo.current) return
       setArquivos(hidratados)
-      const passoRetomar = salvo?.passo ?? passoInicialLeituraSmartRead(leituraEfetiva.status_leitura)
+      const passoRetomar = resolverPassoRetomarLeituraSmartRead(
+        leituraEfetiva.status_leitura,
+        salvo?.passo,
+      )
       setPasso(passoRetomar)
       passoSalvoRef.current = passoRetomar >= 2 ? passoRetomar : 0
     },
@@ -321,6 +324,7 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
         setArquivos([])
+        setPasso(2)
         void hidratarLeituraExistente(idLeituraExistente)
       } else {
         setPasso(1)

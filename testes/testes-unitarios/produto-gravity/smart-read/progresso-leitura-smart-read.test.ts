@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-leitura-efetiva-retomar-smart-read.ts'
 import { escolherProgressoSalvoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-progresso-salvo-leitura-smart-read.ts'
 import {
+  normalizarPassoRegistroProgressoLeituraSmartRead,
+  resolverPassoRetomarLeituraSmartRead,
+} from '../../../../servicos-global/produto/smart-read/shared/resolver-passo-retomar-leitura-smart-read.ts'
+import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
 } from '../../../../servicos-global/produto/smart-read/server/src/schemas/progresso-leitura-smart-read.ts'
@@ -31,6 +35,40 @@ describe('progresso-leitura-smart-read', () => {
     expect(resposta.passo).toBe(3)
     expect(resposta.nome).toBe('Embarque BL')
     expect(resposta.leitura.id_leitura).toBe('mock-leitura-bl-importacao')
+  })
+
+  it('normaliza passo 1 legado no GET para COMPLETED → passo 4', () => {
+    const resposta = montarRespostaProgressoLeitura(1, {
+      nome: 'DANIEL01',
+      leitura: leituraMinima,
+    })
+    expect(resposta.passo).toBe(4)
+  })
+
+  it('normaliza passo 1 legado no GET para PROCESSING → passo 2', () => {
+    const resposta = montarRespostaProgressoLeitura(1, {
+      nome: 'Em andamento',
+      leitura: { ...leituraMinima, status_leitura: 'PROCESSING' },
+    })
+    expect(resposta.passo).toBe(2)
+  })
+
+  it('COMPLETED na lista sempre retoma no passo 4 mesmo com progresso salvo em 2', () => {
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(4)
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(4)
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', null)).toBe(4)
+  })
+
+  it('PROCESSING retoma no passo salvo ou 2', () => {
+    expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', 3)).toBe(3)
+    expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', 1)).toBe(2)
+    expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', null)).toBe(2)
+  })
+
+  it('normalizarPassoRegistroProgresso cobre passo fora do intervalo', () => {
+    expect(normalizarPassoRegistroProgressoLeituraSmartRead(1, 'COMPLETED')).toBe(4)
+    expect(normalizarPassoRegistroProgressoLeituraSmartRead(0, 'PROCESSING')).toBe(2)
+    expect(normalizarPassoRegistroProgressoLeituraSmartRead(3, 'COMPLETED')).toBe(3)
   })
 
   it('extrai dados_sessao do JSON do banco', () => {

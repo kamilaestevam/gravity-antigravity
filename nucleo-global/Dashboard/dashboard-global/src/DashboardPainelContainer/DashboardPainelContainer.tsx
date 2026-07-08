@@ -2,7 +2,7 @@
  * DashboardPainelContainer — Wrapper universal para widgets do Dashboard BI
  *
  * Responsabilidades:
- * - Estado de loading (skeleton com GravityLoader)
+ * - Estado de loading (skeleton leve — sem GravityLoader por widget)
  * - Estado de erro (mensagem + botão retry)
  * - Estado de dados parciais (badge "Dados parciais")
  * - Menu ⋮ inline (editar, excluir, mover / redimensionar / concluir)
@@ -24,11 +24,23 @@ import {
   Warning,
   ArrowClockwise,
 } from '@phosphor-icons/react'
-import { GravityLoader } from '@nucleo/gravity-loader-global'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
 import type { WidgetLayoutModo } from '../DashboardGrid/widgetLayoutInteracao.js'
+import './dashboard-painel-container.css'
 
 export type { WidgetLayoutModo } from '../DashboardGrid/widgetLayoutInteracao.js'
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function WidgetSkeleton() {
+  return (
+    <div className="db-widget-skeleton" aria-hidden="true">
+      <div className="db-widget-skeleton__bar db-widget-skeleton__bar--wide" />
+      <div className="db-widget-skeleton__bar" />
+      <div className="db-widget-skeleton__bar db-widget-skeleton__bar--short" />
+    </div>
+  )
+}
 
 export interface WidgetContainerProps {
   widget: DashboardWidgetConfig
@@ -60,16 +72,6 @@ export interface WidgetContainerProps {
   onMover?: () => void
   onRedimensionar?: () => void
   onConcluirLayout?: () => void
-}
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function WidgetSkeleton() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: 100 }}>
-      <GravityLoader tamanho="sm" />
-    </div>
-  )
 }
 
 // ─── Menu de opções (dropdown em portal — evita clip do react-grid-layout) ───
@@ -456,7 +458,7 @@ const styles = {
     height: '100%',
     width: '100%',
     minWidth: 0,
-    overflow: 'visible',
+    overflow: 'hidden',
     boxSizing: 'border-box' as const,
   },
   containerHover: {

@@ -39,6 +39,7 @@ import {
   lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
   registrarEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional,
 } from '../lib/snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
+import { carregarRegistrosAlteracaoPorCotacao } from '../lib/serializar-registro-alteracao-proposta-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -769,9 +770,31 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
+    const registrosAlteracao = await carregarRegistrosAlteracaoPorCotacao(
+      req.prisma as any,
+      cotacao.id_cotacao_bid_frete_internacional,
+    )
+    const registrosPorProposta = new Map<string, typeof registrosAlteracao>()
+    for (const registro of registrosAlteracao) {
+      const lista = registrosPorProposta.get(registro.id_proposta_bid_frete_internacional) ?? []
+      lista.push(registro)
+      registrosPorProposta.set(registro.id_proposta_bid_frete_internacional, lista)
+    }
+    const propostasComRegistros = (cotacao.propostas ?? []).map((proposta: Record<string, unknown>) => {
+      const idProposta = String(proposta.id_proposta_bid_frete_internacional)
+      const registros = registrosPorProposta.get(idProposta) ?? []
+      return {
+        ...proposta,
+        registros_alteracao_proposta_bid_frete_internacional: registros,
+        ultimo_registro_alteracao_proposta_bid_frete_internacional: registros[0] ?? null,
+      }
+    })
+
     res.json({
       cotacao: {
         ...cotacao,
+        propostas: propostasComRegistros,
+        registros_alteracao_proposta_cotacao_bid_frete_internacional: registrosAlteracao,
         empresa_pagadora_taxa_fechamento_plataforma_gravity:
           lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
             cotacao.id_cotacao_bid_frete_internacional,

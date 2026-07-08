@@ -255,6 +255,27 @@ export const notificacoesIntegration = {
       target_id: data.id_cotacao_bid_frete_internacional,
     })
   },
+
+  /** Fornecedor alterou proposta já enviada (opt-in do comprador) */
+  async propostaAtualizadaFornecedor(
+    tenantId: string,
+    userId: string,
+    data: {
+      cotacao_numero: string
+      fornecedor_nome: string
+      id_cotacao_bid_frete_internacional: string
+      resumo_alteracoes: string
+    },
+  ) {
+    await this.enviar(tenantId, {
+      id_usuario: userId,
+      tipo: 'BID_PROPOSTA_ATUALIZADA',
+      titulo: `${data.fornecedor_nome} alterou a proposta`,
+      mensagem: `O fornecedor ${data.fornecedor_nome} atualizou a proposta da cotação ${data.cotacao_numero}. ${data.resumo_alteracoes}`,
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
+    })
+  },
 }
 
 // ─── HISTÓRICO (Auditoria) ──────────────────────────────────────────────────────
@@ -384,6 +405,22 @@ export const historicoIntegration = {
       entidade: 'cotacao',
       entidade_id: cotacao.id,
       detalhes: `Fornecedor ${fornecedorNome} respondeu cotação ${cotacao.numero_cotacao_bid_frete_internacional} com USD ${valor}`,
+    })
+  },
+
+  /** Fornecedor alterou proposta já enviada */
+  async propostaAtualizada(
+    tenantId: string,
+    fornecedorNome: string,
+    cotacao: { id: string; numero_cotacao_bid_frete_internacional: string },
+    resumoAlteracoes: string,
+  ) {
+    await this.registrar(tenantId, {
+      id_usuario: 'system',
+      acao: 'ATUALIZAR',
+      entidade: 'proposta',
+      entidade_id: cotacao.id,
+      detalhes: `Fornecedor ${fornecedorNome} alterou proposta da cotação ${cotacao.numero_cotacao_bid_frete_internacional}. ${resumoAlteracoes}`,
     })
   },
 

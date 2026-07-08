@@ -93,8 +93,17 @@
   justify-content: center;
   height: 50vh;
   width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  position: relative;
+  contain: layout paint;
 }
 
 .bf-pagina-carregando .gl-container {
   min-height: 0;
+  max-width: 100%;
+}
+
+.bf-pagina-carregando .gl-cena {
+  max-width: 100%;
 }

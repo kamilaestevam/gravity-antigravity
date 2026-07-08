@@ -315,6 +315,7 @@ model CotacaoBidFreteInternacional {
   bid_bid_frete_internacional BidFreteInternacional? @relation(fields: [id_bid_bid_frete_internacional], references: [id_bid_bid_frete_internacional], onDelete: SetNull)
   disparos_cotacao        DisparoCotacaoBidFreteInternacional[]
   propostas       PropostaBidFreteInternacional[]
+  registros_alteracao_proposta RegistroAlteracaoPropostaBidFreteInternacional[]
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
@@ -431,6 +432,7 @@ model PropostaBidFreteInternacional {
   taxas      TaxaBidFreteInternacional[]
   taxas_origem TaxaOrigemBidFreteInternacional[]
   taxas_destino TaxaDestinoBidFreteInternacional[]
+  registros_alteracao_proposta RegistroAlteracaoPropostaBidFreteInternacional[]
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
@@ -681,11 +683,11 @@ model TaxaFechamentoPlataformaBidFreteInternacional {
 
   data_criacao_taxa_fechamento_plataforma_bid_frete_internacional    DateTime @default(now())
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_produto_gravity])
-  @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_cotacao_bid_frete_internacional])
-  @@index([id_organizacao, status_cobranca_taxa_fechamento_plataforma_bid_frete_internacional])
+  @@index([id_organizacao], map: "taxa_fech_bfi_id_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "taxa_fech_bfi_id_org_prod_idx")
+  @@index([id_organizacao, id_usuario], map: "taxa_fech_bfi_id_org_user_idx")
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional], map: "taxa_fech_bfi_id_org_cotacao_idx")
+  @@index([id_organizacao, status_cobranca_taxa_fechamento_plataforma_bid_frete_internacional], map: "taxa_fech_bfi_id_org_status_idx")
   @@map("taxa_fechamento_plataforma_bid_frete_internacional")
 }
 
@@ -798,4 +800,42 @@ model ListaPainelUsuarioGlobal {
   @@index([id_organizacao, id_usuario])
   @@index([id_organizacao, id_usuario, id_produto_gravity])
   @@map("lista_painel_usuario_global")
+}
+
+// ─── REGISTRO DE ALTERAÇÃO DE PROPOSTA (auditoria append-only) ────────────────
+
+enum BidFreteInternacionalTipoRegistroAlteracaoProposta {
+  CRIAR
+  ATUALIZAR
+}
+
+enum BidFreteInternacionalOrigemRegistroAlteracaoProposta {
+  PORTAL
+  LINK_PUBLICO
+}
+
+model RegistroAlteracaoPropostaBidFreteInternacional {
+  id_registro_alteracao_proposta_bid_frete_internacional String @id @default(cuid())
+  id_organizacao                                         String
+  id_produto_gravity                                     String?
+  id_proposta_bid_frete_internacional                    String
+  id_cotacao_bid_frete_internacional                     String
+
+  tipo_registro_alteracao_proposta_bid_frete_internacional   BidFreteInternacionalTipoRegistroAlteracaoProposta
+  origem_registro_alteracao_proposta_bid_frete_internacional BidFreteInternacionalOrigemRegistroAlteracaoProposta
+
+  snapshot_antes_registro_alteracao_proposta_bid_frete_internacional  Json?
+  snapshot_depois_registro_alteracao_proposta_bid_frete_internacional Json
+  alteracoes_registro_alteracao_proposta_bid_frete_internacional      Json
+
+  data_registro_alteracao_proposta_bid_frete_internacional DateTime @default(now())
+
+  proposta PropostaBidFreteInternacional @relation(fields: [id_proposta_bid_frete_internacional], references: [id_proposta_bid_frete_internacional], onDelete: Cascade)
+  cotacao  CotacaoBidFreteInternacional  @relation(fields: [id_cotacao_bid_frete_internacional], references: [id_cotacao_bid_frete_internacional], onDelete: Cascade)
+
+  @@index([id_organizacao], map: "reg_alt_prop_bfi_id_org_idx")
+  @@index([id_organizacao, id_produto_gravity], map: "reg_alt_prop_bfi_id_org_prod_idx")
+  @@index([id_organizacao, id_cotacao_bid_frete_internacional], map: "reg_alt_prop_bfi_id_org_cotacao_idx")
+  @@index([id_organizacao, id_proposta_bid_frete_internacional], map: "reg_alt_prop_bfi_id_org_prop_idx")
+  @@map("registro_alteracao_proposta_bid_frete_internacional")
 }

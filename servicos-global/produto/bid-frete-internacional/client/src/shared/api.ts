@@ -27,6 +27,10 @@ import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-por
 import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
 import { normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
 import { parseHistoricoTermometroListaFromServer } from '../../../shared/cotacao-historico-termometro-api-schema.js'
+import {
+  preferenciasNotificacaoBidFreteSchema,
+  type PreferenciasNotificacaoBidFrete,
+} from '../../../shared/preferencias-notificacao-bid-frete-internacional.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -92,6 +96,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
+  RegistroAlteracaoPropostaBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaBidFreteInternacional,
@@ -348,6 +353,32 @@ export function mapFornecedorFromServer(
   return fornecedorBidFreteInternacionalResponseSchema.parse(normalizado) as Fornecedor
 }
 
+function mapRegistroAlteracaoPropostaFromServer(
+  rawUnknown: unknown,
+): RegistroAlteracaoPropostaBidFreteInternacional {
+  const raw = serializeValue(rawUnknown) as Record<string, unknown>
+  const alteracoesRaw = raw.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  return {
+    id_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.id_registro_alteracao_proposta_bid_frete_internacional,
+    ),
+    id_proposta_bid_frete_internacional: String(raw.id_proposta_bid_frete_internacional),
+    id_cotacao_bid_frete_internacional: String(raw.id_cotacao_bid_frete_internacional),
+    tipo_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.tipo_registro_alteracao_proposta_bid_frete_internacional,
+    ) as 'CRIAR' | 'ATUALIZAR',
+    origem_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.origem_registro_alteracao_proposta_bid_frete_internacional,
+    ) as 'PORTAL' | 'LINK_PUBLICO',
+    alteracoes_registro_alteracao_proposta_bid_frete_internacional: Array.isArray(alteracoesRaw)
+      ? (alteracoesRaw as RegistroAlteracaoPropostaBidFreteInternacional['alteracoes_registro_alteracao_proposta_bid_frete_internacional'])
+      : [],
+    data_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.data_registro_alteracao_proposta_bid_frete_internacional ?? '',
+    ),
+  }
+}
+
 export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown): PropostaBidFreteInternacional {
   const raw = serializeValue(rawUnknown) as Record<string, unknown>
   const fornecedor = raw.fornecedor
@@ -438,6 +469,20 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       : {}),
     ...(Array.isArray(raw.taxas_destino)
       ? { taxas_destino: raw.taxas_destino as PropostaBidFreteInternacional['taxas_destino'] }
+      : {}),
+    ...(Array.isArray(raw.registros_alteracao_proposta_bid_frete_internacional)
+      ? {
+          registros_alteracao_proposta_bid_frete_internacional: (
+            raw.registros_alteracao_proposta_bid_frete_internacional as unknown[]
+          ).map(mapRegistroAlteracaoPropostaFromServer),
+        }
+      : {}),
+    ...(raw.ultimo_registro_alteracao_proposta_bid_frete_internacional
+      ? {
+          ultimo_registro_alteracao_proposta_bid_frete_internacional: mapRegistroAlteracaoPropostaFromServer(
+            raw.ultimo_registro_alteracao_proposta_bid_frete_internacional,
+          ),
+        }
       : {}),
   }
 }
@@ -654,6 +699,13 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
         raw.empresa_pagadora_taxa_fechamento_plataforma_gravity,
       ),
+    ...(Array.isArray(raw.registros_alteracao_proposta_cotacao_bid_frete_internacional)
+      ? {
+          registros_alteracao_proposta_cotacao_bid_frete_internacional: (
+            raw.registros_alteracao_proposta_cotacao_bid_frete_internacional as unknown[]
+          ).map(mapRegistroAlteracaoPropostaFromServer),
+        }
+      : {}),
     mapa_rotulos_locais_resposta_bid_frete_internacional:
       (raw.mapa_rotulos_locais_resposta_bid_frete_internacional as Record<string, string> | null | undefined) ??
       null,
@@ -672,6 +724,7 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'nome_usuario_solicitante_bid_frete_internacional',
   'disparo_cotacao_bid_frete_internacional',
   'propostas_bid_frete_internacional',
+  'registros_alteracao_proposta_cotacao_bid_frete_internacional',
   'bid_bid_frete_internacional',
   'aeroporto_origem_cotacao_bid_frete_internacional',
   'aeroporto_destino_cotacao_bid_frete_internacional',
@@ -710,6 +763,12 @@ const escopoWorkspacesPreferenciaPutResponseSchema = z.object({
   }),
 })
 
+const preferenciasNotificacaoResponseSchema = z.object({
+  data: z.object({
+    preferencias_notificacao_bid_frete_internacional: preferenciasNotificacaoBidFreteSchema,
+  }),
+})
+
 export const bidFreteConfigApi = {
   obterEscopoWorkspaces: (): Promise<{ data: BidFreteEscopoWorkspacesPreferencia | null }> =>
     fetch(`${API_BASE}/bid-frete-internacional/config/escopo-workspaces`, { headers: headers() })
@@ -724,6 +783,22 @@ export const bidFreteConfigApi = {
     })
       .then(res => handleResponse<unknown>(res))
       .then(raw => escopoWorkspacesPreferenciaPutResponseSchema.parse(raw)),
+
+  obterPreferenciasNotificacao: (): Promise<{ data: { preferencias_notificacao_bid_frete_internacional: PreferenciasNotificacaoBidFrete } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/notificacoes`, { headers: headers() })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => preferenciasNotificacaoResponseSchema.parse(raw)),
+
+  salvarPreferenciasNotificacao: (
+    preferencias: PreferenciasNotificacaoBidFrete,
+  ): Promise<{ data: { preferencias_notificacao_bid_frete_internacional: PreferenciasNotificacaoBidFrete } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/notificacoes`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify({ preferencias_notificacao_bid_frete_internacional: preferencias }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => preferenciasNotificacaoResponseSchema.parse(raw)),
 }
 
 function urlComEscopoWorkspaces(basePath: string, idsWorkspacesFiltro?: string[]): string {

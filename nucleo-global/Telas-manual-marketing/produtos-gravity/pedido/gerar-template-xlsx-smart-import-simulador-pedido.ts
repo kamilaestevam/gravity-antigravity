@@ -68,7 +68,7 @@ function preencherLinhaExemplo(
   }
 }
 
-const TEMPLATE_VERSAO = '3.9'
+const TEMPLATE_VERSAO = '4.0'
 
 const OPCOES_MOEDA_TEMPLATE_SIMULADOR = [
   'USD — Dólar Americano',
@@ -281,14 +281,17 @@ export async function gerarBufferTemplateXlsxSmartImportSimuladorPedido(
     for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
       const cell = ws.getCell(`${colLetter}${row}`)
       if (ehBloqItem) {
-        cell.dataValidation = {
-          type: 'custom',
-          allowBlank: true,
-          formulae: [`$${colTipoLinha}${row}<>"ITEM"`],
-          showErrorMessage: true,
-          errorStyle: 'stop',
-          errorTitle: 'Campo exclusivo de PEDIDO',
-          error: 'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+        // P15.2: colunas com dropdown dinâmico mantêm list na linha PEDIDO — só CF preta na ITEM
+        if (!c.dropdownDinamico) {
+          cell.dataValidation = {
+            type: 'custom',
+            allowBlank: true,
+            formulae: [`$${colTipoLinha}${row}<>"ITEM"`],
+            showErrorMessage: true,
+            errorStyle: 'stop',
+            errorTitle: 'Campo exclusivo de PEDIDO',
+            error: 'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+          }
         }
       } else if (ehBloqPedido && ehNcm) {
         cell.dataValidation = {

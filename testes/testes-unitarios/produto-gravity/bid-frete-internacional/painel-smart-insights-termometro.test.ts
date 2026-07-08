@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildSerieTermometro,
+  buildSerieTermometroBases,
   calcularPainelSmartInsights,
   calcularInfograficosFluxoCotacao,
   normalizarSerieTermometroParaPlot,
@@ -136,6 +137,117 @@ describe('termômetro histórico — mesmas condições', () => {
     expect(frete.termometroMedia6Meses).toBe(400)
     expect(total.termometroMedia6Meses).toBe(1200)
     expect(total.termometroValorDele).toBe(797)
+  })
+
+  it('multi-componente soma frete + taxas na média histórica', () => {
+    const propostas = [propostaMock(797, 'p1')]
+    const agora = new Date()
+    const dataDoisMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 2, 15).toISOString()
+
+    const historico = [
+      {
+        id_cotacao_bid_frete_internacional: 'cot-prev-mc',
+        data_aprovacao_cotacao_bid_frete_internacional: dataDoisMesesAtras,
+        propostas: [
+          {
+            valor_frete_proposta_bid_frete_internacional: 400,
+            taxas_origem_proposta_bid_frete_internacional: 100,
+            valor_total_proposta_bid_frete_internacional: 1200,
+            moeda_proposta_bid_frete_internacional: 'USD',
+          },
+        ],
+      },
+    ]
+
+    const combinado = buildSerieTermometro(
+      propostas,
+      historico,
+      'CONTRATADO',
+      ['FRETE_BASE', 'TAXAS_ORIGEM'],
+    )
+
+    expect(combinado.termometroMedia6Meses).toBe(500)
+    // Dele: melhor proposta atual — frete 557,9 + origem 79,7 = 638 (arredondado)
+    expect(combinado.termometroValorDele).toBe(638)
+  })
+
+  it('bases combinadas somam os dois históricos sem contar cotação duplicada', () => {
+    const propostas = [propostaMock(797, 'p1')]
+    const agora = new Date()
+    const dataDoisMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 2, 15).toISOString()
+
+    const cotacaoAprovada = {
+      id_cotacao_bid_frete_internacional: 'cot-dup',
+      data_aprovacao_cotacao_bid_frete_internacional: dataDoisMesesAtras,
+      propostas: [
+        {
+          status_proposta_bid_frete_internacional: 'APROVADA',
+          data_criacao_proposta_bid_frete_internacional: dataDoisMesesAtras,
+          valor_frete_proposta_bid_frete_internacional: 1000,
+          moeda_proposta_bid_frete_internacional: 'USD',
+        },
+        {
+          status_proposta_bid_frete_internacional: 'PENDENTE',
+          data_criacao_proposta_bid_frete_internacional: dataDoisMesesAtras,
+          valor_frete_proposta_bid_frete_internacional: 600,
+          moeda_proposta_bid_frete_internacional: 'USD',
+        },
+      ],
+    }
+    const cotacaoSoProposta = {
+      id_cotacao_bid_frete_internacional: 'cot-so-prop',
+      propostas: [
+        {
+          data_criacao_proposta_bid_frete_internacional: dataDoisMesesAtras,
+          valor_frete_proposta_bid_frete_internacional: 800,
+          moeda_proposta_bid_frete_internacional: 'USD',
+        },
+      ],
+    }
+
+    const resultado = buildSerieTermometroBases(
+      propostas,
+      [
+        { tipoBase: 'CONTRATADO', historico: [cotacaoAprovada] },
+        // cot-dup aparece de novo na base de propostas — deve ser ignorada
+        { tipoBase: 'PROPOSTAS_RECEBIDAS', historico: [cotacaoAprovada, cotacaoSoProposta] },
+      ],
+      'FRETE_BASE',
+    )
+
+    // Dedupe: cot-dup vale 1000 (regra Contratado), cot-so-prop vale 800.
+    // Média do mês: (1000 + 800) / 2 = 900 — sem dupla contagem dos 600.
+    expect(resultado.quantidadeHistoricoMesmasCondicoes).toBe(2)
+    expect(resultado.termometroMedia6Meses).toBe(900)
+    expect(resultado.termometroDadosDemonstracao).toBe(false)
+  })
+
+  it('base única via buildSerieTermometroBases equivale ao buildSerieTermometro', () => {
+    const propostas = [propostaMock(797, 'p1')]
+    const agora = new Date()
+    const dataDoisMesesAtras = new Date(agora.getFullYear(), agora.getMonth() - 2, 15).toISOString()
+
+    const historico = [
+      {
+        id_cotacao_bid_frete_internacional: 'cot-eq',
+        data_aprovacao_cotacao_bid_frete_internacional: dataDoisMesesAtras,
+        propostas: [
+          {
+            valor_frete_proposta_bid_frete_internacional: 1000,
+            moeda_proposta_bid_frete_internacional: 'USD',
+          },
+        ],
+      },
+    ]
+
+    const viaWrapper = buildSerieTermometro(propostas, historico, 'CONTRATADO', 'FRETE_BASE')
+    const viaBases = buildSerieTermometroBases(
+      propostas,
+      [{ tipoBase: 'CONTRATADO', historico }],
+      'FRETE_BASE',
+    )
+
+    expect(viaBases).toEqual(viaWrapper)
   })
 
   it('calcularPainelSmartInsights expõe dados do termômetro', () => {

@@ -3,18 +3,11 @@
  */
 
 import { useMemo, useState } from 'react'
-import { CaretRight, Check, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
+import { CaretRight, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
-import { resolverArquivoApiLeitura, extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
-import { extrairSecoesConferenciaLeitura } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
-import {
-  chaveCampoConferenciaUsuario,
-  chaveRiscoConferenciaUsuario,
-  contarConferenciaUsuarioCamposERiscos,
-  usarCamposMarcacaoConferencia,
-  usarRiscosMarcacaoConferencia,
-} from '../../shared/checklist-marcacao-usuario-smart-read'
+import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { useConferenciaUsuarioDocumentoSmartRead } from '../../shared/use-conferencia-usuario-documento-smart-read'
 import { montarDocumentosAnaliseRiscoDeArquivoLocal } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type {
@@ -91,28 +84,11 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   onVerRiscoDoChecklist,
 }: Props) {
   const [modalChecklistAberto, setModalChecklistAberto] = useState(false)
-  const arquivoApi = resolverArquivoApiLeitura(arquivo)
-  const extracao = arquivoApi?.resultado_extracao?.[indiceDocumento]
 
-  const secoes = useMemo(
-    () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),
-    [extracao?.dados],
-  )
-
-  const chaveMarcacaoSessao = `${arquivo.id_arquivo_local}:${indiceDocumento}`
-  const { marcados: camposConferidos, alternarMarcadosLote: alternarCamposConferidosLote } =
-    usarCamposMarcacaoConferencia(chaveMarcacaoSessao)
-  const { marcados: riscosConferidos, alternarMarcadosLote: alternarRiscosConferidosLote } =
-    usarRiscosMarcacaoConferencia(chaveMarcacaoSessao)
-
-  const chavesCamposConferencia = useMemo(
-    () =>
-      secoes.flatMap((secao) =>
-        secao.campos
-          .filter((campo) => campo.preenchido)
-          .map((campo) => chaveCampoConferenciaUsuario(campo.chave)),
-      ),
-    [secoes],
+  const { resumoConferencia } = useConferenciaUsuarioDocumentoSmartRead(
+    arquivo,
+    indiceDocumento,
+    idLeituraLegado,
   )
 
   const documentosRisco = useMemo(() => montarDocumentosAnaliseRiscoDeArquivoLocal(arquivo), [arquivo])
@@ -213,31 +189,6 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   const riscosAtivo = abaAtiva === 'riscos'
   const usuarioAtivo = abaAtiva === 'campos' || abaAtiva === 'qa'
 
-  const chavesRiscosConferencia = useMemo(
-    () => resumoRiscos.riscos.map((risco) => chaveRiscoConferenciaUsuario(risco.id)),
-    [resumoRiscos.riscos],
-  )
-
-  const resumoConferencia = useMemo(
-    () =>
-      contarConferenciaUsuarioCamposERiscos(
-        camposConferidos,
-        riscosConferidos,
-        chavesCamposConferencia,
-        chavesRiscosConferencia,
-      ),
-    [camposConferidos, riscosConferidos, chavesCamposConferencia, chavesRiscosConferencia],
-  )
-
-  const todosItensConferidos =
-    resumoConferencia.total > 0 && resumoConferencia.marcados === resumoConferencia.total
-
-  const alternarConferirTodosItens = () => {
-    const marcar = !todosItensConferidos
-    alternarCamposConferidosLote(chavesCamposConferencia, marcar)
-    alternarRiscosConferidosLote(chavesRiscosConferencia, marcar)
-  }
-
   const legendaConferenciaUsuario = useMemo(() => {
     if (resumoConferencia.total === 0) return 'Nenhum item para conferir neste documento'
     const partes: string[] = []
@@ -264,36 +215,17 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
       >
         <div className="sr-conf-resumo-bloco-topo">
-          <div className="sr-conf-resumo-bloco-titulo">
-            <span className="sr-conf-resumo-icone-bloco sr-conf-resumo-icone-bloco--usuario" aria-hidden>
-              <UserCheck size={14} weight="duotone" />
+          <span className="sr-conf-resumo-icone-bloco sr-conf-resumo-icone-bloco--usuario" aria-hidden>
+            <UserCheck size={14} weight="duotone" />
+          </span>
+          <TooltipGlobal
+            titulo="Conferência usuário"
+            descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
+          >
+            <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
+              Conferência usuário
             </span>
-            <TooltipGlobal
-              titulo="Conferência usuário"
-              descricao="Campos preenchidos e riscos que você marcou como revisados neste documento"
-            >
-              <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
-                Conferência usuário
-              </span>
-            </TooltipGlobal>
-          </div>
-          {resumoConferencia.total > 0 && (
-            <label className="sr-conf-resumo-conferir-todos">
-              <input
-                type="checkbox"
-                className="sr-conf-chk-checkbox"
-                checked={todosItensConferidos}
-                onChange={alternarConferirTodosItens}
-                aria-label={`Selecionar todos os ${resumoConferencia.total} itens deste documento`}
-              />
-              <span className="sr-conf-resumo-conferir-todos-icone" aria-hidden>
-                <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} />
-              </span>
-              <span className="sr-conf-resumo-conferir-todos-rotulo">
-                Selecionar tudo ({resumoConferencia.total})
-              </span>
-            </label>
-          )}
+          </TooltipGlobal>
         </div>
 
         <div className="sr-conf-resumo-linha-barra">

@@ -8,6 +8,7 @@ import {
   Anchor,
   Buildings,
   CaretDown,
+  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -43,6 +44,7 @@ import {
   chaveCampoConferenciaUsuario,
   usarCamposMarcacaoConferencia,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
+import { useConferenciaUsuarioDocumentoSmartRead } from '../../shared/use-conferencia-usuario-documento-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
@@ -64,6 +66,7 @@ type Props = {
   onEditarCampo?: (chave: string, valor: string) => void
   campoFoco?: string | null
   onCampoFocoConsumido?: () => void
+  idLeituraLegado?: string | null
 }
 
 const ICONE_SECAO_CONFERENCIA: Record<string, ReactNode> = {
@@ -138,6 +141,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   onEditarCampo,
   campoFoco = null,
   onCampoFocoConsumido,
+  idLeituraLegado = null,
 }: Props) {
   const [filtro, setFiltro] = useState<FiltroConferencia>('todos')
   const [busca, setBusca] = useState('')
@@ -157,6 +161,9 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
   const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido } =
     usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
+
+  const { resumoConferencia, todosItensConferidos, alternarTodaConferencia } =
+    useConferenciaUsuarioDocumentoSmartRead(arquivo, indiceDocumento, idLeituraLegado)
 
   const stats = useMemo(
     () =>
@@ -408,7 +415,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
       </section>
 
       <main className="dt-main">
-        {(filtro !== 'todos' || busca.trim() || secoesVisiveis.length > 0 || assinadoVisivel) && (
+        {(secoesVisiveis.length > 0 || assinadoVisivel) && (
           <div className="dt-main-toolbar sr-conf-secoes-toolbar">
             {(filtro !== 'todos' || busca.trim()) && (
               <div className="dt-chips sr-conf-chips">
@@ -444,10 +451,23 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                 )}
               </div>
             )}
-            {(secoesVisiveis.length > 0 || assinadoVisivel) && (
+            <div className="sr-conf-toolbar-acoes-direita">
+              {resumoConferencia.total > 0 && (
+                <label className="dt-main-toolbar-btn sr-conf-toolbar-selecionar-conferencia">
+                  <input
+                    type="checkbox"
+                    className="sr-conf-chk-checkbox"
+                    checked={todosItensConferidos}
+                    onChange={alternarTodaConferencia}
+                    aria-label={`Selecionar toda conferência — ${resumoConferencia.total} itens`}
+                  />
+                  <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} aria-hidden />
+                  <span>Selecionar toda conferência ({resumoConferencia.total})</span>
+                </label>
+              )}
               <button
                 type="button"
-                className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
+                className="dt-main-toolbar-btn"
                 onClick={toggleTodasSecoes}
                 title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
               >
@@ -458,7 +478,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                 />
                 {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
               </button>
-            )}
+            </div>
           </div>
         )}
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-leitura-efetiva-retomar-smart-read.ts'
 import { escolherProgressoSalvoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-progresso-salvo-leitura-smart-read.ts'
 import {
   extrairDadosSessaoProgressoLeitura,
@@ -52,5 +53,26 @@ describe('progresso-leitura-smart-read', () => {
       { ...base, passo: 3 },
     )
     expect(escolhido?.passo).toBe(3)
+  })
+
+  it('prefere leitura da API quando progresso salvo está vazio', () => {
+    const api = {
+      ...leituraMinima,
+      arquivos: [
+        {
+          id_arquivo: 'arq-api',
+          nome_arquivo: 'Invoice.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'INVOICE', dados: { total: '1' } }],
+        },
+      ],
+    }
+    const salva = {
+      ...leituraMinima,
+      arquivos: [],
+    }
+    const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
+    expect(escolhida?.arquivos).toHaveLength(1)
+    expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-api' })
   })
 })

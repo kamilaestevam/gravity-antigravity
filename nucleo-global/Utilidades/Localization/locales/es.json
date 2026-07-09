@@ -3999,6 +3999,8 @@
       "aviso_pdf_2": "Los archivos guardados como \"página web\" (.html) no se aceptan aunque tengan extensión .pdf",
       "nao_sabe_formato": "¿No sabe qué formato usar?",
       "tag_em_breve_qualquer_planilha": "Pronto: se aceptará cualquier planilla",
+      "tag_em_breve_badge": "Pronto",
+      "tag_em_breve_texto": "se aceptará cualquier planilla",
       "baixar_template": "↓ Descargar plantilla (.xlsx)",
       "multiplas_abas": "Este archivo tiene {{count}} hojas. Seleccione cuál importar:",
       "aba_selecionada": "Hoja seleccionada:",

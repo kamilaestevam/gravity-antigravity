@@ -5097,6 +5097,8 @@
       "aviso_pdf_2": "Arquivos salvos como \"página web\" (.html) não são aceitos mesmo com extensão .pdf",
       "nao_sabe_formato": "Não sabe qual formato usar?",
       "tag_em_breve_qualquer_planilha": "Em breve: será aceito qualquer planilha",
+      "tag_em_breve_badge": "Em breve",
+      "tag_em_breve_texto": "será aceito qualquer planilha",
       "baixar_template": "↓ Baixar planilha modelo (.xlsx)",
       "multiplas_abas": "Este arquivo tem {{count}} abas. Selecione qual importar:",
       "aba_selecionada": "Aba selecionada:",

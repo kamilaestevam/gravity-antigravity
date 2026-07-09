@@ -5058,6 +5058,8 @@
       "aviso_pdf_2": "Files saved as \"web page\" (.html) are not accepted even with .pdf extension",
       "nao_sabe_formato": "Not sure which format to use?",
       "tag_em_breve_qualquer_planilha": "Coming soon: any spreadsheet will be accepted",
+      "tag_em_breve_badge": "Coming soon",
+      "tag_em_breve_texto": "any spreadsheet will be accepted",
       "baixar_template": "↓ Download template (.xlsx)",
       "multiplas_abas": "This file has {{count}} sheets. Select which one to import:",
       "aba_selecionada": "Selected sheet:",

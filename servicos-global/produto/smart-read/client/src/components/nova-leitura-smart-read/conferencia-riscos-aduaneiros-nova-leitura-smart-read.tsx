@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   CaretDown,
   CaretRight,
-  Check,
   CircleNotch,
   MagnifyingGlass,
   Warning,
@@ -33,7 +32,6 @@ import type {
   RiscoAduaneiroLeitura,
   SeveridadeRiscoAduaneiro,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
-import { AcoesCorrecaoRiscoNovaLeituraSmartRead } from './acoes-correcao-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import {
   chaveRiscoConferenciaUsuario,
@@ -93,21 +91,17 @@ function ItemListaRisco({
   risco: riscoBruto,
   numero,
   expandido,
-  selecionado,
   conferido,
   onAlternarConferido,
   onToggleExpandir,
-  onToggleSelecao,
   children,
 }: {
   risco: RiscoAduaneiroLeitura
   numero: number
   expandido: boolean
-  selecionado: boolean
   conferido: boolean
   onAlternarConferido: () => void
   onToggleExpandir: (risco: RiscoAduaneiroLeitura) => void
-  onToggleSelecao: (id: string) => void
   children?: ReactNode
 }) {
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
@@ -115,7 +109,7 @@ function ItemListaRisco({
   return (
     <section
       id={`sr-risco-${risco.id}`}
-      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${selecionado ? ' sr-conf-risco-item-lista--selecionado' : ''}${conferido ? ' sr-conf-risco-item-lista--conferido' : ''}`}
+      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${conferido ? ' sr-conf-risco-item-lista--conferido' : ''}`}
     >
       <div className="dt-secao-header sr-conf-risco-item-lista-cabecalho">
         <button
@@ -211,7 +205,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const [erro, setErro] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
-  const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
   const [regrasContexto, setRegrasContexto] = useState<RegraAuditoriaV1[]>([])
   const [pipelineConcluido, setPipelineConcluido] = useState(false)
   const [llmHabilitado, setLlmHabilitado] = useState(false)
@@ -239,7 +232,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const chaveDocumento = `${arquivoConferencia?.id_arquivo_local ?? ''}:${indiceDocumentoConferencia}`
 
   useEffect(() => {
-    setRiscosSelecionados(new Set())
     setRiscoExpandidoId(null)
     setBusca('')
   }, [chaveDocumento])
@@ -311,17 +303,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     [riscosEfetivos, busca],
   )
 
-  const riscosSelecionadosLista = useMemo(
-    () =>
-      riscosEfetivos
-        .filter((r) => riscosSelecionados.has(r.id))
-        .map(aplicarCorrecaoSugeridaPadraoRisco),
-    [riscosEfetivos, riscosSelecionados],
-  )
-
-  const todosVisiveisSelecionados =
-    riscosVisiveis.length > 0 && riscosVisiveis.every((r) => riscosSelecionados.has(r.id))
-
   const chavesRiscosVisiveis = useMemo(
     () => riscosVisiveis.map((risco) => chaveRiscoConferenciaUsuario(risco.id)),
     [riscosVisiveis],
@@ -330,27 +311,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const todosRiscosVisiveisConferidos =
     chavesRiscosVisiveis.length > 0 &&
     chavesRiscosVisiveis.every((chave) => riscoEstaConferido(chave))
-
-  function toggleSelecaoRisco(id: string) {
-    setRiscosSelecionados((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  function toggleSelecionarTodosVisiveis() {
-    setRiscosSelecionados((prev) => {
-      const next = new Set(prev)
-      if (todosVisiveisSelecionados) {
-        for (const r of riscosVisiveis) next.delete(r.id)
-      } else {
-        for (const r of riscosVisiveis) next.add(r.id)
-      }
-      return next
-    })
-  }
 
   const numeracaoRiscos = useMemo(() => {
     const mapa = new Map<string, number>()
@@ -491,7 +451,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         <div className="sr-conf-riscos-cabecalho-rodape">
           {riscosVisiveis.length > 0 && (
             <>
-              <label className="sr-conf-riscos-conferir-todos">
+              <label className="dt-main-toolbar-btn sr-conf-toolbar-selecionar-conferencia">
                 <input
                   type="checkbox"
                   className="sr-conf-chk-checkbox"
@@ -504,24 +464,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                   }
                   aria-label="Conferir todos os riscos visíveis"
                 />
-                <span className="sr-conf-riscos-conferir-todos-icone" aria-hidden>
-                  <Check size={12} weight={todosRiscosVisiveisConferidos ? 'bold' : 'regular'} />
-                </span>
                 <span>Conferir todos ({riscosVisiveis.length})</span>
               </label>
-              <label className="sr-conf-riscos-selecionar-compacto">
-                <input
-                  type="checkbox"
-                  checked={todosVisiveisSelecionados}
-                  onChange={toggleSelecionarTodosVisiveis}
-                  aria-label="Selecionar riscos visíveis para gerar email"
-                />
-                <span>Gerar email ({riscosVisiveis.length})</span>
-              </label>
             </>
-          )}
-          {riscosSelecionadosLista.length > 0 && (
-            <AcoesCorrecaoRiscoNovaLeituraSmartRead riscos={riscosSelecionadosLista} />
           )}
           <span className="sr-conf-riscos-disclaimer-compacto">
             V1 + IA + NCM — apoio à conferência
@@ -562,14 +507,12 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                 <ItemListaRisco
                   key={risco.id}
                   risco={risco}
-                  selecionado={riscosSelecionados.has(risco.id)}
                   conferido={riscoEstaConferido(chaveRiscoConferenciaUsuario(risco.id))}
                   onAlternarConferido={() =>
                     alternarRiscoConferido(chaveRiscoConferenciaUsuario(risco.id))
                   }
                   expandido={expandido}
                   onToggleExpandir={toggleExpandirRisco}
-                  onToggleSelecao={toggleSelecaoRisco}
                   numero={numeracaoRiscos.get(risco.id) ?? 0}
                 >
                   {expandido ? (

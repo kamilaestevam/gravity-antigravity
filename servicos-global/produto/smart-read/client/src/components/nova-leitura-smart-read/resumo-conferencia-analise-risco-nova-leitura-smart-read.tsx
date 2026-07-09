@@ -29,7 +29,7 @@ import { obterCacheAnaliseRiscosSessaoSmartRead } from '../../shared/cache-anali
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ModalChecklistConferenciaNovaLeituraSmartRead } from './modal-checklist-conferencia-nova-leitura-smart-read'
 
-type AbaConferencia = 'campos' | 'qa' | 'riscos'
+type AbaConferencia = 'campos' | 'qa' | 'riscos' | 'comunicacao'
 
 type Props = {
   arquivo: ArquivoLocalNovaLeitura

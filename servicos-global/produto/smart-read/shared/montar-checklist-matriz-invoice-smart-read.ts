@@ -125,6 +125,11 @@ function detalheIndicaNa(detalhe: string | null): boolean {
   return !!detalhe && /^N\/A\s*—/i.test(detalhe.trim())
 }
 
+/** «Aviso —» sinaliza falha nossa (ex.: consulta RFB fora do ar) — vira ATENÇÃO sem card de risco. */
+function detalheIndicaAviso(detalhe: string | null): boolean {
+  return !!detalhe && /^Aviso\s*—/i.test(detalhe.trim())
+}
+
 function detalheEhPlaceholderSemDado(detalhe: string | null): boolean {
   if (!detalhe) return true
   return /não extraíd|não identificad|sem linhas|ausente no documento/i.test(detalhe)
@@ -133,7 +138,9 @@ function detalheEhPlaceholderSemDado(detalhe: string | null): boolean {
 function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChecklistMatrizInvoice {
   const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
   if (detalheIndicaNa(detalhe)) return 'na'
-  if (!regrasMotor.every((r) => r.passou)) return 'vermelho'
+  const falhasReais = regrasMotor.filter((r) => !r.passou && !detalheIndicaAviso(r.detalhe))
+  if (falhasReais.length > 0) return 'vermelho'
+  if (regrasMotor.some((r) => detalheIndicaAviso(r.detalhe))) return 'amarelo'
   return 'verde'
 }
 
@@ -169,7 +176,7 @@ export function complementarRiscosDeFalhasMatriz(
   const matrizPorId = new Map(MATRIZ_VALIDACAO_INVOICE.map((regra) => [regra.id, regra]))
 
   for (const regra of regras) {
-    if (regra.passou || detalheIndicaNa(regra.detalhe)) continue
+    if (regra.passou || detalheIndicaNa(regra.detalhe) || detalheIndicaAviso(regra.detalhe)) continue
     const idRegraMatriz = extrairIdRegraMatrizDeRegraMotor(regra.id)
     if (!idRegraMatriz) continue
     const rotuloDocumento = extrairRotuloDeIdRegraMotor(regra.id)
@@ -493,14 +500,15 @@ export function montarChecklistMatrizInvoice(
           temDado ? resultadoLido : 'Não aplicável',
         )
       }
+      // Dado extraído + IA rodou sem apontamento = CONFORME; sem dado = N/A.
       return montarItemChecklist(
         regraMatriz,
-        regraUsaDescricaoItem && temDado ? 'verde' : 'na',
-        regraUsaDescricaoItem && temDado
+        temDado ? 'verde' : 'na',
+        temDado
           ? 'IA conferiu sem apontamento nesta regra'
-          : 'Revisão manual — IA sem apontamento nesta regra',
+          : 'N/A — sem dado na extração para esta regra',
         null,
-        temDado ? resultadoLido : 'Sem dado extraído',
+        temDado ? resultadoLido : 'Não aplicável',
       )
     }
 

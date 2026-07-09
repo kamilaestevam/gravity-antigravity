@@ -259,8 +259,8 @@ export function ManualBidFreteSimuladorModalOperacao() {
     [estado, interagiuModal],
   )
   const selecoesLocais = useMemo(
-    () => resolverSelecoesOrigemDestino(estadoLocais, interagiuLocais),
-    [estadoLocais, interagiuLocais],
+    () => resolverSelecoesOrigemDestino(estadoLocais, interagiuLocais, estado.modal_frete),
+    [estadoLocais, interagiuLocais, estado.modal_frete],
   )
   const selecoesCarga = useMemo(
     () => resolverSelecoesCargaIncoterm(estadoCarga, interagiuCarga, contextoCarga),
@@ -287,7 +287,11 @@ export function ManualBidFreteSimuladorModalOperacao() {
       return resolverExplicacao(estado, campoGuiaAtivo as CampoFoco)
     }
     if (IDS_ORIGEM.includes(campoGuiaAtivo)) {
-      return resolverExplicacaoOrigemDestino(estadoLocais, campoGuiaAtivo as CampoOrigemDestinoId)
+      return resolverExplicacaoOrigemDestino(
+        estadoLocais,
+        campoGuiaAtivo as CampoOrigemDestinoId,
+        estado.modal_frete,
+      )
     }
     if (IDS_CARGA.includes(campoGuiaAtivo)) {
       return resolverExplicacaoCargaIncoterm(
@@ -303,7 +307,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
 
   const podeAvancar = useMemo(() => {
     if (passoAtual === 1) return podeAvancarPassoModalOperacao(estado)
-    if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais)
+    if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais, estado.modal_frete)
     if (passoAtual === 3) return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
     return false
   }, [passoAtual, estado, estadoLocais, estadoCarga, contextoCarga])
@@ -397,7 +401,15 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     <SimuladorNcOptionButton
                       selected={estado.modal_frete === 'MARITIMO'}
                       onClick={() => {
+                        const mudou = estado.modal_frete !== 'MARITIMO'
                         setEstado((prev) => ({ ...prev, modal_frete: 'MARITIMO', modalidade: '' }))
+                        if (mudou) {
+                          setEstadoLocais({
+                            origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                            destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                          })
+                          setInteragiuLocais({})
+                        }
                         marcarInteracaoModal('modal_frete')
                       }}
                       icon={<Anchor weight="duotone" size={24} />}
@@ -407,7 +419,15 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     <SimuladorNcOptionButton
                       selected={estado.modal_frete === 'AEREO'}
                       onClick={() => {
+                        const mudou = estado.modal_frete !== 'AEREO'
                         setEstado((prev) => ({ ...prev, modal_frete: 'AEREO', modalidade: '' }))
+                        if (mudou) {
+                          setEstadoLocais({
+                            origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                            destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                          })
+                          setInteragiuLocais({})
+                        }
                         marcarInteracaoModal('modal_frete')
                       }}
                       icon={<AirplaneTilt weight="duotone" size={24} />}
@@ -417,7 +437,15 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     <SimuladorNcOptionButton
                       selected={estado.modal_frete === 'RODOVIARIO'}
                       onClick={() => {
+                        const mudou = estado.modal_frete !== 'RODOVIARIO'
                         setEstado((prev) => ({ ...prev, modal_frete: 'RODOVIARIO', modalidade: '' }))
+                        if (mudou) {
+                          setEstadoLocais({
+                            origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                            destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                          })
+                          setInteragiuLocais({})
+                        }
                         marcarInteracaoModal('modal_frete')
                       }}
                       icon={<Truck weight="duotone" size={24} />}
@@ -515,6 +543,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             ) : passoAtual === 2 ? (
               <ConteudoPassoOrigemDestinoSimulador
                 estado={estadoLocais}
+                modalFrete={estado.modal_frete}
                 aoAtualizarLado={atualizarLado}
                 aoInteragir={marcarInteracaoLocal}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}

@@ -23,6 +23,8 @@ type Props = {
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   onIrConferenciaCampos?: (foco: FocoConferenciaCamposNovaLeituraSmartRead) => void
   aguardandoClassificacao?: boolean
+  estaMarcadoChecklist?: (chave: string) => boolean
+  alternarMarcadoChecklist?: (chave: string) => void
 }
 
 export function PainelDetalheRiscoExpandidoNovaLeituraSmartRead({
@@ -33,6 +35,8 @@ export function PainelDetalheRiscoExpandidoNovaLeituraSmartRead({
   onVerEvidencia,
   onIrConferenciaCampos,
   aguardandoClassificacao = false,
+  estaMarcadoChecklist,
+  alternarMarcadoChecklist,
 }: Props) {
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
   const focoConferencia = montarFocoConferenciaDeRisco(risco, arquivos)
@@ -111,6 +115,8 @@ export function PainelDetalheRiscoExpandidoNovaLeituraSmartRead({
           risco={riscoBruto}
           documentos={documentos}
           parametrosChecklist={parametrosChecklist}
+          estaMarcado={estaMarcadoChecklist}
+          alternarMarcado={alternarMarcadoChecklist}
         />
       </div>
     </div>

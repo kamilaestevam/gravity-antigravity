@@ -66,7 +66,7 @@ export const TOOLTIP_STATUS_CHECKLIST_INVOICE: Record<
   },
   PENDENTE: {
     titulo: 'Pendente',
-    descricao: 'Aguardando conclusão do pipeline — código, API CNPJ ou Analista IA',
+    descricao: 'Validação ainda não concluída — código, consulta CNPJ ou Analista IA',
   },
   'N/A': {
     titulo: 'Não aplicável',
@@ -475,16 +475,20 @@ export function montarChecklistMatrizInvoice(
         return montarItemChecklist(
           regraMatriz,
           'pendente',
-          carregando ? 'Aguardando Passo 3 (Analista IA)…' : 'Aguardando pipeline completo…',
+          carregando
+            ? 'Analista IA em execução — aguarde a conclusão da análise'
+            : 'Análise da leitura ainda não concluída',
           null,
-          temDado ? resultadoLido : 'Aguardando IA',
+          temDado ? resultadoLido : carregando ? 'Analisando…' : '—',
         )
       }
       if (!llmHabilitado) {
         return montarItemChecklist(
           regraMatriz,
           temDado ? 'pendente' : 'na',
-          temDado ? 'Requer Analista IA (GEMINI_API_KEY)' : 'N/A — IA indisponível e sem dado',
+          temDado
+            ? 'Analista IA desligado — ative a IA para validar esta regra'
+            : 'N/A — Analista IA desligado e sem dado extraído',
           null,
           temDado ? resultadoLido : 'Não aplicável',
         )
@@ -505,16 +509,16 @@ export function montarChecklistMatrizInvoice(
         return montarItemChecklist(
           regraMatriz,
           'pendente',
-          'Aguardando Passo 2 (consulta CNPJ)…',
+          'Consulta à Receita Federal em andamento — aguarde a conclusão da análise',
           null,
-          detalheExtraido ?? 'Aguardando API',
+          detalheExtraido ?? 'Consultando Receita…',
         )
       }
       if (!detalheExtraido || detalheEhPlaceholderSemDado(detalheExtraido)) {
         return montarItemChecklist(
           regraMatriz,
           'na',
-          'N/A — sem dado para consulta API',
+          'N/A — CNPJ não extraído para consulta na Receita',
           null,
           'Não aplicável',
         )
@@ -522,7 +526,7 @@ export function montarChecklistMatrizInvoice(
       return montarItemChecklist(
         regraMatriz,
         'pendente',
-        'API sem regra registrada',
+        'Consulta à Receita Federal não retornou — reprocesse a leitura',
         null,
         detalheExtraido,
       )
@@ -533,8 +537,8 @@ export function montarChecklistMatrizInvoice(
         regraMatriz,
         'pendente',
         pipelineConcluido
-          ? 'Dado extraído — aguardando validação do motor'
-          : 'Aguardando Passo 1 (código)…',
+          ? 'Dado extraído — validação automática não registrada para esta regra'
+          : 'Validação automática em andamento…',
         null,
         detalheExtraido,
       )
@@ -543,7 +547,7 @@ export function montarChecklistMatrizInvoice(
     return montarItemChecklist(
       regraMatriz,
       pipelineConcluido ? 'na' : 'pendente',
-      pipelineConcluido ? 'N/A — sem dado na extração' : 'Aguardando Passo 1 (código)…',
+      pipelineConcluido ? 'N/A — sem dado na extração' : 'Validação automática em andamento…',
       null,
       pipelineConcluido ? 'Não aplicável' : '—',
     )

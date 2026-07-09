@@ -5086,7 +5086,7 @@
     "importar": {
       "titulo": "Importar Pedidos",
       "subtitulo": "Importe pedidos a partir de um arquivo",
-      "arrastar": "Arraste um arquivo ou clique para selecionar",
+      "arrastar": "Anexe a planilha que você acabou de baixar",
       "formatos": "Formatos aceitos: .xlsx, .csv",
       "botao": "Selecionar Arquivo",
       "processando": "Processando arquivo...",

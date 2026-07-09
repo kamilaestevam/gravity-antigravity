@@ -5047,7 +5047,7 @@
     "importar": {
       "titulo": "Import Orders",
       "subtitulo": "Import orders from file (Excel, CSV, XML, TXT, JSON)",
-      "arrastar": "Drag a file or click to select",
+      "arrastar": "Attach the spreadsheet you just downloaded",
       "formatos": "Formats: Excel (.xlsx, .xls), CSV, XML, TXT, JSON",
       "botao": "Select File",
       "processando": "Processing file...",

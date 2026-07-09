@@ -3988,7 +3988,7 @@
     "importar": {
       "titulo": "Importar Pedidos",
       "subtitulo": "Importar pedidos desde archivo (Excel, CSV, XML, TXT, JSON)",
-      "arrastar": "Arrastre un archivo o haga clic para seleccionar",
+      "arrastar": "Adjunte la planilla que acaba de descargar",
       "formatos": "Formatos: Excel (.xlsx, .xls), CSV, XML, TXT, JSON",
       "botao": "Seleccionar Archivo",
       "processando": "Procesando archivo...",

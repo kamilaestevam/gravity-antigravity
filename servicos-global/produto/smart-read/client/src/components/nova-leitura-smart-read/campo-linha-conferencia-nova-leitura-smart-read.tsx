@@ -4,7 +4,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarBlank, Check, PencilSimple } from '@phosphor-icons/react'
+import { CalendarBlank, PencilSimple } from '@phosphor-icons/react'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -261,18 +261,16 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
               : 'Indica que você revisou este campo manualmente'
           }
         >
-          <button
-            type="button"
-            className={`sr-conf-campo-check-btn${conferido ? ' sr-conf-campo-check-btn--ativo' : ''}`}
-            onClick={(e) => {
-              e.stopPropagation()
-              onAlternarConferido()
-            }}
-            aria-label={conferido ? `Desmarcar conferência: ${rotulo}` : `Marcar como conferido: ${rotulo}`}
-            aria-pressed={conferido}
-          >
-            <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
-          </button>
+          <input
+            type="checkbox"
+            className="sr-conf-chk-checkbox sr-conf-campo-checkbox"
+            checked={conferido}
+            onClick={(e) => e.stopPropagation()}
+            onChange={onAlternarConferido}
+            aria-label={
+              conferido ? `Desmarcar conferência: ${rotulo}` : `Marcar como conferido: ${rotulo}`
+            }
+          />
         </TooltipGlobal>
       )}
       <div className="dt-row-head">

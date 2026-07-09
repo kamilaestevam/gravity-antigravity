@@ -54,8 +54,20 @@ function extrairItensResumo(dados: Record<string, unknown>) {
       ncm: valorTextoComparacaoCampo(r.ncm ?? r.NCM),
       unidade: valorTextoComparacaoCampo(r.unit ?? r.uom),
       qty: valorTextoComparacaoCampo(r.itemQuantity ?? r.quantity ?? r.qty),
+      total: valorTextoComparacaoCampo(r.itemTotalPriceWithCurrency ?? r.totalPrice ?? r.total),
     }
   })
+}
+
+function parseNumeroDetalhe(valor: string | null | undefined): number | null {
+  if (!valor) return null
+  const limpo = valor.replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')
+  const n = Number.parseFloat(limpo)
+  return Number.isFinite(n) ? n : null
+}
+
+function formatarNumeroDetalhe(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2)
 }
 
 /** Retorna texto com o valor lido na extração para exibir no checklist (coluna Resultado). */
@@ -167,9 +179,16 @@ export function extrairDetalheDadosRegraMatrizInvoice(
             .join(' · ') || 'rota não extraída',
         )
         break
-      case 'S3-04':
-        partes.push('análise normativa (RAG) sobre dados logísticos extraídos')
+      case 'S3-04': {
+        const indicioRegime = [
+          valorCampo(mapa, ['document.specialRegime', 'specialRegime', 'drawback']),
+          valorCampo(mapa, ['document.suframa', 'suframa']),
+        ]
+          .filter(Boolean)
+          .join(' · ')
+        partes.push(indicioRegime || 'regime especial não identificado na extração')
         break
+      }
       case 'S4-01': {
         const itens = extrairItensResumo(doc.dados)
         const comPn = itens.filter((i) => i.partNumber).length
@@ -219,21 +238,44 @@ export function extrairDetalheDadosRegraMatrizInvoice(
       case 'S5-03':
         partes.push(`${extrairItensResumo(doc.dados).length} linha(s) financeiras`)
         break
-      case 'S5-04':
+      case 'S5-04': {
+        const subtotal = valorCampo(mapa, ['values.subtotal', 'subtotal', 'values.merchandiseTotal'])
+        if (subtotal) {
+          partes.push(subtotal)
+          break
+        }
+        const totaisLinhas = extrairItensResumo(doc.dados)
+          .map((i) => parseNumeroDetalhe(i.total))
+          .filter((n): n is number => n != null)
         partes.push(
-          valorCampo(mapa, ['values.subtotal', 'subtotal', 'values.merchandiseTotal']) ??
-            'subtotal não extraído',
+          totaisLinhas.length > 0
+            ? `Σ linhas: ${formatarNumeroDetalhe(totaisLinhas.reduce((acc, n) => acc + n, 0))}`
+            : 'subtotal não extraído',
         )
         break
+      }
       case 'S5-05':
         partes.push(
           valorCampo(mapa, ['values.totalDocumentValue', 'totalDocumentValue', 'totalValue']) ??
             'total não extraído',
         )
         break
-      case 'S5-06':
-        partes.push('rateio frete/desconto global (se extraído)')
+      case 'S5-06': {
+        const valoresGlobais = [
+          valorCampo(mapa, ['values.freight', 'freight', 'shipping']) &&
+            `frete ${valorCampo(mapa, ['values.freight', 'freight', 'shipping'])}`,
+          valorCampo(mapa, ['values.insurance', 'insurance']) &&
+            `seguro ${valorCampo(mapa, ['values.insurance', 'insurance'])}`,
+          valorCampo(mapa, ['values.discount', 'discount']) &&
+            `desconto ${valorCampo(mapa, ['values.discount', 'discount'])}`,
+        ].filter(Boolean)
+        partes.push(
+          valoresGlobais.length > 0
+            ? valoresGlobais.join(' · ')
+            : 'frete/desconto global não extraído',
+        )
         break
+      }
       case 'S6-01':
         partes.push(
           [
@@ -279,7 +321,10 @@ export function extrairDetalheDadosRegraMatrizInvoice(
         )
         break
       case 'S7-03':
-        partes.push('embalagem — análise semântica dos itens/descrições')
+        partes.push(
+          valorCampo(mapa, ['packages.type', 'packageType', 'packing.type']) ??
+            'tipo de embalagem não identificado na extração',
+        )
         break
       case 'S8-01':
         partes.push(

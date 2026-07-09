@@ -2,7 +2,7 @@
  * ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead — conferência usuária, Gravity e riscos
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CaretRight, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
@@ -21,6 +21,7 @@ import {
   montarResumoGeralChecklistInvoices,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import {
+  dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
   obterRequisicaoAnaliseRiscosEmVooSmartRead,
 } from '../../shared/disparar-analise-riscos-background-smart-read'
@@ -116,6 +117,29 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     [arquivo, idLeituraLegado],
   )
 
+  // Redispara a análise quando não há cache (ex.: leitura retomada ou falha anterior)
+  // e força re-render quando a resposta chega — sem isso o checklist fica pendente para sempre.
+  const [versaoAnalise, setVersaoAnalise] = useState(0)
+  const chaveAnaliseTentadaRef = useRef<string | null>(null)
+
+  const emCacheRiscos = useMemo(
+    () => obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos),
+    [chaveAnaliseRiscos, versaoAnalise],
+  )
+
+  useEffect(() => {
+    if (emCacheRiscos) return
+    if (chaveAnaliseTentadaRef.current === chaveAnaliseRiscos) return
+    chaveAnaliseTentadaRef.current = chaveAnaliseRiscos
+    dispararAnaliseRiscosBackgroundSmartRead({
+      arquivos: [arquivo],
+      idLeituraLegado,
+      onInicio: () => setVersaoAnalise((v) => v + 1),
+      onConcluido: () => setVersaoAnalise((v) => v + 1),
+      onErro: () => setVersaoAnalise((v) => v + 1),
+    })
+  }, [arquivo, chaveAnaliseRiscos, emCacheRiscos, idLeituraLegado])
+
   const resumoRiscos = useMemo(() => {
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
     if (emCache?.resumo.total) {
@@ -131,12 +155,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     }
 
     return executarAuditoriaV1AnaliseRiscosLeitura(documentosRiscoAtivos).resumo
-  }, [chaveAnaliseRiscos, documentosRiscoAtivos, rotuloDocumentoAtual])
-
-  const emCacheRiscos = useMemo(
-    () => obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos),
-    [chaveAnaliseRiscos],
-  )
+  }, [chaveAnaliseRiscos, documentosRiscoAtivos, rotuloDocumentoAtual, versaoAnalise])
 
   const auditoriaV1Arquivo = useMemo(
     () =>
@@ -169,7 +188,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       carregando,
       documentos: documentosRisco,
     }
-  }, [auditoriaV1Arquivo, chaveAnaliseRiscos, documentosRisco, emCacheRiscos])
+  }, [auditoriaV1Arquivo, chaveAnaliseRiscos, documentosRisco, emCacheRiscos, versaoAnalise])
 
   const subdocumentosSidebar = useMemo(
     () =>

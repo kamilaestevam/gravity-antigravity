@@ -20,7 +20,7 @@ export function GraficoConferenciaCheckedSmartRead({ resumo, classe = '' }: Prop
     <div
       className={`sr-chk-grafico-conferido${classe ? ` ${classe}` : ''}`}
       role="img"
-      aria-label={`${marcados} de ${total} itens conferidos manualmente (${percentual}%)`}
+      aria-label={`${marcados} de ${total} itens conferidos no checklist Gravity (${percentual}%)`}
     >
       <div className="sr-chk-grafico-conferido-anel">
         <svg viewBox="0 0 88 88" className="sr-chk-grafico-conferido-svg" aria-hidden>
@@ -50,7 +50,7 @@ export function GraficoConferenciaCheckedSmartRead({ resumo, classe = '' }: Prop
         </div>
       </div>
       <div className="sr-chk-grafico-conferido-legenda">
-        <span className="sr-chk-grafico-conferido-titulo">Conferência manual</span>
+        <span className="sr-chk-grafico-conferido-titulo">Conferência Check List Gravity</span>
         <span className="sr-chk-grafico-conferido-contagem">
           <strong>{marcados}</strong> / {total} conferidos
         </span>

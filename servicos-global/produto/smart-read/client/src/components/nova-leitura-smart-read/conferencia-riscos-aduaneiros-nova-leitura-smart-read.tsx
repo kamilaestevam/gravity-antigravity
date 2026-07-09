@@ -154,22 +154,18 @@ function ItemListaRisco({
                 : 'Indica que você revisou este risco manualmente'
             }
           >
-            <button
-              type="button"
-              className={`sr-conf-risco-check-btn${conferido ? ' sr-conf-risco-check-btn--ativo' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation()
-                onAlternarConferido()
-              }}
+            <input
+              type="checkbox"
+              className="sr-conf-chk-checkbox sr-conf-risco-checkbox"
+              checked={conferido}
+              onClick={(e) => e.stopPropagation()}
+              onChange={onAlternarConferido}
               aria-label={
                 conferido
                   ? `Desmarcar conferência do risco: ${risco.titulo}`
                   : `Marcar risco como conferido: ${risco.titulo}`
               }
-              aria-pressed={conferido}
-            >
-              <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
-            </button>
+            />
           </TooltipGlobal>
         </div>
       </div>
@@ -518,9 +514,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                   type="checkbox"
                   checked={todosVisiveisSelecionados}
                   onChange={toggleSelecionarTodosVisiveis}
-                  aria-label="Selecionar todos os riscos visíveis para ações"
+                  aria-label="Selecionar riscos visíveis para gerar email"
                 />
-                <span>Selecionar ({riscosVisiveis.length})</span>
+                <span>Gerar email ({riscosVisiveis.length})</span>
               </label>
             </>
           )}

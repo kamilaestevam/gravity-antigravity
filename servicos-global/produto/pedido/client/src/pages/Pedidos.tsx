@@ -365,6 +365,9 @@ function getLabelsFiltroInverso(campo: string, t: (key: string) => string = i18n
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
 
+/** Regra lista: pedido novo ou importado sempre na primeira linha (P19 — data_atualizacao DESC). */
+const SORT_LISTA_NOVOS_PEDIDO = { campo: 'data_atualizacao_pedido', direcao: 'desc' as const }
+
 /** Lê abas do localStorage (salvo pelo Configuracoes e pela API success da Lista).
  *  Usa label do banco (cfg.label) como fonte da verdade — respeita customizações
  *  feitas pelo usuário em Configurações (ex: "Transferido" → "Transferência"). */
@@ -5335,8 +5338,8 @@ export default function Pedidos() {
     ABAS_STATUS_VALORES.map(v => ({ valor: v, label: t(`pedido.status.${v}`) }))
   )
   const [preferencias, setPreferencias]     = useState<GTPreferencias | undefined>(undefined)
-  const [sortCampo, setSortCampo]           = useState('data_emissao_pedido')
-  const [sortDir, setSortDir]               = useState<'asc' | 'desc'>('desc')
+  const [sortCampo, setSortCampo]           = useState(SORT_LISTA_NOVOS_PEDIDO.campo)
+  const [sortDir, setSortDir]               = useState<'asc' | 'desc'>(SORT_LISTA_NOVOS_PEDIDO.direcao)
   const [busca, setBusca]                   = useState('')
   const [pedidoFocoId, setPedidoFocoId]       = useState<string | null>(null)
   const [erroLote, setErroLote]             = useState<string | null>(null)
@@ -6308,8 +6311,10 @@ export default function Pedidos() {
     itensCarregadosRef.current.clear()
     setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
     setResetFilhos(prev => prev + 1)
-    await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
-  }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
+    setSortCampo(SORT_LISTA_NOVOS_PEDIDO.campo)
+    setSortDir(SORT_LISTA_NOVOS_PEDIDO.direcao)
+    await carregarInicial(abaAtiva, SORT_LISTA_NOVOS_PEDIDO.campo, SORT_LISTA_NOVOS_PEDIDO.direcao, busca, 1, true)
+  }, [carregarInicial, abaAtiva, busca])
 
   // Recarrega lista quando mudou escopo de workspaces (menu lateral) ou quando
   // idOrganizacao hidrata do /me. A primeira carga com painel salvo fica só no onConfigAplicada.
@@ -8663,9 +8668,9 @@ export default function Pedidos() {
         onFechar={() => setModalNovoPedidoAberto(false)}
         onSalvo={async (pedidoCriado) => {
           setModalNovoPedidoAberto(false)
-          // Reseta para página 1 — pedido recém-criado vem no topo (orderBy
-          // data_criacao_pedido desc) — e abre os itens para conferência.
-          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1)
+          setSortCampo(SORT_LISTA_NOVOS_PEDIDO.campo)
+          setSortDir(SORT_LISTA_NOVOS_PEDIDO.direcao)
+          await carregarInicial(abaAtiva, SORT_LISTA_NOVOS_PEDIDO.campo, SORT_LISTA_NOVOS_PEDIDO.direcao, busca, 1)
           // requestAnimationFrame garante que setPedidos já comitou antes do
           // expandir tentar localizar a linha em dadosRef.
           requestAnimationFrame(() => {
@@ -8711,7 +8716,7 @@ export default function Pedidos() {
           setSmartImportAberto(false)
           await recarregarListaPosImportacao()
           // Abre o(s) pedido(s) recém-importado(s) para conferência. Se mais
-          // de um, expande todos — vêm no topo via orderBy data_criacao desc.
+          // de um, expande todos — vêm no topo (data_atualizacao_pedido desc).
           requestAnimationFrame(() => {
             for (const id of idsCriados ?? []) {
               tabelaRef.current?.expandir(id)

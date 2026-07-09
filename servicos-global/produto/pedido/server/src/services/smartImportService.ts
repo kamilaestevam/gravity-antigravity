@@ -424,7 +424,7 @@ export function prepararLinhasFiltradasConfirmacao(
       CODIGO_ERRO_LIMITE_LINHAS,
     )
   }
-  return filtradas
+  return filtradas.sort((a, b) => a.linha_arquivo - b.linha_arquivo)
 }
 
 // Defaults alinhados com PedidoCasasDecimais (schema Prisma)
@@ -1189,10 +1189,12 @@ export class SmartImportService {
         const spOrdem = `sp_ordem_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
         await executarSavepointSql(this.db, `SAVEPOINT ${spOrdem}`)
         try {
+          const dataOrdemPlanilha = dataEmissaoPorOrdemPlanilha(primeiraLinha, anchorImportacaoMs)
           await (this.db as Record<string, any>)['pedido'].update({
             where: { id_pedido: pedidoId },
             data: {
-              data_emissao_pedido: dataEmissaoPorOrdemPlanilha(primeiraLinha, anchorImportacaoMs),
+              data_emissao_pedido: dataOrdemPlanilha,
+              data_atualizacao_pedido: new Date(dataOrdemPlanilha),
             },
           })
           await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spOrdem}`)

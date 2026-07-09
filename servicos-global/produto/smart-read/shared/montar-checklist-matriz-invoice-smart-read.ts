@@ -495,7 +495,7 @@ export function montarChecklistMatrizInvoice(
       }
       return montarItemChecklist(
         regraMatriz,
-        regraUsaDescricaoItem && temDado ? 'conforme' : 'na',
+        regraUsaDescricaoItem && temDado ? 'verde' : 'na',
         regraUsaDescricaoItem && temDado
           ? 'IA conferiu sem apontamento nesta regra'
           : 'Revisão manual — IA sem apontamento nesta regra',

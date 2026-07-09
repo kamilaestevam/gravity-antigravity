@@ -132,10 +132,16 @@ describe('montarChecklistMatrizInvoice', () => {
     })
     const s402 = itens.find((i) => i.regra.id === 'S4-02')
     const s403 = itens.find((i) => i.regra.id === 'S4-03')
-    expect(s402?.status).toBe('conforme')
+    expect(s402?.status).toBe('verde')
+    expect(s402?.rotulo_status).toBe('CONFORME')
     expect(s402?.resultado).toContain('PCI FN OSP')
-    expect(s403?.status).toBe('conforme')
+    expect(s403?.status).toBe('verde')
+    expect(s403?.rotulo_status).toBe('CONFORME')
     expect(s403?.resultado).toContain('PCI FN OSP')
+    // Regressão: status inválido ('conforme') gerava rotulo_status undefined e quebrava a tela
+    for (const item of itens) {
+      expect(['CONFORME', 'ATENÇÃO', 'FALHA', 'PENDENTE', 'N/A']).toContain(item.rotulo_status)
+    }
   })
 
   it('regra de código com detalhe N/A não infla veredito como pendente', () => {

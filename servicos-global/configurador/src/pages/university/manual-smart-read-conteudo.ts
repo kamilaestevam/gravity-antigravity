@@ -1,4 +1,6 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import { PASSOS_MANUAL_SMART_READ_CONFIGURACOES } from './manual-smart-read-configuracoes-conteudo'
+import { PASSOS_MANUAL_SMART_READ_HISTORICO } from './manual-smart-read-historico-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -11,12 +13,17 @@ const LINK_MANUAL_PEDIDO_LISTA =
   '{{link:/university-gravity/docs/pedido#doc-sec-5|Pedido · Visão Lista}}'
 const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
   '{{link:/university-gravity/docs/smart-read#manual-passo-lista-9|5.09 Painéis}}'
+const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API Cockpit}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/2. Smart Docs` → `public/university/screenshots/smart-docs-*.png`
  * Copiar: `pwsh scripts/copiar-screenshots-manual-smart-docs.ps1`
  * - tela_smart_read_lista_filtro_seta.png → smart-docs-lista-filtro-seta.png
  * - tela_smart_read_lista_filtro_modal.png → smart-docs-lista-filtro-modal.png
+ * - tela_smart_read_lista_filtro_final.png → smart-docs-lista-filtro-final.png
+ * - tela_smart_read_lista_exportar_planilha.png → smart-docs-lista-exportar-planilha.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validar → smart-docs-lista-paineis-novo-nome-validar.png
+ * - tela_smart_docs_tela_lista_paineis_novo_nome_validado → smart-docs-lista-paineis-novo-nome-validado.png
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
@@ -34,6 +41,10 @@ const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA =
   '/university/screenshots/smart-docs-lista-exportar-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL =
   '/university/screenshots/smart-docs-lista-exportar-modal.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD =
+  '/university/screenshots/smart-docs-lista-exportar-download.png'
+const SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA =
+  '/university/screenshots/smart-docs-lista-exportar-planilha.png'
 const SCREENSHOT_SMART_DOCS_LISTA_EXPANDIR_SETA = '/university/screenshots/smart-docs-lista-expandir-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_LINHA_EXPANDIDA =
   '/university/screenshots/smart-docs-lista-linha-expandida.png'
@@ -46,6 +57,8 @@ const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-seta.png'
+const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR =
+  '/university/screenshots/smart-docs-lista-paineis-novo-nome-validar.png'
 const SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO =
   '/university/screenshots/smart-docs-lista-paineis-novo-nome-validado.png'
 const SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API = '/university/screenshots/smart-docs-lista-transacoes-api.png'
@@ -72,6 +85,8 @@ const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_SETA =
   '/university/screenshots/smart-docs-lista-filtro-seta.png'
 const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_MODAL =
   '/university/screenshots/smart-docs-lista-filtro-modal.png'
+const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL =
+  '/university/screenshots/smart-docs-lista-filtro-final.png'
 
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
@@ -186,7 +201,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             indice: 0,
             callout: {
               tipo: 'dica',
-              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (**Selecionar tudo**) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
+              texto: 'No **seletor de workspaces** do menu lateral, marque **um**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*) e confirme. A **Lista** reúne as **leituras** e **análises de documentos** dos workspaces selecionados.',
             },
           },
         },
@@ -327,7 +342,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           paragrafos: [
             'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Filtros ativos viram **chips** na barra da tabela, no formato **`Nome da coluna: valor`**. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece **Limpar todos**.',
+            'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
             'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
               LINK_MANUAL_SMART_READ_LISTA_PAINEIS +
               ') e reutilize depois.',
@@ -350,6 +365,19 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 },
               ],
             },
+            {
+              indice: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL,
+                  paragrafoAntes:
+                    'Chip *_Coluna: valor_* na barra — **combinação** de filtros e *_Limpar todos_*',
+                },
+              ],
+            },
           ],
           callout: {
             tipo: 'dica',
@@ -362,7 +390,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Excluir',
           paragrafos: [
             'Selecione a linha e use **Excluir** na barra de ações.',
-            'O modal confirma a remoção: **Excluir 1 leitura selecionada?** — a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
+            'O modal confirma a remoção: *_Excluir 1 leitura selecionada?_* — a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
           ],
           figurasAposParagrafo: [
             {
@@ -385,62 +413,87 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           titulo: 'Exportar',
           tituloCurto: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual (filtros + página visível).',
-            'Escolha o formato — **Excel**, **CSV**, **PDF** ou **JSON** — mesmo padrão dos demais produtos Gravity com lista virtual.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'No modal, escolha um dos **formatos** permitidos abaixo:',
           ],
-          figurasAposParagrafo: [
-            {
-              indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA,
-              legenda: 'Menu Exportar',
-            },
+          mostrarFormatosExportacaoPedidoLista: true,
+          formatosExportacaoPedidoAposParagrafo: 1,
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
-              legenda: 'Formatos disponíveis',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_SETA,
+                  paragrafoAntes: '**Abra** o menu **Exportar** na barra',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
+                  paragrafoAntes: '**Escolha** o formato no modal',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD,
+                  paragrafoAntes: '**Download** imediato na sua máquina',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA,
+                  paragrafoAntes: 'Ex.: **Excel** (.xlsx) aberto na planilha',
+                },
+              ],
             },
           ],
           callout: {
             tipo: 'dica',
-            texto: 'O **download** inicia **imediatamente** na sua máquina — não é necessário aguardar processamento adicional.',
+            texto:
+              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
           },
         },
         {
           titulo: 'Painéis',
           tituloCurto: 'Painéis',
-          paragrafos: [
-            'Pense no **Excel**: várias **planilhas** no mesmo arquivo — cada uma com layout próprio, mas todas sobre os **mesmos dados**. Os **painéis** funcionam assim na Lista.',
-            'Cada painel é uma **aba** na faixa acima da tabela, com recorte independente: **colunas**, **ordem**, **filtros**, **larguras** e **busca**. O **Padrão** vem com o produto; o **+** cria uma nova planilha com o estado atual, pronta para personalizar.',
-          ],
+          paragrafos: [],
           mostrarInfograficoSmartDocsListaPaineis: true,
-          imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
-          imagemAbaixoTexto: true,
-        },
-        {
-          titulo: 'Criar painel',
-          tituloCurto: 'Novo painel',
-          paragrafos: [
-            '1. Clique em **+** na faixa de painéis.',
-            '2. Informe um **nome** e confirme — precisa ser único entre seus painéis (ex.: **Em andamento**, **Finalizadas**, **Conferidas** ou **Por região**).',
-            '3. A nova aba nasce com o layout atual; ajuste **filtros** e **colunas** para o recorte — as mudanças salvam automaticamente no painel ativo.',
-          ],
-          figurasAposParagrafo: [
+          galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
-              legenda: 'Novo painel',
-            },
-            {
-              indice: 1,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
-              legenda: 'Nome do painel',
-            },
-            {
-              indice: 2,
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
-              legenda: 'Nome validado',
+              colunas: 4,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_SETA,
+                  paragrafoAntes: '**01.** Clique em **+** na faixa de painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_SETA,
+                  paragrafoAntes:
+                    '**02.** Informe um **nome** único (ex.: **Em andamento**, **Finalizadas**, **Conferidas**)',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
+                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
+                  paragrafoAntes:
+                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                },
+              ],
             },
           ],
+          callout: {
+            tipo: 'dica',
+            texto:
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+          },
         },
         {
           titulo: 'Transações (API)',
@@ -448,8 +501,24 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A visão **Transações** destaca leituras criadas pela **API** (`origem_leitura: API`) — útil para reconciliar integrações com o que foi enviado pela interface.',
+            'A aba **Transações API** destaca leituras criadas pela **integração entre a Gravity e sistemas externos** — **ERP**, **sistemas de comércio exterior** e outros conectados via ' +
+              LINK_MANUAL_API_COCKPIT +
+              ' (`origem_leitura: API`). É o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
           ],
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto:
+              'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API — ausência de linhas aqui não significa falha da Lista inteira.',
+          },
+          paragrafosAposImagem: [
+            'Para **enviar um documento** do **Sistema Externo** e **receber a leitura de volta**, existem **três camadas**: **Sistema Externo** (ERP, COMEX…), **fronteira Gravity** (**API Cockpit** + token) e **Smart Docs** (IA + extração). O mapa abaixo usa um **PDF de Pedido de Compra** como exemplo.',
+            '**Token + API** é a porta de entrada (Camada A → B): no ' +
+              LINK_MANUAL_API_COCKPIT +
+              ', o admin gera um token com **permissão de escrita** e **workspace** correto; o **Sistema Externo** faz **POST** do documento e recebe o **id da leitura**.',
+            'Na **Camada C**, a **IA classifica** o arquivo e **extrai os campos** (nº pedido, itens, valores…). Para o **retorno**, o **Sistema Externo** consulta a **API** (GET) **ou** recebe um **Webhook** e então busca os dados completos com o mesmo token.',
+            '**Webhook sozinho não substitui token** — ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
+          ],
+          mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit: true,
         },
       ]),
     },
@@ -590,10 +659,29 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       titulo: 'Configurações',
       tituloSumario: 'Configurações',
+      prefixoPassosVisuais: 'Configurações',
+      ancoraPassosPrefix: 'configuracoes',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'No menu lateral, **Configurações** reúne as preferências do Smart Docs no workspace — entre elas, a criação de **colunas customizadas** (**texto**, **número**, **data**, **fórmula** e outros tipos) para personalizar a **Lista** além das colunas nativas e do catálogo.',
       ],
-      passosVisuais: [],
+      passosVisuais: PASSOS_MANUAL_SMART_READ_CONFIGURACOES,
+    },
+    {
+      titulo: 'Histórico',
+      tituloSumario: 'Histórico',
+      prefixoPassosVisuais: 'Histórico',
+      ancoraPassosPrefix: 'historico',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Smart Docs** — filtrada automaticamente para o workspace ativo.',
+        'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
+      ],
+      callout: {
+        tipo: 'dica',
+        texto: 'O acesso exige permissão **historico:ver** no workspace.',
+      },
+      passosVisuais: PASSOS_MANUAL_SMART_READ_HISTORICO,
     },
     {
       titulo: 'Requisitos técnicos',

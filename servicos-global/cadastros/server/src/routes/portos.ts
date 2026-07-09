@@ -3,10 +3,14 @@
  * Read-only via API para dropdowns e validação cruzada no Pedido.
  */
 import { Router } from 'express'
-import { Prisma } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
+import {
+  filtrarCodigosPaisPorBuscaPorto,
+  montarWhereBuscaPaisPorTermoPorto,
+  montarWhereBuscaPortoCadastros,
+} from '../lib/busca-porto-por-pais-cadastros.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -16,26 +20,39 @@ router.get('/', async (req, res, next) => {
     const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
     const pais = typeof req.query.pais === 'string' ? req.query.pais.trim().toUpperCase() : undefined
     const limitRaw = typeof req.query.limit === 'string' ? Number(req.query.limit) : 200
-    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 500) : 200
+    const offsetRaw = typeof req.query.offset === 'string' ? Number(req.query.offset) : 0
+    const limiteMax = q || pais ? 500 : 10_000
+    const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), limiteMax) : 200
+    const skip = Number.isFinite(offsetRaw) ? Math.max(offsetRaw, 0) : 0
     const apenasAtivos = req.query.apenas_ativos !== 'false'
 
-    const where: Prisma.PortoWhereInput = {
-      ...(apenasAtivos ? { ativo_porto: true } : {}),
-      ...(pais ? { codigo_pais_porto: pais } : {}),
-      ...(q
-        ? {
-            OR: [
-              { codigo_unlocode_porto: { contains: q.toUpperCase() } },
-              { nome_porto: { contains: q, mode: 'insensitive' } },
-              { nome_ascii_porto: { contains: q, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
+    let paisesReferencia: Awaited<ReturnType<typeof prisma.pais.findMany>> = []
+    let codigosPaisResolvidos: string[] = []
+    if (q) {
+      paisesReferencia = await prisma.pais.findMany({
+        where: montarWhereBuscaPaisPorTermoPorto(q),
+        select: {
+          codigo_pais_iso_alpha2: true,
+          codigo_pais_iso_alpha3: true,
+          nome_pais_portugues: true,
+          nome_pais_ingles: true,
+        },
+      })
+      codigosPaisResolvidos = filtrarCodigosPaisPorBuscaPorto(q, paisesReferencia)
     }
+
+    const where = montarWhereBuscaPortoCadastros({
+      q,
+      paisFiltro: pais,
+      apenasAtivos,
+      codigosPaisResolvidos,
+      paisesReferencia,
+    })
 
     const [itens, total] = await Promise.all([
       prisma.porto.findMany({
         where,
+        skip,
         take: limit,
         orderBy: [{ codigo_pais_porto: 'asc' }, { nome_porto: 'asc' }],
       }),

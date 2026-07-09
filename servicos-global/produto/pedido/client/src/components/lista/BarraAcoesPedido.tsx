@@ -32,6 +32,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem } from '../../shared/types'
+import { PRODUCT_CONFIG } from '../../shared/config'
 import type { FiltrosAtivosMap } from './filtros'
 import { rotulofiltro } from './filtros'
 import { useHasMixedTipos } from '../../shared/state/selecaoStore'
@@ -146,7 +147,15 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   {([
                     { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_pedido'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                     { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_pedido'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_pedido'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    ...(PRODUCT_CONFIG.features.smart_read ? [{
+                      icon: 'sparkle' as const,
+                      label: t('pedido.barra.smart_read'),
+                      desc: t('pedido.barra.smart_read_desc_pedido'),
+                      action: () => {
+                        setNovoDropdownAberto(false)
+                        window.location.href = '/smart-read/lista?origem=pedido&acao=nova-leitura'
+                      },
+                    }] : []),
                     { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_pedido'), action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
@@ -200,7 +209,15 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   {([
                     { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_item'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                     { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_item'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_item'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    ...(PRODUCT_CONFIG.features.smart_read ? [{
+                      icon: 'sparkle' as const,
+                      label: t('pedido.barra.smart_read'),
+                      desc: t('pedido.barra.smart_read_desc_item'),
+                      action: () => {
+                        setNovoDropdownAberto(false)
+                        window.location.href = '/smart-read/lista?origem=pedido&acao=nova-leitura'
+                      },
+                    }] : []),
                     { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_item'), action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>

@@ -1,0 +1,72 @@
+{
+  "referencia": "TASK-000406",
+  "ordinal": 130,
+  "id_transcript": "7557a473-484b-4773-ac72-d902e6d3053b",
+  "titulo_canonico": "PEDIDO-LISTA-MEL-EXCLUIR-PAINEL-MENU-TRES-PONTOS",
+  "titulo_exibicao": "TASK-000406 | [Pedido] Lista | MEL — Excluir painel no menu de três pontos",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — menu ⋮ Renomear/Excluir visível via portal; PRs #610 e #615 mergeados e deploy ACTIVE",
+  "area": "PEDIDO",
+  "area_descricao": "Produto Pedido (servicos-global/produto/pedido/) — lista de pedidos",
+  "subarea": "PAINEL-LISTA",
+  "subarea_descricao": "Barra de painéis da Lista (tabs GERAL, FINANCEIRO, COMERCIAL…)",
+  "visualizacao": "LISTA",
+  "visualizacao_descricao": "Tela Lista de Pedidos — seção Painéis acima da tabela",
+  "tipo_entrega": "MEL",
+  "tipo_entrega_descricao": "Melhoria de UX — menu contextual ⋮ com Renomear e Excluir painel",
+  "resumo": "EXCLUIR-PAINEL-MENU-TRES-PONTOS",
+  "resumo_descricao": "Clique nos três pontos dos painéis da Lista deve abrir menu com Excluir (e Renomear)",
+  "resumo_detalhado": "PR #610: clique ⋮ passou a abrir menu Renomear/Excluir (antes renomeava direto); POST painel valida config_json (400) e P2021 retorna 503. Pós-deploy o menu ainda parecia inativo — dropdown inline clipado por overflow:hidden na faixa unificada. PR #615: menu via createPortal em document.body com position fixed. Docs §5.3 PAINEL-LISTA-CONTRATO.",
+  "data_criacao": "2026-07-02T22:30:00.000Z",
+  "data_encerramento": "2026-07-03T16:09:00.000Z",
+  "duracao_horas": 3.5,
+  "tempo_bruto_horas": 17.65,
+  "tempo_agente_horas": 3.0,
+  "tempo_dono_horas": 0.5,
+  "tempo_liquido_horas": 3.5,
+  "tokens_estimados_entrada": 95000,
+  "tokens_estimados_saida": 45000,
+  "tokens_estimados_total": 140000,
+  "mensagens_usuario": 8,
+  "mensagens_agente": 12,
+  "fases_concluidas": ["ENTENDIMENTO", "IMPLEMENTACAO", "PR", "DEPLOY", "DOC_SKILL"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "nao", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
+    "doc_skill": { "valor": "sim", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy ou migration executado (/deploy)" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "teste_local",
+      "mensagem": "Testes locais não executados — rodar smoke na Lista após próximo deploy."
+    },
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Teste em produção não registrado — validar menu ⋮ Renomear/Excluir em usegravity.com.br após hard refresh."
+    }
+  ],
+  "entregas": [
+    "servicos-global/produto/pedido/client/src/components/PedidosListaPainelBar.tsx",
+    "servicos-global/produto/pedido/server/src/routes/lista-pedido-paineis.ts",
+    "servicos-global/produto/pedido/server/src/index.ts",
+    "documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-CONTRATO.md",
+    "skills/produtos-gravity/pedido/SKILL.md",
+    "https://github.com/dmmltda/gravity-antigravity/pull/610",
+    "https://github.com/dmmltda/gravity-antigravity/pull/615"
+  ],
+  "branch_alvo": "branch-8000",
+  "preview_porta_alvo": 8000,
+  "preview_url_alvo": "http://127.0.0.1:8000/"
+}

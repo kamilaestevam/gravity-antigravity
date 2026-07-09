@@ -30,6 +30,21 @@ describe('formatacao-local-logistico-bid-frete-internacional', () => {
     ).toBe('Buenos Aires Ezeiza (EZE)')
   })
 
+  it('normalizarTextoPontoRota remove prefixo COD — quando codigo aparece na linha inferior', () => {
+    expect(normalizarTextoPontoRota('VNHPH — Hai Phong', 'VNHPH')).toEqual({
+      titulo: 'Hai Phong',
+      sigla: 'VNHPH',
+    })
+    expect(normalizarTextoPontoRota('VN HPH - Hai Phong', 'VNHPH')).toEqual({
+      titulo: 'Hai Phong',
+      sigla: 'VNHPH',
+    })
+    expect(normalizarTextoPontoRota('BRALT — Alenquer', 'BRALT')).toEqual({
+      titulo: 'Alenquer',
+      sigla: 'BRALT',
+    })
+  })
+
   it('formatarRotaExibicaoCotacao normaliza origem e destino', () => {
     expect(
       formatarRotaExibicaoCotacao(

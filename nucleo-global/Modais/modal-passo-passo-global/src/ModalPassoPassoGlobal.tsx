@@ -16,6 +16,9 @@ import { createPortal } from 'react-dom'
 import { ArrowLeft, ArrowRight, Check, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 
+/** SSOT — overlay do wizard (CSS `.mpg-overlay` espelha este valor). */
+export const Z_INDEX_MODAL_PASSO_PASSO = 9999
+
 const LARGURA: Record<string, string> = {
   sm: '400px',
   md: '560px',
@@ -65,6 +68,10 @@ export interface ModalPassoPassoProps {
   navegacaoDireta?: boolean
   /** Callback quando usuario clica em um passo concluido (navegacao direta) */
   onIrParaPasso?: (passoId: number) => void
+  /** Padrao: true. Quando false, clique no overlay nao chama onFechar. */
+  fecharAoClicarFora?: boolean
+  /** Padrao: true. Quando false, tecla Escape nao chama onFechar. */
+  fecharComTeclaEscape?: boolean
   /** Classes opcionais para customizacao visual (ex: Smart Read wizard) */
   classNameDialog?: string
   classNameCabecalho?: string
@@ -141,6 +148,8 @@ export function ModalPassoPassoGlobal({
   textoCarregando,
   navegacaoDireta = true,
   onIrParaPasso,
+  fecharAoClicarFora = true,
+  fecharComTeclaEscape = true,
   classNameDialog,
   classNameCabecalho,
   classNameStepperEnvoltorio,
@@ -163,13 +172,15 @@ export function ModalPassoPassoGlobal({
   useEffect(() => {
     if (!aberto) return
     document.body.style.overflow = 'hidden'
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onFechar() }
+    function onKey(e: KeyboardEvent) {
+      if (fecharComTeclaEscape && e.key === 'Escape') onFechar()
+    }
     window.addEventListener('keydown', onKey)
     return () => {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
-  }, [aberto, onFechar])
+  }, [aberto, fecharComTeclaEscape, onFechar])
 
   if (!aberto) return null
   if (typeof document === 'undefined') return null
@@ -379,7 +390,9 @@ export function ModalPassoPassoGlobal({
         className="mpg-overlay"
         style={s.overlay}
         role="presentation"
-        onClick={e => { if (e.target === e.currentTarget) onFechar() }}
+        onClick={fecharAoClicarFora
+          ? (e) => { if (e.target === e.currentTarget) onFechar() }
+          : undefined}
       >
         <div
           ref={dialogRef}
@@ -565,7 +578,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999,
+    zIndex: Z_INDEX_MODAL_PASSO_PASSO,
     padding: '1rem',
     animation: 'mpg-fade-in 0.15s ease',
   },

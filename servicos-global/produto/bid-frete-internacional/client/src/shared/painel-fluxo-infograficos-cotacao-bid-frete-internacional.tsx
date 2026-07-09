@@ -2,7 +2,8 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo, useState, useEffect, type CSSProperties } from 'react'
+import React, { useMemo, useState, useEffect, useRef, useCallback, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -20,11 +21,16 @@ import {
   PaperPlaneTilt,
   XCircle,
   Info,
+  FunnelSimple,
+  Check,
+  X,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { StatusCotacao } from './types'
 import {
   calcularInfograficosFluxoCotacao,
   calcularPainelSmartInsights,
+  buildSerieTermometroBases,
   FLUXO_ETAPAS_RESUMIDAS,
   formatarHorasResposta,
   indiceFluxoPorStatus,
@@ -32,6 +38,7 @@ import {
   formatarMoedaInsightsBidFrete,
   resolverNomeGanhadorCotacao,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import { filtrarHistoricoTermometro } from '../../../shared/filtro-historico-termometro-bid-frete-internacional'
 import {
   calcularDatasEtapasFluxoTimeline,
   normalizarHistoricoTimeline,
@@ -42,6 +49,8 @@ import type {
   ComparativoMetricaPainel,
   InfograficosFluxoCotacao,
   PainelSmartInsightsDados,
+  TipoBaseTermometroHistorico,
+  ComponentePrecoTermometro,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import type { TFunction } from 'i18next'
 import {
@@ -55,6 +64,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
 } from './types'
+import { INCOTERMS } from './types'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { listarUsuariosOrganizacao, getApiContext } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
@@ -535,13 +545,10 @@ function AvisoGraficosInsightsCotacao({
         </ul>
         {smart.termometroDadosDemonstracao && (
           <p className="dc-smart-aviso-graficos-nota-termometro">
-            <span className="dc-smart-demo-pill">
-              {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
-            </span>
             <span>
               {t(
                 'bidfrete.detalhe_cotacao.cockpit_aviso_graficos_termometro',
-                'O termômetro histórico exibe série ilustrativa até existirem cotações aprovadas na mesma rota e condições.',
+                'O termômetro histórico será preenchido quando existirem dados nas mesmas condições.',
               )}
             </span>
           </p>
@@ -557,6 +564,7 @@ function CardMelhorPropostaSmart({
   id_cotacao_bid_frete_internacional,
   status_cotacao_bid_frete_internacional,
   propostasRanking,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   onCotacaoAtualizada,
   t,
 }: {
@@ -565,6 +573,7 @@ function CardMelhorPropostaSmart({
   id_cotacao_bid_frete_internacional?: string | null
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
@@ -699,6 +708,9 @@ function CardMelhorPropostaSmart({
           aberto={modalAprovar}
           id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
           proposta={propostaMelhor}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
           onFechar={fecharModalAprovar}
           onAprovado={aoAprovarProposta}
         />
@@ -707,71 +719,499 @@ function CardMelhorPropostaSmart({
   )
 }
 
+const COMPONENTES_TERMOMETRO: ComponentePrecoTermometro[] = [
+  'FRETE_BASE',
+  'TAXAS_ORIGEM',
+  'TAXAS_DESTINO',
+  'TOTAL',
+]
+
+function rotuloComponenteTermometro(
+  componente: ComponentePrecoTermometro,
+  t: (k: string, d?: string) => string,
+): string {
+  switch (componente) {
+    case 'FRETE_BASE':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_frete', 'Frete base')
+    case 'TAXAS_ORIGEM':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_origem', 'Taxas origem')
+    case 'TAXAS_DESTINO':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_destino', 'Taxas destino')
+    case 'TOTAL':
+      return t('bidfrete.detalhe_cotacao.cockpit_termometro_componente_total', 'Total')
+    default:
+      return componente
+  }
+}
+
 function CardTermometroHistoricoSmart({
-  smart,
+  cotacao,
+  propostas,
+  info,
+  historico_aprovado,
+  historico_propostas_recebidas,
   t,
 }: {
-  smart: PainelSmartInsightsDados
+  cotacao: Cotacao | null | undefined
+  propostas: PropostaRankingBidFreteInternacional[]
+  info: InfograficosFluxoCotacao
+  historico_aprovado?: Cotacao['historico_aprovado']
+  historico_propostas_recebidas?: Cotacao['historico_propostas_recebidas']
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
-  const valorMedia = smart.termometroMedia6Meses != null
-    ? moeda(smart.termometroMedia6Meses, smart.termometroMoeda)
-    : '—'
-  const savings = smart.termometroSavingsValor != null && smart.termometroSavingsValor > 0
-    ? moeda(smart.termometroSavingsValor, smart.termometroMoeda)
-    : null
-  const contexto = t(
-    'bidfrete.detalhe_cotacao.cockpit_termometro_contexto',
-    'Mesma origem, destino, modal, container e incoterm',
+  const [bases, setBases] = useState<TipoBaseTermometroHistorico[]>(['CONTRATADO'])
+  const [componentes, setComponentes] = useState<ComponentePrecoTermometro[]>(['FRETE_BASE'])
+  // Vazio = todos os incoterms (sem filtro)
+  const [incotermsSelecionados, setIncotermsSelecionados] = useState<string[]>([])
+
+  const alternarIncoterm = useCallback((item: string) => {
+    setIncotermsSelecionados((atual) => (
+      atual.includes(item) ? atual.filter((i) => i !== item) : [...atual, item]
+    ))
+  }, [])
+
+  const alternarBase = useCallback((item: TipoBaseTermometroHistorico) => {
+    setBases((atual) => {
+      const proximo = atual.includes(item)
+        ? atual.filter((b) => b !== item)
+        : [...atual, item]
+      // Nunca deixar a seleção vazia
+      return proximo.length > 0 ? proximo : atual
+    })
+  }, [])
+
+  const alternarComponente = useCallback((item: ComponentePrecoTermometro) => {
+    setComponentes((atual) => {
+      // TOTAL já é a soma completa da proposta — seleção exclusiva
+      if (item === 'TOTAL') return ['TOTAL']
+      const semTotal = atual.filter((c) => c !== 'TOTAL')
+      const proximo = semTotal.includes(item)
+        ? semTotal.filter((c) => c !== item)
+        : [...semTotal, item]
+      // Nunca deixar a seleção vazia
+      return proximo.length > 0 ? proximo : atual
+    })
+  }, [])
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false)
+  const filtroBotaoRef = useRef<HTMLDivElement>(null)
+  const filtroPainelRef = useRef<HTMLDivElement>(null)
+  const [filtroCoords, setFiltroCoords] = useState({ top: 0, right: 0 })
+
+  const atualizarFiltroCoords = useCallback(() => {
+    if (!filtroBotaoRef.current) return
+    const r = filtroBotaoRef.current.getBoundingClientRect()
+    setFiltroCoords({ top: r.bottom + 6, right: window.innerWidth - r.right })
+  }, [])
+
+  useEffect(() => {
+    if (!filtrosAbertos) return
+    atualizarFiltroCoords()
+    window.addEventListener('resize', atualizarFiltroCoords)
+    window.addEventListener('scroll', atualizarFiltroCoords, true)
+    return () => {
+      window.removeEventListener('resize', atualizarFiltroCoords)
+      window.removeEventListener('scroll', atualizarFiltroCoords, true)
+    }
+  }, [filtrosAbertos, atualizarFiltroCoords])
+
+  useEffect(() => {
+    if (!filtrosAbertos) return
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node
+      if (filtroBotaoRef.current?.contains(target)) return
+      if (filtroPainelRef.current?.contains(target)) return
+      setFiltrosAbertos(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [filtrosAbertos])
+
+  const referenciaTermometro = useMemo(() => {
+    if (cotacao == null) return null
+    return {
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      tipo_operacao_cotacao_bid_frete_internacional: cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+      modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+      origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
+      destino_codigo_cotacao_bid_frete_internacional: cotacao.destino_codigo_cotacao_bid_frete_internacional,
+      modalidade_cotacao_bid_frete_internacional: cotacao.modalidade_cotacao_bid_frete_internacional,
+      tipo_container_cotacao_bid_frete_internacional: cotacao.tipo_container_cotacao_bid_frete_internacional,
+      incoterm_cotacao_bid_frete_internacional: cotacao.incoterm_cotacao_bid_frete_internacional,
+      peso_kg_cotacao_bid_frete_internacional: cotacao.peso_kg_cotacao_bid_frete_internacional,
+      peso_ton_cotacao_bid_frete_internacional: cotacao.peso_ton_cotacao_bid_frete_internacional,
+      cubagem_m3_cotacao_bid_frete_internacional: cotacao.cubagem_m3_cotacao_bid_frete_internacional,
+    }
+  }, [cotacao])
+
+  const entradasBases = useMemo(() => {
+    return bases.map((tipoBase) => {
+      const bruto = tipoBase === 'CONTRATADO' ? historico_aprovado : historico_propostas_recebidas
+      const historico = referenciaTermometro == null
+        ? bruto
+        : filtrarHistoricoTermometro(referenciaTermometro, bruto, {
+          incoterms: incotermsSelecionados,
+        })
+      return { tipoBase, historico }
+    })
+  }, [
+    bases,
+    historico_aprovado,
+    historico_propostas_recebidas,
+    referenciaTermometro,
+    incotermsSelecionados,
+  ])
+
+  const termometro = useMemo(
+    () => buildSerieTermometroBases(propostas, entradasBases, componentes),
+    [propostas, entradasBases, componentes],
   )
 
-  return (
-    <article className="dc-smart-card dc-smart-card--termometro">
-      <header className="dc-smart-card-head">
-        <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
-        {smart.termometroDadosDemonstracao && (
-          <span className="dc-smart-demo-pill">
-            {t('bidfrete.detalhe_cotacao.cockpit_termometro_demo', 'Preview')}
-          </span>
-        )}
-      </header>
-      <div className="dc-smart-card-body dc-smart-card-body--termometro">
-        <div className="dc-smart-termometro-topo">
-          <div>
-            <p className="dc-smart-valor-hero">{valorMedia}</p>
-            <span className="dc-smart-termometro-sub">
-              {t('bidfrete.detalhe_cotacao.cockpit_media_6_meses', 'Média 6 Meses')}
+  const aguardandoDados = termometro.termometroDadosDemonstracao
+  const valorMercado = !aguardandoDados && termometro.termometroMedia6Meses != null
+    ? moeda(termometro.termometroMedia6Meses, info.melhorValorMoeda)
+    : '—'
+  const valorDele = termometro.termometroValorDele != null
+    ? moeda(termometro.termometroValorDele, info.melhorValorMoeda)
+    : '—'
+  const savings = !aguardandoDados
+    && termometro.termometroSavingsValor != null
+    && termometro.termometroSavingsValor > 0
+    ? moeda(termometro.termometroSavingsValor, info.melhorValorMoeda)
+    : null
+  const contexto = t(
+    'bidfrete.detalhe_cotacao.cockpit_termometro_contexto_resumo',
+    'Mesma operação, rota e modal — ver documentação para faixas',
+  )
+  const mensagemAguardando = bases.length > 1
+    ? t(
+      'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_ambas',
+      'Aguardando cotações aprovadas ou com proposta nas mesmas condições.',
+    )
+    : bases[0] === 'CONTRATADO'
+      ? t(
+        'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados',
+        'Aguardando cotações aprovadas nas mesmas condições.',
+      )
+      : t(
+        'bidfrete.detalhe_cotacao.cockpit_termometro_aguardando_dados_propostas',
+        'Aguardando cotações com proposta nas mesmas condições.',
+      )
+
+  const incotermCotacao = cotacao?.incoterm_cotacao_bid_frete_internacional?.trim() ?? ''
+  const filtrosDestacados =
+    bases.length !== 1
+    || bases[0] !== 'CONTRATADO'
+    || componentes.length !== 1
+    || componentes[0] !== 'FRETE_BASE'
+    || incotermsSelecionados.length > 0
+
+  const rotuloComponentes = componentes
+    .map((item) => rotuloComponenteTermometro(item, t))
+    .join(' + ')
+
+  // Lista de seleções ativas para o chip de filtros (padrão fc-chip da plataforma)
+  const selecoesFiltros = [
+    ...(['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const)
+      .filter((item) => bases.includes(item))
+      .map((item) => item === 'CONTRATADO'
+        ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
+        : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')),
+    ...componentes.map((item) => rotuloComponenteTermometro(item, t)),
+    ...incotermsSelecionados,
+  ]
+
+  // Híbrido (padrão rotulofiltro): até 2 nomes diretos; 3+ consolida em "N selecionados"
+  const valorChipFiltros = selecoesFiltros.length <= 2
+    ? selecoesFiltros.join(', ')
+    : t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros_n', {
+      n: selecoesFiltros.length,
+      defaultValue: `${selecoesFiltros.length} selecionados`,
+    })
+
+  const limparFiltrosTermometro = () => {
+    setBases(['CONTRATADO'])
+    setComponentes(['FRETE_BASE'])
+    setIncotermsSelecionados([])
+  }
+
+  const painelFiltros = filtrosAbertos && typeof document !== 'undefined'
+    ? createPortal(
+        <div
+          ref={filtroPainelRef}
+          className="dc-termometro-filtros-painel"
+          style={{ top: filtroCoords.top, right: filtroCoords.right }}
+          role="dialog"
+          aria-label={t(
+            'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_aria',
+            'Filtros do termômetro histórico',
+          )}
+        >
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_seletor_aria',
+              'Base do termômetro histórico',
+            )}
+          >
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_base_label', 'Base')}
             </span>
+            {(['CONTRATADO', 'PROPOSTAS_RECEBIDAS'] as const).map((item) => {
+              const ativo = bases.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={ativo}
+                  className={`dc-termometro-filtros-opcao${ativo ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+                  onClick={() => alternarBase(item)}
+                >
+                  <span
+                    className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${ativo ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                    aria-hidden
+                  >
+                    {ativo ? <Check size={11} weight="bold" /> : null}
+                  </span>
+                  {item === 'CONTRATADO'
+                    ? t('bidfrete.detalhe_cotacao.cockpit_termometro_base_contratado', 'Contratado')
+                    : t('bidfrete.detalhe_cotacao.cockpit_termometro_base_propostas', 'Propostas')}
+                </button>
+              )
+            })}
+          </div>
+          <div className="dc-termometro-filtros-separador" role="separator" />
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_componente_aria',
+              'Componente de preço',
+            )}
+          >
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_componente', 'Componente')}
+            </span>
+            {COMPONENTES_TERMOMETRO.map((item) => {
+              const ativo = componentes.includes(item)
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  role="option"
+                  aria-selected={ativo}
+                  className={`dc-termometro-filtros-opcao${ativo ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+                  onClick={() => alternarComponente(item)}
+                >
+                  <span
+                    className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${ativo ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                    aria-hidden
+                  >
+                    {ativo ? <Check size={11} weight="bold" /> : null}
+                  </span>
+                  {rotuloComponenteTermometro(item, t)}
+                </button>
+              )
+            })}
+          </div>
+          <div className="dc-termometro-filtros-separador" role="separator" />
+          <div
+            className="dc-termometro-filtros-secao"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_aria',
+              'Filtrar por incoterm',
+            )}
+          >
+            <span className="dc-termometro-filtros-secao-titulo">
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_label', 'Incoterm')}
+            </span>
+            <button
+              type="button"
+              role="option"
+              aria-selected={incotermsSelecionados.length === 0}
+              className={`dc-termometro-filtros-opcao${incotermsSelecionados.length === 0 ? ' dc-termometro-filtros-opcao--ativa' : ''}`}
+              onClick={() => setIncotermsSelecionados([])}
+            >
+              <span
+                className={`dc-termometro-filtros-check dc-termometro-filtros-check--caixa${incotermsSelecionados.length === 0 ? ' dc-termometro-filtros-check--marcado' : ''}`}
+                aria-hidden
+              >
+                {incotermsSelecionados.length === 0 ? <Check size={11} weight="bold" /> : null}
+              </span>
+              {t('bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_todos', 'Todos')}
+            </button>
+            <div className="dc-termometro-filtros-incoterm-grid">
+              {INCOTERMS.map((item) => {
+                const ativo = incotermsSelecionados.includes(item)
+                const daCotacao = item === incotermCotacao
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    role="option"
+                    aria-selected={ativo}
+                    className={`dc-termometro-filtros-incoterm-chip${ativo ? ' dc-termometro-filtros-incoterm-chip--ativo' : ''}${daCotacao ? ' dc-termometro-filtros-incoterm-chip--cotacao' : ''}`}
+                    title={daCotacao
+                      ? t(
+                        'bidfrete.detalhe_cotacao.cockpit_termometro_incoterm_da_cotacao',
+                        'Incoterm desta cotação',
+                      )
+                      : undefined}
+                    onClick={() => alternarIncoterm(item)}
+                  >
+                    {item}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <article
+      className={`dc-smart-card dc-smart-card--termometro${aguardandoDados ? ' dc-smart-card--vazio' : ''}`}
+    >
+      <header className="dc-smart-card-head dc-smart-card-head--termometro">
+        <span>{t('bidfrete.detalhe_cotacao.cockpit_termometro', 'Termômetro histórico')}</span>
+        <div className="dc-termometro-head-acoes" ref={filtroBotaoRef}>
+          {filtrosDestacados && (
+            <span className="dc-termometro-chip" role="status">
+              <TooltipGlobal
+                titulo={t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+                descricao={(
+                  <ol
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      listStyle: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.125rem',
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {selecoesFiltros.map((item, i) => (
+                      <li key={item} style={{ display: 'flex', gap: '0.45rem' }}>
+                        <span style={{ opacity: 0.55, minWidth: '1.4rem', textAlign: 'right' }}>
+                          {i + 1}.
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              >
+                <button
+                  type="button"
+                  className="dc-termometro-chip-body"
+                  onClick={() => setFiltrosAbertos(true)}
+                >
+                  <span className="dc-termometro-chip-label">
+                    {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}:
+                  </span>
+                  <span className="dc-termometro-chip-valor">{valorChipFiltros}</span>
+                </button>
+              </TooltipGlobal>
+              <button
+                type="button"
+                className="dc-termometro-chip-remove"
+                aria-label={t(
+                  'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_limpar',
+                  'Limpar filtros do termômetro',
+                )}
+                onClick={limparFiltrosTermometro}
+              >
+                <X size={9} weight="bold" aria-hidden />
+              </button>
+            </span>
+          )}
+          <button
+            type="button"
+            className={`dc-termometro-filtros-botao${filtrosDestacados ? ' dc-termometro-filtros-botao--destacado' : ''}`}
+            aria-haspopup="dialog"
+            aria-expanded={filtrosAbertos}
+            aria-label={t(
+              'bidfrete.detalhe_cotacao.cockpit_termometro_filtros_aria',
+              'Filtros do termômetro histórico',
+            )}
+            title={t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+            onClick={() => setFiltrosAbertos((v) => !v)}
+          >
+            <FunnelSimple weight={filtrosDestacados ? 'fill' : 'bold'} size={13} aria-hidden />
+            {!filtrosDestacados && (
+              <span className="dc-termometro-filtros-botao-rotulo">
+                {t('bidfrete.detalhe_cotacao.cockpit_termometro_filtros', 'Filtros')}
+              </span>
+            )}
+          </button>
+        </div>
+      </header>
+      {painelFiltros}
+      <div className="dc-smart-termometro-canvas">
+        {!aguardandoDados && (
+          <div className="dc-smart-termometro-canvas-metricas">
+            <div className="dc-smart-termometro-dele-mercado">
+              <div className="dc-smart-termometro-preco">
+                <span className="dc-smart-termometro-preco-rotulo">
+                  {t('bidfrete.detalhe_cotacao.cockpit_termometro_dele', 'Dele')}
+                </span>
+                <p className="dc-smart-valor-hero dc-smart-valor-hero--secundario">{valorDele}</p>
+              </div>
+              <div className="dc-smart-termometro-preco dc-smart-termometro-preco--mercado">
+                <span className="dc-smart-termometro-preco-rotulo">
+                  {t('bidfrete.detalhe_cotacao.cockpit_termometro_mercado', 'Mercado')}
+                </span>
+                <p className="dc-smart-valor-hero">{valorMercado}</p>
+                <span className="dc-smart-termometro-sub">
+                  {t('bidfrete.detalhe_cotacao.cockpit_media_6_meses', 'Média 6 Meses')}
+                </span>
+              </div>
+              {savings != null && (
+                <span className="dc-smart-savings-pill">
+                  {t('bidfrete.detalhe_cotacao.cockpit_savings_valor', {
+                    valor: savings,
+                    defaultValue: `Savings de ${savings}`,
+                  })}
+                </span>
+              )}
+            </div>
             <span className="dc-smart-termometro-contexto" title={contexto}>
-              {contexto}
+              {rotuloComponentes}
             </span>
           </div>
-          {savings != null && (
-            <span className="dc-smart-savings-pill">
-              {t('bidfrete.detalhe_cotacao.cockpit_savings_valor', {
-                valor: savings,
-                defaultValue: `Savings de ${savings}`,
-              })}
-            </span>
+        )}
+        <div
+          className={`dc-term-chart-slot${aguardandoDados ? ' dc-term-chart-slot--aguardando' : ''}`}
+        >
+          {aguardandoDados ? (
+            <div className="dc-smart-termometro-canvas-vazio">
+              <ChartLineUp weight="duotone" size={32} style={{ opacity: 0.28 }} />
+              <p>{mensagemAguardando}</p>
+              <span
+                className="dc-smart-termometro-contexto dc-smart-termometro-contexto--vazio"
+                title={contexto}
+              >
+                {contexto}
+              </span>
+            </div>
+          ) : (
+            <GraficoAreaTermometro
+              serie={termometro.serieHistorico6Meses ?? []}
+              moeda={info.melhorValorMoeda}
+              mediaFallback={termometro.termometroMedia6Meses}
+              modoDemonstracao={false}
+            />
           )}
         </div>
       </div>
-      <div className="dc-term-chart-slot">
-        <GraficoAreaTermometro
-          serie={smart.serieHistorico6Meses ?? []}
-          moeda={smart.termometroMoeda}
-          mediaFallback={smart.termometroMedia6Meses}
-          modoDemonstracao={smart.termometroDadosDemonstracao}
-        />
-      </div>
-      {smart.termometroDadosDemonstracao && (
-        <p className="dc-smart-termometro-demo-legenda">
-          {t(
-            'bidfrete.detalhe_cotacao.cockpit_termometro_demo_legenda',
-            'Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.',
-          )}
-        </p>
-      )}
     </article>
   )
 }
@@ -781,6 +1221,7 @@ function CardRankingRespostasInsights({
   status_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   onCotacaoAtualizada,
   t,
 }: {
@@ -788,6 +1229,7 @@ function CardRankingRespostasInsights({
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking: boolean
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
   t: (k: string, d?: string | Record<string, unknown>) => string
 }) {
@@ -804,6 +1246,9 @@ function CardRankingRespostasInsights({
           carregandoRanking={carregandoRanking}
           variante="combate"
           onCotacaoAtualizada={onCotacaoAtualizada}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
         />
       </div>
     </article>
@@ -1075,6 +1520,9 @@ export function InsightsGridFluxoCotacao({
           id_cotacao_bid_frete_internacional={idCotacao}
           status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
           propostasRanking={propostasRanking}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
           onCotacaoAtualizada={onCotacaoAtualizada}
           t={t}
         />
@@ -1084,11 +1532,21 @@ export function InsightsGridFluxoCotacao({
             status_cotacao_bid_frete_internacional={status_cotacao_bid_frete_internacional}
             propostasRanking={propostasRanking}
             carregandoRanking={carregandoRanking}
+            empresa_pagadora_taxa_fechamento_plataforma_gravity={
+              cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity
+            }
             onCotacaoAtualizada={onCotacaoAtualizada}
             t={t}
           />
         )}
-        <CardTermometroHistoricoSmart smart={smart} t={t} />
+        <CardTermometroHistoricoSmart
+          cotacao={cotacao}
+          propostas={propostas}
+          info={info}
+          historico_aprovado={cotacao?.historico_aprovado}
+          historico_propostas_recebidas={cotacao?.historico_propostas_recebidas}
+          t={t}
+        />
       </div>
       {propostas.length >= 2 && (
         <p className="dc-smart-legenda" aria-hidden>

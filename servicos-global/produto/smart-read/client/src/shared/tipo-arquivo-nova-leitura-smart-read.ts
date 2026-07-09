@@ -4,6 +4,7 @@
 
 import type { Leitura, StatusLeitura } from './schemas'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
+import { passoInicialLeituraSmartRead as passoInicialLeituraSmartReadShared } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
   | 'anexado'
@@ -54,7 +55,7 @@ export function criarArquivoLocalNovaLeitura(arquivo: File): ArquivoLocalNovaLei
  * COMPLETED → 4 (Resultado); PROCESSING/PENDING/FAILED → 2 (Análise).
  */
 export function passoInicialLeituraSmartRead(status: StatusLeitura): number {
-  return status === 'COMPLETED' ? 4 : 2
+  return passoInicialLeituraSmartReadShared(status)
 }
 
 function statusArquivoLocalDeStatusLeitura(status: StatusLeitura): StatusArquivoLocalNovaLeitura {

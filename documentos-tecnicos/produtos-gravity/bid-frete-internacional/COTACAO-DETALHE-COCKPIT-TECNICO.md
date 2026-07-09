@@ -111,11 +111,36 @@ Helpers: `conversao-estimada-brl-proposta-bid-frete-internacional.ts`, `montarMa
 
 ---
 
-## 6. Anti-padrões
+## 7. Termômetro histórico
+
+Card no grid do Painel de Insights (`CardTermometroHistoricoSmart`). Regras de matching, faixas, componente de preço e Dele vs Mercado: **[TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](./TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md)** (SSOT).
+
+---
+
+## 8. Anti-padrões
 
 - Duplicar faixa de aprovação na aba Visão geral (`dc-aprovado`).
 - Exibir banner comparativo com 1 proposta quando status já é `APROVADA`.
 - Persistir `id_usuario_aprovacao_*` / `nome_usuario_aprovacao_*` no Prisma — são agregados de leitura.
 - Resolver «Quem aprovou» só no client sem enriquecer o GET (quebra para outros usuários da org).
 - Reimplementar grid de subtotais no modal Aprovar ou no card combate — usar `TabelaResumoPropostaReadonlyBidFreteInternacional`.
+
+---
+
+## 6. Card Rota — portos/aeroportos opcionais (TASK-000405)
+
+Quando a cotação tem alternativas habilitadas, o card **Rota** na aba Visão geral exibe linhas abaixo da rota principal:
+
+| Label UI | Fonte |
+|----------|-------|
+| Portos/Aeroportos de Origem opcionais | `codigos_opcao_porto_aeroporto_origem_*` + rótulos Cadastros |
+| Portos/Aeroportos de Destino opcionais | `codigos_opcao_porto_aeroporto_destino_*` + rótulos Cadastros |
+
+| Peça | Caminho |
+|------|---------|
+| UI | `cotacao-detalhe.tsx` — `InfoRow` após `RotaVisualCotacao` |
+| Textos | `useTextosLocaisOpcionaisCotacaoBidFrete` em `locais-opcionais-cotacao-bid-frete-internacional.ts` |
+| SSOT | `shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.ts` |
+
+Omite a linha quando toggle desligado ou lista vazia. Formato exibição: códigos resolvidos separados por vírgula (`Santos — BRSSZ, Paranaguá — BRPNG`).
 - Converter moedas estrangeiras entre si ou somar USD+EUR num único total BRL sem conversão por coluna.

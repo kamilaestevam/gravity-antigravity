@@ -160,6 +160,7 @@ export function ModalOverlay({
   fecharAoClicarOverlay = true,
   fecharPorESC = true,
   semFechar = false,
+  zIndex,
 }: ModalProps) {
   const id = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -229,6 +230,7 @@ export function ModalOverlay({
     <div
       className="mg-overlay"
       role="presentation"
+      style={zIndex != null ? { zIndex } : undefined}
       onClick={fecharAoClicarOverlay && !semFechar ? (e) => { if (e.target === e.currentTarget) aoFechar() } : undefined}
       aria-hidden="false"
     >

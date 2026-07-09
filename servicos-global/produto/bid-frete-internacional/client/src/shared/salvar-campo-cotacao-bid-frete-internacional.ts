@@ -19,12 +19,16 @@ export const CAMPOS_DATA_COTACAO = new Set([
 const CAMPOS_NUMERICOS_COTACAO = new Set([
   'quantidade_volume_cotacao_bid_frete_internacional',
   'peso_kg_cotacao_bid_frete_internacional',
+  'comprimento_cubagem_cotacao_bid_frete_internacional',
+  'largura_cubagem_cotacao_bid_frete_internacional',
+  'altura_cubagem_cotacao_bid_frete_internacional',
   'cubagem_m3_cotacao_bid_frete_internacional',
   'ganho_percentual_cotacao_bid_frete_internacional',
 ])
 
 /** Campos exibidos em Dados gerais que espelham a lista (edição compartilhada). */
 export const CAMPOS_ESPELHO_PAINEL_DADOS_GERAIS = [
+  'numero_cotacao_bid_frete_internacional',
   'referencia_interna_cotacao_bid_frete_internacional',
   'status_cotacao_bid_frete_internacional',
   'data_criacao_cotacao_bid_frete_internacional',
@@ -59,6 +63,13 @@ function normalizarDataIsoEdicao(valor: unknown): string | null {
 }
 
 export function normalizarValorEdicaoCotacao(campo: string, valor: unknown): unknown {
+  if (campo === 'numero_cotacao_bid_frete_internacional') {
+    const texto = String(valor ?? '').trim()
+    if (!texto) {
+      throw new Error('Número da cotação não pode ficar vazio.')
+    }
+    return texto
+  }
   if (campo === 'anonima_cotacao_bid_frete_internacional') {
     if (typeof valor === 'boolean') return valor
     return valor === true || valor === 'true' || valor === 'Sim'

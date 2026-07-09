@@ -20,6 +20,7 @@ import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-glo
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 
 import { smartReadApi } from '../../shared/api'
+import { useShellStore } from '@gravity/shell'
 
 import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 
@@ -30,7 +31,6 @@ import {
   criarArquivosLocaisDeLeitura,
   arquivoLocalTemBlobVisualizavel,
   consolidarLeituraDeArquivosLocais,
-  passoInicialLeituraSmartRead,
 
   todosArquivosAnaliseCompleta,
   algumArquivoEmAnalise,
@@ -48,6 +48,8 @@ import {
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
+import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
+import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 
 import {
   carregarBlobArquivoLeituraSmartRead,
@@ -128,6 +130,9 @@ type Props = {
 
   onConcluido?: () => void
 
+  /** Quando true (redirect do Pedido), dispara criação de pedido ao concluir passo 4. */
+  origemPedido?: boolean
+
 }
 
 
@@ -154,7 +159,11 @@ export function ModalNovaLeituraSmartRead({
 
   onConcluido,
 
+  origemPedido = false,
+
 }: Props) {
+
+  const addNotification = useShellStore((s) => s.addNotification)
 
   const [passo, setPasso] = useState(1)
 
@@ -244,7 +253,10 @@ export function ModalNovaLeituraSmartRead({
       )
       if (!ativo.current) return
       setArquivos(hidratados)
-      const passoRetomar = salvo?.passo ?? passoInicialLeituraSmartRead(leituraEfetiva.status_leitura)
+      const passoRetomar = resolverPassoRetomarLeituraSmartRead(
+        leituraEfetiva.status_leitura,
+        salvo?.passo,
+      )
       setPasso(passoRetomar)
       passoSalvoRef.current = passoRetomar >= 2 ? passoRetomar : 0
     },
@@ -274,7 +286,13 @@ export function ModalNovaLeituraSmartRead({
       }
 
       try {
-        const leituraEfetiva = salvo?.leitura ?? leitura
+        const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leitura, salvo?.leitura)
+        if (!leituraEfetiva) {
+          if (!ativo.current) return
+          setArquivos([])
+          setPasso(1)
+          return
+        }
         await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
       } catch {
         if (!ativo.current) return
@@ -306,6 +324,7 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
         setArquivos([])
+        setPasso(2)
         void hidratarLeituraExistente(idLeituraExistente)
       } else {
         setPasso(1)
@@ -774,6 +793,28 @@ export function ModalNovaLeituraSmartRead({
     if (passo === 2 && !processamentoFinalizado) return
 
     if (passo >= 4) {
+
+      if (origemPedido && idLeituraAtual) {
+        try {
+          const resultado = await smartReadApi.criarPedidoDeLeitura(idLeituraAtual)
+          const totalPedidos = resultado.pedidos_criados?.length ?? 1
+          const tituloPedido =
+            totalPedidos > 1
+              ? `${totalPedidos} pedidos criados no Pedido (${resultado.numero_pedido} e outros)`
+              : `Pedido ${resultado.numero_pedido} criado no Pedido`
+          addNotification({
+            type: 'success',
+            title: tituloPedido,
+            message: 'Leitura concluída e pedido gerado com sucesso.',
+          })
+        } catch (erro) {
+          addNotification({
+            type: 'error',
+            title: 'Falha ao criar pedido',
+            message: mensagemDeExcecao(erro, 'Nao foi possivel gerar o pedido a partir da leitura.'),
+          })
+        }
+      }
 
       onConcluido?.()
 

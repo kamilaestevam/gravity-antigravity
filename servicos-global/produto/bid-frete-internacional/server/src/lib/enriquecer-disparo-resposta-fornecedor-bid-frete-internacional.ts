@@ -2,7 +2,9 @@ import {
   obterMapaNomesWorkspacePorIds,
   resolverNomeClienteOperacaoCotacaoResposta,
 } from './resolver-nome-cliente-cotacao-resposta-bid-frete-internacional.js'
+import { lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional } from './snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
 import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from './resolver-nome-usuario-organizacao-bid-frete-internacional.js'
+import { montarMapaRotulosLocaisRespostaBidFreteInternacional } from './montar-mapa-rotulos-locais-cotacao-bid-frete-internacional.js'
 
 type DisparoComCotacao = {
   id_organizacao?: string
@@ -32,18 +34,47 @@ export const COTACAO_SELECT_RESPOSTA_FORNECEDOR = {
   origem_pais_cotacao_bid_frete_internacional: true,
   destino_nome_cotacao_bid_frete_internacional: true,
   destino_pais_cotacao_bid_frete_internacional: true,
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: true,
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: true,
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional: true,
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional: true,
+  endereco_origem_cotacao_bid_frete_internacional: true,
+  endereco_destino_cotacao_bid_frete_internacional: true,
+  porto_origem_cotacao_bid_frete_internacional: true,
+  porto_destino_cotacao_bid_frete_internacional: true,
+  aeroporto_origem_cotacao_bid_frete_internacional: true,
+  aeroporto_destino_cotacao_bid_frete_internacional: true,
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: true,
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional: true,
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: true,
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional: true,
   descricao_mercadoria_cotacao_bid_frete_internacional: true,
   ncm_cotacao_bid_frete_internacional: true,
+  hs_code_cotacao_bid_frete_internacional: true,
   incoterm_cotacao_bid_frete_internacional: true,
   quantidade_volume_cotacao_bid_frete_internacional: true,
   tipo_container_cotacao_bid_frete_internacional: true,
   peso_kg_cotacao_bid_frete_internacional: true,
+  peso_ton_cotacao_bid_frete_internacional: true,
   cubagem_m3_cotacao_bid_frete_internacional: true,
+  codigo_unidade_cubagem_cotacao_bid_frete_internacional: true,
+  comprimento_cubagem_cotacao_bid_frete_internacional: true,
+  largura_cubagem_cotacao_bid_frete_internacional: true,
+  altura_cubagem_cotacao_bid_frete_internacional: true,
+  eh_carga_perigosa_cotacao_bid_frete_internacional: true,
+  numero_onu_cotacao_bid_frete_internacional: true,
+  nome_tecnico_embarque_cotacao_bid_frete_internacional: true,
+  classe_carga_perigosa_cotacao_bid_frete_internacional: true,
+  divisao_carga_perigosa_cotacao_bid_frete_internacional: true,
+  grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional: true,
+  observacoes_carga_perigosa_cotacao_bid_frete_internacional: true,
   data_criacao_cotacao_bid_frete_internacional: true,
   data_limite_resposta_cotacao_bid_frete_internacional: true,
   anonima_cotacao_bid_frete_internacional: true,
   incluir_armazenagem_cotacao_bid_frete_internacional: true,
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional: true,
   status_cotacao_bid_frete_internacional: true,
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: true,
 } as const
 
 async function obterMapaNomesUsuarioSolicitantePorIds(
@@ -71,6 +102,7 @@ function enriquecerCotacaoComMapa(
   cotacao: NonNullable<DisparoComCotacao['cotacao']>,
   mapaNomesWorkspace: Map<string, string>,
   mapaNomesUsuario: Map<string, string>,
+  mapaRotulosLocais: Record<string, string>,
   idOrganizacaoDisparo?: string,
 ) {
   const idOrganizacao = cotacao.id_organizacao ?? idOrganizacaoDisparo ?? ''
@@ -89,6 +121,10 @@ function enriquecerCotacaoComMapa(
     ...cotacao,
     nome_cliente_operacao_cotacao_bid_frete_internacional: nomeCliente,
     nome_usuario_solicitante_bid_frete_internacional: nomeUsuarioSolicitante,
+    mapa_rotulos_locais_resposta_bid_frete_internacional: mapaRotulosLocais,
+    empresa_pagadora_taxa_fechamento_plataforma_gravity: lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(
+      cotacao.id_cotacao_bid_frete_internacional as string | undefined,
+    ),
   }
 }
 
@@ -107,12 +143,16 @@ export async function enriquecerDisparoRespostaFornecedor<T extends DisparoComCo
           { id_organizacao: idOrganizacao, id_usuario: idUsuario },
         ])
       : new Map<string, string>()
+  const mapaRotulosLocais = await montarMapaRotulosLocaisRespostaBidFreteInternacional(
+    disparo.cotacao as Parameters<typeof montarMapaRotulosLocaisRespostaBidFreteInternacional>[0],
+  )
   return {
     ...disparo,
     cotacao: enriquecerCotacaoComMapa(
       disparo.cotacao,
       mapaWorkspace,
       mapaUsuario,
+      mapaRotulosLocais,
       disparo.id_organizacao,
     ),
   }
@@ -138,7 +178,16 @@ export async function enriquecerDisparosRespostaFornecedor<T extends DisparoComC
   }
   const mapaUsuario = await obterMapaNomesUsuarioSolicitantePorIds(paresUsuario)
 
-  return disparos.map((disparo) => {
+  const mapasRotulosLocais = await Promise.all(
+    disparos.map(async (disparo) => {
+      if (!disparo.cotacao) return {} as Record<string, string>
+      return montarMapaRotulosLocaisRespostaBidFreteInternacional(
+        disparo.cotacao as Parameters<typeof montarMapaRotulosLocaisRespostaBidFreteInternacional>[0],
+      )
+    }),
+  )
+
+  return disparos.map((disparo, indice) => {
     if (!disparo.cotacao) return disparo
     return {
       ...disparo,
@@ -146,6 +195,7 @@ export async function enriquecerDisparosRespostaFornecedor<T extends DisparoComC
         disparo.cotacao,
         mapaWorkspace,
         mapaUsuario,
+        mapasRotulosLocais[indice] ?? {},
         disparo.id_organizacao,
       ),
     }

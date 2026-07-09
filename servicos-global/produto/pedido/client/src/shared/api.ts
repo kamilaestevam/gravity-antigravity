@@ -4,6 +4,7 @@
  * Comunica com o backend via processos-core (proxy Vite -> :8025)
  */
 
+import { z } from 'zod'
 import {
   dashboardKpisSchema,
   dashboardBundleResponseSchema,
@@ -62,6 +63,11 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
+import {
+  duplicatasNumeroResponseSchema,
+  pedidoDuplicataResumoSchema,
+  type PedidoDuplicataResumo,
+} from './modal-novo-pedido-duplicata-helpers.js'
 import {
   listaPainelDeletarResponseSchema,
   listaPainelItemResponseSchema,
@@ -199,13 +205,25 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
     // BUG-C (Mand. 08): preservar `details` no Error para que a UI possa exibir
     // o(s) campo(s) realmente inválidos em vez de uma mensagem genérica.
     const msg = raw?.error?.message || raw?.erro?.mensagem || (typeof raw?.error === 'string' ? raw.error : null)
-    const err = new Error(msg || `HTTP ${response.status}`) as Error & { details?: unknown; codeBackend?: string }
+    const err = new Error(msg || `HTTP ${response.status}`) as Error & {
+      details?: unknown
+      codeBackend?: string
+      pedidosExistentesDuplicata?: PedidoDuplicataResumo[]
+    }
     if (raw?.error && typeof raw.error === 'object') {
       if ('details' in raw.error) {
         err.details = (raw.error as { details?: unknown }).details
       }
       if ('code' in raw.error && typeof (raw.error as { code?: unknown }).code === 'string') {
         err.codeBackend = (raw.error as { code: string }).code
+      }
+      if ('pedidos_existentes' in raw.error && Array.isArray((raw.error as { pedidos_existentes?: unknown }).pedidos_existentes)) {
+        const parsed = z.array(pedidoDuplicataResumoSchema).safeParse(
+          (raw.error as { pedidos_existentes: unknown }).pedidos_existentes,
+        )
+        if (parsed.success) {
+          err.pedidosExistentesDuplicata = parsed.data
+        }
       }
     }
     throw err
@@ -342,10 +360,12 @@ export const pedidoApi = {
       body: JSON.stringify(data),
     }),
 
-  buscarDuplicatasNumero: (numero_pedido: string) =>
-    request<{ pedidos_existentes: Array<{ id_pedido: string; numero_pedido: string }> }>(
+  buscarDuplicatasNumero: async (numero_pedido: string) => {
+    const raw = await request<unknown>(
       `/api/v1/pedidos/duplicatas-numero?${new URLSearchParams({ numero_pedido })}`,
-    ),
+    )
+    return duplicatasNumeroResponseSchema.parse(raw)
+  },
 
   atualizar: (id: string, data: Partial<Pedido>) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}`, {
@@ -1804,9 +1824,6 @@ export const templatePedidoApi = {
     request<GerarPdfResultado>('/api/v1/pedidos/template-pedido/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockPdfGerar(payload)
-      throw err
     }),
 
   criarTemplate: (data: { nome: string; conteudo: string }) =>
@@ -1851,36 +1868,7 @@ export const gerarDocumentoApi = {
     request<GerarPdfResultado>('/api/v1/pedidos/template-pedido/documentos/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockGerarDocumento(payload)
-      throw err
     }),
-}
-
-function mockGerarDocumento(payload: GerarDocumentoPayload): GerarPdfResultado {
-  const tipoLabel: Record<string, string> = {
-    pedido_de_venda: 'Pedido de Venda', proforma_invoice: 'Proforma Invoice', invoice: 'Invoice',
-  }
-  const html = `<!DOCTYPE html><html lang="${payload.idioma}"><head>
-<meta charset="utf-8"><title>${tipoLabel[payload.tipo_documento] ?? payload.tipo_documento}</title>
-<style>body{font-family:sans-serif;margin:40px;color:#1e293b}h1{color:#3b82f6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}</style>
-</head><body>
-<h1>[MOCK] ${tipoLabel[payload.tipo_documento] ?? payload.tipo_documento}</h1>
-<p><strong>Idioma:</strong> ${payload.idioma.toUpperCase()} &nbsp;&nbsp; <strong>Pedido:</strong> ${payload.pedido_id}</p>
-<p style="color:#94a3b8;font-size:12px">Este é um documento de demonstração gerado em ambiente de desenvolvimento.</p>
-<table><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>
-<tr><td>Tipo</td><td>${tipoLabel[payload.tipo_documento]}</td></tr>
-<tr><td>Idioma</td><td>${payload.idioma.toUpperCase()}</td></tr>
-<tr><td>Pedido ID</td><td>${payload.pedido_id}</td></tr>
-<tr><td>Salvar como anexo</td><td>${payload.salvar_como_anexo ? 'Sim' : 'Não'}</td></tr>
-</tbody></table>
-</body></html>`
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-  return {
-    url_download: URL.createObjectURL(blob),
-    anexo_id: `anexo_doc_${Date.now()}`,
-    is_pdf: false,
-  }
 }
 
 // ── Mocks Anexos ──────────────────────────────────────────────────────────────
@@ -1929,26 +1917,6 @@ function mockPdfTemplatesLocal(): TemplateLocal[] {
     { id: 'tpl_mock_001', nome: 'Template PO Padrão',       conteudo: '<h1>{{numero_pedido}}</h1>',  criadoEm: '2026-04-01' },
     { id: 'tpl_mock_002', nome: 'Template Proforma Invoice', conteudo: '<h1>{{exportador}}</h1>',    criadoEm: '2026-04-02' },
   ]
-}
-
-function mockPdfGerar(payload: GerarPdfPayload): GerarPdfResultado {
-  const anexoId = `anx_pdf_mock_${Date.now()}`
-  const tpl = mockPdfTemplatesLocal().find(t => t.id === payload.template_id)
-  const html = `<!DOCTYPE html><html><head>
-<meta charset="utf-8"><title>${tpl?.nome ?? 'Template'}</title>
-<style>body{font-family:sans-serif;margin:40px;color:#1e293b}h1{color:#3b82f6}pre{background:#f8fafc;padding:16px;border-radius:8px;font-size:13px;overflow:auto}</style>
-</head><body>
-<h1>[MOCK] ${tpl?.nome ?? 'Template personalizado'}</h1>
-<p><strong>Pedido:</strong> ${payload.pedido_id}</p>
-<p style="color:#94a3b8;font-size:12px">Este é um documento de demonstração gerado em ambiente de desenvolvimento.</p>
-${tpl ? `<p><strong>Conteúdo do template:</strong></p><pre>${tpl.conteudo.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>` : ''}
-</body></html>`
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-  return {
-    url_download: URL.createObjectURL(blob),
-    anexo_id: anexoId,
-    is_pdf: false,
-  }
 }
 
 // ── Colunas do Usuário ────────────────────────────────────────────────────────

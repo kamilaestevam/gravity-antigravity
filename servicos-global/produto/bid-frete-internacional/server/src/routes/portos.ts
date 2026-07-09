@@ -1,5 +1,5 @@
 /**
- * portos.ts — Proxy Cadastros (porto + aeroporto) para compat legado GET /portos
+ * portos.ts — Proxy Cadastros (porto + aeroporto) para GET /dados-mestre/portos
  */
 import { Router, Request, Response } from 'express'
 import { fetchCadastrosJson } from '../lib/cadastros-client.js'
@@ -21,19 +21,52 @@ type AeroportoCadastros = {
 
 type ListaCadastros<T> = { itens: T[]; total: number }
 
+function resolverLimitePortos(query: {
+  q?: string
+  pais?: string
+  limit?: string
+}): number {
+  const busca = query.q?.trim()
+  const pais = query.pais?.trim()
+  const limitRaw = Number(query.limit) || 50
+  const teto = busca || pais ? 500 : 10_000
+  return Math.min(Math.max(limitRaw, 1), teto)
+}
+
+router.get('/portos/:codigo', async (req: Request, res: Response) => {
+  try {
+    const codigo = req.params.codigo.trim().toUpperCase()
+    const porto = await fetchCadastrosJson<PortoCadastros>(
+      `/api/v1/cadastros/portos/${encodeURIComponent(codigo)}`,
+    )
+    res.json({
+      porto: {
+        codigo: porto.codigo_unlocode_porto,
+        nome: porto.nome_porto,
+        pais_codigo_porto_bid_frete_internacional: porto.codigo_pais_porto ?? '',
+        tipo: 'porto',
+      },
+    })
+  } catch {
+    res.status(404).json({ error: { message: 'Porto não encontrado' } })
+  }
+})
+
 router.get('/portos', async (req: Request, res: Response) => {
   try {
-    const { q, tipo, pais, limit = '50' } = req.query as {
+    const { q, tipo, pais, limit = '50', offset = '0' } = req.query as {
       q?: string
-      tipo?: string
       pais?: string
+      tipo?: string
       limit?: string
+      offset?: string
     }
-    const limitNum = Math.min(Number(limit) || 50, 500)
+    const limitNum = resolverLimitePortos({ q, pais, limit })
     const queryBase = {
       q,
       pais: pais?.toUpperCase(),
       limit: String(limitNum),
+      offset,
       apenas_ativos: 'true',
     }
 
@@ -44,11 +77,15 @@ router.get('/portos', async (req: Request, res: Response) => {
       tipo: string
     }> = []
 
+    let totalPortos = 0
+    let totalAeroportos = 0
+
     if (!tipo || tipo === 'porto') {
       const resp = await fetchCadastrosJson<ListaCadastros<PortoCadastros>>(
         '/api/v1/cadastros/portos',
         queryBase,
       )
+      totalPortos = resp.total
       for (const p of resp.itens) {
         portos.push({
           codigo: p.codigo_unlocode_porto,
@@ -64,6 +101,7 @@ router.get('/portos', async (req: Request, res: Response) => {
         '/api/v1/cadastros/aeroportos',
         queryBase,
       )
+      totalAeroportos = resp.total
       for (const a of resp.itens) {
         const codigo = a.codigo_iata_aeroporto ?? a.codigo_unlocode_aeroporto
         portos.push({
@@ -75,10 +113,24 @@ router.get('/portos', async (req: Request, res: Response) => {
       }
     }
 
+    if (tipo === 'porto') {
+      res.json({ portos, total: totalPortos })
+      return
+    }
+
+    if (tipo === 'aeroporto') {
+      const aeroportos = portos.filter((p) => p.tipo === 'aeroporto')
+      res.json({ portos: aeroportos, total: totalAeroportos })
+      return
+    }
+
     portos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
-    res.json({ portos: portos.slice(0, limitNum) })
+    res.json({
+      portos: portos.slice(0, limitNum),
+      total: totalPortos + totalAeroportos,
+    })
   } catch {
-    res.json({ portos: [] })
+    res.json({ portos: [], total: 0 })
   }
 })
 

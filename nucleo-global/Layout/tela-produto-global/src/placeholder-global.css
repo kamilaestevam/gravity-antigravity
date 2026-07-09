@@ -17,7 +17,7 @@ textarea:disabled::placeholder {
   font-size: 0.875rem !important;
   font-weight: 400 !important;
   font-style: normal !important;
-  color: var(--text-muted, #64748b) !important;
+  color: #3d4b5f !important; /* "Slate 650" — meio-termo entre Slate 600 e 700, decisão do dono (05/07/2026) */
   opacity: 1 !important;
   text-align: left !important;
 }
@@ -28,5 +28,12 @@ textarea:disabled::placeholder {
   font-size: 0.875rem !important;
   font-weight: 400 !important;
   font-style: normal !important;
-  color: var(--text-muted, #64748b) !important;
+  color: #3d4b5f !important;
+}
+
+/* Light theme mantém o tom anterior (fundo claro pede placeholder mais claro) */
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder,
+body.light-theme .sg-placeholder {
+  color: #94a3b8 !important;
 }

@@ -42,6 +42,7 @@ import {
   Globe,
   UsersThree,
   Clock,
+  CurrencyCircleDollar,
 } from '@phosphor-icons/react'
 
 import {
@@ -71,6 +72,10 @@ import {
 } from '../shared/mock-respostas-cotacao-APAGAR-ANTES-COMMIT'
 import { aplicarEstadoPosAprovacaoCotacao } from '../shared/sincronizar-estado-pos-aprovacao-cotacao-bid-frete-internacional'
 import { PainelDadosGeraisCotacaoBidFreteInternacional } from '../shared/painel-dados-gerais-cotacao-bid-frete-internacional'
+import {
+  rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
+  useTextosLocaisOpcionaisCotacaoBidFrete,
+} from '../shared/locais-opcionais-cotacao-bid-frete-internacional'
 import { TextoTruncadoComTooltip } from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
 import {
   inscreverCotacaoAtualizadaBidFrete,
@@ -95,6 +100,7 @@ import {
 } from '../shared/types'
 import { avaliarPrazoRespostaCotacao } from '../shared/lista-bid-frete-kpi-metrics'
 import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
+import { rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -373,6 +379,10 @@ export default function DetalheCotacao() {
     return inscreverCotacaoAtualizadaBidFrete((cotacaoRemota) => {
       if (cotacaoRemota.id_cotacao_bid_frete_internacional !== id) return
       mesclarCotacaoNoDetalhe(cotacaoRemota)
+      // Disparo em background: a cotação confirmada chega com os disparos —
+      // refletir na aba Solicitação de Cotação sem exigir F5
+      const disparosRemotos = cotacaoRemota.disparo_cotacao_bid_frete_internacional
+      if (disparosRemotos && disparosRemotos.length > 0) setBids(disparosRemotos)
     })
   }, [id, mesclarCotacaoNoDetalhe])
 
@@ -406,6 +416,28 @@ export default function DetalheCotacao() {
     if (cotacao) return anexarMocksRespostasTemporarias(ranquearPropostasLocal(raw), cotacao)
     return raw.length > 0 ? ranquearPropostasLocal(raw) : []
   }, [propostasRanking, cotacao])
+
+  const ctxLocaisOpcionaisCotacao = useMemo(
+    () => (cotacao
+      ? {
+        modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        porto_origem_cotacao_bid_frete_internacional: cotacao.porto_origem_cotacao_bid_frete_internacional,
+        porto_destino_cotacao_bid_frete_internacional: cotacao.porto_destino_cotacao_bid_frete_internacional,
+        aeroporto_origem_cotacao_bid_frete_internacional: cotacao.aeroporto_origem_cotacao_bid_frete_internacional,
+        aeroporto_destino_cotacao_bid_frete_internacional: cotacao.aeroporto_destino_cotacao_bid_frete_internacional,
+        habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          cotacao.habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+        codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+          cotacao.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+        habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          cotacao.habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+        codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+          cotacao.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+      }
+      : {}),
+    [cotacao],
+  )
+  const textosLocaisOpcionaisCotacao = useTextosLocaisOpcionaisCotacaoBidFrete(ctxLocaisOpcionaisCotacao)
 
   const bidsExibidosAba = useMemo(() => {
     if (filtroDisparosAba !== 'recusas') return bids
@@ -677,11 +709,13 @@ export default function DetalheCotacao() {
         >
           {t('bidfrete.detalhe_cotacao.tab_respostas', 'Propostas')}
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_comentarios', 'Comentários')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
-        <button type="button" className="dc-cockpit-tab" disabled title={t('bidfrete.detalhe_cotacao.cockpit_em_breve', 'Em breve')}>
+        <button type="button" className="dc-cockpit-tab dc-cockpit-tab--em-breve" disabled aria-disabled="true">
           {t('bidfrete.detalhe_cotacao.cockpit_documentos', 'Documentos')}
+          <span className="cfg-badge-breve">{t('comum.em_breve')}</span>
         </button>
       </nav>
 
@@ -721,6 +755,13 @@ export default function DetalheCotacao() {
                   : t('bidfrete.nova_cotacao.tipo_direcionada')
               }
             />
+            <InfoRowComIcone
+              icone={<CurrencyCircleDollar weight="duotone" size={16} />}
+              label={t('bidfrete.detalhe_cotacao.pagador_taxa_fechamento', 'Taxa de fechamento paga por')}
+              value={rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+                cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+              )}
+            />
           </CardSecaoDados>
 
           <CardSecaoDados variante="rota" titulo={t('bidfrete.detalhe_cotacao.card_rota', 'Rota')}>
@@ -735,6 +776,18 @@ export default function DetalheCotacao() {
               rotuloOrigem={t('bidfrete.detalhe_cotacao.origem')}
               rotuloDestino={t('bidfrete.detalhe_cotacao.destino')}
             />
+            {textosLocaisOpcionaisCotacao.origem ? (
+              <InfoRow
+                label={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', ctxLocaisOpcionaisCotacao)}
+                value={textosLocaisOpcionaisCotacao.origem}
+              />
+            ) : null}
+            {textosLocaisOpcionaisCotacao.destino ? (
+              <InfoRow
+                label={rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', ctxLocaisOpcionaisCotacao)}
+                value={textosLocaisOpcionaisCotacao.destino}
+              />
+            ) : null}
           </CardSecaoDados>
 
           <CardSecaoDados variante="carga" titulo={t('bidfrete.detalhe_cotacao.card_detalhes_carga', 'Detalhes da Carga')}>
@@ -770,6 +823,14 @@ export default function DetalheCotacao() {
               label={t('bidfrete.detalhe_cotacao.cubagem')}
               value={cotacao.cubagem_m3_cotacao_bid_frete_internacional ? `${cotacao.cubagem_m3_cotacao_bid_frete_internacional} m³` : '—'}
             />
+            {cotacao.comprimento_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.largura_cubagem_cotacao_bid_frete_internacional != null
+              && cotacao.altura_cubagem_cotacao_bid_frete_internacional != null && (
+              <InfoRow
+                label="Dimensões (C × L × A)"
+                value={`${cotacao.comprimento_cubagem_cotacao_bid_frete_internacional} × ${cotacao.largura_cubagem_cotacao_bid_frete_internacional} × ${cotacao.altura_cubagem_cotacao_bid_frete_internacional} ${cotacao.codigo_unidade_cubagem_cotacao_bid_frete_internacional ?? ''}`.trim()}
+              />
+            )}
           </CardSecaoDados>
         </div>
         </div>
@@ -860,6 +921,10 @@ export default function DetalheCotacao() {
           variante="combate"
           exibirToolbarOrdenacao
           onCotacaoAtualizada={handleCotacaoAtualizada}
+          ctxLocaisOpcionaisCotacao={ctxLocaisOpcionaisCotacao}
+          empresa_pagadora_taxa_fechamento_plataforma_gravity={
+            cotacao.empresa_pagadora_taxa_fechamento_plataforma_gravity
+          }
         />
       )}
       </>
@@ -1397,8 +1462,9 @@ export default function DetalheCotacao() {
         }
         .dc-target-label { font-weight: 600; }
         .dc-target-value {
-          font-family: 'DM Mono', monospace;
-          font-weight: 700;
+          font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
           color: var(--text-primary, #f1f5f9);
         }
 

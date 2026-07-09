@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import type { ResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import type { ResumoGeralChecklistInvoices, ResumoInvoiceChecklist } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
 import { GraficoConferenciaCheckedSmartRead } from './grafico-conferencia-checked-smart-read'
@@ -19,6 +19,7 @@ type OpcaoInvoiceChecklist = {
 type Props = {
   resumo: ResumoGeralChecklistInvoices
   onSelecionarInvoice?: (rotulo: string) => void
+  documentoDestaque?: ResumoInvoiceChecklist | null
   selecaoInvoice?: {
     id: string
     opcoes: OpcaoInvoiceChecklist[]
@@ -45,11 +46,15 @@ function classeVeredito(veredito: string): string {
 export function InfograficoChecklistGeralSmartRead({
   resumo,
   onSelecionarInvoice,
+  documentoDestaque = null,
   selecaoInvoice,
   conferenciaManual,
   children,
 }: Props) {
   const { contagem_global, por_invoice, por_secao, total_invoices } = resumo
+  const cardsVisiveis =
+    children && documentoDestaque ? [documentoDestaque] : por_invoice
+  const rotuloAtivo = selecaoInvoice?.valor ?? null
 
   const metricasLinhas = (
     <div className="sr-chk-info-metrica-linhas">
@@ -71,24 +76,24 @@ export function InfograficoChecklistGeralSmartRead({
           <div className="sr-chk-info-card-unificado-dir">
             <div className="sr-chk-info-topo-dir">
               <div className="sr-chk-info-invoice-topo-esq">
-                {por_invoice.length !== 1 ? metricasLinhas : null}
-                {por_invoice.map((inv) => (
+                {cardsVisiveis.length !== 1 ? metricasLinhas : null}
+                {cardsVisiveis.map((inv) => (
                   <button
                     key={inv.rotulo}
                     type="button"
-                    className="sr-chk-info-invoice-card sr-chk-info-invoice-card--interno sr-chk-info-invoice-card--destaque"
+                    className={`sr-chk-info-invoice-card sr-chk-info-invoice-card--interno sr-chk-info-invoice-card--destaque${rotuloAtivo === inv.rotulo ? ' sr-chk-info-invoice-card--ativo' : ''}`}
                     onClick={() => onSelecionarInvoice?.(inv.rotulo)}
                   >
                     <div className="sr-chk-info-invoice-card-topo">
                       <strong className="sr-chk-info-invoice-nome" title={inv.rotulo}>
-                        {inv.numero_invoice ?? inv.nome_arquivo}
+                        {inv.numero_invoice ?? inv.tipo_documento ?? inv.nome_arquivo}
                       </strong>
                       <span className={`sr-chk-info-veredito ${classeVeredito(inv.veredito)}`}>
                         {inv.veredito}
                       </span>
                     </div>
                     <span className="sr-chk-info-invoice-arquivo">{inv.nome_arquivo}</span>
-                    {por_invoice.length === 1 ? metricasLinhas : null}
+                    {cardsVisiveis.length === 1 ? metricasLinhas : null}
                     <div className="sr-chk-info-invoice-pct">{inv.percentual_conforme}% conforme</div>
                     <BarraStatusChecklistSmartRead
                       verde={inv.contagem.verde}
@@ -119,7 +124,7 @@ export function InfograficoChecklistGeralSmartRead({
                       selecaoInvoice.aoMudarValor(v == null ? null : String(v))
                     }
                     buscavel
-                    placeholder="Selecione a invoice…"
+                    placeholder="Selecione o documento…"
                     posicao="baixo"
                   />
                 </div>

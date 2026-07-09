@@ -1,0 +1,210 @@
+.pds-novo-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pds-novo-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 300;
+  min-width: 220px;
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  background: #1e293b;
+  border: 1px solid rgba(129, 140, 248, 0.15);
+  border-radius: 0.625rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pds-novo-dropdown-item {
+  position: relative;
+}
+
+.pds-novo-dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.pds-novo-dropdown-btn:hover,
+.pds-novo-dropdown-item--ativo .pds-novo-dropdown-btn {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.pds-novo-dropdown-btn-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pds-novo-dropdown-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+}
+
+.pds-novo-dropdown-icone--pedido {
+  background: rgba(129, 140, 248, 0.12);
+  color: #818cf8;
+}
+
+.pds-novo-dropdown-icone--item {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+
+.pds-novo-dropdown-icone--coluna {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+
+.pds-novo-dropdown-icone--painel {
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+
+.pds-novo-dropdown-submenu {
+  position: absolute;
+  left: calc(100% + 4px);
+  top: 0;
+  z-index: 301;
+  min-width: 220px;
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  background: #1e293b;
+  border: 1px solid rgba(129, 140, 248, 0.15);
+  border-radius: 0.625rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pds-novo-dropdown-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.35rem 0.55rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.pds-novo-dropdown-opcao:hover {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.pds-novo-dropdown-opcao-icone {
+  color: #94a3b8;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  width: 1.35rem;
+  display: inline-flex;
+  justify-content: flex-start;
+}
+
+.pds-novo-dropdown-opcao-icone--smart {
+  color: #a78bfa;
+}
+
+.pds-novo-dropdown-opcao-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.pds-novo-dropdown-opcao-titulo {
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.pds-novo-dropdown-opcao-desc {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.pds-novo-dropdown-divisor {
+  height: 1px;
+  margin: 0.2rem 0.35rem;
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.pds-novo-painel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.35rem;
+}
+
+.pds-novo-painel-form input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #f1f5f9;
+  font-size: 0.7rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.pds-novo-painel-form button {
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pds-novo-painel-form button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pds-novo-toast {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 10050;
+  max-width: 320px;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  background: #1e293b;
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.pds-novo-toast strong {
+  color: #a5b4fc;
+}

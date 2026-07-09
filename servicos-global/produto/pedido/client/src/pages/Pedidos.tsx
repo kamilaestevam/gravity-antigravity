@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
+import { PRODUCT_CONFIG } from '../shared/config'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import {
   useListaPainelPedido,
@@ -98,6 +99,10 @@ import type {
   FiltroTipo,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
+import {
+  mesclarVisibilidadeCardsTopoPainel,
+  painelCardsTopoTemIntersecaoComPrefs,
+} from '../shared/cardsPrefsSync'
 import { ListaPedidoCards } from '../components/ListaPedidoCards'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
@@ -130,6 +135,12 @@ import {
   somaValorTotalPedidoLocal,
 } from '../shared/agregadosFisicosLista'
 import { valorTotalCambioItemParaLista } from '../shared/valorTotalCambioItemLista'
+import { isPedidoAtrasado } from '../shared/listaCardStats'
+import {
+  carregarTabelaConfigPedido,
+  SYNC_EVENT_TABELA_PEDIDO,
+  type TabelaConfigPedido,
+} from '../shared/tabela-config-pedido'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
@@ -353,6 +364,9 @@ function getLabelsFiltroInverso(campo: string, t: (key: string) => string = i18n
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
+
+/** Regra lista: pedido novo ou importado sempre na primeira linha (P19 — data_atualizacao DESC). */
+const SORT_LISTA_NOVOS_PEDIDO = { campo: 'data_atualizacao_pedido', direcao: 'desc' as const }
 
 /** Lê abas do localStorage (salvo pelo Configuracoes e pela API success da Lista).
  *  Usa label do banco (cfg.label) como fonte da verdade — respeita customizações
@@ -4287,7 +4301,15 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   {([
                     { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_pedido'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                     { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_pedido'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_pedido'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    ...(PRODUCT_CONFIG.features.smart_read ? [{
+                      icon: 'sparkle' as const,
+                      label: t('pedido.barra.smart_read'),
+                      desc: t('pedido.barra.smart_read_desc_pedido'),
+                      action: () => {
+                        setNovoDropdownAberto(false)
+                        window.location.href = '/smart-read/lista?origem=pedido&acao=nova-leitura'
+                      },
+                    }] : []),
                     { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_pedido'), action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
@@ -4347,7 +4369,15 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   {([
                     { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_item'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                     { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_item'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_item'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    ...(PRODUCT_CONFIG.features.smart_read ? [{
+                      icon: 'sparkle' as const,
+                      label: t('pedido.barra.smart_read'),
+                      desc: t('pedido.barra.smart_read_desc_item'),
+                      action: () => {
+                        setNovoDropdownAberto(false)
+                        window.location.href = '/smart-read/lista?origem=pedido&acao=nova-leitura'
+                      },
+                    }] : []),
                     { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_item'), action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
@@ -4562,16 +4592,29 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           />
         </TooltipGlobal>
 
-        {/* Gerar Documento */}
+        {/* Gerar Documento — aceita pedido, item ou misto (agrupa itens por pedido) */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
+          titulo={(() => {
+            const labelItem = itensSelecionados.length === 1 ? t('pedido.barra.label_item_one') : t('pedido.barra.label_item_other')
+            const labelPedido = pedidosSelecionados.length === 1 ? t('pedido.barra.label_pedido_one') : t('pedido.barra.label_pedido_other')
+            if (pedidosSelecionados.length > 0 && itensSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} ${labelPedido} + ${itensSelecionados.length} ${labelItem}`
+            }
+            if (pedidosSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} ${labelPedido}`
+            }
+            if (itensSelecionados.length > 0) {
+              return `${t('pedido.barra.gerar_documento')} · ${itensSelecionados.length} ${labelItem}`
+            }
+            return t('pedido.barra.gerar_documento')
+          })()}
           descricao={t('pedido.barra.gerar_documento_desc')}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<FilePdf size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
+            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => setModalGerarPdfAberto(true)}
           />
         </TooltipGlobal>
@@ -5189,17 +5232,25 @@ export default function Pedidos() {
   const [paginaAtual, setPaginaAtual]       = useState(1)
   const [total, setTotal]                   = useState(0)
   const [totalItensBanco, setTotalItensBanco] = useState(0)
-  const ITENS_POR_PAGINA: 25 | 50 | 100 | 200 = (() => {
-    try {
-      const raw = localStorage.getItem('pedido:tabela_config')
-      if (raw) {
-        const parsed = JSON.parse(raw) as { linhasPorPagina?: number }
-        const v = parsed.linhasPorPagina
-        if (v === 25 || v === 50 || v === 100 || v === 200) return v
-      }
-    } catch { /* ignore */ }
-    return 100
-  })()
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigPedido>(carregarTabelaConfigPedido)
+  const ITENS_POR_PAGINA = tabelaConfig.linhasPorPagina
+
+  useEffect(() => {
+    const sync = () => setTabelaConfig(carregarTabelaConfigPedido())
+    window.addEventListener(SYNC_EVENT_TABELA_PEDIDO, sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener(SYNC_EVENT_TABELA_PEDIDO, sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  const hojeIsoLista = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
+  const classNameLinhaPai = useCallback((linha: Pedido) => {
+    if (!tabelaConfig.destacarAtrasados) return undefined
+    return isPedidoAtrasado(linha, hojeIsoLista) ? 'gtv-linha--atrasado' : undefined
+  }, [tabelaConfig.destacarAtrasados, hojeIsoLista])
 
   // ── Seleção de pedidos/itens via selecaoStore (Zustand) ──────────────────────
   const { setPedidosSelecionados, setItensSelecionados } = useSelecaoStore()
@@ -5287,8 +5338,8 @@ export default function Pedidos() {
     ABAS_STATUS_VALORES.map(v => ({ valor: v, label: t(`pedido.status.${v}`) }))
   )
   const [preferencias, setPreferencias]     = useState<GTPreferencias | undefined>(undefined)
-  const [sortCampo, setSortCampo]           = useState('data_emissao_pedido')
-  const [sortDir, setSortDir]               = useState<'asc' | 'desc'>('desc')
+  const [sortCampo, setSortCampo]           = useState(SORT_LISTA_NOVOS_PEDIDO.campo)
+  const [sortDir, setSortDir]               = useState<'asc' | 'desc'>(SORT_LISTA_NOVOS_PEDIDO.direcao)
   const [busca, setBusca]                   = useState('')
   const [pedidoFocoId, setPedidoFocoId]       = useState<string | null>(null)
   const [erroLote, setErroLote]             = useState<string | null>(null)
@@ -5983,10 +6034,9 @@ export default function Pedidos() {
       setPeriodoCards(cardsTopo.periodo as typeof periodosValidos[number])
     }
     if (cardsTopo.ids_visiveis.length > 0) {
-      const visiveisSet = new Set(cardsTopo.ids_visiveis)
-      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      const algumIdValido = painelCardsTopoTemIntersecaoComPrefs(cardPrefs, cardsTopo.ids_visiveis)
       if (algumIdValido) {
-        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+        persistirCardPrefs(mesclarVisibilidadeCardsTopoPainel(cardPrefs, cardsTopo.ids_visiveis))
       } else {
         console.warn(
           '[Pedidos] cards_topo.ids_visiveis do painel não batem com nenhum card local — mantendo visibilidade atual',
@@ -6261,8 +6311,10 @@ export default function Pedidos() {
     itensCarregadosRef.current.clear()
     setPedidos(prev => prev.map(p => ({ ...p, itens: [] })))
     setResetFilhos(prev => prev + 1)
-    await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
-  }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
+    setSortCampo(SORT_LISTA_NOVOS_PEDIDO.campo)
+    setSortDir(SORT_LISTA_NOVOS_PEDIDO.direcao)
+    await carregarInicial(abaAtiva, SORT_LISTA_NOVOS_PEDIDO.campo, SORT_LISTA_NOVOS_PEDIDO.direcao, busca, 1, true)
+  }, [carregarInicial, abaAtiva, busca])
 
   // Recarrega lista quando mudou escopo de workspaces (menu lateral) ou quando
   // idOrganizacao hidrata do /me. A primeira carga com painel salvo fica só no onConfigAplicada.
@@ -8460,6 +8512,7 @@ export default function Pedidos() {
 
           renderIndicadorLinha={renderIndicadorLinhaPedido}
           renderIndicadorLinhaFilho={renderIndicadorLinhaItem}
+          classNameLinhaPai={classNameLinhaPai}
 
           selecionavelFilhos
           onSelecaoFilho={onSelecaoFilhoEstavel}
@@ -8615,9 +8668,9 @@ export default function Pedidos() {
         onFechar={() => setModalNovoPedidoAberto(false)}
         onSalvo={async (pedidoCriado) => {
           setModalNovoPedidoAberto(false)
-          // Reseta para página 1 — pedido recém-criado vem no topo (orderBy
-          // data_criacao_pedido desc) — e abre os itens para conferência.
-          await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1)
+          setSortCampo(SORT_LISTA_NOVOS_PEDIDO.campo)
+          setSortDir(SORT_LISTA_NOVOS_PEDIDO.direcao)
+          await carregarInicial(abaAtiva, SORT_LISTA_NOVOS_PEDIDO.campo, SORT_LISTA_NOVOS_PEDIDO.direcao, busca, 1)
           // requestAnimationFrame garante que setPedidos já comitou antes do
           // expandir tentar localizar a linha em dadosRef.
           requestAnimationFrame(() => {
@@ -8663,7 +8716,7 @@ export default function Pedidos() {
           setSmartImportAberto(false)
           await recarregarListaPosImportacao()
           // Abre o(s) pedido(s) recém-importado(s) para conferência. Se mais
-          // de um, expande todos — vêm no topo via orderBy data_criacao desc.
+          // de um, expande todos — vêm no topo (data_atualizacao_pedido desc).
           requestAnimationFrame(() => {
             for (const id of idsCriados ?? []) {
               tabelaRef.current?.expandir(id)
@@ -8836,9 +8889,27 @@ export default function Pedidos() {
       )}
 
       {/* ── Modal Gerar Documento PDF ── */}
-      {modalGerarPdfAberto && pedidosSelecionados.length > 0 && (
+      {modalGerarPdfAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
         <ModalGerarPdfPedido
-          pedidos={pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))}
+          pedidos={(() => {
+            // Pedido inteiro selecionado → todos os itens; itens avulsos → agrupa por pedido pai
+            const numeroPorPedido = new Map(pedidos.map(p => [p.id, p.numero_pedido]))
+            const inteiros = pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))
+            const idsInteiros = new Set(pedidosSelecionados.map(p => p.id))
+            const itensPorPedido = new Map<string, string[]>()
+            for (const item of itensSelecionados) {
+              if (idsInteiros.has(item.pedido_id)) continue // pedido inteiro prevalece
+              const lista = itensPorPedido.get(item.pedido_id) ?? []
+              lista.push(item.id)
+              itensPorPedido.set(item.pedido_id, lista)
+            }
+            const parciais = Array.from(itensPorPedido.entries()).map(([idPedido, itemIds]) => ({
+              id: idPedido,
+              numero: numeroPorPedido.get(idPedido) ?? idPedido,
+              item_ids: itemIds,
+            }))
+            return [...inteiros, ...parciais]
+          })()}
           onFechar={() => setModalGerarPdfAberto(false)}
           onConcluido={() => {
             setModalGerarPdfAberto(false)

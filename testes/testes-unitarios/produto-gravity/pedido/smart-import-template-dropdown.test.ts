@@ -9,6 +9,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import ExcelJS from 'exceljs'
 
+function mockFetchCadastrosVazio() {
+  const resposta = { ok: true, json: async () => ({ itens: [] as unknown[] }) }
+  return vi.fn()
+    .mockResolvedValueOnce(resposta)
+    .mockResolvedValueOnce(resposta)
+    .mockResolvedValueOnce(resposta)
+    .mockResolvedValueOnce(resposta)
+}
+
+function mockFetchCadastrosMoedaUnidade(
+  moedas: unknown[] = [],
+  unidades: unknown[] = [],
+) {
+  const respostaVazia = { ok: true, json: async () => ({ itens: [] as unknown[] }) }
+  return vi.fn()
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: moedas }) })
+    .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: unidades }) })
+    .mockResolvedValueOnce(respostaVazia)
+    .mockResolvedValueOnce(respostaVazia)
+}
+
 // ─── Mocks hoisted ──────────────────────────────────────────────────────────
 
 vi.mock('../../../servicos-global/produto/pedido/server/src/errors/AppError.js', () => ({
@@ -116,11 +137,13 @@ describe('templateHandler — dropdowns dinamicos S2S Cadastros', () => {
     const mockFetch = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [{ codigo_moeda: 'USD', nome_moeda: 'Dólar dos Estados Unidos' }] }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [{ codigo_unidade: 'KG', nome_unidade: 'Quilograma' }] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) })
     vi.stubGlobal('fetch', mockFetch)
 
     await executarTemplateHandler()
 
-    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mockFetch).toHaveBeenCalledTimes(4)
     const [urlMoedas, optsMoedas] = mockFetch.mock.calls[0]
     expect(urlMoedas).toBe('http://localhost:8031/api/v1/cadastros/moedas?apenas_ativas=true')
     expect(optsMoedas.headers['x-internal-key']).toBe('test-key')
@@ -136,9 +159,7 @@ describe('templateHandler — dropdowns dinamicos S2S Cadastros', () => {
       { codigo_moeda: 'EUR', nome_moeda: 'Euro' },
       { codigo_moeda: 'BRL', nome_moeda: 'Real Brasileiro' },
     ]
-    vi.stubGlobal('fetch', vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: moedas }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) }))
+    vi.stubGlobal('fetch', mockFetchCadastrosMoedaUnidade(moedas))
 
     const { wb } = await executarTemplateHandler()
 
@@ -160,9 +181,7 @@ describe('templateHandler — dropdowns dinamicos S2S Cadastros', () => {
   it('cria aba _Listas com "CODIGO — Nome" de unidade na coluna seguinte a moeda', async () => {
     const moedas   = [{ codigo_moeda: 'USD', nome_moeda: 'Dólar dos Estados Unidos' }, { codigo_moeda: 'EUR', nome_moeda: 'Euro' }]
     const unidades = [{ codigo_unidade: 'KG', nome_unidade: 'Quilograma' }, { codigo_unidade: 'UN', nome_unidade: 'Unidade' }, { codigo_unidade: 'TON', nome_unidade: 'Tonelada' }]
-    vi.stubGlobal('fetch', vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: moedas }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: unidades }) }))
+    vi.stubGlobal('fetch', mockFetchCadastrosMoedaUnidade(moedas, unidades))
 
     const { wb } = await executarTemplateHandler()
 
@@ -178,19 +197,16 @@ describe('templateHandler — dropdowns dinamicos S2S Cadastros', () => {
 
   it('aplica data validation tipo list nas colunas de moeda do template', async () => {
     const moedas = [{ codigo_moeda: 'USD', nome_moeda: 'Dólar dos Estados Unidos' }, { codigo_moeda: 'EUR', nome_moeda: 'Euro' }]
-    vi.stubGlobal('fetch', vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: moedas }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) }))
+    vi.stubGlobal('fetch', mockFetchCadastrosMoedaUnidade(moedas))
 
     const { wb } = await executarTemplateHandler()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
 
-    // Encontrar coluna com campo de moeda (via header linha 2)
+    // moeda_item vem antes na zona ESSENCIAL e agora tem bloqueio PEDIDO (custom) — usar Moeda do Pedido
     let colMoeda = -1
     ws.getRow(2).eachCell((cell, colNumber) => {
-      if (typeof cell.value === 'string' && cell.value.toLowerCase().includes('moeda')) {
-        if (colMoeda === -1) colMoeda = colNumber
-      }
+      const val = typeof cell.value === 'string' ? cell.value.replace(/^\* /, '') : ''
+      if (val === 'Moeda do Pedido' && colMoeda === -1) colMoeda = colNumber
     })
 
     if (colMoeda > 0) {
@@ -206,6 +222,8 @@ describe('templateHandler — degradacao graciosa (Cadastros offline)', () => {
   it('gera template sem dropdowns quando Cadastros retorna erro HTTP', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({ ok: false, status: 503 })
       .mockResolvedValueOnce({ ok: false, status: 503 })
       .mockResolvedValueOnce({ ok: false, status: 503 }))
 
@@ -251,10 +269,8 @@ describe('templateHandler — degradacao graciosa (Cadastros offline)', () => {
 })
 
 describe('templateHandler — data validation NCM', () => {
-  it('aplica data validation custom em colunas de NCM com bloqueio para PEDIDO + validacao 8 digitos', async () => {
-    vi.stubGlobal('fetch', vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) }))
+  it('aplica data validation custom em colunas de NCM com validacao 8 digitos (sem bloqueio PEDIDO)', async () => {
+    vi.stubGlobal('fetch', mockFetchCadastrosVazio())
 
     const { wb } = await executarTemplateHandler()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
@@ -262,28 +278,25 @@ describe('templateHandler — data validation NCM', () => {
     let colNcm = -1
     ws.getRow(2).eachCell((cell, colNumber) => {
       const val = typeof cell.value === 'string' ? cell.value : ''
-      if (val.toLowerCase().includes('ncm') && colNcm === -1) {
+      if (val.replace(/^\* /, '') === 'NCM' && colNcm === -1) {
         colNcm = colNumber
       }
     })
 
-    if (colNcm > 0) {
-      const cellValidation = ws.getCell(3, colNcm).dataValidation
-      expect(cellValidation).toBeDefined()
-      expect(cellValidation!.type).toBe('custom')
-      expect(cellValidation!.errorStyle).toBe('stop')
-      expect(cellValidation!.errorTitle).toBe('Campo bloqueado ou NCM invalido')
-      expect(cellValidation!.formulae![0]).toContain('SUBSTITUTE')
-      expect(cellValidation!.formulae![0]).toContain('PEDIDO')
-    }
+    expect(colNcm).toBeGreaterThan(0)
+    const cellValidation = ws.getCell(3, colNcm).dataValidation
+    expect(cellValidation).toBeDefined()
+    expect(cellValidation!.type).toBe('custom')
+    expect(cellValidation!.errorStyle).toBe('stop')
+    expect(cellValidation!.errorTitle).toBe('Formato NCM invalido')
+    expect(cellValidation!.formulae![0]).toContain('SUBSTITUTE')
+    expect(cellValidation!.formulae![0]).not.toContain('PEDIDO')
   })
 })
 
 describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () => {
   async function gerarTemplate() {
-    vi.stubGlobal('fetch', vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ itens: [] }) }))
+    vi.stubGlobal('fetch', mockFetchCadastrosVazio())
     return executarTemplateHandler()
   }
 
@@ -300,6 +313,15 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
         'incoterm_item': 'Incoterm (Item)',
         'moeda_item': 'Moeda do Item',
         'valor_total_item': 'Valor Total do Item',
+        'unidade_comercializada_item': 'Unidade Comercializada do Item',
+        'unidade_comercializada_pedido': 'Unidade Comercializada do Pedido',
+        'tipo_volume_pedido': 'Tipo Volume Pedido',
+        'moeda_pedido': 'Moeda do Pedido',
+        'incoterm_pedido': 'Incoterm',
+        'referencia_importador_pedido': 'Referencia Importador',
+        'referencia_exportador_pedido': 'Referencia Exportador',
+        'tipo_operacao_pedido': 'Tipo de Operacao',
+        'ncm_item': 'NCM',
       }
       const rotulo = campoMap[campo]
       if (rotulo && val.replace(/^\* /, '') === rotulo && col === -1) {
@@ -357,18 +379,77 @@ describe('templateHandler — bloqueio de celulas por tipo de linha (P15)', () =
     }
   })
 
-  it('NAO bloqueia campos propagaveis (incoterm_item, moeda_item, valor_total_item)', async () => {
-    const { wb } = await gerarTemplate()
+  it('bloqueia campos item essenciais em linhas PEDIDO (P15.1)', async () => {
+    vi.stubGlobal('fetch', mockFetchCadastrosMoedaUnidade(
+      [{ codigo_moeda: 'USD', nome_moeda: 'Dolar' }],
+      [{ codigo_unidade: 'KG', nome_unidade: 'Quilograma' }],
+    ))
+    const { wb } = await executarTemplateHandler()
     const ws = wb.worksheets.find(s => s.name !== '_Listas')!
-    for (const campo of ['incoterm_item', 'moeda_item', 'valor_total_item']) {
+    for (const campo of ['incoterm_item', 'valor_total_item']) {
       const col = encontrarColuna(ws, campo)
       expect(col).toBeGreaterThan(0)
       const v = ws.getCell(3, col).dataValidation
-      if (v) {
-        expect(v.formulae![0]).not.toContain('"PEDIDO"')
-        expect(v.formulae![0]).not.toContain('"ITEM"')
+      expect(v).toBeDefined()
+      expect(v!.type).toBe('custom')
+      expect(v!.formulae![0]).toContain('"PEDIDO"')
+      expect(v!.errorTitle).toBe('Campo exclusivo de ITEM')
+    }
+    const colMoeda = encontrarColuna(ws, 'moeda_item')
+    expect(colMoeda).toBeGreaterThan(0)
+    expect(ws.getCell(3, colMoeda).dataValidation?.type).toBe('list')
+    const colUnidade = encontrarColuna(ws, 'unidade_comercializada_item')
+    expect(colUnidade).toBeGreaterThan(0)
+    expect(ws.getCell(3, colUnidade).dataValidation?.type).toBe('list')
+  })
+
+  it('bloqueia pares propagaveis *_pedido em linhas ITEM (P15.2)', async () => {
+    const { wb } = await gerarTemplate()
+    const ws = wb.worksheets.find(s => s.name !== '_Listas')!
+    for (const campo of ['incoterm_pedido', 'tipo_operacao_pedido']) {
+      const col = encontrarColuna(ws, campo)
+      expect(col).toBeGreaterThan(0)
+      const v = ws.getCell(4, col).dataValidation
+      if (campo === 'tipo_operacao_pedido') {
+        expect(v?.type).toBe('list')
+      } else {
+        expect(v).toBeDefined()
+        expect(v!.type).toBe('custom')
+        expect(v!.formulae![0]).toContain('"ITEM"')
+        expect(v!.errorTitle).toBe('Campo exclusivo de PEDIDO')
       }
     }
+  })
+
+  it('P15.3: NCM liberado na linha PEDIDO e refs pedido livres na ITEM', async () => {
+    const { wb } = await gerarTemplate()
+    const ws = wb.worksheets.find(s => s.name !== '_Listas')!
+    const colNcm = encontrarColuna(ws, 'ncm_item')
+    expect(colNcm).toBeGreaterThan(0)
+    const vNcmPedido = ws.getCell(3, colNcm).dataValidation
+    expect(vNcmPedido?.formulae?.[0]).not.toContain('"PEDIDO"')
+
+    for (const campo of ['referencia_importador_pedido', 'referencia_exportador_pedido']) {
+      const col = encontrarColuna(ws, campo)
+      expect(col).toBeGreaterThan(0)
+      const vItem = ws.getCell(4, col).dataValidation
+      expect(vItem?.errorTitle).not.toBe('Campo exclusivo de PEDIDO')
+    }
+  })
+
+  it('P15.3: preserva select tipo_operacao_pedido e dropdown unidade_comercializada_item na linha PEDIDO', async () => {
+    vi.stubGlobal('fetch', mockFetchCadastrosMoedaUnidade(
+      [{ codigo_moeda: 'USD', nome_moeda: 'Dolar' }],
+      [{ codigo_unidade: 'KG', nome_unidade: 'Quilograma' }],
+    ))
+    const { wb } = await executarTemplateHandler()
+    const ws = wb.worksheets.find(s => s.name !== '_Listas')!
+    const colTipo = encontrarColuna(ws, 'tipo_operacao_pedido')
+    const colUnidade = encontrarColuna(ws, 'unidade_comercializada_item')
+    expect(colTipo).toBeGreaterThan(0)
+    expect(colUnidade).toBeGreaterThan(0)
+    expect(ws.getCell(3, colTipo).dataValidation?.type).toBe('list')
+    expect(ws.getCell(3, colUnidade).dataValidation?.type).toBe('list')
   })
 
   it('aplica bloqueio em todas as linhas de dados (row 3 a 1002)', async () => {

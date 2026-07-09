@@ -7,6 +7,8 @@ import { ProdutoDetalhe } from './pages/produto/ProdutoDetalhe'
 import { Precos } from './pages/Precos'
 import { Trial } from './pages/Trial'
 import { Checkout } from './pages/Checkout'
+import { ComingSoon } from './pages/ComingSoon'
+import { isLancado } from './launch'
 
 function NotFound() {
   return (
@@ -20,6 +22,12 @@ function NotFound() {
 }
 
 export function App() {
+  // Pré-lançamento: contagem regressiva em produção.
+  // Em dev (npm run dev) a vitrine completa fica disponível para preview local.
+  if (!isLancado() && !import.meta.env.DEV) {
+    return <ComingSoon />
+  }
+
   return (
     <BrowserRouter>
       <Layout>

@@ -16,25 +16,11 @@ const router = Router()
 
 const CriarBidSchema = z.object({
   referencia_interna_bid_bid_frete_internacional: z.string().optional(),
-  status_bid_bid_frete_internacional: z.enum([
-    'RASCUNHO',
-    'EM_ANDAMENTO',
-    'PARCIALMENTE_CONCLUIDO',
-    'CONCLUIDO',
-    'CANCELADO',
-  ]).optional(),
   ids_cotacao_bid_frete_internacional: z.array(z.string().min(1)).optional(),
 })
 
 const AtualizarBidSchema = z.object({
   referencia_interna_bid_bid_frete_internacional: z.string().nullable().optional(),
-  status_bid_bid_frete_internacional: z.enum([
-    'RASCUNHO',
-    'EM_ANDAMENTO',
-    'PARCIALMENTE_CONCLUIDO',
-    'CONCLUIDO',
-    'CANCELADO',
-  ]).optional(),
 })
 
 const VincularCotacoesSchema = z.object({
@@ -124,7 +110,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
         numero_bid_bid_frete_internacional: gerarNumeroBidFreteInternacional(),
         referencia_interna_bid_bid_frete_internacional: parsed.data.referencia_interna_bid_bid_frete_internacional ?? null,
-        status_bid_bid_frete_internacional: parsed.data.status_bid_bid_frete_internacional ?? 'RASCUNHO',
+        status_bid_bid_frete_internacional: 'RASCUNHO',
       },
     })
 
@@ -214,16 +200,11 @@ router.patch('/:id/cancelar', async (req: Request, res: Response, next: NextFunc
     })
     if (!existing) throw new AppError('BID nao encontrado', 404, 'NOT_FOUND')
 
-    await (req.prisma as any).$transaction([
-      (req.prisma as any).bidFreteInternacional.update({
-        where: { id_bid_bid_frete_internacional: req.params.id },
-        data: { status_bid_bid_frete_internacional: 'CANCELADO' },
-      }),
-      (req.prisma as any).cotacaoBidFreteInternacional.updateMany({
-        where: { id_bid_bid_frete_internacional: req.params.id },
-        data: { status_cotacao_bid_frete_internacional: 'CANCELADA' },
-      }),
-    ])
+    await (req.prisma as any).cotacaoBidFreteInternacional.updateMany({
+      where: { id_bid_bid_frete_internacional: req.params.id },
+      data: { status_cotacao_bid_frete_internacional: 'CANCELADA' },
+    })
+    await sincronizarResumoBid(req.prisma, req.params.id)
 
     const bid = await (req.prisma as any).bidFreteInternacional.findFirst({
       where: { id_bid_bid_frete_internacional: req.params.id },

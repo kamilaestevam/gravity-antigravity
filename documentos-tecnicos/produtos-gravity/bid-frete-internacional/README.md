@@ -22,6 +22,7 @@
 | [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) | Namespace `visao_fornecedor_bid_frete_internacional` — API, SPA, contratos, i18n |
 | [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) | Aba Insights: KPIs fixos + regra operacional #427, `/kpis` ampliado, tooltips UX 10, drill-down, PTAX, mapa Cadastros |
 | [COTACAO-DETALHE-COCKPIT-TECNICO.md](./COTACAO-DETALHE-COCKPIT-TECNICO.md) | Cockpit detalhe cotação: Painel de Insights, faixa `APROVADA`, aba Propostas (tabela completa + estimativa BRL), modal Aprovar |
+| [TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](./TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md) | Termômetro histórico: matching rota/faixa, filtros multi-seleção (bases com dedupe, componentes somados, incoterms), Dele vs Mercado |
 
 ---
 
@@ -37,6 +38,14 @@
 | Fragment Prisma | `servicos-global/produto/bid-frete-internacional/prisma/fragment.prisma` |
 
 ---
+
+## Entregas recentes (2026-07)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| Termômetro histórico cockpit (2026-07-07) | Matching por operação/rota/modal/faixa; popover de filtros multi-seleção (Contratado+Propostas com dedupe, componentes somados com TOTAL exclusivo, lista de incoterms) + chip resumo no header; Dele vs Mercado; fix da média (dupla divisão em meses com 2+ cotações); sem mock — ver [TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md](./TERMOMETRO-HISTORICO-COCKPIT-TECNICO.md) |
+| TASK-000407 (2026-07-04) | Nº da cotação editável: wizard passo 1 (auto-gerado + customizável no POST), lista inline (PATCH), UX texto vs ícone abrir — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 e [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Nº da cotação |
+| TASK-000405 (2026-07-04) | Portos/aeroportos alternativos opcionais: wizard passo 2 + resumo, card Rota no detalhe, seleção obrigatória na resposta do fornecedor — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §2.1 · [COTACAO-DETALHE-COCKPIT](./COTACAO-DETALHE-COCKPIT-TECNICO.md) §6 · [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) § Resposta — locais opcionais |
 
 ## Entregas recentes (2026-06)
 
@@ -63,6 +72,14 @@
 | #300 | Modal excluir: layout paridade `ModalPedidosExcluir` (Solid Slate) |
 | #302 | Passo 4 WIP: loader, meta tipo/nota, excluir Aberta, catálogo aeroportos, filtro elegíveis POST |
 | #301 | Modal excluir: anti-flicker (preview 1× ao montar, montagem condicional no pai) |
+
+## Entregas recentes (2026-07)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| PR #646 (2026-07-05) | Portal fornecedor: restaura locais alternativos removidos por engano no PR #642 + persistência/exibição dos armazéns de preferência (coluna JSONB, migration `20260705200000`, wizard, portal, e-mail) — ver [DDD-VISAO-FORNECEDOR](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) §§ Resposta — locais opcionais · Armazéns de preferência |
+| TASK-000415 (2026-07-05) | Pontos cegos do catálogo de portos/aeroportos eliminados em 3 frentes: (1) wizard sem filtro invisível por país — busca global (Hamburg, Frankfurt); (2) server resolve origem/destino individualmente no snapshot de rota (`garantirTerminaisRotaNoContextoCatalogo`) — fim do erro «Nome gravado (BRSSZ) não corresponde ao Cadastros (Santos)»; (3) importação por planilha enriquece o contexto com busca remota dos locais fora da página (`enriquecerContextoCatalogoLocaisImportacaoBid`) — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.2/§8.4 · [CATALOGO-AEROPORTOS-CADASTROS](./CATALOGO-AEROPORTOS-CADASTROS.md) |
+| Catálogo paginado + busca remota (2026-07-05) | Hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional`, limites SSOT, `offset`/`total` no Cadastros e proxy BID — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1 |
 
 ## Entregas recentes (2026-05)
 

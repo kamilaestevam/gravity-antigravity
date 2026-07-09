@@ -97,9 +97,6 @@ body.light-theme .bid-frete-vis-toolbar {
 .bid-frete-visualizacao-layout .bf-cotacoes,
 .bid-frete-visualizacao-layout .bfd-dashboard {
   padding-top: 0;
-  padding-left: var(--bid-frete-page-px);
-  padding-right: var(--bid-frete-page-px);
-  padding-bottom: var(--bid-frete-page-pb);
   flex: 1;
   min-height: 0;
   min-width: 0;
@@ -122,4 +119,8 @@ body.light-theme .bid-frete-vis-toolbar {
 .bid-frete-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.bid-frete-visualizacao-layout .bfd-dashboard-toolbar-wrapper {
+  flex: 0 0 auto;
 }

@@ -1,0 +1,119 @@
+.pds-alertas-painel {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid rgba(248, 113, 113, 0.35);
+}
+
+.pds-alertas-painel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pds-alertas-painel__titulo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pds-alertas-painel__icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pds-alertas-painel__titulo {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.pds-alertas-painel__data-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pds-alertas-painel__data-nav button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 5px;
+  color: #94a3b8;
+  border-radius: 10px;
+  transition: color 0.15s ease;
+}
+
+.pds-alertas-painel__data-nav button:hover {
+  color: #ffffff;
+}
+
+.pds-alertas-painel__data-nav span {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  padding: 0 3px;
+  letter-spacing: 0.02em;
+}
+
+.pds-alertas-painel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.pds-alertas-painel__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-left-width: 3px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.pds-alertas-painel__card:hover {
+  transform: translateY(-1px);
+}
+
+.pds-alertas-painel__card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.pds-alertas-painel__card-topo strong {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.pds-alertas-painel__card-rotulo {
+  margin-top: 2px;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}

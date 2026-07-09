@@ -28,6 +28,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
 import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario, obterWorkspaces } from '@gravity/resolver-organizacao'
+import { auditPedidoRequisicao204 } from '../../../pedido/server/src/utils/audit-pedido-requisicao.js'
 import { saldoPedido, AppError } from '../services/saldo-pedido.js'
 import {
   parsearFormula,
@@ -1262,6 +1263,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const pageNum = Number(page ?? 1)
       const limitNum = Number(limit ?? 20)
       const skip = (pageNum - 1) * limitNum
+      const sortFieldOffset = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_atualizacao_pedido') as CursorSortField
+      const sortDirOffset = dir === 'asc' ? 'asc' : 'desc'
 
       // Contagem de itens: SQL raw para evitar bug do Prisma 5.22 com filtro relation
       // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
@@ -1310,13 +1313,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
             snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
           },
-          // Ordenação padrão da lista: mais recém-criado primeiro. Garante que
-          // o pedido que o usuário acabou de criar aparece no topo, mesmo
-          // quando a data_emissao_pedido bate empate com pedidos antigos
-          // (ex: vários pedidos com data_emissao = hoje).
+          // Respeita sort/dir do cliente (mesmo contrato do branch cursor).
           orderBy: [
-            { data_criacao_pedido: 'desc' },
-            { id_pedido: 'desc' },
+            { [sortFieldOffset]: sortDirOffset },
+            { id_pedido: sortDirOffset },
           ],
           skip,
           take: limitNum,
@@ -2038,6 +2038,17 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
       }
 
       await db.pedido.delete({ where: { id_pedido: idPedido } })
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'EXCLUIR',
+        tipo_recurso_historico_log: 'Pedido',
+        id_recurso_historico_log: idPedido,
+        detalhe_acao_historico_log: `Excluiu pedido rascunho ${pedido.numero_pedido ?? idPedido}`,
+        estado_anterior_historico_log: {
+          id_pedido: idPedido,
+          numero_pedido: pedido.numero_pedido,
+          status_pedido: statusAtual,
+        },
+      })
       res.status(204).send()
     })
   } catch (err) {
@@ -3276,6 +3287,17 @@ pedidosRouter.delete('/:id_pedido/itens/:id_item', async (req: Request, res: Res
       // Delete reduz `quantidade_inicial_item` (item some) → afeta valor/qty/peso/cubagem.
       await db.pedidoItem.delete({ where: { id_item: req.params.id_item } })
       await recalcularAgregadosPedido(db, req.params.id_pedido, idOrganizacao)
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'EXCLUIR',
+        tipo_recurso_historico_log: 'PedidoItem',
+        id_recurso_historico_log: req.params.id_item,
+        detalhe_acao_historico_log: `Excluiu item do pedido ${req.params.id_pedido}`,
+        estado_anterior_historico_log: {
+          id_item: item.id_item,
+          id_pedido: req.params.id_pedido,
+          part_number_item: item.part_number_item,
+        },
+      })
       res.status(204).send()
     })
   } catch (err) {

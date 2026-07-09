@@ -5,11 +5,13 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
 import type { IconProps } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
+import { ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead } from './resumo-conferencia-analise-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
@@ -58,6 +60,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
   const [campoFocoConferencia, setCampoFocoConferencia] = useState<string | null>(null)
+  const [riscoExpandirId, setRiscoExpandirId] = useState<string | null>(null)
 
   const arquivosCompletos = arquivos.filter(
     (item) => item.status_arquivo_local === 'completo' && item.leitura,
@@ -89,29 +92,51 @@ export function AreaConferenciaNovaLeituraSmartRead({
 
   return (
     <div className="sr-wizard-principal sr-wizard-principal--conferencia">
-      <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
-        {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
-          const ativo = aba === id
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={ativo}
-              className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
-              onClick={() => setAba(id)}
-            >
-              <Icone
-                className="sr-conf-tab-icone"
-                size={16}
-                weight="regular"
-                aria-hidden
-              />
-              <span className="sr-conf-tab-rotulo">{rotulo}</span>
-            </button>
-          )
-        })}
+      <div className="sr-conf-cabecalho-tabs">
+        <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
+          {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
+            const ativo = aba === id
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={ativo}
+                className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
+                onClick={() => setAba(id)}
+              >
+                <Icone
+                  className="sr-conf-tab-icone"
+                  size={16}
+                  weight="regular"
+                  aria-hidden
+                />
+                <span className="sr-conf-tab-rotulo">{rotulo}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {arquivoAtual && onCompararArquivo && (
+          <BotaoGlobal variante="primario" tamanho="pequeno" onClick={onCompararArquivo}>
+            Comparar arquivo
+          </BotaoGlobal>
+        )}
       </div>
+
+      {arquivosCompletos.length > 0 && arquivoAtual && (
+        <ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead
+          arquivo={arquivoAtual}
+          indiceDocumento={indiceDocumento}
+          abaAtiva={aba}
+          idLeituraLegado={idLeituraLegado}
+          onIrAnaliseRiscos={() => setAba('riscos')}
+          onVerRiscoDoChecklist={(riscoId) => {
+            setAba('riscos')
+            setRiscoExpandirId(riscoId)
+          }}
+        />
+      )}
 
       {aba === 'campos' && (
         <>
@@ -122,7 +147,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
               key={`${arquivoAtual.id_arquivo_local}:${indiceDocumento}`}
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
-              onCompararArquivo={onCompararArquivo}
+              idLeituraLegado={idLeituraLegado}
+              ocultarComparar
               campoFoco={campoFocoConferencia}
               onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
             />
@@ -152,10 +178,18 @@ export function AreaConferenciaNovaLeituraSmartRead({
             indiceDocumentoConferencia={indiceDocumento}
             tituloContextoDocumento={tituloContextoDocumento}
             onVerEvidencia={onVerEvidencia}
-            onIrConferenciaCampos={(campo) => {
+            onIrConferenciaCampos={(foco) => {
+              if (foco.id_arquivo_local != null && foco.indice_documento != null) {
+                onSelecionarDocumento({
+                  idArquivoLocal: foco.id_arquivo_local,
+                  indiceDocumento: foco.indice_documento,
+                })
+              }
               setAba('campos')
-              setCampoFocoConferencia(campo)
+              setCampoFocoConferencia(foco.campo)
             }}
+            riscoExpandirId={riscoExpandirId}
+            onRiscoExpandirConsumido={() => setRiscoExpandirId(null)}
             idLeituraLegado={idLeituraLegado}
             onTokensAtualizados={onTokensAtualizados}
             onIaInicio={onIaInicio}

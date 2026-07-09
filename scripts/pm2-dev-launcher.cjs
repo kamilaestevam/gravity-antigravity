@@ -13,6 +13,7 @@
  */
 
 const { spawn } = require('child_process')
+const fs = require('fs')
 const path = require('path')
 
 const ROOT = path.resolve(__dirname, '..')
@@ -32,7 +33,10 @@ if (!entry) {
 const semWatch = process.env.PM2_DEV_NO_WATCH === '1'
 const args = semWatch ? [] : ['watch']
 for (const envFile of envFiles) {
-  args.push('--env-file', envFile)
+  const resolved = path.resolve(process.cwd(), envFile)
+  if (fs.existsSync(resolved)) {
+    args.push('--env-file', envFile)
+  }
 }
 args.push(entry)
 

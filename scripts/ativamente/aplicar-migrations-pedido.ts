@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Client } from 'pg'
 import {
+  aplicarDropUniqueNumeroPedidoEmSchemasComPedido,
   aplicarIdProcessoEmSchemasComPedido,
   aplicarListaPainelEmSchemasComPedido,
   listarSchemasComTabelaPedido,
@@ -139,21 +140,24 @@ export async function aplicarMigrationsPedido(): Promise<void> {
     `[migrations-pedido] Configurador: ${configuradorUrl ? mascararUrl(configuradorUrl) : 'AUSENTE'}`,
   )
 
-  console.log('[migrations-pedido] Passo 1/5 — logística em todos os schemas com pedido...')
+  console.log('[migrations-pedido] Passo 1/6 — logística em todos os schemas com pedido...')
   await aplicarLogisticaEmTodosSchemas(pedidoUrl)
 
-  console.log('[migrations-pedido] Passo 2/5 — id_processo (nullable, sem backfill)...')
+  console.log('[migrations-pedido] Passo 2/6 — id_processo (nullable, sem backfill)...')
   await aplicarIdProcessoEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
 
-  console.log('[migrations-pedido] Passo 3/5 — lista_painel_usuario_global...')
+  console.log('[migrations-pedido] Passo 3/6 — lista_painel_usuario_global...')
   await aplicarListaPainelEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
+
+  console.log('[migrations-pedido] Passo 4/6 — drop unique (id_organizacao, numero_pedido) legado...')
+  await aplicarDropUniqueNumeroPedidoEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
 
   execSync('npx tsx scripts/ativamente/compose-pedido-schema.ts', {
     cwd: REPO_ROOT,
     stdio: 'inherit',
   })
 
-  console.log('[migrations-pedido] Passo 4/5 — prisma migrate deploy (public, best-effort)...')
+  console.log('[migrations-pedido] Passo 5/6 — prisma migrate deploy (public, best-effort)...')
   try {
     execSync(`npx prisma migrate deploy --schema=${PEDIDO_SCHEMA}`, {
       cwd: REPO_ROOT,
@@ -171,12 +175,12 @@ export async function aplicarMigrationsPedido(): Promise<void> {
   }
 
   if (!configuradorUrl) {
-    console.warn('[migrations-pedido] Passo 5/5 skip — sem URL do Configurador para migrate-all-tenants.')
-    console.log('[migrations-pedido] Concluido (logística + id_processo + lista_painel).')
+    console.warn('[migrations-pedido] Passo 6/6 skip — sem URL do Configurador para migrate-all-tenants.')
+    console.log('[migrations-pedido] Concluido (logística + id_processo + lista_painel + drop unique numero).')
     return
   }
 
-  console.log('[migrations-pedido] Passo 5/5 — migrate-all-tenants...')
+  console.log('[migrations-pedido] Passo 6/6 — migrate-all-tenants...')
   try {
     execSync('npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido', {
       cwd: REPO_ROOT,

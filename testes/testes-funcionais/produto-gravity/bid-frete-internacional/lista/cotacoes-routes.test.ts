@@ -181,6 +181,19 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.body.disparo_erro).toContain('Falha ao enviar e-mail')
   })
 
+  it('deve persistir numero_cotacao informado na criacao', async () => {
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        numero_cotacao_bid_frete_internacional: 'COT-CUSTOM-001',
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao.numero_cotacao_bid_frete_internacional).toBe('COT-CUSTOM-001')
+  })
+
   it('deve persistir endereco_origem quando informado', async () => {
     const res = await request(app)
       .post('/api/v1/bid-frete-internacional/cotacoes')
@@ -278,6 +291,7 @@ describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
     vi.clearAllMocks()
     mockCotacoes.push({
       id_cotacao_bid_frete_internacional: 'cotacao_em_cotacao',
+      numero_cotacao_bid_frete_internacional: 'COT-ORIGINAL',
       tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
       status_cotacao_bid_frete_internacional: 'EM_COTACAO',
       modal_cotacao_bid_frete_internacional: 'AEREO',
@@ -288,6 +302,16 @@ describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
       destino_nome_cotacao_bid_frete_internacional: 'MIA — Miami',
       destino_pais_cotacao_bid_frete_internacional: 'US',
     })
+  })
+
+  it('deve atualizar numero_cotacao via PATCH', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bid-frete-internacional/cotacoes/cotacao_em_cotacao')
+      .set(HEADERS)
+      .send({ numero_cotacao_bid_frete_internacional: 'COT-EDITADO' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.cotacao.numero_cotacao_bid_frete_internacional).toBe('COT-EDITADO')
   })
 
   it('deve permitir editar campo mesmo quando status nao e rascunho', async () => {

@@ -1,0 +1,1264 @@
+/* Análise de Riscos — paridade com sr-conf-riscos do Smart Read (escopo simulador) */
+
+.sds-nl-dialog {
+  --text-primary: var(--sds-nl-text-primary, #e2e8f0);
+  --text-secondary: var(--sds-nl-text-secondary, #94a3b8);
+  --text-muted: var(--sds-nl-text-muted, #64748b);
+  --sr-chk-verde-texto: #9aad9f;
+  --sr-chk-verde-preenchimento: #6d8f81;
+  --sr-chk-verde-borda: rgba(109, 143, 129, 0.42);
+  --sr-chk-verde-fundo: rgba(109, 143, 129, 0.14);
+}
+
+.sds-nl-dialog .sr-conf-vazio {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+  padding: 1rem;
+  text-align: center;
+}
+
+.sds-nl-dialog .sr-conf-contexto-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-conf-contexto-linha--sem-acao {
+  margin-bottom: 0;
+}
+
+.sds-nl-dialog .sr-conf-contexto-texto {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sds-nl-dialog .sr-conf-riscos {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho {
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-conf-riscos-main {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Layout master-detail: lista + painel de detalhe */
+.sds-riscos-split {
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+  gap: 0.625rem;
+  min-height: 12rem;
+  flex: 1;
+}
+
+.sds-riscos-split-lista {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.125rem;
+}
+
+.sds-riscos-split-detalhe {
+  min-height: 0;
+  overflow: auto;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.sds-riscos-detalhe-vazio {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-muted, #64748b);
+  padding: 1rem 0.25rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista--ativo {
+  border-color: rgba(129, 140, 248, 0.45);
+  background: rgba(99, 102, 241, 0.1);
+  outline: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista--ativo .dt-secao-title h2 {
+  color: #e2e8f0;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho {
+  padding: 0.875rem 1rem;
+  border-radius: 0.625rem;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(129, 140, 248, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-principal {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: min(100%, 16rem);
+  overflow: visible;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-titulo-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-subtitulo {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar {
+  display: flex;
+  width: 100%;
+  max-width: 22.5rem;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar__conforme,
+.sds-nl-dialog .sr-conf-riscos-seg-bar__critico,
+.sds-nl-dialog .sr-conf-riscos-seg-bar__atencao,
+.sds-nl-dialog .sr-conf-riscos-seg-bar__informativo {
+  cursor: pointer;
+}
+
+.sds-riscos-barra-tt-host {
+  position: relative;
+  width: 100%;
+  max-width: 22.5rem;
+  padding-top: 0.25rem;
+  overflow: visible;
+  z-index: 2;
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar__conforme {
+  display: block;
+  height: 100%;
+  background: var(--sr-chk-verde-preenchimento, #6d8f81);
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar__critico {
+  display: block;
+  height: 100%;
+  background: #f87171;
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar__atencao {
+  display: block;
+  height: 100%;
+  background: #fbbf24;
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-bar__informativo {
+  display: block;
+  height: 100%;
+  background: #60a5fa;
+}
+
+.sds-nl-dialog .sr-conf-riscos-seg-legenda {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-progresso-busca {
+  flex: 0 1 240px;
+  max-width: 280px;
+  min-width: 11rem;
+  align-self: center;
+}
+
+/* Busca refinada — compacta, alinhada ao cabeçalho de riscos */
+.sds-riscos-busca-campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.3125rem 1.625rem 0.3125rem 1.75rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sds-riscos-busca-campo:focus-within {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.14);
+}
+
+.sds-riscos-busca-icone {
+  position: absolute;
+  left: 0.5rem;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.sds-riscos-busca-campo:focus-within .sds-riscos-busca-icone {
+  color: #818cf8;
+}
+
+.sds-riscos-busca-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  font-family: inherit;
+  line-height: 1.35;
+}
+
+.sds-riscos-busca-input::placeholder {
+  color: rgba(100, 116, 139, 0.75);
+  font-style: italic;
+}
+
+.sds-riscos-busca-limpar {
+  position: absolute;
+  right: 0.3125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  background: rgba(148, 163, 184, 0.12);
+  border: none;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.sds-riscos-busca-limpar:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.sds-nl-dialog .sr-conf-riscos-cabecalho-rodape .sr-conf-risco-acoes {
+  margin: 0;
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.sds-nl-dialog .sr-conf-risco-acoes {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-acoes-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-idioma {
+  flex: 0 0 auto;
+  min-width: 9rem;
+  max-width: 11rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-idioma .cg-label {
+  font-size: 0.5625rem;
+  margin-bottom: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-idioma .sg-campo--compacto {
+  min-height: 2rem;
+  padding: 0.3125rem 0.5rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-idioma .sg-valor-unico {
+  font-size: 0.6875rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-acoes-btn--ativo {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(99, 102, 241, 0.18);
+  color: #c7d2fe;
+}
+
+.sds-nl-dialog .sr-conf-risco-acoes-feedback {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: #34d399;
+}
+
+.sds-nl-dialog .sr-conf-risco-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.sds-nl-dialog .sr-conf-risco-compose-rotulo {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-risco-compose-assunto {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.sds-nl-dialog .sr-conf-risco-compose-texto {
+  width: 100%;
+  resize: vertical;
+  min-height: 5rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  font-family: inherit;
+}
+
+.sds-nl-dialog .sr-conf-risco-compose-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* Gráfico de aprovação — conferência manual (base + variante cabeçalho) */
+.sds-nl-dialog .sr-chk-grafico-conferido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-anel {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-pct {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-legenda {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.0625rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-titulo {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-contagem {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-contagem strong {
+  color: #e2e8f0;
+  font-weight: 800;
+}
+
+/* Gráfico de aprovação — aparece ao marcar checkboxes */
+.sds-riscos-grafico-aprovacao--cabecalho {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 9.5rem;
+  padding: 0;
+}
+
+.sds-riscos-grafico-aprovacao--cabecalho .sds-riscos-grafico-aprovacao-anel {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.sds-riscos-grafico-aprovacao--cabecalho .sr-chk-grafico-conferido-pct {
+  font-size: 0.6875rem;
+}
+
+.sds-riscos-grafico-aprovacao--cabecalho .sr-chk-grafico-conferido-legenda {
+  align-items: flex-start;
+  text-align: left;
+  overflow: hidden;
+}
+
+.sds-riscos-grafico-aprovacao--cabecalho .sr-chk-grafico-conferido-titulo {
+  font-size: 0.5625rem;
+}
+
+.sds-riscos-grafico-aprovacao--cabecalho .sr-chk-grafico-conferido-contagem {
+  font-size: 0.625rem;
+}
+
+/* Variante na barra de abas (Conferência manual) */
+.sds-riscos-grafico-aprovacao--tabs {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4375rem;
+  min-width: 0;
+  padding: 0;
+}
+
+.sds-riscos-grafico-aprovacao--tabs .sds-riscos-grafico-aprovacao-anel {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.sds-riscos-grafico-aprovacao--tabs .sr-chk-grafico-conferido-pct {
+  font-size: 0.625rem;
+}
+
+.sds-riscos-grafico-aprovacao--tabs .sr-chk-grafico-conferido-legenda {
+  align-items: flex-start;
+  text-align: left;
+  gap: 0;
+}
+
+.sds-riscos-grafico-aprovacao--tabs .sr-chk-grafico-conferido-titulo {
+  font-size: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+.sds-riscos-grafico-aprovacao--tabs .sr-chk-grafico-conferido-contagem {
+  font-size: 0.5625rem;
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-trilho {
+  stroke: rgba(148, 163, 184, 0.2);
+}
+
+.sds-nl-dialog .sr-chk-grafico-conferido-progresso {
+  stroke: #34d399;
+  transition: stroke-dashoffset 0.25s ease;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-badge {
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-secao .dt-secao-title {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+/* Tooltip Insights — paridade no wizard Nova Leitura */
+.sds-nl-dialog .sr-insights-tt-host {
+  position: relative;
+}
+
+.sds-nl-dialog .sr-insights-tt {
+  position: absolute;
+  z-index: 120;
+  transform: translate(-50%, -100%);
+  min-width: 140px;
+  max-width: 176px;
+  padding: 0.45rem 0.55rem 0.55rem;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: sds-riscos-tooltip-in 0.12s ease-out;
+}
+
+.sds-nl-dialog .sr-insights-tt--fixo {
+  pointer-events: auto;
+  z-index: 130;
+}
+
+.sds-nl-dialog .sr-insights-tt--abaixo {
+  transform: translate(-50%, 0);
+  animation-name: sds-riscos-tooltip-in-abaixo;
+}
+
+@keyframes sds-riscos-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% + 4px));
+  }
+}
+
+@keyframes sds-riscos-tooltip-in-abaixo {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+}
+
+.sds-nl-dialog .sr-insights-tt::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%) rotate(45deg);
+  background: rgba(15, 23, 42, 0.98);
+  border-right: 1px solid rgba(148, 163, 184, 0.18);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sds-nl-dialog .sr-insights-tt--abaixo::after {
+  bottom: auto;
+  top: -5px;
+  border: none;
+  border-left: 1px solid rgba(148, 163, 184, 0.18);
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sds-nl-dialog .sr-insights-tt__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.sds-nl-dialog .sr-insights-tt__topo-esq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.sds-nl-dialog .sr-insights-tt__fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.25rem;
+  background: rgba(15, 23, 42, 0.55);
+  color: #94a3b8;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-insights-tt__fechar:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #f87171;
+}
+
+.sds-nl-dialog .sr-insights-tt__titulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.sds-nl-dialog .sr-insights-tt__sub {
+  font-size: 0.5625rem;
+  color: #64748b;
+}
+
+.sds-nl-dialog .sr-insights-tt__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.sds-nl-dialog .sr-insights-tt__total strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1;
+}
+
+.sds-nl-dialog .sr-insights-tt__total span {
+  font-size: 0.5625rem;
+  color: #64748b;
+}
+
+.sds-nl-dialog .sr-insights-tt__barra {
+  display: flex;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.35rem;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.sds-nl-dialog .sr-insights-tt__barra span {
+  display: block;
+  height: 100%;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.625rem;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha + .sr-insights-tt__linha {
+  margin-top: 0.25rem;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #94a3b8;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha > span i {
+  display: inline-block;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha > strong {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.sds-nl-dialog .sr-insights-tt__linha > strong em {
+  font-style: normal;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 0.25rem;
+}
+
+.sds-nl-dialog .sr-conf-riscos-checklist-link {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sds-nl-dialog .sr-conf-riscos-checklist-link:hover {
+  color: #c4b5fd;
+}
+
+.sds-nl-dialog .sr-conf-riscos-checklist-resumo-compacto {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-riscos-selecionar-compacto {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.sds-nl-dialog .sr-conf-riscos-selecionar-compacto input,
+.sds-nl-dialog .sr-conf-riscos-secao-selecionar input {
+  width: 0.875rem;
+  height: 0.875rem;
+  accent-color: #818cf8;
+}
+
+.sds-nl-dialog .sr-conf-riscos-disclaimer-compacto {
+  margin-left: auto;
+  font-size: 0.625rem;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-riscos-carregando {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-riscos-ok {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.sds-nl-dialog .sr-conf-riscos-lista-plana {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista {
+  scroll-margin-top: 1rem;
+  border-radius: 0.4375rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista .sr-conf-risco-item-lista-cabecalho {
+  padding: 0.3125rem 0.5rem;
+  margin-bottom: 0;
+  border-bottom: none;
+  gap: 0.375rem;
+  min-height: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista .dt-secao-title {
+  gap: 0.3125rem;
+  min-width: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista .dt-secao-title h2 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista .dt-caret {
+  width: 11px;
+  height: 11px;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista--selecionado {
+  border-color: rgba(129, 140, 248, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.2);
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-cabecalho {
+  cursor: default;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-botao {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-botao:hover .dt-secao-title h2 {
+  color: #c4b5fd;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-icone {
+  width: auto;
+  min-width: 2.5rem;
+  height: 1.625rem;
+  flex-direction: row;
+  gap: 0.25rem;
+  padding: 0 0.3125rem;
+  flex-shrink: 0;
+  border-radius: 0.375rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-numero {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-direita {
+  flex-shrink: 0;
+  gap: 0.375rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista .sr-conf-risco-badge {
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.5625rem;
+}
+
+.sds-nl-dialog .sr-conf-riscos-secao-selecionar input,
+.sds-nl-dialog .sr-conf-risco-item-lista-selecao input {
+  width: 0.8125rem;
+  height: 0.8125rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista--expandido {
+  border-color: rgba(129, 140, 248, 0.28);
+}
+
+.sds-nl-dialog .sr-conf-risco-item-lista-corpo {
+  padding: 0 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.sds-nl-dialog .sr-conf-risco-badge--critico {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.sds-nl-dialog .sr-conf-risco-badge--atencao {
+  color: #fcd34d;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.sds-nl-dialog .sr-conf-risco-badge--informativo {
+  color: #93c5fd;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.sds-nl-dialog .sr-risco-inline-painel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sds-nl-dialog .sr-risco-inline-secoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sds-nl-dialog .sr-risco-inline-secoes .sr-risco-inline-checklist-corpo {
+  gap: 0;
+}
+
+.sds-nl-dialog .sr-risco-inline-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.125rem;
+}
+
+.sds-nl-dialog .sr-risco-inline-cabecalho .sr-risco-modal-resumo-linha {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.sds-nl-dialog .sr-risco-modal-resumo-linha {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-risco-modal-acoes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-risco-modal-btn-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.375rem;
+  background: rgba(30, 41, 59, 0.6);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sds-nl-dialog .sr-risco-modal-btn-icone:hover {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.35);
+  color: #c7d2fe;
+}
+
+.sds-nl-dialog .sr-risco-modal-btn-icone--primario {
+  color: #a5b4fc;
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(79, 70, 229, 0.18);
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-secao {
+  margin: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-secao .dt-secao-header {
+  margin-bottom: 0;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-secao:not(.dt-secao--colapsada) .dt-secao-header {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-principal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-painel-divisor {
+  height: 1px;
+  margin: 0.125rem 0;
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.sds-nl-dialog .sr-conf-risco-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-campo-rotulo {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sds-nl-dialog .sr-conf-risco-campo p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.sds-nl-dialog .sr-conf-risco-evidencias strong {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sds-nl-dialog .sr-conf-risco-evidencias ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sds-nl-dialog .sr-conf-risco-evidencias li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: baseline;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.sds-nl-dialog .sr-conf-risco-ev-campo {
+  font-family: ui-monospace, monospace;
+  font-size: 0.625rem;
+  color: rgba(129, 140, 248, 0.85);
+}
+
+.sds-nl-dialog .sr-conf-risco-ev-valor {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+}
+
+/* Modal checklist */
+.sds-nl-riscos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.sds-nl-riscos-modal-painel {
+  width: min(720px, 100%);
+  max-height: min(80vh, 560px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.sds-nl-riscos-modal-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.sds-nl-riscos-modal-cabecalho strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+}
+
+.sds-nl-riscos-modal-cabecalho span {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.sds-nl-riscos-modal-fechar {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+}
+
+.sds-nl-riscos-modal-fechar:hover {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.sds-nl-riscos-modal-corpo {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-chk-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.sds-nl-dialog .sr-conf-chk-tabela thead th {
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sds-nl-dialog .sr-conf-chk-linha {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.sds-nl-dialog .sr-conf-chk-linha td {
+  padding: 0.4375rem 0.625rem;
+  vertical-align: top;
+}
+
+.sds-nl-dialog .sr-conf-chk-linha--vermelho {
+  box-shadow: inset 3px 0 0 #f87171;
+}
+
+.sds-nl-dialog .sr-conf-chk-linha--amarelo {
+  box-shadow: inset 3px 0 0 #fbbf24;
+}
+
+.sds-nl-dialog .sr-conf-chk-linha--verde {
+  box-shadow: inset 3px 0 0 var(--sr-chk-verde-preenchimento);
+}
+
+.sds-nl-dialog .sr-conf-chk-regra-id {
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+.sds-nl-dialog .sr-conf-chk-item-nome {
+  display: block;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sds-nl-dialog .sr-conf-chk-item-motor {
+  display: inline-block;
+  margin-top: 0.125rem;
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.1875rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sds-nl-dialog .sr-conf-chk-resultado {
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.sds-nl-dialog .sr-conf-chk-veredito {
+  display: inline-block;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+}
+
+.sds-nl-dialog .sr-conf-chk-veredito--verde {
+  color: var(--sr-chk-verde-texto);
+  border-color: var(--sr-chk-verde-borda);
+  background: var(--sr-chk-verde-fundo);
+}
+
+.sds-nl-dialog .sr-conf-chk-veredito--amarelo {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.sds-nl-dialog .sr-conf-chk-veredito--vermelho {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+@media (max-width: 900px) {
+  .sds-riscos-split {
+    grid-template-columns: 1fr;
+  }
+
+  .sds-riscos-split-detalhe {
+    max-height: 16rem;
+  }
+
+  .sds-nl-dialog .sr-conf-riscos-disclaimer-compacto {
+    margin-left: 0;
+    width: 100%;
+  }
+}

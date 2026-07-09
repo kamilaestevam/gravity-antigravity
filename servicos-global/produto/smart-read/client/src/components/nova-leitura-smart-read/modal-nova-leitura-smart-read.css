@@ -2432,10 +2432,28 @@
 }
 
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .sr-conf-progresso-bloco,
+.mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .sr-conf-resumo-triplo .sr-conf-resumo-bloco,
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .sr-conf-riscos-cabecalho,
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .dt-secao {
   background: rgba(15, 23, 42, 0.35);
   border: 1px solid rgba(129, 140, 248, 0.14);
+}
+
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--conferencia-ativo,
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--checklist-ativo,
+.mpg-dialog:has(.sr-wizard-corpo)
+  .sr-wizard-principal--conferencia
+  .sr-conf-resumo-triplo
+  .sr-conf-resumo-bloco--riscos-ativo {
+  border: 2px solid #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.45);
+  background: rgba(96, 165, 250, 0.07);
 }
 
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .dt-secao {
@@ -2449,6 +2467,27 @@
 
 .mpg-dialog:has(.sr-wizard-corpo) .sr-wizard-principal--conferencia .dt-main {
   gap: 0.75rem;
+}
+
+.sr-conf-cabecalho-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sr-conf-cabecalho-tabs .sr-conf-tabs {
+  margin-bottom: 0;
+  border-bottom: none;
+  min-width: 0;
+}
+
+.sr-conf-cabecalho-tabs > .gb-btn {
+  flex-shrink: 0;
+  margin-bottom: 0.375rem;
 }
 
 .sr-conf-tabs {
@@ -2483,20 +2522,221 @@
 .sr-conf-tab--ativo {
   color: var(--text-primary);
   font-weight: 600;
-  border-bottom-color: var(--ws-accent, #818cf8);
-}
-
-.sr-conf-tab-icone {
-  flex-shrink: 0;
-  color: var(--text-muted);
+  border-bottom: 3px solid #60a5fa;
+  box-shadow: inset 0 -1px 0 rgba(96, 165, 250, 0.25);
 }
 
 .sr-conf-tab--ativo .sr-conf-tab-icone {
-  color: var(--ws-accent, #818cf8);
+  color: #60a5fa;
 }
 
 .sr-conf-tab-rotulo {
   white-space: nowrap;
+}
+
+.sr-conf-resumo-triplo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.sr-conf-resumo-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.625rem;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(129, 140, 248, 0.14);
+  min-width: 0;
+  text-align: left;
+}
+
+button.sr-conf-resumo-bloco {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
+    .sr-conf-resumo-bloco--checklist-ativo
+  ) {
+  border-color: rgba(129, 140, 248, 0.32);
+  background: rgba(15, 23, 42, 0.48);
+}
+
+.sr-conf-resumo-bloco--riscos-ativo,
+.sr-conf-resumo-bloco--checklist-ativo,
+.sr-conf-resumo-bloco--conferencia-ativo {
+  border: 2px solid #60a5fa;
+  box-shadow:
+    0 0 0 2px rgba(96, 165, 250, 0.45),
+    0 0 14px rgba(96, 165, 250, 0.18);
+  background: rgba(96, 165, 250, 0.07);
+}
+
+.sr-conf-resumo-bloco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.sr-conf-resumo-bloco-titulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.sr-conf-resumo-conferir-todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.4375rem;
+  border-radius: 0.4375rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sr-conf-resumo-conferir-todos:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+  color: var(--text-primary);
+}
+
+.sr-conf-resumo-conferir-todos-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.sr-conf-resumo-conferir-todos input {
+  margin: 0;
+}
+
+.sr-conf-resumo-conferir-todos-rotulo {
+  line-height: 1.2;
+}
+
+.sr-conf-resumo-icone-bloco {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+
+.sr-conf-resumo-icone-bloco--usuario {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.sr-conf-resumo-bloco--conferencia-ativo .sr-conf-resumo-icone-bloco--usuario {
+  border-color: rgba(52, 211, 153, 0.65);
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2);
+}
+
+.sr-conf-resumo-rotulo {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.sr-conf-resumo-rotulo--com-icone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.sr-conf-resumo-riscos-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sr-conf-resumo-seta {
+  flex-shrink: 0;
+  color: rgba(148, 163, 184, 0.7);
+}
+
+.sr-conf-resumo-riscos-subtitulo {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sr-conf-resumo-linha-barra {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sr-conf-resumo-linha-barra .sr-conf-progresso-barra {
+  flex: 1;
+  min-width: 0;
+}
+
+.sr-conf-resumo-legenda {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: rgba(148, 163, 184, 0.88);
+}
+
+.sr-conf-progresso-barra-fill--conferencia {
+  background: linear-gradient(90deg, #34d399, #10b981);
+}
+
+.sr-conf-progresso-pct--conferencia {
+  color: #34d399;
+}
+
+.sr-conf-riscos-seg-bar--compacta {
+  height: 0.375rem;
+  margin-top: 0.125rem;
+}
+
+.sr-conf-resumo-checklist-pct {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sr-chk-verde-preenchimento, #34d399);
+}
+
+.sr-conf-resumo-checklist-conforme {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.sr-conf-resumo-checklist-barra {
+  width: 100%;
 }
 
 .sr-conf-tab-panel {
@@ -2586,6 +2826,16 @@
   min-width: 12rem;
 }
 
+.sr-conf-progresso-busca--solo {
+  flex: 1 1 auto;
+  max-width: none;
+  width: 100%;
+}
+
+.sr-conf-riscos-cabecalho-principal:has(.sr-conf-progresso-busca--solo) {
+  width: 100%;
+}
+
 .sr-conf-progresso-busca .dt-header-busca {
   width: 100%;
 }
@@ -2643,7 +2893,11 @@
 }
 
 .sr-conf-progresso-metrica--ativo {
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.35);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.45);
+}
+
+.sr-conf-progresso-metrica--todos.sr-conf-progresso-metrica--ativo {
+  border: 2px solid #60a5fa;
 }
 
 .sr-conf-progresso-metrica-valor {
@@ -2665,10 +2919,6 @@
 .sr-conf-progresso-metrica--todos .sr-conf-progresso-metrica-valor,
 .sr-conf-progresso-metrica--todos .sr-conf-progresso-metrica-rotulo svg {
   color: #60a5fa;
-}
-
-.sr-conf-progresso-metrica--todos.sr-conf-progresso-metrica--ativo {
-  border-color: #60a5fa;
 }
 
 .sr-conf-progresso-metrica--preenchido .sr-conf-progresso-metrica-valor,
@@ -3207,10 +3457,52 @@
 }
 
 .sr-conf-chk-regra-id {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
   color: #a78bfa;
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-conf-chk-legenda-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+
+.sr-conf-chk-legenda-pill {
+  cursor: help;
+  font-size: 0.625rem;
+  padding: 0.125rem 0.4375rem;
+}
+
+.sr-conf-chk-item-linha {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.sr-conf-chk-item-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: help;
+  line-height: 1;
+}
+
+.sr-conf-chk-item-info:hover,
+.sr-conf-chk-item-info:focus-visible {
+  color: #a5b4fc;
+  outline: none;
 }
 
 .sr-conf-chk-item-nome {
@@ -3230,10 +3522,10 @@
 }
 
 .sr-conf-chk-resultado {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-primary, #e2e8f0);
   word-break: break-word;
 }
 
@@ -3286,7 +3578,7 @@
 .sr-conf-chk-checkbox {
   width: 0.9375rem;
   height: 0.9375rem;
-  accent-color: #34d399;
+  accent-color: #818cf8;
   cursor: pointer;
 }
 
@@ -4184,6 +4476,32 @@
   margin-bottom: 0.25rem;
 }
 
+.sr-conf-toolbar-acoes-direita {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.sr-conf-toolbar-selecionar-conferencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sr-conf-toolbar-selecionar-conferencia input {
+  margin: 0;
+}
+
+.sr-conf-toolbar-selecionar-conferencia svg {
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
 .sr-conf-vazio {
   font-size: 0.8125rem;
   color: var(--text-muted);
@@ -4226,6 +4544,70 @@
   background: rgba(167, 139, 250, 0.12);
   border: 1px solid rgba(167, 139, 250, 0.25);
   vertical-align: middle;
+}
+
+.sr-conf-campo-check-btn {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(148, 163, 184, 0.42);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    background 0.15s ease, transform 0.15s ease;
+}
+
+.dt-row:hover .sr-conf-campo-check-btn,
+.sr-conf-campo-check-btn:focus-visible {
+  opacity: 1;
+}
+
+.sr-conf-campo-check-btn:hover {
+  color: rgba(203, 213, 225, 0.9);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.sr-conf-campo-check-btn--ativo {
+  opacity: 1;
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.sr-conf-campo-check-btn--ativo:hover {
+  color: #6ee7b7;
+  border-color: rgba(52, 211, 153, 0.6);
+}
+
+.sr-conf-campo-conferido {
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.sr-conf-campo-conferido .dt-row-head {
+  padding-right: 2rem;
+}
+
+.sr-conf-progresso-conferencia-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.sr-conf-progresso-conferencia-manual svg {
+  color: #34d399;
+  flex-shrink: 0;
 }
 
 .sr-conf-campo-data-edit {
@@ -7131,6 +7513,99 @@
 
 .sr-conf-risco-item-lista-cabecalho {
   cursor: default;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.sr-conf-tab-icone {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.sr-conf-chk-lote-selecionar,
+.sr-conf-riscos-conferir-todos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sr-conf-chk-lote-selecionar:hover,
+.sr-conf-riscos-conferir-todos:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+  color: var(--text-primary);
+}
+
+.sr-conf-chk-lote-icone,
+.sr-conf-riscos-conferir-todos-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.sr-conf-chk-lote-selecionar input,
+.sr-conf-riscos-conferir-todos input {
+  margin: 0;
+}
+
+.sr-conf-chk-lote-selecionar {
+  margin-bottom: 0.625rem;
+}
+
+.sr-conf-risco-check-btn {
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(148, 163, 184, 0.42);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    background 0.15s ease, transform 0.15s ease;
+}
+
+.sr-conf-risco-item-lista:hover .sr-conf-risco-check-btn,
+.sr-conf-risco-check-btn:focus-visible {
+  opacity: 1;
+}
+
+.sr-conf-risco-check-btn:hover {
+  color: rgba(203, 213, 225, 0.9);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.sr-conf-risco-check-btn--ativo,
+.sr-conf-risco-item-lista--conferido .sr-conf-risco-check-btn {
+  opacity: 1;
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.sr-conf-risco-check-btn--ativo:hover,
+.sr-conf-risco-item-lista--conferido .sr-conf-risco-check-btn:hover {
+  color: #6ee7b7;
+  border-color: rgba(52, 211, 153, 0.6);
 }
 
 .sr-conf-risco-item-lista-botao {

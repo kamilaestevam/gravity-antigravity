@@ -43,6 +43,9 @@ import { DocHubManual } from './university/manual-hub-ui'
 import { DocStoreManual } from './university/manual-store-ui'
 import { DocSmartReadManual } from './university/manual-smart-read-ui'
 import { DocPedidoManual } from './university/manual-pedido-ui'
+import { DocBidFreteManual } from './university/manual-bid-frete-ui'
+import { DocApiCockpitManual } from './university/manual-api-cockpit-ui'
+import { DOC_API_COCKPIT_SUBTITULO } from './university/manual-api-cockpit-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
 
@@ -1471,6 +1474,7 @@ export function UniversityGravity() {
     docsProdutoSlug === 'store' ||
     docsProdutoSlug === 'smart-read' ||
     docsProdutoSlug === 'pedido' ||
+    docsProdutoSlug === 'api-cockpit' ||
     (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
   )
 
@@ -1605,7 +1609,6 @@ export function UniversityGravity() {
           icon: produtoIconManual('configurador'),
           children: CONFIGURADOR_MANUAL_ITENS.map(item => {
             const badgeEmBreveCapitulo: Partial<Record<typeof item.pathSeg, typeof badgeEmBreve>> = {
-              'api-cockpit': badgeEmBreve,
             }
             return {
               to: `/university-gravity/docs/configurador/${item.pathSeg}`,
@@ -1625,7 +1628,7 @@ export function UniversityGravity() {
           children: [
             { to: '/university-gravity/docs/pedido',     label: t('university.produto.pedido'),     icon: produtoIconManual('pedido') },
             { to: '/university-gravity/docs/smart-read', label: t('university.produto.smart_read'), icon: produtoIconManual('smart-read') },
-            { to: '/university-gravity/docs/bid-frete',  label: t('university.produto.bid_frete'), icon: produtoIconManual('bid-frete'),  ...badgeEmBreve },
+            { to: '/university-gravity/docs/bid-frete',  label: t('university.produto.bid_frete'), icon: produtoIconManual('bid-frete') },
             { to: '/university-gravity/docs/bid-cambio', label: t('university.produto.bid_cambio'), icon: produtoIconManual('bid-cambio'), ...badgeEmBreve },
           ],
         },
@@ -1795,6 +1798,8 @@ export function UniversityGravity() {
                   ? <ShoppingBag weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'smart-read'
                   ? <MagnifyingGlass weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'api-cockpit'
+                  ? iconeConfiguradorManual('api-cockpit', 22)
                 : secao === 'docs' && docsConfiguradorPagina
                   ? iconeConfiguradorManual(docsConfiguradorPagina, 22)
                   : <GraduationCap weight="duotone" size={22} />}
@@ -1821,6 +1826,9 @@ export function UniversityGravity() {
               )}
               {secao === 'docs' && docsProdutoSlug === 'pedido' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_PEDIDO_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'api-cockpit' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_API_COCKPIT_SUBTITULO}</span>
               )}
               {secao === 'docs' && configuradorManualItem && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{configuradorManualItem.subtitulo}</span>
@@ -2092,7 +2100,15 @@ export function UniversityGravity() {
             <DocPedidoManual />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug === 'bid-frete' && (
+            <DocBidFreteManual />
+          )}
+
+          {secao === 'docs' && docsProdutoSlug === 'api-cockpit' && (
+            <DocApiCockpitManual />
+          )}
+
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'bid-frete' && docsProdutoSlug !== 'api-cockpit' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

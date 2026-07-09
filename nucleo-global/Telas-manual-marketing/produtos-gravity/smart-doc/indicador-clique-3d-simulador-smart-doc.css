@@ -1,0 +1,194 @@
+/* Indicador de clique 3D — affordance refinada */
+
+@keyframes sds-clique-3d-press {
+  0% {
+    opacity: 0;
+    transform: translate3d(10px, -14px, 28px) rotateX(22deg) rotateZ(-8deg) scale(0.82);
+  }
+  12% {
+    opacity: 1;
+    transform: translate3d(2px, -4px, 16px) rotateX(14deg) rotateZ(-4deg) scale(1);
+  }
+  38% {
+    transform: translate3d(0, 5px, 2px) rotateX(2deg) rotateZ(0deg) scale(0.9);
+  }
+  52% {
+    transform: translate3d(0, 3px, 4px) rotateX(4deg) rotateZ(0deg) scale(0.94);
+  }
+  72% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 12px) rotateX(12deg) rotateZ(-2deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-6px, -12px, 24px) rotateX(18deg) rotateZ(-6deg) scale(0.86);
+  }
+}
+
+@keyframes sds-clique-3d-ripple {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35);
+  }
+  30% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
+@keyframes sds-clique-3d-shadow {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  40% {
+    opacity: 0.35;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
+
+@keyframes sds-clique-3d-label {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  20%,
+  75% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.sds-clique-3d {
+  position: absolute;
+  right: -0.125rem;
+  bottom: -1.375rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  pointer-events: none;
+  z-index: 1400;
+  perspective: 420px;
+  transform-style: preserve-3d;
+}
+
+.sds-clique-3d--menu .sds-clique-3d__rotulo {
+  display: none;
+}
+
+.sds-clique-3d--menu {
+  right: 0.5rem;
+  bottom: 0.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.sds-clique-3d--menu .sds-clique-3d__corpo svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sds-clique-3d__corpo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e0e7ff;
+  filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.55));
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.sds-clique-3d--animando .sds-clique-3d__corpo {
+  animation: sds-clique-3d-press 1.2s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.sds-clique-3d__corpo svg {
+  transform: translateZ(6px);
+}
+
+.sds-clique-3d__onda {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(165, 180, 252, 0.55);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 68%);
+  transform: translate(-50%, -50%) scale(0.35);
+  opacity: 0;
+}
+
+.sds-clique-3d--animando .sds-clique-3d__onda {
+  animation: sds-clique-3d-ripple 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sds-clique-3d__onda--tardia {
+  animation-delay: 0.12s !important;
+  border-color: rgba(129, 140, 248, 0.35);
+}
+
+.sds-clique-3d__sombra {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+  width: 1.75rem;
+  height: 0.4375rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.45);
+  filter: blur(3px);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.sds-clique-3d--animando .sds-clique-3d__sombra {
+  animation: sds-clique-3d-shadow 1.2s ease-out forwards;
+}
+
+.sds-clique-3d__rotulo {
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 0.125rem);
+  transform: translateX(-50%);
+  padding: 0.125rem 0.4375rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #c7d2fe;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  border-radius: 999px;
+  white-space: nowrap;
+  opacity: 0;
+  backdrop-filter: blur(6px);
+}
+
+.sds-clique-3d--animando .sds-clique-3d__rotulo {
+  animation: sds-clique-3d-label 1.2s ease-out forwards;
+}
+
+.sds-affordance-alvo {
+  position: relative;
+  overflow: visible;
+}
+
+.sr-dropdown-novo-item.sds-affordance-alvo {
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sds-clique-3d--animando .sds-clique-3d__corpo,
+  .sds-clique-3d--animando .sds-clique-3d__onda,
+  .sds-clique-3d--animando .sds-clique-3d__sombra,
+  .sds-clique-3d--animando .sds-clique-3d__rotulo {
+    animation: none;
+    opacity: 0.85;
+    transform: none;
+  }
+}

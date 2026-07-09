@@ -5,6 +5,7 @@
  */
 
 import type { PeriodoArmazenagemPropostaBidFreteInternacional } from './periodos-armazenagem-proposta-bid-frete-internacional'
+import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 
 // ─── Enums (espelham fragment.prisma) ────────────────────────────────────────
 
@@ -18,8 +19,10 @@ export type StatusCotacao =
   | 'RASCUNHO'
   | 'ENVIADA_FORNECEDORES'
   | 'EM_COTACAO'
+  | 'COTACAO_ALTERADA'
   | 'AGUARDANDO_APROVACAO'
   | 'APROVADA'
+  | 'FECHADA'
   | 'REPROVADA'
   | 'CANCELADA'
   | 'FALTA_INFORMACAO'
@@ -73,8 +76,10 @@ export const STATUS_LABELS: Record<StatusCotacao, string> = {
   RASCUNHO: 'Rascunho',
   ENVIADA_FORNECEDORES: 'Enviada ao fornecedor',
   EM_COTACAO: 'Em cotação',
+  COTACAO_ALTERADA: 'Cotação alterada',
   AGUARDANDO_APROVACAO: 'Aprovação pendente',
   APROVADA: 'Aprovada',
+  FECHADA: 'Fechada',
   REPROVADA: 'Reprovada',
   CANCELADA: 'Cancelada',
   FALTA_INFORMACAO: 'Falta de informação',
@@ -85,8 +90,10 @@ export const STATUS_BADGE: Record<StatusCotacao, 'info' | 'warning' | 'success' 
   RASCUNHO: 'default',
   ENVIADA_FORNECEDORES: 'info',
   EM_COTACAO: 'info',
+  COTACAO_ALTERADA: 'warning',
   AGUARDANDO_APROVACAO: 'warning',
   APROVADA: 'success',
+  FECHADA: 'success',
   REPROVADA: 'danger',
   CANCELADA: 'default',
   FALTA_INFORMACAO: 'warning',
@@ -212,11 +219,16 @@ export interface Cotacao {
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional?: string[] | null
   incoterm_cotacao_bid_frete_internacional: string
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null
   endereco_origem_cotacao_bid_frete_internacional?: string | null
   endereco_destino_cotacao_bid_frete_internacional?: string | null
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: string[] | null
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
   hs_code_cotacao_bid_frete_internacional?: string | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -226,6 +238,10 @@ export interface Cotacao {
   valor_meta_cotacao_bid_frete_internacional: number | null
   moeda_meta_cotacao_bid_frete_internacional: string | null
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
+  fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: boolean
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
+  /** Mapa código → rótulo completo — preenchido na resposta pública do fornecedor. */
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
   valor_aprovado_ganho_bid_frete_internacional?: number | null
   moeda_aprovada?: string | null
   ganho_valor_cotacao_bid_frete_internacional: number | null
@@ -233,6 +249,8 @@ export interface Cotacao {
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
   data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  data_fechamento_cotacao_bid_frete_internacional?: string | null
+  id_usuario_fechamento_cotacao_bid_frete_internacional?: string | null
   /** Preenchido pelo GET /cotacoes/:id quando status APROVADA (registro de ganho). */
   id_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
   nome_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
@@ -242,21 +260,35 @@ export interface Cotacao {
   motivo_cancelamento_cotacao_bid_frete_internacional?: string | null
   disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
   propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  registros_alteracao_proposta_cotacao_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional[]
   /** Valores de colunas criadas pelo usuário (paridade Pedido — keyed por col.id). */
   _colunas_usuario?: Record<string, string>
-  historico_aprovado?: Array<{
-    id_cotacao_bid_frete_internacional: string
-    numero_cotacao_bid_frete_internacional: string
-    data_criacao_cotacao_bid_frete_internacional?: string
-    data_aprovacao_cotacao_bid_frete_internacional: string
-    data_limite_resposta_cotacao_bid_frete_internacional?: string | null
-    data_atualizacao_cotacao_bid_frete_internacional?: string
-    disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
-    propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
-    propostas?: PropostaBidFreteInternacional[]
-    disparos_cotacao?: DisparoCotacaoBidFreteInternacional[]
-  }>
+  historico_aprovado?: CotacaoHistoricoTermometroMesmasCondicoes
+  historico_propostas_recebidas?: CotacaoHistoricoTermometroMesmasCondicoes
 }
+
+export type CotacaoHistoricoTermometroMesmasCondicoes = Array<{
+  id_cotacao_bid_frete_internacional: string
+  numero_cotacao_bid_frete_internacional: string
+  tipo_operacao_cotacao_bid_frete_internacional?: string
+  modal_cotacao_bid_frete_internacional?: string
+  origem_codigo_cotacao_bid_frete_internacional?: string
+  destino_codigo_cotacao_bid_frete_internacional?: string
+  modalidade_cotacao_bid_frete_internacional?: string | null
+  tipo_container_cotacao_bid_frete_internacional?: string | null
+  incoterm_cotacao_bid_frete_internacional?: string | null
+  peso_kg_cotacao_bid_frete_internacional?: number | null
+  peso_ton_cotacao_bid_frete_internacional?: number | null
+  cubagem_m3_cotacao_bid_frete_internacional?: number | null
+  data_criacao_cotacao_bid_frete_internacional?: string
+  data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
+  data_atualizacao_cotacao_bid_frete_internacional?: string
+  disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
+  propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  propostas?: PropostaBidFreteInternacional[]
+  disparos_cotacao?: DisparoCotacaoBidFreteInternacional[]
+}>
 
 export interface Fornecedor {
   id_fornecedor_bid_frete_internacional: string
@@ -264,6 +296,12 @@ export interface Fornecedor {
   nome_fornecedor_bid_frete_internacional: string
   nome_fantasia_fornecedor_bid_frete_internacional: string | null
   tipo_fornecedor_bid_frete_internacional: TipoFornecedor
+  /** Flags Cadastros — presentes quando lista vem do espelho sync; ausentes no fallback Prisma legado. */
+  pode_ser_agente_fornecedor?: boolean
+  pode_ser_armador_fornecedor?: boolean
+  pode_ser_cia_aerea_fornecedor?: boolean
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
   status_fornecedor_bid_frete_internacional: StatusFornecedor
   cnpj_fornecedor_bid_frete_internacional: string | null
   email_fornecedor_bid_frete_internacional: string
@@ -330,6 +368,7 @@ export interface PropostaBidFreteInternacional {
   dias_periodo_armazenagem_proposta_bid_frete_internacional?: number | null
   valor_armazenagem_reais_proposta_bid_frete_internacional?: number | null
   status_proposta_bid_frete_internacional: string
+  data_aceite_aprovacao_proposta_bid_frete_internacional?: string | null
   classificacao_valor_proposta_bid_frete_internacional?: number | null
   classificacao_transito_proposta_bid_frete_internacional?: number | null
   classificacao_avaliacao_proposta_bid_frete_internacional?: number | null
@@ -338,6 +377,25 @@ export interface PropostaBidFreteInternacional {
   cotacao?: Cotacao
   taxas_origem?: TaxaOrigemPropostaBidFreteInternacional[]
   taxas_destino?: TaxaDestinoPropostaBidFreteInternacional[]
+  registros_alteracao_proposta_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional[]
+  ultimo_registro_alteracao_proposta_bid_frete_internacional?: RegistroAlteracaoPropostaBidFreteInternacional | null
+}
+
+export interface ItemAlteracaoPropostaBidFreteInternacional {
+  campo: string
+  rotulo: string
+  valor_antes: number | string
+  valor_depois: number | string
+}
+
+export interface RegistroAlteracaoPropostaBidFreteInternacional {
+  id_registro_alteracao_proposta_bid_frete_internacional: string
+  id_proposta_bid_frete_internacional: string
+  id_cotacao_bid_frete_internacional: string
+  tipo_registro_alteracao_proposta_bid_frete_internacional: 'CRIAR' | 'ATUALIZAR'
+  origem_registro_alteracao_proposta_bid_frete_internacional: 'PORTAL' | 'LINK_PUBLICO'
+  alteracoes_registro_alteracao_proposta_bid_frete_internacional: ItemAlteracaoPropostaBidFreteInternacional[]
+  data_registro_alteracao_proposta_bid_frete_internacional: string
 }
 
 export interface TaxaOrigemPropostaBidFreteInternacional {

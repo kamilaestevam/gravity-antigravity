@@ -1,0 +1,49 @@
+{
+  "referencia": "TASK-000410",
+  "ordinal": 134,
+  "id_transcript": "58204340-efe3-497d-a5c2-7059827a0eaf",
+  "titulo_canonico": "PEDIDO-LISTA-DUV-GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+  "titulo_exibicao": "TASK-000410 | [Pedido] Lista | DUV — O que falta para gerar documentos (PO, SO, Proforma, Invoice, Packing List, CO)",
+  "status": "ABR",
+  "status_descricao": "Implementação concluída — aguardando QA e encerramento",
+  "area": "PEDIDO",
+  "area_descricao": "Produto Pedido by Gravity (servicos-global/produto/pedido/)",
+  "subarea": null,
+  "subarea_descricao": "Geração de documentos comerciais a partir de seleção na lista",
+  "visualizacao": "LISTA",
+  "visualizacao_descricao": "Lista de Pedidos — toolbar e seleção pedido/itens",
+  "tipo_entrega": "DUV",
+  "tipo_entrega_descricao": "Diagnóstico + implementação do fluxo gerar documento",
+  "resumo": "GERAR-DOCUMENTOS-SELECAO-PEDIDO-ITENS",
+  "resumo_descricao": "Seleção pedido+itens → PO, SO, Proforma, Invoice, Packing List, Certificado de Origem",
+  "resumo_detalhado": "Fluxo Gerar Documento na Lista: 6 tipos multilíngues, filtro item_ids, layouts HTML A4 reais, modal ModalOverlay, permissão lista:editar, download autenticado via anexosApi.",
+  "data_criacao": "2026-07-04T23:18:00.000Z",
+  "data_encerramento": null,
+  "branch_alvo": "manual-gravity-8001",
+  "preview_porta_alvo": 8001,
+  "preview_url_alvo": "http://127.0.0.1:8001/pedido/pedidos/lista",
+  "fases_concluidas": [
+    "diagnostico_lacunas",
+    "backend_layouts_6_tipos",
+    "frontend_modal_selecao",
+    "permissoes_lista_editar",
+    "testes_unitarios",
+    "validacao_tela_preview_8001"
+  ],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "sim", "descricao": "Testes locais executados" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado" },
+    "doc_skill": { "valor": "sim", "descricao": "Docs/skills atualizados" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega" },
+    "pr": { "valor": "nao", "descricao": "Pull request" },
+    "deploy": { "valor": "nao", "descricao": "Deploy/migration" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção" }
+  },
+  "checklist_alertas": [],
+  "entregas": [
+    {
+      "commit": "54fcd824d",
+      "resumo": "Layouts documentos-comerciais-pedido, rota /documentos/gerar, modal 6 tipos, item_ids, testes unitários"
+    }
+  ]
+}

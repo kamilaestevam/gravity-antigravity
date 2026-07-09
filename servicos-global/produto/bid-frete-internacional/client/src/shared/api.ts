@@ -18,6 +18,19 @@ import {
   dashboardPainelListResponseSchema,
   dashboardPainelReordenarResponseSchema,
 } from '../../../shared/dashboardPainelApiSchema.js'
+import {
+  fornecedorBidFreteInternacionalResponseSchema,
+  fornecedoresListResponseSchema,
+  fornecedorDetalheResponseSchema,
+} from '../../../shared/fornecedor-bid-frete-internacional-api-schema.js'
+import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
+import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { parseHistoricoTermometroListaFromServer } from '../../../shared/cotacao-historico-termometro-api-schema.js'
+import {
+  preferenciasNotificacaoBidFreteSchema,
+  type PreferenciasNotificacaoBidFrete,
+} from '../../../shared/preferencias-notificacao-bid-frete-internacional.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -83,7 +96,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
-  StatusBidConfigBidFreteInternacional,
+  RegistroAlteracaoPropostaBidFreteInternacional,
   DashboardKPIs,
   CalendarioAlerta,
   TabelaBidFreteInternacional,
@@ -292,13 +305,85 @@ function serializeValue(value: unknown): unknown {
   return value
 }
 
-export function mapFornecedorFromServer(rawUnknown: unknown): Fornecedor {
-  return serializeValue(rawUnknown) as Fornecedor
+function normalizarFornecedorPayloadFromServer(
+  raw: Record<string, unknown>,
+  contexto?: { id_organizacao?: string },
+): Record<string, unknown> {
+  const dataIsoFallback =
+    typeof raw.data_criacao_fornecedor_bid_frete_internacional === 'string'
+      ? raw.data_criacao_fornecedor_bid_frete_internacional
+      : new Date(0).toISOString()
+
+  return {
+    ...raw,
+    id_fornecedor_bid_frete_internacional:
+      raw.id_fornecedor_bid_frete_internacional ?? raw.id,
+    id_organizacao: raw.id_organizacao ?? contexto?.id_organizacao ?? '',
+    nome_fornecedor_bid_frete_internacional: raw.nome_fornecedor_bid_frete_internacional ?? '',
+    nome_fantasia_fornecedor_bid_frete_internacional:
+      raw.nome_fantasia_fornecedor_bid_frete_internacional ?? null,
+    tipo_fornecedor_bid_frete_internacional:
+      raw.tipo_fornecedor_bid_frete_internacional ?? 'AGENTE_CARGA',
+    status_fornecedor_bid_frete_internacional:
+      raw.status_fornecedor_bid_frete_internacional ?? 'ATIVO',
+    cnpj_fornecedor_bid_frete_internacional: raw.cnpj_fornecedor_bid_frete_internacional ?? null,
+    email_fornecedor_bid_frete_internacional: raw.email_fornecedor_bid_frete_internacional ?? '',
+    telefone_fornecedor_bid_frete_internacional: raw.telefone_fornecedor_bid_frete_internacional ?? null,
+    whatsapp_fornecedor_bid_frete_internacional: raw.whatsapp_fornecedor_bid_frete_internacional ?? null,
+    website_fornecedor_bid_frete_internacional: raw.website_fornecedor_bid_frete_internacional ?? null,
+    pais_fornecedor_bid_frete_internacional: raw.pais_fornecedor_bid_frete_internacional ?? null,
+    cidade_fornecedor_bid_frete_internacional: raw.cidade_fornecedor_bid_frete_internacional ?? null,
+    aceita_cotacao_aberta_fornecedor_bid_frete_internacional:
+      raw.aceita_cotacao_aberta_fornecedor_bid_frete_internacional ?? false,
+    cotacao_automatica_fornecedor_bid_frete_internacional:
+      raw.cotacao_automatica_fornecedor_bid_frete_internacional ?? false,
+    data_criacao_fornecedor_bid_frete_internacional:
+      raw.data_criacao_fornecedor_bid_frete_internacional ?? dataIsoFallback,
+    data_atualizacao_fornecedor_bid_frete_internacional:
+      raw.data_atualizacao_fornecedor_bid_frete_internacional ?? dataIsoFallback,
+  }
+}
+
+export function mapFornecedorFromServer(
+  rawUnknown: unknown,
+  contexto?: { id_organizacao?: string },
+): Fornecedor {
+  const serialized = serializeValue(rawUnknown) as Record<string, unknown>
+  const normalizado = normalizarFornecedorPayloadFromServer(serialized, contexto)
+  return fornecedorBidFreteInternacionalResponseSchema.parse(normalizado) as Fornecedor
+}
+
+function mapRegistroAlteracaoPropostaFromServer(
+  rawUnknown: unknown,
+): RegistroAlteracaoPropostaBidFreteInternacional {
+  const raw = serializeValue(rawUnknown) as Record<string, unknown>
+  const alteracoesRaw = raw.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  return {
+    id_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.id_registro_alteracao_proposta_bid_frete_internacional,
+    ),
+    id_proposta_bid_frete_internacional: String(raw.id_proposta_bid_frete_internacional),
+    id_cotacao_bid_frete_internacional: String(raw.id_cotacao_bid_frete_internacional),
+    tipo_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.tipo_registro_alteracao_proposta_bid_frete_internacional,
+    ) as 'CRIAR' | 'ATUALIZAR',
+    origem_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.origem_registro_alteracao_proposta_bid_frete_internacional,
+    ) as 'PORTAL' | 'LINK_PUBLICO',
+    alteracoes_registro_alteracao_proposta_bid_frete_internacional: Array.isArray(alteracoesRaw)
+      ? (alteracoesRaw as RegistroAlteracaoPropostaBidFreteInternacional['alteracoes_registro_alteracao_proposta_bid_frete_internacional'])
+      : [],
+    data_registro_alteracao_proposta_bid_frete_internacional: String(
+      raw.data_registro_alteracao_proposta_bid_frete_internacional ?? '',
+    ),
+  }
 }
 
 export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown): PropostaBidFreteInternacional {
   const raw = serializeValue(rawUnknown) as Record<string, unknown>
-  const fornecedor = raw.fornecedor ? mapFornecedorFromServer(raw.fornecedor) : undefined
+  const fornecedor = raw.fornecedor
+    ? mapFornecedorFromServer(raw.fornecedor, { id_organizacao: raw.id_organizacao as string | undefined })
+    : undefined
   return {
     id_proposta_bid_frete_internacional: (raw.id_proposta_bid_frete_internacional ?? raw.id) as string,
     id_organizacao: raw.id_organizacao as string,
@@ -363,6 +448,10 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
         }
       : {}),
     status_proposta_bid_frete_internacional: raw.status_proposta_bid_frete_internacional as string,
+    data_aceite_aprovacao_proposta_bid_frete_internacional:
+      raw.data_aceite_aprovacao_proposta_bid_frete_internacional != null
+        ? String(raw.data_aceite_aprovacao_proposta_bid_frete_internacional)
+        : null,
     classificacao_valor_proposta_bid_frete_internacional:
       raw.classificacao_valor_proposta_bid_frete_internacional as number | null | undefined,
     classificacao_transito_proposta_bid_frete_internacional:
@@ -380,6 +469,20 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       : {}),
     ...(Array.isArray(raw.taxas_destino)
       ? { taxas_destino: raw.taxas_destino as PropostaBidFreteInternacional['taxas_destino'] }
+      : {}),
+    ...(Array.isArray(raw.registros_alteracao_proposta_bid_frete_internacional)
+      ? {
+          registros_alteracao_proposta_bid_frete_internacional: (
+            raw.registros_alteracao_proposta_bid_frete_internacional as unknown[]
+          ).map(mapRegistroAlteracaoPropostaFromServer),
+        }
+      : {}),
+    ...(raw.ultimo_registro_alteracao_proposta_bid_frete_internacional
+      ? {
+          ultimo_registro_alteracao_proposta_bid_frete_internacional: mapRegistroAlteracaoPropostaFromServer(
+            raw.ultimo_registro_alteracao_proposta_bid_frete_internacional,
+          ),
+        }
       : {}),
   }
 }
@@ -433,7 +536,9 @@ export function mapDisparoCotacaoBidFreteInternacionalFromServer(
     data_atualizacao_disparo_cotacao_bid_frete_internacional:
       (raw.data_atualizacao_disparo_cotacao_bid_frete_internacional ??
         raw.data_atualizacao_pedido_cotacao_bid_frete_internacional) as string,
-    fornecedor: raw.fornecedor ? mapFornecedorFromServer(raw.fornecedor) : undefined,
+    fornecedor: raw.fornecedor
+      ? mapFornecedorFromServer(raw.fornecedor, { id_organizacao: raw.id_organizacao as string | undefined })
+      : undefined,
     proposta: propostaRaw ? mapPropostaBidFreteInternacionalFromServer(propostaRaw) : undefined,
     cotacao: raw.cotacao ? mapCotacaoFromServer(raw.cotacao) : undefined,
   }
@@ -491,6 +596,28 @@ export function mapPropostaRankingBidFreteInternacionalFromServer(
     classificacao_avaliacao_proposta_bid_frete_internacional:
       (raw.classificacao_avaliacao_proposta_bid_frete_internacional as number | undefined) ??
       base.classificacao_avaliacao_proposta_bid_frete_internacional,
+    status_proposta_bid_frete_internacional:
+      (raw.status_proposta_bid_frete_internacional as string | undefined)
+      ?? base.status_proposta_bid_frete_internacional,
+    data_aceite_aprovacao_proposta_bid_frete_internacional:
+      raw.data_aceite_aprovacao_proposta_bid_frete_internacional != null
+        ? String(raw.data_aceite_aprovacao_proposta_bid_frete_internacional)
+        : base.data_aceite_aprovacao_proposta_bid_frete_internacional ?? null,
+  }
+}
+
+function parseHistoricoTermometroCotacao(
+  raw: unknown,
+  campo: 'historico_aprovado' | 'historico_propostas_recebidas',
+): Cotacao['historico_aprovado'] {
+  try {
+    return parseHistoricoTermometroListaFromServer(raw, campo)
+  } catch {
+    throw new BidFreteApiError(
+      `Campo ${campo} inválido na resposta GET cotação`,
+      500,
+      'INVALID_RESPONSE',
+    )
   }
 }
 
@@ -509,7 +636,11 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     []
 
   const propostas = propostasRaw.map(mapPropostaBidFreteInternacionalFromServer)
-  const aprovada = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+  const aprovada = propostas.find(
+    (p) =>
+      p.status_proposta_bid_frete_internacional === 'APROVADA'
+      || p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
+  )
 
   const bidRaw = raw.bid_bid_frete_internacional as Record<string, unknown> | null | undefined
   const bidMapeado = bidRaw
@@ -543,13 +674,41 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     disparo_cotacao_bid_frete_internacional: disparosRaw.map(mapDisparoCotacaoBidFreteInternacionalFromServer),
     propostas_bid_frete_internacional: propostas,
     bid_bid_frete_internacional: bidMapeado,
-    historico_aprovado: raw.historico_aprovado as Cotacao['historico_aprovado'],
+    historico_aprovado: parseHistoricoTermometroCotacao(raw.historico_aprovado, 'historico_aprovado'),
+    historico_propostas_recebidas: parseHistoricoTermometroCotacao(
+      raw.historico_propostas_recebidas,
+      'historico_propostas_recebidas',
+    ),
     id_usuario_aprovacao_ganho_bid_frete_internacional:
       (raw.id_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_aprovacao_ganho_bid_frete_internacional:
       (raw.nome_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_solicitante_bid_frete_internacional:
       (raw.nome_usuario_solicitante_bid_frete_internacional as string | null | undefined) ?? null,
+    codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional:
+      parseCodigosOpcaoPortoAeroportoFromDb(
+        raw.codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional,
+      ),
+    codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional:
+      parseCodigosOpcaoPortoAeroportoFromDb(
+        raw.codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional,
+      ),
+    fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional:
+      raw.fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional !== false,
+    empresa_pagadora_taxa_fechamento_plataforma_gravity:
+      normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+        raw.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+      ),
+    ...(Array.isArray(raw.registros_alteracao_proposta_cotacao_bid_frete_internacional)
+      ? {
+          registros_alteracao_proposta_cotacao_bid_frete_internacional: (
+            raw.registros_alteracao_proposta_cotacao_bid_frete_internacional as unknown[]
+          ).map(mapRegistroAlteracaoPropostaFromServer),
+        }
+      : {}),
+    mapa_rotulos_locais_resposta_bid_frete_internacional:
+      (raw.mapa_rotulos_locais_resposta_bid_frete_internacional as Record<string, string> | null | undefined) ??
+      null,
   }
 }
 
@@ -557,7 +716,6 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
 const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'id_cotacao_bid_frete_internacional',
   'id_organizacao',
-  'numero_cotacao_bid_frete_internacional',
   'data_atualizacao_cotacao_bid_frete_internacional',
   'valor_aprovado_ganho_bid_frete_internacional',
   'moeda_aprovada',
@@ -566,12 +724,14 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'nome_usuario_solicitante_bid_frete_internacional',
   'disparo_cotacao_bid_frete_internacional',
   'propostas_bid_frete_internacional',
+  'registros_alteracao_proposta_cotacao_bid_frete_internacional',
   'bid_bid_frete_internacional',
   'aeroporto_origem_cotacao_bid_frete_internacional',
   'aeroporto_destino_cotacao_bid_frete_internacional',
   'estado_provincia_origem_cotacao_bid_frete_internacional',
   'estado_provincia_destino_cotacao_bid_frete_internacional',
-  'hs_code_cotacao_bid_frete_internacional',
+  'empresa_pagadora_taxa_fechamento_plataforma_gravity',
+  'mapa_rotulos_locais_resposta_bid_frete_internacional',
   'peso_ton_cotacao_bid_frete_internacional',
 ] as const
 
@@ -603,6 +763,12 @@ const escopoWorkspacesPreferenciaPutResponseSchema = z.object({
   }),
 })
 
+const preferenciasNotificacaoResponseSchema = z.object({
+  data: z.object({
+    preferencias_notificacao_bid_frete_internacional: preferenciasNotificacaoBidFreteSchema,
+  }),
+})
+
 export const bidFreteConfigApi = {
   obterEscopoWorkspaces: (): Promise<{ data: BidFreteEscopoWorkspacesPreferencia | null }> =>
     fetch(`${API_BASE}/bid-frete-internacional/config/escopo-workspaces`, { headers: headers() })
@@ -617,6 +783,22 @@ export const bidFreteConfigApi = {
     })
       .then(res => handleResponse<unknown>(res))
       .then(raw => escopoWorkspacesPreferenciaPutResponseSchema.parse(raw)),
+
+  obterPreferenciasNotificacao: (): Promise<{ data: { preferencias_notificacao_bid_frete_internacional: PreferenciasNotificacaoBidFrete } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/notificacoes`, { headers: headers() })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => preferenciasNotificacaoResponseSchema.parse(raw)),
+
+  salvarPreferenciasNotificacao: (
+    preferencias: PreferenciasNotificacaoBidFrete,
+  ): Promise<{ data: { preferencias_notificacao_bid_frete_internacional: PreferenciasNotificacaoBidFrete } }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/notificacoes`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify({ preferencias_notificacao_bid_frete_internacional: preferencias }),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => preferenciasNotificacaoResponseSchema.parse(raw)),
 }
 
 function urlComEscopoWorkspaces(basePath: string, idsWorkspacesFiltro?: string[]): string {
@@ -803,18 +985,12 @@ export async function criarBidFreteInternacional(
   return mapBidFreteInternacionalFromServer(data.bid_frete_internacional)
 }
 
-export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
-  const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)
-  const lista = data.status_bid_frete_internacional ?? data.status ?? []
-  return lista as StatusBidConfigBidFreteInternacional[]
-}
-
 export interface CriarCotacaoPayload extends Partial<Cotacao> {
   fornecedor_ids?: string[]
   disparar_ao_criar?: boolean
   canais_disparo?: CanalDisparo[]
   emails_por_fornecedor?: Record<string, string[]>
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
 }
 
 export interface ResultadoDisparoCriacaoCotacao {
@@ -843,12 +1019,17 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
   cotacao: Cotacao
   disparo: ResultadoDisparoCriacaoCotacao | null
   disparo_erro: string | null
+  disparo_pendente: boolean
 }> {
   const serverInput = mapCotacaoToServer(input)
   if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
   if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
   if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
   if (input.emails_por_fornecedor) serverInput.emails_por_fornecedor = input.emails_por_fornecedor
+  if (input.empresa_pagadora_taxa_fechamento_plataforma_gravity) {
+    serverInput.empresa_pagadora_taxa_fechamento_plataforma_gravity =
+      input.empresa_pagadora_taxa_fechamento_plataforma_gravity
+  }
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),
@@ -858,11 +1039,13 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
     cotacao: unknown
     disparo?: ResultadoDisparoCriacaoCotacao | null
     disparo_erro?: string
+    disparo_pendente?: boolean
   }>(res)
   return {
     cotacao: mapCotacaoFromServer(data.cotacao),
     disparo: data.disparo ?? null,
     disparo_erro: data.disparo_erro ?? null,
+    disparo_pendente: data.disparo_pendente === true,
   }
 }
 
@@ -1125,6 +1308,34 @@ export async function reprovarTodas(cotacaoId: string, motivo: string): Promise<
   return mapCotacaoFromServer(data.cotacao)
 }
 
+const fecharCotacaoResponseSchema = z.object({
+  fechada: z.literal(true),
+  data_fechamento_cotacao_bid_frete_internacional: z.string(),
+  fornecedor_nome: z.string(),
+  cobranca: z.object({
+    taxa_cobrada: z.number(),
+    status: z.enum(['PENDENTE', 'PAGA', 'ISENTA']),
+    empresa_pagadora_taxa_fechamento_plataforma_gravity: z.string(),
+    motivo_isencao: z.string().optional(),
+  }),
+  cotacao: z.unknown(),
+})
+
+export async function fecharCotacaoBidFreteInternacional(
+  id_cotacao_bid_frete_internacional: string,
+): Promise<z.infer<typeof fecharCotacaoResponseSchema> & { cotacao: Cotacao }> {
+  const res = await fetch(
+    `${API_BASE}/bid-frete-internacional/comparativo/${id_cotacao_bid_frete_internacional}/fechar`,
+    { method: 'POST', headers: headers() },
+  )
+  const raw = await handleResponse<unknown>(res)
+  const parsed = fecharCotacaoResponseSchema.parse(raw)
+  return {
+    ...parsed,
+    cotacao: mapCotacaoFromServer(parsed.cotacao),
+  }
+}
+
 // ─── Fornecedores ───────────────────────────────────────────────────────────
 
 export interface FornecedoresListParams {
@@ -1143,10 +1354,11 @@ export async function getFornecedores(params: FornecedoresListParams = {}): Prom
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-frete-internacional/fornecedores?${query}`, { headers: headers() })
-  const data = await handleResponse<FornecedoresListResponse>(res)
+  const raw = await handleResponse<unknown>(res)
+  const data = fornecedoresListResponseSchema.parse(raw)
   return {
     ...data,
-    fornecedores: (data.fornecedores ?? []).map(mapFornecedorFromServer),
+    fornecedores: data.fornecedores.map(f => f as Fornecedor),
   }
 }
 
@@ -1156,8 +1368,8 @@ export async function getFornecedor(id_fornecedor_bid_frete_internacional: strin
     { headers: headers() },
   )
   const raw = await handleResponse<unknown>(res)
-  const parsed = z.object({ fornecedor: z.unknown() }).parse(raw)
-  return mapFornecedorFromServer(parsed.fornecedor)
+  const parsed = fornecedorDetalheResponseSchema.parse(raw)
+  return parsed.fornecedor as Fornecedor
 }
 
 export function mapTabelaBidFreteInternacionalFromServer(rawUnknown: unknown): TabelaBidFreteInternacional {
@@ -1178,6 +1390,7 @@ export async function getAvaliacoes(fornecedorId: string): Promise<AvaliacaoBidF
 }
 
 const VISAO_FORNECEDOR_BASE = `${API_BASE}/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
+const ACEITE_APROVACAO_PUBLICO_BASE = `${API_BASE}/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico`
 
 export interface DashboardVisaoFornecedorBidFreteInternacional {
   metricas: MetricasVisaoFornecedorBidFreteInternacional
@@ -1370,6 +1583,49 @@ export async function enviarVisaoFornecedorBidFreteInternacionalPropostaPublico(
   )
   const raw = await handleResponse<unknown>(res)
   visaoFornecedorBidFreteInternacionalPublicoEnviarPropostaResponseSchema.parse(raw)
+}
+
+const aceiteAprovacaoPublicoResponseSchema = z.object({
+  proposta: z.object({
+    id_proposta_bid_frete_internacional: z.string(),
+    status_proposta_bid_frete_internacional: z.string(),
+    nome_fornecedor_bid_frete_internacional: z.string(),
+    numero_cotacao_bid_frete_internacional: z.string(),
+    valor_total_proposta_bid_frete_internacional: z.number(),
+    moeda_proposta_bid_frete_internacional: z.string(),
+    data_aceite_aprovacao_proposta_bid_frete_internacional: z.string().nullable(),
+  }),
+  pode_confirmar: z.boolean(),
+  token_expirado: z.boolean(),
+  ja_confirmado: z.boolean(),
+})
+
+const confirmarAceiteAprovacaoResponseSchema = z.object({
+  status_proposta_bid_frete_internacional: z.literal('APROVACAO_RECEBIDA'),
+  data_aceite_aprovacao_proposta_bid_frete_internacional: z.string(),
+})
+
+export type AceiteAprovacaoPropostaPublicoCarregado = z.infer<typeof aceiteAprovacaoPublicoResponseSchema>
+
+export async function getAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<AceiteAprovacaoPropostaPublicoCarregado> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}`,
+  )
+  const raw = await handleResponse<unknown>(res)
+  return aceiteAprovacaoPublicoResponseSchema.parse(raw)
+}
+
+export async function confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico(
+  token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+): Promise<z.infer<typeof confirmarAceiteAprovacaoResponseSchema>> {
+  const res = await fetch(
+    `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}/confirmar`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+  )
+  const raw = await handleResponse<unknown>(res)
+  return confirmarAceiteAprovacaoResponseSchema.parse(raw)
 }
 
 /** @deprecated use getVisaoFornecedorBidFreteInternacionalDashboard */

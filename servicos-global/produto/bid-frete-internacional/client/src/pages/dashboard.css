@@ -1,23 +1,45 @@
 /* Toolbar do dashboard — mesmo chrome da Lista (lp-tabela-chrome) */
-.bfd-dashboard-toolbar-wrapper {
+.bfd-dashboard-toolbar-wrapper.lp-tabela-wrapper {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+}
+
+.bfd-dashboard-toolbar-wrapper .lp-tabela-chrome.bfd-dashboard-chrome {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+  overflow: visible;
+}
+
+.bfd-dashboard-chrome .lp-faixa-navegacao {
   flex-shrink: 0;
 }
 
-.bfd-dashboard-chrome {
-  flex: 0 0 auto;
-  min-height: unset;
-}
-
 .bfd-dashboard-chrome .bid-frete-dashboard-menu {
+  flex: 0 0 auto;
   gap: 0;
+  min-height: auto;
+  overflow: visible;
 }
 
-.bfd-dashboard-chrome .bid-frete-dashboard-toolbar-card.gtv-container {
+/* Anula gtv-container flex:1 1 0 + height:100% (colapsa toolbar no dashboard) */
+.bfd-dashboard-toolbar-wrapper .bid-frete-dashboard-toolbar-card.gtv-container,
+.bfd-dashboard-toolbar-wrapper.lp-tabela-wrapper--faixa-unificada
+  .lp-tabela-chrome.bfd-dashboard-chrome
+  > .bid-frete-dashboard-menu
+  > .gtv-container {
   border: none;
   border-radius: 0;
   flex: 0 0 auto;
   height: auto;
   min-height: unset;
+  overflow: visible;
+}
+
+/* Distância toolbar → grid — paridade Pedido (.pedido-page-shell.pedido-dashboard gap: 1rem) */
+.bid-frete-page-shell.bfd-dashboard {
+  gap: 1rem;
 }
 
 /* ── Animação de destaque de widget recém-adicionado ── */
@@ -42,6 +64,27 @@
 
 .dp-gabi-empty-pulse {
   animation: gabiEmptyGlow 2.2s ease-in-out infinite;
+}
+
+/* ── GABI no grid nativo (DashboardPainelContainer + ⋮) ── */
+
+.dp-gabi-painel-host {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.dp-gabi-painel-host > div {
+  height: 100%;
+  min-height: 0;
+}
+
+.dp-gabi-card--embedded {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  padding: 0.65rem 0.85rem 0.85rem;
 }
 
 /* ── GABI AI Insights — idêntico ao Hub (SelecionarWorkspace) ── */

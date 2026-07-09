@@ -31,6 +31,7 @@ import {
   ListarValoresQuerySchema,
   GabiAnaliseSchema,
 } from './colunas-usuario-pedido-schemas.js'
+import { auditPedidoRequisicao204 } from '../utils/audit-pedido-requisicao.js'
 
 export {
   CriarColunaSchema,
@@ -117,6 +118,12 @@ colunasUsuarioRouter.post('/reordenar', async (req: Request, res: Response, next
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.reordenar(tenantId, parse.data.ids, db)
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'ATUALIZAR',
+        tipo_recurso_historico_log: 'ColunaUsuario',
+        detalhe_acao_historico_log: 'Reordenou colunas personalizadas',
+        estado_posterior_historico_log: { ids: parse.data.ids },
+      })
       res.status(204).send()
     })
   } catch (err) {
@@ -145,6 +152,17 @@ colunasUsuarioRouter.post('/valores', async (req: Request, res: Response, next: 
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.salvarValores(tenantId, parse.data, db)
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'ATUALIZAR',
+        tipo_recurso_historico_log: 'ColunaUsuario',
+        id_recurso_historico_log: parse.data.vinculo_id,
+        detalhe_acao_historico_log: `Salvou valores em coluna personalizada (${parse.data.vinculo})`,
+        estado_posterior_historico_log: {
+          vinculo: parse.data.vinculo,
+          vinculo_id: parse.data.vinculo_id,
+          campos: Object.keys(parse.data.valores),
+        },
+      })
       res.status(204).send()
     })
   } catch (err) {
@@ -258,6 +276,12 @@ colunasUsuarioRouter.delete('/:id_coluna_usuario', async (req: Request, res: Res
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.excluir(tenantId, req.params.id_coluna_usuario, db)
+      auditPedidoRequisicao204(req, {
+        acao_historico_log: 'EXCLUIR',
+        tipo_recurso_historico_log: 'ColunaUsuario',
+        id_recurso_historico_log: req.params.id_coluna_usuario,
+        detalhe_acao_historico_log: 'Excluiu coluna personalizada',
+      })
       res.status(204).send()
     })
   } catch (err) {

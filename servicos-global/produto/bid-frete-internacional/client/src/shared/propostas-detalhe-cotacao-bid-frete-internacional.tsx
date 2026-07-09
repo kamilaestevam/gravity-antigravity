@@ -44,6 +44,12 @@ import {
   type ItemTaxaExibicaoProposta,
 } from './exibir-taxas-proposta-bid-frete-internacional'
 import { TabelaResumoPropostaReadonlyBidFreteInternacional } from './tabela-resumo-proposta-readonly-bid-frete-internacional'
+import { montarExibicaoLocaisPropostaComprador } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
+import {
+  rotuloSelecaoLocalFornecedorRespostaBidFrete,
+  useResolverRotuloLocalLogisticoCotacaoBidFrete,
+} from './locais-opcionais-cotacao-bid-frete-internacional'
+import type { ContextoLocaisOpcionaisCotacaoBidFrete } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
 
 interface OpcaoOrdenacaoResposta {
   key: CriterioOrdenacaoRespostaDetalhe
@@ -95,6 +101,14 @@ function BadgeStatusProposta({
       </span>
     )
   }
+  if (status === 'APROVACAO_RECEBIDA') {
+    return (
+      <span className="dc-prop-badge-aprovada">
+        <CheckCircle weight="fill" size={13} />
+        {t('bidfrete.comparativo.aprovacao_recebida', 'Aprovação recebida')}
+      </span>
+    )
+  }
   if (status === 'REPROVADA') {
     return (
       <span className="dc-prop-badge-reprovada">
@@ -104,6 +118,54 @@ function BadgeStatusProposta({
     )
   }
   return null
+}
+
+function SecaoAlteracaoPropostaCard({
+  proposta,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  t: TFunction
+}) {
+  const [expandido, setExpandido] = useState(false)
+  const registro =
+    proposta.ultimo_registro_alteracao_proposta_bid_frete_internacional
+    ?? proposta.registros_alteracao_proposta_bid_frete_internacional?.[0]
+
+  if (!registro || registro.tipo_registro_alteracao_proposta_bid_frete_internacional !== 'ATUALIZAR') {
+    return null
+  }
+
+  const alteracoes = registro.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  const data = new Date(registro.data_registro_alteracao_proposta_bid_frete_internacional).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return (
+    <div className="dc-prop-alteracao">
+      <button
+        type="button"
+        className="dc-prop-alteracao-chip"
+        onClick={() => setExpandido(v => !v)}
+        aria-expanded={expandido}
+      >
+        {t('bidfrete.detalhe_cotacao.proposta_atualizada_em', 'Atualizada em {{data}}', { data })}
+      </button>
+      {expandido && alteracoes.length > 0 ? (
+        <ul className="dc-prop-alteracao-lista">
+          {alteracoes.map(item => (
+            <li key={item.campo}>
+              {item.rotulo}: {String(item.valor_antes)} → {String(item.valor_depois)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  )
 }
 
 function nomeFornecedorProposta(
@@ -522,6 +584,41 @@ function DestaquesCardProposta({
   )
 }
 
+function RodapeObservacoesLocaisProposta({
+  proposta,
+  ctxLocaisCotacao,
+  resolverRotuloLocal,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  ctxLocaisCotacao: ContextoLocaisOpcionaisCotacaoBidFrete
+  resolverRotuloLocal: (codigo: string) => string
+  t: TFunction
+}) {
+  const { observacoesUsuario, locaisUtilizados } = montarExibicaoLocaisPropostaComprador(
+    proposta.observacoes_proposta_bid_frete_internacional,
+    resolverRotuloLocal,
+  )
+
+  if (locaisUtilizados.length === 0 && !observacoesUsuario) return null
+
+  return (
+    <div className="dc-prop-locais-obs">
+      {locaisUtilizados.map((local) => (
+        <p key={`${local.lado}-${local.codigo}`} className="dc-prop-local-utilizado">
+          <span className="dc-info-label">
+            {rotuloSelecaoLocalFornecedorRespostaBidFrete(t, local.lado, ctxLocaisCotacao)}
+          </span>
+          <span className="dc-info-value">{local.rotulo}</span>
+        </p>
+      ))}
+      {observacoesUsuario ? (
+        <p className="dc-prop-obs">{observacoesUsuario}</p>
+      ) : null}
+    </div>
+  )
+}
+
 function CardProposta({
   proposta,
   propostasTodas,
@@ -534,6 +631,8 @@ function CardProposta({
   exibirAcoes = false,
   acoesDesabilitadas = false,
   onAprovar,
+  ctxLocaisCotacao,
+  resolverRotuloLocal,
 }: {
   proposta: PropostaRankingBidFreteInternacional
   propostasTodas: PropostaRankingBidFreteInternacional[]
@@ -546,6 +645,8 @@ function CardProposta({
   exibirAcoes?: boolean
   acoesDesabilitadas?: boolean
   onAprovar?: () => void
+  ctxLocaisCotacao: ContextoLocaisOpcionaisCotacaoBidFrete
+  resolverRotuloLocal: (codigo: string) => string
 }) {
   const aprovada = proposta.status_proposta_bid_frete_internacional === 'APROVADA'
   const reprovada = proposta.status_proposta_bid_frete_internacional === 'REPROVADA'
@@ -579,6 +680,7 @@ function CardProposta({
                 <h3 className="dc-prop-fornecedor">{nome}</h3>
                 <BadgeStatusProposta proposta={proposta} t={t} />
               </div>
+              <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
               <span className="dc-prop-total-valor">
                 {moeda(proposta.valor_total_proposta_bid_frete_internacional, moedaProposta)}
               </span>
@@ -593,6 +695,12 @@ function CardProposta({
           proposta={proposta}
           colapsavel={propostasTodas.length >= 2}
           expandidoInicial={propostasTodas.length < 2}
+        />
+        <RodapeObservacoesLocaisProposta
+          proposta={proposta}
+          ctxLocaisCotacao={ctxLocaisCotacao}
+          resolverRotuloLocal={resolverRotuloLocal}
+          t={t}
         />
         <RodapeAcoesProposta
           visivel={exibirAcoes}
@@ -634,6 +742,7 @@ function CardProposta({
                   </span>
                 )}
               </div>
+              <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
               <TagsCardProposta tags={metricas.tags} t={t} />
             </div>
           </div>
@@ -659,9 +768,12 @@ function CardProposta({
           t={t}
         />
 
-        {proposta.observacoes_proposta_bid_frete_internacional?.trim() && (
-          <p className="dc-prop-obs">{proposta.observacoes_proposta_bid_frete_internacional}</p>
-        )}
+        <RodapeObservacoesLocaisProposta
+          proposta={proposta}
+          ctxLocaisCotacao={ctxLocaisCotacao}
+          resolverRotuloLocal={resolverRotuloLocal}
+          t={t}
+        />
       </article>
     )
   }
@@ -694,6 +806,7 @@ function CardProposta({
                 </span>
               )}
             </div>
+            <SecaoAlteracaoPropostaCard proposta={proposta} t={t} />
             <TagsCardProposta tags={metricas.tags} t={t} />
           </div>
         </div>
@@ -719,9 +832,12 @@ function CardProposta({
         t={t}
       />
 
-      {proposta.observacoes_proposta_bid_frete_internacional?.trim() && (
-        <p className="dc-prop-obs">{proposta.observacoes_proposta_bid_frete_internacional}</p>
-      )}
+      <RodapeObservacoesLocaisProposta
+        proposta={proposta}
+        ctxLocaisCotacao={ctxLocaisCotacao}
+        resolverRotuloLocal={resolverRotuloLocal}
+        t={t}
+      />
     </article>
   )
 }
@@ -731,12 +847,14 @@ export interface ListaPropostasDetalheCotacaoProps {
   status_cotacao_bid_frete_internacional?: StatusCotacao | null
   propostasRanking: PropostaRankingBidFreteInternacional[]
   carregandoRanking?: boolean
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: Cotacao['empresa_pagadora_taxa_fechamento_plataforma_gravity']
   /** Sidebar compacta estilo Combat Matrix (mockup cockpit). */
   variante?: 'padrao' | 'combate'
   /** Na aba Respostas: exibe ordenação; no card de insights permanece oculto. */
   exibirToolbarOrdenacao?: boolean
   /** Recebe a cotação retornada pela API após aprovar; omitido = recarregar do servidor. */
   onCotacaoAtualizada?: (cotacaoAtualizada?: Cotacao) => void
+  ctxLocaisOpcionaisCotacao?: ContextoLocaisOpcionaisCotacaoBidFrete
 }
 
 export function ListaPropostasDetalheCotacao({
@@ -744,11 +862,14 @@ export function ListaPropostasDetalheCotacao({
   status_cotacao_bid_frete_internacional,
   propostasRanking,
   carregandoRanking = false,
+  empresa_pagadora_taxa_fechamento_plataforma_gravity,
   variante = 'padrao',
   exibirToolbarOrdenacao = false,
   onCotacaoAtualizada,
+  ctxLocaisOpcionaisCotacao = {},
 }: ListaPropostasDetalheCotacaoProps) {
   const { t } = useTranslation()
+  const resolverRotuloLocal = useResolverRotuloLocalLogisticoCotacaoBidFrete(ctxLocaisOpcionaisCotacao)
   const [criterioOrdenacao, setCriterioOrdenacao] =
     useState<CriterioOrdenacaoRespostaDetalhe>('ranking_geral')
   const [ordenacaoAsc, setOrdenacaoAsc] = useState(true)
@@ -882,6 +1003,8 @@ export function ListaPropostasDetalheCotacao({
         exibirAcoes={exibirAcoes}
         acoesDesabilitadas={modalAprovar}
         onAprovar={() => abrirModalAprovar(proposta)}
+        ctxLocaisCotacao={ctxLocaisOpcionaisCotacao}
+        resolverRotuloLocal={resolverRotuloLocal}
       />
     )
   }
@@ -946,6 +1069,9 @@ export function ListaPropostasDetalheCotacao({
         aberto={modalAprovar}
         id_cotacao_bid_frete_internacional={id_cotacao_bid_frete_internacional}
         proposta={propostaSelecionada}
+        empresa_pagadora_taxa_fechamento_plataforma_gravity={
+          empresa_pagadora_taxa_fechamento_plataforma_gravity
+        }
         onFechar={fecharModalAprovar}
         onAprovado={aoAprovarProposta}
       />

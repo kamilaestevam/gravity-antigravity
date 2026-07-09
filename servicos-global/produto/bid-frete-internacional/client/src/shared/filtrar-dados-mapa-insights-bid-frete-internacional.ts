@@ -76,14 +76,25 @@ export const FILTROS_STATUS_MAPA_INSIGHTS: ReadonlyArray<{
   { id: 'RASCUNHO', label: STATUS_LABELS.RASCUNHO, cor: '#94a3b8' },
   { id: 'ENVIADA_FORNECEDORES', label: 'Enviada', cor: '#60a5fa' },
   { id: 'EM_COTACAO', label: STATUS_LABELS.EM_COTACAO, cor: '#fbbf24' },
+  { id: 'COTACAO_ALTERADA', label: STATUS_LABELS.COTACAO_ALTERADA, cor: '#fb923c' },
   { id: 'AGUARDANDO_APROVACAO', label: 'Aprovação', cor: '#818cf8' },
+  { id: 'FALTA_INFORMACAO', label: STATUS_LABELS.FALTA_INFORMACAO, cor: '#f472b6' },
   { id: 'APROVADA', label: STATUS_LABELS.APROVADA, cor: '#10b981' },
   { id: 'REPROVADA', label: STATUS_LABELS.REPROVADA, cor: '#ef4444' },
+  { id: 'EXPIRADA', label: STATUS_LABELS.EXPIRADA, cor: '#64748b' },
 ]
 
-export function filtrosMapaInsightsVazios(): FiltrosMapaInsightsBidFreteInternacional {
+export const OPERACOES_FILTRO_MAPA_INSIGHTS = ['IMPORTACAO', 'EXPORTACAO'] as const
+export const MODAIS_FILTRO_MAPA_INSIGHTS = ['MARITIMO', 'AEREO', 'RODOVIARIO'] as const
+
+/**
+ * Estado inicial dos filtros do mapa — operação/modal são opt-out:
+ * todos os cards começam ativos (aceso = mostra; apagado = oculta).
+ * Origem/destino/status seguem opt-in (vazio = sem restrição).
+ */
+export function filtrosMapaInsightsIniciais(): FiltrosMapaInsightsBidFreteInternacional {
   return {
-    operacaoModal: new Set(),
+    operacaoModal: new Set(FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.map((f) => f.id)),
     status: new Set(),
     codigos_origem: new Set(),
     codigos_destino: new Set(),
@@ -91,6 +102,39 @@ export function filtrosMapaInsightsVazios(): FiltrosMapaInsightsBidFreteInternac
 }
 
 export type DimensaoIgnoradaFiltroMapaInsights = 'codigos_origem' | 'codigos_destino'
+
+function dimensaoOptInSemRestricao(selecionados: ReadonlySet<string>, total: number): boolean {
+  if (total === 0) return true
+  return selecionados.size === 0 || selecionados.size >= total
+}
+
+export function contarFiltrosMapaAtivos(
+  filtros: FiltrosMapaInsightsBidFreteInternacional,
+  opcoes?: {
+    total_terminais_origem?: number
+    total_terminais_destino?: number
+  },
+): number {
+  const operacoesDesligadas = OPERACOES_FILTRO_MAPA_INSIGHTS
+    .filter((f) => !filtros.operacaoModal.has(f)).length
+  const modaisDesligados = MODAIS_FILTRO_MAPA_INSIGHTS
+    .filter((f) => !filtros.operacaoModal.has(f)).length
+  const totalStatus = FILTROS_STATUS_MAPA_INSIGHTS.length
+  const totalOrigem = opcoes?.total_terminais_origem ?? 0
+  const totalDestino = opcoes?.total_terminais_destino ?? 0
+
+  const statusRestrito = !dimensaoOptInSemRestricao(filtros.status, totalStatus)
+  const origemRestrita = !dimensaoOptInSemRestricao(filtros.codigos_origem, totalOrigem)
+  const destinoRestrito = !dimensaoOptInSemRestricao(filtros.codigos_destino, totalDestino)
+
+  return (
+    operacoesDesligadas +
+    modaisDesligados +
+    (statusRestrito ? filtros.status.size : 0) +
+    (origemRestrita ? filtros.codigos_origem.size : 0) +
+    (destinoRestrito ? filtros.codigos_destino.size : 0)
+  )
+}
 
 export function filtrosMapaInsightsIgnorandoDimensao(
   filtros: FiltrosMapaInsightsBidFreteInternacional,
@@ -100,17 +144,6 @@ export function filtrosMapaInsightsIgnorandoDimensao(
     return { ...filtros, codigos_origem: new Set() }
   }
   return { ...filtros, codigos_destino: new Set() }
-}
-
-export function contarFiltrosMapaAtivos(
-  filtros: FiltrosMapaInsightsBidFreteInternacional,
-): number {
-  return (
-    filtros.operacaoModal.size +
-    filtros.status.size +
-    filtros.codigos_origem.size +
-    filtros.codigos_destino.size
-  )
 }
 
 export function listarTerminaisOrigemMapaInsights(
@@ -188,15 +221,22 @@ function modalDaRota(rota: ArcRouteBidFrete): 'MARITIMO' | 'AEREO' | 'RODOVIARIO
   return rota.modal_cotacao_bid_frete_internacional ?? rota.mode
 }
 
+/**
+ * Semântica opt-out: card ativo = mostra; card inativo = oculta.
+ * Grupo com todos os cards ativos = sem restrição (inclui rotas sem
+ * tipo de operação inferível). Grupo com todos inativos = oculta tudo.
+ */
 function rotaAtendeFiltrosOperacaoModal(
   rota: ArcRouteBidFrete,
   pinPorId: Map<number, MapPinBidFrete>,
   filtros: ReadonlySet<FiltroOperacaoModalMapaInsights>,
 ): boolean {
-  if (filtros.size === 0) return true
+  const operacoesAtivas = OPERACOES_FILTRO_MAPA_INSIGHTS.filter((f) => filtros.has(f))
+  const modaisAtivos = MODAIS_FILTRO_MAPA_INSIGHTS.filter((f) => filtros.has(f))
+  const todasOperacoesAtivas = operacoesAtivas.length === OPERACOES_FILTRO_MAPA_INSIGHTS.length
+  const todosModaisAtivos = modaisAtivos.length === MODAIS_FILTRO_MAPA_INSIGHTS.length
 
-  const filtrosOperacao = (['IMPORTACAO', 'EXPORTACAO'] as const).filter((f) => filtros.has(f))
-  const filtrosModal = (['AEREO', 'MARITIMO', 'RODOVIARIO'] as const).filter((f) => filtros.has(f))
+  if (todasOperacoesAtivas && todosModaisAtivos) return true
 
   const fromPin = pinPorId.get(rota.fromId)
   const toPin = pinPorId.get(rota.toId)
@@ -206,9 +246,9 @@ function rotaAtendeFiltrosOperacaoModal(
   const modal = modalDaRota(rota)
 
   const operacaoOk =
-    filtrosOperacao.length === 0 ||
-    (tipoOperacao != null && filtrosOperacao.includes(tipoOperacao))
-  const modalOk = filtrosModal.length === 0 || filtrosModal.includes(modal)
+    todasOperacoesAtivas ||
+    (tipoOperacao != null && operacoesAtivas.includes(tipoOperacao))
+  const modalOk = todosModaisAtivos || modaisAtivos.includes(modal)
 
   return operacaoOk && modalOk
 }
@@ -217,9 +257,11 @@ function rotaAtendeFiltrosStatus(
   rota: ArcRouteBidFrete,
   filtrosStatus: ReadonlySet<StatusCotacao>,
 ): boolean {
-  if (filtrosStatus.size === 0) return true
+  if (dimensaoOptInSemRestricao(filtrosStatus, FILTROS_STATUS_MAPA_INSIGHTS.length)) {
+    return true
+  }
   const statuses = rota.statuses_cotacao_bid_frete_internacional ?? []
-  if (statuses.length === 0) return true
+  if (statuses.length === 0) return false
   return statuses.some((status) => filtrosStatus.has(status))
 }
 
@@ -228,19 +270,37 @@ function rotaAtendeFiltrosLocais(
   pinPorId: Map<number, MapPinBidFrete>,
   codigosOrigem: ReadonlySet<string>,
   codigosDestino: ReadonlySet<string>,
+  totais: { origem: number; destino: number },
 ): boolean {
-  if (codigosOrigem.size === 0 && codigosDestino.size === 0) return true
+  const origemSemRestricao = dimensaoOptInSemRestricao(codigosOrigem, totais.origem)
+  const destinoSemRestricao = dimensaoOptInSemRestricao(codigosDestino, totais.destino)
+  if (origemSemRestricao && destinoSemRestricao) return true
 
   const fromPin = pinPorId.get(rota.fromId)
   const toPin = pinPorId.get(rota.toId)
   if (!fromPin || !toPin) return false
 
-  const origemOk =
-    codigosOrigem.size === 0 || codigosOrigem.has(fromPin.portCode)
-  const destinoOk =
-    codigosDestino.size === 0 || codigosDestino.has(toPin.portCode)
+  const origemOk = origemSemRestricao || codigosOrigem.has(fromPin.portCode)
+  const destinoOk = destinoSemRestricao || codigosDestino.has(toPin.portCode)
 
   return origemOk && destinoOk
+}
+
+/**
+ * Compat com o formato legado (Set opt-in): grupo ausente no Set
+ * significava «sem restrição» — expande para todos os cards do grupo.
+ */
+function normalizarOperacaoModalLegado(
+  filtros: ReadonlySet<FiltroOperacaoModalMapaInsights>,
+): Set<FiltroOperacaoModalMapaInsights> {
+  const normalizado = new Set(filtros)
+  if (!OPERACOES_FILTRO_MAPA_INSIGHTS.some((f) => normalizado.has(f))) {
+    for (const f of OPERACOES_FILTRO_MAPA_INSIGHTS) normalizado.add(f)
+  }
+  if (!MODAIS_FILTRO_MAPA_INSIGHTS.some((f) => normalizado.has(f))) {
+    for (const f of MODAIS_FILTRO_MAPA_INSIGHTS) normalizado.add(f)
+  }
+  return normalizado
 }
 
 export function filtrarDadosMapaInsightsBidFreteInternacional(
@@ -251,23 +311,23 @@ export function filtrarDadosMapaInsightsBidFreteInternacional(
   const filtrosNormalizados: FiltrosMapaInsightsBidFreteInternacional =
     filtros instanceof Set
       ? {
-          operacaoModal: filtros,
+          operacaoModal: normalizarOperacaoModalLegado(filtros),
           status: new Set(),
           codigos_origem: new Set(),
           codigos_destino: new Set(),
         }
       : filtros
 
-  if (
-    filtrosNormalizados.operacaoModal.size === 0 &&
-    filtrosNormalizados.status.size === 0 &&
-    filtrosNormalizados.codigos_origem.size === 0 &&
-    filtrosNormalizados.codigos_destino.size === 0
-  ) {
+  if (contarFiltrosMapaAtivos(filtrosNormalizados, {
+    total_terminais_origem: listarTerminaisOrigemMapaInsights(pins, routes).length,
+    total_terminais_destino: listarTerminaisDestinoMapaInsights(pins, routes).length,
+  }) === 0) {
     return { pins, routes }
   }
 
   const pinPorId = new Map(pins.map((p) => [p.id, p]))
+  const totalOrigem = listarTerminaisOrigemMapaInsights(pins, routes).length
+  const totalDestino = listarTerminaisDestinoMapaInsights(pins, routes).length
   const routesFiltradas = routes.filter(
     (rota) =>
       rotaAtendeFiltrosOperacaoModal(rota, pinPorId, filtrosNormalizados.operacaoModal) &&
@@ -277,6 +337,7 @@ export function filtrarDadosMapaInsightsBidFreteInternacional(
         pinPorId,
         filtrosNormalizados.codigos_origem,
         filtrosNormalizados.codigos_destino,
+        { origem: totalOrigem, destino: totalDestino },
       ),
   )
 

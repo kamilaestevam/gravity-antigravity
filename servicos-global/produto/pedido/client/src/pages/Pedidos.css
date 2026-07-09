@@ -617,6 +617,15 @@
   color: #cbd5e1;
 }
 
+/* Pedido atrasado (Configurações → Tabela → destacar atrasados) — barra vermelha na linha pai */
+.lp-tabela-wrapper .gtv-linha--atrasado:not(.gtv-linha--filho) {
+  box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
+}
+
+.lp-tabela-wrapper .gtv-linha--atrasado:not(.gtv-linha--filho):hover {
+  box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
+}
+
 .lp-erro-lote {
   display: flex;
   align-items: center;

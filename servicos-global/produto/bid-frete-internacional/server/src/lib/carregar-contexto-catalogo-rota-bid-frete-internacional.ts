@@ -2,8 +2,10 @@
  * Catálogo Cadastros (portos + aeroportos) para derivação de snapshot de rota no server.
  */
 
+import { extrairCodigoDeRotuloImportacao } from '../../../shared/rotulo-cadastro-importacao-bid-frete-internacional.js'
 import { fetchCadastrosJson } from './cadastros-client.js'
-import type { ContextoCatalogoRota } from './rota-cotacao-bid-frete-internacional.js'
+import { resolverMetadadosLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
+import type { CamposRotaModalCotacao, ContextoCatalogoRota } from './rota-cotacao-bid-frete-internacional.js'
 
 type PortoCadastros = {
   codigo_unlocode_porto: string
@@ -21,7 +23,7 @@ type AeroportoCadastros = {
 
 type ListaCadastros<T> = { itens: T[]; total: number }
 
-const LIMITE_PORTOS = 500
+const LIMITE_PORTOS = 10_000
 const LIMITE_AEROPORTOS = 10_000
 
 export async function carregarContextoCatalogoRotaBidFreteInternacional(
@@ -54,5 +56,81 @@ export async function carregarContextoCatalogoRotaBidFreteInternacional(
         nome_aeroporto: a.nome_aeroporto,
         codigo_pais_aeroporto: a.codigo_pais_aeroporto ?? null,
       })),
+  }
+}
+
+function codigoTerminal(valor: string | null | undefined): string {
+  return extrairCodigoDeRotuloImportacao(valor ?? '').toUpperCase()
+}
+
+function portoNoContexto(ctx: ContextoCatalogoRota, codigo: string): boolean {
+  return (ctx.portos ?? []).some((p) => p.codigo_unlocode_porto.toUpperCase() === codigo)
+}
+
+function aeroportoNoContexto(ctx: ContextoCatalogoRota, codigo: string): boolean {
+  return (ctx.aeroportos ?? []).some(
+    (a) =>
+      (a.codigo_iata_aeroporto ?? '').toUpperCase() === codigo
+      || a.codigo_unlocode_aeroporto.toUpperCase() === codigo,
+  )
+}
+
+/**
+ * Garante que os terminais da rota (origem/destino) estejam no contexto do catálogo.
+ *
+ * O catálogo é paginado (LIMITE_PORTOS/LIMITE_AEROPORTOS) e o Cadastros tem mais
+ * itens ativos que o limite — um porto fora da primeira página faria a derivação
+ * do snapshot cair no fallback "nome = código" e reprovar na validação contra o
+ * Cadastros. Aqui cada código usado na rota é resolvido individualmente
+ * (GET /portos/:codigo, /aeroportos/:codigo) e injetado no contexto quando ausente.
+ */
+export async function garantirTerminaisRotaNoContextoCatalogo(
+  ctx: ContextoCatalogoRota,
+  input: CamposRotaModalCotacao,
+  idOrganizacao: string,
+): Promise<void> {
+  const modal = input.modal_cotacao_bid_frete_internacional
+  if (modal === 'RODOVIARIO') return
+
+  if (modal === 'MARITIMO') {
+    const codigos = [
+      codigoTerminal(input.porto_origem_cotacao_bid_frete_internacional),
+      codigoTerminal(input.porto_destino_cotacao_bid_frete_internacional),
+    ].filter((c) => c && !portoNoContexto(ctx, c))
+
+    for (const codigo of [...new Set(codigos)]) {
+      const local = await resolverMetadadosLocalCadastrosBidFreteInternacional(codigo, {
+        id_organizacao: idOrganizacao,
+        modal,
+      })
+      if (!local) continue
+      ctx.portos = ctx.portos ?? []
+      ctx.portos.push({
+        codigo_unlocode_porto: local.codigo,
+        nome_porto: local.nome,
+        codigo_pais_porto: local.pais || null,
+      })
+    }
+    return
+  }
+
+  const codigos = [
+    codigoTerminal(input.aeroporto_origem_cotacao_bid_frete_internacional),
+    codigoTerminal(input.aeroporto_destino_cotacao_bid_frete_internacional),
+  ].filter((c) => c && !aeroportoNoContexto(ctx, c))
+
+  for (const codigo of [...new Set(codigos)]) {
+    const local = await resolverMetadadosLocalCadastrosBidFreteInternacional(codigo, {
+      id_organizacao: idOrganizacao,
+      modal,
+    })
+    if (!local) continue
+    ctx.aeroportos = ctx.aeroportos ?? []
+    ctx.aeroportos.push({
+      codigo_unlocode_aeroporto: local.codigo,
+      codigo_iata_aeroporto: codigo.length === 3 ? codigo : null,
+      nome_aeroporto: local.nome,
+      codigo_pais_aeroporto: local.pais || null,
+    })
   }
 }

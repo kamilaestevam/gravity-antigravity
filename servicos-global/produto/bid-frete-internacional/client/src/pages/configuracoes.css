@@ -987,7 +987,7 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   color: var(--text-primary, #f1f5f9);
   cursor: pointer;
   display: block;
-  margin-bottom: 1px;
+  margin-bottom: 0.2rem;
 }
 
 .cfg-toggle-row__desc {

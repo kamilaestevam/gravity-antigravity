@@ -117,8 +117,12 @@ export default function ResponderCotacao() {
       modal: cotacao?.modal_cotacao_bid_frete_internacional,
       modalidade: cotacao?.modalidade_cotacao_bid_frete_internacional,
       incluirArmazenagem: cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
+      cotacao,
       mensagemCamposObrigatorios: t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'),
       mensagemArmazenagemInvalida: t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.armazenagem_invalida'),
+      mensagemLocalObrigatorio: t('bidfrete.portal.publico.local_obrigatorio', {
+        defaultValue: 'Selecione o porto/aeroporto utilizado na proposta',
+      }),
     })
     if (erroValidacao) {
       setErro(erroValidacao)
@@ -212,6 +216,7 @@ export default function ResponderCotacao() {
               />
               <FormPropostaRespostaCotacao
                 form={form}
+                cotacaoLocais={cotacao}
                 modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
                 modalidadeCotacao={cotacao?.modalidade_cotacao_bid_frete_internacional}
                 incluirArmazenagemCotacao={cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional === true}

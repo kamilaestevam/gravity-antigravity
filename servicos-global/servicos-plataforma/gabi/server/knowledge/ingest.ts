@@ -1,6 +1,7 @@
 /**
  * ingest.ts — Pipeline de ingestao RAG: chunka a KB por headers markdown,
- * gera embeddings via Gemini text-embedding-004, e upsert no PostgreSQL (pgvector).
+ * gera embeddings via Gemini (gemini-embedding-2, 768 dims), e upsert no
+ * PostgreSQL (pgvector).
  *
  * Execucao: GEMINI_API_KEY=... DATABASE_URL=... npx tsx server/knowledge/ingest.ts
  * Pre-requisitos:
@@ -12,17 +13,19 @@ import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
+import { EMBEDDING_DIMS } from '../lib/modelos-gemini.js'
+import { embedarTexto } from '../lib/embeddings-gemini.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const KB_PATH = path.resolve(__dirname, 'gravity-knowledge-base.txt')
 const SEGMENTS_DIR = path.resolve(__dirname, 'segments')
 
-const EMBEDDING_MODEL = 'text-embedding-004'
-const EMBEDDING_DIMS = 768
 const MAX_CHUNK_TOKENS = 800
-const BATCH_SIZE = 20
+// gemini-embedding-2 embeda 1 conteudo por chamada; batch aqui = janela de
+// concorrencia (N chamadas individuais em paralelo), nao um batch de API.
+const BATCH_SIZE = 10
 const BATCH_DELAY_MS = 200
 
 interface KbChunk {
@@ -141,16 +144,21 @@ function splitLargeChunk(
 }
 
 async function generateEmbeddings(
-  genAI: GoogleGenerativeAI,
+  _genAI: GoogleGenAI,
   texts: string[],
 ): Promise<number[][]> {
-  const model = genAI.getGenerativeModel({ model: EMBEDDING_MODEL })
-  const result = await model.batchEmbedContents({
-    requests: texts.map((text) => ({
-      content: { parts: [{ text }], role: 'user' },
-    })),
+  // RETRIEVAL_DOCUMENT: vetor otimizado para o lado "documento" da busca
+  // (a query usa RETRIEVAL_QUERY em kb-search.ts). 768 dims casa com vector(768).
+  // Uma chamada por texto (o modelo nao faz batch real), em paralelo pela janela.
+  const vetores = await Promise.all(
+    texts.map((text) => embedarTexto(text, 'RETRIEVAL_DOCUMENT')),
+  )
+  return vetores.map((v) => {
+    if (v.length !== EMBEDDING_DIMS) {
+      throw new Error(`[ingest] embedding com dimensao inesperada: ${v.length} (esperado ${EMBEDDING_DIMS})`)
+    }
+    return v
   })
-  return result.embeddings.map((e) => e.values)
 }
 
 function vectorToSql(vec: number[]): string {
@@ -163,7 +171,7 @@ async function ingest() {
   if (!apiKey) throw new Error('GEMINI_API_KEY obrigatoria')
   if (!dbUrl) throw new Error('DATABASE_URL obrigatoria')
 
-  const genAI = new GoogleGenerativeAI(apiKey)
+  const genAI = new GoogleGenAI({ apiKey })
 
   // Importar pg dinamicamente (disponivel no monorepo)
   const { Client } = await import('pg')
@@ -214,33 +222,34 @@ async function ingest() {
     }
   }
 
-  // Listar todos os schemas tenant_*
-  const { rows: schemas } = await client.query<{ schema_name: string }>(`
-    SELECT schema_name FROM information_schema.schemata
-    WHERE schema_name LIKE 'tenant_%'
-    ORDER BY schema_name
-  `)
-
-  if (schemas.length === 0) {
-    console.log('[INGEST] Nenhum schema tenant encontrado. Inserindo no schema public.')
-    await upsertChunksInSchema(client, 'public', allChunks, embeddings, versao)
-  } else {
-    for (const { schema_name } of schemas) {
-      console.log(`[INGEST] Processando schema: ${schema_name}`)
-      await upsertChunksInSchema(client, schema_name, allChunks, embeddings, versao)
-    }
-  }
+  // A base de conhecimento e GLOBAL (identica para toda organizacao — sao docs
+  // da plataforma, nao dados de tenant). Fica no schema public, uma unica copia,
+  // que e exatamente onde kb-search.ts consulta (search_path default = public).
+  const SCHEMA_KB = 'public'
+  console.log(`[INGEST] Processando schema: ${SCHEMA_KB}`)
+  await upsertChunksInSchema(client, SCHEMA_KB, allChunks, embeddings, versao)
 
   // Limpar chunks de versoes antigas
-  for (const { schema_name } of schemas.length > 0 ? schemas : [{ schema_name: 'public' }]) {
+  if (await tabelaKbExiste(client, SCHEMA_KB)) {
     await client.query(`
-      DELETE FROM "${schema_name}"."gabi_kb_chunk"
+      DELETE FROM "${SCHEMA_KB}"."gabi_kb_chunk"
       WHERE versao_kb_gabi_kb_chunk != $1
     `, [versao])
   }
 
   await client.end()
-  console.log(`[INGEST] Concluido! ${allChunks.length} chunks em ${schemas.length || 1} schemas. Versao: ${versao}`)
+  console.log(`[INGEST] Concluido! ${allChunks.length} chunks no schema ${SCHEMA_KB}. Versao: ${versao}`)
+}
+
+async function tabelaKbExiste(
+  client: import('pg').Client,
+  schemaName: string,
+): Promise<boolean> {
+  const { rows } = await client.query<{ existe: boolean }>(
+    `SELECT to_regclass($1) IS NOT NULL AS existe`,
+    [`"${schemaName}".gabi_kb_chunk`],
+  )
+  return rows[0]?.existe === true
 }
 
 async function upsertChunksInSchema(
@@ -250,6 +259,11 @@ async function upsertChunksInSchema(
   embeddings: number[][],
   versao: string,
 ) {
+  if (!(await tabelaKbExiste(client, schemaName))) {
+    console.log(`[INGEST] schema ${schemaName} sem tabela gabi_kb_chunk — pulando (schema nao composto com o fragment da Gabi)`)
+    return
+  }
+
   // Garantir tabela tem indice HNSW (idempotente)
   await client.query(`
     CREATE INDEX IF NOT EXISTS gkc_embedding_hnsw_idx

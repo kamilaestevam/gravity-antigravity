@@ -63,7 +63,7 @@ export const PRODUCT_CONFIG = {
     importacao_exportacao:  true,
     importacao_arquivo:     true,
     integracao_erp:         true,
-    smart_read:             false,
+    smart_read:             true,
     dashboard_analitico:    true,
   },
 } as const

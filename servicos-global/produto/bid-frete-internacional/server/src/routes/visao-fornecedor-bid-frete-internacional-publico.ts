@@ -20,6 +20,7 @@ import {
   COTACAO_SELECT_RESPOSTA_FORNECEDOR,
   enriquecerDisparoRespostaFornecedor,
 } from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
+import { carregarUltimoRegistroAlteracaoProposta } from '../lib/serializar-registro-alteracao-proposta-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -89,9 +90,22 @@ router.get('/:token_resposta_disparo_cotacao_bid_frete_internacional', async (re
       }
     }
 
+    const disparoEnriquecido = await enriquecerDisparoRespostaFornecedor(disparo)
+    const propostaRaw = (disparoEnriquecido as Record<string, unknown>).proposta as Record<string, unknown> | undefined
+    if (propostaRaw?.id_proposta_bid_frete_internacional) {
+      const ultimoRegistro = await carregarUltimoRegistroAlteracaoProposta(
+        prisma,
+        String(propostaRaw.id_proposta_bid_frete_internacional),
+      )
+      ;(disparoEnriquecido as Record<string, unknown>).proposta = {
+        ...propostaRaw,
+        ultimo_registro_alteracao_proposta_bid_frete_internacional: ultimoRegistro,
+      }
+    }
+
     res.json({
       visao_fornecedor_bid_frete_internacional_publico: {
-        disparo_cotacao_bid_frete_internacional: await enriquecerDisparoRespostaFornecedor(disparo),
+        disparo_cotacao_bid_frete_internacional: disparoEnriquecido,
         modo_acesso_resposta_disparo_bid_frete_internacional:
           acesso.modo_acesso_resposta_disparo_bid_frete_internacional,
         codigo_bloqueio_resposta_disparo_bid_frete_internacional:
@@ -136,6 +150,7 @@ router.post('/:token_resposta_disparo_cotacao_bid_frete_internacional/responder'
       {
         via_email_proposta_bid_frete_internacional: true,
         token_expirado: tokenExpirado,
+        tenantId: (disparo as any).id_organizacao,
       },
     )
 
@@ -177,6 +192,7 @@ function mensagemBloqueioPublico(codigo: string): string {
     PROPOSTA_APROVADA: 'Proposta aprovada — nao pode ser alterada',
     PROPOSTA_REPROVADA: 'Proposta reprovada — nao pode ser alterada',
     PRAZO_RESPOSTA_ENCERRADO: 'Prazo de resposta encerrado',
+    EDICAO_PROPOSTA_NAO_PERMITIDA: 'Esta cotacao nao permite alterar a proposta apos o envio',
   }
   return map[codigo] ?? 'Nao e possivel alterar esta proposta'
 }

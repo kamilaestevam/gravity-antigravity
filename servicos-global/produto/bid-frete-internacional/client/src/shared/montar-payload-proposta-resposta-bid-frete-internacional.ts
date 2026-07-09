@@ -63,6 +63,10 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
       ? String(parseInt(form.escalas_proposta_bid_frete_internacional, 10) || 0)
       : undefined,
     observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
+    codigo_porto_aeroporto_origem_proposta_bid_frete_internacional:
+      form.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional.trim() || undefined,
+    codigo_porto_aeroporto_destino_proposta_bid_frete_internacional:
+      form.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional.trim() || undefined,
     periodos_armazenagem_proposta_bid_frete_internacional: periodosArmazenagem,
     taxas: taxasDetalhe,
   }

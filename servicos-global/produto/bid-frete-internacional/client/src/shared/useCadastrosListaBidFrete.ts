@@ -16,6 +16,7 @@ import {
   rotuloAeroportoCadastroLogistica,
   rotuloPortoCadastroLogistica,
 } from '../../../shared/rotulo-cadastro-logistica-bid-frete-internacional'
+import { useOpcoesUnidadeEmbalagemBidFreteInternacional } from './use-opcoes-unidade-embalagem-bid-frete-internacional'
 
 export interface GTOpcaoCadastro {
   valor: string
@@ -27,6 +28,7 @@ export interface UseCadastrosListaBidFreteResult {
   portosOpcoes: GTOpcaoCadastro[]
   aeroportosOpcoes: GTOpcaoCadastro[]
   containersOpcoes: GTOpcaoCadastro[]
+  unidadesEmbalagemOpcoes: GTOpcaoCadastro[]
   portos: PortoCadastro[]
   aeroportos: AeroportoCadastro[]
   loading: boolean
@@ -73,6 +75,11 @@ export function rotuloCadastroLista(
 }
 
 export function useCadastrosListaBidFrete(): UseCadastrosListaBidFreteResult {
+  const {
+    opcoes: opcoesUnidadeEmbalagem,
+    loading: loadingUnidadesEmbalagem,
+    erro: erroUnidadesEmbalagem,
+  } = useOpcoesUnidadeEmbalagemBidFreteInternacional()
   const [paises, setPaises] = useState<PaisCadastro[]>([])
   const [portos, setPortos] = useState<PortoCadastro[]>([])
   const [aeroportos, setAeroportos] = useState<AeroportoCadastro[]>([])
@@ -117,9 +124,13 @@ export function useCadastrosListaBidFrete(): UseCadastrosListaBidFreteResult {
     containersOpcoes: containers
       .map(formatarContainer)
       .filter(c => c.valor.length > 0),
+    unidadesEmbalagemOpcoes: opcoesUnidadeEmbalagem.map((opcao) => ({
+      valor: opcao.valor,
+      label: opcao.rotulo,
+    })),
     portos,
     aeroportos,
-    loading,
-    erro,
-  }), [paises, portos, aeroportos, containers, loading, erro])
+    loading: loading || loadingUnidadesEmbalagem,
+    erro: erro ?? erroUnidadesEmbalagem,
+  }), [paises, portos, aeroportos, containers, opcoesUnidadeEmbalagem, loading, loadingUnidadesEmbalagem, erro, erroUnidadesEmbalagem])
 }

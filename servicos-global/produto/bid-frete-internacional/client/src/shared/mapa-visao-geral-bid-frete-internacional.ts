@@ -9,6 +9,15 @@ import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete
 const modalMapaSchema = z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO'])
 const tipoOperacaoMapaSchema = z.enum(['IMPORTACAO', 'EXPORTACAO']).nullable()
 
+const resumoCoberturaMapaSchema = z
+  .object({
+    total_cotacoes_consultadas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+    total_cotacoes_exibidas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+    total_cotacoes_sem_origem_destino_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+    total_cotacoes_sem_coordenadas_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+  })
+  .optional()
+
 const mapaCotacoesPayloadSchema = z.object({
   pinos_mapa_visao_fornecedor_bid_frete_internacional: z.array(
     z.object({
@@ -44,8 +53,10 @@ const mapaCotacoesPayloadSchema = z.object({
       numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.string().nullable().optional(),
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
+      statuses_cotacao_mapa_visao_fornecedor_bid_frete_internacional: z.array(z.string()).optional(),
     }),
   ),
+  resumo_cobertura_mapa_visao_fornecedor_bid_frete_internacional: resumoCoberturaMapaSchema,
 })
 
 export const visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema = z.object({

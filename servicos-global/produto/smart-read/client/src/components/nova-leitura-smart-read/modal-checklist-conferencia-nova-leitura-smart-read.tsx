@@ -8,11 +8,15 @@ import { ClipboardText, X } from '@phosphor-icons/react'
 import type { DocumentoAnaliseRisco } from '../../../../shared/analise-riscos-leitura-smart-read'
 import {
   agruparChecklistPorSecao,
-  listarInvoicesChecklist,
+  contarChecklistPorStatus,
+  listarDocumentosOpcoesChecklistCompleto,
   montarChecklistMatrizInvoice,
   montarResumoGeralChecklistInvoices,
   VALOR_TODAS_INVOICES_CHECKLIST,
+  vereditoDeContagemChecklist,
   type ParametrosChecklistMatrizInvoice,
+  type ResumoInvoiceChecklist,
+  type SubdocumentoOpcaoChecklist,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
@@ -21,6 +25,7 @@ import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-sm
 import {
   chaveItemChecklistUsuario,
   contarConferenciaManualChecklist,
+  resolverRotuloInvoiceChecklistInicial,
   usarChecklistMarcacaoUsuario,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 
@@ -28,8 +33,12 @@ type Props = {
   aberto: boolean
   onFechar: () => void
   documentos: DocumentoAnaliseRisco[]
+  nomeArquivo: string
+  subdocumentosSidebar: readonly SubdocumentoOpcaoChecklist[]
   parametrosChecklist: Omit<ParametrosChecklistMatrizInvoice, 'rotulo_documento'>
   chaveMarcacaoChecklist: string
+  rotuloDocumentoInicial?: string | null
+  indiceDocumentoInicial?: number | null
   onVerRisco?: (riscoId: string) => void
 }
 
@@ -37,15 +46,34 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   aberto,
   onFechar,
   documentos,
+  nomeArquivo,
+  subdocumentosSidebar,
   parametrosChecklist,
   chaveMarcacaoChecklist,
+  rotuloDocumentoInicial = null,
+  indiceDocumentoInicial = null,
   onVerRisco,
 }: Props) {
-  const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(VALOR_TODAS_INVOICES_CHECKLIST)
-  const abertoAnteriorRef = useRef(false)
-  const { estaMarcado, alternarMarcado, marcados } = usarChecklistMarcacaoUsuario(chaveMarcacaoChecklist)
+  const documentosOpcoes = useMemo(
+    () => listarDocumentosOpcoesChecklistCompleto(nomeArquivo, subdocumentosSidebar, documentos),
+    [documentos, nomeArquivo, subdocumentosSidebar],
+  )
 
-  const invoices = useMemo(() => listarInvoicesChecklist(documentos), [documentos])
+  const rotuloInicialPadrao = useMemo(
+    () =>
+      resolverRotuloInvoiceChecklistInicial(
+        rotuloDocumentoInicial,
+        documentosOpcoes,
+        VALOR_TODAS_INVOICES_CHECKLIST,
+        indiceDocumentoInicial,
+      ),
+    [documentosOpcoes, rotuloDocumentoInicial, indiceDocumentoInicial],
+  )
+
+  const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(rotuloInicialPadrao)
+  const abertoAnteriorRef = useRef(false)
+  const { estaMarcado, alternarMarcado, alternarMarcadosLote, marcados } =
+    usarChecklistMarcacaoUsuario(chaveMarcacaoChecklist)
 
   const resumoGeral = useMemo(
     () =>
@@ -75,13 +103,13 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   const opcoesInvoice = useMemo(
     () =>
-      invoices.map((inv) => ({
-        valor: inv.rotulo,
-        rotulo: inv.numero_invoice
-          ? `${inv.numero_invoice} · ${inv.nome_arquivo}`
-          : `${inv.nome_arquivo} · ${inv.tipo_documento}`,
+      documentosOpcoes.map((doc) => ({
+        valor: doc.rotulo,
+        rotulo: doc.numero_invoice
+          ? `${doc.numero_invoice} · ${doc.nome_arquivo}`
+          : `${doc.nome_arquivo} · ${doc.tipo_documento}`,
       })),
-    [invoices],
+    [documentosOpcoes],
   )
 
   const opcoesSelecaoGeral = useMemo(
@@ -91,11 +119,50 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   const contagemDetalheInvoice = useMemo(() => {
     if (!rotuloChecklistAtivo) return resumoGeral.contagem_global
-    return (
-      resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)?.contagem ??
-      resumoGeral.contagem_global
-    )
-  }, [resumoGeral, rotuloChecklistAtivo])
+    const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
+    if (porInvoice) return porInvoice.contagem
+    return contarChecklistPorStatus(checklistInvoice)
+  }, [checklistInvoice, resumoGeral, rotuloChecklistAtivo])
+
+  const documentoDestaque = useMemo((): ResumoInvoiceChecklist | null => {
+    if (!rotuloChecklistAtivo || !mostrarDetalheInvoice) return null
+    const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
+    if (porInvoice) return porInvoice
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    if (!opcao) return null
+    const contagem = contarChecklistPorStatus(checklistInvoice)
+    const percentual_conforme =
+      contagem.total === 0
+        ? 0
+        : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
+    return {
+      ...opcao,
+      contagem,
+      percentual_conforme,
+      veredito: vereditoDeContagemChecklist(contagem),
+    }
+  }, [
+    checklistInvoice,
+    documentosOpcoes,
+    mostrarDetalheInvoice,
+    resumoGeral.por_invoice,
+    rotuloChecklistAtivo,
+  ])
+
+  const chavesMarcacaoInvoice = useMemo(
+    () =>
+      checklistInvoice.map((item) =>
+        chaveItemChecklistUsuario(item.regra.id, rotuloChecklistAtivo),
+      ),
+    [checklistInvoice, rotuloChecklistAtivo],
+  )
+
+  const todosItensInvoiceMarcados = useMemo(
+    () =>
+      chavesMarcacaoInvoice.length > 0 &&
+      chavesMarcacaoInvoice.every((chave) => marcados.has(chave)),
+    [chavesMarcacaoInvoice, marcados],
+  )
 
   const conferenciaManual = useMemo(() => {
     if (!rotuloChecklistAtivo || checklistInvoice.length === 0) return null
@@ -118,10 +185,10 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
-      setFiltroVisaoGeral(VALOR_TODAS_INVOICES_CHECKLIST)
+      setFiltroVisaoGeral(rotuloInicialPadrao)
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto])
+  }, [aberto, rotuloInicialPadrao])
 
   useEffect(() => {
     if (!aberto) return
@@ -188,13 +255,14 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
         </header>
 
         <div className="sr-chk-modal-corpo">
-          {invoices.length === 0 ? (
-            <p className="sr-conf-vazio">Nenhuma invoice INVOICE encontrada nesta leitura.</p>
+          {documentosOpcoes.length === 0 ? (
+            <p className="sr-conf-vazio">Nenhum documento encontrado nesta leitura.</p>
           ) : (
             <InfograficoChecklistGeralSmartRead
               resumo={resumoGeral}
               onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
               conferenciaManual={conferenciaManual}
+              documentoDestaque={documentoDestaque}
               selecaoInvoice={{
                 id: 'sr-chk-select-invoice',
                 opcoes: opcoesSelecaoGeral,
@@ -211,6 +279,12 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                     rotuloInvoice={rotuloChecklistAtivo}
                     estaMarcado={estaMarcado}
                     alternarMarcado={alternarMarcado}
+                    chavesMarcacaoLote={chavesMarcacaoInvoice}
+                    todosMarcadosLote={todosItensInvoiceMarcados}
+                    onAlternarMarcadosLote={(marcar) =>
+                      alternarMarcadosLote(chavesMarcacaoInvoice, marcar)
+                    }
+                    onAlternarChavesLote={alternarMarcadosLote}
                     idPrefixo="sr-chk-modal-geral-inv"
                     classeCorpo="sr-chk-modal-checklist-corpo"
                     classificacaoProduto={classificacaoProduto}

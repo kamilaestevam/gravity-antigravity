@@ -40,6 +40,18 @@ Se `total > itens.length`, o client emite `console.warn` `[catalogo-aeroportos] 
 
 ---
 
+## Atualização 2026-07-05 — paginação + busca remota no modal Nova Cotação
+
+Os selects do wizard **não** carregam mais o catálogo inteiro de uma vez: usam paginação por `offset` (100 por página no scroll) e busca remota no banco completo (150 resultados). SSOT: `shared/limites-catalogo-logistica-bid-frete-internacional.ts` + hook `use-select-catalogo-logistica-cadastros-bid-frete-internacional.ts`. Rotas do Cadastros (`portos.ts`, `aeroportos.ts`) e proxies BID aceitam `offset` e devolvem `total`. Detalhes: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8.1.
+
+**Portos:** mesmo hook paginado e mesmas rotas (`dados-mestre/portos?tipo=porto`). **TASK-000415:** selects de origem/destino no wizard **não** enviam `?pais=` — catálogo sempre global (ver modal §8.2). O parâmetro `pais` permanece disponível na API para outros consumidores (lista, importação) que precisem filtrar explicitamente.
+
+**Importação por planilha (TASK-000415):** o contexto base da importação carrega uma página do catálogo (500 portos de ~17k ativos). Locais citados na planilha que não resolvem contra a página são buscados remotamente (`?q=valor`) e anexados ao contexto por `enriquecerContextoCatalogoLocaisImportacaoBid` (`client/src/shared/carregar-contexto-catalogo-importacao-bid-frete-internacional.ts`) — o preview recalcula e nenhum porto/aeroporto vira «inválido» por estar fora da página. Teste UNI: `testes/testes-unitarios/produto-gravity/bid-frete-internacional/catalogo/enriquecer-contexto-catalogo-importacao-bid-frete-internacional.test.ts`.
+
+**Server — gravação de cotação (TASK-000415):** o mesmo princípio vale no backend. O contexto de catálogo usado para derivar o snapshot de rota é uma página, então `garantirTerminaisRotaNoContextoCatalogo` resolve origem/destino individualmente (`GET /portos/:codigo`, `/aeroportos/:codigo`) antes da validação — ver modal §8.4. Diagnóstico útil: o Cadastros tem ~17k portos ativos e ~5,3k **sem coordenadas**; a validação de gravação usa `resolverMetadadosLocalCadastrosBidFreteInternacional` (não exige lat/long) justamente para não reprovar porto válido sem coordenadas (skill do produto § Resolução Cadastros).
+
+---
+
 ## Backlog
 
 | Item | Nota |

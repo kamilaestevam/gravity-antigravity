@@ -40,6 +40,11 @@ import {
   PRIMEIRA_LINHA_DADOS_TEMPLATE,
   ULTIMA_LINHA_DADOS_TEMPLATE,
 } from '../../../shared/smart-import-limites.js'
+import {
+  CAMPOS_BLOQ_PARA_ITEM,
+  CAMPOS_BLOQ_PARA_PEDIDO,
+  templateCampoPreservaSelectOuDropdown,
+} from '../../../shared/smart-import-template-bloqueio.js'
 
 // Versao do template. Atualize quando a ordem/estrutura mudar de forma
 // incompativel. O parser e' agnostico de ordem (matcheia por rotulo via SSOT
@@ -94,7 +99,12 @@ import {
 //              pesos unitarios) sao bloqueados em linhas PEDIDO. Usa data
 //              validation custom com formula referenciando coluna Tipo Linha.
 //              Campos propagaveis (existem em ambos) ficam editaveis em ambos.
-const TEMPLATE_VERSAO = '3.8'
+// 3.9 (P15.1)— Zona ESSENCIAL: unidade/moeda/valor_total/incoterm do ITEM
+//              bloqueados em linhas PEDIDO — usar par *_pedido no master.
+//              SSOT: shared/smart-import-template-bloqueio.ts
+// 4.1 (P15.3)— NCM liberado na linha PEDIDO; refs item livres na ITEM;
+//              selects/dropdowns preservados ao bloquear (tipo operação, unidade).
+const TEMPLATE_VERSAO = '4.1'
 
 import { exigirPermissao } from '../permissoes.js'
 
@@ -506,10 +516,9 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     }
 
     // ── Data validation NCM (formato 8 digitos) ─────────────────────────────────
-    // ncm_item e' tratado na secao de bloqueio P15 (formula combinada: bloqueio +
-    // validacao 8 digitos). Este bloco cobre apenas ncm_duimp (se existir no SSOT).
+    // ncm_item e ncm_duimp: somente validacao de formato — sem bloqueio por tipo_linha.
     camposOrdenados.forEach((c, idx) => {
-      if (c.campo !== 'ncm_duimp') return
+      if (c.campo !== 'ncm_duimp' && c.campo !== 'ncm_item') return
       const colLetter = ws.getColumn(idx + 1).letter
       for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
         ws.getCell(`${colLetter}${row}`).dataValidation = {
@@ -534,33 +543,8 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     //
     // Implementacao: data validation custom com formula que referencia $A{row}
     // (coluna Tipo Linha). allowBlank=true garante que celulas vazias passam.
-    // Para ncm_item, combina bloqueio + validacao de 8 digitos em uma formula.
-    const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
-      'numero_pedido',
-      'valor_total_pedido',
-      'quantidade_total_pedido',
-      'quantidade_volumes_pedido',
-      'valor_total_cambio_pedido',
-    ])
-    const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
-      'sequencia_item_pedido',
-      'part_number_item',
-      'ncm_item',
-      'descricao_item',
-      'quantidade_inicial_item',
-      'quantidade_atual_item',
-      'quantidade_transferida_item',
-      'quantidade_pronta_item',
-      'quantidade_cancelada_item',
-      'valor_por_unidade_item',
-      'nome_exportador_item',
-      'nome_importador_item',
-      'nome_fabricante_item',
-      'peso_liquido_unitario_item',
-      'peso_bruto_unitario_item',
-      'cubagem_unitaria_item',
-      'data_embarque_item',
-    ])
+    // Para ncm_item, apenas validacao de 8 digitos (liberado em PEDIDO e ITEM).
+    // SSOT: shared/smart-import-template-bloqueio.ts
     const colTipoLinha = ws.getColumn(1).letter
     camposOrdenados.forEach((c, idx) => {
       const colNumber = idx + 1
@@ -568,38 +552,32 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       const ehBloqItem   = CAMPOS_BLOQ_PARA_ITEM.has(c.campo)
       const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
       if (!ehBloqItem && !ehBloqPedido) return
-      const ehNcm = c.campo === 'ncm_item' || c.campo === 'ncm_duimp'
+      const preservarSelect = templateCampoPreservaSelectOuDropdown(c)
       for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
         const cell = ws.getCell(`${colLetter}${row}`)
         if (ehBloqItem) {
-          cell.dataValidation = {
-            type:             'custom',
-            allowBlank:       true,
-            formulae:         [`$${colTipoLinha}${row}<>"ITEM"`],
-            showErrorMessage: true,
-            errorStyle:       'stop',
-            errorTitle:       'Campo exclusivo de PEDIDO',
-            error:            'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
-          }
-        } else if (ehBloqPedido && ehNcm) {
-          cell.dataValidation = {
-            type:             'custom',
-            allowBlank:       true,
-            formulae:         [`AND($${colTipoLinha}${row}<>"PEDIDO",OR(LEN(SUBSTITUTE(SUBSTITUTE(${colLetter}${row},".","")," ",""))=8,${colLetter}${row}=""))`],
-            showErrorMessage: true,
-            errorStyle:       'stop',
-            errorTitle:       'Campo bloqueado ou NCM invalido',
-            error:            'Em linhas PEDIDO este campo e bloqueado. Em linhas ITEM, NCM deve ter 8 digitos (ex: 84713019 ou 8471.30.19).',
+          if (!preservarSelect) {
+            cell.dataValidation = {
+              type:             'custom',
+              allowBlank:       true,
+              formulae:         [`$${colTipoLinha}${row}<>"ITEM"`],
+              showErrorMessage: true,
+              errorStyle:       'stop',
+              errorTitle:       'Campo exclusivo de PEDIDO',
+              error:            'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
+            }
           }
         } else if (ehBloqPedido) {
-          cell.dataValidation = {
-            type:             'custom',
-            allowBlank:       true,
-            formulae:         [`$${colTipoLinha}${row}<>"PEDIDO"`],
-            showErrorMessage: true,
-            errorStyle:       'stop',
-            errorTitle:       'Campo exclusivo de ITEM',
-            error:            'Este campo pertence ao Item (linha filha). Nao pode ser preenchido em linhas de PEDIDO.',
+          if (!preservarSelect) {
+            cell.dataValidation = {
+              type:             'custom',
+              allowBlank:       true,
+              formulae:         [`$${colTipoLinha}${row}<>"PEDIDO"`],
+              showErrorMessage: true,
+              errorStyle:       'stop',
+              errorTitle:       'Campo exclusivo de ITEM',
+              error:            'Este campo pertence ao Item (linha filha). Nao pode ser preenchido em linhas de PEDIDO.',
+            }
           }
         }
       }

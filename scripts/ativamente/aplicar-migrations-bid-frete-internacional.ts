@@ -188,6 +188,8 @@ async function bootstrapSchemaVazio(databaseUrl: string, client: Client): Promis
 /** Colunas canônicas mínimas — detecta drift pós-bootstrap (migrations registradas sem SQL). */
 const COLUNAS_CANONICAS_MINIMAS: Array<{ tabela: string; coluna: string }> = [
   { tabela: 'cotacao_bid_frete_internacional', coluna: 'id_cotacao_bid_frete_internacional' },
+  { tabela: 'cotacao_bid_frete_internacional', coluna: 'habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional' },
+  { tabela: 'cotacao_bid_frete_internacional', coluna: 'codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional' },
   { tabela: 'cotacao_bid_frete_internacional', coluna: 'incluir_armazenagem_cotacao_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'id_ganho_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'valor_meta_ganho_bid_frete_internacional' },
@@ -261,6 +263,35 @@ async function verificarSchemaAposDeploy(client: Client): Promise<void> {
   }
 }
 
+async function resolverMigrationRegistroAlteracaoFalhaParcial(
+  databaseUrl: string,
+  client: Client,
+): Promise<void> {
+  const nome = '20260706203000_registro_alteracao_proposta_bid_frete'
+  const existeTabela = await tabelaExiste(client, 'registro_alteracao_proposta_bid_frete_internacional')
+  if (!existeTabela) return
+
+  const { rows } = await client.query<{ finished_at: Date | null; rolled_back_at: Date | null }>(
+    `SELECT finished_at, rolled_back_at
+     FROM "_prisma_migrations"
+     WHERE migration_name = $1
+     ORDER BY started_at DESC
+     LIMIT 1`,
+    [nome],
+  )
+  const registro = rows[0]
+  if (!registro || registro.finished_at != null) return
+
+  console.warn(
+    `[migrations-bid] Migration ${nome} falhou parcialmente mas a tabela existe — marcando como applied`,
+  )
+  execSync(`npx prisma migrate resolve --applied ${nome} --schema=${BID_SCHEMA}`, {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+  })
+}
+
 async function main(): Promise<void> {
   const databaseUrl = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL ?? process.env.DATABASE_URL
   if (!databaseUrl) {
@@ -289,6 +320,8 @@ async function main(): Promise<void> {
     } else if (await schemaDriftDetectado(client)) {
       await repararSchemaDrift(client)
     }
+
+    await resolverMigrationRegistroAlteracaoFalhaParcial(databaseUrl, client)
 
     console.log('[migrations-bid] prisma migrate deploy...')
     execSync(`npx prisma migrate deploy --schema=${BID_SCHEMA}`, {

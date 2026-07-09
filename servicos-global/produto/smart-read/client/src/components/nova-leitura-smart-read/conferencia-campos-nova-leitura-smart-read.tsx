@@ -8,6 +8,7 @@ import {
   Anchor,
   Buildings,
   CaretDown,
+  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -38,6 +39,12 @@ import {
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
 import { isCampoEditadoLeitura } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 import { CampoLinhaConferenciaNovaLeituraSmartRead } from './campo-linha-conferencia-nova-leitura-smart-read'
+import { resolverChaveCampoConferenciaLeitura } from '../../shared/foco-conferencia-campos-nova-leitura-smart-read'
+import {
+  chaveCampoConferenciaUsuario,
+  usarCamposMarcacaoConferencia,
+} from '../../shared/checklist-marcacao-usuario-smart-read'
+import { useConferenciaUsuarioDocumentoSmartRead } from '../../shared/use-conferencia-usuario-documento-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
@@ -59,6 +66,7 @@ type Props = {
   onEditarCampo?: (chave: string, valor: string) => void
   campoFoco?: string | null
   onCampoFocoConsumido?: () => void
+  idLeituraLegado?: string | null
 }
 
 const ICONE_SECAO_CONFERENCIA: Record<string, ReactNode> = {
@@ -133,6 +141,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   onEditarCampo,
   campoFoco = null,
   onCampoFocoConsumido,
+  idLeituraLegado = null,
 }: Props) {
   const [filtro, setFiltro] = useState<FiltroConferencia>('todos')
   const [busca, setBusca] = useState('')
@@ -148,6 +157,14 @@ export function ConferenciaCamposNovaLeituraSmartRead({
     () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),
     [extracao?.dados],
   )
+
+  const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
+  const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido } =
+    usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
+
+  const { resumoConferencia, todosItensConferidos, alternarTodaConferencia } =
+    useConferenciaUsuarioDocumentoSmartRead(arquivo, indiceDocumento, idLeituraLegado)
+
   const stats = useMemo(
     () =>
       calcularEstatisticasConferencia(secoes, {
@@ -176,8 +193,14 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   }, [arquivo.id_arquivo_local, indiceDocumento])
 
   useEffect(() => {
-    if (!campoFoco?.trim()) return
-    const chave = campoFoco.trim()
+    const chave = resolverChaveCampoConferenciaLeitura(
+      typeof campoFoco === 'string' ? campoFoco : null,
+      secoes,
+    )
+    if (!chave) {
+      if (typeof campoFoco === 'string' && campoFoco.trim()) onCampoFocoConsumido?.()
+      return
+    }
     const secaoAlvo = secoes.find((secao) => secao.campos.some((c) => c.chave === chave))
     if (!secaoAlvo) {
       onCampoFocoConsumido?.()
@@ -304,7 +327,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
               size={14}
               className={`dt-caret${progressoColapsado ? ' dt-caret--colapsado' : ''}`}
             />
-            <strong className="sr-conf-progresso-titulo">Progresso da Conferência</strong>
+            <strong className="sr-conf-progresso-titulo">Filtros dos campos</strong>
           </div>
           <div
             className="sr-conf-progresso-busca"
@@ -337,24 +360,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
 
         {!progressoColapsado && (
           <div id="sr-conf-progresso-corpo" className="sr-conf-progresso-corpo">
-            <div className="sr-conf-progresso-linha">
-              <div
-                className="sr-conf-progresso-barra"
-                role="progressbar"
-                aria-valuenow={stats.percentual}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${stats.percentual}% dos campos preenchidos`}
-              >
-                <div
-                  className="sr-conf-progresso-barra-fill"
-                  style={{ width: `${stats.percentual}%` }}
-                />
-              </div>
-              <span className="sr-conf-progresso-pct">{stats.percentual}%</span>
-            </div>
-
-            <div className="sr-conf-progresso-metricas" aria-label="Resumo da conferência">
+            <div className="sr-conf-progresso-metricas" aria-label="Filtros da conferência de campos">
               <button
                 type="button"
                 className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--todos${filtro === 'todos' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
@@ -409,7 +415,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
       </section>
 
       <main className="dt-main">
-        {(filtro !== 'todos' || busca.trim() || secoesVisiveis.length > 0 || assinadoVisivel) && (
+        {(secoesVisiveis.length > 0 || assinadoVisivel) && (
           <div className="dt-main-toolbar sr-conf-secoes-toolbar">
             {(filtro !== 'todos' || busca.trim()) && (
               <div className="dt-chips sr-conf-chips">
@@ -445,10 +451,23 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                 )}
               </div>
             )}
-            {(secoesVisiveis.length > 0 || assinadoVisivel) && (
+            <div className="sr-conf-toolbar-acoes-direita">
+              {resumoConferencia.total > 0 && (
+                <label className="dt-main-toolbar-btn sr-conf-toolbar-selecionar-conferencia">
+                  <input
+                    type="checkbox"
+                    className="sr-conf-chk-checkbox"
+                    checked={todosItensConferidos}
+                    onChange={alternarTodaConferencia}
+                    aria-label={`Selecionar toda conferência — ${resumoConferencia.total} itens`}
+                  />
+                  <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} aria-hidden />
+                  <span>Selecionar toda conferência ({resumoConferencia.total})</span>
+                </label>
+              )}
               <button
                 type="button"
-                className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
+                className="dt-main-toolbar-btn"
                 onClick={toggleTodasSecoes}
                 title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
               >
@@ -459,7 +478,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                 />
                 {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
               </button>
-            )}
+            </div>
           </div>
         )}
 
@@ -521,6 +540,10 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         valor={campoAssinado.valor}
                         alterado={ehAlterado('isSigned')}
                         tipo="booleano"
+                        conferido={campoEstaConferido(chaveCampoConferenciaUsuario('isSigned'))}
+                        onAlternarConferido={() =>
+                          alternarCampoConferido(chaveCampoConferenciaUsuario('isSigned'))
+                        }
                         aoSalvar={(novo) => onEditarCampo?.('isSigned', novo)}
                       />
                     )}
@@ -532,6 +555,10 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         valor={campo.valor}
                         alterado={ehAlterado(campo.chave)}
                         destacado={campoDestacado === campo.chave}
+                        conferido={campoEstaConferido(chaveCampoConferenciaUsuario(campo.chave))}
+                        onAlternarConferido={() =>
+                          alternarCampoConferido(chaveCampoConferenciaUsuario(campo.chave))
+                        }
                         aoSalvar={(novo) => onEditarCampo?.(campo.chave, novo)}
                       />
                     ))}

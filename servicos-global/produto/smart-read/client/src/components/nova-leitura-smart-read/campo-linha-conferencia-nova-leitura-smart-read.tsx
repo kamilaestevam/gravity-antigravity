@@ -4,9 +4,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarBlank, PencilSimple } from '@phosphor-icons/react'
+import { CalendarBlank, Check, PencilSimple } from '@phosphor-icons/react'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   aplicarMascaraDataConferenciaSmartRead,
   dateToIsoConferenciaSmartRead,
@@ -26,6 +27,8 @@ type Props = {
   alterado?: boolean
   destacado?: boolean
   tipo?: TipoCampoConferencia
+  conferido?: boolean
+  onAlternarConferido?: () => void
   aoSalvar: (novo: string) => void
 }
 
@@ -52,6 +55,8 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
   alterado = false,
   destacado = false,
   tipo: tipoProp,
+  conferido = false,
+  onAlternarConferido,
   aoSalvar,
 }: Props) {
   const tipo: TipoCampoConferencia =
@@ -244,9 +249,32 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
   return (
     <div
       id={`sr-campo-conferencia-${chave}`}
-      className={`dt-row dt-row--${status}${alterado ? ' sr-conf-campo-alterado' : ''}${destacado ? ' sr-conf-campo-destacado' : ''}`}
+      className={`dt-row dt-row--${status}${alterado ? ' sr-conf-campo-alterado' : ''}${destacado ? ' sr-conf-campo-destacado' : ''}${conferido ? ' sr-conf-campo-conferido' : ''}`}
     >
       <div className="dt-row-status" aria-hidden="true" />
+      {onAlternarConferido && (
+        <TooltipGlobal
+          titulo={conferido ? 'Conferido' : 'Marcar como conferido'}
+          descricao={
+            conferido
+              ? 'Clique para desmarcar este campo'
+              : 'Indica que você revisou este campo manualmente'
+          }
+        >
+          <button
+            type="button"
+            className={`sr-conf-campo-check-btn${conferido ? ' sr-conf-campo-check-btn--ativo' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              onAlternarConferido()
+            }}
+            aria-label={conferido ? `Desmarcar conferência: ${rotulo}` : `Marcar como conferido: ${rotulo}`}
+            aria-pressed={conferido}
+          >
+            <Check size={13} weight={conferido ? 'bold' : 'regular'} aria-hidden />
+          </button>
+        </TooltipGlobal>
+      )}
       <div className="dt-row-head">
         <span className="dt-row-icon">{icone}</span>
         <span className="dt-row-label">{rotulo}</span>

@@ -13,6 +13,7 @@ import {
   type AnaliseRiscosLeituraResponse,
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
+import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
 import {
   anexarDisclaimerClassificacao,
   DISCLAIMER_CLASSIFICACAO_FISCAL,
@@ -262,6 +263,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
     [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos],
     [...riscosClassificacao, ...riscosLlm],
   )
+  const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado)
 
   const uso_llm_chamada =
     chamadasUso.length > 0 ? somarUsoLlmChamadasLeituraSmartRead(chamadasUso) : null
@@ -270,7 +272,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
     : null
 
   return AnaliseRiscosLeituraResponseSchema.parse({
-    resumo: mesclado,
+    resumo: resumoFinal,
     contexto_v1: contexto,
     llm_ativo: llmAtivo,
     aviso,

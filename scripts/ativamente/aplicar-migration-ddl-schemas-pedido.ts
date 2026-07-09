@@ -182,6 +182,88 @@ export async function aplicarMigrationEmSchemasComPedido(
   }
 }
 
+/**
+ * Derruba QUALQUER unique em pedido(id_organizacao, numero_pedido) — name-agnostic.
+ *
+ * A migration 20260525120000_drop_pedido_numero_unique só dá DROP INDEX em um nome
+ * específico ("pedido_id_organizacao_numero_pedido_key"); schemas legados podem ter
+ * o unique com outro nome (ex.: constraint da era pedidos_comerciais/pedido_produto_gravity)
+ * ou nunca ter recebido a migration (migrate-all-tenants é best-effort). Resultado em
+ * produção: P2002 ao criar pedido com numero repetido, contrariando a decisão de produto
+ * de permitir duplicatas (tratadas via alerta na aplicação).
+ *
+ * Idempotente: consulta o catálogo, dropa constraint/índice unique se existir e garante
+ * o índice não-unique no lugar. Sem unique → no-op.
+ */
+export async function aplicarDropUniqueNumeroPedidoEmSchemasComPedido(
+  pedidoUrl: string,
+  configuradorUrl?: string,
+): Promise<void> {
+  const logPrefix = 'ddl-pedido-drop-unique-numero'
+  console.log(`[${logPrefix}] Banco: ${mascararUrl(pedidoUrl)}`)
+
+  const client = new Client({ connectionString: pedidoUrl })
+  await client.connect()
+
+  try {
+    const schemas = await listarSchemasComTabelaPedido(client, configuradorUrl)
+    if (schemas.length === 0) {
+      console.warn(`[${logPrefix}] Nenhum schema com tabela pedido.`)
+      return
+    }
+
+    for (const schemaName of schemas) {
+      const { rows } = await client.query<{
+        index_name: string
+        constraint_name: string | null
+      }>(
+        `SELECT i.relname AS index_name, con.conname AS constraint_name
+         FROM pg_index ix
+         JOIN pg_class c ON c.oid = ix.indrelid
+         JOIN pg_class i ON i.oid = ix.indexrelid
+         JOIN pg_namespace n ON n.oid = c.relnamespace
+         LEFT JOIN pg_constraint con ON con.conindid = ix.indexrelid
+         WHERE n.nspname = $1
+           AND c.relname = 'pedido'
+           AND ix.indisunique
+           AND (
+             SELECT array_agg(a.attname ORDER BY a.attname)
+             FROM unnest(ix.indkey) AS k(attnum)
+             JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
+           ) = ARRAY['id_organizacao', 'numero_pedido']::name[]`,
+        [schemaName],
+      )
+
+      if (rows.length === 0) {
+        console.log(`[${logPrefix}] ${schemaName} — sem unique em (id_organizacao, numero_pedido), ok`)
+        continue
+      }
+
+      for (const row of rows) {
+        if (row.constraint_name !== null) {
+          await client.query(
+            `ALTER TABLE "${schemaName}"."pedido" DROP CONSTRAINT "${row.constraint_name}"`,
+          )
+          console.log(`[${logPrefix}] ${schemaName} — constraint "${row.constraint_name}" removida`)
+        } else {
+          await client.query(`DROP INDEX "${schemaName}"."${row.index_name}"`)
+          console.log(`[${logPrefix}] ${schemaName} — indice unique "${row.index_name}" removido`)
+        }
+      }
+
+      await client.query(
+        `CREATE INDEX IF NOT EXISTS "pedido_id_organizacao_numero_pedido_idx"
+         ON "${schemaName}"."pedido"("id_organizacao", "numero_pedido")`,
+      )
+      console.log(`[${logPrefix}] ${schemaName} — indice nao-unique garantido`)
+    }
+
+    console.log(`[${logPrefix}] Concluido.`)
+  } finally {
+    await client.end()
+  }
+}
+
 export async function aplicarIdProcessoEmSchemasComPedido(
   pedidoUrl: string,
   configuradorUrl?: string,

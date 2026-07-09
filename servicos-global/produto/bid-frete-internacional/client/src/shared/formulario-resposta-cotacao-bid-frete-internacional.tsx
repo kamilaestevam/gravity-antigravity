@@ -31,7 +31,7 @@ import {
   exigeArmazenagemFornecedorRespostaCotacao,
 } from './armazenagem-lcl-maritimo-bid-frete-internacional'
 import type { CodigoBloqueioRespostaDisparoBidFreteInternacional } from './visao-fornecedor-bid-frete-internacional-schemas'
-import { MODAL_LABELS } from './types'
+import { MODAL_LABELS, MODALIDADE_LABELS } from './types'
 import {
   montarPartesCabecalhoRespostaCotacao,
   type ContextoCabecalhoRespostaCotacao,
@@ -55,8 +55,28 @@ import {
   type TotalPorMoedaBidFreteInternacional,
 } from './taxas-linha-proposta-bid-frete-internacional'
 import { formatarRotaExibicaoCotacao } from './formatacao-local-logistico-bid-frete-internacional'
+import { parseObservacoesPropostaComLocais } from '../../../shared/local-proposta-resposta-bid-frete-internacional'
+import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
+import {
+  ehContratanteGravityPagadorTaxaFechamento,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+  type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
+import { montarTextoAceiteCondicoesPortalRespostaBidFrete } from '../../../shared/textos-taxa-fechamento-plataforma-bid-frete-internacional'
+import {
+  exigeSelecaoLocalFornecedorRespostaBidFrete,
+  type ContextoLocaisOpcionaisCotacaoBidFrete,
+} from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional'
+import {
+  rotuloExibicaoLocaisOpcionaisCotacaoBidFrete,
+  rotuloSelecaoLocalFornecedorRespostaBidFrete,
+  useLocaisSelecaoFornecedorRespostaBidFrete,
+  useTextosLocaisOpcionaisCotacaoBidFrete,
+} from './locais-opcionais-cotacao-bid-frete-internacional'
 import { useOpcoesMoedaCadastrosBidFreteInternacional } from './use-opcoes-moeda-cadastros-bid-frete-internacional'
 import { urlMarketplaceBidFreteInternacional } from './url-marketplace-gravity-bid-frete-internacional'
+import { montarTextoLocalizacaoComplementarEmailDisparoBidFrete } from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
 
 const PROP_LINK_MARKETPLACE = {
@@ -110,19 +130,95 @@ export const MODAL_ICONS_RESPOSTA: Record<ModalFrete, React.ReactNode> = {
 
 export interface DetalhesCotacaoResposta {
   numero_cotacao_bid_frete_internacional: string
+  referencia_interna_cotacao_bid_frete_internacional?: string | null
   tipo_operacao_cotacao_bid_frete_internacional?: TipoOperacao
   anonima_cotacao_bid_frete_internacional?: boolean
   nome_cliente_operacao_cotacao_bid_frete_internacional?: string | null
   origem_nome_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
+  origem_pais_cotacao_bid_frete_internacional?: string | null
+  destino_pais_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  endereco_origem_cotacao_bid_frete_internacional?: string | null
+  endereco_destino_cotacao_bid_frete_internacional?: string | null
   modal_cotacao_bid_frete_internacional?: ModalFrete
   modalidade_cotacao_bid_frete_internacional?: ModalidadeCarga
   incoterm_cotacao_bid_frete_internacional: string
   descricao_mercadoria_cotacao_bid_frete_internacional: string
+  ncm_cotacao_bid_frete_internacional?: string | null
+  hs_code_cotacao_bid_frete_internacional?: string | null
   quantidade_volume_cotacao_bid_frete_internacional?: number
+  tipo_container_cotacao_bid_frete_internacional?: string | null
   peso_kg_cotacao_bid_frete_internacional?: number | null
+  peso_ton_cotacao_bid_frete_internacional?: number | null
   cubagem_m3_cotacao_bid_frete_internacional?: number | null
+  codigo_unidade_cubagem_cotacao_bid_frete_internacional?: string | null
+  comprimento_cubagem_cotacao_bid_frete_internacional?: number | null
+  largura_cubagem_cotacao_bid_frete_internacional?: number | null
+  altura_cubagem_cotacao_bid_frete_internacional?: number | null
+  eh_carga_perigosa_cotacao_bid_frete_internacional?: boolean
+  numero_onu_cotacao_bid_frete_internacional?: string | null
+  nome_tecnico_embarque_cotacao_bid_frete_internacional?: string | null
+  classe_carga_perigosa_cotacao_bid_frete_internacional?: number | null
+  divisao_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
   incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
+  nomes_armazem_alfandegado_cotacao_bid_frete_internacional?: string[] | null
+  porto_origem_cotacao_bid_frete_internacional?: string | null
+  porto_destino_cotacao_bid_frete_internacional?: string | null
+  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
+  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
+  habilitar_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_origem_cotacao_bid_frete_internacional?: string[] | null
+  habilitar_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: boolean
+  codigos_opcao_porto_aeroporto_destino_cotacao_bid_frete_internacional?: string[] | null
+  empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
+  mapa_rotulos_locais_resposta_bid_frete_internacional?: Record<string, string> | null
+}
+
+/** "120 × 100 × 90 cm" — só quando as 3 dimensões da cubagem foram preenchidas. */
+export function formatarDimensoesCubagemDetalhesResposta(
+  cotacao: DetalhesCotacaoResposta | null,
+): string | null {
+  const c = cotacao?.comprimento_cubagem_cotacao_bid_frete_internacional
+  const l = cotacao?.largura_cubagem_cotacao_bid_frete_internacional
+  const a = cotacao?.altura_cubagem_cotacao_bid_frete_internacional
+  if (c == null || l == null || a == null || c <= 0 || l <= 0 || a <= 0) return null
+  const unidade = cotacao?.codigo_unidade_cubagem_cotacao_bid_frete_internacional?.trim().toLowerCase() || 'm'
+  const fmt = (v: number) => v.toLocaleString('pt-BR')
+  return `${fmt(c)} × ${fmt(l)} × ${fmt(a)} ${unidade}`
+}
+
+/** "UN 1263 · Tintas · Classe 3 · GE II" — null quando não é carga perigosa. */
+export function formatarCargaPerigosaDetalhesResposta(
+  cotacao: DetalhesCotacaoResposta | null,
+): string | null {
+  if (!cotacao?.eh_carga_perigosa_cotacao_bid_frete_internacional) return null
+  const partes: string[] = []
+  if (cotacao.numero_onu_cotacao_bid_frete_internacional?.trim()) {
+    partes.push(`UN ${cotacao.numero_onu_cotacao_bid_frete_internacional.trim()}`)
+  }
+  if (cotacao.nome_tecnico_embarque_cotacao_bid_frete_internacional?.trim()) {
+    partes.push(cotacao.nome_tecnico_embarque_cotacao_bid_frete_internacional.trim())
+  }
+  if (cotacao.classe_carga_perigosa_cotacao_bid_frete_internacional != null) {
+    partes.push(`Classe ${cotacao.classe_carga_perigosa_cotacao_bid_frete_internacional}`)
+  }
+  if (cotacao.divisao_carga_perigosa_cotacao_bid_frete_internacional?.trim()) {
+    partes.push(`Divisão ${cotacao.divisao_carga_perigosa_cotacao_bid_frete_internacional.trim()}`)
+  }
+  if (cotacao.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?.trim()) {
+    partes.push(`GE ${cotacao.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional.trim()}`)
+  }
+  if (cotacao.observacoes_carga_perigosa_cotacao_bid_frete_internacional?.trim()) {
+    partes.push(cotacao.observacoes_carga_perigosa_cotacao_bid_frete_internacional.trim())
+  }
+  return partes.length > 0 ? partes.join(' · ') : null
 }
 
 export interface EstadoFormularioRespostaCotacao {
@@ -137,6 +233,8 @@ export interface EstadoFormularioRespostaCotacao {
   transbordos_proposta_bid_frete_internacional: string
   escalas_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional: string
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional: string
   linhas_periodo_armazenagem: LinhaPeriodoArmazenagemFormBidFreteInternacional[]
 }
 
@@ -155,6 +253,10 @@ export function estadoFormularioFromProposta(
     proposta.taxas_destino?.length
       ? linhasFromPropostaTaxas(proposta.taxas_destino, 'destino')
       : []
+
+  const { locais, observacoes } = parseObservacoesPropostaComLocais(
+    proposta.observacoes_proposta_bid_frete_internacional,
+  )
 
   return {
     moeda_proposta_bid_frete_internacional: proposta.moeda_proposta_bid_frete_internacional,
@@ -175,7 +277,11 @@ export function estadoFormularioFromProposta(
       proposta.quantidade_transbordo_proposta_bid_frete_internacional ?? 0,
     ),
     escalas_proposta_bid_frete_internacional: quantidadeEscalasTextoFromProposta(proposta),
-    observacoes_proposta_bid_frete_internacional: proposta.observacoes_proposta_bid_frete_internacional ?? '',
+    observacoes_proposta_bid_frete_internacional: observacoes,
+    codigo_porto_aeroporto_origem_proposta_bid_frete_internacional:
+      locais.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional ?? '',
+    codigo_porto_aeroporto_destino_proposta_bid_frete_internacional:
+      locais.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional ?? '',
     linhas_periodo_armazenagem: linhasPeriodoArmazenagemFromProposta(
       proposta.periodos_armazenagem_proposta_bid_frete_internacional,
       {
@@ -260,10 +366,9 @@ export function exibeCampoFreeTimeRespostaCotacao(
 }
 
 export function exigeFreeTimeObrigatorioRespostaCotacao(
-  modal?: ModalFrete | null,
   modalidade?: ModalidadeCarga | null,
 ): boolean {
-  return exibeCampoFreeTimeRespostaCotacao(modal, modalidade)
+  return modalidade === 'FCL'
 }
 
 function diasInteiroNaoNegativoValido(valor: string): boolean {
@@ -290,7 +395,7 @@ export function camposLogisticaRespostaCotacaoValidos(
   if (!diasInteiroNaoNegativoValido(form.dias_prazo_pagamento_proposta_bid_frete_internacional)) {
     return false
   }
-  if (exigeFreeTimeObrigatorioRespostaCotacao(modal, modalidade)) {
+  if (exigeFreeTimeObrigatorioRespostaCotacao(modalidade)) {
     if (!diasInteiroNaoNegativoValido(form.dias_free_time_proposta_bid_frete_internacional)) {
       return false
     }
@@ -308,8 +413,10 @@ export function obterErroValidacaoFormularioRespostaCotacao(
     modal?: ModalFrete | null
     modalidade?: ModalidadeCarga | null
     incluirArmazenagem?: boolean | null
+    cotacao?: DetalhesCotacaoResposta | ContextoLocaisOpcionaisCotacaoBidFrete | null
     mensagemCamposObrigatorios: string
     mensagemArmazenagemInvalida: string
+    mensagemLocalObrigatorio?: string
   },
 ): string | null {
   if (
@@ -337,6 +444,18 @@ export function obterErroValidacaoFormularioRespostaCotacao(
     return opts.mensagemCamposObrigatorios
   }
 
+  if (opts.cotacao) {
+    for (const lado of ['origem', 'destino'] as const) {
+      if (!exigeSelecaoLocalFornecedorRespostaBidFrete(opts.cotacao, lado)) continue
+      const valor = lado === 'origem'
+        ? form.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional.trim()
+        : form.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional.trim()
+      if (!valor) {
+        return opts.mensagemLocalObrigatorio ?? opts.mensagemCamposObrigatorios
+      }
+    }
+  }
+
   return null
 }
 
@@ -352,6 +471,8 @@ export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao
   transbordos_proposta_bid_frete_internacional: '',
   escalas_proposta_bid_frete_internacional: '',
   observacoes_proposta_bid_frete_internacional: '',
+  codigo_porto_aeroporto_origem_proposta_bid_frete_internacional: '',
+  codigo_porto_aeroporto_destino_proposta_bid_frete_internacional: '',
   linhas_periodo_armazenagem: [criarLinhaPeriodoArmazenagemVazia()],
 }
 
@@ -396,19 +517,70 @@ export function SecaoDetalhesCotacaoResposta({
   rotuloCarga: string
   numeroFallback?: string
 }) {
+  const { t } = useTranslation()
+  const textosOpcionais = useTextosLocaisOpcionaisCotacaoBidFrete(cotacao ?? {})
+  const localizacaoOrigemTexto = cotacao
+    ? montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+      paisCodigo: cotacao.origem_pais_cotacao_bid_frete_internacional,
+      estadoProvincia: cotacao.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional,
+      cidade: cotacao.cidade_origem_rodoviario_cotacao_bid_frete_internacional,
+      endereco: cotacao.endereco_origem_cotacao_bid_frete_internacional,
+    })
+    : null
+  const localizacaoDestinoTexto = cotacao
+    ? montarTextoLocalizacaoComplementarEmailDisparoBidFrete({
+      paisCodigo: cotacao.destino_pais_cotacao_bid_frete_internacional,
+      estadoProvincia: cotacao.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional,
+      cidade: cotacao.cidade_destino_rodoviario_cotacao_bid_frete_internacional,
+      endereco: cotacao.endereco_destino_cotacao_bid_frete_internacional,
+    })
+    : null
   const partesCarga: string[] = []
   if (cotacao?.descricao_mercadoria_cotacao_bid_frete_internacional) {
     partesCarga.push(cotacao.descricao_mercadoria_cotacao_bid_frete_internacional)
   }
-  if (cotacao?.quantidade_volume_cotacao_bid_frete_internacional != null) {
+  if (
+    cotacao?.tipo_container_cotacao_bid_frete_internacional?.trim()
+    && cotacao?.quantidade_volume_cotacao_bid_frete_internacional != null
+  ) {
+    partesCarga.push(
+      `${cotacao.quantidade_volume_cotacao_bid_frete_internacional}× ${cotacao.tipo_container_cotacao_bid_frete_internacional.trim()}`,
+    )
+  } else if (cotacao?.quantidade_volume_cotacao_bid_frete_internacional != null) {
     partesCarga.push(`${cotacao.quantidade_volume_cotacao_bid_frete_internacional} un`)
   }
   if (cotacao?.peso_kg_cotacao_bid_frete_internacional != null) {
     partesCarga.push(`${cotacao.peso_kg_cotacao_bid_frete_internacional.toLocaleString('pt-BR')} kg`)
   }
+  if (cotacao?.peso_ton_cotacao_bid_frete_internacional != null && cotacao.peso_ton_cotacao_bid_frete_internacional > 0) {
+    partesCarga.push(`${cotacao.peso_ton_cotacao_bid_frete_internacional.toLocaleString('pt-BR')} t`)
+  }
   if (cotacao?.cubagem_m3_cotacao_bid_frete_internacional != null) {
     partesCarga.push(`${cotacao.cubagem_m3_cotacao_bid_frete_internacional} m³`)
   }
+
+  const modalidadeLabel = cotacao?.modalidade_cotacao_bid_frete_internacional
+    ? MODALIDADE_LABELS[cotacao.modalidade_cotacao_bid_frete_internacional]
+      ?? cotacao.modalidade_cotacao_bid_frete_internacional
+    : null
+  const dimensoesCubagem = formatarDimensoesCubagemDetalhesResposta(cotacao)
+  const cargaPerigosaTexto = cotacao?.eh_carga_perigosa_cotacao_bid_frete_internacional
+    ? formatarCargaPerigosaDetalhesResposta(cotacao)
+      ?? t('bidfrete.portal.detalhes.carga_perigosa_sim', { defaultValue: 'Sim' })
+    : null
+  const prazoResposta = cotacao?.data_limite_resposta_cotacao_bid_frete_internacional
+    ? (() => {
+        const data = new Date(cotacao.data_limite_resposta_cotacao_bid_frete_internacional as string)
+        return Number.isNaN(data.getTime())
+          ? null
+          : data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      })()
+    : null
+  const nomesArmazensRaw = cotacao?.nomes_armazem_alfandegado_cotacao_bid_frete_internacional
+  const nomesArmazensPreferencia = (Array.isArray(nomesArmazensRaw) ? nomesArmazensRaw : [])
+    .filter((nome): nome is string => typeof nome === 'string')
+    .map((nome) => nome.trim())
+    .filter(Boolean)
 
   return (
     <section className="brc-secao" aria-labelledby="brc-detalhes-titulo">
@@ -430,6 +602,38 @@ export function SecaoDetalhesCotacaoResposta({
             )}
           </span>
         </div>
+        {textosOpcionais.origem ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'origem', cotacao ?? {})}
+            </span>
+            <span className="brc-detalhe-valor">{textosOpcionais.origem}</span>
+          </div>
+        ) : null}
+        {localizacaoOrigemTexto ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.origem_complementar', { defaultValue: 'Origem' })}
+            </span>
+            <span className="brc-detalhe-valor">{localizacaoOrigemTexto}</span>
+          </div>
+        ) : null}
+        {textosOpcionais.destino ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {rotuloExibicaoLocaisOpcionaisCotacaoBidFrete(t, 'destino', cotacao ?? {})}
+            </span>
+            <span className="brc-detalhe-valor">{textosOpcionais.destino}</span>
+          </div>
+        ) : null}
+        {localizacaoDestinoTexto ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.destino_complementar', { defaultValue: 'Destino' })}
+            </span>
+            <span className="brc-detalhe-valor">{localizacaoDestinoTexto}</span>
+          </div>
+        ) : null}
         <div className="brc-detalhe">
           <span className="brc-detalhe-label">{rotuloModal}</span>
           <span className="brc-detalhe-valor">
@@ -437,7 +641,7 @@ export function SecaoDetalhesCotacaoResposta({
               ? MODAL_ICONS_RESPOSTA[cotacao.modal_cotacao_bid_frete_internacional]
               : null}
             {cotacao?.modal_cotacao_bid_frete_internacional
-              ? MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional]
+              ? `${MODAL_LABELS[cotacao.modal_cotacao_bid_frete_internacional]}${modalidadeLabel ? ` · ${modalidadeLabel}` : ''}`
               : '—'}
           </span>
         </div>
@@ -447,6 +651,36 @@ export function SecaoDetalhesCotacaoResposta({
             {cotacao?.incoterm_cotacao_bid_frete_internacional ?? '—'}
           </span>
         </div>
+        {cotacao?.referencia_interna_cotacao_bid_frete_internacional?.trim() ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.referencia_interna', { defaultValue: 'Referência interna' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              {cotacao.referencia_interna_cotacao_bid_frete_internacional.trim()}
+            </span>
+          </div>
+        ) : null}
+        {cotacao?.ncm_cotacao_bid_frete_internacional?.trim() ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.ncm', { defaultValue: 'NCM' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              {cotacao.ncm_cotacao_bid_frete_internacional.trim()}
+            </span>
+          </div>
+        ) : null}
+        {cotacao?.hs_code_cotacao_bid_frete_internacional?.trim() ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.hs_code', { defaultValue: 'HS Code' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              {cotacao.hs_code_cotacao_bid_frete_internacional.trim()}
+            </span>
+          </div>
+        ) : null}
         <div className="brc-detalhe brc-detalhe--wide">
           <span className="brc-detalhe-label">{rotuloCarga}</span>
           <span className="brc-detalhe-valor">
@@ -454,6 +688,65 @@ export function SecaoDetalhesCotacaoResposta({
             {partesCarga.length > 0 ? partesCarga.join(' · ') : '—'}
           </span>
         </div>
+        {dimensoesCubagem ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.dimensoes_cubagem', { defaultValue: 'Dimensões (C × L × A)' })}
+            </span>
+            <span className="brc-detalhe-valor">{dimensoesCubagem}</span>
+          </div>
+        ) : null}
+        {prazoResposta ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.prazo_resposta', { defaultValue: 'Prazo de resposta' })}
+            </span>
+            <span className="brc-detalhe-valor">{prazoResposta}</span>
+          </div>
+        ) : null}
+        <div className="brc-detalhe">
+          <span className="brc-detalhe-label">
+            {t('bidfrete.portal.detalhes.pagador_taxa_fechamento', {
+              defaultValue: 'Taxa de fechamento paga por',
+            })}
+          </span>
+          <span className="brc-detalhe-valor">
+            {rotuloEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+              cotacao?.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+            )}
+          </span>
+        </div>
+        {cargaPerigosaTexto ? (
+          <div className="brc-detalhe brc-detalhe--wide">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.carga_perigosa', { defaultValue: 'Carga perigosa' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              <WarningCircle weight="duotone" size={14} aria-hidden />
+              {cargaPerigosaTexto}
+            </span>
+          </div>
+        ) : null}
+        {cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.armazenagem', { defaultValue: 'Armazenagem' })}
+            </span>
+            <span className="brc-detalhe-valor">
+              {t('bidfrete.portal.detalhes.armazenagem_incluida', { defaultValue: 'Incluir armazenagem na cotação' })}
+            </span>
+          </div>
+        ) : null}
+        {cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional && nomesArmazensPreferencia.length > 0 ? (
+          <div className="brc-detalhe">
+            <span className="brc-detalhe-label">
+              {t('bidfrete.portal.detalhes.armazens_preferencia', {
+                defaultValue: 'Armazéns alfandegados de preferência',
+              })}
+            </span>
+            <span className="brc-detalhe-valor">{nomesArmazensPreferencia.join(', ')}</span>
+          </div>
+        ) : null}
       </div>
     </section>
   )
@@ -463,6 +756,7 @@ export function FormPropostaRespostaCotacao({
   form,
   modalCotacao,
   modalidadeCotacao,
+  cotacaoLocais,
   incluirArmazenagemCotacao = false,
   onChange,
   onLinhasOrigemChange,
@@ -479,6 +773,7 @@ export function FormPropostaRespostaCotacao({
   form: EstadoFormularioRespostaCotacao
   modalCotacao?: ModalFrete | null
   modalidadeCotacao?: ModalidadeCarga | null
+  cotacaoLocais?: DetalhesCotacaoResposta | ContextoLocaisOpcionaisCotacaoBidFrete | null
   incluirArmazenagemCotacao?: boolean
   onChange: (field: keyof EstadoFormularioRespostaCotacao, value: string) => void
   onLinhasOrigemChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
@@ -571,8 +866,12 @@ export function FormPropostaRespostaCotacao({
 
   const mostrarTransbordos = exibeCampoTransbordosRespostaCotacao(modalCotacao)
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
-  const mostrarFreeTime = exibeCampoFreeTimeRespostaCotacao(modalCotacao, modalidadeCotacao)
+  const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
   const mostrarArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(incluirArmazenagemCotacao)
+  const pagadorTaxaFechamento = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
+    cotacaoLocais?.empresa_pagadora_taxa_fechamento_plataforma_gravity,
+  )
+  const textoAceiteCondicoes = montarTextoAceiteCondicoesPortalRespostaBidFrete(pagadorTaxaFechamento)
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
@@ -581,11 +880,68 @@ export function FormPropostaRespostaCotacao({
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
 
+  const ctxLocais = cotacaoLocais ?? {}
+  const exigeLocalOrigem = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'origem')
+  const exigeLocalDestino = exigeSelecaoLocalFornecedorRespostaBidFrete(ctxLocais, 'destino')
+  const {
+    opcoesOrigem: opcoesLocalOrigem,
+    opcoesDestino: opcoesLocalDestino,
+    carregando: carregandoLocais,
+  } = useLocaisSelecaoFornecedorRespostaBidFrete(ctxLocais)
+
   return (
     <section className="brc-secao" aria-labelledby="brc-proposta-titulo">
       <form onSubmit={onSubmit} noValidate>
         <h2 id="brc-proposta-titulo" className="brc-secao-titulo">{tituloSecao}</h2>
         <div className="brc-form-grid">
+          {exigeLocalOrigem ? (
+            <div className="brc-field brc-field--wide">
+              <LabelObrigatorio>
+                {rotuloSelecaoLocalFornecedorRespostaBidFrete(t, 'origem', ctxLocais)}
+              </LabelObrigatorio>
+              <SelectGlobal
+                id="brc-local-origem-proposta"
+                opcoes={opcoesLocalOrigem}
+                valor={form.codigo_porto_aeroporto_origem_proposta_bid_frete_internacional || null}
+                aoMudarValor={(v) =>
+                  onChange(
+                    'codigo_porto_aeroporto_origem_proposta_bid_frete_internacional',
+                    v == null ? '' : String(v),
+                  )
+                }
+                buscavel
+                carregando={carregandoLocais}
+                placeholder={t('bidfrete.portal.responder.selecionar_local_origem', {
+                  defaultValue: 'Selecionar origem',
+                })}
+                posicao="auto"
+              />
+            </div>
+          ) : null}
+          {exigeLocalDestino ? (
+            <div className="brc-field brc-field--wide">
+              <LabelObrigatorio>
+                {rotuloSelecaoLocalFornecedorRespostaBidFrete(t, 'destino', ctxLocais)}
+              </LabelObrigatorio>
+              <SelectGlobal
+                id="brc-local-destino-proposta"
+                opcoes={opcoesLocalDestino}
+                valor={form.codigo_porto_aeroporto_destino_proposta_bid_frete_internacional || null}
+                aoMudarValor={(v) =>
+                  onChange(
+                    'codigo_porto_aeroporto_destino_proposta_bid_frete_internacional',
+                    v == null ? '' : String(v),
+                  )
+                }
+                buscavel
+                carregando={carregandoLocais}
+                placeholder={t('bidfrete.portal.responder.selecionar_local_destino', {
+                  defaultValue: 'Selecionar destino',
+                })}
+                posicao="auto"
+              />
+            </div>
+          ) : null}
           <div className="brc-field">
             <LabelObrigatorio>{rotulos.moeda}</LabelObrigatorio>
             <SelectGlobal
@@ -707,20 +1063,22 @@ export function FormPropostaRespostaCotacao({
             />
           </div>
 
-          {mostrarFreeTime ? (
-            <div className="brc-field">
+          <div className="brc-field">
+            {freeTimeObrigatorio ? (
               <LabelObrigatorio>{rotulos.freeTime}</LabelObrigatorio>
-              <input
-                className="brc-input brc-input--mono"
-                type="number"
-                min="0"
-                step="1"
-                placeholder={rotulos.placeholderFreeTime}
-                value={form.dias_free_time_proposta_bid_frete_internacional}
-                onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
-              />
-            </div>
-          ) : null}
+            ) : (
+              <label className="brc-label">{rotulos.freeTime}</label>
+            )}
+            <input
+              className="brc-input brc-input--mono"
+              type="number"
+              min="0"
+              step="1"
+              placeholder={rotulos.placeholderFreeTime}
+              value={form.dias_free_time_proposta_bid_frete_internacional}
+              onChange={(e) => onChange('dias_free_time_proposta_bid_frete_internacional', e.target.value)}
+            />
+          </div>
 
           <div className="brc-field brc-field--calendario">
             <LabelObrigatorio>{rotulos.validade}</LabelObrigatorio>
@@ -793,6 +1151,26 @@ export function FormPropostaRespostaCotacao({
         {erro ? <p className="brc-erro" role="alert">{erro}</p> : null}
 
         <div className="brc-acoes-form">
+          <p
+            className={
+              ehContratanteGravityPagadorTaxaFechamento(pagadorTaxaFechamento)
+                ? 'brc-aceite-condicoes brc-aceite-condicoes--informativo'
+                : 'brc-aceite-condicoes brc-aceite-condicoes--cobranca-fornecedor'
+            }
+          >
+            {t(
+              'bidfrete.portal.responder.aviso_aceite_condicoes',
+              textoAceiteCondicoes,
+            )}{' '}
+            <a
+              className="brc-aceite-condicoes__link"
+              href={ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t('bidfrete.portal.responder.aviso_aceite_condicoes_link', 'Leia as condições')}
+            </a>
+          </p>
           <BotaoGlobal
             type="submit"
             variante="primario"
@@ -813,6 +1191,44 @@ export function AvisoEdicaoPropostaResposta({ texto }: { texto: string }) {
   return (
     <div className="brc-aviso-edicao" role="status">
       <p>{texto}</p>
+    </div>
+  )
+}
+
+export function FaixaUltimaAlteracaoPropostaResposta({
+  registro,
+  t,
+}: {
+  registro: import('./types').RegistroAlteracaoPropostaBidFreteInternacional | null | undefined
+  t: TFunction
+}) {
+  if (!registro || registro.tipo_registro_alteracao_proposta_bid_frete_internacional !== 'ATUALIZAR') {
+    return null
+  }
+
+  const alteracoes = registro.alteracoes_registro_alteracao_proposta_bid_frete_internacional
+  if (alteracoes.length === 0) return null
+
+  const data = new Date(registro.data_registro_alteracao_proposta_bid_frete_internacional).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return (
+    <div className="brc-aviso-edicao brc-aviso-edicao--alteracao" role="status">
+      <p className="brc-aviso-edicao__titulo">
+        {t('bidfrete.portal.publico.ultima_alteracao_titulo', 'Última alteração em {{data}}', { data })}
+      </p>
+      <ul className="brc-aviso-edicao__lista">
+        {alteracoes.map(item => (
+          <li key={item.campo}>
+            {item.rotulo}: {String(item.valor_antes)} → {String(item.valor_depois)}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

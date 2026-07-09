@@ -12,6 +12,7 @@ import {
   type ResultadoCircuitBreaker,
   type ResultadoExecucao,
 } from './servico-circuit-breaker.js'
+import { executarConsultaSomenteLeitura } from '../lib/consulta-somente-leitura.js'
 import { AppError } from '../lib/errors.js'
 
 // ── Portas dos servicos ─────────────────────────────────────────────────────
@@ -184,8 +185,39 @@ function criarExecutor(ctx: ContextoExecucao) {
     if (!tool) {
       return { sucesso: false, status: 400, erro: `Tool desconhecida: ${tool_id}` }
     }
+    // Tools 'local:' rodam no proprio servico da Gabi (nao sao REST).
+    if (tool.endpoint.startsWith('local:')) {
+      return executarToolLocal(tool, parametros, ctx)
+    }
     return chamarServico(tool, parametros, ctx)
   }
+}
+
+// ── Tools de execucao local ─────────────────────────────────────────────────
+
+async function executarToolLocal(
+  tool: ToolDefinition,
+  parametros: Record<string, unknown>,
+  ctx: ContextoExecucao,
+): Promise<ResultadoExecucao> {
+  const acao = tool.endpoint.slice('local:'.length)
+
+  if (acao === 'consultar_dados') {
+    try {
+      const resultado = await executarConsultaSomenteLeitura(
+        ctx.id_organizacao,
+        String(parametros.consulta ?? ''),
+        { maxLinhas: typeof parametros.max_linhas === 'number' ? parametros.max_linhas : undefined },
+      )
+      return { sucesso: true, status: 200, dados: resultado }
+    } catch (err: unknown) {
+      const status = err instanceof AppError ? err.statusCode : 500
+      const msg = err instanceof Error ? err.message : String(err)
+      return { sucesso: false, status, erro: msg }
+    }
+  }
+
+  return { sucesso: false, status: 400, erro: `Tool local desconhecida: ${acao}` }
 }
 
 // ── Interface publica ───────────────────────────────────────────────────────

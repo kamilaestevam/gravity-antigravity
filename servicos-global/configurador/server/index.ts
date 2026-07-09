@@ -45,6 +45,19 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
+// Blindagem do monolito: um sidecar (Email, Pedido, BID, ...) NUNCA pode derrubar
+// os outros. Sem estes handlers o Node 22 mata o processo inteiro em qualquer
+// promise rejeitada sem catch — foi exatamente o que tirou a prod do ar em
+// 04/07/2026 (P2022 do Email em rota async sem catch → crash-loop de 12h).
+// Logar alto e seguir vivo; o erro real continua visível nos Deploy Logs.
+process.on('unhandledRejection', (motivo) => {
+  const msg = motivo instanceof Error ? (motivo.stack ?? motivo.message) : String(motivo)
+  console.error('[FATAL-EVITADO] unhandledRejection (processo segue vivo):', msg)
+})
+process.on('uncaughtException', (err, origem) => {
+  console.error(`[FATAL-EVITADO] uncaughtException via ${origem} (processo segue vivo):`, err.stack ?? err.message)
+})
+
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -102,7 +115,9 @@ if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
     const proto = req.headers['x-forwarded-proto'] ?? req.protocol
     if (proto === 'http' || host.startsWith('www.')) {
       const canonical = `https://usegravity.com.br${req.originalUrl}`
-      res.redirect(301, canonical)
+      // 308 preserva POST/PATCH/DELETE no redirect www → apex (301 virava GET e quebrava criar cotação)
+      const redirectCode = req.originalUrl.startsWith('/api/') ? 308 : 301
+      res.redirect(redirectCode, canonical)
       return
     }
     next()
@@ -385,9 +400,11 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   // Browser autenticado deve enviar x-id-organizacao/x-id-usuario via shell (/me).
 
   let bodyBuf: Buffer | undefined
-  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+  const metodoComCorpo = req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH'
+  if (metodoComCorpo && req.body !== undefined && typeof req.body === 'object') {
     bodyBuf = Buffer.from(JSON.stringify(req.body))
     headers['content-length'] = String(bodyBuf.length)
+    delete headers['transfer-encoding']
   }
 
   const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
@@ -411,7 +428,7 @@ function proxyBidFreteInternacional(req: import('express').Request, res: import(
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
   } else {
-    proxyReq.end()
+    req.pipe(proxyReq)
   }
 }
 
@@ -768,7 +785,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   if (devPm2) {
     console.log(
-      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033)',
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033/8008)',
     )
   }
 

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it, beforeEach, afterEach } from 'vitest'
 import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
@@ -50,7 +51,7 @@ describe('lerStatusCotacaoConfigBidFreteInternacional', () => {
         rotulo: 'Meu rascunho',
         cor: '#111111',
         ordem: 1,
-        is_sistema: true,
+        gerenciado_sistema: true,
       },
     ]
     localStorage.setItem(
@@ -63,9 +64,9 @@ describe('lerStatusCotacaoConfigBidFreteInternacional', () => {
 
 describe('montarEtapasFunilInsightsBidFreteInternacional', () => {
   const config = [
-    { id: 'b', nome: 'EM_COTACAO', rotulo: 'Em cotação custom', cor: '#f00', ordem: 2, is_sistema: true },
-    { id: 'a', nome: 'RASCUNHO', rotulo: 'Rascunho custom', cor: '#0f0', ordem: 1, is_sistema: true },
-    { id: 'c', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#00f', ordem: 3, is_sistema: false },
+    { id: 'b', nome: 'EM_COTACAO', rotulo: 'Em cotação custom', cor: '#f00', ordem: 2, gerenciado_sistema: true },
+    { id: 'a', nome: 'RASCUNHO', rotulo: 'Rascunho custom', cor: '#0f0', ordem: 1, gerenciado_sistema: true },
+    { id: 'c', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#00f', ordem: 3, gerenciado_sistema: false },
   ]
 
   it('respeita ordem, rótulo e cor da config para status com contagem > 0', () => {
@@ -105,8 +106,8 @@ describe('KPI Insights — contagem e rótulo por Configurações', () => {
     { status: 'APROVADA', count: 2 },
   ]
   const config = [
-    { id: 'a', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#0f0', ordem: 1, is_sistema: true },
-    { id: 'b', nome: 'APROVADA', rotulo: 'Ganhas', cor: '#00f', ordem: 2, is_sistema: false },
+    { id: 'a', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#0f0', ordem: 1, gerenciado_sistema: true },
+    { id: 'b', nome: 'APROVADA', rotulo: 'Ganhas', cor: '#00f', ordem: 2, gerenciado_sistema: false },
   ]
 
   it('conta status configurado no funil', () => {
@@ -130,7 +131,7 @@ describe('KPI Insights — cards fixos aguardando aprovação e resposta', () =>
       rotulo: 'Cotação respondida',
       cor: '#818cf8',
       ordem: 10,
-      is_sistema: false,
+      gerenciado_sistema: false,
     },
   ]
 

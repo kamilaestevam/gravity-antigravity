@@ -59,6 +59,7 @@ servicos-global/produto/smart-read/
 | Análise de riscos | [ANALISE-DE-RISCOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/ANALISE-DE-RISCOS-TECNICO.md) |
 | **Requisitos técnicos** (rate limit, upload, paginação) | [REQUISITOS-TECNICOS.md](../../../documentos-tecnicos/produtos-gravity/smart-read/REQUISITOS-TECNICOS.md) |
 | Tokens LLM (auditoria) | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) §3.1 |
+| **Criar Pedido (ponte Pedido)** | [SMART-READ-CRIAR-PEDIDO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/SMART-READ-CRIAR-PEDIDO-TECNICO.md) |
 | Índice geral | [README.md](../../../documentos-tecnicos/produtos-gravity/smart-read/README.md) |
 
 ---
@@ -132,11 +133,17 @@ Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `0001
 
 | Aspecto | Regra |
 |---------|-------|
-| **Layout** | Grid `dt-*` (paridade Dados do Processo) + legenda filtros + seções colapsáveis |
+| **Layout** | Grid `dt-*` (paridade Dados do Processo) + resumo triplo + legenda filtros + seções colapsáveis |
+| **Três conferências** | Usuário (marcação manual) · Gravity (matriz automática + modal checklist) · Análise de risco (aba dedicada) |
+| **Unificação** | Checks da matriz Gravity somam na Conferência usuário (`use-conferencia-usuario-documento-smart-read.ts`) |
+| **Sidebar → modal** | Modal checklist abre no subdocumento ativo (`indiceDocumentoInicial`) |
+| **Toolbar** | «Selecionar toda conferência (N)» ao lado de Expandir/Recolher — marca campos + riscos + matriz |
+| **Checkbox** | `accent-color: #818cf8` (padrão Gravity) |
 | **Campo data** | Exibição **DD/MM/AAAA**; edição = input fino + ícone; calendário via **portal** (`CampoCalendarioGlobal` `modoUnico`); persistência **ISO `yyyy-mm-dd`** |
 | **SSOT data** | `data-campo-conferencia-leitura-smart-read.ts` + `campo-linha-conferencia-nova-leitura-smart-read.tsx` |
 | **Cores barra** | [padrao-dt-row-status-campos.md](../../../documentos-tecnicos/ux/design-system/padrao-dt-row-status-campos.md) |
 | **Tokens IA (sidebar)** | Discreto no rodapé lateral a partir do passo 2; `usageMetadata` Gemini real (QA, riscos, classificação fiscal); DATI passo 1–2 fora; migration `20260626220000` |
+| **Doc completo §7–12** | Conferência tripla, stores sessionStorage, modal checklist — ver doc técnico |
 
 ---
 
@@ -163,3 +170,17 @@ Entrada canônica: `/smart-read` → `/smart-read/insights` (`ROTA_ENTRADA_SMART
 | Isolamento de organização | [isolamento-organizacao](../../governanca/lei/isolamento-organizacao/SKILL.md) |
 | Zod = contrato bilateral | [Mand. 06 + 09](../../governanca/lei/9-mandamentos/SKILL.md) |
 | Sem mock preguiçoso / fallback silencioso | [Mand. 05 + 08](../../governanca/lei/9-mandamentos/SKILL.md) |
+
+---
+
+## Ponte Pedido — criar pedido a partir de leitura (TASK-000408)
+
+> SSOT: [SMART-READ-CRIAR-PEDIDO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/SMART-READ-CRIAR-PEDIDO-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| Entrada Pedido | `+ Novo` → Smart Docs → `/smart-read/lista?origem=pedido&acao=nova-leitura` |
+| Conclusão wizard | Passo 4 com `origem=pedido` → `POST /leituras/:id/criar-pedido` |
+| Orquestração | BFF chama Pedido `POST /importacoes-smart-read/criar` (S2S) e persiste `conversao_leitura_pedido_smart_read` |
+| Contrato Zod | `shared/conversao-leitura-pedido-smart-read-schema.ts` |
+| Migration | `20260703230000_create_conversao_leitura_pedido_smart_read` · deploy: `scripts/ativamente/migrate-smart-read-railway.ps1` |

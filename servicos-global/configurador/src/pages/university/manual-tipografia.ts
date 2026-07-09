@@ -1,18 +1,26 @@
 /**
  * SSOT — ritmo vertical e alinhamento dos manuais University Gravity (Login, Hub, Configurador…).
  *
- * Documentação: documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md §9.1.1 e §9.1.2
+ * Documentação: documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md §9.1.1, §9.1.2 e §9.7
  *
  * Com font-size 0.9rem e line-height 1.8, 12px entre parágrafos ≈ 0,75 linha:
  * separa ideias sem “buraco” excessivo (evita 18–24px ad hoc espalhados no código).
  */
 export const MANUAL_ESPACO_PARAGRAFO_PX = 12
 
+/** Marcação rich text — ver ONBOARDING-DOCUMENTO.md §9.7 e skill manual-markdown-rich-text */
+export const MANUAL_MARKUP_NEGRITO_BOTAO = '**'
+/** Frase literal da UI (link, checkbox, placeholder, modal) — itálico semi-negrito no render */
+export const MANUAL_MARKUP_ITALICO_LITERAL_UI = '*_'
+
 /** Parágrafos dentro de subtópico em acordeão — respiro extra para leitura confortável. */
 export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16
 
 /** Espaço entre bloco de texto e screenshot em subtópico recolhível. */
-export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 28
+export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 6
+
+/** Subtópico acordeão — sem recuo lateral (alinhado a infográficos e galerias). */
+export const MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX = 0
 
 /** Raio de chips/badges nos manuais (igual aos cards Versão · Produto · URL). */
 export const MANUAL_RAIO_CHIP = 10
@@ -31,8 +39,38 @@ export const MANUAL_CORPO_TIPOGRAFIA = {
 /** Grid 50/50 texto + screenshot nas intros laterais (evita coluna estreita que impede justificar). */
 export const MANUAL_GRID_TEXTO_IMAGEM = 'minmax(300px, 1fr) minmax(300px, 1fr)' as const
 
+/** Altura fixa da legenda chip+texto em grades 3 colunas (Igual/Divergente/Vazio alinhados). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX = 96
+
+/** Edição em massa passo 1 — legendas mais curtas (nível Pedido/Item/Combinado). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX = 48
+
+/** Edição em massa passo 1 — legendas com texto em duas linhas (texto/select/+ campo). */
+export const MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX = 72
+
 /** Espaço entre o fim de um passo visual e a linha divisória do passo seguinte (≈ paddingTop do passo). */
 export const MANUAL_ESPACO_ENTRE_PASSOS_PX = 22
+
+/** Parágrafo → infográfico/card full-width em subtópico acordeão (paridade margem inferior do card). */
+export const MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX = MANUAL_ESPACO_ENTRE_PASSOS_PX
+
+/** Gap horizontal entre colunas em galerias PASSO (prints lado a lado). */
+export const MANUAL_ESPACO_GRADE_GALERIA_PX = 24
+
+/** Hierarquia visual — subtópicos aninhados no acordeão (ex.: Cotação avulsa → Manual → Marítimo). */
+export const MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX = 22
+export const MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX = 20
+export const MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX = 28
+export const MANUAL_ACORDEON_SUBTOPICO_GAP_PX = 14
+export const MANUAL_ACORDEON_SUBTOPICO_COR_LINHA = 'rgba(129,140,248,.38)'
+export const MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA = `2px dotted ${MANUAL_ACORDEON_SUBTOPICO_COR_LINHA}`
+
+/** Sumário — árvore de subcapítulos (paridade visual com acordeão aninhado). */
+export const MANUAL_SUMARIO_SUBTOPICO_RECUO_PX = 18
+export const MANUAL_SUMARIO_SUBTOPICO_GAP_PX = 11
+export const MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX = 8
+export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX = 14
+export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX = 6
 
 /** Retorna margin-bottom: 12px entre parágrafos, 0 no último de cada bloco. */
 export function manualMargemParagrafo(indice: number, total: number): number {

@@ -185,4 +185,4 @@ Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES
 7. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
 8. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
 9. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
-10. **Intro de fluxo:** um parágrafo resumido na seção; detalhes nos `passosVisuais`.
+10. **Rich text (§9.7):** botões `**…**`; cópia literal da UI `*_…_*` — ver `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`.

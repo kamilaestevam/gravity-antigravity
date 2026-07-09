@@ -36,7 +36,7 @@ describe('DocPedidoManual — Pedido', () => {
       </MemoryRouter>,
     )
 
-    const btnExpandir = screen.getByRole('button', { name: /Expandir 17 subcapítulos de Visão Lista/i })
+    const btnExpandir = screen.getByRole('button', { name: /Expandir 16 subcapítulos de Visão Lista/i })
     expect(btnExpandir.getAttribute('aria-expanded')).toBe('false')
     expect(screen.queryByRole('button', { name: 'Novo pedido e item' })).toBeNull()
   })
@@ -48,15 +48,30 @@ describe('DocPedidoManual — Pedido', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /Expandir 17 subcapítulos de Visão Lista/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Expandir 16 subcapítulos de Visão Lista/i }))
 
     expect(screen.getByRole('button', { name: 'Alertas' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Filtro das colunas' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Exportar' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Exportar' }))
+    expect(screen.getByLabelText(/Formatos de exportação permitidos na Lista do Pedido/i)).toBeTruthy()
+    expect(screen.getAllByText('Excel').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('PDF').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Importar' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Importar' }))
+    expect(screen.getByLabelText(/Dois caminhos de importação via planilha no Smart Import/i)).toBeTruthy()
+    expect(screen.getByText(/Planilha modelo Gravity/)).toBeTruthy()
+    expect(screen.getByText(/Planilha do usuário/)).toBeTruthy()
+    expect(screen.getByLabelText(/Quatro formas de incluir pedidos ou itens pelo menu Novo/i)).toBeTruthy()
+    expect(screen.getByText('01 · Importar via planilha')).toBeTruthy()
+    expect(screen.getAllByText(/Importar via Smart Read/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Em breve/).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: 'Novo pedido e item' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Transferir' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Consolidar' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Edição em massa' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Gerar documentos' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Painéis' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Novo painel' })).toBeNull()
   })
 
   it('marca capítulo como lido e sincroniza sumário + localStorage', () => {

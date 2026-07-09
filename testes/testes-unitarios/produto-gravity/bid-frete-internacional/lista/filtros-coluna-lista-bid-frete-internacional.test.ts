@@ -30,7 +30,7 @@ function cotacaoBase(partial: Partial<Cotacao> = {}): Cotacao {
     destino_pais_cotacao_bid_frete_internacional: 'CN',
     descricao_mercadoria_cotacao_bid_frete_internacional: 'Carga teste',
     ncm_cotacao_bid_frete_internacional: null,
-    quantidade_cotacao_bid_frete_internacional: 1,
+    quantidade_volume_cotacao_bid_frete_internacional: 1,
     tipo_container_cotacao_bid_frete_internacional: null,
     peso_kg_cotacao_bid_frete_internacional: null,
     cubagem_m3_cotacao_bid_frete_internacional: null,

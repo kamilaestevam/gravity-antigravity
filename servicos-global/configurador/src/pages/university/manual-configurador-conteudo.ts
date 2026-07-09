@@ -1,3 +1,5 @@
+import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplicacao'
+
 export type ConfiguradorManualSlug =
   | 'visao-geral'
   | 'organizacao'
@@ -30,10 +32,14 @@ export interface DocPassoVisual {
   titulo: string
   paragrafos: string[]
   imagem?: string
+  /** Texto em cima, screenshot em largura total abaixo; tooltips/galeria depois da imagem. */
+  imagemAbaixoTexto?: boolean
   /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
+  /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
+  badgeEmDesenvolvimento?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
   calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
@@ -50,19 +56,119 @@ export interface DocPassoVisual {
   /** Duas ou mais figuras lado a lado após um parágrafo (largura total). */
   galeriaComparacaoAposParagrafo?: {
     indice: number
-    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    telas: DocGaleriaComparacaoTela[]
     ampliarInferiorDireito?: boolean
     /** Colunas da grade (padrão: até 2). */
     colunas?: number
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
+    /** Cabeçalho de passo (chip + legenda roxa) acima da grade — paridade com `galeriaTelasAposTabela`. */
+    legendaPasso?: string
+    /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
+    /** Título de etapa acima da grade (ex.: Etapa 2 — Mapeamento). */
+    tituloEtapa?: string
+    /** Parágrafo introdutório logo abaixo do título da etapa. */
+    textoIntro?: string
+    /** Blocos «Via Hub» / «Via Lista» com borda lateral (paridade passo visual modo cenários). */
+    cenariosAcesso?: {
+      titulo: string
+      texto: string
+      imagem?: string
+      paragrafoAntesPrint?: string
+      printsApos?: { imagem: string; paragrafoAntesPrint?: string }[]
+    }[]
+    /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
+    textoAoLado?: string[]
+    /** Infográfico compacto das colunas de mapeamento ao lado do print 08. */
+    infograficoMapeamentoImportarColunas?: boolean
+    /** Manual Pedido § Transferir — chips Novo pedido / Existente / Redução acima da grade. */
+    mostrarChipsTransferirTresTipos?: boolean
+    /** Manual Pedido § Transferir — badge do tipo no título da etapa (ex.: novo + «passo a passo»). */
+    chipTransferirTituloEtapa?: 'novo' | 'existente' | 'reducao'
+    /** Manual BID Frete § Nova cotação — chips Marítimo / Aéreo / Rodoviário acima da grade. */
+    mostrarChipsBidFreteModalTransporte?: boolean
+    /** Com `mostrarChipsBidFreteModalTransporte`, alinha «válido para» + chips à direita do título da etapa. */
+    chipsBidFreteModalTransporteAoLadoTitulo?: boolean
+    /** Manual BID Frete — ícones discretos de escopo (Operação · Modal) ao lado do título. */
+    iconesEscopoBidFrete?: ManualBidFreteEscopoConfig
+    /** Manual BID Frete § Nova cotação — badge do modal no título da etapa. */
+    chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
+    /** Manual BID Frete §4.02.01 — chip 01 + lápis da forma Manual no título da etapa. */
+    chipBidFreteFormaManual?: boolean
+    /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
+    mostrarChipsBidFreteTipoCarga?: boolean
+    /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
+    chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
+    /** Manual Pedido § Transferir — mapa UX 10 do resultado esperado (saldos e quantidades). */
+    infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
+    /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
+    infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+    /** Manual BID Frete §4.02.01 — cards dos campos do passo Modal e Operação (após o print). */
+    infograficoBidFreteModalOperacaoCampos?: boolean
+    /** Manual BID Frete §4.02.01 — print(s) após infográfico «Campos deste passo», antes das DICAS. */
+    telasAposInfograficoBidFreteModalOperacaoCampos?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — parágrafo entre infográfico e print anotado (ritmo §9.1.1). */
+    textoAposInfograficoBidFreteModalOperacaoCampos?: string
+    /** Manual BID Frete §4.02.01 — cards dos campos do passo Origem e Destino (após o print). */
+    infograficoBidFreteOrigemDestinoCampos?: boolean
+    /** Manual BID Frete §4.02.01 — print(s) após infográfico Origem e Destino, antes das DICAS. */
+    telasAposInfograficoBidFreteOrigemDestinoCampos?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — parágrafo entre infográfico Origem e Destino e prints de exemplo. */
+    textoAposInfograficoBidFreteOrigemDestinoCampos?: string
+    /** Manual BID Frete §4.02.01 — DICA entre a 1ª e a 2ª linha da grade de prints (11–12 / 13–14). */
+    calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — parágrafo da seção destino (após DICAS de origem, antes dos prints 15–18). */
+    textoSecaoDestinoAposCalloutOrigemDestinoBidFrete?: string
+    /** Manual BID Frete §4.02.01 — prints da seção destino (após DICAS de origem). */
+    telasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocGaleriaComparacaoTela[]
+    /** Manual BID Frete §4.02.01 — DICA entre linhas da grade destino (15–16 / 17–18). */
+    calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — DICAS após prints destino. */
+    calloutAposSecaoDestinoOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+    /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
+    infograficoConsolidarPasso2Regras?: boolean
+    /** Manual Pedido § Consolidar — resultado esperado após confirmar. */
+    infograficoConsolidarResultadoEsperado?: boolean
+    /** Manual Pedido § Consolidar — prints 05–06 + infográfico resultado num único bloco. */
+    layoutConsolidarResultadoUnificado?: boolean
+    /** Manual Pedido § Consolidar — grade de exemplos do passo 2 (não são passos numerados). */
+    rotuloConsolidarExemplosPasso2?: boolean
+    /** Manual Pedido § Consolidar — layout 1+3+1 (filtro → Igual/Divergente/Vazio → Próximo). */
+    layoutConsolidarExemplosPasso2?: boolean
+    /** Manual Pedido § Edição em massa — infográfico passo 1 (Campos). */
+    infograficoEdicaoMassaPasso1Regras?: boolean
+    /** Manual Pedido § Edição em massa — catálogo Colunas da Lista (Massa P/I). */
+    mostrarCatalogoEdicaoMassaPedidoLista?: boolean
+    /** Manual Pedido § Edição em massa — infográfico passo 2 (Revisão). */
+    infograficoEdicaoMassaPasso2Regras?: boolean
+    /** Manual Pedido § Edição em massa — resultado esperado após confirmar. */
+    infograficoEdicaoMassaResultadoEsperado?: boolean
+    /** Manual Pedido § Edição em massa — exemplos ilustrativos do passo 1. */
+    rotuloEdicaoMassaExemplosPasso1?: boolean
+    /** Manual Pedido § Edição em massa — exemplos ilustrativos do passo 2. */
+    rotuloEdicaoMassaExemplosPasso2?: boolean
+    /** Manual Pedido § Edição em massa — grade 3+3 de exemplos do passo 1. */
+    layoutEdicaoMassaExemplosPasso1?: boolean
+    /** Manual Pedido § Edição em massa — grade 1+3 de exemplos do passo 2. */
+    layoutEdicaoMassaExemplosPasso2?: boolean
+    /** Primeiro(s) print(s) em largura total; demais em grade (ex.: BID Frete § Abrir nova cotação). */
+    layoutPrimeiroPrintLarguraTotal?: boolean
+    /** Com `layoutPrimeiroPrintLarguraTotal`, quantos prints iniciais ocupam linha inteira (padrão: 1). */
+    layoutPrimeirosPrintsLarguraTotal?: number
+    /** Dica(s) logo abaixo desta grade (ex.: entre duas linhas de prints). */
+    calloutApos?: DocCalloutManual | DocCalloutManual[]
+    /** Manual Pedido §06 Dashboard — ícone de mão (grab) + área vermelha de guia ao mover. */
+    mostrarIndicadoresMoverDashboardPedido?: boolean
+    /** Manual Pedido §07 Kanban — cards do cabeçalho da coluna (status, contagem, ordenar). */
+    mostrarCardsKanbanCabecalhoPedido?: boolean
   }[]
-  /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
-  imagemAbaixoTexto?: boolean
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
   /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
   paragrafosAposImagem?: string[]
+  /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
+  calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
@@ -83,6 +189,8 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Smart Docs §05.10 — swimlane Lista Leitura → integração API Cockpit. */
+  mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
@@ -91,12 +199,77 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
   mostrarCatalogoColunasPedidoLista?: boolean
+  /** Manual Pedido §06 Dashboard — accordion de sugestões do modal Explorar sugestões. */
+  mostrarCatalogoDashboardSugestoesPedido?: boolean
+  /** Índice da galeria (0-based) após a qual inserir o catálogo; omitido = antes do callout final. */
+  catalogoDashboardSugestoesAposGaleriaIndice?: number
+  /** Manual Pedido §06 Dashboard — accordion dos tipos de dado (Passo 3 Criar do zero). */
+  mostrarCatalogoDashboardTiposVisualizacaoPedido?: boolean
+  /** Índice da galeria após a qual inserir o catálogo de tipos de visualização. */
+  catalogoDashboardTiposVisualizacaoAposGaleriaIndice?: number
+  /** Manual Pedido §09 Histórico — catálogo accordion de eventos auditados. */
+  mostrarCatalogoHistoricoPedido?: boolean
+  /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
+  catalogoHistoricoPedidoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o catálogo (padrão: 0). */
   catalogoColunasPedidoAposParagrafo?: number
   /** Manual Pedido §05 — infográfico pedido × itens e regras de alerta. */
   mostrarInfograficoPedidoListaAlertas?: boolean
+  /** Manual Pedido §05 — mapa das 4 formas de criar via Novo (Importação, API, Smart Docs, Manual). */
+  mostrarInfograficoPedidoListaImportarFormas?: boolean
+  /** Manual Pedido § Transferir — mapa mental dos 3 tipos (Novo PO, Existente, Redução). */
+  mostrarInfograficoPedidoListaTransferirFluxo?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Transferir (padrão: 1). */
+  transferirInfograficoAposParagrafo?: number
+  /** Manual BID Frete § Insights — infográfico da seleção de rota no mapa global. */
+  mostrarInfograficoBidFreteMapa?: boolean
+  /** Manual BID Frete § Painel da Cotação — infográfico das três etapas do painel. */
+  mostrarInfograficoBidFretePainelCotacao?: boolean
+  /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
+  mostrarInfograficoBidFreteFiltrosMapa?: boolean
+  /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
+  mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
+  /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
+  mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */
+  bidFreteCotacaoAvulsaFormasInfograficoAposParagrafo?: number
+  /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
+  mostrarInfograficoBidFreteControlesMapa?: boolean
+  /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
+  bidFreteNovaCotacaoInfograficoAposParagrafo?: number
+  /** Manual BID Frete § Nova cotação — barra de escopo Operação · Modal · Carga. */
+  barraEscopoBidFrete?: ManualBidFreteEscopoConfig
+  /** Índice do parágrafo após o qual inserir a barra de escopo (padrão: mesmo do infográfico). */
+  barraEscopoBidFreteAposParagrafo?: number
+  /** Manual BID Frete § Nova cotação — legenda dos ícones de escopo (exibir no 4.01). */
+  mostrarLegendaEscopoIconesBidFrete?: boolean
+  /** Índice do parágrafo após o qual inserir a legenda (padrão: mesmo do infográfico). */
+  legendaEscopoIconesBidFreteAposParagrafo?: number
   /** Manual Pedido §05 — tabela de colunas/campos com alerta e acionamento. */
   mostrarTabelaAlertasPedidoLista?: boolean
+  /** Manual Pedido §05 — ícones dos formatos de exportação da Lista. */
+  mostrarFormatosExportacaoPedidoLista?: boolean
+  /** Índice do parágrafo após o qual inserir os formatos de exportação (padrão: 1). */
+  formatosExportacaoPedidoAposParagrafo?: number
+  /** Manual Pedido §05 — grade dos dois caminhos do Smart Import (template vs planilha própria). */
+  mostrarCaminhosImportacaoPlanilhaPedidoLista?: boolean
+  /** Índice do parágrafo após o qual inserir os caminhos de importação (padrão: 1). */
+  caminhosImportacaoPlanilhaAposParagrafo?: number
+  /** Manual Pedido § Importar — galerias após cards dos dois caminhos (Novo → Importação + stepper). */
+  galeriaComparacaoAposCaminhosImportacao?: {
+    telas: DocGaleriaComparacaoTela[]
+    ampliarInferiorDireito?: boolean
+    colunas?: number
+    textoAcimaEstiloCorpo?: boolean
+    legendaPasso?: string
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
+    /** Título de etapa acima da grade (ex.: Etapa 1 — Upload). */
+    tituloEtapa?: string
+  }[]
+  /** Manual Pedido §05 — ícones dos formatos de importação (Smart Import). */
+  mostrarFormatosImportacaoPedidoLista?: boolean
+  /** Índice do parágrafo após o qual inserir os formatos de importação. */
+  formatosImportacaoPedidoAposParagrafo?: number
   /** Manual Smart Docs §05 — ícone de cursor bloqueado (lista somente visualização). */
   mostrarIndicadorCursorVisualizacao?: boolean
   /** Índice do parágrafo após o qual inserir o indicador de cursor (padrão: 1). */
@@ -113,6 +286,16 @@ export interface DocPassoVisual {
   etapaWizard?: number
   /** Cabeçalho só com mini-stepper (sem pill `02` + prefixo nem título duplicado). */
   estiloTituloWizard?: boolean
+  /** Subpassos aninhados (accordion dentro do accordion). */
+  passosFilhos?: DocPassoVisual[]
+  /** Rótulo hierárquico relativo ao capítulo (ex.: `02.01.03`). */
+  rotuloSecao?: string
+  /** `num` do passo pai — abre cadeia de acordeões ao navegar pelo sumário. */
+  numPai?: number
+}
+
+export type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'passosFilhos'> & {
+  passosFilhos?: PassoSemNumero[]
 }
 
 export interface DocColunaTabela {
@@ -142,6 +325,31 @@ export interface DocGaleriaTelaLinhaFiguras {
   paragrafoApos?: string
 }
 
+export type DocCalloutManual = {
+  tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'
+  texto: string
+}
+
+/** Célula de galeria comparativa (prints lado a lado após parágrafo). */
+export type DocChipConsolidarExemploId = 'filtro_origem' | 'igual' | 'divergente' | 'vazio' | 'proximo'
+
+export type DocChipEdicaoMassaExemploId =
+  | 'nivel_pedido' | 'nivel_item' | 'nivel_combinado'
+  | 'tipo_texto' | 'tipo_select' | 'adicionar_campo'
+  | 'filtro_por_pedido' | 'filtro_todos' | 'filtro_alterados' | 'filtro_sem_efeito'
+
+export interface DocGaleriaComparacaoTela {
+  legenda: string
+  imagem: string
+  paragrafoAntes?: string
+  /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
+  chipConsolidarExemplo?: DocChipConsolidarExemploId
+  /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */
+  chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
+  /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
+  calloutAntes?: DocCalloutManual
+}
+
 export interface DocGaleriaTela {
   legenda: string
   /** Obrigatório quando `imagensCompostas` não é usado. */
@@ -158,6 +366,14 @@ export interface DocGaleriaTela {
   calloutDepois?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Chips numerados do infográfico de customização (ex.: ['01', '02'] = ocultar + exibir). */
   pilaresCustomizacao?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico do mapa BID Frete (ex.: ['01'] = selecionar rota). */
+  pilaresMapaBidFrete?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico do Painel da Cotação BID Frete (ex.: ['01'] = visão geral). */
+  pilaresPainelCotacaoBidFrete?: Array<'01' | '02' | '03'>
+  /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
+  pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
+  /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
+  pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }
@@ -208,6 +424,8 @@ export interface DocFluxo {
   mostrarInfograficoSmartDocsInsights?: boolean
   /** Manual Pedido §04 — mapa UX 10 da tela Insights. */
   mostrarInfograficoPedidoInsights?: boolean
+  /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
+  mostrarInfograficoBidFreteInsights?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -267,10 +485,12 @@ export interface DocSecao {
   /** Duas ou mais figuras lado a lado após um parágrafo (ex.: menu superior × menu lateral). */
   galeriaComparacaoAposParagrafo?: {
     indice: number
-    telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+    telas: DocGaleriaComparacaoTela[]
     ampliarInferiorDireito?: boolean
     colunas?: number
     textoAcimaEstiloCorpo?: boolean
+    legendaPasso?: string
+    pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
   }[]
   /** Tópicos com texto à esquerda e screenshot à direita (intro de seção). */
   topicosImagemLateral?: DocTopicoImagemLateral[]
@@ -387,8 +607,6 @@ const LINK_MANUAL_WORKSPACES_CAP = '{{link:/university-gravity/docs/configurador
 const LINK_MANUAL_WORKSPACE = '{{link:/university-gravity/docs/configurador/workspaces|workspace}}'
 /** Sumário §05 do manual Usuários — fluxo «Permissões do usuário». */
 export const LINK_MANUAL_PERMISSOES = '{{link:/university-gravity/docs/configurador/usuarios#doc-sec-5|permissões}}'
-
-type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 interface PassoAreaExtras {
   paragrafos?: string[]
@@ -774,7 +992,68 @@ export function passosComAcessoPadrao(
 }
 
 export function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
-  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
+  let contador = 0
+  function processar(lista: PassoSemNumero[], numPai?: number, rotuloPai?: string): DocPassoVisual[] {
+    return lista.map((passo, indice) => {
+      contador += 1
+      const num = contador
+      const sufixo = String(indice + 1).padStart(2, '0')
+      const rotuloSecao = rotuloPai ? `${rotuloPai}.${sufixo}` : sufixo
+      const { passosFilhos, ...resto } = passo
+      const filhos = passosFilhos?.length
+        ? processar(passosFilhos, num, rotuloSecao)
+        : undefined
+      return {
+        ...resto,
+        num,
+        numPai,
+        rotuloSecao,
+        passosFilhos: filhos,
+      }
+    })
+  }
+  return processar(passos)
+}
+
+/** Lista em profundidade (pais antes dos filhos). */
+export function achatarPassosVisuais(passos: DocPassoVisual[]): DocPassoVisual[] {
+  const saida: DocPassoVisual[] = []
+  for (const passo of passos) {
+    saida.push(passo)
+    if (passo.passosFilhos?.length) {
+      saida.push(...achatarPassosVisuais(passo.passosFilhos))
+    }
+  }
+  return saida
+}
+
+export function contarPassosVisuais(passos: DocPassoVisual[]): number {
+  return achatarPassosVisuais(passos).length
+}
+
+export function encontrarPassoPorNum(passos: DocPassoVisual[], num: number): DocPassoVisual | undefined {
+  for (const passo of passos) {
+    if (passo.num === num) return passo
+    if (passo.passosFilhos?.length) {
+      const filho = encontrarPassoPorNum(passo.passosFilhos, num)
+      if (filho) return filho
+    }
+  }
+  return undefined
+}
+
+export function rotuloPassoNoCapitulo(secaoNum: number, passo: DocPassoVisual): string {
+  const rotulo = passo.rotuloSecao ?? String(passo.num).padStart(2, '0')
+  return `${secaoNum}.${rotulo}`
+}
+
+/** Rótulo curto no sumário — só o segmento do nível (ex.: `02.01.03` → `03`). */
+export function rotuloSumarioCurtoPasso(passo: DocPassoVisual): string {
+  if (passo.rotuloSecao) {
+    const partes = passo.rotuloSecao.split('.')
+    return partes[partes.length - 1] ?? passo.rotuloSecao
+  }
+  return String(passo.num).padStart(2, '0')
 }
 
 function fluxoEmBreve(tituloFluxo: string, texto: string): DocFluxo {
@@ -795,6 +1074,10 @@ export interface DocItemSumarioManual {
   /** Âncora interna do subtópico (`manual-passo-*`). */
   elementoScroll?: string
   subitem?: boolean
+  /** Profundidade no sumário (1 = subtópico direto; 2+ = aninhado). */
+  subitemNivel?: number
+  /** Número exibido no sumário (segmento do nível, ex.: `01` em vez de `4.02.01`). */
+  rotuloExibicao?: string
   /** Número do capítulo (itens principais do sumário — compat. testes). */
   num?: number
 }
@@ -820,15 +1103,22 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
       && fluxo.ancoraPassosPrefix
       && (fluxo.passosVisuais?.length ?? 0) > 0
     ) {
-      fluxo.passosVisuais!.forEach((passo) => {
-        itens.push({
-          rotulo: `${secaoNum}.${String(passo.num).padStart(2, '0')}`,
-          titulo: passo.tituloCurto ?? passo.titulo,
-          secaoAcordeao: secaoNum,
-          elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
-          subitem: true,
+      function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
+        passos.forEach((passo) => {
+          itens.push({
+            rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
+            titulo: passo.tituloCurto ?? passo.titulo,
+            secaoAcordeao: secaoNum,
+            elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
+            subitem: true,
+            subitemNivel,
+          })
+          if (passo.passosFilhos?.length) {
+            adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)
+          }
         })
-      })
+      }
+      adicionarPassosSumario(fluxo.passosVisuais!, 1)
     }
   })
   return itens
@@ -837,6 +1127,34 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
 export interface DocEntradaSumarioManual {
   capitulo: DocItemSumarioManual
   subitens?: DocItemSumarioManual[]
+}
+
+export interface DocItemSumarioManualArvore extends DocItemSumarioManual {
+  filhos?: DocItemSumarioManualArvore[]
+}
+
+/** Converte lista plana (ordem depth-first) em árvore pelo `subitemNivel`. */
+export function montarArvoreSubitensSumario(
+  subitens: DocItemSumarioManual[],
+): DocItemSumarioManualArvore[] {
+  const raiz: DocItemSumarioManualArvore[] = []
+  const pilha: DocItemSumarioManualArvore[] = []
+
+  for (const item of subitens) {
+    const nivel = item.subitemNivel ?? 1
+    const no: DocItemSumarioManualArvore = { ...item }
+
+    while (pilha.length >= nivel) pilha.pop()
+
+    if (pilha.length === 0) raiz.push(no)
+    else {
+      const pai = pilha[pilha.length - 1]
+      if (!pai.filhos) pai.filhos = []
+      pai.filhos.push(no)
+    }
+    pilha.push(no)
+  }
+  return raiz
 }
 
 /** Agrupa capítulos principais e subtópicos (ex.: passos da Visão Lista) para o sumário hierárquico. */
@@ -1268,7 +1586,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
                 titulo: 'Entrar na grade de permissões',
                 imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
                 paragrafos: [
-                  'O modal **Editar usuário** abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
+                  'O modal *_Editar usuário_* abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
                 ],
               },
             ],
@@ -1283,7 +1601,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '**Permissão especial: Pode cotar frete internacional** — Para habilitar fornecedores como agentes de carga, marque esta opção no produto **BID Frete Internacional**. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e **acessar o painel BID Frete Internacional, Fornecedor**. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -1676,7 +1994,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     callout: {
       tipo: 'dica',
-      texto: 'O modal **Editar assinatura** é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
+      texto: 'O modal *_Editar assinatura_* é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
     },
     fluxos: [
       {
@@ -1895,7 +2213,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Confirmar no modal',
             imagem: '/university/screenshots/configurador-assinaturas-cancelar-modal.png',
             paragrafos: [
-              'O modal **Cancelar Assinatura** exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
+              'O modal *_Cancelar Assinatura_* exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
             ],
           },
           {

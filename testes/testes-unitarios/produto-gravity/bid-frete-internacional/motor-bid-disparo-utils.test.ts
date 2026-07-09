@@ -4,20 +4,46 @@ import {
   montarAssuntoEmailDisparo,
   montarHtmlEmailDisparo,
   montarLinkRespostaDisparo,
+  montarTextoPlanoEmailDisparo,
   resolverUrlServicoEmailDisparoBidFrete,
 } from '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-disparo-utils'
+import {
+  formatarModalExibicaoEmailDisparoBidFrete,
+  montarIntroClienteEmailDisparoBidFrete,
+  rotuloCampoVolumeEmailDisparoBidFrete,
+} from '../../../../servicos-global/produto/bid-frete-internacional/shared/formatar-email-disparo-bid-frete-internacional'
+
+const PARAMETROS_BASE = {
+  nomeFornecedor: 'Maersk',
+  numeroCotacao: 'BID-001',
+  modal: 'MARITIMO',
+  modalidade: 'FCL',
+  origemNome: 'Santos',
+  origemPais: 'BR',
+  destinoNome: 'Shanghai',
+  destinoPais: 'CN',
+  mercadoria: 'Peças',
+  incoterm: 'FOB',
+  tipoContainer: "20' DRY",
+  quantidade: 2,
+  pesoKg: 1200,
+  dataExpiracaoToken: '2026-07-10T12:00:00.000Z',
+  nomeClienteOperacao: 'Acme Import',
+  tipoOperacao: 'IMPORTACAO',
+  linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
+} as const
 
 describe('motor-bid-disparo-utils', () => {
   const envSnapshot = {
     EMAIL_SERVICE_URL: process.env.EMAIL_SERVICE_URL,
     TENANT_EMAIL_SERVICE_URL: process.env.TENANT_EMAIL_SERVICE_URL,
-    SERVIDOR_PLATAFORMA_URL: process.env.SERVIDOR_PLATAFORMA_URL,
+    BID_FRETE_SIDECAR: process.env.BID_FRETE_SIDECAR,
   }
 
   beforeEach(() => {
     delete process.env.EMAIL_SERVICE_URL
     delete process.env.TENANT_EMAIL_SERVICE_URL
-    delete process.env.SERVIDOR_PLATAFORMA_URL
+    delete process.env.BID_FRETE_SIDECAR
   })
 
   afterEach(() => {
@@ -25,21 +51,29 @@ describe('motor-bid-disparo-utils', () => {
     else process.env.EMAIL_SERVICE_URL = envSnapshot.EMAIL_SERVICE_URL
     if (envSnapshot.TENANT_EMAIL_SERVICE_URL === undefined) delete process.env.TENANT_EMAIL_SERVICE_URL
     else process.env.TENANT_EMAIL_SERVICE_URL = envSnapshot.TENANT_EMAIL_SERVICE_URL
-    if (envSnapshot.SERVIDOR_PLATAFORMA_URL === undefined) delete process.env.SERVIDOR_PLATAFORMA_URL
-    else process.env.SERVIDOR_PLATAFORMA_URL = envSnapshot.SERVIDOR_PLATAFORMA_URL
+    if (envSnapshot.BID_FRETE_SIDECAR === undefined) delete process.env.BID_FRETE_SIDECAR
+    else process.env.BID_FRETE_SIDECAR = envSnapshot.BID_FRETE_SIDECAR
   })
 
-  it('resolve URL do serviço de e-mail — paridade Hub (EMAIL → TENANT → plataforma → :3001)', () => {
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:3001')
+  it('resolve URL do serviço de e-mail — TENANT_EMAIL → EMAIL → :8008', () => {
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
 
-    process.env.SERVIDOR_PLATAFORMA_URL = 'http://plataforma.test'
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://plataforma.test')
+    process.env.EMAIL_SERVICE_URL = 'http://localhost:3001'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://localhost:3001')
 
-    process.env.TENANT_EMAIL_SERVICE_URL = 'http://tenant-email.test'
-    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://tenant-email.test')
+    process.env.TENANT_EMAIL_SERVICE_URL = 'http://127.0.0.1:8008'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
 
+    delete process.env.TENANT_EMAIL_SERVICE_URL
     process.env.EMAIL_SERVICE_URL = 'http://email.test'
     expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://email.test')
+  })
+
+  it('força loopback :8008 quando BID_FRETE_SIDECAR=1 (prod site-usegravity)', () => {
+    process.env.BID_FRETE_SIDECAR = '1'
+    process.env.TENANT_EMAIL_SERVICE_URL = 'http://localhost:3001'
+    process.env.EMAIL_SERVICE_URL = 'http://email.test'
+    expect(resolverUrlServicoEmailDisparoBidFrete()).toBe('http://127.0.0.1:8008')
   })
 
   it('monta link público na rota da visão fornecedor', () => {
@@ -47,7 +81,14 @@ describe('motor-bid-disparo-utils', () => {
     expect(link).toBe('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/token-abc')
   })
 
-  it('monta assunto com número da cotação', () => {
+  it('monta assunto com rota e modal traduzidos', () => {
+    const assunto = montarAssuntoEmailDisparo({ ...PARAMETROS_BASE })
+    expect(assunto).toContain('BID-001')
+    expect(assunto).toContain('Santos (BR) → Shanghai (CN)')
+    expect(assunto).toContain('Marítimo · FCL')
+  })
+
+  it('monta assunto legado só com número', () => {
     expect(montarAssuntoEmailDisparo('BID-20260528-0594')).toContain('BID-20260528-0594')
   })
 
@@ -61,21 +102,74 @@ describe('motor-bid-disparo-utils', () => {
     expect(extrairMensagemErroDisparo(err, 'http://localhost:8008')).toContain('8008')
   })
 
-  it('monta HTML com link de resposta', () => {
-    const html = montarHtmlEmailDisparo({
-      nomeFornecedor: 'Maersk',
-      numeroCotacao: 'BID-001',
-      modal: 'MARITIMO',
-      origemNome: 'Santos',
-      origemPais: 'BR',
-      destinoNome: 'Shanghai',
-      destinoPais: 'CN',
-      mercadoria: 'Peças',
-      incoterm: 'FOB',
-      linkResposta: 'http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok',
-    })
+  it('traduz modal rodoviário e label embalagem', () => {
+    expect(formatarModalExibicaoEmailDisparoBidFrete('RODOVIARIO', 'RODOVIARIO_LTL')).toBe('Rodoviário · LTL')
+    expect(rotuloCampoVolumeEmailDisparoBidFrete('RODOVIARIO')).toBe('Embalagem')
+    expect(rotuloCampoVolumeEmailDisparoBidFrete('MARITIMO')).toBe('Container')
+  })
+
+  it('monta HTML com layout, cliente e link de resposta', () => {
+    const html = montarHtmlEmailDisparo({ ...PARAMETROS_BASE })
     expect(html).toContain('Maersk')
     expect(html).toContain('BID-001')
+    expect(html).toContain('O importador')
+    expect(html).toContain('Acme Import')
+    expect(html).toContain('Marítimo · FCL')
+    expect(html).toContain('Responder cotação')
+    expect(html).not.toContain('RODOVIARIO')
     expect(html).toContain('http://localhost:8000/bid-frete/visao-fornecedor-bid-frete-internacional/publico/tok')
   })
+
+  it('intro exportador quando operação é exportação', () => {
+    const intro = montarIntroClienteEmailDisparoBidFrete({
+      nomeClienteOperacao: 'Work sem work',
+      tipoOperacao: 'EXPORTACAO',
+      anonimaCotacao: false,
+    })
+    expect(intro.introTextoPlano).toContain('O exportador Work sem work')
+    expect(intro.introHtml).toContain('exportador')
+  })
+
+  it('intro anônima oculta identidade do cliente', () => {
+    const intro = montarIntroClienteEmailDisparoBidFrete({
+      anonimaCotacao: true,
+      nomeClienteOperacao: 'Não deve aparecer',
+    })
+    expect(intro.introTextoPlano).toContain('optou em manter seu nome oculto')
+    expect(intro.rotuloPreheader).toBe('Cotação anônima')
+
+    const html = montarHtmlEmailDisparo({
+      ...PARAMETROS_BASE,
+      anonimaCotacao: true,
+      nomeClienteOperacao: null,
+    })
+    expect(html).toContain('optou em manter seu nome oculto')
+    expect(html).not.toContain('Acme Import')
+  })
+
+  it('monta texto plano espelhando resumo e link', () => {
+    const texto = montarTextoPlanoEmailDisparo({
+      ...PARAMETROS_BASE,
+      modal: 'RODOVIARIO',
+      modalidade: 'RODOVIARIO_LTL',
+      tipoContainer: 'CAIXA',
+      quantidade: 10001,
+    })
+    expect(texto).toContain('Rodoviário · LTL')
+    expect(texto).toContain('10.001× Caixa')
+    expect(texto).toContain('Responder cotação:')
+    expect(texto).toContain(PARAMETROS_BASE.linkResposta)
+    expect(texto).toContain('Não responda este e-mail')
+  })
+
+  it('oculta nome do cliente quando cotação anônima', () => {
+    const html = montarHtmlEmailDisparo({
+      ...PARAMETROS_BASE,
+      anonimaCotacao: true,
+      nomeClienteOperacao: null,
+    })
+    expect(html).toContain('Um cliente')
+    expect(html).not.toContain('Acme Import')
+  })
 })
+

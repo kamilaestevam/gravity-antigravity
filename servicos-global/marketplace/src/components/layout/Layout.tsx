@@ -1,6 +1,5 @@
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
-import { ExitIntentDrawer } from '../flows/ModalExitIntentDrawer'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -14,7 +13,6 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
-      <ExitIntentDrawer />
     </div>
   )
 }

@@ -1,0 +1,81 @@
+{
+  "referencia": "TASK-000421",
+  "ordinal": 143,
+  "id_transcript": "8231f684-aaa3-42cd-be12-debc977f34ee",
+  "titulo_canonico": "BIDFRT-COTACOES-BUG-PORTAL-LOCAIS-ALTERNATIVOS-ARMAZENS-PREFERENCIA",
+  "titulo_exibicao": "TASK-000421 | [Bid Frete] Cotações | BUG — Portal sem portos/aeroportos alternativos e armazéns de preferência",
+  "status": "RES",
+  "status_descricao": "Resolvida — regressão do PR #642 restaurada (locais alternativos no portal do fornecedor) e pipeline completo dos armazéns de preferência (coluna JSONB + migration + rota + wizard + portal + e-mail); PR #646 aberto e docs/skill atualizadas",
+  "area": "BIDFRT",
+  "area_descricao": "Produto Bid Frete Internacional (servicos-global/produto/bid-frete-internacional/)",
+  "subarea": "COTACOES",
+  "subarea_descricao": "Portal público de resposta do fornecedor e wizard Nova Cotação",
+  "visualizacao": null,
+  "visualizacao_descricao": "Detalhes da cotação no portal do fornecedor + e-mail de disparo",
+  "tipo_entrega": "BUG",
+  "tipo_entrega_descricao": "Regressão de UI restaurada + persistência ausente implementada",
+  "resumo": "PORTAL-LOCAIS-ALTERNATIVOS-ARMAZENS-PREFERENCIA",
+  "resumo_descricao": "Restaura exibição/seleção de portos/aeroportos alternativos removida por engano no merge do PR #642 e persiste/exibe os armazéns de preferência (Marítimo LCL + armazenagem)",
+  "resumo_detalhado": "Teste em produção apontou dois campos ausentes na cotação do portal do fornecedor. (1) Portos/aeroportos alternativos: forense de git identificou que o merge do PR #642 removeu por engano imports, interfaces, estado, validação e UI de locais opcionais em formulario-resposta-cotacao-bid-frete-internacional.tsx — o server continuava exigindo a seleção e o envio da proposta quebrava; tudo restaurado. (2) Armazéns de preferência: o wizard coletava os nomes mas nunca persistia; implementado pipeline completo — coluna JSONB nomes_armazem_alfandegado_cotacao_bid_frete_internacional no fragment.prisma com migration 20260705200000, Zod + normalização na rota POST /cotacoes, payload do wizard, select do GET disparo, exibição no portal e linha no e-mail de disparo. Verificação: vite build do configurador (mesmo build do Railway) verde, compose-schema idêntico, typecheck client/server sem erros novos (comparado ao master via stash). PR #646 aberto; docs (DDD-VISAO-FORNECEDOR + README) e skill bid-frete atualizadas via /docs-skills.",
+  "data_criacao": "2026-07-05T18:32:00.000Z",
+  "data_encerramento": "2026-07-05T23:10:00.000Z",
+  "duracao_horas": 4.63,
+  "tempo_bruto_horas": 4.63,
+  "tempo_agente_horas": 2.5,
+  "tempo_dono_horas": 0.5,
+  "tempo_liquido_horas": 3.0,
+  "tokens_estimados_entrada": 300000,
+  "tokens_estimados_saida": 35000,
+  "tokens_estimados_total": 335000,
+  "mensagens_usuario": 2,
+  "mensagens_agente": 4,
+  "fases_concluidas": ["ENTENDIMENTO", "FORENSE_GIT", "IMPLEMENTACAO", "MIGRATION", "BUILD_VERIFICACAO", "PR", "DOC_SKILL"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "nao", "descricao": "Testes locais rodados (unitário, funcional, em tela) — apenas typecheck e vite build do configurador; sem testes unitários novos" },
+    "code_review": { "valor": "nao", "descricao": "Code review feito (/code-review)" },
+    "doc_skill": { "valor": "sim", "descricao": "Docs técnicos e/ou skills atualizados (/docs-skills) — DDD-VISAO-FORNECEDOR §§ locais opcionais/armazéns, README e skill bid-frete" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto — PR #646 (fix/portal-fornecedor-locais-opcionais-armazens)" },
+    "deploy": { "valor": "nao", "descricao": "Deploy / migration executado — migration 20260705200000 será aplicada pelo build do Railway após merge do PR" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "teste_local",
+      "mensagem": "Sem testes unitários novos — considerar /testes-criar para nomesArmazemAlfandegadoParaPersistencia e exibição dos locais opcionais."
+    },
+    {
+      "item": "code_review",
+      "mensagem": "Code review formal não executado — invocar /code-review sobre o diff do PR #646 se desejar auditoria."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar a entrega auditada."
+    },
+    {
+      "item": "deploy",
+      "mensagem": "PR #646 aguardando merge — migration roda automaticamente no build do Railway."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Smoke pós-deploy pendente — criar cotação LCL com armazenagem + locais alternativos e conferir o portal do fornecedor."
+    }
+  ],
+  "entregas": [
+    "servicos-global/produto/bid-frete-internacional/prisma/fragment.prisma",
+    "servicos-global/produto/bid-frete-internacional/prisma/migrations/20260705200000_add_nomes_armazem_alfandegado_cotacao_bid_frete_internacional/migration.sql",
+    "servicos-global/produto/bid-frete-internacional/server/src/routes/cotacoes.ts",
+    "servicos-global/produto/bid-frete-internacional/server/src/lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.ts",
+    "servicos-global/produto/bid-frete-internacional/server/src/services/motor-bid-frete-internacional.ts",
+    "servicos-global/produto/bid-frete-internacional/shared/formatar-email-disparo-bid-frete-internacional.ts",
+    "servicos-global/produto/bid-frete-internacional/client/src/shared/formulario-resposta-cotacao-bid-frete-internacional.tsx",
+    "servicos-global/produto/bid-frete-internacional/client/src/pages/modal-nova-cotacao-bid-frete-internacional.tsx",
+    "documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md",
+    "skills/produtos-gravity/bid-frete-internacional/SKILL.md",
+    "https://github.com/dmmltda/gravity-antigravity/pull/646"
+  ],
+  "branch_alvo": "fix/portal-fornecedor-locais-opcionais-armazens",
+  "worktree_alvo": null,
+  "preview_porta_alvo": null,
+  "preview_url_alvo": null
+}

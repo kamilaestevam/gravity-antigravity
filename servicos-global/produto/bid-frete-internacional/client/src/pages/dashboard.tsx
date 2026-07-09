@@ -870,6 +870,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!escopoHidratado) return
+
+    let cancelado = false
     setLoadingData(true)
     setKpisData(null)
     setPrevKpisData(null)
@@ -881,10 +883,26 @@ export default function Dashboard() {
     const customRangeGlobal = resolverCustomRange(slicers.period)
     const extraPeriodos = periodosWidgets.filter(p => p !== slicers.period)
 
-    Promise.all([
+    // Fase 1 — KPIs + trend liberam o grid (evita bloquear em insights/períodos extras)
+    void Promise.all([
       dashboardApi.kpis(slicers.period, customRangeGlobal, idsWorkspacesFiltro),
-      dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
       dashboardApi.trend('12m', 'month', idsWorkspacesFiltro),
+    ])
+      .then(([kpis, trend]) => {
+        if (cancelado) return
+        setKpisData(kpis)
+        setTrendData(trend.value)
+        setKpisPorPeriodo({ [slicers.period]: kpis })
+        setLoadingData(false)
+      })
+      .catch(err => {
+        console.error('[Dashboard] Erro ao carregar dados principais:', err)
+        if (!cancelado) setLoadingData(false)
+      })
+
+    // Fase 2 — comparativo, GABI e períodos extras em background
+    void Promise.all([
+      dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
       dashboardApi.insights(slicers.period, customRangeGlobal, idsWorkspacesFiltro).catch(err => {
         console.warn('[Dashboard] GET /dashboard/insights falhou; fallback client-side GABI', err)
         return null
@@ -896,17 +914,21 @@ export default function Dashboard() {
         }),
       ),
     ])
-      .then(([kpis, prevKpis, trend, insightsRes, extras]) => {
-        setKpisData(kpis)
+      .then(([prevKpis, insightsRes, extras]) => {
+        if (cancelado) return
         setPrevKpisData(prevKpis)
-        setTrendData(trend.value)
         setInsightsData(insightsRes?.insights ?? [])
-        const mapa: Record<string, DashboardKpis> = { [slicers.period]: kpis }
-        for (const [period, dados] of extras) mapa[period] = dados
-        setKpisPorPeriodo(mapa)
+        setKpisPorPeriodo(prev => {
+          const mapa = { ...prev }
+          for (const [period, dados] of extras) mapa[period] = dados
+          return mapa
+        })
       })
-      .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
-      .finally(() => setLoadingData(false))
+      .catch(err => console.error('[Dashboard] Erro ao carregar dados secundários:', err))
+
+    return () => {
+      cancelado = true
+    }
   }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, dashboardApi, periodosWidgets, resolverCustomRange])
 
   const periodOptions = useMemo((): PeriodOption[] => [
@@ -1446,19 +1468,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <DashboardGrid
-        widgets={activeWidgets}
-        renderWidget={renderWidget}
-        layoutInteracao={widgetLayoutInteracao}
-        onLayoutChange={(layouts) => {
-          if (!useDashboardStoreHook.getState().widgetLayoutInteracao) return
-          const lg = layouts.lg ?? []
-          updateLayout(lg.map((item) => ({
-            id: item.i,
-            position: { x: item.x, y: item.y, w: item.w, h: item.h },
-          })))
-        }}
-      />
+      <div className="bfd-dashboard__grid-area">
+        <DashboardGrid
+          widgets={activeWidgets}
+          renderWidget={renderWidget}
+          layoutInteracao={widgetLayoutInteracao}
+          onLayoutChange={(layouts) => {
+            if (!useDashboardStoreHook.getState().widgetLayoutInteracao) return
+            const lg = layouts.lg ?? []
+            updateLayout(lg.map((item) => ({
+              id: item.i,
+              position: { x: item.x, y: item.y, w: item.w, h: item.h },
+            })))
+          }}
+        />
+      </div>
 
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}

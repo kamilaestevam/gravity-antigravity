@@ -17,11 +17,48 @@ export default defineConfig({
       '@nucleo/tooltip-global': path.resolve(
         __dirname,
         '../../nucleo-global/Feedback/tooltip-global/src/index.ts'
-      )
+      ),
+      '@nucleo/card-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Layout/card-global/src/index.ts'
+      ),
+      '@nucleo/campo-select-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-select-global/src/index.ts'
+      ),
+      '@nucleo/campo-geral-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-geral-global/src/index.ts'
+      ),
+      '@nucleo/campo-ncm-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-ncm-global/src/index.ts'
+      ),
+      '@nucleo/campo-decimal-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-decimal-global/src/index.ts'
+      ),
+      '@nucleo/campo-calendario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Campos/campo-calendario-global/src/index.ts'
+      ),
+      '@nucleo/status-badge-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Feedback/status-badge-global/src/index.ts'
+      ),
+      '@nucleo/botao-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Botoes/botao-global/src/index.ts'
+      ),
+      '@nucleo/modal-confirmar-excluir-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'
+      ),
     }
   },
   server: {
-    port: 5010,
+    port: 8888,
+    strictPort: true,
     host: true,
     fs: {
       allow: [
@@ -34,7 +71,7 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react'],
+    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react', 'exceljs', 'xlsx'],
   },
 })
 

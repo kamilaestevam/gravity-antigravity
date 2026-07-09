@@ -354,6 +354,7 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNo
         'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
     },
   ],
+  simuladorBidFreteModalOperacao: true,
 })
 
 /** §4.02.01 — 3º tópico: origem e destino (após Modal e Operação). */
@@ -429,6 +430,7 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao =
         'Marque *_Autorizar cotações em outros portos próximos ao destino preferencial_* para aceitar portos alternativos na proposta.',
     },
   ],
+  simuladorBidFreteOrigemDestino: false,
 })
 
 /** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */

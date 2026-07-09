@@ -189,6 +189,24 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
           ))}
         </div>
 
+        <div
+          className="smart-import__tag-em-breve"
+          role="note"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0.375rem 0.875rem',
+            borderRadius: '999px',
+            border: '1px solid rgba(148, 163, 184, 0.28)',
+            background: 'rgba(15, 23, 42, 0.55)',
+          }}
+        >
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)' }}>
+            {t('pedido.importar.tag_em_breve_qualquer_planilha')}
+          </span>
+        </div>
+
         <input
           ref={inputRef}
           type="file"

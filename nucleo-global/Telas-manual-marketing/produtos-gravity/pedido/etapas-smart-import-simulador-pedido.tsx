@@ -202,6 +202,9 @@ export function EtapaUploadSmartImportSimulador({
             </div>
           ))}
         </div>
+        <div className="smart-import__tag-em-breve" role="note">
+          <span className="smart-import__tag-em-breve-texto">Em breve: será aceito qualquer planilha</span>
+        </div>
         <input
           ref={inputRef}
           type="file"

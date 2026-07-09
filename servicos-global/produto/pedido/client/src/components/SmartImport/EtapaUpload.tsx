@@ -196,14 +196,20 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '0.375rem 0.875rem',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            marginTop: '0.25rem',
+            padding: '0.4rem 0.9rem',
             borderRadius: '999px',
-            border: '1px solid rgba(148, 163, 184, 0.28)',
-            background: 'rgba(15, 23, 42, 0.55)',
+            border: '1px solid rgba(148, 163, 184, 0.35)',
+            background: 'rgba(15, 23, 42, 0.72)',
           }}
         >
+          <span style={{ fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#fbbf24' }}>
+            {t('pedido.importar.tag_em_breve_badge')}
+          </span>
           <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)' }}>
-            {t('pedido.importar.tag_em_breve_qualquer_planilha')}
+            {t('pedido.importar.tag_em_breve_texto')}
           </span>
         </div>
 

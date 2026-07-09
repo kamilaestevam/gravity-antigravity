@@ -268,6 +268,55 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(s205?.detalhe).toContain('Analista IA desligado')
   })
 
+  it('regra de IA com dado extraído e Analista ligado sem apontamento fica CONFORME', () => {
+    const doc = {
+      nome_arquivo: 'inv.pdf',
+      tipo_documento: 'INVOICE',
+      indice: 0,
+      dados: {
+        exporter: { name: 'LUEN TAI P.C.B. FACTORY CO., LTD.', address: 'Unit 5, Kowloon, HK' },
+      },
+    }
+    const itens = montarChecklistMatrizInvoice({
+      documentos: [doc],
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: false,
+      rotulo_documento: 'inv.pdf · INVOICE',
+    })
+    const s205 = itens.find((i) => i.regra.id === 'S2-05')
+    expect(s205?.status).toBe('verde')
+    expect(s205?.rotulo_status).toBe('CONFORME')
+    expect(s205?.resultado).toContain('LUEN TAI')
+    const s207 = itens.find((i) => i.regra.id === 'S2-07')
+    expect(s207?.rotulo_status).toBe('N/A')
+  })
+
+  it('falha nossa na consulta RFB vira ATENÇÃO sem card de risco (Aviso —)', () => {
+    const rotulo = 'inv.pdf · INVOICE'
+    const itens = montarChecklistMatrizInvoice({
+      regras: [
+        {
+          id: `S2-02-${rotulo}`,
+          passou: false,
+          detalhe: 'Aviso — não conseguimos consultar a Receita Federal agora. Reprocesse a leitura para tentar de novo — 82901000001522',
+        },
+      ],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: false,
+      carregando: false,
+      rotulo_documento: rotulo,
+    })
+    const s202 = itens.find((i) => i.regra.id === 'S2-02')
+    expect(s202?.status).toBe('amarelo')
+    expect(s202?.rotulo_status).toBe('ATENÇÃO')
+    expect(s202?.risco_id).toBeNull()
+    expect(s202?.resultado).toContain('não conseguimos consultar a Receita')
+  })
+
   it('monta resumo geral agregando invoices', () => {
     const docA = {
       nome_arquivo: 'a.pdf',

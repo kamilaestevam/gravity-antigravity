@@ -1263,6 +1263,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const pageNum = Number(page ?? 1)
       const limitNum = Number(limit ?? 20)
       const skip = (pageNum - 1) * limitNum
+      const sortFieldOffset = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_atualizacao_pedido') as CursorSortField
+      const sortDirOffset = dir === 'asc' ? 'asc' : 'desc'
 
       // Contagem de itens: SQL raw para evitar bug do Prisma 5.22 com filtro relation
       // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
@@ -1311,13 +1313,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
             snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
           },
-          // Ordenação padrão da lista: mais recém-criado primeiro. Garante que
-          // o pedido que o usuário acabou de criar aparece no topo, mesmo
-          // quando a data_emissao_pedido bate empate com pedidos antigos
-          // (ex: vários pedidos com data_emissao = hoje).
+          // Respeita sort/dir do cliente (mesmo contrato do branch cursor).
           orderBy: [
-            { data_criacao_pedido: 'desc' },
-            { id_pedido: 'desc' },
+            { [sortFieldOffset]: sortDirOffset },
+            { id_pedido: sortDirOffset },
           ],
           skip,
           take: limitNum,

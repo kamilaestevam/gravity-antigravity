@@ -21,6 +21,27 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(itens).toHaveLength(MATRIZ_VALIDACAO_INVOICE.length)
   })
 
+  it('itens em análise expõem em_analise=true enquanto o motor roda e false ao concluir', () => {
+    const rodando = montarChecklistMatrizInvoice({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: false,
+      llmHabilitado: true,
+      carregando: true,
+    })
+    expect(rodando.some((i) => i.em_analise)).toBe(true)
+    expect(rodando.filter((i) => i.regra.motor === 'llm').every((i) => i.em_analise)).toBe(true)
+
+    const concluido = montarChecklistMatrizInvoice({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: false,
+    })
+    expect(concluido.every((i) => !i.em_analise)).toBe(true)
+  })
+
   it('marca regra de código como vermelha quando Passo 1 falha e gera risco_id', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [{ id: 'S4-04-INVOICE-items-0', passou: false, detalhe: 'NCM ausente' }],

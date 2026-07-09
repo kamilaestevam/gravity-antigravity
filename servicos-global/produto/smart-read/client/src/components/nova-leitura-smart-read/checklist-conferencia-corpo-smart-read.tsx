@@ -2,7 +2,7 @@
  * checklist-conferencia-corpo-smart-read.tsx — corpo tabular do checklist (inline ou modal)
  */
 
-import { CaretDown, Check, Info } from '@phosphor-icons/react'
+import { CaretDown, Check, CircleNotch, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
@@ -118,7 +118,12 @@ function LinhaChecklistAviacao({
         <span className="sr-conf-chk-item-motor">{ROTULO_MOTOR_MATRIZ[item.regra.motor]}</span>
       </td>
       <td className="sr-conf-chk-col-resultado" title={item.detalhe ?? undefined}>
-        <span className="sr-conf-chk-resultado">{item.resultado}</span>
+        <span className="sr-conf-chk-resultado">
+          {item.em_analise && (
+            <CircleNotch size={14} className="sr-conf-chk-spinner" aria-hidden />
+          )}
+          {item.resultado}
+        </span>
       </td>
       <td className="sr-conf-chk-col-status">
         <TooltipGlobal

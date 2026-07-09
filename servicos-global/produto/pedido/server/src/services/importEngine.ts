@@ -7,7 +7,7 @@
  *   - xml (simples, tag por linha)
  *   - json
  *   - txt (tabulado)
- *   - pdf (demonstracao — parsing real requer biblioteca adicional)
+ *   - pdf → rejeitado (use Smart Docs)
  *
  * Retorna sempre Array<Record<string, string>> — cabecalhos como chaves.
  */
@@ -284,64 +284,16 @@ export async function parseArquivo(
     }
 
     case 'pdf': {
-      // Tentar extração via Gemini (GEMINI_PDF_ENABLED=true no .env)
-      try {
-        const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
-        const gemini = await extrairPdfComGemini(buffer)
-        if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini', linhas_cabecalho: 1 }
-      } catch (geminiImportErr: unknown) {
-        const msg = geminiImportErr instanceof Error ? geminiImportErr.message : String(geminiImportErr)
-        console.warn(`[PDF] Falha ao carregar extrator Gemini (${msg}) — tentando parser local`)
-      }
-
-      // Fallback: parser local de texto
-      try {
-        const { PDFParse } = await import('pdf-parse')
-        const parser = new PDFParse({ data: buffer })
-        // parser.load() é private — getText() o chama internamente
-        const result = await parser.getText()
-        // P3.5 — PDF escaneado: tem paginas mas texto vazio/minusculo (so imagens)
-        const textoLimpo = (result.text ?? '').trim()
-        if (textoLimpo.length < 30) {
-          throw new AppError(
-            'O PDF parece ser escaneado (sem texto extraivel). ' +
-            'Use OCR antes de importar, ou prefira Excel/CSV.',
-            400,
-            'PDF_ESCANEADO',
-          )
-        }
-        return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse', linhas_cabecalho: 1 }
-      } catch (pdfErr: unknown) {
-        // Erros do nosso AppError (PDF_ESCANEADO) sobem direto
-        if (pdfErr instanceof AppError) throw pdfErr
-
-        const msg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr)
-
-        // P3.4 — PDF protegido/criptografado: pdf-parse joga erros como
-        // "PasswordException" ou contendo "encrypted"/"password"
-        if (/password|encrypt|protected/i.test(msg)) {
-          throw new AppError(
-            'O PDF esta protegido por senha. Remova a protecao e tente novamente.',
-            400,
-            'PDF_PROTEGIDO',
-          )
-        }
-
-        console.warn(`[PDF] Parser local falhou (${msg}) — retornando aviso`)
-        return {
-          linhas: [{
-            _aviso: 'PDF nao pode ser lido automaticamente. Use Excel ou CSV para melhores resultados.',
-            _conteudo: `Erro: ${msg}`,
-          }],
-          extrator_usado: 'pdf-erro',
-          linhas_cabecalho: 1,
-        }
-      }
+      throw new AppError(
+        'PDF nao e aceito no Smart Import de Pedidos. Use o Smart Docs para leitura de PDF.',
+        400,
+        'FORMATO_NAO_SUPORTADO',
+      )
     }
 
     default:
       throw new AppError(
-        `O formato ".${ext}" nao e aceito.`,
+        `Formato .${ext} nao suportado. Use: xlsx, xls, csv, xml, json ou txt.`,
         400,
         'FORMATO_NAO_SUPORTADO',
       )

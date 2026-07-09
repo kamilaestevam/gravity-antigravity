@@ -1,0 +1,923 @@
+/**
+ * SmartImportModal.css — Modal de importacao inteligente de pedidos
+ * Design System: Solid Slate (gravity)
+ */
+
+
+/* ── Contexto do arquivo (total_pedidos / total_itens / total_linhas) ────────── */
+.smart-import__contexto-arquivo {
+  padding: 0.375rem 1.25rem;
+  background: var(--bg-surface, #1e1e2e);
+  border-bottom: 1px solid var(--border-subtle, #2d2d3d);
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  flex-shrink: 0;
+}
+
+/* ── Aviso de confiança global baixa ─────────────────────────────────────────── */
+.smart-import__aviso-confianca {
+  padding: 0.5rem 1.25rem;
+  background: rgba(245, 158, 11, 0.08);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* ── Corpo com scroll ────────────────────────────────────────────────────────── */
+.smart-import__corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle, #2d2d3d) transparent;
+}
+
+
+/* ── Footer actions (dentro do footerCustom do ModalPassoPassoGlobal) ────────── */
+.smart-import__footer-acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Loading / Analisando ────────────────────────────────────────────────────── */
+.smart-import__analisando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.875rem;
+}
+
+.smart-import__spinner {
+  animation: spin 0.8s linear infinite;
+  color: var(--ws-accent, #6366f1);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Erro geral ──────────────────────────────────────────────────────────────── */
+.smart-import__erro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 0.5rem;
+  color: #ef4444;
+  font-size: 0.8125rem;
+  margin-top: 1rem;
+}
+
+/* ── Drag-and-drop upload area ───────────────────────────────────────────────── */
+.smart-import__upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  border: 2px dashed var(--border-subtle, #333);
+  border-radius: 0.75rem;
+  background: var(--bg-surface, #1e1e2e);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.smart-import__upload-area:hover,
+.smart-import__upload-area--drag-over {
+  border-color: var(--ws-accent, #6366f1);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.smart-import__upload-icone {
+  color: var(--ws-accent, #6366f1);
+  opacity: 0.55;
+}
+
+.smart-import__upload-titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.smart-import__upload-sub {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+/* ── Mapeamento ──────────────────────────────────────────────────────────────── */
+.smart-import__mapa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.smart-import__badge-memoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--ws-accent, #6366f1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.smart-import__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.smart-import__tabela th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--ws-muted, var(--text-muted, #94a3b8));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle, #2d2d3d);
+}
+
+.smart-import__tabela td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle, #1e1e2e);
+  color: var(--text-primary, #e2e8f0);
+  vertical-align: middle;
+}
+
+/* ── Badges de confianca ─────────────────────────────────────────────────────── */
+.smart-import__conf-verde {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #34d399;
+  font-size: 0.75rem;
+}
+
+.smart-import__conf-amarelo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #f59e0b;
+  font-size: 0.75rem;
+}
+
+.smart-import__conf-cinza {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted, #64748b);
+  font-size: 0.75rem;
+}
+
+/* ── Preview — status ────────────────────────────────────────────────────────── */
+.smart-import__status-ok    { color: #34d399; }
+.smart-import__status-aviso { color: #f59e0b; }
+.smart-import__status-erro  { color: #ef4444; }
+
+/* ── Contador final ──────────────────────────────────────────────────────────── */
+.smart-import__contador {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  border-bottom: 1px solid var(--border-subtle, #2d2d3d);
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.smart-import__contador strong {
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* ── Resultado final ─────────────────────────────────────────────────────────── */
+.smart-import__resultado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.smart-import__resultado-icone {
+  color: #34d399;
+}
+
+.smart-import__resultado-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0;
+}
+
+.smart-import__resultado-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.smart-import__resultado-card {
+  background: var(--bg-surface, #1e1e2e);
+  border: 1px solid var(--border-subtle, #2d2d3d);
+  border-radius: 0.5rem;
+  padding: 0.875rem;
+  text-align: center;
+}
+
+.smart-import__resultado-numero {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.smart-import__resultado-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.125rem;
+}
+
+/* ── Filtros de preview ──────────────────────────────────────────────────────── */
+.smart-import__filtros {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.smart-import__filtro-btn {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-subtle, #2d2d3d);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.smart-import__filtro-btn--ativo {
+  background: var(--ws-accent, #6366f1);
+  border-color: var(--ws-accent, #6366f1);
+  color: #fff;
+}
+
+/* ── Checkbox lembrando mapeamento ───────────────────────────────────────────── */
+.smart-import__lembrar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  user-select: none;
+}
+
+.smart-import__lembrar input[type="checkbox"] {
+  accent-color: var(--ws-accent, #6366f1);
+}
+
+/* ── EtapaPreview — Cards de pedido ─────────────────────────────────────────── */
+
+.smart-import__cards-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.smart-import__card-pedido {
+  border: 1px solid var(--border-subtle, #2d2d3d);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-surface, #1e1e2e);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.smart-import__card-pedido--selecionado {
+  border-color: var(--ws-accent, #6366f1);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.smart-import__card-pedido--desmarcado {
+  opacity: 0.6;
+}
+
+.smart-import__card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.smart-import__numero-pedido-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * P18.3 — Tipografia alinhada ao Solid Slate.
+ *
+ * Antes: `font-family: ui-monospace, ...` (DM Mono-like). Faz sentido
+ * historicamente em "numero do pedido" (codigo identificador), mas a
+ * classe foi reaproveitada em VARIOS inputs (Part Number, NCM,
+ * descricao, valor extraido editavel, etc.) onde monospace destoa
+ * do resto da plataforma.
+ *
+ * Decisao Coord+LT 12/05/2026: coerencia visual com Plus Jakarta Sans
+ * (fonte UI do Solid Slate) > convencao ERP legada de mono para codigos.
+ *
+ * Tambem: borda do input no estado NORMAL e' cinza neutro
+ * (var(--bg-elevated)) em vez de accent ativado. Accent so' aparece
+ * no :focus (UX padrao de form da plataforma).
+ */
+.smart-import__numero-pedido {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ws-accent, #6366f1);
+}
+
+.smart-import__numero-input {
+  font-size: 0.875rem;
+  background: transparent;
+  border: 1px solid var(--bg-elevated, #475569);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  color: inherit;
+  min-width: 140px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.smart-import__numero-input:focus {
+  border-color: var(--ws-accent, #6366f1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.smart-import__btn-icone {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  padding: 0.125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.smart-import__btn-icone:hover {
+  color: var(--ws-accent, #6366f1);
+}
+
+.smart-import__duplicata-aviso {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.smart-import__campos-detectados {
+  margin-top: 0.5rem;
+}
+
+.smart-import__expandir-campos {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.smart-import__expandir-campos:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.smart-import__campos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+}
+
+@media (max-width: 600px) {
+  .smart-import__campos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.smart-import__campo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.smart-import__campo-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smart-import__campo-valor {
+  font-size: 0.8125rem;
+  color: var(--text-primary, #e2e8f0);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.smart-import__campo-valor--erro {
+  color: #f87171;
+}
+
+.smart-import__btn-icone--ghost {
+  opacity: 0.55;
+}
+
+.smart-import__btn-icone--ghost:hover {
+  opacity: 1;
+}
+
+/* ── P19 — Inputs e botoes padronizados (Designer + Coord + LT 13/05/2026) ─────
+ * Antes: cores hex hardcoded (#60a5fa, #f87171, #0f172a), padding minusculo,
+ * estilos inline pesados, sem hover, botoes nao-pill.
+ * Depois: tokens do Solid Slate, inputs maiores, botoes pill, classes em CSS.
+ */
+
+/* Input padrao (substitui smart-import__numero-input para form inline e edicao inline)
+ * Mantemos a classe legada para retro-compat (numero do pedido), mas form inline
+ * usa .smart-import__input com padding maior e tipografia herdada. */
+.smart-import__input {
+  font-size: 0.8125rem;
+  background: var(--bg-base, #0f0f1a);
+  border: 1px solid var(--bg-elevated, #475569);
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  color: var(--text-primary, #e2e8f0);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+
+.smart-import__input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.smart-import__input:focus {
+  border-color: var(--ws-accent, #6366f1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.smart-import__input--erro {
+  border-color: #f87171;
+}
+
+.smart-import__input--erro:focus {
+  border-color: #f87171;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
+}
+
+/* Label do form inline — case normal, sem letter-spacing/uppercase */
+.smart-import__form-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.smart-import__form-label-obrig {
+  color: #f87171;
+  font-weight: 700;
+  margin-left: 0.125rem;
+}
+
+/* Container do form inline "Adicionar Item" */
+.smart-import__form-item {
+  margin-top: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+  border-radius: 0.5rem;
+}
+
+.smart-import__form-item-titulo {
+  margin: 0 0 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 500;
+}
+
+.smart-import__form-item-titulo strong {
+  color: var(--ws-accent, #6366f1);
+  font-weight: 600;
+}
+
+.smart-import__form-item-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.smart-import__form-item-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+.smart-import__form-item-campo--full {
+  grid-column: 1 / -1;
+}
+
+.smart-import__form-item-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+/* Botao trigger "+ Adicionar Item" (link visual, fica acima do form quando colapsado) */
+.smart-import__btn-adicionar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: transparent;
+  border: none;
+  color: var(--ws-accent, #6366f1);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.smart-import__btn-adicionar-item:hover {
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* Botoes pill (primary / secondary) — alinhados com BotaoGlobal do nucleo-global */
+.smart-import__btn-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+.smart-import__btn-pill--primary {
+  background: var(--ws-accent, #6366f1);
+  color: #fff;
+  border-color: var(--ws-accent, #6366f1);
+}
+
+.smart-import__btn-pill--primary:hover:not(:disabled) {
+  background: var(--ws-accent-hover, #4f46e5);
+  border-color: var(--ws-accent-hover, #4f46e5);
+}
+
+.smart-import__btn-pill--primary:disabled {
+  background: var(--bg-elevated, #334155);
+  border-color: var(--bg-elevated, #334155);
+  color: var(--text-muted, #64748b);
+  cursor: not-allowed;
+}
+
+.smart-import__btn-pill--secondary {
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  border-color: var(--bg-elevated, #334155);
+}
+
+.smart-import__btn-pill--secondary:hover {
+  color: var(--text-primary, #e2e8f0);
+  border-color: var(--text-muted, #64748b);
+}
+
+/* Mobile — grid single-column em < 600px */
+@media (max-width: 600px) {
+  .smart-import__form-item-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Edicao inline de campo (PencilSimple + Check + X) — gap padronizado */
+.smart-import__edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Escolha de modo (manual vs. planilha pré-preenchida) ───────────────────── */
+.smart-import__escolha-modo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.smart-import__escolha-modo-header {
+  text-align: center;
+}
+
+.smart-import__escolha-modo-titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.smart-import__escolha-modo-subtitulo {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.5;
+}
+
+.smart-import__escolha-modo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.smart-import__escolha-modo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 1.25rem 1.125rem;
+  border: 1px solid var(--border-subtle, rgba(129, 140, 248, 0.18));
+  border-radius: 0.75rem;
+  background: var(--bg-surface, #1e293b);
+  color: var(--text-primary, #f1f5f9);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.smart-import__escolha-modo-card:hover:not(:disabled) {
+  border-color: rgba(129, 140, 248, 0.45);
+  background: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.smart-import__escolha-modo-card:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.smart-import__escolha-modo-card--destaque {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.14) 0%, rgba(30, 41, 59, 1) 55%);
+}
+
+.smart-import__escolha-modo-card--destaque:hover:not(:disabled) {
+  border-color: rgba(167, 139, 250, 0.55);
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.22) 0%, rgba(30, 41, 59, 1) 55%);
+}
+
+.smart-import__escolha-modo-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.625rem;
+}
+
+.smart-import__escolha-modo-icone--manual {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+}
+
+.smart-import__escolha-modo-icone--rapido {
+  background: rgba(129, 140, 248, 0.18);
+  color: #a5b4fc;
+}
+
+.smart-import__escolha-modo-card-titulo {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.smart-import__escolha-modo-card-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.45;
+}
+
+.smart-import__escolha-modo-card-dica {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted, #64748b);
+}
+
+.smart-import__escolha-modo-nota {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .smart-import__escolha-modo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Upload simulador — formatos aceitos (sem PDF) ───────────────────────── */
+.smart-import__upload-conteudo {
+  margin-top: -2px;
+}
+
+.smart-import__upload-formatos {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.smart-import__upload-formato {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0.85;
+}
+
+.smart-import__upload-formato-icone--xls { color: #34d399; }
+.smart-import__upload-formato-icone--csv { color: #60a5fa; }
+.smart-import__upload-formato-icone--xml { color: #f59e0b; }
+.smart-import__upload-formato-icone--json { color: #fb923c; }
+.smart-import__upload-formato-icone--txt { color: #94a3b8; }
+
+.smart-import__upload-formato-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+}
+
+.smart-import__upload-aceite-modelo {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+  text-align: center;
+  line-height: 1.45;
+}
+
+.smart-import__upload-aceite-futuro {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.smart-import__aviso-download-modelo {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.smart-import__aviso-download-modelo-icone {
+  flex-shrink: 0;
+  color: #34d399;
+}
+
+.smart-import__aviso-download-modelo-titulo {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.smart-import__aviso-download-modelo-texto {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.45;
+}
+
+.smart-import__aviso-download-modelo-dica {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.4;
+}
+
+.smart-import__aviso-download-modelo-dica-icone {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: #fbbf24;
+}
+
+.smart-import__upload-rodape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.smart-import__upload-rodape-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+.smart-import__btn-baixar-template {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--text-primary, #e2e8f0);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.smart-import__btn-baixar-template:hover:not(:disabled) {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.smart-import__btn-baixar-template:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.smart-import__upload-erro-template {
+  font-size: 0.75rem;
+  color: #f87171;
+}

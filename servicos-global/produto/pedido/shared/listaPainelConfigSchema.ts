@@ -68,7 +68,7 @@ export function configListaPainelPadraoV1(
     colunas_visiveis: [],
     aba_status_ativa: 'todos',
     filtros_coluna: {},
-    ordenacao: { campo: 'data_emissao_pedido', direcao: 'desc' },
+    ordenacao: { campo: 'data_atualizacao_pedido', direcao: 'desc' },
     ...overrides,
   }
 }

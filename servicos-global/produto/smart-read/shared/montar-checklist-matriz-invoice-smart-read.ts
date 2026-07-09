@@ -34,6 +34,8 @@ export type ItemChecklistMatrizInvoice = {
   /** Contexto adicional para tooltip / acessibilidade. */
   detalhe: string | null
   risco_id: string | null
+  /** Motor ainda rodando para esta regra — a UI exibe spinner ao lado do resultado. */
+  em_analise: boolean
 }
 
 export const ROTULO_STATUS_CHECKLIST_INVOICE: Record<
@@ -227,6 +229,7 @@ function montarItemChecklist(
   detalhe: string | null,
   risco_id: string | null,
   resultadoOverride?: string,
+  emAnalise = false,
 ): ItemChecklistMatrizInvoice {
   return {
     regra,
@@ -235,6 +238,7 @@ function montarItemChecklist(
     resultado: resultadoOverride ?? normalizarResultadoChecklist(detalhe, status),
     detalhe,
     risco_id,
+    em_analise: emAnalise,
   }
 }
 
@@ -487,6 +491,7 @@ export function montarChecklistMatrizInvoice(
             : 'Análise da leitura ainda não concluída',
           null,
           temDado ? resultadoLido : carregando ? 'Analisando…' : '—',
+          true,
         )
       }
       if (!llmHabilitado) {
@@ -520,6 +525,7 @@ export function montarChecklistMatrizInvoice(
           'Consulta à Receita Federal em andamento — aguarde a conclusão da análise',
           null,
           detalheExtraido ?? 'Consultando Receita…',
+          true,
         )
       }
       if (!detalheExtraido || detalheEhPlaceholderSemDado(detalheExtraido)) {
@@ -549,6 +555,7 @@ export function montarChecklistMatrizInvoice(
           : 'Validação automática em andamento…',
         null,
         detalheExtraido,
+        !pipelineConcluido,
       )
     }
 
@@ -558,6 +565,7 @@ export function montarChecklistMatrizInvoice(
       pipelineConcluido ? 'N/A — sem dado na extração' : 'Validação automática em andamento…',
       null,
       pipelineConcluido ? 'Não aplicável' : '—',
+      !pipelineConcluido,
     )
   })
 }

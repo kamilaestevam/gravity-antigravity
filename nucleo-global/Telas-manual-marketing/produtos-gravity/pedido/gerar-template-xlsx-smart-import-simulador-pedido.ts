@@ -19,6 +19,7 @@ import {
 import {
   CAMPOS_BLOQ_PARA_ITEM,
   CAMPOS_BLOQ_PARA_PEDIDO,
+  templateCampoPreservaSelectOuDropdown,
 } from '../../../../servicos-global/produto/pedido/shared/smart-import-template-bloqueio'
 
 export type OpcoesGeracaoTemplateSmartImportSimulador = {
@@ -68,7 +69,7 @@ function preencherLinhaExemplo(
   }
 }
 
-const TEMPLATE_VERSAO = '4.0'
+const TEMPLATE_VERSAO = '4.1'
 
 const OPCOES_MOEDA_TEMPLATE_SIMULADOR = [
   'USD — Dólar Americano',
@@ -256,7 +257,7 @@ export async function gerarBufferTemplateXlsxSmartImportSimuladorPedido(
   })
 
   camposOrdenados.forEach((c, idx) => {
-    if (c.campo !== 'ncm_duimp') return
+    if (c.campo !== 'ncm_duimp' && c.campo !== 'ncm_item') return
     const colLetter = ws.getColumn(idx + 1).letter
     for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
       ws.getCell(`${colLetter}${row}`).dataValidation = {
@@ -277,12 +278,11 @@ export async function gerarBufferTemplateXlsxSmartImportSimuladorPedido(
     const ehBloqItem = CAMPOS_BLOQ_PARA_ITEM.has(c.campo)
     const ehBloqPedido = CAMPOS_BLOQ_PARA_PEDIDO.has(c.campo)
     if (!ehBloqItem && !ehBloqPedido) return
-    const ehNcm = c.campo === 'ncm_item' || c.campo === 'ncm_duimp'
+    const preservarSelect = templateCampoPreservaSelectOuDropdown(c)
     for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
       const cell = ws.getCell(`${colLetter}${row}`)
       if (ehBloqItem) {
-        // P15.2: colunas com dropdown dinâmico mantêm list na linha PEDIDO — só CF preta na ITEM
-        if (!c.dropdownDinamico) {
+        if (!preservarSelect) {
           cell.dataValidation = {
             type: 'custom',
             allowBlank: true,
@@ -293,25 +293,17 @@ export async function gerarBufferTemplateXlsxSmartImportSimuladorPedido(
             error: 'Este campo pertence ao Pedido (linha pai). Nao pode ser preenchido em linhas de ITEM.',
           }
         }
-      } else if (ehBloqPedido && ehNcm) {
-        cell.dataValidation = {
-          type: 'custom',
-          allowBlank: true,
-          formulae: [`AND($${colTipoLinha}${row}<>"PEDIDO",OR(LEN(SUBSTITUTE(SUBSTITUTE(${colLetter}${row},".","")," ",""))=8,${colLetter}${row}=""))`],
-          showErrorMessage: true,
-          errorStyle: 'stop',
-          errorTitle: 'Campo bloqueado ou NCM invalido',
-          error: 'Em linhas PEDIDO este campo e bloqueado. Em linhas ITEM, NCM deve ter 8 digitos.',
-        }
       } else if (ehBloqPedido) {
-        cell.dataValidation = {
-          type: 'custom',
-          allowBlank: true,
-          formulae: [`$${colTipoLinha}${row}<>"PEDIDO"`],
-          showErrorMessage: true,
-          errorStyle: 'stop',
-          errorTitle: 'Campo exclusivo de ITEM',
-          error: 'Este campo pertence ao Item (linha filha). Nao pode ser preenchido em linhas de PEDIDO.',
+        if (!preservarSelect) {
+          cell.dataValidation = {
+            type: 'custom',
+            allowBlank: true,
+            formulae: [`$${colTipoLinha}${row}<>"PEDIDO"`],
+            showErrorMessage: true,
+            errorStyle: 'stop',
+            errorTitle: 'Campo exclusivo de ITEM',
+            error: 'Este campo pertence ao Item (linha filha). Nao pode ser preenchido em linhas de PEDIDO.',
+          }
         }
       }
     }
@@ -350,18 +342,6 @@ export async function gerarBufferTemplateXlsxSmartImportSimuladorPedido(
   }
 
   return wb.xlsx.writeBuffer() as Promise<ArrayBuffer>
-}
-
-export async function criarArquivoExemploPreenchidoSmartImportSimuladorPedido(): Promise<File> {
-  const buf = await gerarBufferTemplateXlsxSmartImportSimuladorPedido({ preencherExemploDemonstracao: true })
-  const blob = new Blob([buf], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
-  return new File(
-    [blob],
-    'exemplo-importacao-pedidos-preenchido.xlsx',
-    { type: blob.type, lastModified: Date.now() },
-  )
 }
 
 export async function baixarTemplateXlsxSmartImportSimuladorPedido(): Promise<void> {

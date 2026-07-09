@@ -15,23 +15,36 @@ const AGREGADOS_PEDIDO_BLOQ_ITEM = [
 ] as const
 
 /**
+ * Propagáveis *_pedido que permanecem editáveis na linha ITEM — o par *_item
+ * recebe valor próprio (ex.: referencia_importador_item / referencia_exportador_item).
+ */
+const PROPAGAVEIS_BLOQ_ITEM_EXCLUIDOS = [
+  'referencia_importador_pedido',
+  'referencia_exportador_pedido',
+] as const
+
+const PROPAGAVEIS_BLOQ_ITEM = [...CAMPOS_PEDIDO_PROPAGAVEIS].filter(
+  (campo) => !(PROPAGAVEIS_BLOQ_ITEM_EXCLUIDOS as readonly string[]).includes(campo),
+)
+
+/**
  * Bloqueados em linhas ITEM — preencher só na linha PEDIDO pai.
- * P15.2: pares propagáveis *_pedido (ex.: unidade_comercializada_pedido, tipo_volume_pedido).
+ * P15.2: pares propagáveis *_pedido (exceto refs com coluna *_item dedicada).
  */
 export const CAMPOS_BLOQ_PARA_ITEM: ReadonlySet<string> = new Set([
   'numero_pedido',
   ...AGREGADOS_PEDIDO_BLOQ_ITEM,
-  ...CAMPOS_PEDIDO_PROPAGAVEIS,
+  ...PROPAGAVEIS_BLOQ_ITEM,
 ])
 
 /**
  * Bloqueados em linhas PEDIDO — preencher só na linha ITEM (ou par *_pedido).
  * P15.1: colunas *_item da zona ESSENCIAL usam o par propagável *_pedido no master.
+ * P15.3: ncm_item liberado na linha PEDIDO (NCM do pedido / master).
  */
 export const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
   'sequencia_item_pedido',
   'part_number_item',
-  'ncm_item',
   'descricao_item',
   'quantidade_inicial_item',
   'quantidade_atual_item',
@@ -51,6 +64,16 @@ export const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
   'valor_total_item',
   'incoterm_item',
 ])
+
+/** Mantém dropdown list ao bloquear — só formatação condicional preta. */
+export function templateCampoPreservaSelectOuDropdown(campo: {
+  dropdownDinamico?: string
+  tipo?: string
+  opcoesSelect?: readonly string[]
+}): boolean {
+  if (campo.dropdownDinamico) return true
+  return campo.tipo === 'select' && !!campo.opcoesSelect?.length
+}
 
 /**
  * Parser na confirmação: agregados de pedido ignorados em linha ITEM.

@@ -1,0 +1,549 @@
+import React, { useMemo, useState } from 'react'
+import {
+  AirplaneTilt,
+  Anchor,
+  DownloadSimple,
+  Export,
+  FileText,
+  GlobeHemisphereWest,
+  Hash,
+  Info,
+  MapPin,
+  Package,
+  Scales,
+  ShippingContainer,
+  SquaresFour,
+  Truck,
+  Users,
+  Van,
+  Warning,
+} from '@phosphor-icons/react'
+import { gerarNumeroCotacaoFreteInternacional } from '@produto/bid-frete-internacional/shared/numeracao-bid-frete-internacional'
+import {
+  NC_ESTILOS_SIMULADOR_CARGA_INCOTERM,
+  NC_ESTILOS_SIMULADOR_MODAL_OPERACAO,
+  NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO,
+} from './manual-bid-frete-estilos-nc-simulador'
+import {
+  ICONE_FIELD,
+  ICONE_LABEL_SECAO,
+  SimuladorNcField,
+  SimuladorNcOptionButton,
+  SimuladorNcSectionTitle,
+} from './manual-bid-frete-simulador-nc-ui'
+import { ManualBidFreteSimuladorWizardEmbutido } from './manual-bid-frete-simulador-wizard-embutido'
+import { MANUAL_ESPACO_PARAGRAFO_PX } from './manual-tipografia'
+import {
+  CAMPOS_MODAL_OPERACAO_BID_FRETE,
+  type CampoModalOperacaoId,
+} from './manual-bid-frete-infografico-modal-operacao-campos'
+import { ManualBidFreteGuiaAoVivo, type CampoGuiaAoVivo } from './manual-bid-frete-guia-ao-vivo'
+import {
+  CAMPOS_ORIGEM_DESTINO_BID_FRETE,
+  ConteudoPassoOrigemDestinoSimulador,
+  ESTADO_LADO_ORIGEM_DESTINO_INICIAL,
+  podeAvancarPassoOrigemDestino,
+  resolverExplicacaoOrigemDestino,
+  resolverSelecoesOrigemDestino,
+  type CampoOrigemDestinoId,
+  type EstadoOrigemDestino,
+  type LadoLocal,
+} from './manual-bid-frete-simulador-origem-destino'
+import {
+  CAMPOS_CARGA_INCOTERM_BID_FRETE,
+  ConteudoPassoCargaIncotermSimulador,
+  ESTADO_CARGA_INCOTERM_INICIAL,
+  podeAvancarPassoCargaIncoterm,
+  resolverExplicacaoCargaIncoterm,
+  resolverSelecoesCargaIncoterm,
+  type CampoCargaIncotermId,
+  type EstadoCargaIncoterm,
+} from './manual-bid-frete-simulador-carga-incoterm'
+
+type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO' | ''
+type ModalFrete = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
+type Modalidade = 'FCL' | 'LCL' | 'FTL' | 'LTL' | ''
+
+type CampoFoco = CampoModalOperacaoId
+
+type EstadoSimulador = {
+  numero_cotacao: string
+  tipo_operacao: TipoOperacao
+  modal_frete: ModalFrete
+  modalidade: Modalidade
+  carga_perigosa: boolean
+}
+
+const PASSOS_WIZARD = [
+  { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
+  { id: 2, label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
+  { id: 3, label: 'Carga e Incoterm', icone: <Package weight="duotone" size={16} /> },
+  { id: 4, label: 'Visibilidade', icone: <Users weight="duotone" size={16} /> },
+  { id: 5, label: 'Resumo', icone: <FileText weight="duotone" size={16} /> },
+] as const
+
+function resolverRotuloSelecao(estado: EstadoSimulador, id: CampoModalOperacaoId): string | null {
+  switch (id) {
+    case 'numero_cotacao':
+      return estado.numero_cotacao
+    case 'tipo_operacao':
+      if (estado.tipo_operacao === 'IMPORTACAO') return 'Importação'
+      if (estado.tipo_operacao === 'EXPORTACAO') return 'Exportação'
+      return null
+    case 'modal_frete':
+      if (estado.modal_frete === 'MARITIMO') return 'Marítimo'
+      if (estado.modal_frete === 'AEREO') return 'Aéreo'
+      if (estado.modal_frete === 'RODOVIARIO') return 'Rodoviário'
+      return null
+    case 'modalidade':
+      if (estado.modalidade === 'FCL') return 'FCL'
+      if (estado.modalidade === 'LCL') return 'LCL'
+      if (estado.modalidade === 'FTL') return 'FTL'
+      if (estado.modalidade === 'LTL') return 'LTL'
+      return null
+    case 'carga_perigosa':
+      // Desmarcada é o estado padrão — não conta como escolha na lista do guia.
+      return estado.carga_perigosa ? 'Marcada' : null
+    default:
+      return null
+  }
+}
+
+const ORDEM_CAMPOS_GUIA: CampoModalOperacaoId[] = [
+  'numero_cotacao',
+  'tipo_operacao',
+  'modal_frete',
+  'modalidade',
+  'carga_perigosa',
+]
+
+function resolverSelecoesPreenchidas(
+  estado: EstadoSimulador,
+  interagiu: Partial<Record<CampoFoco, boolean>>,
+): { id: CampoModalOperacaoId; valor: string }[] {
+  return ORDEM_CAMPOS_GUIA.flatMap((id) => {
+    if (id === 'numero_cotacao' && !interagiu.numero_cotacao) return []
+    if (id === 'carga_perigosa' && !interagiu.carga_perigosa) return []
+    const valor = resolverRotuloSelecao(estado, id)
+    if (!valor) return []
+    return [{ id, valor }]
+  })
+}
+
+function resolverExplicacao(estado: EstadoSimulador, foco: CampoFoco | null): string {
+  if (!foco) return ''
+  switch (foco) {
+    case 'numero_cotacao':
+      return `Número atual: **${estado.numero_cotacao}**. Identificador único da solicitação, gerado automaticamente no formato **COT-YYYYMMDD-NNNN**; você pode personalizar antes de criar.`
+    case 'tipo_operacao':
+      if (estado.tipo_operacao === 'IMPORTACAO') {
+        return 'Você selecionou **Importação**: cotações de frete de importação. Orienta validações de origem e destino nos passos seguintes.'
+      }
+      if (estado.tipo_operacao === 'EXPORTACAO') {
+        return 'Você selecionou **Exportação**: cotações de exportação. Orienta validações de origem e destino nos passos seguintes.'
+      }
+      return ''
+    case 'modal_frete':
+      if (estado.modal_frete === 'MARITIMO') {
+        return 'Você selecionou **Marítimo**: alto volume, menor custo. Na sequência, escolha **FCL** ou **LCL** em Modalidade.'
+      }
+      if (estado.modal_frete === 'AEREO') {
+        return 'Você selecionou **Aéreo**: entrega rápida e expressa. O bloco **Modalidade** não aparece neste passo (diferente de Marítimo e Rodoviário).'
+      }
+      if (estado.modal_frete === 'RODOVIARIO') {
+        return 'Você selecionou **Rodoviário**: flexível e porta a porta. Na sequência, escolha **FTL** ou **LTL** em Modalidade.'
+      }
+      return ''
+    case 'modalidade':
+      if (estado.modalidade === 'FCL') {
+        return 'Você selecionou **FCL (Container Completo)**. Container exclusivo para suas mercadorias; indicado para volumes que preenchem um container inteiro.'
+      }
+      if (estado.modalidade === 'LCL') {
+        return 'Você selecionou **LCL (Carga Fracionada)**. Compartilha espaço no container com outras cargas; indicado para volumes menores.'
+      }
+      if (estado.modalidade === 'FTL') {
+        return 'Você selecionou **FTL (Carga Completa)**. Veículo dedicado à sua carga, porta a porta.'
+      }
+      if (estado.modalidade === 'LTL') {
+        return 'Você selecionou **LTL (Carga Fracionada)**. Compartilha o veículo com outras cargas; indicado para volumes menores.'
+      }
+      return ''
+    case 'carga_perigosa':
+      return estado.carga_perigosa
+        ? '**Carga perigosa** marcada: mercadoria classificada **ONU** (IMDG / ADR / IATA DGR). Informe o **número ONU** no passo **Carga e Incoterm**.'
+        : '**Carga perigosa** desmarcada: use quando a mercadoria **não** é classificada ONU. Se precisar marcar depois, alterne esta opção.'
+    default:
+      return ''
+  }
+}
+
+/** Paridade com canNext() — passo «modal» do wizard real. */
+function podeAvancarPassoModalOperacao(estado: EstadoSimulador): boolean {
+  if (!estado.numero_cotacao.trim()) return false
+  if (!estado.tipo_operacao || !estado.modal_frete) return false
+  if (estado.modal_frete === 'AEREO') return true
+  return !!estado.modalidade
+}
+
+type CampoGuiaUnificadoId = CampoModalOperacaoId | CampoOrigemDestinoId | CampoCargaIncotermId
+
+const CAMPOS_GUIA_UNIFICADO: CampoGuiaAoVivo<CampoGuiaUnificadoId>[] = [
+  ...CAMPOS_MODAL_OPERACAO_BID_FRETE,
+  ...CAMPOS_ORIGEM_DESTINO_BID_FRETE.map((campo) => ({
+    ...campo,
+    num: String(Number(campo.num) + 5).padStart(2, '0'),
+  })),
+  ...CAMPOS_CARGA_INCOTERM_BID_FRETE.map((campo) => ({
+    ...campo,
+    num: String(Number(campo.num) + 11).padStart(2, '0'),
+  })),
+]
+
+const IDS_MODAL = ORDEM_CAMPOS_GUIA as string[]
+const IDS_ORIGEM = CAMPOS_ORIGEM_DESTINO_BID_FRETE.map((c) => c.id) as string[]
+const IDS_CARGA = CAMPOS_CARGA_INCOTERM_BID_FRETE.map((c) => c.id) as string[]
+
+/** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
+export function ManualBidFreteSimuladorModalOperacao() {
+  const [passoAtual, setPassoAtual] = useState(1)
+  const [estado, setEstado] = useState<EstadoSimulador>(() => ({
+    numero_cotacao: gerarNumeroCotacaoFreteInternacional(),
+    tipo_operacao: '',
+    modal_frete: '',
+    modalidade: '',
+    carga_perigosa: false,
+  }))
+  const [estadoLocais, setEstadoLocais] = useState<EstadoOrigemDestino>(() => ({
+    origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+    destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+  }))
+  const [estadoCarga, setEstadoCarga] = useState<EstadoCargaIncoterm>(() => ({
+    ...ESTADO_CARGA_INCOTERM_INICIAL,
+    linhas_container_fcl: ESTADO_CARGA_INCOTERM_INICIAL.linhas_container_fcl.map((l) => ({ ...l })),
+  }))
+  const [foco, setFoco] = useState<CampoGuiaUnificadoId | null>(null)
+  const [interagiuModal, setInteragiuModal] = useState<Partial<Record<CampoFoco, boolean>>>({})
+  const [interagiuLocais, setInteragiuLocais] = useState<Partial<Record<CampoOrigemDestinoId, boolean>>>({})
+  const [interagiuCarga, setInteragiuCarga] = useState<Partial<Record<CampoCargaIncotermId, boolean>>>({})
+
+  const contextoCarga = useMemo(
+    () => ({
+      modal_frete: estado.modal_frete,
+      modalidade: estado.modalidade,
+      carga_perigosa: estado.carga_perigosa,
+    }),
+    [estado.modal_frete, estado.modalidade, estado.carga_perigosa],
+  )
+
+  const marcarInteracaoModal = (campo: CampoFoco) => {
+    setInteragiuModal((prev) => ({ ...prev, [campo]: true }))
+    setFoco(campo)
+  }
+
+  const marcarInteracaoLocal = (campo: CampoOrigemDestinoId) => {
+    setInteragiuLocais((prev) => ({ ...prev, [campo]: true }))
+    setFoco(campo)
+  }
+
+  const marcarInteracaoCarga = (campo: CampoCargaIncotermId) => {
+    setInteragiuCarga((prev) => ({ ...prev, [campo]: true }))
+    setFoco(campo)
+  }
+
+  const atualizarLado = (lado: LadoLocal, parcial: Partial<EstadoOrigemDestino[LadoLocal]>) => {
+    setEstadoLocais((prev) => ({ ...prev, [lado]: { ...prev[lado], ...parcial } }))
+  }
+
+  const selecoesModal = useMemo(
+    () => resolverSelecoesPreenchidas(estado, interagiuModal),
+    [estado, interagiuModal],
+  )
+  const selecoesLocais = useMemo(
+    () => resolverSelecoesOrigemDestino(estadoLocais, interagiuLocais),
+    [estadoLocais, interagiuLocais],
+  )
+  const selecoesCarga = useMemo(
+    () => resolverSelecoesCargaIncoterm(estadoCarga, interagiuCarga, contextoCarga),
+    [estadoCarga, interagiuCarga, contextoCarga],
+  )
+  const selecoesGuia = useMemo(
+    () => [
+      ...selecoesModal.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
+      ...selecoesLocais.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
+      ...selecoesCarga.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
+    ],
+    [selecoesModal, selecoesLocais, selecoesCarga],
+  )
+
+  const campoGuiaAtivo = useMemo((): CampoGuiaUnificadoId | null => {
+    if (!foco) return null
+    if (!selecoesGuia.some((s) => s.id === foco)) return null
+    return foco
+  }, [foco, selecoesGuia])
+
+  const explicacao = useMemo(() => {
+    if (!campoGuiaAtivo) return ''
+    if (IDS_MODAL.includes(campoGuiaAtivo)) {
+      return resolverExplicacao(estado, campoGuiaAtivo as CampoFoco)
+    }
+    if (IDS_ORIGEM.includes(campoGuiaAtivo)) {
+      return resolverExplicacaoOrigemDestino(estadoLocais, campoGuiaAtivo as CampoOrigemDestinoId)
+    }
+    if (IDS_CARGA.includes(campoGuiaAtivo)) {
+      return resolverExplicacaoCargaIncoterm(
+        estadoCarga,
+        campoGuiaAtivo as CampoCargaIncotermId,
+        contextoCarga,
+      )
+    }
+    return ''
+  }, [campoGuiaAtivo, estado, estadoLocais, estadoCarga, contextoCarga])
+
+  const exibirModalidade = estado.modal_frete !== 'AEREO' && estado.modal_frete !== ''
+
+  const podeAvancar = useMemo(() => {
+    if (passoAtual === 1) return podeAvancarPassoModalOperacao(estado)
+    if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais)
+    if (passoAtual === 3) return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
+    return false
+  }, [passoAtual, estado, estadoLocais, estadoCarga, contextoCarga])
+
+  const podeVoltar = passoAtual > 1
+
+  return (
+    <div id="sim-bid-frete-modal-operacao" style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+      <p style={{
+        margin: '0 0 10px',
+        fontSize: '.75rem',
+        lineHeight: 1.45,
+        color: 'color-mix(in srgb, var(--ws-text, #f1f5f9) 65%, transparent)',
+        fontStyle: 'italic',
+      }}>
+        Tela interativa: avance entre os passos nesta mesma tela; o guia à direita preserva todas as escolhas
+      </p>
+      <style>{NC_ESTILOS_SIMULADOR_MODAL_OPERACAO}</style>
+      <style>{NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO}</style>
+      <style>{NC_ESTILOS_SIMULADOR_CARGA_INCOTERM}</style>
+      <div className="sim-modal-operacao-layout">
+        <div>
+          <ManualBidFreteSimuladorWizardEmbutido
+            titulo="Nova Cotação de Frete Internacional"
+            subtitulo="Preencha os dados para solicitar cotações de frete"
+            icone={<Truck weight="duotone" size={22} />}
+            passos={[...PASSOS_WIZARD]}
+            passoAtual={passoAtual}
+            larguraTotal
+            podeAvancar={podeAvancar}
+            podeVoltar={podeVoltar}
+            onAvancar={() => {
+              if (passoAtual === 1) setPassoAtual(2)
+              else if (passoAtual === 2) setPassoAtual(3)
+            }}
+            onVoltar={() => {
+              if (passoAtual === 3) setPassoAtual(2)
+              else if (passoAtual === 2) setPassoAtual(1)
+            }}
+          >
+            {passoAtual === 1 ? (
+              <div className="nc-root nc-step-wrapper nc-fade-in">
+                <div className="nc-step-content">
+                  <SimuladorNcField label="Nº da cotação" icone={<Hash {...ICONE_FIELD} />}>
+                    <input
+                      type="text"
+                      className="nc-input"
+                      value={estado.numero_cotacao}
+                      onChange={(e) => {
+                        setEstado((prev) => ({ ...prev, numero_cotacao: e.target.value }))
+                        marcarInteracaoModal('numero_cotacao')
+                      }}
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                    <span className="nc-field-hint">
+                      Gerado automaticamente; você pode personalizar antes de criar
+                    </span>
+                  </SimuladorNcField>
+
+                  <SimuladorNcSectionTitle icone={<GlobeHemisphereWest {...ICONE_LABEL_SECAO} />} obrigatorio>
+                    Tipo de operação
+                  </SimuladorNcSectionTitle>
+                  <div className="nc-options-grid-2">
+                    <SimuladorNcOptionButton
+                      selected={estado.tipo_operacao === 'IMPORTACAO'}
+                      onClick={() => {
+                        setEstado((prev) => ({ ...prev, tipo_operacao: 'IMPORTACAO' }))
+                        marcarInteracaoModal('tipo_operacao')
+                      }}
+                      icon={<DownloadSimple weight="duotone" size={24} />}
+                      label="Importação"
+                      description="Cotações de frete de importação"
+                    />
+                    <SimuladorNcOptionButton
+                      selected={estado.tipo_operacao === 'EXPORTACAO'}
+                      onClick={() => {
+                        setEstado((prev) => ({ ...prev, tipo_operacao: 'EXPORTACAO' }))
+                        marcarInteracaoModal('tipo_operacao')
+                      }}
+                      icon={<Export weight="duotone" size={24} />}
+                      label="Exportação"
+                      description="Cotações de exportação"
+                    />
+                  </div>
+
+                  <SimuladorNcSectionTitle icone={<ShippingContainer {...ICONE_LABEL_SECAO} />} obrigatorio>
+                    Modal de frete
+                  </SimuladorNcSectionTitle>
+                  <div className="nc-options-grid-3">
+                    <SimuladorNcOptionButton
+                      selected={estado.modal_frete === 'MARITIMO'}
+                      onClick={() => {
+                        setEstado((prev) => ({ ...prev, modal_frete: 'MARITIMO', modalidade: '' }))
+                        marcarInteracaoModal('modal_frete')
+                      }}
+                      icon={<Anchor weight="duotone" size={24} />}
+                      label="Marítimo"
+                      description="Alto volume, menor custo"
+                    />
+                    <SimuladorNcOptionButton
+                      selected={estado.modal_frete === 'AEREO'}
+                      onClick={() => {
+                        setEstado((prev) => ({ ...prev, modal_frete: 'AEREO', modalidade: '' }))
+                        marcarInteracaoModal('modal_frete')
+                      }}
+                      icon={<AirplaneTilt weight="duotone" size={24} />}
+                      label="Aéreo"
+                      description="Entrega rápida e expressa"
+                    />
+                    <SimuladorNcOptionButton
+                      selected={estado.modal_frete === 'RODOVIARIO'}
+                      onClick={() => {
+                        setEstado((prev) => ({ ...prev, modal_frete: 'RODOVIARIO', modalidade: '' }))
+                        marcarInteracaoModal('modal_frete')
+                      }}
+                      icon={<Truck weight="duotone" size={24} />}
+                      label="Rodoviário"
+                      description="Flexível e porta a porta"
+                    />
+                  </div>
+
+                  {exibirModalidade ? (
+                    <>
+                      <SimuladorNcSectionTitle icone={<SquaresFour {...ICONE_LABEL_SECAO} />} obrigatorio>
+                        Modalidade
+                      </SimuladorNcSectionTitle>
+                      <div className="nc-options-grid-2">
+                        {!estado.modal_frete ? (
+                          <div className="nc-empty-hint">
+                            <Info size={18} weight="duotone" />
+                            <p>Selecione o modal primeiro</p>
+                          </div>
+                        ) : null}
+                        {estado.modal_frete === 'MARITIMO' ? (
+                          <>
+                            <SimuladorNcOptionButton
+                              selected={estado.modalidade === 'FCL'}
+                              onClick={() => {
+                                setEstado((prev) => ({ ...prev, modalidade: 'FCL' }))
+                                marcarInteracaoModal('modalidade')
+                              }}
+                              icon={<Package weight="duotone" size={22} />}
+                              label="FCL (Container Completo)"
+                              description="Container completo e exclusivo para acomodar suas mercadorias."
+                            />
+                            <SimuladorNcOptionButton
+                              selected={estado.modalidade === 'LCL'}
+                              onClick={() => {
+                                setEstado((prev) => ({ ...prev, modalidade: 'LCL' }))
+                                marcarInteracaoModal('modalidade')
+                              }}
+                              icon={<Scales weight="duotone" size={22} />}
+                              label="LCL (Carga Fracionada)"
+                              description="Compartilha espaço no container com outras cargas."
+                            />
+                          </>
+                        ) : null}
+                        {estado.modal_frete === 'RODOVIARIO' ? (
+                          <>
+                            <SimuladorNcOptionButton
+                              selected={estado.modalidade === 'FTL'}
+                              onClick={() => {
+                                setEstado((prev) => ({ ...prev, modalidade: 'FTL' }))
+                                marcarInteracaoModal('modalidade')
+                              }}
+                              icon={<Van weight="duotone" size={22} />}
+                              label="FTL (Carga Completa)"
+                              description="Veículo dedicado à sua carga, porta a porta."
+                            />
+                            <SimuladorNcOptionButton
+                              selected={estado.modalidade === 'LTL'}
+                              onClick={() => {
+                                setEstado((prev) => ({ ...prev, modalidade: 'LTL' }))
+                                marcarInteracaoModal('modalidade')
+                              }}
+                              icon={<Van weight="duotone" size={22} />}
+                              label="LTL (Carga Fracionada)"
+                              description="Compartilha o veículo com outras cargas."
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                    </>
+                  ) : null}
+
+                  <SimuladorNcSectionTitle icone={<Warning {...ICONE_LABEL_SECAO} />}>
+                    Carga perigosa
+                  </SimuladorNcSectionTitle>
+                  <div className="nc-options-grid-full">
+                    <SimuladorNcOptionButton
+                      selected={estado.carga_perigosa}
+                      onClick={() => {
+                        const marcada = !estado.carga_perigosa
+                        setEstado((prev) => ({ ...prev, carga_perigosa: marcada }))
+                        if (marcada) {
+                          marcarInteracaoModal('carga_perigosa')
+                        } else {
+                          setFoco(null)
+                        }
+                      }}
+                      icon={<Warning weight="duotone" size={22} />}
+                      label="Carga Perigosa"
+                      description="Mercadoria classificada ONU (IMDG / ADR / IATA DGR). Informe o número ONU no passo Carga."
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : passoAtual === 2 ? (
+              <ConteudoPassoOrigemDestinoSimulador
+                estado={estadoLocais}
+                aoAtualizarLado={atualizarLado}
+                aoInteragir={marcarInteracaoLocal}
+                aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
+              />
+            ) : (
+              <ConteudoPassoCargaIncotermSimulador
+                estado={estadoCarga}
+                contexto={contextoCarga}
+                aoAtualizar={(parcial) => setEstadoCarga((prev) => ({ ...prev, ...parcial }))}
+                aoInteragir={marcarInteracaoCarga}
+                aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
+              />
+            )}
+          </ManualBidFreteSimuladorWizardEmbutido>
+        </div>
+
+        <ManualBidFreteGuiaAoVivo
+          campos={CAMPOS_GUIA_UNIFICADO}
+          selecoes={selecoesGuia}
+          campoAtivo={campoGuiaAtivo}
+          textoContextual={explicacao}
+          contextoSimulador={{
+            tipo_operacao: estado.tipo_operacao,
+            modal_frete: estado.modal_frete,
+            modalidade: estado.modalidade,
+          }}
+          onSelecionarCampo={(id) => setFoco((prev) => (prev === id ? null : id))}
+        />
+      </div>
+    </div>
+  )
+}

@@ -3529,6 +3529,19 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   word-break: break-word;
 }
 
+.sr-conf-chk-spinner {
+  margin-right: 6px;
+  vertical-align: -2px;
+  color: var(--accent-primary, #818cf8);
+  animation: sr-conf-chk-girar 0.8s linear infinite;
+}
+
+@keyframes sr-conf-chk-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .sr-conf-chk-status {
   display: inline-block;
   font-size: 0.625rem;

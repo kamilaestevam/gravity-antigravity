@@ -202,8 +202,9 @@ export function EtapaUploadSmartImportSimulador({
             </div>
           ))}
         </div>
-        <div className="smart-import__tag-em-breve" role="note">
-          <span className="smart-import__tag-em-breve-texto">Em breve: será aceito qualquer planilha</span>
+        <div className="smart-import__tag-em-breve" role="note" aria-label="Em breve será aceito qualquer planilha">
+          <span className="smart-import__tag-em-breve-badge">Em breve</span>
+          <span className="smart-import__tag-em-breve-texto">será aceito qualquer planilha</span>
         </div>
         <input
           ref={inputRef}

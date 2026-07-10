@@ -41,6 +41,8 @@ type Props = {
   onCompararArquivo?: () => void
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   idLeituraLegado?: string | null
+  camposEditados?: ReadonlySet<string>
+  onEditarCampo?: (chave: string, valor: string) => void
   onTokensAtualizados?: (
     resumo: ResumoUsoLlmLeituraSmartRead | null | undefined,
     chamada?: UsoLlmChamadaLeituraSmartRead | null,
@@ -56,6 +58,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onCompararArquivo,
   onVerEvidencia,
   idLeituraLegado = null,
+  camposEditados = new Set(),
+  onEditarCampo,
   onTokensAtualizados,
   onIaInicio,
   onIaFim,
@@ -153,6 +157,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
               ocultarComparar
               campoFoco={campoFocoConferencia}
               onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
+              camposEditados={camposEditados}
+              onEditarCampo={onEditarCampo}
             />
           ) : null}
         </>
@@ -208,6 +214,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
             indiceDocumentoConferencia={indiceDocumento}
             tituloContextoDocumento={tituloContextoDocumento}
             idLeituraLegado={idLeituraLegado}
+            camposEditados={camposEditados}
           />
         </div>
       )}

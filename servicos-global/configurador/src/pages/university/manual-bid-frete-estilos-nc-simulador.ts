@@ -1507,6 +1507,16 @@ export const NC_ESTILOS_SIMULADOR_CARGA_INCOTERM = `
     color: #c7d2fe;
     background: rgba(99, 102, 241, 0.12);
   }
+  .nc-receipt-value-tooltip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .nc-receipt-value-tooltip svg {
+    color: var(--text-secondary, #94a3b8);
+    flex-shrink: 0;
+    opacity: 0.75;
+  }
   .nc-resumo-sucesso {
     display: flex;
     flex-direction: column;

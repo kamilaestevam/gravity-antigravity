@@ -19,7 +19,10 @@ import {
   Tag,
   Truck,
   Warning,
+  Warehouse,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { ehMaritimoLclCotacaoBidFreteInternacional } from './manual-bid-frete-simulador-passos-wizard-lcl'
 import {
   ICONE_LABEL_SECAO,
   SimuladorNcSectionTitle,
@@ -30,6 +33,26 @@ import {
   type EstadoOrigemDestino,
 } from './manual-bid-frete-simulador-origem-destino'
 import type { EstadoVisibilidade } from './manual-bid-frete-simulador-visibilidade'
+import type { EstadoArmazenagem } from './manual-bid-frete-simulador-armazenagem'
+
+const LIMITE_CARACTERES_ARMAZENS_RESUMO = 24
+
+function truncarTextoResumoComReticencias(texto: string, limite: number): string {
+  return texto.length > limite ? `${texto.slice(0, limite)}...` : texto
+}
+
+function textoArmazensResumo(estado: EstadoArmazenagem): string {
+  return estado.linhas_armazem_alfandegado
+    .map((linha) => linha.nome_armazem_alfandegado.trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
+function rotuloIncluirArmazenagem(opcao: EstadoArmazenagem['opcao_incluir_armazenagem']): string {
+  if (opcao === 'sim') return 'Sim'
+  if (opcao === 'nao') return 'Não'
+  return '—'
+}
 
 type ModalFrete = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
 type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO' | ''
@@ -136,6 +159,7 @@ type ConteudoPassoResumoSimuladorProps = {
   carga: EstadoCargaIncoterm
   contextoCarga: ContextoPassoCarga
   visibilidade: EstadoVisibilidade
+  armazenagem?: EstadoArmazenagem
   sucesso?: boolean
 }
 
@@ -145,6 +169,7 @@ export function ConteudoPassoResumoSimulador({
   carga,
   contextoCarga,
   visibilidade,
+  armazenagem,
   sucesso = false,
 }: ConteudoPassoResumoSimuladorProps) {
   if (sucesso) {
@@ -178,6 +203,15 @@ export function ConteudoPassoResumoSimulador({
       : modalOperacao.modal_frete === 'MARITIMO'
         ? Anchor
         : Truck
+  const ehMaritimoLcl = ehMaritimoLclCotacaoBidFreteInternacional(
+    modalOperacao.modal_frete,
+    modalOperacao.modalidade,
+  )
+  const armazensResumo = armazenagem ? textoArmazensResumo(armazenagem) : ''
+  const armazensResumoTruncado = truncarTextoResumoComReticencias(
+    armazensResumo,
+    LIMITE_CARACTERES_ARMAZENS_RESUMO,
+  )
 
   return (
     <div className="nc-root nc-step-wrapper nc-fade-in">
@@ -256,6 +290,29 @@ export function ConteudoPassoResumoSimulador({
               <div className="nc-receipt-row">
                 <span className="nc-receipt-label"><Ruler size={14} />Cubagem</span>
                 <span className="nc-receipt-value">{cubagem}</span>
+              </div>
+            ) : null}
+            {ehMaritimoLcl && armazenagem ? (
+              <div className="nc-receipt-row">
+                <span className="nc-receipt-label"><Warehouse size={14} />Incluir armazenagem</span>
+                <span className="nc-receipt-value">
+                  {rotuloIncluirArmazenagem(armazenagem.opcao_incluir_armazenagem)}
+                </span>
+              </div>
+            ) : null}
+            {armazenagem?.opcao_incluir_armazenagem === 'sim' && armazensResumo ? (
+              <div className="nc-receipt-row">
+                <span className="nc-receipt-label"><Warehouse size={14} />Armazéns de preferência</span>
+                <span className="nc-receipt-value">
+                  {armazensResumo.length > LIMITE_CARACTERES_ARMAZENS_RESUMO ? (
+                    <TooltipGlobal titulo="Armazéns de preferência" descricao={armazensResumo}>
+                      <span className="nc-receipt-value-tooltip">
+                        {armazensResumoTruncado}
+                        <Eye size={14} />
+                      </span>
+                    </TooltipGlobal>
+                  ) : armazensResumo}
+                </span>
               </div>
             ) : null}
             {tipoVolume ? (

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   AirplaneTilt,
   Anchor,
@@ -17,8 +17,15 @@ import {
   Users,
   Van,
   Warning,
+  Warehouse,
 } from '@phosphor-icons/react'
 import { gerarNumeroCotacaoFreteInternacional } from '@produto/bid-frete-internacional/shared/numeracao-bid-frete-internacional'
+import {
+  ehMaritimoLclCotacaoBidFreteInternacional,
+  sequenciaPassosWizardNovaCotacao,
+  tipoPassoWizardNovaCotacao,
+  type TipoPassoWizardNovaCotacao,
+} from './manual-bid-frete-simulador-passos-wizard-lcl'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   NC_ESTILOS_SIMULADOR_CARGA_INCOTERM,
@@ -71,6 +78,12 @@ import {
   type EstadoVisibilidade,
 } from './manual-bid-frete-simulador-visibilidade'
 import { ConteudoPassoResumoSimulador } from './manual-bid-frete-simulador-resumo'
+import {
+  ConteudoPassoArmazenagemSimulador,
+  criarEstadoArmazenagemInicial,
+  podeAvancarPassoArmazenagem,
+  type EstadoArmazenagem,
+} from './manual-bid-frete-simulador-armazenagem'
 
 type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO' | ''
 type ModalFrete = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
@@ -86,13 +99,24 @@ type EstadoSimulador = {
   carga_perigosa: boolean
 }
 
-const PASSOS_WIZARD = [
-  { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
-  { id: 2, label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
-  { id: 3, label: 'Carga e Incoterm', icone: <Package weight="duotone" size={16} /> },
-  { id: 4, label: 'Fornecedores', icone: <Users weight="duotone" size={16} /> },
-  { id: 5, label: 'Resumo', icone: <FileText weight="duotone" size={16} /> },
-] as const
+const ROTULOS_PASSO_WIZARD: Record<
+  TipoPassoWizardNovaCotacao,
+  { label: string; icone: React.ReactNode }
+> = {
+  modal: { label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
+  origem: { label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
+  carga: { label: 'Carga e Incoterm', icone: <Package weight="duotone" size={16} /> },
+  armazenagem: { label: 'Armazenagem', icone: <Warehouse weight="duotone" size={16} /> },
+  fornecedores: { label: 'Fornecedores', icone: <Users weight="duotone" size={16} /> },
+  resumo: { label: 'Resumo', icone: <FileText weight="duotone" size={16} /> },
+}
+
+function montarPassosWizard(modalFrete: ModalFrete, modalidade: Modalidade) {
+  return sequenciaPassosWizardNovaCotacao(modalFrete, modalidade).map((tipo, index) => ({
+    id: index + 1,
+    ...ROTULOS_PASSO_WIZARD[tipo],
+  }))
+}
 
 function criarEstadoModalInicial(): EstadoSimulador {
   return {
@@ -266,6 +290,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
   const [estadoLocais, setEstadoLocais] = useState<EstadoOrigemDestino>(criarEstadoLocaisInicial)
   const [estadoCarga, setEstadoCarga] = useState<EstadoCargaIncoterm>(criarEstadoCargaInicial)
   const [estadoVisibilidade, setEstadoVisibilidade] = useState<EstadoVisibilidade>(criarEstadoVisibilidadeInicial)
+  const [estadoArmazenagem, setEstadoArmazenagem] = useState<EstadoArmazenagem>(criarEstadoArmazenagemInicial)
   const [foco, setFoco] = useState<CampoGuiaUnificadoId | null>(null)
   const [interagiuModal, setInteragiuModal] = useState<Partial<Record<CampoFoco, boolean>>>({})
   const [interagiuLocais, setInteragiuLocais] = useState<Partial<Record<CampoOrigemDestinoId, boolean>>>({})
@@ -282,6 +307,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
     setEstadoLocais(criarEstadoLocaisInicial())
     setEstadoCarga(criarEstadoCargaInicial())
     setEstadoVisibilidade(criarEstadoVisibilidadeInicial())
+    setEstadoArmazenagem(criarEstadoArmazenagemInicial())
     setFoco(null)
     setInteragiuModal({})
     setInteragiuLocais({})
@@ -290,6 +316,29 @@ export function ManualBidFreteSimuladorModalOperacao() {
     setCotacaoCriadaSimulacao(false)
     setChaveSimulacao((prev) => prev + 1)
   }
+
+  const passosWizard = useMemo(
+    () => montarPassosWizard(estado.modal_frete, estado.modalidade),
+    [estado.modal_frete, estado.modalidade],
+  )
+  const totalPassos = passosWizard.length
+  const tipoPassoAtual = tipoPassoWizardNovaCotacao(
+    passoAtual,
+    estado.modal_frete,
+    estado.modalidade,
+  )
+
+  useEffect(() => {
+    if (passoAtual > totalPassos) {
+      setPassoAtual(totalPassos)
+    }
+  }, [passoAtual, totalPassos])
+
+  useEffect(() => {
+    if (!ehMaritimoLclCotacaoBidFreteInternacional(estado.modal_frete, estado.modalidade)) {
+      setEstadoArmazenagem(criarEstadoArmazenagemInicial())
+    }
+  }, [estado.modal_frete, estado.modalidade])
 
   const contextoCarga = useMemo(
     () => ({
@@ -388,18 +437,29 @@ export function ManualBidFreteSimuladorModalOperacao() {
 
   const podeAvancar = useMemo(() => {
     if (cotacaoCriadaSimulacao) return false
-    if (passoAtual === 1) return podeAvancarPassoModalOperacao(estado)
-    if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais, estado.modal_frete)
-    if (passoAtual === 3) return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
-    if (passoAtual === 4) return podeAvancarPassoVisibilidade(estadoVisibilidade)
-    if (passoAtual === 5) return true
-    return false
+    switch (tipoPassoAtual) {
+      case 'modal':
+        return podeAvancarPassoModalOperacao(estado)
+      case 'origem':
+        return podeAvancarPassoOrigemDestino(estadoLocais, estado.modal_frete)
+      case 'carga':
+        return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
+      case 'armazenagem':
+        return podeAvancarPassoArmazenagem(estadoArmazenagem)
+      case 'fornecedores':
+        return podeAvancarPassoVisibilidade(estadoVisibilidade)
+      case 'resumo':
+        return true
+      default:
+        return false
+    }
   }, [
-    passoAtual,
+    tipoPassoAtual,
     estado,
     estadoLocais,
     estadoCarga,
     contextoCarga,
+    estadoArmazenagem,
     estadoVisibilidade,
     cotacaoCriadaSimulacao,
   ])
@@ -426,14 +486,14 @@ export function ManualBidFreteSimuladorModalOperacao() {
             titulo="Nova Cotação de Frete Internacional"
             subtitulo="Preencha os dados para solicitar cotações de frete"
             icone={<Truck weight="duotone" size={22} />}
-            passos={[...PASSOS_WIZARD]}
+            passos={passosWizard}
             passoAtual={passoAtual}
             larguraTotal
             podeAvancar={podeAvancar}
             podeVoltar={podeVoltar}
-            rotuloAvancar={passoAtual === 5 ? 'Criar Cotação' : 'Próximo'}
+            rotuloAvancar={tipoPassoAtual === 'resumo' ? 'Criar Cotação' : 'Próximo'}
             onAvancar={() => {
-              if (passoAtual < 5) {
+              if (tipoPassoAtual !== 'resumo') {
                 setPassoAtual((prev) => prev + 1)
                 return
               }
@@ -453,7 +513,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
               </div>
             ) : undefined}
           >
-            {passoAtual === 1 ? (
+            {tipoPassoAtual === 'modal' ? (
               <div className="nc-root nc-step-wrapper nc-fade-in">
                 <div className="nc-step-content">
                   <SimuladorNcField label="Nº da cotação" icone={<Hash {...ICONE_FIELD} />}>
@@ -648,7 +708,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                   </div>
                 </div>
               </div>
-            ) : passoAtual === 2 ? (
+            ) : tipoPassoAtual === 'origem' ? (
               <ConteudoPassoOrigemDestinoSimulador
                 estado={estadoLocais}
                 modalFrete={estado.modal_frete}
@@ -656,7 +716,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                 aoInteragir={marcarInteracaoLocal}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
               />
-            ) : passoAtual === 3 ? (
+            ) : tipoPassoAtual === 'carga' ? (
               <ConteudoPassoCargaIncotermSimulador
                 estado={estadoCarga}
                 contexto={contextoCarga}
@@ -664,7 +724,12 @@ export function ManualBidFreteSimuladorModalOperacao() {
                 aoInteragir={marcarInteracaoCarga}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
               />
-            ) : passoAtual === 4 ? (
+            ) : tipoPassoAtual === 'armazenagem' ? (
+              <ConteudoPassoArmazenagemSimulador
+                estado={estadoArmazenagem}
+                aoAtualizar={(parcial) => setEstadoArmazenagem((prev) => ({ ...prev, ...parcial }))}
+              />
+            ) : tipoPassoAtual === 'fornecedores' ? (
               <ConteudoPassoVisibilidadeSimulador
                 key={`visibilidade-${chaveSimulacao}`}
                 estado={estadoVisibilidade}
@@ -679,6 +744,11 @@ export function ManualBidFreteSimuladorModalOperacao() {
                 carga={estadoCarga}
                 contextoCarga={contextoCarga}
                 visibilidade={estadoVisibilidade}
+                armazenagem={
+                  ehMaritimoLclCotacaoBidFreteInternacional(estado.modal_frete, estado.modalidade)
+                    ? estadoArmazenagem
+                    : undefined
+                }
                 sucesso={cotacaoCriadaSimulacao}
               />
             )}

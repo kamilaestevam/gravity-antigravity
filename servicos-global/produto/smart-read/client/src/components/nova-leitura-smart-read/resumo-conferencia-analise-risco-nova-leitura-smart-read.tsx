@@ -284,7 +284,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     <>
     <section
       className="sr-conf-resumo-triplo"
-      aria-label="Resumo de conferência usuário, conferência Gravity e análise de risco"
+      aria-label="Resumo de conferência usuário, conformidade Gravity e análise de risco"
     >
       <div
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
@@ -330,16 +330,16 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--checklist${modalChecklistAberto ? ' sr-conf-resumo-bloco--checklist-ativo' : ''}`}
         onClick={() => setModalChecklistAberto(true)}
         aria-haspopup="dialog"
-        aria-label="Abrir conferência Gravity — checklist matriz completo"
+        aria-label="Abrir conformidade Gravity — checklist matriz completo"
       >
         <div className="sr-conf-resumo-riscos-topo">
           <TooltipGlobal
-            titulo="Conferência Gravity"
-            descricao="Resultado total da Gravity sobre todas as regras da matriz — clique para ver o detalhe"
+            titulo="Conformidade Gravity"
+            descricao="Percentual de conformidade da matriz Gravity — clique para ver o detalhe"
           >
             <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
               <ClipboardText size={12} weight="duotone" aria-hidden />
-              Conferência Gravity
+              Conformidade Gravity
             </span>
           </TooltipGlobal>
           <CaretRight size={12} weight="bold" className="sr-conf-resumo-seta" aria-hidden />
@@ -347,7 +347,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
         <div className="sr-conf-resumo-linha-barra">
           <span className="sr-conf-resumo-checklist-pct">{percentualChecklistVerde}%</span>
-          <span className="sr-conf-resumo-checklist-conforme">conforme na matriz</span>
+          <span className="sr-conf-resumo-checklist-conforme">de conformidade</span>
         </div>
 
         <BarraStatusChecklistSmartRead

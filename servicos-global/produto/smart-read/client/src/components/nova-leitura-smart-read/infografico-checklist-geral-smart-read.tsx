@@ -107,14 +107,17 @@ export function InfograficoChecklistGeralSmartRead({
                 <div className="sr-chk-info-invoice-select-centro">
                   <SelectGlobal
                     id={selecaoInvoice.id}
+                    label="Documento"
                     opcoes={selecaoInvoice.opcoes}
                     valor={selecaoInvoice.valor}
                     aoMudarValor={(v) =>
                       selecaoInvoice.aoMudarValor(v == null ? null : String(v))
                     }
                     buscavel
+                    tamanho="compacto"
                     placeholder="Selecione o documento…"
                     posicao="baixo"
+                    aria-label="Selecionar documento do checklist"
                   />
                 </div>
               ) : null}

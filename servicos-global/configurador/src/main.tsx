@@ -9,6 +9,9 @@ import App from './App'
 
 import { ptBR } from './ptBR'
 import { CHAVE_ATIVANDO_SESSAO_CONVITE, pathDestinoClerk } from './auth/clerk-sessao-convite'
+import { registrarRecargaAutomaticaChunkDesatualizado } from './recarregar-se-chunk-desatualizado'
+
+registrarRecargaAutomaticaChunkDesatualizado()
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

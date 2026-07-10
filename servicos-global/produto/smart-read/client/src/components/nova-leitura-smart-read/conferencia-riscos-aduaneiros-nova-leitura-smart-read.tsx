@@ -35,7 +35,6 @@ import type {
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import {
   chaveRiscoConferenciaUsuario,
-  usarChecklistMarcacaoUsuario,
   usarRiscosMarcacaoConferencia,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
@@ -253,10 +252,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       `${idLeituraLegado ?? ''}|${documentos.map((d) => `${d.nome_arquivo}:${d.indice}:${d.tipo_documento}`).join('|')}`,
     [documentos, idLeituraLegado],
   )
-
-  // Mesma chave/prefixo do modal de checklist — marcação sincronizada nas duas visões
-  const { estaMarcado: itemChecklistMarcado, alternarMarcado: alternarItemChecklist } =
-    usarChecklistMarcacaoUsuario(chaveAnalise)
 
   const auditoriaV1Local = useMemo(
     () =>
@@ -524,8 +519,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                       onVerEvidencia={onVerEvidencia}
                       onIrConferenciaCampos={onIrConferenciaCampos}
                       aguardandoClassificacao={carregando}
-                      estaMarcadoChecklist={itemChecklistMarcado}
-                      alternarMarcadoChecklist={alternarItemChecklist}
                     />
                   ) : null}
                 </ItemListaRisco>

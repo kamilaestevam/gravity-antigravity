@@ -8,8 +8,6 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { ResumoGeralChecklistInvoices, ResumoInvoiceChecklist } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
-import { GraficoConferenciaCheckedSmartRead } from './grafico-conferencia-checked-smart-read'
-import type { ResumoConferenciaManualChecklist } from '../../shared/checklist-marcacao-usuario-smart-read'
 
 type OpcaoInvoiceChecklist = {
   valor: string
@@ -26,7 +24,6 @@ type Props = {
     valor: string | null
     aoMudarValor: (valor: string | null) => void
   }
-  conferenciaManual?: ResumoConferenciaManualChecklist | null
   children?: ReactNode
 }
 
@@ -48,7 +45,6 @@ export function InfograficoChecklistGeralSmartRead({
   onSelecionarInvoice,
   documentoDestaque = null,
   selecaoInvoice,
-  conferenciaManual,
   children,
 }: Props) {
   const { contagem_global, por_invoice, por_secao, total_invoices } = resumo
@@ -106,13 +102,6 @@ export function InfograficoChecklistGeralSmartRead({
                   </button>
                 ))}
               </div>
-
-              {conferenciaManual && conferenciaManual.total > 0 ? (
-                <GraficoConferenciaCheckedSmartRead
-                  resumo={conferenciaManual}
-                  classe="sr-chk-info-grafico-conferido"
-                />
-              ) : null}
 
               {selecaoInvoice ? (
                 <div className="sr-chk-info-invoice-select-centro">

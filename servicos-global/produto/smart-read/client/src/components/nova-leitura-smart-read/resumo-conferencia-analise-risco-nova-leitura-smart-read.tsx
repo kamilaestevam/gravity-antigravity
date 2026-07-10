@@ -443,7 +443,6 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       nomeArquivo={arquivo.arquivo.name}
       subdocumentosSidebar={subdocumentosSidebar}
       parametrosChecklist={parametrosChecklist}
-      chaveMarcacaoChecklist={chaveAnaliseRiscos}
       rotuloDocumentoInicial={rotuloDocumentoAtual}
       indiceDocumentoInicial={indiceDocumento}
       onVerRisco={(riscoId) => {

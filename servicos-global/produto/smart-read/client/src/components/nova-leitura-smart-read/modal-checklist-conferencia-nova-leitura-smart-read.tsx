@@ -22,12 +22,7 @@ import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corp
 import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
-import {
-  chaveItemChecklistUsuario,
-  contarConferenciaManualChecklist,
-  resolverRotuloInvoiceChecklistInicial,
-  usarChecklistMarcacaoUsuario,
-} from '../../shared/checklist-marcacao-usuario-smart-read'
+import { resolverRotuloInvoiceChecklistInicial } from '../../shared/checklist-marcacao-usuario-smart-read'
 
 type Props = {
   aberto: boolean
@@ -36,7 +31,6 @@ type Props = {
   nomeArquivo: string
   subdocumentosSidebar: readonly SubdocumentoOpcaoChecklist[]
   parametrosChecklist: Omit<ParametrosChecklistMatrizInvoice, 'rotulo_documento'>
-  chaveMarcacaoChecklist: string
   rotuloDocumentoInicial?: string | null
   indiceDocumentoInicial?: number | null
   onVerRisco?: (riscoId: string) => void
@@ -49,7 +43,6 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   nomeArquivo,
   subdocumentosSidebar,
   parametrosChecklist,
-  chaveMarcacaoChecklist,
   rotuloDocumentoInicial = null,
   indiceDocumentoInicial = null,
   onVerRisco,
@@ -72,8 +65,6 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(rotuloInicialPadrao)
   const abertoAnteriorRef = useRef(false)
-  const { estaMarcado, alternarMarcado, alternarMarcadosLote, marcados } =
-    usarChecklistMarcacaoUsuario(chaveMarcacaoChecklist)
 
   const resumoGeral = useMemo(
     () =>
@@ -148,29 +139,6 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     resumoGeral.por_invoice,
     rotuloChecklistAtivo,
   ])
-
-  const chavesMarcacaoInvoice = useMemo(
-    () =>
-      checklistInvoice.map((item) =>
-        chaveItemChecklistUsuario(item.regra.id, rotuloChecklistAtivo),
-      ),
-    [checklistInvoice, rotuloChecklistAtivo],
-  )
-
-  const todosItensInvoiceMarcados = useMemo(
-    () =>
-      chavesMarcacaoInvoice.length > 0 &&
-      chavesMarcacaoInvoice.every((chave) => marcados.has(chave)),
-    [chavesMarcacaoInvoice, marcados],
-  )
-
-  const conferenciaManual = useMemo(() => {
-    if (!rotuloChecklistAtivo || checklistInvoice.length === 0) return null
-    const chaves = checklistInvoice.map((item) =>
-      chaveItemChecklistUsuario(item.regra.id, rotuloChecklistAtivo),
-    )
-    return contarConferenciaManualChecklist(marcados, chaves)
-  }, [checklistInvoice, rotuloChecklistAtivo, marcados])
 
   const classificacaoProduto = useMemo(() => {
     if (!rotuloChecklistAtivo) return []
@@ -261,7 +229,6 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
             <InfograficoChecklistGeralSmartRead
               resumo={resumoGeral}
               onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
-              conferenciaManual={conferenciaManual}
               documentoDestaque={documentoDestaque}
               selecaoInvoice={{
                 id: 'sr-chk-select-invoice',
@@ -277,14 +244,6 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                     todasSecoesAbertas
                     onVerRisco={onVerRisco}
                     rotuloInvoice={rotuloChecklistAtivo}
-                    estaMarcado={estaMarcado}
-                    alternarMarcado={alternarMarcado}
-                    chavesMarcacaoLote={chavesMarcacaoInvoice}
-                    todosMarcadosLote={todosItensInvoiceMarcados}
-                    onAlternarMarcadosLote={(marcar) =>
-                      alternarMarcadosLote(chavesMarcacaoInvoice, marcar)
-                    }
-                    onAlternarChavesLote={alternarMarcadosLote}
                     idPrefixo="sr-chk-modal-geral-inv"
                     classeCorpo="sr-chk-modal-checklist-corpo"
                     classificacaoProduto={classificacaoProduto}

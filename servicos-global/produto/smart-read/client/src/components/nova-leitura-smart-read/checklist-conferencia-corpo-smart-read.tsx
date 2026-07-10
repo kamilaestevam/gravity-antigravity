@@ -76,12 +76,14 @@ function LinhaChecklistAviacao({
   onVerRisco,
   estaMarcado,
   alternarMarcado,
+  exibirColunaCheck,
 }: {
   item: ItemChecklistMatrizInvoice
   rotuloInvoice?: string | null
   onVerRisco?: (riscoId: string) => void
   estaMarcado?: (chave: string) => boolean
   alternarMarcado?: (chave: string) => void
+  exibirColunaCheck: boolean
 }) {
   const chaveMarcacao = chaveItemChecklistUsuario(item.regra.id, rotuloInvoice)
   const marcado = estaMarcado?.(chaveMarcacao) ?? false
@@ -90,15 +92,17 @@ function LinhaChecklistAviacao({
     <tr
       className={`sr-conf-chk-linha sr-conf-chk-linha--${item.status}${marcado ? ' sr-conf-chk-linha--marcada' : ''}`}
     >
-      <td className="sr-conf-chk-col-check">
-        <input
-          type="checkbox"
-          className="sr-conf-chk-checkbox"
-          checked={marcado}
-          onChange={() => alternarMarcado?.(chaveMarcacao)}
-          aria-label={`Conferido: ${item.regra.id} ${item.regra.item}`}
-        />
-      </td>
+      {exibirColunaCheck ? (
+        <td className="sr-conf-chk-col-check">
+          <input
+            type="checkbox"
+            className="sr-conf-chk-checkbox"
+            checked={marcado}
+            onChange={() => alternarMarcado?.(chaveMarcacao)}
+            aria-label={`Conferido: ${item.regra.id} ${item.regra.item}`}
+          />
+        </td>
+      ) : null}
       <td className="sr-conf-chk-col-regra">
         <span className="sr-conf-chk-regra-id">{item.regra.id}</span>
       </td>
@@ -181,8 +185,11 @@ export function ChecklistConferenciaCorpoSmartRead({
   classeCorpo = 'sr-conf-checklist-corpo',
   classificacaoProduto,
 }: Props) {
+  const exibirColunaCheck = Boolean(alternarMarcado)
   const exibirSelecionarTudo =
-    Boolean(chavesMarcacaoLote?.length) && Boolean(onAlternarMarcadosLote)
+    exibirColunaCheck &&
+    Boolean(chavesMarcacaoLote?.length) &&
+    Boolean(onAlternarMarcadosLote)
 
   return (
     <div className={classeCorpo}>
@@ -286,26 +293,28 @@ export function ChecklistConferenciaCorpoSmartRead({
                 <table id={`${secaoId}-tabela`} className="sr-conf-chk-tabela">
                   <thead>
                     <tr>
-                      <th scope="col" className="sr-conf-chk-col-check">
-                        {alternarMarcado && rotuloInvoice ? (
-                          <input
-                            type="checkbox"
-                            className="sr-conf-chk-checkbox sr-conf-chk-checkbox--cabecalho"
-                            checked={todosSecaoMarcados}
-                            onChange={() =>
-                              onAlternarChavesLote
-                                ? onAlternarChavesLote(chavesSecao, !todosSecaoMarcados)
-                                : undefined
-                            }
-                            aria-label={`Selecionar todos os itens da seção ${ROTULO_SECAO_MATRIZ_INVOICE[secao]}`}
-                            title="Selecionar seção"
-                          />
-                        ) : (
-                          <span className="sr-conf-chk-th-check" aria-hidden>
-                            <Check size={10} weight="bold" />
-                          </span>
-                        )}
-                      </th>
+                      {exibirColunaCheck ? (
+                        <th scope="col" className="sr-conf-chk-col-check">
+                          {rotuloInvoice ? (
+                            <input
+                              type="checkbox"
+                              className="sr-conf-chk-checkbox sr-conf-chk-checkbox--cabecalho"
+                              checked={todosSecaoMarcados}
+                              onChange={() =>
+                                onAlternarChavesLote
+                                  ? onAlternarChavesLote(chavesSecao, !todosSecaoMarcados)
+                                  : undefined
+                              }
+                              aria-label={`Selecionar todos os itens da seção ${ROTULO_SECAO_MATRIZ_INVOICE[secao]}`}
+                              title="Selecionar seção"
+                            />
+                          ) : (
+                            <span className="sr-conf-chk-th-check" aria-hidden>
+                              <Check size={10} weight="bold" />
+                            </span>
+                          )}
+                        </th>
+                      ) : null}
                       <th scope="col" className="sr-conf-chk-col-regra">
                         Regra
                       </th>
@@ -329,6 +338,7 @@ export function ChecklistConferenciaCorpoSmartRead({
                         onVerRisco={onVerRisco}
                         estaMarcado={estaMarcado}
                         alternarMarcado={alternarMarcado}
+                        exibirColunaCheck={exibirColunaCheck}
                       />
                     ))}
                   </tbody>

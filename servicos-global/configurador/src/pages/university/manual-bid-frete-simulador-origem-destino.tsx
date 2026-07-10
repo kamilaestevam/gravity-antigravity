@@ -162,6 +162,22 @@ const PAISES_CATALOGO: SelectOpcao[] = [
   { valor: 'AR', rotulo: 'Argentina' },
 ]
 
+/** Rodoviário — exemplos restritos à América do Sul (manual University). */
+const PAISES_AMERICA_SUL_CATALOGO: SelectOpcao[] = [
+  { valor: 'AR', rotulo: 'Argentina' },
+  { valor: 'BO', rotulo: 'Bolívia' },
+  { valor: 'BR', rotulo: 'Brasil' },
+  { valor: 'CL', rotulo: 'Chile' },
+  { valor: 'CO', rotulo: 'Colômbia' },
+  { valor: 'EC', rotulo: 'Equador' },
+  { valor: 'GY', rotulo: 'Guiana' },
+  { valor: 'PY', rotulo: 'Paraguai' },
+  { valor: 'PE', rotulo: 'Peru' },
+  { valor: 'SR', rotulo: 'Suriname' },
+  { valor: 'UY', rotulo: 'Uruguai' },
+  { valor: 'VE', rotulo: 'Venezuela' },
+]
+
 const UFS_BR: SelectOpcao[] = [
   { valor: 'SP', rotulo: 'SP' },
   { valor: 'PR', rotulo: 'PR' },
@@ -171,13 +187,42 @@ const UFS_BR: SelectOpcao[] = [
   { valor: 'RJ', rotulo: 'RJ' },
 ]
 
-function rotuloLocalCurto(codigo: string | null, modal: ModalFreteOrigemDestino = ''): string | null {
+function rotuloLocalCompleto(codigo: string | null, modal: ModalFreteOrigemDestino = ''): string | null {
   if (!codigo) return null
   const opcao = catalogoLocalPorModal(modal).find((p) => String(p.valor) === codigo)
     ?? PORTOS_CATALOGO.find((p) => String(p.valor) === codigo)
     ?? AEROPORTOS_CATALOGO.find((p) => String(p.valor) === codigo)
   if (!opcao) return null
-  return String(opcao.rotulo).split(' — ')[0]
+  return String(opcao.rotulo)
+}
+
+function rotuloLocalCurto(codigo: string | null, modal: ModalFreteOrigemDestino = ''): string | null {
+  const completo = rotuloLocalCompleto(codigo, modal)
+  if (!completo) return null
+  return completo.split(' — ')[0]
+}
+
+/** Texto de origem/destino para o passo Resumo do wizard. */
+export function resolverTextoLocalResumo(
+  dados: EstadoLadoOrigemDestino,
+  modal: ModalFreteOrigemDestino = '',
+): { titulo: string; detalhe: string } {
+  const tipoLocal = tipoLocalPorModal(modal)
+  if (tipoLocal === 'rodoviario') {
+    const rotulo = rotuloLocalRodoviario(dados)
+    if (!rotulo) return { titulo: '—', detalhe: '—' }
+    const partes = rotulo.split(' · ')
+    return {
+      titulo: partes[partes.length - 1] || rotulo,
+      detalhe: rotulo,
+    }
+  }
+  const completo = rotuloLocalCompleto(dados.porto, modal)
+  const curto = rotuloLocalCurto(dados.porto, modal)
+  return {
+    titulo: curto || '—',
+    detalhe: completo || '—',
+  }
 }
 
 export const CAMPOS_ORIGEM_DESTINO_BID_FRETE: CampoGuiaAoVivo<CampoOrigemDestinoId>[] = [
@@ -339,7 +384,7 @@ const ORDEM_CAMPOS_GUIA: CampoOrigemDestinoId[] = [
 ]
 
 function rotuloLocalRodoviario(dados: EstadoLado): string | null {
-  const pais = PAISES_CATALOGO.find((p) => String(p.valor) === dados.pais)?.rotulo
+  const pais = PAISES_AMERICA_SUL_CATALOGO.find((p) => String(p.valor) === dados.pais)?.rotulo
   if (!pais || !dados.cidade.trim()) return null
   const uf = dados.pais === 'BR' ? dados.estadoProvincia : dados.estadoProvinciaTexto.trim()
   return uf ? `${pais} · ${uf} · ${dados.cidade.trim()}` : `${pais} · ${dados.cidade.trim()}`
@@ -542,7 +587,7 @@ function CartaoLocalSimulador({
             >
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
-                opcoes={PAISES_CATALOGO}
+                opcoes={PAISES_AMERICA_SUL_CATALOGO}
                 valor={dados.pais}
                 aoMudarValor={(v) => {
                   aoAtualizar({

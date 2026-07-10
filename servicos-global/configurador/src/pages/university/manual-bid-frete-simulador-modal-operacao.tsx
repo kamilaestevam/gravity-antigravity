@@ -19,6 +19,7 @@ import {
   Warning,
 } from '@phosphor-icons/react'
 import { gerarNumeroCotacaoFreteInternacional } from '@produto/bid-frete-internacional/shared/numeracao-bid-frete-internacional'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   NC_ESTILOS_SIMULADOR_CARGA_INCOTERM,
   NC_ESTILOS_SIMULADOR_MODAL_OPERACAO,
@@ -69,6 +70,7 @@ import {
   type CampoVisibilidadeId,
   type EstadoVisibilidade,
 } from './manual-bid-frete-simulador-visibilidade'
+import { ConteudoPassoResumoSimulador } from './manual-bid-frete-simulador-resumo'
 
 type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO' | ''
 type ModalFrete = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
@@ -91,6 +93,38 @@ const PASSOS_WIZARD = [
   { id: 4, label: 'Fornecedores', icone: <Users weight="duotone" size={16} /> },
   { id: 5, label: 'Resumo', icone: <FileText weight="duotone" size={16} /> },
 ] as const
+
+function criarEstadoModalInicial(): EstadoSimulador {
+  return {
+    numero_cotacao: gerarNumeroCotacaoFreteInternacional(),
+    tipo_operacao: '',
+    modal_frete: '',
+    modalidade: '',
+    carga_perigosa: false,
+  }
+}
+
+function criarEstadoLocaisInicial(): EstadoOrigemDestino {
+  return {
+    origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+    destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+  }
+}
+
+function criarEstadoCargaInicial(): EstadoCargaIncoterm {
+  return {
+    ...ESTADO_CARGA_INCOTERM_INICIAL,
+    linhas_container_fcl: ESTADO_CARGA_INCOTERM_INICIAL.linhas_container_fcl.map((l) => ({ ...l })),
+  }
+}
+
+function criarEstadoVisibilidadeInicial(): EstadoVisibilidade {
+  return {
+    ...ESTADO_VISIBILIDADE_INICIAL,
+    canais: [...ESTADO_VISIBILIDADE_INICIAL.canais],
+    ids_fornecedores: [...ESTADO_VISIBILIDADE_INICIAL.ids_fornecedores],
+  }
+}
 
 function resolverRotuloSelecao(estado: EstadoSimulador, id: CampoModalOperacaoId): string | null {
   switch (id) {
@@ -225,26 +259,10 @@ const IDS_VISIBILIDADE = CAMPOS_VISIBILIDADE_BID_FRETE.map((c) => c.id) as strin
 /** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
 export function ManualBidFreteSimuladorModalOperacao() {
   const [passoAtual, setPassoAtual] = useState(1)
-  const [estado, setEstado] = useState<EstadoSimulador>(() => ({
-    numero_cotacao: gerarNumeroCotacaoFreteInternacional(),
-    tipo_operacao: '',
-    modal_frete: '',
-    modalidade: '',
-    carga_perigosa: false,
-  }))
-  const [estadoLocais, setEstadoLocais] = useState<EstadoOrigemDestino>(() => ({
-    origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
-    destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
-  }))
-  const [estadoCarga, setEstadoCarga] = useState<EstadoCargaIncoterm>(() => ({
-    ...ESTADO_CARGA_INCOTERM_INICIAL,
-    linhas_container_fcl: ESTADO_CARGA_INCOTERM_INICIAL.linhas_container_fcl.map((l) => ({ ...l })),
-  }))
-  const [estadoVisibilidade, setEstadoVisibilidade] = useState<EstadoVisibilidade>(() => ({
-    ...ESTADO_VISIBILIDADE_INICIAL,
-    canais: [...ESTADO_VISIBILIDADE_INICIAL.canais],
-    ids_fornecedores: [...ESTADO_VISIBILIDADE_INICIAL.ids_fornecedores],
-  }))
+  const [estado, setEstado] = useState<EstadoSimulador>(criarEstadoModalInicial)
+  const [estadoLocais, setEstadoLocais] = useState<EstadoOrigemDestino>(criarEstadoLocaisInicial)
+  const [estadoCarga, setEstadoCarga] = useState<EstadoCargaIncoterm>(criarEstadoCargaInicial)
+  const [estadoVisibilidade, setEstadoVisibilidade] = useState<EstadoVisibilidade>(criarEstadoVisibilidadeInicial)
   const [foco, setFoco] = useState<CampoGuiaUnificadoId | null>(null)
   const [interagiuModal, setInteragiuModal] = useState<Partial<Record<CampoFoco, boolean>>>({})
   const [interagiuLocais, setInteragiuLocais] = useState<Partial<Record<CampoOrigemDestinoId, boolean>>>({})
@@ -252,6 +270,23 @@ export function ManualBidFreteSimuladorModalOperacao() {
   const [interagiuVisibilidade, setInteragiuVisibilidade] = useState<
     Partial<Record<CampoVisibilidadeId, boolean>>
   >({})
+  const [cotacaoCriadaSimulacao, setCotacaoCriadaSimulacao] = useState(false)
+  const [chaveSimulacao, setChaveSimulacao] = useState(0)
+
+  const reiniciarSimulacao = () => {
+    setPassoAtual(1)
+    setEstado(criarEstadoModalInicial())
+    setEstadoLocais(criarEstadoLocaisInicial())
+    setEstadoCarga(criarEstadoCargaInicial())
+    setEstadoVisibilidade(criarEstadoVisibilidadeInicial())
+    setFoco(null)
+    setInteragiuModal({})
+    setInteragiuLocais({})
+    setInteragiuCarga({})
+    setInteragiuVisibilidade({})
+    setCotacaoCriadaSimulacao(false)
+    setChaveSimulacao((prev) => prev + 1)
+  }
 
   const contextoCarga = useMemo(
     () => ({
@@ -349,12 +384,22 @@ export function ManualBidFreteSimuladorModalOperacao() {
   const exibirModalidade = estado.modal_frete !== 'AEREO' && estado.modal_frete !== ''
 
   const podeAvancar = useMemo(() => {
+    if (cotacaoCriadaSimulacao) return false
     if (passoAtual === 1) return podeAvancarPassoModalOperacao(estado)
     if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais, estado.modal_frete)
     if (passoAtual === 3) return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
     if (passoAtual === 4) return podeAvancarPassoVisibilidade(estadoVisibilidade)
+    if (passoAtual === 5) return true
     return false
-  }, [passoAtual, estado, estadoLocais, estadoCarga, contextoCarga, estadoVisibilidade])
+  }, [
+    passoAtual,
+    estado,
+    estadoLocais,
+    estadoCarga,
+    contextoCarga,
+    estadoVisibilidade,
+    cotacaoCriadaSimulacao,
+  ])
 
   const podeVoltar = passoAtual > 1
 
@@ -383,12 +428,27 @@ export function ManualBidFreteSimuladorModalOperacao() {
             larguraTotal
             podeAvancar={podeAvancar}
             podeVoltar={podeVoltar}
+            rotuloAvancar={passoAtual === 5 ? 'Criar Cotação' : 'Próximo'}
             onAvancar={() => {
-              if (passoAtual < 5) setPassoAtual((prev) => prev + 1)
+              if (passoAtual < 5) {
+                setPassoAtual((prev) => prev + 1)
+                return
+              }
+              setCotacaoCriadaSimulacao(true)
             }}
             onVoltar={() => {
-              if (passoAtual > 1) setPassoAtual((prev) => prev - 1)
+              if (passoAtual > 1) {
+                setCotacaoCriadaSimulacao(false)
+                setPassoAtual((prev) => prev - 1)
+              }
             }}
+            footerCustom={cotacaoCriadaSimulacao ? (
+              <div className="sim-wizard-embutido__footer sim-wizard-embutido__footer--acoes">
+                <BotaoGlobal variante="primario" tamanho="padrao" onClick={reiniciarSimulacao}>
+                  Fazer nova simulação
+                </BotaoGlobal>
+              </div>
+            ) : undefined}
           >
             {passoAtual === 1 ? (
               <div className="nc-root nc-step-wrapper nc-fade-in">
@@ -600,22 +660,21 @@ export function ManualBidFreteSimuladorModalOperacao() {
               />
             ) : passoAtual === 4 ? (
               <ConteudoPassoVisibilidadeSimulador
+                key={`visibilidade-${chaveSimulacao}`}
                 estado={estadoVisibilidade}
                 aoAtualizar={(parcial) => setEstadoVisibilidade((prev) => ({ ...prev, ...parcial }))}
                 aoInteragir={marcarInteracaoVisibilidade}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
               />
             ) : (
-              <div className="nc-root nc-step-wrapper nc-fade-in">
-                <div className="nc-step-content">
-                  <SimuladorNcSectionTitle icone={<FileText {...ICONE_LABEL_SECAO} />}>
-                    Resumo
-                  </SimuladorNcSectionTitle>
-                  <p className="nc-cargo-subsecao-hint">
-                    Passo em construção neste manual — use Voltar para revisar os passos anteriores.
-                  </p>
-                </div>
-              </div>
+              <ConteudoPassoResumoSimulador
+                modalOperacao={estado}
+                locais={estadoLocais}
+                carga={estadoCarga}
+                contextoCarga={contextoCarga}
+                visibilidade={estadoVisibilidade}
+                sucesso={cotacaoCriadaSimulacao}
+              />
             )}
           </ManualBidFreteSimuladorWizardEmbutido>
         </div>

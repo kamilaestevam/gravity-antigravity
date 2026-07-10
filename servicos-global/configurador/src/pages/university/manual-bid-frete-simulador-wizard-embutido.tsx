@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, Check } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import {
   StepperPassoPassoGlobal,
@@ -21,10 +21,16 @@ type ManualBidFreteSimuladorWizardEmbutidoProps = {
   podeAvancar?: boolean
   /** Paridade com canBack() — passo 1 mantém «Voltar» desabilitado. */
   podeVoltar?: boolean
+  /** Rótulo do botão primário (padrão: Próximo). */
+  rotuloAvancar?: string
+  /** Ícone à direita do botão primário; se omitido, usa seta (ou check em «Criar Cotação»). */
+  iconeAvancar?: React.ReactNode
   /** Ação do botão Próximo (ex.: scroll para o próximo simulador do manual). */
   onAvancar?: () => void
   /** Ação do botão Voltar. */
   onVoltar?: () => void
+  /** Substitui o footer padrão (ex.: tela de sucesso com ações customizadas). */
+  footerCustom?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -39,10 +45,19 @@ export function ManualBidFreteSimuladorWizardEmbutido({
   larguraTotal = false,
   podeAvancar = false,
   podeVoltar = false,
+  rotuloAvancar = 'Próximo',
+  iconeAvancar,
   onAvancar,
   onVoltar,
+  footerCustom,
   children,
 }: ManualBidFreteSimuladorWizardEmbutidoProps) {
+  const iconePrimario = iconeAvancar
+    ?? (rotuloAvancar === 'Criar Cotação'
+      ? <Check size={14} weight="bold" />
+      : <ArrowRight size={14} />)
+  const iconeADireita = rotuloAvancar === 'Criar Cotação' ? undefined : iconePrimario
+  const iconeAEsquerda = rotuloAvancar === 'Criar Cotação' ? iconePrimario : undefined
   return (
     <div style={{ marginTop: larguraTotal ? 0 : MANUAL_ESPACO_PARAGRAFO_PX }}>
       <style>{NC_ESTILOS_SIMULADOR_WIZARD_SHELL}</style>
@@ -84,26 +99,29 @@ export function ManualBidFreteSimuladorWizardEmbutido({
           {children}
         </div>
 
-        <div className="sim-wizard-embutido__footer">
-          <BotaoGlobal
-            variante="secundario"
-            tamanho="pequeno"
-            icone={<ArrowLeft size={14} />}
-            disabled={!podeVoltar}
-            onClick={podeVoltar ? onVoltar : undefined}
-          >
-            Voltar
-          </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            tamanho="pequeno"
-            iconeDireita={<ArrowRight size={14} />}
-            disabled={!podeAvancar}
-            onClick={podeAvancar ? onAvancar : undefined}
-          >
-            Próximo
-          </BotaoGlobal>
-        </div>
+        {footerCustom ?? (
+          <div className="sim-wizard-embutido__footer">
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<ArrowLeft size={14} />}
+              disabled={!podeVoltar}
+              onClick={podeVoltar ? onVoltar : undefined}
+            >
+              Voltar
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="primario"
+              tamanho="pequeno"
+              icone={iconeAEsquerda}
+              iconeDireita={iconeADireita}
+              disabled={!podeAvancar}
+              onClick={podeAvancar ? onAvancar : undefined}
+            >
+              {rotuloAvancar}
+            </BotaoGlobal>
+          </div>
+        )}
       </div>
     </div>
   )

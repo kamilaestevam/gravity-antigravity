@@ -173,14 +173,8 @@ export function montarEmailFornecedorRiscosSmartRead(
     .map((c) => `  -> ${c}`)
 
   const referencias = [...new Set(riscos.map((r) => referenciaRisco(r, idioma)))]
-  const tituloCampos =
-    idioma === 'en'
-      ? 'Fields edited in conference:'
-      : idioma === 'es'
-        ? 'Campos editados en la conferencia:'
-        : 'Campos editados na conferência:'
   const linhasCampos = camposEditados.map(
-    (campo) => `- ${formatarLinhaCampoEditadoComunicacao(campo)}`,
+    (campo) => `• ${formatarLinhaCampoEditadoComunicacao(campo)}`,
   )
 
   const assunto =
@@ -196,6 +190,7 @@ export function montarEmailFornecedorRiscosSmartRead(
     nTotal === 1 ? t.corpo : t.corpoMultiplo.replace('{n}', String(nTotal)),
     '',
     ...(nRiscos > 0 ? [...linhasLegislacao] : []),
+    ...(nCampos > 0 ? [...linhasCampos] : []),
     ...(linhasCorrecao.length > 0
       ? [
           '',
@@ -207,7 +202,6 @@ export function montarEmailFornecedorRiscosSmartRead(
           ...linhasCorrecao,
         ]
       : []),
-    ...(nCampos > 0 ? ['', tituloCampos, ...linhasCampos] : []),
     ...(referencias.length > 0 ? ['', ...referencias] : []),
     '',
     t.baseLegal,

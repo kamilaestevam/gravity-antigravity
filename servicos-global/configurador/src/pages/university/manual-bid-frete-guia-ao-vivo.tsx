@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   ArrowFatLinesUp,
   CaretDown,
@@ -319,6 +319,7 @@ function LinhaGuiaAoVivo<Id extends string>({
         onClick={onToggle}
         title={`${campo.rotulo}: ${valor}`}
         aria-expanded={expandida}
+        aria-label={expandida ? `Recolher ${campo.rotulo}` : `Expandir ${campo.rotulo}`}
         className="sim-guia-linha"
         style={{
           display: 'flex',
@@ -420,29 +421,33 @@ type ManualBidFreteGuiaAoVivoProps<Id extends string> = {
   campoAtivo: Id | null
   textoContextual?: string
   contextoSimulador?: ContextoSimuladorModalOperacao
-  onSelecionarCampo: (id: Id) => void
+  onSelecionarCampo?: (id: Id) => void
 }
 
-/** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação em acordeão. */
+/** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação do campo em foco. */
 export function ManualBidFreteGuiaAoVivo<Id extends string>({
   campos,
   selecoes,
   campoAtivo,
   textoContextual,
   contextoSimulador,
-  onSelecionarCampo,
 }: ManualBidFreteGuiaAoVivoProps<Id>) {
   const totalCampos = campos.length
   const progresso = totalCampos > 0 ? Math.min(selecoes.length / totalCampos, 1) : 0
   const listaRef = useRef<HTMLDivElement>(null)
-  const cardAtivoRef = useRef<HTMLDivElement>(null)
+  const cardAbertoRef = useRef<HTMLDivElement>(null)
+  const [cardAbertoId, setCardAbertoId] = useState<Id | null>(null)
 
   const resolverCampo = (id: Id) => campos.find((campo) => campo.id === id)
 
   useEffect(() => {
-    if (!campoAtivo || !cardAtivoRef.current || !listaRef.current) return
-    cardAtivoRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [campoAtivo, selecoes.length])
+    if (campoAtivo) setCardAbertoId(campoAtivo)
+  }, [campoAtivo])
+
+  useEffect(() => {
+    if (!cardAbertoId || !cardAbertoRef.current || !listaRef.current) return
+    cardAbertoRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [cardAbertoId, selecoes.length])
 
   return (
     <aside
@@ -489,19 +494,20 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
           {selecoes.map((selecao) => {
             const campo = resolverCampo(selecao.id)
             if (!campo) return null
-            const expandida = campoAtivo === selecao.id
+            const expandida = cardAbertoId === selecao.id
             return (
-              <div
-                key={selecao.id}
-                ref={expandida ? cardAtivoRef : undefined}
-              >
+              <div key={selecao.id} ref={expandida ? cardAbertoRef : undefined}>
                 <LinhaGuiaAoVivo
                   campo={campo}
                   valor={selecao.valor}
                   expandida={expandida}
-                  textoExplicacao={expandida ? textoContextual : undefined}
+                  textoExplicacao={
+                    expandida && cardAbertoId === campoAtivo ? textoContextual : undefined
+                  }
                   contextoSimulador={contextoSimulador}
-                  onToggle={() => onSelecionarCampo(selecao.id)}
+                  onToggle={() => {
+                    setCardAbertoId((prev) => (prev === selecao.id ? null : selecao.id))
+                  }}
                 />
               </div>
             )
@@ -545,7 +551,7 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
             textAlign: 'center',
             maxWidth: 260,
           }}>
-            Selecione uma opção na tela ao lado: cada escolha fica registrada aqui, com a explicação do campo.
+            Selecione uma opção na tela ao lado: cada escolha fica registrada aqui. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai. Clique em um card já preenchido se quiser revisar os detalhes.
           </p>
         </div>
       )}

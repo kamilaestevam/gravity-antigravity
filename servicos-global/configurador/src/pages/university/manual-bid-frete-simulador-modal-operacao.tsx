@@ -458,6 +458,13 @@ export function ManualBidFreteSimuladorModalOperacao() {
                       type="text"
                       className="nc-input"
                       value={estado.numero_cotacao}
+                      onFocus={() => {
+                        setInteragiuModal((prev) => ({ ...prev, numero_cotacao: true }))
+                        setFoco('numero_cotacao')
+                      }}
+                      onBlur={() => {
+                        setFoco((prev) => (prev === 'numero_cotacao' ? null : prev))
+                      }}
                       onChange={(e) => {
                         setEstado((prev) => ({ ...prev, numero_cotacao: e.target.value }))
                         marcarInteracaoModal('numero_cotacao')

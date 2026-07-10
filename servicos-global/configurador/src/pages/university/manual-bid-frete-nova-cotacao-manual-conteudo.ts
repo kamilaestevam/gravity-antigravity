@@ -338,22 +338,10 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM: GaleriaNovaCota
 export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNovaCotacao = grade({
   tituloEtapa: 'Modal e Operação',
   textoIntro:
-    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado detalhadamente.',
+    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado via simulador de cotação a seguir.',
   chipBidFreteFormaManual: true,
-  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
   colunas: 1,
   telas: [fig('cotacao_avulsa', '')],
-  infograficoBidFreteModalOperacaoCampos: true,
-  textoAposInfograficoBidFreteModalOperacaoCampos:
-    'A imagem a seguir ilustra como a tela se comporta e valida os dados logo após você concluir as suas escolhas de preenchimento.',
-  telasAposInfograficoBidFreteModalOperacaoCampos: [fig('manual_modal_operaca', '')],
-  calloutApos: [
-    {
-      tipo: 'dica',
-      texto:
-        'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
-    },
-  ],
   simuladorBidFreteModalOperacao: true,
 })
 

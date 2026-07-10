@@ -942,6 +942,79 @@ export const NC_ESTILOS_SIMULADOR_CARGA_INCOTERM = `
       grid-template-columns: 1fr;
     }
   }
+  .nc-input-icon-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .nc-input-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted, #64748b);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .nc-input--search {
+    padding-left: 2rem !important;
+  }
+  .nc-prazo-data-hora {
+    display: grid;
+    grid-template-columns: 18.75rem 9rem;
+    gap: 1rem;
+    align-items: start;
+  }
+  .nc-prazo-data-hora .nc-field {
+    display: grid;
+    grid-template-rows: auto 2.5rem;
+    gap: 0.5rem;
+    align-content: start;
+    min-width: 0;
+  }
+  .nc-prazo-data-hora .nc-field-label {
+    min-height: 1.125rem;
+    line-height: 1.125rem;
+  }
+  .nc-prazo-data-hora .nc-field > .cg-wrapper,
+  .nc-prazo-data-hora .nc-field > .nc-input-icon-wrap {
+    height: 2.5rem;
+    min-height: 2.5rem;
+    max-height: 2.5rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .nc-prazo-data-hora .nc-field > .nc-input-icon-wrap .nc-input {
+    height: 2.5rem;
+    min-height: 2.5rem;
+    max-height: 2.5rem;
+  }
+  .nc-prazo-data-hora .nc-field > .cg-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 0;
+  }
+  .nc-prazo-data-hora .nc-field > .cg-wrapper > div {
+    flex: 1 1 auto;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    max-height: 2.5rem;
+    width: 100%;
+    min-width: 0;
+  }
+  @media (max-width: 560px) {
+    .nc-prazo-data-hora {
+      grid-template-columns: 1fr;
+    }
+  }
+  .nc-visibilidade-subsecao .nc-options-grid-2 {
+    gap: 0.75rem;
+  }
+  .nc-visibilidade-subsecao .nc-option-btn {
+    align-items: flex-start;
+    min-height: 5.5rem;
+  }
   .nc-visibilidade-subsecao .nc-switch-row {
     background: transparent;
     border: none;
@@ -1018,29 +1091,250 @@ export const NC_ESTILOS_SIMULADOR_CARGA_INCOTERM = `
   .nc-switch input:checked + .nc-switch-slider:before {
     transform: translateX(20px);
   }
-  .nc-fornecedores-lista {
+  .nc-disparo-canais {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem 1.25rem;
+    margin: 0.75rem 0 1rem;
+  }
+  .nc-disparo-canais-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary-light, #94a3b8);
+  }
+  .nc-disparo-canal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--text-primary, #f1f5f9);
+    cursor: pointer;
+  }
+  .nc-disparo-canal input {
+    accent-color: #818cf8;
+  }
+  .nc-disparo-lista-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .nc-disparo-selecionar-todos {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #a78bfa;
+    font-size: 0.625rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+  }
+  .nc-disparo-selecionar-todos:hover {
+    text-decoration: underline;
+  }
+  .nc-disparo-lista {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-height: 16rem;
+    overflow: auto;
+    padding-right: 0.15rem;
   }
-  .nc-fornecedor-item {
+  .nc-disparo-item {
     display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.7rem 0.85rem;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.65rem 0.85rem;
     border-radius: 8px;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: rgba(15, 23, 42, 0.35);
-    cursor: pointer;
-    font-size: 0.8125rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(30, 41, 59, 0.85);
     color: var(--text-primary, #f1f5f9);
   }
-  .nc-fornecedor-item--selected {
-    border-color: rgba(129, 140, 248, 0.45);
-    background: rgba(129, 140, 248, 0.1);
+  .nc-disparo-item--selected {
+    border-color: rgba(99, 102, 241, 0.45);
+    background: rgba(99, 102, 241, 0.08);
   }
-  .nc-fornecedor-item--readonly {
-    cursor: default;
-    opacity: 0.85;
+  .nc-disparo-item-linha {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 0.75rem;
+    align-items: start;
+  }
+  .nc-disparo-item-check {
+    display: flex;
+    align-items: center;
+    padding-top: 0.1rem;
+    cursor: pointer;
+  }
+  .nc-disparo-item-check input {
+    cursor: pointer;
+    accent-color: #818cf8;
+  }
+  .nc-disparo-item-corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  .nc-disparo-item-nome {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .nc-disparo-item-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 0.15rem;
+  }
+  .nc-disparo-item-expandir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-top: 0.05rem;
+    border-radius: 6px;
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    background: rgba(99, 102, 241, 0.08);
+    color: #a5b4fc;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: transform 0.18s ease, background 0.18s ease;
+  }
+  .nc-disparo-item-expandir:hover {
+    background: rgba(99, 102, 241, 0.18);
+  }
+  .nc-disparo-item-expandir--aberto {
+    transform: rotate(180deg);
+  }
+  .nc-disparo-item-painel {
+    margin-top: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(71, 85, 105, 0.45);
+  }
+  .nc-disparo-emails-titulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #a5b4fc;
+  }
+  .nc-disparo-emails-lista {
+    list-style: none;
+    margin: 0 0 0.65rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .nc-disparo-email-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(71, 85, 105, 0.4);
+  }
+  .nc-disparo-email-endereco {
+    font-size: 0.8125rem;
+    color: var(--text-primary, #f1f5f9);
+    word-break: break-all;
+  }
+  .nc-disparo-email-row-acoes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+  .nc-disparo-email-acao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #a5b4fc;
+    cursor: pointer;
+    padding: 0;
+  }
+  .nc-disparo-email-acao:hover {
+    background: rgba(99, 102, 241, 0.15);
+  }
+  .nc-disparo-email-acao--excluir {
+    color: #f87171;
+  }
+  .nc-disparo-email-acao--excluir:hover {
+    background: rgba(239, 68, 68, 0.12);
+  }
+  .nc-disparo-email-edicao,
+  .nc-disparo-email-novo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .nc-disparo-email-acoes-form {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .nc-disparo-email-link {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+  }
+  .nc-disparo-email-salvar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid rgba(129, 140, 248, 0.35);
+    background: rgba(99, 102, 241, 0.15);
+    color: #c7d2fe;
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: fit-content;
+  }
+  .nc-disparo-email-salvar:hover {
+    background: rgba(99, 102, 241, 0.25);
+  }
+  .nc-disparo-email-erro {
+    margin: 0.35rem 0 0;
+    font-size: 0.75rem;
+    color: #fca5a5;
+  }
+  .nc-disparo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .nc-disparo-badge--ok {
+    color: #86efac;
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .nc-disparo-badge--warn {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.12);
   }
 `

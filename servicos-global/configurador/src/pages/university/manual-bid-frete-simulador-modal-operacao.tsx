@@ -88,7 +88,7 @@ const PASSOS_WIZARD = [
   { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
   { id: 2, label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
   { id: 3, label: 'Carga e Incoterm', icone: <Package weight="duotone" size={16} /> },
-  { id: 4, label: 'Visibilidade', icone: <Users weight="duotone" size={16} /> },
+  { id: 4, label: 'Fornecedores', icone: <Users weight="duotone" size={16} /> },
   { id: 5, label: 'Resumo', icone: <FileText weight="duotone" size={16} /> },
 ] as const
 
@@ -242,6 +242,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
   }))
   const [estadoVisibilidade, setEstadoVisibilidade] = useState<EstadoVisibilidade>(() => ({
     ...ESTADO_VISIBILIDADE_INICIAL,
+    canais: [...ESTADO_VISIBILIDADE_INICIAL.canais],
     ids_fornecedores: [...ESTADO_VISIBILIDADE_INICIAL.ids_fornecedores],
   }))
   const [foco, setFoco] = useState<CampoGuiaUnificadoId | null>(null)

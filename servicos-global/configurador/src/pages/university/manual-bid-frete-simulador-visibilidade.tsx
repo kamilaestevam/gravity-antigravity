@@ -116,6 +116,12 @@ export const ESTADO_VISIBILIDADE_INICIAL: EstadoVisibilidade = {
   ids_fornecedores: FORNECEDORES_MOCK.filter((f) => f.emails.length > 0).map((f) => f.id),
 }
 
+const APLICAVEL_TODOS_CONTEXTO = {
+  aplicavelOperacao: ['IMPORTACAO', 'EXPORTACAO'] as const,
+  aplicavelModal: ['MARITIMO', 'AEREO', 'RODOVIARIO'] as const,
+  aplicavelModalidade: ['FCL', 'LCL', 'FTL', 'LTL'] as const,
+}
+
 export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>[] = [
   {
     id: 'prazo_respostas',
@@ -129,6 +135,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     fundo: 'rgba(99,102,241,.1)',
     descricaoPontos: ['Data de vencimento obrigatória', 'Hora no formato HH:mm'],
     obrigatorio: true,
+    ...APLICAVEL_TODOS_CONTEXTO,
   },
   {
     id: 'fornecedor_pode_alterar',
@@ -141,6 +148,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     borda: 'rgba(56,189,248,.35)',
     fundo: 'rgba(14,165,233,.1)',
     obrigatorio: true,
+    ...APLICAVEL_TODOS_CONTEXTO,
   },
   {
     id: 'tipo_visibilidade',
@@ -157,6 +165,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
       'Aberta — todos os fornecedores que aceitam cotação aberta',
     ],
     obrigatorio: true,
+    ...APLICAVEL_TODOS_CONTEXTO,
   },
   {
     id: 'proposta_anonima',
@@ -169,6 +178,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     borda: 'rgba(192,132,252,.35)',
     fundo: 'rgba(168,85,247,.1)',
     obrigatorio: false,
+    ...APLICAVEL_TODOS_CONTEXTO,
   },
   {
     id: 'fornecedores',
@@ -182,6 +192,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     fundo: 'rgba(52,211,153,.08)',
     obrigatorio: false,
     obrigatorioNota: 'Obrigatório selecionar ao menos um fornecedor na cotação direcionada',
+    ...APLICAVEL_TODOS_CONTEXTO,
   },
 ]
 

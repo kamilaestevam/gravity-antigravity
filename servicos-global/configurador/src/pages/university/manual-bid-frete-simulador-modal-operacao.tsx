@@ -168,6 +168,9 @@ function resolverSelecoesPreenchidas(
   return ORDEM_CAMPOS_GUIA.flatMap((id) => {
     if (id === 'numero_cotacao' && !interagiu.numero_cotacao) return []
     if (id === 'carga_perigosa' && !interagiu.carga_perigosa) return []
+    if (id === 'carga_perigosa') {
+      return [{ id, valor: estado.carga_perigosa ? 'Marcada' : 'Não marcada' }]
+    }
     const valor = resolverRotuloSelecao(estado, id)
     if (!valor) return []
     return [{ id, valor }]
@@ -636,11 +639,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                       onClick={() => {
                         const marcada = !estado.carga_perigosa
                         setEstado((prev) => ({ ...prev, carga_perigosa: marcada }))
-                        if (marcada) {
-                          marcarInteracaoModal('carga_perigosa')
-                        } else {
-                          setFoco(null)
-                        }
+                        marcarInteracaoModal('carga_perigosa')
                       }}
                       icon={<Warning weight="duotone" size={22} />}
                       label="Carga Perigosa"

@@ -19,6 +19,31 @@ import {
 const CORPO = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 78%, transparent)'
 const CORPO_MUTED = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 58%, transparent)'
 
+/** Campos cujos 9 chips "Aplica-se em" ficam todos ativos, sem filtro pelo modal/tipo escolhido. */
+const CAMPOS_GUIA_TAGS_TODAS_ATIVAS = new Set<string>([
+  'carga_perigosa',
+  'portos_proximos_origem',
+  'portos_proximos_destino',
+  'coleta_origem',
+  'entrega_destino',
+  'ncm',
+  'descricao_mercadoria',
+  'hs_code',
+  'numero_onu',
+  'quantidade',
+  'peso_cubagem',
+  'incoterm',
+  'valor_alvo',
+  'prazo_respostas',
+  'fornecedor_pode_alterar',
+  'tipo_visibilidade',
+  'proposta_anonima',
+  'fornecedores',
+])
+
+/** Porto de embarque/destino — perfil fixo marítimo (imagem de referência). */
+const CAMPOS_GUIA_TAGS_PERFIL_PORTO = new Set<string>(['porto_origem', 'porto_destino'])
+
 /** Metadados de um campo acompanhado pelo painel Guia ao vivo. */
 export type CampoGuiaAoVivo<Id extends string = string> = {
   id: Id
@@ -142,6 +167,8 @@ function ConteudoExpandidoGuia<Id extends string>({
     || campo.aplicavelOperacao?.length
     || campo.habilitaPassosPosteriores?.length
     || campo.obrigatorio !== undefined
+  const tagsTodasAtivas = CAMPOS_GUIA_TAGS_TODAS_ATIVAS.has(campo.id)
+  const perfilTagsPorto = CAMPOS_GUIA_TAGS_PERFIL_PORTO.has(campo.id)
 
   if (!paragrafo && !temMetadadosRicos) return null
 
@@ -219,7 +246,11 @@ function ConteudoExpandidoGuia<Id extends string>({
           aplicavelOperacao={campo.aplicavelOperacao}
           aplicavelModal={campo.aplicavelModal}
           aplicavelModalidade={campo.aplicavelModalidade}
-          contexto={contextoSimulador}
+          contexto={tagsTodasAtivas ? undefined : contextoSimulador}
+          exibirTodasAtivas={tagsTodasAtivas}
+          perfilTagsPorto={perfilTagsPorto}
+          perfilTagsTipoOperacao={campo.id === 'tipo_operacao'}
+          perfilTagsModalidade={campo.id === 'modalidade'}
         />
       ) : null}
 

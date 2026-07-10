@@ -450,6 +450,23 @@ const ORDEM_CAMPOS_GUIA: CampoCargaIncotermId[] = [
   'valor_alvo',
 ]
 
+const CAMPOS_GUIA_EXIBEM_SEM_VALOR: CampoCargaIncotermId[] = ['quantidade', 'peso_cubagem']
+
+function propsFocoGuiaSecaoCarga(
+  idCampo: CampoCargaIncotermId,
+  aoInteragir: (campo: CampoCargaIncotermId) => void,
+  aoDesligarCampo: (campo: CampoCargaIncotermId) => void,
+) {
+  return {
+    onFocusCapture: () => aoInteragir(idCampo),
+    onBlurCapture: (e: React.FocusEvent<HTMLElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        aoDesligarCampo(idCampo)
+      }
+    },
+  }
+}
+
 function resolverRotuloSelecao(
   estado: EstadoCargaIncoterm,
   id: CampoCargaIncotermId,
@@ -526,7 +543,12 @@ export function resolverSelecoesCargaIncoterm(
     if (id === 'numero_onu' && !contexto.carga_perigosa) return []
     if (!interagiu[id]) return []
     const valor = resolverRotuloSelecao(estado, id, contexto)
-    if (!valor) return []
+    if (!valor) {
+      if (CAMPOS_GUIA_EXIBEM_SEM_VALOR.includes(id)) {
+        return [{ id, valor: 'Em preenchimento' }]
+      }
+      return []
+    }
     return [{ id, valor }]
   })
 }
@@ -793,7 +815,11 @@ export function ConteudoPassoCargaIncotermSimulador({
           </section>
         ) : null}
 
-        <section className="nc-cargo-subsecao" aria-labelledby="nc-sim-cargo-quantidade">
+        <section
+          className="nc-cargo-subsecao"
+          aria-labelledby="nc-sim-cargo-quantidade"
+          {...propsFocoGuiaSecaoCarga('quantidade', aoInteragir, aoDesligarCampo)}
+        >
           <SubsecaoTitle
             id="nc-sim-cargo-quantidade"
             icone={<Package {...ICONE_LABEL_SECAO} />}
@@ -926,7 +952,11 @@ export function ConteudoPassoCargaIncotermSimulador({
           )}
         </section>
 
-        <section className="nc-cargo-subsecao" aria-labelledby="nc-sim-cargo-peso">
+        <section
+          className="nc-cargo-subsecao"
+          aria-labelledby="nc-sim-cargo-peso"
+          {...propsFocoGuiaSecaoCarga('peso_cubagem', aoInteragir, aoDesligarCampo)}
+        >
           <SubsecaoTitle id="nc-sim-cargo-peso" icone={<Scales {...ICONE_LABEL_SECAO} />}>
             Peso e cubagem
           </SubsecaoTitle>

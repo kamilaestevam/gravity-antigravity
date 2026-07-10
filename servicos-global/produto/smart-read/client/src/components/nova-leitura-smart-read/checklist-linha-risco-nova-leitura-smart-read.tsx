@@ -17,16 +17,12 @@ type Props = {
   risco: RiscoAduaneiroLeitura
   documentos: DocumentoAnaliseRisco[]
   parametrosChecklist: Omit<ParametrosChecklistMatrizInvoice, 'rotulo_documento'>
-  estaMarcado?: (chave: string) => boolean
-  alternarMarcado?: (chave: string) => void
 }
 
 export function ChecklistLinhaRiscoNovaLeituraSmartRead({
   risco,
   documentos,
   parametrosChecklist,
-  estaMarcado,
-  alternarMarcado,
 }: Props) {
   const grupos = useMemo(() => {
     const invoices = listarInvoicesChecklist(documentos)
@@ -53,8 +49,6 @@ export function ChecklistLinhaRiscoNovaLeituraSmartRead({
           secoes={grupo.secoes}
           todasSecoesAbertas
           rotuloInvoice={grupo.rotulo}
-          estaMarcado={estaMarcado}
-          alternarMarcado={alternarMarcado}
           idPrefixo={`sr-risco-chk-linha-${risco.id}`}
           classeCorpo="sr-risco-inline-checklist-corpo"
         />

@@ -7886,6 +7886,9 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .sr-conf-comunicacao-intro {
@@ -7922,6 +7925,10 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 
 .sr-conf-comunicacao-item:hover {
   border-color: rgba(129, 140, 248, 0.35);
+}
+
+.sr-conf-comunicacao-item--somente-leitura {
+  cursor: default;
 }
 
 .sr-conf-comunicacao-item-numero {

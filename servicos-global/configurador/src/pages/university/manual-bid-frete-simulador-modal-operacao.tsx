@@ -59,6 +59,16 @@ import {
   type CampoCargaIncotermId,
   type EstadoCargaIncoterm,
 } from './manual-bid-frete-simulador-carga-incoterm'
+import {
+  CAMPOS_VISIBILIDADE_BID_FRETE,
+  ConteudoPassoVisibilidadeSimulador,
+  ESTADO_VISIBILIDADE_INICIAL,
+  podeAvancarPassoVisibilidade,
+  resolverExplicacaoVisibilidade,
+  resolverSelecoesVisibilidade,
+  type CampoVisibilidadeId,
+  type EstadoVisibilidade,
+} from './manual-bid-frete-simulador-visibilidade'
 
 type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO' | ''
 type ModalFrete = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
@@ -185,7 +195,11 @@ function podeAvancarPassoModalOperacao(estado: EstadoSimulador): boolean {
   return !!estado.modalidade
 }
 
-type CampoGuiaUnificadoId = CampoModalOperacaoId | CampoOrigemDestinoId | CampoCargaIncotermId
+type CampoGuiaUnificadoId =
+  | CampoModalOperacaoId
+  | CampoOrigemDestinoId
+  | CampoCargaIncotermId
+  | CampoVisibilidadeId
 
 const CAMPOS_GUIA_UNIFICADO: CampoGuiaAoVivo<CampoGuiaUnificadoId>[] = [
   ...CAMPOS_MODAL_OPERACAO_BID_FRETE,
@@ -197,11 +211,16 @@ const CAMPOS_GUIA_UNIFICADO: CampoGuiaAoVivo<CampoGuiaUnificadoId>[] = [
     ...campo,
     num: String(Number(campo.num) + 11).padStart(2, '0'),
   })),
+  ...CAMPOS_VISIBILIDADE_BID_FRETE.map((campo) => ({
+    ...campo,
+    num: String(Number(campo.num) + 19).padStart(2, '0'),
+  })),
 ]
 
 const IDS_MODAL = ORDEM_CAMPOS_GUIA as string[]
 const IDS_ORIGEM = CAMPOS_ORIGEM_DESTINO_BID_FRETE.map((c) => c.id) as string[]
 const IDS_CARGA = CAMPOS_CARGA_INCOTERM_BID_FRETE.map((c) => c.id) as string[]
+const IDS_VISIBILIDADE = CAMPOS_VISIBILIDADE_BID_FRETE.map((c) => c.id) as string[]
 
 /** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
 export function ManualBidFreteSimuladorModalOperacao() {
@@ -221,10 +240,17 @@ export function ManualBidFreteSimuladorModalOperacao() {
     ...ESTADO_CARGA_INCOTERM_INICIAL,
     linhas_container_fcl: ESTADO_CARGA_INCOTERM_INICIAL.linhas_container_fcl.map((l) => ({ ...l })),
   }))
+  const [estadoVisibilidade, setEstadoVisibilidade] = useState<EstadoVisibilidade>(() => ({
+    ...ESTADO_VISIBILIDADE_INICIAL,
+    ids_fornecedores: [...ESTADO_VISIBILIDADE_INICIAL.ids_fornecedores],
+  }))
   const [foco, setFoco] = useState<CampoGuiaUnificadoId | null>(null)
   const [interagiuModal, setInteragiuModal] = useState<Partial<Record<CampoFoco, boolean>>>({})
   const [interagiuLocais, setInteragiuLocais] = useState<Partial<Record<CampoOrigemDestinoId, boolean>>>({})
   const [interagiuCarga, setInteragiuCarga] = useState<Partial<Record<CampoCargaIncotermId, boolean>>>({})
+  const [interagiuVisibilidade, setInteragiuVisibilidade] = useState<
+    Partial<Record<CampoVisibilidadeId, boolean>>
+  >({})
 
   const contextoCarga = useMemo(
     () => ({
@@ -250,6 +276,11 @@ export function ManualBidFreteSimuladorModalOperacao() {
     setFoco(campo)
   }
 
+  const marcarInteracaoVisibilidade = (campo: CampoVisibilidadeId) => {
+    setInteragiuVisibilidade((prev) => ({ ...prev, [campo]: true }))
+    setFoco(campo)
+  }
+
   const atualizarLado = (lado: LadoLocal, parcial: Partial<EstadoOrigemDestino[LadoLocal]>) => {
     setEstadoLocais((prev) => ({ ...prev, [lado]: { ...prev[lado], ...parcial } }))
   }
@@ -266,13 +297,18 @@ export function ManualBidFreteSimuladorModalOperacao() {
     () => resolverSelecoesCargaIncoterm(estadoCarga, interagiuCarga, contextoCarga),
     [estadoCarga, interagiuCarga, contextoCarga],
   )
+  const selecoesVisibilidade = useMemo(
+    () => resolverSelecoesVisibilidade(estadoVisibilidade, interagiuVisibilidade),
+    [estadoVisibilidade, interagiuVisibilidade],
+  )
   const selecoesGuia = useMemo(
     () => [
       ...selecoesModal.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
       ...selecoesLocais.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
       ...selecoesCarga.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
+      ...selecoesVisibilidade.map((s) => ({ id: s.id as CampoGuiaUnificadoId, valor: s.valor })),
     ],
-    [selecoesModal, selecoesLocais, selecoesCarga],
+    [selecoesModal, selecoesLocais, selecoesCarga, selecoesVisibilidade],
   )
 
   const campoGuiaAtivo = useMemo((): CampoGuiaUnificadoId | null => {
@@ -300,8 +336,14 @@ export function ManualBidFreteSimuladorModalOperacao() {
         contextoCarga,
       )
     }
+    if (IDS_VISIBILIDADE.includes(campoGuiaAtivo)) {
+      return resolverExplicacaoVisibilidade(
+        estadoVisibilidade,
+        campoGuiaAtivo as CampoVisibilidadeId,
+      )
+    }
     return ''
-  }, [campoGuiaAtivo, estado, estadoLocais, estadoCarga, contextoCarga])
+  }, [campoGuiaAtivo, estado, estadoLocais, estadoCarga, contextoCarga, estadoVisibilidade])
 
   const exibirModalidade = estado.modal_frete !== 'AEREO' && estado.modal_frete !== ''
 
@@ -309,8 +351,9 @@ export function ManualBidFreteSimuladorModalOperacao() {
     if (passoAtual === 1) return podeAvancarPassoModalOperacao(estado)
     if (passoAtual === 2) return podeAvancarPassoOrigemDestino(estadoLocais, estado.modal_frete)
     if (passoAtual === 3) return podeAvancarPassoCargaIncoterm(estadoCarga, contextoCarga)
+    if (passoAtual === 4) return podeAvancarPassoVisibilidade(estadoVisibilidade)
     return false
-  }, [passoAtual, estado, estadoLocais, estadoCarga, contextoCarga])
+  }, [passoAtual, estado, estadoLocais, estadoCarga, contextoCarga, estadoVisibilidade])
 
   const podeVoltar = passoAtual > 1
 
@@ -340,12 +383,10 @@ export function ManualBidFreteSimuladorModalOperacao() {
             podeAvancar={podeAvancar}
             podeVoltar={podeVoltar}
             onAvancar={() => {
-              if (passoAtual === 1) setPassoAtual(2)
-              else if (passoAtual === 2) setPassoAtual(3)
+              if (passoAtual < 5) setPassoAtual((prev) => prev + 1)
             }}
             onVoltar={() => {
-              if (passoAtual === 3) setPassoAtual(2)
-              else if (passoAtual === 2) setPassoAtual(1)
+              if (passoAtual > 1) setPassoAtual((prev) => prev - 1)
             }}
           >
             {passoAtual === 1 ? (
@@ -548,7 +589,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                 aoInteragir={marcarInteracaoLocal}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
               />
-            ) : (
+            ) : passoAtual === 3 ? (
               <ConteudoPassoCargaIncotermSimulador
                 estado={estadoCarga}
                 contexto={contextoCarga}
@@ -556,6 +597,24 @@ export function ManualBidFreteSimuladorModalOperacao() {
                 aoInteragir={marcarInteracaoCarga}
                 aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
               />
+            ) : passoAtual === 4 ? (
+              <ConteudoPassoVisibilidadeSimulador
+                estado={estadoVisibilidade}
+                aoAtualizar={(parcial) => setEstadoVisibilidade((prev) => ({ ...prev, ...parcial }))}
+                aoInteragir={marcarInteracaoVisibilidade}
+                aoDesligarCampo={(campo) => setFoco((prev) => (prev === campo ? null : prev))}
+              />
+            ) : (
+              <div className="nc-root nc-step-wrapper nc-fade-in">
+                <div className="nc-step-content">
+                  <SimuladorNcSectionTitle icone={<FileText {...ICONE_LABEL_SECAO} />}>
+                    Resumo
+                  </SimuladorNcSectionTitle>
+                  <p className="nc-cargo-subsecao-hint">
+                    Passo em construção neste manual — use Voltar para revisar os passos anteriores.
+                  </p>
+                </div>
+              </div>
             )}
           </ManualBidFreteSimuladorWizardEmbutido>
         </div>

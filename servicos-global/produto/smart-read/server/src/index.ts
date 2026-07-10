@@ -80,10 +80,16 @@ app.get('/health', (_req: Request, res: Response) => {
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100,
+  // Orçamento POR USUÁRIO (chave organizacao:usuario) — anti-abuso, não pode
+  // estrangular uso legítimo: Insights + polling consomem dezenas de req/min.
+  max: 300,
   skip: () => process.env.NODE_ENV !== 'production',
-  keyGenerator: (req) =>
-    (req.headers['x-id-organizacao'] as string) || (req.ip ? ipKeyGenerator(req.ip) : 'unknown'),
+  keyGenerator: (req) => {
+    const idOrganizacao = req.headers['x-id-organizacao'] as string | undefined
+    const idUsuario = req.headers['x-id-usuario'] as string | undefined
+    if (idOrganizacao) return idUsuario ? `${idOrganizacao}:${idUsuario}` : idOrganizacao
+    return req.ip ? ipKeyGenerator(req.ip) : 'unknown'
+  },
   message: { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } },
 })
 app.use('/api/', apiLimiter)

@@ -1,5 +1,6 @@
 /**
- * Conferência usuário — campos preenchidos + riscos + checklist Gravity do documento ativo.
+ * Conferência usuário — campos preenchidos + riscos do documento ativo.
+ * A matriz (checklist Gravity) não entra na conta: a conferência manual da matriz foi removida.
  */
 
 import { useMemo } from 'react'
@@ -8,17 +9,14 @@ import { extrairDocumentosArquivoLocal, resolverArquivoApiLeitura } from './tipo
 import { extrairSecoesConferenciaLeitura } from './extrair-secoes-conferencia-leitura-smart-read'
 import {
   chaveCampoConferenciaUsuario,
-  chaveItemChecklistUsuario,
   chaveRiscoConferenciaUsuario,
   contarConferenciaUsuarioCamposERiscos,
   usarCamposMarcacaoConferencia,
-  usarChecklistMarcacaoUsuario,
   usarRiscosMarcacaoConferencia,
 } from './checklist-marcacao-usuario-smart-read'
 import { montarDocumentosAnaliseRiscoDeArquivoLocal } from './analisar-riscos-aduaneiros-leitura-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../shared/analise-riscos-leitura-smart-read'
 import type { RiscoAduaneiroLeitura } from '../../../shared/analise-riscos-leitura-smart-read'
-import { montarChecklistMatrizInvoice } from '../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { montarChaveAnaliseRiscosSessaoSmartRead } from './disparar-analise-riscos-background-smart-read'
 import { obterCacheAnaliseRiscosSessaoSmartRead } from './cache-analise-riscos-sessao-smart-read'
 
@@ -81,9 +79,6 @@ export function useConferenciaUsuarioDocumentoSmartRead(
     [arquivo, idLeituraLegado],
   )
 
-  const { marcados: checklistConferidos, alternarMarcadosLote: alternarChecklistConferidosLote } =
-    usarChecklistMarcacaoUsuario(chaveAnaliseRiscos)
-
   const riscosDocumento = useMemo(() => {
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
     if (emCache?.resumo.total) {
@@ -98,38 +93,6 @@ export function useConferenciaUsuarioDocumentoSmartRead(
     [riscosDocumento],
   )
 
-  const chavesChecklistConferencia = useMemo(() => {
-    if (!rotuloDocumentoAtual) return [] as string[]
-    const documentoAtual = documentosRiscoAtivos[0]
-    if (!documentoAtual?.tipo_documento.toUpperCase().includes('INVOICE')) return [] as string[]
-
-    const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
-    const auditoria =
-      documentosRiscoArquivo.length === 0
-        ? null
-        : executarAuditoriaV1AnaliseRiscosLeitura(documentosRiscoArquivo)
-    const riscosEfetivos =
-      emCache && emCache.resumo.total > 0 ? emCache.resumo.riscos : (auditoria?.resumo.riscos ?? [])
-    const regrasEfetivas = emCache?.contexto_v1.regras ?? auditoria?.contexto.regras ?? []
-
-    const checklist = montarChecklistMatrizInvoice({
-      regras: regrasEfetivas,
-      riscos: riscosEfetivos,
-      pipelineConcluido: Boolean(emCache),
-      llmHabilitado: emCache?.llm_ativo ?? false,
-      carregando: false,
-      documentos: documentosRiscoArquivo,
-      rotulo_documento: rotuloDocumentoAtual,
-    })
-
-    return checklist.map((item) => chaveItemChecklistUsuario(item.regra.id, rotuloDocumentoAtual))
-  }, [
-    chaveAnaliseRiscos,
-    documentosRiscoArquivo,
-    documentosRiscoAtivos,
-    rotuloDocumentoAtual,
-  ])
-
   const resumoConferencia = useMemo(
     () =>
       contarConferenciaUsuarioCamposERiscos(
@@ -137,17 +100,8 @@ export function useConferenciaUsuarioDocumentoSmartRead(
         riscosConferidos,
         chavesCamposConferencia,
         chavesRiscosConferencia,
-        checklistConferidos,
-        chavesChecklistConferencia,
       ),
-    [
-      camposConferidos,
-      riscosConferidos,
-      checklistConferidos,
-      chavesCamposConferencia,
-      chavesRiscosConferencia,
-      chavesChecklistConferencia,
-    ],
+    [camposConferidos, riscosConferidos, chavesCamposConferencia, chavesRiscosConferencia],
   )
 
   const todosItensConferidos =
@@ -157,7 +111,6 @@ export function useConferenciaUsuarioDocumentoSmartRead(
     const marcar = !todosItensConferidos
     alternarCamposConferidosLote(chavesCamposConferencia, marcar)
     alternarRiscosConferidosLote(chavesRiscosConferencia, marcar)
-    alternarChecklistConferidosLote(chavesChecklistConferencia, marcar)
   }
 
   return {

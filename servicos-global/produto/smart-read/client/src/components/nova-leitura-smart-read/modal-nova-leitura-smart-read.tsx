@@ -995,6 +995,8 @@ export function ModalNovaLeituraSmartRead({
               onCompararArquivo={() => setCompararAberto(true)}
               onVerEvidencia={visualizarEvidenciaRisco}
               idLeituraLegado={idLeituraAtual}
+              camposEditados={camposEditados}
+              onEditarCampo={editarCampoDocumentoAtual}
               onTokensAtualizados={contadorTokens.aplicarAtualizacaoTokens}
               onIaInicio={() => contadorTokens.marcarIaAtiva()}
               onIaFim={() => contadorTokens.marcarIaInativa()}

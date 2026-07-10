@@ -1,11 +1,13 @@
 /**
- * AcoesCorrecaoRiscoNovaLeituraSmartRead — e-mail fornecedor + notificação interna (um ou vários riscos)
+ * AcoesCorrecaoRiscoNovaLeituraSmartRead — e-mail fornecedor + notificação interna
+ * (riscos e/ou campos editados na conferência)
  */
 
 import { useMemo, useState } from 'react'
 import { Bell, Copy, EnvelopeSimple, PaperPlaneTilt } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { RiscoAduaneiroLeitura } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
+import type { CampoEditadoComunicacaoSmartRead } from '../../shared/listar-campos-editados-comunicacao-smart-read'
 import {
   montarEmailFornecedorRiscosSmartRead,
   montarMensagemNotificacaoRiscosSmartRead,
@@ -14,6 +16,7 @@ import {
 
 type Props = {
   riscos: RiscoAduaneiroLeitura[]
+  camposEditados?: CampoEditadoComunicacaoSmartRead[]
 }
 
 const IDIOMAS: { id: IdiomaEmailFornecedorRisco; rotulo: string }[] = [
@@ -22,18 +25,26 @@ const IDIOMAS: { id: IdiomaEmailFornecedorRisco; rotulo: string }[] = [
   { id: 'es', rotulo: 'Español' },
 ]
 
-export function AcoesCorrecaoRiscoNovaLeituraSmartRead({ riscos }: Props) {
+export function AcoesCorrecaoRiscoNovaLeituraSmartRead({
+  riscos,
+  camposEditados = [],
+}: Props) {
   const [idioma, setIdioma] = useState<IdiomaEmailFornecedorRisco>('pt')
   const [modo, setModo] = useState<'email' | 'notificacao' | null>('email')
   const [feedback, setFeedback] = useState<string | null>(null)
 
-  const email = useMemo(
-    () => montarEmailFornecedorRiscosSmartRead(riscos, idioma),
-    [riscos, idioma],
-  )
-  const notificacao = useMemo(() => montarMensagemNotificacaoRiscosSmartRead(riscos), [riscos])
+  const totalItens = riscos.length + camposEditados.length
 
-  if (riscos.length === 0) return null
+  const email = useMemo(
+    () => montarEmailFornecedorRiscosSmartRead(riscos, idioma, camposEditados),
+    [riscos, idioma, camposEditados],
+  )
+  const notificacao = useMemo(
+    () => montarMensagemNotificacaoRiscosSmartRead(riscos, camposEditados),
+    [riscos, camposEditados],
+  )
+
+  if (totalItens === 0) return null
 
   async function copiar(texto: string, mensagem: string) {
     try {
@@ -51,9 +62,7 @@ export function AcoesCorrecaoRiscoNovaLeituraSmartRead({ riscos }: Props) {
   }
 
   const rotuloEmail =
-    riscos.length === 1
-      ? 'E-mail ao fornecedor'
-      : `E-mail consolidado (${riscos.length})`
+    totalItens === 1 ? 'E-mail ao fornecedor' : `E-mail consolidado (${totalItens})`
 
   return (
     <div className="sr-conf-risco-acoes">
@@ -106,7 +115,7 @@ export function AcoesCorrecaoRiscoNovaLeituraSmartRead({ riscos }: Props) {
             className="sr-conf-risco-compose-texto"
             readOnly
             value={email.corpo}
-            rows={Math.min(16, 6 + riscos.length * 3)}
+            rows={Math.min(16, 6 + totalItens * 3)}
             aria-label="Corpo do e-mail ao fornecedor"
           />
           <div className="sr-conf-risco-compose-botoes">
@@ -134,7 +143,7 @@ export function AcoesCorrecaoRiscoNovaLeituraSmartRead({ riscos }: Props) {
             className="sr-conf-risco-compose-texto"
             readOnly
             value={notificacao}
-            rows={Math.min(12, 4 + riscos.length * 2)}
+            rows={Math.min(12, 4 + totalItens * 2)}
             aria-label="Mensagem para notificações"
           />
           <div className="sr-conf-risco-compose-botoes">

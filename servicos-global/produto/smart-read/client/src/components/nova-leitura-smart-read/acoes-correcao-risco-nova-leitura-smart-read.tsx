@@ -78,8 +78,7 @@ export function AcoesCorrecaoRiscoNovaLeituraSmartRead({
     window.open(mailto, '_blank', 'noopener,noreferrer')
   }
 
-  const rotuloEmail =
-    totalItens === 1 ? 'E-mail ao fornecedor' : `E-mail consolidado (${totalItens})`
+  const rotuloEmail = 'Gerar e-mail'
 
   return (
     <div className="sr-conf-risco-acoes">
@@ -98,8 +97,7 @@ export function AcoesCorrecaoRiscoNovaLeituraSmartRead({
             placeholder="Idioma"
             posicao="baixo"
             aria-label="Idioma do e-mail ao fornecedor"
-          />
-        </div>
+          />        </div>
         <BotaoGlobal
           variante="secundario"
           tamanho="pequeno"

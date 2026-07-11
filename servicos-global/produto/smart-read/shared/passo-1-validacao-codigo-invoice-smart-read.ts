@@ -4,6 +4,7 @@
 
 import type { SecaoMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
 import { severidadeParaStatusMatriz } from './matriz-validacao-invoice-smart-read.js'
+import { executarPasso1ValidacaoCodigoPackingList } from './passo-1-validacao-codigo-packing-list-smart-read.js'
 import {
   formatarAnaliseDivergenciaLinha,
   formatarAnaliseDivergenciaSoma,
@@ -867,9 +868,18 @@ export function executarPasso1ValidacaoCodigoInvoice(
   }
 }
 
-/** Alias de compatibilidade — delega ao Passo 1 (motor Código). */
+/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matriz do packing list. */
 export function executarAuditoriaV1AnaliseRiscosLeitura(
   documentosEntrada: DocumentoAnaliseRisco[],
 ): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
-  return executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
+  const invoice = executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
+  const packing = executarPasso1ValidacaoCodigoPackingList(documentosEntrada)
+  if (packing.contexto.regras.length === 0 && packing.resumo.total === 0) return invoice
+  return {
+    resumo: montarResumo([...invoice.resumo.riscos, ...packing.resumo.riscos]),
+    contexto: {
+      ...invoice.contexto,
+      regras: [...invoice.contexto.regras, ...packing.contexto.regras],
+    },
+  }
 }

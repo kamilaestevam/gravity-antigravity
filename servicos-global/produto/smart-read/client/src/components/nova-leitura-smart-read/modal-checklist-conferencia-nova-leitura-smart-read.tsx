@@ -18,6 +18,20 @@ import {
   type ResumoInvoiceChecklist,
   type SubdocumentoOpcaoChecklist,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import {
+  agruparChecklistPackingListPorSecao,
+  calcularScoreChecklistPackingList,
+  combinarResumoGeralComPackingLists,
+  montarChecklistMatrizPackingList,
+  montarResumoChecklistPackingLists,
+  percentualConformeChecklistPackingList,
+} from '../../../../shared/montar-checklist-matriz-packing-list-smart-read'
+import {
+  ROTULO_MOTOR_MATRIZ_PACKING_LIST,
+  ROTULO_SECAO_MATRIZ_PACKING_LIST,
+  type MotorValidacaoPackingList,
+  type SecaoMatrizPackingList,
+} from '../../../../shared/matriz-validacao-packing-list-smart-read'
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
@@ -66,31 +80,62 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(rotuloInicialPadrao)
   const abertoAnteriorRef = useRef(false)
 
-  const resumoGeral = useMemo(
-    () =>
-      montarResumoGeralChecklistInvoices({
-        ...parametrosChecklist,
-        documentos,
-      }),
-    [parametrosChecklist, documentos],
-  )
+  const resumoGeral = useMemo(() => {
+    const resumoInvoices = montarResumoGeralChecklistInvoices({
+      ...parametrosChecklist,
+      documentos,
+    })
+    const resumosPackingList = montarResumoChecklistPackingLists({
+      ...parametrosChecklist,
+      documentos,
+    })
+    return combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList)
+  }, [parametrosChecklist, documentos])
 
   const mostrarDetalheInvoice = filtroVisaoGeral !== VALOR_TODAS_INVOICES_CHECKLIST
   const rotuloChecklistAtivo = mostrarDetalheInvoice ? filtroVisaoGeral : null
 
+  const documentoAtivoEhPackingList = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && opcao.tipo_documento.toUpperCase().includes('PACKING')
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
   const checklistInvoice = useMemo(() => {
-    if (!rotuloChecklistAtivo) return []
+    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList) return []
     return montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       documentos,
       rotulo_documento: rotuloChecklistAtivo,
     })
-  }, [parametrosChecklist, rotuloChecklistAtivo])
+  }, [documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
 
   const secoesInvoice = useMemo(
     () => agruparChecklistPorSecao(checklistInvoice),
     [checklistInvoice],
   )
+
+  const checklistPackingList = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhPackingList) return []
+    return montarChecklistMatrizPackingList({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesPackingList = useMemo(
+    () => agruparChecklistPackingListPorSecao(checklistPackingList),
+    [checklistPackingList],
+  )
+
+  const scorePackingList = useMemo(() => {
+    if (checklistPackingList.length === 0) return null
+    return calcularScoreChecklistPackingList(
+      checklistPackingList,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistPackingList, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
 
   const opcoesInvoice = useMemo(
     () =>
@@ -110,13 +155,31 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
 
   const contagemDetalheInvoice = useMemo(() => {
     if (!rotuloChecklistAtivo) return resumoGeral.contagem_global
+    if (documentoAtivoEhPackingList) return contarChecklistPorStatus(checklistPackingList)
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice.contagem
     return contarChecklistPorStatus(checklistInvoice)
-  }, [checklistInvoice, resumoGeral, rotuloChecklistAtivo])
+  }, [
+    checklistInvoice,
+    checklistPackingList,
+    documentoAtivoEhPackingList,
+    resumoGeral,
+    rotuloChecklistAtivo,
+  ])
 
   const documentoDestaque = useMemo((): ResumoInvoiceChecklist | null => {
     if (!rotuloChecklistAtivo || !mostrarDetalheInvoice) return null
+    if (documentoAtivoEhPackingList) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistPackingList)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistPackingList(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice
     const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
@@ -134,6 +197,8 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     }
   }, [
     checklistInvoice,
+    checklistPackingList,
+    documentoAtivoEhPackingList,
     documentosOpcoes,
     mostrarDetalheInvoice,
     resumoGeral.por_invoice,
@@ -141,7 +206,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   ])
 
   const classificacaoProduto = useMemo(() => {
-    if (!rotuloChecklistAtivo) return []
+    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList) return []
     return montarClassificacaoProdutoChecklist({
       documentos,
       riscos: parametrosChecklist.riscos,
@@ -149,7 +214,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
       pipelineConcluido: parametrosChecklist.pipelineConcluido,
       carregando: parametrosChecklist.carregando,
     })
-  }, [documentos, parametrosChecklist, rotuloChecklistAtivo])
+  }, [documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
@@ -200,7 +265,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
             <div>
               <strong className="sr-chk-modal-titulo">Checklist de Conferência</strong>
               <p className="sr-chk-modal-subtitulo">
-                {resumoGeral.total_invoices} invoice(s) · {contagem.total} avaliações · {percentual}%
+                {resumoGeral.total_invoices} documento(s) · {contagem.total} avaliações · {percentual}%
                 conforme
               </p>
             </div>
@@ -239,15 +304,53 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
             >
               {mostrarDetalheInvoice && rotuloChecklistAtivo ? (
                 <>
-                  <ChecklistConferenciaCorpoSmartRead
-                    secoes={secoesInvoice}
-                    todasSecoesAbertas
-                    onVerRisco={onVerRisco}
-                    rotuloInvoice={rotuloChecklistAtivo}
-                    idPrefixo="sr-chk-modal-geral-inv"
-                    classeCorpo="sr-chk-modal-checklist-corpo"
-                    classificacaoProduto={classificacaoProduto}
-                  />
+                  {documentoAtivoEhPackingList ? (
+                    <>
+                      {scorePackingList ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scorePackingList.pendente ? 'calculando…' : `${scorePackingList.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scorePackingList.pendente
+                              ? 'calculando…'
+                              : scorePackingList.rotulo_classificacao}
+                          </span>
+                          {scorePackingList.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scorePackingList.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesPackingList}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-pl"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_PACKING_LIST[secao as SecaoMatrizPackingList] ?? secao
+                        }
+                        rotuloMotor={(motor) =>
+                          ROTULO_MOTOR_MATRIZ_PACKING_LIST[motor as MotorValidacaoPackingList] ?? motor
+                        }
+                      />
+                    </>
+                  ) : (
+                    <ChecklistConferenciaCorpoSmartRead
+                      secoes={secoesInvoice}
+                      todasSecoesAbertas
+                      onVerRisco={onVerRisco}
+                      rotuloInvoice={rotuloChecklistAtivo}
+                      idPrefixo="sr-chk-modal-geral-inv"
+                      classeCorpo="sr-chk-modal-checklist-corpo"
+                      classificacaoProduto={classificacaoProduto}
+                    />
+                  )}
                   <ResumoContagemChecklistSmartRead
                     verde={contagemDetalheInvoice.verde}
                     amarelo={contagemDetalheInvoice.amarelo}

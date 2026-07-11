@@ -4,6 +4,10 @@
 
 import { z } from 'zod'
 import type { MotorValidacaoInvoice, SecaoMatrizInvoice, StatusMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
+import type {
+  MotorValidacaoPackingList,
+  SecaoMatrizPackingList,
+} from './matriz-validacao-packing-list-smart-read.js'
 import {
   ehRiscoClassificacaoFiscal,
   formatarAnaliseDivergenciaLinha,
@@ -50,10 +54,10 @@ export type RiscoAduaneiroLeitura = {
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
-  /** Matriz consolidada de invoice — seção 1–8 */
-  secao_matriz?: SecaoMatrizInvoice
+  /** Matriz consolidada — seções da invoice (S1–S8) ou do packing list (P1–P9) */
+  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList
   id_regra_matriz?: string
-  motor_validacao?: MotorValidacaoInvoice
+  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList
   status_matriz?: StatusMatrizInvoice
 }
 
@@ -152,10 +156,21 @@ export const RiscoAduaneiroLeituraSchema = z.object({
       'bancario',
       'pesos_embalagens',
       'legitimidade',
+      'identificacao_vinculos',
+      'partes_envolvidas',
+      'transporte_cct',
+      'volumes_embalagens',
+      'pesos_consistencias',
+      'itens_rastreabilidade',
+      'catalogo_duimp',
+      'regulatorio_anuencias',
+      'legitimidade_risco',
     ])
     .optional(),
   id_regra_matriz: z.string().optional(),
-  motor_validacao: z.enum(['codigo', 'api', 'llm', 'rag']).optional(),
+  motor_validacao: z
+    .enum(['codigo', 'api', 'llm', 'rag', 'cross_doc', 'codigo_rag', 'cross_doc_rag', 'api_llm'])
+    .optional(),
   status_matriz: z.enum(['verde', 'amarelo', 'vermelho']).optional(),
 })
 

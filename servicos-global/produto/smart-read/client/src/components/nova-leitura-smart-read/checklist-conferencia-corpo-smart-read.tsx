@@ -4,13 +4,11 @@
 
 import { CaretDown, Check, CircleNotch, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
   contarChecklistPorStatus,
   TOOLTIP_STATUS_CHECKLIST_INVOICE,
   vereditoSecaoChecklist,
-  type ItemChecklistMatrizInvoice,
   type RotuloStatusChecklistInvoice,
   type StatusChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
@@ -21,16 +19,41 @@ import {
   chaveItemChecklistUsuario,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 
-export type SecaoChecklistConferenciaSmartRead = {
-  secao: SecaoMatrizInvoice
-  itens: ItemChecklistMatrizInvoice[]
+/** Forma estrutural mínima aceita pelo corpo — cobre matriz Invoice (S) e Packing List (P). */
+export type ItemChecklistCorpoSmartRead = {
+  regra: {
+    id: string
+    secao: string
+    item: string
+    motor: string
+    tooltip_conferencia: string
+  }
+  status: StatusChecklistMatrizInvoice
+  rotulo_status: RotuloStatusChecklistInvoice
+  resultado: string
+  detalhe: string | null
+  risco_id: string | null
+  em_analise: boolean
 }
 
-const ROTULO_MOTOR_MATRIZ: Record<ItemChecklistMatrizInvoice['regra']['motor'], string> = {
+export type SecaoChecklistConferenciaSmartRead = {
+  secao: string
+  itens: ItemChecklistCorpoSmartRead[]
+}
+
+const ROTULO_MOTOR_MATRIZ: Record<string, string> = {
   codigo: 'Código',
   api: 'API',
   llm: 'IA',
   rag: 'RAG',
+}
+
+function rotuloMotorPadrao(motor: string): string {
+  return ROTULO_MOTOR_MATRIZ[motor] ?? motor
+}
+
+function rotuloSecaoPadrao(secao: string): string {
+  return (ROTULO_SECAO_MATRIZ_INVOICE as Record<string, string>)[secao] ?? secao
 }
 
 const ROTULO_PARA_STATUS: Record<RotuloStatusChecklistInvoice, StatusChecklistMatrizInvoice> = {
@@ -77,13 +100,15 @@ function LinhaChecklistAviacao({
   estaMarcado,
   alternarMarcado,
   exibirColunaCheck,
+  rotuloMotor = rotuloMotorPadrao,
 }: {
-  item: ItemChecklistMatrizInvoice
+  item: ItemChecklistCorpoSmartRead
   rotuloInvoice?: string | null
   onVerRisco?: (riscoId: string) => void
   estaMarcado?: (chave: string) => boolean
   alternarMarcado?: (chave: string) => void
   exibirColunaCheck: boolean
+  rotuloMotor?: (motor: string) => string
 }) {
   const chaveMarcacao = chaveItemChecklistUsuario(item.regra.id, rotuloInvoice)
   const marcado = estaMarcado?.(chaveMarcacao) ?? false
@@ -119,7 +144,7 @@ function LinhaChecklistAviacao({
             </button>
           </TooltipGlobal>
         </span>
-        <span className="sr-conf-chk-item-motor">{ROTULO_MOTOR_MATRIZ[item.regra.motor]}</span>
+        <span className="sr-conf-chk-item-motor">{rotuloMotor(item.regra.motor)}</span>
       </td>
       <td className="sr-conf-chk-col-resultado" title={item.detalhe ?? undefined}>
         <span className="sr-conf-chk-resultado">
@@ -166,6 +191,9 @@ type Props = {
   idPrefixo?: string
   classeCorpo?: string
   classificacaoProduto?: LinhaClassificacaoProdutoChecklist[]
+  /** Rótulos por seção/motor — default matriz Invoice; a matriz PL injeta os seus. */
+  rotuloSecao?: (secao: string) => string
+  rotuloMotor?: (motor: string) => string
 }
 
 export function ChecklistConferenciaCorpoSmartRead({
@@ -184,6 +212,8 @@ export function ChecklistConferenciaCorpoSmartRead({
   idPrefixo = 'sr-checklist',
   classeCorpo = 'sr-conf-checklist-corpo',
   classificacaoProduto,
+  rotuloSecao = rotuloSecaoPadrao,
+  rotuloMotor = rotuloMotorPadrao,
 }: Props) {
   const exibirColunaCheck = Boolean(alternarMarcado)
   const exibirSelecionarTudo =
@@ -247,7 +277,7 @@ export function ChecklistConferenciaCorpoSmartRead({
               />
             )}
             <span className="sr-conf-checklist-secao-titulo">
-              {ROTULO_SECAO_MATRIZ_INVOICE[secao]}
+              {rotuloSecao(secao)}
             </span>
             <BarraStatusChecklistSmartRead
               verde={contagemSecao.verde}
@@ -305,7 +335,7 @@ export function ChecklistConferenciaCorpoSmartRead({
                                   ? onAlternarChavesLote(chavesSecao, !todosSecaoMarcados)
                                   : undefined
                               }
-                              aria-label={`Selecionar todos os itens da seção ${ROTULO_SECAO_MATRIZ_INVOICE[secao]}`}
+                              aria-label={`Selecionar todos os itens da seção ${rotuloSecao(secao)}`}
                               title="Selecionar seção"
                             />
                           ) : (
@@ -339,6 +369,7 @@ export function ChecklistConferenciaCorpoSmartRead({
                         estaMarcado={estaMarcado}
                         alternarMarcado={alternarMarcado}
                         exibirColunaCheck={exibirColunaCheck}
+                        rotuloMotor={rotuloMotor}
                       />
                     ))}
                   </tbody>

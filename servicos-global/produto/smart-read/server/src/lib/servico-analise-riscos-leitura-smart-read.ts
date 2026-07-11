@@ -14,6 +14,7 @@ import {
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
+import { executarPasso1ValidacaoCodigoPackingList } from '../../../shared/passo-1-validacao-codigo-packing-list-smart-read.js'
 import {
   anexarDisclaimerClassificacao,
   DISCLAIMER_CLASSIFICACAO_FISCAL,
@@ -27,6 +28,10 @@ import {
   SYSTEM_PROMPT_ANALISTA_INVOICE,
   montarPromptAnalistaInvoice,
 } from './prompt-analista-invoice-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_PACKING_LIST,
+  montarPromptAnalistaPackingList,
+} from './prompt-analista-packing-list-smart-read.js'
 import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
@@ -108,7 +113,8 @@ function riscosNormativosDeTributos(
   return saida
 }
 
-async function chamarLlmAnalistaInvoice(
+async function chamarLlmAnalistaMatriz(
+  systemInstruction: string,
   promptUsuario: string,
   contextoRegistro: ContextoRegistroUsoLlmLeituraSmartRead,
 ): Promise<{ riscos: RiscoAduaneiroLeitura[]; uso_llm: UsoLlmChamadaLeituraSmartRead | null }> {
@@ -117,7 +123,7 @@ async function chamarLlmAnalistaInvoice(
 
   const llm = await gerarConteudoGeminiSmartRead({
     modelo: GEMINI_MODEL,
-    systemInstruction: SYSTEM_PROMPT_ANALISTA_INVOICE,
+    systemInstruction,
     promptUsuario,
     generationConfig: {
       temperature: 0.15,
@@ -191,6 +197,10 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   // Passo 1 — motor Código (aritmética, formatos, ISO, CNPJ módulo 11)
   const { resumo: p1Resumo, contexto } = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
 
+  // Passo 1 PL — matriz Packing List (Código + Cross-Doc com invoice/BL)
+  const passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
+  contexto.regras = [...contexto.regras, ...passo1Pl.contexto.regras]
+
   // Passo 2 — API CNPJ Receita Federal
   const passo2 = await executarPasso2ApiCnpjInvoice(entrada.documentos)
   contexto.cnpj_oficial = passo2.cnpj_oficial
@@ -206,6 +216,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
 
   let aviso: string | null = null
   let riscosLlm: RiscoAduaneiroLeitura[] = []
+  let riscosLlmPackingList: RiscoAduaneiroLeitura[] = []
   let riscosClassificacao: RiscoAduaneiroLeitura[] = []
   const llmAtivo = entrada.incluir_llm !== false && !!process.env.GEMINI_API_KEY?.trim()
 
@@ -248,7 +259,11 @@ export async function executarAnaliseRiscosLeituraSmartRead(
         errosAritmeticos,
         chunksRag,
       })
-      const analista = await chamarLlmAnalistaInvoice(prompt, registroComLeitura)
+      const analista = await chamarLlmAnalistaMatriz(
+        SYSTEM_PROMPT_ANALISTA_INVOICE,
+        prompt,
+        registroComLeitura,
+      )
       riscosLlm = analista.riscos
       if (analista.uso_llm) chamadasUso.push(analista.uso_llm)
     } catch (erro) {
@@ -257,11 +272,42 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       }
       console.error('[smart-read][analise-riscos]', aviso)
     }
+
+    const documentosPacking = entrada.documentos.filter((d) =>
+      d.tipo_documento.toUpperCase().includes('PACKING'),
+    )
+    if (documentosPacking.length > 0) {
+      try {
+        const promptPl = montarPromptAnalistaPackingList({
+          documentosPacking,
+          documentosInvoice: entrada.documentos.filter((d) =>
+            d.tipo_documento.toUpperCase().includes('INVOICE'),
+          ),
+          documentosConhecimento: entrada.documentos.filter((d) => {
+            const tipo = d.tipo_documento.toUpperCase()
+            return tipo.includes('BL') || tipo.includes('AWB')
+          }),
+          contexto,
+        })
+        const analistaPl = await chamarLlmAnalistaMatriz(
+          SYSTEM_PROMPT_ANALISTA_PACKING_LIST,
+          promptPl,
+          registroComLeitura,
+        )
+        riscosLlmPackingList = analistaPl.riscos
+        if (analistaPl.uso_llm) chamadasUso.push(analistaPl.uso_llm)
+      } catch (erro) {
+        if (!aviso) {
+          aviso = `Analista IA do packing list indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+        }
+        console.error('[smart-read][analise-riscos-packing]', aviso)
+      }
+    }
   }
 
   const mesclado = mesclarRiscosAnaliseLeitura(
-    [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos],
-    [...riscosClassificacao, ...riscosLlm],
+    [...p1Resumo.riscos, ...passo1Pl.resumo.riscos, ...passo2.riscos, ...riscosV3Tributos],
+    [...riscosClassificacao, ...riscosLlm, ...riscosLlmPackingList],
   )
   const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado)
 

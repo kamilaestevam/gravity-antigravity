@@ -117,18 +117,20 @@ export function normalizarResultadoChecklist(
   return truncarTexto(saida)
 }
 
-function resultadoDeRisco(risco: RiscoAduaneiroLeitura): string {
+export function resultadoDeRiscoChecklist(risco: RiscoAduaneiroLeitura): string {
   const ev = risco.evidencias.find((e) => e.valor?.trim())
   if (ev?.valor) return truncarTexto(ev.valor)
   return truncarTexto(risco.motivo, 100)
 }
 
-function detalheIndicaNa(detalhe: string | null): boolean {
+const resultadoDeRisco = resultadoDeRiscoChecklist
+
+export function detalheIndicaNa(detalhe: string | null): boolean {
   return !!detalhe && /^N\/A\s*—/i.test(detalhe.trim())
 }
 
 /** «Aviso —» sinaliza falha nossa (ex.: consulta RFB fora do ar) — vira ATENÇÃO sem card de risco. */
-function detalheIndicaAviso(detalhe: string | null): boolean {
+export function detalheIndicaAviso(detalhe: string | null): boolean {
   return !!detalhe && /^Aviso\s*—/i.test(detalhe.trim())
 }
 
@@ -137,7 +139,7 @@ function detalheEhPlaceholderSemDado(detalhe: string | null): boolean {
   return /não extraíd|não identificad|sem linhas|ausente no documento/i.test(detalhe)
 }
 
-function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChecklistMatrizInvoice {
+export function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChecklistMatrizInvoice {
   const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
   if (detalheIndicaNa(detalhe)) return 'na'
   const falhasReais = regrasMotor.filter((r) => !r.passou && !detalheIndicaAviso(r.detalhe))
@@ -594,7 +596,7 @@ export function agruparChecklistPorSecao(
     .map((secao) => ({ secao, itens: mapa.get(secao) ?? [] }))
 }
 
-export function contarChecklistPorStatus(itens: ItemChecklistMatrizInvoice[]) {
+export function contarChecklistPorStatus(itens: Array<{ status: StatusChecklistMatrizInvoice }>) {
   return {
     verde: itens.filter((i) => i.status === 'verde').length,
     amarelo: itens.filter((i) => i.status === 'amarelo').length,
@@ -607,7 +609,7 @@ export function contarChecklistPorStatus(itens: ItemChecklistMatrizInvoice[]) {
 
 /** Veredito da seção — pior status prevalece (estilo checklist de voo). */
 export function vereditoSecaoChecklist(
-  itens: ItemChecklistMatrizInvoice[],
+  itens: Array<{ status: StatusChecklistMatrizInvoice }>,
 ): RotuloStatusChecklistInvoice {
   if (itens.some((i) => i.status === 'vermelho')) return 'FALHA'
   if (itens.some((i) => i.status === 'amarelo')) return 'ATENÇÃO'

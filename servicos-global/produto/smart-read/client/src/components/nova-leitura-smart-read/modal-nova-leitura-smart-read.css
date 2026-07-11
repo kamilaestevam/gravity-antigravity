@@ -3882,6 +3882,34 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   color: var(--text-muted);
 }
 
+/* Faixa de score + classificação de risco — checklist do packing list */
+.sr-chk-modal-score-pl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.25));
+  border-radius: 0.5rem;
+  background: rgba(129, 140, 248, 0.08);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sr-chk-modal-score-pl-item strong {
+  color: var(--text-primary, #e2e8f0);
+  font-weight: 600;
+}
+
+.sr-chk-modal-score-pl-item--gate {
+  color: #f87171;
+}
+
+.sr-chk-modal-score-pl-item--gate strong {
+  color: #f87171;
+}
+
 .sr-chk-modal-fechar {
   display: inline-flex;
   align-items: center;

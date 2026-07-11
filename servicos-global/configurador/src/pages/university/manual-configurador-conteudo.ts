@@ -62,6 +62,8 @@ export interface DocPassoVisual {
     colunas?: number
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
+    /** Sobrescreve frase → print e margem entre cenários (px). */
+    espacoTextoFiguraPx?: number
     /** Cabeçalho de passo (chip + legenda roxa) acima da grade — paridade com `galeriaTelasAposTabela`. */
     legendaPasso?: string
     /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
@@ -77,6 +79,8 @@ export interface DocPassoVisual {
       imagem?: string
       paragrafoAntesPrint?: string
       printsApos?: { imagem: string; paragrafoAntesPrint?: string }[]
+      /** Manual BID Frete §7.01 — chip 01 + visão (mapa), 2 (tooltip) ou 3 (lista). */
+      chipAcessoPainelCotacao?: 'mapa' | 'tooltip' | 'lista'
     }[]
     /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
     textoAoLado?: string[]
@@ -96,6 +100,10 @@ export interface DocPassoVisual {
     chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
     /** Manual BID Frete §4.02.01 — chip 01 + lápis da forma Manual no título da etapa. */
     chipBidFreteFormaManual?: boolean
+    /** Manual BID Frete §6.03.01 — chip BID (Stack) no título da etapa. */
+    chipBidFreteBid?: boolean
+    /** Ritmo extra após o bloco da etapa (antes da próxima etapa com título). */
+    espacoInferiorAposEtapaPx?: number
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
     mostrarChipsBidFreteTipoCarga?: boolean
     /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
@@ -104,6 +112,8 @@ export interface DocPassoVisual {
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
     /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
     infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+    /** Manual BID Frete §6.03.01 — mapa UX 10: BID como pacote de cotações existentes. */
+    infograficoBidFreteBidPacoteCotacoes?: boolean
     /** Manual BID Frete §4.02.01 — cards dos campos do passo Modal e Operação (após o print). */
     infograficoBidFreteModalOperacaoCampos?: boolean
     /** Manual BID Frete §4.02.01 — print(s) após infográfico «Campos deste passo», antes das DICAS. */
@@ -235,12 +245,22 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
   /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
   mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
+  /** Manual BID Frete §6.02 — comparação cotação avulsa (única) × BID (pacote). */
+  mostrarInfograficoBidFreteCotacaoAvulsaVsBid?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico avulsa × BID (padrão: 0). */
+  bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */
   bidFreteCotacaoAvulsaFormasInfograficoAposParagrafo?: number
   /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
   mostrarInfograficoBidFreteControlesMapa?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
   bidFreteNovaCotacaoInfograficoAposParagrafo?: number
+  /** Manual BID Frete §4.01 — fluxo + legenda de escopo após a galeria do parágrafo (em vez de antes). */
+  bidFreteNovaCotacaoEscopoAposGaleriaParagrafo?: number
+  /** Manual BID Frete §4.01 — frase introdutória antes do infográfico dos cinco passos (após galeria). */
+  textoAntesInfograficoBidFreteNovaCotacaoFluxo?: string
+  /** Manual BID Frete §4.01 — frase introdutória antes da legenda de ícones de escopo (após galeria). */
+  textoAntesLegendaEscopoIconesBidFrete?: string
   /** Manual BID Frete § Nova cotação — barra de escopo Operação · Modal · Carga. */
   barraEscopoBidFrete?: ManualBidFreteEscopoConfig
   /** Índice do parágrafo após o qual inserir a barra de escopo (padrão: mesmo do infográfico). */
@@ -430,6 +450,8 @@ export interface DocFluxo {
   mostrarInfograficoPedidoInsights?: boolean
   /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
   mostrarInfograficoBidFreteInsights?: boolean
+  /** Manual BID Frete §07 — três etapas do Painel da Cotação (após parágrafo introdutório do capítulo). */
+  mostrarInfograficoBidFretePainelCotacao?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */

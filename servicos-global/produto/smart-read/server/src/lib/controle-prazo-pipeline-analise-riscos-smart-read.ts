@@ -2,7 +2,10 @@
  * controle-prazo-pipeline-analise-riscos-smart-read.ts — SLA do wizard (≤75s) com margem no BFF
  */
 
-/** Prazo máximo do pipeline HTTP — alinhado ao SLA do wizard (75s) com folga no cliente (55s). */
+/** Prazo da fase rápida (código + Receita + NCM) — meta ≤3s no wizard. */
+export const PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS = 3_000
+
+/** Prazo máximo do pipeline HTTP — alinhado ao SLA do wizard (75s) com margem no cliente (55s). */
 export const PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS = 70_000
 
 const MENSAGEM_PRAZO_ESGOTADO =

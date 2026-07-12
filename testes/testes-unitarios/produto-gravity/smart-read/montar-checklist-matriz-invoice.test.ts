@@ -396,7 +396,7 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(resumo.por_invoice).toHaveLength(2)
   })
 
-  it('modo instantâneo exibe prévia amarela sem spinner em regras IA/API', () => {
+  it('modo instantâneo exibe spinner padronizado em regras IA/API', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [],
       riscos: [],
@@ -404,6 +404,7 @@ describe('montarChecklistMatrizInvoice', () => {
       llmHabilitado: true,
       carregando: true,
       enriquecimento_ia_em_andamento: true,
+      fase_enriquecimento_analise: 'llm',
       documentos: [
         {
           nome_arquivo: 'INV.pdf',
@@ -433,11 +434,10 @@ describe('montarChecklistMatrizInvoice', () => {
     })
     const s203 = itens.find((i) => i.regra.id === 'S2-03')
     const s202 = itens.find((i) => i.regra.id === 'S2-02')
-    expect(s203?.status).toBe('verde')
-    expect(s203?.em_analise).toBe(false)
-    expect(s203?.detalhe).toContain('Prévia local')
-    expect(s202?.status).toBe('amarelo')
-    expect(s202?.em_analise).toBe(false)
-    expect(itens.filter((i) => i.regra.motor === 'llm').every((i) => !i.em_analise)).toBe(true)
+    expect(s203?.status).toBe('pendente')
+    expect(s203?.em_analise).toBe(true)
+    expect(s203?.resultado).toContain('Aguardando IA')
+    expect(s202?.resultado).toContain('Aguardando Receita')
+    expect(s203?.em_analise).toBe(true)
   })
 })

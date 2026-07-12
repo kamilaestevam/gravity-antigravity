@@ -24,6 +24,11 @@ import {
   regraMatrizTemDadoExtraido,
 } from './extrair-detalhe-dados-regra-matriz-invoice-smart-read.js'
 import { regraMatrizTemDescricaoParaClassificacao } from './montar-classificacao-produto-checklist-smart-read.js'
+import {
+  motorAguardaEnriquecimentoServidor,
+  rotuloAguardandoMotorChecklistSmartRead,
+  type FaseEnriquecimentoAnaliseRiscos,
+} from './rotulo-aguardando-motor-checklist-smart-read.js'
 
 export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente' | 'na'
 
@@ -265,6 +270,7 @@ export type ParametrosChecklistMatrizInvoice = {
   analise_servidor_indisponivel?: boolean
   /** IA/API ainda enriquecendo — exibe prévia amarela sem spinner (Fase A). */
   enriquecimento_ia_em_andamento?: boolean
+  fase_enriquecimento_analise?: FaseEnriquecimentoAnaliseRiscos | null
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
   cnpj_oficial?: DadosOficiaisCnpjLeitura | null
@@ -443,6 +449,7 @@ export function montarChecklistMatrizInvoice(
     carregando,
     analise_servidor_indisponivel = false,
     enriquecimento_ia_em_andamento = false,
+    fase_enriquecimento_analise = null,
     rotulo_documento,
     documentos,
     cnpj_oficial = null,
@@ -497,45 +504,20 @@ export function montarChecklistMatrizInvoice(
         )
       }
 
-      if (enriquecimento_ia_em_andamento) {
-        if (regraMatriz.id === 'S2-03' && cnpj_oficial?.razao_social && temDado) {
-          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
-            resultadoLido,
-            cnpj_oficial.razao_social,
-          )
-          return montarItemChecklist(
-            regraMatriz,
-            heuristica.conforme ? 'verde' : 'amarelo',
-            heuristica.conforme
-              ? 'Prévia local — razão social alinhada à Receita (IA confirma em segundo plano)'
-              : 'Prévia local — divergência de razão social (IA confirma em segundo plano)',
-            null,
-            resultadoLido,
-          )
-        }
-        if (regraMatriz.id === 'S2-04' && cnpj_oficial && temDado) {
-          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
-            resultadoLido,
-            montarEnderecoOficialCnpj(cnpj_oficial),
-          )
-          return montarItemChecklist(
-            regraMatriz,
-            heuristica.conforme ? 'verde' : 'amarelo',
-            heuristica.conforme
-              ? 'Prévia local — endereço alinhado à Receita (IA confirma em segundo plano)'
-              : 'Prévia local — divergência de endereço (IA confirma em segundo plano)',
-            null,
-            resultadoLido,
-          )
-        }
+      if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise) {
+        const rotulo = rotuloAguardandoMotorChecklistSmartRead(
+          regraMatriz.motor,
+          regraMatriz.motor === 'api' && fase_enriquecimento_analise === 'api'
+            ? 'api'
+            : 'llm',
+        )
         return montarItemChecklist(
           regraMatriz,
-          temDado ? 'amarelo' : 'na',
-          temDado
-            ? 'Prévia local — validação IA em segundo plano'
-            : 'N/A — sem dado na extração; IA em segundo plano',
+          'pendente',
+          rotulo.detalhe,
           null,
-          temDado ? resultadoLido : 'Não aplicável',
+          rotulo.resultado,
+          true,
         )
       }
 
@@ -594,15 +576,15 @@ export function montarChecklistMatrizInvoice(
     }
 
     if (regraMatriz.motor === 'api') {
-      if (enriquecimento_ia_em_andamento) {
+      if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise === 'api') {
+        const rotulo = rotuloAguardandoMotorChecklistSmartRead('api', 'api')
         return montarItemChecklist(
           regraMatriz,
-          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido) ? 'amarelo' : 'na',
-          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)
-            ? 'Prévia local — consulta Receita em segundo plano'
-            : 'N/A — CNPJ não extraído para consulta na Receita',
+          'pendente',
+          rotulo.detalhe,
           null,
-          detalheExtraido ?? 'Não aplicável',
+          rotulo.resultado,
+          true,
         )
       }
       if (carregando) {
@@ -649,6 +631,27 @@ export function montarChecklistMatrizInvoice(
         'Consulta à Receita Federal não retornou — reprocesse a leitura',
         null,
         detalheExtraido,
+      )
+    }
+
+    if (
+      (enriquecimento_ia_em_andamento || fase_enriquecimento_analise) &&
+      motorAguardaEnriquecimentoServidor(regraMatriz.motor) &&
+      regraMatriz.motor !== 'llm' &&
+      regraMatriz.motor !== 'rag' &&
+      regraMatriz.motor !== 'api'
+    ) {
+      const rotulo = rotuloAguardandoMotorChecklistSmartRead(
+        regraMatriz.motor,
+        fase_enriquecimento_analise === 'api' ? 'api' : 'llm',
+      )
+      return montarItemChecklist(
+        regraMatriz,
+        'pendente',
+        rotulo.detalhe,
+        null,
+        rotulo.resultado,
+        true,
       )
     }
 

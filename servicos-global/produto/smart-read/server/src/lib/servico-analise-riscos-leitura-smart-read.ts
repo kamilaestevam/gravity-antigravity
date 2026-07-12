@@ -36,7 +36,7 @@ import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
 } from './rag-normativo-analise-riscos-smart-read.js'
-import { criarControlePrazoPipelineAnaliseRiscos } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
+import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
 import { executarClassificacaoFiscalLlmLeituraSmartRead } from './servico-classificacao-fiscal-leitura-smart-read.js'
 import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
 import {
@@ -195,31 +195,57 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   idOrganizacao: string,
   contextoRegistro: ContextoRegistroUsoLlmLeituraSmartRead,
 ): Promise<AnaliseRiscosLeituraResponse> {
-  const prazoPipeline = criarControlePrazoPipelineAnaliseRiscos()
+  const somenteLlm = entrada.somente_llm === true && !!entrada.contexto_v1_referencia
+  const faseRapidaSemLlm = entrada.incluir_llm === false && !somenteLlm
+  const prazoMs = somenteLlm
+    ? PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
+    : faseRapidaSemLlm
+      ? PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
+      : PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
+  const prazoPipeline = criarControlePrazoPipelineAnaliseRiscos(prazoMs)
 
-  // Passo 1 — motor Código (aritmética, formatos, ISO, CNPJ módulo 11)
-  const { resumo: p1Resumo, contexto } = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
+  let p1Resumo: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['resumo']
+  let contexto: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['contexto']
+  let passo1Pl: ReturnType<typeof executarPasso1ValidacaoCodigoPackingList>
+  let passo2: Awaited<ReturnType<typeof executarPasso2ApiCnpjInvoice>>
+  let tributos: Awaited<ReturnType<typeof buscarTributosNcmsLeituraSmartRead>>
 
-  // Passo 1 PL — matriz Packing List (Código + Cross-Doc com invoice/BL)
-  const passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
-  contexto.regras = [...contexto.regras, ...passo1Pl.contexto.regras]
+  if (somenteLlm && entrada.contexto_v1_referencia) {
+    contexto = { ...entrada.contexto_v1_referencia }
+    p1Resumo = entrada.resumo_base_sem_llm ?? {
+      riscos: [],
+      total: 0,
+      criticos: 0,
+      atencao: 0,
+      informativos: 0,
+    }
+    passo1Pl = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [], cnpj_oficial: null },
+    }
+    passo2 = { cnpj_oficial: contexto.cnpj_oficial ?? null, riscos: [], regras: [] }
+    tributos = contexto.tributos_ncm ?? []
+  } else {
+    const passo1 = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
+    p1Resumo = passo1.resumo
+    contexto = passo1.contexto
 
-  let passo2: Awaited<ReturnType<typeof executarPasso2ApiCnpjInvoice>> = {
-    cnpj_oficial: null,
-    riscos: [],
-    regras: [],
-  }
-  let tributos: Awaited<ReturnType<typeof buscarTributosNcmsLeituraSmartRead>> = []
-  if (!prazoPipeline.esgotado()) {
-    const [passo2Resultado, tributosResultado] = await Promise.all([
-      executarPasso2ApiCnpjInvoice(entrada.documentos),
-      buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao),
-    ])
-    passo2 = passo2Resultado
-    contexto.cnpj_oficial = passo2.cnpj_oficial
-    contexto.regras = [...contexto.regras, ...passo2.regras]
-    tributos = tributosResultado
-    contexto.tributos_ncm = tributos
+    passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
+    contexto.regras = [...contexto.regras, ...passo1Pl.contexto.regras]
+
+    passo2 = { cnpj_oficial: null, riscos: [], regras: [] }
+    tributos = []
+    if (!prazoPipeline.esgotado()) {
+      const [passo2Resultado, tributosResultado] = await Promise.all([
+        executarPasso2ApiCnpjInvoice(entrada.documentos),
+        buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao),
+      ])
+      passo2 = passo2Resultado
+      contexto.cnpj_oficial = passo2.cnpj_oficial
+      contexto.regras = [...contexto.regras, ...passo2.regras]
+      tributos = tributosResultado
+      contexto.tributos_ncm = tributos
+    }
   }
 
   const riscosV3Tributos = riscosNormativosDeTributos(tributos)
@@ -231,9 +257,10 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   let riscosLlm: RiscoAduaneiroLeitura[] = []
   let riscosLlmPackingList: RiscoAduaneiroLeitura[] = []
   let riscosClassificacao: RiscoAduaneiroLeitura[] = []
-  const llmAtivo = entrada.incluir_llm !== false && !!process.env.GEMINI_API_KEY?.trim()
+  const llmAtivo =
+    (somenteLlm || entrada.incluir_llm !== false) && !!process.env.GEMINI_API_KEY?.trim()
 
-  if (entrada.incluir_llm !== false && !process.env.GEMINI_API_KEY?.trim()) {
+  if (!somenteLlm && entrada.incluir_llm !== false && !process.env.GEMINI_API_KEY?.trim()) {
     aviso =
       'GEMINI_API_KEY ausente — Passo 3 (Analista IA) indisponível. Configure a chave e reinicie o BFF.'
   }

@@ -116,13 +116,6 @@ export const DocumentoAnaliseRiscoSchema = z.object({
   dados: z.record(z.string(), z.unknown()),
 })
 
-export const AnaliseRiscosLeituraRequestSchema = z.object({
-  documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
-  pergunta: z.string().trim().min(1).optional(),
-  incluir_llm: z.boolean().optional().default(true),
-  id_leitura_legado: z.string().min(8).optional(),
-})
-
 export const CitacaoNormativaRiscoSchema = z.object({
   tipo: z.enum(['ncm_oficial', 'kb_gravity', 'instrucao_normativa', 'portal_unico']),
   referencia: z.string().min(1),
@@ -226,6 +219,16 @@ export const AnaliseRiscosLeituraResponseSchema = z.object({
   aviso: z.string().nullable().optional(),
   uso_llm_chamada: UsoLlmChamadaLeituraSmartReadSchema.nullable().optional(),
   uso_llm_leitura: ResumoUsoLlmLeituraSmartReadSchema.nullable().optional(),
+})
+
+export const AnaliseRiscosLeituraRequestSchema = z.object({
+  documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
+  pergunta: z.string().trim().min(1).optional(),
+  incluir_llm: z.boolean().optional().default(true),
+  somente_llm: z.boolean().optional(),
+  contexto_v1_referencia: AnaliseRiscosLeituraResponseSchema.shape.contexto_v1.optional(),
+  resumo_base_sem_llm: AnaliseRiscosLeituraResponseSchema.shape.resumo.optional(),
+  id_leitura_legado: z.string().min(8).optional(),
 })
 
 export type DocumentoAnaliseRisco = z.infer<typeof DocumentoAnaliseRiscoSchema>
@@ -793,4 +796,25 @@ export function mesclarRiscosAnaliseLeitura(
 function chaveEvidenciaRisco(risco: RiscoAduaneiroLeitura): string {
   const ev = risco.evidencias[0]
   return `${ev?.documento ?? ''}|${ev?.campo ?? ''}`.toLowerCase()
+}
+
+/** Une fase rápida (API/código) com fase LLM no cliente. */
+export function mesclarRespostaAnaliseRiscosLeitura(
+  base: AnaliseRiscosLeituraResponse,
+  llm: AnaliseRiscosLeituraResponse,
+): AnaliseRiscosLeituraResponse {
+  const riscosLlm = llm.resumo.riscos.filter((r) => r.origem === 'llm')
+  const resumo = mesclarRiscosAnaliseLeitura(base.resumo.riscos, riscosLlm)
+  return {
+    ...llm,
+    resumo,
+    contexto_v1:
+      llm.contexto_v1.regras.length >= base.contexto_v1.regras.length
+        ? llm.contexto_v1
+        : base.contexto_v1,
+    llm_ativo: llm.llm_ativo,
+    aviso: llm.aviso ?? base.aviso ?? null,
+    uso_llm_chamada: llm.uso_llm_chamada ?? base.uso_llm_chamada ?? null,
+    uso_llm_leitura: llm.uso_llm_leitura ?? base.uso_llm_leitura ?? null,
+  }
 }

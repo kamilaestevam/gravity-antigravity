@@ -48,21 +48,37 @@ export async function carregarRegistrosAlteracaoPorCotacao(
   prisma: { registroAlteracaoPropostaBidFreteInternacional?: { findMany: Function } },
   id_cotacao_bid_frete_internacional: string,
 ): Promise<RegistroAlteracaoPropostaApiBidFreteInternacional[]> {
-  const registros = await (prisma as any).registroAlteracaoPropostaBidFreteInternacional.findMany({
-    where: { id_cotacao_bid_frete_internacional },
-    orderBy: { data_registro_alteracao_proposta_bid_frete_internacional: 'desc' },
-  })
-  return (registros as Record<string, unknown>[]).map(serializarRegistroAlteracaoPropostaBidFreteInternacional)
+  const delegate = (prisma as { registroAlteracaoPropostaBidFreteInternacional?: { findMany: Function } })
+    .registroAlteracaoPropostaBidFreteInternacional
+  if (!delegate?.findMany) return []
+
+  try {
+    const registros = await delegate.findMany({
+      where: { id_cotacao_bid_frete_internacional },
+      orderBy: { data_registro_alteracao_proposta_bid_frete_internacional: 'desc' },
+    })
+    return (registros as Record<string, unknown>[]).map(serializarRegistroAlteracaoPropostaBidFreteInternacional)
+  } catch {
+    return []
+  }
 }
 
 export async function carregarUltimoRegistroAlteracaoProposta(
   prisma: { registroAlteracaoPropostaBidFreteInternacional?: { findFirst: Function } },
   id_proposta_bid_frete_internacional: string,
 ): Promise<RegistroAlteracaoPropostaApiBidFreteInternacional | null> {
-  const registro = await (prisma as any).registroAlteracaoPropostaBidFreteInternacional.findFirst({
-    where: { id_proposta_bid_frete_internacional },
-    orderBy: { data_registro_alteracao_proposta_bid_frete_internacional: 'desc' },
-  })
-  if (!registro) return null
-  return serializarRegistroAlteracaoPropostaBidFreteInternacional(registro as Record<string, unknown>)
+  const delegate = (prisma as { registroAlteracaoPropostaBidFreteInternacional?: { findFirst: Function } })
+    .registroAlteracaoPropostaBidFreteInternacional
+  if (!delegate?.findFirst) return null
+
+  try {
+    const registro = await delegate.findFirst({
+      where: { id_proposta_bid_frete_internacional },
+      orderBy: { data_registro_alteracao_proposta_bid_frete_internacional: 'desc' },
+    })
+    if (!registro) return null
+    return serializarRegistroAlteracaoPropostaBidFreteInternacional(registro as Record<string, unknown>)
+  } catch {
+    return null
+  }
 }

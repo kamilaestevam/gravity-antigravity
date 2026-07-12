@@ -125,6 +125,12 @@ function riscoDaRegraDocumento(
 }
 
 const MOTORES_COM_IA = new Set(['llm', 'rag', 'api_llm', 'cross_doc_rag'])
+/** Motores que aguardam o POST /analise-riscos — prévia amarela sem spinner na Fase A. */
+const MOTORES_ENRIQUECIMENTO_SERVIDOR = new Set([
+  ...MOTORES_COM_IA,
+  'cross_doc',
+  'api',
+])
 
 function itemAgregador(
   regra: RegraMatrizPackingList,
@@ -199,17 +205,15 @@ export function montarChecklistMatrizPackingList(
       return montarItem(regraMatriz, status, detalhe, null)
     }
 
-    if (enriquecimento_ia_em_andamento && MOTORES_COM_IA.has(regraMatriz.motor)) {
-      return montarItem(
-        regraMatriz,
-        'amarelo',
-        'Prévia local — validação IA em segundo plano',
-        null,
-        'Aguardando IA…',
-      )
+    if (enriquecimento_ia_em_andamento && MOTORES_ENRIQUECIMENTO_SERVIDOR.has(regraMatriz.motor)) {
+      const rotuloPrevia =
+        regraMatriz.motor === 'cross_doc'
+          ? 'Prévia local — cruzamento documental em segundo plano'
+          : 'Prévia local — validação IA em segundo plano'
+      return montarItem(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…')
     }
 
-    if (carregando) {
+    if (carregando && !enriquecimento_ia_em_andamento) {
       return montarItem(
         regraMatriz,
         'pendente',

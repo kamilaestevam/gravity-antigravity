@@ -1,6 +1,6 @@
 /**
  * disparar-analise-riscos-background-smart-read.ts
- * Fase rápida (≤3s: código + Receita + NCM) → fase LLM em segundo plano.
+ * Fase rápida (≤3s: código + Receita + NCM) → fase LLM (≤7s) — teto total ≤10s.
  */
 
 import {

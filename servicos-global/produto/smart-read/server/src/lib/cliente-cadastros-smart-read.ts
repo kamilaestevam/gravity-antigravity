@@ -5,7 +5,7 @@
 import { z } from 'zod'
 import type { TributosNcmLeitura } from '../../../shared/analise-riscos-leitura-smart-read.js'
 
-const FETCH_TIMEOUT_MS = 12_000
+const FETCH_TIMEOUT_MS = 2_500
 
 const NcmValidarRespostaSchema = z.object({
   valido: z.boolean(),

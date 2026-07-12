@@ -11,6 +11,7 @@ import {
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { anexarDisclaimerClassificacao } from '../../../shared/texto-analise-riscos-leitura-smart-read.js'
 import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
+import { PRAZO_GEMINI_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
 import { validarNcmCadastrosSmartRead } from './cliente-cadastros-smart-read.js'
 import {
   registrarUsoLlmLeituraSmartRead,
@@ -19,7 +20,7 @@ import {
 import type { UsoLlmChamadaLeituraSmartRead } from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
-const GEMINI_TIMEOUT_MS = 20_000
+const GEMINI_TIMEOUT_MS = PRAZO_GEMINI_ANALISE_RISCOS_MS
 
 const ClassificacaoFiscalItemRespostaSchema = z.object({
   documento: z.string().min(1),

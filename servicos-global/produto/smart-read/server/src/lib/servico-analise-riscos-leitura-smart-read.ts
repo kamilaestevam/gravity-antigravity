@@ -36,7 +36,7 @@ import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
 } from './rag-normativo-analise-riscos-smart-read.js'
-import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
+import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_LLM_ANALISE_RISCOS_MS, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_GEMINI_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
 import { executarClassificacaoFiscalLlmLeituraSmartRead } from './servico-classificacao-fiscal-leitura-smart-read.js'
 import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
 import {
@@ -50,7 +50,7 @@ import {
 } from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
-const GEMINI_TIMEOUT_MS = 25_000
+const GEMINI_TIMEOUT_MS = PRAZO_GEMINI_ANALISE_RISCOS_MS
 
 const LlmRiscosEnvelopeSchema = z.object({
   riscos: z.array(RiscoAduaneiroLeituraSchema),
@@ -198,7 +198,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   const somenteLlm = entrada.somente_llm === true && !!entrada.contexto_v1_referencia
   const faseRapidaSemLlm = entrada.incluir_llm === false && !somenteLlm
   const prazoMs = somenteLlm
-    ? PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
+    ? PRAZO_FASE_LLM_ANALISE_RISCOS_MS
     : faseRapidaSemLlm
       ? PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
       : PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS

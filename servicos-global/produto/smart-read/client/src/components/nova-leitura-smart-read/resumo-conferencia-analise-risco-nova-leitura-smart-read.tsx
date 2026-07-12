@@ -35,6 +35,7 @@ import {
 } from '../../../../shared/montar-checklist-matriz-awb-smart-read'
 import {
   combinarResumoGeralComBls,
+  complementarRiscosAgregadoresBlNoResumo,
   ehTipoBlChecklist,
   montarChecklistMatrizBl,
   montarResumoChecklistBls,
@@ -301,13 +302,33 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       emCacheRiscos && emCacheRiscos.resumo.total > 0
         ? emCacheRiscos.resumo.riscos
         : (auditoriaV1Arquivo?.resumo.riscos ?? [])
-    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(regrasEfetivas, {
-      riscos: riscosBrutos,
-      total: riscosBrutos.length,
-      criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
-      atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
-      informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
-    })
+    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(
+      regrasEfetivas,
+      {
+        riscos: riscosBrutos,
+        total: riscosBrutos.length,
+        criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
+        atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
+        informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
+      },
+      (riscosComMotor) => {
+        const carregandoAnalise = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+        const v1Ok = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
+        const pipelineOk =
+          v1Ok || Boolean(emCacheRiscos) || (analiseEncerrada && !carregandoAnalise)
+        return complementarRiscosAgregadoresBlNoResumo(
+          {
+            regras: regrasEfetivas,
+            riscos: riscosComMotor,
+            pipelineConcluido: pipelineOk,
+            llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
+            carregando: carregandoAnalise,
+            documentos: documentosRisco,
+          },
+          riscosComMotor,
+        )
+      },
+    )
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
     const v1Disponivel = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
     const pipelineConcluido =
@@ -524,6 +545,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
     parametrosChecklist.pipelineConcluido
 
+  const analiseEmAndamento = parametrosChecklist.carregando
+
   const percentualSemCriticos =
     resumoRiscos.total === 0
       ? 100
@@ -627,6 +650,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           na={contagemChecklist.na}
           total={contagemChecklist.total}
           classe="sr-conf-resumo-checklist-barra"
+          emAnalise={analiseEmAndamento}
         />
 
         <p className="sr-conf-resumo-legenda">
@@ -674,7 +698,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         {resumoRiscos.total > 0 && (
           <>
             <div
-              className="sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta"
+              className={`sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta${analiseEmAndamento ? ' sr-conf-riscos-seg-bar--em-analise' : ''}`}
               role="img"
               aria-label={`Distribuição: ${legendaSegmentos ?? ''}`}
             >

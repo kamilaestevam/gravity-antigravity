@@ -28,6 +28,19 @@ import {
   motorAguardaEnriquecimentoServidor,
   type FaseEnriquecimentoAnaliseRiscos,
 } from './rotulo-aguardando-motor-checklist-smart-read.js'
+import {
+  aplicarFalhasMatrizAoResumoRiscos,
+  complementarRiscosDeAgregadoresChecklist,
+  complementarRiscosDeFalhasMatriz,
+  type ItemParaComplementoAgregador,
+} from './complementar-riscos-checklist-matriz-smart-read.js'
+
+export {
+  aplicarFalhasMatrizAoResumoRiscos,
+  complementarRiscosDeAgregadoresChecklist,
+  complementarRiscosDeFalhasMatriz,
+  type ItemParaComplementoAgregador,
+}
 
 export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente' | 'na'
 
@@ -155,83 +168,6 @@ export function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChec
   if (falhasReais.length > 0) return 'vermelho'
   if (regrasMotor.some((r) => detalheIndicaAviso(r.detalhe))) return 'amarelo'
   return 'verde'
-}
-
-function extrairIdRegraMatrizDeRegraMotor(id: string): string | null {
-  const match = id.match(/^(S\d+-\d+)/)
-  return match?.[1] ?? null
-}
-
-function extrairRotuloDeIdRegraMotor(id: string): string | null {
-  const match = id.match(/^S\d+-\d+-(.+)$/)
-  return match?.[1] ?? null
-}
-
-function riscoJaExisteParaRegraMotor(
-  riscos: readonly RiscoAduaneiroLeitura[],
-  idRegraMatriz: string,
-  rotuloDocumento: string | null,
-): boolean {
-  return riscos.some((risco) => {
-    if (risco.id_regra_matriz !== idRegraMatriz) return false
-    if (!rotuloDocumento) return true
-    return risco.evidencias.some((evidencia) => evidencia.documento === rotuloDocumento)
-  })
-}
-
-/** Garante card em Riscos para toda falha do motor código/API sem risco explícito. */
-export function complementarRiscosDeFalhasMatriz(
-  regras: readonly RegraAuditoriaV1[],
-  riscos: readonly RiscoAduaneiroLeitura[],
-): RiscoAduaneiroLeitura[] {
-  const saida = [...riscos]
-  const idsExistentes = new Set(saida.map((risco) => risco.id))
-  const matrizPorId = new Map(MATRIZ_VALIDACAO_INVOICE.map((regra) => [regra.id, regra]))
-
-  for (const regra of regras) {
-    if (regra.passou || detalheIndicaNa(regra.detalhe) || detalheIndicaAviso(regra.detalhe)) continue
-    const idRegraMatriz = extrairIdRegraMatrizDeRegraMotor(regra.id)
-    if (!idRegraMatriz) continue
-    const rotuloDocumento = extrairRotuloDeIdRegraMotor(regra.id)
-    if (riscoJaExisteParaRegraMotor(saida, idRegraMatriz, rotuloDocumento)) continue
-
-    const meta = matrizPorId.get(idRegraMatriz)
-    const sinteticoId = `risco-matriz-${regra.id}`
-    if (idsExistentes.has(sinteticoId)) continue
-
-    saida.push({
-      id: sinteticoId,
-      origem: 'v1',
-      severidade: 'critico',
-      categoria: 'documental',
-      titulo: meta?.item ?? idRegraMatriz,
-      motivo: regra.detalhe,
-      analise: meta?.tooltip_conferencia ?? regra.detalhe,
-      evidencias: rotuloDocumento ? [{ documento: rotuloDocumento, campo: idRegraMatriz }] : [],
-      secao_matriz: meta?.secao,
-      id_regra_matriz: idRegraMatriz,
-      motor_validacao: meta?.motor === 'api' ? 'api' : meta?.motor === 'llm' ? 'llm' : 'codigo',
-      status_matriz: 'vermelho',
-    })
-    idsExistentes.add(sinteticoId)
-  }
-
-  return saida
-}
-
-/** Aplica complemento de riscos ao resumo exibido na aba Análise de Riscos. */
-export function aplicarFalhasMatrizAoResumoRiscos(
-  regras: readonly RegraAuditoriaV1[],
-  resumo: { riscos: RiscoAduaneiroLeitura[]; total: number; criticos: number; atencao: number; informativos: number },
-): typeof resumo {
-  const riscos = complementarRiscosDeFalhasMatriz(regras, resumo.riscos)
-  return {
-    riscos,
-    total: riscos.length,
-    criticos: riscos.filter((r) => r.severidade === 'critico').length,
-    atencao: riscos.filter((r) => r.severidade === 'atencao').length,
-    informativos: riscos.filter((r) => r.severidade === 'informativo').length,
-  }
 }
 
 function montarItemChecklist(

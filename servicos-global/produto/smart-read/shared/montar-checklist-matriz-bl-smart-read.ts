@@ -27,6 +27,8 @@ import {
   resultadoDeRiscoChecklist,
   statusDeRegrasMotor,
   vereditoDeContagemChecklist,
+  complementarRiscosDeAgregadoresChecklist,
+  complementarRiscosDeFalhasMatriz,
   type ContagemChecklistStatus,
   type ResumoGeralChecklistInvoices,
   type RotuloStatusChecklistInvoice,
@@ -137,6 +139,35 @@ function riscoDaRegraDocumento(
   return candidatos.find((r) => r.evidencias.some((e) => e.documento === rotuloDocumento))
 }
 
+function vincularRiscosAItensBl(
+  itens: ItemChecklistMatrizBl[],
+  riscos: RiscoAduaneiroLeitura[],
+  rotuloDocumento?: string | null,
+): ItemChecklistMatrizBl[] {
+  return itens.map((item) => {
+    if (item.risco_id) return item
+    const risco = riscoDaRegraDocumento(riscos, item.regra.id, rotuloDocumento)
+    return risco ? { ...item, risco_id: risco.id } : item
+  })
+}
+
+/** Agregadores BL9-05/BL9-06 no resumo da aba Análise de Riscos. */
+export function complementarRiscosAgregadoresBlNoResumo(
+  params: ParametrosChecklistMatrizBl & { documentos: DocumentoAnaliseRisco[] },
+  riscos: RiscoAduaneiroLeitura[],
+): RiscoAduaneiroLeitura[] {
+  let saida = riscos
+  for (const bl of listarBlsChecklist(params.documentos)) {
+    const itens = montarChecklistMatrizBl({
+      ...params,
+      riscos: saida,
+      rotulo_documento: bl.rotulo,
+    })
+    saida = complementarRiscosDeAgregadoresChecklist(itens, bl.rotulo, saida)
+  }
+  return saida
+}
+
 const MOTORES_COM_IA = new Set(['llm', 'rag', 'api_llm', 'cross_doc_rag'])
 
 function itemAguardandoEnriquecimentoMotor(
@@ -215,9 +246,11 @@ export function montarChecklistMatrizBl(
     rotulo_documento,
   } = params
 
+  const riscosEfetivos = complementarRiscosDeFalhasMatriz(regras, riscos)
+
   const regrasAvaliaveis = MATRIZ_VALIDACAO_BL.filter((r) => r.severidade !== null)
   const parciais: ItemChecklistMatrizBl[] = regrasAvaliaveis.map((regraMatriz) => {
-    const risco = riscoDaRegraDocumento(riscos, regraMatriz.id, rotulo_documento)
+    const risco = riscoDaRegraDocumento(riscosEfetivos, regraMatriz.id, rotulo_documento)
     if (risco) {
       const status = risco.status_matriz ?? severidadeParaStatus(risco.severidade)
       return montarItem(regraMatriz, status, risco.motivo, risco.id, resultadoDeRiscoChecklist(risco))
@@ -227,7 +260,8 @@ export function montarChecklistMatrizBl(
     if (regrasMotor.length > 0) {
       const status = statusDeRegrasMotor(regrasMotor)
       const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
-      return montarItem(regraMatriz, status, detalhe, null)
+      const riscoMotor = riscoDaRegraDocumento(riscosEfetivos, regraMatriz.id, rotulo_documento)
+      return montarItem(regraMatriz, status, detalhe, riscoMotor?.id ?? null)
     }
 
     const aguardando = itemAguardandoEnriquecimentoMotor(
@@ -312,7 +346,13 @@ export function montarChecklistMatrizBl(
     (regra) => itemAgregador(regra, parciais, pipelineConcluido && !carregando),
   )
 
-  return [...parciais, ...agregadores]
+  const itensBrutos = [...parciais, ...agregadores]
+  const riscosCompletos = complementarRiscosDeAgregadoresChecklist(
+    itensBrutos,
+    rotulo_documento,
+    riscosEfetivos,
+  )
+  return vincularRiscosAItensBl(itensBrutos, riscosCompletos, rotulo_documento)
 }
 
 /** Score 0–100 (BL9-05): base = ALERTA aplicáveis; verde=1, amarelo=0,5, vermelho=0. */

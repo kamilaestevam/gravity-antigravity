@@ -1,4 +1,4 @@
-﻿/**
+/**
  * servico-analise-riscos-leitura-smart-read.ts — Pipeline Matriz Invoice: P1 Código → P2 API CNPJ → P3 LLM
  */
 
@@ -14,6 +14,7 @@ import {
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
+import { complementarRiscosAgregadoresBlNoResumo } from '../../../shared/montar-checklist-matriz-bl-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from '../../../shared/passo-1-validacao-codigo-packing-list-smart-read.js'
 import { executarPasso1ValidacaoCodigoAwb } from '../../../shared/passo-1-validacao-codigo-awb-smart-read.js'
 import { executarPasso1ValidacaoCodigoBl, filtrarRiscosLlmBlFreteCoerente } from '../../../shared/passo-1-validacao-codigo-bl-smart-read.js'
@@ -650,7 +651,19 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       ...riscosLlmPv,
     ],
   )
-  const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado)
+  const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado, (riscosComMotor) =>
+    complementarRiscosAgregadoresBlNoResumo(
+      {
+        regras: contexto.regras,
+        riscos: riscosComMotor,
+        pipelineConcluido: true,
+        llmHabilitado: llmAtivo,
+        carregando: false,
+        documentos: entrada.documentos,
+      },
+      riscosComMotor,
+    ),
+  )
 
   const uso_llm_chamada =
     chamadasUso.length > 0 ? somarUsoLlmChamadasLeituraSmartRead(chamadasUso) : null

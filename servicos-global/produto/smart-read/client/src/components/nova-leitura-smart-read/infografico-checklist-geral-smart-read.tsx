@@ -18,6 +18,8 @@ type Props = {
   resumo: ResumoGeralChecklistInvoices
   onSelecionarInvoice?: (rotulo: string) => void
   documentoDestaque?: ResumoInvoiceChecklist | null
+  /** Prévia local ou enriquecimento IA ainda em andamento */
+  emAnalise?: boolean
   selecaoInvoice?: {
     id: string
     opcoes: OpcaoInvoiceChecklist[]
@@ -44,6 +46,7 @@ export function InfograficoChecklistGeralSmartRead({
   resumo,
   onSelecionarInvoice,
   documentoDestaque: _documentoDestaque = null,
+  emAnalise = false,
   selecaoInvoice,
   children,
 }: Props) {
@@ -105,6 +108,7 @@ export function InfograficoChecklistGeralSmartRead({
                           pendente={inv.contagem.pendente}
                           na={inv.contagem.na}
                           total={inv.contagem.total}
+                          emAnalise={emAnalise}
                         />
                       </button>
                     ))}
@@ -173,6 +177,7 @@ export function InfograficoChecklistGeralSmartRead({
                       pendente={sec.pendente}
                       na={sec.na}
                       total={sec.total}
+                      emAnalise={emAnalise}
                     />
                   </li>
                 ))}

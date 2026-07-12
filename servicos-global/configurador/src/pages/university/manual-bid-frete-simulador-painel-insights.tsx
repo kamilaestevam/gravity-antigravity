@@ -65,6 +65,14 @@ const CAMPOS_MELHOR_PROPOSTA = new Set<CampoPainelInsightsId>([
   'aprovar',
 ])
 
+const CAMPOS_RANKING = new Set<CampoPainelInsightsId>([
+  'ranking_lider',
+  'ranking_eixo_frete',
+  'ranking_eixo_transit',
+  'ranking_eixo_rota',
+  'ranking_eixo_prazo',
+])
+
 /** Altura do spark no manual — um pouco acima do cockpit (52px) para legibilidade na demo. */
 const SPARK_SLOT_MANUAL_PX = 58
 
@@ -268,12 +276,18 @@ export function ManualBidFreteSimuladorPainelInsights() {
 
   const destacarMelhorProposta = proximoCampoAffordance != null
     && CAMPOS_MELHOR_PROPOSTA.has(proximoCampoAffordance)
+  const destacarRanking = proximoCampoAffordance != null
+    && CAMPOS_RANKING.has(proximoCampoAffordance)
+  const destacarTermometro = proximoCampoAffordance === 'termometro_historico'
   const rotuloAffordanceCard = proximoCampoAffordance != null && destacarMelhorProposta
     ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS[proximoCampoAffordance]
     : 'Clique no card'
-  const rotuloAffordanceRanking = proximoCampoAffordance != null
+  const rotuloAffordanceRanking = proximoCampoAffordance != null && destacarRanking
     ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS[proximoCampoAffordance]
     : 'Clique no ranking'
+  const rotuloAffordanceTermometro = destacarTermometro
+    ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS.termometro_historico
+    : 'Termômetro histórico'
 
   const selecoesGuia = useMemo(
     () => resolverSelecoesPainelInsights(interagiuAffordance, { propostaAprovada }),
@@ -415,7 +429,8 @@ export function ManualBidFreteSimuladorPainelInsights() {
               propostaLider={propostaMelhor}
               propostasTodas={PROPOSTAS_DEMO_PAINEL_INSIGHTS_BID_FRETE}
               foco={foco}
-              proximoCampoAffordance={proximoCampoAffordance}
+              destacarAffordance={destacarRanking}
+              cursorAlvo={destacarRanking ? proximoCampoAffordance ?? undefined : undefined}
               rotuloAffordance={rotuloAffordanceRanking}
               onSelecionarCampo={marcarInteracao}
             />
@@ -423,12 +438,9 @@ export function ManualBidFreteSimuladorPainelInsights() {
             <ManualBidFreteSimuladorTermometroInsights
               interativo
               ativo={foco === 'termometro_historico'}
-              destacarAffordance={proximoCampoAffordance === 'termometro_historico'}
-              rotuloAffordance={
-                proximoCampoAffordance === 'termometro_historico'
-                  ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS.termometro_historico
-                  : 'Termômetro histórico'
-              }
+              destacarAffordance={destacarTermometro}
+              cursorAlvo={destacarTermometro ? 'termometro_historico' : undefined}
+              rotuloAffordance={rotuloAffordanceTermometro}
               onSelecionar={() => marcarInteracao('termometro_historico')}
             />
             </div>

@@ -24,6 +24,7 @@ type ManualBidFreteSimuladorTermometroInsightsProps = {
   interativo?: boolean
   ativo?: boolean
   destacarAffordance?: boolean
+  cursorAlvo?: string
   rotuloAffordance?: string
   onSelecionar?: () => void
 }
@@ -60,6 +61,7 @@ export function ManualBidFreteSimuladorTermometroInsights({
   interativo = false,
   ativo = false,
   destacarAffordance = false,
+  cursorAlvo,
   rotuloAffordance = 'Termômetro histórico',
   onSelecionar,
 }: ManualBidFreteSimuladorTermometroInsightsProps) {
@@ -381,8 +383,13 @@ export function ManualBidFreteSimuladorTermometroInsights({
     <WrapperAlvoAffordanceBidFrete
       destacado={destacarAffordance}
       rotuloClique={rotuloAffordance}
-      varianteCursor="compacto"
-      className="dc-smart-card dc-smart-card--termometro sim-insights-termometro-affordance"
+      cursorAlvo={cursorAlvo}
+      className={[
+        'dc-smart-card',
+        'dc-smart-card--termometro',
+        'sim-insights-termometro-affordance',
+        'sim-affordance-alvo--card-termometro',
+      ].join(' ')}
       as="article"
     >
       {cabecalho}

@@ -40,16 +40,12 @@ function CelulaColocacaoEixoInterativa({
   t,
   ativa,
   interativo,
-  destacarAffordance,
-  rotuloAffordance,
   onSelecionar,
 }: {
   eixo: EixoColocacaoCombate
   t: TFunction
   ativa: boolean
   interativo: boolean
-  destacarAffordance: boolean
-  rotuloAffordance: string
   onSelecionar: () => void
 }) {
   const rowRef = useRef<HTMLButtonElement>(null)
@@ -132,18 +128,7 @@ function CelulaColocacaoEixoInterativa({
 
   return (
     <>
-      {interativo ? (
-        <WrapperAlvoAffordanceBidFrete
-          destacado={destacarAffordance}
-          className="sim-insights-ranking-eixo-affordance"
-          rotuloClique={rotuloAffordance}
-          varianteCursor="compacto"
-        >
-          {celula}
-        </WrapperAlvoAffordanceBidFrete>
-      ) : (
-        celula
-      )}
+      {celula}
       {ancora != null && comAnalise && barra != null ? (
         <TooltipAnaliseMetricaSparkPortal
           barra={barra}
@@ -164,8 +149,6 @@ function CardPropostaRankingManual({
   propostasTodas,
   ehLider,
   foco,
-  proximoCampoAffordance,
-  rotuloAffordance,
   onSelecionarCampo,
   t,
 }: {
@@ -173,8 +156,6 @@ function CardPropostaRankingManual({
   propostasTodas: PropostaRankingBidFreteInternacional[]
   ehLider: boolean
   foco: CampoPainelInsightsId | null
-  proximoCampoAffordance: CampoPainelInsightsId | null
-  rotuloAffordance: string
   onSelecionarCampo: (campo: CampoPainelInsightsId) => void
   t: TFunction
 }) {
@@ -220,25 +201,18 @@ function CardPropostaRankingManual({
     <article className={['dc-prop-card', classeCardColocacao(proposta.ranking_geral)].filter(Boolean).join(' ')}>
       <header className="dc-prop-card-head">
         {ehLider ? (
-          <WrapperAlvoAffordanceBidFrete
-            destacado={proximoCampoAffordance === 'ranking_lider'}
-            className="sim-insights-ranking-cabecalho-affordance"
-            rotuloClique={rotuloAffordance}
-            varianteCursor="compacto"
+          <button
+            type="button"
+            className={[
+              'sim-insights-interativo',
+              'sim-insights-ranking-cabecalho',
+              foco === 'ranking_lider' ? 'sim-insights-interativo--ativa' : '',
+            ].filter(Boolean).join(' ')}
+            onClick={() => onSelecionarCampo('ranking_lider')}
+            aria-pressed={foco === 'ranking_lider'}
           >
-            <button
-              type="button"
-              className={[
-                'sim-insights-interativo',
-                'sim-insights-ranking-cabecalho',
-                foco === 'ranking_lider' ? 'sim-insights-interativo--ativa' : '',
-              ].filter(Boolean).join(' ')}
-              onClick={() => onSelecionarCampo('ranking_lider')}
-              aria-pressed={foco === 'ranking_lider'}
-            >
-              {cabecalhoConteudo}
-            </button>
-          </WrapperAlvoAffordanceBidFrete>
+            {cabecalhoConteudo}
+          </button>
         ) : (
           cabecalhoConteudo
         )}
@@ -267,8 +241,6 @@ function CardPropostaRankingManual({
                 t={t}
                 interativo={ehLider}
                 ativa={ehLider && foco === campoId}
-                destacarAffordance={ehLider && proximoCampoAffordance === campoId}
-                rotuloAffordance={rotuloAffordance}
                 onSelecionar={() => onSelecionarCampo(campoId)}
               />
             )
@@ -283,7 +255,8 @@ type ManualBidFreteRankingInsightsInterativoProps = {
   propostaLider: PropostaRankingBidFreteInternacional
   propostasTodas: PropostaRankingBidFreteInternacional[]
   foco: CampoPainelInsightsId | null
-  proximoCampoAffordance: CampoPainelInsightsId | null
+  destacarAffordance: boolean
+  cursorAlvo?: CampoPainelInsightsId
   rotuloAffordance: string
   onSelecionarCampo: (campo: CampoPainelInsightsId) => void
 }
@@ -293,7 +266,8 @@ export function ManualBidFreteRankingInsightsInterativo({
   propostaLider,
   propostasTodas,
   foco,
-  proximoCampoAffordance,
+  destacarAffordance,
+  cursorAlvo,
   rotuloAffordance,
   onSelecionarCampo,
 }: ManualBidFreteRankingInsightsInterativoProps) {
@@ -305,7 +279,17 @@ export function ManualBidFreteRankingInsightsInterativo({
   )
 
   return (
-    <article className="dc-smart-card dc-smart-card--ranking">
+    <WrapperAlvoAffordanceBidFrete
+      destacado={destacarAffordance}
+      className={[
+        'dc-smart-card',
+        'dc-smart-card--ranking',
+        'sim-affordance-alvo--card-ranking',
+      ].join(' ')}
+      rotuloClique={rotuloAffordance}
+      cursorAlvo={cursorAlvo}
+      as="article"
+    >
       <header className="dc-smart-card-head">
         <span>{t('bidfrete.detalhe_cotacao.cockpit_combat_matrix', 'Ranking das respostas')}</span>
       </header>
@@ -321,8 +305,6 @@ export function ManualBidFreteRankingInsightsInterativo({
                   ehLider={proposta.id_proposta_bid_frete_internacional
                     === propostaLider.id_proposta_bid_frete_internacional}
                   foco={foco}
-                  proximoCampoAffordance={proximoCampoAffordance}
-                  rotuloAffordance={rotuloAffordance}
                   onSelecionarCampo={onSelecionarCampo}
                   t={t}
                 />
@@ -331,6 +313,6 @@ export function ManualBidFreteRankingInsightsInterativo({
           </div>
         </div>
       </div>
-    </article>
+    </WrapperAlvoAffordanceBidFrete>
   )
 }

@@ -1899,6 +1899,74 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     top: 78%;
     left: 78%;
   }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking {
+    overflow: hidden;
+    border-radius: 14px;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking.sim-affordance-alvo--destacado {
+    animation: none;
+    outline: none;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking .sim-affordance-clique-3d {
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 5;
+    transition:
+      top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking[data-cursor-alvo="ranking_lider"] .sim-affordance-clique-3d {
+    top: 28%;
+    left: 48%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking[data-cursor-alvo="ranking_eixo_frete"] .sim-affordance-clique-3d {
+    top: 52%;
+    left: 28%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking[data-cursor-alvo="ranking_eixo_transit"] .sim-affordance-clique-3d {
+    top: 52%;
+    left: 72%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking[data-cursor-alvo="ranking_eixo_rota"] .sim-affordance-clique-3d {
+    top: 72%;
+    left: 28%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-ranking[data-cursor-alvo="ranking_eixo_prazo"] .sim-affordance-clique-3d {
+    top: 72%;
+    left: 72%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-termometro {
+    overflow: hidden;
+    border-radius: 14px;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-termometro.sim-affordance-alvo--destacado {
+    animation: none;
+    outline: none;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-termometro .sim-affordance-clique-3d {
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 5;
+    transition:
+      top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-termometro[data-cursor-alvo="termometro_historico"] .sim-affordance-clique-3d {
+    top: 58%;
+    left: 50%;
+  }
   #sim-bid-frete-painel-insights .sim-insights-card-cockpit {
     overflow: hidden;
   }
@@ -2065,15 +2133,6 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     box-shadow:
       0 0 0 1px rgba(129, 140, 248, 0.45),
       0 0 14px rgba(99, 102, 241, 0.18);
-  }
-  #sim-bid-frete-painel-insights .sim-insights-ranking-eixo-affordance {
-    display: block;
-    height: 100%;
-  }
-  #sim-bid-frete-painel-insights .sim-insights-ranking-cabecalho-affordance .sim-affordance-clique-3d,
-  #sim-bid-frete-painel-insights .sim-insights-ranking-eixo-affordance .sim-affordance-clique-3d {
-    right: 12px;
-    bottom: 8px;
   }
 `
 

@@ -9,6 +9,10 @@ import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
 } from '../../../../servicos-global/produto/smart-read/server/src/schemas/progresso-leitura-smart-read.ts'
+import {
+  extrairCacheAnaliseRiscosProgresso,
+  mesclarCacheAnaliseRiscosProgresso,
+} from '../../../../servicos-global/produto/smart-read/shared/analise-riscos-cache-progresso-smart-read.ts'
 
 const leituraMinima = {
   id_leitura: 'mock-leitura-bl-importacao',
@@ -80,6 +84,39 @@ describe('progresso-leitura-smart-read', () => {
     expect(dados?.leitura.arquivos).toHaveLength(1)
   })
 
+  it('propaga analise_riscos_cache na resposta de progresso', () => {
+    const cacheMinimo = {
+      'leitura|doc:0:INVOICE': {
+        resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+        contexto_v1: { regras: [], ncms_encontrados: [], cnpj_oficial: null, tributos_ncm: [] },
+        llm_ativo: false,
+        aviso: null,
+        uso_llm_chamada: null,
+        uso_llm_leitura: null,
+      },
+    }
+    const resposta = montarRespostaProgressoLeitura(3, {
+      nome: 'Embarque BL',
+      leitura: leituraMinima,
+      analise_riscos_cache: cacheMinimo,
+    })
+    expect(resposta.analise_riscos_cache).toEqual(cacheMinimo)
+    expect(extrairCacheAnaliseRiscosProgresso({ analise_riscos_cache: cacheMinimo })).toEqual(cacheMinimo)
+  })
+
+  it('mescla entradas no cache de progresso por chave', () => {
+    const resposta = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto_v1: { regras: [], ncms_encontrados: [], cnpj_oficial: null, tributos_ncm: [] },
+      llm_ativo: true,
+      aviso: null,
+      uso_llm_chamada: null,
+      uso_llm_leitura: null,
+    }
+    const mesclado = mesclarCacheAnaliseRiscosProgresso({}, 'chave-a', resposta)
+    expect(extrairCacheAnaliseRiscosProgresso(mesclado)?.['chave-a']?.llm_ativo).toBe(true)
+  })
+
   it('rejeita sessão inválida', () => {
     expect(extrairDadosSessaoProgressoLeitura({ foo: 'bar' })).toBeNull()
   })
@@ -91,6 +128,26 @@ describe('progresso-leitura-smart-read', () => {
       { ...base, passo: 3 },
     )
     expect(escolhido?.passo).toBe(3)
+  })
+
+  it('mescla analise_riscos_cache quando passo local vence sem cache', () => {
+    const base = { nome: 'Leitura', leitura: leituraMinima }
+    const cacheRemoto = {
+      'id|doc:0:INVOICE': {
+        resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+        contexto_v1: { regras: [], ncms_encontrados: [], cnpj_oficial: null, tributos_ncm: [] },
+        llm_ativo: true,
+        aviso: null,
+        uso_llm_chamada: null,
+        uso_llm_leitura: null,
+      },
+    }
+    const escolhido = escolherProgressoSalvoLeituraSmartRead(
+      { ...base, passo: 2, analise_riscos_cache: cacheRemoto },
+      { ...base, passo: 3 },
+    )
+    expect(escolhido?.passo).toBe(3)
+    expect(escolhido?.analise_riscos_cache).toEqual(cacheRemoto)
   })
 
   it('prefere leitura da API quando progresso salvo está vazio', () => {

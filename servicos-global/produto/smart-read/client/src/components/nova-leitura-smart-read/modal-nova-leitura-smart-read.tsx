@@ -43,6 +43,7 @@ import {
 
 import {
   carregarProgressoLeituraSmartRead,
+  hidratarCacheAnaliseRiscosDeProgresso,
   limparEstadoLeituraSmartRead,
   persistirProgressoLeituraSmartRead,
   type EstadoSalvoLeitura,
@@ -266,6 +267,7 @@ export function ModalNovaLeituraSmartRead({
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
       const salvo = await carregarProgressoLeituraSmartRead(id)
+      hidratarCacheAnaliseRiscosDeProgresso(salvo)
       if (import.meta.env.DEV) {
         console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
       }
@@ -371,19 +373,15 @@ export function ModalNovaLeituraSmartRead({
     if (completos.length === 0) return
     riscosIniciadosRef.current.add(id)
 
-    const timer = window.setTimeout(() => {
-      dispararAnaliseRiscosBackgroundSmartRead({
-        arquivos: completos,
-        idLeituraLegado: id,
-        onInicio: () => contadorIaRef.current.marcarIaAtiva(),
-        onTokensAtualizados: (resumo, chamada) =>
-          contadorIaRef.current.aplicarAtualizacaoTokens(resumo, chamada),
-        onConcluido: () => contadorIaRef.current.marcarIaInativa(),
-        onErro: () => contadorIaRef.current.marcarIaInativa(),
-      })
-    }, 800)
-
-    return () => window.clearTimeout(timer)
+    dispararAnaliseRiscosBackgroundSmartRead({
+      arquivos: completos,
+      idLeituraLegado: id,
+      onInicio: () => contadorIaRef.current.marcarIaAtiva(),
+      onTokensAtualizados: (resumo, chamada) =>
+        contadorIaRef.current.aplicarAtualizacaoTokens(resumo, chamada),
+      onConcluido: () => contadorIaRef.current.marcarIaInativa(),
+      onErro: () => contadorIaRef.current.marcarIaInativa(),
+    })
   }, [analiseCompleta, passo, idLeituraAtual, arquivos])
 
 

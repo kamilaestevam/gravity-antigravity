@@ -23,6 +23,7 @@ import {
   obterCacheAnaliseRiscosSessaoSmartRead,
   salvarCacheAnaliseRiscosSessaoSmartRead,
 } from '../../shared/cache-analise-riscos-sessao-smart-read'
+import { persistirCacheAnaliseRiscosProgressoSmartRead } from '../../shared/persistencia-leitura-smart-read'
 import { obterRequisicaoAnaliseRiscosEmVooSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
@@ -281,18 +282,33 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     return v1
   }, [resumo, auditoriaV1Local])
 
-  const parametrosChecklist = useMemo(
-    () => ({
+  const parametrosChecklist = useMemo(() => {
+    const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
+    const carregandoEfetivo =
+      carregando || Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise))
+    const v1Disponivel = Boolean(auditoriaV1Local?.contexto.regras.length)
+    return {
       regras: regrasEfetivas,
       riscos: riscosEfetivos,
-      pipelineConcluido,
+      pipelineConcluido: pipelineConcluido || v1Disponivel,
       llmHabilitado,
-      carregando,
-      analise_servidor_indisponivel: Boolean(erro) && pipelineConcluido && !carregando,
+      carregando: carregandoEfetivo,
+      analise_servidor_indisponivel: Boolean(erro) && (pipelineConcluido || v1Disponivel) && !carregandoEfetivo,
+      enriquecimento_ia_em_andamento: carregandoEfetivo && !emCache,
+      cnpj_oficial: emCache?.contexto_v1.cnpj_oficial ?? null,
       documentos,
-    }),
-    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos, erro],
-  )
+    }
+  }, [
+    regrasEfetivas,
+    riscosEfetivos,
+    pipelineConcluido,
+    llmHabilitado,
+    carregando,
+    documentos,
+    erro,
+    chaveAnalise,
+    auditoriaV1Local,
+  ])
 
   const riscosVisiveis = useMemo(
     () => filtrarRiscosPorBusca(riscosEfetivos, busca),
@@ -318,6 +334,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     resposta: Awaited<ReturnType<typeof smartReadApi.analisarRiscosLeitura>>,
   ) {
     salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
+    if (idLeituraLegado) {
+      void persistirCacheAnaliseRiscosProgressoSmartRead(idLeituraLegado, chaveAnalise, resposta)
+    }
     setResumo(resposta.resumo)
     setRegrasContexto(resposta.contexto_v1.regras)
     setLlmHabilitado(resposta.llm_ativo)

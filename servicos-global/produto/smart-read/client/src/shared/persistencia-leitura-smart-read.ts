@@ -5,8 +5,11 @@
 
 import { z } from 'zod'
 import { escolherProgressoSalvoLeituraSmartRead } from '../../../shared/escolher-progresso-salvo-leitura-smart-read'
+import { AnaliseRiscosCacheProgressoLeituraSchema } from '../../../shared/analise-riscos-cache-progresso-smart-read'
+import type { AnaliseRiscosLeituraResponse } from '../../../shared/analise-riscos-leitura-smart-read'
 import { smartReadApi } from './api'
 import { LeituraSchema, type Leitura } from './schemas'
+import { salvarCacheAnaliseRiscosSessaoSmartRead } from './cache-analise-riscos-sessao-smart-read'
 
 const PREFIXO_CHAVE = 'smart-read:leitura:'
 
@@ -14,6 +17,7 @@ const EstadoSalvoLeituraSchema = z.object({
   passo: z.number().int().min(2).max(4),
   nome: z.string(),
   leitura: LeituraSchema,
+  analise_riscos_cache: AnaliseRiscosCacheProgressoLeituraSchema.optional(),
 })
 
 export type EstadoSalvoLeitura = z.infer<typeof EstadoSalvoLeituraSchema>
@@ -54,6 +58,30 @@ export async function carregarProgressoLeituraSmartRead(
     }
   }
   return escolherProgressoSalvoLeituraSmartRead(remoto, local)
+}
+
+export async function persistirCacheAnaliseRiscosProgressoSmartRead(
+  idLeitura: string,
+  chave: string,
+  resposta: AnaliseRiscosLeituraResponse,
+  estadoBase?: EstadoSalvoLeitura,
+): Promise<void> {
+  const estado = estadoBase ?? (await carregarProgressoLeituraSmartRead(idLeitura))
+  if (!estado) return
+  const cacheAtual = estado.analise_riscos_cache ?? {}
+  await persistirProgressoLeituraSmartRead(idLeitura, {
+    ...estado,
+    analise_riscos_cache: { ...cacheAtual, [chave]: resposta },
+  })
+}
+
+export function hidratarCacheAnaliseRiscosDeProgresso(
+  estado: EstadoSalvoLeitura | null | undefined,
+): void {
+  if (!estado?.analise_riscos_cache) return
+  for (const [chave, resposta] of Object.entries(estado.analise_riscos_cache)) {
+    salvarCacheAnaliseRiscosSessaoSmartRead(chave, resposta)
+  }
 }
 
 export async function persistirProgressoLeituraSmartRead(

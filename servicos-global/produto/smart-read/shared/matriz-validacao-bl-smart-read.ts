@@ -492,7 +492,7 @@ export const MATRIZ_VALIDACAO_BL: RegraMatrizBl[] = [
     motor: 'llm',
     severidade: 'alerta',
     descricao:
-      'Frete e sobretaxas (BAF, CAF, THC origem etc.) discriminados quando expressos; base do AFRMM e da valoração',
+      'Frete e sobretaxas discriminados — alerta somente se ausentes ou incoerentes; collect/prepaid coerente com Incoterm e valores presentes = conforme',
     tooltip_conferencia: 'Extrai valor do frete e componentes — base do AFRMM e da valoração',
     base_normativa:
       'Lei 10.893/2004; IN 800/2007 Anexo IV; jurisprudência (retificação de frete fora do prazo → R$ 5.000)',

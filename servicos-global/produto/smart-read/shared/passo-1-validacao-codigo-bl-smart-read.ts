@@ -125,6 +125,55 @@ function coletarValoresLista(mapa: Map<string, unknown>, base: string, sufixo: s
   return valores
 }
 
+/** Frete e sobretaxas discriminados no BL (BL6-02 — motor código). */
+function extrairComponentesFreteBl(mapa: Map<string, unknown>): { temValor: boolean; resumo: string } {
+  const totais = [
+    valorCampo(mapa, ['freight.total_value', 'freight.totalValue', 'freight.basic_value']),
+    ...coletarValoresLista(mapa, 'freight.additional_charges', 'Valor'),
+    ...coletarValoresLista(mapa, 'freight.additional_charges', 'valor'),
+  ]
+  const numeros = totais
+    .map((texto) => parseNumero(texto))
+    .filter((n): n is number => n !== null && n > 0)
+  if (numeros.length > 0) {
+    const maior = Math.max(...numeros)
+    return { temValor: true, resumo: formatarNumero(maior) }
+  }
+  for (const [chave, valor] of mapa) {
+    if (!/freight/i.test(chave)) continue
+    if (!/amount|value|valor|charge|collect|prepaid/i.test(chave)) continue
+    const n = parseNumero(valorTextoComparacaoCampo(valor))
+    if (n !== null && n > 0) {
+      return { temValor: true, resumo: formatarNumero(n) }
+    }
+  }
+  return { temValor: false, resumo: '' }
+}
+
+function regraPassou(regras: RegraAuditoriaV1[], regraId: string, rotulo: string): boolean {
+  return regras.some((regra) => regra.id === `${regraId}-${rotulo}` && regra.passou)
+}
+
+/**
+ * Suprime alertas LLM educacionais (BL6-02/04/05) quando prepaid/collect está coerente
+ * com o Incoterm e os valores de frete estão discriminados — cenário válido, não risco.
+ */
+export function filtrarRiscosLlmBlFreteCoerente(
+  riscos: RiscoAduaneiroLeitura[],
+  regras: RegraAuditoriaV1[],
+): RiscoAduaneiroLeitura[] {
+  return riscos.filter((risco) => {
+    const idRegra = risco.id_regra_matriz ?? ''
+    if (!['BL6-02', 'BL6-04', 'BL6-05'].includes(idRegra)) return true
+    if (risco.severidade === 'critico') return true
+    const rotulo = risco.evidencias[0]?.documento
+    if (!rotulo) return true
+    if (!regraPassou(regras, 'BL6-01', rotulo)) return true
+    if (idRegra === 'BL6-02' && !regraPassou(regras, 'BL6-02', rotulo)) return true
+    return risco.severidade !== 'atencao'
+  })
+}
+
 function parseNumero(valor: string | null | undefined): number | null {
   if (!valor) return null
   const limpo = valor.replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')
@@ -1177,6 +1226,7 @@ export function executarPasso1ValidacaoCodigoBl(
       'freightPaymentTerms',
       'paymentTerms',
     ])
+    let freteCoerenteComIncoterm = false
     if (paymentTerms && incotermEfetivo) {
       const pagamentoNorm = normalizarTexto(paymentTerms)
       const sigla = normalizarTexto(incotermEfetivo).split(' ')[0] ?? ''
@@ -1186,6 +1236,7 @@ export function executarPasso1ValidacaoCodigoBl(
       const ehPrepaid = pagamentoNorm.includes('PREPAID')
       const ehCollect = pagamentoNorm.includes('COLLECT')
       const divergente = (esperadoPrepaid && ehCollect) || (esperadoCollect && ehPrepaid)
+      freteCoerenteComIncoterm = !divergente
       registrar(
         'BL6-01',
         r,
@@ -1212,6 +1263,42 @@ export function executarPasso1ValidacaoCodigoBl(
         r,
         true,
         'N/A — cláusula de frete e/ou Incoterm não identificados para o cruzamento',
+      )
+    }
+
+    // ── BL6-02 — Valores de frete discriminados (motor código quando coerente) ─
+    const componentesFrete = extrairComponentesFreteBl(bl.mapa)
+    if (paymentTerms && freteCoerenteComIncoterm && componentesFrete.temValor) {
+      registrar(
+        'BL6-02',
+        r,
+        true,
+        `Frete ${paymentTerms} com valores discriminados (${componentesFrete.resumo}) — coerente com o Incoterm`,
+      )
+    } else if (paymentTerms && !componentesFrete.temValor) {
+      registrar(
+        'BL6-02',
+        r,
+        false,
+        'Cláusula de frete presente, mas valores ou componentes não discriminados no BL',
+      )
+      falhar({
+        regraId: 'BL6-02',
+        doc: bl,
+        titulo: 'Valores de frete não discriminados',
+        motivo: `O BL indica frete ${paymentTerms}, porém não há valores ou componentes (freight charge, sobretaxas) identificáveis na extração.`,
+        analise:
+          'Frete e sobretaxas discriminados são base do AFRMM e da valoração — ausência impede conferência (IN 800/2007 Anexo IV).',
+        campo: 'freight.total_value',
+        valor: paymentTerms,
+        status: 'amarelo',
+      })
+    } else {
+      registrar(
+        'BL6-02',
+        r,
+        true,
+        'N/A — frete/Incoterm/valores insuficientes para avaliar componentes (regra IA)',
       )
     }
 

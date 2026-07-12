@@ -3,6 +3,7 @@
     "modulo_nome": "Gravity University",
     "nav": {
       "academy": "Onboarding",
+      "visao_geral": "Overview",
       "minha_jornada": "My Journey",
       "docs": "Manuals",
       "builders": "Gravity Partner",
@@ -64,6 +65,24 @@
       "produtos_contratados": "Progress on contracted products",
       "concluidos": "completed"
     },
+    "dashboard": {
+      "titulo": "Your onboarding",
+      "subtitulo": "Overview of your progress, products, metrics and rewards",
+      "modulos_titulo": "Contracted modules",
+      "etapas_progresso": "{{feitas}}/{{total}} steps",
+      "continuar_titulo": "Continue where you left off",
+      "continuar_jornada": "Continue journey",
+      "etapa_atual": "Step {{atual}} of {{total}} · {{nome}}",
+      "nivel_xp_faltam": "Level {{nivel}} · {{xp}} XP to level up",
+      "produtos_onboarding_concluido": "Products with onboarding completed",
+      "manuais_lidos": "Manuals read",
+      "o_que_falta": "What's left",
+      "iniciar": "Start",
+      "nivel_ofensiva": "Level & streak",
+      "nivel_rotulo": "Level {{nivel}} · {{titulo}}",
+      "ofensiva_dias": "{{dias}}-day streak",
+      "badge_obtido": "earned"
+    },
     "dica": {
       "titulo": "Tips and Explanations",
       "habilitadas": "Enabled — tips appear on hover",
@@ -80,6 +99,7 @@
       "seu_progresso": "Your progress",
       "recompensas": "Rewards",
       "ranking_modulo": "Module ranking",
+      "ranking_geral": "Overall ranking",
       "concluir_etapa": "Complete step",
       "continuar_etapa": "Continue step",
       "etapa_concluida": "Completed",

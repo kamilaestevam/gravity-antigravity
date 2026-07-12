@@ -15,6 +15,7 @@ import {
   obterCacheAnaliseRiscosSessaoSmartRead,
   salvarCacheAnaliseRiscosSessaoSmartRead,
 } from './cache-analise-riscos-sessao-smart-read'
+import { persistirCacheAnaliseRiscosProgressoSmartRead } from './persistencia-leitura-smart-read'
 
 const requisicoesEmVoo = new Map<string, Promise<AnaliseRiscosLeituraResponse>>()
 
@@ -84,6 +85,9 @@ export function dispararAnaliseRiscosBackgroundSmartRead({
     })
     .then((resposta) => {
       salvarCacheAnaliseRiscosSessaoSmartRead(chave, resposta)
+      if (idLeituraLegado) {
+        void persistirCacheAnaliseRiscosProgressoSmartRead(idLeituraLegado, chave, resposta)
+      }
       onTokensAtualizados?.(resposta.uso_llm_leitura, resposta.uso_llm_chamada)
       onConcluido?.(resposta)
       return resposta

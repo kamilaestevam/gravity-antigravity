@@ -227,7 +227,10 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
     })
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
-    const pipelineConcluido = Boolean(emCacheRiscos) || (analiseEncerrada && !carregando)
+    const v1Disponivel = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
+    const pipelineConcluido =
+      v1Disponivel || Boolean(emCacheRiscos) || (analiseEncerrada && !carregando)
+    const enriquecimento_ia_em_andamento = carregando && !emCacheRiscos
     const analiseServidorIndisponivel = analiseEncerrada && !carregando && !emCacheRiscos
 
     return {
@@ -237,6 +240,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
       carregando,
       analise_servidor_indisponivel: analiseServidorIndisponivel,
+      enriquecimento_ia_em_andamento,
+      cnpj_oficial: emCacheRiscos?.contexto_v1.cnpj_oficial ?? null,
       documentos: documentosRisco,
     }
   }, [

@@ -209,15 +209,16 @@ export async function executarAnaliseRiscosLeituraSmartRead(
     riscos: [],
     regras: [],
   }
-  if (!prazoPipeline.esgotado()) {
-    passo2 = await executarPasso2ApiCnpjInvoice(entrada.documentos)
-    contexto.cnpj_oficial = passo2.cnpj_oficial
-    contexto.regras = [...contexto.regras, ...passo2.regras]
-  }
-
   let tributos: Awaited<ReturnType<typeof buscarTributosNcmsLeituraSmartRead>> = []
   if (!prazoPipeline.esgotado()) {
-    tributos = await buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao)
+    const [passo2Resultado, tributosResultado] = await Promise.all([
+      executarPasso2ApiCnpjInvoice(entrada.documentos),
+      buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao),
+    ])
+    passo2 = passo2Resultado
+    contexto.cnpj_oficial = passo2.cnpj_oficial
+    contexto.regras = [...contexto.regras, ...passo2.regras]
+    tributos = tributosResultado
     contexto.tributos_ncm = tributos
   }
 
@@ -250,81 +251,78 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       console.warn('[smart-read][analise-riscos]', aviso)
     } else {
       const itensClassificacao = montarItensParaClassificacaoFiscal(entrada.documentos)
-      try {
-        const classificacao = await executarClassificacaoFiscalLlmLeituraSmartRead(
+      const riscosBase = [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos]
+      const chunksRag = precisaRagNormativoAnaliseRiscos(riscosBase, contexto)
+        ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
+        : undefined
+
+      const documentosPacking = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('PACKING'),
+      )
+      const documentosInvoice = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('INVOICE'),
+      )
+
+      const promptInvoice = montarPromptAnalistaInvoice({
+        documentos: entrada.documentos,
+        contexto,
+        errosAritmeticos,
+        chunksRag,
+      })
+
+      const tarefasLlm: Array<
+        Promise<{ riscos: RiscoAduaneiroLeitura[]; uso_llm: UsoLlmChamadaLeituraSmartRead | null }>
+      > = [
+        executarClassificacaoFiscalLlmLeituraSmartRead(
           itensClassificacao,
           idOrganizacao,
           registroComLeitura,
+        ).then((classificacao) => ({
+          riscos: classificacao.riscos,
+          uso_llm: classificacao.uso_llm,
+        })),
+        chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_INVOICE, promptInvoice, registroComLeitura),
+      ]
+
+      if (documentosPacking.length > 0) {
+        const promptPl = montarPromptAnalistaPackingList({
+          documentosPacking,
+          documentosInvoice,
+          documentosConhecimento: entrada.documentos.filter((d) => {
+            const tipo = d.tipo_documento.toUpperCase()
+            return tipo.includes('BL') || tipo.includes('AWB')
+          }),
+          contexto,
+        })
+        tarefasLlm.push(
+          chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_PACKING_LIST, promptPl, registroComLeitura),
         )
-        riscosClassificacao = classificacao.riscos
-        if (classificacao.uso_llm) chamadasUso.push(classificacao.uso_llm)
-      } catch (erro) {
-        aviso = `Classificação fiscal indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-        console.error('[smart-read][classificacao-fiscal]', aviso)
       }
 
-      if (prazoPipeline.esgotado()) {
-        aviso = prazoPipeline.marcarAvisoEsgotado(aviso)
-        console.warn('[smart-read][analise-riscos]', aviso)
-      } else {
-        try {
-          const riscosBase = [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos, ...riscosClassificacao]
-          const chunksRag = precisaRagNormativoAnaliseRiscos(riscosBase, contexto)
-            ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
-            : undefined
-
-          const documentosPacking = entrada.documentos.filter((d) =>
-            d.tipo_documento.toUpperCase().includes('PACKING'),
-          )
-          const documentosInvoice = entrada.documentos.filter((d) =>
-            d.tipo_documento.toUpperCase().includes('INVOICE'),
-          )
-
-          const promptInvoice = montarPromptAnalistaInvoice({
-            documentos: entrada.documentos,
-            contexto,
-            errosAritmeticos,
-            chunksRag,
-          })
-
-          const tarefasAnalistas: Array<
-            Promise<{ riscos: RiscoAduaneiroLeitura[]; uso_llm: UsoLlmChamadaLeituraSmartRead | null }>
-          > = [chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_INVOICE, promptInvoice, registroComLeitura)]
-
-          if (documentosPacking.length > 0) {
-            const promptPl = montarPromptAnalistaPackingList({
-              documentosPacking,
-              documentosInvoice,
-              documentosConhecimento: entrada.documentos.filter((d) => {
-                const tipo = d.tipo_documento.toUpperCase()
-                return tipo.includes('BL') || tipo.includes('AWB')
-              }),
-              contexto,
-            })
-            tarefasAnalistas.push(
-              chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_PACKING_LIST, promptPl, registroComLeitura),
-            )
+      try {
+        const resultadosLlm = await Promise.allSettled(tarefasLlm)
+        for (const [indice, resultado] of resultadosLlm.entries()) {
+          if (resultado.status === 'fulfilled') {
+            if (indice === 0) riscosClassificacao = resultado.value.riscos
+            else if (indice === 1) riscosLlm = resultado.value.riscos
+            else riscosLlmPackingList = resultado.value.riscos
+            if (resultado.value.uso_llm) chamadasUso.push(resultado.value.uso_llm)
+            continue
           }
-
-          const resultadosAnalistas = await Promise.allSettled(tarefasAnalistas)
-          for (const [indice, resultado] of resultadosAnalistas.entries()) {
-            if (resultado.status === 'fulfilled') {
-              if (indice === 0) riscosLlm = resultado.value.riscos
-              else riscosLlmPackingList = resultado.value.riscos
-              if (resultado.value.uso_llm) chamadasUso.push(resultado.value.uso_llm)
-              continue
-            }
-            const rotulo = indice === 0 ? 'Analista IA (invoice)' : 'Analista IA (packing list)'
-            const msg = `${rotulo} indisponível: ${resultado.reason instanceof Error ? resultado.reason.message : 'erro desconhecido'}`
-            if (!aviso) aviso = msg
-            console.error('[smart-read][analise-riscos]', msg)
-          }
-        } catch (erro) {
-          if (!aviso) {
-            aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-          }
-          console.error('[smart-read][analise-riscos]', aviso)
+          const rotulos = [
+            'Classificação fiscal',
+            'Analista IA (invoice)',
+            'Analista IA (packing list)',
+          ]
+          const msg = `${rotulos[indice] ?? 'LLM'} indisponível: ${resultado.reason instanceof Error ? resultado.reason.message : 'erro desconhecido'}`
+          if (!aviso) aviso = msg
+          console.error('[smart-read][analise-riscos]', msg)
         }
+      } catch (erro) {
+        if (!aviso) {
+          aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+        }
+        console.error('[smart-read][analise-riscos]', aviso)
       }
     }
   }

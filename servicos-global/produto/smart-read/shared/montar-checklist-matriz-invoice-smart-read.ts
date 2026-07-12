@@ -10,10 +10,15 @@ import {
 } from './matriz-validacao-invoice-smart-read.js'
 import type {
   DocumentoAnaliseRisco,
+  DadosOficiaisCnpjLeitura,
   RegraAuditoriaV1,
   RiscoAduaneiroLeitura,
 } from './analise-riscos-leitura-smart-read.js'
 import { achatarCamposDadosLeitura, valorTextoComparacaoCampo } from './analise-riscos-leitura-smart-read.js'
+import {
+  avaliarSimilaridadeHeuristicaChecklist,
+  montarEnderecoOficialCnpj,
+} from './heuristica-checklist-instantaneo-smart-read.js'
 import {
   extrairDetalheDadosRegraMatrizInvoice,
   regraMatrizTemDadoExtraido,
@@ -258,8 +263,11 @@ export type ParametrosChecklistMatrizInvoice = {
   carregando: boolean
   /** Análise HTTP falhou/estourou SLA — degrada regras IA/API para ATENÇÃO em vez de PENDENTE eterno. */
   analise_servidor_indisponivel?: boolean
+  /** IA/API ainda enriquecendo — exibe prévia amarela sem spinner (Fase A). */
+  enriquecimento_ia_em_andamento?: boolean
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
+  cnpj_oficial?: DadosOficiaisCnpjLeitura | null
 }
 
 export type InvoiceOpcaoChecklist = {
@@ -434,8 +442,10 @@ export function montarChecklistMatrizInvoice(
     llmHabilitado,
     carregando,
     analise_servidor_indisponivel = false,
+    enriquecimento_ia_em_andamento = false,
     rotulo_documento,
     documentos,
+    cnpj_oficial = null,
   } = params
 
   const riscosEfetivos = complementarRiscosDeFalhasMatriz(regras, riscos)
@@ -484,6 +494,48 @@ export function montarChecklistMatrizInvoice(
           'N/A — sem dado na extração para esta regra',
           null,
           'Não aplicável',
+        )
+      }
+
+      if (enriquecimento_ia_em_andamento) {
+        if (regraMatriz.id === 'S2-03' && cnpj_oficial?.razao_social && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            cnpj_oficial.razao_social,
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — razão social alinhada à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de razão social (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+          )
+        }
+        if (regraMatriz.id === 'S2-04' && cnpj_oficial && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            montarEnderecoOficialCnpj(cnpj_oficial),
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — endereço alinhado à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de endereço (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+          )
+        }
+        return montarItemChecklist(
+          regraMatriz,
+          temDado ? 'amarelo' : 'na',
+          temDado
+            ? 'Prévia local — validação IA em segundo plano'
+            : 'N/A — sem dado na extração; IA em segundo plano',
+          null,
+          temDado ? resultadoLido : 'Não aplicável',
         )
       }
 
@@ -542,6 +594,17 @@ export function montarChecklistMatrizInvoice(
     }
 
     if (regraMatriz.motor === 'api') {
+      if (enriquecimento_ia_em_andamento) {
+        return montarItemChecklist(
+          regraMatriz,
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido) ? 'amarelo' : 'na',
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)
+            ? 'Prévia local — consulta Receita em segundo plano'
+            : 'N/A — CNPJ não extraído para consulta na Receita',
+          null,
+          detalheExtraido ?? 'Não aplicável',
+        )
+      }
       if (carregando) {
         return montarItemChecklist(
           regraMatriz,

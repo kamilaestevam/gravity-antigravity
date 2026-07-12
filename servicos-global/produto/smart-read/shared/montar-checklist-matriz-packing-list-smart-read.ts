@@ -51,6 +51,7 @@ export type ParametrosChecklistMatrizPackingList = {
   llmHabilitado: boolean
   carregando: boolean
   analise_servidor_indisponivel?: boolean
+  enriquecimento_ia_em_andamento?: boolean
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
 }
@@ -179,6 +180,7 @@ export function montarChecklistMatrizPackingList(
     llmHabilitado,
     carregando,
     analise_servidor_indisponivel = false,
+    enriquecimento_ia_em_andamento = false,
     rotulo_documento,
   } = params
 
@@ -195,6 +197,16 @@ export function montarChecklistMatrizPackingList(
       const status = statusDeRegrasMotor(regrasMotor)
       const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
       return montarItem(regraMatriz, status, detalhe, null)
+    }
+
+    if (enriquecimento_ia_em_andamento && MOTORES_COM_IA.has(regraMatriz.motor)) {
+      return montarItem(
+        regraMatriz,
+        'amarelo',
+        'Prévia local — validação IA em segundo plano',
+        null,
+        'Aguardando IA…',
+      )
     }
 
     if (carregando) {

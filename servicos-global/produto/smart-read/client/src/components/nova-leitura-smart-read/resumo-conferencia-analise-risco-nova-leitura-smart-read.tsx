@@ -151,14 +151,15 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   }, [chaveAnaliseRiscos])
 
   useEffect(() => {
-    if (emCacheRiscos) {
+    // Cache parcial (fase rápida, sem LLM) NÃO encerra a análise — o disparo abaixo
+    // retoma a fase IA (somente_llm) ou anexa à requisição em voo; sem isso a
+    // prévia local fica com spinner eterno e nunca recebe o resultado definitivo.
+    if (emCacheRiscos?.llm_ativo) {
       setAnaliseEncerrada(true)
       setAvisoAnalise(emCacheRiscos.aviso ?? null)
       return
     }
     if (analiseEncerrada) return
-    // Não retornar cedo se já há requisição em voo: dispararAnaliseRiscosBackgroundSmartRead
-    // deduplica e anexa os callbacks à promessa existente — sem isso a prévia nunca é substituída.
 
     const disparar = () => {
       dispararAnaliseRiscosBackgroundSmartRead({

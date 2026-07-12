@@ -12,6 +12,8 @@ import {
 } from '@phosphor-icons/react'
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
 import { MANUAL_CORPO_TIPOGRAFIA } from './manual-tipografia'
+import { construirDestinoManualAcademy } from './academy-manual-link'
+import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -317,26 +319,21 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const jaConcluida = concluidas.has(faseSlug)
 
   const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
+  const destinoManual = aula.manualSecao != null
+    ? construirDestinoManualAcademy(produtoSlug, faseSlug, aula.manualSecao)
+    : null
 
   return (
     <div className="uni-player-aula">
 
       {/* ── Painel esquerdo: navegador de fases ── */}
       <nav className="uni-player-aula__nav">
-        <button
+        <UniBotaoVoltarPadrao
+          label={t('university.aula.voltar')}
           onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600,
-            padding: '0 16px', marginBottom: 14,
-          }}
-        >
-          <ArrowLeft size={14} />
-          {t('university.aula.voltar')}
-        </button>
+        />
 
-        <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           {todasAulas.map((a, idx) => {
             const ativa = a.slug === faseSlug
             const feita = concluidas.has(a.slug)
@@ -401,6 +398,30 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <BlocoRenderer key={idx} bloco={bloco} />
             ))}
           </div>
+
+          {destinoManual && (
+            <section className="uni-academy-manual-cta" aria-labelledby="uni-academy-manual-cta-titulo">
+              <div className="uni-academy-manual-cta__icon" aria-hidden>
+                <BookOpen size={18} weight="regular" />
+              </div>
+              <div className="uni-academy-manual-cta__body">
+                <h2 id="uni-academy-manual-cta-titulo" className="uni-academy-manual-cta__titulo">
+                  {t('university.aula.manual_complemento_titulo')}
+                </h2>
+                <p className="uni-academy-manual-cta__desc">
+                  {t('university.aula.manual_complemento_desc')}
+                </p>
+                <button
+                  type="button"
+                  className="uni-academy-manual-cta__acao"
+                  onClick={() => navigate(destinoManual)}
+                >
+                  <BookOpen size={13} weight="regular" />
+                  {t('university.aula.manual_complemento_acao')}
+                </button>
+              </div>
+            </section>
+          )}
 
           {/* ── Navegação de rodapé ── */}
           <div style={{

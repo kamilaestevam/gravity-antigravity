@@ -18,6 +18,8 @@ export interface AulaDemo {
   titulo: string
   duracao: string
   blocos: BlocoConteudo[]
+  /** Número da seção correspondente no manual (`#doc-sec-N`). */
+  manualSecao?: number
 }
 
 export const LOGIN_AULA_SLUGS = [
@@ -99,14 +101,6 @@ function blocosDeSecao(secao: DocSecao): BlocoConteudo[] {
       dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
     })
   }
-  if (secao.lista?.length) {
-    blocos.push({
-      tipo: 'texto',
-      dados: {
-        text: secao.lista.map(item => `• ${limparTextoManual(item)}`).join('\n'),
-      },
-    })
-  }
   if (secao.callout) blocos.push(blocosDeCallout(secao.callout))
   for (const passo of secao.passosVisuais ?? []) {
     blocos.push(...blocosDePasso(passo))
@@ -125,4 +119,5 @@ export const AULAS_LOGIN: AulaDemo[] = DOC_LOGIN_SECOES.map((secao, i) => ({
   titulo: secao.titulo,
   duracao: LOGIN_DURACOES[i] ?? '10m',
   blocos: blocosDeSecao(secao),
+  manualSecao: secao.num,
 }))

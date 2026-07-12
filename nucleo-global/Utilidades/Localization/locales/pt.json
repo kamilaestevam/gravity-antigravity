@@ -58,9 +58,13 @@
     },
     "aula": {
       "voltar": "Voltar",
+      "voltar_onboarding": "Voltar ao onboarding",
       "marcar_concluida": "Marcar como concluída",
       "inicio": "Início",
-      "fim": "Fim do módulo"
+      "fim": "Fim do módulo",
+      "manual_complemento_titulo": "Quer ir além? O manual tem mais detalhes",
+      "manual_complemento_desc": "Esta sessão cobre o essencial do onboarding. No manual você encontra referências de tela, metadados e contexto extra para consolidar o que aprendeu. Já abrimos a seção correspondente.",
+      "manual_complemento_acao": "Abrir seção no manual"
     },
     "grupo": {
       "comece_aqui": "Comece por aqui",

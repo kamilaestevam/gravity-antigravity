@@ -2928,9 +2928,9 @@ body.light-theme .cw-xml-viewer {
 }
 
 .uni-jornada-etapa-tag--done {
-  background: #818cf8;
-  color: #0b1220;
-  border: 1px solid #818cf8;
+  background: rgba(129, 140, 248, 0.28);
+  color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.45);
 }
 
 .uni-jornada-etapa-tag--current {
@@ -2997,11 +2997,53 @@ body.light-theme .cw-xml-viewer {
 }
 
 .uni-player-aula__nav {
-  width: 360px;
+  width: 420px;
   flex-shrink: 0;
   overflow-y: auto;
-  padding: 1rem 0;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
   border-right: 1px solid rgba(26, 30, 46, 0.85);
+}
+
+/* Voltar — paridade mtg-left__page-back (MenuTopoGlobal) */
+.uni-player-aula__voltar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 14px;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.uni-player-aula__voltar:hover {
+  color: var(--ws-text, #f1f5f9);
+}
+
+.uni-player-aula__voltar-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ws-muted, #94a3b8);
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.uni-player-aula__voltar:hover .uni-player-aula__voltar-icone {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(129, 140, 248, 0.09);
+  border-color: rgba(129, 140, 248, 0.2);
 }
 
 .uni-player-aula__content {
@@ -3102,6 +3144,85 @@ body.light-theme .uni-player-aula__content {
   background: rgba(129, 140, 248, 0.26);
   box-shadow: 0 4px 16px rgba(129, 140, 248, 0.22);
   transform: translateY(-1px);
+}
+
+/* ── Academy: CTA manual complementar (fim da aula) ── */
+.uni-academy-manual-cta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-top: 2.25rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(167, 139, 250, 0.03) 48%, rgba(148, 163, 184, 0.02) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.16);
+  box-shadow: 0 4px 18px rgba(10, 13, 20, 0.22);
+}
+
+.uni-academy-manual-cta__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.18);
+  color: #94a3f8;
+}
+
+.uni-academy-manual-cta__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.uni-academy-manual-cta__titulo {
+  margin: 0 0 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ws-text, #e2e8f0);
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+}
+
+.uni-academy-manual-cta__desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--ws-muted, #94a3b8);
+  font-weight: 400;
+}
+
+.uni-academy-manual-cta__acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  background: rgba(129, 140, 248, 0.1);
+  color: #a5b4fc;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.uni-academy-manual-cta__acao:hover {
+  background: rgba(129, 140, 248, 0.16);
+  border-color: rgba(129, 140, 248, 0.32);
+  color: #c7d2fe;
+}
+
+/* ── Docs: voltar ao onboarding (sticky — visível após scroll à seção) ── */
+.uni-docs-voltar-academy {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  background: transparent;
 }
 
 /* ── University: ícones de status no menu lateral (disponível + concluído) ── */

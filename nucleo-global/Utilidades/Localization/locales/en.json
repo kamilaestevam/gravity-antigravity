@@ -58,9 +58,13 @@
     },
     "aula": {
       "voltar": "Back",
+      "voltar_onboarding": "Back to onboarding",
       "marcar_concluida": "Mark as complete",
       "inicio": "Start",
-      "fim": "End of module"
+      "fim": "End of module",
+      "manual_complemento_titulo": "Want to go deeper? The manual has more detail",
+      "manual_complemento_desc": "This session covers the onboarding essentials. The manual adds screen references, metadata, and extra context to reinforce what you learned. We'll open the matching section for you.",
+      "manual_complemento_acao": "Open section in manual"
     },
     "grupo": {
       "comece_aqui": "Start here",

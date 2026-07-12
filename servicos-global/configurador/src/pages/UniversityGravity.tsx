@@ -10,7 +10,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import {
   Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info,
@@ -30,6 +30,7 @@ import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
+import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
 import {
   DOC_LOGIN_METADADOS,
@@ -690,12 +691,19 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 }
 
 function DocLoginManual() {
+  const location = useLocation()
+
   const todosNums = DOC_LOGIN_SECOES.map(s => s.num)
   const [abertos, setAbertos] = useState<number[]>([])
   const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
-  const scrollTo = useManualSumarioScroll(abertos, setAbertos)
+  const { scrollToSecao } = useManualSumarioScroll(abertos, setAbertos)
+
+  useEffect(() => {
+    const m = /^#doc-sec-(\d+)$/.exec(location.hash)
+    if (m) scrollToSecao(Number(m[1]))
+  }, [location.hash, scrollToSecao])
 
   return (
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
@@ -758,7 +766,7 @@ function DocLoginManual() {
           {DOC_LOGIN_SECOES.map(s => (
             <li key={s.num} style={{ marginBottom: 7, display: 'flex', alignItems: 'baseline', gap: 12 }}>
               <span style={{ ...MANUAL_ESTILO_SECAO_NUMERO, minWidth: 22 }}>{s.num}.</span>
-              <button onClick={() => scrollTo(s.num)}
+              <button onClick={() => scrollToSecao(s.num)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818cf8', padding: 0, textAlign: 'left', lineHeight: 1.4 }}>
                 {s.titulo}
               </button>
@@ -1069,12 +1077,12 @@ function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
       style={{
         flexShrink: 0, width: 48, height: 48, borderRadius: '50%', zIndex: 1,
         display: 'grid', placeItems: 'center',
-        background: etapa.feita ? UNI_COR : 'var(--bg-base,#1e293b)',
-        border: `2px solid ${etapa.feita || etapa.atual ? UNI_COR : 'rgba(148,163,184,.22)'}`,
+        background: etapa.feita ? 'rgba(129,140,248,.45)' : 'var(--bg-base,#1e293b)',
+        border: `2px solid ${etapa.feita || etapa.atual ? (etapa.feita ? 'rgba(129,140,248,.65)' : UNI_COR) : 'rgba(148,163,184,.22)'}`,
       }}
     >
       {etapa.feita
-        ? <CheckFat weight="fill" size={18} style={{ color: '#0b1220' }} />
+        ? <CheckFat weight="fill" size={18} style={{ color: '#c7d2fe' }} />
         : <span style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.95rem',
             color: etapa.atual ? UNI_COR : 'var(--ws-muted,#94a3b8)',
@@ -1620,6 +1628,8 @@ export function UniversityGravity() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
+  const origemAcademy = searchParams.get('origem')
   const { user } = useUser()
   const { signOut } = useClerk()
   const { getToken } = useAuth()
@@ -2018,6 +2028,15 @@ export function UniversityGravity() {
         {/* ══ Resto das views (overview, jornada, docs, builders) ══ */}
         {!(secao === 'academy' && faseAulaSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }} data-manual-scroll-root>
+
+          {secao === 'docs' && origemAcademy && (
+            <div className="uni-docs-voltar-academy">
+              <UniBotaoVoltarPadrao
+                label={t('university.aula.voltar_onboarding')}
+                onClick={() => navigate(origemAcademy)}
+              />
+            </div>
+          )}
 
           {/* ── Cabeçalho (padrão MenuTopoGlobal: Insights) ── */}
           <div style={UNI_ESTILO_PAGE_HEADER}>

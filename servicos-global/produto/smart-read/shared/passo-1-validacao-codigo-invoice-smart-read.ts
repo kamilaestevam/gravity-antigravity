@@ -7,6 +7,10 @@ import { severidadeParaStatusMatriz } from './matriz-validacao-invoice-smart-rea
 import { executarPasso1ValidacaoCodigoPackingList } from './passo-1-validacao-codigo-packing-list-smart-read.js'
 import { executarPasso1ValidacaoCodigoAwb } from './passo-1-validacao-codigo-awb-smart-read.js'
 import { executarPasso1ValidacaoCodigoBl } from './passo-1-validacao-codigo-bl-smart-read.js'
+import { executarPasso1ValidacaoCodigoCertificadoOrigem } from './passo-1-validacao-codigo-certificado-origem-smart-read.js'
+import { executarPasso1ValidacaoCodigoPedidoCompra } from './passo-1-validacao-codigo-pedido-compra-smart-read.js'
+import { executarPasso1ValidacaoCodigoPedidoVenda } from './passo-1-validacao-codigo-pedido-venda-smart-read.js'
+import { executarPasso1ValidacaoCodigoCertificadoFitossanitario } from './passo-1-validacao-codigo-certificado-fitossanitario-smart-read.js'
 import {
   formatarAnaliseDivergenciaLinha,
   formatarAnaliseDivergenciaSoma,
@@ -870,7 +874,7 @@ export function executarPasso1ValidacaoCodigoInvoice(
   }
 }
 
-/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list, do AWB e do BL. */
+/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list, AWB, BL, CO, CF, PC e PV. */
 export function executarAuditoriaV1AnaliseRiscosLeitura(
   documentosEntrada: DocumentoAnaliseRisco[],
 ): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
@@ -878,16 +882,28 @@ export function executarAuditoriaV1AnaliseRiscosLeitura(
   const packing = executarPasso1ValidacaoCodigoPackingList(documentosEntrada)
   const awb = executarPasso1ValidacaoCodigoAwb(documentosEntrada)
   const bl = executarPasso1ValidacaoCodigoBl(documentosEntrada)
+  const co = executarPasso1ValidacaoCodigoCertificadoOrigem(documentosEntrada)
+  const cf = executarPasso1ValidacaoCodigoCertificadoFitossanitario(documentosEntrada)
+  const pc = executarPasso1ValidacaoCodigoPedidoCompra(documentosEntrada)
+  const pv = executarPasso1ValidacaoCodigoPedidoVenda(documentosEntrada)
   const semPacking = packing.contexto.regras.length === 0 && packing.resumo.total === 0
   const semAwb = awb.contexto.regras.length === 0 && awb.resumo.total === 0
   const semBl = bl.contexto.regras.length === 0 && bl.resumo.total === 0
-  if (semPacking && semAwb && semBl) return invoice
+  const semCo = co.contexto.regras.length === 0 && co.resumo.total === 0
+  const semCf = cf.contexto.regras.length === 0 && cf.resumo.total === 0
+  const semPc = pc.contexto.regras.length === 0 && pc.resumo.total === 0
+  const semPv = pv.contexto.regras.length === 0 && pv.resumo.total === 0
+  if (semPacking && semAwb && semBl && semCo && semCf && semPc && semPv) return invoice
   return {
     resumo: montarResumo([
       ...invoice.resumo.riscos,
       ...packing.resumo.riscos,
       ...awb.resumo.riscos,
       ...bl.resumo.riscos,
+      ...co.resumo.riscos,
+      ...cf.resumo.riscos,
+      ...pc.resumo.riscos,
+      ...pv.resumo.riscos,
     ]),
     contexto: {
       ...invoice.contexto,
@@ -896,6 +912,10 @@ export function executarAuditoriaV1AnaliseRiscosLeitura(
         ...packing.contexto.regras,
         ...awb.contexto.regras,
         ...bl.contexto.regras,
+        ...co.contexto.regras,
+        ...cf.contexto.regras,
+        ...pc.contexto.regras,
+        ...pv.contexto.regras,
       ],
     },
   }

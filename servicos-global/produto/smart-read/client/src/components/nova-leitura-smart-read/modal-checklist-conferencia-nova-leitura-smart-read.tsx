@@ -56,6 +56,58 @@ import {
   ROTULO_SECAO_MATRIZ_BL,
   type SecaoMatrizBl,
 } from '../../../../shared/matriz-validacao-bl-smart-read'
+import {
+  agruparChecklistCertificadoOrigemPorSecao,
+  calcularScoreChecklistCertificadoOrigem,
+  combinarResumoGeralComCertificadosOrigem,
+  ehTipoCertificadoOrigemChecklist,
+  montarChecklistMatrizCertificadoOrigem,
+  montarResumoChecklistCertificadosOrigem,
+  percentualConformeChecklistCertificadoOrigem,
+} from '../../../../shared/montar-checklist-matriz-certificado-origem-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_CERTIFICADO_ORIGEM,
+  type SecaoMatrizCertificadoOrigem,
+} from '../../../../shared/matriz-validacao-certificado-origem-smart-read'
+import {
+  agruparChecklistCertificadoFitossanitarioPorSecao,
+  calcularScoreChecklistCertificadoFitossanitario,
+  combinarResumoGeralComCertificadosFitossanitario,
+  ehTipoCertificadoFitossanitarioChecklist,
+  montarChecklistMatrizCertificadoFitossanitario,
+  montarResumoChecklistCertificadosFitossanitario,
+  percentualConformeChecklistCertificadoFitossanitario,
+} from '../../../../shared/montar-checklist-matriz-certificado-fitossanitario-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_CERTIFICADO_FITOSSANITARIO,
+  type SecaoMatrizCertificadoFitossanitario,
+} from '../../../../shared/matriz-validacao-certificado-fitossanitario-smart-read'
+import {
+  agruparChecklistPedidoCompraPorSecao,
+  calcularScoreChecklistPedidoCompra,
+  combinarResumoGeralComPedidosCompra,
+  ehTipoPedidoCompraChecklist,
+  montarChecklistMatrizPedidoCompra,
+  montarResumoChecklistPedidosCompra,
+  percentualConformeChecklistPedidoCompra,
+} from '../../../../shared/montar-checklist-matriz-pedido-compra-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_PEDIDO_COMPRA,
+  type SecaoMatrizPedidoCompra,
+} from '../../../../shared/matriz-validacao-pedido-compra-smart-read'
+import {
+  agruparChecklistPedidoVendaPorSecao,
+  calcularScoreChecklistPedidoVenda,
+  combinarResumoGeralComPedidosVenda,
+  ehTipoPedidoVendaChecklist,
+  montarChecklistMatrizPedidoVenda,
+  montarResumoChecklistPedidosVenda,
+  percentualConformeChecklistPedidoVenda,
+} from '../../../../shared/montar-checklist-matriz-pedido-venda-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_PEDIDO_VENDA,
+  type SecaoMatrizPedidoVenda,
+} from '../../../../shared/matriz-validacao-pedido-venda-smart-read'
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
@@ -123,12 +175,40 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
       ...parametrosChecklist,
       documentos,
     })
-    return combinarResumoGeralComBls(
-      combinarResumoGeralComAwbs(
-        combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
-        resumosAwb,
+    const resumosCo = montarResumoChecklistCertificadosOrigem({
+      ...parametrosChecklist,
+      documentos,
+    })
+    const resumosCf = montarResumoChecklistCertificadosFitossanitario({
+      ...parametrosChecklist,
+      documentos,
+    })
+    const resumosPc = montarResumoChecklistPedidosCompra({
+      ...parametrosChecklist,
+      documentos,
+    })
+    const resumosPv = montarResumoChecklistPedidosVenda({
+      ...parametrosChecklist,
+      documentos,
+    })
+    return combinarResumoGeralComPedidosVenda(
+      combinarResumoGeralComPedidosCompra(
+        combinarResumoGeralComCertificadosFitossanitario(
+          combinarResumoGeralComCertificadosOrigem(
+            combinarResumoGeralComBls(
+              combinarResumoGeralComAwbs(
+                combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+                resumosAwb,
+              ),
+              resumosBl,
+            ),
+            resumosCo,
+          ),
+          resumosCf,
+        ),
+        resumosPc,
       ),
-      resumosBl,
+      resumosPv,
     )
   }, [parametrosChecklist, documentos])
 
@@ -153,14 +233,59 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     return !!opcao && ehTipoBlChecklist(opcao.tipo_documento)
   }, [documentosOpcoes, rotuloChecklistAtivo])
 
+  const documentoAtivoEhCo = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && ehTipoCertificadoOrigemChecklist(opcao.tipo_documento)
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
+  const documentoAtivoEhCf = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && ehTipoCertificadoFitossanitarioChecklist(opcao.tipo_documento)
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
+  const documentoAtivoEhPc = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && ehTipoPedidoCompraChecklist(opcao.tipo_documento)
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
+  const documentoAtivoEhPv = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && ehTipoPedidoVendaChecklist(opcao.tipo_documento)
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
   const checklistInvoice = useMemo(() => {
-    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb || documentoAtivoEhBl) return []
+    if (
+      !rotuloChecklistAtivo ||
+      documentoAtivoEhPackingList ||
+      documentoAtivoEhAwb ||
+      documentoAtivoEhBl ||
+      documentoAtivoEhCo ||
+      documentoAtivoEhCf ||
+      documentoAtivoEhPc ||
+      documentoAtivoEhPv
+    )
+      return []
     return montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       documentos,
       rotulo_documento: rotuloChecklistAtivo,
     })
-  }, [documentoAtivoEhAwb, documentoAtivoEhBl, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
+  }, [
+    documentoAtivoEhAwb,
+    documentoAtivoEhBl,
+    documentoAtivoEhCo,
+    documentoAtivoEhCf,
+    documentoAtivoEhPc,
+    documentoAtivoEhPv,
+    documentoAtivoEhPackingList,
+    documentos,
+    parametrosChecklist,
+    rotuloChecklistAtivo,
+  ])
 
   const secoesInvoice = useMemo(
     () => agruparChecklistPorSecao(checklistInvoice),
@@ -227,6 +352,94 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     )
   }, [checklistBl, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
 
+  const checklistCo = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhCo) return []
+    return montarChecklistMatrizCertificadoOrigem({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhCo, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesCo = useMemo(
+    () => agruparChecklistCertificadoOrigemPorSecao(checklistCo),
+    [checklistCo],
+  )
+
+  const scoreCo = useMemo(() => {
+    if (checklistCo.length === 0) return null
+    return calcularScoreChecklistCertificadoOrigem(
+      checklistCo,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistCo, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
+
+  const checklistCf = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhCf) return []
+    return montarChecklistMatrizCertificadoFitossanitario({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhCf, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesCf = useMemo(
+    () => agruparChecklistCertificadoFitossanitarioPorSecao(checklistCf),
+    [checklistCf],
+  )
+
+  const scoreCf = useMemo(() => {
+    if (checklistCf.length === 0) return null
+    return calcularScoreChecklistCertificadoFitossanitario(
+      checklistCf,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistCf, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
+
+  const checklistPc = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhPc) return []
+    return montarChecklistMatrizPedidoCompra({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhPc, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesPc = useMemo(
+    () => agruparChecklistPedidoCompraPorSecao(checklistPc),
+    [checklistPc],
+  )
+
+  const scorePc = useMemo(() => {
+    if (checklistPc.length === 0) return null
+    return calcularScoreChecklistPedidoCompra(
+      checklistPc,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistPc, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
+
+  const checklistPv = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhPv) return []
+    return montarChecklistMatrizPedidoVenda({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhPv, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesPv = useMemo(
+    () => agruparChecklistPedidoVendaPorSecao(checklistPv),
+    [checklistPv],
+  )
+
+  const scorePv = useMemo(() => {
+    if (checklistPv.length === 0) return null
+    return calcularScoreChecklistPedidoVenda(
+      checklistPv,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistPv, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
+
   const opcoesInvoice = useMemo(
     () =>
       documentosOpcoes.map((doc) => ({
@@ -248,16 +461,28 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     if (documentoAtivoEhPackingList) return contarChecklistPorStatus(checklistPackingList)
     if (documentoAtivoEhAwb) return contarChecklistPorStatus(checklistAwb)
     if (documentoAtivoEhBl) return contarChecklistPorStatus(checklistBl)
+    if (documentoAtivoEhCo) return contarChecklistPorStatus(checklistCo)
+    if (documentoAtivoEhCf) return contarChecklistPorStatus(checklistCf)
+    if (documentoAtivoEhPc) return contarChecklistPorStatus(checklistPc)
+    if (documentoAtivoEhPv) return contarChecklistPorStatus(checklistPv)
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice.contagem
     return contarChecklistPorStatus(checklistInvoice)
   }, [
     checklistAwb,
     checklistBl,
+    checklistCo,
+    checklistCf,
     checklistInvoice,
+    checklistPc,
+    checklistPv,
     checklistPackingList,
     documentoAtivoEhAwb,
     documentoAtivoEhBl,
+    documentoAtivoEhCo,
+    documentoAtivoEhCf,
+    documentoAtivoEhPc,
+    documentoAtivoEhPv,
     documentoAtivoEhPackingList,
     resumoGeral,
     rotuloChecklistAtivo,
@@ -298,6 +523,50 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
         veredito: vereditoDeContagemChecklist(contagem),
       }
     }
+    if (documentoAtivoEhCo) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistCo)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistCertificadoOrigem(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
+    if (documentoAtivoEhCf) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistCf)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistCertificadoFitossanitario(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
+    if (documentoAtivoEhPc) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistPc)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistPedidoCompra(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
+    if (documentoAtivoEhPv) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistPv)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistPedidoVenda(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice
     const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
@@ -316,10 +585,17 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   }, [
     checklistAwb,
     checklistBl,
-    checklistInvoice,
+    checklistCo,
+    checklistCf,
+    checklistPc,
+    checklistPv,
     checklistPackingList,
     documentoAtivoEhAwb,
     documentoAtivoEhBl,
+    documentoAtivoEhCo,
+    documentoAtivoEhCf,
+    documentoAtivoEhPc,
+    documentoAtivoEhPv,
     documentoAtivoEhPackingList,
     documentosOpcoes,
     mostrarDetalheInvoice,
@@ -328,7 +604,17 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   ])
 
   const classificacaoProduto = useMemo(() => {
-    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb || documentoAtivoEhBl) return []
+    if (
+      !rotuloChecklistAtivo ||
+      documentoAtivoEhPackingList ||
+      documentoAtivoEhAwb ||
+      documentoAtivoEhBl ||
+      documentoAtivoEhCo ||
+      documentoAtivoEhCf ||
+      documentoAtivoEhPc ||
+      documentoAtivoEhPv
+    )
+      return []
     return montarClassificacaoProdutoChecklist({
       documentos,
       riscos: parametrosChecklist.riscos,
@@ -336,7 +622,18 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
       pipelineConcluido: parametrosChecklist.pipelineConcluido,
       carregando: parametrosChecklist.carregando,
     })
-  }, [documentoAtivoEhAwb, documentoAtivoEhBl, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
+  }, [
+    documentoAtivoEhAwb,
+    documentoAtivoEhBl,
+    documentoAtivoEhCo,
+    documentoAtivoEhCf,
+    documentoAtivoEhPc,
+    documentoAtivoEhPv,
+    documentoAtivoEhPackingList,
+    documentos,
+    parametrosChecklist,
+    rotuloChecklistAtivo,
+  ])
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
@@ -523,6 +820,134 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                         classeCorpo="sr-chk-modal-checklist-corpo"
                         rotuloSecao={(secao) =>
                           ROTULO_SECAO_MATRIZ_BL[secao as SecaoMatrizBl] ?? secao
+                        }
+                      />
+                    </>
+                  ) : documentoAtivoEhCo ? (
+                    <>
+                      {scoreCo ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scoreCo.pendente ? 'calculando…' : `${scoreCo.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scoreCo.pendente ? 'calculando…' : scoreCo.rotulo_classificacao}
+                          </span>
+                          {scoreCo.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scoreCo.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesCo}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-co"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_CERTIFICADO_ORIGEM[
+                            secao as SecaoMatrizCertificadoOrigem
+                          ] ?? secao
+                        }
+                      />
+                    </>
+                  ) : documentoAtivoEhCf ? (
+                    <>
+                      {scoreCf ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scoreCf.pendente ? 'calculando…' : `${scoreCf.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scoreCf.pendente ? 'calculando…' : scoreCf.rotulo_classificacao}
+                          </span>
+                          {scoreCf.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scoreCf.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesCf}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-cf"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_CERTIFICADO_FITOSSANITARIO[
+                            secao as SecaoMatrizCertificadoFitossanitario
+                          ] ?? secao
+                        }
+                      />
+                    </>
+                  ) : documentoAtivoEhPc ? (
+                    <>
+                      {scorePc ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scorePc.pendente ? 'calculando…' : `${scorePc.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scorePc.pendente ? 'calculando…' : scorePc.rotulo_classificacao}
+                          </span>
+                          {scorePc.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scorePc.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesPc}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-pc"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_PEDIDO_COMPRA[secao as SecaoMatrizPedidoCompra] ?? secao
+                        }
+                      />
+                    </>
+                  ) : documentoAtivoEhPv ? (
+                    <>
+                      {scorePv ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scorePv.pendente ? 'calculando…' : `${scorePv.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scorePv.pendente ? 'calculando…' : scorePv.rotulo_classificacao}
+                          </span>
+                          {scorePv.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scorePv.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesPv}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-pv"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_PEDIDO_VENDA[secao as SecaoMatrizPedidoVenda] ?? secao
                         }
                       />
                     </>

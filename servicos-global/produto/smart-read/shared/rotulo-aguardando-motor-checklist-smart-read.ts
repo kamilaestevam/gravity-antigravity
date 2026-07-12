@@ -28,6 +28,12 @@ export function rotuloAguardandoMotorChecklistSmartRead(
       detalhe: 'Analista IA e cruzamento documental em andamento',
     }
   }
+  if (motor === 'lpco') {
+    return {
+      resultado: 'Aguardando LPCO…',
+      detalhe: 'Consulta ao módulo LPCO do Portal Único em andamento',
+    }
+  }
   if (motor === 'rag' || motor === 'api_llm' || motor === 'codigo_rag') {
     return {
       resultado: 'Aguardando IA…',
@@ -48,6 +54,7 @@ export function motorAguardaEnriquecimentoServidor(motor: string): boolean {
     'cross_doc_rag',
     'cross_doc',
     'api',
+    'lpco',
   ]
   return motores.includes(motor as MotorValidacaoMatrizPackingList)
 }

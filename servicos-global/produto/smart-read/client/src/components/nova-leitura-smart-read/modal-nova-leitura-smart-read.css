@@ -4078,9 +4078,24 @@ body.light-theme .sr-conf-chk-tooltip-base-texto {
 
 .sr-chk-info-topo-dir {
   display: grid;
-  grid-template-columns: auto auto minmax(12rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: 0.75rem 1rem;
+}
+
+.sr-chk-info-invoices-linha--cards {
+  width: 100%;
+  min-width: 0;
+}
+
+.sr-chk-info-invoice-card--ativo {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.28);
+}
+
+.sr-chk-info-invoice-card--interno:not(.sr-chk-info-invoice-card--destaque) {
+  width: auto;
 }
 
 .sr-chk-info-grafico-conferido {
@@ -4200,6 +4215,12 @@ body.light-theme .sr-conf-chk-tooltip-base-texto {
   gap: 0.5rem;
   flex: 0 0 auto;
   align-self: flex-start;
+}
+
+.sr-chk-info-invoice-topo-esq--grid {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
 }
 
 .sr-chk-info-invoices-destaque {

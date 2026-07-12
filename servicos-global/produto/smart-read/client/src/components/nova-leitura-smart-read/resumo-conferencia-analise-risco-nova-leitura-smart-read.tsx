@@ -41,6 +41,34 @@ import {
   percentualConformeChecklistBl,
 } from '../../../../shared/montar-checklist-matriz-bl-smart-read'
 import {
+  combinarResumoGeralComCertificadosOrigem,
+  ehTipoCertificadoOrigemChecklist,
+  montarChecklistMatrizCertificadoOrigem,
+  montarResumoChecklistCertificadosOrigem,
+  percentualConformeChecklistCertificadoOrigem,
+} from '../../../../shared/montar-checklist-matriz-certificado-origem-smart-read'
+import {
+  combinarResumoGeralComCertificadosFitossanitario,
+  ehTipoCertificadoFitossanitarioChecklist,
+  montarChecklistMatrizCertificadoFitossanitario,
+  montarResumoChecklistCertificadosFitossanitario,
+  percentualConformeChecklistCertificadoFitossanitario,
+} from '../../../../shared/montar-checklist-matriz-certificado-fitossanitario-smart-read'
+import {
+  combinarResumoGeralComPedidosCompra,
+  ehTipoPedidoCompraChecklist,
+  montarChecklistMatrizPedidoCompra,
+  montarResumoChecklistPedidosCompra,
+  percentualConformeChecklistPedidoCompra,
+} from '../../../../shared/montar-checklist-matriz-pedido-compra-smart-read'
+import {
+  combinarResumoGeralComPedidosVenda,
+  ehTipoPedidoVendaChecklist,
+  montarChecklistMatrizPedidoVenda,
+  montarResumoChecklistPedidosVenda,
+  percentualConformeChecklistPedidoVenda,
+} from '../../../../shared/montar-checklist-matriz-pedido-venda-smart-read'
+import {
   dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
   obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead,
@@ -149,6 +177,30 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     const documentos = extrairDocumentosArquivoLocal(arquivo)
     const documentoAtual = documentos[indiceDocumento]
     return Boolean(documentoAtual && ehTipoBlChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCo = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoOrigemChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCf = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoFitossanitarioChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPc = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoCompraChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPv = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoVendaChecklist(documentoAtual.tipo_documento))
   }, [arquivo, indiceDocumento])
 
   const chaveAnaliseRiscos = useMemo(
@@ -311,12 +363,40 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       ...parametrosChecklist,
       documentos: documentosRisco,
     })
-    return combinarResumoGeralComBls(
-      combinarResumoGeralComAwbs(
-        combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
-        resumosAwb,
+    const resumosCo = montarResumoChecklistCertificadosOrigem({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosCf = montarResumoChecklistCertificadosFitossanitario({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPc = montarResumoChecklistPedidosCompra({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPv = montarResumoChecklistPedidosVenda({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    return combinarResumoGeralComPedidosVenda(
+      combinarResumoGeralComPedidosCompra(
+        combinarResumoGeralComCertificadosFitossanitario(
+          combinarResumoGeralComCertificadosOrigem(
+            combinarResumoGeralComBls(
+              combinarResumoGeralComAwbs(
+                combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+                resumosAwb,
+              ),
+              resumosBl,
+            ),
+            resumosCo,
+          ),
+          resumosCf,
+        ),
+        resumosPc,
       ),
-      resumosBl,
+      resumosPv,
     )
   }, [documentosRisco, parametrosChecklist])
 
@@ -355,6 +435,50 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       const contagemBl = contarChecklistPorStatus(itensBl)
       return { contagem: contagemBl, percentual: percentualConformeChecklistBl(contagemBl) }
     }
+    if (documentoAtualEhCo) {
+      const itensCo = montarChecklistMatrizCertificadoOrigem({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCo = contarChecklistPorStatus(itensCo)
+      return {
+        contagem: contagemCo,
+        percentual: percentualConformeChecklistCertificadoOrigem(contagemCo),
+      }
+    }
+    if (documentoAtualEhCf) {
+      const itensCf = montarChecklistMatrizCertificadoFitossanitario({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCf = contarChecklistPorStatus(itensCf)
+      return {
+        contagem: contagemCf,
+        percentual: percentualConformeChecklistCertificadoFitossanitario(contagemCf),
+      }
+    }
+    if (documentoAtualEhPc) {
+      const itensPc = montarChecklistMatrizPedidoCompra({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPc = contarChecklistPorStatus(itensPc)
+      return {
+        contagem: contagemPc,
+        percentual: percentualConformeChecklistPedidoCompra(contagemPc),
+      }
+    }
+    if (documentoAtualEhPv) {
+      const itensPv = montarChecklistMatrizPedidoVenda({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPv = contarChecklistPorStatus(itensPv)
+      return {
+        contagem: contagemPv,
+        percentual: percentualConformeChecklistPedidoVenda(contagemPv),
+      }
+    }
     const itens = montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       rotulo_documento: rotuloDocumentoAtual,
@@ -368,6 +492,10 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   }, [
     documentoAtualEhAwb,
     documentoAtualEhBl,
+    documentoAtualEhCo,
+    documentoAtualEhCf,
+    documentoAtualEhPc,
+    documentoAtualEhPv,
     documentoAtualEhPackingList,
     documentosRisco.length,
     parametrosChecklist,

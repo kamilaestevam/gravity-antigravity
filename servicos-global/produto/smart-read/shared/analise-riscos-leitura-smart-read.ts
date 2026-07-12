@@ -10,6 +10,22 @@ import type {
 } from './matriz-validacao-packing-list-smart-read.js'
 import type { MotorValidacaoAwb, SecaoMatrizAwb } from './matriz-validacao-awb-smart-read.js'
 import type { MotorValidacaoBl, SecaoMatrizBl } from './matriz-validacao-bl-smart-read.js'
+import type {
+  MotorValidacaoCertificadoOrigem,
+  SecaoMatrizCertificadoOrigem,
+} from './matriz-validacao-certificado-origem-smart-read.js'
+import type {
+  MotorValidacaoPedidoCompra,
+  SecaoMatrizPedidoCompra,
+} from './matriz-validacao-pedido-compra-smart-read.js'
+import type {
+  MotorValidacaoPedidoVenda,
+  SecaoMatrizPedidoVenda,
+} from './matriz-validacao-pedido-venda-smart-read.js'
+import type {
+  MotorValidacaoCertificadoFitossanitario,
+  SecaoMatrizCertificadoFitossanitario,
+} from './matriz-validacao-certificado-fitossanitario-smart-read.js'
 import {
   ehRiscoClassificacaoFiscal,
   formatarAnaliseDivergenciaLinha,
@@ -56,10 +72,10 @@ export type RiscoAduaneiroLeitura = {
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
-  /** Matriz consolidada — seções da invoice (S1–S8), do packing list (P1–P9), do AWB (AW1–AW9) ou do BL (BL1–BL9) */
-  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList | SecaoMatrizAwb | SecaoMatrizBl
+  /** Matriz consolidada — seções da invoice (S1–S9), packing list (P1–P9), AWB (AW1–AW9), BL (BL1–BL9), CO (CO1–CO9), CF (CF1–CF9), PC (PC1–PC9) ou PV (PV1–PV9) */
+  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList | SecaoMatrizAwb | SecaoMatrizBl | SecaoMatrizCertificadoOrigem | SecaoMatrizCertificadoFitossanitario | SecaoMatrizPedidoCompra | SecaoMatrizPedidoVenda
   id_regra_matriz?: string
-  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList | MotorValidacaoAwb | MotorValidacaoBl
+  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList | MotorValidacaoAwb | MotorValidacaoBl | MotorValidacaoCertificadoOrigem | MotorValidacaoCertificadoFitossanitario | MotorValidacaoPedidoCompra | MotorValidacaoPedidoVenda
   status_matriz?: StatusMatrizInvoice
 }
 
@@ -175,11 +191,36 @@ export const RiscoAduaneiroLeituraSchema = z.object({
       'frete_valores_afrmm',
       'dados_ce_mercante',
       'regulatorio_clausulas_carga',
+      'natureza_acordo',
+      'identificacao_validade',
+      'mercadoria_ncm',
+      'criterio_origem',
+      'emissao_formalidades',
+      'processo_lpco',
+      'regime_acordo',
+      'partes_comprador_vendedor',
+      'termos_comerciais_logisticos',
+      'itens_linha',
+      'valores_financeiros',
+      'sinais_regulatorios',
+      'cambio_financeiro',
+      'aprovacoes_controle',
+      'partes_vendedor_comprador',
+      'dados_bancarios_cambio',
+      'aceite_contrato',
+      'aplicabilidade_tipo',
+      'emissor_legitimidade',
+      'identificacao_datas',
+      'descricao_envio',
+      'origem_tratamento',
+      'embalagem_conteudo',
+      'processo_mapa_lpco',
+      'regras_praga_produto',
     ])
     .optional(),
   id_regra_matriz: z.string().optional(),
   motor_validacao: z
-    .enum(['codigo', 'api', 'llm', 'rag', 'cross_doc', 'codigo_rag', 'cross_doc_rag', 'api_llm'])
+    .enum(['codigo', 'api', 'llm', 'rag', 'cross_doc', 'codigo_rag', 'cross_doc_rag', 'api_llm', 'lpco'])
     .optional(),
   status_matriz: z.enum(['verde', 'amarelo', 'vermelho']).optional(),
 })

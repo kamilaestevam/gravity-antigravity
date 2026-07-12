@@ -145,7 +145,7 @@ function itemAguardandoEnriquecimentoMotor(
       : regraMatriz.motor === 'api'
         ? 'Prévia local — consulta Receita em segundo plano'
         : 'Prévia local — validação IA em segundo plano'
-  return montarItem(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…')
+  return montarItem(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…', true)
 }
 
 function itemAgregador(

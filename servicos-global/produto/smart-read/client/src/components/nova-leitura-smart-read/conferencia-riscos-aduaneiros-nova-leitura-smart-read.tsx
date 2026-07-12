@@ -360,12 +360,8 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       aplicarRespostaAnaliseRiscos(emCache)
     }
 
-    if (obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise)) {
-      setCarregando(true)
-      onIaInicio?.()
-      return
-    }
-
+    // Se já há requisição em voo, o disparo abaixo deduplica e anexa onConcluido à
+    // promessa existente — o retorno antecipado deixava a prévia sem resultado final.
     setCarregando(true)
     setErro(null)
     setAviso(null)

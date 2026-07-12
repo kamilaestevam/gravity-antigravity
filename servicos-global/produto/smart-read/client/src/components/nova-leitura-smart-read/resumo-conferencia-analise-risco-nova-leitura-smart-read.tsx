@@ -157,7 +157,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       return
     }
     if (analiseEncerrada) return
-    if (obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) return
+    // Não retornar cedo se já há requisição em voo: dispararAnaliseRiscosBackgroundSmartRead
+    // deduplica e anexa os callbacks à promessa existente — sem isso a prévia nunca é substituída.
 
     const disparar = () => {
       dispararAnaliseRiscosBackgroundSmartRead({

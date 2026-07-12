@@ -2897,3 +2897,16 @@ body.light-theme .cw-xml-viewer {
   background: #f8fafc;
   border-color: rgba(0, 0, 0, 0.08);
 }
+
+/* ── University: Jornada do Módulo (etapa atual pulsando) ── */
+@keyframes uniJornadaPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(129, 140, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
+}
+.uni-jornada-node--current { animation: uniJornadaPulse 2s infinite; }
+.uni-jornada-etapa { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.uni-jornada-etapa--current:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px rgba(129, 140, 248, 0.55);
+}

@@ -53,7 +53,8 @@ const UNI_COR = '#818cf8'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 interface Fase {
-  slug: string
+  /** Slug da aula; ausente em trilhas ainda sem conteúdo publicado (WIP). */
+  slug?: string
   nome: string
   duracao: string
   concluida: boolean
@@ -1423,6 +1424,283 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
   )
 }
 
+// ── Jornada do Módulo (Academy · detalhe gamificado) ─────────────────────────
+// Traduz o protótipo "Jornada do Módulo" para o design system do University.
+// XP/GP/ranking são derivados do progresso demo (WIP: virá do banco via API).
+const JORNADA_XP_TOTAL = 100
+
+// Colegas fictícios para o ranking do módulo (WIP: virá do banco via API).
+const JORNADA_RANKING_DEMO: { nome: string; xp: number }[] = [
+  { nome: 'Marina Alves', xp: 82 },
+  { nome: 'Diego Ramos', xp: 65 },
+  { nome: 'Bruno Costa', xp: 44 },
+  { nome: 'Ana Paula', xp: 30 },
+]
+
+interface JornadaEtapa {
+  fase: Fase
+  numero: number
+  xp: number
+  feita: boolean
+  atual: boolean
+  bloqueada: boolean
+  clicavel: boolean
+}
+
+/** Distribui `total` XP entre `n` etapas; o resto sobra na última. */
+function xpPorEtapa(total: number, n: number): number[] {
+  if (n <= 0) return []
+  const base = Math.floor(total / n)
+  const xps = Array.from({ length: n }, () => base)
+  xps[n - 1] += total - base * n
+  return xps
+}
+
+function iniciaisNome(nome: string): string {
+  return nome.split(' ').map(parte => parte[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+}
+
+function calcularEtapasJornada(fases: Fase[], aulasConcluidas: Set<string>): JornadaEtapa[] {
+  const xps = xpPorEtapa(JORNADA_XP_TOTAL, fases.length)
+  const feitas = fases.map(fase => (fase.slug ? aulasConcluidas.has(fase.slug) : fase.concluida))
+  const idxAtual = feitas.findIndex(feita => !feita)
+  return fases.map((fase, i) => {
+    const atual = i === idxAtual
+    return {
+      fase,
+      numero: i + 1,
+      xp: xps[i],
+      feita: feitas[i],
+      atual,
+      bloqueada: !feitas[i] && !atual,
+      clicavel: Boolean(fase.slug) && (feitas[i] || atual),
+    }
+  })
+}
+
+function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
+  const anelPulsante = etapa.atual ? ' uni-jornada-node--current' : ''
+  return (
+    <div
+      className={`uni-jornada-node${anelPulsante}`}
+      style={{
+        flexShrink: 0, width: 48, height: 48, borderRadius: '50%', zIndex: 1,
+        display: 'grid', placeItems: 'center',
+        background: etapa.feita ? UNI_COR : 'var(--bg-base,#1e293b)',
+        border: `2px solid ${etapa.feita || etapa.atual ? UNI_COR : 'rgba(148,163,184,.22)'}`,
+      }}
+    >
+      {etapa.feita
+        ? <CheckFat weight="fill" size={18} style={{ color: '#0b1220' }} />
+        : <span style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.95rem',
+            color: etapa.atual ? UNI_COR : 'var(--ws-muted,#94a3b8)',
+          }}>{etapa.numero}</span>}
+    </div>
+  )
+}
+
+function JornadaEtapaCard({ etapa, onAbrir }: {
+  etapa: JornadaEtapa
+  onAbrir: (slug: string) => void
+}) {
+  const { t } = useTranslation()
+  const { fase, atual, feita, bloqueada, clicavel, xp } = etapa
+  const abrir = () => { if (clicavel && fase.slug) onAbrir(fase.slug) }
+  return (
+    <div
+      role={clicavel ? 'button' : undefined}
+      tabIndex={clicavel ? 0 : undefined}
+      onClick={abrir}
+      onKeyDown={(e) => { if (clicavel && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir() } }}
+      className={`uni-jornada-etapa${atual ? ' uni-jornada-etapa--current' : ''}`}
+      style={{
+        flex: 1, borderRadius: 14, padding: '14px 18px',
+        cursor: clicavel ? 'pointer' : 'default',
+        background: atual ? 'rgba(129,140,248,.08)' : 'var(--bg-base,#1e293b)',
+        border: `1px solid ${atual ? UNI_COR : 'rgba(148,163,184,.12)'}`,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+        <div>
+          <div style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '.95rem', marginBottom: 4,
+            color: bloqueada ? 'var(--ws-muted,#94a3b8)' : 'var(--ws-text,#f1f5f9)',
+          }}>{fase.nome}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
+            <Clock size={12} />{fase.duracao}
+          </div>
+        </div>
+        <div style={{
+          flexShrink: 0, background: 'rgba(129,140,248,.12)', color: UNI_COR,
+          fontSize: '.72rem', fontWeight: 700, padding: '4px 9px', borderRadius: 9999,
+        }}>{xp} XP</div>
+      </div>
+      {atual && (
+        <div style={{
+          marginTop: 12, display: 'inline-block', background: UNI_COR, color: '#0b1220',
+          fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '.8rem',
+          padding: '8px 16px', borderRadius: 8,
+        }}>{feita ? t('university.jornada.continuar_etapa') : t('university.jornada.concluir_etapa')}</div>
+      )}
+      {feita && !atual && (
+        <div style={{ marginTop: 10, color: '#34d399', fontSize: '.78rem', fontWeight: 700 }}>
+          {t('university.jornada.etapa_concluida')}
+        </div>
+      )}
+      {bloqueada && (
+        <div style={{ marginTop: 10, color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600 }}>
+          {t('university.jornada.etapa_bloqueada')}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function JornadaCardBox({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 14, padding: 16 }}>
+      <div style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: 'var(--ws-muted,#94a3b8)',
+        fontSize: '.68rem', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 10,
+      }}>{titulo}</div>
+      {children}
+    </div>
+  )
+}
+
+function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
+  const { t } = useTranslation()
+  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+    .sort((a, b) => b.xp - a.xp)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {linhas.map((p, i) => {
+        const isYou = 'isYou' in p && p.isYou
+        return (
+          <div key={`${p.nome}-${i}`} style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 8,
+            background: isYou ? 'rgba(129,140,248,.1)' : 'transparent',
+          }}>
+            <div style={{
+              width: 18, textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800, fontSize: '.72rem', color: i === 0 ? '#fbbf24' : 'var(--ws-muted,#94a3b8)',
+            }}>{i + 1}</div>
+            <div style={{
+              width: 24, height: 24, borderRadius: '50%', display: 'grid', placeItems: 'center',
+              fontSize: '.6rem', fontWeight: 700, color: '#f8fafc',
+              background: isYou ? UNI_COR : 'rgba(148,163,184,.25)',
+            }}>{iniciaisNome(p.nome)}</div>
+            <div style={{
+              flex: 1, fontSize: '.82rem', fontWeight: 600,
+              color: isYou ? UNI_COR : 'var(--ws-text,#f1f5f9)',
+            }}>{p.nome}</div>
+            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function JornadaSidebar({ xp, gp, feitas, total }: {
+  xp: number; gp: number; feitas: number; total: number
+}) {
+  const { t } = useTranslation()
+  const pct = Math.round((xp / JORNADA_XP_TOTAL) * 100)
+  const badgeAtiva = feitas >= 1
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <JornadaCardBox titulo={t('university.jornada.seu_progresso')}>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.6rem', color: 'var(--ws-text,#f1f5f9)' }}>
+          {xp}<span style={{ fontSize: '.9rem', color: 'var(--ws-muted,#94a3b8)', fontWeight: 600 }}>/{JORNADA_XP_TOTAL} XP</span>
+        </div>
+        <div style={{ marginTop: 10 }}><BarraProgresso pct={pct} altura={6} /></div>
+        <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
+          {t('university.jornada.tarefas_concluidas', { feitas, total })}
+        </div>
+      </JornadaCardBox>
+
+      <JornadaCardBox titulo={t('university.jornada.recompensas')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7,
+              background: badgeAtiva ? UNI_COR : 'rgba(148,163,184,.18)',
+              display: 'grid', placeItems: 'center', color: '#0b1220',
+            }}><Sparkle weight="fill" size={14} /></div>
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
+              {t('university.jornada.badge_iniciante')}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: '50%',
+              background: 'rgba(167,139,250,.22)', border: '1.5px solid #a78bfa',
+            }} />
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
+              {gp} {t('university.jornada.gravity_points')}
+            </div>
+          </div>
+        </div>
+      </JornadaCardBox>
+
+      <JornadaCardBox titulo={t('university.jornada.ranking_modulo')}>
+        <JornadaRanking xpUsuario={xp} />
+      </JornadaCardBox>
+    </div>
+  )
+}
+
+function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase }: {
+  trilha: Trilha
+  aulasConcluidas: Set<string>
+  onAbrirFase: (slug: string) => void
+}) {
+  const etapas = calcularEtapasJornada(trilha.fases, aulasConcluidas)
+  const feitas = etapas.filter(e => e.feita).length
+  const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
+  const gp = xp * 2
+  const pct = Math.round((xp / JORNADA_XP_TOTAL) * 100)
+
+  return (
+    <div>
+      {/* Título + progresso do módulo */}
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 11, display: 'grid', placeItems: 'center', background: `${trilha.tag}22`, fontSize: 20 }}>
+              {trilha.emoji}
+            </div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: 'var(--ws-text,#f1f5f9)' }}>
+              {trilha.nome}
+            </div>
+          </div>
+          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{JORNADA_XP_TOTAL} XP</div>
+        </div>
+        <BarraProgresso pct={pct} altura={8} />
+      </div>
+
+      {/* Caminho + sidebar */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(240px, 1fr)', gap: 24 }}>
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            position: 'absolute', left: 23, top: 24, bottom: 24, width: 2,
+            background: 'linear-gradient(180deg, ' + UNI_COR + ', rgba(148,163,184,.15))',
+          }} />
+          {etapas.map(etapa => (
+            <div key={etapa.numero} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
+              <JornadaNode etapa={etapa} />
+              <JornadaEtapaCard etapa={etapa} onAbrir={onAbrirFase} />
+            </div>
+          ))}
+        </div>
+        <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} />
+      </div>
+    </div>
+  )
+}
+
 export function UniversityGravity() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -1899,110 +2177,17 @@ export function UniversityGravity() {
             </div>
           )}
 
-          {/* ══ VIEW: produto específico ══ */}
-          {secao === 'academy' && trilhasAtivas && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {trilhasAtivas.map(tr => {
-                const fasesFeitas = tr.fases.filter(f => f.concluida).length
-                const pctModulo = Math.round((fasesFeitas / tr.fases.length) * 100)
-
-                return (
-                  <div key={tr.nome}>
-                    {/* ── CARD: header do módulo ── */}
-                    <div style={{
-                      background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)',
-                      borderRadius: 14, padding: '18px 20px',
-                    }}>
-                      {/* Título + tempo total */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 11, display: 'grid', placeItems: 'center', background: `${tr.tag}22`, fontSize: 22 }}>
-                            {tr.emoji}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '1rem', fontWeight: 700 }}>{tr.nome}</div>
-                            <div style={{ fontSize: '.75rem', color: 'var(--ws-muted,#94a3b8)', marginTop: 2 }}>
-                              {t('university.trilha.modulos', { count: tr.modulos })}
-                            </div>
-                          </div>
-                        </div>
-                        {/* Tempo total */}
-                        <div style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          background: 'rgba(148,163,184,.08)', borderRadius: 9999, padding: '5px 12px',
-                          fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', flexShrink: 0,
-                        }}>
-                          <Clock weight="duotone" size={14} style={{ color: UNI_COR }} />
-                          {t('university.trilha.total')} {tr.duracao}
-                        </div>
-                      </div>
-
-                      {/* ── BARRA 2: conclusão do módulo ── */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                        <BarraProgresso pct={pctModulo} />
-                        <span style={{ fontSize: '.75rem', fontWeight: 700, color: pctModulo >= 100 ? '#34d399' : 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
-                          {pctModulo >= 100 ? t('university.acao.concluida') : `${pctModulo}%`}
-                        </span>
-                      </div>
-
-                      {/* ── BARRA 1: fases individuais ── */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                        {tr.fases.map((fase, idx) => (
-                          <div
-                            key={fase.nome}
-                            onClick={() => navigate(`/university-gravity/academy/${produtoSlug}/${fase.slug}`)}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-                              borderTop: idx > 0 ? '1px solid rgba(148,163,184,.07)' : 'none',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {/* Indicador */}
-                            <div style={{
-                              width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                              display: 'grid', placeItems: 'center',
-                              background: fase.concluida ? 'rgba(52,211,153,.15)' : 'rgba(148,163,184,.08)',
-                              border: fase.concluida ? '1.5px solid rgba(52,211,153,.4)' : '1.5px solid rgba(148,163,184,.15)',
-                            }}>
-                              {fase.concluida
-                                ? <CheckCircle weight="fill" size={14} style={{ color: '#34d399' }} />
-                                : <span style={{ fontSize: '.6rem', fontWeight: 800, color: 'var(--ws-muted,#94a3b8)' }}>{idx + 1}</span>
-                              }
-                            </div>
-                            {/* Nome */}
-                            <span style={{
-                              flex: 1, fontSize: '.86rem', fontWeight: 600,
-                              color: 'var(--ws-text,#f1f5f9)',
-                            }}>
-                              {fase.nome}
-                            </span>
-                            {/* Tempo individual */}
-                            <span style={{
-                              display: 'flex', alignItems: 'center', gap: 4,
-                              fontSize: '.72rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', flexShrink: 0,
-                            }}>
-                              <Clock size={12} />
-                              {fase.duracao}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* CTA */}
-                      <div style={{ marginTop: 16 }}>
-                        <button style={{
-                          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '9px 18px',
-                          borderRadius: 9999,
-                          background: pctModulo >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
-                          color: pctModulo >= 100 ? '#34d399' : '#0b1220',
-                        }}>
-                          {pctModulo >= 100 ? t('university.acao.concluida') : pctModulo > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+          {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
+          {secao === 'academy' && trilhasAtivas && produtoSlug && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              {trilhasAtivas.map(tr => (
+                <JornadaModulo
+                  key={tr.nome}
+                  trilha={tr}
+                  aulasConcluidas={aulasConcluidas}
+                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                />
+              ))}
             </div>
           )}
 
@@ -2138,3 +2323,6 @@ export function UniversityGravity() {
     </div>
   )
 }
+
+// TODO(preview-temp, 2026-07-11): export só para conferência visual manual — remover após validar.
+export { JornadaModulo, TRILHAS_POR_PRODUTO as __TRILHAS_PREVIEW_TEMP }

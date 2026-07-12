@@ -76,7 +76,18 @@
       "pontos": "Points",
       "concluidas": "Completed",
       "em_andamento": "In progress",
-      "certificados": "Certificates"
+      "certificados": "Certificates",
+      "seu_progresso": "Your progress",
+      "recompensas": "Rewards",
+      "ranking_modulo": "Module ranking",
+      "concluir_etapa": "Complete step",
+      "continuar_etapa": "Continue step",
+      "etapa_concluida": "Completed",
+      "etapa_bloqueada": "Locked",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tasks completed",
+      "badge_iniciante": "Beginner Badge",
+      "gravity_points": "Gravity Points",
+      "voce": "You"
     },
     "vazio": {
       "em_breve": "{{secao}} — coming soon"

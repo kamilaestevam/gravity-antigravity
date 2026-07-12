@@ -76,7 +76,18 @@
       "pontos": "Pontos",
       "concluidas": "Concluídas",
       "em_andamento": "Em andamento",
-      "certificados": "Certificados"
+      "certificados": "Certificados",
+      "seu_progresso": "Seu progresso",
+      "recompensas": "Recompensas",
+      "ranking_modulo": "Ranking do módulo",
+      "concluir_etapa": "Concluir etapa",
+      "continuar_etapa": "Continuar etapa",
+      "etapa_concluida": "Concluída",
+      "etapa_bloqueada": "Bloqueada",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tarefas concluídas",
+      "badge_iniciante": "Badge Iniciante",
+      "gravity_points": "Gravity Points",
+      "voce": "Você"
     },
     "vazio": {
       "em_breve": "{{secao}} — em breve"

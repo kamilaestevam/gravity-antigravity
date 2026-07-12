@@ -1,7 +1,6 @@
 /**
  * PlayerAula — Reader de aula da Gravity University.
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
- * Área de conteúdo com fundo claro (feel de documento/artigo).
  */
 
 import React, { useState } from 'react'
@@ -12,12 +11,22 @@ import {
   Quotes, Lightbulb, Image as ImageIcon, BookOpen,
 } from '@phosphor-icons/react'
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
+import { MANUAL_CORPO_TIPOGRAFIA } from './manual-tipografia'
+import { construirDestinoManualAcademy } from './academy-manual-link'
+import { AcademyInfografico } from './academy-infograficos'
+import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 
 const UNI_COR = '#818cf8'
-const CONTENT_BG = '#1e293b'
-const CONTENT_TEXT = '#f1f5f9'
-const CONTENT_MUTED = '#94a3b8'
+const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
+const CONTENT_MUTED = 'var(--ws-muted, #94a3b8)'
 const ACCENT = '#a78bfa'
+
+/** Corpo narrativo Academy — alinhamento justificado (SSOT: MANUAL-GRAVITY-ONBOARDING §9.1.2) */
+const PLAYER_CORPO: React.CSSProperties = {
+  ...MANUAL_CORPO_TIPOGRAFIA,
+  color: CONTENT_TEXT,
+  fontFamily: 'inherit',
+}
 
 // ── Sub-componentes com fallback para mídia ────────────────────────────────
 
@@ -31,7 +40,7 @@ function BlocoImagem({ bloco }: { bloco: BlocoConteudo }) {
           src={String(bloco.dados.src)}
           alt={String(bloco.dados.alt ?? '')}
           onError={() => setFalhou(true)}
-          style={{ width: '100%', borderRadius: 12, display: 'block', border: '1px solid rgba(148,163,184,.1)' }}
+          style={{ width: '100%', borderRadius: 12, display: 'block', border: '1px solid rgba(148,163,184,.14)' }}
         />
       ) : (
         <div style={{
@@ -111,7 +120,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
 
     case 'texto':
       return (
-        <p style={{ fontSize: '.96rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: '0.8rem 0', fontFamily: 'inherit' }}>
+        <p style={{ ...PLAYER_CORPO, margin: '0.8rem 0', whiteSpace: 'pre-line' }}>
           {String(bloco.dados.text)}
         </p>
       )
@@ -132,8 +141,9 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         }}>
           <Quotes weight="fill" size={32} style={{ color: ACCENT, opacity: .4, display: 'block', marginBottom: 10 }} />
           <p style={{
+            ...PLAYER_CORPO,
             fontSize: '1.08rem', fontWeight: 700, fontStyle: 'italic',
-            color: CONTENT_TEXT, margin: '0 0 10px 0', lineHeight: 1.6,
+            margin: '0 0 10px 0',
           }}>
             {String(bloco.dados.texto ?? '')}
           </p>
@@ -159,7 +169,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
                 {String(bloco.dados.titulo)}
               </div>
             )}
-            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', margin: 0 }}>
               {String(bloco.dados.text ?? '')}
             </p>
           </div>
@@ -178,7 +188,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
             <div style={{ fontWeight: 700, color: UNI_COR, fontSize: '.82rem', marginBottom: 4 }}>
               {String(bloco.dados.termo)}
             </div>
-            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', margin: 0 }}>
               {String(bloco.dados.definicao)}
             </p>
           </div>
@@ -202,7 +212,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         </div>
       )
       const txtEl = (
-        <p style={{ flex: 1, fontSize: '.95rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: 0, alignSelf: 'center' }}>
+        <p style={{ ...PLAYER_CORPO, flex: 1, fontSize: '.95rem', margin: 0, alignSelf: 'center' }}>
           {String(bloco.dados.texto ?? '')}
         </p>
       )
@@ -243,7 +253,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
                   <div style={{ fontWeight: 700, color: CONTENT_TEXT, fontSize: '.9rem', marginBottom: 3 }}>
                     {item.label}
                   </div>
-                  <p style={{ fontSize: '.85rem', color: CONTENT_MUTED, margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ ...PLAYER_CORPO, fontSize: '.85rem', color: CONTENT_MUTED, margin: 0 }}>
                     {item.descricao}
                   </p>
                 </div>
@@ -258,14 +268,14 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       return (
         <div style={{
           margin: '1.75rem 0', borderRadius: 14,
-          background: '#0f172a', border: '1px solid rgba(148,163,184,.1)',
+          background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(148,163,184,.12)',
           overflow: 'hidden', display: 'flex',
         }}>
           <div style={{ flex: 1, padding: '1.75rem 2rem' }}>
             <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '1rem', marginBottom: 12 }}>
               {String(bloco.dados.titulo ?? '')}
             </div>
-            <p style={{ fontSize: '.92rem', lineHeight: 1.75, color: '#94a3b8', margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', color: '#94a3b8', margin: 0 }}>
               {String(bloco.dados.texto ?? '')}
             </p>
           </div>
@@ -281,6 +291,13 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
               </span>
             </div>
           </div>
+        </div>
+      )
+
+    case 'infografico':
+      return (
+        <div style={{ margin: '1.75rem 0' }}>
+          <AcademyInfografico id={String(bloco.dados.id ?? '')} />
         </div>
       )
 
@@ -310,34 +327,25 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const jaConcluida = concluidas.has(faseSlug)
 
   const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
+  const destinoManual = aula.manualSecao != null
+    ? construirDestinoManualAcademy(produtoSlug, faseSlug, aula.manualSecao, aula.manualCapitulo)
+    : null
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="uni-player-aula">
 
       {/* ── Painel esquerdo: navegador de fases ── */}
-      <nav style={{
-        width: 220, flexShrink: 0,
-        borderRight: '1px solid rgba(148,163,184,.12)',
-        overflowY: 'auto', padding: '1rem 0',
-        background: 'var(--bg-base,#1e293b)',
-      }}>
-        <button
+      <nav className="uni-player-aula__nav">
+        <UniBotaoVoltarPadrao
+          label={t('university.aula.voltar')}
           onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600,
-            padding: '0 16px', marginBottom: 14,
-          }}
-        >
-          <ArrowLeft size={14} />
-          {t('university.aula.voltar')}
-        </button>
+        />
 
-        <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
           {todasAulas.map((a, idx) => {
             const ativa = a.slug === faseSlug
             const feita = concluidas.has(a.slug)
+            const destaqueConcluido = feita && !ativa
             return (
               <button
                 key={a.slug}
@@ -345,14 +353,15 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
-                  background: ativa ? `${UNI_COR}18` : 'transparent',
-                  color: ativa ? UNI_COR : feita ? 'var(--ws-muted,#94a3b8)' : 'var(--ws-text,#f1f5f9)',
-                  fontWeight: ativa ? 700 : 500, fontSize: '.82rem', width: '100%',
-                  borderLeft: ativa ? `3px solid ${UNI_COR}` : '3px solid transparent',
+                  background: destaqueConcluido ? 'rgba(129,140,248,.08)' : ativa ? 'transparent' : 'transparent',
+                  color: destaqueConcluido || ativa ? UNI_COR : CONTENT_TEXT,
+                  fontWeight: destaqueConcluido || ativa ? 700 : 500, fontSize: '.82rem', width: '100%',
+                  borderLeft: destaqueConcluido || ativa ? `3px solid ${UNI_COR}` : '3px solid transparent',
+                  boxSizing: 'border-box',
                 }}
               >
                 {feita
-                  ? <CheckCircle weight="fill" size={16} style={{ color: '#34d399', flexShrink: 0 }} />
+                  ? <CheckCircle weight="fill" size={16} style={{ color: UNI_COR, flexShrink: 0 }} />
                   : (
                     <span style={{
                       width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
@@ -374,21 +383,9 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
         </div>
       </nav>
 
-      {/* ── Área de conteúdo — fundo claro (feel de documento) ── */}
-      <div style={{
-        flex: 1, overflowY: 'auto',
-        background: CONTENT_BG,
-        display: 'flex', flexDirection: 'column',
-      }}>
-        {/* Scroll interno com largura controlada e centralizada */}
-        <div style={{
-          width: '100%',
-          maxWidth: 980,
-          margin: '0 auto',
-          padding: '2rem 3.5rem 4rem',
-          boxSizing: 'border-box',
-          flex: 1,
-        }}>
+      {/* ── Área de conteúdo ── */}
+      <div className="uni-player-aula__content">
+        <div className="uni-player-aula__article">
 
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED, marginBottom: '2rem' }}>
@@ -410,6 +407,30 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
             ))}
           </div>
 
+          {destinoManual && (
+            <section className="uni-academy-manual-cta" aria-labelledby="uni-academy-manual-cta-titulo">
+              <div className="uni-academy-manual-cta__icon" aria-hidden>
+                <BookOpen size={18} weight="regular" />
+              </div>
+              <div className="uni-academy-manual-cta__body">
+                <h2 id="uni-academy-manual-cta-titulo" className="uni-academy-manual-cta__titulo">
+                  {t('university.aula.manual_complemento_titulo')}
+                </h2>
+                <p className="uni-academy-manual-cta__desc">
+                  {t('university.aula.manual_complemento_desc')}
+                </p>
+                <button
+                  type="button"
+                  className="uni-academy-manual-cta__acao"
+                  onClick={() => navigate(destinoManual)}
+                >
+                  <BookOpen size={13} weight="regular" />
+                  {t('university.aula.manual_complemento_acao')}
+                </button>
+              </div>
+            </section>
+          )}
+
           {/* ── Navegação de rodapé ── */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -418,15 +439,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           }}>
             {/* Anterior */}
             <button
+              type="button"
+              className="uni-player-aula__footer-btn"
               onClick={() => anterior && navParaFase(anterior.slug)}
               disabled={!anterior}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
-                padding: '10px 18px', cursor: anterior ? 'pointer' : 'not-allowed',
-                opacity: anterior ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: 'none',
-              }}
             >
               <ArrowLeft size={15} />
               <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
@@ -434,15 +450,9 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
             {/* Marcar concluída */}
             <button
+              type="button"
+              className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
               onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                border: 'none', borderRadius: 9999, padding: '11px 28px',
-                cursor: 'pointer', fontWeight: 700, fontSize: '.88rem',
-                background: jaConcluida ? 'rgba(52,211,153,.15)' : UNI_COR,
-                color: jaConcluida ? '#059669' : '#fff',
-                boxShadow: jaConcluida ? 'none' : '0 2px 12px rgba(167,139,250,.3)',
-              }}
             >
               <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
               {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
@@ -450,16 +460,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
             {/* Próxima */}
             <button
+              type="button"
+              className="uni-player-aula__footer-btn uni-player-aula__footer-btn--next"
               onClick={() => proxima && navParaFase(proxima.slug)}
               disabled={!proxima}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
-                padding: '10px 18px', cursor: proxima ? 'pointer' : 'not-allowed',
-                opacity: proxima ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: 'none',
-                justifyContent: 'flex-end',
-              }}
             >
               <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>
               <ArrowRight size={15} />

@@ -62,6 +62,8 @@ export interface DocPassoVisual {
     colunas?: number
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
+    /** Sobrescreve frase → print e margem entre cenários (px). */
+    espacoTextoFiguraPx?: number
     /** Cabeçalho de passo (chip + legenda roxa) acima da grade — paridade com `galeriaTelasAposTabela`. */
     legendaPasso?: string
     /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
@@ -77,6 +79,8 @@ export interface DocPassoVisual {
       imagem?: string
       paragrafoAntesPrint?: string
       printsApos?: { imagem: string; paragrafoAntesPrint?: string }[]
+      /** Manual BID Frete §7.01 — chip 01 + visão (mapa), 2 (tooltip) ou 3 (lista). */
+      chipAcessoPainelCotacao?: 'mapa' | 'tooltip' | 'lista'
     }[]
     /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
     textoAoLado?: string[]
@@ -96,6 +100,14 @@ export interface DocPassoVisual {
     chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
     /** Manual BID Frete §4.02.01 — chip 01 + lápis da forma Manual no título da etapa. */
     chipBidFreteFormaManual?: boolean
+    /** Manual BID Frete §6.03.01 — chip BID (Stack) no título da etapa. */
+    chipBidFreteBid?: boolean
+    /** Manual BID Frete §7.04 — ícone de token não utilizado no título da etapa. */
+    chipBidFreteTokenNaoUtilizado?: boolean
+    /** Manual BID Frete §7.04 — ícone de token utilizado ou prazo vencido no título da etapa. */
+    chipBidFreteTokenUtilizado?: boolean
+    /** Ritmo extra após o bloco da etapa (antes da próxima etapa com título). */
+    espacoInferiorAposEtapaPx?: number
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
     mostrarChipsBidFreteTipoCarga?: boolean
     /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
@@ -104,6 +116,8 @@ export interface DocPassoVisual {
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
     /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
     infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+    /** Manual BID Frete §6.03.01 — mapa UX 10: BID como pacote de cotações existentes. */
+    infograficoBidFreteBidPacoteCotacoes?: boolean
     /** Manual BID Frete §4.02.01 — cards dos campos do passo Modal e Operação (após o print). */
     infograficoBidFreteModalOperacaoCampos?: boolean
     /** Manual BID Frete §4.02.01 — print(s) após infográfico «Campos deste passo», antes das DICAS. */
@@ -171,8 +185,16 @@ export interface DocPassoVisual {
   tooltipsKpiAposImagem?: boolean
   /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
   paragrafosAposImagem?: string[]
+  /** Com `imagemAbaixoTexto`, grade (chip + título + prints) após o screenshot principal. */
+  galeriaComparacaoAposImagem?: Omit<
+    NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number],
+    'indice'
+  >[]
   /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
   calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Com `imagemAbaixoTexto`, legenda roxa logo abaixo do screenshot principal. */
+  legendaAposImagem?: string
+  legendaAposImagemAlinhamento?: 'left' | 'center'
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
@@ -231,16 +253,28 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFretePainelCotacao?: boolean
   /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
   mostrarInfograficoBidFreteFiltrosMapa?: boolean
+  /** Manual BID Frete §7.02 — infográfico das seis abas do Painel da Cotação. */
+  mostrarInfograficoBidFreteAbasPainelCotacao?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
   /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
   mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
+  /** Manual BID Frete §6.02 — comparação cotação avulsa (única) × BID (pacote). */
+  mostrarInfograficoBidFreteCotacaoAvulsaVsBid?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico avulsa × BID (padrão: 0). */
+  bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */
   bidFreteCotacaoAvulsaFormasInfograficoAposParagrafo?: number
   /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
   mostrarInfograficoBidFreteControlesMapa?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
   bidFreteNovaCotacaoInfograficoAposParagrafo?: number
+  /** Manual BID Frete §4.01 — fluxo + legenda de escopo após a galeria do parágrafo (em vez de antes). */
+  bidFreteNovaCotacaoEscopoAposGaleriaParagrafo?: number
+  /** Manual BID Frete §4.01 — frase introdutória antes do infográfico dos cinco passos (após galeria). */
+  textoAntesInfograficoBidFreteNovaCotacaoFluxo?: string
+  /** Manual BID Frete §4.01 — frase introdutória antes da legenda de ícones de escopo (após galeria). */
+  textoAntesLegendaEscopoIconesBidFrete?: string
   /** Manual BID Frete § Nova cotação — barra de escopo Operação · Modal · Carga. */
   barraEscopoBidFrete?: ManualBidFreteEscopoConfig
   /** Índice do parágrafo após o qual inserir a barra de escopo (padrão: mesmo do infográfico). */
@@ -346,6 +380,9 @@ export interface DocGaleriaComparacaoTela {
   legenda: string
   imagem: string
   paragrafoAntes?: string
+  /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
+  legendaApos?: string
+  legendaAposAlinhamento?: 'left' | 'center'
   /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
   chipConsolidarExemplo?: DocChipConsolidarExemploId
   /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */
@@ -376,6 +413,10 @@ export interface DocGaleriaTela {
   pilaresPainelCotacaoBidFrete?: Array<'01' | '02' | '03'>
   /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
   pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
+  /** Chips numerados do infográfico das abas do Painel da Cotação (ex.: ['01'] = Visão geral). */
+  pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
+  /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
+  simuladorBidFretePainelInsights?: boolean
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
@@ -407,7 +448,7 @@ export interface DocWizardEtapa {
 
 export interface DocFluxo {
   titulo: string
-  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver ONBOARDING-DOCUMENTO.md §9.6. Se omitido, usa `titulo`. */
+  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver MANUAL-GRAVITY-ONBOARDING.md §9.6. Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean
@@ -430,6 +471,15 @@ export interface DocFluxo {
   mostrarInfograficoPedidoInsights?: boolean
   /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
   mostrarInfograficoBidFreteInsights?: boolean
+  /** Manual BID Frete §07 — três etapas do Painel da Cotação (após parágrafo introdutório do capítulo). */
+  mostrarInfograficoBidFretePainelCotacao?: boolean
+  /** Print(s) logo após o infográfico do fluxo, antes dos passos visuais. */
+  figurasAposInfografico?: {
+    imagem: string
+    legenda?: string
+    larguraMaxima?: number
+    paragrafoAntes?: string
+  }[]
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -1721,8 +1771,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-fornecedores-tela-principal.png',
     mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      '**Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
-      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+      'A tela **Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
+      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: o papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
     ],
     lista: [
       '**Exportador na importação**: Vendedor no exterior quando você importa',

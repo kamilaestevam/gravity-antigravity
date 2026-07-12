@@ -1,23 +1,37 @@
-# Skill: /onboarding-documento
+# Skill: manual-gravity-onboarding
 
-> Gera o conteúdo completo de uma aula do Gravity University — textos, estrutura de blocos, plano de screenshots Playwright e layout variado — seguindo o padrão definido em `documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md`.
+> Gera o conteúdo completo de uma aula do **Gravity University** (Academy + manuais `/docs`) — textos, blocos, screenshots e jornada gamificada — seguindo `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md`.
+>
+> **Não confundir** com onboarding de produto (`/trial`, organização, workspace) — escopo desta skill é **University / Academy / manual descritivo**.
 
 ---
 
 ## Quando Usar
 
-Quando o usuário disser qualquer variação de:
-- `"faça a tela de [produto] / [fase]"`
-- `"gere o onboarding de [fase] do [produto]"`
-- `"/onboarding-documento [produto] [fase]"`
+**Ler esta skill (sob demanda — não está no boot do `CLAUDE.md`)** quando qualquer gatilho abaixo bater:
+
+### Pedido explícito
+- `"faça a tela de [produto] / [fase]"` (University/Academy)
+- `"gere a jornada Academy de [fase] do [produto]"`
+- `"manual gravity"`, `"manual university"`, `"academy [produto]"`
+
+### Arquivo ou rota (Trilha A)
+- `servicos-global/configurador/src/pages/university/` — `conteudo-demo.ts`, `PlayerAula.tsx`, `manual-*-conteudo.ts`, `manual-*-academy.ts`
+- `UniversityGravity.tsx` — `TRILHAS_POR_PRODUTO`, jornada/academy, campo `duracao`
+- Rota ou URL `/university-gravity/academy` ou `/university-gravity/docs`
+- Criar/editar `*_DURACOES`, fase de trilha, aula ou tempo exibido no menu lateral do player
+
+### Duração de leitura
+- Ajustar minutos de aula ou total do módulo → ler **MANUAL-GRAVITY-ONBOARDING.md §10** (nesta skill, § Duração de leitura)
 
 ---
 
 ## Leitura Obrigatória Antes de Agir
 
-1. `documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md` — padrão editorial, catálogo de blocos, template, tom
-2. Skill do produto alvo (ex: `skills/produtos-gravity/pedido/SKILL.md`) — entender o produto
-3. `servicos-global/configurador/src/pages/university/conteudo-demo.ts` — ver o que já existe
+1. `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md` — padrão editorial, catálogo de blocos, template, tom
+2. **MANUAL-GRAVITY-ONBOARDING.md §10** — duração de leitura (Academy): heurística, tetos, SSOT `*_DURACOES`
+3. Skill do produto alvo (ex: `skills/produtos-gravity/pedido/SKILL.md`) — entender o produto
+4. `servicos-global/configurador/src/pages/university/conteudo-demo.ts` — ver o que já existe
 
 ---
 
@@ -46,7 +60,7 @@ Ler a skill do produto para entender:
 
 ### ETAPA 3 — Gerar os blocos de conteúdo
 
-Seguir o **Template Padrão** do ONBOARDING-DOCUMENTO.md:
+Seguir o **Template Padrão** do MANUAL-GRAVITY-ONBOARDING.md:
 
 ```
 [H1] Título numerado da aula
@@ -131,9 +145,9 @@ Após "aprovado" ou equivalente do usuário:
 
 2. Registrar as capturas Playwright pendentes como comentário `// PLAYWRIGHT_PENDENTE` no topo do bloco de imagem
 
-3. Commitar na branch `banch-university-gravity`:
+3. Commitar na branch de university:
    ```
-   feat(university): onboarding [produto]/[fase] — conteúdo gerado (/onboarding-documento)
+   feat(university): academy [produto]/[fase] — conteúdo manual-gravity-onboarding
    ```
 
 4. Informar ao usuário os arquivos alterados e o próximo passo (rodar Playwright para gerar os assets)
@@ -154,7 +168,8 @@ Após "aprovado" ou equivalente do usuário:
 | `dois_colunas` | ⚙️ pendente | Texto + screenshot lado a lado |
 | `timeline` | ⚙️ pendente | Linha do tempo / fluxo |
 | `destaque_escuro` | ⚙️ pendente | Seção de contraste navy |
-| `grafico` | ⚙️ pendente | Gráfico / infográfico |
+| `infografico` | ✅ | Infográfico React do manual (`academy-infograficos.tsx`) |
+| `grafico` | ⚙️ pendente | Gráfico legado (preferir `infografico`) |
 | `avaliacao` | ⚙️ pendente | Quiz de fixação |
 
 > Tipos marcados como ⚙️ pendente devem ser especificados no rascunho mas anotados com `// IMPLEMENTAR_BLOCO` para que o desenvolvedor saiba que falta o renderizador em `PlayerAula.tsx`.
@@ -163,12 +178,13 @@ Após "aprovado" ou equivalente do usuário:
 
 ## Referências
 
-- **Padrão editorial completo**: `documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md`
-- **Manual descritivo de tela (Login e futuros)**: ONBOARDING-DOCUMENTO.md **§9** — tipografia, `MANUAL_CORPO_70`, `ManualTextoRich`, ícones `{{icone:slug}}`, URLs completas
+- **Padrão editorial completo**: `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md`
+- **Manual descritivo de tela (Login e futuros)**: MANUAL-GRAVITY-ONBOARDING.md **§9** — tipografia, `MANUAL_CORPO_70`, `ManualTextoRich`, ícones `{{icone:slug}}`, URLs completas
 - **Renderizador de blocos**: `servicos-global/configurador/src/pages/university/PlayerAula.tsx`
 - **Manual descritivo (código)**: `servicos-global/configurador/src/pages/UniversityGravity.tsx` — `DOC_LOGIN_SECOES`, `ManualBlocoPassoVisual`, `ManualTextoRich`
 - **Dados de demo**: `servicos-global/configurador/src/pages/university/conteudo-demo.ts`
-- **Mapa de produtos × fases**: seção 7 do ONBOARDING-DOCUMENTO.md
+- **Academy ← manual**: `academy-blocos-manual.ts`, `academy-infograficos.tsx`, `manual-*-academy.ts`
+- **Mapa de produtos × fases**: seção 7 do MANUAL-GRAVITY-ONBOARDING.md
 
 ---
 
@@ -176,13 +192,48 @@ Após "aprovado" ou equivalente do usuário:
 
 Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES`):
 
-1. **Ler ONBOARDING-DOCUMENTO.md §9** antes de escrever parágrafos ou passos visuais.
+1. **Ler MANUAL-GRAVITY-ONBOARDING.md §9** antes de escrever parágrafos ou passos visuais.
 2. **Sumário (§9.6):** `titulo` e `tituloSumario` em **frase** — só primeira palavra e nomes próprios em maiúscula (padrão Login: `A tela de acesso`, `Fluxo 1: Criar sua conta`). ❌ Title Case (`Seus Produtos Gravity`).
 3. **Corpo:** `0.9rem` + `MANUAL_CORPO_70` (70% de `--ws-text`). Não usar `MANUAL_TIPO.corpo` legado em texto novo.
-4. **Espaço entre parágrafos:** **12px** (`MANUAL_ESPACO_PARAGRAFO_PX`) via `manualMargemParagrafo(i, total)`; **0** no último parágrafo de cada bloco — ver ONBOARDING-DOCUMENTO.md **§9.1.1** e `manual-tipografia.ts`.
+4. **Espaço entre parágrafos:** **12px** (`MANUAL_ESPACO_PARAGRAFO_PX`) via `manualMargemParagrafo(i, total)`; **0** no último parágrafo de cada bloco — ver MANUAL-GRAVITY-ONBOARDING.md **§9.1.1** e `manual-tipografia.ts`.
 5. **Alinhamento:** corpo narrativo **justificado** (`MANUAL_ALINHAMENTO_CORPO`) em parágrafos e callouts — ver **§9.1.2**; títulos e rótulos ficam à esquerda.
 6. **Passos:** rótulo `PASSO NN` em `12px` `#818cf8`; título do passo em `0.92rem` 100%; parágrafos via `ManualParagrafo`.
 7. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
 8. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
 9. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
 10. **Rich text (§9.7):** botões `**…**`; cópia literal da UI `*_…_*` — ver `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`.
+
+---
+
+## Academy gerada do manual (SSOT → PlayerAula)
+
+Quando a aula vier do manual (`manual-*-academy.ts` + `academy-blocos-manual.ts`), **não reimplementar conteúdo à mão** — curadoria aponta seção/fluxos do SSOT (`manual-*-conteudo.ts`).
+
+### Infográficos (obrigatório)
+
+**Regra:** todo infográfico que o manual expõe via flag `mostrarInfografico*` e que faça parte da curadoria da aula **deve aparecer na Academy**, no mesmo papel editorial do manual (texto que cita “infográfico abaixo” → bloco `infografico` antes do print).
+
+- **Componente:** reutilizar o React do manual (`ManualInfografico*`), registrado em `servicos-global/configurador/src/pages/university/academy-infograficos.tsx`.
+- **Gerador:** `academy-blocos-manual.ts` emite `{ tipo: 'infografico', dados: { id } }` a partir das flags da seção/fluxo (`INFOGRAFICOS_SECAO` / `INFOGRAFICOS_FLUXO`).
+- **Player:** `PlayerAula.tsx` renderiza via `<AcademyInfografico id={…} />`.
+- **Infográfico novo:** exportar componente do manual (se ainda privado) → registrar id em `academy-infograficos.tsx` → mapear flag em `academy-blocos-manual.ts`. ❌ Não substituir infográfico por screenshot estático.
+- **Curadoria:** `incluirIntroSecao: false` omite parágrafos da seção, mas use `infograficosSecao: ['…']` quando a aula ainda precisar do infográfico (ex.: aula 2 do capítulo Fornecedores).
+
+---
+
+## Duração de leitura (Academy) — obrigatório
+
+**Gatilho:** criar/editar aula, fase, jornada ou campo `duracao` em University/Academy.
+
+**SSOT:** `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md` **§10**.
+
+Resumo para não errar:
+
+1. **Tempo = leitura no PlayerAula**, não tempo de executar o fluxo na vida real.
+2. **Heurística:** `2min + 1min × passo com screenshot + 0,5min × callout extra` → arredondar; teto 3/6/10/12 min conforme §10.2.
+3. **Calibração:** se ainda alto, × **0,7** antes de arredondar.
+4. **Persistir:** array `*_DURACOES` em `manual-{produto}-academy.ts` + `TRILHAS_POR_PRODUTO[slug][0].duracao` = **soma** das aulas (`'26m'`, não `'1h15'` inflado).
+5. **Referência Login:** `['2m','6m','4m','5m','7m','2m']` → total **26m**.
+
+❌ Nunca usar duração de execução hands-on como duração da aula.  
+❌ Nunca deixar `TRILHAS_POR_PRODUTO.*.duracao` divergente da soma de `*_DURACOES`.

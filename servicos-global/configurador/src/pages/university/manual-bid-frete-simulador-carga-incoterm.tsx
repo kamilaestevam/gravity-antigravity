@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
+import { calcularCubagemAutoDimensoesPorModalBidFreteInternacional } from '@produto/bid-frete-internacional/shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
 import { instalarMockApiNcmSimuladorPedido } from '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/instalar-mock-api-ncm-simulador-pedido'
 import {
   ICONE_FIELD,
@@ -449,6 +450,23 @@ const ORDEM_CAMPOS_GUIA: CampoCargaIncotermId[] = [
   'valor_alvo',
 ]
 
+const CAMPOS_GUIA_EXIBEM_SEM_VALOR: CampoCargaIncotermId[] = ['quantidade', 'peso_cubagem']
+
+function propsFocoGuiaSecaoCarga(
+  idCampo: CampoCargaIncotermId,
+  aoInteragir: (campo: CampoCargaIncotermId) => void,
+  aoDesligarCampo: (campo: CampoCargaIncotermId) => void,
+) {
+  return {
+    onFocusCapture: () => aoInteragir(idCampo),
+    onBlurCapture: (e: React.FocusEvent<HTMLElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        aoDesligarCampo(idCampo)
+      }
+    },
+  }
+}
+
 function resolverRotuloSelecao(
   estado: EstadoCargaIncoterm,
   id: CampoCargaIncotermId,
@@ -525,7 +543,12 @@ export function resolverSelecoesCargaIncoterm(
     if (id === 'numero_onu' && !contexto.carga_perigosa) return []
     if (!interagiu[id]) return []
     const valor = resolverRotuloSelecao(estado, id, contexto)
-    if (!valor) return []
+    if (!valor) {
+      if (CAMPOS_GUIA_EXIBEM_SEM_VALOR.includes(id)) {
+        return [{ id, valor: 'Em preenchimento' }]
+      }
+      return []
+    }
     return [{ id, valor }]
   })
 }
@@ -602,6 +625,23 @@ function SubsecaoTitle({
   )
 }
 
+function recalcularCubagemM3Auto(
+  estado: EstadoCargaIncoterm,
+  contexto: ContextoPassoCarga,
+  parcial: Partial<EstadoCargaIncoterm> = {},
+): Partial<EstadoCargaIncoterm> {
+  const next = { ...estado, ...parcial }
+  const m3Auto = calcularCubagemAutoDimensoesPorModalBidFreteInternacional({
+    comprimento: next.comprimento,
+    largura: next.largura,
+    altura: next.altura,
+    codigo_unidade: next.unidade_cubagem ?? '',
+    modal: contexto.modal_frete,
+  })
+  if (m3Auto == null) return parcial
+  return { ...parcial, cubagem_m3: m3Auto }
+}
+
 /** Conteúdo do passo 3 — embutido no wizard unificado do manual. */
 export function ConteudoPassoCargaIncotermSimulador({
   estado,
@@ -623,6 +663,11 @@ export function ConteudoPassoCargaIncotermSimulador({
 
   useEffect(() => instalarMockApiNcmSimuladorPedido(), [])
 
+  const atualizarDimensaoComAutoCalc = (parcial: Partial<EstadoCargaIncoterm>) => {
+    aoAtualizar(recalcularCubagemM3Auto(estado, contexto, parcial))
+    aoInteragir('peso_cubagem')
+  }
+
   return (
     <div className="nc-root nc-step-wrapper nc-fade-in">
       <div className="nc-step-content nc-cargo-stack">
@@ -639,7 +684,7 @@ export function ConteudoPassoCargaIncotermSimulador({
             Identificação da mercadoria
           </SubsecaoTitle>
           <p className="nc-cargo-subsecao-hint">
-            NCM, descrição comercial e HS Code (quando aplicável). Use a lupa do NCM para localizar por código ou descrição.
+            NCM, descrição comercial e HS Code (quando aplicável).
           </p>
           <div className="nc-cargo-subsecao-grid-identificacao">
             <SimuladorNcField label="NCM" icone={<Barcode {...ICONE_FIELD} />}>
@@ -770,7 +815,11 @@ export function ConteudoPassoCargaIncotermSimulador({
           </section>
         ) : null}
 
-        <section className="nc-cargo-subsecao" aria-labelledby="nc-sim-cargo-quantidade">
+        <section
+          className="nc-cargo-subsecao"
+          aria-labelledby="nc-sim-cargo-quantidade"
+          {...propsFocoGuiaSecaoCarga('quantidade', aoInteragir, aoDesligarCampo)}
+        >
           <SubsecaoTitle
             id="nc-sim-cargo-quantidade"
             icone={<Package {...ICONE_LABEL_SECAO} />}
@@ -903,7 +952,11 @@ export function ConteudoPassoCargaIncotermSimulador({
           )}
         </section>
 
-        <section className="nc-cargo-subsecao" aria-labelledby="nc-sim-cargo-peso">
+        <section
+          className="nc-cargo-subsecao"
+          aria-labelledby="nc-sim-cargo-peso"
+          {...propsFocoGuiaSecaoCarga('peso_cubagem', aoInteragir, aoDesligarCampo)}
+        >
           <SubsecaoTitle id="nc-sim-cargo-peso" icone={<Scales {...ICONE_LABEL_SECAO} />}>
             Peso e cubagem
           </SubsecaoTitle>
@@ -959,17 +1012,21 @@ export function ConteudoPassoCargaIncotermSimulador({
                 checked={estado.cubagem_detalhada}
                 onChange={(e) => {
                   const marcado = e.target.checked
-                  aoAtualizar({
-                    cubagem_detalhada: marcado,
-                    ...(marcado ? {} : {
+                  if (!marcado) {
+                    aoAtualizar({
+                      cubagem_detalhada: false,
                       unidade_cubagem: null,
                       comprimento: '',
                       largura: '',
                       altura: '',
                       cubagem_m3: '',
-                    }),
+                    })
+                    return
+                  }
+                  atualizarDimensaoComAutoCalc({
+                    cubagem_detalhada: true,
+                    unidade_cubagem: estado.unidade_cubagem || 'CM',
                   })
-                  if (marcado) aoInteragir('peso_cubagem')
                 }}
               />
               <span>Incluir cubagem detalhada (medidas)</span>
@@ -981,13 +1038,14 @@ export function ConteudoPassoCargaIncotermSimulador({
                   Escolha a unidade de medida e informe comprimento, largura e altura.
                 </p>
                 <div className="nc-cargo-cubagem-dimensoes-grid">
-                  <SimuladorNcField label="Medida da cubagem" icone={<Scales {...ICONE_FIELD} />}>
+                  <SimuladorNcField label="Medida" icone={<Scales {...ICONE_FIELD} />}>
                     <SelectGlobal
                       opcoes={UNIDADES_CUBAGEM}
                       valor={estado.unidade_cubagem}
                       aoMudarValor={(v) => {
-                        aoAtualizar({ unidade_cubagem: v == null ? null : String(v) })
-                        aoInteragir('peso_cubagem')
+                        atualizarDimensaoComAutoCalc({
+                          unidade_cubagem: v == null ? null : String(v),
+                        })
                       }}
                       placeholder="Selecione cm, m, in..."
                       buscavel
@@ -1007,8 +1065,7 @@ export function ConteudoPassoCargaIncotermSimulador({
                           placeholder="Ex: 120"
                           value={estado[campo]}
                           onChange={(e) => {
-                            aoAtualizar({ [campo]: e.target.value })
-                            aoInteragir('peso_cubagem')
+                            atualizarDimensaoComAutoCalc({ [campo]: e.target.value })
                           }}
                         />
                         <span className="nc-input-suffix">{estado.unidade_cubagem ?? 'un'}</span>

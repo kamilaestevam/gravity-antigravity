@@ -1,6 +1,6 @@
 /**
  * disparar-analise-riscos-background-smart-read.ts
- * Fase rápida (≤3s: código + Receita + NCM) → fase LLM (≤7s) — teto total ≤10s.
+ * Fase rápida (código + Receita + NCM) libera checklist cedo; fase LLM completa em background sem cortar qualidade.
  */
 
 import {

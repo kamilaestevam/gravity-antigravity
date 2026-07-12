@@ -1,25 +1,18 @@
 /**
- * controle-prazo-pipeline-analise-riscos-smart-read.ts — SLA do enriquecimento no wizard (≤10s)
+ * controle-prazo-pipeline-analise-riscos-smart-read.ts — rede de segurança anti-travamento (não é meta de UX)
  */
 
-/** Prazo da fase rápida (código + Receita + NCM) — meta ≤3s no wizard. */
+/** Meta de UX da fase rápida (código + Receita + NCM) — não interrompe a requisição. */
 export const PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS = 3_000
 
-/** Prazo máximo total do enriquecimento (API + LLM) — meta ≤10s no wizard. */
-export const PRAZO_MAXIMO_ENRIQUECIMENTO_ANALISE_RISCOS_MS = 10_000
+/** Teto de segurança do pipeline HTTP — evita requisição pendurada; não sacrifica qualidade da IA. */
+export const PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS = 70_000
 
-/** Prazo da fase LLM em background (após fase rápida). */
-export const PRAZO_FASE_LLM_ANALISE_RISCOS_MS =
-  PRAZO_MAXIMO_ENRIQUECIMENTO_ANALISE_RISCOS_MS - PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
-
-/** Timeout por chamada Gemini na fase LLM (margem para overhead de rede). */
-export const PRAZO_GEMINI_ANALISE_RISCOS_MS = 6_000
-
-/** Alias legado — pipeline monolítico usa o teto total de 10s. */
-export const PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS = PRAZO_MAXIMO_ENRIQUECIMENTO_ANALISE_RISCOS_MS
+/** Timeout de rede por chamada Gemini (margem para documentos grandes). */
+export const PRAZO_GEMINI_ANALISE_RISCOS_MS = 45_000
 
 const MENSAGEM_PRAZO_ESGOTADO =
-  'Pipeline interrompido — prazo máximo de análise (10s) atingido. Regras de código já avaliadas; reprocesse para concluir IA.'
+  'Pipeline interrompido — prazo máximo de análise (70s) atingido. Regras de código já avaliadas; reprocesse para concluir IA.'
 
 export type ControlePrazoPipelineAnaliseRiscos = {
   esgotado(): boolean

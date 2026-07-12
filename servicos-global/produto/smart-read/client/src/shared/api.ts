@@ -205,10 +205,10 @@ export const smartReadApi = {
   ): Promise<AnaliseRiscosLeituraResponse> {
     const timeoutMs =
       payload.incluir_llm === false
-        ? 4_500
+        ? 15_000
         : payload.somente_llm === true
-          ? 8_000
-          : 12_000
+          ? 60_000
+          : 70_000
     return requisitar(AnaliseRiscosLeituraResponseSchema, '/api/v1/smart-read/leituras/analise-riscos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -36,7 +36,7 @@ import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
 } from './rag-normativo-analise-riscos-smart-read.js'
-import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_LLM_ANALISE_RISCOS_MS, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_GEMINI_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
+import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_GEMINI_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
 import { executarClassificacaoFiscalLlmLeituraSmartRead } from './servico-classificacao-fiscal-leitura-smart-read.js'
 import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
 import {
@@ -129,6 +129,7 @@ async function chamarLlmAnalistaMatriz(
     generationConfig: {
       temperature: 0.15,
       responseMimeType: 'application/json',
+      maxOutputTokens: 8192,
     },
     timeoutMs: GEMINI_TIMEOUT_MS,
   })
@@ -197,11 +198,9 @@ export async function executarAnaliseRiscosLeituraSmartRead(
 ): Promise<AnaliseRiscosLeituraResponse> {
   const somenteLlm = entrada.somente_llm === true && !!entrada.contexto_v1_referencia
   const faseRapidaSemLlm = entrada.incluir_llm === false && !somenteLlm
-  const prazoMs = somenteLlm
-    ? PRAZO_FASE_LLM_ANALISE_RISCOS_MS
-    : faseRapidaSemLlm
-      ? PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
-      : PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
+  const prazoMs = faseRapidaSemLlm
+    ? PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
+    : PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
   const prazoPipeline = criarControlePrazoPipelineAnaliseRiscos(prazoMs)
 
   let p1Resumo: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['resumo']
@@ -271,6 +270,9 @@ export async function executarAnaliseRiscosLeituraSmartRead(
     id_leitura_legado: idLeitura,
   }
   const chamadasUso: UsoLlmChamadaLeituraSmartRead[] = []
+  const promessaResumoTokensLeitura = idLeitura
+    ? consultarResumoTokensLeituraSmartRead(contextoRegistro.prisma, idLeitura)
+    : Promise.resolve(null)
 
   if (llmAtivo) {
     if (prazoPipeline.esgotado()) {
@@ -362,9 +364,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
 
   const uso_llm_chamada =
     chamadasUso.length > 0 ? somarUsoLlmChamadasLeituraSmartRead(chamadasUso) : null
-  const uso_llm_leitura = idLeitura
-    ? await consultarResumoTokensLeituraSmartRead(contextoRegistro.prisma, idLeitura)
-    : null
+  const uso_llm_leitura = await promessaResumoTokensLeitura
 
   return AnaliseRiscosLeituraResponseSchema.parse({
     resumo: resumoFinal,

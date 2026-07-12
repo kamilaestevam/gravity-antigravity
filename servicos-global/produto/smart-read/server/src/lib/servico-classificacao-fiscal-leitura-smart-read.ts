@@ -120,6 +120,7 @@ export async function executarClassificacaoFiscalLlmLeituraSmartRead(
     generationConfig: {
       temperature: 0.1,
       responseMimeType: 'application/json',
+      maxOutputTokens: 4096,
     },
     timeoutMs: GEMINI_TIMEOUT_MS,
   })
@@ -148,42 +149,49 @@ export async function executarClassificacaoFiscalLlmLeituraSmartRead(
   const mapaPendentes = new Map(pendentes.map((p) => [chaveItemClassificacao(p), p]))
   const riscos: RiscoAduaneiroLeitura[] = []
 
-  for (const classificacao of envelope.data.classificacoes) {
-    const pendente = mapaPendentes.get(
-      chaveItemClassificacao({
-        documento: classificacao.documento,
-        indice: classificacao.indice,
-        tipo: classificacao.tipo,
-      }),
-    )
-    if (!pendente) continue
+  const validacoesNcm = await Promise.all(
+    envelope.data.classificacoes.map(async (classificacao) => {
+      const pendente = mapaPendentes.get(
+        chaveItemClassificacao({
+          documento: classificacao.documento,
+          indice: classificacao.indice,
+          tipo: classificacao.tipo,
+        }),
+      )
+      if (!pendente) return null
 
-    const codigoSugerido = classificacao.codigo_sugerido.replace(/\D/g, '') || classificacao.codigo_sugerido.trim()
-    let descricaoNcmOficial: string | null = null
+      const codigoSugerido =
+        classificacao.codigo_sugerido.replace(/\D/g, '') || classificacao.codigo_sugerido.trim()
+      let descricaoNcmOficial: string | null = null
 
-    if (classificacao.tipo === 'ncm' && /^\d{8}$/.test(codigoSugerido)) {
-      const tributo = await validarNcmCadastrosSmartRead(codigoSugerido, idOrganizacao)
-      if (tributo.descricao_ncm) descricaoNcmOficial = tributo.descricao_ncm
-    }
+      if (classificacao.tipo === 'ncm' && /^\d{8}$/.test(codigoSugerido)) {
+        const tributo = await validarNcmCadastrosSmartRead(codigoSugerido, idOrganizacao)
+        if (tributo.descricao_ncm) descricaoNcmOficial = tributo.descricao_ncm
+      }
 
-    const risco = montarRiscoDeClassificacaoFiscalSugerida({
-      documento: pendente.documento,
-      indice: pendente.indice,
-      tipo: pendente.tipo,
-      situacao: pendente.situacao,
-      codigoLido: pendente.codigo_lido,
-      codigoSugerido,
-      motivoTecnico: classificacao.motivo_tecnico,
-      descricao: pendente.descricao,
-      descricaoNcmOficial,
-    })
+      const risco = montarRiscoDeClassificacaoFiscalSugerida({
+        documento: pendente.documento,
+        indice: pendente.indice,
+        tipo: pendente.tipo,
+        situacao: pendente.situacao,
+        codigoLido: pendente.codigo_lido,
+        codigoSugerido,
+        motivoTecnico: classificacao.motivo_tecnico,
+        descricao: pendente.descricao,
+        descricaoNcmOficial,
+      })
 
-    riscos.push({
-      ...risco,
-      correcao_sugerida: risco.correcao_sugerida
-        ? anexarDisclaimerClassificacao(risco.correcao_sugerida)
-        : undefined,
-    })
+      return {
+        ...risco,
+        correcao_sugerida: risco.correcao_sugerida
+          ? anexarDisclaimerClassificacao(risco.correcao_sugerida)
+          : undefined,
+      }
+    }),
+  )
+
+  for (const risco of validacoesNcm) {
+    if (risco) riscos.push(risco)
   }
 
   return { riscos, uso_llm: llm.uso }

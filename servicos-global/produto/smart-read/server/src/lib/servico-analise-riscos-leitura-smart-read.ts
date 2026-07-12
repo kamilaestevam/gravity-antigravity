@@ -16,6 +16,7 @@ import {
 import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from '../../../shared/passo-1-validacao-codigo-packing-list-smart-read.js'
 import { executarPasso1ValidacaoCodigoAwb } from '../../../shared/passo-1-validacao-codigo-awb-smart-read.js'
+import { executarPasso1ValidacaoCodigoBl } from '../../../shared/passo-1-validacao-codigo-bl-smart-read.js'
 import {
   anexarDisclaimerClassificacao,
   DISCLAIMER_CLASSIFICACAO_FISCAL,
@@ -37,6 +38,10 @@ import {
   SYSTEM_PROMPT_ANALISTA_AWB,
   montarPromptAnalistaAwb,
 } from './prompt-analista-awb-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_BL,
+  montarPromptAnalistaBl,
+} from './prompt-analista-bl-smart-read.js'
 import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
@@ -212,6 +217,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   let contexto: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['contexto']
   let passo1Pl: ReturnType<typeof executarPasso1ValidacaoCodigoPackingList>
   let passo1Awb: ReturnType<typeof executarPasso1ValidacaoCodigoAwb>
+  let passo1Bl: ReturnType<typeof executarPasso1ValidacaoCodigoBl>
   let passo2: Awaited<ReturnType<typeof executarPasso2ApiCnpjInvoice>>
   let tributos: Awaited<ReturnType<typeof buscarTributosNcmsLeituraSmartRead>>
 
@@ -232,6 +238,10 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
       contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
     }
+    passo1Bl = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
     passo2 = { cnpj_oficial: contexto.cnpj_oficial ?? null, riscos: [], regras: [] }
     tributos = contexto.tributos_ncm ?? []
   } else {
@@ -241,7 +251,13 @@ export async function executarAnaliseRiscosLeituraSmartRead(
 
     passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
     passo1Awb = executarPasso1ValidacaoCodigoAwb(entrada.documentos)
-    contexto.regras = [...contexto.regras, ...passo1Pl.contexto.regras, ...passo1Awb.contexto.regras]
+    passo1Bl = executarPasso1ValidacaoCodigoBl(entrada.documentos)
+    contexto.regras = [
+      ...contexto.regras,
+      ...passo1Pl.contexto.regras,
+      ...passo1Awb.contexto.regras,
+      ...passo1Bl.contexto.regras,
+    ]
 
     passo2 = { cnpj_oficial: null, riscos: [], regras: [] }
     tributos = []
@@ -267,6 +283,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   let riscosLlm: RiscoAduaneiroLeitura[] = []
   let riscosLlmPackingList: RiscoAduaneiroLeitura[] = []
   let riscosLlmAwb: RiscoAduaneiroLeitura[] = []
+  let riscosLlmBl: RiscoAduaneiroLeitura[] = []
   let riscosClassificacao: RiscoAduaneiroLeitura[] = []
   const llmAtivo =
     (somenteLlm || entrada.incluir_llm !== false) && !!process.env.GEMINI_API_KEY?.trim()
@@ -307,6 +324,15 @@ export async function executarAnaliseRiscosLeituraSmartRead(
         const tipo = d.tipo_documento.toUpperCase()
         return tipo.includes('AWB') || tipo.includes('AIR WAYBILL')
       })
+      const documentosBl = entrada.documentos.filter((d) => {
+        const tipo = d.tipo_documento.toUpperCase()
+        if (tipo.includes('AWB') || tipo.includes('AIR WAYBILL')) return false
+        return (
+          tipo.includes('BILL OF LADING') ||
+          tipo.includes('SEA WAYBILL') ||
+          /(^|[^A-Z])(BL|MBL|HBL|B\/L)([^A-Z]|$)/.test(tipo)
+        )
+      })
 
       const promptInvoice = montarPromptAnalistaInvoice({
         documentos: entrada.documentos,
@@ -321,7 +347,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       }
       type TarefaLlm = {
         rotulo: string
-        destino: 'classificacao' | 'invoice' | 'packing_list' | 'awb'
+        destino: 'classificacao' | 'invoice' | 'packing_list' | 'awb' | 'bl'
         promessa: Promise<ResultadoTarefaLlm>
       }
 
@@ -388,6 +414,24 @@ export async function executarAnaliseRiscosLeituraSmartRead(
         })
       }
 
+      if (documentosBl.length > 0) {
+        const promptBl = montarPromptAnalistaBl({
+          documentosBl,
+          documentosInvoice,
+          documentosPacking,
+          contexto,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (BL)',
+          destino: 'bl',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_BL,
+            promptBl,
+            registroComLeitura,
+          ),
+        })
+      }
+
       try {
         const resultadosLlm = await Promise.allSettled(tarefasLlm.map((t) => t.promessa))
         for (const [indice, resultado] of resultadosLlm.entries()) {
@@ -396,7 +440,8 @@ export async function executarAnaliseRiscosLeituraSmartRead(
             if (tarefa.destino === 'classificacao') riscosClassificacao = resultado.value.riscos
             else if (tarefa.destino === 'invoice') riscosLlm = resultado.value.riscos
             else if (tarefa.destino === 'packing_list') riscosLlmPackingList = resultado.value.riscos
-            else riscosLlmAwb = resultado.value.riscos
+            else if (tarefa.destino === 'awb') riscosLlmAwb = resultado.value.riscos
+            else riscosLlmBl = resultado.value.riscos
             if (resultado.value.uso_llm) chamadasUso.push(resultado.value.uso_llm)
             continue
           }
@@ -418,10 +463,11 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       ...p1Resumo.riscos,
       ...passo1Pl.resumo.riscos,
       ...passo1Awb.resumo.riscos,
+      ...passo1Bl.resumo.riscos,
       ...passo2.riscos,
       ...riscosV3Tributos,
     ],
-    [...riscosClassificacao, ...riscosLlm, ...riscosLlmPackingList, ...riscosLlmAwb],
+    [...riscosClassificacao, ...riscosLlm, ...riscosLlmPackingList, ...riscosLlmAwb, ...riscosLlmBl],
   )
   const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado)
 

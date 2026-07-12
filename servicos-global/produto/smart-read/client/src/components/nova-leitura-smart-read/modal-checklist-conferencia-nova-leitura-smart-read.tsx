@@ -43,6 +43,19 @@ import {
   ROTULO_SECAO_MATRIZ_AWB,
   type SecaoMatrizAwb,
 } from '../../../../shared/matriz-validacao-awb-smart-read'
+import {
+  agruparChecklistBlPorSecao,
+  calcularScoreChecklistBl,
+  combinarResumoGeralComBls,
+  ehTipoBlChecklist,
+  montarChecklistMatrizBl,
+  montarResumoChecklistBls,
+  percentualConformeChecklistBl,
+} from '../../../../shared/montar-checklist-matriz-bl-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_BL,
+  type SecaoMatrizBl,
+} from '../../../../shared/matriz-validacao-bl-smart-read'
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
@@ -106,9 +119,16 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
       ...parametrosChecklist,
       documentos,
     })
-    return combinarResumoGeralComAwbs(
-      combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
-      resumosAwb,
+    const resumosBl = montarResumoChecklistBls({
+      ...parametrosChecklist,
+      documentos,
+    })
+    return combinarResumoGeralComBls(
+      combinarResumoGeralComAwbs(
+        combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+        resumosAwb,
+      ),
+      resumosBl,
     )
   }, [parametrosChecklist, documentos])
 
@@ -127,14 +147,20 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     return !!opcao && ehTipoAwbChecklist(opcao.tipo_documento)
   }, [documentosOpcoes, rotuloChecklistAtivo])
 
+  const documentoAtivoEhBl = useMemo(() => {
+    if (!rotuloChecklistAtivo) return false
+    const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+    return !!opcao && ehTipoBlChecklist(opcao.tipo_documento)
+  }, [documentosOpcoes, rotuloChecklistAtivo])
+
   const checklistInvoice = useMemo(() => {
-    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb) return []
+    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb || documentoAtivoEhBl) return []
     return montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       documentos,
       rotulo_documento: rotuloChecklistAtivo,
     })
-  }, [documentoAtivoEhAwb, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
+  }, [documentoAtivoEhAwb, documentoAtivoEhBl, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
 
   const secoesInvoice = useMemo(
     () => agruparChecklistPorSecao(checklistInvoice),
@@ -182,6 +208,25 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     )
   }, [checklistAwb, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
 
+  const checklistBl = useMemo(() => {
+    if (!rotuloChecklistAtivo || !documentoAtivoEhBl) return []
+    return montarChecklistMatrizBl({
+      ...parametrosChecklist,
+      documentos,
+      rotulo_documento: rotuloChecklistAtivo,
+    })
+  }, [documentoAtivoEhBl, documentos, parametrosChecklist, rotuloChecklistAtivo])
+
+  const secoesBl = useMemo(() => agruparChecklistBlPorSecao(checklistBl), [checklistBl])
+
+  const scoreBl = useMemo(() => {
+    if (checklistBl.length === 0) return null
+    return calcularScoreChecklistBl(
+      checklistBl,
+      parametrosChecklist.pipelineConcluido && !parametrosChecklist.carregando,
+    )
+  }, [checklistBl, parametrosChecklist.carregando, parametrosChecklist.pipelineConcluido])
+
   const opcoesInvoice = useMemo(
     () =>
       documentosOpcoes.map((doc) => ({
@@ -202,14 +247,17 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     if (!rotuloChecklistAtivo) return resumoGeral.contagem_global
     if (documentoAtivoEhPackingList) return contarChecklistPorStatus(checklistPackingList)
     if (documentoAtivoEhAwb) return contarChecklistPorStatus(checklistAwb)
+    if (documentoAtivoEhBl) return contarChecklistPorStatus(checklistBl)
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice.contagem
     return contarChecklistPorStatus(checklistInvoice)
   }, [
     checklistAwb,
+    checklistBl,
     checklistInvoice,
     checklistPackingList,
     documentoAtivoEhAwb,
+    documentoAtivoEhBl,
     documentoAtivoEhPackingList,
     resumoGeral,
     rotuloChecklistAtivo,
@@ -239,6 +287,17 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
         veredito: vereditoDeContagemChecklist(contagem),
       }
     }
+    if (documentoAtivoEhBl) {
+      const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
+      if (!opcao) return null
+      const contagem = contarChecklistPorStatus(checklistBl)
+      return {
+        ...opcao,
+        contagem,
+        percentual_conforme: percentualConformeChecklistBl(contagem),
+        veredito: vereditoDeContagemChecklist(contagem),
+      }
+    }
     const porInvoice = resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)
     if (porInvoice) return porInvoice
     const opcao = documentosOpcoes.find((doc) => doc.rotulo === rotuloChecklistAtivo)
@@ -256,9 +315,11 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     }
   }, [
     checklistAwb,
+    checklistBl,
     checklistInvoice,
     checklistPackingList,
     documentoAtivoEhAwb,
+    documentoAtivoEhBl,
     documentoAtivoEhPackingList,
     documentosOpcoes,
     mostrarDetalheInvoice,
@@ -267,7 +328,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   ])
 
   const classificacaoProduto = useMemo(() => {
-    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb) return []
+    if (!rotuloChecklistAtivo || documentoAtivoEhPackingList || documentoAtivoEhAwb || documentoAtivoEhBl) return []
     return montarClassificacaoProdutoChecklist({
       documentos,
       riscos: parametrosChecklist.riscos,
@@ -275,7 +336,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
       pipelineConcluido: parametrosChecklist.pipelineConcluido,
       carregando: parametrosChecklist.carregando,
     })
-  }, [documentoAtivoEhAwb, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
+  }, [documentoAtivoEhAwb, documentoAtivoEhBl, documentoAtivoEhPackingList, documentos, parametrosChecklist, rotuloChecklistAtivo])
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
@@ -431,6 +492,37 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                         classeCorpo="sr-chk-modal-checklist-corpo"
                         rotuloSecao={(secao) =>
                           ROTULO_SECAO_MATRIZ_AWB[secao as SecaoMatrizAwb] ?? secao
+                        }
+                      />
+                    </>
+                  ) : documentoAtivoEhBl ? (
+                    <>
+                      {scoreBl ? (
+                        <div className="sr-chk-modal-score-pl" role="status">
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Score documental:</strong>{' '}
+                            {scoreBl.pendente ? 'calculando…' : `${scoreBl.score}/100`}
+                          </span>
+                          <span className="sr-chk-modal-score-pl-item">
+                            <strong>Classificação de risco:</strong>{' '}
+                            {scoreBl.pendente ? 'calculando…' : scoreBl.rotulo_classificacao}
+                          </span>
+                          {scoreBl.gates_falhos.length > 0 ? (
+                            <span className="sr-chk-modal-score-pl-item sr-chk-modal-score-pl-item--gate">
+                              <strong>Gate(s):</strong> {scoreBl.gates_falhos.join(', ')}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <ChecklistConferenciaCorpoSmartRead
+                        secoes={secoesBl}
+                        todasSecoesAbertas
+                        onVerRisco={onVerRisco}
+                        rotuloInvoice={rotuloChecklistAtivo}
+                        idPrefixo="sr-chk-modal-geral-bl"
+                        classeCorpo="sr-chk-modal-checklist-corpo"
+                        rotuloSecao={(secao) =>
+                          ROTULO_SECAO_MATRIZ_BL[secao as SecaoMatrizBl] ?? secao
                         }
                       />
                     </>

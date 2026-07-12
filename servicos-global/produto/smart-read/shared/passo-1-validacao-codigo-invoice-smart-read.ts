@@ -6,6 +6,7 @@ import type { SecaoMatrizInvoice } from './matriz-validacao-invoice-smart-read.j
 import { severidadeParaStatusMatriz } from './matriz-validacao-invoice-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from './passo-1-validacao-codigo-packing-list-smart-read.js'
 import { executarPasso1ValidacaoCodigoAwb } from './passo-1-validacao-codigo-awb-smart-read.js'
+import { executarPasso1ValidacaoCodigoBl } from './passo-1-validacao-codigo-bl-smart-read.js'
 import {
   formatarAnaliseDivergenciaLinha,
   formatarAnaliseDivergenciaSoma,
@@ -869,21 +870,24 @@ export function executarPasso1ValidacaoCodigoInvoice(
   }
 }
 
-/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list e do AWB. */
+/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list, do AWB e do BL. */
 export function executarAuditoriaV1AnaliseRiscosLeitura(
   documentosEntrada: DocumentoAnaliseRisco[],
 ): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
   const invoice = executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
   const packing = executarPasso1ValidacaoCodigoPackingList(documentosEntrada)
   const awb = executarPasso1ValidacaoCodigoAwb(documentosEntrada)
+  const bl = executarPasso1ValidacaoCodigoBl(documentosEntrada)
   const semPacking = packing.contexto.regras.length === 0 && packing.resumo.total === 0
   const semAwb = awb.contexto.regras.length === 0 && awb.resumo.total === 0
-  if (semPacking && semAwb) return invoice
+  const semBl = bl.contexto.regras.length === 0 && bl.resumo.total === 0
+  if (semPacking && semAwb && semBl) return invoice
   return {
     resumo: montarResumo([
       ...invoice.resumo.riscos,
       ...packing.resumo.riscos,
       ...awb.resumo.riscos,
+      ...bl.resumo.riscos,
     ]),
     contexto: {
       ...invoice.contexto,
@@ -891,6 +895,7 @@ export function executarAuditoriaV1AnaliseRiscosLeitura(
         ...invoice.contexto.regras,
         ...packing.contexto.regras,
         ...awb.contexto.regras,
+        ...bl.contexto.regras,
       ],
     },
   }

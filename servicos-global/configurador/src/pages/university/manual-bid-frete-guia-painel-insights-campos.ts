@@ -1,5 +1,6 @@
 import {
   ChartBar,
+  ChartLineUp,
   CheckCircle,
   Clock,
   CurrencyDollar,
@@ -24,6 +25,7 @@ export type CampoPainelInsightsId =
   | 'ranking_eixo_transit'
   | 'ranking_eixo_rota'
   | 'ranking_eixo_prazo'
+  | 'termometro_historico'
 
 type CampoPainelInsights = CampoGuiaAoVivo<CampoPainelInsightsId>
 
@@ -165,9 +167,29 @@ export const CAMPOS_RANKING_PAINEL_INSIGHTS: CampoPainelInsights[] = [
   },
 ]
 
+export const CAMPOS_TERMOMETRO_PAINEL_INSIGHTS: CampoPainelInsights[] = [
+  {
+    id: 'termometro_historico',
+    num: '12',
+    rotulo: 'Termômetro histórico',
+    paragrafoGuia:
+      'Compara o **frete base da melhor proposta (Dele)** com a **média de mercado** dos últimos 6 meses nas mesmas condições — curva azul e referência de posicionamento.',
+    descricaoPontos: [
+      'Dele vs mercado (média 6 meses)',
+      'Gráfico de evolução mensal',
+      'Filtros por componente do frete',
+    ],
+    icone: ChartLineUp,
+    cor: '#38bdf8',
+    borda: 'rgba(56,189,248,.32)',
+    fundo: 'rgba(56,189,248,.08)',
+  },
+]
+
 export const CAMPOS_PAINEL_INSIGHTS_BID_FRETE: CampoPainelInsights[] = [
   ...CAMPOS_MELHOR_PROPOSTA_PAINEL_INSIGHTS,
   ...CAMPOS_RANKING_PAINEL_INSIGHTS,
+  ...CAMPOS_TERMOMETRO_PAINEL_INSIGHTS,
 ]
 
 export const ROTULO_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, string> = {
@@ -182,6 +204,7 @@ export const ROTULO_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, string>
   ranking_eixo_transit: 'Transit time',
   ranking_eixo_rota: 'Escala / transbordo',
   ranking_eixo_prazo: 'Prazo pagamento',
+  termometro_historico: 'Termômetro histórico',
 }
 
 export const ICONE_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, Icon> = {
@@ -196,6 +219,7 @@ export const ICONE_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, Icon> = 
   ranking_eixo_transit: Clock,
   ranking_eixo_rota: Path,
   ranking_eixo_prazo: ChartBar,
+  termometro_historico: ChartLineUp,
 }
 
 export function resolverExplicacaoPainelInsights(campo: CampoPainelInsightsId): string {
@@ -219,6 +243,7 @@ export function resolverSelecoesPainelInsights(
     ranking_eixo_transit: '30 dias · 2º de 3',
     ranking_eixo_rota: 'Direto',
     ranking_eixo_prazo: '—',
+    termometro_historico: 'Dele US$ 2.000 · Mercado US$ 1.042 (6 meses)',
   }
 
   return CAMPOS_PAINEL_INSIGHTS_BID_FRETE

@@ -53,6 +53,7 @@ const ROTULO_AFFORDANCE_CAMPO_INSIGHTS: Record<CampoPainelInsightsId, string> = 
   ranking_eixo_transit: 'Transit time',
   ranking_eixo_rota: 'Escala / transbordo',
   ranking_eixo_prazo: 'Prazo pagamento',
+  termometro_historico: 'Termômetro histórico',
 }
 
 const CAMPOS_MELHOR_PROPOSTA = new Set<CampoPainelInsightsId>([
@@ -419,7 +420,17 @@ export function ManualBidFreteSimuladorPainelInsights() {
               onSelecionarCampo={marcarInteracao}
             />
 
-            <ManualBidFreteSimuladorTermometroInsights />
+            <ManualBidFreteSimuladorTermometroInsights
+              interativo
+              ativo={foco === 'termometro_historico'}
+              destacarAffordance={proximoCampoAffordance === 'termometro_historico'}
+              rotuloAffordance={
+                proximoCampoAffordance === 'termometro_historico'
+                  ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS.termometro_historico
+                  : 'Termômetro histórico'
+              }
+              onSelecionar={() => marcarInteracao('termometro_historico')}
+            />
             </div>
           </div>
         </section>

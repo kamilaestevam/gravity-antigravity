@@ -187,6 +187,50 @@ export const NC_ESTILOS_SIMULADOR_WIZARD_SHELL = `
     background: var(--accent, #6366f1);
     transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
+
+  @keyframes sim-guia-card-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .sim-guia-card-ativo {
+    animation: sim-guia-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .sim-guia-convite-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 12px;
+    border: 1px dashed rgba(129, 140, 248, 0.22);
+    background: linear-gradient(165deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.35) 100%);
+    padding: 40px 18px;
+    margin-bottom: 2px;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 0;
+  }
+  .sim-guia-convite-vazio--ativo {
+    border: 1.5px dashed rgba(129, 140, 248, 0.42);
+  }
+  .sim-guia-convite-vazio__icone {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(129, 140, 248, 0.28);
+  }
+  .sim-guia-convite-vazio__texto {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--ws-text, #f1f5f9) 78%, transparent);
+    text-align: center;
+    max-width: 260px;
+  }
 `
 
 /** SSOT visual — subset do passo Modal e Operação (wizard Nova Cotação BID Frete). */
@@ -460,50 +504,6 @@ export const NC_ESTILOS_SIMULADOR_MODAL_OPERACAO = `
   .sim-guia-linha:focus-visible {
     outline: 2px solid rgba(99, 102, 241, 0.45);
     outline-offset: 1px;
-  }
-
-  @keyframes sim-guia-card-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .sim-guia-card-ativo {
-    animation: sim-guia-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .sim-guia-convite-vazio {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    border-radius: 12px;
-    border: 1px dashed rgba(129, 140, 248, 0.22);
-    background: linear-gradient(165deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.35) 100%);
-    padding: 40px 18px;
-    margin-bottom: 2px;
-    flex: 1 1 auto;
-    justify-content: center;
-    min-height: 0;
-  }
-  .sim-guia-convite-vazio--ativo {
-    border: 1.5px dashed rgba(129, 140, 248, 0.42);
-  }
-  .sim-guia-convite-vazio__icone {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(99, 102, 241, 0.14);
-    border: 1px solid rgba(129, 140, 248, 0.28);
-  }
-  .sim-guia-convite-vazio__texto {
-    margin: 0;
-    font-size: 0.76rem;
-    line-height: 1.55;
-    color: color-mix(in srgb, var(--ws-text, #f1f5f9) 78%, transparent);
-    text-align: center;
-    max-width: 260px;
   }
 `
 
@@ -1627,8 +1627,13 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
       position: sticky;
       top: 76px;
       align-self: stretch;
+      height: 100%;
       min-height: 100%;
       max-height: none;
+    }
+    #sim-bid-frete-painel-insights .sim-guia-sticky-col .sim-guia-convite-vazio {
+      flex: 1 1 auto;
+      min-height: 0;
     }
   }
 
@@ -1771,6 +1776,30 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     min-height: 0;
     width: 100%;
     align-self: stretch;
+    overflow: hidden;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-smart-card-head--termometro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    height: 2.375rem;
+    min-height: 2.375rem;
+    margin: 0;
+    padding: 0 1rem;
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ws-muted, var(--text-secondary, #94a3b8));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-termometro-head-acoes {
+    margin-left: auto;
+    flex-shrink: 0;
   }
   #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-smart-termometro-canvas {
     flex: 1 1 auto;
@@ -1893,6 +1922,33 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
   #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell.sim-insights-interativo--ativa {
     box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35);
     background: rgba(52, 211, 153, 0.06);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-termometro-affordance {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-termometro-shell {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-termometro-shell:hover,
+  #sim-bid-frete-painel-insights .sim-insights-termometro-shell.sim-insights-interativo--ativa {
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.05);
   }
   #sim-bid-frete-painel-insights .sim-insights-interativo {
     cursor: pointer;

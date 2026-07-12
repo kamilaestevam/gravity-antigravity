@@ -7,7 +7,18 @@
       "minha_jornada": "My Journey",
       "docs": "Manuals",
       "builders": "Gravity Partner",
-      "produtos_gravity": "Gravity Products"
+      "produtos_gravity": "Gravity Products",
+      "modulos_plataforma": "All Gravity products"
+    },
+    "nav_status": {
+      "comprado_titulo": "Contracted",
+      "comprado_desc": "Module active in your organization",
+      "nao_comprado_titulo": "Not contracted",
+      "nao_comprado_desc": "You can still access and explore the content",
+      "concluido_titulo": "Completed",
+      "concluido_desc": "You finished all onboarding for this item",
+      "nao_concluido_titulo": "Open",
+      "nao_concluido_desc": "Onboarding has not been completed yet"
     },
     "academy": {
       "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."

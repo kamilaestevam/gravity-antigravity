@@ -11,11 +11,19 @@ import {
   Quotes, Lightbulb, Image as ImageIcon, BookOpen,
 } from '@phosphor-icons/react'
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
+import { MANUAL_CORPO_TIPOGRAFIA } from './manual-tipografia'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
 const CONTENT_MUTED = 'var(--ws-muted, #94a3b8)'
 const ACCENT = '#a78bfa'
+
+/** Corpo narrativo Academy — alinhamento justificado (SSOT: MANUAL-GRAVITY-ONBOARDING §9.1.2) */
+const PLAYER_CORPO: React.CSSProperties = {
+  ...MANUAL_CORPO_TIPOGRAFIA,
+  color: CONTENT_TEXT,
+  fontFamily: 'inherit',
+}
 
 // ── Sub-componentes com fallback para mídia ────────────────────────────────
 
@@ -109,7 +117,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
 
     case 'texto':
       return (
-        <p style={{ fontSize: '.96rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: '0.8rem 0', fontFamily: 'inherit', whiteSpace: 'pre-line' }}>
+        <p style={{ ...PLAYER_CORPO, margin: '0.8rem 0', whiteSpace: 'pre-line' }}>
           {String(bloco.dados.text)}
         </p>
       )
@@ -130,8 +138,9 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         }}>
           <Quotes weight="fill" size={32} style={{ color: ACCENT, opacity: .4, display: 'block', marginBottom: 10 }} />
           <p style={{
+            ...PLAYER_CORPO,
             fontSize: '1.08rem', fontWeight: 700, fontStyle: 'italic',
-            color: CONTENT_TEXT, margin: '0 0 10px 0', lineHeight: 1.6,
+            margin: '0 0 10px 0',
           }}>
             {String(bloco.dados.texto ?? '')}
           </p>
@@ -157,7 +166,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
                 {String(bloco.dados.titulo)}
               </div>
             )}
-            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', margin: 0 }}>
               {String(bloco.dados.text ?? '')}
             </p>
           </div>
@@ -176,7 +185,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
             <div style={{ fontWeight: 700, color: UNI_COR, fontSize: '.82rem', marginBottom: 4 }}>
               {String(bloco.dados.termo)}
             </div>
-            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', margin: 0 }}>
               {String(bloco.dados.definicao)}
             </p>
           </div>
@@ -200,7 +209,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         </div>
       )
       const txtEl = (
-        <p style={{ flex: 1, fontSize: '.95rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: 0, alignSelf: 'center' }}>
+        <p style={{ ...PLAYER_CORPO, flex: 1, fontSize: '.95rem', margin: 0, alignSelf: 'center' }}>
           {String(bloco.dados.texto ?? '')}
         </p>
       )
@@ -241,7 +250,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
                   <div style={{ fontWeight: 700, color: CONTENT_TEXT, fontSize: '.9rem', marginBottom: 3 }}>
                     {item.label}
                   </div>
-                  <p style={{ fontSize: '.85rem', color: CONTENT_MUTED, margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ ...PLAYER_CORPO, fontSize: '.85rem', color: CONTENT_MUTED, margin: 0 }}>
                     {item.descricao}
                   </p>
                 </div>
@@ -263,7 +272,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
             <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '1rem', marginBottom: 12 }}>
               {String(bloco.dados.titulo ?? '')}
             </div>
-            <p style={{ fontSize: '.92rem', lineHeight: 1.75, color: '#94a3b8', margin: 0 }}>
+            <p style={{ ...PLAYER_CORPO, fontSize: '.92rem', color: '#94a3b8', margin: 0 }}>
               {String(bloco.dados.texto ?? '')}
             </p>
           </div>
@@ -331,6 +340,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           {todasAulas.map((a, idx) => {
             const ativa = a.slug === faseSlug
             const feita = concluidas.has(a.slug)
+            const destaqueConcluido = feita && !ativa
             return (
               <button
                 key={a.slug}
@@ -338,10 +348,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
-                  background: ativa ? `${UNI_COR}18` : 'transparent',
-                  color: ativa ? UNI_COR : feita ? CONTENT_MUTED : CONTENT_TEXT,
-                  fontWeight: ativa ? 700 : 500, fontSize: '.82rem', width: '100%',
-                  borderLeft: ativa ? `3px solid ${UNI_COR}` : '3px solid transparent',
+                  background: destaqueConcluido ? 'rgba(129,140,248,.08)' : ativa ? 'transparent' : 'transparent',
+                  color: destaqueConcluido || ativa ? UNI_COR : CONTENT_TEXT,
+                  fontWeight: destaqueConcluido || ativa ? 700 : 500, fontSize: '.82rem', width: '100%',
+                  borderLeft: destaqueConcluido || ativa ? `3px solid ${UNI_COR}` : '3px solid transparent',
+                  boxSizing: 'border-box',
                 }}
               >
                 {feita

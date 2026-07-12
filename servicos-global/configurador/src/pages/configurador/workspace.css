@@ -2915,6 +2915,36 @@ body.light-theme .cw-xml-viewer {
   box-shadow: 0 8px 20px -12px rgba(129, 140, 248, 0.35);
 }
 
+.uni-jornada-etapa-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.28rem 0.62rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+.uni-jornada-etapa-tag--done {
+  background: #818cf8;
+  color: #0b1220;
+  border: 1px solid #818cf8;
+}
+
+.uni-jornada-etapa-tag--current {
+  background: rgba(148, 163, 184, 0.1);
+  color: #818cf8;
+  border: 1px solid #818cf8;
+}
+
+.uni-jornada-etapa-tag--blocked {
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--ws-muted, #94a3b8);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
 /* ── University: Visão geral onboarding (direção 1B) ── */
 @keyframes uniDashboardOfensiva {
   0%, 100% { transform: scale(1); opacity: 0.95; }
@@ -2930,12 +2960,40 @@ body.light-theme .cw-xml-viewer {
   animation: uniDashboardOfensiva 1.6s ease-in-out infinite;
 }
 
-/* ── University: Player de aula (Academy) ── */
+/* ── University: Player de aula (Academy) — um único plano de fundo ── */
+.uni-academy-player {
+  background-color: #0a0d14;
+  background-image:
+    radial-gradient(ellipse 85% 65% at 0% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 75% 55% at 100% 100%, rgba(129, 140, 248, 0.14) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 90% at 50% 42%, rgba(15, 23, 42, 0.25) 0%, transparent 65%),
+    linear-gradient(rgba(26, 30, 46, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 30, 46, 0.1) 1px, transparent 1px);
+  background-size: auto, auto, auto, 40px 40px, 40px 40px;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.uni-academy-player .mlg-sidebar,
+.uni-academy-player .ws-main,
+.uni-player-aula,
+.uni-player-aula__nav,
+.uni-player-aula__content {
+  background: transparent;
+}
+
+.uni-academy-player .mlg-sidebar {
+  border-right-color: rgba(26, 30, 46, 0.85);
+}
+
+.uni-academy-player .ws-main::before {
+  display: none;
+}
+
 .uni-player-aula {
   display: flex;
   height: 100%;
   overflow: hidden;
-  background: #080a12;
 }
 
 .uni-player-aula__nav {
@@ -2943,10 +3001,6 @@ body.light-theme .cw-xml-viewer {
   flex-shrink: 0;
   overflow-y: auto;
   padding: 1rem 0;
-  background-color: #080a12;
-  background-image:
-    radial-gradient(ellipse 120% 80% at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(129, 140, 248, 0.04) 0%, transparent 120px);
   border-right: 1px solid rgba(26, 30, 46, 0.85);
 }
 
@@ -2957,21 +3011,6 @@ body.light-theme .cw-xml-viewer {
   flex-direction: column;
   position: relative;
   isolation: isolate;
-  /* Fundo login Gravity: navy profundo + grid sutil + glow violeta (só decoração) */
-  background-color: #0a0d14;
-  background-image:
-    radial-gradient(ellipse 85% 65% at 0% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 58%),
-    radial-gradient(ellipse 75% 55% at 100% 100%, rgba(129, 140, 248, 0.14) 0%, transparent 52%),
-    radial-gradient(ellipse 100% 90% at 50% 42%, rgba(15, 23, 42, 0.25) 0%, transparent 65%),
-    linear-gradient(rgba(26, 30, 46, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26, 30, 46, 0.1) 1px, transparent 1px);
-  background-size:
-    auto,
-    auto,
-    auto,
-    40px 40px,
-    40px 40px;
-  background-position: center;
 }
 
 .uni-player-aula__article {
@@ -2986,19 +3025,16 @@ body.light-theme .cw-xml-viewer {
   color: var(--ws-text, #f1f5f9);
 }
 
-body.light-theme .uni-player-aula {
+body.light-theme .uni-academy-player {
   background: var(--ws-bg-body, #f1f5f9);
 }
 
+body.light-theme .uni-academy-player .mlg-sidebar,
+body.light-theme .uni-academy-player .ws-main,
+body.light-theme .uni-player-aula,
+body.light-theme .uni-player-aula__nav,
 body.light-theme .uni-player-aula__content {
-  background-color: var(--ws-surface, #f8fafc);
-  background-image: none;
-}
-
-body.light-theme .uni-player-aula__nav {
-  background-color: var(--ws-bg-body, #f1f5f9);
-  background-image: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, var(--ws-bg-body, #f1f5f9) 140px);
-  border-right-color: rgba(15, 23, 42, 0.08);
+  background: transparent;
 }
 
 .uni-player-aula__footer-btn {
@@ -3066,4 +3102,17 @@ body.light-theme .uni-player-aula__nav {
   background: rgba(129, 140, 248, 0.26);
   box-shadow: 0 4px 16px rgba(129, 140, 248, 0.22);
   transform: translateY(-1px);
+}
+
+/* ── University: ícones de status no menu lateral (disponível + concluído) ── */
+.uni-nav-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.uni-nav-status-icons__icone {
+  display: flex;
+  align-items: center;
+  line-height: 0;
 }

@@ -26,7 +26,6 @@ import {
 import { regraMatrizTemDescricaoParaClassificacao } from './montar-classificacao-produto-checklist-smart-read.js'
 import {
   motorAguardaEnriquecimentoServidor,
-  rotuloAguardandoMotorChecklistSmartRead,
   type FaseEnriquecimentoAnaliseRiscos,
 } from './rotulo-aguardando-motor-checklist-smart-read.js'
 
@@ -505,19 +504,44 @@ export function montarChecklistMatrizInvoice(
       }
 
       if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise) {
-        const rotulo = rotuloAguardandoMotorChecklistSmartRead(
-          regraMatriz.motor,
-          regraMatriz.motor === 'api' && fase_enriquecimento_analise === 'api'
-            ? 'api'
-            : 'llm',
-        )
+        if (regraMatriz.id === 'S2-03' && cnpj_oficial?.razao_social && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            cnpj_oficial.razao_social,
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — razão social alinhada à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de razão social (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+          )
+        }
+        if (regraMatriz.id === 'S2-04' && cnpj_oficial && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            montarEnderecoOficialCnpj(cnpj_oficial),
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — endereço alinhado à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de endereço (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+          )
+        }
         return montarItemChecklist(
           regraMatriz,
-          'pendente',
-          rotulo.detalhe,
+          temDado ? 'amarelo' : 'na',
+          temDado
+            ? 'Prévia local — validação IA em segundo plano'
+            : 'N/A — sem dado na extração; IA em segundo plano',
           null,
-          rotulo.resultado,
-          true,
+          temDado ? resultadoLido : 'Não aplicável',
         )
       }
 
@@ -577,14 +601,14 @@ export function montarChecklistMatrizInvoice(
 
     if (regraMatriz.motor === 'api') {
       if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise === 'api') {
-        const rotulo = rotuloAguardandoMotorChecklistSmartRead('api', 'api')
         return montarItemChecklist(
           regraMatriz,
-          'pendente',
-          rotulo.detalhe,
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido) ? 'amarelo' : 'na',
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)
+            ? 'Prévia local — consulta Receita em segundo plano'
+            : 'N/A — CNPJ não extraído para consulta na Receita',
           null,
-          rotulo.resultado,
-          true,
+          detalheExtraido ?? 'Não aplicável',
         )
       }
       if (carregando) {
@@ -641,18 +665,11 @@ export function montarChecklistMatrizInvoice(
       regraMatriz.motor !== 'rag' &&
       regraMatriz.motor !== 'api'
     ) {
-      const rotulo = rotuloAguardandoMotorChecklistSmartRead(
-        regraMatriz.motor,
-        fase_enriquecimento_analise === 'api' ? 'api' : 'llm',
-      )
-      return montarItemChecklist(
-        regraMatriz,
-        'pendente',
-        rotulo.detalhe,
-        null,
-        rotulo.resultado,
-        true,
-      )
+      const rotuloPrevia =
+        regraMatriz.motor === 'cross_doc'
+          ? 'Prévia local — cruzamento documental em segundo plano'
+          : 'Prévia local — validação IA em segundo plano'
+      return montarItemChecklist(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…')
     }
 
     if (detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)) {

@@ -16,7 +16,7 @@ import {
 import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from '../../../shared/passo-1-validacao-codigo-packing-list-smart-read.js'
 import { executarPasso1ValidacaoCodigoAwb } from '../../../shared/passo-1-validacao-codigo-awb-smart-read.js'
-import { executarPasso1ValidacaoCodigoBl } from '../../../shared/passo-1-validacao-codigo-bl-smart-read.js'
+import { executarPasso1ValidacaoCodigoBl, filtrarRiscosLlmBlFreteCoerente } from '../../../shared/passo-1-validacao-codigo-bl-smart-read.js'
 import {
   ehTipoCertificadoOrigem,
   executarPasso1ValidacaoCodigoCertificadoOrigem,
@@ -622,6 +622,8 @@ export async function executarAnaliseRiscosLeituraSmartRead(
       }
     }
   }
+
+  riscosLlmBl = filtrarRiscosLlmBlFreteCoerente(riscosLlmBl, contexto.regras)
 
   const mesclado = mesclarRiscosAnaliseLeitura(
     [

@@ -29,9 +29,9 @@ REGRAS ABSOLUTAS:
    - BL4-07: regime FCL/LCL/CY/CFS coerente com os equipamentos listados.
    - BL4-08: carga nao conteinerizada (break bulk, RoRo) — dimensoes e peca-a-peca declarados; sem conteiner ISO obrigatorio.
    - BL5-06: densidade por conteiner plausivel; m3 declarado > capacidade do equipamento = alerta.
-   - BL6-02: frete e sobretaxas (BAF, CAF, THC origem etc.) discriminados quando expressos — base do AFRMM (8% no longo curso) e da valoracao.
-   - BL6-04: sinalizar AFRMM e isencao/suspensao (ZFM, Reporto, acordos) antes da entrega.
-   - BL6-05: pendencia de pagamento de frete no CE bloqueia a entrega final da carga pelo depositario.
+   - BL6-02: frete e sobretaxas discriminados QUANDO AUSENTES ou incoerentes — NAO gere risco se o motor Codigo ja registrou BL6-02 como passou (valores presentes e coerentes com Incoterm).
+   - BL6-04: lembrete normativo de AFRMM — NUNCA classifique como "atencao" ou "critico" quando prepaid/collect esta coerente com Incoterm e valores discriminados; omita do array ou use severidade "informativo" apenas se houver lacuna real (ex.: isencao ZFM nao comprovada).
+   - BL6-05: bloqueio Mercante por frete pendente — NUNCA trate collect valido com valores como risco; so alerte se houver indicio de pendencia/inconsistencia documental.
    - BL7-01: NCM informado no CE vs pre-classificacao da invoice — divergencia antecipa exigencia na DUIMP.
    - BL7-05: consolidada — todo HBL com MBL correspondente e vice-versa; DTA/DI sobre CE generico so apos desconsolidacao prestada.
    - BL8-01: madeira — presenca/ausencia de embalagens/suportes de madeira e se tratada/certificada (NIMF 15, Portaria MAPA 514/2022).
@@ -44,14 +44,15 @@ REGRAS ABSOLUTAS:
    - BL9-03: parecer unico consolidando invoice × PL × BL — partes, volumes, pesos, rota, frete/Incoterm, madeira e DG.
 3. Lembre-se: diferente do AWB, o BL PODE ser "to order" (titulo de credito) — nesse caso a cadeia de endosso completa e obrigatoria (RA arts. 554-556).
 4. Regras condicionais (COND) sem gatilho presente: NAO gere risco — a regra fica N/A.
-5. NAO invente leis, IN ou portarias — citacoes_normativas somente com base no contexto fornecido.
-6. Mapeamento UI:
+5. FREIGHT COLLECT ou PREPAID coerente com o Incoterm (motor Codigo BL6-01 passou) E com valores/componentes discriminados (BL6-02 passou) e VALIDO — NAO e risco. Nao inclua entrada em "riscos" para esse cenario; status_matriz verde no checklist ja reflete conformidade.
+6. NAO invente leis, IN ou portarias — citacoes_normativas somente com base no contexto fornecido.
+7. Mapeamento UI:
    - motivo = o que foi encontrado (factual)
    - analise = justificativa tecnica (NUNCA "a IA deve")
    - correcao_sugerida = acao objetiva de correcao
-7. Cada alerta deve incluir: secao_matriz (identificacao_vias|partes_consignacao|navio_rota_mercante|carga_conteineres_volumes|pesos_medidas|frete_valores_afrmm|dados_ce_mercante|regulatorio_clausulas_carga|legitimidade_risco), id_regra_matriz (ex: BL4-01), motor_validacao ("llm" ou "rag"), status_matriz ("vermelho"|"amarelo"|"verde").
-8. Severidade: BLOQ (BL8-02) = "critico"; demais achados = "atencao" ou "informativo".
-9. Responda APENAS JSON: { "riscos": [ ... ] }`
+8. Cada alerta deve incluir: secao_matriz (identificacao_vias|partes_consignacao|navio_rota_mercante|carga_conteineres_volumes|pesos_medidas|frete_valores_afrmm|dados_ce_mercante|regulatorio_clausulas_carga|legitimidade_risco), id_regra_matriz (ex: BL4-01), motor_validacao ("llm" ou "rag"), status_matriz ("vermelho"|"amarelo"|"verde").
+9. Severidade: BLOQ (BL8-02) = "critico"; divergencia real ou ausencia de dado = "atencao"; lembretes operacionais sem falha = "informativo" ou omitir.
+10. Responda APENAS JSON: { "riscos": [ ... ] }`
 
 export function montarPromptAnalistaBl(params: {
   documentosBl: DocumentoAnaliseRisco[]

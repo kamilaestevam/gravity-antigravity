@@ -20,6 +20,7 @@ import {
 } from '../../../../servicos-global/produto/smart-read/shared/montar-checklist-matriz-invoice-smart-read'
 import {
   executarPasso1ValidacaoCodigoBl,
+  filtrarRiscosLlmBlFreteCoerente,
   validarCnpjAlfanumericoBl,
   validarNumeroConteinerIso6346,
 } from '../../../../servicos-global/produto/smart-read/shared/passo-1-validacao-codigo-bl-smart-read'
@@ -388,6 +389,52 @@ describe('executarPasso1ValidacaoCodigoBl', () => {
     ])
     const risco = resumo.riscos.find((r) => r.id_regra_matriz === 'BL6-01')
     expect(risco?.status_matriz).toBe('amarelo')
+  })
+
+  it('frete collect coerente com FOB e valores discriminados passa BL6-01 e BL6-02 sem risco', () => {
+    const { resumo, contexto } = executarPasso1ValidacaoCodigoBl([
+      docInvoice({ ...dadosInvoice, incoterm: 'FOB Santos' }),
+      docBl({
+        ...dadosBlValidos,
+        freight: {
+          payment_terms: 'COLLECT',
+          currency: 'USD',
+          total_value: '4941.19',
+          additional_charges: [
+            { 'Nome da Taxa': 'FREIGHT CHARGE', Valor: '4504.00' },
+            { 'Nome da Taxa': 'OVERWEIGHT', Valor: '300.00' },
+          ],
+        },
+      }),
+    ])
+    expect(resumo.riscos.find((r) => r.id_regra_matriz === 'BL6-01')).toBeUndefined()
+    expect(resumo.riscos.find((r) => r.id_regra_matriz === 'BL6-02')).toBeUndefined()
+    expect(contexto.regras.find((r) => r.id === `BL6-01-${ROTULO_BL}`)?.passou).toBe(true)
+    expect(contexto.regras.find((r) => r.id === `BL6-02-${ROTULO_BL}`)?.passou).toBe(true)
+  })
+
+  it('filtrarRiscosLlmBlFreteCoerente remove alerta LLM quando BL6-01 e BL6-02 passaram', () => {
+    const regras = [
+      { id: `BL6-01-${ROTULO_BL}`, passou: true, detalhe: 'ok' },
+      { id: `BL6-02-${ROTULO_BL}`, passou: true, detalhe: 'ok' },
+    ]
+    const filtrado = filtrarRiscosLlmBlFreteCoerente(
+      [
+        {
+          id: 'llm-bl-collect',
+          severidade: 'atencao',
+          categoria: 'normativo',
+          titulo: 'Freight collect no destino',
+          motivo: "O BL indica 'FREIGHT COLLECT'",
+          analise: 'Pendencia de AFRMM',
+          evidencias: [{ documento: ROTULO_BL, campo: 'freight.payment_terms', valor: 'COLLECT' }],
+          id_regra_matriz: 'BL6-04',
+          status_matriz: 'amarelo',
+        },
+      ],
+      regras,
+    )
+    expect(filtrado).toHaveLength(0)
   })
 
   it('estabelecimento consignatário divergente (matriz × filial) dispara o gate BL2-05b', () => {

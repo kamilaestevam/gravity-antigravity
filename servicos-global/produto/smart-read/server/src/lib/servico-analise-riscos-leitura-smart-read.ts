@@ -49,7 +49,7 @@ import {
 } from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
-const GEMINI_TIMEOUT_MS = 45_000
+const GEMINI_TIMEOUT_MS = 25_000
 
 const LlmRiscosEnvelopeSchema = z.object({
   riscos: z.array(RiscoAduaneiroLeituraSchema),
@@ -253,55 +253,57 @@ export async function executarAnaliseRiscosLeituraSmartRead(
         ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
         : undefined
 
-      const prompt = montarPromptAnalistaInvoice({
+      const documentosPacking = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('PACKING'),
+      )
+      const documentosInvoice = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('INVOICE'),
+      )
+
+      const promptInvoice = montarPromptAnalistaInvoice({
         documentos: entrada.documentos,
         contexto,
         errosAritmeticos,
         chunksRag,
       })
-      const analista = await chamarLlmAnalistaMatriz(
-        SYSTEM_PROMPT_ANALISTA_INVOICE,
-        prompt,
-        registroComLeitura,
-      )
-      riscosLlm = analista.riscos
-      if (analista.uso_llm) chamadasUso.push(analista.uso_llm)
-    } catch (erro) {
-      if (!aviso) {
-        aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-      }
-      console.error('[smart-read][analise-riscos]', aviso)
-    }
 
-    const documentosPacking = entrada.documentos.filter((d) =>
-      d.tipo_documento.toUpperCase().includes('PACKING'),
-    )
-    if (documentosPacking.length > 0) {
-      try {
+      const tarefasAnalistas: Array<Promise<{ riscos: RiscoAduaneiroLeitura[]; uso_llm: UsoLlmChamadaLeituraSmartRead | null }>> = [
+        chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_INVOICE, promptInvoice, registroComLeitura),
+      ]
+
+      if (documentosPacking.length > 0) {
         const promptPl = montarPromptAnalistaPackingList({
           documentosPacking,
-          documentosInvoice: entrada.documentos.filter((d) =>
-            d.tipo_documento.toUpperCase().includes('INVOICE'),
-          ),
+          documentosInvoice,
           documentosConhecimento: entrada.documentos.filter((d) => {
             const tipo = d.tipo_documento.toUpperCase()
             return tipo.includes('BL') || tipo.includes('AWB')
           }),
           contexto,
         })
-        const analistaPl = await chamarLlmAnalistaMatriz(
-          SYSTEM_PROMPT_ANALISTA_PACKING_LIST,
-          promptPl,
-          registroComLeitura,
+        tarefasAnalistas.push(
+          chamarLlmAnalistaMatriz(SYSTEM_PROMPT_ANALISTA_PACKING_LIST, promptPl, registroComLeitura),
         )
-        riscosLlmPackingList = analistaPl.riscos
-        if (analistaPl.uso_llm) chamadasUso.push(analistaPl.uso_llm)
-      } catch (erro) {
-        if (!aviso) {
-          aviso = `Analista IA do packing list indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-        }
-        console.error('[smart-read][analise-riscos-packing]', aviso)
       }
+
+      const resultadosAnalistas = await Promise.allSettled(tarefasAnalistas)
+      for (const [indice, resultado] of resultadosAnalistas.entries()) {
+        if (resultado.status === 'fulfilled') {
+          if (indice === 0) riscosLlm = resultado.value.riscos
+          else riscosLlmPackingList = resultado.value.riscos
+          if (resultado.value.uso_llm) chamadasUso.push(resultado.value.uso_llm)
+          continue
+        }
+        const rotulo = indice === 0 ? 'Analista IA (invoice)' : 'Analista IA (packing list)'
+        const msg = `${rotulo} indisponível: ${resultado.reason instanceof Error ? resultado.reason.message : 'erro desconhecido'}`
+        if (!aviso) aviso = msg
+        console.error('[smart-read][analise-riscos]', msg)
+      }
+    } catch (erro) {
+      if (!aviso) {
+        aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+      }
+      console.error('[smart-read][analise-riscos]', aviso)
     }
   }
 

@@ -256,6 +256,8 @@ export type ParametrosChecklistMatrizInvoice = {
   pipelineConcluido: boolean
   llmHabilitado: boolean
   carregando: boolean
+  /** Análise HTTP falhou/estourou SLA — degrada regras IA/API para ATENÇÃO em vez de PENDENTE eterno. */
+  analise_servidor_indisponivel?: boolean
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
 }
@@ -431,6 +433,7 @@ export function montarChecklistMatrizInvoice(
     pipelineConcluido,
     llmHabilitado,
     carregando,
+    analise_servidor_indisponivel = false,
     rotulo_documento,
     documentos,
   } = params
@@ -484,16 +487,35 @@ export function montarChecklistMatrizInvoice(
         )
       }
 
-      if (carregando || !pipelineConcluido) {
+      if (carregando) {
         return montarItemChecklist(
           regraMatriz,
           'pendente',
-          carregando
-            ? 'Analista IA em execução — aguarde a conclusão da análise'
-            : 'Análise da leitura ainda não concluída',
+          'Analista IA em execução — aguarde a conclusão da análise',
           null,
-          temDado ? resultadoLido : carregando ? 'Analisando…' : '—',
+          temDado ? resultadoLido : 'Analisando…',
           true,
+        )
+      }
+      if (!pipelineConcluido) {
+        return montarItemChecklist(
+          regraMatriz,
+          'pendente',
+          'Análise da leitura ainda não concluída',
+          null,
+          temDado ? resultadoLido : '—',
+          false,
+        )
+      }
+      if (analise_servidor_indisponivel) {
+        return montarItemChecklist(
+          regraMatriz,
+          temDado ? 'amarelo' : 'na',
+          temDado
+            ? 'Aviso — Analista IA indisponível nesta sessão — reprocesse a análise'
+            : 'N/A — Analista IA indisponível e sem dado extraído',
+          null,
+          temDado ? resultadoLido : 'Não aplicável',
         )
       }
       if (!llmHabilitado) {
@@ -520,7 +542,7 @@ export function montarChecklistMatrizInvoice(
     }
 
     if (regraMatriz.motor === 'api') {
-      if (carregando || !pipelineConcluido) {
+      if (carregando) {
         return montarItemChecklist(
           regraMatriz,
           'pendente',
@@ -530,6 +552,16 @@ export function montarChecklistMatrizInvoice(
           true,
         )
       }
+      if (!pipelineConcluido) {
+        return montarItemChecklist(
+          regraMatriz,
+          'pendente',
+          'Consulta à Receita Federal pendente — aguarde a análise',
+          null,
+          detalheExtraido ?? '—',
+          false,
+        )
+      }
       if (!detalheExtraido || detalheEhPlaceholderSemDado(detalheExtraido)) {
         return montarItemChecklist(
           regraMatriz,
@@ -537,6 +569,15 @@ export function montarChecklistMatrizInvoice(
           'N/A — CNPJ não extraído para consulta na Receita',
           null,
           'Não aplicável',
+        )
+      }
+      if (analise_servidor_indisponivel) {
+        return montarItemChecklist(
+          regraMatriz,
+          'amarelo',
+          'Aviso — consulta à Receita não concluída — reprocesse a análise',
+          null,
+          detalheExtraido,
         )
       }
       return montarItemChecklist(
@@ -551,13 +592,13 @@ export function montarChecklistMatrizInvoice(
     if (detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)) {
       return montarItemChecklist(
         regraMatriz,
-        'pendente',
+        pipelineConcluido ? 'pendente' : 'pendente',
         pipelineConcluido
           ? 'Dado extraído — validação automática não registrada para esta regra'
           : 'Validação automática em andamento…',
         null,
         detalheExtraido,
-        !pipelineConcluido,
+        carregando,
       )
     }
 
@@ -567,7 +608,7 @@ export function montarChecklistMatrizInvoice(
       pipelineConcluido ? 'N/A — sem dado na extração' : 'Validação automática em andamento…',
       null,
       pipelineConcluido ? 'Não aplicável' : '—',
-      !pipelineConcluido,
+      carregando,
     )
   })
 }

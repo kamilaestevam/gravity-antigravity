@@ -5,7 +5,7 @@
 import { z } from 'zod'
 import type { DadosOficiaisCnpjLeitura } from '../../../shared/analise-riscos-leitura-smart-read.js'
 
-const FETCH_TIMEOUT_MS = 15_000
+const FETCH_TIMEOUT_MS = 8_000
 
 const BrasilApiCnpjSchema = z.object({
   cnpj: z.string().optional(),

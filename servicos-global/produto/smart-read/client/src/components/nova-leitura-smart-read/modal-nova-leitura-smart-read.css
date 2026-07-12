@@ -3882,6 +3882,15 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   color: var(--text-muted);
 }
 
+.sr-chk-modal-aviso-analise {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+}
+
 /* Faixa de score + classificação de risco — checklist do packing list */
 .sr-chk-modal-score-pl {
   display: flex;

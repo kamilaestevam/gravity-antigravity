@@ -288,9 +288,10 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       pipelineConcluido,
       llmHabilitado,
       carregando,
+      analise_servidor_indisponivel: Boolean(erro) && pipelineConcluido && !carregando,
       documentos,
     }),
-    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos],
+    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos, erro],
   )
 
   const riscosVisiveis = useMemo(

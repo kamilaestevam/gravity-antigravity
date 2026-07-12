@@ -21,13 +21,15 @@ type FaixaDemoInterativaProps = {
 const DURACAO_VIAGEM_CURSOR_MS = 850
 const DURACAO_CLIQUE_CURSOR_MS = 1150
 
-function IndicadorCursorConviteFaixaPeriodico({
+function IndicadorCursorConviteAlvoPeriodico({
   ativo,
   alvoRef,
+  destino,
   intervaloSegundos = 5,
 }: {
   ativo: boolean
   alvoRef: React.RefObject<HTMLElement | null>
+  destino: { x: number, y: number }
   intervaloSegundos?: number
 }) {
   const [cicloVisivel, setCicloVisivel] = useState(false)
@@ -48,11 +50,12 @@ function IndicadorCursorConviteFaixaPeriodico({
       const el = alvoRef.current
       if (el == null) return null
       const rect = el.getBoundingClientRect()
+      if (rect.width <= 0 || rect.height <= 0) return null
       return {
-        origemX: rect.left + rect.width * 0.72 + 96,
-        origemY: rect.top + rect.height * 0.35 + 42,
-        destinoX: rect.left + rect.width * 0.52,
-        destinoY: rect.top + rect.height * 0.52,
+        origemX: rect.left + rect.width * destino.x + 96,
+        origemY: rect.top + rect.height * destino.y + 42,
+        destinoX: rect.left + rect.width * destino.x,
+        destinoY: rect.top + rect.height * destino.y,
       }
     }
 
@@ -92,7 +95,7 @@ function IndicadorCursorConviteFaixaPeriodico({
       cancelado = true
       window.clearTimeout(timeoutId)
     }
-  }, [ativo, alvoRef, intervaloSegundos])
+  }, [ativo, alvoRef, destino.x, destino.y, intervaloSegundos])
 
   if (!ativo || !cicloVisivel || typeof document === 'undefined') return null
 
@@ -141,9 +144,10 @@ export function FaixaDemoInterativaBidFrete({
         <span className="sim-affordance-faixa__texto">{mensagem}</span>
         <span className="sim-affordance-faixa__pulso" aria-hidden />
       </div>
-      <IndicadorCursorConviteFaixaPeriodico
+      <IndicadorCursorConviteAlvoPeriodico
         ativo={convitePeriodico}
         alvoRef={faixaRef}
+        destino={{ x: 0.52, y: 0.52 }}
         intervaloSegundos={intervaloConviteSegundos}
       />
     </>
@@ -257,7 +261,7 @@ function IndicadorClique3dPortalBidFrete({
   variante?: 'padrao' | 'compacto'
   intervaloSegundos?: number
 }) {
-  const cicloAtivo = useCicloIndicadorClique3d(ativo, intervaloSegundos)
+  const [clicando, setClicando] = useState(false)
   const [coords, setCoords] = useState({ x: 0, y: 0 })
 
   const atualizarCoords = useCallback(() => {
@@ -265,11 +269,43 @@ function IndicadorClique3dPortalBidFrete({
     const offset = OFFSET_CURSOR_ALVO_PAINEL_INSIGHTS[cursorAlvo]
     if (el == null || offset == null) return
     const rect = el.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return
     setCoords({
       x: rect.left + rect.width * offset.x,
       y: rect.top + rect.height * offset.y,
     })
   }, [alvoRef, cursorAlvo])
+
+  useEffect(() => {
+    if (!ativo) {
+      setClicando(false)
+      return undefined
+    }
+
+    let cancelado = false
+    let timeoutId = 0
+
+    const agendarClique = (atrasoMs: number) => {
+      timeoutId = window.setTimeout(() => {
+        if (cancelado) return
+        atualizarCoords()
+        setClicando(true)
+        timeoutId = window.setTimeout(() => {
+          if (cancelado) return
+          setClicando(false)
+          agendarClique(intervaloSegundos * 1000)
+        }, DURACAO_CLIQUE_CURSOR_MS)
+      }, atrasoMs)
+    }
+
+    atualizarCoords()
+    agendarClique(900)
+
+    return () => {
+      cancelado = true
+      window.clearTimeout(timeoutId)
+    }
+  }, [ativo, intervaloSegundos, atualizarCoords])
 
   useEffect(() => {
     if (!ativo) return undefined
@@ -280,20 +316,16 @@ function IndicadorClique3dPortalBidFrete({
       window.removeEventListener('resize', atualizarCoords)
       window.removeEventListener('scroll', atualizarCoords, true)
     }
-  }, [ativo, atualizarCoords])
+  }, [ativo, atualizarCoords, cursorAlvo])
 
-  useEffect(() => {
-    if (cicloAtivo) atualizarCoords()
-  }, [cicloAtivo, atualizarCoords])
-
-  if (!ativo || !cicloAtivo || typeof document === 'undefined') return null
+  if (!ativo || typeof document === 'undefined') return null
 
   return createPortal(
     <div
       className="sim-affordance-clique-3d-portal"
       style={{ left: coords.x, top: coords.y }}
     >
-      <CorpoIndicadorClique3d variante={variante} rotulo={rotulo} animando />
+      <CorpoIndicadorClique3d variante={variante} rotulo={rotulo} animando={clicando} />
     </div>,
     document.body,
   )
@@ -310,7 +342,7 @@ export function IndicadorClique3dBidFrete({
 
   if (!ativo || !cicloAtivo) return null
 
-  return <CorpoIndicadorClique3d variante={variante} rotulo={rotulo} animando />
+  return <CorpoIndicadorClique3d variante={variante} rotulo={rotulo} animando={cicloAtivo} />
 }
 
 type WrapperAlvoAffordanceProps = {
@@ -322,6 +354,9 @@ type WrapperAlvoAffordanceProps = {
   as?: 'div' | 'span' | 'article'
   /** Posição do cursor 3D — usado com CSS data-attribute no card Melhor proposta. */
   cursorAlvo?: string
+  /** Cursor viaja até o card e clica a cada N segundos (ranking / termômetro). */
+  conviteViagemPeriodico?: boolean
+  intervaloConviteSegundos?: number
 }
 
 /** Envolve um alvo clicável com anel pulsante + cursor 3D quando é o próximo passo sugerido. */
@@ -333,19 +368,25 @@ export function WrapperAlvoAffordanceBidFrete({
   varianteCursor = 'padrao',
   as: Tag = 'div',
   cursorAlvo,
+  conviteViagemPeriodico = false,
+  intervaloConviteSegundos = 5,
 }: WrapperAlvoAffordanceProps) {
-  const alvoRef = useRef<HTMLElement>(null)
+  const alvoRef = useRef<HTMLDivElement>(null)
+  const destinoConvite = cursorAlvo != null
+    ? OFFSET_CURSOR_ALVO_PAINEL_INSIGHTS[cursorAlvo]
+    : { x: 0.5, y: 0.5 }
 
   return (
     <Tag
-      ref={alvoRef}
       className={[
         'sim-affordance-alvo',
+        'sim-affordance-alvo-shell',
         destacado ? 'sim-affordance-alvo--destacado' : '',
         className,
       ].filter(Boolean).join(' ')}
       {...(cursorAlvo != null ? { 'data-cursor-alvo': cursorAlvo } : {})}
     >
+      <div ref={alvoRef} className="sim-affordance-alvo-medidor" aria-hidden />
       {children}
       {cursorAlvo != null ? (
         <IndicadorClique3dPortalBidFrete
@@ -362,6 +403,14 @@ export function WrapperAlvoAffordanceBidFrete({
           variante={varianteCursor}
         />
       )}
+      {conviteViagemPeriodico && destinoConvite != null ? (
+        <IndicadorCursorConviteAlvoPeriodico
+          ativo={destacado}
+          alvoRef={alvoRef}
+          destino={destinoConvite}
+          intervaloSegundos={intervaloConviteSegundos}
+        />
+      ) : null}
     </Tag>
   )
 }

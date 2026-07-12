@@ -384,6 +384,8 @@ export function ManualBidFreteSimuladorTermometroInsights({
       destacado={destacarAffordance}
       rotuloClique={rotuloAffordance}
       cursorAlvo={cursorAlvo}
+      conviteViagemPeriodico={destacarAffordance}
+      intervaloConviteSegundos={5}
       className={[
         'dc-smart-card',
         'dc-smart-card--termometro',

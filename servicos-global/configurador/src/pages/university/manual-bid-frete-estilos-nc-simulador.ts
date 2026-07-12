@@ -2322,6 +2322,16 @@ export const NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE = `
     position: relative;
     overflow: visible;
   }
+  .sim-affordance-alvo-shell {
+    position: relative;
+    isolation: isolate;
+  }
+  .sim-affordance-alvo-medidor {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
   .sim-affordance-alvo--destacado {
     animation: sim-affordance-alvo-pulse 2.4s ease-out infinite;
     border-radius: inherit;
@@ -2374,6 +2384,13 @@ export const NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE = `
     bottom: auto;
     width: 100%;
     height: 100%;
+    opacity: 1;
+  }
+  .sim-affordance-clique-3d-portal .sim-affordance-clique-3d:not(.sim-affordance-clique-3d--animando) {
+    opacity: 0.92;
+  }
+  .sim-affordance-clique-3d-portal .sim-affordance-clique-3d:not(.sim-affordance-clique-3d--animando) .sim-affordance-clique-3d__corpo {
+    transform: translate3d(0, 0, 0);
   }
 
   .sim-affordance-clique-3d {

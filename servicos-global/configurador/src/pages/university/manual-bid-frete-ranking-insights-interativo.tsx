@@ -288,6 +288,8 @@ export function ManualBidFreteRankingInsightsInterativo({
       ].join(' ')}
       rotuloClique={rotuloAffordance}
       cursorAlvo={cursorAlvo}
+      conviteViagemPeriodico={destacarAffordance}
+      intervaloConviteSegundos={5}
       as="article"
     >
       <header className="dc-smart-card-head">

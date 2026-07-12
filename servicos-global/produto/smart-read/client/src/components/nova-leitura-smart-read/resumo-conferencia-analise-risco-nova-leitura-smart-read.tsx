@@ -597,7 +597,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
         <div className="sr-conf-resumo-linha-barra">
           <div
-            className="sr-conf-progresso-barra"
+            className={`sr-conf-progresso-barra${analiseEmAndamento ? ' sr-conf-progresso-barra--em-analise' : ''}`}
             role="progressbar"
             aria-valuenow={resumoConferencia.percentual}
             aria-valuemin={0}

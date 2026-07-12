@@ -117,6 +117,18 @@ enum BidFreteInternacionalTipoIntegracao {
   @@map("bid_frete_internacional_tipo_integracao")
 }
 
+enum BidFreteInternacionalTipoValorFrete {
+  TOTAL
+  FAIXA_PESO
+  @@map("bid_frete_internacional_tipo_valor_frete")
+}
+
+enum BidFreteInternacionalUnidadeFaixaValorFreteKgs {
+  KG
+  M3
+  @@map("bid_frete_internacional_unidade_faixa_valor_frete_kgs")
+}
+
 // ─── FORNECEDOR ────────────────────────────────────────────────────────────────
 
 model FornecedorBidFreteInternacional {
@@ -289,6 +301,9 @@ model CotacaoBidFreteInternacional {
   // Target e prazo comercial
   valor_meta_cotacao_bid_frete_internacional        Float?              // valor referencial que quer atingir
   moeda_meta_cotacao_bid_frete_internacional        String?             @default("USD")
+  // Aéreo: formato do valor do frete (frete total ou faixas de peso — comprador define expectativa)
+  tipo_valor_frete_cotacao_bid_frete_internacional    BidFreteInternacionalTipoValorFrete @default(TOTAL)
+  faixas_valor_frete_kgs_cotacao_bid_frete_internacional Json?
   dias_prazo_pagamento_cotacao_bid_frete_internacional Int?             // prazo de pagamento em dias
 
   // Regra de edição de proposta pelo fornecedor (definida na criação)
@@ -387,6 +402,9 @@ model PropostaBidFreteInternacional {
 
   // Valores cotados
   moeda_proposta_bid_frete_internacional               String            @default("USD")
+  // Aéreo: frete total (valor_frete) ou faixas de peso (JSON — fornecedor define limites e tarifas)
+  tipo_valor_frete_proposta_bid_frete_internacional    BidFreteInternacionalTipoValorFrete @default(TOTAL)
+  faixas_valor_frete_kgs_proposta_bid_frete_internacional Json?
   valor_frete_proposta_bid_frete_internacional         Float             // frete internacional
   taxas_origem_proposta_bid_frete_internacional        Float             @default(0)
   taxas_destino_proposta_bid_frete_internacional       Float             @default(0)

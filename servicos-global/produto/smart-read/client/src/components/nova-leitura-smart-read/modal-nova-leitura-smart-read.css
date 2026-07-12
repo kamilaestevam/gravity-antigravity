@@ -3518,6 +3518,63 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   outline: none;
 }
 
+/* Tooltip de regra — análise + base legal */
+.sr-conf-chk-tooltip-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.45;
+}
+
+.sr-conf-chk-tooltip-analise {
+  display: block;
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+.sr-conf-chk-tooltip-separador {
+  display: block;
+  height: 1px;
+  margin: 0.5rem 0 0.4375rem;
+  background: rgba(129, 140, 248, 0.22);
+}
+
+.sr-conf-chk-tooltip-base-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  line-height: 1.2;
+}
+
+.sr-conf-chk-tooltip-base-texto {
+  display: block;
+  font-size: 0.6875rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+body.light-theme .sr-conf-chk-tooltip-analise {
+  color: #475569;
+}
+
+body.light-theme .sr-conf-chk-tooltip-separador {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+body.light-theme .sr-conf-chk-tooltip-base-cabecalho {
+  color: #6366f1;
+}
+
+body.light-theme .sr-conf-chk-tooltip-base-texto {
+  color: #64748b;
+}
+
 .sr-conf-chk-item-nome {
   display: block;
   font-weight: 600;

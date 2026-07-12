@@ -132,6 +132,9 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   // Redispara a análise quando não há cache (ex.: leitura retomada ou falha anterior)
   // e força re-render quando a resposta chega — sem isso o checklist fica pendente para sempre.
   const [versaoAnalise, setVersaoAnalise] = useState(0)
+  const [analiseEncerrada, setAnaliseEncerrada] = useState(false)
+  const [avisoAnalise, setAvisoAnalise] = useState<string | null>(null)
+  const tentativasAnaliseRef = useRef(0)
   const chaveAnaliseTentadaRef = useRef<string | null>(null)
 
   const emCacheRiscos = useMemo(
@@ -140,17 +143,50 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   )
 
   useEffect(() => {
-    if (emCacheRiscos) return
+    tentativasAnaliseRef.current = 0
+    setAnaliseEncerrada(false)
+    setAvisoAnalise(null)
+    chaveAnaliseTentadaRef.current = null
+  }, [chaveAnaliseRiscos])
+
+  useEffect(() => {
+    if (emCacheRiscos) {
+      setAnaliseEncerrada(true)
+      setAvisoAnalise(emCacheRiscos.aviso ?? null)
+      return
+    }
+    if (analiseEncerrada) return
+    if (obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) return
+
+    const disparar = () => {
+      dispararAnaliseRiscosBackgroundSmartRead({
+        arquivos: [arquivo],
+        idLeituraLegado,
+        onInicio: () => setVersaoAnalise((v) => v + 1),
+        onConcluido: (resposta) => {
+          setAnaliseEncerrada(true)
+          setAvisoAnalise(resposta.aviso ?? null)
+          setVersaoAnalise((v) => v + 1)
+        },
+        onErro: () => {
+          if (tentativasAnaliseRef.current < 2) {
+            tentativasAnaliseRef.current += 1
+            chaveAnaliseTentadaRef.current = null
+            window.setTimeout(disparar, 1_500)
+          } else {
+            setAnaliseEncerrada(true)
+            setAvisoAnalise('Análise interrompida — tempo limite ou falha de rede. Regras de código já avaliadas.')
+          }
+          setVersaoAnalise((v) => v + 1)
+        },
+      })
+    }
+
     if (chaveAnaliseTentadaRef.current === chaveAnaliseRiscos) return
     chaveAnaliseTentadaRef.current = chaveAnaliseRiscos
-    dispararAnaliseRiscosBackgroundSmartRead({
-      arquivos: [arquivo],
-      idLeituraLegado,
-      onInicio: () => setVersaoAnalise((v) => v + 1),
-      onConcluido: () => setVersaoAnalise((v) => v + 1),
-      onErro: () => setVersaoAnalise((v) => v + 1),
-    })
-  }, [arquivo, chaveAnaliseRiscos, emCacheRiscos, idLeituraLegado])
+    tentativasAnaliseRef.current = 1
+    disparar()
+  }, [analiseEncerrada, arquivo, chaveAnaliseRiscos, emCacheRiscos, idLeituraLegado])
 
   const resumoRiscos = useMemo(() => {
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
@@ -191,16 +227,26 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
     })
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+    const pipelineConcluido = Boolean(emCacheRiscos) || (analiseEncerrada && !carregando)
+    const analiseServidorIndisponivel = analiseEncerrada && !carregando && !emCacheRiscos
 
     return {
       regras: regrasEfetivas,
       riscos: resumoRiscosEfetivo.riscos,
-      pipelineConcluido: Boolean(emCacheRiscos),
+      pipelineConcluido,
       llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
       carregando,
+      analise_servidor_indisponivel: analiseServidorIndisponivel,
       documentos: documentosRisco,
     }
-  }, [auditoriaV1Arquivo, chaveAnaliseRiscos, documentosRisco, emCacheRiscos, versaoAnalise])
+  }, [
+    analiseEncerrada,
+    auditoriaV1Arquivo,
+    chaveAnaliseRiscos,
+    documentosRisco,
+    emCacheRiscos,
+    versaoAnalise,
+  ])
 
   const subdocumentosSidebar = useMemo(
     () =>
@@ -461,6 +507,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       nomeArquivo={arquivo.arquivo.name}
       subdocumentosSidebar={subdocumentosSidebar}
       parametrosChecklist={parametrosChecklist}
+      avisoAnalise={emCacheRiscos?.aviso ?? avisoAnalise}
       rotuloDocumentoInicial={rotuloDocumentoAtual}
       indiceDocumentoInicial={indiceDocumento}
       onVerRisco={(riscoId) => {

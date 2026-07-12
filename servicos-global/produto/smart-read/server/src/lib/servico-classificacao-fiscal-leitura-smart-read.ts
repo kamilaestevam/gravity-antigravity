@@ -19,7 +19,7 @@ import {
 import type { UsoLlmChamadaLeituraSmartRead } from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
-const GEMINI_TIMEOUT_MS = 60_000
+const GEMINI_TIMEOUT_MS = 20_000
 
 const ClassificacaoFiscalItemRespostaSchema = z.object({
   documento: z.string().min(1),

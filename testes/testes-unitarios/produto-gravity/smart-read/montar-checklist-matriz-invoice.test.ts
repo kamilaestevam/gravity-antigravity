@@ -42,6 +42,33 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(concluido.every((i) => !i.em_analise)).toBe(true)
   })
 
+  it('falha do servidor degrada regras IA para ATENÇÃO sem spinner eterno', () => {
+    const itens = montarChecklistMatrizInvoice({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: false,
+      carregando: false,
+      analise_servidor_indisponivel: true,
+      documentos: [
+        {
+          nome_arquivo: 'INV.pdf',
+          tipo_documento: 'INVOICE',
+          indice: 0,
+          dados: {
+            importer: { name: 'Intelbras S/A' },
+          },
+        },
+      ],
+      rotulo_documento: 'INV.pdf · INVOICE',
+    })
+    const s203 = itens.find((i) => i.regra.id === 'S2-03')
+    expect(s203?.status).toBe('amarelo')
+    expect(s203?.rotulo_status).toBe('ATENÇÃO')
+    expect(s203?.em_analise).toBe(false)
+    expect(s203?.detalhe).toContain('Analista IA indisponível')
+  })
+
   it('marca regra de código como vermelha quando Passo 1 falha e gera risco_id', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [{ id: 'S4-04-INVOICE-items-0', passou: false, detalhe: 'NCM ausente' }],

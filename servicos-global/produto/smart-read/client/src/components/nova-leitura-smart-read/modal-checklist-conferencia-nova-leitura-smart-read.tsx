@@ -48,6 +48,7 @@ type Props = {
   rotuloDocumentoInicial?: string | null
   indiceDocumentoInicial?: number | null
   onVerRisco?: (riscoId: string) => void
+  avisoAnalise?: string | null
 }
 
 export function ModalChecklistConferenciaNovaLeituraSmartRead({
@@ -60,6 +61,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   rotuloDocumentoInicial = null,
   indiceDocumentoInicial = null,
   onVerRisco,
+  avisoAnalise = null,
 }: Props) {
   const documentosOpcoes = useMemo(
     () => listarDocumentosOpcoesChecklistCompleto(nomeArquivo, subdocumentosSidebar, documentos),
@@ -286,6 +288,11 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
             <X size={18} weight="bold" />
           </button>
         </header>
+        {avisoAnalise ? (
+          <p className="sr-chk-modal-aviso-analise" role="status">
+            {avisoAnalise}
+          </p>
+        ) : null}
 
         <div className="sr-chk-modal-corpo">
           {documentosOpcoes.length === 0 ? (

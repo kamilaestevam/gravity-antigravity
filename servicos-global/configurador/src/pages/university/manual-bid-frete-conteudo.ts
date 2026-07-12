@@ -1,6 +1,8 @@
 import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
+import { PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO } from './manual-bid-frete-aprovar-cotacao-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
+import { PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR } from './manual-bid-frete-visao-fornecedor-conteudo'
 import {
   GALERIAS_BID_FRETE_BID_MANUAL,
   GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
@@ -14,7 +16,7 @@ const S = screenshotBidFreteInt
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/docs/bid-frete#doc-sec-8|Configurações}}'
+  '{{link:/university-gravity/docs/bid-frete#doc-sec-10|Configurações}}'
 
 export const DOC_BID_FRETE_SUBTITULO =
   'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
@@ -494,9 +496,9 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Tipos de Cotação',
-      tituloSumario: 'Tipos de Cotação',
-      prefixoPassosVisuais: 'Tipos de Cotação',
+      titulo: 'Tipos de cotação',
+      tituloSumario: 'Tipos de cotação',
+      prefixoPassosVisuais: 'Tipos de cotação',
       ancoraPassosPrefix: 'tipos-cotacao',
       paragrafos: [
         'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**.',
@@ -504,7 +506,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Tipos de Cotação',
+          titulo: 'Tipos de cotação',
           ocultarRotuloPasso: true,
           mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
           paragrafos: [],
@@ -532,7 +534,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         },
         {
           titulo: 'Cotação avulsa',
-          tituloCurto: 'Cotação Avulsa',
+          tituloCurto: 'Cotação avulsa',
           paragrafos: [
             'A **Cotação avulsa** é uma solicitação **única** — um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
           ],
@@ -620,9 +622,9 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Painel da Cotação',
-      tituloSumario: 'Painel da Cotação',
-      prefixoPassosVisuais: 'Painel da Cotação',
+      titulo: 'Painel da cotação',
+      tituloSumario: 'Painel da cotação',
+      prefixoPassosVisuais: 'Painel da cotação',
       ancoraPassosPrefix: 'painel-cotacao',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
@@ -636,10 +638,18 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         },
       ],
       mostrarInfograficoBidFretePainelCotacao: true,
+      figurasAposInfografico: [
+        {
+          paragrafoAntes:
+            'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
+          imagem: S('painel_cotacao_divisao'),
+          legenda: 'Painel da Cotação — menu superior, insights e abas do cockpit',
+        },
+      ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Acesso ao Painel da Cotação',
-          tituloCurto: 'Acesso ao Painel da Cotação',
+          titulo: 'Acesso ao Painel da cotação',
+          tituloCurto: 'Acesso ao Painel da cotação',
           paragrafos: [
             'O **Painel da Cotação** pode ser acessado de **três formas**: pelo **mapa** de **Insights**, pelo **tooltip** dos KPIs ou pela **Lista** de cotações.',
           ],
@@ -647,6 +657,28 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         },
         ...PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS,
       ]),
+    },
+    {
+      titulo: 'Aprovar cotação',
+      tituloSumario: 'Aprovar cotação',
+      prefixoPassosVisuais: 'Aprovar cotação',
+      ancoraPassosPrefix: 'aprovar-cotacao',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Conclua a negociação **aprovando** a melhor proposta — pelo **Painel de Insights**, pela aba **Propostas** ou pelo **comparativo** de ofertas.',
+      ],
+      passosVisuais: PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO,
+    },
+    {
+      titulo: 'Visão do fornecedor',
+      tituloSumario: 'Visão do fornecedor',
+      prefixoPassosVisuais: 'Visão do fornecedor',
+      ancoraPassosPrefix: 'visao-fornecedor',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Ambiente do **agente de carga**: receba disparos, envie propostas, acompanhe desempenho e responda por **login** ou **link público** com token.',
+      ],
+      passosVisuais: PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR,
     },
     {
       titulo: 'Configurações',

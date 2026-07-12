@@ -7,7 +7,7 @@ import {
   Package, Truck, ArrowDown, ArrowUp, EnvelopeSimple, Desktop,
   Eye, EyeSlash, PlusCircle, ArrowsOutLineVertical, PencilSimple, UploadSimple, ArrowsLeftRight, Sparkle,
   Plus, MinusCircle, Warning, FunnelSimple, CubeTransparent, TextT, Anchor,
-  List, SquaresFour, ChartBar, ListChecks, Stack, Globe,
+  List, SquaresFour, ChartBar, ListChecks, Stack, Globe, ListBullets,
   ShieldStar, UserGear, Boat, Airplane, TruckTrailer, Warehouse, Bank, Factory,
   Circle, CheckCircle, CircleHalf, Prohibit,
   type Icon,
@@ -80,6 +80,11 @@ import {
   type ManualPilarPainelCotacaoBidFreteId,
 } from './manual-bid-frete-infografico-painel-cotacao'
 import {
+  ManualInfograficoBidFreteAbasPainelCotacao,
+  ManualPilaresAbasPainelCotacaoBidFreteChips,
+  type ManualPilarAbasPainelCotacaoBidFreteId,
+} from './manual-bid-frete-infografico-abas-painel-cotacao'
+import {
   ManualInfograficoBidFreteFiltrosMapa,
   ManualPilaresFiltrosMapaBidFreteChips,
   type ManualPilarFiltrosMapaBidFreteId,
@@ -103,6 +108,7 @@ import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplic
 import { ManualInfograficoBidFreteNovaCotacaoResultadoEsperado } from './manual-bid-frete-infografico-nova-cotacao-resultado-esperado'
 import { ManualInfograficoBidFreteModalOperacaoCampos } from './manual-bid-frete-infografico-modal-operacao-campos'
 import { ManualBidFreteSimuladorModalOperacao } from './manual-bid-frete-simulador-modal-operacao'
+import { ManualBidFreteSimuladorPainelInsights } from './manual-bid-frete-simulador-painel-insights'
 import { ManualBidFreteSimuladorOrigemDestino } from './manual-bid-frete-simulador-origem-destino'
 import { ManualInfograficoBidFreteOrigemDestinoCampos } from './manual-bid-frete-infografico-origem-destino-campos'
 import { ManualInfograficoBotaoInline, ManualInfograficoIconeAbrirCotacaoListaBidFreteInline, ManualInfograficoIconeControleMapaBidFreteInline, isIconeControleMapaBidFrete } from './manual-infografico-rich-text'
@@ -499,11 +505,17 @@ function ManualChipAcessoPainelCotacaoNumero({ numero }: { numero: '01' | '2' | 
   )
 }
 
-function ManualChipAcessoPainelCotacaoVisaoInsights() {
+function ManualChipAcessoPainelCotacaoIcone({
+  titulo,
+  icone: Icone,
+}: {
+  titulo: string
+  icone: Icon
+}) {
   const { cor, borda, fundo } = MANUAL_CHIP_ACESSO_PAINEL_COTACAO_ESTILO
   return (
     <div
-      title="Visão Insights"
+      title={titulo}
       style={{
         width: 38,
         height: 38,
@@ -517,7 +529,7 @@ function ManualChipAcessoPainelCotacaoVisaoInsights() {
       }}
       aria-hidden
     >
-      <Globe size={18} weight="duotone" color={cor} />
+      <Icone size={18} weight="duotone" color={cor} />
     </div>
   )
 }
@@ -529,14 +541,24 @@ function ManualChipsAcessoPainelCotacao({ id }: { id: ManualChipAcessoPainelCota
     return (
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
         <ManualChipAcessoPainelCotacaoNumero numero="01" />
-        <ManualChipAcessoPainelCotacaoVisaoInsights />
+        <ManualChipAcessoPainelCotacaoIcone titulo="Visão Insights" icone={Globe} />
       </div>
     )
   }
   if (id === 'tooltip') {
-    return <ManualChipAcessoPainelCotacaoNumero numero="2" />
+    return (
+      <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+        <ManualChipAcessoPainelCotacaoNumero numero="2" />
+        <ManualChipAcessoPainelCotacaoIcone titulo="Tooltip do KPI" icone={ChartBar} />
+      </div>
+    )
   }
-  return <ManualChipAcessoPainelCotacaoNumero numero="3" />
+  return (
+    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+      <ManualChipAcessoPainelCotacaoNumero numero="3" />
+      <ManualChipAcessoPainelCotacaoIcone titulo="Lista" icone={ListBullets} />
+    </div>
+  )
 }
 
 function ManualChipsBidFreteModalTransporteInicioComum({ compacto = false }: { compacto?: boolean }) {
@@ -880,6 +902,7 @@ function ManualGaleriaCabecalhoPasso({
   pilaresMapaBidFrete,
   pilaresPainelCotacaoBidFrete,
   pilaresFiltrosMapaBidFrete,
+  pilaresAbasPainelCotacaoBidFrete,
   pilaresControlesMapaBidFrete,
 }: {
   legendaPasso: string
@@ -890,6 +913,7 @@ function ManualGaleriaCabecalhoPasso({
   pilaresMapaBidFrete?: ManualPilarMapaBidFreteId[]
   pilaresPainelCotacaoBidFrete?: ManualPilarPainelCotacaoBidFreteId[]
   pilaresFiltrosMapaBidFrete?: ManualPilarFiltrosMapaBidFreteId[]
+  pilaresAbasPainelCotacaoBidFrete?: ManualPilarAbasPainelCotacaoBidFreteId[]
   pilaresControlesMapaBidFrete?: ManualPilarControlesMapaBidFreteId[]
 }) {
   const temTextoCorpo = Boolean(textoCorpo?.trim())
@@ -911,6 +935,8 @@ function ManualGaleriaCabecalhoPasso({
           <ManualPilaresPainelCotacaoBidFreteChips pilares={pilaresPainelCotacaoBidFrete} />
         ) : pilaresFiltrosMapaBidFrete?.length ? (
           <ManualPilaresFiltrosMapaBidFreteChips pilares={pilaresFiltrosMapaBidFrete} />
+        ) : pilaresAbasPainelCotacaoBidFrete?.length ? (
+          <ManualPilaresAbasPainelCotacaoBidFreteChips pilares={pilaresAbasPainelCotacaoBidFrete} />
         ) : pilaresControlesMapaBidFrete?.length ? (
           <ManualPilaresControlesMapaBidFreteChips pilares={pilaresControlesMapaBidFrete} />
         ) : null}
@@ -1295,7 +1321,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '199'
+const MANUAL_SCREENSHOT_CACHE_KEY = '205'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1804,10 +1830,12 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
   const pilaresMapaBidFrete = tela.pilaresMapaBidFrete
   const pilaresPainelCotacaoBidFrete = tela.pilaresPainelCotacaoBidFrete
   const pilaresFiltrosMapaBidFrete = tela.pilaresFiltrosMapaBidFrete
+  const pilaresAbasPainelCotacaoBidFrete = tela.pilaresAbasPainelCotacaoBidFrete
   const pilaresControlesMapaBidFrete = tela.pilaresControlesMapaBidFrete
   const temPilares = Boolean(
     pilaresCustomizacao?.length || pilaresMapaBidFrete?.length || pilaresPainelCotacaoBidFrete?.length
-      || pilaresFiltrosMapaBidFrete?.length || pilaresControlesMapaBidFrete?.length,
+      || pilaresFiltrosMapaBidFrete?.length || pilaresAbasPainelCotacaoBidFrete?.length
+      || pilaresControlesMapaBidFrete?.length,
   )
 
   const figuras = tela.imagensCompostas?.length
@@ -1834,6 +1862,7 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
           alinhamento={tela.legendaAlinhamento ?? 'center'}
         />
       ) : null}
+      {tela.simuladorBidFretePainelInsights ? <ManualBidFreteSimuladorPainelInsights /> : null}
       {figuras}
       {tela.calloutDepois ? (
         <ManualCalloutBloco callout={tela.calloutDepois} marginTop={MANUAL_ESPACO_PARAGRAFO_PX} />
@@ -1874,6 +1903,7 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
         pilaresMapaBidFrete={pilaresMapaBidFrete}
         pilaresPainelCotacaoBidFrete={pilaresPainelCotacaoBidFrete}
         pilaresFiltrosMapaBidFrete={pilaresFiltrosMapaBidFrete}
+        pilaresAbasPainelCotacaoBidFrete={pilaresAbasPainelCotacaoBidFrete}
         pilaresControlesMapaBidFrete={pilaresControlesMapaBidFrete}
       />
       {restoAposParagrafo}
@@ -3055,6 +3085,8 @@ function ManualBlocoPassoVisual({
           ? <ManualInfograficoBidFretePainelCotacao />
           : passo.mostrarInfograficoBidFreteFiltrosMapa
           ? <ManualInfograficoBidFreteFiltrosMapa />
+          : passo.mostrarInfograficoBidFreteAbasPainelCotacao
+            ? <ManualInfograficoBidFreteAbasPainelCotacao />
           : passo.mostrarInfograficoBidFreteControlesMapa
             ? <ManualInfograficoBidFreteControlesMapa />
             : null
@@ -3591,6 +3623,24 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
           <ManualInfograficoBidFretePainelCotacao />
         </div>
       )}
+      {fluxo.figurasAposInfografico?.map((fig) => (
+        <div
+          key={fig.imagem}
+          style={{ margin: `0 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}
+        >
+          {fig.paragrafoAntes ? (
+            <ManualParagrafo
+              texto={fig.paragrafoAntes}
+              marginBottom={MANUAL_ESPACO_PARAGRAFO_PX}
+            />
+          ) : null}
+          <ManualFiguraScreenshot
+            src={fig.imagem}
+            alt={fig.legenda ?? fluxo.titulo}
+            larguraMaxima={fig.larguraMaxima}
+          />
+        </div>
+      ))}
       {fluxo.modoCenarios && fluxo.cenariosLadoALado && (fluxo.passosVisuais?.length ?? 0) > 0 ? (
         fluxo.cenariosImagensAlinhadas ? (
           <>

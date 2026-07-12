@@ -453,6 +453,8 @@ type ManualBidFreteGuiaAoVivoProps<Id extends string> = {
   textoContextual?: string
   contextoSimulador?: ContextoSimuladorModalOperacao
   onSelecionarCampo?: (id: Id) => void
+  /** Anima o estado vazio enquanto a demo aguarda o primeiro clique. */
+  conviteInterativo?: boolean
 }
 
 /** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação do campo em foco. */
@@ -462,6 +464,7 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
   campoAtivo,
   textoContextual,
   contextoSimulador,
+  conviteInterativo = false,
 }: ManualBidFreteGuiaAoVivoProps<Id>) {
   const totalCampos = campos.length
   const progresso = totalCampos > 0 ? Math.min(selecoes.length / totalCampos, 1) : 0
@@ -546,42 +549,18 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
         </div>
       ) : (
         <div
-          className="sim-guia-sticky-col__lista"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            borderRadius: 12,
-            border: '1px dashed rgba(129,140,248,.22)',
-            background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(15,23,42,.35) 100%)',
-            padding: '40px 18px',
-            marginBottom: 2,
-            flex: 1,
-            justifyContent: 'center',
-            minHeight: 220,
-          }}
+          className={[
+            'sim-guia-sticky-col__lista',
+            'sim-guia-convite-vazio',
+            conviteInterativo ? 'sim-guia-convite-vazio--ativo' : '',
+          ].filter(Boolean).join(' ')}
         >
-          <span style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(99,102,241,.14)',
-            border: '1px solid rgba(129,140,248,.28)',
-          }}>
+          <span
+            className={conviteInterativo ? 'sim-guia-convite-vazio__icone sim-affordance-guia-convite' : 'sim-guia-convite-vazio__icone'}
+          >
             <CursorClick size={24} weight="duotone" color="var(--ws-accent, var(--color-primary, #818cf8))" aria-hidden />
           </span>
-          <p style={{
-            margin: 0,
-            fontSize: '.76rem',
-            lineHeight: 1.55,
-            color: CORPO,
-            textAlign: 'center',
-            maxWidth: 260,
-          }}>
+          <p className="sim-guia-convite-vazio__texto">
             Selecione uma opção na tela ao lado: cada escolha fica registrada aqui. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai. Clique em um card já preenchido se quiser revisar os detalhes.
           </p>
         </div>

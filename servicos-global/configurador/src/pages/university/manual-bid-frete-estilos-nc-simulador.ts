@@ -469,6 +469,42 @@ export const NC_ESTILOS_SIMULADOR_MODAL_OPERACAO = `
   .sim-guia-card-ativo {
     animation: sim-guia-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  .sim-guia-convite-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 12px;
+    border: 1px dashed rgba(129, 140, 248, 0.22);
+    background: linear-gradient(165deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.35) 100%);
+    padding: 40px 18px;
+    margin-bottom: 2px;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 0;
+  }
+  .sim-guia-convite-vazio--ativo {
+    border: 1.5px dashed rgba(129, 140, 248, 0.42);
+  }
+  .sim-guia-convite-vazio__icone {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(129, 140, 248, 0.28);
+  }
+  .sim-guia-convite-vazio__texto {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--ws-text, #f1f5f9) 78%, transparent);
+    text-align: center;
+    max-width: 260px;
+  }
 `
 
 /** SSOT visual — subset do passo Origem e Destino (wizard Nova Cotação BID Frete). */
@@ -1559,6 +1595,511 @@ export const NC_ESTILOS_SIMULADOR_CARGA_INCOTERM = `
     .nc-timeline-line-fill {
       width: 2px;
       height: 100%;
+    }
+  }
+`
+
+/** Manual §7.02 — paridade cockpit via dc-cockpit-insights-row + ajustes da demo interativa. */
+export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
+  #sim-bid-frete-painel-insights .sim-modal-operacao-layout {
+    grid-template-columns: minmax(0, 640px) minmax(300px, 380px);
+    align-items: stretch;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-layout-esquerda {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #sim-bid-frete-painel-insights .sim-guia-sticky-col {
+    min-height: 0;
+    height: 100%;
+    position: static;
+    top: auto;
+    max-height: none;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row {
+    width: 100%;
+    max-width: 640px;
+    --dc-smart-metrica-spark-h: var(--sim-spark-h-manual, 58px);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-insights-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    align-items: start;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-insights-grid > .dc-smart-card {
+    height: auto;
+    max-height: none;
+    align-self: start;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-card--melhor,
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-card--melhor-compacto {
+    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row.dc-cockpit-insights-row .dc-smart-metrica-col--insights-spark {
+    grid-template-rows: auto var(--sim-spark-h-manual, 58px);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row.dc-cockpit-insights-row .dc-smart-card--melhor .dc-smart-metrica-spark--melhor-proposta {
+    height: var(--sim-spark-h-manual, 58px);
+    min-height: var(--sim-spark-h-manual, 58px);
+    max-height: var(--sim-spark-h-manual, 58px);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-metrica-col--insights-spark {
+    grid-template-rows: auto var(--sim-spark-h-manual, 58px);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-metrica-spark--melhor-proposta {
+    height: var(--sim-spark-h-manual, 58px);
+    min-height: var(--sim-spark-h-manual, 58px);
+    max-height: var(--sim-spark-h-manual, 58px);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-metrica-spark--melhor-proposta .dc-spark-bar-wrap,
+  #sim-bid-frete-painel-insights .sim-insights-cockpit-row .dc-smart-metrica-spark--melhor-proposta .dc-smart-spark-barras {
+    max-height: var(--sim-spark-h-manual, 58px);
+  }
+  @keyframes sim-affordance-card-melhor-pulse {
+    0%, 100% {
+      outline-color: rgba(52, 211, 153, 0.32);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 16px 40px rgba(0, 0, 0, 0.32),
+        0 0 14px rgba(52, 211, 153, 0.08);
+    }
+    55% {
+      outline-color: rgba(52, 211, 153, 0.52);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 16px 40px rgba(0, 0, 0, 0.32),
+        0 0 22px rgba(52, 211, 153, 0.16);
+    }
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor {
+    overflow: visible;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor.sim-affordance-alvo--destacado {
+    animation: sim-affordance-card-melhor-pulse 2.4s ease-out infinite;
+    outline: 1px solid rgba(52, 211, 153, 0.38);
+    outline-offset: 0;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor .sim-affordance-clique-3d {
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 5;
+    transition:
+      top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="valor_total"] .sim-affordance-clique-3d {
+    top: 23%;
+    left: 34%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="transit_time"] .sim-affordance-clique-3d {
+    top: 48%;
+    left: 11%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="free_time"] .sim-affordance-clique-3d {
+    top: 48%;
+    left: 41%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="escala"] .sim-affordance-clique-3d {
+    top: 48%;
+    left: 71%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="fornecedor"] .sim-affordance-clique-3d {
+    top: 78%;
+    left: 22%;
+  }
+  #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor[data-cursor-alvo="aprovar"] .sim-affordance-clique-3d {
+    top: 78%;
+    left: 78%;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-card-cockpit {
+    overflow: visible;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: box-shadow .18s ease, background .18s ease;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell .dc-smart-valor-hero {
+    margin: 0;
+    pointer-events: none;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell:hover,
+  #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell.sim-insights-interativo--ativa {
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  #sim-bid-frete-painel-insights .sim-insights-interativo {
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #sim-bid-frete-painel-insights button.sim-insights-interativo.dc-smart-metrica-col {
+    appearance: none;
+    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-fornecedor-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 8px;
+    transition: box-shadow .18s ease, background .18s ease;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-fornecedor-btn .dc-smart-fornecedor-nome {
+    flex: 1;
+    min-width: 0;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-interativo:hover,
+  #sim-bid-frete-painel-insights .sim-insights-interativo--ativa {
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  #sim-bid-frete-painel-insights .dc-smart-metrica-col.sim-insights-interativo--ativa {
+    border-color: rgba(52, 211, 153, 0.42) !important;
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.28), 0 4px 12px rgba(52, 211, 153, 0.08);
+  }
+  #sim-bid-frete-painel-insights .dc-smart-btn-aprovar.sim-insights-interativo--ativa.gb-btn {
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.45) !important;
+  }
+  @keyframes sim-insights-aprovar-confirmar {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  @keyframes sim-insights-aprovar-brilho {
+    0% {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+    }
+    70% {
+      box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+  }
+  #sim-bid-frete-painel-insights .dc-smart-btn-aprovar.sim-insights-btn-aprovar--confirmando.gb-btn {
+    animation:
+      sim-insights-aprovar-confirmar 0.48s ease-out,
+      sim-insights-aprovar-brilho 0.65s ease-out;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar.sim-insights-btn-aprovar--aprovado.gb-btn {
+    animation: none;
+    cursor: pointer;
+    background: linear-gradient(
+      180deg,
+      rgba(34, 197, 94, 0.28) 0%,
+      rgba(16, 185, 129, 0.16) 100%
+    ) !important;
+    border-color: rgba(34, 197, 94, 0.55) !important;
+    color: #4ade80 !important;
+    box-shadow:
+      0 0 0 1px rgba(34, 197, 94, 0.35),
+      0 0 16px rgba(34, 197, 94, 0.22);
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--melhor .dc-smart-fornecedor-foot .dc-smart-btn-aprovar.sim-insights-btn-aprovar--aprovado .gb-btn__icon-badge {
+    background: rgba(34, 197, 94, 0.22) !important;
+    color: #22c55e !important;
+  }
+`
+
+/** Affordance UX — demos interativas do manual BID Frete (cursor 3D, pulso, faixa). */
+export const NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE = `
+  @keyframes sim-affordance-faixa-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes sim-affordance-faixa-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  @keyframes sim-affordance-alvo-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 0 0 rgba(129, 140, 248, 0.45),
+        0 0 18px rgba(99, 102, 241, 0.12);
+    }
+    55% {
+      box-shadow:
+        0 0 0 5px rgba(129, 140, 248, 0),
+        0 0 26px rgba(99, 102, 241, 0.22);
+    }
+  }
+  @keyframes sim-affordance-card-respira {
+    0%, 100% {
+      border-color: rgba(99, 102, 241, 0.22);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 8px 32px rgba(0, 0, 0, 0.22);
+    }
+    50% {
+      border-color: rgba(129, 140, 248, 0.48);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 12px 36px rgba(0, 0, 0, 0.28),
+        0 0 28px rgba(99, 102, 241, 0.18);
+    }
+  }
+  @keyframes sim-affordance-wizard-vivo {
+    0%, 100% {
+      box-shadow:
+        var(--shadow-md, 0 8px 28px rgba(0, 0, 0, 0.22)),
+        0 0 0 0 rgba(129, 140, 248, 0);
+    }
+    50% {
+      box-shadow:
+        var(--shadow-md, 0 8px 28px rgba(0, 0, 0, 0.22)),
+        0 0 0 2px rgba(129, 140, 248, 0.28),
+        0 0 24px rgba(99, 102, 241, 0.14);
+    }
+  }
+  @keyframes sim-affordance-guia-convite {
+    0%, 100% { transform: scale(1) translateY(0); }
+    35% { transform: scale(1.08) translateY(-3px); }
+    70% { transform: scale(1) translateY(0); }
+  }
+  @keyframes sim-affordance-clique-press {
+    0% {
+      opacity: 0;
+      transform: translate3d(10px, -14px, 28px) rotateX(22deg) rotateZ(-8deg) scale(0.82);
+    }
+    12% {
+      opacity: 1;
+      transform: translate3d(2px, -4px, 16px) rotateX(14deg) rotateZ(-4deg) scale(1);
+    }
+    38% {
+      transform: translate3d(0, 5px, 2px) rotateX(2deg) rotateZ(0deg) scale(0.9);
+    }
+    72% {
+      opacity: 1;
+      transform: translate3d(0, -2px, 12px) rotateX(12deg) rotateZ(-2deg) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(-6px, -12px, 24px) rotateX(18deg) rotateZ(-6deg) scale(0.86);
+    }
+  }
+  @keyframes sim-affordance-clique-ripple {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.35); }
+    30% { opacity: 0.55; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+  }
+  @keyframes sim-affordance-clique-shadow {
+    0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+    40% { opacity: 0.35; transform: translate(-50%, -40%) scale(1); }
+  }
+  @keyframes sim-affordance-clique-label {
+    0%, 100% { opacity: 0; transform: translate3d(0, 6px, 0); }
+    20%, 75% { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  .sim-affordance-faixa {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    padding: 7px 12px 7px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(129, 140, 248, 0.35);
+    background: linear-gradient(
+      120deg,
+      rgba(99, 102, 241, 0.16) 0%,
+      rgba(52, 211, 153, 0.1) 45%,
+      rgba(99, 102, 241, 0.16) 100%
+    );
+    background-size: 200% 200%;
+    animation: sim-affordance-faixa-shimmer 4s ease-in-out infinite, sim-affordance-faixa-bounce 3s ease-in-out infinite;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #e0e7ff;
+    overflow: hidden;
+  }
+  .sim-affordance-faixa__icone {
+    display: inline-flex;
+    color: #a5b4fc;
+    filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.45));
+  }
+  .sim-affordance-faixa__pulso {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(165, 180, 252, 0.35);
+    animation: sim-affordance-alvo-pulse 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+
+  .sim-affordance-alvo {
+    position: relative;
+    overflow: visible;
+  }
+  .sim-affordance-alvo--destacado {
+    animation: sim-affordance-alvo-pulse 2.4s ease-out infinite;
+    border-radius: inherit;
+  }
+  .nc-options-grid-2 > .sim-affordance-alvo,
+  .nc-options-grid-3 > .sim-affordance-alvo,
+  .nc-options-grid-full > .sim-affordance-alvo {
+    min-width: 0;
+  }
+  .nc-options-grid-2 > .sim-affordance-alvo > *,
+  .nc-options-grid-3 > .sim-affordance-alvo > *,
+  .nc-options-grid-full > .sim-affordance-alvo > * {
+    width: 100%;
+    height: 100%;
+  }
+  .sim-affordance-alvo--metrica {
+    display: block;
+    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .sim-affordance-alvo--fornecedor {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+  }
+  .sim-affordance-card-viva {
+    animation: sim-affordance-card-respira 3.2s ease-in-out infinite;
+  }
+  .sim-wizard-embutido--vivo {
+    animation: sim-affordance-wizard-vivo 3.4s ease-in-out infinite;
+  }
+  .sim-affordance-guia-convite {
+    animation: sim-affordance-guia-convite 2.8s ease-in-out infinite;
+  }
+
+  .sim-affordance-clique-3d {
+    position: absolute;
+    right: -0.125rem;
+    bottom: -1.375rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    pointer-events: none;
+    z-index: 1400;
+    perspective: 420px;
+    transform-style: preserve-3d;
+  }
+  .sim-affordance-clique-3d--compacto {
+    right: 0.35rem;
+    bottom: 0.2rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .sim-affordance-clique-3d__corpo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e0e7ff;
+    filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.55));
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+  .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__corpo {
+    animation: sim-affordance-clique-press 1.15s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  }
+  .sim-affordance-clique-3d__corpo svg {
+    transform: translateZ(6px);
+  }
+  .sim-affordance-clique-3d__onda {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(165, 180, 252, 0.55);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 68%);
+    transform: translate(-50%, -50%) scale(0.35);
+    opacity: 0;
+  }
+  .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__onda {
+    animation: sim-affordance-clique-ripple 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .sim-affordance-clique-3d__onda--tardia {
+    animation-delay: 0.12s !important;
+    border-color: rgba(129, 140, 248, 0.35);
+  }
+  .sim-affordance-clique-3d__sombra {
+    position: absolute;
+    left: 50%;
+    top: 72%;
+    width: 1.75rem;
+    height: 0.4375rem;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.45);
+    filter: blur(3px);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+  .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__sombra {
+    animation: sim-affordance-clique-shadow 1.15s ease-out forwards;
+  }
+  .sim-affordance-clique-3d__rotulo {
+    position: absolute;
+    left: 50%;
+    top: calc(100% - 0.125rem);
+    transform: translateX(-50%);
+    padding: 0.125rem 0.4375rem;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #c7d2fe;
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(129, 140, 248, 0.22);
+    border-radius: 999px;
+    white-space: nowrap;
+    opacity: 0;
+    backdrop-filter: blur(6px);
+  }
+  .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__rotulo {
+    animation: sim-affordance-clique-label 1.15s ease-out forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sim-affordance-faixa,
+    .sim-affordance-alvo--destacado,
+    .sim-affordance-card-viva,
+    .sim-wizard-embutido--vivo,
+    .sim-affordance-guia-convite {
+      animation: none;
+    }
+    .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__corpo,
+    .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__onda,
+    .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__sombra,
+    .sim-affordance-clique-3d--animando .sim-affordance-clique-3d__rotulo {
+      animation: none;
+      opacity: 0.9;
+      transform: none;
     }
   }
 `

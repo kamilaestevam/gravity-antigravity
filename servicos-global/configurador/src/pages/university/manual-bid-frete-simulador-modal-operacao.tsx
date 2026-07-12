@@ -31,7 +31,12 @@ import {
   NC_ESTILOS_SIMULADOR_CARGA_INCOTERM,
   NC_ESTILOS_SIMULADOR_MODAL_OPERACAO,
   NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO,
+  NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE,
 } from './manual-bid-frete-estilos-nc-simulador'
+import {
+  FaixaDemoInterativaBidFrete,
+  WrapperAlvoAffordanceBidFrete,
+} from './manual-bid-frete-affordance-interativo'
 import {
   ICONE_FIELD,
   ICONE_LABEL_SECAO,
@@ -283,6 +288,19 @@ const IDS_ORIGEM = CAMPOS_ORIGEM_DESTINO_BID_FRETE.map((c) => c.id) as string[]
 const IDS_CARGA = CAMPOS_CARGA_INCOTERM_BID_FRETE.map((c) => c.id) as string[]
 const IDS_VISIBILIDADE = CAMPOS_VISIBILIDADE_BID_FRETE.map((c) => c.id) as string[]
 
+type AffordanceAlvoPassoModal = 'tipo_operacao' | 'modal_frete' | 'modalidade' | 'carga_perigosa'
+
+function resolverAffordancePassoModal(
+  interagiu: Partial<Record<CampoModalOperacaoId, boolean>>,
+  exibirModalidade: boolean,
+): AffordanceAlvoPassoModal | null {
+  if (!interagiu.tipo_operacao) return 'tipo_operacao'
+  if (!interagiu.modal_frete) return 'modal_frete'
+  if (exibirModalidade && !interagiu.modalidade) return 'modalidade'
+  if (!interagiu.carga_perigosa) return 'carga_perigosa'
+  return null
+}
+
 /** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
 export function ManualBidFreteSimuladorModalOperacao() {
   const [passoAtual, setPassoAtual] = useState(1)
@@ -466,20 +484,28 @@ export function ManualBidFreteSimuladorModalOperacao() {
 
   const podeVoltar = passoAtual > 1
 
+  const affordancePassoModal = useMemo(
+    () => (tipoPassoAtual === 'modal'
+      ? resolverAffordancePassoModal(interagiuModal, exibirModalidade)
+      : null),
+    [tipoPassoAtual, interagiuModal, exibirModalidade],
+  )
+  const demoAtiva = !cotacaoCriadaSimulacao
+
   return (
     <div id="sim-bid-frete-modal-operacao" style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
-      <p style={{
-        margin: '0 0 10px',
-        fontSize: '.75rem',
-        lineHeight: 1.45,
-        color: 'color-mix(in srgb, var(--ws-text, #f1f5f9) 65%, transparent)',
-        fontStyle: 'italic',
-      }}>
-        Tela interativa: avance entre os passos nesta mesma tela; o guia à direita preserva todas as escolhas
-      </p>
+      <FaixaDemoInterativaBidFrete
+        mensagem={
+          affordancePassoModal === 'tipo_operacao'
+            ? 'Demo interativa — comece escolhendo o tipo de operação'
+            : 'Demo interativa — preencha os campos; o guia à direita registra cada escolha'
+        }
+        visivel={demoAtiva}
+      />
       <style>{NC_ESTILOS_SIMULADOR_MODAL_OPERACAO}</style>
       <style>{NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO}</style>
       <style>{NC_ESTILOS_SIMULADOR_CARGA_INCOTERM}</style>
+      <style>{NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE}</style>
       <div className="sim-modal-operacao-layout">
         <div>
           <ManualBidFreteSimuladorWizardEmbutido
@@ -489,6 +515,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             passos={passosWizard}
             passoAtual={passoAtual}
             larguraTotal
+            classNameShell={demoAtiva ? 'sim-wizard-embutido--vivo' : undefined}
             podeAvancar={podeAvancar}
             podeVoltar={podeVoltar}
             rotuloAvancar={tipoPassoAtual === 'resumo' ? 'Criar Cotação' : 'Próximo'}
@@ -544,16 +571,22 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     Tipo de operação
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-2">
-                    <SimuladorNcOptionButton
-                      selected={estado.tipo_operacao === 'IMPORTACAO'}
-                      onClick={() => {
-                        setEstado((prev) => ({ ...prev, tipo_operacao: 'IMPORTACAO' }))
-                        marcarInteracaoModal('tipo_operacao')
-                      }}
-                      icon={<DownloadSimple weight="duotone" size={24} />}
-                      label="Importação"
-                      description="Cotações de frete de importação"
-                    />
+                    <WrapperAlvoAffordanceBidFrete
+                      destacado={affordancePassoModal === 'tipo_operacao'}
+                      rotuloClique="Importação"
+                      varianteCursor="compacto"
+                    >
+                      <SimuladorNcOptionButton
+                        selected={estado.tipo_operacao === 'IMPORTACAO'}
+                        onClick={() => {
+                          setEstado((prev) => ({ ...prev, tipo_operacao: 'IMPORTACAO' }))
+                          marcarInteracaoModal('tipo_operacao')
+                        }}
+                        icon={<DownloadSimple weight="duotone" size={24} />}
+                        label="Importação"
+                        description="Cotações de frete de importação"
+                      />
+                    </WrapperAlvoAffordanceBidFrete>
                     <SimuladorNcOptionButton
                       selected={estado.tipo_operacao === 'EXPORTACAO'}
                       onClick={() => {
@@ -570,24 +603,30 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     Modal de frete
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-3">
-                    <SimuladorNcOptionButton
-                      selected={estado.modal_frete === 'MARITIMO'}
-                      onClick={() => {
-                        const mudou = estado.modal_frete !== 'MARITIMO'
-                        setEstado((prev) => ({ ...prev, modal_frete: 'MARITIMO', modalidade: '' }))
-                        if (mudou) {
-                          setEstadoLocais({
-                            origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
-                            destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
-                          })
-                          setInteragiuLocais({})
-                        }
-                        marcarInteracaoModal('modal_frete')
-                      }}
-                      icon={<Anchor weight="duotone" size={24} />}
-                      label="Marítimo"
-                      description="Alto volume, menor custo"
-                    />
+                    <WrapperAlvoAffordanceBidFrete
+                      destacado={affordancePassoModal === 'modal_frete'}
+                      rotuloClique="Marítimo"
+                      varianteCursor="compacto"
+                    >
+                      <SimuladorNcOptionButton
+                        selected={estado.modal_frete === 'MARITIMO'}
+                        onClick={() => {
+                          const mudou = estado.modal_frete !== 'MARITIMO'
+                          setEstado((prev) => ({ ...prev, modal_frete: 'MARITIMO', modalidade: '' }))
+                          if (mudou) {
+                            setEstadoLocais({
+                              origem: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                              destino: { ...ESTADO_LADO_ORIGEM_DESTINO_INICIAL },
+                            })
+                            setInteragiuLocais({})
+                          }
+                          marcarInteracaoModal('modal_frete')
+                        }}
+                        icon={<Anchor weight="duotone" size={24} />}
+                        label="Marítimo"
+                        description="Alto volume, menor custo"
+                      />
+                    </WrapperAlvoAffordanceBidFrete>
                     <SimuladorNcOptionButton
                       selected={estado.modal_frete === 'AEREO'}
                       onClick={() => {
@@ -640,16 +679,22 @@ export function ManualBidFreteSimuladorModalOperacao() {
                         ) : null}
                         {estado.modal_frete === 'MARITIMO' ? (
                           <>
-                            <SimuladorNcOptionButton
-                              selected={estado.modalidade === 'FCL'}
-                              onClick={() => {
-                                setEstado((prev) => ({ ...prev, modalidade: 'FCL' }))
-                                marcarInteracaoModal('modalidade')
-                              }}
-                              icon={<Package weight="duotone" size={22} />}
-                              label="FCL (Container Completo)"
-                              description="Container completo e exclusivo para acomodar suas mercadorias."
-                            />
+                            <WrapperAlvoAffordanceBidFrete
+                              destacado={affordancePassoModal === 'modalidade'}
+                              rotuloClique="FCL"
+                              varianteCursor="compacto"
+                            >
+                              <SimuladorNcOptionButton
+                                selected={estado.modalidade === 'FCL'}
+                                onClick={() => {
+                                  setEstado((prev) => ({ ...prev, modalidade: 'FCL' }))
+                                  marcarInteracaoModal('modalidade')
+                                }}
+                                icon={<Package weight="duotone" size={22} />}
+                                label="FCL (Container Completo)"
+                                description="Container completo e exclusivo para acomodar suas mercadorias."
+                              />
+                            </WrapperAlvoAffordanceBidFrete>
                             <SimuladorNcOptionButton
                               selected={estado.modalidade === 'LCL'}
                               onClick={() => {
@@ -694,17 +739,23 @@ export function ManualBidFreteSimuladorModalOperacao() {
                     Carga perigosa
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-full">
-                    <SimuladorNcOptionButton
-                      selected={estado.carga_perigosa}
-                      onClick={() => {
-                        const marcada = !estado.carga_perigosa
-                        setEstado((prev) => ({ ...prev, carga_perigosa: marcada }))
-                        marcarInteracaoModal('carga_perigosa')
-                      }}
-                      icon={<Warning weight="duotone" size={22} />}
-                      label="Carga Perigosa"
-                      description="Mercadoria classificada ONU (IMDG / ADR / IATA DGR). Informe o número ONU no passo Carga."
-                    />
+                    <WrapperAlvoAffordanceBidFrete
+                      destacado={affordancePassoModal === 'carga_perigosa'}
+                      rotuloClique="Opcional"
+                      varianteCursor="compacto"
+                    >
+                      <SimuladorNcOptionButton
+                        selected={estado.carga_perigosa}
+                        onClick={() => {
+                          const marcada = !estado.carga_perigosa
+                          setEstado((prev) => ({ ...prev, carga_perigosa: marcada }))
+                          marcarInteracaoModal('carga_perigosa')
+                        }}
+                        icon={<Warning weight="duotone" size={22} />}
+                        label="Carga Perigosa"
+                        description="Mercadoria classificada ONU (IMDG / ADR / IATA DGR). Informe o número ONU no passo Carga."
+                      />
+                    </WrapperAlvoAffordanceBidFrete>
                   </div>
                 </div>
               </div>
@@ -766,6 +817,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             modalidade: estado.modalidade,
           }}
           onSelecionarCampo={(id) => setFoco((prev) => (prev === id ? null : id))}
+          conviteInterativo={demoAtiva && selecoesGuia.length === 0}
         />
       </div>
     </div>

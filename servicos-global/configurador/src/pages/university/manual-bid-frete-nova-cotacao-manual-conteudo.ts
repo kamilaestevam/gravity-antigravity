@@ -329,7 +329,7 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
     telas: [
       fig(
         'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao',
-        'Acompanhe no **Painel da Cotação** os e-mails enviados, cotações visualizadas e respondidas. Para mais detalhes, vá até {{link:/university-gravity/docs/bid-frete#doc-sec-7|Painel da Cotação}}.',
+        'Acompanhe no **Painel da Cotação** os e-mails enviados, cotações visualizadas e respondidas. Para mais detalhes, vá até {{link:/university-gravity/docs/bid-frete#doc-sec-7|Painel da cotação}}.',
       ),
     ],
   }),

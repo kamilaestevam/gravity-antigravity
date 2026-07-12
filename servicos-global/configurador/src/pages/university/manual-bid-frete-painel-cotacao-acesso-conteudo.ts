@@ -31,7 +31,7 @@ export const GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO = [
     telas: [
       {
         legenda: '',
-        imagem: S('painel_cotacao_visao_geral'),
+        imagem: S('painel_cotacao_1'),
         paragrafoAntes:
           'Os **três** levam ao mesmo destino: o **Painel da Cotação**.',
       },

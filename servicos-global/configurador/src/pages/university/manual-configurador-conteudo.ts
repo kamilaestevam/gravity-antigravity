@@ -241,6 +241,8 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFretePainelCotacao?: boolean
   /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
   mostrarInfograficoBidFreteFiltrosMapa?: boolean
+  /** Manual BID Frete §7.02 — infográfico das seis abas do Painel da Cotação. */
+  mostrarInfograficoBidFreteAbasPainelCotacao?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
   /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
@@ -396,6 +398,10 @@ export interface DocGaleriaTela {
   pilaresPainelCotacaoBidFrete?: Array<'01' | '02' | '03'>
   /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
   pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
+  /** Chips numerados do infográfico das abas do Painel da Cotação (ex.: ['01'] = Visão geral). */
+  pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
+  /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
+  simuladorBidFretePainelInsights?: boolean
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
@@ -452,6 +458,13 @@ export interface DocFluxo {
   mostrarInfograficoBidFreteInsights?: boolean
   /** Manual BID Frete §07 — três etapas do Painel da Cotação (após parágrafo introdutório do capítulo). */
   mostrarInfograficoBidFretePainelCotacao?: boolean
+  /** Print(s) logo após o infográfico do fluxo, antes dos passos visuais. */
+  figurasAposInfografico?: {
+    imagem: string
+    legenda?: string
+    larguraMaxima?: number
+    paragrafoAntes?: string
+  }[]
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */

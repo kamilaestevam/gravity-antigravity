@@ -6,29 +6,56 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'p
 /** §7.02–7.07 — abas do Painel da Cotação (cockpit da cotação). */
 export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
-    titulo: 'Visão geral',
-    tituloCurto: 'Visão geral',
+    titulo: 'Visão geral do painel de cotação',
+    tituloCurto: 'Visão geral do painel de cotação',
     paragrafos: [
-      'O cockpit da cotação abre com **cabeçalho**, **prazo para resposta**, **métricas de competição** e a **linha do tempo** do status.',
-      'O **Painel de Insights Inteligente** destaca a **melhor proposta**, o **ranking das respostas** e o **termômetro histórico** — atalhos para decidir com rapidez.',
-      'Na aba **Visão geral**, consulte **Detalhes gerais**, **Rota** e **Detalhes da carga** em cards lado a lado.',
+      'A aba **Visão geral** é o cockpit da cotação: reúne **cabeçalho**, **prazo para resposta**, **métricas de competição**, **linha do tempo**, o **Painel de Insights Inteligente** e os cards de **Detalhes gerais**, **Rota** e **Detalhes da carga**.',
     ],
-    imagem: S('painel_cotacao_visao_geral'),
-    imagemAbaixoTexto: true,
+    mostrarInfograficoBidFreteAbasPainelCotacao: true,
+    galeriaTelasAposTabela: [
+      {
+        legenda: 'Visão geral',
+        pilaresAbasPainelCotacaoBidFrete: ['01'],
+        paragrafoAntes:
+          'Tela principal de **detalhamento**, **gestão** e **navegação** do **Painel de Cotações**.',
+      },
+      {
+        legenda: 'Menu Superior',
+        legendaAlinhamento: 'left',
+        paragrafoAntes:
+          'Dados do **prazo para resposta**, **quantificação** para controle rápido e **linha do tempo**.',
+        imagem: S('painel_cotacao_menu_superior'),
+        calloutDepois: {
+          tipo: 'dica',
+          texto: 'Todas as **métricas** são alimentadas automaticamente.',
+        },
+      },
+      {
+        legenda: 'Insights',
+        legendaAlinhamento: 'left',
+        paragrafoAntes:
+          '**Painel de Insights Inteligente** com **melhor proposta**, **ranking** das respostas e **termômetro histórico**.',
+        simuladorBidFretePainelInsights: true,
+      },
+    ],
   },
   {
     titulo: 'Dados gerais',
     tituloCurto: 'Dados gerais',
     paragrafos: [
-      'A aba **Dados gerais** concentra os campos editáveis da solicitação: **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e demais identificadores da cotação.',
-      'Use esta área para ajustar o escopo antes de reenviar aos fornecedores ou revisar o que foi publicado na **Solicitação de Cotação**.',
+      'Na aba **Dados gerais**, **alguns campos da cotação podem ser editados** — ajuste **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e demais identificadores da solicitação.',
+      'Use este espaço para corrigir o escopo da cotação **antes de reenviar** aos fornecedores ou para revisar o que já foi publicado na **Solicitação de Cotação**.',
     ],
-    imagem: S('painel_cotacao_dados_gerais'),
-    imagemAbaixoTexto: true,
+    galeriaTelasAposTabela: [
+      {
+        imagem: S('painel_cotacao_dados_gerais'),
+        legenda: '',
+      },
+    ],
   },
   {
-    titulo: 'Solicitação de Cotação',
-    tituloCurto: 'Solicitação de Cotação',
+    titulo: 'Solicitação de cotação',
+    tituloCurto: 'Solicitação de cotação',
     paragrafos: [
       'A aba **Solicitação de Cotação** lista cada **disparo** enviado aos fornecedores: e-mails, visualizações, respostas e **recusas**.',
       'Acompanhe quem recebeu o pedido, filtre **recusas** e reenvie quando precisar ampliar o leque de agentes de carga.',

@@ -31,6 +31,8 @@ type ManualBidFreteSimuladorWizardEmbutidoProps = {
   onVoltar?: () => void
   /** Substitui o footer padrão (ex.: tela de sucesso com ações customizadas). */
   footerCustom?: React.ReactNode
+  /** Classes extras no shell (ex.: animação de demo interativa). */
+  classNameShell?: string
   children: React.ReactNode
 }
 
@@ -50,6 +52,7 @@ export function ManualBidFreteSimuladorWizardEmbutido({
   onAvancar,
   onVoltar,
   footerCustom,
+  classNameShell,
   children,
 }: ManualBidFreteSimuladorWizardEmbutidoProps) {
   const iconePrimario = iconeAvancar
@@ -73,7 +76,7 @@ export function ManualBidFreteSimuladorWizardEmbutido({
         </p>
       ) : null}
       <div
-        className="sim-wizard-embutido"
+        className={['sim-wizard-embutido', classNameShell].filter(Boolean).join(' ')}
         style={{
           maxWidth: larguraTotal ? 'none' : 820,
           margin: larguraTotal ? 0 : '0 auto',

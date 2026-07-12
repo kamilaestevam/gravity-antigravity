@@ -3,6 +3,7 @@ import {
   CheckCircle,
   Clock,
   CurrencyDollar,
+  Medal,
   Path,
   Trophy,
   UserCircle,
@@ -17,10 +18,15 @@ export type CampoPainelInsightsId =
   | 'escala'
   | 'fornecedor'
   | 'aprovar'
+  | 'ranking_lider'
+  | 'ranking_eixo_frete'
+  | 'ranking_eixo_transit'
+  | 'ranking_eixo_rota'
+  | 'ranking_eixo_prazo'
 
 type CampoPainelInsights = CampoGuiaAoVivo<CampoPainelInsightsId>
 
-export const CAMPOS_PAINEL_INSIGHTS_BID_FRETE: CampoPainelInsights[] = [
+export const CAMPOS_MELHOR_PROPOSTA_PAINEL_INSIGHTS: CampoPainelInsights[] = [
   {
     id: 'valor_total',
     num: '01',
@@ -95,6 +101,74 @@ export const CAMPOS_PAINEL_INSIGHTS_BID_FRETE: CampoPainelInsights[] = [
   },
 ]
 
+export const CAMPOS_RANKING_PAINEL_INSIGHTS: CampoPainelInsights[] = [
+  {
+    id: 'ranking_lider',
+    num: '07',
+    rotulo: 'Líder do ranking',
+    paragrafoGuia:
+      'Exibe a proposta em **1º lugar** no score geral: fornecedor, valor total e colocação consolidada.',
+    descricaoPontos: ['1º no ranking geral', 'Menor frete entre as respostas recebidas'],
+    icone: Medal,
+    cor: '#fbbf24',
+    borda: 'rgba(251,191,36,.32)',
+    fundo: 'rgba(251,191,36,.08)',
+  },
+  {
+    id: 'ranking_eixo_frete',
+    num: '08',
+    rotulo: 'Frete total',
+    paragrafoGuia:
+      'Colocação da proposta líder no eixo **frete total**. Badge **Melhor** quando lidera o comparativo.',
+    descricaoPontos: ['Valor total da proposta', 'Comparativo entre todas as respostas'],
+    icone: CurrencyDollar,
+    cor: '#34d399',
+    borda: 'rgba(52,211,153,.32)',
+    fundo: 'rgba(52,211,153,.08)',
+  },
+  {
+    id: 'ranking_eixo_transit',
+    num: '09',
+    rotulo: 'Transit time',
+    paragrafoGuia:
+      'Posição no eixo **Transit time** — quantos dias até a chegada em relação às demais propostas.',
+    descricaoPontos: ['Dias de trânsito', 'Badge com colocação (ex.: 2º de 3)'],
+    icone: Clock,
+    cor: '#60a5fa',
+    borda: 'rgba(96,165,250,.32)',
+    fundo: 'rgba(96,165,250,.08)',
+  },
+  {
+    id: 'ranking_eixo_rota',
+    num: '10',
+    rotulo: 'Escala / transbordo',
+    paragrafoGuia:
+      'Colocação no eixo **rota**: direto ou quantidade de escalas/transbordos previstos.',
+    descricaoPontos: ['Direto ou número de escalas', 'Menos escalas = melhor colocação'],
+    icone: Path,
+    cor: '#a78bfa',
+    borda: 'rgba(167,139,250,.32)',
+    fundo: 'rgba(139,92,246,.08)',
+  },
+  {
+    id: 'ranking_eixo_prazo',
+    num: '11',
+    rotulo: 'Prazo pagamento',
+    paragrafoGuia:
+      'Eixo **prazo de pagamento** quando informado na proposta; exibe **—** se o fornecedor não preencheu.',
+    descricaoPontos: ['Dias para pagamento', 'Opcional conforme resposta do agente'],
+    icone: ChartBar,
+    cor: '#94a3b8',
+    borda: 'rgba(148,163,184,.28)',
+    fundo: 'rgba(148,163,184,.08)',
+  },
+]
+
+export const CAMPOS_PAINEL_INSIGHTS_BID_FRETE: CampoPainelInsights[] = [
+  ...CAMPOS_MELHOR_PROPOSTA_PAINEL_INSIGHTS,
+  ...CAMPOS_RANKING_PAINEL_INSIGHTS,
+]
+
 export const ROTULO_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, string> = {
   valor_total: 'Melhor proposta',
   transit_time: 'Transit Time',
@@ -102,6 +176,11 @@ export const ROTULO_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, string>
   escala: 'Escala',
   fornecedor: 'Fornecedor',
   aprovar: 'Aprovar',
+  ranking_lider: 'Líder do ranking',
+  ranking_eixo_frete: 'Frete total',
+  ranking_eixo_transit: 'Transit time',
+  ranking_eixo_rota: 'Escala / transbordo',
+  ranking_eixo_prazo: 'Prazo pagamento',
 }
 
 export const ICONE_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, Icon> = {
@@ -111,6 +190,11 @@ export const ICONE_CAMPO_PAINEL_INSIGHTS: Record<CampoPainelInsightsId, Icon> = 
   escala: Path,
   fornecedor: UserCircle,
   aprovar: CheckCircle,
+  ranking_lider: Medal,
+  ranking_eixo_frete: CurrencyDollar,
+  ranking_eixo_transit: Clock,
+  ranking_eixo_rota: Path,
+  ranking_eixo_prazo: ChartBar,
 }
 
 export function resolverExplicacaoPainelInsights(campo: CampoPainelInsightsId): string {
@@ -129,6 +213,11 @@ export function resolverSelecoesPainelInsights(
     escala: 'Direto',
     fornecedor: 'Agente de Carga Ltda',
     aprovar: opcoes?.propostaAprovada ? 'Aprovado' : 'Aprovar proposta',
+    ranking_lider: '1º · Agente de Carga Ltda · US$ 2.150,00',
+    ranking_eixo_frete: 'US$ 2.150,00 · Melhor',
+    ranking_eixo_transit: '30 dias · 2º de 3',
+    ranking_eixo_rota: 'Direto',
+    ranking_eixo_prazo: '—',
   }
 
   return CAMPOS_PAINEL_INSIGHTS_BID_FRETE

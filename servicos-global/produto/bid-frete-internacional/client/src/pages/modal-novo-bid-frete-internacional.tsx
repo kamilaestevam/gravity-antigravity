@@ -166,8 +166,6 @@ export function ModalNovoBidFreteInternacional({
     }
   }
 
-  }
-
   const exibirSucesso = bidCriado != null
   const bloquearFechar = salvando
 

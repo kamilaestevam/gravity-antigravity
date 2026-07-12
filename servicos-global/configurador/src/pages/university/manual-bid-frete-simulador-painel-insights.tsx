@@ -13,14 +13,14 @@ import {
   type BarraComparativoInsight,
   type ComparativoMetricaPainel,
 } from '@produto/bid-frete-internacional/client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional'
-import { ManualBidFreteGuiaAoVivo } from './manual-bid-frete-guia-ao-vivo'
 import {
   CAMPOS_PAINEL_INSIGHTS_BID_FRETE,
-  resolverExplicacaoPainelInsights,
-  resolverSelecoesPainelInsights,
   type CampoPainelInsightsId,
 } from './manual-bid-frete-guia-painel-insights-campos'
-import { NC_ESTILOS_SIMULADOR_MODAL_OPERACAO, NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS, NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE } from './manual-bid-frete-estilos-nc-simulador'
+import {
+  NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS,
+  NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE,
+} from './manual-bid-frete-estilos-nc-simulador'
 import {
   FaixaDemoInterativaBidFrete,
   resolverProximoCampoAffordance,
@@ -30,12 +30,10 @@ import {
   ID_PROPOSTA_MELHOR_PAINEL_INSIGHTS,
   PROPOSTAS_DEMO_PAINEL_INSIGHTS_BID_FRETE,
 } from './manual-bid-frete-mock-propostas-painel-insights'
+import { ManualBidFreteRankingInsightsInterativo } from './manual-bid-frete-ranking-insights-interativo'
 import { MANUAL_ESPACO_PARAGRAFO_PX } from './manual-tipografia'
 
 const ORDEM_AFFORDANCE_INSIGHTS = CAMPOS_PAINEL_INSIGHTS_BID_FRETE.map((c) => c.id)
-
-/** Altura do spark no manual — um pouco acima do cockpit (52px) para legibilidade na demo. */
-const SPARK_SLOT_MANUAL_PX = 58
 
 const ROTULO_AFFORDANCE_CAMPO_INSIGHTS: Record<CampoPainelInsightsId, string> = {
   valor_total: 'Clique no valor',
@@ -44,7 +42,24 @@ const ROTULO_AFFORDANCE_CAMPO_INSIGHTS: Record<CampoPainelInsightsId, string> = 
   escala: 'Escala',
   fornecedor: 'Fornecedor',
   aprovar: 'Aprovar',
+  ranking_lider: 'Líder do ranking',
+  ranking_eixo_frete: 'Frete total',
+  ranking_eixo_transit: 'Transit time',
+  ranking_eixo_rota: 'Escala / transbordo',
+  ranking_eixo_prazo: 'Prazo pagamento',
 }
+
+const CAMPOS_MELHOR_PROPOSTA = new Set<CampoPainelInsightsId>([
+  'valor_total',
+  'transit_time',
+  'free_time',
+  'escala',
+  'fornecedor',
+  'aprovar',
+])
+
+/** Altura do spark no manual — um pouco acima do cockpit (52px) para legibilidade na demo. */
+const SPARK_SLOT_MANUAL_PX = 58
 
 function criarTextoVsGanhador(
   t: TFunction,
@@ -125,30 +140,28 @@ function CelulaMetricaInsightsManual({
       onClick={onSelecionar}
       aria-pressed={ativa}
     >
-        <div className="dc-smart-metrica-col-texto">
-          <span className="dc-smart-metrica-label">{label}</span>
-          <span className="dc-smart-metrica-valor">{valor}</span>
-        </div>
-        <div
-          className="dc-smart-metrica-spark dc-smart-metrica-spark--melhor-proposta"
-        >
-          <SparkBarrasComparativo
-            barras={comparativo.barras}
-            melhorMenor={comparativo.melhorMenor}
-            variante="indigo"
-            rotuloMetrica={rotuloMetrica}
-            formatarValor={formatarValor}
-            textoVsGanhador={textoVsGanhador}
-            dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
-            ancoraBarras="base"
-            preencherSlot
-          />
-        </div>
-      </button>
+      <div className="dc-smart-metrica-col-texto">
+        <span className="dc-smart-metrica-label">{label}</span>
+        <span className="dc-smart-metrica-valor">{valor}</span>
+      </div>
+      <div className="dc-smart-metrica-spark dc-smart-metrica-spark--melhor-proposta">
+        <SparkBarrasComparativo
+          barras={comparativo.barras}
+          melhorMenor={comparativo.melhorMenor}
+          variante="indigo"
+          rotuloMetrica={rotuloMetrica}
+          formatarValor={formatarValor}
+          textoVsGanhador={textoVsGanhador}
+          dimensoesView={SPARK_VIEW_MELHOR_PROPOSTA}
+          ancoraBarras="base"
+          preencherSlot
+        />
+      </div>
+    </button>
   )
 }
 
-/** Manual BID Frete §7.02 — card Melhor proposta interativo + Guia ao vivo (paridade cockpit). */
+/** Manual BID Frete §7.02 — paridade cockpit (Melhor proposta + Ranking, demo interativa). */
 export function ManualBidFreteSimuladorPainelInsights() {
   const { t } = useTranslation()
   const [foco, setFoco] = useState<CampoPainelInsightsId | null>(null)
@@ -171,12 +184,6 @@ export function ManualBidFreteSimuladorPainelInsights() {
     setPropostaAprovada(true)
     window.setTimeout(() => setAnimandoAprovacao(false), 520)
   }, [marcarInteracao, propostaAprovada])
-
-  const selecoes = useMemo(
-    () => resolverSelecoesPainelInsights(interagiu, { propostaAprovada }),
-    [interagiu, propostaAprovada],
-  )
-  const explicacao = foco ? resolverExplicacaoPainelInsights(foco) : undefined
 
   const interagiuAffordance = useMemo(
     () => ({
@@ -252,9 +259,14 @@ export function ManualBidFreteSimuladorPainelInsights() {
   const rotuloEscala = t('bidfrete.detalhe_cotacao.cockpit_escala', 'Escala')
   const fornecedor = propostaMelhor.fornecedor_nome ?? 'Agente de Carga Ltda'
 
-  const rotuloAffordanceCard = proximoCampoAffordance != null
+  const destacarMelhorProposta = proximoCampoAffordance != null
+    && CAMPOS_MELHOR_PROPOSTA.has(proximoCampoAffordance)
+  const rotuloAffordanceCard = proximoCampoAffordance != null && destacarMelhorProposta
     ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS[proximoCampoAffordance]
     : 'Clique no card'
+  const rotuloAffordanceRanking = proximoCampoAffordance != null
+    ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS[proximoCampoAffordance]
+    : 'Clique no ranking'
 
   return (
     <div
@@ -263,125 +275,124 @@ export function ManualBidFreteSimuladorPainelInsights() {
       style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}
     >
       <FaixaDemoInterativaBidFrete
-        mensagem="Demo interativa — clique nos blocos do card; passe o mouse nas barras para ver tooltips"
+        mensagem="Demo interativa — clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips"
         visivel={demoAtiva}
       />
-      <style>{NC_ESTILOS_SIMULADOR_MODAL_OPERACAO}</style>
       <style>{NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS}</style>
       <style>{NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE}</style>
-      <div className="sim-modal-operacao-layout">
-        <div className="sim-insights-layout-esquerda">
-        <div
-          className="dc-cockpit-insights-row sim-insights-cockpit-row"
-          style={{ '--sim-spark-h-manual': `${SPARK_SLOT_MANUAL_PX}px` } as React.CSSProperties}
-        >
-          <div className="dc-smart-insights-grid">
-        <WrapperAlvoAffordanceBidFrete
-          destacado={demoAtiva}
-          className={[
-            'dc-smart-card',
-            'dc-smart-card--melhor',
-            'dc-smart-card--melhor-compacto',
-            'sim-insights-card-cockpit',
-            'sim-affordance-alvo--card-melhor',
-          ].join(' ')}
-          rotuloClique={rotuloAffordanceCard}
-          cursorAlvo={proximoCampoAffordance ?? undefined}
-          as="article"
-        >
-          <header className="dc-smart-card-head">
-            <span>{t('bidfrete.detalhe_cotacao.cockpit_melhor_proposta', 'Melhor proposta')}</span>
-            <Trophy weight="duotone" size={18} className="dc-smart-trophy" aria-hidden />
-          </header>
-          <div className="dc-smart-card-body dc-smart-card-body--melhor-proposta">
-            <button
-              type="button"
-              className={`sim-insights-interativo sim-insights-interativo--valor-shell${foco === 'valor_total' ? ' sim-insights-interativo--ativa' : ''}`}
-              onClick={() => marcarInteracao('valor_total')}
-              aria-pressed={foco === 'valor_total'}
-            >
-              <p className="dc-smart-valor-hero">{valorHero}</p>
-            </button>
-            <div
-              className="dc-smart-metricas-row dc-smart-metricas-row--melhor-proposta"
-              role="list"
-            >
-              <CelulaMetricaInsightsManual
-                label={rotuloTransit}
-                valor={`${propostaMelhor.dias_transito_proposta_bid_frete_internacional} ${diasLabel}`}
-                comparativo={comparativos.comparativoTransito}
-                rotuloMetrica={rotuloTransit}
-                formatarValor={fmtDias}
-                sufixoDiff={diasLabel}
-                ativa={foco === 'transit_time'}
-                onSelecionar={() => marcarInteracao('transit_time')}
-              />
-              <CelulaMetricaInsightsManual
-                label={rotuloFree}
-                valor={freeTime}
-                comparativo={comparativos.comparativoFreeTime}
-                rotuloMetrica={rotuloFree}
-                formatarValor={fmtDias}
-                sufixoDiff={diasLabel}
-                ativa={foco === 'free_time'}
-                onSelecionar={() => marcarInteracao('free_time')}
-              />
-              <CelulaMetricaInsightsManual
-                label={rotuloEscala}
-                valor={escala}
-                comparativo={comparativos.comparativoEscala}
-                rotuloMetrica={rotuloEscala}
-                formatarValor={fmtEscala}
-                sufixoDiff={t('bidfrete.detalhe_cotacao.spark_sufixo_escala', 'escala(s)')}
-                ativa={foco === 'escala'}
-                onSelecionar={() => marcarInteracao('escala')}
-              />
-            </div>
-          </div>
-          <footer className="dc-smart-fornecedor-foot">
-            <button
-              type="button"
-              className={`sim-insights-fornecedor-btn${foco === 'fornecedor' ? ' sim-insights-interativo--ativa' : ''}`}
-              onClick={() => marcarInteracao('fornecedor')}
-              aria-pressed={foco === 'fornecedor'}
-            >
-              <span className="dc-smart-fornecedor-avatar" aria-hidden>
-                {fornecedor.slice(0, 1).toUpperCase()}
-              </span>
-              <span className="dc-smart-fornecedor-nome" title={fornecedor}>
-                {fornecedor.length > 24 ? `${fornecedor.slice(0, 22)}…` : fornecedor}
-              </span>
-            </button>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
+      <section
+        className="dc-cockpit-insights-row"
+        aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}
+        style={{ '--sim-spark-h-manual': `${SPARK_SLOT_MANUAL_PX}px` } as React.CSSProperties}
+      >
+        <div className="dc-smart-insights">
+          <div className="dc-smart-insights-grid sim-insights-grid-manual">
+            <WrapperAlvoAffordanceBidFrete
+              destacado={destacarMelhorProposta}
               className={[
-                'dc-prop-btn-aprovar',
-                'dc-smart-btn-aprovar',
-                foco === 'aprovar' ? 'sim-insights-interativo--ativa' : '',
-                animandoAprovacao ? 'sim-insights-btn-aprovar--confirmando' : '',
-                propostaAprovada ? 'sim-insights-btn-aprovar--aprovado' : '',
-              ].filter(Boolean).join(' ')}
-              icone={<CheckCircle weight={propostaAprovada ? 'fill' : 'bold'} size={14} />}
-              onClick={aoClicarAprovar}
-              aria-pressed={propostaAprovada}
+                'dc-smart-card',
+                'dc-smart-card--melhor',
+                'dc-smart-card--melhor-compacto',
+                'sim-insights-card-cockpit',
+                'sim-affordance-alvo--card-melhor',
+              ].join(' ')}
+              rotuloClique={rotuloAffordanceCard}
+              cursorAlvo={destacarMelhorProposta ? proximoCampoAffordance ?? undefined : undefined}
+              as="article"
             >
-              {propostaAprovada ? 'Aprovado' : t('bidfrete.comparativo.aprovar', 'Aprovar')}
-            </BotaoGlobal>
-          </footer>
-        </WrapperAlvoAffordanceBidFrete>
+              <header className="dc-smart-card-head">
+                <span>{t('bidfrete.detalhe_cotacao.cockpit_melhor_proposta', 'Melhor proposta')}</span>
+                <Trophy weight="duotone" size={18} className="dc-smart-trophy" aria-hidden />
+              </header>
+              <div className="dc-smart-card-body dc-smart-card-body--melhor-proposta">
+                <button
+                  type="button"
+                  className={`sim-insights-interativo sim-insights-interativo--valor-shell${foco === 'valor_total' ? ' sim-insights-interativo--ativa' : ''}`}
+                  onClick={() => marcarInteracao('valor_total')}
+                  aria-pressed={foco === 'valor_total'}
+                >
+                  <p className="dc-smart-valor-hero">{valorHero}</p>
+                </button>
+                <div
+                  className="dc-smart-metricas-row dc-smart-metricas-row--melhor-proposta"
+                  role="list"
+                >
+                  <CelulaMetricaInsightsManual
+                    label={rotuloTransit}
+                    valor={`${propostaMelhor.dias_transito_proposta_bid_frete_internacional} ${diasLabel}`}
+                    comparativo={comparativos.comparativoTransito}
+                    rotuloMetrica={rotuloTransit}
+                    formatarValor={fmtDias}
+                    sufixoDiff={diasLabel}
+                    ativa={foco === 'transit_time'}
+                    onSelecionar={() => marcarInteracao('transit_time')}
+                  />
+                  <CelulaMetricaInsightsManual
+                    label={rotuloFree}
+                    valor={freeTime}
+                    comparativo={comparativos.comparativoFreeTime}
+                    rotuloMetrica={rotuloFree}
+                    formatarValor={fmtDias}
+                    sufixoDiff={diasLabel}
+                    ativa={foco === 'free_time'}
+                    onSelecionar={() => marcarInteracao('free_time')}
+                  />
+                  <CelulaMetricaInsightsManual
+                    label={rotuloEscala}
+                    valor={escala}
+                    comparativo={comparativos.comparativoEscala}
+                    rotuloMetrica={rotuloEscala}
+                    formatarValor={fmtEscala}
+                    sufixoDiff={t('bidfrete.detalhe_cotacao.spark_sufixo_escala', 'escala(s)')}
+                    ativa={foco === 'escala'}
+                    onSelecionar={() => marcarInteracao('escala')}
+                  />
+                </div>
+              </div>
+              <footer className="dc-smart-fornecedor-foot">
+                <button
+                  type="button"
+                  className={`sim-insights-fornecedor-btn${foco === 'fornecedor' ? ' sim-insights-interativo--ativa' : ''}`}
+                  onClick={() => marcarInteracao('fornecedor')}
+                  aria-pressed={foco === 'fornecedor'}
+                >
+                  <span className="dc-smart-fornecedor-avatar" aria-hidden>
+                    {fornecedor.slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="dc-smart-fornecedor-nome" title={fornecedor}>
+                    {fornecedor.length > 24 ? `${fornecedor.slice(0, 22)}…` : fornecedor}
+                  </span>
+                </button>
+                <BotaoGlobal
+                  variante="secundario"
+                  tamanho="pequeno"
+                  className={[
+                    'dc-prop-btn-aprovar',
+                    'dc-smart-btn-aprovar',
+                    foco === 'aprovar' ? 'sim-insights-interativo--ativa' : '',
+                    animandoAprovacao ? 'sim-insights-btn-aprovar--confirmando' : '',
+                    propostaAprovada ? 'sim-insights-btn-aprovar--aprovado' : '',
+                  ].filter(Boolean).join(' ')}
+                  icone={<CheckCircle weight={propostaAprovada ? 'fill' : 'bold'} size={14} />}
+                  onClick={aoClicarAprovar}
+                  aria-pressed={propostaAprovada}
+                >
+                  {propostaAprovada ? 'Aprovado' : t('bidfrete.comparativo.aprovar', 'Aprovar')}
+                </BotaoGlobal>
+              </footer>
+            </WrapperAlvoAffordanceBidFrete>
+
+            <ManualBidFreteRankingInsightsInterativo
+              propostaLider={propostaMelhor}
+              propostasTodas={PROPOSTAS_DEMO_PAINEL_INSIGHTS_BID_FRETE}
+              foco={foco}
+              proximoCampoAffordance={proximoCampoAffordance}
+              rotuloAffordance={rotuloAffordanceRanking}
+              onSelecionarCampo={marcarInteracao}
+            />
           </div>
         </div>
-        </div>
-
-        <ManualBidFreteGuiaAoVivo
-          campos={CAMPOS_PAINEL_INSIGHTS_BID_FRETE}
-          selecoes={selecoes}
-          campoAtivo={foco}
-          textoContextual={explicacao}
-          conviteInterativo={demoAtiva && selecoes.length === 0}
-        />
-      </div>
+      </section>
     </div>
   )
 }

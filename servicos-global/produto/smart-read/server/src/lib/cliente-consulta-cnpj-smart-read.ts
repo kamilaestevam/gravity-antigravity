@@ -5,7 +5,7 @@
 import { z } from 'zod'
 import type { DadosOficiaisCnpjLeitura } from '../../../shared/analise-riscos-leitura-smart-read.js'
 
-const FETCH_TIMEOUT_MS = 8_000
+const FETCH_TIMEOUT_MS = 2_800
 
 const BrasilApiCnpjSchema = z.object({
   cnpj: z.string().optional(),
@@ -30,7 +30,7 @@ function baseUrlConsultaCnpj(): string {
   ).replace(/\/$/, '')
 }
 
-const TENTATIVAS_POR_PROVEDOR = 2
+const TENTATIVAS_POR_PROVEDOR = 1
 const ESPERA_ENTRE_TENTATIVAS_MS = 1_000
 const TTL_CACHE_CNPJ_MS = 30 * 60 * 1000
 

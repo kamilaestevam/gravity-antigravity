@@ -507,4 +507,21 @@ describe('executarPasso1ValidacaoCodigoPackingList (motor Código + Cross-Doc)',
     expect(contagem.verde).toBeGreaterThan(0)
     expect(contagem.na).toBeLessThan(contagem.total)
   })
+
+  it('modo instantâneo exibe prévia amarela sem spinner (P3-04)', () => {
+    const itens = montarChecklistMatrizPackingList({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: true,
+      enriquecimento_ia_em_andamento: true,
+      fase_enriquecimento_analise: 'llm',
+      rotulo_documento: ROTULO_PL,
+    })
+    const p304 = itens.find((i) => i.regra.id === 'P3-04')
+    expect(p304?.status).toBe('pendente')
+    expect(p304?.em_analise).toBe(true)
+    expect(p304?.resultado).toContain('Aguardando cruzamento documental')
+  })
 })

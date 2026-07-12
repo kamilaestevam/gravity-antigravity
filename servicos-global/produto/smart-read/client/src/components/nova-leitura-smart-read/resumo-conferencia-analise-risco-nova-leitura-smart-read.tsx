@@ -29,6 +29,7 @@ import {
 import {
   dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
+  obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead,
   obterRequisicaoAnaliseRiscosEmVooSmartRead,
 } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { obterCacheAnaliseRiscosSessaoSmartRead } from '../../shared/cache-analise-riscos-sessao-smart-read'
@@ -168,6 +169,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           setAvisoAnalise(resposta.aviso ?? null)
           setVersaoAnalise((v) => v + 1)
         },
+        onParcial: () => setVersaoAnalise((v) => v + 1),
         onErro: () => {
           if (tentativasAnaliseRef.current < 2) {
             tentativasAnaliseRef.current += 1
@@ -230,8 +232,11 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     const v1Disponivel = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
     const pipelineConcluido =
       v1Disponivel || Boolean(emCacheRiscos) || (analiseEncerrada && !carregando)
-    const enriquecimento_ia_em_andamento = carregando && !emCacheRiscos
-    const analiseServidorIndisponivel = analiseEncerrada && !carregando && !emCacheRiscos
+    const enriquecimento_ia_em_andamento = carregando && !emCacheRiscos?.llm_ativo
+    const fase_enriquecimento_analise = obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead(
+      chaveAnaliseRiscos,
+    )
+    const analiseServidorIndisponivel = analiseEncerrada && !carregando && !emCacheRiscos?.llm_ativo
 
     return {
       regras: regrasEfetivas,
@@ -241,6 +246,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       carregando,
       analise_servidor_indisponivel: analiseServidorIndisponivel,
       enriquecimento_ia_em_andamento,
+      fase_enriquecimento_analise,
       cnpj_oficial: emCacheRiscos?.contexto_v1.cnpj_oficial ?? null,
       documentos: documentosRisco,
     }

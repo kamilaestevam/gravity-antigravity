@@ -6,6 +6,10 @@ import type {
   ContextoAuditoriaV1Leitura,
   DocumentoAnaliseRisco,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
+import {
+  compactarDocumentoParaPromptLlmAnaliseRiscos,
+  serializarPayloadPromptLlm,
+} from '../../../shared/compactar-documento-prompt-llm-analise-riscos-smart-read.js'
 
 export const SYSTEM_PROMPT_ANALISTA_PACKING_LIST = `Voce e especialista em auditoria aduaneira e atua como inteligencia analitica do Gravity Smart Docs.
 Voce recebe dados extraidos de um Packing List (romaneio de carga) e, quando disponiveis, da Commercial Invoice e do conhecimento de embarque (BL/AWB) da mesma leitura.
@@ -46,20 +50,23 @@ export function montarPromptAnalistaPackingList(params: {
   chunksRag?: string[]
 }): string {
   const regrasCodigoPl = params.contexto.regras.filter((regra) => /^P\d+-\d+/.test(regra.id))
+  const packingCompacto = params.documentosPacking.map(compactarDocumentoParaPromptLlmAnaliseRiscos)
+  const invoiceCompacto = params.documentosInvoice.map(compactarDocumentoParaPromptLlmAnaliseRiscos)
+  const conhecimentoCompacto = params.documentosConhecimento.map(compactarDocumentoParaPromptLlmAnaliseRiscos)
   return `MOTOR CODIGO PL — RESULTADOS DETERMINISTICOS (NAO RECALCULAR):
-${JSON.stringify(regrasCodigoPl, null, 2)}
+${serializarPayloadPromptLlm(regrasCodigoPl)}
 
 RAG NORMATIVO:
-${params.chunksRag?.length ? JSON.stringify(params.chunksRag) : 'nenhum'}
+${params.chunksRag?.length ? serializarPayloadPromptLlm(params.chunksRag) : 'nenhum'}
 
 PACKING LIST EXTRAIDO:
-${JSON.stringify(params.documentosPacking, null, 2)}
+${serializarPayloadPromptLlm(packingCompacto)}
 
 INVOICE(S) DA MESMA LEITURA (para cruzamentos semanticos):
-${JSON.stringify(params.documentosInvoice, null, 2)}
+${serializarPayloadPromptLlm(invoiceCompacto)}
 
 CONHECIMENTO(S) DE EMBARQUE (BL/AWB):
-${JSON.stringify(params.documentosConhecimento, null, 2)}
+${serializarPayloadPromptLlm(conhecimentoCompacto)}
 
 Retorne JSON: { "riscos": [{ "severidade": "critico|atencao|informativo", "categoria": "documental|cruzado|comercial|normativo", "titulo": "...", "motivo": "...", "analise": "...", "correcao_sugerida": "...", "evidencias": [{ "documento": "...", "campo": "...", "valor": "..." }], "secao_matriz": "...", "id_regra_matriz": "P#-##", "motor_validacao": "llm", "status_matriz": "vermelho|amarelo|verde", "citacoes_normativas": [] }] }`
 }

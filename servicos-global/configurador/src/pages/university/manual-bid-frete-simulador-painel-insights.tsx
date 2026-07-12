@@ -15,10 +15,14 @@ import {
 } from '@produto/bid-frete-internacional/client/src/shared/infograficos-fluxo-cotacao-bid-frete-internacional'
 import {
   CAMPOS_PAINEL_INSIGHTS_BID_FRETE,
+  resolverExplicacaoPainelInsights,
+  resolverSelecoesPainelInsights,
   type CampoPainelInsightsId,
 } from './manual-bid-frete-guia-painel-insights-campos'
+import { ManualBidFreteGuiaAoVivo } from './manual-bid-frete-guia-ao-vivo'
 import {
   NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS,
+  NC_ESTILOS_SIMULADOR_WIZARD_SHELL,
   NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE,
 } from './manual-bid-frete-estilos-nc-simulador'
 import {
@@ -27,10 +31,12 @@ import {
   WrapperAlvoAffordanceBidFrete,
 } from './manual-bid-frete-affordance-interativo'
 import {
+  NOME_AGENTE_LIDER_DEMO_PAINEL_INSIGHTS,
   ID_PROPOSTA_MELHOR_PAINEL_INSIGHTS,
   PROPOSTAS_DEMO_PAINEL_INSIGHTS_BID_FRETE,
 } from './manual-bid-frete-mock-propostas-painel-insights'
 import { ManualBidFreteRankingInsightsInterativo } from './manual-bid-frete-ranking-insights-interativo'
+import { ManualBidFreteSimuladorTermometroInsights } from './manual-bid-frete-simulador-termometro-insights'
 import { MANUAL_ESPACO_PARAGRAFO_PX } from './manual-tipografia'
 
 const ORDEM_AFFORDANCE_INSIGHTS = CAMPOS_PAINEL_INSIGHTS_BID_FRETE.map((c) => c.id)
@@ -257,7 +263,7 @@ export function ManualBidFreteSimuladorPainelInsights() {
   const rotuloTransit = t('bidfrete.detalhe_cotacao.cockpit_transit_time', 'Transit Time')
   const rotuloFree = t('bidfrete.detalhe_cotacao.info_free_time', 'Free Time')
   const rotuloEscala = t('bidfrete.detalhe_cotacao.cockpit_escala', 'Escala')
-  const fornecedor = propostaMelhor.fornecedor_nome ?? 'Agente de Carga Ltda'
+  const fornecedor = propostaMelhor.fornecedor_nome ?? NOME_AGENTE_LIDER_DEMO_PAINEL_INSIGHTS
 
   const destacarMelhorProposta = proximoCampoAffordance != null
     && CAMPOS_MELHOR_PROPOSTA.has(proximoCampoAffordance)
@@ -268,6 +274,22 @@ export function ManualBidFreteSimuladorPainelInsights() {
     ? ROTULO_AFFORDANCE_CAMPO_INSIGHTS[proximoCampoAffordance]
     : 'Clique no ranking'
 
+  const selecoesGuia = useMemo(
+    () => resolverSelecoesPainelInsights(interagiuAffordance, { propostaAprovada }),
+    [interagiuAffordance, propostaAprovada],
+  )
+
+  const campoGuiaAtivo = useMemo((): CampoPainelInsightsId | null => {
+    if (!foco) return null
+    if (!selecoesGuia.some((selecao) => selecao.id === foco)) return null
+    return foco
+  }, [foco, selecoesGuia])
+
+  const explicacaoGuia = useMemo(
+    () => (campoGuiaAtivo ? resolverExplicacaoPainelInsights(campoGuiaAtivo) : ''),
+    [campoGuiaAtivo],
+  )
+
   return (
     <div
       id="sim-bid-frete-painel-insights"
@@ -275,18 +297,24 @@ export function ManualBidFreteSimuladorPainelInsights() {
       style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}
     >
       <FaixaDemoInterativaBidFrete
-        mensagem="Demo interativa — clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips"
+        mensagem={
+          demoAtiva && selecoesGuia.length === 0
+            ? 'Demo interativa — clique nos blocos dos cards; o guia à direita registra cada escolha'
+            : 'Demo interativa — clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips'
+        }
         visivel={demoAtiva}
       />
+      <style>{NC_ESTILOS_SIMULADOR_WIZARD_SHELL}</style>
       <style>{NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS}</style>
       <style>{NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE}</style>
-      <section
-        className="dc-cockpit-insights-row"
-        aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}
-        style={{ '--sim-spark-h-manual': `${SPARK_SLOT_MANUAL_PX}px` } as React.CSSProperties}
-      >
-        <div className="dc-smart-insights">
-          <div className="dc-smart-insights-grid sim-insights-grid-manual">
+      <div className="sim-modal-operacao-layout">
+        <section
+          className="dc-cockpit-insights-row"
+          aria-label={t('bidfrete.detalhe_cotacao.cockpit_insights', 'Insights')}
+          style={{ '--sim-spark-h-manual': `${SPARK_SLOT_MANUAL_PX}px` } as React.CSSProperties}
+        >
+          <div className="dc-smart-insights">
+            <div className="dc-smart-insights-grid sim-insights-grid-manual">
             <WrapperAlvoAffordanceBidFrete
               destacado={destacarMelhorProposta}
               className={[
@@ -390,9 +418,20 @@ export function ManualBidFreteSimuladorPainelInsights() {
               rotuloAffordance={rotuloAffordanceRanking}
               onSelecionarCampo={marcarInteracao}
             />
+
+            <ManualBidFreteSimuladorTermometroInsights />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <ManualBidFreteGuiaAoVivo
+          campos={CAMPOS_PAINEL_INSIGHTS_BID_FRETE}
+          selecoes={selecoesGuia}
+          campoAtivo={campoGuiaAtivo}
+          textoContextual={explicacaoGuia}
+          conviteInterativo={demoAtiva && selecoesGuia.length === 0}
+        />
+      </div>
     </div>
   )
 }

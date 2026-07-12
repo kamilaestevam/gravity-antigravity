@@ -9,6 +9,7 @@ import {
   UserCircle,
   type Icon,
 } from '@phosphor-icons/react'
+import { NOME_AGENTE_LIDER_DEMO_PAINEL_INSIGHTS } from './manual-bid-frete-mock-propostas-painel-insights'
 import type { CampoGuiaAoVivo } from './manual-bid-frete-guia-ao-vivo'
 
 export type CampoPainelInsightsId =
@@ -211,9 +212,9 @@ export function resolverSelecoesPainelInsights(
     transit_time: '30 dias',
     free_time: '15 dias',
     escala: 'Direto',
-    fornecedor: 'Agente de Carga Ltda',
+    fornecedor: NOME_AGENTE_LIDER_DEMO_PAINEL_INSIGHTS,
     aprovar: opcoes?.propostaAprovada ? 'Aprovado' : 'Aprovar proposta',
-    ranking_lider: '1º · Agente de Carga Ltda · US$ 2.150,00',
+    ranking_lider: `1º · ${NOME_AGENTE_LIDER_DEMO_PAINEL_INSIGHTS} · US$ 2.150,00`,
     ranking_eixo_frete: 'US$ 2.150,00 · Melhor',
     ranking_eixo_transit: '30 dias · 2º de 3',
     ranking_eixo_rota: 'Direto',

@@ -1601,11 +1601,200 @@ export const NC_ESTILOS_SIMULADOR_CARGA_INCOTERM = `
 
 /** Manual §7.02 — paridade cockpit; só overrides da demo interativa (sem quebrar o grid real). */
 export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
+  #sim-bid-frete-painel-insights .sim-modal-operacao-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 28%, 360px);
+    gap: 14px;
+    align-items: stretch;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    justify-content: start;
+  }
+  @media (max-width: 1040px) {
+    #sim-bid-frete-painel-insights .sim-modal-operacao-layout {
+      grid-template-columns: 1fr;
+    }
+    #sim-bid-frete-painel-insights .sim-guia-sticky-col {
+      position: sticky;
+      top: 64px;
+      z-index: 4;
+      max-height: min(560px, calc(100vh - 100px));
+    }
+  }
+  @media (min-width: 1041px) {
+    #sim-bid-frete-painel-insights .sim-guia-sticky-col {
+      position: sticky;
+      top: 76px;
+      align-self: stretch;
+      min-height: 100%;
+      max-height: none;
+    }
+  }
+
   #sim-bid-frete-painel-insights .sim-insights-grid-manual {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    height: auto;
+    max-height: none;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-grid-manual > .dc-smart-card {
+    height: auto;
+    max-height: none;
+    align-self: stretch;
   }
   #sim-bid-frete-painel-insights .dc-cockpit-insights-row {
+    --dc-cockpit-insights-grid-h: 18rem;
     --dc-smart-metrica-spark-h: var(--sim-spark-h-manual, 58px);
+    min-width: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-cockpit-insights-row .dc-smart-insights {
+    width: 100%;
+  }
+
+  #sim-bid-frete-painel-insights .sim-insights-grid-manual > .dc-smart-card--ranking {
+    height: var(--dc-cockpit-insights-grid-h, 18rem);
+    max-height: var(--dc-cockpit-insights-grid-h, 18rem);
+    min-height: 0;
+    width: 100%;
+    align-self: stretch;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-smart-card-body--ranking {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-panel,
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-list-wrap,
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-list,
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-cockpit-combat {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-cockpit-combat .dc-prop-card {
+    min-height: 0;
+    padding: 1rem 1.05rem 1.05rem;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card-head {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0 0 0.65rem;
+    margin: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .sim-insights-ranking-cabecalho-affordance {
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking button.sim-insights-ranking-cabecalho {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card-head-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+    width: 100%;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-rank-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-rank-inline {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.45rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card-titulos--combate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    min-width: 0;
+    flex: 1;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-fornecedor {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.35;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-total-valor {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.25;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-colocacao-grade {
+    width: 100%;
+    margin-top: 0.65rem;
+    padding: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-colocacao-grid {
+    width: 100%;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .sim-insights-ranking-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  #sim-bid-frete-painel-insights .sim-insights-grid-manual > .dc-smart-card--termometro {
+    height: var(--dc-cockpit-insights-grid-h, 18rem);
+    max-height: var(--dc-cockpit-insights-grid-h, 18rem);
+    min-height: 0;
+    width: 100%;
+    align-self: stretch;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-smart-termometro-canvas {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-term-chart-slot {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0 0.65rem 0.35rem;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-term-chart-wrap,
+  #sim-bid-frete-painel-insights .dc-smart-card--termometro .dc-smart-termometro-chart {
+    width: 100%;
+    max-width: none;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card--segundo,
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .dc-prop-card--terceiro {
+    min-height: 0;
+  }
+  #sim-bid-frete-painel-insights .dc-smart-card--ranking .sim-insights-ranking-eixo-affordance {
+    width: 100%;
+    min-width: 0;
   }
   #sim-bid-frete-painel-insights .dc-cockpit-insights-row .dc-smart-metrica-col--insights-spark {
     grid-template-rows: auto var(--sim-spark-h-manual, 58px);
@@ -1636,12 +1825,16 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     }
   }
   #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor {
-    overflow: visible;
+    overflow: hidden;
+    border-radius: 14px;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
   }
   #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor.sim-affordance-alvo--destacado {
-    animation: sim-affordance-card-melhor-pulse 2.4s ease-out infinite;
-    outline: 1px solid rgba(52, 211, 153, 0.38);
-    outline-offset: 0;
+    animation: none;
+    outline: none;
+    border-color: var(--dc-card-border);
+    box-shadow: var(--dc-card-shadow);
   }
   #sim-bid-frete-painel-insights .sim-affordance-alvo--card-melhor .sim-affordance-clique-3d {
     top: auto;
@@ -1678,7 +1871,7 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     left: 78%;
   }
   #sim-bid-frete-painel-insights .sim-insights-card-cockpit {
-    overflow: visible;
+    overflow: hidden;
   }
   #sim-bid-frete-painel-insights .sim-insights-interativo--valor-shell {
     display: block;
@@ -1797,6 +1990,7 @@ export const NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS = `
     cursor: pointer;
     font: inherit;
     text-align: left;
+    appearance: none;
   }
   #sim-bid-frete-painel-insights button.sim-insights-ranking-eixo {
     width: 100%;

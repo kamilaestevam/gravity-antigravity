@@ -28,10 +28,18 @@ function coresBadgeColocacao(rank: number): { bg: string; color: string; border:
   return { bg: 'rgba(100, 116, 139, 0.07)', color: '#cbd5e1', border: 'rgba(100, 116, 139, 0.14)' }
 }
 
+function classeCardColocacao(rank: number): string {
+  if (rank === 1) return 'dc-prop-card--lider'
+  if (rank === 2) return 'dc-prop-card--segundo'
+  if (rank === 3) return 'dc-prop-card--terceiro'
+  return ''
+}
+
 function CelulaColocacaoEixoInterativa({
   eixo,
   t,
   ativa,
+  interativo,
   destacarAffordance,
   rotuloAffordance,
   onSelecionar,
@@ -39,6 +47,7 @@ function CelulaColocacaoEixoInterativa({
   eixo: EixoColocacaoCombate
   t: TFunction
   ativa: boolean
+  interativo: boolean
   destacarAffordance: boolean
   rotuloAffordance: string
   onSelecionar: () => void
@@ -70,54 +79,71 @@ function CelulaColocacaoEixoInterativa({
     setAncora({ left: rect.left + rect.width / 2, top: rect.bottom })
   }
 
+  const classeCelula = [
+    'dc-prop-colocacao-celula',
+    interativo ? 'sim-insights-interativo sim-insights-ranking-eixo' : '',
+    ehMelhor ? 'dc-prop-colocacao-celula--lider' : '',
+    comAnalise ? 'dc-prop-colocacao-celula--analise' : '',
+    interativo && ativa ? 'sim-insights-interativo--ativa' : '',
+  ].filter(Boolean).join(' ')
+
+  const conteudoCelula = (
+    <>
+      <span className="dc-prop-colocacao-rotulo">{eixo.rotulo}</span>
+      <span className="dc-prop-colocacao-valor" title={eixo.valorExibicao}>
+        {eixo.valorExibicao}
+      </span>
+      <span
+        className={[
+          'dc-prop-colocacao-badge',
+          ehMelhor ? 'dc-prop-colocacao-badge--melhor' : '',
+        ].filter(Boolean).join(' ')}
+        style={
+          rankCores != null
+            ? {
+              background: rankCores.bg,
+              color: rankCores.color,
+              border: `1px solid ${rankCores.border}`,
+            }
+            : undefined
+        }
+      >
+        {ehMelhor && <Trophy weight="duotone" size={12} aria-hidden />}
+        {textoColocacao}
+      </span>
+    </>
+  )
+
+  const celula = interativo ? (
+    <button
+      ref={rowRef}
+      type="button"
+      className={classeCelula}
+      onClick={onSelecionar}
+      onMouseEnter={definirAncora}
+      onMouseLeave={() => setAncora(null)}
+      aria-pressed={ativa}
+    >
+      {conteudoCelula}
+    </button>
+  ) : (
+    <div className={classeCelula}>{conteudoCelula}</div>
+  )
+
   return (
     <>
-      <WrapperAlvoAffordanceBidFrete
-        destacado={destacarAffordance}
-        className="sim-insights-ranking-eixo-affordance"
-        rotuloClique={rotuloAffordance}
-        varianteCursor="compacto"
-      >
-        <button
-          ref={rowRef}
-          type="button"
-          className={[
-            'dc-prop-colocacao-celula',
-            'sim-insights-interativo',
-            'sim-insights-ranking-eixo',
-            ehMelhor ? 'dc-prop-colocacao-celula--lider' : '',
-            comAnalise ? 'dc-prop-colocacao-celula--analise' : '',
-            ativa ? 'sim-insights-interativo--ativa' : '',
-          ].filter(Boolean).join(' ')}
-          onClick={onSelecionar}
-          onMouseEnter={definirAncora}
-          onMouseLeave={() => setAncora(null)}
-          aria-pressed={ativa}
+      {interativo ? (
+        <WrapperAlvoAffordanceBidFrete
+          destacado={destacarAffordance}
+          className="sim-insights-ranking-eixo-affordance"
+          rotuloClique={rotuloAffordance}
+          varianteCursor="compacto"
         >
-          <span className="dc-prop-colocacao-rotulo">{eixo.rotulo}</span>
-          <span className="dc-prop-colocacao-valor" title={eixo.valorExibicao}>
-            {eixo.valorExibicao}
-          </span>
-          <span
-            className={[
-              'dc-prop-colocacao-badge',
-              ehMelhor ? 'dc-prop-colocacao-badge--melhor' : '',
-            ].filter(Boolean).join(' ')}
-            style={
-              rankCores != null
-                ? {
-                  background: rankCores.bg,
-                  color: rankCores.color,
-                  border: `1px solid ${rankCores.border}`,
-                }
-                : undefined
-            }
-          >
-            {ehMelhor && <Trophy weight="duotone" size={12} aria-hidden />}
-            {textoColocacao}
-          </span>
-        </button>
-      </WrapperAlvoAffordanceBidFrete>
+          {celula}
+        </WrapperAlvoAffordanceBidFrete>
+      ) : (
+        celula
+      )}
       {ancora != null && comAnalise && barra != null ? (
         <TooltipAnaliseMetricaSparkPortal
           barra={barra}
@@ -133,6 +159,126 @@ function CelulaColocacaoEixoInterativa({
   )
 }
 
+function CardPropostaRankingManual({
+  proposta,
+  propostasTodas,
+  ehLider,
+  foco,
+  proximoCampoAffordance,
+  rotuloAffordance,
+  onSelecionarCampo,
+  t,
+}: {
+  proposta: PropostaRankingBidFreteInternacional
+  propostasTodas: PropostaRankingBidFreteInternacional[]
+  ehLider: boolean
+  foco: CampoPainelInsightsId | null
+  proximoCampoAffordance: CampoPainelInsightsId | null
+  rotuloAffordance: string
+  onSelecionarCampo: (campo: CampoPainelInsightsId) => void
+  t: TFunction
+}) {
+  const eixos = useMemo(
+    () => calcularEixosColocacaoCombate(proposta, propostasTodas, t),
+    [proposta, propostasTodas, t],
+  )
+
+  const nome = proposta.fornecedor_nome ?? 'Agente'
+  const moeda = proposta.moeda_proposta_bid_frete_internacional
+  const valorTotal = formatarMoedaBidFrete(
+    proposta.valor_total_proposta_bid_frete_internacional,
+    moeda,
+  )
+  const rankCores = coresBadgeColocacao(proposta.ranking_geral)
+  const exibirTrofeuRank = proposta.ranking_geral <= 3
+
+  const cabecalhoConteudo = (
+    <div className="dc-prop-card-head-main">
+      <div className="dc-prop-rank-group">
+        <span
+          className="dc-prop-rank-inline"
+          style={{
+            background: rankCores.bg,
+            color: rankCores.color,
+            border: `1px solid ${rankCores.border}`,
+          }}
+        >
+          {exibirTrofeuRank && <Trophy weight="duotone" size={14} aria-hidden />}
+          {proposta.ranking_geral}º
+        </span>
+      </div>
+      <div className="dc-prop-card-titulos dc-prop-card-titulos--combate">
+        <div className="dc-prop-card-title-row">
+          <h3 className="dc-prop-fornecedor">{nome}</h3>
+        </div>
+        <span className="dc-prop-total-valor">{valorTotal}</span>
+      </div>
+    </div>
+  )
+
+  return (
+    <article className={['dc-prop-card', classeCardColocacao(proposta.ranking_geral)].filter(Boolean).join(' ')}>
+      <header className="dc-prop-card-head">
+        {ehLider ? (
+          <WrapperAlvoAffordanceBidFrete
+            destacado={proximoCampoAffordance === 'ranking_lider'}
+            className="sim-insights-ranking-cabecalho-affordance"
+            rotuloClique={rotuloAffordance}
+            varianteCursor="compacto"
+          >
+            <button
+              type="button"
+              className={[
+                'sim-insights-interativo',
+                'sim-insights-ranking-cabecalho',
+                foco === 'ranking_lider' ? 'sim-insights-interativo--ativa' : '',
+              ].filter(Boolean).join(' ')}
+              onClick={() => onSelecionarCampo('ranking_lider')}
+              aria-pressed={foco === 'ranking_lider'}
+            >
+              {cabecalhoConteudo}
+            </button>
+          </WrapperAlvoAffordanceBidFrete>
+        ) : (
+          cabecalhoConteudo
+        )}
+      </header>
+
+      <section
+        className="dc-prop-colocacao-grade"
+        aria-label={t(
+          'bidfrete.detalhe_cotacao.colocacao_grade_titulo',
+          'Colocação por eixo',
+        )}
+      >
+        <header className="dc-prop-colocacao-grade-head">
+          {t(
+            'bidfrete.detalhe_cotacao.colocacao_grade_titulo',
+            'Colocação por eixo',
+          )}
+        </header>
+        <div className="dc-prop-colocacao-grid" role="list">
+          {eixos.map((eixo) => {
+            const campoId = MAPEAMENTO_EIXO_CAMPO[eixo.id]
+            return (
+              <CelulaColocacaoEixoInterativa
+                key={`${proposta.id_proposta_bid_frete_internacional}-${eixo.id}`}
+                eixo={eixo}
+                t={t}
+                interativo={ehLider}
+                ativa={ehLider && foco === campoId}
+                destacarAffordance={ehLider && proximoCampoAffordance === campoId}
+                rotuloAffordance={rotuloAffordance}
+                onSelecionar={() => onSelecionarCampo(campoId)}
+              />
+            )
+          })}
+        </div>
+      </section>
+    </article>
+  )
+}
+
 type ManualBidFreteRankingInsightsInterativoProps = {
   propostaLider: PropostaRankingBidFreteInternacional
   propostasTodas: PropostaRankingBidFreteInternacional[]
@@ -142,7 +288,7 @@ type ManualBidFreteRankingInsightsInterativoProps = {
   onSelecionarCampo: (campo: CampoPainelInsightsId) => void
 }
 
-/** Manual §7.02 — card Ranking das respostas (paridade combate + células clicáveis). */
+/** Manual §7.02 — card Ranking das respostas (3 propostas demo + scroll). */
 export function ManualBidFreteRankingInsightsInterativo({
   propostaLider,
   propostasTodas,
@@ -152,18 +298,11 @@ export function ManualBidFreteRankingInsightsInterativo({
   onSelecionarCampo,
 }: ManualBidFreteRankingInsightsInterativoProps) {
   const { t } = useTranslation()
-  const eixos = useMemo(
-    () => calcularEixosColocacaoCombate(propostaLider, propostasTodas, t),
-    [propostaLider, propostasTodas, t],
-  )
 
-  const nome = propostaLider.fornecedor_nome ?? 'Agente de Carga Ltda'
-  const moeda = propostaLider.moeda_proposta_bid_frete_internacional
-  const valorTotal = formatarMoedaBidFrete(
-    propostaLider.valor_total_proposta_bid_frete_internacional,
-    moeda,
+  const propostasOrdenadas = useMemo(
+    () => [...propostasTodas].sort((a, b) => a.ranking_geral - b.ranking_geral),
+    [propostasTodas],
   )
-  const rankCores = coresBadgeColocacao(propostaLider.ranking_geral)
 
   return (
     <article className="dc-smart-card dc-smart-card--ranking">
@@ -173,80 +312,21 @@ export function ManualBidFreteRankingInsightsInterativo({
       <div className="dc-smart-card-body dc-smart-card-body--ranking">
         <div className="dc-prop-panel dc-cockpit-combat">
           <div className="dc-prop-list-wrap">
-            <div className="dc-prop-list">
-              <article className="dc-prop-card dc-prop-card--lider">
-                <WrapperAlvoAffordanceBidFrete
-                  destacado={proximoCampoAffordance === 'ranking_lider'}
-                  className="sim-insights-ranking-cabecalho-affordance"
-                  rotuloClique={rotuloAffordance}
-                  varianteCursor="compacto"
-                >
-                  <button
-                    type="button"
-                    className={[
-                      'dc-prop-card-head',
-                      'sim-insights-interativo',
-                      'sim-insights-ranking-cabecalho',
-                      foco === 'ranking_lider' ? 'sim-insights-interativo--ativa' : '',
-                    ].filter(Boolean).join(' ')}
-                    onClick={() => onSelecionarCampo('ranking_lider')}
-                    aria-pressed={foco === 'ranking_lider'}
-                  >
-                    <div className="dc-prop-card-head-main">
-                      <div className="dc-prop-rank-group">
-                        <span
-                          className="dc-prop-rank-inline"
-                          style={{
-                            background: rankCores.bg,
-                            color: rankCores.color,
-                            border: `1px solid ${rankCores.border}`,
-                          }}
-                        >
-                          <Trophy weight="duotone" size={14} aria-hidden />
-                          {propostaLider.ranking_geral}º
-                        </span>
-                      </div>
-                      <div className="dc-prop-card-titulos dc-prop-card-titulos--combate">
-                        <div className="dc-prop-card-title-row">
-                          <h3 className="dc-prop-fornecedor">{nome}</h3>
-                        </div>
-                        <span className="dc-prop-total-valor">{valorTotal}</span>
-                      </div>
-                    </div>
-                  </button>
-                </WrapperAlvoAffordanceBidFrete>
-
-                <section
-                  className="dc-prop-colocacao-grade"
-                  aria-label={t(
-                    'bidfrete.detalhe_cotacao.colocacao_grade_titulo',
-                    'Colocação por eixo',
-                  )}
-                >
-                  <header className="dc-prop-colocacao-grade-head">
-                    {t(
-                      'bidfrete.detalhe_cotacao.colocacao_grade_titulo',
-                      'Colocação por eixo',
-                    )}
-                  </header>
-                  <div className="dc-prop-colocacao-grid" role="list">
-                    {eixos.map((eixo) => {
-                      const campoId = MAPEAMENTO_EIXO_CAMPO[eixo.id]
-                      return (
-                        <CelulaColocacaoEixoInterativa
-                          key={eixo.id}
-                          eixo={eixo}
-                          t={t}
-                          ativa={foco === campoId}
-                          destacarAffordance={proximoCampoAffordance === campoId}
-                          rotuloAffordance={rotuloAffordance}
-                          onSelecionar={() => onSelecionarCampo(campoId)}
-                        />
-                      )
-                    })}
-                  </div>
-                </section>
-              </article>
+            <div className="dc-prop-list sim-insights-ranking-lista">
+              {propostasOrdenadas.map((proposta) => (
+                <CardPropostaRankingManual
+                  key={proposta.id_proposta_bid_frete_internacional}
+                  proposta={proposta}
+                  propostasTodas={propostasTodas}
+                  ehLider={proposta.id_proposta_bid_frete_internacional
+                    === propostaLider.id_proposta_bid_frete_internacional}
+                  foco={foco}
+                  proximoCampoAffordance={proximoCampoAffordance}
+                  rotuloAffordance={rotuloAffordance}
+                  onSelecionarCampo={onSelecionarCampo}
+                  t={t}
+                />
+              ))}
             </div>
           </div>
         </div>

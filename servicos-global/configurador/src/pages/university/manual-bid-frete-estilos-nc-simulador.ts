@@ -2358,6 +2358,24 @@ export const NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE = `
     animation: sim-affordance-guia-convite 2.8s ease-in-out infinite;
   }
 
+  .sim-affordance-clique-3d-portal {
+    position: fixed;
+    z-index: 1650;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: -1.75rem 0 0 -1.75rem;
+    pointer-events: none;
+    perspective: 420px;
+    transform-style: preserve-3d;
+  }
+  .sim-affordance-clique-3d-portal .sim-affordance-clique-3d {
+    position: static;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: 100%;
+  }
+
   .sim-affordance-clique-3d {
     position: absolute;
     right: -0.125rem;

@@ -3581,16 +3581,6 @@ body.light-theme .sr-conf-chk-tooltip-base-texto {
   line-height: 1.35;
 }
 
-.sr-conf-chk-item-motor {
-  display: inline-block;
-  margin-top: 0.125rem;
-  font-size: 0.625rem;
-  color: var(--text-muted);
-  padding: 0.0625rem 0.3125rem;
-  border-radius: 0.1875rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-}
-
 .sr-conf-chk-resultado {
   font-family: inherit;
   font-size: 0.75rem;

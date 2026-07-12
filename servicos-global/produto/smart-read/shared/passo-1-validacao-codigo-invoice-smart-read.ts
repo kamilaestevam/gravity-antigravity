@@ -5,6 +5,7 @@
 import type { SecaoMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
 import { severidadeParaStatusMatriz } from './matriz-validacao-invoice-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from './passo-1-validacao-codigo-packing-list-smart-read.js'
+import { executarPasso1ValidacaoCodigoAwb } from './passo-1-validacao-codigo-awb-smart-read.js'
 import {
   formatarAnaliseDivergenciaLinha,
   formatarAnaliseDivergenciaSoma,
@@ -868,18 +869,29 @@ export function executarPasso1ValidacaoCodigoInvoice(
   }
 }
 
-/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matriz do packing list. */
+/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list e do AWB. */
 export function executarAuditoriaV1AnaliseRiscosLeitura(
   documentosEntrada: DocumentoAnaliseRisco[],
 ): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
   const invoice = executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
   const packing = executarPasso1ValidacaoCodigoPackingList(documentosEntrada)
-  if (packing.contexto.regras.length === 0 && packing.resumo.total === 0) return invoice
+  const awb = executarPasso1ValidacaoCodigoAwb(documentosEntrada)
+  const semPacking = packing.contexto.regras.length === 0 && packing.resumo.total === 0
+  const semAwb = awb.contexto.regras.length === 0 && awb.resumo.total === 0
+  if (semPacking && semAwb) return invoice
   return {
-    resumo: montarResumo([...invoice.resumo.riscos, ...packing.resumo.riscos]),
+    resumo: montarResumo([
+      ...invoice.resumo.riscos,
+      ...packing.resumo.riscos,
+      ...awb.resumo.riscos,
+    ]),
     contexto: {
       ...invoice.contexto,
-      regras: [...invoice.contexto.regras, ...packing.contexto.regras],
+      regras: [
+        ...invoice.contexto.regras,
+        ...packing.contexto.regras,
+        ...awb.contexto.regras,
+      ],
     },
   }
 }

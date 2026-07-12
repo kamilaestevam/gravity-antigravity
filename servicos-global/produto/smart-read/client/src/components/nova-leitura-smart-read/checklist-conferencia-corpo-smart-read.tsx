@@ -43,17 +43,6 @@ export type SecaoChecklistConferenciaSmartRead = {
   itens: ItemChecklistCorpoSmartRead[]
 }
 
-const ROTULO_MOTOR_MATRIZ: Record<string, string> = {
-  codigo: 'Código',
-  api: 'API',
-  llm: 'IA',
-  rag: 'RAG',
-}
-
-function rotuloMotorPadrao(motor: string): string {
-  return ROTULO_MOTOR_MATRIZ[motor] ?? motor
-}
-
 function rotuloSecaoPadrao(secao: string): string {
   return (ROTULO_SECAO_MATRIZ_INVOICE as Record<string, string>)[secao] ?? secao
 }
@@ -102,7 +91,6 @@ function LinhaChecklistAviacao({
   estaMarcado,
   alternarMarcado,
   exibirColunaCheck,
-  rotuloMotor = rotuloMotorPadrao,
 }: {
   item: ItemChecklistCorpoSmartRead
   rotuloInvoice?: string | null
@@ -110,7 +98,6 @@ function LinhaChecklistAviacao({
   estaMarcado?: (chave: string) => boolean
   alternarMarcado?: (chave: string) => void
   exibirColunaCheck: boolean
-  rotuloMotor?: (motor: string) => string
 }) {
   const chaveMarcacao = chaveItemChecklistUsuario(item.regra.id, rotuloInvoice)
   const marcado = estaMarcado?.(chaveMarcacao) ?? false
@@ -150,7 +137,6 @@ function LinhaChecklistAviacao({
             </button>
           </TooltipConferenciaRegraSmartRead>
         </span>
-        <span className="sr-conf-chk-item-motor">{rotuloMotor(item.regra.motor)}</span>
       </td>
       <td className="sr-conf-chk-col-resultado" title={item.detalhe ?? undefined}>
         <span className="sr-conf-chk-resultado">
@@ -197,9 +183,8 @@ type Props = {
   idPrefixo?: string
   classeCorpo?: string
   classificacaoProduto?: LinhaClassificacaoProdutoChecklist[]
-  /** Rótulos por seção/motor — default matriz Invoice; a matriz PL injeta os seus. */
+  /** Rótulo por seção — default matriz Invoice; a matriz PL injeta o seu. */
   rotuloSecao?: (secao: string) => string
-  rotuloMotor?: (motor: string) => string
 }
 
 export function ChecklistConferenciaCorpoSmartRead({
@@ -219,7 +204,6 @@ export function ChecklistConferenciaCorpoSmartRead({
   classeCorpo = 'sr-conf-checklist-corpo',
   classificacaoProduto,
   rotuloSecao = rotuloSecaoPadrao,
-  rotuloMotor = rotuloMotorPadrao,
 }: Props) {
   const exibirColunaCheck = Boolean(alternarMarcado)
   const exibirSelecionarTudo =
@@ -375,7 +359,6 @@ export function ChecklistConferenciaCorpoSmartRead({
                         estaMarcado={estaMarcado}
                         alternarMarcado={alternarMarcado}
                         exibirColunaCheck={exibirColunaCheck}
-                        rotuloMotor={rotuloMotor}
                       />
                     ))}
                   </tbody>

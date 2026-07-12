@@ -8,6 +8,7 @@ import type {
   MotorValidacaoPackingList,
   SecaoMatrizPackingList,
 } from './matriz-validacao-packing-list-smart-read.js'
+import type { MotorValidacaoAwb, SecaoMatrizAwb } from './matriz-validacao-awb-smart-read.js'
 import {
   ehRiscoClassificacaoFiscal,
   formatarAnaliseDivergenciaLinha,
@@ -54,10 +55,10 @@ export type RiscoAduaneiroLeitura = {
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
-  /** Matriz consolidada — seções da invoice (S1–S8) ou do packing list (P1–P9) */
-  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList
+  /** Matriz consolidada — seções da invoice (S1–S8), do packing list (P1–P9) ou do AWB (AW1–AW9) */
+  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList | SecaoMatrizAwb
   id_regra_matriz?: string
-  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList
+  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList | MotorValidacaoAwb
   status_matriz?: StatusMatrizInvoice
 }
 
@@ -158,6 +159,14 @@ export const RiscoAduaneiroLeituraSchema = z.object({
       'catalogo_duimp',
       'regulatorio_anuencias',
       'legitimidade_risco',
+      'identificacao_formato',
+      'partes_consignacao',
+      'voo_rota_prazos',
+      'carga_volumes',
+      'pesos_taxavel',
+      'frete_valores',
+      'dados_cct_aereo',
+      'regulatorio_carga_especial',
     ])
     .optional(),
   id_regra_matriz: z.string().optional(),

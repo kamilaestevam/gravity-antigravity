@@ -516,7 +516,13 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   const percentualChecklistVerde =
     resumoChecklistDocumentoAtual?.percentual ?? resumoGeralChecklist?.percentual_global ?? 0
 
-  const carregandoRiscos = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+  const carregandoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    !parametrosChecklist.pipelineConcluido
+
+  const enriquecendoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    parametrosChecklist.pipelineConcluido
 
   const percentualSemCriticos =
     resumoRiscos.total === 0
@@ -658,6 +664,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         <p className="sr-conf-resumo-riscos-subtitulo">
           {carregandoRiscos && resumoRiscos.total === 0
             ? 'Analisando documentos…'
+            : enriquecendoRiscos && resumoRiscos.total === 0
+              ? 'Enriquecendo com IA…'
             : resumoRiscos.total === 0
               ? 'Nenhum problema detectado'
               : `${percentualSemCriticos}% sem críticos abertos`}

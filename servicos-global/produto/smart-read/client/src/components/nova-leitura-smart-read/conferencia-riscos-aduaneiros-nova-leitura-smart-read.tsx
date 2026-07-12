@@ -415,10 +415,19 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         </div>
       )}
 
-      {carregando && (
+      {carregando && !parametrosChecklist.pipelineConcluido && (
         <p className="sr-conf-riscos-carregando" role="status">
           <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
-          {resumoExibicao.total > 0 ? 'Enriquecendo com IA e validação NCM…' : 'Analisando documentos…'}
+          Analisando documentos…
+        </p>
+      )}
+
+      {carregando && parametrosChecklist.pipelineConcluido && (
+        <p className="sr-conf-riscos-carregando" role="status">
+          <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
+          {resumoExibicao.total > 0
+            ? 'Enriquecendo com IA e validação NCM…'
+            : 'Enriquecendo com IA…'}
         </p>
       )}
 

@@ -777,11 +777,11 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  async function handleVoltarPasso() {
+  function handleVoltarPasso() {
     if (passo <= 1) return
     const anterior = passo - 1
-    await salvarProgressoAtual(anterior)
     setPasso(anterior)
+    if (anterior >= 2) void salvarProgressoAtual(anterior)
   }
 
 
@@ -823,8 +823,8 @@ export function ModalNovaLeituraSmartRead({
     }
 
     const proximo = passo + 1
-    await salvarProgressoAtual(proximo)
     setPasso(proximo)
+    void salvarProgressoAtual(proximo)
 
   }
 
@@ -912,7 +912,8 @@ export function ModalNovaLeituraSmartRead({
 
       onIrParaPasso={(id) => {
         if (id >= passo) return
-        void salvarProgressoAtual(id).then(() => setPasso(id))
+        setPasso(id)
+        if (id >= 2) void salvarProgressoAtual(id)
       }}
 
     >

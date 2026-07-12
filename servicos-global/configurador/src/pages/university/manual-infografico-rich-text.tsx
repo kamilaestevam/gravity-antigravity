@@ -2,6 +2,7 @@ import React from 'react'
 import {
   Anchor,
   ArrowCounterClockwise,
+  ArrowSquareOut,
   CaretDown,
   Eye,
   EyeSlash,
@@ -121,22 +122,78 @@ function ManualInfograficoIconeInline({ slug }: { slug: string }) {
   if (slug === 'pin-mapa-bid-frete') {
     return <ManualInfograficoPinMapaBidFreteInline />
   }
+  if (slug === 'abrir-cotacao-lista-bid-frete') {
+    return <ManualInfograficoIconeAbrirCotacaoListaBidFreteInline />
+  }
   if (isIconeControleMapaBidFrete(slug)) {
     return <ManualInfograficoIconeControleMapaBidFreteInline slug={slug} />
   }
   return <>{`{{icone:${slug}}}`}</>
 }
 
-/** Botão + Novo do BID Frete — paridade `BotaoGlobal` + dropdown Insights/Lista. */
+/** Botão primário «Ir para cotação» — paridade modal de confirmação pós-wizard. */
+export function ManualInfograficoBotaoIrParaCotacaoBidFreteInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Ir para cotação"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -10,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+      }}
+    >
+      <BotaoGlobal
+        variante="primario"
+        tamanho="pequeno"
+        tabIndex={-1}
+        aria-hidden
+        style={{ pointerEvents: 'none', cursor: 'default', whiteSpace: 'nowrap' }}
+      >
+        Ir para cotação
+      </BotaoGlobal>
+    </span>
+  )
+}
+
+/** Ícone «Abrir cotação» na coluna Nº da cotação — paridade `bf-lista-numero-cotacao-abrir`. */
+export function ManualInfograficoIconeAbrirCotacaoListaBidFreteInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Abrir cotação na Lista"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'text-bottom',
+        margin: '0 3px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        color: '#60a5fa',
+      }}
+    >
+      <ArrowSquareOut size={14} weight="bold" aria-hidden />
+    </span>
+  )
+}
+
+/** Botão + Nova do BID Frete — paridade `BotaoGlobal` + dropdown Insights/Lista. */
 export function ManualInfograficoBotaoNovoBidFreteInline() {
   return (
     <span
       role="img"
-      aria-label="Botão Novo"
+      aria-label="Botão Nova"
       style={{
         display: 'inline-flex',
         verticalAlign: 'middle',
-        margin: '0 3px',
+        marginLeft: 3,
+        /* scale(0.8) mantém a caixa de layout larga — margem negativa aproxima o "." */
+        marginRight: -14,
         transform: 'scale(0.8)',
         transformOrigin: 'left center',
       }}
@@ -149,7 +206,7 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
         aria-hidden
         style={{ pointerEvents: 'none', cursor: 'default' }}
       >
-        Novo{' '}
+        Nova{' '}
         <CaretDown size={12} weight="bold" style={{ marginLeft: 2 }} />
       </BotaoGlobal>
     </span>
@@ -159,6 +216,9 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
 export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   if (slug === 'novo-bid-frete') {
     return <ManualInfograficoBotaoNovoBidFreteInline />
+  }
+  if (slug === 'ir-para-cotacao-bid-frete') {
+    return <ManualInfograficoBotaoIrParaCotacaoBidFreteInline />
   }
   return <>{`{{botao:${slug}}}`}</>
 }

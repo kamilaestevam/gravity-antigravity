@@ -3337,6 +3337,36 @@ body.light-theme .dc-cockpit-tab .cfg-badge-breve {
   color: #a5b4fc;
 }
 
+.dc-cockpit-combat .dc-prop-tabela-resumo-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin-bottom: 0.15rem;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-cabecalho .dc-prop-tabela-resumo-titulo {
+  margin: 0;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-link-modal {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-link-modal:hover {
+  color: #c7d2fe;
+  text-decoration: underline;
+}
+
 .dc-cockpit-combat .dc-prop-tabela-resumo-corpo {
   margin-bottom: 0.35rem;
 }

@@ -252,7 +252,7 @@ export function ManualInfograficoBidFreteMapa() {
           Selecionar rota = ponto de partida do Painel da Cotação
         </p>
         <p style={{ margin: '6px 0 0' }}>
-          <ManualInfograficoRichText texto="O fluxo completo do painel está no capítulo **Painel da Cotação**." />
+          <ManualInfograficoRichText texto="O fluxo completo do painel está no capítulo **Painel da cotação**." />
         </p>
       </div>
     </div>

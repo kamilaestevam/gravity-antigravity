@@ -1,5 +1,5 @@
 /**
- * Manual BID Frete § Configurações — todas as telas do Drive.
+ * Manual BID Frete §11 Configurações — todas as telas do Drive.
  */
 import type { DocPassoVisual } from './manual-configurador-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'

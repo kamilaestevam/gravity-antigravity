@@ -2,9 +2,11 @@
  * Tabela read-only de composição da proposta — paridade visual com portal do agente.
  */
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CaretDown, CaretUp } from '@phosphor-icons/react'
+import { Receipt, UserCircle } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import type { PropostaBidFreteInternacional } from './types'
 import {
   TabelaResumoPropostaBidFreteInternacional,
@@ -18,6 +20,15 @@ import {
   montarMapaTaxaParaBrl,
 } from './taxas-cambio-insights-bid-frete-internacional'
 import './formulario-resposta-cotacao-bid-frete-internacional.css'
+import './modal-detalhamento-proposta-bid-frete-internacional.css'
+
+const formatarMoedaProposta = (valor: number, moeda: string) =>
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: moeda,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(valor)
 
 function useTaxasConversaoBrlProposta(moedasExtras: string[]): Record<string, number> {
   const chaveMoedas = moedasExtras.join('|')
@@ -81,11 +92,58 @@ function useRotulosTabelaResumoPropostaReadonly(): RotulosTabelaResumoPropostaBi
   )
 }
 
+interface CorpoTabelaResumoPropostaReadonlyProps {
+  proposta: PropostaBidFreteInternacional
+  dados: ReturnType<typeof montarDadosTabelaResumoPropostaBidFreteInternacional>
+  rotulos: RotulosTabelaResumoPropostaBidFreteInternacional
+  taxasConversaoBrl: Record<string, number>
+  legendaComposicao: string
+  legendaSemConversao: string
+  legendaEstimadoBrl: string
+  className?: string
+}
+
+function CorpoTabelaResumoPropostaReadonly({
+  proposta,
+  dados,
+  rotulos,
+  taxasConversaoBrl,
+  legendaComposicao,
+  legendaSemConversao,
+  legendaEstimadoBrl,
+  className,
+}: CorpoTabelaResumoPropostaReadonlyProps) {
+  return (
+    <div
+      className={['dc-prop-tabela-resumo-corpo brc-total brc-total--geral', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <TabelaResumoPropostaBidFreteInternacional
+        moedaFrete={dados.moedaFrete}
+        valorFrete={dados.valorFrete}
+        linhasOrigem={dados.linhasOrigem}
+        linhasDestino={dados.linhasDestino}
+        composicao={dados.composicao}
+        rotulos={rotulos}
+        taxasConversaoBrl={taxasConversaoBrl}
+      />
+      <p className="brc-total-legenda">{legendaComposicao}</p>
+      <p className="brc-total-legenda brc-total-legenda--secundaria">{legendaSemConversao}</p>
+      <p className="brc-total-legenda brc-total-legenda--secundaria">{legendaEstimadoBrl}</p>
+      <SecaoPeriodosArmazenagemReadonlyPropostaBidFreteInternacional proposta={proposta} />
+    </div>
+  )
+}
+
 export interface TabelaResumoPropostaReadonlyBidFreteInternacionalProps {
   proposta: PropostaBidFreteInternacional
-  /** Exibe botão expandir/recolher (ex.: lista com 2+ propostas). */
+  /** Com 2+ propostas no card: abre modal em vez de expandir inline. */
   colapsavel?: boolean
+  /** Ignorado quando `colapsavel` — mantido para compatibilidade. */
   expandidoInicial?: boolean
+  /** Subtítulo do modal (ex.: nome do fornecedor). */
+  rotuloFornecedorModal?: string
   className?: string
 }
 
@@ -93,6 +151,7 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
   proposta,
   colapsavel = false,
   expandidoInicial = true,
+  rotuloFornecedorModal,
   className,
 }: TabelaResumoPropostaReadonlyBidFreteInternacionalProps) {
   const { t } = useTranslation()
@@ -112,12 +171,19 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
     return [...moedas]
   }, [dados])
   const taxasConversaoBrl = useTaxasConversaoBrlProposta(moedasProposta)
-  const [expandido, setExpandido] = useState(expandidoInicial)
-  const visivel = !colapsavel || expandido
+  const [modalAberto, setModalAberto] = useState(false)
+  const tituloModalId = useId()
+  const exibirInline = !colapsavel && expandidoInicial
+  const moedaProposta = proposta.moeda_proposta_bid_frete_internacional
+  const valorTotalProposta = proposta.valor_total_proposta_bid_frete_internacional
 
   const tituloSecao = t(
     'bidfrete.portal.responder.valor_total_frete',
     'Valor Total do Frete',
+  )
+  const tituloModal = t(
+    'bidfrete.detalhe_cotacao.modal_detalhamento_proposta_titulo',
+    'Detalhamento da proposta',
   )
   const legendaComposicao = t(
     'bidfrete.portal.responder.valor_total_frete_legenda',
@@ -131,62 +197,109 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
     'bidfrete.detalhe_cotacao.estimado_brl_legenda',
     'Valores em reais são estimativas (taxa do produto ou PTAX), convertidos por moeda de origem.',
   )
-  const rotuloExpandir = t(
+  const rotuloAbrirModal = t(
     'bidfrete.detalhe_cotacao.ver_detalhamento_proposta',
     'Ver detalhamento completo',
   )
-  const rotuloRecolher = t(
-    'bidfrete.detalhe_cotacao.recolher_detalhamento_proposta',
-    'Recolher detalhamento',
+  const rotuloFornecedor = t('bidfrete.detalhe_cotacao.modal_detalhamento_fornecedor', 'Fornecedor')
+  const rotuloValorTotal = t('bidfrete.detalhe_cotacao.resp_total', 'Valor total')
+  const subtituloModal = t(
+    'bidfrete.detalhe_cotacao.modal_detalhamento_proposta_subtitulo',
+    'Composição completa do frete, taxas e estimativas',
   )
 
-  return (
-    <section
-      className={['dc-prop-tabela-resumo', className].filter(Boolean).join(' ')}
-      aria-label={tituloSecao}
-    >
-      {colapsavel ? (
-        <button
-          type="button"
-          className="dc-prop-tabela-resumo-toggle"
-          onClick={() => setExpandido((prev) => !prev)}
-          aria-expanded={expandido}
-        >
-          <span className="dc-prop-tabela-resumo-toggle-titulo">{tituloSecao}</span>
-          {expandido ? (
-            <CaretUp weight="bold" size={14} aria-hidden />
-          ) : (
-            <CaretDown weight="bold" size={14} aria-hidden />
-          )}
-          <span className="dc-prop-tabela-resumo-toggle-acao">
-            {expandido ? rotuloRecolher : rotuloExpandir}
-          </span>
-        </button>
-      ) : (
-        <h4 className="dc-prop-tabela-resumo-titulo">{tituloSecao}</h4>
-      )}
+  const corpoProps = {
+    proposta,
+    dados,
+    rotulos,
+    taxasConversaoBrl,
+    legendaComposicao,
+    legendaSemConversao,
+    legendaEstimadoBrl,
+  }
 
-      {visivel && (
-        <div className="dc-prop-tabela-resumo-corpo brc-total brc-total--geral">
-          <TabelaResumoPropostaBidFreteInternacional
-            moedaFrete={dados.moedaFrete}
-            valorFrete={dados.valorFrete}
-            linhasOrigem={dados.linhasOrigem}
-            linhasDestino={dados.linhasDestino}
-            composicao={dados.composicao}
-            rotulos={rotulos}
-            taxasConversaoBrl={taxasConversaoBrl}
-          />
-          <p className="brc-total-legenda">{legendaComposicao}</p>
-          <p className="brc-total-legenda brc-total-legenda--secundaria">
-            {legendaSemConversao}
-          </p>
-          <p className="brc-total-legenda brc-total-legenda--secundaria">
-            {legendaEstimadoBrl}
-          </p>
-          <SecaoPeriodosArmazenagemReadonlyPropostaBidFreteInternacional proposta={proposta} />
-        </div>
-      )}
-    </section>
+  return (
+    <>
+      <section
+        className={['dc-prop-tabela-resumo', className].filter(Boolean).join(' ')}
+        aria-label={tituloSecao}
+      >
+        {colapsavel ? (
+          <div className="dc-prop-tabela-resumo-cabecalho">
+            <h4 className="dc-prop-tabela-resumo-titulo">{tituloSecao}</h4>
+            <button
+              type="button"
+              className="dc-prop-tabela-resumo-link-modal"
+              onClick={() => setModalAberto(true)}
+            >
+              {rotuloAbrirModal}
+            </button>
+          </div>
+        ) : (
+          <h4 className="dc-prop-tabela-resumo-titulo">{tituloSecao}</h4>
+        )}
+
+        {exibirInline ? <CorpoTabelaResumoPropostaReadonly {...corpoProps} /> : null}
+      </section>
+
+      {colapsavel ? (
+        <ModalOverlay
+          aberto={modalAberto}
+          aoFechar={() => setModalAberto(false)}
+          titulo={tituloModal}
+          tamanho="xl"
+          larguraMaxima="min(1080px, 94vw)"
+          cabecalhoPersonalizado={(
+            <div className="modal-header bf-detalhamento-proposta-modal-header">
+              <div className="bf-detalhamento-proposta-modal-header-texto">
+                <div className="bf-detalhamento-proposta-modal-titulo-row">
+                  <Receipt
+                    weight="duotone"
+                    size={22}
+                    className="bf-detalhamento-proposta-modal-icone"
+                    aria-hidden
+                  />
+                  <h2 id={tituloModalId} className="mg-titulo text-h3">
+                    {tituloModal}
+                  </h2>
+                </div>
+                <p className="mg-subtitulo text-sm">{subtituloModal}</p>
+              </div>
+            </div>
+          )}
+          renderizarFooter={() => (
+            <BotaoGlobal variante="secundario" tamanho="medio" onClick={() => setModalAberto(false)}>
+              {t('comum.fechar', 'Fechar')}
+            </BotaoGlobal>
+          )}
+        >
+          <div className="bf-detalhamento-proposta-corpo">
+            <div className="bf-detalhamento-proposta-resumo">
+              {rotuloFornecedorModal ? (
+                <div className="bf-detalhamento-proposta-fornecedor">
+                  <UserCircle weight="duotone" size={22} aria-hidden />
+                  <div className="bf-detalhamento-proposta-fornecedor-texto">
+                    <span className="bf-detalhamento-proposta-fornecedor-rotulo">
+                      {rotuloFornecedor}
+                    </span>
+                    <strong>{rotuloFornecedorModal}</strong>
+                  </div>
+                </div>
+              ) : null}
+              <div className="bf-detalhamento-proposta-total">
+                <span className="bf-detalhamento-proposta-total-rotulo">{rotuloValorTotal}</span>
+                <strong className="bf-detalhamento-proposta-total-valor">
+                  {formatarMoedaProposta(valorTotalProposta, moedaProposta)}
+                </strong>
+              </div>
+            </div>
+            <CorpoTabelaResumoPropostaReadonly
+              {...corpoProps}
+              className="dc-prop-tabela-resumo-corpo--modal"
+            />
+          </div>
+        </ModalOverlay>
+      ) : null}
+    </>
   )
 }

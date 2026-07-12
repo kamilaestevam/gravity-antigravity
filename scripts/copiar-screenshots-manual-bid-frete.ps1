@@ -4,9 +4,13 @@
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int',
   'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int',
   "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int",
-  "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int"
+  "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int",
+  "$env:USERPROFILE\OneDrive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int",
+  "$env:USERPROFILE\OneDrive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int",
+  "$env:USERPROFILE\OneDrive - Personal\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int"
 )
 
 $origem = $candidatosOrigem | Where-Object { Test-Path $_ } | Select-Object -First 1
@@ -40,6 +44,29 @@ foreach ($prefixoDrive in $prefixosDrive) {
 # Aliases manual — nomes no Drive que não batem 1:1 com o sufixo do catálogo
 $aliasesManual = @{
   'tela_bid_frete_manual_origem_.png' = 'bid-frete-int-manual-origem-porto-origem.png'
+  'tela_bid_frete_cotacao_bid_1.png' = 'bid-frete-int-cotacao-bid-1.png'
+  'tela_bid_frete_cotacao_bid_modal.png' = 'bid-frete-int-cotacao-bid-modal.png'
+  'tela_bid_frete_cotacao_bid_modal_selec.png' = 'bid-frete-int-cotacao-bid-modal-selec.png'
+  'tela_bid_frete_painel_cotacao.png' = 'bid-frete-int-painel-cotacao.png'
+  'tela_bid_frete_painel_cotacao_acesso_1.png' = 'bid-frete-int-painel-cotacao-acesso-1.png'
+  'tela_bid_frete_painel_cotacao_acesso_2.png' = 'bid-frete-int-painel-cotacao-acesso-2.png'
+  'tela_bid_frete_painel_cotacao_visao_geral.png' = 'bid-frete-int-painel-cotacao-visao-geral.png'
+  'tela_bid_frete_painel_cotacao_menu_superior.png' = 'bid-frete-int-painel-cotacao-menu-superior.png'
+  'tela_bid_frete_painel_cotacao_divisao.png' = 'bid-frete-int-painel-cotacao-divisao.png'
+  'tela_bid_frete_painel_cotacao_1.png' = 'bid-frete-int-painel-cotacao-1.png'
+  'tela_bid_frete_painel_cotacao_dados_gerais.png' = 'bid-frete-int-painel-cotacao-dados-gerais.png'
+  'tela_bid_frete_painel_cotacao_solicitacao.png' = 'bid-frete-int-painel-cotacao-solicitacao.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_resposta.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-resposta.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_acesso_cliente.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-acesso-cliente.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_expirado.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-expirado.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_erro_email..png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-erro-email.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_erro_email.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-erro-email.png'
+  'tela_bid_frete_painel_cotacao_propostas.png' = 'bid-frete-int-painel-cotacao-propostas.png'
+  'tela_bid_frete_painel_cotacao_propostas_1.png' = 'bid-frete-int-painel-cotacao-propostas-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_ranking.png' = 'bid-frete-int-painel-cotacao-propostas-ranking.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo .png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {
   $caminhoDrive = Join-Path $origem $nomeDrive

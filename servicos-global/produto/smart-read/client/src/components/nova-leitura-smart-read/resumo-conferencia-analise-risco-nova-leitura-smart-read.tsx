@@ -27,6 +27,20 @@ import {
   percentualConformeChecklistPackingList,
 } from '../../../../shared/montar-checklist-matriz-packing-list-smart-read'
 import {
+  combinarResumoGeralComAwbs,
+  ehTipoAwbChecklist,
+  montarChecklistMatrizAwb,
+  montarResumoChecklistAwbs,
+  percentualConformeChecklistAwb,
+} from '../../../../shared/montar-checklist-matriz-awb-smart-read'
+import {
+  combinarResumoGeralComBls,
+  ehTipoBlChecklist,
+  montarChecklistMatrizBl,
+  montarResumoChecklistBls,
+  percentualConformeChecklistBl,
+} from '../../../../shared/montar-checklist-matriz-bl-smart-read'
+import {
   dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
   obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead,
@@ -123,6 +137,18 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     const documentos = extrairDocumentosArquivoLocal(arquivo)
     const documentoAtual = documentos[indiceDocumento]
     return Boolean(documentoAtual?.tipo_documento.toUpperCase().includes('PACKING'))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhAwb = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoAwbChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhBl = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoBlChecklist(documentoAtual.tipo_documento))
   }, [arquivo, indiceDocumento])
 
   const chaveAnaliseRiscos = useMemo(
@@ -277,7 +303,21 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       ...parametrosChecklist,
       documentos: documentosRisco,
     })
-    return combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList)
+    const resumosAwb = montarResumoChecklistAwbs({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosBl = montarResumoChecklistBls({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    return combinarResumoGeralComBls(
+      combinarResumoGeralComAwbs(
+        combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+        resumosAwb,
+      ),
+      resumosBl,
+    )
   }, [documentosRisco, parametrosChecklist])
 
   const resumoChecklistDocumentoAtual = useMemo(() => {
@@ -299,6 +339,22 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       const contagemPl = contarChecklistPorStatus(itensPl)
       return { contagem: contagemPl, percentual: percentualConformeChecklistPackingList(contagemPl) }
     }
+    if (documentoAtualEhAwb) {
+      const itensAwb = montarChecklistMatrizAwb({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemAwb = contarChecklistPorStatus(itensAwb)
+      return { contagem: contagemAwb, percentual: percentualConformeChecklistAwb(contagemAwb) }
+    }
+    if (documentoAtualEhBl) {
+      const itensBl = montarChecklistMatrizBl({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemBl = contarChecklistPorStatus(itensBl)
+      return { contagem: contagemBl, percentual: percentualConformeChecklistBl(contagemBl) }
+    }
     const itens = montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       rotulo_documento: rotuloDocumentoAtual,
@@ -310,6 +366,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
     return { contagem, percentual }
   }, [
+    documentoAtualEhAwb,
+    documentoAtualEhBl,
     documentoAtualEhPackingList,
     documentosRisco.length,
     parametrosChecklist,

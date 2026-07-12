@@ -21,6 +21,23 @@ import {
   enriquecerDisparoRespostaFornecedor,
 } from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
 import { carregarUltimoRegistroAlteracaoProposta } from '../lib/serializar-registro-alteracao-proposta-bid-frete-internacional.js'
+import {
+  montarContextoIdentificacaoFornecedorContratoBidFreteInternacional,
+  extrairIpRequisicaoBidFreteInternacional,
+  extrairUserAgentRequisicaoBidFreteInternacional,
+} from '../lib/contexto-identificacao-contrato-bid-frete-internacional.js'
+import { lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional } from '../lib/snapshot-empresa-pagadora-taxa-fechamento-cotacao-bid-frete-internacional.js'
+import {
+  calcularHashDocumentoContratoPropostaPlataformaBidFreteInternacional,
+} from '../lib/hash-contrato-plataforma-bid-frete-internacional.js'
+import {
+  resolverDocumentoContratoPropostaPlataformaBidFreteInternacional,
+  VERSAO_CONTRATO_PROPOSTA_PLATAFORMA_BID_FRETE_INTERNACIONAL,
+} from '../../../shared/contrato-proposta-plataforma-bid-frete-internacional.js'
+import {
+  montarRegistroAceiteFromContexto,
+  montarSnapshotPropostaFechadaBidFreteInternacional,
+} from '../lib/registrar-aceite-contrato-plataforma-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -38,6 +55,8 @@ const includeDisparoPublico = {
     select: {
       id_fornecedor_bid_frete_internacional: true,
       nome_fornecedor_bid_frete_internacional: true,
+      email_fornecedor_bid_frete_internacional: true,
+      cnpj_fornecedor_bid_frete_internacional: true,
     },
   },
 }
@@ -153,6 +172,40 @@ router.post('/:token_resposta_disparo_cotacao_bid_frete_internacional/responder'
         tenantId: (disparo as any).id_organizacao,
       },
     )
+
+    const tokenDisparo = req.params.token_resposta_disparo_cotacao_bid_frete_internacional
+    const idCotacao = String((disparo as any).id_cotacao_bid_frete_internacional ?? '')
+    const pagador = lerEmpresaPagadoraTaxaFechamentoCotacaoBidFreteInternacional(idCotacao)
+    const contexto = montarContextoIdentificacaoFornecedorContratoBidFreteInternacional({
+      fornecedor: (disparo as any).fornecedor,
+      cotacao: (disparo as any).cotacao,
+      token_disparo: tokenDisparo,
+    })
+    const hashContrato = calcularHashDocumentoContratoPropostaPlataformaBidFreteInternacional(pagador, contexto)
+    const documento = resolverDocumentoContratoPropostaPlataformaBidFreteInternacional(pagador, contexto)
+    const ultimoRegistro = await carregarUltimoRegistroAlteracaoProposta(
+      prisma,
+      String((proposta as any).id_proposta_bid_frete_internacional),
+    )
+
+    montarRegistroAceiteFromContexto({
+      tipo_evento: 'CIENCIA_PROPOSTA',
+      tipo_contrato: 'PROPOSTA',
+      data_hora_aceite_utc: new Date(),
+      contexto,
+      endereco_ip: extrairIpRequisicaoBidFreteInternacional(req),
+      user_agent: extrairUserAgentRequisicaoBidFreteInternacional(req),
+      versao_contrato: VERSAO_CONTRATO_PROPOSTA_PLATAFORMA_BID_FRETE_INTERNACIONAL,
+      hash_contrato: hashContrato,
+      slug_pagador: documento.slug,
+      empresa_pagadora: pagador,
+      id_proposta_bid_frete_internacional: String((proposta as any).id_proposta_bid_frete_internacional),
+      id_cotacao_bid_frete_internacional: idCotacao,
+      snapshot_proposta: montarSnapshotPropostaFechadaBidFreteInternacional(
+        proposta as Record<string, unknown>,
+        ultimoRegistro,
+      ),
+    })
 
     const modo = acesso.modo_acesso_resposta_disparo_bid_frete_internacional
     const mensagem =

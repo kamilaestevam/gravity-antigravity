@@ -78,6 +78,19 @@ describe('sincronizarRankingPosAprovacao', () => {
     expect(resultado.find((p) => p.id_proposta_bid_frete_internacional === 'p1')?.status_proposta_bid_frete_internacional).toBe('REPROVADA')
     expect(resultado.find((p) => p.id_proposta_bid_frete_internacional === 'p2')?.status_proposta_bid_frete_internacional).toBe('APROVADA')
   })
+
+  it('reconhece ganhador com status APROVACAO_RECEBIDA após aceite do fornecedor', () => {
+    const ranking = [propostaMock('p1'), propostaMock('p2')]
+    const cotAtualizada = cotacaoMock([
+      { ...propostaMock('p2'), status_proposta_bid_frete_internacional: 'APROVACAO_RECEBIDA' },
+      { ...propostaMock('p1'), status_proposta_bid_frete_internacional: 'REPROVADA' },
+    ])
+
+    const resultado = sincronizarRankingPosAprovacao(ranking, cotAtualizada)
+
+    expect(resultado.find((p) => p.id_proposta_bid_frete_internacional === 'p2')?.status_proposta_bid_frete_internacional).toBe('APROVACAO_RECEBIDA')
+    expect(resultado.find((p) => p.id_proposta_bid_frete_internacional === 'p1')?.status_proposta_bid_frete_internacional).toBe('REPROVADA')
+  })
 })
 
 describe('aplicarEstadoPosAprovacaoCotacao', () => {

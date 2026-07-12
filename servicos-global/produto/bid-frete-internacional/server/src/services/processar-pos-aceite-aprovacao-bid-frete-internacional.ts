@@ -12,6 +12,8 @@ import {
   montarHtmlEmailAceiteRecebidoCompradorBidFreteInternacional,
   montarTextoPlanoEmailAceiteRecebidoCompradorBidFreteInternacional,
 } from '../../../shared/formatar-email-aceite-recebido-comprador-bid-frete-internacional.js'
+import { REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL } from '../../../shared/remetente-email-bid-frete-internacional.js'
+import { compradorDesejaEmailConfirmacaoFornecedorVencedor } from './enviar-emails-comprador-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
@@ -77,6 +79,13 @@ export async function processarPosAceiteAprovacaoBidFreteInternacional(input: {
   const usuario = await resolverUsuarioOrganizacaoBidFreteInternacional(idOrganizacao, idUsuarioNotificar)
   if (!usuario?.email_usuario || !INTERNAL_KEY) return
 
+  const desejaEmail = await compradorDesejaEmailConfirmacaoFornecedorVencedor(
+    input.prisma,
+    idOrganizacao,
+    idUsuarioNotificar,
+  )
+  if (!desejaEmail) return
+
   const linkComparativo = `${APP_URL.replace(/\/$/, '')}/bid-frete/cotacoes/${idCotacao}/comparativo`
   const paramsEmail = {
     numeroCotacao,
@@ -90,10 +99,12 @@ export async function processarPosAceiteAprovacaoBidFreteInternacional(input: {
     await axios.post(
       `${EMAIL_SERVICE_URL}/api/v1/envios-email`,
       {
-        to: [usuario.email_usuario],
+        to: usuario.email_usuario,
         subject: montarAssuntoEmailAceiteRecebidoCompradorBidFreteInternacional(numeroCotacao),
-        html: montarHtmlEmailAceiteRecebidoCompradorBidFreteInternacional(paramsEmail),
-        text: montarTextoPlanoEmailAceiteRecebidoCompradorBidFreteInternacional(paramsEmail),
+        body_html: montarHtmlEmailAceiteRecebidoCompradorBidFreteInternacional(paramsEmail),
+        body: montarTextoPlanoEmailAceiteRecebidoCompradorBidFreteInternacional(paramsEmail),
+        product_id: 'bid-frete-internacional',
+        from: REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL,
         metadata: {
           produto: 'bid-frete-internacional',
           tipo: 'aceite_recebido_comprador',
@@ -102,7 +113,9 @@ export async function processarPosAceiteAprovacaoBidFreteInternacional(input: {
       },
       {
         headers: {
-          'x-internal-key': INTERNAL_KEY,
+          'x-chave-interna-servico': INTERNAL_KEY,
+          'x-id-organizacao': idOrganizacao,
+          'x-id-usuario': idUsuarioNotificar,
           'Content-Type': 'application/json',
         },
         timeout: 25_000,

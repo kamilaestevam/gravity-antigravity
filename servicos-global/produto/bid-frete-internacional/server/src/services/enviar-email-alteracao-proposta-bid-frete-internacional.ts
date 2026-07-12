@@ -9,6 +9,7 @@ import {
 } from '../../../shared/formatar-email-alteracao-proposta-bid-frete-internacional.js'
 import type { ItemAlteracaoPropostaBidFreteInternacional } from '../../../shared/alteracao-proposta-bid-frete-internacional.js'
 import { montarLinkRespostaDisparo } from './motor-bid-disparo-utils.js'
+import { REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL } from '../../../shared/remetente-email-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
@@ -47,6 +48,7 @@ export async function enviarEmailAlteracaoPropostaBidFreteInternacional(opcoes: 
         body_html: montarHtmlEmailAlteracaoProposta(params),
         body: montarTextoPlanoEmailAlteracaoProposta(params),
         product_id: 'bid-frete-internacional',
+        from: REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL,
       },
       {
         headers: {

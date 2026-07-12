@@ -33,10 +33,22 @@ export async function resolverUsuarioOrganizacaoBidFreteInternacional(
         'x-id-usuario': id_usuario,
       },
     })
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.warn('[bid-frete] resolverUsuarioOrganizacao falhou', {
+        id_organizacao,
+        id_usuario,
+        status: res.status,
+      })
+      return null
+    }
     const raw = await res.json()
     return usuarioOrganizacaoResponseSchema.parse(raw).usuario
-  } catch {
+  } catch (err: unknown) {
+    console.warn('[bid-frete] resolverUsuarioOrganizacao erro', {
+      id_organizacao,
+      id_usuario,
+      erro: err instanceof Error ? err.message : err,
+    })
     return null
   }
 }

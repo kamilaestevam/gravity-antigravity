@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { faixaValorFreteKgsPropostaBidFreteInternacionalSchema } from '../../../shared/tipo-valor-frete-bid-frete-internacional.js'
 
 /** Aceita ISO datetime ou data do input type="date" (YYYY-MM-DD). */
 const validadePropostaBidFreteInternacionalSchema = z
@@ -38,7 +39,12 @@ const periodoArmazenagemPropostaSchema = z.object({
 
 export const EnviarPropostaSchema = z.object({
   moeda_proposta_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_proposta_bid_frete_internacional: z.number().positive(),
+  tipo_valor_frete_proposta_bid_frete_internacional: z.enum(['TOTAL', 'FAIXA_PESO']).default('TOTAL'),
+  faixas_valor_frete_kgs_proposta_bid_frete_internacional: z
+    .array(faixaValorFreteKgsPropostaBidFreteInternacionalSchema)
+    .min(1)
+    .nullish(),
+  valor_frete_proposta_bid_frete_internacional: z.number().positive().optional(),
   taxas_origem_proposta_bid_frete_internacional: z.number().min(0).default(0),
   taxas_destino_proposta_bid_frete_internacional: z.number().min(0).default(0),
   dias_transito_proposta_bid_frete_internacional: z.number().int().positive(),
@@ -63,4 +69,25 @@ export const EnviarPropostaSchema = z.object({
     moeda_taxa_bid_frete_internacional: z.string().default('USD'),
     id_taxa_origem_destino: z.string().nullable().optional(),
   })).optional(),
+}).superRefine((data, ctx) => {
+  if (data.tipo_valor_frete_proposta_bid_frete_internacional === 'FAIXA_PESO') {
+    if (!data.faixas_valor_frete_kgs_proposta_bid_frete_internacional?.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Informe ao menos uma faixa com tarifa',
+        path: ['faixas_valor_frete_kgs_proposta_bid_frete_internacional'],
+      })
+    }
+    return
+  }
+  if (
+    data.valor_frete_proposta_bid_frete_internacional == null
+    || data.valor_frete_proposta_bid_frete_internacional <= 0
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Valor do frete base obrigatorio',
+      path: ['valor_frete_proposta_bid_frete_internacional'],
+    })
+  }
 })

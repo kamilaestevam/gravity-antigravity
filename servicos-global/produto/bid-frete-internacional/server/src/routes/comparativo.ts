@@ -32,6 +32,11 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
     const { id_proposta_bid_frete_internacional } = req.body
     if (!id_proposta_bid_frete_internacional) throw new AppError('id_proposta_bid_frete_internacional obrigatorio', 400, 'VALIDATION_ERROR')
 
+    const comentarios_aprovacao_cotacao_bid_frete_internacional =
+      typeof req.body.comentarios_aprovacao_cotacao_bid_frete_internacional === 'string'
+        ? req.body.comentarios_aprovacao_cotacao_bid_frete_internacional.trim().slice(0, 2000) || undefined
+        : undefined
+
     const userId = req.headers['x-id-usuario'] as string
     if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
@@ -76,6 +81,7 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
         id_organizacao: cotacao.id_organizacao,
         id_usuario: userId,
         nome_usuario_aprovacao: nome_usuario_aprovacao_ganho_bid_frete_internacional,
+        comentarios_aprovacao_cotacao_bid_frete_internacional,
       }).catch((err: unknown) => {
         console.warn(
           '[Comparativo] Falha ao enviar e-mails de resultado da aprovação:',

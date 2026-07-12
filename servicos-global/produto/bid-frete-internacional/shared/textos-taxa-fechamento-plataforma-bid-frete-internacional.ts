@@ -93,3 +93,20 @@ export function montarTextoAvisoTaxaModalAprovarPropostaBidFrete(params: {
     + `${fornecedor} via boleto mensal na Gravity, somente se o frete for fechado na plataforma.`
   )
 }
+
+/** Aviso na página pública de aceite — perspectiva do fornecedor ganhador. */
+export function montarTextoAvisoTaxaAceitePublicoGanhadorBidFrete(params: {
+  pagador: EmpresaPagadoraTaxaFechamentoPlataformaGravity
+}): string {
+  if (ehContratanteGravityPagadorTaxaFechamento(params.pagador)) {
+    return (
+      `Taxa de fechamento: ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} — paga pelo contratante Gravity. `
+      + 'Você não será cobrado por essa taxa.'
+    )
+  }
+
+  return (
+    `Taxa de fechamento: ${ROTULO_TAXA_FECHAMENTO_FRETE_USD} — paga pelo fornecedor (sua conta na Gravity), `
+    + 'somente se o frete for fechado na plataforma.'
+  )
+}

@@ -59,7 +59,12 @@ $aliasesManual = @{
   'tela_bid_frete_painel_cotacao_solicitacao_cotacao.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao.png'
   'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_resposta.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-resposta.png'
   'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_acesso_cliente.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-acesso-cliente.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_expirado.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-expirado.png'
   'tela_bid_frete_painel_cotacao_propostas.png' = 'bid-frete-int-painel-cotacao-propostas.png'
+  'tela_bid_frete_painel_cotacao_propostas_1.png' = 'bid-frete-int-painel-cotacao-propostas-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_ranking.png' = 'bid-frete-int-painel-cotacao-propostas-ranking.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo .png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {
   $caminhoDrive = Join-Path $origem $nomeDrive

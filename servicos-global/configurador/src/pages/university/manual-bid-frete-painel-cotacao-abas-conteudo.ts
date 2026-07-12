@@ -86,17 +86,53 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
             'No último passo da cotação existe a opção **Permitir edição da proposta**. Se estiver marcado **Sim**, enquanto o prazo estiver válido a proposta pode ser editada.',
         },
       },
+      {
+        tituloEtapa: 'Token utilizado ou prazo vencido',
+        textoIntro:
+          'Neste caso o token foi usado pelo fornecedor ou prazo da cotação não é mais válido.',
+        chipBidFreteTokenUtilizado: true,
+        colunas: 1,
+        telas: [{ legenda: '', imagem: S('painel_cotacao_solicitacao_cotacao_link_expirado') }],
+        calloutApos: {
+          tipo: 'dica',
+          texto:
+            'No último passo da cotação existe a opção **Permitir edição da proposta**. Se estiver marcado **Não**, após o fornecedor responder uma vez, esta é a mensagem que será exibida.',
+        },
+      },
     ],
   },
   {
     titulo: 'Propostas',
     tituloCurto: 'Propostas',
     paragrafos: [
-      'Em **Propostas**, compare ofertas lado a lado: **frete total**, **transit time**, **escala/transbordo** e **prazo de pagamento**.',
-      'Avance para **aprovar** a melhor resposta ou abra o **comparativo** completo quando houver múltiplos fornecedores no mesmo escopo.',
+      'Neste local encontra-se todas as propostas detalhadas respondidas pelos fornecedores.',
     ],
-    imagem: S('painel_cotacao_propostas'),
+    imagem: S('painel_cotacao_propostas_1'),
     imagemAbaixoTexto: true,
+    legendaAposImagem: 'Ranking',
+    legendaAposImagemAlinhamento: 'left',
+    galeriaComparacaoAposImagem: [
+      {
+        colunas: 1,
+        telas: [{
+          legenda: '',
+          paragrafoAntes:
+            'Aqui ficam os rankings das cotações respondidas podendo ser ordenadas por: **Menor preço**, **Melhor trânsito**, **Melhor avaliação**, **Melhor transbordo**, **Maior free time**.',
+          imagem: S('painel_cotacao_propostas_ranking'),
+          legendaApos: 'Detalhamento da proposta',
+          legendaAposAlinhamento: 'left',
+        }],
+      },
+      {
+        colunas: 1,
+        telas: [{
+          legenda: '',
+          paragrafoAntes:
+            'Para acessar o detalhamento completo da proposta, clique em **Ver detalhamento completo**.',
+          imagem: S('painel_cotacao_propostas_detalhamento_completo'),
+        }],
+      },
+    ],
   },
   {
     titulo: 'Comentários',

@@ -456,6 +456,35 @@ function ManualChipBidFreteTokenNaoUtilizado() {
   )
 }
 
+function ManualChipBidFreteTokenUtilizado() {
+  return (
+    <div
+      title="Token usado"
+      style={{
+        width: 38,
+        height: 38,
+        borderRadius: 8,
+        border: '1px solid rgba(251,191,36,.45)',
+        background: 'rgba(251,191,36,.14)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        position: 'relative',
+      }}
+      aria-hidden
+    >
+      <Key size={18} weight="duotone" color="#fbbf24" />
+      <Check
+        size={10}
+        weight="bold"
+        color="#fbbf24"
+        style={{ position: 'absolute', right: 4, bottom: 4 }}
+      />
+    </div>
+  )
+}
+
 function ManualChipBidFreteFormaManualPilar() {
   return (
     <div
@@ -1343,7 +1372,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '207'
+const MANUAL_SCREENSHOT_CACHE_KEY = '211'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3223,6 +3252,14 @@ function ManualBlocoPassoVisual({
 
     const blocoAposFigura = (
       <>
+        {passo.legendaAposImagem ? (
+          <div style={{ marginTop: MANUAL_ESPACO_IMAGEM_FRASE_PX }}>
+            <ManualGaleriaTelaLegendaStep
+              legenda={passo.legendaAposImagem}
+              alinhamento={passo.legendaAposImagemAlinhamento ?? 'left'}
+            />
+          </div>
+        ) : null}
         {passo.calloutAposImagem ? (
           <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={MANUAL_ESPACO_IMAGEM_FRASE_PX} />
         ) : null}
@@ -3264,6 +3301,7 @@ function ManualBlocoPassoVisual({
             tituloEtapa={galeria.tituloEtapa}
             textoIntro={galeria.textoIntro}
             chipBidFreteTokenNaoUtilizado={galeria.chipBidFreteTokenNaoUtilizado}
+            chipBidFreteTokenUtilizado={galeria.chipBidFreteTokenUtilizado}
             calloutApos={galeria.calloutApos}
             margemSuperiorPx={ehPrimeiraAposTexto ? MANUAL_ESPACO_FRASE_IMAGEM_PX : undefined}
             espacoSuperiorEtapa={idxGaleria > 0 && ehSubsecaoComTitulo}
@@ -3901,6 +3939,7 @@ function ManualGaleriaComparacaoIntro({
   chipBidFreteFormaManual,
   chipBidFreteBid,
   chipBidFreteTokenNaoUtilizado,
+  chipBidFreteTokenUtilizado,
   mostrarChipsBidFreteTipoCarga,
   chipBidFreteTipoCarga,
   calloutApos,
@@ -3971,6 +4010,7 @@ function ManualGaleriaComparacaoIntro({
   chipBidFreteFormaManual?: boolean
   chipBidFreteBid?: boolean
   chipBidFreteTokenNaoUtilizado?: boolean
+  chipBidFreteTokenUtilizado?: boolean
   mostrarChipsBidFreteTipoCarga?: boolean
   chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
@@ -4096,6 +4136,14 @@ function ManualGaleriaComparacaoIntro({
         ampliarInferiorDireito={ampliarInferiorDireito}
         larguraTotal={printLarguraTotal || opts?.forcarLarguraTotal}
       />
+      {tela.legendaApos?.trim() ? (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualGaleriaTelaLegendaStep
+            legenda={tela.legendaApos}
+            alinhamento={tela.legendaAposAlinhamento ?? 'left'}
+          />
+        </div>
+      ) : null}
     </div>
   )
 
@@ -4190,6 +4238,12 @@ function ManualGaleriaComparacaoIntro({
       ) : tituloEtapa && chipBidFreteTokenNaoUtilizado ? (
         <ManualGaleriaCabecalhoEtapaRamo
           chip={<ManualChipBidFreteTokenNaoUtilizado />}
+          tituloMarkdown={tituloEtapa}
+          subtituloMarkdown={subtituloEtapa}
+        />
+      ) : tituloEtapa && chipBidFreteTokenUtilizado ? (
+        <ManualGaleriaCabecalhoEtapaRamo
+          chip={<ManualChipBidFreteTokenUtilizado />}
           tituloMarkdown={tituloEtapa}
           subtituloMarkdown={subtituloEtapa}
         />

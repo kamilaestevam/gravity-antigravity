@@ -104,6 +104,8 @@ export interface DocPassoVisual {
     chipBidFreteBid?: boolean
     /** Manual BID Frete §7.04 — ícone de token não utilizado no título da etapa. */
     chipBidFreteTokenNaoUtilizado?: boolean
+    /** Manual BID Frete §7.04 — ícone de token utilizado ou prazo vencido no título da etapa. */
+    chipBidFreteTokenUtilizado?: boolean
     /** Ritmo extra após o bloco da etapa (antes da próxima etapa com título). */
     espacoInferiorAposEtapaPx?: number
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
@@ -190,6 +192,9 @@ export interface DocPassoVisual {
   >[]
   /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
   calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Com `imagemAbaixoTexto`, legenda roxa logo abaixo do screenshot principal. */
+  legendaAposImagem?: string
+  legendaAposImagemAlinhamento?: 'left' | 'center'
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
@@ -375,6 +380,9 @@ export interface DocGaleriaComparacaoTela {
   legenda: string
   imagem: string
   paragrafoAntes?: string
+  /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
+  legendaApos?: string
+  legendaAposAlinhamento?: 'left' | 'center'
   /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
   chipConsolidarExemplo?: DocChipConsolidarExemploId
   /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */

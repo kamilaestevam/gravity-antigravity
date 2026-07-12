@@ -1,4 +1,4 @@
-﻿/**
+/**
  * analise-riscos-leitura-smart-read.ts — SSOT V1 determinístico + contratos API (V2/V3).
  */
 

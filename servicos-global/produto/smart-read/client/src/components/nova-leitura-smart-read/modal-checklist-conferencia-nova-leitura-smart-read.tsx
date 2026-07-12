@@ -719,6 +719,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
               resumo={resumoGeral}
               onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
               documentoDestaque={documentoDestaque}
+              emAnalise={parametrosChecklist.carregando}
               selecaoInvoice={{
                 id: 'sr-chk-select-invoice',
                 opcoes: opcoesSelecaoGeral,

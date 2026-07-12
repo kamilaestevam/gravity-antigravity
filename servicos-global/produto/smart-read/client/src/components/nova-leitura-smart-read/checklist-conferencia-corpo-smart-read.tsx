@@ -277,6 +277,7 @@ export function ChecklistConferenciaCorpoSmartRead({
               na={contagemSecao.na}
               total={contagemSecao.total}
               classe="sr-conf-checklist-secao-barra"
+              emAnalise={itens.some((item) => item.em_analise)}
             />
             <span className={`sr-conf-chk-veredito-secao ${classeVereditoSecao(veredito)}`}>
               {veredito}

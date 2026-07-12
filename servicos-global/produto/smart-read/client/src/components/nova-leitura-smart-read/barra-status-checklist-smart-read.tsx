@@ -10,6 +10,8 @@ type Props = {
   na?: number
   total: number
   classe?: string
+  /** Barra ainda recebendo prévia local ou enriquecimento IA */
+  emAnalise?: boolean
 }
 
 export function BarraStatusChecklistSmartRead({
@@ -20,11 +22,14 @@ export function BarraStatusChecklistSmartRead({
   na = 0,
   total,
   classe = '',
+  emAnalise = false,
 }: Props) {
+  const classeEmAnalise = emAnalise ? ' sr-chk-info-barra--em-analise' : ''
+
   if (total === 0) {
     return (
       <div
-        className={`sr-chk-info-barra sr-chk-info-barra--vazia${classe ? ` ${classe}` : ''}`}
+        className={`sr-chk-info-barra sr-chk-info-barra--vazia${classeEmAnalise}${classe ? ` ${classe}` : ''}`}
         role="presentation"
       />
     )
@@ -34,7 +39,7 @@ export function BarraStatusChecklistSmartRead({
 
   return (
     <div
-      className={`sr-chk-info-barra${classe ? ` ${classe}` : ''}`}
+      className={`sr-chk-info-barra${classeEmAnalise}${classe ? ` ${classe}` : ''}`}
       role="presentation"
       aria-hidden
     >

@@ -244,6 +244,47 @@ describe('montarChecklistMatrizBl', () => {
     expect(bl503?.risco_id).toBe('risco-bl-1')
   })
 
+  it('falha do motor BL9-04 gera risco sintético e link Ver risco', () => {
+    const itens = montarChecklistMatrizBl({
+      regras: [
+        {
+          id: `BL9-04-${ROTULO_BL}`,
+          passou: false,
+          detalhe:
+            '1 gate(s) do motor de código disparado(s) — exposição a multa R$ 5.000/ocorrência',
+        },
+        {
+          id: `BL5-04-${ROTULO_BL}`,
+          passou: false,
+          detalhe: 'Peso por contêiner acima do payload máximo (VGM)',
+        },
+      ],
+      riscos: [
+        {
+          id: 'risco-bl-vgm',
+          titulo: 'Peso por contêiner acima do payload máximo (VGM)',
+          motivo: 'Contêiner acima do teto ISO',
+          analise: 'Gate BL5-04',
+          severidade: 'critico',
+          categoria: 'matematico',
+          evidencias: [{ documento: ROTULO_BL, campo: 'containers[].container_gross_weight' }],
+          id_regra_matriz: 'BL5-04',
+          status_matriz: 'vermelho',
+        },
+      ],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: false,
+      rotulo_documento: ROTULO_BL,
+    })
+    const bl904 = itens.find((i) => i.regra.id === 'BL9-04')
+    const bl906 = itens.find((i) => i.regra.id === 'BL9-06')
+    expect(bl904?.status).toBe('vermelho')
+    expect(bl904?.risco_id).toMatch(/^risco-matriz-BL9-04-/)
+    expect(bl906?.status).toBe('vermelho')
+    expect(bl906?.risco_id).toMatch(/^risco-agregador-BL9-06-/)
+  })
+
   it('regra COND sem gatilho fica N/A e fora do score', () => {
     const itens = montarChecklistMatrizBl({
       regras: [],

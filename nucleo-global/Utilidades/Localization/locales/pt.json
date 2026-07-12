@@ -7,7 +7,18 @@
       "minha_jornada": "Minha Jornada",
       "docs": "Manuais",
       "builders": "Gravity Partner",
-      "produtos_gravity": "Produtos Gravity"
+      "produtos_gravity": "Produtos Gravity",
+      "modulos_plataforma": "Todos os produtos Gravity"
+    },
+    "nav_status": {
+      "comprado_titulo": "Contratado",
+      "comprado_desc": "Módulo ativo na sua organização",
+      "nao_comprado_titulo": "Não contratado",
+      "nao_comprado_desc": "Você ainda pode acessar e explorar o conteúdo",
+      "concluido_titulo": "Concluído",
+      "concluido_desc": "Você finalizou todo o onboarding deste item",
+      "nao_concluido_titulo": "Em aberto",
+      "nao_concluido_desc": "Onboarding ainda não foi finalizado"
     },
     "academy": {
       "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
@@ -47,9 +58,13 @@
     },
     "aula": {
       "voltar": "Voltar",
+      "voltar_onboarding": "Voltar ao onboarding",
       "marcar_concluida": "Marcar como concluída",
       "inicio": "Início",
-      "fim": "Fim do módulo"
+      "fim": "Fim do módulo",
+      "manual_complemento_titulo": "Quer ir além? O manual tem mais detalhes",
+      "manual_complemento_desc": "Esta sessão cobre o essencial do onboarding. No manual você encontra referências de tela, metadados e contexto extra para consolidar o que aprendeu. Já abrimos a seção correspondente.",
+      "manual_complemento_acao": "Abrir seção no manual"
     },
     "grupo": {
       "comece_aqui": "Comece por aqui",
@@ -64,6 +79,10 @@
     "progresso": {
       "produtos_contratados": "Progresso nos produtos contratados",
       "concluidos": "concluídos"
+    },
+    "capitulos": {
+      "titulo": "Capítulos deste produto",
+      "subtitulo": "Role a jornada ou use as pílulas para ir direto a cada bloco — todos os capítulos ficam listados abaixo."
     },
     "dashboard": {
       "titulo": "Seu onboarding",

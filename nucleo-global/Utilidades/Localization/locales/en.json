@@ -7,7 +7,18 @@
       "minha_jornada": "My Journey",
       "docs": "Manuals",
       "builders": "Gravity Partner",
-      "produtos_gravity": "Gravity Products"
+      "produtos_gravity": "Gravity Products",
+      "modulos_plataforma": "All Gravity products"
+    },
+    "nav_status": {
+      "comprado_titulo": "Contracted",
+      "comprado_desc": "Module active in your organization",
+      "nao_comprado_titulo": "Not contracted",
+      "nao_comprado_desc": "You can still access and explore the content",
+      "concluido_titulo": "Completed",
+      "concluido_desc": "You finished all onboarding for this item",
+      "nao_concluido_titulo": "Open",
+      "nao_concluido_desc": "Onboarding has not been completed yet"
     },
     "academy": {
       "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."
@@ -47,9 +58,13 @@
     },
     "aula": {
       "voltar": "Back",
+      "voltar_onboarding": "Back to onboarding",
       "marcar_concluida": "Mark as complete",
       "inicio": "Start",
-      "fim": "End of module"
+      "fim": "End of module",
+      "manual_complemento_titulo": "Want to go deeper? The manual has more detail",
+      "manual_complemento_desc": "This session covers the onboarding essentials. The manual adds screen references, metadata, and extra context to reinforce what you learned. We'll open the matching section for you.",
+      "manual_complemento_acao": "Open section in manual"
     },
     "grupo": {
       "comece_aqui": "Start here",
@@ -64,6 +79,10 @@
     "progresso": {
       "produtos_contratados": "Progress on contracted products",
       "concluidos": "completed"
+    },
+    "capitulos": {
+      "titulo": "Chapters in this product",
+      "subtitulo": "Scroll the journey or use the pills to jump to each block — all chapters are listed below."
     },
     "dashboard": {
       "titulo": "Your onboarding",

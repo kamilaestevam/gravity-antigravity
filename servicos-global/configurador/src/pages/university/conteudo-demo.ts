@@ -4,6 +4,7 @@
  */
 
 import { AULAS_LOGIN } from './manual-login-academy'
+import { CONFIGURADOR_TRILHAS, AULAS_CONFIGURADOR } from './manual-configurador-academy'
 
 export type { AulaDemo } from './manual-login-academy'
 
@@ -18,6 +19,7 @@ export type TipoBloco =
   | 'dois_colunas'
   | 'timeline'
   | 'destaque_escuro'
+  | 'infografico'
 
 export interface BlocoConteudo {
   tipo: TipoBloco
@@ -26,6 +28,7 @@ export interface BlocoConteudo {
 
 export const CONTEUDO_DEMO: Record<string, import('./manual-login-academy').AulaDemo[]> = {
   login: AULAS_LOGIN,
+  configurador: AULAS_CONFIGURADOR,
 }
 
 export function getAulaDemo(produto: string, faseSlug: string) {
@@ -34,4 +37,14 @@ export function getAulaDemo(produto: string, faseSlug: string) {
 
 export function getAulasDemo(produto: string) {
   return CONTEUDO_DEMO[produto] ?? []
+}
+
+/** Aulas do capítulo atual (Configurador fatiado); demais produtos retornam a trilha inteira. */
+export function getAulasCapituloDemo(produto: string, faseSlug: string) {
+  const todas = getAulasDemo(produto)
+  if (produto !== 'configurador') return todas
+  const capitulo = CONFIGURADOR_TRILHAS.find(tr => tr.fases.some(f => f.slug === faseSlug))
+  if (!capitulo) return todas
+  const slugsCapitulo = new Set(capitulo.fases.map(f => f.slug).filter(Boolean) as string[])
+  return todas.filter(a => slugsCapitulo.has(a.slug))
 }

@@ -5201,7 +5201,7 @@ const INFO_PILULA: React.CSSProperties = {
   gap: 8,
 }
 
-function ManualInfograficoOrganizacaoConta() {
+export function ManualInfograficoOrganizacaoConta() {
   const etapas = [
     {
       icone: UserPlus,
@@ -5523,7 +5523,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
   )
 }
 
-function ManualInfograficoFornecedoresComex() {
+export function ManualInfograficoFornecedoresComex() {
   const INFO_FORN: React.CSSProperties = {
     ...INFO_WS,
     padding: '12px 14px',
@@ -5798,7 +5798,7 @@ function ManualCamadaAcessoFluxo() {
   )
 }
 
-function ManualInfograficoPermissoesUsuario() {
+export function ManualInfograficoPermissoesUsuario() {
   const cardBase: React.CSSProperties = {
     borderRadius: 12,
     padding: '14px 16px',
@@ -6014,7 +6014,7 @@ const PAPEL_FORNECEDOR_INFO: {
   { label: 'Seguradora / Corretora', descricao: 'Seguro de carga internacional ou corretagem de câmbio.', cor: '#06b6d4', icone: <ShieldCheck weight="duotone" size={16} /> },
 ]
 
-function ManualInfograficoPapeisFornecedor() {
+export function ManualInfograficoPapeisFornecedor() {
   return (
     <div style={{
       background: 'rgba(148,163,184,.04)',
@@ -6079,7 +6079,7 @@ function ManualInfograficoPapeisFornecedor() {
   )
 }
 
-function ManualInfograficoTiposUsuario() {
+export function ManualInfograficoTiposUsuario() {
   const tipos = [
     {
       icone: Crown,
@@ -6607,7 +6607,7 @@ const COMPARATIVO_ORG_WS: { criterio: string; organizacao: string; workspace: st
   },
 ]
 
-function ManualTabelaComparativaOrganizacaoWorkspace() {
+export function ManualTabelaComparativaOrganizacaoWorkspace() {
   const thBase: React.CSSProperties = {
     padding: '12px 16px',
     textAlign: 'left',

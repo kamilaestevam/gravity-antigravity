@@ -5,7 +5,7 @@ description: "Marcação rich text nos manuais University Gravity (manual-*-cont
 
 # University — Marcação rich text do manual descritivo
 
-> **SSOT documental:** `documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md` **§9.7**  
+> **SSOT documental:** `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md` **§9.7**  
 > **SSOT código:** `manual-tipografia.ts` (`MANUAL_MARKUP_*`), `ManualTextoRichSegmento` em `manual-configurador-ui.tsx`, `ManualInfograficoRichText` em `manual-infografico-rich-text.tsx`
 
 ## Quando usar
@@ -52,7 +52,7 @@ description: "Marcação rich text nos manuais University Gravity (manual-*-cont
 
 ## Checklist do agente
 
-- [ ] Li ONBOARDING-DOCUMENTO.md §9.7
+- [ ] Li MANUAL-GRAVITY-ONBOARDING.md §9.7
 - [ ] Botões permanecem `**…**`
 - [ ] Literais da UI (frase/modal/placeholder/checkbox) em `*_…_*`
 - [ ] Parser suportado em `ManualTextoRich` (e infográfico se aplicável)

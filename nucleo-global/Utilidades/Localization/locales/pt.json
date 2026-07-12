@@ -3,6 +3,7 @@
     "modulo_nome": "Gravity University",
     "nav": {
       "academy": "Onboarding",
+      "visao_geral": "Visão geral",
       "minha_jornada": "Minha Jornada",
       "docs": "Manuais",
       "builders": "Gravity Partner",
@@ -64,6 +65,24 @@
       "produtos_contratados": "Progresso nos produtos contratados",
       "concluidos": "concluídos"
     },
+    "dashboard": {
+      "titulo": "Seu onboarding",
+      "subtitulo": "Visão geral do que você já fez, produtos, métricas e recompensas",
+      "modulos_titulo": "Módulos contratados",
+      "etapas_progresso": "{{feitas}}/{{total}} etapas",
+      "continuar_titulo": "Continue de onde parou",
+      "continuar_jornada": "Continuar jornada",
+      "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
+      "nivel_xp_faltam": "Nível {{nivel}} · {{xp}} XP para subir",
+      "produtos_onboarding_concluido": "Produtos com onboarding concluído",
+      "manuais_lidos": "Manuais lidos",
+      "o_que_falta": "O que falta",
+      "iniciar": "Iniciar",
+      "nivel_ofensiva": "Nível & ofensiva",
+      "nivel_rotulo": "Nível {{nivel}} · {{titulo}}",
+      "ofensiva_dias": "{{dias}} dias de ofensiva",
+      "badge_obtido": "obtido"
+    },
     "dica": {
       "titulo": "Dicas e Explicações",
       "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",
@@ -76,7 +95,19 @@
       "pontos": "Pontos",
       "concluidas": "Concluídas",
       "em_andamento": "Em andamento",
-      "certificados": "Certificados"
+      "certificados": "Certificados",
+      "seu_progresso": "Seu progresso",
+      "recompensas": "Recompensas",
+      "ranking_modulo": "Ranking do módulo",
+      "ranking_geral": "Ranking geral",
+      "concluir_etapa": "Concluir etapa",
+      "continuar_etapa": "Continuar etapa",
+      "etapa_concluida": "Concluída",
+      "etapa_bloqueada": "Bloqueada",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tarefas concluídas",
+      "badge_iniciante": "Badge Iniciante",
+      "gravity_points": "Gravity Points",
+      "voce": "Você"
     },
     "vazio": {
       "em_breve": "{{secao}} — em breve"

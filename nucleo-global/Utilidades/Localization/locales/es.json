@@ -3,6 +3,7 @@
     "modulo_nome": "Gravity University",
     "nav": {
       "academy": "Onboarding",
+      "visao_geral": "Visión general",
       "minha_jornada": "Mi Recorrido",
       "docs": "Manuales",
       "builders": "Gravity Partner",
@@ -64,6 +65,24 @@
       "produtos_contratados": "Progreso en productos contratados",
       "concluidos": "completados"
     },
+    "dashboard": {
+      "titulo": "Tu onboarding",
+      "subtitulo": "Visión general de lo que ya hiciste, productos, métricas y recompensas",
+      "modulos_titulo": "Módulos contratados",
+      "etapas_progresso": "{{feitas}}/{{total}} etapas",
+      "continuar_titulo": "Continúa donde lo dejaste",
+      "continuar_jornada": "Continuar recorrido",
+      "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
+      "nivel_xp_faltam": "Nivel {{nivel}} · {{xp}} XP para subir",
+      "produtos_onboarding_concluido": "Productos con onboarding completado",
+      "manuais_lidos": "Manuales leídos",
+      "o_que_falta": "Lo que falta",
+      "iniciar": "Iniciar",
+      "nivel_ofensiva": "Nivel y racha",
+      "nivel_rotulo": "Nivel {{nivel}} · {{titulo}}",
+      "ofensiva_dias": "{{dias}} días de racha",
+      "badge_obtido": "obtenido"
+    },
     "dica": {
       "titulo": "Consejos y Explicaciones",
       "habilitadas": "Habilitadas — los consejos aparecen al pasar el cursor",
@@ -76,7 +95,19 @@
       "pontos": "Puntos",
       "concluidas": "Completadas",
       "em_andamento": "En curso",
-      "certificados": "Certificados"
+      "certificados": "Certificados",
+      "seu_progresso": "Tu progreso",
+      "recompensas": "Recompensas",
+      "ranking_modulo": "Ranking del módulo",
+      "ranking_geral": "Ranking general",
+      "concluir_etapa": "Completar etapa",
+      "continuar_etapa": "Continuar etapa",
+      "etapa_concluida": "Completada",
+      "etapa_bloqueada": "Bloqueada",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tareas completadas",
+      "badge_iniciante": "Insignia Principiante",
+      "gravity_points": "Gravity Points",
+      "voce": "Tú"
     },
     "vazio": {
       "em_breve": "{{secao}} — próximamente"

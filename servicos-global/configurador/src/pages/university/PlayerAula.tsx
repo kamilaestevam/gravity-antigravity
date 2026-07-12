@@ -1,7 +1,6 @@
 /**
  * PlayerAula — Reader de aula da Gravity University.
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
- * Área de conteúdo com fundo claro (feel de documento/artigo).
  */
 
 import React, { useState } from 'react'
@@ -14,9 +13,8 @@ import {
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
 
 const UNI_COR = '#818cf8'
-const CONTENT_BG = '#1e293b'
-const CONTENT_TEXT = '#f1f5f9'
-const CONTENT_MUTED = '#94a3b8'
+const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
+const CONTENT_MUTED = 'var(--ws-muted, #94a3b8)'
 const ACCENT = '#a78bfa'
 
 // ── Sub-componentes com fallback para mídia ────────────────────────────────
@@ -31,7 +29,7 @@ function BlocoImagem({ bloco }: { bloco: BlocoConteudo }) {
           src={String(bloco.dados.src)}
           alt={String(bloco.dados.alt ?? '')}
           onError={() => setFalhou(true)}
-          style={{ width: '100%', borderRadius: 12, display: 'block', border: '1px solid rgba(148,163,184,.1)' }}
+          style={{ width: '100%', borderRadius: 12, display: 'block', border: '1px solid rgba(148,163,184,.14)' }}
         />
       ) : (
         <div style={{
@@ -111,7 +109,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
 
     case 'texto':
       return (
-        <p style={{ fontSize: '.96rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: '0.8rem 0', fontFamily: 'inherit' }}>
+        <p style={{ fontSize: '.96rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: '0.8rem 0', fontFamily: 'inherit', whiteSpace: 'pre-line' }}>
           {String(bloco.dados.text)}
         </p>
       )
@@ -258,7 +256,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       return (
         <div style={{
           margin: '1.75rem 0', borderRadius: 14,
-          background: '#0f172a', border: '1px solid rgba(148,163,184,.1)',
+          background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(148,163,184,.12)',
           overflow: 'hidden', display: 'flex',
         }}>
           <div style={{ flex: 1, padding: '1.75rem 2rem' }}>
@@ -312,15 +310,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="uni-player-aula">
 
       {/* ── Painel esquerdo: navegador de fases ── */}
-      <nav style={{
-        width: 220, flexShrink: 0,
-        borderRight: '1px solid rgba(148,163,184,.12)',
-        overflowY: 'auto', padding: '1rem 0',
-        background: 'var(--bg-base,#1e293b)',
-      }}>
+      <nav className="uni-player-aula__nav">
         <button
           onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}
           style={{
@@ -346,7 +339,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
                   background: ativa ? `${UNI_COR}18` : 'transparent',
-                  color: ativa ? UNI_COR : feita ? 'var(--ws-muted,#94a3b8)' : 'var(--ws-text,#f1f5f9)',
+                  color: ativa ? UNI_COR : feita ? CONTENT_MUTED : CONTENT_TEXT,
                   fontWeight: ativa ? 700 : 500, fontSize: '.82rem', width: '100%',
                   borderLeft: ativa ? `3px solid ${UNI_COR}` : '3px solid transparent',
                 }}
@@ -374,21 +367,9 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
         </div>
       </nav>
 
-      {/* ── Área de conteúdo — fundo claro (feel de documento) ── */}
-      <div style={{
-        flex: 1, overflowY: 'auto',
-        background: CONTENT_BG,
-        display: 'flex', flexDirection: 'column',
-      }}>
-        {/* Scroll interno com largura controlada e centralizada */}
-        <div style={{
-          width: '100%',
-          maxWidth: 980,
-          margin: '0 auto',
-          padding: '2rem 3.5rem 4rem',
-          boxSizing: 'border-box',
-          flex: 1,
-        }}>
+      {/* ── Área de conteúdo ── */}
+      <div className="uni-player-aula__content">
+        <div className="uni-player-aula__article">
 
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED, marginBottom: '2rem' }}>
@@ -418,15 +399,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           }}>
             {/* Anterior */}
             <button
+              type="button"
+              className="uni-player-aula__footer-btn"
               onClick={() => anterior && navParaFase(anterior.slug)}
               disabled={!anterior}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
-                padding: '10px 18px', cursor: anterior ? 'pointer' : 'not-allowed',
-                opacity: anterior ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: 'none',
-              }}
             >
               <ArrowLeft size={15} />
               <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
@@ -434,15 +410,9 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
             {/* Marcar concluída */}
             <button
+              type="button"
+              className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
               onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                border: 'none', borderRadius: 9999, padding: '11px 28px',
-                cursor: 'pointer', fontWeight: 700, fontSize: '.88rem',
-                background: jaConcluida ? 'rgba(52,211,153,.15)' : UNI_COR,
-                color: jaConcluida ? '#059669' : '#fff',
-                boxShadow: jaConcluida ? 'none' : '0 2px 12px rgba(167,139,250,.3)',
-              }}
             >
               <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
               {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
@@ -450,16 +420,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
             {/* Próxima */}
             <button
+              type="button"
+              className="uni-player-aula__footer-btn uni-player-aula__footer-btn--next"
               onClick={() => proxima && navParaFase(proxima.slug)}
               disabled={!proxima}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
-                padding: '10px 18px', cursor: proxima ? 'pointer' : 'not-allowed',
-                opacity: proxima ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: 'none',
-                justifyContent: 'flex-end',
-              }}
             >
               <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>
               <ArrowRight size={15} />

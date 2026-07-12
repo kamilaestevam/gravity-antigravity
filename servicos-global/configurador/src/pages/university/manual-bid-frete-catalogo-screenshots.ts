@@ -58,6 +58,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'painel_cotacao_solicitacao_cotacao_link_resposta': '/university/screenshots/bid-frete-int-painel-cotacao-solicitacao-cotacao-link-resposta.png',
   'painel_cotacao_solicitacao_cotacao_link_acesso_cliente': '/university/screenshots/bid-frete-int-painel-cotacao-solicitacao-cotacao-link-acesso-cliente.png',
   'painel_cotacao_solicitacao_cotacao_link_expirado': '/university/screenshots/bid-frete-int-painel-cotacao-solicitacao-cotacao-link-expirado.png',
+  'painel_cotacao_solicitacao_cotacao_erro_email': '/university/screenshots/bid-frete-int-painel-cotacao-solicitacao-cotacao-erro-email.png',
   'painel_cotacao_propostas': '/university/screenshots/bid-frete-int-painel-cotacao-propostas.png',
   'painel_cotacao_propostas_1': '/university/screenshots/bid-frete-int-painel-cotacao-propostas-1.png',
   'painel_cotacao_propostas_ranking': '/university/screenshots/bid-frete-int-painel-cotacao-propostas-ranking.png',

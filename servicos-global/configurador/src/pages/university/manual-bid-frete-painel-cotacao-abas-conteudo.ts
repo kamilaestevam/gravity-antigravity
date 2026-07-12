@@ -74,6 +74,15 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
         telas: [{ legenda: '', imagem: S('painel_cotacao_solicitacao_cotacao_link_acesso_cliente') }],
       },
       {
+        colunas: 1,
+        telas: [{
+          legenda: '',
+          paragrafoAntes:
+            'Caso o e-mail não esteja correto ou não cadastrado, o erro de envio será exibido.',
+          imagem: S('painel_cotacao_solicitacao_cotacao_erro_email'),
+        }],
+      },
+      {
         tituloEtapa: 'Cotação válida e token não utilizado',
         textoIntro:
           'Esta é exatamente a visão e o formulário que o fornecedor deve responder.',

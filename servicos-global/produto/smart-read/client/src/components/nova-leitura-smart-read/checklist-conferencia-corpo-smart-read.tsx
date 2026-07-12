@@ -4,6 +4,7 @@
 
 import { CaretDown, Check, CircleNotch, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { TooltipConferenciaRegraSmartRead } from './tooltip-conferencia-regra-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
   contarChecklistPorStatus,
@@ -27,6 +28,7 @@ export type ItemChecklistCorpoSmartRead = {
     item: string
     motor: string
     tooltip_conferencia: string
+    base_normativa?: string
   }
   status: StatusChecklistMatrizInvoice
   rotulo_status: RotuloStatusChecklistInvoice
@@ -134,7 +136,11 @@ function LinhaChecklistAviacao({
       <td className="sr-conf-chk-col-item">
         <span className="sr-conf-chk-item-linha">
           <span className="sr-conf-chk-item-nome">{item.regra.item}</span>
-          <TooltipGlobal titulo={item.regra.item} descricao={item.regra.tooltip_conferencia}>
+          <TooltipConferenciaRegraSmartRead
+            titulo={item.regra.item}
+            tooltip_conferencia={item.regra.tooltip_conferencia}
+            base_normativa={item.regra.base_normativa}
+          >
             <button
               type="button"
               className="sr-conf-chk-item-info"
@@ -142,7 +148,7 @@ function LinhaChecklistAviacao({
             >
               <Info size={14} weight="duotone" aria-hidden />
             </button>
-          </TooltipGlobal>
+          </TooltipConferenciaRegraSmartRead>
         </span>
         <span className="sr-conf-chk-item-motor">{rotuloMotor(item.regra.motor)}</span>
       </td>

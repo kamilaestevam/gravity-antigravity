@@ -434,6 +434,28 @@ function ManualChipBidFreteBidPilar() {
   )
 }
 
+function ManualChipBidFreteTokenNaoUtilizado() {
+  return (
+    <div
+      title="Token não usado"
+      style={{
+        width: 38,
+        height: 38,
+        borderRadius: 8,
+        border: '1px solid rgba(148,163,184,.35)',
+        background: 'rgba(148,163,184,.12)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+      aria-hidden
+    >
+      <Key size={18} weight="duotone" color="#94a3b8" />
+    </div>
+  )
+}
+
 function ManualChipBidFreteFormaManualPilar() {
   return (
     <div
@@ -1321,7 +1343,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '205'
+const MANUAL_SCREENSHOT_CACHE_KEY = '207'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3202,10 +3224,14 @@ function ManualBlocoPassoVisual({
     const blocoAposFigura = (
       <>
         {passo.calloutAposImagem ? (
-          <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={20} />
+          <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={MANUAL_ESPACO_IMAGEM_FRASE_PX} />
         ) : null}
         {passo.paragrafosAposImagem && passo.paragrafosAposImagem.length > 0 && (
-          <div style={{ marginTop: 20 }}>
+          <div style={{
+            marginTop: passo.calloutAposImagem
+              ? MANUAL_ESPACO_PARAGRAFO_PX
+              : MANUAL_ESPACO_IMAGEM_FRASE_PX,
+          }}>
             {passo.paragrafosAposImagem.map((p, i) => (
               <ManualParagrafo
                 key={p}
@@ -3224,6 +3250,27 @@ function ManualBlocoPassoVisual({
           </div>
         )}
         {galeriaAbaixo}
+        {passo.galeriaComparacaoAposImagem?.map((galeria, idxGaleria) => {
+          const aposTextoPrincipal = Boolean(
+            passo.paragrafosAposImagem?.length || passo.calloutAposImagem,
+          )
+          const ehPrimeiraAposTexto = aposTextoPrincipal && idxGaleria === 0
+          const ehSubsecaoComTitulo = Boolean(galeria.tituloEtapa)
+          return (
+          <ManualGaleriaComparacaoIntro
+            key={`galeria-apos-img-${idxGaleria}-${galeria.telas.map((t) => t.imagem).join('|')}`}
+            telas={galeria.telas}
+            colunas={galeria.colunas ?? 1}
+            tituloEtapa={galeria.tituloEtapa}
+            textoIntro={galeria.textoIntro}
+            chipBidFreteTokenNaoUtilizado={galeria.chipBidFreteTokenNaoUtilizado}
+            calloutApos={galeria.calloutApos}
+            margemSuperiorPx={ehPrimeiraAposTexto ? MANUAL_ESPACO_FRASE_IMAGEM_PX : undefined}
+            espacoSuperiorEtapa={idxGaleria > 0 && ehSubsecaoComTitulo}
+            emAcordeaoSubtopico={emAcordeaoSubtopico}
+          />
+          )
+        })}
         {blocoListaCustomizacao}
       </>
     )
@@ -3853,6 +3900,7 @@ function ManualGaleriaComparacaoIntro({
   chipBidFreteModalTransporte,
   chipBidFreteFormaManual,
   chipBidFreteBid,
+  chipBidFreteTokenNaoUtilizado,
   mostrarChipsBidFreteTipoCarga,
   chipBidFreteTipoCarga,
   calloutApos,
@@ -3860,6 +3908,7 @@ function ManualGaleriaComparacaoIntro({
   mostrarCardsKanbanCabecalhoPedido,
   espacoSuperiorEtapa = false,
   espacoInferiorAposEtapaPx,
+  margemSuperiorPx,
   emAcordeaoSubtopico = false,
 }: {
   telas: DocGaleriaComparacaoTela[]
@@ -3921,6 +3970,7 @@ function ManualGaleriaComparacaoIntro({
   chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
   chipBidFreteFormaManual?: boolean
   chipBidFreteBid?: boolean
+  chipBidFreteTokenNaoUtilizado?: boolean
   mostrarChipsBidFreteTipoCarga?: boolean
   chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
@@ -3928,6 +3978,8 @@ function ManualGaleriaComparacaoIntro({
   mostrarCardsKanbanCabecalhoPedido?: boolean
   espacoSuperiorEtapa?: boolean
   espacoInferiorAposEtapaPx?: number
+  /** Sobrescreve margin-top do bloco (ex.: frase → imagem após `paragrafosAposImagem`). */
+  margemSuperiorPx?: number
   /** Galeria dentro de subtópico recolhível — usa ritmo `manual-tipografia` (28px antes do print). */
   emAcordeaoSubtopico?: boolean
 }) {
@@ -4059,12 +4111,15 @@ function ManualGaleriaComparacaoIntro({
   const subtituloNoCabecalhoEtapa = Boolean(tituloEtapa && subtituloEtapa)
 
   const margemInferiorGaleriaPx = espacoInferiorAposEtapaPx ?? MANUAL_ESPACO_ENTRE_PASSOS_PX
+  const margemSuperiorGaleriaPx = margemSuperiorPx ?? (
+    textoAcimaEstiloCorpo
+      ? (espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx)
+      : MANUAL_ESPACO_ENTRE_PASSOS_PX
+  )
 
   return (
     <div style={{
-      margin: textoAcimaEstiloCorpo
-        ? `${espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx}px 0 ${margemInferiorGaleriaPx}px`
-        : `${MANUAL_ESPACO_ENTRE_PASSOS_PX}px 0 ${margemInferiorGaleriaPx}px`,
+      margin: `${margemSuperiorGaleriaPx}px 0 ${margemInferiorGaleriaPx}px`,
       paddingTop: espacoSuperiorEtapa ? MANUAL_ESPACO_ENTRE_PASSOS_PX : undefined,
     }}>
       {linhaSoDicas ? <ManualGaleriaRotuloLinhaDicas /> : null}
@@ -4129,6 +4184,12 @@ function ManualGaleriaComparacaoIntro({
       ) : tituloEtapa && chipBidFreteTipoCarga ? (
         <ManualGaleriaCabecalhoEtapaRamo
           chip={<ManualChipBidFreteTipoCarga id={chipBidFreteTipoCarga} />}
+          tituloMarkdown={tituloEtapa}
+          subtituloMarkdown={subtituloEtapa}
+        />
+      ) : tituloEtapa && chipBidFreteTokenNaoUtilizado ? (
+        <ManualGaleriaCabecalhoEtapaRamo
+          chip={<ManualChipBidFreteTokenNaoUtilizado />}
           tituloMarkdown={tituloEtapa}
           subtituloMarkdown={subtituloEtapa}
         />

@@ -57,11 +57,36 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
     titulo: 'Solicitação de cotação',
     tituloCurto: 'Solicitação de cotação',
     paragrafos: [
-      'A aba **Solicitação de Cotação** lista cada **disparo** enviado aos fornecedores: e-mails, visualizações, respostas e **recusas**.',
-      'Acompanhe quem recebeu o pedido, filtre **recusas** e reenvie quando precisar ampliar o leque de agentes de carga.',
+      'Nesse local é possível acompanhar todas as solicitações de cotacões enviadas, para quem, como, status, link da resposta, data de envio e data da resposta.',
     ],
-    imagem: S('painel_cotacao_solicitacao'),
+    imagem: S('painel_cotacao_solicitacao_cotacao'),
     imagemAbaixoTexto: true,
+    calloutAposImagem: {
+      tipo: 'dica',
+      texto: 'Todas as colunas são atualizadas automaticamente.',
+    },
+    paragrafosAposImagem: [
+      'O usuário pode clicar e abrir e ver exatamente o que seu fornecedor irá receber.',
+    ],
+    galeriaComparacaoAposImagem: [
+      {
+        colunas: 1,
+        telas: [{ legenda: '', imagem: S('painel_cotacao_solicitacao_cotacao_link_acesso_cliente') }],
+      },
+      {
+        tituloEtapa: 'Cotação válida e token não utilizado',
+        textoIntro:
+          'Esta é exatamente a visão e o formulário que o fornecedor deve responder.',
+        chipBidFreteTokenNaoUtilizado: true,
+        colunas: 1,
+        telas: [{ legenda: '', imagem: S('painel_cotacao_solicitacao_cotacao_link_resposta') }],
+        calloutApos: {
+          tipo: 'dica',
+          texto:
+            'No último passo da cotação existe a opção **Permitir edição da proposta**. Se estiver marcado **Sim**, enquanto o prazo estiver válido a proposta pode ser editada.',
+        },
+      },
+    ],
   },
   {
     titulo: 'Propostas',

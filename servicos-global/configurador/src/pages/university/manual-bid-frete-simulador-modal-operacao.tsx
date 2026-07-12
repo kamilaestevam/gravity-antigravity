@@ -301,6 +301,32 @@ function resolverAffordancePassoModal(
   return null
 }
 
+/** Convite inicial da demo — desliga ao primeiro preenchimento ou passo > 1. */
+function usuarioPreenchendoSimuladorNovaCotacao({
+  passoAtual,
+  selecoesGuiaCount,
+  interagiuModal,
+  interagiuLocais,
+  interagiuCarga,
+  interagiuVisibilidade,
+}: {
+  passoAtual: number
+  selecoesGuiaCount: number
+  interagiuModal: Partial<Record<CampoModalOperacaoId, boolean>>
+  interagiuLocais: Partial<Record<CampoOrigemDestinoId, boolean>>
+  interagiuCarga: Partial<Record<CampoCargaIncotermId, boolean>>
+  interagiuVisibilidade: Partial<Record<CampoVisibilidadeId, boolean>>
+}): boolean {
+  if (passoAtual > 1) return true
+  if (selecoesGuiaCount > 0) return true
+  return (
+    Object.keys(interagiuModal).length > 0
+    || Object.keys(interagiuLocais).length > 0
+    || Object.keys(interagiuCarga).length > 0
+    || Object.keys(interagiuVisibilidade).length > 0
+  )
+}
+
 /** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
 export function ManualBidFreteSimuladorModalOperacao() {
   const [passoAtual, setPassoAtual] = useState(1)
@@ -490,7 +516,15 @@ export function ManualBidFreteSimuladorModalOperacao() {
       : null),
     [tipoPassoAtual, interagiuModal, exibirModalidade],
   )
-  const demoAtiva = !cotacaoCriadaSimulacao
+  const usuarioPreenchendo = usuarioPreenchendoSimuladorNovaCotacao({
+    passoAtual,
+    selecoesGuiaCount: selecoesGuia.length,
+    interagiuModal,
+    interagiuLocais,
+    interagiuCarga,
+    interagiuVisibilidade,
+  })
+  const demoConviteAtiva = !cotacaoCriadaSimulacao && !usuarioPreenchendo
 
   return (
     <div id="sim-bid-frete-modal-operacao" style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
@@ -500,7 +534,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             ? 'Demo interativa — comece escolhendo o tipo de operação'
             : 'Demo interativa — preencha os campos; o guia à direita registra cada escolha'
         }
-        visivel={demoAtiva}
+        visivel={demoConviteAtiva}
       />
       <style>{NC_ESTILOS_SIMULADOR_MODAL_OPERACAO}</style>
       <style>{NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO}</style>
@@ -515,7 +549,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             passos={passosWizard}
             passoAtual={passoAtual}
             larguraTotal
-            classNameShell={demoAtiva ? 'sim-wizard-embutido--vivo' : undefined}
+            classNameShell={demoConviteAtiva ? 'sim-wizard-embutido--vivo' : undefined}
             podeAvancar={podeAvancar}
             podeVoltar={podeVoltar}
             rotuloAvancar={tipoPassoAtual === 'resumo' ? 'Criar Cotação' : 'Próximo'}
@@ -572,7 +606,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-2">
                     <WrapperAlvoAffordanceBidFrete
-                      destacado={affordancePassoModal === 'tipo_operacao'}
+                      destacado={demoConviteAtiva && affordancePassoModal === 'tipo_operacao'}
                       rotuloClique="Importação"
                       varianteCursor="compacto"
                     >
@@ -604,7 +638,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-3">
                     <WrapperAlvoAffordanceBidFrete
-                      destacado={affordancePassoModal === 'modal_frete'}
+                      destacado={demoConviteAtiva && affordancePassoModal === 'modal_frete'}
                       rotuloClique="Marítimo"
                       varianteCursor="compacto"
                     >
@@ -680,7 +714,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                         {estado.modal_frete === 'MARITIMO' ? (
                           <>
                             <WrapperAlvoAffordanceBidFrete
-                              destacado={affordancePassoModal === 'modalidade'}
+                              destacado={demoConviteAtiva && affordancePassoModal === 'modalidade'}
                               rotuloClique="FCL"
                               varianteCursor="compacto"
                             >
@@ -740,7 +774,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
                   </SimuladorNcSectionTitle>
                   <div className="nc-options-grid-full">
                     <WrapperAlvoAffordanceBidFrete
-                      destacado={affordancePassoModal === 'carga_perigosa'}
+                      destacado={demoConviteAtiva && affordancePassoModal === 'carga_perigosa'}
                       rotuloClique="Opcional"
                       varianteCursor="compacto"
                     >
@@ -817,7 +851,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
             modalidade: estado.modalidade,
           }}
           onSelecionarCampo={(id) => setFoco((prev) => (prev === id ? null : id))}
-          conviteInterativo={demoAtiva && selecoesGuia.length === 0}
+          conviteInterativo={demoConviteAtiva}
         />
       </div>
     </div>

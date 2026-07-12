@@ -84,7 +84,7 @@ export const PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR: DocPassoVisual[] = renume
     tituloCurto: 'Configurações',
     paragrafos: [
       'Preferências da visão fornecedor: notificações, colunas da lista, painéis do dashboard e demais ajustes locais ao agente de carga.',
-      'Não confundir com as **Configurações** operacionais do workspace importador (capítulo 10 deste manual).',
+      'Não confundir com as **Configurações** operacionais do workspace importador (capítulo 11 deste manual).',
     ],
     badgeEmDesenvolvimento: true,
   },

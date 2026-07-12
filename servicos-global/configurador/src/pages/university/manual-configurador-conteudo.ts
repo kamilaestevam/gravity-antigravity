@@ -102,6 +102,8 @@ export interface DocPassoVisual {
     chipBidFreteFormaManual?: boolean
     /** Manual BID Frete §6.03.01 — chip BID (Stack) no título da etapa. */
     chipBidFreteBid?: boolean
+    /** Manual BID Frete §7.04 — ícone de token não utilizado no título da etapa. */
+    chipBidFreteTokenNaoUtilizado?: boolean
     /** Ritmo extra após o bloco da etapa (antes da próxima etapa com título). */
     espacoInferiorAposEtapaPx?: number
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
@@ -181,6 +183,11 @@ export interface DocPassoVisual {
   tooltipsKpiAposImagem?: boolean
   /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
   paragrafosAposImagem?: string[]
+  /** Com `imagemAbaixoTexto`, grade (chip + título + prints) após o screenshot principal. */
+  galeriaComparacaoAposImagem?: Omit<
+    NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number],
+    'indice'
+  >[]
   /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
   calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */

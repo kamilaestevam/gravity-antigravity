@@ -56,6 +56,9 @@ $aliasesManual = @{
   'tela_bid_frete_painel_cotacao_1.png' = 'bid-frete-int-painel-cotacao-1.png'
   'tela_bid_frete_painel_cotacao_dados_gerais.png' = 'bid-frete-int-painel-cotacao-dados-gerais.png'
   'tela_bid_frete_painel_cotacao_solicitacao.png' = 'bid-frete-int-painel-cotacao-solicitacao.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_resposta.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-resposta.png'
+  'tela_bid_frete_painel_cotacao_solicitacao_cotacao_link_acesso_cliente.png' = 'bid-frete-int-painel-cotacao-solicitacao-cotacao-link-acesso-cliente.png'
   'tela_bid_frete_painel_cotacao_propostas.png' = 'bid-frete-int-painel-cotacao-propostas.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {

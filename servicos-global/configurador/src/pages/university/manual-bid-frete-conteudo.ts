@@ -1,6 +1,7 @@
 import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO } from './manual-bid-frete-aprovar-cotacao-conteudo'
+import { PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO } from './manual-bid-frete-pagamento-taxa-gravity-fechamento-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR } from './manual-bid-frete-visao-fornecedor-conteudo'
 import {
@@ -16,7 +17,7 @@ const S = screenshotBidFreteInt
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/docs/bid-frete#doc-sec-10|Configurações}}'
+  '{{link:/university-gravity/docs/bid-frete#doc-sec-11|Configurações}}'
 
 export const DOC_BID_FRETE_SUBTITULO =
   'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
@@ -668,6 +669,17 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         'Conclua a negociação **aprovando** a melhor proposta — pelo **Painel de Insights**, pela aba **Propostas** ou pelo **comparativo** de ofertas.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO,
+    },
+    {
+      titulo: 'Pagamento Taxa Gravity Fechamento',
+      tituloSumario: 'Pagamento Taxa Gravity Fechamento',
+      prefixoPassosVisuais: 'Pagamento Taxa Gravity Fechamento',
+      ancoraPassosPrefix: 'pagamento-taxa-gravity-fechamento',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee) é registrada e cobrada conforme o **pagador** definido no workspace.',
+      ],
+      passosVisuais: PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO,
     },
     {
       titulo: 'Visão do fornecedor',

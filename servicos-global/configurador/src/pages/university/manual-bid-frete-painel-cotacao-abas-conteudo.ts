@@ -139,7 +139,38 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
           paragrafoAntes:
             'Para acessar o detalhamento completo da proposta, clique em **Ver detalhamento completo**.',
           imagem: S('painel_cotacao_propostas_detalhamento_completo'),
+          legendaApos: 'Aprovar',
+          legendaAposAlinhamento: 'left',
+          paragrafoDepois:
+            'É possível aprovar a cotação pelas propostas ou visão geral.',
         }],
+      },
+      {
+        colunas: 2,
+        telas: [
+          {
+            legenda: '',
+            imagem: S('painel_cotacao_propostas_detalhamento_aprovar_1'),
+          },
+          {
+            legenda: '',
+            imagem: S('painel_cotacao_propostas_detalhamento_aprovar_2'),
+          },
+        ],
+      },
+      {
+        textoIntro: 'Em seguida será exibido o pedido de confirmação e a confirmação.',
+        colunas: 2,
+        telas: [
+          {
+            legenda: '',
+            imagem: S('painel_cotacao_propostas_detalhamento_aprovar_modal'),
+          },
+          {
+            legenda: '',
+            imagem: S('painel_cotacao_propostas_detalhamento_aprovar_modal_1'),
+          },
+        ],
       },
     ],
   },

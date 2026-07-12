@@ -383,6 +383,8 @@ export interface DocGaleriaComparacaoTela {
   /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
   legendaApos?: string
   legendaAposAlinhamento?: 'left' | 'center'
+  /** Parágrafo abaixo da legenda roxa (`legendaApos`), sem screenshot adicional. */
+  paragrafoDepois?: string
   /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
   chipConsolidarExemplo?: DocChipConsolidarExemploId
   /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */

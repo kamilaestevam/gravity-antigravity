@@ -1372,7 +1372,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '212'
+const MANUAL_SCREENSHOT_CACHE_KEY = '218'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1395,14 +1395,28 @@ function ManualFiguraScreenshot({
 }) {
   const [telaCheia, setTelaCheia] = useState(false)
   const [erroCarregamento, setErroCarregamento] = useState(false)
-  const srcEfetivo = urlScreenshotManual(src)
+  const [tentativaRecarga, setTentativaRecarga] = useState(0)
+  const srcEfetivo = `${urlScreenshotManual(src)}${tentativaRecarga > 0 ? `&rc=${tentativaRecarga}` : ''}`
   const ampliarAbaixo = src === SCREENSHOT_HUB_ACESSO_CONFIGURADOR
   const compacta = larguraMaxima != null
   const larguraCheia = ampliarAbaixo || compacta || larguraTotal
 
   useEffect(() => {
     setErroCarregamento(false)
+    setTentativaRecarga(0)
+  }, [src])
+
+  useEffect(() => {
+    setErroCarregamento(false)
   }, [srcEfetivo])
+
+  const aoErroImagem = () => {
+    if (tentativaRecarga < 3) {
+      window.setTimeout(() => setTentativaRecarga((n) => n + 1), 500)
+      return
+    }
+    setErroCarregamento(true)
+  }
 
   useEffect(() => {
     if (!telaCheia) return
@@ -1464,7 +1478,7 @@ function ManualFiguraScreenshot({
               src={srcEfetivo}
               alt={alt}
               style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
-              onError={() => setErroCarregamento(true)}
+              onError={aoErroImagem}
             />
           )}
           {!ampliarAbaixo && !erroCarregamento && (
@@ -4143,6 +4157,9 @@ function ManualGaleriaComparacaoIntro({
             alinhamento={tela.legendaAposAlinhamento ?? 'left'}
           />
         </div>
+      ) : null}
+      {tela.paragrafoDepois ? (
+        <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
       ) : null}
     </div>
   )

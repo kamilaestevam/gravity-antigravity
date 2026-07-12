@@ -521,7 +521,7 @@ describe('executarPasso1ValidacaoCodigoPackingList (motor Código + Cross-Doc)',
     })
     const p304 = itens.find((i) => i.regra.id === 'P3-04')
     expect(p304?.status).toBe('amarelo')
-    expect(p304?.em_analise).toBe(false)
+    expect(p304?.em_analise).toBe(true)
     expect(p304?.detalhe).toContain('Prévia local')
     expect(p304?.resultado).toContain('Prévia local')
   })

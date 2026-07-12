@@ -435,10 +435,12 @@ describe('montarChecklistMatrizInvoice', () => {
     const s203 = itens.find((i) => i.regra.id === 'S2-03')
     const s202 = itens.find((i) => i.regra.id === 'S2-02')
     expect(s203?.status).toBe('verde')
-    expect(s203?.em_analise).toBe(false)
+    expect(s203?.em_analise).toBe(true)
     expect(s203?.detalhe).toContain('Prévia local')
     expect(s202?.status).toBe('amarelo')
-    expect(s202?.em_analise).toBe(false)
-    expect(itens.filter((i) => i.regra.motor === 'llm').every((i) => !i.em_analise)).toBe(true)
+    expect(s202?.em_analise).toBe(true)
+    expect(itens.filter((i) => i.regra.motor === 'llm').every((i) => i.status !== 'pendente')).toBe(
+      true,
+    )
   })
 })

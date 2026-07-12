@@ -517,6 +517,7 @@ export function montarChecklistMatrizInvoice(
               : 'Prévia local — divergência de razão social (IA confirma em segundo plano)',
             null,
             resultadoLido,
+            true,
           )
         }
         if (regraMatriz.id === 'S2-04' && cnpj_oficial && temDado) {
@@ -532,6 +533,7 @@ export function montarChecklistMatrizInvoice(
               : 'Prévia local — divergência de endereço (IA confirma em segundo plano)',
             null,
             resultadoLido,
+            true,
           )
         }
         return montarItemChecklist(
@@ -542,6 +544,7 @@ export function montarChecklistMatrizInvoice(
             : 'N/A — sem dado na extração; IA em segundo plano',
           null,
           temDado ? resultadoLido : 'Não aplicável',
+          temDado,
         )
       }
 
@@ -601,14 +604,18 @@ export function montarChecklistMatrizInvoice(
 
     if (regraMatriz.motor === 'api') {
       if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise === 'api') {
+        const temCnpjExtraido = Boolean(
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido),
+        )
         return montarItemChecklist(
           regraMatriz,
-          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido) ? 'amarelo' : 'na',
-          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)
+          temCnpjExtraido ? 'amarelo' : 'na',
+          temCnpjExtraido
             ? 'Prévia local — consulta Receita em segundo plano'
             : 'N/A — CNPJ não extraído para consulta na Receita',
           null,
           detalheExtraido ?? 'Não aplicável',
+          temCnpjExtraido,
         )
       }
       if (carregando) {
@@ -669,7 +676,7 @@ export function montarChecklistMatrizInvoice(
         regraMatriz.motor === 'cross_doc'
           ? 'Prévia local — cruzamento documental em segundo plano'
           : 'Prévia local — validação IA em segundo plano'
-      return montarItemChecklist(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…')
+      return montarItemChecklist(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…', true)
     }
 
     if (detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)) {

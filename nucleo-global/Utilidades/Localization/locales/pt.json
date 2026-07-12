@@ -80,6 +80,10 @@
       "produtos_contratados": "Progresso nos produtos contratados",
       "concluidos": "concluídos"
     },
+    "capitulos": {
+      "titulo": "Capítulos deste produto",
+      "subtitulo": "Role a jornada ou use as pílulas para ir direto a cada bloco — todos os capítulos ficam listados abaixo."
+    },
     "dashboard": {
       "titulo": "Seu onboarding",
       "subtitulo": "Visão geral do que você já fez, produtos, métricas e recompensas",

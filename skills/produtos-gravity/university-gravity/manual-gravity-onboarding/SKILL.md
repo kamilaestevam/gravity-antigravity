@@ -168,7 +168,8 @@ Após "aprovado" ou equivalente do usuário:
 | `dois_colunas` | ⚙️ pendente | Texto + screenshot lado a lado |
 | `timeline` | ⚙️ pendente | Linha do tempo / fluxo |
 | `destaque_escuro` | ⚙️ pendente | Seção de contraste navy |
-| `grafico` | ⚙️ pendente | Gráfico / infográfico |
+| `infografico` | ✅ | Infográfico React do manual (`academy-infograficos.tsx`) |
+| `grafico` | ⚙️ pendente | Gráfico legado (preferir `infografico`) |
 | `avaliacao` | ⚙️ pendente | Quiz de fixação |
 
 > Tipos marcados como ⚙️ pendente devem ser especificados no rascunho mas anotados com `// IMPLEMENTAR_BLOCO` para que o desenvolvedor saiba que falta o renderizador em `PlayerAula.tsx`.
@@ -182,6 +183,7 @@ Após "aprovado" ou equivalente do usuário:
 - **Renderizador de blocos**: `servicos-global/configurador/src/pages/university/PlayerAula.tsx`
 - **Manual descritivo (código)**: `servicos-global/configurador/src/pages/UniversityGravity.tsx` — `DOC_LOGIN_SECOES`, `ManualBlocoPassoVisual`, `ManualTextoRich`
 - **Dados de demo**: `servicos-global/configurador/src/pages/university/conteudo-demo.ts`
+- **Academy ← manual**: `academy-blocos-manual.ts`, `academy-infograficos.tsx`, `manual-*-academy.ts`
 - **Mapa de produtos × fases**: seção 7 do MANUAL-GRAVITY-ONBOARDING.md
 
 ---
@@ -200,6 +202,22 @@ Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES
 8. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
 9. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
 10. **Rich text (§9.7):** botões `**…**`; cópia literal da UI `*_…_*` — ver `skills/produtos-gravity/university-gravity/manual-markdown-rich-text/SKILL.md`.
+
+---
+
+## Academy gerada do manual (SSOT → PlayerAula)
+
+Quando a aula vier do manual (`manual-*-academy.ts` + `academy-blocos-manual.ts`), **não reimplementar conteúdo à mão** — curadoria aponta seção/fluxos do SSOT (`manual-*-conteudo.ts`).
+
+### Infográficos (obrigatório)
+
+**Regra:** todo infográfico que o manual expõe via flag `mostrarInfografico*` e que faça parte da curadoria da aula **deve aparecer na Academy**, no mesmo papel editorial do manual (texto que cita “infográfico abaixo” → bloco `infografico` antes do print).
+
+- **Componente:** reutilizar o React do manual (`ManualInfografico*`), registrado em `servicos-global/configurador/src/pages/university/academy-infograficos.tsx`.
+- **Gerador:** `academy-blocos-manual.ts` emite `{ tipo: 'infografico', dados: { id } }` a partir das flags da seção/fluxo (`INFOGRAFICOS_SECAO` / `INFOGRAFICOS_FLUXO`).
+- **Player:** `PlayerAula.tsx` renderiza via `<AcademyInfografico id={…} />`.
+- **Infográfico novo:** exportar componente do manual (se ainda privado) → registrar id em `academy-infograficos.tsx` → mapear flag em `academy-blocos-manual.ts`. ❌ Não substituir infográfico por screenshot estático.
+- **Curadoria:** `incluirIntroSecao: false` omite parágrafos da seção, mas use `infograficosSecao: ['…']` quando a aula ainda precisar do infográfico (ex.: aula 2 do capítulo Fornecedores).
 
 ---
 

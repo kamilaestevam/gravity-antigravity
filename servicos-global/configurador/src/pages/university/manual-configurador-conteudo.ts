@@ -1721,8 +1721,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-fornecedores-tela-principal.png',
     mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      '**Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
-      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+      'A tela **Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
+      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: o papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
     ],
     lista: [
       '**Exportador na importação**: Vendedor no exterior quando você importa',

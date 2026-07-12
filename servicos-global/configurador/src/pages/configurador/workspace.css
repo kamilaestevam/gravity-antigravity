@@ -3225,6 +3225,101 @@ body.light-theme .uni-player-aula__content {
   background: transparent;
 }
 
+/* ── Academy: seletor de capítulos (todos visíveis na jornada) ── */
+.uni-academy-capitulos-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.uni-academy-capitulos__titulo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ws-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+
+.uni-academy-capitulos__sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ws-muted, #94a3b8);
+  line-height: 1.45;
+}
+
+.uni-academy-capitulos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.uni-academy-capitulo-secao {
+  scroll-margin-top: 5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(148, 163, 184, 0.03);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.uni-academy-capitulo-secao.is-ativo {
+  border-color: rgba(129, 140, 248, 0.28);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.uni-academy-capitulos__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.15rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.62rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.uni-academy-capitulos__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.uni-academy-capitulos__item.is-ativo {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(129, 140, 248, 0.12);
+  color: #c7d2fe;
+}
+
+.uni-academy-capitulos__item.is-concluido:not(.is-ativo) {
+  border-color: rgba(52, 211, 153, 0.22);
+  color: #6ee7b7;
+}
+
+.uni-academy-capitulos__item:hover:not(.is-ativo) {
+  border-color: rgba(148, 163, 184, 0.28);
+  color: var(--ws-text, #e2e8f0);
+}
+
+.uni-academy-infografico {
+  margin: 0.25rem 0;
+}
+
+.uni-academy-infografico > div {
+  max-width: 100%;
+}
+
 /* ── University: ícones de status no menu lateral (disponível + concluído) ── */
 .uni-nav-status-icons {
   display: flex;

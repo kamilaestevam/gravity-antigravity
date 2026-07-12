@@ -80,6 +80,10 @@
       "produtos_contratados": "Progress on contracted products",
       "concluidos": "completed"
     },
+    "capitulos": {
+      "titulo": "Chapters in this product",
+      "subtitulo": "Scroll the journey or use the pills to jump to each block — all chapters are listed below."
+    },
     "dashboard": {
       "titulo": "Your onboarding",
       "subtitulo": "Overview of your progress, products, metrics and rewards",

@@ -13,6 +13,7 @@ import {
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
 import { MANUAL_CORPO_TIPOGRAFIA } from './manual-tipografia'
 import { construirDestinoManualAcademy } from './academy-manual-link'
+import { AcademyInfografico } from './academy-infograficos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 
 const UNI_COR = '#818cf8'
@@ -293,6 +294,13 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         </div>
       )
 
+    case 'infografico':
+      return (
+        <div style={{ margin: '1.75rem 0' }}>
+          <AcademyInfografico id={String(bloco.dados.id ?? '')} />
+        </div>
+      )
+
     default:
       return null
   }
@@ -320,7 +328,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
   const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
   const destinoManual = aula.manualSecao != null
-    ? construirDestinoManualAcademy(produtoSlug, faseSlug, aula.manualSecao)
+    ? construirDestinoManualAcademy(produtoSlug, faseSlug, aula.manualSecao, aula.manualCapitulo)
     : null
 
   return (

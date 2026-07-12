@@ -32,6 +32,7 @@ import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
+import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
   DOC_LOGIN_METADADOS,
   DOC_LOGIN_SECOES,
@@ -39,7 +40,7 @@ import {
   type DocPassoVisual,
   type DocSecao,
 } from './university/manual-login-conteudo'
-import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
+import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
 import { DocConfiguradorManual, iconeConfiguradorManual, MANUAL_ESTILO_ACORDEON_SECAO, useManualSumarioScroll } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
@@ -69,6 +70,8 @@ interface Fase {
   concluida: boolean
 }
 interface Trilha {
+  /** Identificador do capítulo (onboarding fatiado por capítulo). */
+  slug?: string
   tag: string
   emoji: string
   nome: string
@@ -92,14 +95,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
       { nome: 'Monitor de APIs e deploys', duracao: '20m', concluida: false },
     ],
   }],
-  configurador: [{
-    tag: '#60a5fa', emoji: '🧭', nome: 'Conhecendo o Gravity', modulos: 3, duracao: '1h', prog: 0,
-    fases: [
-      { nome: 'Criando a Organização', duracao: '20m', concluida: false },
-      { nome: 'Configurando Workspaces', duracao: '20m', concluida: false },
-      { nome: 'Convidando usuários', duracao: '20m', concluida: false },
-    ],
-  }],
+  configurador: CONFIGURADOR_TRILHAS.map(tr => ({ ...tr, prog: 0 })),
   hub: [{
     tag: '#a78bfa', emoji: '🏠', nome: 'Hub e Navegação', modulos: 2, duracao: '30m', prog: 0,
     fases: [
@@ -1031,20 +1027,41 @@ function iniciaisNome(nome: string): string {
   return nome.split(' ').map(parte => parte[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
 }
 
-function calcularEtapasJornada(fases: Fase[], aulasConcluidas: Set<string>): JornadaEtapa[] {
+function calcularIndiceAtualGlobal(trilhas: Trilha[], aulasConcluidas: Set<string>): number {
+  let idx = 0
+  for (const trilha of trilhas) {
+    for (const fase of trilha.fases) {
+      const feita = fase.slug ? aulasConcluidas.has(fase.slug) : fase.concluida
+      if (!feita) return idx
+      idx += 1
+    }
+  }
+  return idx
+}
+
+function calcularEtapasJornada(
+  fases: Fase[],
+  aulasConcluidas: Set<string>,
+  opts?: { offsetNumero?: number; indiceAtualGlobal?: number },
+): JornadaEtapa[] {
+  const offset = opts?.offsetNumero ?? 0
   const xps = xpPorEtapa(JORNADA_XP_TOTAL, fases.length)
   const feitas = fases.map(fase => (fase.slug ? aulasConcluidas.has(fase.slug) : fase.concluida))
-  const idxAtual = feitas.findIndex(feita => !feita)
+  const idxAtualLocal = feitas.findIndex(feita => !feita)
   return fases.map((fase, i) => {
-    const atual = i === idxAtual
+    const indiceGlobal = offset + i
+    const atual = opts?.indiceAtualGlobal !== undefined
+      ? indiceGlobal === opts.indiceAtualGlobal
+      : i === idxAtualLocal
+    const feita = feitas[i]
     return {
       fase,
-      numero: i + 1,
+      numero: indiceGlobal + 1,
       xp: xps[i],
-      feita: feitas[i],
+      feita,
       atual,
-      bloqueada: !feitas[i] && !atual,
-      clicavel: Boolean(fase.slug) && (feitas[i] || atual),
+      bloqueada: !feita && !atual,
+      clicavel: Boolean(fase.slug) && (feita || atual),
     }
   })
 }
@@ -1058,10 +1075,27 @@ function calcularProgressoModulo(trilha: Trilha, aulasConcluidas: Set<string>) {
   return { feitas, total, xp, pct }
 }
 
+function calcularProgressoProduto(slug: keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas: Set<string>) {
+  const trilhas = TRILHAS_POR_PRODUTO[slug]
+  if (!trilhas?.length) return { feitas: 0, total: 0, xp: 0, pct: 0 }
+  let feitas = 0
+  let total = 0
+  let xp = 0
+  for (const trilha of trilhas) {
+    const p = calcularProgressoModulo(trilha, aulasConcluidas)
+    feitas += p.feitas
+    total += p.total
+    xp += p.xp
+  }
+  const pct = total > 0 ? Math.round((feitas / total) * 100) : 0
+  return { feitas, total, xp, pct }
+}
+
 function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
   const modulos = PRODUTOS_CONTRATADOS.map(slug => {
     const trilha = TRILHAS_POR_PRODUTO[slug][0]
-    return { slug, trilha, ...calcularProgressoModulo(trilha, aulasConcluidas) }
+    const progresso = calcularProgressoProduto(slug, aulasConcluidas)
+    return { slug, trilha, ...progresso }
   })
   const xpTotal = modulos.reduce((soma, m) => soma + m.xp, 0)
   const concluidas = modulos.filter(m => m.pct >= 100).length
@@ -1575,12 +1609,51 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
   )
 }
 
-function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase }: {
+function SeletorCapitulosAcademy({ trilhas, ativo, onSelecionar, aulasConcluidas }: {
+  trilhas: Trilha[]
+  ativo: number
+  onSelecionar: (idx: number) => void
+  aulasConcluidas: Set<string>
+}) {
+  if (trilhas.length <= 1) return null
+  return (
+    <div className="uni-academy-capitulos">
+      {trilhas.map((tr, i) => {
+        const prog = calcularProgressoModulo(tr, aulasConcluidas)
+        return (
+          <button
+            key={tr.slug ?? tr.nome}
+            type="button"
+            className={`uni-academy-capitulos__item${i === ativo ? ' is-ativo' : ''}${prog.pct >= 100 ? ' is-concluido' : ''}`}
+            onClick={() => onSelecionar(i)}
+          >
+            <span aria-hidden>{tr.emoji}</span>
+            {tr.nome}
+            <span className="uni-academy-capitulos__badge">
+              {prog.feitas}/{prog.total}
+              {prog.pct >= 100 && <CheckFat weight="fill" size={10} />}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal }: {
   trilha: Trilha
   aulasConcluidas: Set<string>
   onAbrirFase: (slug: string) => void
+  exibirSidebar?: boolean
+  /** Deslocamento para numeração contínua entre capítulos (Configurador). */
+  offsetNumero?: number
+  /** Índice global (0-based) da etapa em andamento na jornada multi-capítulo. */
+  indiceAtualGlobal?: number
 }) {
-  const etapas = calcularEtapasJornada(trilha.fases, aulasConcluidas)
+  const etapas = calcularEtapasJornada(trilha.fases, aulasConcluidas, {
+    offsetNumero,
+    indiceAtualGlobal,
+  })
   const feitas = etapas.filter(e => e.feita).length
   const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
   const gp = xp * 2
@@ -1604,21 +1677,94 @@ function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase }: {
         <BarraProgresso pct={pct} altura={8} />
       </div>
 
-      {/* Caminho + sidebar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(240px, 1fr)', gap: 24 }}>
+      {/* Caminho (+ sidebar opcional) */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: exibirSidebar ? 'minmax(0, 1.5fr) minmax(240px, 1fr)' : 'minmax(0, 1fr)',
+        gap: 24,
+      }}>
         <div style={{ position: 'relative' }}>
           <div style={{
             position: 'absolute', left: 23, top: 24, bottom: 24, width: 2,
             background: 'linear-gradient(180deg, ' + UNI_COR + ', rgba(148,163,184,.15))',
           }} />
           {etapas.map(etapa => (
-            <div key={etapa.numero} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
+            <div key={etapa.fase.slug ?? `${trilha.slug}-${etapa.numero}`} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
               <JornadaNode etapa={etapa} />
               <JornadaEtapaCard etapa={etapa} onAbrir={onAbrirFase} />
             </div>
           ))}
         </div>
-        <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} />
+        {exibirSidebar && <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} />}
+      </div>
+    </div>
+  )
+}
+
+function JornadaMultiCapitulos({ trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo }: {
+  trilhas: Trilha[]
+  aulasConcluidas: Set<string>
+  onAbrirFase: (slug: string) => void
+  capituloAtivo: number
+  onSelecionarCapitulo: (idx: number) => void
+}) {
+  const { t } = useTranslation()
+  let feitasTotal = 0
+  let aulasTotal = 0
+  let xpTotal = 0
+  for (const trilha of trilhas) {
+    const p = calcularProgressoModulo(trilha, aulasConcluidas)
+    feitasTotal += p.feitas
+    aulasTotal += p.total
+    xpTotal += p.xp
+  }
+  const xpMeta = trilhas.length * JORNADA_XP_TOTAL
+  const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
+
+  const irParaCapitulo = useCallback((idx: number) => {
+    onSelecionarCapitulo(idx)
+    const slug = trilhas[idx]?.slug
+    if (slug) {
+      document.getElementById(`uni-cap-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [onSelecionarCapitulo, trilhas])
+
+  return (
+    <div>
+      <div className="uni-academy-capitulos-wrap">
+        <div className="uni-academy-capitulos__titulo">{t('university.capitulos.titulo')}</div>
+        <p className="uni-academy-capitulos__sub">{t('university.capitulos.subtitulo')}</p>
+        <SeletorCapitulosAcademy
+          trilhas={trilhas}
+          ativo={capituloAtivo}
+          onSelecionar={irParaCapitulo}
+          aulasConcluidas={aulasConcluidas}
+        />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(240px, 1fr)', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {trilhas.map((trilha, i) => {
+            const offsetNumero = trilhas.slice(0, i).reduce((soma, tr) => soma + tr.fases.length, 0)
+            return (
+            <section
+              key={trilha.slug ?? trilha.nome}
+              id={trilha.slug ? `uni-cap-${trilha.slug}` : undefined}
+              className={`uni-academy-capitulo-secao${i === capituloAtivo ? ' is-ativo' : ''}`}
+            >
+              <JornadaModulo
+                trilha={trilha}
+                aulasConcluidas={aulasConcluidas}
+                onAbrirFase={onAbrirFase}
+                exibirSidebar={false}
+                offsetNumero={offsetNumero}
+                indiceAtualGlobal={indiceAtualGlobal}
+              />
+            </section>
+            )
+          })}
+        </div>
+        <JornadaSidebar xp={xpTotal} gp={xpTotal * 2} feitas={feitasTotal} total={aulasTotal} xpMeta={xpMeta} />
       </div>
     </div>
   )
@@ -1679,6 +1825,11 @@ export function UniversityGravity() {
     ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null)
     : null
 
+  const [capituloAtivo, setCapituloAtivo] = useState(0)
+  useEffect(() => { setCapituloAtivo(0) }, [produtoSlug])
+
+  const trilhaAtiva = trilhasAtivas?.[capituloAtivo] ?? null
+
   // Controle local de aulas concluídas (WIP: virá do banco via API)
   const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
     const salvo = sessionStorage.getItem(CHAVE_AULAS_CONCLUIDAS)
@@ -1695,11 +1846,14 @@ export function UniversityGravity() {
 
   // Progresso geral nos produtos contratados (derivado do progresso real + demo estático)
   const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => {
-    const trilha = TRILHAS_POR_PRODUTO[slug]?.[0]
-    const { pct } = trilha ? calcularProgressoModulo(trilha, aulasConcluidas) : { pct: 0 }
+    const trilhas = TRILHAS_POR_PRODUTO[slug]
+    const trilha = trilhas?.[0]
+    const agregado = trilhas?.length
+      ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
+      : { pct: 0 }
     return {
       slug,
-      prog: pct,
+      prog: agregado.pct,
       emoji: trilha?.emoji ?? '📦',
     }
   })
@@ -1771,14 +1925,16 @@ export function UniversityGravity() {
     || (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
 
   const produtoConcluido = (slug: ProdutoSlug) => {
-    const trilha = TRILHAS_POR_PRODUTO[slug as keyof typeof TRILHAS_POR_PRODUTO]?.[0]
-    return trilha ? calcularProgressoModulo(trilha, aulasConcluidas).pct >= 100 : false
+    const trilhas = TRILHAS_POR_PRODUTO[slug as keyof typeof TRILHAS_POR_PRODUTO]
+    return trilhas ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100 : false
   }
 
   const iconesStatusNavAcademy = (slug: ProdutoSlug) => {
     const comprado = produtoComprado(slug)
     const concluido = produtoConcluido(slug)
-    const iconOn = { color: UNI_COR }
+    const verdeStatus = '#34d399'
+    const iconCompradoOn = { color: verdeStatus, opacity: 0.42 }
+    const iconConcluidoOn = { color: verdeStatus }
     const iconOff = { color: '#64748b', opacity: 0.3 }
     return (
       <span className="uni-nav-status-icons">
@@ -1790,7 +1946,7 @@ export function UniversityGravity() {
             <SealCheck
               size={14}
               weight={comprado ? 'fill' : 'regular'}
-              style={comprado ? iconOn : iconOff}
+              style={comprado ? iconCompradoOn : iconOff}
             />
           </span>
         </TooltipGlobal>
@@ -1802,7 +1958,7 @@ export function UniversityGravity() {
             <CheckCircle
               size={14}
               weight={concluido ? 'fill' : 'regular'}
-              style={concluido ? iconOn : iconOff}
+              style={concluido ? iconConcluidoOn : iconOff}
             />
           </span>
         </TooltipGlobal>
@@ -2005,7 +2161,7 @@ export function UniversityGravity() {
         {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
         {secao === 'academy' && faseAulaSlug && produtoSlug && (() => {
           const aula = getAulaDemo(produtoSlug, faseAulaSlug)
-          const todasAulas = getAulasDemo(produtoSlug)
+          const todasAulas = getAulasCapituloDemo(produtoSlug, faseAulaSlug)
           if (!aula) return (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
               Aula não encontrada.
@@ -2146,17 +2302,22 @@ export function UniversityGravity() {
           )}
 
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
-          {secao === 'academy' && trilhasAtivas && produtoSlug && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-              {trilhasAtivas.map(tr => (
-                <JornadaModulo
-                  key={tr.nome}
-                  trilha={tr}
-                  aulasConcluidas={aulasConcluidas}
-                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
-                />
-              ))}
-            </div>
+          {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
+            trilhasAtivas.length > 1 ? (
+              <JornadaMultiCapitulos
+                trilhas={trilhasAtivas}
+                aulasConcluidas={aulasConcluidas}
+                capituloAtivo={capituloAtivo}
+                onSelecionarCapitulo={setCapituloAtivo}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+              />
+            ) : (
+              <JornadaModulo
+                trilha={trilhaAtiva}
+                aulasConcluidas={aulasConcluidas}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+              />
+            )
           )}
 
           {/* ══ VIEW: visão geral agrupada ══ */}

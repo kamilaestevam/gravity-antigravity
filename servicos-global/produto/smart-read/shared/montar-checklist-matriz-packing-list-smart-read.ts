@@ -33,7 +33,6 @@ import {
 } from './montar-checklist-matriz-invoice-smart-read.js'
 import {
   motorAguardaEnriquecimentoServidor,
-  rotuloAguardandoMotorChecklistSmartRead,
   type FaseEnriquecimentoAnaliseRiscos,
 } from './rotulo-aguardando-motor-checklist-smart-read.js'
 
@@ -138,21 +137,15 @@ function itemAguardandoEnriquecimentoMotor(
   enriquecimento: boolean,
 ): ItemChecklistMatrizPackingList | null {
   if (!motorAguardaEnriquecimentoServidor(regraMatriz.motor)) return null
+  if (!enriquecimento && !fase) return null
 
-  const aguardaReceita = regraMatriz.motor === 'api' && fase === 'api'
-  const aguardaIaNaFaseApi =
-    fase === 'api' && regraMatriz.motor !== 'api' && regraMatriz.motor !== 'codigo'
-  const aguardaIaNaFaseLlm =
-    fase === 'llm' && regraMatriz.motor !== 'api' && regraMatriz.motor !== 'codigo'
-  const aguardaLegado = enriquecimento && !fase
-
-  if (!aguardaReceita && !aguardaIaNaFaseApi && !aguardaIaNaFaseLlm && !aguardaLegado) return null
-
-  const rotulo = rotuloAguardandoMotorChecklistSmartRead(
-    regraMatriz.motor,
-    aguardaReceita ? 'api' : 'llm',
-  )
-  return montarItem(regraMatriz, 'pendente', rotulo.detalhe, null, rotulo.resultado, true)
+  const rotuloPrevia =
+    regraMatriz.motor === 'cross_doc'
+      ? 'Prévia local — cruzamento documental em segundo plano'
+      : regraMatriz.motor === 'api'
+        ? 'Prévia local — consulta Receita em segundo plano'
+        : 'Prévia local — validação IA em segundo plano'
+  return montarItem(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…')
 }
 
 function itemAgregador(

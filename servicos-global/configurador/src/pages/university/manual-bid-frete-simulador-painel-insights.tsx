@@ -318,6 +318,8 @@ export function ManualBidFreteSimuladorPainelInsights() {
             : 'Demo interativa — clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips'
         }
         visivel={demoAtiva}
+        convitePeriodico={demoAtiva && selecoesGuia.length === 0}
+        intervaloConviteSegundos={5}
       />
       <style>{NC_ESTILOS_SIMULADOR_WIZARD_SHELL}</style>
       <style>{NC_ESTILOS_SIMULADOR_PAINEL_INSIGHTS}</style>

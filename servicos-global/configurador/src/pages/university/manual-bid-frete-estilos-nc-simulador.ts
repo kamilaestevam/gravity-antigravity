@@ -2263,6 +2263,61 @@ export const NC_ESTILOS_AFFORDANCE_INTERATIVO_BID_FRETE = `
     pointer-events: none;
   }
 
+  .sim-cursor-convite-faixa-flutuante {
+    position: fixed;
+    z-index: 1600;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: -1.375rem 0 0 -1.375rem;
+    pointer-events: none;
+    transition:
+      left 0.82s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.82s cubic-bezier(0.22, 1, 0.36, 1);
+    filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.55));
+  }
+  .sim-cursor-convite-faixa-flutuante__corpo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e0e7ff;
+    transition: transform 0.18s ease;
+  }
+  .sim-cursor-convite-faixa-flutuante--clicando .sim-cursor-convite-faixa-flutuante__corpo {
+    animation: sim-affordance-clique-press 1.15s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  }
+  .sim-cursor-convite-faixa-flutuante__sombra {
+    position: absolute;
+    left: 50%;
+    top: 72%;
+    width: 1.35rem;
+    height: 0.45rem;
+    margin-left: -0.675rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.42);
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  .sim-cursor-convite-faixa-flutuante--clicando .sim-cursor-convite-faixa-flutuante__sombra {
+    animation: sim-affordance-clique-shadow 1.15s ease-out forwards;
+  }
+  .sim-cursor-convite-faixa-flutuante__onda {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 2rem;
+    height: 2rem;
+    margin: -1rem 0 0 -1rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(165, 180, 252, 0.55);
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  .sim-cursor-convite-faixa-flutuante--clicando .sim-cursor-convite-faixa-flutuante__onda {
+    animation: sim-affordance-clique-ripple 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
   .sim-affordance-alvo {
     position: relative;
     overflow: visible;

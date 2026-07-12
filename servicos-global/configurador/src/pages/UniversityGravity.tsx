@@ -80,7 +80,7 @@ interface Trilha {
 // ── Catálogo WIP: virá do banco via API ───────────────────────────────────
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 6, duracao: '1h15', prog: 0,
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 6, duracao: '26m', prog: 0,
     fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
   admin: [{
@@ -199,7 +199,7 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
   seguranca:{ bg: 'rgba(239,68,68,.07)',   borda: 'rgba(239,68,68,.3)',   label: '🔒 Segurança', cor: '#f87171' },
 }
 
-/** Manual descritivo: tokens SSOT: ONBOARDING-DOCUMENTO.md §9 */
+/** Manual descritivo: tokens SSOT: MANUAL-GRAVITY-ONBOARDING.md §9 */
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -973,7 +973,7 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
     <div style={{ height: altura, borderRadius: 9, background: 'rgba(148,163,184,.12)', overflow: 'hidden', flex: 1 }}>
       <span style={{
         display: 'block', height: '100%', width: `${Math.min(100, pct)}%`,
-        background: pct >= 100 ? 'linear-gradient(90deg,#34d399,#10b981)' : `linear-gradient(90deg,${cor},#a78bfa)`,
+        background: pct >= 100 ? 'linear-gradient(90deg,#818cf8,#a78bfa)' : `linear-gradient(90deg,${cor},#a78bfa)`,
         transition: 'width .4s ease',
       }} />
     </div>
@@ -1084,6 +1084,7 @@ function JornadaEtapaCard({ etapa, onAbrir }: {
 }) {
   const { t } = useTranslation()
   const { fase, atual, feita, bloqueada, clicavel, xp } = etapa
+  const destaqueConcluido = feita && !atual
   const abrir = () => { if (clicavel && fase.slug) onAbrir(fase.slug) }
   return (
     <div
@@ -1091,12 +1092,12 @@ function JornadaEtapaCard({ etapa, onAbrir }: {
       tabIndex={clicavel ? 0 : undefined}
       onClick={abrir}
       onKeyDown={(e) => { if (clicavel && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir() } }}
-      className={`uni-jornada-etapa${atual ? ' uni-jornada-etapa--current' : ''}`}
+      className={`uni-jornada-etapa${atual ? ' uni-jornada-etapa--current' : ''}${destaqueConcluido ? ' uni-jornada-etapa--done' : ''}`}
       style={{
         flex: 1, borderRadius: 14, padding: '14px 18px',
         cursor: clicavel ? 'pointer' : 'default',
-        background: atual ? 'rgba(129,140,248,.08)' : 'var(--bg-base,#1e293b)',
-        border: `1px solid ${atual ? UNI_COR : 'rgba(148,163,184,.12)'}`,
+        background: destaqueConcluido ? 'rgba(129,140,248,.08)' : 'var(--bg-base,#1e293b)',
+        border: `1px solid ${destaqueConcluido || atual ? UNI_COR : 'rgba(148,163,184,.12)'}`,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -1115,14 +1116,12 @@ function JornadaEtapaCard({ etapa, onAbrir }: {
         }}>{xp} XP</div>
       </div>
       {atual && (
-        <div style={{
-          marginTop: 12, display: 'inline-block', background: UNI_COR, color: '#0b1220',
-          fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '.8rem',
-          padding: '8px 16px', borderRadius: 8,
-        }}>{feita ? t('university.jornada.continuar_etapa') : t('university.jornada.concluir_etapa')}</div>
+        <div style={{ marginTop: 10, color: UNI_COR, fontSize: '.78rem', fontWeight: 700 }}>
+          {t('university.jornada.em_andamento')}
+        </div>
       )}
-      {feita && !atual && (
-        <div style={{ marginTop: 10, color: '#34d399', fontSize: '.78rem', fontWeight: 700 }}>
+      {destaqueConcluido && (
+        <div style={{ marginTop: 10, color: UNI_COR, fontSize: '.78rem', fontWeight: 700 }}>
           {t('university.jornada.etapa_concluida')}
         </div>
       )}
@@ -1288,8 +1287,8 @@ function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
             key={`${p.nome}-${i}`}
             style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '7px 8px', margin: '0 -4px', borderRadius: 9,
-              background: isYou ? 'rgba(52,211,153,.12)' : 'transparent',
-              border: isYou ? '1px solid rgba(52,211,153,.4)' : '1px solid transparent',
+              background: isYou ? 'rgba(129,140,248,.12)' : 'transparent',
+              border: isYou ? '1px solid rgba(129,140,248,.4)' : '1px solid transparent',
             }}
           >
             <div style={{
@@ -1300,11 +1299,11 @@ function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
             <div style={{
               width: 24, height: 24, borderRadius: '50%', display: 'grid', placeItems: 'center',
               fontSize: '.6rem', fontWeight: 700, color: '#f8fafc',
-              background: isYou ? '#34d399' : 'rgba(148,163,184,.25)',
+              background: isYou ? '#818cf8' : 'rgba(148,163,184,.25)',
             }}>{iniciaisNome(p.nome)}</div>
             <div style={{
               flex: 1, fontSize: '.82rem', fontWeight: 600,
-              color: isYou ? '#34d399' : 'var(--ws-text,#f1f5f9)',
+              color: isYou ? '#818cf8' : 'var(--ws-text,#f1f5f9)',
             }}>{p.nome}</div>
             <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
           </div>
@@ -1332,7 +1331,7 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp:
           {t('university.dashboard.nivel_rotulo', { nivel, titulo })}
         </div>
         <div style={{ height: 8, borderRadius: 9999, background: 'rgba(148,163,184,.18)', overflow: 'hidden', margin: '10px 0 6px' }}>
-          <div style={{ height: '100%', width: `${pctNivel}%`, borderRadius: 9999, background: '#34d399' }} />
+          <div style={{ height: '100%', width: `${pctNivel}%`, borderRadius: 9999, background: '#818cf8' }} />
         </div>
         <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
           {xpTotal} / {xpMetaNivel} XP
@@ -1352,13 +1351,13 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp:
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <div style={{
               width: 30, height: 30, borderRadius: 9,
-              background: badgeObtida ? 'linear-gradient(135deg, #34d399, #818cf8)' : 'rgba(148,163,184,.18)',
+              background: badgeObtida ? 'linear-gradient(135deg, #818cf8, #a78bfa)' : 'rgba(148,163,184,.18)',
             }} />
             <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600, flex: 1 }}>
               {t('university.jornada.badge_iniciante')}
             </div>
             {badgeObtida && (
-              <div style={{ fontSize: '.66rem', fontWeight: 700, color: '#34d399' }}>
+              <div style={{ fontSize: '.66rem', fontWeight: 700, color: '#818cf8' }}>
                 {t('university.dashboard.badge_obtido')}
               </div>
             )}
@@ -1411,13 +1410,13 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {/* Hero — continue de onde parou */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(52,211,153,.14), rgba(30,41,59,.8))',
-          border: '1px solid rgba(52,211,153,.28)', borderRadius: 18, padding: 22,
+          background: 'linear-gradient(135deg, rgba(129,140,248,.14), rgba(30,41,59,.8))',
+          border: '1px solid rgba(129,140,248,.28)', borderRadius: 18, padding: 22,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18 }}>
             <div style={{ flex: 1 }}>
               <div style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#34d399',
+                fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#818cf8',
                 fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase',
               }}>{t('university.dashboard.continuar_titulo')}</div>
               <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.3rem', color: 'var(--ws-text,#f1f5f9)', margin: '7px 0 3px' }}>
@@ -1436,7 +1435,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
             <div
               style={{
                 position: 'relative', width: 80, height: 80, flexShrink: 0, borderRadius: '50%',
-                background: `conic-gradient(#34d399 0 ${pctAnel}%, rgba(148,163,184,.18) ${pctAnel}% 100%)`,
+                background: `conic-gradient(#818cf8 0 ${pctAnel}%, rgba(148,163,184,.18) ${pctAnel}% 100%)`,
               }}
               aria-hidden
             >
@@ -1453,7 +1452,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
               onClick={() => onAbrirModulo(moduloAtual.slug)}
               style={{
                 border: 'none', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 700, fontSize: '.84rem', color: '#0b1220', background: '#34d399',
+                fontWeight: 700, fontSize: '.84rem', color: '#0b1220', background: '#818cf8',
                 padding: '10px 20px', borderRadius: 10,
               }}
             >{t('university.dashboard.continuar_jornada')}</button>
@@ -1480,11 +1479,11 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
               <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>
                 {t('university.dashboard.produtos_onboarding_concluido')}
               </div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#34d399', fontSize: '.88rem' }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#818cf8', fontSize: '.88rem' }}>
                 {concluidas}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{modulos.length}</span>
               </div>
             </div>
-            <BarraSegmentada total={modulos.length} preenchidos={concluidas} cor="#34d399" />
+            <BarraSegmentada total={modulos.length} preenchidos={concluidas} cor="#818cf8" />
           </div>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
@@ -1530,7 +1529,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
                 style={{
                   border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.72rem',
                   padding: '6px 13px', borderRadius: 8,
-                  background: pct > 0 ? '#34d399' : UNI_COR,
+                  background: pct > 0 ? '#818cf8' : UNI_COR,
                   color: pct > 0 ? '#0b1220' : '#0b1220',
                 }}
               >
@@ -1735,7 +1734,7 @@ export function UniversityGravity() {
     const trilha = TRILHAS_POR_PRODUTO[slug]?.[0]
     const prog = trilha ? calcularProgressoModulo(trilha, aulasConcluidas).pct : 0
     return prog >= 100
-      ? <CheckCircle weight="fill" size={size} style={{ color: '#34d399' }} />
+      ? <CheckCircle weight="fill" size={size} style={{ color: '#818cf8' }} />
       : <IconComp weight="duotone" size={size} />
   }
 
@@ -2024,7 +2023,7 @@ export function UniversityGravity() {
                 <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
                   {t('university.progresso.produtos_contratados')}
                 </span>
-                <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctGeral >= 100 ? '#34d399' : 'var(--ws-text,#f1f5f9)' }}>
+                <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctGeral >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
                   {concluidos} / {progressoContratados.length} {t('university.progresso.concluidos')}
                 </span>
               </div>
@@ -2041,8 +2040,8 @@ export function UniversityGravity() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
                       padding: '4px 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontSize: '.72rem', fontWeight: 700,
-                      background: p.prog >= 100 ? 'rgba(52,211,153,.15)' : p.prog > 0 ? 'rgba(129,140,248,.15)' : 'rgba(148,163,184,.08)',
-                      color: p.prog >= 100 ? '#34d399' : p.prog > 0 ? UNI_COR : 'var(--ws-muted,#94a3b8)',
+                      background: p.prog >= 100 ? 'rgba(129,140,248,.15)' : p.prog > 0 ? 'rgba(129,140,248,.15)' : 'rgba(148,163,184,.08)',
+                      color: p.prog >= 100 ? '#818cf8' : p.prog > 0 ? UNI_COR : 'var(--ws-muted,#94a3b8)',
                     }}
                   >
                     <span>{p.emoji}</span>
@@ -2103,8 +2102,8 @@ export function UniversityGravity() {
                         <button style={{
                           border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '8px 14px',
                           borderRadius: 9999,
-                          background: tr.prog >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
-                          color: tr.prog >= 100 ? '#34d399' : '#0b1220',
+                          background: tr.prog >= 100 ? 'rgba(129,140,248,.15)' : UNI_COR,
+                          color: tr.prog >= 100 ? '#818cf8' : '#0b1220',
                         }}>
                           {tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
                         </button>

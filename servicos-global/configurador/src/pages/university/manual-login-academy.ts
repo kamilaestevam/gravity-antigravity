@@ -29,7 +29,8 @@ export const LOGIN_AULA_SLUGS = [
   'entrar-com-google',
 ] as const
 
-const LOGIN_DURACOES = ['8m', '18m', '12m', '14m', '16m', '8m']
+/** Durações de leitura (PlayerAula) — regra §10 MANUAL-GRAVITY-ONBOARDING.md / skill manual-gravity-onboarding */
+const LOGIN_DURACOES = ['2m', '6m', '4m', '5m', '7m', '2m']
 
 function limparTextoManual(texto: string): string {
   return texto

@@ -585,7 +585,7 @@ import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador
 
 ## Gravity University — manuais descritivos
 
-Manuais em `servicos-global/configurador/src/pages/university/manual-*-conteudo.ts` seguem tipografia e marcação rich text do ONBOARDING-DOCUMENTO.md **§9**.
+Manuais em `servicos-global/configurador/src/pages/university/manual-*-conteudo.ts` seguem tipografia e marcação rich text do MANUAL-GRAVITY-ONBOARDING.md **§9**.
 
 | Marcação | Uso |
 |----------|-----|

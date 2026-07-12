@@ -407,7 +407,7 @@ export interface DocWizardEtapa {
 
 export interface DocFluxo {
   titulo: string
-  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver ONBOARDING-DOCUMENTO.md §9.6. Se omitido, usa `titulo`. */
+  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver MANUAL-GRAVITY-ONBOARDING.md §9.6. Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean

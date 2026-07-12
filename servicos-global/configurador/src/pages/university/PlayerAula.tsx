@@ -345,7 +345,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 }}
               >
                 {feita
-                  ? <CheckCircle weight="fill" size={16} style={{ color: '#34d399', flexShrink: 0 }} />
+                  ? <CheckCircle weight="fill" size={16} style={{ color: UNI_COR, flexShrink: 0 }} />
                   : (
                     <span style={{
                       width: 20, height: 20, borderRadius: '50%', flexShrink: 0,

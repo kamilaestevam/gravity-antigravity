@@ -2905,10 +2905,14 @@ body.light-theme .cw-xml-viewer {
   100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
 }
 .uni-jornada-node--current { animation: uniJornadaPulse 2s infinite; }
-.uni-jornada-etapa { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.uni-jornada-etapa { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
 .uni-jornada-etapa--current:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px -12px rgba(129, 140, 248, 0.55);
+}
+.uni-jornada-etapa--done:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -12px rgba(129, 140, 248, 0.35);
 }
 
 /* ── University: Visão geral onboarding (direção 1B) ── */
@@ -3053,13 +3057,13 @@ body.light-theme .uni-player-aula__nav {
 }
 
 .uni-player-aula__footer-btn--primary.is-concluida {
-  background: rgba(52, 211, 153, 0.15);
-  color: #059669;
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
   box-shadow: none;
 }
 
 .uni-player-aula__footer-btn--primary.is-concluida:hover {
-  background: rgba(52, 211, 153, 0.26);
-  box-shadow: 0 4px 16px rgba(52, 211, 153, 0.22);
+  background: rgba(129, 140, 248, 0.26);
+  box-shadow: 0 4px 16px rgba(129, 140, 248, 0.22);
   transform: translateY(-1px);
 }

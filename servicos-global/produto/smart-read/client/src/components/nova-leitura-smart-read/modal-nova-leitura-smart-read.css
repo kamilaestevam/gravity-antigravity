@@ -4513,20 +4513,33 @@ body.light-theme .sr-conf-chk-tooltip-base-texto {
 
 @keyframes sr-barra-em-analise-shimmer {
   0% {
-    background-position: 160% 0;
+    transform: translateX(-130%);
   }
   100% {
-    background-position: -60% 0;
+    transform: translateX(130%);
+  }
+}
+
+@keyframes sr-barra-em-analise-faixas {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 14px 0;
   }
 }
 
 @keyframes sr-barra-em-analise-borda {
   0%,
   100% {
-    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.06);
+    box-shadow:
+      inset 0 0 0 1px rgba(96, 165, 250, 0.18),
+      0 0 0 0 rgba(96, 165, 250, 0);
   }
   50% {
-    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
+    box-shadow:
+      inset 0 0 0 1px rgba(147, 197, 253, 0.45),
+      0 0 8px 0 rgba(96, 165, 250, 0.28);
   }
 }
 
@@ -4534,28 +4547,57 @@ body.light-theme .sr-conf-chk-tooltip-base-texto {
 .sr-conf-riscos-seg-bar--em-analise,
 .sr-conf-progresso-barra--em-analise {
   position: relative;
-  animation: sr-barra-em-analise-borda 2.6s ease-in-out infinite;
+  overflow: hidden;
+  animation: sr-barra-em-analise-borda 1.8s ease-in-out infinite;
 }
 
-.sr-chk-info-barra--em-analise::after,
-.sr-conf-riscos-seg-bar--em-analise::after,
-.sr-conf-progresso-barra--em-analise::after {
+.sr-chk-info-barra--em-analise > :not(.sr-barra-overlay-em-analise),
+.sr-conf-riscos-seg-bar--em-analise > :not(.sr-barra-overlay-em-analise) {
+  position: relative;
+  z-index: 0;
+}
+
+.sr-barra-overlay-em-analise {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sr-barra-overlay-em-analise::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 2;
-  border-radius: inherit;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.04) 47%,
-    rgba(186, 230, 253, 0.18) 50%,
-    rgba(255, 255, 255, 0.04) 53%,
-    transparent 60%
+  opacity: 0.6;
+  background: repeating-linear-gradient(
+    -58deg,
+    transparent 0,
+    transparent 5px,
+    rgba(96, 165, 250, 0.18) 5px,
+    rgba(96, 165, 250, 0.18) 10px
   );
-  background-size: 240% 100%;
-  animation: sr-barra-em-analise-shimmer 2.8s ease-in-out infinite;
-  pointer-events: none;
+  background-size: 14px 14px;
+  animation: sr-barra-em-analise-faixas 0.85s linear infinite;
+}
+
+.sr-barra-overlay-em-analise::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(186, 230, 253, 0.2) 30%,
+    rgba(224, 242, 254, 0.65) 50%,
+    rgba(186, 230, 253, 0.2) 70%,
+    transparent 100%
+  );
+  animation: sr-barra-em-analise-shimmer 1.6s ease-in-out infinite;
 }
 
 .sr-chk-info-legenda {

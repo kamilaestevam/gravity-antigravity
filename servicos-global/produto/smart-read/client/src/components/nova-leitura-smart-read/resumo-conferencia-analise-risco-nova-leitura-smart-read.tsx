@@ -545,7 +545,11 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
     parametrosChecklist.pipelineConcluido
 
-  const analiseEmAndamento = parametrosChecklist.carregando
+  const analiseEmAndamento =
+    parametrosChecklist.carregando ||
+    Boolean(parametrosChecklist.enriquecimento_ia_em_andamento) ||
+    carregandoRiscos ||
+    enriquecendoRiscos
 
   const percentualSemCriticos =
     resumoRiscos.total === 0
@@ -608,6 +612,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
               className="sr-conf-progresso-barra-fill sr-conf-progresso-barra-fill--conferencia"
               style={{ width: `${resumoConferencia.percentual}%` }}
             />
+            {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
           </div>
           <span className="sr-conf-progresso-pct sr-conf-progresso-pct--conferencia">
             {resumoConferencia.percentual}%
@@ -720,6 +725,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
                   style={{ width: `${(resumoRiscos.informativos / resumoRiscos.total) * 100}%` }}
                 />
               )}
+              {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
             </div>
             {legendaSegmentos && (
               <p className="sr-conf-resumo-legenda">

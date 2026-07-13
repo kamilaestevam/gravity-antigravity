@@ -49,6 +49,8 @@ const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'S
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
 const UniversityGravity = lazy(() => import('./pages/UniversityGravity'), 'UniversityGravity')
+// TODO(preview-temp, 2026-07-11): import só para conferência visual manual — remover após validar.
+const PreviewJornadaTemp = lazy(() => import('./pages/__PreviewJornadaTemp').then(m => ({ default: m.PreviewJornadaTemp })), 'PreviewJornadaTemp')
 const OrganizacoesAdmin = lazy(() => import('./pages/OrganizacoesAdmin'), 'OrganizacoesAdmin')
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'), 'AdminLayout')
 const VisaoGeralAdmin = lazy(() => import('./pages/admin/VisaoGeralAdmin'), 'VisaoGeralAdmin')
@@ -405,6 +407,8 @@ export default function App() {
         <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
         <Route path="/university-gravity/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><UniversityGravity /></React.Suspense></ProtectedRoute>} />
+        {/* TODO(preview-temp, 2026-07-11): rota só para conferência visual manual — remover após validar. */}
+        <Route path="/__preview-jornada-temp" element={<React.Suspense fallback={<ProductLoading />}><PreviewJornadaTemp /></React.Suspense>} />
 
         {/* Core — workspace selecionado */}
         {/* Index → Hub standalone (sem sidebar); sub-rotas → Core layout com sidebar */}
@@ -446,6 +450,48 @@ export default function App() {
         />
         <Route
           path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        {/* Contrato de Proposta / Fechamento — rotas explícitas (splat v7 quebra Routes internas). */}
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        {/* Aceite "Recebi e estou de acordo" (e-mail ao ganhador) — pública, sem login. */}
+        <Route
+          path="/bid-frete/aceite-aprovacao-proposta-bid-frete-internacional/publico/*"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico/*"
           element={<BidFreteInternacionalPublicoRoute />}
         />
         <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />

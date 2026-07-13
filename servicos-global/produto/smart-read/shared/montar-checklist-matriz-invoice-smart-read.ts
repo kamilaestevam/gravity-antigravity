@@ -10,15 +10,37 @@ import {
 } from './matriz-validacao-invoice-smart-read.js'
 import type {
   DocumentoAnaliseRisco,
+  DadosOficiaisCnpjLeitura,
   RegraAuditoriaV1,
   RiscoAduaneiroLeitura,
 } from './analise-riscos-leitura-smart-read.js'
 import { achatarCamposDadosLeitura, valorTextoComparacaoCampo } from './analise-riscos-leitura-smart-read.js'
 import {
+  avaliarSimilaridadeHeuristicaChecklist,
+  montarEnderecoOficialCnpj,
+} from './heuristica-checklist-instantaneo-smart-read.js'
+import {
   extrairDetalheDadosRegraMatrizInvoice,
   regraMatrizTemDadoExtraido,
 } from './extrair-detalhe-dados-regra-matriz-invoice-smart-read.js'
 import { regraMatrizTemDescricaoParaClassificacao } from './montar-classificacao-produto-checklist-smart-read.js'
+import {
+  motorAguardaEnriquecimentoServidor,
+  type FaseEnriquecimentoAnaliseRiscos,
+} from './rotulo-aguardando-motor-checklist-smart-read.js'
+import {
+  aplicarFalhasMatrizAoResumoRiscos,
+  complementarRiscosDeAgregadoresChecklist,
+  complementarRiscosDeFalhasMatriz,
+  type ItemParaComplementoAgregador,
+} from './complementar-riscos-checklist-matriz-smart-read.js'
+
+export {
+  aplicarFalhasMatrizAoResumoRiscos,
+  complementarRiscosDeAgregadoresChecklist,
+  complementarRiscosDeFalhasMatriz,
+  type ItemParaComplementoAgregador,
+}
 
 export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente' | 'na'
 
@@ -148,83 +170,6 @@ export function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChec
   return 'verde'
 }
 
-function extrairIdRegraMatrizDeRegraMotor(id: string): string | null {
-  const match = id.match(/^(S\d+-\d+)/)
-  return match?.[1] ?? null
-}
-
-function extrairRotuloDeIdRegraMotor(id: string): string | null {
-  const match = id.match(/^S\d+-\d+-(.+)$/)
-  return match?.[1] ?? null
-}
-
-function riscoJaExisteParaRegraMotor(
-  riscos: readonly RiscoAduaneiroLeitura[],
-  idRegraMatriz: string,
-  rotuloDocumento: string | null,
-): boolean {
-  return riscos.some((risco) => {
-    if (risco.id_regra_matriz !== idRegraMatriz) return false
-    if (!rotuloDocumento) return true
-    return risco.evidencias.some((evidencia) => evidencia.documento === rotuloDocumento)
-  })
-}
-
-/** Garante card em Riscos para toda falha do motor código/API sem risco explícito. */
-export function complementarRiscosDeFalhasMatriz(
-  regras: readonly RegraAuditoriaV1[],
-  riscos: readonly RiscoAduaneiroLeitura[],
-): RiscoAduaneiroLeitura[] {
-  const saida = [...riscos]
-  const idsExistentes = new Set(saida.map((risco) => risco.id))
-  const matrizPorId = new Map(MATRIZ_VALIDACAO_INVOICE.map((regra) => [regra.id, regra]))
-
-  for (const regra of regras) {
-    if (regra.passou || detalheIndicaNa(regra.detalhe) || detalheIndicaAviso(regra.detalhe)) continue
-    const idRegraMatriz = extrairIdRegraMatrizDeRegraMotor(regra.id)
-    if (!idRegraMatriz) continue
-    const rotuloDocumento = extrairRotuloDeIdRegraMotor(regra.id)
-    if (riscoJaExisteParaRegraMotor(saida, idRegraMatriz, rotuloDocumento)) continue
-
-    const meta = matrizPorId.get(idRegraMatriz)
-    const sinteticoId = `risco-matriz-${regra.id}`
-    if (idsExistentes.has(sinteticoId)) continue
-
-    saida.push({
-      id: sinteticoId,
-      origem: 'v1',
-      severidade: 'critico',
-      categoria: 'documental',
-      titulo: meta?.item ?? idRegraMatriz,
-      motivo: regra.detalhe,
-      analise: meta?.tooltip_conferencia ?? regra.detalhe,
-      evidencias: rotuloDocumento ? [{ documento: rotuloDocumento, campo: idRegraMatriz }] : [],
-      secao_matriz: meta?.secao,
-      id_regra_matriz: idRegraMatriz,
-      motor_validacao: meta?.motor === 'api' ? 'api' : meta?.motor === 'llm' ? 'llm' : 'codigo',
-      status_matriz: 'vermelho',
-    })
-    idsExistentes.add(sinteticoId)
-  }
-
-  return saida
-}
-
-/** Aplica complemento de riscos ao resumo exibido na aba Análise de Riscos. */
-export function aplicarFalhasMatrizAoResumoRiscos(
-  regras: readonly RegraAuditoriaV1[],
-  resumo: { riscos: RiscoAduaneiroLeitura[]; total: number; criticos: number; atencao: number; informativos: number },
-): typeof resumo {
-  const riscos = complementarRiscosDeFalhasMatriz(regras, resumo.riscos)
-  return {
-    riscos,
-    total: riscos.length,
-    criticos: riscos.filter((r) => r.severidade === 'critico').length,
-    atencao: riscos.filter((r) => r.severidade === 'atencao').length,
-    informativos: riscos.filter((r) => r.severidade === 'informativo').length,
-  }
-}
-
 function montarItemChecklist(
   regra: RegraMatrizInvoice,
   status: StatusChecklistMatrizInvoice,
@@ -256,8 +201,14 @@ export type ParametrosChecklistMatrizInvoice = {
   pipelineConcluido: boolean
   llmHabilitado: boolean
   carregando: boolean
+  /** Análise HTTP falhou/estourou SLA — degrada regras IA/API para ATENÇÃO em vez de PENDENTE eterno. */
+  analise_servidor_indisponivel?: boolean
+  /** IA/API ainda enriquecendo — exibe prévia amarela sem spinner (Fase A). */
+  enriquecimento_ia_em_andamento?: boolean
+  fase_enriquecimento_analise?: FaseEnriquecimentoAnaliseRiscos | null
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
+  cnpj_oficial?: DadosOficiaisCnpjLeitura | null
 }
 
 export type InvoiceOpcaoChecklist = {
@@ -431,8 +382,12 @@ export function montarChecklistMatrizInvoice(
     pipelineConcluido,
     llmHabilitado,
     carregando,
+    analise_servidor_indisponivel = false,
+    enriquecimento_ia_em_andamento = false,
+    fase_enriquecimento_analise = null,
     rotulo_documento,
     documentos,
+    cnpj_oficial = null,
   } = params
 
   const riscosEfetivos = complementarRiscosDeFalhasMatriz(regras, riscos)
@@ -484,16 +439,80 @@ export function montarChecklistMatrizInvoice(
         )
       }
 
-      if (carregando || !pipelineConcluido) {
+      if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise) {
+        if (regraMatriz.id === 'S2-03' && cnpj_oficial?.razao_social && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            cnpj_oficial.razao_social,
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — razão social alinhada à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de razão social (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+            true,
+          )
+        }
+        if (regraMatriz.id === 'S2-04' && cnpj_oficial && temDado) {
+          const heuristica = avaliarSimilaridadeHeuristicaChecklist(
+            resultadoLido,
+            montarEnderecoOficialCnpj(cnpj_oficial),
+          )
+          return montarItemChecklist(
+            regraMatriz,
+            heuristica.conforme ? 'verde' : 'amarelo',
+            heuristica.conforme
+              ? 'Prévia local — endereço alinhado à Receita (IA confirma em segundo plano)'
+              : 'Prévia local — divergência de endereço (IA confirma em segundo plano)',
+            null,
+            resultadoLido,
+            true,
+          )
+        }
+        return montarItemChecklist(
+          regraMatriz,
+          temDado ? 'amarelo' : 'na',
+          temDado
+            ? 'Prévia local — validação IA em segundo plano'
+            : 'N/A — sem dado na extração; IA em segundo plano',
+          null,
+          temDado ? resultadoLido : 'Não aplicável',
+          temDado,
+        )
+      }
+
+      if (carregando) {
         return montarItemChecklist(
           regraMatriz,
           'pendente',
-          carregando
-            ? 'Analista IA em execução — aguarde a conclusão da análise'
-            : 'Análise da leitura ainda não concluída',
+          'Analista IA em execução — aguarde a conclusão da análise',
           null,
-          temDado ? resultadoLido : carregando ? 'Analisando…' : '—',
+          temDado ? resultadoLido : 'Analisando…',
           true,
+        )
+      }
+      if (!pipelineConcluido) {
+        return montarItemChecklist(
+          regraMatriz,
+          'pendente',
+          'Análise da leitura ainda não concluída',
+          null,
+          temDado ? resultadoLido : '—',
+          false,
+        )
+      }
+      if (analise_servidor_indisponivel) {
+        return montarItemChecklist(
+          regraMatriz,
+          temDado ? 'amarelo' : 'na',
+          temDado
+            ? 'Aviso — Analista IA indisponível nesta sessão — reprocesse a análise'
+            : 'N/A — Analista IA indisponível e sem dado extraído',
+          null,
+          temDado ? resultadoLido : 'Não aplicável',
         )
       }
       if (!llmHabilitado) {
@@ -520,7 +539,22 @@ export function montarChecklistMatrizInvoice(
     }
 
     if (regraMatriz.motor === 'api') {
-      if (carregando || !pipelineConcluido) {
+      if (enriquecimento_ia_em_andamento || fase_enriquecimento_analise === 'api') {
+        const temCnpjExtraido = Boolean(
+          detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido),
+        )
+        return montarItemChecklist(
+          regraMatriz,
+          temCnpjExtraido ? 'amarelo' : 'na',
+          temCnpjExtraido
+            ? 'Prévia local — consulta Receita em segundo plano'
+            : 'N/A — CNPJ não extraído para consulta na Receita',
+          null,
+          detalheExtraido ?? 'Não aplicável',
+          temCnpjExtraido,
+        )
+      }
+      if (carregando) {
         return montarItemChecklist(
           regraMatriz,
           'pendente',
@@ -528,6 +562,16 @@ export function montarChecklistMatrizInvoice(
           null,
           detalheExtraido ?? 'Consultando Receita…',
           true,
+        )
+      }
+      if (!pipelineConcluido) {
+        return montarItemChecklist(
+          regraMatriz,
+          'pendente',
+          'Consulta à Receita Federal pendente — aguarde a análise',
+          null,
+          detalheExtraido ?? '—',
+          false,
         )
       }
       if (!detalheExtraido || detalheEhPlaceholderSemDado(detalheExtraido)) {
@@ -539,6 +583,15 @@ export function montarChecklistMatrizInvoice(
           'Não aplicável',
         )
       }
+      if (analise_servidor_indisponivel) {
+        return montarItemChecklist(
+          regraMatriz,
+          'amarelo',
+          'Aviso — consulta à Receita não concluída — reprocesse a análise',
+          null,
+          detalheExtraido,
+        )
+      }
       return montarItemChecklist(
         regraMatriz,
         'pendente',
@@ -548,16 +601,30 @@ export function montarChecklistMatrizInvoice(
       )
     }
 
+    if (
+      (enriquecimento_ia_em_andamento || fase_enriquecimento_analise) &&
+      motorAguardaEnriquecimentoServidor(regraMatriz.motor) &&
+      regraMatriz.motor !== 'llm' &&
+      regraMatriz.motor !== 'rag' &&
+      regraMatriz.motor !== 'api'
+    ) {
+      const rotuloPrevia =
+        regraMatriz.motor === 'cross_doc'
+          ? 'Prévia local — cruzamento documental em segundo plano'
+          : 'Prévia local — validação IA em segundo plano'
+      return montarItemChecklist(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…', true)
+    }
+
     if (detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)) {
       return montarItemChecklist(
         regraMatriz,
-        'pendente',
+        pipelineConcluido ? 'pendente' : 'pendente',
         pipelineConcluido
           ? 'Dado extraído — validação automática não registrada para esta regra'
           : 'Validação automática em andamento…',
         null,
         detalheExtraido,
-        !pipelineConcluido,
+        carregando,
       )
     }
 
@@ -567,7 +634,7 @@ export function montarChecklistMatrizInvoice(
       pipelineConcluido ? 'N/A — sem dado na extração' : 'Validação automática em andamento…',
       null,
       pipelineConcluido ? 'Não aplicável' : '—',
-      !pipelineConcluido,
+      carregando,
     )
   })
 }

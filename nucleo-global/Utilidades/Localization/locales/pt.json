@@ -3,10 +3,22 @@
     "modulo_nome": "Gravity University",
     "nav": {
       "academy": "Onboarding",
+      "visao_geral": "Visão geral",
       "minha_jornada": "Minha Jornada",
       "docs": "Manuais",
       "builders": "Gravity Partner",
-      "produtos_gravity": "Produtos Gravity"
+      "produtos_gravity": "Produtos Gravity",
+      "modulos_plataforma": "Todos os produtos Gravity"
+    },
+    "nav_status": {
+      "comprado_titulo": "Contratado",
+      "comprado_desc": "Módulo ativo na sua organização",
+      "nao_comprado_titulo": "Não contratado",
+      "nao_comprado_desc": "Você ainda pode acessar e explorar o conteúdo",
+      "concluido_titulo": "Concluído",
+      "concluido_desc": "Você finalizou todo o onboarding deste item",
+      "nao_concluido_titulo": "Em aberto",
+      "nao_concluido_desc": "Onboarding ainda não foi finalizado"
     },
     "academy": {
       "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
@@ -46,9 +58,13 @@
     },
     "aula": {
       "voltar": "Voltar",
+      "voltar_onboarding": "Voltar ao onboarding",
       "marcar_concluida": "Marcar como concluída",
       "inicio": "Início",
-      "fim": "Fim do módulo"
+      "fim": "Fim do módulo",
+      "manual_complemento_titulo": "Quer ir além? O manual tem mais detalhes",
+      "manual_complemento_desc": "Esta sessão cobre o essencial do onboarding. No manual você encontra referências de tela, metadados e contexto extra para consolidar o que aprendeu. Já abrimos a seção correspondente.",
+      "manual_complemento_acao": "Abrir seção no manual"
     },
     "grupo": {
       "comece_aqui": "Comece por aqui",
@@ -64,6 +80,28 @@
       "produtos_contratados": "Progresso nos produtos contratados",
       "concluidos": "concluídos"
     },
+    "capitulos": {
+      "titulo": "Capítulos deste produto",
+      "subtitulo": "Role a jornada ou use as pílulas para ir direto a cada bloco — todos os capítulos ficam listados abaixo."
+    },
+    "dashboard": {
+      "titulo": "Seu onboarding",
+      "subtitulo": "Visão geral do que você já fez, produtos, métricas e recompensas",
+      "modulos_titulo": "Módulos contratados",
+      "etapas_progresso": "{{feitas}}/{{total}} etapas",
+      "continuar_titulo": "Continue de onde parou",
+      "continuar_jornada": "Continuar jornada",
+      "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
+      "nivel_xp_faltam": "Nível {{nivel}} · {{xp}} XP para subir",
+      "produtos_onboarding_concluido": "Produtos com onboarding concluído",
+      "manuais_lidos": "Manuais lidos",
+      "o_que_falta": "O que falta",
+      "iniciar": "Iniciar",
+      "nivel_ofensiva": "Nível & ofensiva",
+      "nivel_rotulo": "Nível {{nivel}} · {{titulo}}",
+      "ofensiva_dias": "{{dias}} dias de ofensiva",
+      "badge_obtido": "obtido"
+    },
     "dica": {
       "titulo": "Dicas e Explicações",
       "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",
@@ -76,7 +114,19 @@
       "pontos": "Pontos",
       "concluidas": "Concluídas",
       "em_andamento": "Em andamento",
-      "certificados": "Certificados"
+      "certificados": "Certificados",
+      "seu_progresso": "Seu progresso",
+      "recompensas": "Recompensas",
+      "ranking_modulo": "Ranking do módulo",
+      "ranking_geral": "Ranking geral",
+      "concluir_etapa": "Concluir etapa",
+      "continuar_etapa": "Continuar etapa",
+      "etapa_concluida": "Concluída",
+      "etapa_bloqueada": "Bloqueada",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tarefas concluídas",
+      "badge_iniciante": "Badge Iniciante",
+      "gravity_points": "Gravity Points",
+      "voce": "Você"
     },
     "vazio": {
       "em_breve": "{{secao}} — em breve"
@@ -3049,7 +3099,9 @@
       "titulo": "Novo BID",
       "titulo_sucesso": "BID criado",
       "subtitulo": "Agrupe várias cotações em um único processo de licitação.",
-      "subtitulo_sucesso": "Agora adicione cotações ao conjunto ou volte para a lista.",
+      "subtitulo_sucesso": "O BID foi criado na primeira linha da Lista.",
+      "sucesso_posicao_lista": "O BID foi criado na primeira linha da Lista.",
+      "sucesso_posicao_lista_com_cotacoes": "O BID foi criado na primeira linha da Lista, com todas as {{count}} cotações vinculadas agrupadas nele.",
       "referencia": "Referência interna (opcional)",
       "referencia_placeholder": "Ex.: Licitação Q2 / Projeto Alpha",
       "vincular_avulsas": "Vincular cotações avulsas existentes (opcional)",
@@ -3087,6 +3139,9 @@
       "sem_respostas": "Nenhuma resposta recebida",
       "aguardar": "Aguarde os fornecedores enviarem suas propostas.",
       "modal_aprovar": "Confirmar Aprovação",
+      "modal_aprovar_comentarios_label": "Mensagem para o agente (opcional)",
+      "modal_aprovar_comentarios_ajuda": "Será incluída no e-mail de aprovação enviado ao fornecedor ganhador.",
+      "modal_aprovar_comentarios_placeholder": "Ex.: favor confirmar free time e validade da proposta...",
       "modal_reprovar": "Reprovar Todas",
       "motivo_placeholder": "Informe o motivo da reprovação...",
       "aprovacao_confirmada": "Aprovação confirmada!",
@@ -4002,8 +4057,12 @@
       "timeline_rascunho": "Rascunho",
       "timeline_enviada": "Enviada",
       "timeline_em_cotacao": "Em Cotação",
-      "timeline_aguardando": "Aguardando",
+      "timeline_aguardando": "Aguardando aprovação",
+      "timeline_fornecedor_concordou": "Fornecedor concordou",
       "timeline_aprovada": "Aprovada",
+      "timeline_aguardando_fornecedor_concordar": "Aguard. fornecedor",
+      "tag_aguardando_fornecedor_concordar": "Aguardando fornecedor concordar",
+      "faixa_aprovacao_aguardando_aceite": "{{fornecedor}} ainda precisa aceitar a aprovação no e-mail.",
       "prazo_resposta_label": "Prazo para resposta",
       "prazo_no_prazo": "No prazo",
       "prazo_fora_prazo": "Fora do prazo",

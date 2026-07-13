@@ -31,6 +31,10 @@ import {
   type RotuloStatusChecklistInvoice,
   type StatusChecklistMatrizInvoice,
 } from './montar-checklist-matriz-invoice-smart-read.js'
+import {
+  motorAguardaEnriquecimentoServidor,
+  type FaseEnriquecimentoAnaliseRiscos,
+} from './rotulo-aguardando-motor-checklist-smart-read.js'
 
 export type StatusChecklistMatrizPackingList = StatusChecklistMatrizInvoice
 
@@ -50,6 +54,9 @@ export type ParametrosChecklistMatrizPackingList = {
   pipelineConcluido: boolean
   llmHabilitado: boolean
   carregando: boolean
+  analise_servidor_indisponivel?: boolean
+  enriquecimento_ia_em_andamento?: boolean
+  fase_enriquecimento_analise?: FaseEnriquecimentoAnaliseRiscos | null
   documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
 }
@@ -124,6 +131,23 @@ function riscoDaRegraDocumento(
 
 const MOTORES_COM_IA = new Set(['llm', 'rag', 'api_llm', 'cross_doc_rag'])
 
+function itemAguardandoEnriquecimentoMotor(
+  regraMatriz: RegraMatrizPackingList,
+  fase: FaseEnriquecimentoAnaliseRiscos | null | undefined,
+  enriquecimento: boolean,
+): ItemChecklistMatrizPackingList | null {
+  if (!motorAguardaEnriquecimentoServidor(regraMatriz.motor)) return null
+  if (!enriquecimento && !fase) return null
+
+  const rotuloPrevia =
+    regraMatriz.motor === 'cross_doc'
+      ? 'Prévia local — cruzamento documental em segundo plano'
+      : regraMatriz.motor === 'api'
+        ? 'Prévia local — consulta Receita em segundo plano'
+        : 'Prévia local — validação IA em segundo plano'
+  return montarItem(regraMatriz, 'amarelo', rotuloPrevia, null, 'Prévia local…', true)
+}
+
 function itemAgregador(
   regra: RegraMatrizPackingList,
   parciais: ItemChecklistMatrizPackingList[],
@@ -171,7 +195,17 @@ function itemAgregador(
 export function montarChecklistMatrizPackingList(
   params: ParametrosChecklistMatrizPackingList,
 ): ItemChecklistMatrizPackingList[] {
-  const { regras, riscos, pipelineConcluido, llmHabilitado, carregando, rotulo_documento } = params
+  const {
+    regras,
+    riscos,
+    pipelineConcluido,
+    llmHabilitado,
+    carregando,
+    analise_servidor_indisponivel = false,
+    enriquecimento_ia_em_andamento = false,
+    fase_enriquecimento_analise = null,
+    rotulo_documento,
+  } = params
 
   const regrasAvaliaveis = MATRIZ_VALIDACAO_PACKING_LIST.filter((r) => r.severidade !== null)
   const parciais: ItemChecklistMatrizPackingList[] = regrasAvaliaveis.map((regraMatriz) => {
@@ -188,20 +222,44 @@ export function montarChecklistMatrizPackingList(
       return montarItem(regraMatriz, status, detalhe, null)
     }
 
-    if (carregando || !pipelineConcluido) {
+    const aguardando = itemAguardandoEnriquecimentoMotor(
+      regraMatriz,
+      fase_enriquecimento_analise,
+      enriquecimento_ia_em_andamento,
+    )
+    if (aguardando) return aguardando
+
+    if (carregando && !enriquecimento_ia_em_andamento && !fase_enriquecimento_analise) {
       return montarItem(
         regraMatriz,
         'pendente',
-        carregando
-          ? 'Análise em execução — aguarde a conclusão'
-          : 'Análise da leitura ainda não concluída',
+        'Análise em execução — aguarde a conclusão',
         null,
-        carregando ? 'Analisando…' : '—',
+        'Analisando…',
         true,
+      )
+    }
+    if (!pipelineConcluido) {
+      return montarItem(
+        regraMatriz,
+        'pendente',
+        'Análise da leitura ainda não concluída',
+        null,
+        '—',
+        false,
       )
     }
 
     if (MOTORES_COM_IA.has(regraMatriz.motor)) {
+      if (analise_servidor_indisponivel) {
+        return montarItem(
+          regraMatriz,
+          'amarelo',
+          'Aviso — Analista IA indisponível nesta sessão — reprocesse a análise',
+          null,
+          '—',
+        )
+      }
       if (!llmHabilitado) {
         return montarItem(
           regraMatriz,

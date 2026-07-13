@@ -33,10 +33,12 @@ import {
   buildSerieTermometroBases,
   FLUXO_ETAPAS_RESUMIDAS,
   formatarHorasResposta,
-  indiceFluxoPorStatus,
+  indiceFluxoResumidoCotacao,
   montarConteudoAvisoGraficosInsights,
   formatarMoedaInsightsBidFrete,
   resolverNomeGanhadorCotacao,
+  resolverPropostaGanhadoraFluxoTimeline,
+  rotuloEtapaTimelineFluxoCotacao,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import { filtrarHistoricoTermometro } from '../../../shared/filtro-historico-termometro-bid-frete-internacional'
 import {
@@ -73,6 +75,11 @@ import {
   ListaPropostasDetalheCotacao,
   propostaPermiteAcoes,
 } from './propostas-detalhe-cotacao-bid-frete-internacional'
+import {
+  nomeFornecedorGanhadorEstadoAceiteBidFreteInternacional,
+  resolverEstadoAceiteGanhadorComparativoBidFreteInternacional,
+  resolverPropostaGanhadoraCotacaoBidFreteInternacional,
+} from '../../../shared/estado-aceite-ganhador-comparativo-bid-frete-internacional'
 
 const moeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -82,12 +89,63 @@ const moeda = (val: number, currency: string) =>
     maximumFractionDigits: 0,
   }).format(val)
 
-export function TimelineFluxoCotacao({ statusAtual }: { statusAtual: StatusCotacao }) {
+export type TimelineFluxoCotacaoContexto = {
+  data_criacao_cotacao_bid_frete_internacional?: string | null
+  data_limite_resposta_cotacao_bid_frete_internacional?: string | null
+  data_atualizacao_cotacao_bid_frete_internacional?: string | null
+  data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  propostas_bid_frete_internacional?: Cotacao['propostas_bid_frete_internacional']
+  historico_aprovado?: Cotacao['historico_aprovado']
+}
+
+export function TimelineFluxoCotacao({
+  statusAtual,
+  propostasRanking,
+  id_fornecedor_vencedor,
+  contextoTimeline,
+  disparos = [],
+}: {
+  statusAtual: StatusCotacao
+  propostasRanking?: PropostaRankingBidFreteInternacional[]
+  id_fornecedor_vencedor?: string | null
+  contextoTimeline?: TimelineFluxoCotacaoContexto | null
+  disparos?: DisparoCotacaoBidFreteInternacional[]
+}) {
   const { t } = useTranslation()
-  const indiceAtual = indiceFluxoPorStatus(statusAtual)
+  const indiceAtual = indiceFluxoResumidoCotacao(
+    statusAtual,
+    propostasRanking,
+    id_fornecedor_vencedor,
+  )
+  const indiceUltimaEtapa = FLUXO_ETAPAS_RESUMIDAS.length - 1
   const progresso = FLUXO_ETAPAS_RESUMIDAS.length <= 1
     ? 0
-    : (indiceAtual / (FLUXO_ETAPAS_RESUMIDAS.length - 1)) * 100
+    : (indiceAtual / indiceUltimaEtapa) * 100
+
+  const propostaGanhadora = useMemo(
+    () => resolverPropostaGanhadoraFluxoTimeline(propostasRanking, id_fornecedor_vencedor),
+    [propostasRanking, id_fornecedor_vencedor],
+  )
+
+  const datasEtapas = useMemo(() => {
+    if (!contextoTimeline?.data_criacao_cotacao_bid_frete_internacional) return []
+    return calcularDatasEtapasFluxoTimeline(
+      {
+        data_criacao_cotacao_bid_frete_internacional:
+          contextoTimeline.data_criacao_cotacao_bid_frete_internacional,
+        data_limite_resposta_cotacao_bid_frete_internacional:
+          contextoTimeline.data_limite_resposta_cotacao_bid_frete_internacional,
+        data_atualizacao_cotacao_bid_frete_internacional:
+          contextoTimeline.data_atualizacao_cotacao_bid_frete_internacional,
+        data_aprovacao_cotacao_bid_frete_internacional:
+          contextoTimeline.data_aprovacao_cotacao_bid_frete_internacional,
+        propostas_bid_frete_internacional: contextoTimeline.propostas_bid_frete_internacional,
+      },
+      statusAtual,
+      disparos,
+      normalizarHistoricoTimeline(contextoTimeline.historico_aprovado),
+    )
+  }, [contextoTimeline, disparos, statusAtual])
 
   return (
     <div className="dc-fluxo-compact" role="list" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
@@ -103,9 +161,19 @@ export function TimelineFluxoCotacao({ statusAtual }: { statusAtual: StatusCotac
             ? CheckCircle
             : ativa
               ? Clock
-              : etapa.indice === 4
+              : etapa.indice === indiceUltimaEtapa
                 ? UserCircle
                 : Hourglass
+          const label = rotuloEtapaTimelineFluxoCotacao(
+            etapa,
+            {
+              indiceAtual,
+              statusPropostaGanhadora: propostaGanhadora?.status_proposta_bid_frete_internacional,
+            },
+            t,
+          )
+          const dataRealIso = datasEtapas.find((d) => d.indice === etapa.indice)?.dataRealIso ?? null
+          const dataTag = dataRealIso ? formatarDataBidFrete(dataRealIso) : null
 
           return (
             <div
@@ -116,12 +184,15 @@ export function TimelineFluxoCotacao({ statusAtual }: { statusAtual: StatusCotac
                 concluida ? 'dc-fluxo-compact-etapa--done' : '',
                 ativa ? 'dc-fluxo-compact-etapa--active' : '',
               ].filter(Boolean).join(' ')}
-              title={t(etapa.labelKey)}
+              title={dataTag ? `${label} · ${dataTag}` : label}
             >
               <span className="dc-fluxo-compact-node" aria-hidden>
                 <Icone weight={concluida ? 'fill' : 'duotone'} size={14} />
               </span>
-              <span className="dc-fluxo-compact-label">{t(etapa.labelKey)}</span>
+              <span className="dc-fluxo-compact-label">{label}</span>
+              {dataTag ? (
+                <span className="dc-fluxo-compact-data-tag">{dataTag}</span>
+              ) : null}
             </div>
           )
         })}
@@ -444,6 +515,17 @@ function FaixaResumoAprovacaoInsightsCotacao({
     (idUsuarioAprovacao && idUsuarioLogado === idUsuarioAprovacao ? nomeUsuarioLogado : null) ??
     vazio
 
+  const propostaGanhadora = resolverPropostaGanhadoraCotacaoBidFreteInternacional(
+    propostasRanking,
+    cotacao.id_fornecedor_vencedor_cotacao_bid_frete_internacional,
+  )
+  const estadoAceite = resolverEstadoAceiteGanhadorComparativoBidFreteInternacional({
+    status_cotacao_bid_frete_internacional: cotacao.status_cotacao_bid_frete_internacional,
+    proposta_ganhadora: propostaGanhadora,
+  })
+  const nomeFornecedorGanhador = nomeFornecedorGanhadorEstadoAceiteBidFreteInternacional(propostaGanhadora)
+  const aguardandoAceiteFornecedor = estadoAceite === 'aguardando_aceite'
+
   const itens = [
     {
       rotulo: t('bidfrete.detalhe_cotacao.faixa_aprovacao_valor', 'Valor aprovado'),
@@ -471,9 +553,30 @@ function FaixaResumoAprovacaoInsightsCotacao({
     <div className="dc-smart-faixa-aprovada" role="status" aria-live="polite">
       <div className="dc-smart-faixa-aprovada-cabecalho">
         <CheckCircle weight="fill" size={20} className="dc-smart-faixa-aprovada-icone" aria-hidden />
-        <span className="dc-smart-faixa-aprovada-titulo">
-          {t('bidfrete.detalhe_cotacao.aprovado', 'Aprovada')}
-        </span>
+        <div className="dc-smart-faixa-aprovada-cabecalho-texto">
+          <div className="dc-smart-faixa-aprovada-titulo-linha">
+            <span className="dc-smart-faixa-aprovada-titulo">
+              {t('bidfrete.detalhe_cotacao.aprovado', 'Aprovada')}
+            </span>
+            {aguardandoAceiteFornecedor ? (
+              <span className="dc-smart-faixa-aprovada-tag-pendente">
+                {t(
+                  'bidfrete.detalhe_cotacao.tag_aguardando_fornecedor_concordar',
+                  'Aguardando fornecedor concordar',
+                )}
+              </span>
+            ) : null}
+          </div>
+          {aguardandoAceiteFornecedor ? (
+            <span className="dc-smart-faixa-aprovada-subtitulo">
+              {t(
+                'bidfrete.detalhe_cotacao.faixa_aprovacao_aguardando_aceite',
+                '{{fornecedor}} ainda precisa aceitar a aprovação no e-mail.',
+                { fornecedor: nomeFornecedorGanhador },
+              )}
+            </span>
+          ) : null}
+        </div>
       </div>
       <dl className="dc-smart-faixa-aprovada-grid">
         {itens.map((item) => (
@@ -1616,7 +1719,7 @@ export function PainelFluxoInfograficosCotacao({
 
   return (
     <div className="dc-fluxo-painel-corpo">
-      <TimelineFluxoCotacao statusAtual={statusAtual} />
+      <TimelineFluxoCotacao statusAtual={statusAtual} propostasRanking={propostas} />
 
       <div className="dc-info-grid">
         <CardInfografico

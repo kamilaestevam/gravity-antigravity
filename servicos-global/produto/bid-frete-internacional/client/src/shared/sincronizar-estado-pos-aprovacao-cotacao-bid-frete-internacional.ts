@@ -26,7 +26,9 @@ export function sincronizarRankingPosAprovacao(
     propostasCot.map((p) => [p.id_proposta_bid_frete_internacional, p.status_proposta_bid_frete_internacional]),
   )
   const idGanhador = propostasCot.find(
-    (p) => p.status_proposta_bid_frete_internacional === 'APROVADA',
+    (p) =>
+      p.status_proposta_bid_frete_internacional === 'APROVADA'
+      || p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
   )?.id_proposta_bid_frete_internacional
 
   const idsRanking = new Set(rankingAtual.map((p) => p.id_proposta_bid_frete_internacional))

@@ -3,6 +3,17 @@
  */
 
 import { escapeHtmlTextoEmailBidFrete } from './formatar-email-disparo-bid-frete-internacional.js'
+import {
+  montarHtmlLayoutEmailCompradorBidFreteInternacional,
+  montarRodapeTextoPlanoEmailCompradorBidFreteInternacional,
+  type LinhaResumoEmailCompradorBidFreteInternacional,
+} from './layout-email-comprador-bid-frete-internacional.js'
+
+export const ROTULO_BOTAO_COMPARATIVO_EMAIL_ACEITE_COMPRADOR_BID_FRETE_INTERNACIONAL = 'Abrir comparativo'
+
+export const TEXTO_ENCERRAMENTO_BID_FRETE_INTERNACIONAL_EMAIL_ACEITE_COMPRADOR =
+  'BID Frete Internacional encerrado — você pode acompanhar todo o histórico na plataforma. '
+  + 'Se tiver outros produtos Gravity, acompanhe a evolução do embarque, chegada, desembaraço, entrega, entre outros.'
 
 export type ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional = {
   numeroCotacao: string
@@ -12,70 +23,76 @@ export type ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional = {
   linkComparativo: string
 }
 
+function formatarDataAceiteEmailComprador(data: Date): string {
+  return data.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function linhasResumoAceiteComprador(
+  params: ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional,
+): LinhaResumoEmailCompradorBidFreteInternacional[] {
+  return [
+    ['Número', params.numeroCotacao],
+    ['Fornecedor ganhador', params.nomeFornecedor.trim() || '—'],
+    ['Aceite registrado em', formatarDataAceiteEmailComprador(params.dataAceite)],
+  ]
+}
+
 export function montarAssuntoEmailAceiteRecebidoCompradorBidFreteInternacional(
   numeroCotacao: string,
 ): string {
   return `Aceite confirmado — cotação ${numeroCotacao}`
 }
 
+export function montarPreheaderEmailAceiteRecebidoCompradorBidFreteInternacional(
+  params: ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional,
+): string {
+  return `${params.nomeFornecedor.trim()} confirmou a aprovação na cotação ${params.numeroCotacao}. Acompanhe o histórico na plataforma Gravity.`
+}
+
 export function montarTextoPlanoEmailAceiteRecebidoCompradorBidFreteInternacional(
   params: ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional,
 ): string {
-  const dataFmt = params.dataAceite.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const linhas = linhasResumoAceiteComprador(params)
+
   return [
-    `Olá, ${params.nomeComprador},`,
+    'Gravity — BID Frete Internacional',
     '',
-    `O fornecedor ${params.nomeFornecedor} confirmou o recebimento da aprovação na cotação ${params.numeroCotacao}.`,
-    `Data do aceite: ${dataFmt}`,
+    `Olá, ${params.nomeComprador.trim()},`,
     '',
-    'Você já pode confirmar o fechamento do frete na plataforma Gravity, se aplicável.',
+    `O fornecedor ${params.nomeFornecedor.trim()} confirmou o recebimento da aprovação na cotação ${params.numeroCotacao}.`,
+    TEXTO_ENCERRAMENTO_BID_FRETE_INTERNACIONAL_EMAIL_ACEITE_COMPRADOR,
     '',
-    `Abrir comparativo: ${params.linkComparativo}`,
-    '',
-    'Gravity · Bid Frete Internacional',
+    ...linhas.map(([rotulo, valor]) => `${rotulo}: ${valor}`),
+    ...montarRodapeTextoPlanoEmailCompradorBidFreteInternacional(
+      ROTULO_BOTAO_COMPARATIVO_EMAIL_ACEITE_COMPRADOR_BID_FRETE_INTERNACIONAL,
+      params.linkComparativo,
+    ),
   ].join('\n')
 }
 
 export function montarHtmlEmailAceiteRecebidoCompradorBidFreteInternacional(
   params: ParametrosEmailAceiteRecebidoCompradorBidFreteInternacional,
 ): string {
-  const dataFmt = params.dataAceite.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-  const numero = escapeHtmlTextoEmailBidFrete(params.numeroCotacao)
-  const fornecedor = escapeHtmlTextoEmailBidFrete(params.nomeFornecedor)
-  const comprador = escapeHtmlTextoEmailBidFrete(params.nomeComprador)
-  const link = escapeHtmlTextoEmailBidFrete(params.linkComparativo)
+  const fornecedorHtml = escapeHtmlTextoEmailBidFrete(params.nomeFornecedor.trim())
+  const numeroHtml = escapeHtmlTextoEmailBidFrete(params.numeroCotacao)
+  const assunto = montarAssuntoEmailAceiteRecebidoCompradorBidFreteInternacional(params.numeroCotacao)
 
-  return `<!DOCTYPE html>
-<html lang="pt-BR">
-<body style="margin:0;padding:24px;font-family:Segoe UI,Arial,sans-serif;background:#0f172a;color:#e2e8f0;">
-  <div style="max-width:560px;margin:0 auto;background:#1e293b;border-radius:12px;padding:28px;border:1px solid #334155;">
-    <p style="margin:0 0 16px;font-size:15px;">Olá, <strong>${comprador}</strong>,</p>
-    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#cbd5e1;">
-      O fornecedor <strong>${fornecedor}</strong> confirmou o recebimento da aprovação na cotação
-      <strong>${numero}</strong>.
-    </p>
-    <p style="margin:0 0 20px;font-size:14px;color:#94a3b8;">Aceite registrado em ${dataFmt}.</p>
-    <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#cbd5e1;">
-      Você já pode confirmar o fechamento do frete na plataforma, se aplicável.
-    </p>
-    <p style="margin:0;">
-      <a href="${link}" style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600;font-size:14px;">
-        Abrir comparativo
-      </a>
-    </p>
-  </div>
-</body>
-</html>`
+  return montarHtmlLayoutEmailCompradorBidFreteInternacional({
+    assunto,
+    preheader: montarPreheaderEmailAceiteRecebidoCompradorBidFreteInternacional(params),
+    subtituloHeader: 'Fornecedor confirmou a aprovação',
+    nomeComprador: params.nomeComprador,
+    introHtml:
+      `O fornecedor <strong>${fornecedorHtml}</strong> confirmou o recebimento da aprovação na cotação `
+      + `<strong>${numeroHtml}</strong>. ${escapeHtmlTextoEmailBidFrete(TEXTO_ENCERRAMENTO_BID_FRETE_INTERNACIONAL_EMAIL_ACEITE_COMPRADOR)}`,
+    linhasResumo: linhasResumoAceiteComprador(params),
+    rotuloBotao: ROTULO_BOTAO_COMPARATIVO_EMAIL_ACEITE_COMPRADOR_BID_FRETE_INTERNACIONAL,
+    linkAcao: params.linkComparativo,
+  })
 }

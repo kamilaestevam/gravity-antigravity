@@ -86,15 +86,29 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
       throw new AppError('id_leitura do corpo diverge do path', 400, 'ID_LEITURA_DIVERGENTE')
     }
 
-    const dadosSessao = { nome: corpo.nome, leitura: corpo.leitura } satisfies Prisma.InputJsonObject
-    const dadosJson = dadosSessao as Prisma.InputJsonValue
-
     const existente = await prisma.progressoLeituraSmartRead.findFirst({
       where: {
         id_usuario: idUsuario,
         id_leitura_legado_progresso_leitura_smart_read: id_leitura,
       },
     })
+
+    const dadosAnteriores = existente
+      ? extrairDadosSessaoProgressoLeitura(existente.dados_sessao_progresso_leitura_smart_read)
+      : null
+    const cacheAnterior = dadosAnteriores?.analise_riscos_cache ?? {}
+    const cacheCorpo = corpo.analise_riscos_cache ?? {}
+    const cacheMesclado =
+      Object.keys(cacheAnterior).length > 0 || Object.keys(cacheCorpo).length > 0
+        ? { ...cacheAnterior, ...cacheCorpo }
+        : undefined
+
+    const dadosSessao = {
+      nome: corpo.nome,
+      leitura: corpo.leitura,
+      ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
+    } satisfies Prisma.InputJsonObject
+    const dadosJson = dadosSessao as Prisma.InputJsonValue
 
     const registro = existente
       ? await prisma.progressoLeituraSmartRead.update({

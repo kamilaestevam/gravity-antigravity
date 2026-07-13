@@ -24,6 +24,7 @@ import {
   type ParametrosEmailAprovacaoPropostaBidFreteInternacional,
 } from '../../../shared/formatar-email-aprovacao-proposta-bid-frete-internacional.js'
 import { montarLinkAceiteAprovacaoPropostaBidFreteInternacional } from '../../../shared/aceite-aprovacao-proposta-bid-frete-internacional.js'
+import { REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL } from '../../../shared/remetente-email-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
@@ -98,6 +99,7 @@ async function enviarEmailAprovacao(
       body_html: montarHtmlEmailAprovacaoProposta(params),
       body: montarTextoPlanoEmailAprovacaoProposta(params),
       product_id: 'bid-frete-internacional',
+      from: REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL,
     },
     {
       headers: {
@@ -126,8 +128,16 @@ export async function enviarEmailsResultadoAprovacaoBidFreteInternacional(input:
   id_organizacao: string
   id_usuario: string
   nome_usuario_aprovacao: string | null
+  comentarios_aprovacao_cotacao_bid_frete_internacional?: string | null
 }): Promise<{ enviados: number; erros: string[] }> {
-  const { prisma, id_cotacao_bid_frete_internacional, id_proposta_ganhadora, id_organizacao, id_usuario } = input
+  const {
+    prisma,
+    id_cotacao_bid_frete_internacional,
+    id_proposta_ganhadora,
+    id_organizacao,
+    id_usuario,
+    comentarios_aprovacao_cotacao_bid_frete_internacional,
+  } = input
   const nomeAprovador = input.nome_usuario_aprovacao?.trim() || 'Equipe Gravity'
   const erros: string[] = []
   let enviados = 0
@@ -179,6 +189,8 @@ export async function enviarEmailsResultadoAprovacaoBidFreteInternacional(input:
     id_cotacao_bid_frete_internacional,
   )
 
+  const comentariosAprovacao = comentarios_aprovacao_cotacao_bid_frete_internacional?.trim().slice(0, 2000) || null
+
   const baseParams = {
     numeroCotacao: String(cotacao.numero_cotacao_bid_frete_internacional ?? id_cotacao_bid_frete_internacional),
     nomeCliente,
@@ -197,6 +209,7 @@ export async function enviarEmailsResultadoAprovacaoBidFreteInternacional(input:
     valorTotalGanhador: ganhadoraColocacao.valor_total_proposta_bid_frete_internacional,
     moedaGanhador: ganhadoraColocacao.moeda_proposta_bid_frete_internacional,
     empresaPagadoraTaxaFechamentoPlataformaGravity: pagador,
+    comentariosAprovacaoCotacao: comentariosAprovacao,
   }
 
   const cadastrosCache = new Map<string, Awaited<ReturnType<typeof buscarFornecedorCadastrosParaDisparo>>>()

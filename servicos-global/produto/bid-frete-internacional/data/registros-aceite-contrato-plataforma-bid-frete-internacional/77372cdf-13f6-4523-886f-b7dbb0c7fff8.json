@@ -1,0 +1,55 @@
+{
+  "id_registro_aceite_contrato_plataforma_bid_frete_internacional": "77372cdf-13f6-4523-886f-b7dbb0c7fff8",
+  "tipo_evento_aceite_contrato_plataforma_bid_frete_internacional": "ACEITE_FECHAMENTO",
+  "tipo_contrato_plataforma_bid_frete_internacional": "FECHAMENTO",
+  "data_hora_aceite_utc": "2026-07-12T15:13:37.075Z",
+  "email_contato_fornecedor": "dmmltda+cotacaofrete@gmail.com",
+  "token_disparo_cotacao_bid_frete_internacional": "a610eca1-526e-4269-8026-f027ebfb10d3",
+  "token_aceite_aprovacao_proposta_bid_frete_internacional": "20b75072-3300-435d-977a-c61a270f4e22",
+  "nome_empresa_fornecedor": "AGENTE ACD",
+  "cnpj_fornecedor": null,
+  "numero_cotacao_bid_frete_internacional": "COT-20260712-3895",
+  "id_proposta_bid_frete_internacional": "cmrhxiy0b0001rkq2micpgziw",
+  "id_cotacao_bid_frete_internacional": "cmrhxi33l0000cmf8vv7xs9t9",
+  "endereco_ip_aceite_contrato_plataforma_bid_frete_internacional": "::1",
+  "user_agent_aceite_contrato_plataforma_bid_frete_internacional": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+  "versao_contrato_plataforma_bid_frete_internacional": "1.4",
+  "hash_contrato_aceito_plataforma_bid_frete_internacional": "6a48e162646067b5314802bf2626e91e424fd800b0af896aa300cb1fa4b91664",
+  "slug_pagador_taxa_fechamento_plataforma_bid_frete_internacional": "pagamento-fornecedor",
+  "empresa_pagadora_taxa_fechamento_plataforma_gravity": "FORNECEDOR",
+  "snapshot_proposta_fechada_bid_frete_internacional": {
+    "id_proposta_bid_frete_internacional": "cmrhxiy0b0001rkq2micpgziw",
+    "moeda_proposta_bid_frete_internacional": "USD",
+    "valor_total_proposta_bid_frete_internacional": 1000,
+    "dias_transito_proposta_bid_frete_internacional": 10,
+    "status_proposta_bid_frete_internacional": "APROVADA",
+    "ultimo_registro_alteracao_proposta_bid_frete_internacional": {
+      "id_registro_alteracao_proposta_bid_frete_internacional": "cmrhxiy0i0003rkq2sgn9gir8",
+      "id_proposta_bid_frete_internacional": "cmrhxiy0b0001rkq2micpgziw",
+      "id_cotacao_bid_frete_internacional": "cmrhxi33l0000cmf8vv7xs9t9",
+      "tipo_registro_alteracao_proposta_bid_frete_internacional": "CRIAR",
+      "origem_registro_alteracao_proposta_bid_frete_internacional": "LINK_PUBLICO",
+      "alteracoes_registro_alteracao_proposta_bid_frete_internacional": [
+        {
+          "campo": "valor_frete_proposta_bid_frete_internacional",
+          "rotulo": "Frete base",
+          "valor_antes": 0,
+          "valor_depois": 1000
+        },
+        {
+          "campo": "valor_total_proposta_bid_frete_internacional",
+          "rotulo": "Valor total",
+          "valor_antes": 0,
+          "valor_depois": 1000
+        },
+        {
+          "campo": "dias_transito_proposta_bid_frete_internacional",
+          "rotulo": "Transit time (dias)",
+          "valor_antes": 0,
+          "valor_depois": 10
+        }
+      ],
+      "data_registro_alteracao_proposta_bid_frete_internacional": "2026-07-12T15:09:29.394Z"
+    }
+  }
+}

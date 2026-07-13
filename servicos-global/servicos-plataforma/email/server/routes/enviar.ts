@@ -18,6 +18,7 @@ const enviarSchema = z.object({
   template_id: z.string().cuid().optional(),
   variables: z.record(z.string()).optional().default({}),
   product_id: z.string().optional(),
+  from: z.string().min(3).max(255).optional(),
   max_tentativas: z.number().int().min(1).max(5).optional(),
 }).refine(
   (d) => d.template_id || (d.subject && (d.body || d.body_html)),
@@ -33,7 +34,7 @@ enviarRouter.post(
       return next(new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR'))
     }
 
-    const { to, subject, body, body_html, template_id, variables, product_id, max_tentativas } = parse.data
+    const { to, subject, body, body_html, template_id, variables, product_id, from, max_tentativas } = parse.data
     const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     let finalSubject = subject ?? ''
@@ -68,6 +69,7 @@ enviarRouter.post(
       html: finalHtml,
       text: finalText,
       templateId: template_id,
+      from,
       maxTentativas: max_tentativas,
     })
 

@@ -127,6 +127,9 @@ type Props = {
   /** Quando informado, abre uma leitura existente no passo atual (modo "retomar"). */
   idLeituraExistente?: string | null
 
+  /** Passo vindo da Lista (status_fluxo) — placeholder até hidratar progresso. */
+  passoRetomarLista?: number | null
+
   onFechar: () => void
 
   onConcluido?: () => void
@@ -155,6 +158,8 @@ export function ModalNovaLeituraSmartRead({
   arquivosIniciais = [],
 
   idLeituraExistente = null,
+
+  passoRetomarLista = null,
 
   onFechar,
 
@@ -256,13 +261,20 @@ export function ModalNovaLeituraSmartRead({
       setArquivos(hidratados)
       const passoRetomar = resolverPassoRetomarLeituraSmartRead(
         leituraEfetiva.status_leitura,
-        salvo?.passo,
+        salvo?.passo ?? passoRetomarLista,
       )
       setPasso(passoRetomar)
       passoSalvoRef.current = passoRetomar >= 2 ? passoRetomar : 0
     },
-    [],
+    [passoRetomarLista],
   )
+
+  const passoPlaceholderRetomar = useMemo(() => {
+    if (typeof passoRetomarLista === 'number' && passoRetomarLista >= 2 && passoRetomarLista <= 4) {
+      return passoRetomarLista
+    }
+    return 2
+  }, [passoRetomarLista])
 
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
@@ -326,7 +338,7 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
         setArquivos([])
-        setPasso(2)
+        setPasso(passoPlaceholderRetomar)
         void hidratarLeituraExistente(idLeituraExistente)
       } else {
         setPasso(1)
@@ -339,7 +351,7 @@ export function ModalNovaLeituraSmartRead({
       riscosIniciadosRef.current.clear()
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto, arquivosIniciais, idLeituraExistente, hidratarLeituraExistente])
+  }, [aberto, arquivosIniciais, idLeituraExistente, passoPlaceholderRetomar, hidratarLeituraExistente])
 
   useEffect(() => {
     if (passo >= 3) setPassoConferenciaMontado(true)

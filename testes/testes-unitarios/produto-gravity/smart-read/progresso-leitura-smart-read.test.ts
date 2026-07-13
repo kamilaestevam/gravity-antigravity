@@ -57,9 +57,9 @@ describe('progresso-leitura-smart-read', () => {
     expect(resposta.passo).toBe(2)
   })
 
-  it('COMPLETED na lista sempre retoma no passo 4 mesmo com progresso salvo em 2', () => {
-    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(4)
-    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(4)
+  it('COMPLETED respeita passo salvo (Conferência) e cai em 4 sem progresso', () => {
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(3)
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(2)
     expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', null)).toBe(4)
   })
 

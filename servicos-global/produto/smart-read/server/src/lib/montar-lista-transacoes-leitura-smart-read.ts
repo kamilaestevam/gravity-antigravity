@@ -159,6 +159,7 @@ async function listarViaProgressoGravity(
             { ...sessao.leitura, nome_leitura: sessao.nome || sessao.leitura.nome_leitura },
             {
               data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
+              passo_atual_leitura: registro.passo_atual_progresso_leitura_smart_read,
             },
           ),
         )

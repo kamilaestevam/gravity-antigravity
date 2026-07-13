@@ -73,7 +73,7 @@ type Props = {
 
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
   if (col.tipo === 'numero') return 'numero'
-  if (col.key === 'status_leitura') return 'enum'
+  if (col.key === 'status_fluxo_leitura') return 'enum'
   return 'texto'
 }
 

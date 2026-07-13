@@ -10,6 +10,7 @@ import {
 } from '../../../shared/metricas-transacao-leitura-smart-read.js'
 import { resolverContagemAcertoErroEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
+import { derivarStatusFluxoLeitura } from '../../../shared/status-fluxo-leitura-smart-read.js'
 import {
   LeituraSchema,
   OrigemLeituraEnum,
@@ -20,6 +21,39 @@ import {
   type LeituraLegado,
   type TransacaoLeitura,
 } from '../schemas/leitura-smart-read.js'
+
+function normalizarPassoAtualLeitura(passo: number | null | undefined): number | null {
+  if (typeof passo !== 'number' || !Number.isInteger(passo)) return null
+  if (passo < 1 || passo > 4) return null
+  return passo
+}
+
+function escolherPassoAtualMesclado(
+  anterior: number | null | undefined,
+  novo: number | null | undefined,
+): number | null {
+  const a = normalizarPassoAtualLeitura(anterior)
+  const b = normalizarPassoAtualLeitura(novo)
+  if (a == null) return b
+  if (b == null) return a
+  return Math.max(a, b)
+}
+
+function aplicarStatusFluxoNaTransacao(
+  transacao: Omit<TransacaoLeitura, 'status_fluxo_leitura'> & {
+    status_fluxo_leitura?: TransacaoLeitura['status_fluxo_leitura']
+  },
+): TransacaoLeitura {
+  const passo_atual_leitura = normalizarPassoAtualLeitura(transacao.passo_atual_leitura)
+  return TransacaoLeituraSchema.parse({
+    ...transacao,
+    passo_atual_leitura,
+    status_fluxo_leitura: derivarStatusFluxoLeitura({
+      status_leitura: transacao.status_leitura,
+      passo_atual_leitura,
+    }),
+  })
+}
 
 export const ItemListaLeituraLegadoSchema = z.object({
   _id: z.string(),
@@ -62,45 +96,51 @@ export function mesclarOrigemLeituraTransacao(
 
 export function complementarMetricasTransacaoLista(transacao: TransacaoLeitura): TransacaoLeitura {
   const contagem = resolverContagemAcertoErroEstudoSmartRead(transacao.total_campos_extraidos)
-  let resultado: TransacaoLeitura = {
+  let resultado: TransacaoLeitura = aplicarStatusFluxoNaTransacao({
     ...transacao,
     total_campos_corretos: contagem.corretos,
     total_campos_errados: contagem.errados,
     media_acertos: contagem.taxa_acerto,
-  }
+  })
 
   const saving = resolverSavingTransacaoLeituraSmartRead(resultado)
   if (saving) {
-    resultado = {
+    resultado = aplicarStatusFluxoNaTransacao({
       ...resultado,
       saving_total_minutos: saving.saving_total_minutos,
       saving_total_brl: saving.saving_total_brl,
-    }
+    })
   }
 
-  return TransacaoLeituraSchema.parse(resultado)
+  return resultado
 }
 
 export function mesclarTransacaoNaLista(
   anterior: TransacaoLeitura,
   novo: TransacaoLeitura,
 ): TransacaoLeitura {
-  const mesclada = complementarMetricasTransacaoLista({
-    ...novo,
-    total_documentos: Math.max(anterior.total_documentos, novo.total_documentos),
-    total_campos_extraidos: Math.max(anterior.total_campos_extraidos, novo.total_campos_extraidos),
-    tipos_documento: novo.tipos_documento ?? anterior.tipos_documento,
-    numeros_documento: novo.numeros_documento ?? anterior.numeros_documento,
-    tempo_extracao_ia_ms: novo.tempo_extracao_ia_ms ?? anterior.tempo_extracao_ia_ms,
-    tempo_processo_total_ms: novo.tempo_processo_total_ms ?? anterior.tempo_processo_total_ms,
-    saving_total_minutos: novo.saving_total_minutos ?? anterior.saving_total_minutos,
-    saving_total_brl: novo.saving_total_brl ?? anterior.saving_total_brl,
-    origem_leitura: mesclarOrigemLeituraTransacao(anterior.origem_leitura, novo.origem_leitura),
-    nome_leitura: novo.nome_leitura || anterior.nome_leitura,
-    data_envio: anterior.data_envio ?? novo.data_envio,
-    mensagem_erro: novo.mensagem_erro ?? anterior.mensagem_erro,
-    media_acertos: novo.media_acertos ?? anterior.media_acertos,
-  })
+  const mesclada = complementarMetricasTransacaoLista(
+    aplicarStatusFluxoNaTransacao({
+      ...novo,
+      total_documentos: Math.max(anterior.total_documentos, novo.total_documentos),
+      total_campos_extraidos: Math.max(anterior.total_campos_extraidos, novo.total_campos_extraidos),
+      tipos_documento: novo.tipos_documento ?? anterior.tipos_documento,
+      numeros_documento: novo.numeros_documento ?? anterior.numeros_documento,
+      tempo_extracao_ia_ms: novo.tempo_extracao_ia_ms ?? anterior.tempo_extracao_ia_ms,
+      tempo_processo_total_ms: novo.tempo_processo_total_ms ?? anterior.tempo_processo_total_ms,
+      saving_total_minutos: novo.saving_total_minutos ?? anterior.saving_total_minutos,
+      saving_total_brl: novo.saving_total_brl ?? anterior.saving_total_brl,
+      origem_leitura: mesclarOrigemLeituraTransacao(anterior.origem_leitura, novo.origem_leitura),
+      nome_leitura: novo.nome_leitura || anterior.nome_leitura,
+      data_envio: anterior.data_envio ?? novo.data_envio,
+      mensagem_erro: novo.mensagem_erro ?? anterior.mensagem_erro,
+      media_acertos: novo.media_acertos ?? anterior.media_acertos,
+      passo_atual_leitura: escolherPassoAtualMesclado(
+        anterior.passo_atual_leitura,
+        novo.passo_atual_leitura,
+      ),
+    }),
+  )
 
   return complementarMetricasTransacaoLista(mesclada)
 }
@@ -125,7 +165,13 @@ function statusDeItemLista(item: ItemListaLeituraLegado): z.infer<typeof StatusL
 }
 
 function anexarMetricasTransacao(
-  base: Omit<TransacaoLeitura, keyof ReturnType<typeof metricasTransacaoLeituraVazias>>,
+  base: Omit<
+    TransacaoLeitura,
+    keyof ReturnType<typeof metricasTransacaoLeituraVazias> | 'status_fluxo_leitura'
+  > & {
+    passo_atual_leitura?: number | null
+    status_fluxo_leitura?: TransacaoLeitura['status_fluxo_leitura']
+  },
   leitura: Leitura,
   contextoTempo?: { created_at?: string | null; completed_at?: string | null },
 ): TransacaoLeitura {
@@ -143,8 +189,9 @@ function anexarMetricasTransacao(
           }).tempo_processo_total_ms,
         }
 
-  return TransacaoLeituraSchema.parse({
+  return aplicarStatusFluxoNaTransacao({
     ...base,
+    passo_atual_leitura: normalizarPassoAtualLeitura(base.passo_atual_leitura),
     ...metricas,
   })
 }
@@ -156,6 +203,7 @@ export function normalizarTransacaoDeLeitura(
     origem_leitura?: z.infer<typeof OrigemLeituraEnum>
     created_at?: string | null
     completed_at?: string | null
+    passo_atual_leitura?: number | null
   },
 ): TransacaoLeitura {
   const primeiroArquivo = leitura.arquivos[0]
@@ -163,6 +211,7 @@ export function normalizarTransacaoDeLeitura(
     id_leitura: leitura.id_leitura,
     nome_leitura: leitura.nome_leitura,
     status_leitura: leitura.status_leitura,
+    passo_atual_leitura: normalizarPassoAtualLeitura(extras?.passo_atual_leitura),
     total_arquivos: leitura.total_arquivos,
     media_acertos: extrairMediaAcertosLeitura(leitura),
     data_envio: extras?.data_envio ?? null,
@@ -191,6 +240,7 @@ export function normalizarTransacaoDeItemListaLegado(item: ItemListaLeituraLegad
     id_leitura: item._id,
     nome_leitura: item.name ?? leitura.nome_leitura,
     status_leitura: statusDeItemLista(item),
+    passo_atual_leitura: null as number | null,
     total_arquivos: item.totalFiles ?? leitura.total_arquivos,
     media_acertos: mediaNormalizada,
     data_envio: item.createdAt ?? null,

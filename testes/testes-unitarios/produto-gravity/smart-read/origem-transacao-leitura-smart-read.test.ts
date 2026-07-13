@@ -11,6 +11,8 @@ function transacaoBase(parcial: Partial<TransacaoLeitura> & Pick<TransacaoLeitur
     id_leitura: parcial.id_leitura,
     nome_leitura: parcial.nome_leitura ?? 'Leitura teste',
     status_leitura: parcial.status_leitura ?? 'COMPLETED',
+    status_fluxo_leitura: parcial.status_fluxo_leitura ?? 'RESULTADO_LEITURAS',
+    passo_atual_leitura: parcial.passo_atual_leitura ?? 4,
     total_arquivos: parcial.total_arquivos ?? 1,
     media_acertos: 'media_acertos' in parcial ? parcial.media_acertos ?? null : 0.9,
     data_envio: parcial.data_envio ?? '2026-06-23T12:00:00.000Z',

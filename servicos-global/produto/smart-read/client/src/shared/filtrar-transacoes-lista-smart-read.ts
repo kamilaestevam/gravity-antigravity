@@ -11,14 +11,15 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from './formatacao-leitura-smart-read'
+import { ROTULO_STATUS_FLUXO_LEITURA } from '../../../shared/status-fluxo-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
 
 function valorTextoTransacao(item: TransacaoLeitura, campo: string): string {
   switch (campo) {
     case 'nome_leitura':
       return item.nome_leitura ?? item.nome_arquivo ?? item.id_leitura
-    case 'status_leitura':
-      return item.status_leitura
+    case 'status_fluxo_leitura':
+      return ROTULO_STATUS_FLUXO_LEITURA[item.status_fluxo_leitura]
     case 'total_arquivos':
       return String(item.total_arquivos)
     case 'media_acertos':

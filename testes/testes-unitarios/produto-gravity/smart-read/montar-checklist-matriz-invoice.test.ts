@@ -42,6 +42,33 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(concluido.every((i) => !i.em_analise)).toBe(true)
   })
 
+  it('falha do servidor degrada regras IA para ATENÇÃO sem spinner eterno', () => {
+    const itens = montarChecklistMatrizInvoice({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: false,
+      carregando: false,
+      analise_servidor_indisponivel: true,
+      documentos: [
+        {
+          nome_arquivo: 'INV.pdf',
+          tipo_documento: 'INVOICE',
+          indice: 0,
+          dados: {
+            importer: { name: 'Intelbras S/A' },
+          },
+        },
+      ],
+      rotulo_documento: 'INV.pdf · INVOICE',
+    })
+    const s203 = itens.find((i) => i.regra.id === 'S2-03')
+    expect(s203?.status).toBe('amarelo')
+    expect(s203?.rotulo_status).toBe('ATENÇÃO')
+    expect(s203?.em_analise).toBe(false)
+    expect(s203?.detalhe).toContain('Analista IA indisponível')
+  })
+
   it('marca regra de código como vermelha quando Passo 1 falha e gera risco_id', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [{ id: 'S4-04-INVOICE-items-0', passou: false, detalhe: 'NCM ausente' }],
@@ -367,5 +394,53 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(resumo.total_invoices).toBe(2)
     expect(resumo.contagem_global.total).toBe(MATRIZ_VALIDACAO_INVOICE.length * 2)
     expect(resumo.por_invoice).toHaveLength(2)
+  })
+
+  it('modo instantâneo exibe prévia amarela sem spinner em regras IA/API', () => {
+    const itens = montarChecklistMatrizInvoice({
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: true,
+      enriquecimento_ia_em_andamento: true,
+      fase_enriquecimento_analise: 'llm',
+      documentos: [
+        {
+          nome_arquivo: 'INV.pdf',
+          tipo_documento: 'INVOICE',
+          indice: 0,
+          dados: {
+            importer: { name: 'Intelbras S/A', cnpj: '82.901.000/0001-27' },
+          },
+        },
+      ],
+      rotulo_documento: 'INV.pdf · INVOICE',
+      cnpj_oficial: {
+        cnpj: '82901000000127',
+        razao_social: 'Intelbras S.A.',
+        nome_fantasia: null,
+        situacao_cadastral: 'ATIVA',
+        ativo: true,
+        logradouro: 'Rua X',
+        numero: '100',
+        complemento: null,
+        bairro: 'Centro',
+        municipio: 'São José',
+        uf: 'SC',
+        cep: '88101000',
+        fonte: 'brasilapi_rfb',
+      },
+    })
+    const s203 = itens.find((i) => i.regra.id === 'S2-03')
+    const s202 = itens.find((i) => i.regra.id === 'S2-02')
+    expect(s203?.status).toBe('verde')
+    expect(s203?.em_analise).toBe(true)
+    expect(s203?.detalhe).toContain('Prévia local')
+    expect(s202?.status).toBe('amarelo')
+    expect(s202?.em_analise).toBe(true)
+    expect(itens.filter((i) => i.regra.motor === 'llm').every((i) => i.status !== 'pendente')).toBe(
+      true,
+    )
   })
 })

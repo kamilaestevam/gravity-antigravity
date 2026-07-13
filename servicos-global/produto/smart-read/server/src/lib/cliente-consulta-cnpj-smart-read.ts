@@ -5,7 +5,7 @@
 import { z } from 'zod'
 import type { DadosOficiaisCnpjLeitura } from '../../../shared/analise-riscos-leitura-smart-read.js'
 
-const FETCH_TIMEOUT_MS = 15_000
+const FETCH_TIMEOUT_MS = 2_800
 
 const BrasilApiCnpjSchema = z.object({
   cnpj: z.string().optional(),
@@ -30,8 +30,11 @@ function baseUrlConsultaCnpj(): string {
   ).replace(/\/$/, '')
 }
 
-const TENTATIVAS_POR_PROVEDOR = 2
+const TENTATIVAS_POR_PROVEDOR = 1
 const ESPERA_ENTRE_TENTATIVAS_MS = 1_000
+const TTL_CACHE_CNPJ_MS = 30 * 60 * 1000
+
+const cacheCnpjReceita = new Map<string, { dados: DadosOficiaisCnpjLeitura; expiraEm: number }>()
 
 function aguardar(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -74,6 +77,9 @@ export async function consultarCnpjReceitaSmartRead(
   const cnpj = cnpjBruto.replace(/\D/g, '')
   if (cnpj.length !== 14) return null
 
+  const emCache = cacheCnpjReceita.get(cnpj)
+  if (emCache && emCache.expiraEm > Date.now()) return emCache.dados
+
   // Provedores em ordem de preferência — minhareceita usa o mesmo payload da BrasilAPI.
   const provedores = [
     { url: `${baseUrlConsultaCnpj()}/cnpj/v1/${cnpj}`, fonte: 'brasilapi_rfb' },
@@ -84,7 +90,10 @@ export async function consultarCnpjReceitaSmartRead(
     for (const provedor of provedores) {
       try {
         const oficial = await buscarCnpjEmProvedor(provedor.url, cnpj, provedor.fonte)
-        if (oficial) return oficial
+        if (oficial) {
+          cacheCnpjReceita.set(cnpj, { dados: oficial, expiraEm: Date.now() + TTL_CACHE_CNPJ_MS })
+          return oficial
+        }
       } catch {
         // timeout/erro de rede — tenta o próximo provedor ou a próxima rodada
       }

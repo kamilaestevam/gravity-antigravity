@@ -8,6 +8,10 @@ import { NavigateDestinoPosAutenticacao, TelaCarregandoPorteiro } from './routin
 import { useDestinoPosAutenticacao } from './hooks/use-destino-pos-autenticacao'
 import { ROTAS as ROTAS_POS_AUTH } from './routing/destino-pos-autenticacao'
 import { useServerHealth } from './hooks/use-server-health'
+import {
+  ehErroChunkDesatualizado,
+  tentarRecarregarPorChunkDesatualizado,
+} from './recarregar-se-chunk-desatualizado'
 import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
 import { SsoCallbackPage } from './pages/SsoCallbackPage'
@@ -45,6 +49,8 @@ const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'S
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
 const UniversityGravity = lazy(() => import('./pages/UniversityGravity'), 'UniversityGravity')
+// TODO(preview-temp, 2026-07-11): import só para conferência visual manual — remover após validar.
+const PreviewJornadaTemp = lazy(() => import('./pages/__PreviewJornadaTemp').then(m => ({ default: m.PreviewJornadaTemp })), 'PreviewJornadaTemp')
 const OrganizacoesAdmin = lazy(() => import('./pages/OrganizacoesAdmin'), 'OrganizacoesAdmin')
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'), 'AdminLayout')
 const VisaoGeralAdmin = lazy(() => import('./pages/admin/VisaoGeralAdmin'), 'VisaoGeralAdmin')
@@ -159,14 +165,25 @@ class ProductErrorBoundary extends React.Component<
 > {
   state = { error: null as Error | null }
   static getDerivedStateFromError(error: Error) { return { error } }
+  componentDidCatch(error: Error) {
+    if (ehErroChunkDesatualizado(error.message)) {
+      tentarRecarregarPorChunkDesatualizado()
+    }
+  }
   render() {
     if (this.state.error) {
+      const chunkDesatualizado = ehErroChunkDesatualizado(this.state.error.message)
       return (
         <div style={{ padding: '2rem', color: '#f87171', background: '#1e293b', borderRadius: '8px', margin: '2rem' }}>
           <h2>Erro ao carregar: {this.props.name}</h2>
           <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem', marginTop: '1rem' }}>
             {this.state.error.message}
           </pre>
+          {chunkDesatualizado && (
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#cbd5e1' }}>
+              Uma nova versão foi publicada. Recarregue a página para continuar.
+            </p>
+          )}
         </div>
       )
     }
@@ -390,6 +407,8 @@ export default function App() {
         <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
         <Route path="/university-gravity/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><UniversityGravity /></React.Suspense></ProtectedRoute>} />
+        {/* TODO(preview-temp, 2026-07-11): rota só para conferência visual manual — remover após validar. */}
+        <Route path="/__preview-jornada-temp" element={<React.Suspense fallback={<ProductLoading />}><PreviewJornadaTemp /></React.Suspense>} />
 
         {/* Core — workspace selecionado */}
         {/* Index → Hub standalone (sem sidebar); sub-rotas → Core layout com sidebar */}

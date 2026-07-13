@@ -2897,3 +2897,438 @@ body.light-theme .cw-xml-viewer {
   background: #f8fafc;
   border-color: rgba(0, 0, 0, 0.08);
 }
+
+/* ── University: Jornada do Módulo (etapa atual pulsando) ── */
+@keyframes uniJornadaPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(129, 140, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
+}
+.uni-jornada-node--current { animation: uniJornadaPulse 2s infinite; }
+.uni-jornada-etapa { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+.uni-jornada-etapa--current:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -12px rgba(129, 140, 248, 0.55);
+}
+.uni-jornada-etapa--done:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -12px rgba(129, 140, 248, 0.35);
+}
+
+.uni-jornada-etapa-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.28rem 0.62rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+.uni-jornada-etapa-tag--done {
+  background: rgba(129, 140, 248, 0.28);
+  color: #c7d2fe;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+}
+
+.uni-jornada-etapa-tag--current {
+  background: rgba(148, 163, 184, 0.1);
+  color: #818cf8;
+  border: 1px solid #818cf8;
+}
+
+.uni-jornada-etapa-tag--blocked {
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--ws-muted, #94a3b8);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+/* ── University: Visão geral onboarding (direção 1B) ── */
+@keyframes uniDashboardOfensiva {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+.uni-dashboard-ofensiva-icone {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.2);
+  display: grid;
+  place-items: center;
+  animation: uniDashboardOfensiva 1.6s ease-in-out infinite;
+}
+
+/* ── University: Player de aula (Academy) — um único plano de fundo ── */
+.uni-academy-player {
+  background-color: #0a0d14;
+  background-image:
+    radial-gradient(ellipse 85% 65% at 0% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 75% 55% at 100% 100%, rgba(129, 140, 248, 0.14) 0%, transparent 52%),
+    radial-gradient(ellipse 100% 90% at 50% 42%, rgba(15, 23, 42, 0.25) 0%, transparent 65%),
+    linear-gradient(rgba(26, 30, 46, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 30, 46, 0.1) 1px, transparent 1px);
+  background-size: auto, auto, auto, 40px 40px, 40px 40px;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.uni-academy-player .mlg-sidebar,
+.uni-academy-player .ws-main,
+.uni-player-aula,
+.uni-player-aula__nav,
+.uni-player-aula__content {
+  background: transparent;
+}
+
+.uni-academy-player .mlg-sidebar {
+  border-right-color: rgba(26, 30, 46, 0.85);
+}
+
+.uni-academy-player .ws-main::before {
+  display: none;
+}
+
+.uni-player-aula {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.uni-player-aula__nav {
+  width: 420px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
+  border-right: 1px solid rgba(26, 30, 46, 0.85);
+}
+
+/* Voltar — paridade mtg-left__page-back (MenuTopoGlobal) */
+.uni-player-aula__voltar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 14px;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.uni-player-aula__voltar:hover {
+  color: var(--ws-text, #f1f5f9);
+}
+
+.uni-player-aula__voltar-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ws-muted, #94a3b8);
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.uni-player-aula__voltar:hover .uni-player-aula__voltar-icone {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(129, 140, 248, 0.09);
+  border-color: rgba(129, 140, 248, 0.2);
+}
+
+.uni-player-aula__content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+}
+
+.uni-player-aula__article {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 3.5rem 4rem;
+  box-sizing: border-box;
+  flex: 1;
+  color: var(--ws-text, #f1f5f9);
+}
+
+body.light-theme .uni-academy-player {
+  background: var(--ws-bg-body, #f1f5f9);
+}
+
+body.light-theme .uni-academy-player .mlg-sidebar,
+body.light-theme .uni-academy-player .ws-main,
+body.light-theme .uni-player-aula,
+body.light-theme .uni-player-aula__nav,
+body.light-theme .uni-player-aula__content {
+  background: transparent;
+}
+
+.uni-player-aula__footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.uni-player-aula__footer-btn:not(:disabled):hover {
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 4px 16px rgba(129, 140, 248, 0.14);
+  transform: translateY(-1px);
+}
+
+.uni-player-aula__footer-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.uni-player-aula__footer-btn--next {
+  justify-content: flex-end;
+}
+
+.uni-player-aula__footer-btn--primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 9999px;
+  padding: 11px 28px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.88rem;
+  background: #818cf8;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(167, 139, 250, 0.3);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.uni-player-aula__footer-btn--primary:hover {
+  background: #9299f9;
+  box-shadow: 0 6px 22px rgba(167, 139, 250, 0.48);
+  transform: translateY(-1px);
+}
+
+.uni-player-aula__footer-btn--primary.is-concluida {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  box-shadow: none;
+}
+
+.uni-player-aula__footer-btn--primary.is-concluida:hover {
+  background: rgba(129, 140, 248, 0.26);
+  box-shadow: 0 4px 16px rgba(129, 140, 248, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ── Academy: CTA manual complementar (fim da aula) ── */
+.uni-academy-manual-cta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-top: 2.25rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(167, 139, 250, 0.03) 48%, rgba(148, 163, 184, 0.02) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.16);
+  box-shadow: 0 4px 18px rgba(10, 13, 20, 0.22);
+}
+
+.uni-academy-manual-cta__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.18);
+  color: #94a3f8;
+}
+
+.uni-academy-manual-cta__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.uni-academy-manual-cta__titulo {
+  margin: 0 0 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ws-text, #e2e8f0);
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+}
+
+.uni-academy-manual-cta__desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--ws-muted, #94a3b8);
+  font-weight: 400;
+}
+
+.uni-academy-manual-cta__acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  background: rgba(129, 140, 248, 0.1);
+  color: #a5b4fc;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.uni-academy-manual-cta__acao:hover {
+  background: rgba(129, 140, 248, 0.16);
+  border-color: rgba(129, 140, 248, 0.32);
+  color: #c7d2fe;
+}
+
+/* ── Docs: voltar ao onboarding (sticky — visível após scroll à seção) ── */
+.uni-docs-voltar-academy {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  background: transparent;
+}
+
+/* ── Academy: seletor de capítulos (todos visíveis na jornada) ── */
+.uni-academy-capitulos-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.uni-academy-capitulos__titulo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ws-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+
+.uni-academy-capitulos__sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ws-muted, #94a3b8);
+  line-height: 1.45;
+}
+
+.uni-academy-capitulos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.uni-academy-capitulo-secao {
+  scroll-margin-top: 5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(148, 163, 184, 0.03);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.uni-academy-capitulo-secao.is-ativo {
+  border-color: rgba(129, 140, 248, 0.28);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.uni-academy-capitulos__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.15rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.62rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.uni-academy-capitulos__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.uni-academy-capitulos__item.is-ativo {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(129, 140, 248, 0.12);
+  color: #c7d2fe;
+}
+
+.uni-academy-capitulos__item.is-concluido:not(.is-ativo) {
+  border-color: rgba(52, 211, 153, 0.22);
+  color: #6ee7b7;
+}
+
+.uni-academy-capitulos__item:hover:not(.is-ativo) {
+  border-color: rgba(148, 163, 184, 0.28);
+  color: var(--ws-text, #e2e8f0);
+}
+
+.uni-academy-infografico {
+  margin: 0.25rem 0;
+}
+
+.uni-academy-infografico > div {
+  max-width: 100%;
+}
+
+/* ── University: ícones de status no menu lateral (disponível + concluído) ── */
+.uni-nav-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.uni-nav-status-icons__icone {
+  display: flex;
+  align-items: center;
+  line-height: 0;
+}

@@ -8,7 +8,6 @@ import {
   Anchor,
   Buildings,
   CaretDown,
-  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -465,7 +464,6 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                     onChange={alternarTodaConferencia}
                     aria-label={`Selecionar toda conferência — ${resumoConferencia.total} itens`}
                   />
-                  <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} aria-hidden />
                   <span>Selecionar toda conferência ({resumoConferencia.total})</span>
                 </label>
               )}

@@ -3,10 +3,22 @@
     "modulo_nome": "Gravity University",
     "nav": {
       "academy": "Onboarding",
+      "visao_geral": "Visión general",
       "minha_jornada": "Mi Recorrido",
       "docs": "Manuales",
       "builders": "Gravity Partner",
-      "produtos_gravity": "Productos Gravity"
+      "produtos_gravity": "Productos Gravity",
+      "modulos_plataforma": "Todos los productos Gravity"
+    },
+    "nav_status": {
+      "comprado_titulo": "Contratado",
+      "comprado_desc": "Módulo activo en su organización",
+      "nao_comprado_titulo": "No contratado",
+      "nao_comprado_desc": "Aún puede acceder y explorar el contenido",
+      "concluido_titulo": "Completado",
+      "concluido_desc": "Finalizó todo el onboarding de este ítem",
+      "nao_concluido_titulo": "Pendiente",
+      "nao_concluido_desc": "El onboarding aún no fue finalizado"
     },
     "academy": {
       "subtitulo": "Onboarding guiado por producto — rutas para Login, Configurador, Hub y los módulos contratados en su organización."
@@ -46,9 +58,13 @@
     },
     "aula": {
       "voltar": "Volver",
+      "voltar_onboarding": "Volver al onboarding",
       "marcar_concluida": "Marcar como completada",
       "inicio": "Inicio",
-      "fim": "Fin del módulo"
+      "fim": "Fin del módulo",
+      "manual_complemento_titulo": "¿Quieres profundizar? El manual tiene más detalle",
+      "manual_complemento_desc": "Esta sesión cubre lo esencial del onboarding. En el manual encontrarás referencias de pantalla, metadatos y contexto extra para consolidar lo aprendido. Abriremos la sección correspondiente.",
+      "manual_complemento_acao": "Abrir sección en el manual"
     },
     "grupo": {
       "comece_aqui": "Empieza aquí",
@@ -64,6 +80,28 @@
       "produtos_contratados": "Progreso en productos contratados",
       "concluidos": "completados"
     },
+    "capitulos": {
+      "titulo": "Capítulos de este producto",
+      "subtitulo": "Desplázate por la jornada o usa las píldoras para ir a cada bloque — todos los capítulos están listados abajo."
+    },
+    "dashboard": {
+      "titulo": "Tu onboarding",
+      "subtitulo": "Visión general de lo que ya hiciste, productos, métricas y recompensas",
+      "modulos_titulo": "Módulos contratados",
+      "etapas_progresso": "{{feitas}}/{{total}} etapas",
+      "continuar_titulo": "Continúa donde lo dejaste",
+      "continuar_jornada": "Continuar recorrido",
+      "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
+      "nivel_xp_faltam": "Nivel {{nivel}} · {{xp}} XP para subir",
+      "produtos_onboarding_concluido": "Productos con onboarding completado",
+      "manuais_lidos": "Manuales leídos",
+      "o_que_falta": "Lo que falta",
+      "iniciar": "Iniciar",
+      "nivel_ofensiva": "Nivel y racha",
+      "nivel_rotulo": "Nivel {{nivel}} · {{titulo}}",
+      "ofensiva_dias": "{{dias}} días de racha",
+      "badge_obtido": "obtenido"
+    },
     "dica": {
       "titulo": "Consejos y Explicaciones",
       "habilitadas": "Habilitadas — los consejos aparecen al pasar el cursor",
@@ -76,7 +114,19 @@
       "pontos": "Puntos",
       "concluidas": "Completadas",
       "em_andamento": "En curso",
-      "certificados": "Certificados"
+      "certificados": "Certificados",
+      "seu_progresso": "Tu progreso",
+      "recompensas": "Recompensas",
+      "ranking_modulo": "Ranking del módulo",
+      "ranking_geral": "Ranking general",
+      "concluir_etapa": "Completar etapa",
+      "continuar_etapa": "Continuar etapa",
+      "etapa_concluida": "Completada",
+      "etapa_bloqueada": "Bloqueada",
+      "tarefas_concluidas": "{{feitas}}/{{total}} tareas completadas",
+      "badge_iniciante": "Insignia Principiante",
+      "gravity_points": "Gravity Points",
+      "voce": "Tú"
     },
     "vazio": {
       "em_breve": "{{secao}} — próximamente"

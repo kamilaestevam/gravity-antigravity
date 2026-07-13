@@ -7,7 +7,7 @@ description: "Use em tarefas do BID Frete Internacional — entidade BID opciona
 
 > Produto: `bid-frete-internacional` · Porta: **8023** · Banco dedicado Railway  
 > Código: `servicos-global/produto/bid-frete-internacional/`  
-> Docs: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/` · Atlas DDD: `documentos-tecnicos/ddd-atlas/bid-frete/`  
+> Docs: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/` · Snapshot histórico (opcional): `documentos-tecnicos/ddd-atlas/bid-frete/` — **código vence** ([ADR-0004](../../../documentos-tecnicos/decisoes-arquiteturais/0004-ddd-legado-tolerado-sem-rename-massivo.md))  
 > **Nome de exibição (UI):** `BID Frete Internacional` — slug canônico de rota permanece `/bid-frete/*` e `product_key` `bid-frete`.
 
 ---
@@ -43,6 +43,19 @@ Ao **criar proposta**, copiar da cotação via `snapshotPropostaFromCotacao` (`s
 **Fonte da verdade do vínculo BID:** FK na **cotação**. O `id_bid` na proposta é snapshot (backfill na migration + preenchido na criação).
 
 Consumidores: `motor-bid-frete-internacional.ts`, `visao-fornecedor-bid-frete-internacional.ts`, `visao-fornecedor-bid-frete-internacional-publico.ts`.
+
+---
+
+## Tipo valor frete — modal Aéreo (cotação + proposta)
+
+Migration: `20260712194500_tipo_valor_frete_faixas_kgs_cotacao_proposta_bid_frete_internacional`
+
+| Tabela | Colunas | Enum Postgres |
+|--------|---------|---------------|
+| `cotacao_bid_frete_internacional` | `tipo_valor_frete_cotacao_bid_frete_internacional`, `faixas_valor_frete_kgs_cotacao_bid_frete_internacional` | `bid_frete_internacional_tipo_valor_frete` |
+| `proposta_bid_frete_internacional` | `tipo_valor_frete_proposta_bid_frete_internacional`, `faixas_valor_frete_kgs_proposta_bid_frete_internacional` | idem |
+
+Valores enum Prisma `BidFreteInternacionalTipoValorFrete`: `TOTAL` (Frete total) | `FAIXA_PESO` (Faixa de peso). Faixas JSON: fornecedor/comprador define limites livres (sem +45/+100 fixos). Unidade por linha: `BidFreteInternacionalUnidadeFaixaValorFreteKgs` (`KG` | `M3`). SSOT Zod: `shared/tipo-valor-frete-bid-frete-internacional.ts`.
 
 ---
 
@@ -146,7 +159,7 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 
 **Regra de cálculo por modal** (`calcularCubagemAutoDimensoesPorModalBidFreteInternacional`): AÉREO + unidade CM → `(C×L×A em cm) ÷ 6000` (fator IATA, `DIVISOR_PESO_CUBADO_AEREO_CM_BID`); marítimo/rodoviário (mesmo em CM) e aéreo em outra unidade → C×L×A em m³. Trocar o modal recalcula. Ao marcar cubagem detalhada, unidade vem pré-selecionada em **CM** (preferencial, não obrigatória).
 
-Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8 · Atlas `ddd-atlas/bid-frete/01-campos.md`
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §8 · Campos: `grep` em `fragment.prisma` + snapshot opcional `ddd-atlas/bid-frete/01-campos.md`
 
 ### Prazo para respostas (wizard passo Fornecedores — #654)
 
@@ -438,7 +451,7 @@ Schema: `prisma/fragment.prisma` → `node prisma/compose-schema.js` → `schema
 | GET/POST/PATCH/DELETE | `/api/v1/bid-frete-internacional/config/status-bid-frete-internacional` | `config-status-bid-frete-internacional.ts` |
 | GET | `/api/v1/bid-frete-internacional/cotacoes?apenas_avulsas=true` | `cotacoes.ts` |
 
-Demais rotas: ver `documentos-tecnicos/ddd-atlas/bid-frete/02-rotas-api.md`.
+Demais rotas: `grep` em `server/src/routes/` + snapshot opcional `documentos-tecnicos/ddd-atlas/bid-frete/02-rotas-api.md`.
 
 ---
 

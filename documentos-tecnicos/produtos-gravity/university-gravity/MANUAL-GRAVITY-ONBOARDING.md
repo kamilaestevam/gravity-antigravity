@@ -1,7 +1,9 @@
-# Gravity University — Padrão Editorial e Visual de Onboarding
+# Gravity University — Manual e Academy (padrão editorial)
 
-> Documento de referência obrigatório para a skill `/onboarding-documento`.
+> Documento de referência obrigatório para a skill `manual-gravity-onboarding`.
 > Define o catálogo de blocos, tom editorial, template de aula e processo de geração de conteúdo.
+>
+> **Escopo:** University (`/university-gravity/docs`, `/academy`) — **não** é o onboarding de produto (`/trial`, org/workspace).
 
 ---
 
@@ -326,7 +328,7 @@ assets/
 
 ---
 
-## 6. Workflow de Geração (para a skill `/onboarding-documento`)
+## 6. Workflow de Geração (para a skill `manual-gravity-onboarding`)
 
 ```
 1. PREPARAR   → Ler skill do produto alvo + este documento
@@ -555,3 +557,70 @@ Conteúdo em `manual-*-conteudo.ts`, callouts e parágrafos parseados por `Manua
 ```
 
 **SSOT no código:** `manual-tipografia.ts` (`MANUAL_MARKUP_*`); parser em `ManualTextoRichSegmento`; infográficos em `manual-infografico-rich-text.tsx` (`ManualInfograficoRichText`).
+
+---
+
+## 10. Duração de leitura (Academy)
+
+> **Regra obrigatória** para conteúdo e jornadas do Academy (`/university-gravity/academy/*`).
+> **Descoberta:** skill `skills/produtos-gravity/university-gravity/manual-gravity-onboarding/SKILL.md` (§ Duração de leitura) — **não** listada no boot `CLAUDE.md`; agente abre sob demanda ao editar arquivos/rota acima.
+
+### 10.1 O que o tempo representa
+
+| ✅ É | ❌ Não é |
+|------|---------|
+| Tempo de **leitura** no PlayerAula (texto + screenshots, scroll) | Tempo para **executar** o fluxo de verdade (preencher form, abrir e-mail, etc.) |
+| Estimativa **conservadora e enxuta** — usuário só lê | Duração de vídeo ou treinamento presencial |
+
+Se o manual diz *“leva poucos minutos”* na vida real, a aula **não** pode marcar 15–20 min só porque o fluxo tem muitos passos.
+
+### 10.2 Heurística por aula
+
+Contar a partir do conteúdo da seção (`DocSecao` / blocos da aula):
+
+```
+minutos ≈ 2 (base intro)
+        + 1 × (passos visuais com screenshot ou galeria)
+        + 0,5 × (callouts extras além do 1º por passo)
+```
+
+Arredondar para **inteiro** em passos de **1 minuto** (`2m`, `3m`, …). Aplicar **teto**:
+
+| Tipo de aula | Teto |
+|--------------|------|
+| Intro / 1 tela, pouco texto | **3m** |
+| Fluxo padrão (3–5 passos) | **6m** |
+| Fluxo longo (6–9 passos) | **10m** |
+| Fluxo muito longo (10+ passos) | **12m** (exceção; revisar se pode fatiar) |
+
+**Calibração (jun/2026):** se a heurística bruta ainda parecer alta para leitura passiva, multiplicar por **0,7** antes de arredondar (redução ~30%).
+
+### 10.3 Onde persistir (SSOT no código)
+
+| Artefato | Campo | Exemplo Login |
+|----------|-------|---------------|
+| `manual-{produto}-academy.ts` | array `*_DURACOES` | `LOGIN_DURACOES` |
+| Mesmo arquivo | `*_FASES_TRILHA` / `AULAS_*` | `duracao: LOGIN_DURACOES[i]` |
+| `UniversityGravity.tsx` | `TRILHAS_POR_PRODUTO[slug][0].duracao` | Soma das aulas → `'26m'` |
+
+**Formato:** sempre `'Nm'` (ex.: `'6m'`). Total do módulo = soma aritmética das aulas (ex.: 2+6+4+5+7+2 = **26m** → `duracao: '26m'`).
+
+### 10.4 Referência calibrada — Login (jun/2026)
+
+| Aula | Passos c/ screenshot | Duração |
+|------|---------------------|---------|
+| A tela de acesso | 1 | **2m** |
+| Fluxo 1: Criar sua conta | 8 | **6m** |
+| Fluxo 2: E-mail e senha | 4 | **4m** |
+| Fluxo 3: Recuperar senha | 7 | **5m** |
+| Fluxo 4: Convite | 9 | **7m** |
+| Entrar com Google | 3 | **2m** |
+| **Total módulo** | 6 aulas | **26m** |
+
+### 10.5 Checklist do agente
+
+- [ ] Contei passos/callouts da seção antes de chutar minutos?
+- [ ] Tempo reflete **leitura**, não execução hands-on?
+- [ ] Atualizei `*_DURACOES` **e** `TRILHAS_POR_PRODUTO.*.duracao` (soma)?
+- [ ] Total do módulo ficou coerente (< ~45 min para módulos estilo Login)?
+

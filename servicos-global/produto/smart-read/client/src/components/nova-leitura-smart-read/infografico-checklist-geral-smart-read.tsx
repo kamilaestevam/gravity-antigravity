@@ -8,8 +8,6 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { ResumoGeralChecklistInvoices, ResumoInvoiceChecklist } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
-import { GraficoConferenciaCheckedSmartRead } from './grafico-conferencia-checked-smart-read'
-import type { ResumoConferenciaManualChecklist } from '../../shared/checklist-marcacao-usuario-smart-read'
 
 type OpcaoInvoiceChecklist = {
   valor: string
@@ -20,13 +18,14 @@ type Props = {
   resumo: ResumoGeralChecklistInvoices
   onSelecionarInvoice?: (rotulo: string) => void
   documentoDestaque?: ResumoInvoiceChecklist | null
+  /** Prévia local ou enriquecimento IA ainda em andamento */
+  emAnalise?: boolean
   selecaoInvoice?: {
     id: string
     opcoes: OpcaoInvoiceChecklist[]
     valor: string | null
     aoMudarValor: (valor: string | null) => void
   }
-  conferenciaManual?: ResumoConferenciaManualChecklist | null
   children?: ReactNode
 }
 
@@ -46,20 +45,19 @@ function classeVeredito(veredito: string): string {
 export function InfograficoChecklistGeralSmartRead({
   resumo,
   onSelecionarInvoice,
-  documentoDestaque = null,
+  documentoDestaque: _documentoDestaque = null,
+  emAnalise = false,
   selecaoInvoice,
-  conferenciaManual,
   children,
 }: Props) {
   const { contagem_global, por_invoice, por_secao, total_invoices } = resumo
-  const cardsVisiveis =
-    children && documentoDestaque ? [documentoDestaque] : por_invoice
   const rotuloAtivo = selecaoInvoice?.valor ?? null
+  const modoCompacto = Boolean(children) || por_invoice.length > 1
 
   const metricasLinhas = (
     <div className="sr-chk-info-metrica-linhas">
       <div className="sr-chk-info-metrica-linha-texto">
-        <span className="sr-chk-info-metrica-linha-rotulo">Invoices analisadas</span>
+        <span className="sr-chk-info-metrica-linha-rotulo">Documentos analisados</span>
         <strong>{total_invoices}</strong>
       </div>
       <div className="sr-chk-info-metrica-linha-texto">
@@ -75,57 +73,64 @@ export function InfograficoChecklistGeralSmartRead({
         <div className="sr-chk-info-card-unificado-corpo">
           <div className="sr-chk-info-card-unificado-dir">
             <div className="sr-chk-info-topo-dir">
-              <div className="sr-chk-info-invoice-topo-esq">
-                {cardsVisiveis.length !== 1 ? metricasLinhas : null}
-                {cardsVisiveis.map((inv) => (
-                  <button
-                    key={inv.rotulo}
-                    type="button"
-                    className={`sr-chk-info-invoice-card sr-chk-info-invoice-card--interno sr-chk-info-invoice-card--destaque${rotuloAtivo === inv.rotulo ? ' sr-chk-info-invoice-card--ativo' : ''}`}
-                    onClick={() => onSelecionarInvoice?.(inv.rotulo)}
-                  >
-                    <div className="sr-chk-info-invoice-card-topo">
-                      <strong className="sr-chk-info-invoice-nome" title={inv.rotulo}>
-                        {inv.numero_invoice ?? inv.tipo_documento ?? inv.nome_arquivo}
-                      </strong>
-                      <span className={`sr-chk-info-veredito ${classeVeredito(inv.veredito)}`}>
-                        {inv.veredito}
-                      </span>
-                    </div>
-                    <span className="sr-chk-info-invoice-arquivo">{inv.nome_arquivo}</span>
-                    {cardsVisiveis.length === 1 ? metricasLinhas : null}
-                    <div className="sr-chk-info-invoice-pct">{inv.percentual_conforme}% conforme</div>
-                    <BarraStatusChecklistSmartRead
-                      verde={inv.contagem.verde}
-                      amarelo={inv.contagem.amarelo}
-                      vermelho={inv.contagem.vermelho}
-                      pendente={inv.contagem.pendente}
-                      na={inv.contagem.na}
-                      total={inv.contagem.total}
-                    />
-                  </button>
-                ))}
+              <div className="sr-chk-info-invoice-topo-esq sr-chk-info-invoice-topo-esq--grid">
+                {metricasLinhas}
+                <div className="sr-chk-info-invoices-linha sr-chk-info-invoices-linha--cards">
+                  <div className="sr-chk-info-invoices-grid">
+                    {por_invoice.map((inv) => (
+                      <button
+                        key={inv.rotulo}
+                        type="button"
+                        className={[
+                          'sr-chk-info-invoice-card',
+                          'sr-chk-info-invoice-card--interno',
+                          !modoCompacto ? 'sr-chk-info-invoice-card--destaque' : '',
+                          rotuloAtivo === inv.rotulo ? 'sr-chk-info-invoice-card--ativo' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                        onClick={() => onSelecionarInvoice?.(inv.rotulo)}
+                      >
+                        <div className="sr-chk-info-invoice-card-topo">
+                          <strong className="sr-chk-info-invoice-nome" title={inv.rotulo}>
+                            {inv.numero_invoice ?? inv.tipo_documento ?? inv.nome_arquivo}
+                          </strong>
+                          <span className={`sr-chk-info-veredito ${classeVeredito(inv.veredito)}`}>
+                            {inv.veredito}
+                          </span>
+                        </div>
+                        <span className="sr-chk-info-invoice-arquivo">{inv.nome_arquivo}</span>
+                        <div className="sr-chk-info-invoice-pct">{inv.percentual_conforme}% conforme</div>
+                        <BarraStatusChecklistSmartRead
+                          verde={inv.contagem.verde}
+                          amarelo={inv.contagem.amarelo}
+                          vermelho={inv.contagem.vermelho}
+                          pendente={inv.contagem.pendente}
+                          na={inv.contagem.na}
+                          total={inv.contagem.total}
+                          emAnalise={emAnalise}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-
-              {conferenciaManual && conferenciaManual.total > 0 ? (
-                <GraficoConferenciaCheckedSmartRead
-                  resumo={conferenciaManual}
-                  classe="sr-chk-info-grafico-conferido"
-                />
-              ) : null}
 
               {selecaoInvoice ? (
                 <div className="sr-chk-info-invoice-select-centro">
                   <SelectGlobal
                     id={selecaoInvoice.id}
+                    label="Documento"
                     opcoes={selecaoInvoice.opcoes}
                     valor={selecaoInvoice.valor}
                     aoMudarValor={(v) =>
                       selecaoInvoice.aoMudarValor(v == null ? null : String(v))
                     }
                     buscavel
+                    tamanho="compacto"
                     placeholder="Selecione o documento…"
                     posicao="baixo"
+                    aria-label="Selecionar documento do checklist"
                   />
                 </div>
               ) : null}
@@ -172,6 +177,7 @@ export function InfograficoChecklistGeralSmartRead({
                       pendente={sec.pendente}
                       na={sec.na}
                       total={sec.total}
+                      emAnalise={emAnalise}
                     />
                   </li>
                 ))}

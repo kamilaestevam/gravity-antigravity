@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   CaretDown,
   CaretRight,
-  Check,
   CircleNotch,
   MagnifyingGlass,
   Warning,
@@ -24,7 +23,8 @@ import {
   obterCacheAnaliseRiscosSessaoSmartRead,
   salvarCacheAnaliseRiscosSessaoSmartRead,
 } from '../../shared/cache-analise-riscos-sessao-smart-read'
-import { obterRequisicaoAnaliseRiscosEmVooSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
+import { persistirCacheAnaliseRiscosProgressoSmartRead } from '../../shared/persistencia-leitura-smart-read'
+import { obterRequisicaoAnaliseRiscosEmVooSmartRead, obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead, dispararAnaliseRiscosBackgroundSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
 import { PainelDetalheRiscoExpandidoNovaLeituraSmartRead } from './painel-detalhe-risco-expandido-nova-leitura-smart-read'
@@ -33,11 +33,9 @@ import type {
   RiscoAduaneiroLeitura,
   SeveridadeRiscoAduaneiro,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
-import { AcoesCorrecaoRiscoNovaLeituraSmartRead } from './acoes-correcao-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import {
   chaveRiscoConferenciaUsuario,
-  usarChecklistMarcacaoUsuario,
   usarRiscosMarcacaoConferencia,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
@@ -93,21 +91,17 @@ function ItemListaRisco({
   risco: riscoBruto,
   numero,
   expandido,
-  selecionado,
   conferido,
   onAlternarConferido,
   onToggleExpandir,
-  onToggleSelecao,
   children,
 }: {
   risco: RiscoAduaneiroLeitura
   numero: number
   expandido: boolean
-  selecionado: boolean
   conferido: boolean
   onAlternarConferido: () => void
   onToggleExpandir: (risco: RiscoAduaneiroLeitura) => void
-  onToggleSelecao: (id: string) => void
   children?: ReactNode
 }) {
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
@@ -115,7 +109,7 @@ function ItemListaRisco({
   return (
     <section
       id={`sr-risco-${risco.id}`}
-      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${selecionado ? ' sr-conf-risco-item-lista--selecionado' : ''}${conferido ? ' sr-conf-risco-item-lista--conferido' : ''}`}
+      className={`dt-secao sr-conf-risco-item-lista${expandido ? ' sr-conf-risco-item-lista--expandido' : ' dt-secao--colapsada'}${conferido ? ' sr-conf-risco-item-lista--conferido' : ''}`}
     >
       <div className="dt-secao-header sr-conf-risco-item-lista-cabecalho">
         <button
@@ -211,7 +205,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const [erro, setErro] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
-  const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
   const [regrasContexto, setRegrasContexto] = useState<RegraAuditoriaV1[]>([])
   const [pipelineConcluido, setPipelineConcluido] = useState(false)
   const [llmHabilitado, setLlmHabilitado] = useState(false)
@@ -239,7 +232,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const chaveDocumento = `${arquivoConferencia?.id_arquivo_local ?? ''}:${indiceDocumentoConferencia}`
 
   useEffect(() => {
-    setRiscosSelecionados(new Set())
     setRiscoExpandidoId(null)
     setBusca('')
   }, [chaveDocumento])
@@ -261,10 +253,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       `${idLeituraLegado ?? ''}|${documentos.map((d) => `${d.nome_arquivo}:${d.indice}:${d.tipo_documento}`).join('|')}`,
     [documentos, idLeituraLegado],
   )
-
-  // Mesma chave/prefixo do modal de checklist — marcação sincronizada nas duas visões
-  const { estaMarcado: itemChecklistMarcado, alternarMarcado: alternarItemChecklist } =
-    usarChecklistMarcacaoUsuario(chaveAnalise)
 
   const auditoriaV1Local = useMemo(
     () =>
@@ -294,33 +282,39 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     return v1
   }, [resumo, auditoriaV1Local])
 
-  const parametrosChecklist = useMemo(
-    () => ({
+  const parametrosChecklist = useMemo(() => {
+    const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
+    const carregandoEfetivo =
+      carregando || Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise))
+    const v1Disponivel = Boolean(auditoriaV1Local?.contexto.regras.length)
+    return {
       regras: regrasEfetivas,
       riscos: riscosEfetivos,
-      pipelineConcluido,
+      pipelineConcluido: pipelineConcluido || v1Disponivel,
       llmHabilitado,
-      carregando,
+      carregando: carregandoEfetivo,
+      analise_servidor_indisponivel: Boolean(erro) && (pipelineConcluido || v1Disponivel) && !carregandoEfetivo,
+      enriquecimento_ia_em_andamento: carregandoEfetivo && !emCache?.llm_ativo,
+      fase_enriquecimento_analise: obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead(chaveAnalise),
+      cnpj_oficial: emCache?.contexto_v1.cnpj_oficial ?? null,
       documentos,
-    }),
-    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos],
-  )
+    }
+  }, [
+    regrasEfetivas,
+    riscosEfetivos,
+    pipelineConcluido,
+    llmHabilitado,
+    carregando,
+    documentos,
+    erro,
+    chaveAnalise,
+    auditoriaV1Local,
+  ])
 
   const riscosVisiveis = useMemo(
     () => filtrarRiscosPorBusca(riscosEfetivos, busca),
     [riscosEfetivos, busca],
   )
-
-  const riscosSelecionadosLista = useMemo(
-    () =>
-      riscosEfetivos
-        .filter((r) => riscosSelecionados.has(r.id))
-        .map(aplicarCorrecaoSugeridaPadraoRisco),
-    [riscosEfetivos, riscosSelecionados],
-  )
-
-  const todosVisiveisSelecionados =
-    riscosVisiveis.length > 0 && riscosVisiveis.every((r) => riscosSelecionados.has(r.id))
 
   const chavesRiscosVisiveis = useMemo(
     () => riscosVisiveis.map((risco) => chaveRiscoConferenciaUsuario(risco.id)),
@@ -330,27 +324,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const todosRiscosVisiveisConferidos =
     chavesRiscosVisiveis.length > 0 &&
     chavesRiscosVisiveis.every((chave) => riscoEstaConferido(chave))
-
-  function toggleSelecaoRisco(id: string) {
-    setRiscosSelecionados((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  function toggleSelecionarTodosVisiveis() {
-    setRiscosSelecionados((prev) => {
-      const next = new Set(prev)
-      if (todosVisiveisSelecionados) {
-        for (const r of riscosVisiveis) next.delete(r.id)
-      } else {
-        for (const r of riscosVisiveis) next.add(r.id)
-      }
-      return next
-    })
-  }
 
   const numeracaoRiscos = useMemo(() => {
     const mapa = new Map<string, number>()
@@ -362,6 +335,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     resposta: Awaited<ReturnType<typeof smartReadApi.analisarRiscosLeitura>>,
   ) {
     salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
+    if (idLeituraLegado) {
+      void persistirCacheAnaliseRiscosProgressoSmartRead(idLeituraLegado, chaveAnalise, resposta)
+    }
     setResumo(resposta.resumo)
     setRegrasContexto(resposta.contexto_v1.regras)
     setLlmHabilitado(resposta.llm_ativo)
@@ -374,45 +350,42 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     if (documentos.length === 0) return
 
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
-    if (emCache) {
+    if (emCache?.llm_ativo) {
       aplicarRespostaAnaliseRiscos(emCache)
       setCarregando(false)
       return
     }
 
-    const emVoo = obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise)
-    const seq = ++requisicaoSeq.current
+    if (emCache) {
+      aplicarRespostaAnaliseRiscos(emCache)
+    }
+
+    // Se já há requisição em voo, o disparo abaixo deduplica e anexa onConcluido à
+    // promessa existente — o retorno antecipado deixava a prévia sem resultado final.
     setCarregando(true)
     setErro(null)
     setAviso(null)
-    setPipelineConcluido(false)
+    if (!emCache) setPipelineConcluido(false)
     onIaInicio?.()
 
-    const promessa =
-      emVoo ??
-      smartReadApi.analisarRiscosLeitura({
-        documentos,
-        incluir_llm: true,
-        id_leitura_legado: idLeituraLegado ?? undefined,
-      })
-
-    promessa
-      .then((resposta) => {
-        if (requisicaoSeq.current !== seq) return
+    dispararAnaliseRiscosBackgroundSmartRead({
+      arquivos: arquivosAnalisaveis,
+      idLeituraLegado: idLeituraLegado ?? null,
+      onParcial: (resposta) => aplicarRespostaAnaliseRiscos(resposta),
+      onTokensAtualizados: onTokensAtualizados,
+      onConcluido: (resposta) => {
         aplicarRespostaAnaliseRiscos(resposta)
-      })
-      .catch((ex: unknown) => {
-        if (requisicaoSeq.current !== seq) return
+        setCarregando(false)
+        onIaFim?.()
+      },
+      onErro: (ex: unknown) => {
         setErro(ex instanceof Error ? ex.message : 'Falha na análise de riscos')
         setPipelineConcluido(!!auditoriaV1Local)
-      })
-      .finally(() => {
-        if (requisicaoSeq.current === seq) {
-          setCarregando(false)
-          onIaFim?.()
-        }
-      })
-  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, onIaInicio, onIaFim])
+        setCarregando(false)
+        onIaFim?.()
+      },
+    })
+  }, [arquivosAnalisaveis, chaveAnalise, documentos.length, idLeituraLegado, onIaFim, onIaInicio, onTokensAtualizados])
 
   function toggleExpandirRisco(risco: RiscoAduaneiroLeitura) {
     setRiscoExpandidoId((prev) => (prev === risco.id ? null : risco.id))
@@ -442,10 +415,19 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         </div>
       )}
 
-      {carregando && (
+      {carregando && !parametrosChecklist.pipelineConcluido && (
         <p className="sr-conf-riscos-carregando" role="status">
           <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
-          {resumoExibicao.total > 0 ? 'Enriquecendo com IA e validação NCM…' : 'Analisando documentos…'}
+          Analisando documentos…
+        </p>
+      )}
+
+      {carregando && parametrosChecklist.pipelineConcluido && (
+        <p className="sr-conf-riscos-carregando" role="status">
+          <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
+          {resumoExibicao.total > 0
+            ? 'Enriquecendo com IA e validação NCM…'
+            : 'Enriquecendo com IA…'}
         </p>
       )}
 
@@ -491,7 +473,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         <div className="sr-conf-riscos-cabecalho-rodape">
           {riscosVisiveis.length > 0 && (
             <>
-              <label className="sr-conf-riscos-conferir-todos">
+              <label className="dt-main-toolbar-btn sr-conf-toolbar-selecionar-conferencia">
                 <input
                   type="checkbox"
                   className="sr-conf-chk-checkbox"
@@ -504,24 +486,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                   }
                   aria-label="Conferir todos os riscos visíveis"
                 />
-                <span className="sr-conf-riscos-conferir-todos-icone" aria-hidden>
-                  <Check size={12} weight={todosRiscosVisiveisConferidos ? 'bold' : 'regular'} />
-                </span>
                 <span>Conferir todos ({riscosVisiveis.length})</span>
               </label>
-              <label className="sr-conf-riscos-selecionar-compacto">
-                <input
-                  type="checkbox"
-                  checked={todosVisiveisSelecionados}
-                  onChange={toggleSelecionarTodosVisiveis}
-                  aria-label="Selecionar riscos visíveis para gerar email"
-                />
-                <span>Gerar email ({riscosVisiveis.length})</span>
-              </label>
             </>
-          )}
-          {riscosSelecionadosLista.length > 0 && (
-            <AcoesCorrecaoRiscoNovaLeituraSmartRead riscos={riscosSelecionadosLista} />
           )}
           <span className="sr-conf-riscos-disclaimer-compacto">
             V1 + IA + NCM — apoio à conferência
@@ -562,14 +529,12 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                 <ItemListaRisco
                   key={risco.id}
                   risco={risco}
-                  selecionado={riscosSelecionados.has(risco.id)}
                   conferido={riscoEstaConferido(chaveRiscoConferenciaUsuario(risco.id))}
                   onAlternarConferido={() =>
                     alternarRiscoConferido(chaveRiscoConferenciaUsuario(risco.id))
                   }
                   expandido={expandido}
                   onToggleExpandir={toggleExpandirRisco}
-                  onToggleSelecao={toggleSelecaoRisco}
                   numero={numeracaoRiscos.get(risco.id) ?? 0}
                 >
                   {expandido ? (
@@ -581,8 +546,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                       onVerEvidencia={onVerEvidencia}
                       onIrConferenciaCampos={onIrConferenciaCampos}
                       aguardandoClassificacao={carregando}
-                      estaMarcadoChecklist={itemChecklistMarcado}
-                      alternarMarcadoChecklist={alternarItemChecklist}
                     />
                   ) : null}
                 </ItemListaRisco>

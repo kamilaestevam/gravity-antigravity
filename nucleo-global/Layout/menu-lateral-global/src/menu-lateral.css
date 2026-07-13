@@ -619,6 +619,15 @@
   border-top: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.15));
 }
 
+/* Submenu: títulos longos em uma linha (ex.: Gravity University) */
+.mlg-submenu .mlg-nav-section-label {
+  white-space: nowrap;
+  font-size: 0.5625rem;
+  letter-spacing: 0.035em;
+  padding-left: 0.5rem;
+  padding-right: 0.25rem;
+}
+
 /* Separador vertical (usado no modo collapsed) */
 .mlg-nav-spacer {
   height: 1px;
@@ -736,6 +745,19 @@
   gap: 1px;
   min-width: 0;
   flex: 1;
+}
+
+.mlg-nav-trailing {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  padding-left: 0.25rem;
+}
+
+.mlg-submenu-item .mlg-nav-trailing {
+  gap: 0.2rem;
 }
 
 .mlg-nav-content .mlg-nav-text {

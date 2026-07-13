@@ -1,14 +1,14 @@
 /**
  * SSOT — ritmo vertical e alinhamento dos manuais University Gravity (Login, Hub, Configurador…).
  *
- * Documentação: documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md §9.1.1, §9.1.2 e §9.7
+ * Documentação: documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md §9.1.1, §9.1.2 e §9.7
  *
  * Com font-size 0.9rem e line-height 1.8, 12px entre parágrafos ≈ 0,75 linha:
  * separa ideias sem “buraco” excessivo (evita 18–24px ad hoc espalhados no código).
  */
 export const MANUAL_ESPACO_PARAGRAFO_PX = 12
 
-/** Marcação rich text — ver ONBOARDING-DOCUMENTO.md §9.7 e skill manual-markdown-rich-text */
+/** Marcação rich text — ver MANUAL-GRAVITY-ONBOARDING.md §9.7 e skill manual-markdown-rich-text */
 export const MANUAL_MARKUP_NEGRITO_BOTAO = '**'
 /** Frase literal da UI (link, checkbox, placeholder, modal) — itálico semi-negrito no render */
 export const MANUAL_MARKUP_ITALICO_LITERAL_UI = '*_'

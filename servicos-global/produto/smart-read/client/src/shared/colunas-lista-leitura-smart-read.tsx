@@ -1,5 +1,5 @@
 import type { GTColuna, GTMapaColunasFilho, GTTipo } from '@nucleo/tabela-virtual-global'
-import { PillStatusLeitura } from '../components/pill-status-leitura-smart-read'
+import { PillStatusFluxoLeitura } from '../components/pill-status-fluxo-leitura-smart-read'
 import {
   CATALOGO_COLUNAS_DOCUMENTO_SMART_READ,
 } from './catalogo-colunas-documento-smart-read'
@@ -10,6 +10,10 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from './formatacao-leitura-smart-read'
+import {
+  ROTULO_STATUS_FLUXO_LEITURA,
+  derivarStatusFluxoLeitura,
+} from '../../../shared/status-fluxo-leitura-smart-read'
 import type { DocumentoLeituraLista } from './montar-documentos-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
 
@@ -18,7 +22,7 @@ export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
   'nome_leitura',
   'tipos_documento',
   'numeros_documento',
-  'status_leitura',
+  'status_fluxo_leitura',
   'total_arquivos',
   'total_documentos',
   'total_campos_extraidos',
@@ -119,13 +123,13 @@ export function criarColunasListaLeituraSmartRead(
       findDisplay: () => '',
     },
     {
-      key: 'status_leitura',
+      key: 'status_fluxo_leitura',
       label: 'Status',
       filtravel: true,
       sortavel: false,
       ...COLUNA_SOMENTE_LEITURA,
-      render: (_valor, item) => <PillStatusLeitura status={item.status_leitura} />,
-      findDisplay: (item) => item.status_leitura,
+      render: (_valor, item) => <PillStatusFluxoLeitura status={item.status_fluxo_leitura} />,
+      findDisplay: (item) => ROTULO_STATUS_FLUXO_LEITURA[item.status_fluxo_leitura],
     },
     {
       key: 'total_arquivos',
@@ -262,9 +266,13 @@ export function criarMapaColunasDocumentoLeitura(
         </button>
       ),
     },
-    status_leitura: {
+    status_fluxo_leitura: {
       ...MAPA_FILHO_SOMENTE_LEITURA,
-      render: (item) => <PillStatusLeitura status={item.status_documento} />,
+      render: (item) => (
+        <PillStatusFluxoLeitura
+          status={derivarStatusFluxoLeitura({ status_leitura: item.status_documento })}
+        />
+      ),
     },
     total_arquivos: {
       ...MAPA_FILHO_SOMENTE_LEITURA,
@@ -330,8 +338,8 @@ export function formatarValorExportColunaLeituraSmartRead(
   switch (key) {
     case 'nome_leitura':
       return item.nome_leitura ?? item.nome_arquivo ?? item.id_leitura
-    case 'status_leitura':
-      return item.status_leitura
+    case 'status_fluxo_leitura':
+      return ROTULO_STATUS_FLUXO_LEITURA[item.status_fluxo_leitura]
     case 'total_arquivos':
       return String(item.total_arquivos)
     case 'media_acertos':

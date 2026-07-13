@@ -7,9 +7,13 @@
 import { z } from 'zod'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import { mesclarDadosExtracaoLegado } from '../../../shared/mesclar-dados-extracao-legado-smart-read.js'
+import { StatusFluxoLeituraEnum } from '../../../shared/status-fluxo-leitura-smart-read.js'
 
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
+
+export { StatusFluxoLeituraEnum }
+export type StatusFluxoLeitura = z.infer<typeof StatusFluxoLeituraEnum>
 
 export const ResultadoProcessamentoLegadoSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
@@ -106,6 +110,10 @@ export const TransacaoLeituraSchema = z.object({
   id_leitura: z.string(),
   nome_leitura: z.string().nullable(),
   status_leitura: StatusLeituraEnum,
+  /** Fluxo Gravity (Lista). Independente de status_leitura DATI. */
+  status_fluxo_leitura: StatusFluxoLeituraEnum,
+  /** Passo wizard 1–4 quando conhecido (progresso); null se só legado. */
+  passo_atual_leitura: z.number().int().min(1).max(4).nullable(),
   total_arquivos: z.number(),
   media_acertos: z.number().nullable(),
   data_envio: z.string().nullable(),

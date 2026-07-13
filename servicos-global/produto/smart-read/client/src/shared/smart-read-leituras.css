@@ -520,6 +520,14 @@ body.light-theme .sr-linha-documento {
 .sr-pill-completed { background: rgba(52, 211, 153, 0.15); color: #34d399; }
 .sr-pill-failed { background: rgba(248, 113, 113, 0.15); color: #f87171; }
 
+.sr-pill-fluxo-anexar { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.sr-pill-fluxo-analise { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
+.sr-pill-fluxo-conferencia { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+.sr-pill-fluxo-resultado { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.sr-pill-fluxo-em-integracao { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.sr-pill-fluxo-integracao-confirmada { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+.sr-pill-fluxo-falhou { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+
 .sr-paginacao {
   display: flex;
   align-items: center;

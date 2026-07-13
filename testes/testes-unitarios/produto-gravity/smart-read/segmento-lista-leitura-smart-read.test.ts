@@ -10,6 +10,8 @@ function transacao(origem: 'API' | 'INTERFACE'): TransacaoLeitura {
     id_leitura: `id-${origem}`,
     nome_leitura: 'Teste',
     status_leitura: 'COMPLETED',
+    status_fluxo_leitura: 'RESULTADO_LEITURAS',
+    passo_atual_leitura: 4,
     total_arquivos: 1,
     media_acertos: 0.9,
     data_envio: '2026-06-23T12:00:00.000Z',

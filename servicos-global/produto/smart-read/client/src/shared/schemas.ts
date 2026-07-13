@@ -5,10 +5,14 @@
  */
 
 import { z } from 'zod'
+import { StatusFluxoLeituraEnum } from '../../../shared/status-fluxo-leitura-smart-read'
 import { AnaliseRiscosCacheProgressoLeituraSchema } from '../../../shared/analise-riscos-cache-progresso-smart-read.js'
 
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
+
+export { StatusFluxoLeituraEnum }
+export type StatusFluxoLeitura = z.infer<typeof StatusFluxoLeituraEnum>
 
 export const ItemResultadoExtracaoLeituraSchema = z.object({
   tipo_documento: z.string().nullable(),
@@ -70,6 +74,8 @@ export const TransacaoLeituraSchema = z.object({
   id_leitura: z.string(),
   nome_leitura: z.string().nullable(),
   status_leitura: StatusLeituraEnum,
+  status_fluxo_leitura: StatusFluxoLeituraEnum,
+  passo_atual_leitura: z.number().int().min(1).max(4).nullable(),
   total_arquivos: z.number(),
   media_acertos: z.number().nullable(),
   data_envio: z.string().nullable(),

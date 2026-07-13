@@ -227,6 +227,7 @@ export function ModalNovaLeituraSmartRead({
   const urlsBlob = useRef<Map<string, string>>(new Map())
   const abertoAnteriorRef = useRef(false)
   const passoSalvoRef = useRef(0)
+  const hidratandoRetomarRef = useRef(false)
   const inicioSessaoRef = useRef<number>(Date.now())
 
   useEffect(() => {
@@ -278,6 +279,8 @@ export function ModalNovaLeituraSmartRead({
 
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
+      hidratandoRetomarRef.current = true
+      try {
       const salvo = await carregarProgressoLeituraSmartRead(id)
       hidratarCacheAnaliseRiscosDeProgresso(salvo)
       if (import.meta.env.DEV) {
@@ -317,6 +320,9 @@ export function ModalNovaLeituraSmartRead({
         setArquivos([])
         setPasso(1)
       }
+      } finally {
+        hidratandoRetomarRef.current = false
+      }
     },
     [aplicarLeituraHidratada],
   )
@@ -338,6 +344,9 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
         setArquivos([])
+        if (passoPlaceholderRetomar >= 2) {
+          passoSalvoRef.current = passoPlaceholderRetomar
+        }
         setPasso(passoPlaceholderRetomar)
         void hidratarLeituraExistente(idLeituraExistente)
       } else {
@@ -420,6 +429,7 @@ export function ModalNovaLeituraSmartRead({
     async (passoAlvo: number = passo, nomeOverride?: string): Promise<boolean> => {
       const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
       if (!idLeitura || passoAlvo < 2 || !todosArquivosAnaliseCompleta(arquivos)) return false
+      if (passoSalvoRef.current >= 3 && passoAlvo < passoSalvoRef.current) return false
       const leituraBase = consolidarLeituraDeArquivosLocais(arquivos)
       if (!leituraBase) return false
       const nomeEfetivo = (nomeOverride ?? nomeLeitura).trim() || nomeLeitura
@@ -437,7 +447,7 @@ export function ModalNovaLeituraSmartRead({
 
   // Salva quando a análise termina (passo 2) ou ao mudar de passo com documento lido.
   useEffect(() => {
-    if (!aberto || passo < 2 || !analiseCompleta) return
+    if (!aberto || passo < 2 || !analiseCompleta || hidratandoRetomarRef.current) return
     void salvarProgressoAtual(passo)
   }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
 

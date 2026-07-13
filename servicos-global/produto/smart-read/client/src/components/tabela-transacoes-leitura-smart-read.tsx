@@ -121,6 +121,7 @@ export function TabelaTransacoesLeituraSmartRead({
   const [modalNovaLeituraAberto, setModalNovaLeituraAberto] = useState(false)
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
+  const [passoRetomarLista, setPassoRetomarLista] = useState<number | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const origemPedido = searchParams.get('origem') === 'pedido'
@@ -219,19 +220,33 @@ export function TabelaTransacoesLeituraSmartRead({
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
-  const abrirLeituraExistente = useCallback((idLeitura: string) => {
+  const abrirLeituraExistente = useCallback((idLeitura: string, passoAtual: number | null = null) => {
     setArquivosNovaLeitura([])
     setIdLeituraExistente(idLeitura)
+    setPassoRetomarLista(passoAtual)
     setModalNovaLeituraAberto(true)
   }, [])
 
-  const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead((item) => abrirLeituraExistente(item.id_leitura)),
+  const abrirLeituraDaTransacao = useCallback(
+    (item: TransacaoLeitura) => abrirLeituraExistente(item.id_leitura, item.passo_atual_leitura),
     [abrirLeituraExistente],
   )
+
+  const abrirLeituraDoDocumento = useCallback(
+    (item: DocumentoLeituraLista) => {
+      const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
+      abrirLeituraExistente(item.id_leitura, pai?.passo_atual_leitura ?? null)
+    },
+    [abrirLeituraExistente, transacoes],
+  )
+
+  const colunas = useMemo(
+    () => criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
+    [abrirLeituraDaTransacao],
+  )
   const mapaColunasFilho = useMemo(
-    () => criarMapaColunasDocumentoLeitura((item) => abrirLeituraExistente(item.id_leitura)),
-    [abrirLeituraExistente],
+    () => criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
+    [abrirLeituraDoDocumento],
   )
 
   const transacoesFiltradas = useMemo(
@@ -560,11 +575,13 @@ export function TabelaTransacoesLeituraSmartRead({
         aberto={modalNovaLeituraAberto}
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
+        passoRetomarLista={passoRetomarLista}
         origemPedido={origemPedido}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])
           setIdLeituraExistente(null)
+          setPassoRetomarLista(null)
           void onRecarregar()
         }}
         onConcluido={() => void onRecarregar()}

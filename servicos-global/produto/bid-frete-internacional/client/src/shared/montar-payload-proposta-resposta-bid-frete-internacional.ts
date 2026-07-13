@@ -1,4 +1,5 @@
 import type { ModalFrete, ModalidadeCarga } from './types'
+import type { TipoValorFreteBidFreteInternacional } from '../../../shared/tipo-valor-frete-bid-frete-internacional'
 import { exigeArmazenagemFornecedorRespostaCotacao } from './armazenagem-lcl-maritimo-bid-frete-internacional'
 import {
   exibeCampoEscalasRespostaCotacao,
@@ -6,6 +7,10 @@ import {
   exibeCampoTransbordosRespostaCotacao,
   type EstadoFormularioRespostaCotacao,
 } from './formulario-resposta-cotacao-bid-frete-internacional'
+import {
+  faixasValorFretePropostaFormParaPayload,
+  menorTarifaFaixasValorFreteProposta,
+} from './faixas-valor-frete-proposta-bid-frete-internacional'
 import {
   linhasPeriodoArmazenagemParaPayload,
 } from './periodos-armazenagem-proposta-bid-frete-internacional'
@@ -21,7 +26,22 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
   incluir_armazenagem_cotacao_bid_frete_internacional?: boolean | null,
   modalidadeCotacao?: ModalidadeCarga | null,
 ) {
-  const valorFrete = parseValorLinhaTaxa(form.valor_frete_proposta_bid_frete_internacional)
+  const exibeTipoValorFrete = modalCotacao === 'AEREO'
+  const tipoValorFrete: TipoValorFreteBidFreteInternacional = exibeTipoValorFrete
+    ? (form.tipo_valor_frete_proposta_bid_frete_internacional || 'TOTAL')
+    : 'TOTAL'
+
+  const faixasValorFrete = tipoValorFrete === 'FAIXA_PESO'
+    ? faixasValorFretePropostaFormParaPayload(
+      form.linhas_faixa_valor_frete_proposta,
+      form.moeda_proposta_bid_frete_internacional,
+    )
+    : null
+
+  const valorFrete = tipoValorFrete === 'FAIXA_PESO'
+    ? menorTarifaFaixasValorFreteProposta(form.linhas_faixa_valor_frete_proposta)
+    : parseValorLinhaTaxa(form.valor_frete_proposta_bid_frete_internacional)
+
   const taxasOrigem = somarLinhasTaxa(form.linhas_taxa_origem)
   const taxasDestino = somarLinhasTaxa(form.linhas_taxa_destino)
   const taxasDetalhe = [
@@ -38,6 +58,8 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
 
   return {
     moeda_proposta_bid_frete_internacional: form.moeda_proposta_bid_frete_internacional,
+    tipo_valor_frete_proposta_bid_frete_internacional: tipoValorFrete,
+    faixas_valor_frete_kgs_proposta_bid_frete_internacional: faixasValorFrete,
     valor_frete_proposta_bid_frete_internacional: valorFrete,
     taxas_origem_proposta_bid_frete_internacional: taxasOrigem,
     taxas_destino_proposta_bid_frete_internacional: taxasDestino,

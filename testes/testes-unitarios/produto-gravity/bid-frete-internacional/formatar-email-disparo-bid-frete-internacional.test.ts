@@ -8,7 +8,8 @@ import {
   montarTextoPlanoEmailDisparo,
   type ParametrosEmailDisparoBidFreteInternacional,
 } from '../../../../servicos-global/produto/bid-frete-internacional/shared/formatar-email-disparo-bid-frete-internacional'
-import { ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../../servicos-global/produto/bid-frete-internacional/shared/condicoes-plataforma-fornecedor-bid-frete-internacional'
+import { ROTA_CONTRATO_PROPOSTA_PAGAMENTO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../../../servicos-global/produto/bid-frete-internacional/shared/contrato-proposta-plataforma-bid-frete-internacional'
+import { ROTA_CONTRATO_PROPOSTA_PAGAMENTO_CONTRATANTE_GRAVITY_BID_FRETE_INTERNACIONAL } from '../../../../servicos-global/produto/bid-frete-internacional/shared/contrato-proposta-plataforma-bid-frete-internacional'
 
 const base: ParametrosEmailDisparoBidFreteInternacional = {
   nomeFornecedor: 'Maersk',
@@ -58,9 +59,9 @@ describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
     expect(avisoHtml).toContain('Leia aqui as condições')
     expect(avisoHtml).toContain('#fef3c7')
     expect(avisoHtml).not.toContain('#f8fafc')
-    expect(avisoHtml).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
+    expect(avisoHtml).toContain(ROTA_CONTRATO_PROPOSTA_PAGAMENTO_FORNECEDOR_BID_FRETE_INTERNACIONAL)
     expect(avisoTextoPlano).toContain('USD 10,00')
-    expect(avisoTextoPlano).toContain(ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL)
+    expect(avisoTextoPlano).toContain(ROTA_CONTRATO_PROPOSTA_PAGAMENTO_FORNECEDOR_BID_FRETE_INTERNACIONAL)
   })
 
   it('quando Contratante Gravity paga, informa que o fornecedor não será cobrado', () => {
@@ -75,6 +76,7 @@ describe('montarAvisoTaxaPlataformaEmailDisparoBidFrete', () => {
     expect(avisoHtml).not.toContain('da sua conta na Gravity')
     expect(avisoHtml).toContain('#f8fafc')
     expect(avisoHtml).not.toContain('#fef3c7')
+    expect(avisoHtml).toContain(ROTA_CONTRATO_PROPOSTA_PAGAMENTO_CONTRATANTE_GRAVITY_BID_FRETE_INTERNACIONAL)
   })
 })
 

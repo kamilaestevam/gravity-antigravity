@@ -19,6 +19,7 @@ import {
   type EmpresaPagadoraTaxaFechamentoPlataformaGravity,
 } from '../../../shared/empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional'
 import { montarTextoAvisoTaxaModalAprovarPropostaBidFrete } from '../../../shared/textos-taxa-fechamento-plataforma-bid-frete-internacional'
+import { resolverRotaContratoPropostaPlataformaBidFreteInternacional } from '../../../shared/contrato-proposta-plataforma-bid-frete-internacional'
 
 const formatMoeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -217,6 +218,7 @@ function AvisoTaxaFechamentoModalAprovar({
     pagador: pagadorNormalizado,
     nomeFornecedor,
   })
+  const rotaCondicoes = resolverRotaContratoPropostaPlataformaBidFreteInternacional(pagadorNormalizado)
 
   return (
     <div
@@ -238,6 +240,14 @@ function AvisoTaxaFechamentoModalAprovar({
           </strong>
         </div>
         <p className="bf-aprovacao-taxa-texto">{texto}</p>
+        <a
+          className="bf-aprovacao-taxa-link-condicoes"
+          href={rotaCondicoes}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t('bidfrete.comparativo.modal_aprovar_saiba_condicoes', 'Saiba mais sobre as condições')}
+        </a>
       </div>
     </div>
   )
@@ -258,6 +268,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
   const [aprovacaoSucesso, setAprovacaoSucesso] = useState(false)
   const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
   const [erroAprovacao, setErroAprovacao] = useState<string | null>(null)
+  const [comentariosAprovacao, setComentariosAprovacao] = useState('')
 
   useEffect(() => {
     if (!aberto) {
@@ -265,6 +276,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
       setAprovacaoSucesso(false)
       setResultadoAprovacao(null)
       setErroAprovacao(null)
+      setComentariosAprovacao('')
     }
   }, [aberto])
 
@@ -298,6 +310,7 @@ export function ModalAprovarPropostaBidFreteInternacional({
       const resultado = await aprovarResposta(
         id_cotacao_bid_frete_internacional,
         proposta.id_proposta_bid_frete_internacional,
+        comentariosAprovacao,
       )
       setResultadoAprovacao(resultado)
       setAprovacaoSucesso(true)
@@ -442,6 +455,31 @@ export function ModalAprovarPropostaBidFreteInternacional({
             </h4>
 
             <ResumoCompletoProposta proposta={proposta} />
+
+            <div className="bf-aprovacao-comentarios">
+              <label className="bf-aprovacao-comentarios-label" htmlFor="bf-aprovacao-comentarios">
+                {t('bidfrete.comparativo.modal_aprovar_comentarios_label', 'Mensagem para o agente (opcional)')}
+              </label>
+              <p className="bf-aprovacao-comentarios-ajuda">
+                {t(
+                  'bidfrete.comparativo.modal_aprovar_comentarios_ajuda',
+                  'Será incluída no e-mail de aprovação enviado ao fornecedor ganhador.',
+                )}
+              </p>
+              <textarea
+                id="bf-aprovacao-comentarios"
+                className="bf-aprovacao-comentarios-textarea"
+                placeholder={t(
+                  'bidfrete.comparativo.modal_aprovar_comentarios_placeholder',
+                  'Ex.: favor confirmar free time e validade da proposta...',
+                )}
+                value={comentariosAprovacao}
+                onChange={(e) => setComentariosAprovacao(e.target.value.slice(0, 2000))}
+                rows={4}
+                maxLength={2000}
+                disabled={aprovando}
+              />
+            </div>
           </div>
         )}
       </ModalOverlay>
@@ -629,6 +667,21 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
     font-size: 0.8125rem;
     line-height: 1.55;
   }
+  .bf-aprovacao-taxa-link-condicoes {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #818cf8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .bf-aprovacao-taxa-link-condicoes:hover {
+    color: #a5b4fc;
+  }
+  .bf-aprovacao-taxa--cobranca-fornecedor .bf-aprovacao-taxa-link-condicoes {
+    color: #6366f1;
+  }
   .bf-aprovacao-secao-titulo {
     display: flex;
     align-items: center;
@@ -781,5 +834,42 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
     font-size: 0.8125rem;
     font-weight: 700;
     color: #4ade80;
+  }
+  .bf-aprovacao-comentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .bf-aprovacao-comentarios-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-comentarios-ajuda {
+    margin: 0 0 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--text-muted, #94a3b8);
+  }
+  .bf-aprovacao-comentarios-textarea {
+    width: 100%;
+    min-height: 6rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: var(--bg-base, rgba(15, 23, 42, 0.55));
+    color: var(--text-primary, #f1f5f9);
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    resize: vertical;
+  }
+  .bf-aprovacao-comentarios-textarea:focus {
+    outline: none;
+    border-color: rgba(129, 140, 248, 0.55);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+  .bf-aprovacao-comentarios-textarea::placeholder {
+    color: var(--text-muted, #64748b);
   }
 `

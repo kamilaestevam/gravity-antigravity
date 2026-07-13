@@ -72,6 +72,12 @@ const AceiteAprovacaoPropostaPublico = lazy(() => import('./pages/aceite-aprovac
 const VisaoFornecedorCondicoesPlataforma = lazy(
   () => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-condicoes-plataforma-bid-frete-internacional'),
 )
+const VisaoFornecedorContratoFechamentoPlataforma = lazy(
+  () => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-contrato-fechamento-plataforma-bid-frete-internacional'),
+)
+const VisaoFornecedorContratoPropostaPlataforma = lazy(
+  () => import('./pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-contrato-proposta-plataforma-bid-frete-internacional'),
+)
 
 injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
 injectUserGetter(() => useShellStore.getState().currentUser?.id)
@@ -293,7 +299,17 @@ function AppInner() {
   const isCondicoesPlataforma = location.pathname.includes(
     '/visao-fornecedor-bid-frete-internacional/condicoes-plataforma',
   )
-  const isPaginaPublicaFornecedor = isRespostaPublica || isCondicoesPlataforma || isAceiteAprovacaoPublico
+  const isContratoFechamentoPlataforma = location.pathname.includes(
+    '/visao-fornecedor-bid-frete-internacional/contrato-fechamento/',
+  )
+  const isContratoPropostaPlataforma = location.pathname.includes(
+    '/visao-fornecedor-bid-frete-internacional/contrato-proposta/',
+  )
+  const isPaginaPublicaFornecedor = isRespostaPublica
+    || isCondicoesPlataforma
+    || isContratoFechamentoPlataforma
+    || isContratoPropostaPlataforma
+    || isAceiteAprovacaoPublico
 
   const isVisaoFornecedor =
     location.pathname.includes('visao-fornecedor-bid-frete-internacional')
@@ -322,13 +338,12 @@ function AppInner() {
     return nav.map(item => mapNavItem(item, t))
   }, [isVisaoFornecedor, t])
 
-  if (isPaginaPublicaFornecedor) {
+  if (isCondicoesPlataforma) {
     return (
       <>
         <ToastContainer />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* /bid-frete/* (splat longo) — usuário logado ou rota protegida legada */}
             <Route
               path="/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
               element={<VisaoFornecedorCondicoesPlataforma />}
@@ -341,6 +356,52 @@ function AppInner() {
               path="visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
               element={<VisaoFornecedorCondicoesPlataforma />}
             />
+          </Routes>
+        </Suspense>
+      </>
+    )
+  }
+
+  if (isContratoPropostaPlataforma) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <VisaoFornecedorContratoPropostaPlataforma />
+        </Suspense>
+      </>
+    )
+  }
+
+  if (isContratoFechamentoPlataforma) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <VisaoFornecedorContratoFechamentoPlataforma />
+        </Suspense>
+      </>
+    )
+  }
+
+  /** Aceite ganhador — pathname já identifica o fluxo; evita Routes vazias com parent :token no Configurador. */
+  if (isAceiteAprovacaoPublico) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <AceiteAprovacaoPropostaPublico />
+        </Suspense>
+      </>
+    )
+  }
+
+  if (isRespostaPublica) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
             <Route
               path="/bid-frete/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}
@@ -353,22 +414,10 @@ function AppInner() {
               path="visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}
             />
-            {/* /bid-frete/.../publico/* (splat = só o token) — link do e-mail sem login */}
+            {/* /bid-frete/.../publico/* (splat v7 = só o token) — link do e-mail de disparo */}
             <Route
               path=":token_resposta_disparo_cotacao_bid_frete_internacional"
               element={<VisaoFornecedorResponderPublico />}
-            />
-            <Route
-              path="/bid-frete/aceite-aprovacao-proposta-bid-frete-internacional/publico/:token_aceite_aprovacao_proposta_bid_frete_internacional"
-              element={<AceiteAprovacaoPropostaPublico />}
-            />
-            <Route
-              path="/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico/:token_aceite_aprovacao_proposta_bid_frete_internacional"
-              element={<AceiteAprovacaoPropostaPublico />}
-            />
-            <Route
-              path="aceite-aprovacao-proposta-bid-frete-internacional/publico/:token_aceite_aprovacao_proposta_bid_frete_internacional"
-              element={<AceiteAprovacaoPropostaPublico />}
             />
           </Routes>
         </Suspense>

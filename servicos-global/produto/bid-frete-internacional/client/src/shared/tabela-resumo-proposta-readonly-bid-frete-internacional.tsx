@@ -12,7 +12,12 @@ import {
   TabelaResumoPropostaBidFreteInternacional,
   type RotulosTabelaResumoPropostaBidFreteInternacional,
 } from './resumo-composicao-total-frete-bid-frete-internacional'
-import { montarDadosTabelaResumoPropostaBidFreteInternacional } from './taxas-linha-proposta-bid-frete-internacional'
+import {
+  montarDadosTabelaResumoPropostaBidFreteInternacional,
+  type DadosTabelaResumoPropostaBidFreteInternacional,
+} from './taxas-linha-proposta-bid-frete-internacional'
+import { linhasFaixaValorFretePropostaFromJson } from './faixas-valor-frete-proposta-bid-frete-internacional'
+import { normalizarTipoValorFreteBidFreteInternacional } from '../../../shared/tipo-valor-frete-bid-frete-internacional'
 import { SecaoPeriodosArmazenagemReadonlyPropostaBidFreteInternacional } from './secao-periodos-armazenagem-readonly-proposta-bid-frete-internacional'
 import {
   buscarTaxasMoedaAtuaisInsights,
@@ -94,7 +99,9 @@ function useRotulosTabelaResumoPropostaReadonly(): RotulosTabelaResumoPropostaBi
 
 interface CorpoTabelaResumoPropostaReadonlyProps {
   proposta: PropostaBidFreteInternacional
-  dados: ReturnType<typeof montarDadosTabelaResumoPropostaBidFreteInternacional>
+  dados: DadosTabelaResumoPropostaBidFreteInternacional
+  tipoValorFrete: 'TOTAL' | 'FAIXA_PESO'
+  linhasFaixa: ReturnType<typeof linhasFaixaValorFretePropostaFromJson>
   rotulos: RotulosTabelaResumoPropostaBidFreteInternacional
   taxasConversaoBrl: Record<string, number>
   legendaComposicao: string
@@ -106,6 +113,8 @@ interface CorpoTabelaResumoPropostaReadonlyProps {
 function CorpoTabelaResumoPropostaReadonly({
   proposta,
   dados,
+  tipoValorFrete,
+  linhasFaixa,
   rotulos,
   taxasConversaoBrl,
   legendaComposicao,
@@ -125,6 +134,8 @@ function CorpoTabelaResumoPropostaReadonly({
         linhasOrigem={dados.linhasOrigem}
         linhasDestino={dados.linhasDestino}
         composicao={dados.composicao}
+        tipoValorFrete={tipoValorFrete}
+        linhasFaixa={linhasFaixa}
         rotulos={rotulos}
         taxasConversaoBrl={taxasConversaoBrl}
       />
@@ -160,6 +171,20 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
     () => montarDadosTabelaResumoPropostaBidFreteInternacional(proposta),
     [proposta],
   )
+  const tipoValorFrete = useMemo(
+    () => normalizarTipoValorFreteBidFreteInternacional(
+      proposta.tipo_valor_frete_proposta_bid_frete_internacional,
+    ) ?? 'TOTAL',
+    [proposta.tipo_valor_frete_proposta_bid_frete_internacional],
+  )
+  const linhasFaixa = useMemo(
+    () => (tipoValorFrete === 'FAIXA_PESO'
+      ? linhasFaixaValorFretePropostaFromJson(
+        proposta.faixas_valor_frete_kgs_proposta_bid_frete_internacional,
+      )
+      : []),
+    [tipoValorFrete, proposta.faixas_valor_frete_kgs_proposta_bid_frete_internacional],
+  )
   const moedasProposta = useMemo(() => {
     const moedas = new Set<string>([dados.moedaFrete])
     for (const linha of [...dados.linhasOrigem, ...dados.linhasDestino]) {
@@ -185,10 +210,15 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
     'bidfrete.detalhe_cotacao.modal_detalhamento_proposta_titulo',
     'Detalhamento da proposta',
   )
-  const legendaComposicao = t(
-    'bidfrete.portal.responder.valor_total_frete_legenda',
-    'Frete Base + Taxas de Origem + Taxa de Destino',
-  )
+  const legendaComposicao = tipoValorFrete === 'FAIXA_PESO'
+    ? t(
+      'bidfrete.portal.responder.valor_total_frete_legenda_faixa_peso',
+      'Tarifas unitárias por faixa + taxas de origem e destino',
+    )
+    : t(
+      'bidfrete.portal.responder.valor_total_frete_legenda',
+      'Frete Base + Taxas de Origem + Taxa de Destino',
+    )
   const legendaSemConversao = t(
     'bidfrete.portal.responder.sem_conversao_cambial',
     'Valores somados por moeda, sem conversão cambial.',
@@ -211,6 +241,8 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
   const corpoProps = {
     proposta,
     dados,
+    tipoValorFrete,
+    linhasFaixa,
     rotulos,
     taxasConversaoBrl,
     legendaComposicao,

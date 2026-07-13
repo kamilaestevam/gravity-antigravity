@@ -19,10 +19,11 @@ describe('formatar-email-aceite-recebido-comprador-bid-frete-internacional', () 
     )
   })
 
-  it('texto plano menciona fornecedor e fechamento', () => {
+  it('texto plano menciona fornecedor e encerramento do BID', () => {
     const texto = montarTextoPlanoEmailAceiteRecebidoCompradorBidFreteInternacional(params)
     expect(texto).toContain('DHL Agente')
     expect(texto).toContain('COT07001')
-    expect(texto).toContain('fechamento')
+    expect(texto).toContain('BID Frete Internacional encerrado')
+    expect(texto).toContain('desembaraço')
   })
 })

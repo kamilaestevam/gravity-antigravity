@@ -170,4 +170,25 @@ describe('progresso-leitura-smart-read', () => {
     expect(escolhida?.arquivos).toHaveLength(1)
     expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-api' })
   })
+
+  it('prefere progresso salvo quando API retorna leitura sem arquivos', () => {
+    const api = {
+      ...leituraMinima,
+      arquivos: [],
+    }
+    const salva = {
+      ...leituraMinima,
+      arquivos: [
+        {
+          id_arquivo: 'arq-salvo',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'BL', dados: { numero: '1' } }],
+        },
+      ],
+    }
+    const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
+    expect(escolhida?.arquivos).toHaveLength(1)
+    expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-salvo' })
+  })
 })

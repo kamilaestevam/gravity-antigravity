@@ -228,6 +228,7 @@ export function ModalNovaLeituraSmartRead({
   const abertoAnteriorRef = useRef(false)
   const passoSalvoRef = useRef(0)
   const hidratandoRetomarRef = useRef(false)
+  const idLeituraRetomarAnteriorRef = useRef<string | null>(null)
   const inicioSessaoRef = useRef<number>(Date.now())
 
   useEffect(() => {
@@ -266,6 +267,18 @@ export function ModalNovaLeituraSmartRead({
       )
       setPasso(passoRetomar)
       passoSalvoRef.current = passoRetomar >= 2 ? passoRetomar : 0
+      if (passoRetomar >= 3) {
+        setPassoConferenciaMontado(true)
+        const primeiroCompleto = hidratados.find(
+          (item) => item.status_arquivo_local === 'completo' && item.leitura,
+        )
+        if (primeiroCompleto) {
+          setConferenciaSelecao({
+            idArquivoLocal: primeiroCompleto.id_arquivo_local,
+            indiceDocumento: 0,
+          })
+        }
+      }
     },
     [passoRetomarLista],
   )
@@ -327,6 +340,21 @@ export function ModalNovaLeituraSmartRead({
     [aplicarLeituraHidratada],
   )
 
+  const iniciarRetomarLeitura = useCallback(
+    (id: string) => {
+      setConferenciaSelecao(null)
+      setCompararAberto(false)
+      setCamposEditados(new Set())
+      setPassoConferenciaMontado(passoPlaceholderRetomar >= 3)
+      setArquivos([])
+      passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
+      setPasso(passoPlaceholderRetomar)
+      riscosIniciadosRef.current.delete(id)
+      void hidratarLeituraExistente(id)
+    },
+    [passoPlaceholderRetomar, hidratarLeituraExistente],
+  )
+
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
       passoSalvoRef.current = 0
@@ -343,12 +371,8 @@ export function ModalNovaLeituraSmartRead({
       inicioSessaoRef.current = Date.now()
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
-        setArquivos([])
-        if (passoPlaceholderRetomar >= 2) {
-          passoSalvoRef.current = passoPlaceholderRetomar
-        }
-        setPasso(passoPlaceholderRetomar)
-        void hidratarLeituraExistente(idLeituraExistente)
+        iniciarRetomarLeitura(idLeituraExistente)
+        idLeituraRetomarAnteriorRef.current = idLeituraExistente
       } else {
         setPasso(1)
         setNomeLeitura(gerarNomeLeitura())
@@ -358,9 +382,20 @@ export function ModalNovaLeituraSmartRead({
     if (!aberto) {
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
+      idLeituraRetomarAnteriorRef.current = null
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto, arquivosIniciais, idLeituraExistente, passoPlaceholderRetomar, hidratarLeituraExistente])
+  }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura])
+
+  useEffect(() => {
+    if (!aberto || !idLeituraExistente) return
+    const anterior = idLeituraRetomarAnteriorRef.current
+    if (anterior === idLeituraExistente) return
+    idLeituraRetomarAnteriorRef.current = idLeituraExistente
+    if (anterior !== null) {
+      iniciarRetomarLeitura(idLeituraExistente)
+    }
+  }, [aberto, idLeituraExistente, iniciarRetomarLeitura])
 
   useEffect(() => {
     if (passo >= 3) setPassoConferenciaMontado(true)

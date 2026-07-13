@@ -48,6 +48,21 @@ export function mesclarLeituraComConferenciaGravity(
 ): Leitura {
   if (!conferencia) return base
 
+  if (base.arquivos.length === 0 && conferencia.arquivos.length > 0) {
+    return {
+      ...conferencia,
+      id_leitura: base.id_leitura || conferencia.id_leitura,
+      nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
+      status_leitura: conferencia.status_leitura ?? base.status_leitura,
+      total_arquivos: Math.max(base.total_arquivos, conferencia.total_arquivos, conferencia.arquivos.length),
+      arquivos_processados: Math.max(
+        base.arquivos_processados,
+        conferencia.arquivos_processados,
+        conferencia.arquivos.length,
+      ),
+    }
+  }
+
   const arquivosConferencia = new Map(conferencia.arquivos.map((arquivo) => [arquivo.id_arquivo, arquivo]))
 
   return {

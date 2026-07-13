@@ -34,9 +34,8 @@ function escolherPassoAtualMesclado(
 ): number | null {
   const a = normalizarPassoAtualLeitura(anterior)
   const b = normalizarPassoAtualLeitura(novo)
-  if (a == null) return b
-  if (b == null) return a
-  return Math.max(a, b)
+  if (b != null) return b
+  return a
 }
 
 function aplicarStatusFluxoNaTransacao(

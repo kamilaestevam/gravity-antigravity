@@ -44,12 +44,9 @@ function mesclarTransacaoComSnapshot(
   transacao: TransacaoLeitura,
   doSnapshot: TransacaoLeitura,
 ): TransacaoLeitura {
-  return {
-    ...doSnapshot,
-    data_envio: transacao.data_envio ?? doSnapshot.data_envio,
-    origem_leitura: transacao.origem_leitura,
-    mensagem_erro: transacao.mensagem_erro ?? doSnapshot.mensagem_erro,
-  }
+  // Preserva passo_atual_leitura / status_fluxo do progresso — spread cru do snapshot
+  // zerava o passo e caía no fallback DATI COMPLETED → RESULTADO_LEITURAS.
+  return mesclarTransacaoNaLista(transacao, doSnapshot)
 }
 
 /** Métricas da página: 1 query batch no snapshot — sem N chamadas ao legado na lista. */
@@ -214,7 +211,7 @@ export async function montarListaTransacoesLeituraSmartRead(
   }
 
   const mapa = new Map<string, TransacaoLeitura>()
-  for (const item of [...transacoesLegado, ...viaProgresso, ...viaSnapshot]) {
+  for (const item of [...transacoesLegado, ...viaSnapshot, ...viaProgresso]) {
     inserirTransacaoNoMapa(mapa, item)
   }
 

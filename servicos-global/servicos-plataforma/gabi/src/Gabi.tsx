@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback, DragEvent } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useGabiAuthHeaders } from './use-gabi-auth-headers';
 import {
   PaperPlaneRight,
   Image as ImageIcon,
@@ -101,6 +102,11 @@ const renderMessageContent = (content: string): React.ReactNode => {
 
 export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeaders }: GabiChatProps) {
   const { t } = useTranslation();
+  const authHeaders = useGabiAuthHeaders();
+  const requestHeaders = useMemo(
+    () => ({ ...authHeaders, ...extraHeaders }),
+    [authHeaders, extraHeaders],
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -142,7 +148,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
       addTransparency(`Confirmando ${toolId}...`);
       const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/agente/confirmar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({ nonce, tool_id: toolId }),
       });
       const data = await resp.json();
@@ -160,7 +166,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
     } catch {
       addTransparency('Erro ao confirmar acao');
     }
-  }, [apiBaseUrl, extraHeaders, addTransparency]);
+  }, [apiBaseUrl, requestHeaders, addTransparency]);
 
   const handleReject = useCallback((nonce: string) => {
     setMessages((prev) =>
@@ -180,13 +186,13 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
     try {
       await fetch(`${apiBaseUrl}/api/v1/gabi/agente/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({ id_conversa: conversationId, id_mensagem: messageId, tipo }),
       });
     } catch {
       // Fire-and-forget
     }
-  }, [apiBaseUrl, extraHeaders, conversationId]);
+  }, [apiBaseUrl, requestHeaders, conversationId]);
 
   const handleSend = useCallback(async (textOverride?: string) => {
     const textToSend = textOverride || inputVal;
@@ -227,10 +233,25 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
       return;
     }
 
+    if (!requestHeaders.Authorization) {
+      setIsTyping(false);
+      clearTransparency();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Aguarde o login ou recarregue a pagina para falar com a Gabi.',
+          timestamp: formatTime(),
+        },
+      ]);
+      return;
+    }
+
     try {
       const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/chats`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({
           conversationId,
           message: textToSend,
@@ -278,7 +299,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
       setIsTyping(false);
       clearTransparency();
     }
-  }, [inputVal, images, apiBaseUrl, extraHeaders, conversationId, addTransparency, clearTransparency]);
+  }, [inputVal, images, apiBaseUrl, requestHeaders, conversationId, addTransparency, clearTransparency]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

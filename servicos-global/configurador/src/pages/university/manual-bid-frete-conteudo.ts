@@ -1,6 +1,5 @@
 import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
-import { PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO } from './manual-bid-frete-aprovar-cotacao-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO } from './manual-bid-frete-pagamento-taxa-gravity-fechamento-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR } from './manual-bid-frete-visao-fornecedor-conteudo'
@@ -547,9 +546,39 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
               tituloCurto: 'Cotação manual',
               paragrafos: [
                 'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
-                'Preencha o **formulário** etapa por etapa seguindo um **fluxo único** até a escolha do **modal**.',
+                'O fornecedor irá receber o pedido de cotação via **email**.',
+                'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
               ],
-              galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+              galeriaComparacaoAposParagrafo: [
+                ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+                {
+                  indice: 1,
+                  colunas: 1,
+                  telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
+                },
+                {
+                  indice: 2,
+                  colunas: 2,
+                  colunasGradeTemplate: '2fr 1fr',
+                  telas: [
+                    {
+                      legenda: '',
+                      imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
+                    },
+                    {
+                      legenda: '',
+                      imagem: S('solicitacao_aviso_envio_usuario_1'),
+                      preencherCelulaGrade: true,
+                      alturaMaxima: 240,
+                    },
+                  ],
+                  calloutApos: {
+                    tipo: 'dica',
+                    texto:
+                      'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
+                  },
+                },
+              ],
             },
             {
               titulo: 'Cotação via planilha',
@@ -660,24 +689,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Aprovar cotação',
-      tituloSumario: 'Aprovar cotação',
-      prefixoPassosVisuais: 'Aprovar cotação',
-      ancoraPassosPrefix: 'aprovar-cotacao',
-      mostrarMapaSubtopicosPassos: true,
-      paragrafos: [
-        'Conclua a negociação **aprovando** a melhor proposta — pelo **Painel de Insights**, pela aba **Propostas** ou pelo **comparativo** de ofertas.',
-      ],
-      passosVisuais: PASSOS_MANUAL_BID_FRETE_APROVAR_COTACAO,
-    },
-    {
       titulo: 'Pagamento Taxa Gravity Fechamento',
       tituloSumario: 'Pagamento Taxa Gravity Fechamento',
       prefixoPassosVisuais: 'Pagamento Taxa Gravity Fechamento',
       ancoraPassosPrefix: 'pagamento-taxa-gravity-fechamento',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee) é registrada e cobrada conforme o **pagador** definido no workspace.',
+        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee, **podendo variar** — consulte **Gravity Store** e **Configurações**) é registrada conforme o **pagador** definido em **Configurações** — **comprador** (**Contratante Gravity**) ou **fornecedor**.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO,
     },

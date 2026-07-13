@@ -433,6 +433,48 @@ export default function App() {
           path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/condicoes-plataforma"
           element={<BidFreteInternacionalPublicoRoute />}
         />
+        {/* Contrato de Proposta / Fechamento — rotas explícitas (splat v7 quebra Routes internas). */}
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-proposta/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-fornecedor"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/contrato-fechamento/pagamento-contratante-gravity"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        {/* Aceite "Recebi e estou de acordo" (e-mail ao ganhador) — pública, sem login. */}
+        <Route
+          path="/bid-frete/aceite-aprovacao-proposta-bid-frete-internacional/publico/*"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
+        <Route
+          path="/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico/*"
+          element={<BidFreteInternacionalPublicoRoute />}
+        />
         <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />

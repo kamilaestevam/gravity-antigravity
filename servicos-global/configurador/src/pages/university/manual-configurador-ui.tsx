@@ -1372,7 +1372,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '218'
+const MANUAL_SCREENSHOT_CACHE_KEY = '223'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1383,15 +1383,20 @@ function ManualFiguraScreenshot({
   src,
   alt,
   larguraMaxima,
+  alturaMaxima,
   larguraTotal,
   ampliarInferiorDireito,
+  preencherCelulaGrade,
 }: {
   src: string
   alt: string
   larguraMaxima?: number
+  alturaMaxima?: number
   larguraTotal?: boolean
   /** Só para casos pontuais — botão Ampliar no canto inferior direito da figura. */
   ampliarInferiorDireito?: boolean
+  /** Preenche a célula da grade com altura uniforme (object-fit: cover). */
+  preencherCelulaGrade?: boolean
 }) {
   const [telaCheia, setTelaCheia] = useState(false)
   const [erroCarregamento, setErroCarregamento] = useState(false)
@@ -1399,7 +1404,10 @@ function ManualFiguraScreenshot({
   const srcEfetivo = `${urlScreenshotManual(src)}${tentativaRecarga > 0 ? `&rc=${tentativaRecarga}` : ''}`
   const ampliarAbaixo = src === SCREENSHOT_HUB_ACESSO_CONFIGURADOR
   const compacta = larguraMaxima != null
-  const larguraCheia = ampliarAbaixo || compacta || larguraTotal
+  const preencherGrade = preencherCelulaGrade === true
+  const alturaFixa = alturaMaxima != null
+  const recorteVertical = preencherGrade || alturaFixa
+  const larguraCheia = ampliarAbaixo || compacta || larguraTotal || preencherGrade || alturaFixa
 
   useEffect(() => {
     setErroCarregamento(false)
@@ -1439,9 +1447,18 @@ function ManualFiguraScreenshot({
       <div style={
         ampliarAbaixo
           ? { display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }
-          : compacta || larguraTotal
-            ? { maxWidth: larguraMaxima, width: '100%' }
-            : undefined
+          : preencherGrade && !alturaFixa
+            ? {
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              width: '100%',
+              minWidth: 0,
+            }
+            : compacta || larguraTotal || alturaFixa
+              ? { maxWidth: larguraMaxima, width: '100%' }
+              : undefined
       }>
         <figure
           role={erroCarregamento ? undefined : 'button'}
@@ -1460,7 +1477,13 @@ function ManualFiguraScreenshot({
             border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
             background: 'rgba(8,12,24,.55)', position: 'relative',
             width: larguraCheia ? '100%' : undefined,
-            maxWidth: larguraMaxima,
+            maxWidth: preencherGrade && !alturaFixa ? undefined : larguraMaxima,
+            ...(alturaFixa ? { height: alturaMaxima, maxHeight: alturaMaxima } : {}),
+            ...(preencherGrade && !alturaFixa
+              ? { flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }
+              : alturaFixa
+                ? { display: 'flex', flexDirection: 'column', overflow: 'hidden' }
+                : {}),
           }}
         >
           {erroCarregamento ? (
@@ -1477,7 +1500,17 @@ function ManualFiguraScreenshot({
               key={srcEfetivo}
               src={srcEfetivo}
               alt={alt}
-              style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
+              style={recorteVertical
+                ? {
+                  flex: 1,
+                  width: '100%',
+                  minHeight: 0,
+                  height: '100%',
+                  display: 'block',
+                  objectFit: 'cover',
+                  objectPosition: 'top center',
+                }
+                : { width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
               onError={aoErroImagem}
             />
           )}
@@ -2100,6 +2133,29 @@ function ManualCalloutBloco({ callout, marginTop = 12, marginBottom = 0 }: {
   )
 }
 
+function ManualTagEmBreve({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      aria-label="Em breve"
+      style={{
+        fontSize: compact ? '.58rem' : '.62rem',
+        fontWeight: 700,
+        letterSpacing: '.04em',
+        textTransform: 'uppercase',
+        color: '#fbbf24',
+        background: 'rgba(251,191,36,.1)',
+        border: '1px solid rgba(251,191,36,.32)',
+        borderRadius: MANUAL_RAIO_CHIP,
+        padding: compact ? '2px 8px' : '3px 10px',
+        flexShrink: 0,
+        lineHeight: 1.2,
+      }}
+    >
+      Em breve
+    </span>
+  )
+}
+
 function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_PX }: { marginBottom?: number }) {
   const c = CALLOUT_STYLE.lembrete
   return (
@@ -2119,10 +2175,10 @@ function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_P
         letterSpacing: '.06em',
         textTransform: 'uppercase',
       }}>
-        Em desenvolvimento
+        Em breve
       </p>
       <p style={MANUAL_ESTILO_CALLOUT_CORPO}>
-        Esta aba ainda está em homologação — a documentação pode antecipar telas que mudam antes do release.
+        Esta seção ainda está em homologação — a documentação pode antecipar telas que mudam antes do release.
       </p>
     </div>
   )
@@ -2403,6 +2459,7 @@ function ManualPassosSubtopicosAcordeaoNivel({
                 <span style={{ flex: 1, minWidth: 0, fontWeight: 600, fontSize: aninhado ? '.82rem' : '.86rem', lineHeight: 1.35, opacity: estadoPasso === 'lido' ? 0.65 : 1 }}>
                   {rotuloCurto}
                 </span>
+                {passo.badgeEmDesenvolvimento ? <ManualTagEmBreve compact /> : null}
               </button>
               {leitura?.ativo && (
                 <ManualBotaoMarcarLido
@@ -2686,7 +2743,7 @@ function ManualBlocoPassoVisual({
           <ManualInfograficoSmartDocsListaPaineis />
         </div>
       ) : null}
-      {passo.badgeEmDesenvolvimento ? (
+      {passo.badgeEmDesenvolvimento && !emAcordeaoSubtopico ? (
         <ManualBadgeEmDesenvolvimento marginBottom={espacoParagrafoPx} />
       ) : null}
       {cotacaoAvulsaFormasIntroAntesCards ? (() => {
@@ -2926,6 +2983,8 @@ function ManualBlocoPassoVisual({
                 telas={galeria.telas}
                 ampliarInferiorDireito={galeria.ampliarInferiorDireito}
                 colunas={galeria.colunas}
+                colunasGradeTemplate={galeria.colunasGradeTemplate}
+                gradeTelasMesmaAltura={galeria.gradeTelasMesmaAltura}
                 textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
                 espacoTextoFiguraPx={galeria.espacoTextoFiguraPx}
                 legendaPasso={galeria.legendaPasso}
@@ -3312,6 +3371,8 @@ function ManualBlocoPassoVisual({
             key={`galeria-apos-img-${idxGaleria}-${galeria.telas.map((t) => t.imagem).join('|')}`}
             telas={galeria.telas}
             colunas={galeria.colunas ?? 1}
+            colunasGradeTemplate={galeria.colunasGradeTemplate}
+            gradeTelasMesmaAltura={galeria.gradeTelasMesmaAltura}
             tituloEtapa={galeria.tituloEtapa}
             textoIntro={galeria.textoIntro}
             chipBidFreteTokenNaoUtilizado={galeria.chipBidFreteTokenNaoUtilizado}
@@ -3903,6 +3964,8 @@ function ManualGaleriaComparacaoIntro({
   telas,
   ampliarInferiorDireito,
   colunas,
+  colunasGradeTemplate,
+  gradeTelasMesmaAltura = false,
   textoAcimaEstiloCorpo = false,
   espacoTextoFiguraPx,
   legendaPasso,
@@ -3967,6 +4030,8 @@ function ManualGaleriaComparacaoIntro({
   telas: DocGaleriaComparacaoTela[]
   ampliarInferiorDireito?: boolean
   colunas?: number
+  colunasGradeTemplate?: string
+  gradeTelasMesmaAltura?: boolean
   textoAcimaEstiloCorpo?: boolean
   espacoTextoFiguraPx?: number
   legendaPasso?: string
@@ -4099,6 +4164,7 @@ function ManualGaleriaComparacaoIntro({
         ...((textoAcimaEstiloCorpo && colunasGrade > 1 && !printLarguraTotal && !opts?.forcarLarguraTotal)
           || alinharCalloutsNaGrade
           || opts?.alinharLegendaChipGrade
+          || gradeTelasMesmaAltura
           ? { display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }
           : {}),
       }}
@@ -4148,7 +4214,14 @@ function ManualGaleriaComparacaoIntro({
         src={tela.imagem}
         alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
         ampliarInferiorDireito={ampliarInferiorDireito}
+        larguraMaxima={tela.larguraMaxima}
+        alturaMaxima={tela.alturaMaxima}
         larguraTotal={printLarguraTotal || opts?.forcarLarguraTotal}
+        preencherCelulaGrade={
+          tela.preencherCelulaGrade !== undefined
+            ? tela.preencherCelulaGrade
+            : gradeTelasMesmaAltura
+        }
       />
       {tela.legendaApos?.trim() ? (
         <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
@@ -4549,10 +4622,12 @@ function ManualGaleriaComparacaoIntro({
       })() : (
       <div style={{
       display: 'grid',
-      gridTemplateColumns: printLarguraTotal ? 'minmax(0, 1fr)' : `repeat(${colunasGrade}, minmax(0, 1fr))`,
+      gridTemplateColumns: printLarguraTotal
+        ? 'minmax(0, 1fr)'
+        : (colunasGradeTemplate ?? `repeat(${colunasGrade}, minmax(0, 1fr))`),
       width: printLarguraTotal ? '100%' : undefined,
       gap: espacoGradeGaleriaPx,
-      alignItems: alinharCalloutsNaGrade || (textoAcimaEstiloCorpo && colunasGrade > 1)
+      alignItems: alinharCalloutsNaGrade || gradeTelasMesmaAltura || (textoAcimaEstiloCorpo && colunasGrade > 1)
         ? 'stretch'
         : 'start',
     }}>
@@ -6741,7 +6816,7 @@ function ManualSumarioLinhaSubitem({
     <div
       style={{
         display: 'flex',
-        alignItems: 'baseline',
+        alignItems: 'center',
         gap: 10,
         minWidth: 0,
         paddingTop: profundidade === 0 ? 2 : 0,
@@ -6783,10 +6858,12 @@ function ManualSumarioLinhaSubitem({
           fontSize: nivel <= 1 ? '.82rem' : '.78rem',
           minWidth: 0,
           opacity: subLido ? 0.75 : 1,
+          flex: item.emBreve ? '0 1 auto' : undefined,
         }}
       >
         {item.titulo}
       </button>
+      {item.emBreve ? <ManualTagEmBreve compact /> : null}
     </div>
   )
 }

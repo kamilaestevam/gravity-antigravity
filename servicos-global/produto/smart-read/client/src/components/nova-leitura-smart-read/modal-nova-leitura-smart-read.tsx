@@ -276,6 +276,7 @@ export function ModalNovaLeituraSmartRead({
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
   const pollingEmVooRef = useRef<Map<string, Promise<void>>>(new Map())
+  const progressoUploadGravadoRef = useRef<Set<string>>(new Set())
   const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
 
   useEffect(() => {
@@ -347,21 +348,24 @@ export function ModalNovaLeituraSmartRead({
       try {
       const salvo = await carregarProgressoLeituraSmartRead(id)
       hidratarCacheAnaliseRiscosDeProgresso(salvo)
-      if (import.meta.env.DEV) {
-        console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
-      }
+      console.warn('[smart-read][retomar] progresso', {
+        id,
+        temSalvo: !!salvo,
+        passoSalvo: salvo?.passo,
+        arquivosSalvos: salvo?.leitura?.arquivos.length ?? 0,
+      })
 
       let leitura: Leitura | null = null
       try {
-        leitura = await smartReadApi.obterLeitura(id)
-        if (
-          leitura &&
-          salvo?.leitura &&
-          leituraSemExtracaoUtilRetomarSmartRead(leitura) &&
-          !leituraSemExtracaoUtilRetomarSmartRead(salvo.leitura)
-        ) {
-          leitura = mesclarLeiturasRetomarSmartRead(leitura, salvo.leitura)
-        }
+        const leituraApi = await smartReadApi.obterLeitura(id)
+        console.warn('[smart-read][retomar] leitura API', {
+          id,
+          statusApi: leituraApi.status_leitura,
+          arquivosApi: leituraApi.arquivos.length,
+        })
+        // Riqueza decide: durante a análise a API pode vir sem arquivos (DATI cria a
+        // leitura antes de anexar files) — o progresso salvo preserva a sidebar.
+        leitura = escolherLeituraEfetivaRetomarSmartRead(leituraApi, salvo?.leitura ?? null)
       } catch (erro) {
         leitura = salvo?.leitura ?? null
         if (!leitura) {
@@ -370,9 +374,7 @@ export function ModalNovaLeituraSmartRead({
           setPasso(1)
           return
         }
-        if (import.meta.env.DEV) {
-          console.warn('[smart-read][persist] obterLeitura falhou — usando progresso salvo', erro)
-        }
+        console.warn('[smart-read][retomar] obterLeitura falhou — usando progresso salvo', erro)
       }
 
       try {
@@ -675,6 +677,19 @@ export function ModalNovaLeituraSmartRead({
     if (!aberto || passo < 2 || !analiseCompleta || hidratandoRetomarRef.current) return
     void salvarProgressoAtual(passo)
   }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
+
+  // Grava o progresso UMA vez assim que todos os uploads concluem (ids atribuídos):
+  // garante a retomada mesmo se o flush de saída (keepalive) falhar. Um único PATCH
+  // por leitura — não compete com o OCR (sem gravação por tick de polling).
+  useEffect(() => {
+    if (!aberto || passo !== 2 || hidratandoRetomarRef.current) return
+    if (arquivos.length === 0) return
+    if (!arquivos.every((item) => item.id_leitura && item.id_arquivo)) return
+    const id = arquivos[0].id_leitura
+    if (!id || progressoUploadGravadoRef.current.has(id)) return
+    progressoUploadGravadoRef.current.add(id)
+    void salvarProgressoAtual(2)
+  }, [aberto, passo, arquivos, salvarProgressoAtual])
 
   // Persistência parcial do passo 2 só via estadoFlush + pagehide (evita PATCH durante OCR).
 

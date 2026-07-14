@@ -100,6 +100,7 @@ import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura
 import {
   PainelRevisaoPrefillCotacaoBidFreteSmartRead,
   converterLeituraParaCotacaoBidFreteInternacional,
+  type PayloadContinuarPrefillCotacaoBidFreteSmartRead,
 } from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
 import {
   montarPacotePrefillCotacaoBidFreteSmartRead,
@@ -270,6 +271,7 @@ export function ModalNovaLeituraSmartRead({
   const inicioSessaoRef = useRef<number>(Date.now())
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
+  const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
 
   useEffect(() => {
     ativo.current = true
@@ -1020,16 +1022,27 @@ export function ModalNovaLeituraSmartRead({
       if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
         try {
           setRedirecionandoCotacao(true)
-          const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
+          const payload = prefillContinuarRef.current ?? (() => {
+            const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
+            return {
+              prefill: conversao.prefill,
+              detalhe_mapeamento: conversao.detalhe_mapeamento,
+              campos_faltantes: conversao.campos_faltantes,
+              passo_inicial_tipo: conversao.passo_inicial_tipo,
+              iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
+            }
+          })()
           salvarPrefillCotacaoBidFreteSmartRead(
             montarPacotePrefillCotacaoBidFreteSmartRead({
               idLeitura: idLeituraAtual,
               idBid: idBidOrigem,
-              prefill: conversao.prefill,
-              detalheMapeamento: conversao.detalhe_mapeamento,
-              iniciarNoPassoFornecedores: conversao.iniciar_no_passo_fornecedores,
+              prefill: payload.prefill,
+              detalheMapeamento: payload.detalhe_mapeamento,
+              passoInicialTipo: payload.passo_inicial_tipo,
+              iniciarNoPassoFornecedores: payload.iniciar_no_passo_fornecedores,
             }),
           )
+          prefillContinuarRef.current = null
           onConcluido?.()
           await handleFechar()
           window.location.href = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
@@ -1270,7 +1283,10 @@ export function ModalNovaLeituraSmartRead({
         {passo === 4 && origemBidFrete && leituraConsolidada ? (
           <PainelRevisaoPrefillCotacaoBidFreteSmartRead
             leitura={leituraConsolidada}
-            onContinuar={() => void handleContinuarPasso()}
+            onContinuar={(payload) => {
+              prefillContinuarRef.current = payload
+              void handleContinuarPasso()
+            }}
             continuando={redirecionandoCotacao}
           />
         ) : passo === 4 ? (

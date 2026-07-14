@@ -97,6 +97,12 @@
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
+.sr-prefill-bid-revisao-status--editado {
+  background: rgba(129, 140, 248, 0.14);
+  color: #a5b4fc;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
 .sr-prefill-bid-revisao-aviso {
   margin: 0;
   font-size: 0.76rem;

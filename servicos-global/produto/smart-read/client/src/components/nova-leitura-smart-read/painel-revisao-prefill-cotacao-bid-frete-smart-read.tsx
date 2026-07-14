@@ -1,137 +1,121 @@
-/**
- * Passo 4 (BID Frete) — revisão DE/PARA antes de abrir Nova Cotação nos passos Fornecedores/Resumo.
- */
-import { useMemo } from 'react'
-import { ArrowRight, Sparkle } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
-import {
-  ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE,
-  converterLeituraParaCotacaoBidFreteInternacional,
-  type LeituraParaConversaoCotacaoBidFrete,
-} from '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
-import type { DetalheMapeamentoCampoSmartReadCotacaoBidFrete } from '../../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
-import './painel-revisao-prefill-cotacao-bid-frete-smart-read.css'
-
-type Props = {
-  leitura: LeituraParaConversaoCotacaoBidFrete
-  onContinuar: () => void
-  continuando?: boolean
-}
-
-function rotuloStatus(status: DetalheMapeamentoCampoSmartReadCotacaoBidFrete['status_mapeamento']): string {
-  switch (status) {
-    case 'mapeado': return 'Extraído'
-    case 'sugerido': return 'Sugerido'
-    case 'pendente': return 'Pendente'
-    case 'rejeitado': return 'Rejeitado'
-    default: return '—'
-  }
-}
-
-function formatarValor(valor: unknown): string {
-  if (valor == null || valor === '') return '—'
-  return String(valor)
-}
-
-export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
-  leitura,
-  onContinuar,
-  continuando = false,
-}: Props) {
-  const conversao = useMemo(
-    () => converterLeituraParaCotacaoBidFreteInternacional(leitura),
-    [leitura],
-  )
-
-  const linhasResumo = useMemo(() => {
-    const vistos = new Set<string>()
-    const linhas: Array<{
-      campo: string
-      rotulo: string
-      valor: string
-      status: DetalheMapeamentoCampoSmartReadCotacaoBidFrete['status_mapeamento']
-    }> = []
-
-    for (const [campo, valor] of Object.entries(conversao.prefill)) {
-      if (valor == null || valor === '') continue
-      vistos.add(campo)
-      const detalhe = conversao.detalhe_mapeamento.campos.find((c) => c.campo_destino === campo)
-      linhas.push({
-        campo,
-        rotulo: ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE[campo] ?? campo,
-        valor: formatarValor(valor),
-        status: detalhe?.status_mapeamento ?? 'mapeado',
-      })
-    }
-
-    for (const campo of conversao.campos_faltantes) {
-      const chave = Object.entries(ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE).find(([, r]) => r === campo)?.[0]
-      if (chave && vistos.has(chave)) continue
-      linhas.push({
-        campo: chave ?? campo,
-        rotulo: campo,
-        valor: '—',
-        status: 'pendente',
-      })
-    }
-
-    return linhas
-  }, [conversao])
-
-  return (
-    <div className="sr-prefill-bid-revisao">
-      <div className="sr-prefill-bid-revisao-cabecalho">
-        <Sparkle weight="duotone" size={20} aria-hidden />
-        <div>
-          <h3 className="sr-prefill-bid-revisao-titulo">Dados para nova cotação de frete</h3>
-          <p className="sr-prefill-bid-revisao-subtitulo">
-            Revise o que será levado ao BID Frete. Campos <strong>sugeridos</strong> podem ser ajustados
-            depois; os passos Modal, Origem/Destino e Carga/Incoterm serão pulados.
-          </p>
-        </div>
-      </div>
-
-      <div className="sr-prefill-bid-revisao-tabela" role="table" aria-label="Mapeamento leitura para cotação">
-        <div className="sr-prefill-bid-revisao-linha sr-prefill-bid-revisao-linha--cabecalho" role="row">
-          <span role="columnheader">Campo da cotação</span>
-          <span role="columnheader">Valor</span>
-          <span role="columnheader">Origem</span>
-        </div>
-        {linhasResumo.map((linha) => (
-          <div key={linha.campo} className="sr-prefill-bid-revisao-linha" role="row">
-            <span className="sr-prefill-bid-revisao-campo" role="cell">{linha.rotulo}</span>
-            <span className="sr-prefill-bid-revisao-valor" role="cell">{linha.valor}</span>
-            <span
-              className={`sr-prefill-bid-revisao-status sr-prefill-bid-revisao-status--${linha.status}`}
-              role="cell"
-            >
-              {rotuloStatus(linha.status)}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {conversao.campos_faltantes.length > 0 && (
-        <p className="sr-prefill-bid-revisao-aviso">
-          {conversao.iniciar_no_passo_fornecedores
-            ? `Alguns campos opcionais não vieram do documento (${conversao.campos_faltantes.join(', ')}).`
-            : `Campos obrigatórios ausentes (${conversao.campos_faltantes.join(', ')}). O wizard abrirá nos passos iniciais para você completar antes de fornecedores.`}
-        </p>
-      )}
-
-      <div className="sr-prefill-bid-revisao-acoes">
-        <BotaoGlobal
-          variante="primario"
-          tamanho="padrao"
-          iconeDireita={<ArrowRight weight="bold" />}
-          onClick={onContinuar}
-          disabled={continuando}
-        >
-          Continuar para cotação
-        </BotaoGlobal>
-      </div>
-    </div>
-  )
-}
-
-export { converterLeituraParaCotacaoBidFreteInternacional }
+/**
+ * Passo 4 (BID Frete) — revisão editável antes de abrir Nova Cotação.
+ */
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
+import { ArrowRight, Sparkle } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import {
+  converterLeituraParaCotacaoBidFreteInternacional,
+  type LeituraParaConversaoCotacaoBidFrete,
+} from '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
+import type {
+  PrefillFormularioCotacaoBidFreteSmartRead,
+} from '../../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
+import type { MetaPrefillCotacaoBidFreteSmartRead } from '../../../../bid-frete-internacional/client/src/components/prefill-smart-read/formulario-editavel-prefill-cotacao-bid-frete-smart-read.js'
+import './painel-revisao-prefill-cotacao-bid-frete-smart-read.css'
+import '../../../../bid-frete-internacional/client/src/components/prefill-smart-read/prefill-cotacao-bid-frete-smart-read.css'
+
+const FormularioEditavelPrefillCotacaoBidFreteSmartRead = lazy(
+  () => import('../../../../bid-frete-internacional/client/src/components/prefill-smart-read/formulario-editavel-prefill-cotacao-bid-frete-smart-read.js'),
+)
+
+export type PayloadContinuarPrefillCotacaoBidFreteSmartRead = {
+  prefill: PrefillFormularioCotacaoBidFreteSmartRead
+  detalhe_mapeamento: ReturnType<typeof converterLeituraParaCotacaoBidFreteInternacional>['detalhe_mapeamento']
+  campos_faltantes: string[]
+  passo_inicial_tipo: MetaPrefillCotacaoBidFreteSmartRead['passo_inicial_tipo']
+  iniciar_no_passo_fornecedores: boolean
+}
+
+type Props = {
+  leitura: LeituraParaConversaoCotacaoBidFrete
+  onContinuar: (payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead) => void
+  continuando?: boolean
+}
+
+function mensagemAviso(meta: MetaPrefillCotacaoBidFreteSmartRead): string | null {
+  if (meta.campos_faltantes.length === 0) return null
+  if (meta.iniciar_no_passo_fornecedores) {
+    return `Alguns campos opcionais não vieram do documento (${meta.campos_faltantes.join(', ')}).`
+  }
+  if (meta.passo_inicial_tipo === 'armazenagem') {
+    return `Com armazenagem LCL ativa, o wizard abrirá no passo Armazenagem para cadastrar os armazéns antes de fornecedores.`
+  }
+  return `Campos obrigatórios ausentes (${meta.campos_faltantes.join(', ')}). O wizard abrirá no passo "${meta.passo_inicial_tipo}" para você completar antes de fornecedores.`
+}
+
+export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
+  leitura,
+  onContinuar,
+  continuando = false,
+}: Props) {
+  const conversao = useMemo(
+    () => converterLeituraParaCotacaoBidFreteInternacional(leitura),
+    [leitura],
+  )
+
+  const [prefill, setPrefill] = useState(conversao.prefill)
+  const [meta, setMeta] = useState<MetaPrefillCotacaoBidFreteSmartRead>({
+    campos_faltantes: conversao.campos_faltantes,
+    passo_inicial_tipo: conversao.passo_inicial_tipo,
+    iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
+  })
+
+  const handleChange = useCallback(
+    (novoPrefill: PrefillFormularioCotacaoBidFreteSmartRead, novoMeta: MetaPrefillCotacaoBidFreteSmartRead) => {
+      setPrefill(novoPrefill)
+      setMeta(novoMeta)
+    },
+    [],
+  )
+
+  const aviso = mensagemAviso(meta)
+
+  return (
+    <div className="sr-prefill-bid-revisao">
+      <div className="sr-prefill-bid-revisao-cabecalho">
+        <Sparkle weight="duotone" size={20} aria-hidden />
+        <div>
+          <h3 className="sr-prefill-bid-revisao-titulo">Dados para nova cotação de frete</h3>
+          <p className="sr-prefill-bid-revisao-subtitulo">
+            Ajuste os campos com os mesmos controles do BID Frete. Campos <strong>LCL</strong> exibem
+            armazenagem; se escolher <strong>Sim</strong>, o wizard abrirá no passo Armazenagem.
+          </p>
+        </div>
+      </div>
+
+      <Suspense fallback={<p className="sr-prefill-bid-revisao-subtitulo">Carregando formulário…</p>}>
+        <FormularioEditavelPrefillCotacaoBidFreteSmartRead
+          prefill={prefill}
+          detalheMapeamento={conversao.detalhe_mapeamento}
+          onChange={handleChange}
+        />
+      </Suspense>
+
+      {aviso && (
+        <p className="sr-prefill-bid-revisao-aviso">{aviso}</p>
+      )}
+
+      <div className="sr-prefill-bid-revisao-acoes">
+        <BotaoGlobal
+          variante="primario"
+          tamanho="padrao"
+          iconeDireita={<ArrowRight weight="bold" />}
+          onClick={() => onContinuar({
+            prefill,
+            detalhe_mapeamento: conversao.detalhe_mapeamento,
+            campos_faltantes: meta.campos_faltantes,
+            passo_inicial_tipo: meta.passo_inicial_tipo,
+            iniciar_no_passo_fornecedores: meta.iniciar_no_passo_fornecedores,
+          })}
+          disabled={continuando}
+        >
+          Continuar para cotação
+        </BotaoGlobal>
+      </div>
+    </div>
+  )
+}
+
+export { converterLeituraParaCotacaoBidFreteInternacional }
+

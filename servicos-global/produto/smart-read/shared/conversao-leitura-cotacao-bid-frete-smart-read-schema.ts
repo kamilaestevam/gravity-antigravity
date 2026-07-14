@@ -62,14 +62,24 @@ export type PrefillFormularioCotacaoBidFreteSmartRead = z.infer<
   typeof PrefillFormularioCotacaoBidFreteSmartReadSchema
 >
 
+const passoInicialPrefillSmartReadEnum = z.enum([
+  'modal',
+  'origem',
+  'carga',
+  'armazenagem',
+  'fornecedores',
+])
+
 export const PacotePrefillCotacaoBidFreteSmartReadSchema = z.object({
   id_leitura: z.string().min(1),
   id_bid_bid_frete_internacional: z.string().optional(),
   prefill: PrefillFormularioCotacaoBidFreteSmartReadSchema,
   detalhe_mapeamento: DetalheMapeamentoSmartReadCotacaoBidFreteSchema,
+  passo_inicial_tipo: passoInicialPrefillSmartReadEnum.optional(),
   iniciar_no_passo_fornecedores: z.boolean(),
   criado_em: z.string().datetime(),
 })
+export type PassoInicialPrefillSmartReadCotacaoBidFrete = z.infer<typeof passoInicialPrefillSmartReadEnum>
 export type PacotePrefillCotacaoBidFreteSmartRead = z.infer<
   typeof PacotePrefillCotacaoBidFreteSmartReadSchema
 >

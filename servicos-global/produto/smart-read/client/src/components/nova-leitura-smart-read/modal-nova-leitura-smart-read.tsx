@@ -57,6 +57,7 @@ import {
 import { montarEstadoProgressoLeituraSmartRead } from '../../shared/montar-estado-progresso-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
+import type { HintRetomarLeituraListaSmartRead } from '../../../../shared/hint-retomar-leitura-lista-smart-read.js'
 import {
   escolherLeituraEfetivaRetomarSmartRead,
   mesclarLeiturasRetomarSmartRead,
@@ -155,6 +156,9 @@ type Props = {
   /** Passo vindo da Lista (status_fluxo) — placeholder até hidratar progresso. */
   passoRetomarLista?: number | null
 
+  /** Metadados da linha da Lista (nome/total) para placeholders na retomada. */
+  hintRetomarLista?: HintRetomarLeituraListaSmartRead | null
+
   onFechar: () => void
 
   onConcluido?: () => void
@@ -191,6 +195,8 @@ export function ModalNovaLeituraSmartRead({
   idLeituraExistente = null,
 
   passoRetomarLista = null,
+
+  hintRetomarLista = null,
 
   onFechar,
 
@@ -291,7 +297,7 @@ export function ModalNovaLeituraSmartRead({
   const aplicarLeituraHidratada = useCallback(
     async (id: string, leituraEfetiva: Leitura, salvo: EstadoSalvoLeitura | null) => {
       setNomeLeitura(salvo?.nome ?? leituraEfetiva.nome_leitura ?? 'Leitura')
-      const locais = criarArquivosLocaisRetomarDeLeitura(leituraEfetiva)
+      const locais = criarArquivosLocaisRetomarDeLeitura(leituraEfetiva, hintRetomarLista)
       const hidratados = await Promise.all(
         locais.map(async (item) => {
           if (arquivoLocalTemBlobVisualizavel(item.arquivo)) return item
@@ -331,7 +337,7 @@ export function ModalNovaLeituraSmartRead({
         }
       }
     },
-    [passoRetomarLista],
+    [hintRetomarLista, passoRetomarLista],
   )
 
   const hidratarLeituraExistente = useCallback(
@@ -348,14 +354,6 @@ export function ModalNovaLeituraSmartRead({
       let leitura: Leitura | null = null
       try {
         leitura = await smartReadApi.obterLeitura(id)
-        if (
-          leitura &&
-          salvo?.leitura &&
-          leituraSemExtracaoUtilRetomarSmartRead(leitura) &&
-          !leituraSemExtracaoUtilRetomarSmartRead(salvo.leitura)
-        ) {
-          leitura = mesclarLeiturasRetomarSmartRead(leitura, salvo.leitura)
-        }
       } catch (erro) {
         leitura = salvo?.leitura ?? null
         if (!leitura) {
@@ -368,6 +366,8 @@ export function ModalNovaLeituraSmartRead({
           console.warn('[smart-read][persist] obterLeitura falhou — usando progresso salvo', erro)
         }
       }
+
+      leitura = escolherLeituraEfetivaRetomarSmartRead(leitura, salvo?.leitura ?? null)
 
       try {
         if (!leitura) {

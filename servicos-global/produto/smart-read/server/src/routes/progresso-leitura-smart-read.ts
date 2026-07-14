@@ -6,7 +6,8 @@ import { Router, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { Prisma } from '../generated/client/index.js'
 import { AppError } from '../lib/app-error.js'
-import { persistirSnapshotLeituraSmartRead } from '../lib/snapshot-leitura-smart-read.js'
+import { persistirSnapshotLeituraSmartRead, obterLeituraDoSnapshot } from '../lib/snapshot-leitura-smart-read.js'
+import { resolverIdWorkspaceLeituraSmartRead } from '../lib/escopo-workspace-leitura-smart-read.js'
 import { mesclarLeiturasRetomarSmartRead } from '../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 import {
   EstadoProgressoLeituraSchema,
@@ -93,6 +94,7 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
         id_usuario: idUsuario,
         id_leitura_legado_progresso_leitura_smart_read: id_leitura,
       },
+      orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
     })
 
     const dadosAnteriores = existente
@@ -109,9 +111,23 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
         'PROGRESSO_SEM_EXTRACAO',
       )
     }
-    const leituraCorpo = dadosAnteriores?.leitura
+    let leituraCorpo = dadosAnteriores?.leitura
       ? mesclarLeiturasRetomarSmartRead(corpo.leitura, dadosAnteriores.leitura)
       : corpo.leitura
+
+    if (
+      leituraCorpo.arquivos.length === 0 &&
+      (leituraCorpo.total_arquivos ?? 0) > 0 &&
+      corpo.passo >= 2 &&
+      req.idOrganizacao
+    ) {
+      const idWorkspaceResolvido =
+        idWorkspace ?? resolverIdWorkspaceLeituraSmartRead(req, req.idOrganizacao)
+      const doSnapshot = await obterLeituraDoSnapshot(prisma, id_leitura, idWorkspaceResolvido)
+      if (doSnapshot?.arquivos.length) {
+        leituraCorpo = mesclarLeiturasRetomarSmartRead(leituraCorpo, doSnapshot)
+      }
+    }
     const cacheAnterior = dadosAnteriores?.analise_riscos_cache ?? {}
     const cacheCorpo = corpo.analise_riscos_cache ?? {}
     const cacheMesclado =

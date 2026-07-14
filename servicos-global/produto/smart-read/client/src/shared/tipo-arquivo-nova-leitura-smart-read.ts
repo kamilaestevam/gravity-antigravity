@@ -4,6 +4,7 @@
 
 import type { Leitura, StatusLeitura } from './schemas'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import { passoInicialLeituraSmartRead as passoInicialLeituraSmartReadShared } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
@@ -89,19 +90,28 @@ export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNova
  * Retomar leitura: usa `arquivos` da API quando existem; senão placeholders a partir de
  * `total_arquivos` (lista/legado podem expor contagem sem detalhe de arquivo ainda).
  */
-export function criarArquivosLocaisRetomarDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
-  if (leitura.arquivos.length > 0) {
-    return criarArquivosLocaisDeLeitura(leitura)
+export function criarArquivosLocaisRetomarDeLeitura(
+  leitura: Leitura,
+  hint?: HintRetomarLeituraListaSmartRead | null,
+): ArquivoLocalNovaLeitura[] {
+  const total = Math.max(leitura.total_arquivos ?? 0, hint?.total_arquivos ?? 0)
+  const leituraEfetiva =
+    total > (leitura.total_arquivos ?? 0) ? { ...leitura, total_arquivos: total } : leitura
+
+  if (leituraEfetiva.arquivos.length > 0) {
+    return criarArquivosLocaisDeLeitura(leituraEfetiva)
   }
 
-  const total = leitura.total_arquivos ?? 0
   if (total <= 0) return []
 
+  const nomeLista =
+    corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
   const nomeBase =
-    (corrigirEncodingNomeArquivoSmartRead(leitura.nome_leitura) ??
-      leitura.nome_leitura?.trim()) ||
+    nomeLista ??
+    (corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+      leituraEfetiva.nome_leitura?.trim()) ||
     'documento'
-  const statusLocal = statusArquivoLocalDeStatusLeitura(leitura.status_leitura)
+  const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)
 
   return Array.from({ length: total }, (_, indice) => {
     const nomeArquivo = total === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
@@ -109,10 +119,10 @@ export function criarArquivosLocaisRetomarDeLeitura(leitura: Leitura): ArquivoLo
       id_arquivo_local: crypto.randomUUID(),
       arquivo: new File([], nomeArquivo),
       status_arquivo_local: statusLocal,
-      id_leitura: leitura.id_leitura,
+      id_leitura: leituraEfetiva.id_leitura,
       id_arquivo: null,
-      leitura,
-      mensagem_erro: leitura.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
+      leitura: leituraEfetiva,
+      mensagem_erro: leituraEfetiva.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
       expandido: true,
     }
   })

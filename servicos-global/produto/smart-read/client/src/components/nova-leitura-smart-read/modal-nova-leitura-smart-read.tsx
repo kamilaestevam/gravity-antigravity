@@ -49,7 +49,6 @@ import {
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
-import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 
 import {
@@ -303,10 +302,11 @@ export function ModalNovaLeituraSmartRead({
         console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
       }
 
-      let leitura: Leitura | null = salvo?.leitura ?? null
+      let leitura: Leitura | null = null
       try {
         leitura = await smartReadApi.obterLeitura(id)
       } catch (erro) {
+        leitura = salvo?.leitura ?? null
         if (!leitura) {
           if (!ativo.current) return
           setArquivos([])
@@ -319,14 +319,13 @@ export function ModalNovaLeituraSmartRead({
       }
 
       try {
-        const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leitura, salvo?.leitura)
-        if (!leituraEfetiva) {
+        if (!leitura) {
           if (!ativo.current) return
           setArquivos([])
           setPasso(1)
           return
         }
-        await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
+        await aplicarLeituraHidratada(id, leitura, salvo)
       } catch {
         if (!ativo.current) return
         if (salvo?.leitura) {

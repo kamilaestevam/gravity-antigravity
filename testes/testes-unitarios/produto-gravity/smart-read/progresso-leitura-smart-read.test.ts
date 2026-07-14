@@ -130,7 +130,7 @@ describe('progresso-leitura-smart-read', () => {
     expect(escolhido?.passo).toBe(3)
   })
 
-  it('mantém extração remota quando local tem passo maior sem arquivos', () => {
+  it('mantém leitura remota quando local tem passo maior sem arquivos', () => {
     const leituraComExtracao = {
       ...leituraMinima,
       arquivos: [
@@ -151,7 +151,7 @@ describe('progresso-leitura-smart-read', () => {
     expect(escolhido?.leitura.arquivos[0]).toMatchObject({ id_arquivo: 'arq-ok' })
   })
 
-  it('mescla analise_riscos_cache quando passo local vence sem cache', () => {
+  it('ignora leitura local quando remoto existe (SSOT Postgres)', () => {
     const base = { nome: 'Leitura', leitura: leituraMinima }
     const cacheRemoto = {
       'id|doc:0:INVOICE': {

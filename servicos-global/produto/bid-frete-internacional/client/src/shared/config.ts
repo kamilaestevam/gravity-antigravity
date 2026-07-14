@@ -80,6 +80,7 @@ export const PRODUCT_CONFIG = {
     importacao_bloco: true,
     mapa_rotas: true,
     conectores_erp: false,
+    smart_read: true,
   },
 
   navigation_visao_fornecedor_bid_frete_internacional: [

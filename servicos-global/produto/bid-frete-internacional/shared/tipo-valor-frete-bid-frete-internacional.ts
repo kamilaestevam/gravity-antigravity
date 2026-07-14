@@ -52,6 +52,45 @@ export const ROTULOS_UNIDADE_FAIXA_VALOR_FRETE_KGS_BID_FRETE_INTERNACIONAL: Reco
   M3: 'Por m³',
 }
 
+/** Opção inicial do select (UI — não persiste; usuário escolhe KG ou M3). */
+export const VALOR_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL =
+  'PENDENTE_UNIDADE_FAIXA_VALOR_FRETE' as const
+
+export const ROTULO_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL =
+  'kgs/m3'
+
+export function opcoesSelectUnidadeFaixaValorFreteKgsBidFreteInternacional(): Array<{
+  valor: string
+  rotulo: string
+}> {
+  return [
+    {
+      valor: VALOR_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL,
+      rotulo: ROTULO_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL,
+    },
+    ...UNIDADES_FAIXA_VALOR_FRETE_KGS_BID_FRETE_INTERNACIONAL.map((u) => ({
+      valor: u,
+      rotulo: ROTULOS_UNIDADE_FAIXA_VALOR_FRETE_KGS_BID_FRETE_INTERNACIONAL[u],
+    })),
+  ]
+}
+
+export function valorSelectUnidadeFaixaValorFreteKgsBidFreteInternacional(
+  unidade: '' | UnidadeFaixaValorFreteKgsBidFreteInternacional,
+): string {
+  return unidade === 'KG' || unidade === 'M3'
+    ? unidade
+    : VALOR_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL
+}
+
+export function unidadeFaixaValorFreteKgsFromSelectBidFreteInternacional(
+  valor: unknown,
+): '' | UnidadeFaixaValorFreteKgsBidFreteInternacional {
+  if (valor === 'M3') return 'M3'
+  if (valor === 'KG') return 'KG'
+  return ''
+}
+
 export const SIGLAS_UNIDADE_FAIXA_VALOR_FRETE_KGS_BID_FRETE_INTERNACIONAL: Record<
   UnidadeFaixaValorFreteKgsBidFreteInternacional,
   string
@@ -62,11 +101,9 @@ export const SIGLAS_UNIDADE_FAIXA_VALOR_FRETE_KGS_BID_FRETE_INTERNACIONAL: Recor
 
 export const faixaValorFreteKgsCotacaoBidFreteInternacionalSchema = z.object({
   ordem_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().int().positive(),
-  limite_inferior_kg_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().nonnegative(),
-  valor_unitario_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().positive(),
+  limite_inferior_kg_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().finite(),
   unidade_faixa_valor_frete_kgs_cotacao_bid_frete_internacional:
     unidadeFaixaValorFreteKgsBidFreteInternacionalSchema,
-  moeda_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.string().min(1).optional(),
 })
 
 export const faixaValorFreteKgsPropostaBidFreteInternacionalSchema = z.object({

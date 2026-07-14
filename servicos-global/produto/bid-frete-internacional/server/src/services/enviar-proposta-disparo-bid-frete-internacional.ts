@@ -25,6 +25,14 @@ import { lerPreferenciasNotificacaoBidFreteInternacional } from '../lib/ler-pref
 
 export interface DadosPropostaDisparo {
   moeda_proposta_bid_frete_internacional: string
+  tipo_valor_frete_proposta_bid_frete_internacional?: 'TOTAL' | 'FAIXA_PESO'
+  faixas_valor_frete_kgs_proposta_bid_frete_internacional?: Array<{
+    ordem_faixa_valor_frete_kgs_proposta_bid_frete_internacional: number
+    limite_inferior_kg_faixa_valor_frete_kgs_proposta_bid_frete_internacional: number
+    valor_unitario_faixa_valor_frete_kgs_proposta_bid_frete_internacional: number
+    unidade_faixa_valor_frete_kgs_proposta_bid_frete_internacional: 'KG' | 'M3'
+    moeda_faixa_valor_frete_kgs_proposta_bid_frete_internacional?: string
+  }> | null
   valor_frete_proposta_bid_frete_internacional: number
   taxas_origem_proposta_bid_frete_internacional: number
   taxas_destino_proposta_bid_frete_internacional: number
@@ -188,13 +196,32 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     codigo_porto_aeroporto_destino_proposta_bid_frete_internacional,
     ...responseData
   } = dados
+
+  const tarifasFaixa = (responseData.faixas_valor_frete_kgs_proposta_bid_frete_internacional ?? [])
+    .map((f) => f.valor_unitario_faixa_valor_frete_kgs_proposta_bid_frete_internacional)
+    .filter((n) => Number.isFinite(n) && n > 0)
+
+  const valorFreteBase =
+    responseData.tipo_valor_frete_proposta_bid_frete_internacional === 'FAIXA_PESO'
+      ? (tarifasFaixa.length > 0 ? Math.min(...tarifasFaixa) : 0)
+      : responseData.valor_frete_proposta_bid_frete_internacional
+
+  const valorFreteEfetivo = Number.isFinite(valorFreteBase) && valorFreteBase > 0
+    ? valorFreteBase
+    : responseData.valor_frete_proposta_bid_frete_internacional
+
   const valorTotal =
-    responseData.valor_frete_proposta_bid_frete_internacional +
+    valorFreteEfetivo +
     responseData.taxas_origem_proposta_bid_frete_internacional +
     responseData.taxas_destino_proposta_bid_frete_internacional
 
   const dadosProposta = {
     ...responseData,
+    valor_frete_proposta_bid_frete_internacional: valorFreteEfetivo,
+    faixas_valor_frete_kgs_proposta_bid_frete_internacional:
+      responseData.tipo_valor_frete_proposta_bid_frete_internacional === 'FAIXA_PESO'
+        ? responseData.faixas_valor_frete_kgs_proposta_bid_frete_internacional ?? null
+        : null,
     observacoes_proposta_bid_frete_internacional: serializarLocaisPropostaObservacoes(
       {
         codigo_porto_aeroporto_origem_proposta_bid_frete_internacional,

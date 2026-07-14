@@ -67,6 +67,15 @@ $aliasesManual = @{
   'tela_bid_frete_painel_cotacao_propostas_ranking.png' = 'bid-frete-int-painel-cotacao-propostas-ranking.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_completo .png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-completo.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovar_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovar-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovar_2.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovar-2.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovar_modal.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovar-modal.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovar_modal_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovar-modal-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_tela_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-tela-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_tela_2.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-tela-2.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-1.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_2.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-2.png'
+  'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_3.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-3.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {
   $caminhoDrive = Join-Path $origem $nomeDrive

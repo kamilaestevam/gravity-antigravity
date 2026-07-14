@@ -284,7 +284,10 @@ export function montarAvisoTaxaPlataformaEmailDisparoBidFrete(
   avisoTextoPlano: string
 } {
   const pagadorNormalizado = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagador)
-  const urlCondicoes = resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(linkResposta)
+  const urlCondicoes = resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(
+    linkResposta,
+    pagadorNormalizado,
+  )
   const urlHtml = escapeHtmlTextoEmailBidFrete(urlCondicoes)
   const estilosCaixa = resolverEstilosCaixaAvisoTaxaEmailDisparoBidFrete(pagadorNormalizado)
   const avisoTextoPlano = montarTextoAvisoTaxaEmailDisparoBidFrete({

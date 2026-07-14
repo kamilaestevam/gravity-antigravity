@@ -26,6 +26,7 @@ import {
 import { montarTextoLocalizacaoComplementarEmailDisparoBidFrete } from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional.js'
 import { parseCodigosOpcaoPortoAeroportoFromDb } from '../../../shared/opcao-porto-aeroporto-cotacao-bid-frete-internacional.js'
 import { calcularDataExpiracaoTokenDisparoBidFreteInternacional } from '../../../shared/calcular-data-expiracao-token-disparo-bid-frete-internacional.js'
+import { enviarEmailDisparoCompradorBidFreteInternacional } from './enviar-emails-comprador-bid-frete-internacional.js'
 import {
   montarTextoRotulosLocaisOpcionaisDisparoBidFrete,
   resolverRotulosLocaisOpcionaisDisparoBidFrete,
@@ -43,6 +44,7 @@ import {
 } from './resolver-contatos-disparo-bid-frete-internacional.js'
 import { filtrarFornecedorIdsElegiveisDisparoBidFreteInternacional } from './filtrar-fornecedores-disparo-bid-frete-internacional.js'
 import type { ModalRotaCotacao } from '../../../shared/rota-cotacao-bid-frete-internacional.js'
+import { REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL } from '../../../shared/remetente-email-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
@@ -195,6 +197,7 @@ export const motorBid = {
       canal_disparo_cotacao_bid_frete_internacional: string
       id_disparo_cotacao_bid_frete_internacional: string
       status_disparo_cotacao_bid_frete_internacional: 'ENVIADO' | 'ERRO_ENVIO'
+      data_envio_disparo_cotacao_bid_frete_internacional?: Date
       erro_envio_disparo_cotacao_bid_frete_internacional?: string
     }> = []
     let algumDisparoEnviado = false
@@ -229,6 +232,7 @@ export const motorBid = {
 
         let statusDisparo: 'ENVIADO' | 'ERRO_ENVIO' = 'ENVIADO'
         let erroDisparo: string | undefined
+        let dataEnvioDisparo: Date | undefined
         try {
           let idMensagem: string | null = null
           if (canal_disparo_cotacao_bid_frete_internacional === 'EMAIL') {
@@ -272,6 +276,7 @@ export const motorBid = {
               ...(idMensagem ? { id_mensagem_disparo_cotacao_bid_frete_internacional: idMensagem } : {}),
             },
           })
+          dataEnvioDisparo = new Date()
           fornecedorEnviou = true
         } catch (err: unknown) {
           statusDisparo = 'ERRO_ENVIO'
@@ -300,6 +305,7 @@ export const motorBid = {
           canal_disparo_cotacao_bid_frete_internacional,
           id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional,
           status_disparo_cotacao_bid_frete_internacional: statusDisparo,
+          ...(dataEnvioDisparo ? { data_envio_disparo_cotacao_bid_frete_internacional: dataEnvioDisparo } : {}),
           ...(erroDisparo ? { erro_envio_disparo_cotacao_bid_frete_internacional: erroDisparo } : {}),
         })
       }
@@ -326,6 +332,47 @@ export const motorBid = {
       await (prisma as any).cotacaoBidFreteInternacional.update({
         where: { id_cotacao_bid_frete_internacional },
         data: { status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES' },
+      })
+
+      const fornecedoresEnviados = new Set(
+        results
+          .filter(r => r.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO')
+          .map(r => r.id_fornecedor_bid_frete_internacional),
+      ).size
+
+      const datasEnvio = results
+        .map(r => r.data_envio_disparo_cotacao_bid_frete_internacional)
+        .filter((data): data is Date => data instanceof Date)
+      const dataHoraDisparo = datasEnvio.length > 0
+        ? new Date(Math.min(...datasEnvio.map(d => d.getTime())))
+        : new Date()
+
+      await enviarEmailDisparoCompradorBidFreteInternacional(prisma, {
+        id_organizacao,
+        id_usuario,
+        id_cotacao_bid_frete_internacional,
+        quantidadeFornecedores: fornecedoresEnviados,
+        parametros: {
+          numeroCotacao: String(cotacao.numero_cotacao_bid_frete_internacional ?? id_cotacao_bid_frete_internacional),
+          referenciaInterna: cotacao.referencia_interna_cotacao_bid_frete_internacional,
+          modal: String(cotacao.modal_cotacao_bid_frete_internacional ?? ''),
+          modalidade: cotacao.modalidade_cotacao_bid_frete_internacional,
+          origemNome: String(cotacao.origem_nome_cotacao_bid_frete_internacional ?? ''),
+          origemPais: String(cotacao.origem_pais_cotacao_bid_frete_internacional ?? ''),
+          destinoNome: String(cotacao.destino_nome_cotacao_bid_frete_internacional ?? ''),
+          destinoPais: String(cotacao.destino_pais_cotacao_bid_frete_internacional ?? ''),
+          incoterm: String(cotacao.incoterm_cotacao_bid_frete_internacional ?? ''),
+          mercadoria: String(cotacao.descricao_mercadoria_cotacao_bid_frete_internacional ?? ''),
+          data_limite_resposta_cotacao_bid_frete_internacional:
+            cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+          dataHoraDisparo,
+          fornecedoresDisparo: results.map(r => ({
+            nomeFornecedor: r.nome_fornecedor_bid_frete_internacional,
+            canal: r.canal_disparo_cotacao_bid_frete_internacional,
+            dataHoraEnvio: r.data_envio_disparo_cotacao_bid_frete_internacional ?? null,
+            status: r.status_disparo_cotacao_bid_frete_internacional,
+          })),
+        },
       })
     }
 
@@ -575,6 +622,7 @@ export const motorBid = {
         body_html: montarHtmlEmailDisparo(parametrosEmail),
         body: montarTextoPlanoEmailDisparo(parametrosEmail),
         product_id: 'bid-frete-internacional',
+        from: REMETENTE_EMAIL_BID_FRETE_INTERNACIONAL,
       },
       {
         headers: {

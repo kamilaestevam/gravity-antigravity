@@ -78,7 +78,7 @@ describe('formatar-email-aprovacao-proposta-bid-frete-internacional', () => {
     const texto = montarTextoPlanoEmailAprovacaoProposta(paramsGanhador)
     expect(texto).toContain('Acme Importadora')
     expect(texto).toContain('Aprovada por: Daniel')
-    expect(texto).toContain('Recebi e estou de acordo')
+    expect(texto).toContain('Ir para confirmação')
     expect(texto).toContain('tok-abc')
     expect(texto).not.toContain('Ver minhas propostas')
   })
@@ -89,14 +89,15 @@ describe('formatar-email-aprovacao-proposta-bid-frete-internacional', () => {
     expect(texto).toContain('Acme Importadora')
     expect(texto).toContain('Aprovada por: Daniel')
     expect(texto).toContain('COLOCAÇÃO POR EIXO')
-    expect(texto).not.toContain('Recebi e estou de acordo')
+    expect(texto).not.toContain('Ir para confirmação')
   })
 
-  it('html ganhador inclui imagem svg, fallback e CTA único', () => {
+  it('html ganhador usa card HTML (sem SVG inline — Gmail bloqueia data URI)', () => {
     const html = montarHtmlEmailAprovacaoProposta(paramsGanhador)
-    expect(html).toContain('data:image/svg+xml;base64,')
-    expect(html).toContain('Seu resultado (texto — caso a imagem não carregue)')
-    expect(html).toContain('Recebi e estou de acordo')
+    expect(html).not.toContain('data:image/svg+xml;base64,')
+    expect(html).toContain('Seu resultado')
+    expect(html).toContain('1º lugar geral')
+    expect(html).toContain('Ir para confirmação')
     expect(html).toContain('Acme Importadora')
     expect(html).not.toContain('Ver minhas propostas')
   })
@@ -104,6 +105,29 @@ describe('formatar-email-aprovacao-proposta-bid-frete-internacional', () => {
   it('html perdedor não inclui botão de aceite', () => {
     const html = montarHtmlEmailAprovacaoProposta(paramsPerdedor)
     expect(html).toContain('2º lugar')
-    expect(html).not.toContain('Recebi e estou de acordo')
+    expect(html).not.toContain('Ir para confirmação')
+  })
+
+  it('comentários do comprador aparecem só no e-mail do ganhador', () => {
+    const comentario = 'Favor confirmar free time de 14 dias.'
+    const ganhadorComComentario = {
+      ...paramsGanhador,
+      comentariosAprovacaoCotacao: comentario,
+    }
+    const perdedorComComentario = {
+      ...paramsPerdedor,
+      comentariosAprovacaoCotacao: comentario,
+    }
+    const htmlGanhador = montarHtmlEmailAprovacaoProposta(ganhadorComComentario)
+    const htmlPerdedor = montarHtmlEmailAprovacaoProposta(perdedorComComentario)
+    const textoGanhador = montarTextoPlanoEmailAprovacaoProposta(ganhadorComComentario)
+    const textoPerdedor = montarTextoPlanoEmailAprovacaoProposta(perdedorComComentario)
+
+    expect(htmlGanhador).toContain('Observações')
+    expect(htmlGanhador).toContain(comentario)
+    expect(htmlGanhador.indexOf('Observações')).toBeGreaterThan(htmlGanhador.indexOf('Rota'))
+    expect(textoGanhador).toContain(comentario)
+    expect(htmlPerdedor).not.toContain('Observações')
+    expect(textoPerdedor).not.toContain(comentario)
   })
 })

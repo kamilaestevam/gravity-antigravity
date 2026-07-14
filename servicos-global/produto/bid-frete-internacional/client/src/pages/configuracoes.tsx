@@ -114,6 +114,7 @@ import {
 import './configuracoes.css'
 import { bidFreteConfigApi } from '../shared/api'
 import { PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO } from '../../../shared/preferencias-notificacao-bid-frete-internacional'
+import type { PreferenciasNotificacaoBidFrete } from '../../../shared/preferencias-notificacao-bid-frete-internacional'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
 
@@ -1016,16 +1017,6 @@ export default function Configuracoes() {
     ...REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   })
 
-  const restaurarPreferenciasPadrao = useCallback(() => {
-    setRegrasConfig(prev => ({
-      ...prev,
-      fornecedorPodeAlterarPropostaPadrao:
-        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.fornecedorPodeAlterarPropostaPadrao,
-      empresaPagadoraTaxaFechamentoPlataformaGravity:
-        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.empresaPagadoraTaxaFechamentoPlataformaGravity,
-    }))
-  }, [setRegrasConfig])
-
   const opcoesPagadorTaxaFechamento = useMemo(
     () =>
       (Object.entries(ROTULOS_EMPRESA_PAGADORA_TAXA_FECHAMENTO_PLATAFORMA_GRAVITY) as Array<
@@ -1051,6 +1042,37 @@ export default function Configuracoes() {
 
   const prefsNotificacaoBackendRef = useRef(PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO)
 
+  const [emailCompradorPrefs, setEmailCompradorPrefs] = useState({
+    email_envio_solicitacao_cotacao:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_envio_solicitacao_cotacao,
+    email_resposta_fornecedor:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_resposta_fornecedor,
+    email_confirmacao_fornecedor_vencedor:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_confirmacao_fornecedor_vencedor,
+  })
+
+  const [emailCompradorPrefsSalvas, setEmailCompradorPrefsSalvas] = useState({
+    email_envio_solicitacao_cotacao:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_envio_solicitacao_cotacao,
+    email_resposta_fornecedor:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_resposta_fornecedor,
+    email_confirmacao_fornecedor_vencedor:
+      PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_confirmacao_fornecedor_vencedor,
+  })
+
+  const emailCompradorPrefsDirty = useMemo(
+    () =>
+      emailCompradorPrefs.email_envio_solicitacao_cotacao
+        !== emailCompradorPrefsSalvas.email_envio_solicitacao_cotacao
+      || emailCompradorPrefs.email_resposta_fornecedor
+        !== emailCompradorPrefsSalvas.email_resposta_fornecedor
+      || emailCompradorPrefs.email_confirmacao_fornecedor_vencedor
+        !== emailCompradorPrefsSalvas.email_confirmacao_fornecedor_vencedor,
+    [emailCompradorPrefs, emailCompradorPrefsSalvas],
+  )
+
+  const preferenciasSecaoDirty = regrasConfigDirty || emailCompradorPrefsDirty
+
   useEffect(() => {
     let cancelado = false
     void bidFreteConfigApi
@@ -1063,12 +1085,82 @@ export default function Configuracoes() {
           ...prev,
           avisarAlteracaoPropostaFornecedor: prefs.avisar_alteracao_proposta_fornecedor,
         }))
+        setEmailCompradorPrefs({
+          email_envio_solicitacao_cotacao: prefs.email_envio_solicitacao_cotacao,
+          email_resposta_fornecedor: prefs.email_resposta_fornecedor,
+          email_confirmacao_fornecedor_vencedor: prefs.email_confirmacao_fornecedor_vencedor,
+        })
+        setEmailCompradorPrefsSalvas({
+          email_envio_solicitacao_cotacao: prefs.email_envio_solicitacao_cotacao,
+          email_resposta_fornecedor: prefs.email_resposta_fornecedor,
+          email_confirmacao_fornecedor_vencedor: prefs.email_confirmacao_fornecedor_vencedor,
+        })
       })
       .catch(() => { /* mantém localStorage / padrão */ })
     return () => {
       cancelado = true
     }
   }, [setNotificacoesConfig])
+
+  const persistirPreferenciasEmailComprador = useCallback(async () => {
+    const merged: PreferenciasNotificacaoBidFrete = {
+      ...prefsNotificacaoBackendRef.current,
+      ...emailCompradorPrefs,
+    }
+    const res = await bidFreteConfigApi.salvarPreferenciasNotificacao(merged)
+    const prefs = res.data.preferencias_notificacao_bid_frete_internacional
+    prefsNotificacaoBackendRef.current = prefs
+    const salvas = {
+      email_envio_solicitacao_cotacao: prefs.email_envio_solicitacao_cotacao,
+      email_resposta_fornecedor: prefs.email_resposta_fornecedor,
+      email_confirmacao_fornecedor_vencedor: prefs.email_confirmacao_fornecedor_vencedor,
+    }
+    setEmailCompradorPrefs(salvas)
+    setEmailCompradorPrefsSalvas(salvas)
+  }, [emailCompradorPrefs])
+
+  const salvarPreferenciasSecao = useCallback(async () => {
+    if (!regrasConfigDirty && !emailCompradorPrefsDirty) return
+
+    if (regrasConfigDirty) {
+      salvarRegrasConfig()
+    }
+
+    if (emailCompradorPrefsDirty) {
+      try {
+        await persistirPreferenciasEmailComprador()
+        if (!regrasConfigDirty) {
+          addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
+        }
+      } catch (err) {
+        console.warn('[configuracoes] falha ao salvar preferências de e-mail do comprador', err)
+      }
+    }
+  }, [
+    addNotification,
+    emailCompradorPrefsDirty,
+    persistirPreferenciasEmailComprador,
+    regrasConfigDirty,
+    salvarRegrasConfig,
+  ])
+
+  const restaurarPreferenciasPadrao = useCallback(() => {
+    setRegrasConfig(prev => ({
+      ...prev,
+      fornecedorPodeAlterarPropostaPadrao:
+        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.fornecedorPodeAlterarPropostaPadrao,
+      empresaPagadoraTaxaFechamentoPlataformaGravity:
+        REGRAS_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL.empresaPagadoraTaxaFechamentoPlataformaGravity,
+    }))
+    setEmailCompradorPrefs({
+      email_envio_solicitacao_cotacao:
+        PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_envio_solicitacao_cotacao,
+      email_resposta_fornecedor:
+        PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_resposta_fornecedor,
+      email_confirmacao_fornecedor_vencedor:
+        PREFERENCIAS_NOTIFICACAO_BID_FRETE_PADRAO.email_confirmacao_fornecedor_vencedor,
+    })
+  }, [setRegrasConfig])
 
   const persistirAvisarAlteracaoProposta = useCallback((ativo: boolean) => {
     const merged = {
@@ -2384,17 +2476,69 @@ export default function Configuracoes() {
                   )}
                 </p>
               </div>
+              <div className="cfg-divider" style={{ margin: '0.25rem 0' }} />
+              <ConfiguracaoSecaoGlobal
+                label={t(
+                  'bidfrete.configuracoes.pref_emails_comprador_titulo',
+                  'E-mails para você',
+                )}
+              />
+              <p className="cfg-hint cfg-hint--compacto" style={{ maxWidth: '42rem' }}>
+                {t(
+                  'bidfrete.configuracoes.pref_emails_comprador_desc',
+                  'Preferências por usuário. Quando ativado, enviamos cópia transacional para o seu e-mail cadastrado na organização.',
+                )}
+              </p>
+              <ToggleRow
+                id="pref-email-envio-solicitacao"
+                label={t(
+                  'bidfrete.configuracoes.pref_email_envio_solicitacao_label',
+                  'Envio da solicitação da cotação',
+                )}
+                desc={t(
+                  'bidfrete.configuracoes.pref_email_envio_solicitacao_desc',
+                  'Confirmação quando a cotação é disparada aos fornecedores selecionados.',
+                )}
+                checked={emailCompradorPrefs.email_envio_solicitacao_cotacao}
+                onChange={v => setEmailCompradorPrefs(prev => ({ ...prev, email_envio_solicitacao_cotacao: v }))}
+              />
+              <ToggleRow
+                id="pref-email-resposta-fornecedor"
+                label={t(
+                  'bidfrete.configuracoes.pref_email_resposta_fornecedor_label',
+                  'Resposta do fornecedor',
+                )}
+                desc={t(
+                  'bidfrete.configuracoes.pref_email_resposta_fornecedor_desc',
+                  'Aviso quando um fornecedor envia ou atualiza proposta na cotação.',
+                )}
+                checked={emailCompradorPrefs.email_resposta_fornecedor}
+                onChange={v => setEmailCompradorPrefs(prev => ({ ...prev, email_resposta_fornecedor: v }))}
+              />
+              <ToggleRow
+                id="pref-email-confirmacao-vencedor"
+                label={t(
+                  'bidfrete.configuracoes.pref_email_confirmacao_vencedor_label',
+                  'Confirmação do fornecedor vencedor',
+                )}
+                desc={t(
+                  'bidfrete.configuracoes.pref_email_confirmacao_vencedor_desc',
+                  'Quando o ganhador confirma «Recebi e estou de acordo» após a aprovação.',
+                )}
+                checked={emailCompradorPrefs.email_confirmacao_fornecedor_vencedor}
+                onChange={v => setEmailCompradorPrefs(prev => ({ ...prev, email_confirmacao_fornecedor_vencedor: v }))}
+              />
             </div>
             <div className="cfg-secao__footer">
               <BotaoCancelar
-                dirty={regrasConfigDirty}
+                dirty={preferenciasSecaoDirty}
                 rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
                 onClick={restaurarPreferenciasPadrao}
               />
               <BotaoSalvar
-                dirty={regrasConfigDirty}
+                dirty={preferenciasSecaoDirty}
                 rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
-                onClick={salvarRegrasConfig}
+                onClick={salvarPreferenciasSecao}
               />
             </div>
           </section>

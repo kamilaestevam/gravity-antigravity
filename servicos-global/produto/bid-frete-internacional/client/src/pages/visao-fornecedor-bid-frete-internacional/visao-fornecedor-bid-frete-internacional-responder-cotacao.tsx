@@ -21,6 +21,7 @@ import {
 import type { DisparoCotacaoBidFreteInternacional } from '../../shared/types'
 import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import { montarPayloadPropostaRespostaBidFreteInternacional } from '../../shared/montar-payload-proposta-resposta-bid-frete-internacional'
+import { estadoInicialFormularioRespostaFromCotacao } from '../../shared/faixas-valor-frete-proposta-bid-frete-internacional'
 import {
   ESTADO_INICIAL_FORMULARIO_RESPOSTA,
   EstadoMensagemRespostaCotacao,
@@ -68,7 +69,11 @@ export default function ResponderCotacao() {
           setForm(estadoFormularioFromProposta(found.proposta))
         } else {
           setModoEdicao(false)
-          setForm(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
+          const cotacaoInicial = (found as unknown as { cotacao?: DetalhesCotacaoResposta }).cotacao
+          setForm({
+            ...ESTADO_INICIAL_FORMULARIO_RESPOSTA,
+            ...estadoInicialFormularioRespostaFromCotacao(cotacaoInicial),
+          })
         }
       }
     } catch {
@@ -225,6 +230,9 @@ export default function ResponderCotacao() {
                 onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}
                 onLinhasPeriodoArmazenagemChange={(linhas) =>
                   setForm((prev) => ({ ...prev, linhas_periodo_armazenagem: linhas }))
+                }
+                onLinhasFaixaValorFreteChange={(linhas) =>
+                  setForm((prev) => ({ ...prev, linhas_faixa_valor_frete_proposta: linhas }))
                 }
                 onSubmit={handleSubmit}
                 tituloSecao={rotulos.proposta}

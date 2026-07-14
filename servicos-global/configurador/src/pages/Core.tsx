@@ -123,7 +123,7 @@ export function Core() {
 
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
-  const gabiHeaders = useGabiRequestHeaders()
+  const { headersContexto, contextoPronto } = useGabiRequestHeaders()
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
 
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -394,10 +394,10 @@ export function Core() {
       </div>
 
       {/* ── Gabi IA ── */}
-      {isGabiOpen && gabiHeaders && (
+      {isGabiOpen && contextoPronto && (
         <div className="ws-gabi-panel">
           <React.Suspense fallback={null}>
-            <GabiChat onClose={() => setIsGabiOpen(false)} headers={gabiHeaders} />
+            <GabiChat onClose={() => setIsGabiOpen(false)} headers={headersContexto} />
           </React.Suspense>
         </div>
       )}

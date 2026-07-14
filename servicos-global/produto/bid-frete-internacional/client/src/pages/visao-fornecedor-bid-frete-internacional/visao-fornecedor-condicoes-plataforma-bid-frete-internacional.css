@@ -1,5 +1,9 @@
 .bf-condicoes-plataforma {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
   padding: 2rem 1.25rem 3rem;
   background: #0f172a;
@@ -35,6 +39,8 @@
   font-size: 0.9375rem;
   color: #e0e7ff;
   line-height: 1.45;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .bf-condicoes-plataforma__conteudo {
@@ -57,6 +63,8 @@
   font-size: 1.0625rem;
   font-weight: 700;
   color: #f8fafc;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .bf-condicoes-plataforma__secao p {
@@ -64,6 +72,18 @@
   font-size: 0.9375rem;
   line-height: 1.6;
   color: #cbd5e1;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.bf-condicoes-plataforma__secao p strong {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.bf-condicoes-plataforma__secao p strong.bf-contrato-enfase-sublinhado {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .bf-condicoes-plataforma__secao p:last-child {
@@ -75,5 +95,6 @@
   margin: 1.5rem auto 0;
   font-size: 0.8125rem;
   color: #64748b;
-  text-align: center;
+  text-align: justify;
+  text-justify: inter-word;
 }

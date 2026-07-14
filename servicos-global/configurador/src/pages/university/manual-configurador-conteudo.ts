@@ -38,7 +38,7 @@ export interface DocPassoVisual {
   ocultarRotuloPasso?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
-  /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
+  /** Badge «Em breve» no topo do conteúdo do passo (fora do acordeão de subtópicos). */
   badgeEmDesenvolvimento?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
@@ -60,6 +60,10 @@ export interface DocPassoVisual {
     ampliarInferiorDireito?: boolean
     /** Colunas da grade (padrão: até 2). */
     colunas?: number
+    /** CSS `grid-template-columns` customizado (ex.: coluna estreita + coluna flex). */
+    colunasGradeTemplate?: string
+    /** Estica cada célula da grade à mesma altura (ex.: miniaturas de e-mail 1/3 × 2/3). */
+    gradeTelasMesmaAltura?: boolean
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
     /** Sobrescreve frase → print e margem entre cenários (px). */
@@ -383,12 +387,20 @@ export interface DocGaleriaComparacaoTela {
   /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
   legendaApos?: string
   legendaAposAlinhamento?: 'left' | 'center'
+  /** Parágrafo abaixo da legenda roxa (`legendaApos`), sem screenshot adicional. */
+  paragrafoDepois?: string
   /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
   chipConsolidarExemplo?: DocChipConsolidarExemploId
   /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */
   chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
   /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
   calloutAntes?: DocCalloutManual
+  /** Largura máxima do print (coluna estreita — ex.: preview de e-mail). */
+  larguraMaxima?: number
+  /** Altura máxima do print (miniatura vertical — ex.: preview de e-mail longo). */
+  alturaMaxima?: number
+  /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
+  preencherCelulaGrade?: boolean
 }
 
 export interface DocGaleriaTela {
@@ -1134,6 +1146,8 @@ export interface DocItemSumarioManual {
   rotuloExibicao?: string
   /** Número do capítulo (itens principais do sumário — compat. testes). */
   num?: number
+  /** Exibe tag «Em breve» no sumário. */
+  emBreve?: boolean
 }
 
 export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[] {
@@ -1166,6 +1180,7 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
             elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
             subitem: true,
             subitemNivel,
+            emBreve: passo.badgeEmDesenvolvimento || undefined,
           })
           if (passo.passosFilhos?.length) {
             adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)

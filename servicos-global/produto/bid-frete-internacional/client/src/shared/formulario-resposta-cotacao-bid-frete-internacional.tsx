@@ -38,6 +38,20 @@ import {
 } from './cabecalho-resposta-cotacao-bid-frete-internacional'
 import { SecaoTaxasLinhaPropostaBidFreteInternacional } from './secao-taxas-linha-proposta-bid-frete-internacional'
 import { SecaoPeriodosArmazenagemPropostaBidFreteInternacional } from './secao-periodos-armazenagem-proposta-bid-frete-internacional'
+import { SecaoFaixasValorFretePropostaBidFreteInternacional } from './secao-faixas-valor-frete-proposta-bid-frete-internacional'
+import {
+  criarLinhaFaixaValorFretePropostaVazia,
+  linhasFaixaValorFretePropostaFromJson,
+  valorFretePropostaRespostaParaComposicao,
+  valorFreteRespostaFormularioValido,
+  type LinhaFaixaValorFretePropostaFormBidFreteInternacional,
+} from './faixas-valor-frete-proposta-bid-frete-internacional'
+import {
+  TIPOS_VALOR_FRETE_BID_FRETE_INTERNACIONAL,
+  ROTULOS_TIPO_VALOR_FRETE_BID_FRETE_INTERNACIONAL,
+  normalizarTipoValorFreteBidFreteInternacional,
+  type TipoValorFreteBidFreteInternacional,
+} from '../../../shared/tipo-valor-frete-bid-frete-internacional'
 import {
   criarLinhaPeriodoArmazenagemVazia,
   linhasPeriodoArmazenagemFromProposta,
@@ -223,7 +237,9 @@ export function formatarCargaPerigosaDetalhesResposta(
 
 export interface EstadoFormularioRespostaCotacao {
   moeda_proposta_bid_frete_internacional: string
+  tipo_valor_frete_proposta_bid_frete_internacional: TipoValorFreteBidFreteInternacional | ''
   valor_frete_proposta_bid_frete_internacional: string
+  linhas_faixa_valor_frete_proposta: LinhaFaixaValorFretePropostaFormBidFreteInternacional[]
   linhas_taxa_origem: LinhaTaxaPropostaBidFreteInternacional[]
   linhas_taxa_destino: LinhaTaxaPropostaBidFreteInternacional[]
   dias_transito_proposta_bid_frete_internacional: string
@@ -260,7 +276,14 @@ export function estadoFormularioFromProposta(
 
   return {
     moeda_proposta_bid_frete_internacional: proposta.moeda_proposta_bid_frete_internacional,
+    tipo_valor_frete_proposta_bid_frete_internacional:
+      normalizarTipoValorFreteBidFreteInternacional(
+        proposta.tipo_valor_frete_proposta_bid_frete_internacional,
+      ) ?? 'TOTAL',
     valor_frete_proposta_bid_frete_internacional: String(proposta.valor_frete_proposta_bid_frete_internacional),
+    linhas_faixa_valor_frete_proposta: linhasFaixaValorFretePropostaFromJson(
+      proposta.faixas_valor_frete_kgs_proposta_bid_frete_internacional,
+    ),
     linhas_taxa_origem: linhasOrigem,
     linhas_taxa_destino: linhasDestino,
     dias_transito_proposta_bid_frete_internacional: String(proposta.dias_transito_proposta_bid_frete_internacional),
@@ -315,7 +338,7 @@ export function calcularComposicaoPropostaRespostaForm(
 ) {
   return calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
-    valor_frete: form.valor_frete_proposta_bid_frete_internacional,
+    valor_frete: valorFretePropostaRespostaParaComposicao(form),
     linhas_taxa_origem: form.linhas_taxa_origem,
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
@@ -326,7 +349,7 @@ export function calcularTotaisPropostaResposta(
 ): TotalPorMoedaBidFreteInternacional[] {
   return agruparValorTotalPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
-    valor_frete: form.valor_frete_proposta_bid_frete_internacional,
+    valor_frete: valorFretePropostaRespostaParaComposicao(form),
     linhas_taxa_origem: form.linhas_taxa_origem,
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
@@ -335,7 +358,7 @@ export function calcularTotaisPropostaResposta(
 export function formatarResumoTotalPropostaResposta(form: EstadoFormularioRespostaCotacao): string {
   return formatarValorTotalPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
-    valor_frete: form.valor_frete_proposta_bid_frete_internacional,
+    valor_frete: valorFretePropostaRespostaParaComposicao(form),
     linhas_taxa_origem: form.linhas_taxa_origem,
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
@@ -376,6 +399,10 @@ function diasInteiroNaoNegativoValido(valor: string): boolean {
   if (v === '') return false
   const n = Number(v)
   return Number.isInteger(n) && n >= 0
+}
+
+export function exibeCampoTipoValorFreteRespostaCotacao(modal?: ModalFrete | null): boolean {
+  return modal === 'AEREO'
 }
 
 export function camposLogisticaRespostaCotacaoValidos(
@@ -421,10 +448,13 @@ export function obterErroValidacaoFormularioRespostaCotacao(
 ): string | null {
   if (
     !form.moeda_proposta_bid_frete_internacional.trim()
-    || !form.valor_frete_proposta_bid_frete_internacional.trim()
     || !form.dias_transito_proposta_bid_frete_internacional.trim()
     || !form.validade_proposta_bid_frete_internacional.trim()
   ) {
+    return opts.mensagemCamposObrigatorios
+  }
+
+  if (!valorFreteRespostaFormularioValido(form, opts.modal)) {
     return opts.mensagemCamposObrigatorios
   }
 
@@ -461,7 +491,9 @@ export function obterErroValidacaoFormularioRespostaCotacao(
 
 export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao = {
   moeda_proposta_bid_frete_internacional: '',
+  tipo_valor_frete_proposta_bid_frete_internacional: 'TOTAL',
   valor_frete_proposta_bid_frete_internacional: '',
+  linhas_faixa_valor_frete_proposta: [criarLinhaFaixaValorFretePropostaVazia()],
   linhas_taxa_origem: [],
   linhas_taxa_destino: [],
   dias_transito_proposta_bid_frete_internacional: '',
@@ -762,6 +794,7 @@ export function FormPropostaRespostaCotacao({
   onLinhasOrigemChange,
   onLinhasDestinoChange,
   onLinhasPeriodoArmazenagemChange,
+  onLinhasFaixaValorFreteChange,
   onSubmit,
   tituloSecao,
   rotulos,
@@ -779,10 +812,12 @@ export function FormPropostaRespostaCotacao({
   onLinhasOrigemChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
   onLinhasDestinoChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
   onLinhasPeriodoArmazenagemChange: (linhas: LinhaPeriodoArmazenagemFormBidFreteInternacional[]) => void
+  onLinhasFaixaValorFreteChange: (linhas: LinhaFaixaValorFretePropostaFormBidFreteInternacional[]) => void
   onSubmit: (e: React.FormEvent) => void
   tituloSecao: string
   rotulos: {
     moeda: string
+    tipoCobranca: string
     valorFrete: string
     taxasOrigem: string
     taxasDestino: string
@@ -810,6 +845,7 @@ export function FormPropostaRespostaCotacao({
     taxasPlaceholderNomeManual: string
     totalFrete: string
     totalFreteLegenda: string
+    totalFreteLegendaFaixaPeso: string
     total: string
     transit: string
     freeTime: string
@@ -837,6 +873,13 @@ export function FormPropostaRespostaCotacao({
     placeholderValorReaisArmazenagem: string
     placeholderValorPercentualArmazenagem: string
     placeholderMinimoArmazenagem: string
+    faixasFrete: string
+    adicionarFaixaFrete: string
+    limiteKgFaixaFrete: string
+    unidadeFaixaFrete: string
+    tarifaFaixaFrete: string
+    placeholderLimiteKgFaixaFrete: string
+    placeholderTarifaFaixaFrete: string
   }
   erro: string
   enviando: boolean
@@ -866,6 +909,9 @@ export function FormPropostaRespostaCotacao({
 
   const mostrarTransbordos = exibeCampoTransbordosRespostaCotacao(modalCotacao)
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
+  const mostrarTipoValorFrete = exibeCampoTipoValorFreteRespostaCotacao(modalCotacao)
+  const tipoValorFreteProposta: TipoValorFreteBidFreteInternacional =
+    form.tipo_valor_frete_proposta_bid_frete_internacional || 'TOTAL'
   const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
   const mostrarArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(incluirArmazenagemCotacao)
   const pagadorTaxaFechamento = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(
@@ -875,7 +921,7 @@ export function FormPropostaRespostaCotacao({
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
-    valor_frete: form.valor_frete_proposta_bid_frete_internacional,
+    valor_frete: valorFretePropostaRespostaParaComposicao(form),
     linhas_taxa_origem: form.linhas_taxa_origem,
     linhas_taxa_destino: form.linhas_taxa_destino,
   })
@@ -959,6 +1005,28 @@ export function FormPropostaRespostaCotacao({
             />
           </div>
 
+          {mostrarTipoValorFrete ? (
+            <div className="brc-field">
+              <LabelObrigatorio>{rotulos.tipoCobranca}</LabelObrigatorio>
+              <SelectGlobal
+                id="brc-tipo-cobranca-proposta"
+                opcoes={TIPOS_VALOR_FRETE_BID_FRETE_INTERNACIONAL.map((tipo) => ({
+                  valor: tipo,
+                  rotulo: ROTULOS_TIPO_VALOR_FRETE_BID_FRETE_INTERNACIONAL[tipo],
+                }))}
+                valor={tipoValorFreteProposta}
+                aoMudarValor={(v) =>
+                  onChange(
+                    'tipo_valor_frete_proposta_bid_frete_internacional',
+                    v === 'FAIXA_PESO' ? 'FAIXA_PESO' : 'TOTAL',
+                  )
+                }
+                posicao="auto"
+              />
+            </div>
+          ) : null}
+
+          {(!mostrarTipoValorFrete || tipoValorFreteProposta === 'TOTAL') ? (
           <div className="brc-field">
             <LabelObrigatorio>{rotulos.valorFrete}</LabelObrigatorio>
             <CampoValorMonetarioResposta
@@ -968,6 +1036,23 @@ export function FormPropostaRespostaCotacao({
               placeholder={rotulos.placeholderValorFrete}
             />
           </div>
+          ) : null}
+
+          {mostrarTipoValorFrete && tipoValorFreteProposta === 'FAIXA_PESO' ? (
+            <div className="brc-field brc-field--wide">
+              <SecaoFaixasValorFretePropostaBidFreteInternacional
+                titulo={rotulos.faixasFrete}
+                rotuloAdicionarFaixa={rotulos.adicionarFaixaFrete}
+                rotuloLimiteKg={rotulos.limiteKgFaixaFrete}
+                rotuloUnidade={rotulos.unidadeFaixaFrete}
+                rotuloTarifa={rotulos.tarifaFaixaFrete}
+                placeholderLimiteKg={rotulos.placeholderLimiteKgFaixaFrete}
+                placeholderTarifa={rotulos.placeholderTarifaFaixaFrete}
+                linhas={form.linhas_faixa_valor_frete_proposta}
+                onChange={onLinhasFaixaValorFreteChange}
+              />
+            </div>
+          ) : null}
 
           <div className="brc-field brc-field--wide">
             <SecaoTaxasLinhaPropostaBidFreteInternacional
@@ -1034,6 +1119,8 @@ export function FormPropostaRespostaCotacao({
                 linhasOrigem={form.linhas_taxa_origem}
                 linhasDestino={form.linhas_taxa_destino}
                 composicao={composicaoProposta}
+                tipoValorFrete={tipoValorFreteProposta}
+                linhasFaixa={form.linhas_faixa_valor_frete_proposta}
                 rotulos={{
                   colunaFreteBase: rotulos.tabelaColunaFreteBase,
                   colunaTaxasOrigem: rotulos.tabelaColunaTaxasOrigem,
@@ -1044,7 +1131,11 @@ export function FormPropostaRespostaCotacao({
                   acessibilidade: rotulos.composicaoAcessibilidade,
                 }}
               />
-              <p className="brc-total-legenda">{rotulos.totalFreteLegenda}</p>
+              <p className="brc-total-legenda">
+                {tipoValorFreteProposta === 'FAIXA_PESO'
+                  ? rotulos.totalFreteLegendaFaixaPeso
+                  : rotulos.totalFreteLegenda}
+              </p>
               <p className="brc-total-legenda brc-total-legenda--secundaria">
                 {rotulos.semConversaoCambial}
               </p>
@@ -1498,6 +1589,9 @@ export function criarRotulosFormularioResposta(
     moeda: t(`${prefixo}.campo_moeda`, {
       defaultValue: 'Moeda do Frete Base',
     }),
+    tipoCobranca: t(`${prefixo}.campo_tipo_cobranca`, {
+      defaultValue: 'Tipo de cobrança',
+    }),
     valorFrete: t(`${prefixo}.campo_valor_frete`, {
       defaultValue: 'Valor do Frete Base',
     }),
@@ -1584,6 +1678,10 @@ export function criarRotulosFormularioResposta(
       'bidfrete.portal.responder.valor_total_frete_legenda',
       'Frete Base + Taxas de Origem + Taxa de Destino',
     ),
+    totalFreteLegendaFaixaPeso: t(
+      'bidfrete.portal.responder.valor_total_frete_legenda_faixa_peso',
+      'Tarifas unitárias por faixa + taxas de origem e destino',
+    ),
     total: t(`${prefixo}.campo_total`),
     transit: t(`${prefixo}.campo_transit`),
     freeTime: t(`${prefixo}.campo_free_time`),
@@ -1654,6 +1752,27 @@ export function criarRotulosFormularioResposta(
     }),
     placeholderMinimoArmazenagem: t('bidfrete.portal.responder.armazenagem_placeholder_minimo', {
       defaultValue: 'Informar mínimo em R$',
+    }),
+    faixasFrete: t('bidfrete.portal.responder.faixas_frete_titulo', {
+      defaultValue: 'Faixas de peso / m³',
+    }),
+    adicionarFaixaFrete: t('bidfrete.portal.responder.faixas_frete_adicionar', {
+      defaultValue: 'Incluir faixa',
+    }),
+    limiteKgFaixaFrete: t('bidfrete.portal.responder.faixas_frete_limite_kg', {
+      defaultValue: 'Faixa de peso (kg)',
+    }),
+    unidadeFaixaFrete: t('bidfrete.portal.responder.faixas_frete_unidade', {
+      defaultValue: 'Unidade',
+    }),
+    tarifaFaixaFrete: t('bidfrete.portal.responder.faixas_frete_tarifa', {
+      defaultValue: 'Tarifa',
+    }),
+    placeholderLimiteKgFaixaFrete: t('bidfrete.portal.responder.faixas_frete_placeholder_limite', {
+      defaultValue: 'Ex.: 45',
+    }),
+    placeholderTarifaFaixaFrete: t('bidfrete.portal.responder.faixas_frete_placeholder_tarifa', {
+      defaultValue: 'Informar tarifa',
     }),
     enviar: t(`${prefixo}.enviar`),
     enviando: t(`${prefixo}.enviando`),

@@ -58,9 +58,9 @@ describe('progresso-leitura-smart-read', () => {
     expect(resposta.passo).toBe(2)
   })
 
-  it('COMPLETED retoma no passo salvo ou 4 quando não há progresso', () => {
-    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(2)
+  it('COMPLETED respeita passo salvo (Conferência) e cai em 4 sem progresso', () => {
     expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(3)
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(2)
     expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', null)).toBe(4)
   })
 
@@ -143,7 +143,28 @@ describe('progresso-leitura-smart-read', () => {
     expect(escolhido?.passo).toBe(3)
   })
 
-  it('mescla analise_riscos_cache quando passo local vence sem cache', () => {
+  it('mantém leitura remota quando local tem passo maior sem arquivos', () => {
+    const leituraComExtracao = {
+      ...leituraMinima,
+      arquivos: [
+        {
+          id_arquivo: 'arq-ok',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'BL', dados: { n: '1' } }],
+        },
+      ],
+    }
+    const escolhido = escolherProgressoSalvoLeituraSmartRead(
+      { nome: 'BL', passo: 2, leitura: leituraComExtracao },
+      { nome: 'BL', passo: 3, leitura: { ...leituraMinima, arquivos: [] } },
+    )
+    expect(escolhido?.passo).toBe(3)
+    expect(escolhido?.leitura.arquivos).toHaveLength(1)
+    expect(escolhido?.leitura.arquivos[0]).toMatchObject({ id_arquivo: 'arq-ok' })
+  })
+
+  it('ignora leitura local quando remoto existe (SSOT Postgres)', () => {
     const base = { nome: 'Leitura', leitura: leituraMinima }
     const cacheRemoto = {
       'id|doc:0:INVOICE': {
@@ -200,5 +221,26 @@ describe('progresso-leitura-smart-read', () => {
     expect(reduzido.passo).toBe(3)
     expect(reduzido.leitura.arquivos).toEqual([])
     expect(reduzido.leitura.id_leitura).toBe('abc12345')
+  })
+
+  it('prefere progresso salvo quando API retorna leitura sem arquivos', () => {
+    const api = {
+      ...leituraMinima,
+      arquivos: [],
+    }
+    const salva = {
+      ...leituraMinima,
+      arquivos: [
+        {
+          id_arquivo: 'arq-salvo',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'BL', dados: { numero: '1' } }],
+        },
+      ],
+    }
+    const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
+    expect(escolhida?.arquivos).toHaveLength(1)
+    expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-salvo' })
   })
 })

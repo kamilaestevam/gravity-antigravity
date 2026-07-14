@@ -791,8 +791,53 @@ export const FLUXO_ETAPAS_RESUMIDAS: { indice: number; labelKey: string }[] = [
   { indice: 1, labelKey: 'bidfrete.detalhe_cotacao.timeline_enviada' },
   { indice: 2, labelKey: 'bidfrete.detalhe_cotacao.timeline_em_cotacao' },
   { indice: 3, labelKey: 'bidfrete.detalhe_cotacao.timeline_aguardando' },
-  { indice: 4, labelKey: 'bidfrete.detalhe_cotacao.timeline_aprovada' },
+  { indice: 4, labelKey: 'bidfrete.detalhe_cotacao.timeline_fornecedor_concordou' },
+  { indice: 5, labelKey: 'bidfrete.detalhe_cotacao.timeline_aprovada' },
 ]
+
+export function resolverPropostaGanhadoraFluxoTimeline(
+  propostasRanking?: PropostaRankingBidFreteInternacional[],
+  id_fornecedor_vencedor?: string | null,
+): PropostaRankingBidFreteInternacional | null {
+  if (!propostasRanking?.length) return null
+  return (
+    propostasRanking.find(
+      (p) => id_fornecedor_vencedor != null
+        && p.id_fornecedor_bid_frete_internacional === id_fornecedor_vencedor,
+    )
+    ?? propostasRanking.find((p) => p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA')
+    ?? propostasRanking.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+    ?? null
+  )
+}
+
+/** Rótulo dinâmico — etapa 4 alterna entre aguardando aceite e fornecedor concordou. */
+export function rotuloEtapaTimelineFluxoCotacao(
+  etapa: { indice: number; labelKey: string },
+  input: {
+    indiceAtual: number
+    statusPropostaGanhadora?: string | null
+  },
+  t: (key: string, defaultValue?: string) => string,
+): string {
+  if (etapa.indice === 4) {
+    const aguardandoAceite =
+      input.indiceAtual === 4 && input.statusPropostaGanhadora === 'APROVADA'
+    if (aguardandoAceite) {
+      return t(
+        'bidfrete.detalhe_cotacao.timeline_aguardando_fornecedor_concordar',
+        'Aguard. fornecedor',
+      )
+    }
+    if (
+      input.statusPropostaGanhadora === 'APROVACAO_RECEBIDA'
+      || input.indiceAtual > 4
+    ) {
+      return t('bidfrete.detalhe_cotacao.timeline_fornecedor_concordou', 'Fornecedor concordou')
+    }
+  }
+  return t(etapa.labelKey)
+}
 
 export function indiceFluxoPorStatus(status: StatusCotacao): number {
   const mapa: Partial<Record<StatusCotacao, number>> = {
@@ -802,11 +847,34 @@ export function indiceFluxoPorStatus(status: StatusCotacao): number {
     EM_COTACAO: 2,
     AGUARDANDO_APROVACAO: 3,
     APROVADA: 4,
+    FECHADA: 5,
     REPROVADA: 3,
     CANCELADA: 0,
     EXPIRADA: 2,
   }
   return mapa[status] ?? 0
+}
+
+/** Índice da timeline compacta considerando aceite do fornecedor ganhador. */
+export function indiceFluxoResumidoCotacao(
+  status: StatusCotacao,
+  propostasRanking?: PropostaRankingBidFreteInternacional[],
+  id_fornecedor_vencedor?: string | null,
+): number {
+  if (status === 'FECHADA') return 5
+
+  if (status === 'APROVADA' && propostasRanking != null) {
+    const propostaGanhadora = resolverPropostaGanhadoraFluxoTimeline(
+      propostasRanking,
+      id_fornecedor_vencedor,
+    )
+
+    const statusProposta = propostaGanhadora?.status_proposta_bid_frete_internacional
+    if (statusProposta === 'APROVACAO_RECEBIDA') return 5
+    if (statusProposta === 'APROVADA') return 4
+  }
+
+  return indiceFluxoPorStatus(status)
 }
 
 export function formatarMoedaInsightsBidFrete(valor: number, moeda: string): string {
@@ -823,15 +891,19 @@ export function resolverNomeGanhadorCotacao(
   cotacao: Cotacao,
   propostasRanking: PropostaRankingBidFreteInternacional[],
 ): string | null {
-  const propostaRankingAprovada = propostasRanking.find(
+  const propostaRankingGanhador = propostasRanking.find(
+    (p) => p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
+  ) ?? propostasRanking.find(
     (p) => p.status_proposta_bid_frete_internacional === 'APROVADA',
   )
-  if (propostaRankingAprovada) {
-    return nomeFornecedorProposta(propostaRankingAprovada)
+  if (propostaRankingGanhador) {
+    return nomeFornecedorProposta(propostaRankingGanhador)
   }
 
   const propostas = cotacao.propostas_bid_frete_internacional ?? []
-  const propostaAprovada = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+  const propostaAprovada = propostas.find(
+    (p) => p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
+  ) ?? propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
   if (propostaAprovada?.fornecedor?.nome_fornecedor_bid_frete_internacional) {
     return propostaAprovada.fornecedor.nome_fornecedor_bid_frete_internacional
   }

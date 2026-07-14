@@ -16,7 +16,7 @@ import {
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { LogoSmartDocs, NOME_PRODUTO_EXIBICAO } from './shared/marca-smart-docs'
-import { setApiContext } from './shared/api'
+import { setApiContext, injectTokenGetter } from './shared/api'
 import { rotaSmartRead } from './shared/rotas-smart-read'
 import { SmartReadVisualizacaoLayout } from './components/SmartReadVisualizacaoLayout'
 import { SmartReadMultiView } from './components/SmartReadMultiView'
@@ -119,7 +119,7 @@ function resolverRouteKey(relSegments: string[]): string {
 
 export default function App() {
   useMeSync()
-  const { signOut } = useClerk()
+  const { signOut, getToken } = useClerk()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -132,6 +132,10 @@ export default function App() {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
+
+  useEffect(() => {
+    injectTokenGetter(() => getToken())
+  }, [getToken])
 
   useEffect(() => {
     setApiContext({

@@ -94,6 +94,7 @@ import { apiObservability } from '../../servicos-plataforma/middleware/apiObserv
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import { prisma } from './lib/prisma.js'
 import { proxyGabi } from './proxy/proxy-gabi.js'
+import { proxySmartRead } from './proxy/proxy-smart-read.js'
 
 export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
@@ -575,69 +576,10 @@ app.use('/api/v1/empresas', _proxyCadastros)
 app.use('/api/v1/cadastros', _proxyCadastros)
 
 // ─── Proxy reverso: Smart Read sidecar (porta 8033) ───────────────────────────
-// BFF sem banco — upload multipart; timeout alinhado ao legado (10 min).
-const SMART_READ_SIDECAR_LOCAL_URL = 'http://127.0.0.1:8033'
-
-function resolverUrlProxySmartRead(): string {
-  if (process.env.RAILWAY_ENVIRONMENT) {
-    return SMART_READ_SIDECAR_LOCAL_URL
-  }
-  return process.env.SMART_READ_SERVICE_URL || SMART_READ_SIDECAR_LOCAL_URL
-}
-
-const _proxySmartRead = (req: express.Request, res: express.Response) => {
-  const serviceUrl = resolverUrlProxySmartRead()
-  const targetUrl = `${serviceUrl}${req.originalUrl}`
-  const host = serviceUrl.replace(/^https?:\/\//, '')
-  const headers: Record<string, string | string[] | undefined> = { ...req.headers, host }
-  const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
-  headers['x-chave-interna-servico'] = chaveInterna
-  headers['x-internal-key'] = chaveInterna
-
-  const proxyTimeoutMs = 660_000
-
-  let bodyBuf: Buffer | undefined
-  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
-    bodyBuf = Buffer.from(JSON.stringify(req.body))
-    headers['content-length'] = String(bodyBuf.length)
-  }
-
-  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
-    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
-    proxyRes.pipe(res)
-  })
-  proxyReq.setTimeout(proxyTimeoutMs, () => {
-    proxyReq.destroy()
-    if (!res.headersSent) {
-      res.status(408).json({
-        error: {
-          code: 'HTTP_408',
-          message: 'Tempo limite excedido ao enviar documento. Tente novamente.',
-        },
-      })
-    }
-  })
-  proxyReq.on('error', (err) => {
-    console.error('[proxy-smart-read] erro ao conectar com sidecar', {
-      code: (err as NodeJS.ErrnoException).code,
-      message: err.message,
-      method: req.method,
-      url: req.originalUrl,
-    })
-    if (!res.headersSent) {
-      res.status(502).json({
-        error: 'Smart Docs service unavailable',
-        sidecar: _sidecarStatus['smart-read'],
-      })
-    }
-  })
-  if (bodyBuf) {
-    proxyReq.end(bodyBuf)
-  } else {
-    req.pipe(proxyReq)
-  }
-}
-app.use('/api/v1/smart-read', _proxySmartRead)
+// requireAuth + identidade injetada no proxy (paridade GABI).
+app.use('/api/v1/smart-read', requireAuth, (req, res) => {
+  proxySmartRead(req, res, _sidecarStatus)
+})
 
 // ─── Proxy reverso: GABI sidecar (porta 8009) ───────────────────────────────
 // Browser chama /api/v1/gabi no mesmo host do Configurador; Express injeta chave

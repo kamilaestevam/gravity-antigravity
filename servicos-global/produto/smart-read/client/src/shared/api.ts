@@ -48,6 +48,10 @@ import {
 } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 import {
+  estadoProgressoReduzidoUrgenteSmartRead,
+  LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ,
+} from '../../../shared/estado-progresso-reduzido-urgente-smart-read.js'
+import {
   conteudoArquivoLeituraEhVisualizavel,
   mensagemConteudoArquivoInvalido,
   resolverMimePorNomeArquivo,
@@ -57,8 +61,35 @@ export type { ListaPainel }
 
 let contexto = { idOrganizacao: '', idUsuario: '' }
 
+let getDynamicToken: (() => Promise<string | null>) | null = null
+
+export function injectTokenGetter(fn: () => Promise<string | null>): void {
+  getDynamicToken = fn
+}
+
 export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string }): void {
   contexto = ctx
+}
+
+async function getAuthToken(): Promise<string | null> {
+  if (getDynamicToken) {
+    try {
+      const token = await getDynamicToken()
+      if (token) return token
+    } catch {
+      /* fallback */
+    }
+  }
+  try {
+    const clerk = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
+    if (clerk?.session?.getToken) {
+      const token = await clerk.session.getToken()
+      if (token) return token
+    }
+  } catch {
+    /* fallback */
+  }
+  return null
 }
 
 function obterIdOrganizacao(): string {
@@ -88,8 +119,8 @@ function obterIdUsuario(): string {
 function cabecalhosBase(): Record<string, string> {
   const idOrganizacao = obterIdOrganizacao()
   const idUsuario = obterIdUsuario()
-  if (import.meta.env.DEV && (!idOrganizacao || !idUsuario)) {
-    console.error('[smart-read][api] x-id-organizacao ou x-id-usuario ausente — progresso não grava no banco', {
+  if (!idOrganizacao || !idUsuario) {
+    console.error('[smart-read][api] x-id-organizacao ou x-id-usuario ausente — progresso pode não gravar', {
       idOrganizacao,
       idUsuario,
     })
@@ -102,11 +133,24 @@ function cabecalhosBase(): Record<string, string> {
     }
   })()
   return {
-    'x-id-organizacao': obterIdOrganizacao(),
-    'x-id-usuario': obterIdUsuario(),
+    'x-id-organizacao': idOrganizacao,
+    'x-id-usuario': idUsuario,
     ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
     'x-chave-interna-servico': (import.meta.env.VITE_CHAVE_INTERNA_SERVICO as string | undefined) || '',
   }
+}
+
+async function cabecalhosAutenticados(extra?: HeadersInit): Promise<Record<string, string>> {
+  const token = await getAuthToken()
+  const base = cabecalhosBase()
+  const mesclado: Record<string, string> = { ...base }
+  if (token) mesclado.Authorization = `Bearer ${token}`
+  if (extra && typeof extra === 'object') {
+    for (const [chave, valor] of Object.entries(extra as Record<string, string>)) {
+      if (typeof valor === 'string') mesclado[chave] = valor
+    }
+  }
+  return mesclado
 }
 
 async function lerErro(resposta: Response): Promise<string> {
@@ -115,9 +159,10 @@ async function lerErro(resposta: Response): Promise<string> {
 }
 
 async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: RequestInit): Promise<T> {
+  const headers = await cabecalhosAutenticados(init?.headers)
   const resposta = await fetch(endpoint, {
     ...init,
-    headers: { ...cabecalhosBase(), ...init?.headers },
+    headers,
   })
   if (!resposta.ok) {
     throw new Error(await lerErro(resposta))
@@ -180,7 +225,7 @@ export const smartReadApi = {
     const resposta = await fetch(
       `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/arquivos/${encodeURIComponent(idArquivo)}`,
       {
-        headers: cabecalhosBase(),
+        headers: await cabecalhosAutenticados(),
         signal: AbortSignal.timeout(45_000),
       },
     )
@@ -242,7 +287,7 @@ export const smartReadApi = {
   async obterProgressoLeitura(idLeitura: string): Promise<EstadoProgressoLeitura | null> {
     const resposta = await fetch(
       `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`,
-      { headers: cabecalhosBase() },
+      { headers: await cabecalhosAutenticados() },
     )
     if (resposta.status === 404) return null
     if (!resposta.ok) {
@@ -263,12 +308,22 @@ export const smartReadApi = {
     )
   },
 
-  salvarProgressoLeituraKeepalive(idLeitura: string, estado: EstadoProgressoLeitura): void {
-    const corpo = JSON.stringify(estado)
-    if (corpo.length > 60_000) return
+  async salvarProgressoLeituraKeepalive(idLeitura: string, estado: EstadoProgressoLeitura): Promise<void> {
+    let corpo = JSON.stringify(estado)
+    if (corpo.length > LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ) {
+      corpo = JSON.stringify(estadoProgressoReduzidoUrgenteSmartRead(estado))
+    }
+    if (corpo.length > LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ) {
+      console.error('[smart-read][api] progresso keepalive excede limite — passo não enviado no flush', {
+        idLeitura,
+        bytes: corpo.length,
+      })
+      return
+    }
+    const headers = await cabecalhosAutenticados({ 'Content-Type': 'application/json' })
     void fetch(`/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`, {
       method: 'PATCH',
-      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      headers,
       body: corpo,
       keepalive: true,
     })
@@ -277,7 +332,7 @@ export const smartReadApi = {
   async excluirLeitura(idLeitura: string): Promise<void> {
     const resposta = await fetch(`/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`, {
       method: 'DELETE',
-      headers: cabecalhosBase(),
+      headers: await cabecalhosAutenticados(),
     })
     if (!resposta.ok) {
       throw new Error(await lerErro(resposta))
@@ -309,7 +364,7 @@ export const smartReadApi = {
   async baixarArquivoExportacaoLeitura(idTarefa: string, nomeArquivo?: string): Promise<void> {
     const resposta = await fetch(
       `/api/v1/smart-read/leituras/exportacoes/tarefas/${encodeURIComponent(idTarefa)}/arquivo`,
-      { headers: cabecalhosBase(), signal: AbortSignal.timeout(120_000) },
+      { headers: await cabecalhosAutenticados(), signal: AbortSignal.timeout(120_000) },
     )
     if (!resposta.ok) {
       throw new Error(await lerErro(resposta))
@@ -329,76 +384,60 @@ export const smartReadApi = {
 const BASE_LISTA_PAINEIS = '/api/v1/smart-read/lista/paineis'
 
 export const paineisListaSmartReadApi = {
-  listar(): Promise<{ data: ListaPainel[] }> {
-    return fetch(BASE_LISTA_PAINEIS, { headers: cabecalhosBase() })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await lerErro(res))
-        return res.json()
-      })
-      .then((raw) => {
-        const parsed = listaPainelListResponseSchema.safeParse(raw)
-        if (!parsed.success) {
-          console.warn('[paineisListaSmartReadApi.listar] resposta fora do contrato Zod', parsed.error.flatten())
-          throw new Error('Resposta inválida ao listar painéis da lista')
-        }
-        return parsed.data
-      })
+  async listar(): Promise<{ data: ListaPainel[] }> {
+    const res = await fetch(BASE_LISTA_PAINEIS, { headers: await cabecalhosAutenticados() })
+    if (!res.ok) throw new Error(await lerErro(res))
+    const raw = await res.json()
+    const parsed = listaPainelListResponseSchema.safeParse(raw)
+    if (!parsed.success) {
+      console.warn('[paineisListaSmartReadApi.listar] resposta fora do contrato Zod', parsed.error.flatten())
+      throw new Error('Resposta inválida ao listar painéis da lista')
+    }
+    return parsed.data
   },
 
-  criar(nome: string, configJson?: string): Promise<{ data: ListaPainel }> {
-    return fetch(BASE_LISTA_PAINEIS, {
+  async criar(nome: string, configJson?: string): Promise<{ data: ListaPainel }> {
+    const res = await fetch(BASE_LISTA_PAINEIS, {
       method: 'POST',
-      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      headers: await cabecalhosAutenticados({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
         nome,
         ...(configJson ? { config_json: configJson } : {}),
       }),
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await lerErro(res))
-        return res.json()
-      })
-      .then((raw) => listaPainelItemResponseSchema.parse(raw))
+    if (!res.ok) throw new Error(await lerErro(res))
+    return listaPainelItemResponseSchema.parse(await res.json())
   },
 
-  atualizar(
+  async atualizar(
     id: string,
     patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>,
   ): Promise<{ data: ListaPainel }> {
-    return fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
       method: 'PUT',
-      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      headers: await cabecalhosAutenticados({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(patch),
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await lerErro(res))
-        return res.json()
-      })
-      .then((raw) => listaPainelItemResponseSchema.parse(raw))
+    if (!res.ok) throw new Error(await lerErro(res))
+    return listaPainelItemResponseSchema.parse(await res.json())
   },
 
-  reordenar(ids: string[]): Promise<{ data: { reordenado: true } }> {
-    return fetch(`${BASE_LISTA_PAINEIS}/reordenar`, {
+  async reordenar(ids: string[]): Promise<{ data: { reordenado: true } }> {
+    const res = await fetch(`${BASE_LISTA_PAINEIS}/reordenar`, {
       method: 'PUT',
-      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      headers: await cabecalhosAutenticados({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ ids }),
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await lerErro(res))
-        return res.json()
-      })
-      .then((raw) => listaPainelReordenarResponseSchema.parse(raw))
+    if (!res.ok) throw new Error(await lerErro(res))
+    return listaPainelReordenarResponseSchema.parse(await res.json())
   },
 
-  deletar(id: string): Promise<{ data: { deletado: true } }> {
-    return fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
+  async deletar(id: string): Promise<{ data: { deletado: true } }> {
+    const res = await fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      headers: cabecalhosBase(),
+      headers: await cabecalhosAutenticados(),
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await lerErro(res))
-        return res.json()
-      })
-      .then((raw) => listaPainelDeletarResponseSchema.parse(raw))
+    if (!res.ok) throw new Error(await lerErro(res))
+    return listaPainelDeletarResponseSchema.parse(await res.json())
   },
 }

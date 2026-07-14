@@ -71,21 +71,25 @@ export function persistirProgressoLeituraUrgenteSmartRead(
   estado: EstadoSalvoLeitura,
 ): void {
   salvarLocal(idLeitura, estado)
-  smartReadApi.salvarProgressoLeituraKeepalive(idLeitura, estado)
+  void smartReadApi.salvarProgressoLeituraKeepalive(idLeitura, estado)
 }
 
 export async function persistirProgressoLeituraSmartRead(
   idLeitura: string,
   estado: EstadoSalvoLeitura,
-): Promise<void> {
+): Promise<boolean> {
   salvarLocal(idLeitura, estado)
   try {
     await smartReadApi.salvarProgressoLeitura(idLeitura, estado)
+    return true
   } catch (erro) {
     const mensagem = erro instanceof Error ? erro.message : String(erro)
-    if (import.meta.env.DEV) {
-      console.error('[smart-read][persist] PATCH progresso falhou — localStorage', mensagem)
-    }
+    console.error('[smart-read][persist] PATCH progresso falhou — apenas localStorage', {
+      idLeitura,
+      passo: estado.passo,
+      mensagem,
+    })
+    return false
   }
 }
 

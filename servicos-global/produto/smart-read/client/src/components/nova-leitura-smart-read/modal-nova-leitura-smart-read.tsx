@@ -46,11 +46,20 @@ import {
   hidratarCacheAnaliseRiscosDeProgresso,
   limparEstadoLeituraSmartRead,
   persistirProgressoLeituraSmartRead,
+  persistirProgressoLeituraUrgenteSmartRead,
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
+import { montarEstadoProgressoLeituraSmartRead } from '../../shared/montar-estado-progresso-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
-import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
+import {
+  escolherLeituraEfetivaRetomarSmartRead,
+  mesclarLeiturasRetomarSmartRead,
+} from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
+import {
+  leituraSemExtracaoUtilRetomarSmartRead,
+  leituraTemExtracaoUtilRetomarSmartRead,
+} from '../../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 
 import {
   carregarBlobArquivoLeituraSmartRead,
@@ -127,6 +136,9 @@ type Props = {
   /** Quando informado, abre uma leitura existente no passo atual (modo "retomar"). */
   idLeituraExistente?: string | null
 
+  /** Passo vindo da Lista (status_fluxo) — placeholder até hidratar progresso. */
+  passoRetomarLista?: number | null
+
   onFechar: () => void
 
   onConcluido?: () => void
@@ -155,6 +167,8 @@ export function ModalNovaLeituraSmartRead({
   arquivosIniciais = [],
 
   idLeituraExistente = null,
+
+  passoRetomarLista = null,
 
   onFechar,
 
@@ -217,12 +231,19 @@ export function ModalNovaLeituraSmartRead({
   const [arquivoExclusaoPendente, setArquivoExclusaoPendente] =
     useState<ArquivoLocalNovaLeitura | null>(null)
   const [gabiAberta, setGabiAberta] = useState(false)
+  const [hidratandoRetomar, setHidratandoRetomar] = useState(false)
+  const [recuperandoExtracaoRetomar, setRecuperandoExtracaoRetomar] = useState(false)
 
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
   const abertoAnteriorRef = useRef(false)
   const passoSalvoRef = useRef(0)
+  const hidratandoRetomarRef = useRef(false)
+  const recuperandoExtracaoRetomarRef = useRef(false)
+  const idLeituraRetomarAnteriorRef = useRef<string | null>(null)
   const inicioSessaoRef = useRef<number>(Date.now())
+  const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
+  const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
 
   useEffect(() => {
     ativo.current = true
@@ -256,26 +277,58 @@ export function ModalNovaLeituraSmartRead({
       setArquivos(hidratados)
       const passoRetomar = resolverPassoRetomarLeituraSmartRead(
         leituraEfetiva.status_leitura,
-        salvo?.passo,
+        salvo?.passo ?? passoRetomarLista,
+        { temExtracaoUtil: leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva) },
       )
       setPasso(passoRetomar)
       passoSalvoRef.current = passoRetomar >= 2 ? passoRetomar : 0
+      if (passoRetomar >= 3) {
+        setPassoConferenciaMontado(true)
+        const primeiroCompleto = hidratados.find(
+          (item) => item.status_arquivo_local === 'completo' && item.leitura,
+        )
+        if (primeiroCompleto) {
+          setConferenciaSelecao({
+            idArquivoLocal: primeiroCompleto.id_arquivo_local,
+            indiceDocumento: 0,
+          })
+        }
+      }
     },
-    [],
+    [passoRetomarLista],
   )
+
+  const passoPlaceholderRetomar = useMemo(() => {
+    if (typeof passoRetomarLista === 'number' && passoRetomarLista >= 2 && passoRetomarLista <= 4) {
+      return passoRetomarLista
+    }
+    return 2
+  }, [passoRetomarLista])
 
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
+      hidratandoRetomarRef.current = true
+      setHidratandoRetomar(true)
+      try {
       const salvo = await carregarProgressoLeituraSmartRead(id)
       hidratarCacheAnaliseRiscosDeProgresso(salvo)
       if (import.meta.env.DEV) {
         console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
       }
 
-      let leitura: Leitura | null = salvo?.leitura ?? null
+      let leitura: Leitura | null = null
       try {
         leitura = await smartReadApi.obterLeitura(id)
+        if (
+          leitura &&
+          salvo?.leitura &&
+          leituraSemExtracaoUtilRetomarSmartRead(leitura) &&
+          !leituraSemExtracaoUtilRetomarSmartRead(salvo.leitura)
+        ) {
+          leitura = mesclarLeiturasRetomarSmartRead(leitura, salvo.leitura)
+        }
       } catch (erro) {
+        leitura = salvo?.leitura ?? null
         if (!leitura) {
           if (!ativo.current) return
           setArquivos([])
@@ -288,14 +341,13 @@ export function ModalNovaLeituraSmartRead({
       }
 
       try {
-        const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leitura, salvo?.leitura)
-        if (!leituraEfetiva) {
+        if (!leitura) {
           if (!ativo.current) return
           setArquivos([])
           setPasso(1)
           return
         }
-        await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
+        await aplicarLeituraHidratada(id, leitura, salvo)
       } catch {
         if (!ativo.current) return
         if (salvo?.leitura) {
@@ -305,8 +357,27 @@ export function ModalNovaLeituraSmartRead({
         setArquivos([])
         setPasso(1)
       }
+      } finally {
+        hidratandoRetomarRef.current = false
+        setHidratandoRetomar(false)
+      }
     },
     [aplicarLeituraHidratada],
+  )
+
+  const iniciarRetomarLeitura = useCallback(
+    (id: string) => {
+      setConferenciaSelecao(null)
+      setCompararAberto(false)
+      setCamposEditados(new Set())
+      setPassoConferenciaMontado(passoPlaceholderRetomar >= 3)
+      setArquivos([])
+      passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
+      setPasso(passoPlaceholderRetomar)
+      riscosIniciadosRef.current.delete(id)
+      void hidratarLeituraExistente(id)
+    },
+    [passoPlaceholderRetomar, hidratarLeituraExistente],
   )
 
   useEffect(() => {
@@ -325,21 +396,98 @@ export function ModalNovaLeituraSmartRead({
       inicioSessaoRef.current = Date.now()
       setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
-        setArquivos([])
-        setPasso(2)
-        void hidratarLeituraExistente(idLeituraExistente)
+        iniciarRetomarLeitura(idLeituraExistente)
+        idLeituraRetomarAnteriorRef.current = idLeituraExistente
       } else {
         setPasso(1)
         setNomeLeitura(gerarNomeLeitura())
         setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
       }
     }
+    if (!aberto && abertoAnteriorRef.current) {
+      void salvarProgressoRef.current(passoSalvoRef.current >= 2 ? passoSalvoRef.current : passo)
+    }
     if (!aberto) {
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
+      idLeituraRetomarAnteriorRef.current = null
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto, arquivosIniciais, idLeituraExistente, hidratarLeituraExistente])
+  }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura, passo])
+
+  useEffect(() => {
+    if (!aberto || !idLeituraExistente) return
+    const anterior = idLeituraRetomarAnteriorRef.current
+    if (anterior === idLeituraExistente) return
+    idLeituraRetomarAnteriorRef.current = idLeituraExistente
+    if (anterior !== null) {
+      iniciarRetomarLeitura(idLeituraExistente)
+    }
+  }, [aberto, idLeituraExistente, iniciarRetomarLeitura])
+
+  useEffect(() => {
+    if (!aberto || !idLeituraExistente || hidratandoRetomar) return
+    const passoSalvo = passoSalvoRef.current
+    if (passoSalvo < 3) return
+
+    const leituraConsolidada = consolidarLeituraDeArquivosLocais(arquivos)
+    if (leituraTemExtracaoUtilRetomarSmartRead(leituraConsolidada)) return
+    if (recuperandoExtracaoRetomarRef.current) return
+
+    const id = idLeituraAtual ?? idLeituraExistente
+    recuperandoExtracaoRetomarRef.current = true
+    setRecuperandoExtracaoRetomar(true)
+
+    let cancelado = false
+    ;(async () => {
+      const inicio = Date.now()
+      try {
+        while (!cancelado && ativo.current && aberto) {
+          let leituraApi: Leitura | null = null
+          const salvo = await carregarProgressoLeituraSmartRead(id)
+          try {
+            leituraApi = await smartReadApi.obterLeitura(id)
+            if (
+              leituraApi &&
+              salvo?.leitura &&
+              leituraSemExtracaoUtilRetomarSmartRead(leituraApi) &&
+              !leituraSemExtracaoUtilRetomarSmartRead(salvo.leitura)
+            ) {
+              leituraApi = mesclarLeiturasRetomarSmartRead(leituraApi, salvo.leitura)
+            }
+          } catch {
+            leituraApi = salvo?.leitura ?? null
+          }
+
+          const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leituraApi, salvo?.leitura)
+          if (leituraEfetiva && leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva)) {
+            await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
+            return
+          }
+          if (leituraEfetiva?.status_leitura === 'FAILED') return
+
+          if (Date.now() - inicio > LIMITE_POLLING_MS) return
+          await new Promise((resolver) => setTimeout(resolver, INTERVALO_POLLING_MS))
+        }
+      } finally {
+        recuperandoExtracaoRetomarRef.current = false
+        if (!cancelado && ativo.current) setRecuperandoExtracaoRetomar(false)
+      }
+    })()
+
+    return () => {
+      cancelado = true
+      recuperandoExtracaoRetomarRef.current = false
+      setRecuperandoExtracaoRetomar(false)
+    }
+  }, [
+    aberto,
+    aplicarLeituraHidratada,
+    arquivos,
+    hidratandoRetomar,
+    idLeituraAtual,
+    idLeituraExistente,
+  ])
 
   useEffect(() => {
     if (passo >= 3) setPassoConferenciaMontado(true)
@@ -406,26 +554,81 @@ export function ModalNovaLeituraSmartRead({
 
   const salvarProgressoAtual = useCallback(
     async (passoAlvo: number = passo, nomeOverride?: string): Promise<boolean> => {
-      const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
-      if (!idLeitura || passoAlvo < 2 || !todosArquivosAnaliseCompleta(arquivos)) return false
-      const leituraBase = consolidarLeituraDeArquivosLocais(arquivos)
-      if (!leituraBase) return false
+      if (passoSalvoRef.current >= 3 && passoAlvo < passoSalvoRef.current) return false
       const nomeEfetivo = (nomeOverride ?? nomeLeitura).trim() || nomeLeitura
-      const leitura = { ...leituraBase, nome_leitura: nomeEfetivo }
+      const estado = montarEstadoProgressoLeituraSmartRead({
+        arquivos,
+        passo: passoAlvo,
+        nomeLeitura: nomeEfetivo,
+        idLeituraExistente,
+      })
+      if (!estado) {
+        console.warn('[smart-read][persist] estado não montável para gravar', {
+          passoAlvo,
+          arquivos: arquivos.length,
+          analiseCompleta: todosArquivosAnaliseCompleta(arquivos),
+        })
+        return false
+      }
+      const idLeitura = estado.leitura.id_leitura
       if (import.meta.env.DEV) {
         console.warn('[smart-read][persist] salvando', { idLeitura, passo: passoAlvo, nome: nomeEfetivo })
       }
-      await persistirProgressoLeituraSmartRead(idLeitura, { passo: passoAlvo, nome: nomeEfetivo, leitura })
+      const gravou = await persistirProgressoLeituraSmartRead(idLeitura, estado)
+      if (!gravou) {
+        addNotification({
+          type: 'error',
+          title: 'Progresso não salvo',
+          message:
+            'Não foi possível gravar o progresso no servidor. Verifique a conexão e tente novamente antes de sair.',
+        })
+        return false
+      }
+      estadoFlushRef.current = { idLeitura, estado }
       passoSalvoRef.current = passoAlvo
       if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo: passoAlvo, nome: nomeEfetivo })
       return true
     },
-    [arquivos, idLeituraExistente, nomeLeitura, passo],
+    [arquivos, idLeituraExistente, nomeLeitura, passo, addNotification],
   )
+  salvarProgressoRef.current = salvarProgressoAtual
+
+  useEffect(() => {
+    const passoAlvo = passoSalvoRef.current >= 2 ? passoSalvoRef.current : passo
+    const estado = montarEstadoProgressoLeituraSmartRead({
+      arquivos,
+      passo: passoAlvo,
+      nomeLeitura,
+      idLeituraExistente,
+    })
+    estadoFlushRef.current = estado
+      ? { idLeitura: estado.leitura.id_leitura, estado }
+      : null
+  }, [arquivos, passo, nomeLeitura, idLeituraExistente])
+
+  useEffect(() => {
+    if (!aberto) return
+    const flush = () => {
+      const pendente = estadoFlushRef.current
+      if (!pendente) return
+      persistirProgressoLeituraUrgenteSmartRead(pendente.idLeitura, pendente.estado)
+      void persistirProgressoLeituraSmartRead(pendente.idLeitura, pendente.estado)
+    }
+    const onVisibilidade = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', onVisibilidade)
+    return () => {
+      flush()
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', onVisibilidade)
+    }
+  }, [aberto])
 
   // Salva quando a análise termina (passo 2) ou ao mudar de passo com documento lido.
   useEffect(() => {
-    if (!aberto || passo < 2 || !analiseCompleta) return
+    if (!aberto || passo < 2 || !analiseCompleta || hidratandoRetomarRef.current) return
     void salvarProgressoAtual(passo)
   }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
 
@@ -765,11 +968,7 @@ export function ModalNovaLeituraSmartRead({
 
 
   async function handleFechar() {
-    try {
-      await salvarProgressoAtual(passo)
-    } catch (erro) {
-      if (import.meta.env.DEV) console.error('[smart-read][persist] fechar falhou', erro)
-    }
+    await salvarProgressoAtual(passo)
     limparCacheAnaliseRiscosSessaoSmartRead()
     limparRequisicoesAnaliseRiscosEmVooSmartRead()
     onFechar()
@@ -777,11 +976,11 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  async function handleVoltarPasso() {
+  function handleVoltarPasso() {
     if (passo <= 1) return
     const anterior = passo - 1
-    await salvarProgressoAtual(anterior)
     setPasso(anterior)
+    if (anterior >= 2) void salvarProgressoAtual(anterior)
   }
 
 
@@ -823,7 +1022,8 @@ export function ModalNovaLeituraSmartRead({
     }
 
     const proximo = passo + 1
-    await salvarProgressoAtual(proximo)
+    const gravou = await salvarProgressoAtual(proximo)
+    if (!gravou) return
     setPasso(proximo)
 
   }
@@ -912,7 +1112,8 @@ export function ModalNovaLeituraSmartRead({
 
       onIrParaPasso={(id) => {
         if (id >= passo) return
-        void salvarProgressoAtual(id).then(() => setPasso(id))
+        setPasso(id)
+        if (id >= 2) void salvarProgressoAtual(id)
       }}
 
     >
@@ -986,6 +1187,13 @@ export function ModalNovaLeituraSmartRead({
 
         {passoConferenciaMontado && (
           <div className="sr-wizard-passo-painel" hidden={passo !== 3}>
+            {hidratandoRetomar || recuperandoExtracaoRetomar ? (
+              <p className="sr-conf-vazio">
+                {recuperandoExtracaoRetomar
+                  ? 'Recarregando análise dos arquivos…'
+                  : 'Carregando leitura…'}
+              </p>
+            ) : (
             <AreaConferenciaNovaLeituraSmartRead
               arquivos={arquivos}
               selecao={conferenciaSelecao}
@@ -999,6 +1207,7 @@ export function ModalNovaLeituraSmartRead({
               onIaInicio={() => contadorTokens.marcarIaAtiva()}
               onIaFim={() => contadorTokens.marcarIaInativa()}
             />
+            )}
           </div>
         )}
 

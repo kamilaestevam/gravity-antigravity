@@ -1,9 +1,13 @@
 /**
- * Mescla progresso remoto (API) e local (localStorage) — passo maior prevalece.
- * analise_riscos_cache é sempre mesclado dos dois lados para não perder cache ao retomar.
+ * Mescla progresso remoto (Postgres) e local (localStorage).
+ * Passo = maior; leitura = lado com mais extração; cache mesclado dos dois.
  */
 
 import type { AnaliseRiscosCacheProgressoLeitura } from './analise-riscos-cache-progresso-smart-read.js'
+import {
+  mesclarLeiturasRetomarSmartRead,
+  type LeituraRetomarSmartRead,
+} from './escolher-leitura-efetiva-retomar-smart-read.js'
 
 export type ProgressoSalvoLeituraSmartRead = {
   passo: number
@@ -12,19 +16,25 @@ export type ProgressoSalvoLeituraSmartRead = {
   analise_riscos_cache?: AnaliseRiscosCacheProgressoLeitura
 }
 
-function mesclarProgressoSalvo<T extends ProgressoSalvoLeituraSmartRead>(
-  preferido: T,
-  complemento: T,
-): T {
-  const cachePreferido = preferido.analise_riscos_cache ?? {}
-  const cacheComplemento = complemento.analise_riscos_cache ?? {}
+function mesclarProgressoSalvo<T extends ProgressoSalvoLeituraSmartRead>(a: T, b: T): T {
+  const passo = Math.max(a.passo, b.passo)
+  const leitura = mesclarLeiturasRetomarSmartRead(
+    a.leitura as LeituraRetomarSmartRead & T['leitura'],
+    b.leitura as LeituraRetomarSmartRead & T['leitura'],
+  ) as T['leitura']
+
+  const cacheA = a.analise_riscos_cache ?? {}
+  const cacheB = b.analise_riscos_cache ?? {}
   const cacheMesclado =
-    Object.keys(cachePreferido).length > 0 || Object.keys(cacheComplemento).length > 0
-      ? { ...cacheComplemento, ...cachePreferido }
+    Object.keys(cacheA).length > 0 || Object.keys(cacheB).length > 0
+      ? { ...cacheB, ...cacheA }
       : undefined
 
   return {
-    ...preferido,
+    ...(a.passo >= b.passo ? a : b),
+    passo,
+    nome: (a.passo >= b.passo ? a.nome : b.nome) || (a.passo >= b.passo ? b.nome : a.nome),
+    leitura,
     ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
   }
 }
@@ -36,7 +46,5 @@ export function escolherProgressoSalvoLeituraSmartRead<T extends ProgressoSalvoL
   if (!remoto && !local) return null
   if (!remoto) return local
   if (!local) return remoto
-  if (local.passo > remoto.passo) return mesclarProgressoSalvo(local, remoto)
-  if (remoto.passo > local.passo) return mesclarProgressoSalvo(remoto, local)
   return mesclarProgressoSalvo(remoto, local)
 }

@@ -27,6 +27,49 @@ import {
   percentualConformeChecklistPackingList,
 } from '../../../../shared/montar-checklist-matriz-packing-list-smart-read'
 import {
+  combinarResumoGeralComAwbs,
+  ehTipoAwbChecklist,
+  montarChecklistMatrizAwb,
+  montarResumoChecklistAwbs,
+  percentualConformeChecklistAwb,
+} from '../../../../shared/montar-checklist-matriz-awb-smart-read'
+import {
+  combinarResumoGeralComBls,
+  complementarRiscosAgregadoresBlNoResumo,
+  ehTipoBlChecklist,
+  montarChecklistMatrizBl,
+  montarResumoChecklistBls,
+  percentualConformeChecklistBl,
+} from '../../../../shared/montar-checklist-matriz-bl-smart-read'
+import {
+  combinarResumoGeralComCertificadosOrigem,
+  ehTipoCertificadoOrigemChecklist,
+  montarChecklistMatrizCertificadoOrigem,
+  montarResumoChecklistCertificadosOrigem,
+  percentualConformeChecklistCertificadoOrigem,
+} from '../../../../shared/montar-checklist-matriz-certificado-origem-smart-read'
+import {
+  combinarResumoGeralComCertificadosFitossanitario,
+  ehTipoCertificadoFitossanitarioChecklist,
+  montarChecklistMatrizCertificadoFitossanitario,
+  montarResumoChecklistCertificadosFitossanitario,
+  percentualConformeChecklistCertificadoFitossanitario,
+} from '../../../../shared/montar-checklist-matriz-certificado-fitossanitario-smart-read'
+import {
+  combinarResumoGeralComPedidosCompra,
+  ehTipoPedidoCompraChecklist,
+  montarChecklistMatrizPedidoCompra,
+  montarResumoChecklistPedidosCompra,
+  percentualConformeChecklistPedidoCompra,
+} from '../../../../shared/montar-checklist-matriz-pedido-compra-smart-read'
+import {
+  combinarResumoGeralComPedidosVenda,
+  ehTipoPedidoVendaChecklist,
+  montarChecklistMatrizPedidoVenda,
+  montarResumoChecklistPedidosVenda,
+  percentualConformeChecklistPedidoVenda,
+} from '../../../../shared/montar-checklist-matriz-pedido-venda-smart-read'
+import {
   dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
   obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead,
@@ -123,6 +166,42 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     const documentos = extrairDocumentosArquivoLocal(arquivo)
     const documentoAtual = documentos[indiceDocumento]
     return Boolean(documentoAtual?.tipo_documento.toUpperCase().includes('PACKING'))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhAwb = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoAwbChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhBl = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoBlChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCo = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoOrigemChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCf = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoFitossanitarioChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPc = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoCompraChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPv = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoVendaChecklist(documentoAtual.tipo_documento))
   }, [arquivo, indiceDocumento])
 
   const chaveAnaliseRiscos = useMemo(
@@ -223,13 +302,33 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       emCacheRiscos && emCacheRiscos.resumo.total > 0
         ? emCacheRiscos.resumo.riscos
         : (auditoriaV1Arquivo?.resumo.riscos ?? [])
-    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(regrasEfetivas, {
-      riscos: riscosBrutos,
-      total: riscosBrutos.length,
-      criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
-      atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
-      informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
-    })
+    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(
+      regrasEfetivas,
+      {
+        riscos: riscosBrutos,
+        total: riscosBrutos.length,
+        criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
+        atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
+        informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
+      },
+      (riscosComMotor) => {
+        const carregandoAnalise = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+        const v1Ok = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
+        const pipelineOk =
+          v1Ok || Boolean(emCacheRiscos) || (analiseEncerrada && !carregandoAnalise)
+        return complementarRiscosAgregadoresBlNoResumo(
+          {
+            regras: regrasEfetivas,
+            riscos: riscosComMotor,
+            pipelineConcluido: pipelineOk,
+            llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
+            carregando: carregandoAnalise,
+            documentos: documentosRisco,
+          },
+          riscosComMotor,
+        )
+      },
+    )
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
     const v1Disponivel = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
     const pipelineConcluido =
@@ -277,7 +376,49 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       ...parametrosChecklist,
       documentos: documentosRisco,
     })
-    return combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList)
+    const resumosAwb = montarResumoChecklistAwbs({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosBl = montarResumoChecklistBls({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosCo = montarResumoChecklistCertificadosOrigem({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosCf = montarResumoChecklistCertificadosFitossanitario({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPc = montarResumoChecklistPedidosCompra({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPv = montarResumoChecklistPedidosVenda({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    return combinarResumoGeralComPedidosVenda(
+      combinarResumoGeralComPedidosCompra(
+        combinarResumoGeralComCertificadosFitossanitario(
+          combinarResumoGeralComCertificadosOrigem(
+            combinarResumoGeralComBls(
+              combinarResumoGeralComAwbs(
+                combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+                resumosAwb,
+              ),
+              resumosBl,
+            ),
+            resumosCo,
+          ),
+          resumosCf,
+        ),
+        resumosPc,
+      ),
+      resumosPv,
+    )
   }, [documentosRisco, parametrosChecklist])
 
   const resumoChecklistDocumentoAtual = useMemo(() => {
@@ -299,6 +440,66 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       const contagemPl = contarChecklistPorStatus(itensPl)
       return { contagem: contagemPl, percentual: percentualConformeChecklistPackingList(contagemPl) }
     }
+    if (documentoAtualEhAwb) {
+      const itensAwb = montarChecklistMatrizAwb({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemAwb = contarChecklistPorStatus(itensAwb)
+      return { contagem: contagemAwb, percentual: percentualConformeChecklistAwb(contagemAwb) }
+    }
+    if (documentoAtualEhBl) {
+      const itensBl = montarChecklistMatrizBl({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemBl = contarChecklistPorStatus(itensBl)
+      return { contagem: contagemBl, percentual: percentualConformeChecklistBl(contagemBl) }
+    }
+    if (documentoAtualEhCo) {
+      const itensCo = montarChecklistMatrizCertificadoOrigem({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCo = contarChecklistPorStatus(itensCo)
+      return {
+        contagem: contagemCo,
+        percentual: percentualConformeChecklistCertificadoOrigem(contagemCo),
+      }
+    }
+    if (documentoAtualEhCf) {
+      const itensCf = montarChecklistMatrizCertificadoFitossanitario({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCf = contarChecklistPorStatus(itensCf)
+      return {
+        contagem: contagemCf,
+        percentual: percentualConformeChecklistCertificadoFitossanitario(contagemCf),
+      }
+    }
+    if (documentoAtualEhPc) {
+      const itensPc = montarChecklistMatrizPedidoCompra({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPc = contarChecklistPorStatus(itensPc)
+      return {
+        contagem: contagemPc,
+        percentual: percentualConformeChecklistPedidoCompra(contagemPc),
+      }
+    }
+    if (documentoAtualEhPv) {
+      const itensPv = montarChecklistMatrizPedidoVenda({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPv = contarChecklistPorStatus(itensPv)
+      return {
+        contagem: contagemPv,
+        percentual: percentualConformeChecklistPedidoVenda(contagemPv),
+      }
+    }
     const itens = montarChecklistMatrizInvoice({
       ...parametrosChecklist,
       rotulo_documento: rotuloDocumentoAtual,
@@ -310,6 +511,12 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
     return { contagem, percentual }
   }, [
+    documentoAtualEhAwb,
+    documentoAtualEhBl,
+    documentoAtualEhCo,
+    documentoAtualEhCf,
+    documentoAtualEhPc,
+    documentoAtualEhPv,
     documentoAtualEhPackingList,
     documentosRisco.length,
     parametrosChecklist,
@@ -330,7 +537,19 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   const percentualChecklistVerde =
     resumoChecklistDocumentoAtual?.percentual ?? resumoGeralChecklist?.percentual_global ?? 0
 
-  const carregandoRiscos = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+  const carregandoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    !parametrosChecklist.pipelineConcluido
+
+  const enriquecendoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    parametrosChecklist.pipelineConcluido
+
+  const analiseEmAndamento =
+    parametrosChecklist.carregando ||
+    Boolean(parametrosChecklist.enriquecimento_ia_em_andamento) ||
+    carregandoRiscos ||
+    enriquecendoRiscos
 
   const percentualSemCriticos =
     resumoRiscos.total === 0
@@ -382,7 +601,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
         <div className="sr-conf-resumo-linha-barra">
           <div
-            className="sr-conf-progresso-barra"
+            className={`sr-conf-progresso-barra${analiseEmAndamento ? ' sr-conf-progresso-barra--em-analise' : ''}`}
             role="progressbar"
             aria-valuenow={resumoConferencia.percentual}
             aria-valuemin={0}
@@ -393,6 +612,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
               className="sr-conf-progresso-barra-fill sr-conf-progresso-barra-fill--conferencia"
               style={{ width: `${resumoConferencia.percentual}%` }}
             />
+            {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
           </div>
           <span className="sr-conf-progresso-pct sr-conf-progresso-pct--conferencia">
             {resumoConferencia.percentual}%
@@ -435,6 +655,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           na={contagemChecklist.na}
           total={contagemChecklist.total}
           classe="sr-conf-resumo-checklist-barra"
+          emAnalise={analiseEmAndamento}
         />
 
         <p className="sr-conf-resumo-legenda">
@@ -472,6 +693,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         <p className="sr-conf-resumo-riscos-subtitulo">
           {carregandoRiscos && resumoRiscos.total === 0
             ? 'Analisando documentos…'
+            : enriquecendoRiscos && resumoRiscos.total === 0
+              ? 'Enriquecendo com IA…'
             : resumoRiscos.total === 0
               ? 'Nenhum problema detectado'
               : `${percentualSemCriticos}% sem críticos abertos`}
@@ -480,7 +703,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         {resumoRiscos.total > 0 && (
           <>
             <div
-              className="sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta"
+              className={`sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta${analiseEmAndamento ? ' sr-conf-riscos-seg-bar--em-analise' : ''}`}
               role="img"
               aria-label={`Distribuição: ${legendaSegmentos ?? ''}`}
             >
@@ -502,6 +725,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
                   style={{ width: `${(resumoRiscos.informativos / resumoRiscos.total) * 100}%` }}
                 />
               )}
+              {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
             </div>
             {legendaSegmentos && (
               <p className="sr-conf-resumo-legenda">

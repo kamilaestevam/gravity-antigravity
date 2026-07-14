@@ -1,6 +1,6 @@
 /**
  * persistencia-leitura-smart-read.ts — progresso do wizard (passo + conferência).
- * Fonte primária: API → Postgres. Fallback localStorage se API indisponível.
+ * Fonte primária: API → Postgres. localStorage sincronizado antes do PATCH (sobrevive troca de produto).
  */
 
 import { z } from 'zod'
@@ -52,17 +52,50 @@ export async function carregarProgressoLeituraSmartRead(
   let remoto: EstadoSalvoLeitura | null = null
   try {
     remoto = await smartReadApi.obterProgressoLeitura(idLeitura)
+    if (remoto) {
+      const mesclado = escolherProgressoSalvoLeituraSmartRead(remoto, local)
+      if (mesclado) salvarLocal(idLeitura, mesclado)
+      return mesclado
+    }
   } catch (erro) {
     if (import.meta.env.DEV) {
       console.warn('[smart-read][persist] GET progresso falhou — localStorage', erro)
     }
   }
-  return escolherProgressoSalvoLeituraSmartRead(remoto, local)
+  return local
+}
+
+/** Grava localStorage de imediato e tenta PATCH com keepalive (troca de produto / pagehide). */
+export function persistirProgressoLeituraUrgenteSmartRead(
+  idLeitura: string,
+  estado: EstadoSalvoLeitura,
+): void {
+  salvarLocal(idLeitura, estado)
+  void smartReadApi.salvarProgressoLeituraKeepalive(idLeitura, estado)
+}
+
+export async function persistirProgressoLeituraSmartRead(
+  idLeitura: string,
+  estado: EstadoSalvoLeitura,
+): Promise<boolean> {
+  salvarLocal(idLeitura, estado)
+  try {
+    await smartReadApi.salvarProgressoLeitura(idLeitura, estado)
+    return true
+  } catch (erro) {
+    const mensagem = erro instanceof Error ? erro.message : String(erro)
+    console.error('[smart-read][persist] PATCH progresso falhou — apenas localStorage', {
+      idLeitura,
+      passo: estado.passo,
+      mensagem,
+    })
+    return false
+  }
 }
 
 export async function persistirCacheAnaliseRiscosProgressoSmartRead(
   idLeitura: string,
-  chave: string,
+  chaveCache: string,
   resposta: AnaliseRiscosLeituraResponse,
   estadoBase?: EstadoSalvoLeitura,
 ): Promise<void> {
@@ -71,7 +104,7 @@ export async function persistirCacheAnaliseRiscosProgressoSmartRead(
   const cacheAtual = estado.analise_riscos_cache ?? {}
   await persistirProgressoLeituraSmartRead(idLeitura, {
     ...estado,
-    analise_riscos_cache: { ...cacheAtual, [chave]: resposta },
+    analise_riscos_cache: { ...cacheAtual, [chaveCache]: resposta },
   })
 }
 
@@ -79,26 +112,9 @@ export function hidratarCacheAnaliseRiscosDeProgresso(
   estado: EstadoSalvoLeitura | null | undefined,
 ): void {
   if (!estado?.analise_riscos_cache) return
-  for (const [chave, resposta] of Object.entries(estado.analise_riscos_cache)) {
-    salvarCacheAnaliseRiscosSessaoSmartRead(chave, resposta)
+  for (const [chaveCache, resposta] of Object.entries(estado.analise_riscos_cache)) {
+    salvarCacheAnaliseRiscosSessaoSmartRead(chaveCache, resposta)
   }
-}
-
-export async function persistirProgressoLeituraSmartRead(
-  idLeitura: string,
-  estado: EstadoSalvoLeitura,
-): Promise<void> {
-  try {
-    await smartReadApi.salvarProgressoLeitura(idLeitura, estado)
-    salvarLocal(idLeitura, estado)
-    return
-  } catch (erro) {
-    const mensagem = erro instanceof Error ? erro.message : String(erro)
-    if (import.meta.env.DEV) {
-      console.error('[smart-read][persist] PATCH progresso falhou — localStorage', mensagem)
-    }
-  }
-  salvarLocal(idLeitura, estado)
 }
 
 /** @deprecated use carregarProgressoLeituraSmartRead */

@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { Prisma } from '../generated/client/index.js'
 import { AppError } from '../lib/app-error.js'
 import { persistirSnapshotLeituraSmartRead } from '../lib/snapshot-leitura-smart-read.js'
+import { mesclarLeiturasRetomarSmartRead } from '../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 import {
   EstadoProgressoLeituraSchema,
   extrairDadosSessaoProgressoLeitura,
@@ -96,6 +97,9 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
     const dadosAnteriores = existente
       ? extrairDadosSessaoProgressoLeitura(existente.dados_sessao_progresso_leitura_smart_read)
       : null
+    const leituraCorpo = dadosAnteriores?.leitura
+      ? mesclarLeiturasRetomarSmartRead(corpo.leitura, dadosAnteriores.leitura)
+      : corpo.leitura
     const cacheAnterior = dadosAnteriores?.analise_riscos_cache ?? {}
     const cacheCorpo = corpo.analise_riscos_cache ?? {}
     const cacheMesclado =
@@ -105,7 +109,7 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
 
     const dadosSessao = {
       nome: corpo.nome,
-      leitura: corpo.leitura,
+      leitura: leituraCorpo,
       ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
     } satisfies Prisma.InputJsonObject
     const dadosJson = dadosSessao as Prisma.InputJsonValue
@@ -145,7 +149,7 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
       idOrganizacao: req.idOrganizacao,
       idUsuario,
       idWorkspace,
-      leitura: corpo.leitura,
+      leitura: leituraCorpo,
       motivo: 'conferencia_usuario',
       extras: {
         data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),

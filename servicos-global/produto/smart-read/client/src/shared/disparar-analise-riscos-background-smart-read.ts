@@ -126,6 +126,10 @@ export function dispararAnaliseRiscosBackgroundSmartRead({
   const emVoo = requisicoesEmVoo.get(chave)
   if (emVoo) {
     onInicio?.()
+    const cacheParcial = obterCacheAnaliseRiscosSessaoSmartRead(chave)
+    if (cacheParcial && !cacheParcial.llm_ativo) {
+      onParcial?.(cacheParcial)
+    }
     void emVoo
       .then((resposta) => {
         onTokensAtualizados?.(resposta.uso_llm_leitura, resposta.uso_llm_chamada)

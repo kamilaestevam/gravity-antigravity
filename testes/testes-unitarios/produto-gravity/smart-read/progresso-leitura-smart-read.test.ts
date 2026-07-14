@@ -5,6 +5,7 @@ import {
   normalizarPassoRegistroProgressoLeituraSmartRead,
   resolverPassoRetomarLeituraSmartRead,
 } from '../../../../servicos-global/produto/smart-read/shared/resolver-passo-retomar-leitura-smart-read.ts'
+import { estadoProgressoReduzidoUrgenteSmartRead } from '../../../../servicos-global/produto/smart-read/shared/estado-progresso-reduzido-urgente-smart-read.ts'
 import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
@@ -57,9 +58,9 @@ describe('progresso-leitura-smart-read', () => {
     expect(resposta.passo).toBe(2)
   })
 
-  it('COMPLETED na lista sempre retoma no passo 4 mesmo com progresso salvo em 2', () => {
-    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(4)
-    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(4)
+  it('COMPLETED retoma no passo salvo ou 4 quando não há progresso', () => {
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 2)).toBe(2)
+    expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', 3)).toBe(3)
     expect(resolverPassoRetomarLeituraSmartRead('COMPLETED', null)).toBe(4)
   })
 
@@ -67,6 +68,18 @@ describe('progresso-leitura-smart-read', () => {
     expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', 3)).toBe(3)
     expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', 1)).toBe(2)
     expect(resolverPassoRetomarLeituraSmartRead('PROCESSING', null)).toBe(2)
+  })
+
+  it('passo 3+ sem extração util volta ao passo 2 para não abrir conferência vazia', () => {
+    expect(
+      resolverPassoRetomarLeituraSmartRead('PROCESSING', 3, { temExtracaoUtil: false }),
+    ).toBe(2)
+    expect(
+      resolverPassoRetomarLeituraSmartRead('COMPLETED', 4, { temExtracaoUtil: false }),
+    ).toBe(2)
+    expect(
+      resolverPassoRetomarLeituraSmartRead('PROCESSING', 3, { temExtracaoUtil: true }),
+    ).toBe(3)
   })
 
   it('normalizarPassoRegistroProgresso cobre passo fora do intervalo', () => {
@@ -169,5 +182,23 @@ describe('progresso-leitura-smart-read', () => {
     const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
     expect(escolhida?.arquivos).toHaveLength(1)
     expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-api' })
+  })
+
+  it('estado reduzido urgente preserva passo e id sem arquivos no corpo', () => {
+    const reduzido = estadoProgressoReduzidoUrgenteSmartRead({
+      passo: 3,
+      nome: 'Leitura X',
+      leitura: {
+        id_leitura: 'abc12345',
+        nome_leitura: 'Leitura X',
+        status_leitura: 'COMPLETED',
+        total_arquivos: 1,
+        arquivos_processados: 1,
+        arquivos: [{ id_arquivo: 'a1', nome_arquivo: 'f.pdf', status_arquivo: 'COMPLETED', resultado_extracao: [] }],
+      },
+    })
+    expect(reduzido.passo).toBe(3)
+    expect(reduzido.leitura.arquivos).toEqual([])
+    expect(reduzido.leitura.id_leitura).toBe('abc12345')
   })
 })

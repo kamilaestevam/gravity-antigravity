@@ -6,6 +6,10 @@ import type { PrismaClient } from '../generated/client/index.js'
 import { calcularMetricasTransacaoLeituraSmartRead } from '../../../shared/metricas-transacao-leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
+  leituraTemExtracaoUtilRetomarSmartRead,
+} from '../../../shared/leitura-sem-extracao-retomar-smart-read.js'
+import { mesclarLeituraComConferenciaGravity } from './mesclar-leitura-conferencia-gravity-smart-read.js'
+import {
   LeituraSchema,
   TransacaoLeituraSchema,
   type Leitura,
@@ -116,14 +120,29 @@ export async function persistirSnapshotLeituraSmartRead(params: {
   motivo: MotivoCongelamentoSnapshotLeituraSmartRead
   extras?: ExtrasSnapshotLeituraSmartRead
 }): Promise<void> {
-  const { prisma, idOrganizacao, idUsuario, idWorkspace, leitura, motivo, extras } = params
-  if (!leituraElegivelParaSnapshot(leitura) && motivo !== 'conferencia_usuario') return
+  const { prisma, idOrganizacao, idUsuario, idWorkspace, leitura: leituraEntrada, motivo, extras } = params
+  if (!leituraElegivelParaSnapshot(leituraEntrada) && motivo !== 'conferencia_usuario') return
 
   const existente = await prisma.snapshotLeituraSmartRead.findFirst({
     where: {
-      id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura,
+      id_leitura_legado_snapshot_leitura_smart_read: leituraEntrada.id_leitura,
     },
   })
+
+  const leituraAnterior = existente ? leituraDeRegistroSnapshot(existente) : null
+  let leitura = leituraEntrada
+  if (leituraAnterior) {
+    if (
+      motivo === 'extracao_concluida' &&
+      leituraTemExtracaoUtilRetomarSmartRead(leituraAnterior) &&
+      !leituraTemExtracaoUtilRetomarSmartRead(leituraEntrada)
+    ) {
+      return
+    }
+    if (motivo === 'conferencia_usuario') {
+      leitura = mesclarLeituraComConferenciaGravity(leituraAnterior, leituraEntrada)
+    }
+  }
 
   const origemExistente = existente?.origem_leitura_snapshot_leitura_smart_read as OrigemLeitura | undefined
   const origemInformada = extras?.origem_leitura

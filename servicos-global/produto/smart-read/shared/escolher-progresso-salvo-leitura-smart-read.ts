@@ -1,6 +1,6 @@
 /**
- * Mescla progresso remoto (API) e local (localStorage) — passo maior prevalece.
- * analise_riscos_cache é sempre mesclado dos dois lados para não perder cache ao retomar.
+ * Progresso remoto (Postgres) é SSOT para o corpo da leitura.
+ * localStorage só entra se a API falhar; passo/cache podem ser elevados pelo local.
  */
 
 import type { AnaliseRiscosCacheProgressoLeitura } from './analise-riscos-cache-progresso-smart-read.js'
@@ -12,21 +12,20 @@ export type ProgressoSalvoLeituraSmartRead = {
   analise_riscos_cache?: AnaliseRiscosCacheProgressoLeitura
 }
 
-function mesclarProgressoSalvo<T extends ProgressoSalvoLeituraSmartRead>(
-  preferido: T,
-  complemento: T,
-): T {
-  const cachePreferido = preferido.analise_riscos_cache ?? {}
-  const cacheComplemento = complemento.analise_riscos_cache ?? {}
+function mesclarCacheProgresso<T extends ProgressoSalvoLeituraSmartRead>(a: T, b: T): T {
+  const cacheA = a.analise_riscos_cache ?? {}
+  const cacheB = b.analise_riscos_cache ?? {}
   const cacheMesclado =
-    Object.keys(cachePreferido).length > 0 || Object.keys(cacheComplemento).length > 0
-      ? { ...cacheComplemento, ...cachePreferido }
+    Object.keys(cacheA).length > 0 || Object.keys(cacheB).length > 0
+      ? { ...cacheB, ...cacheA }
       : undefined
 
   return {
-    ...preferido,
+    ...a,
+    passo: Math.max(a.passo, b.passo),
+    nome: a.nome || b.nome,
     ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
-  }
+  } as T
 }
 
 export function escolherProgressoSalvoLeituraSmartRead<T extends ProgressoSalvoLeituraSmartRead>(
@@ -36,7 +35,5 @@ export function escolherProgressoSalvoLeituraSmartRead<T extends ProgressoSalvoL
   if (!remoto && !local) return null
   if (!remoto) return local
   if (!local) return remoto
-  if (local.passo > remoto.passo) return mesclarProgressoSalvo(local, remoto)
-  if (remoto.passo > local.passo) return mesclarProgressoSalvo(remoto, local)
-  return mesclarProgressoSalvo(remoto, local)
+  return mesclarCacheProgresso(remoto, local)
 }

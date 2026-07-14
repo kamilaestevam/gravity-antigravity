@@ -52,12 +52,16 @@ export async function carregarProgressoLeituraSmartRead(
   let remoto: EstadoSalvoLeitura | null = null
   try {
     remoto = await smartReadApi.obterProgressoLeitura(idLeitura)
+    if (remoto) {
+      salvarLocal(idLeitura, remoto)
+      return escolherProgressoSalvoLeituraSmartRead(remoto, local)
+    }
   } catch (erro) {
     if (import.meta.env.DEV) {
       console.warn('[smart-read][persist] GET progresso falhou — localStorage', erro)
     }
   }
-  return escolherProgressoSalvoLeituraSmartRead(remoto, local)
+  return local
 }
 
 export async function persistirCacheAnaliseRiscosProgressoSmartRead(

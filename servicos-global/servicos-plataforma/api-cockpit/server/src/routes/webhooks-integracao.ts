@@ -79,23 +79,23 @@ webhooksIntegracaoRouter.post('/credenciais-oauth', async (req, res, next) => {
     const clientId = `gravity_oauth_${randomUUID().replace(/-/g, '').slice(0, 16)}`
     const clientSecret = `gravity_oauth_secret_${randomUUID().replace(/-/g, '')}`
 
-    const credencial = await prisma.credencialOAuthApi.create({
+    const credencial = await prisma.apiCredencialOauth.create({
       data: {
         id_organizacao: parsed.data.id_organizacao,
         id_usuario: parsed.data.id_usuario ?? null,
-        client_id_credencial_oauth_api: clientId,
-        hash_client_secret_credencial_oauth_api: hashToken(clientSecret),
-        ambiente_credencial_oauth_api: parsed.data.ambiente,
-        escopo_credencial_oauth_api: parsed.data.escopo,
+        client_id_api_credencial_oauth: clientId,
+        hash_client_secret_api_credencial_oauth: hashToken(clientSecret),
+        ambiente_api_credencial_oauth: parsed.data.ambiente,
+        escopo_api_credencial_oauth: parsed.data.escopo,
       },
     })
 
     res.status(201).json({
-      id_credencial_oauth_api: credencial.id_credencial_oauth_api,
+      id_api_credencial_oauth: credencial.id_api_credencial_oauth,
       client_id: clientId,
       client_secret: clientSecret,
-      ambiente: credencial.ambiente_credencial_oauth_api,
-      escopo: credencial.escopo_credencial_oauth_api,
+      ambiente: credencial.ambiente_api_credencial_oauth,
+      escopo: credencial.escopo_api_credencial_oauth,
     })
   } catch (err) {
     next(err)
@@ -105,16 +105,16 @@ webhooksIntegracaoRouter.post('/credenciais-oauth', async (req, res, next) => {
 webhooksIntegracaoRouter.get('/credenciais-oauth', async (req, res, next) => {
   try {
     const idOrganizacao = z.string().min(1).parse(req.query.id_organizacao)
-    const credenciais = await prisma.credencialOAuthApi.findMany({
-      where: { id_organizacao: idOrganizacao, revogado_credencial_oauth_api: false },
+    const credenciais = await prisma.apiCredencialOauth.findMany({
+      where: { id_organizacao: idOrganizacao, revogado_api_credencial_oauth: false },
       select: {
-        id_credencial_oauth_api: true,
-        client_id_credencial_oauth_api: true,
-        ambiente_credencial_oauth_api: true,
-        escopo_credencial_oauth_api: true,
-        data_criacao_credencial_oauth_api: true,
+        id_api_credencial_oauth: true,
+        client_id_api_credencial_oauth: true,
+        ambiente_api_credencial_oauth: true,
+        escopo_api_credencial_oauth: true,
+        data_criacao_api_credencial_oauth: true,
       },
-      orderBy: { data_criacao_credencial_oauth_api: 'desc' },
+      orderBy: { data_criacao_api_credencial_oauth: 'desc' },
     })
     res.json({ credenciais })
   } catch (err) {

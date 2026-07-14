@@ -210,53 +210,53 @@ model ApiIntegracaoErp {
 }
 
 // ---------------------------------------------------------------------------
-// CredencialOAuthApi — client_id/secret para grant client_credentials (integradores)
+// ApiCredencialOauth — client_id/secret para grant client_credentials (integradores)
 // ---------------------------------------------------------------------------
 
-model CredencialOAuthApi {
-  id_credencial_oauth_api String @id @default(cuid())
+model ApiCredencialOauth {
+  id_api_credencial_oauth String @id @default(cuid())
 
   id_organizacao String
   id_usuario     String?
 
-  client_id_credencial_oauth_api          String @unique
-  hash_client_secret_credencial_oauth_api String
+  client_id_api_credencial_oauth          String @unique
+  hash_client_secret_api_credencial_oauth String
 
-  ambiente_credencial_oauth_api AmbienteIntegracaoApi @default(SANDBOX)
-  escopo_credencial_oauth_api   EscopoApiToken        @default(LEITURA)
+  ambiente_api_credencial_oauth AmbienteIntegracaoApi @default(SANDBOX)
+  escopo_api_credencial_oauth   EscopoApiToken        @default(LEITURA)
 
-  revogado_credencial_oauth_api       Boolean   @default(false)
-  data_revogacao_credencial_oauth_api DateTime?
+  revogado_api_credencial_oauth       Boolean   @default(false)
+  data_revogacao_api_credencial_oauth DateTime?
 
-  data_criacao_credencial_oauth_api     DateTime @default(now())
-  data_atualizacao_credencial_oauth_api DateTime @updatedAt
+  data_criacao_api_credencial_oauth     DateTime @default(now())
+  data_atualizacao_api_credencial_oauth DateTime @updatedAt
 
-  @@index([id_organizacao], map: "coa_org_idx")
-  @@index([id_organizacao, id_usuario], map: "coa_org_usr_idx")
-  @@map("credencial_oauth_api")
+  @@index([id_organizacao], map: "aco_org_idx")
+  @@index([id_organizacao, id_usuario], map: "aco_org_usr_idx")
+  @@map("api_credencial_oauth")
 }
 
 // ---------------------------------------------------------------------------
-// RegistroIdempotenciaApi — Idempotency-Key / x-chave-idempotencia por organizacao
+// ApiRegistroIdempotencia — Idempotency-Key / x-chave-idempotencia por organizacao
 // ---------------------------------------------------------------------------
 
-model RegistroIdempotenciaApi {
-  id_registro_idempotencia_api String @id @default(cuid())
+model ApiRegistroIdempotencia {
+  id_api_registro_idempotencia String @id @default(cuid())
 
   id_organizacao String
 
-  chave_idempotencia_api          String
-  hash_corpo_requisicao_api       String
-  codigo_resposta_http_idempotencia_api Int
-  corpo_resposta_idempotencia_api Json
+  chave_api_registro_idempotencia          String
+  hash_corpo_api_registro_idempotencia       String
+  codigo_resposta_http_api_registro_idempotencia Int
+  corpo_resposta_api_registro_idempotencia Json
 
-  data_expiracao_idempotencia_api DateTime
-  data_criacao_idempotencia_api     DateTime @default(now())
+  data_expiracao_api_registro_idempotencia DateTime
+  data_criacao_api_registro_idempotencia     DateTime @default(now())
 
-  @@unique([id_organizacao, chave_idempotencia_api], map: "ridem_org_chave_uq")
-  @@index([id_organizacao], map: "ridem_org_idx")
-  @@index([data_expiracao_idempotencia_api], map: "ridem_exp_idx")
-  @@map("registro_idempotencia_api")
+  @@unique([id_organizacao, chave_api_registro_idempotencia], map: "arid_org_chave_uq")
+  @@index([id_organizacao], map: "arid_org_idx")
+  @@index([data_expiracao_api_registro_idempotencia], map: "arid_exp_idx")
+  @@map("api_registro_idempotencia")
 }
 
 // ---------------------------------------------------------------------------

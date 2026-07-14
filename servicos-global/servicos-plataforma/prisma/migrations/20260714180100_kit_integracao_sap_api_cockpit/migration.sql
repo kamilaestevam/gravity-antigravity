@@ -1,44 +1,44 @@
--- Kit integracao Gravity-SAP: OAuth, idempotencia e fila de webhooks
+-- Kit integracao Gravity-ERP: OAuth, idempotencia e fila de webhooks (nomes DDD)
 
 CREATE TYPE "AmbienteIntegracaoApi" AS ENUM ('SANDBOX', 'PRODUCAO');
 CREATE TYPE "StatusWebhookEventoEnfileirado" AS ENUM ('PENDENTE', 'ENTREGUE', 'FALHA_PERMANENTE');
 
-CREATE TABLE "credencial_oauth_api" (
-  "id_credencial_oauth_api" TEXT NOT NULL,
+CREATE TABLE "api_credencial_oauth" (
+  "id_api_credencial_oauth" TEXT NOT NULL,
   "id_organizacao" TEXT NOT NULL,
   "id_usuario" TEXT,
-  "client_id_credencial_oauth_api" TEXT NOT NULL,
-  "hash_client_secret_credencial_oauth_api" TEXT NOT NULL,
-  "ambiente_credencial_oauth_api" "AmbienteIntegracaoApi" NOT NULL DEFAULT 'SANDBOX',
-  "escopo_credencial_oauth_api" "EscopoApiToken" NOT NULL DEFAULT 'LEITURA',
-  "revogado_credencial_oauth_api" BOOLEAN NOT NULL DEFAULT false,
-  "data_revogacao_credencial_oauth_api" TIMESTAMP(3),
-  "data_criacao_credencial_oauth_api" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "data_atualizacao_credencial_oauth_api" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "credencial_oauth_api_pkey" PRIMARY KEY ("id_credencial_oauth_api")
+  "client_id_api_credencial_oauth" TEXT NOT NULL,
+  "hash_client_secret_api_credencial_oauth" TEXT NOT NULL,
+  "ambiente_api_credencial_oauth" "AmbienteIntegracaoApi" NOT NULL DEFAULT 'SANDBOX',
+  "escopo_api_credencial_oauth" "EscopoApiToken" NOT NULL DEFAULT 'LEITURA',
+  "revogado_api_credencial_oauth" BOOLEAN NOT NULL DEFAULT false,
+  "data_revogacao_api_credencial_oauth" TIMESTAMP(3),
+  "data_criacao_api_credencial_oauth" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "data_atualizacao_api_credencial_oauth" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "api_credencial_oauth_pkey" PRIMARY KEY ("id_api_credencial_oauth")
 );
 
-CREATE UNIQUE INDEX "credencial_oauth_api_client_id_credencial_oauth_api_key"
-  ON "credencial_oauth_api"("client_id_credencial_oauth_api");
-CREATE INDEX "coa_org_idx" ON "credencial_oauth_api"("id_organizacao");
-CREATE INDEX "coa_org_usr_idx" ON "credencial_oauth_api"("id_organizacao", "id_usuario");
+CREATE UNIQUE INDEX "api_credencial_oauth_client_id_api_credencial_oauth_key"
+  ON "api_credencial_oauth"("client_id_api_credencial_oauth");
+CREATE INDEX "aco_org_idx" ON "api_credencial_oauth"("id_organizacao");
+CREATE INDEX "aco_org_usr_idx" ON "api_credencial_oauth"("id_organizacao", "id_usuario");
 
-CREATE TABLE "registro_idempotencia_api" (
-  "id_registro_idempotencia_api" TEXT NOT NULL,
+CREATE TABLE "api_registro_idempotencia" (
+  "id_api_registro_idempotencia" TEXT NOT NULL,
   "id_organizacao" TEXT NOT NULL,
-  "chave_idempotencia_api" TEXT NOT NULL,
-  "hash_corpo_requisicao_api" TEXT NOT NULL,
-  "codigo_resposta_http_idempotencia_api" INTEGER NOT NULL,
-  "corpo_resposta_idempotencia_api" JSONB NOT NULL,
-  "data_expiracao_idempotencia_api" TIMESTAMP(3) NOT NULL,
-  "data_criacao_idempotencia_api" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "registro_idempotencia_api_pkey" PRIMARY KEY ("id_registro_idempotencia_api")
+  "chave_api_registro_idempotencia" TEXT NOT NULL,
+  "hash_corpo_api_registro_idempotencia" TEXT NOT NULL,
+  "codigo_resposta_http_api_registro_idempotencia" INTEGER NOT NULL,
+  "corpo_resposta_api_registro_idempotencia" JSONB NOT NULL,
+  "data_expiracao_api_registro_idempotencia" TIMESTAMP(3) NOT NULL,
+  "data_criacao_api_registro_idempotencia" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "api_registro_idempotencia_pkey" PRIMARY KEY ("id_api_registro_idempotencia")
 );
 
-CREATE UNIQUE INDEX "ridem_org_chave_uq"
-  ON "registro_idempotencia_api"("id_organizacao", "chave_idempotencia_api");
-CREATE INDEX "ridem_org_idx" ON "registro_idempotencia_api"("id_organizacao");
-CREATE INDEX "ridem_exp_idx" ON "registro_idempotencia_api"("data_expiracao_idempotencia_api");
+CREATE UNIQUE INDEX "arid_org_chave_uq"
+  ON "api_registro_idempotencia"("id_organizacao", "chave_api_registro_idempotencia");
+CREATE INDEX "arid_org_idx" ON "api_registro_idempotencia"("id_organizacao");
+CREATE INDEX "arid_exp_idx" ON "api_registro_idempotencia"("data_expiracao_api_registro_idempotencia");
 
 CREATE TABLE "webhook_evento_enfileirado" (
   "id_webhook_evento_enfileirado" TEXT NOT NULL,

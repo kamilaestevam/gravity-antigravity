@@ -1,8 +1,5 @@
 /**
  * oauth-token.ts — POST /api/v1/cockpit/oauth/token (client_credentials)
- *
- * Aceita application/x-www-form-urlencoded ou JSON.
- * Retorna access_token Bearer valido no proxy externo.
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -40,10 +37,10 @@ oauthTokenRouter.post('/token', async (req: Request, res: Response, next: NextFu
       })
     }
 
-    const credencial = await prisma.credencialOAuthApi.findFirst({
+    const credencial = await prisma.apiCredencialOauth.findFirst({
       where: {
-        client_id_credencial_oauth_api: parsed.data.client_id,
-        revogado_credencial_oauth_api: false,
+        client_id_api_credencial_oauth: parsed.data.client_id,
+        revogado_api_credencial_oauth: false,
       },
     })
 
@@ -52,20 +49,20 @@ oauthTokenRouter.post('/token', async (req: Request, res: Response, next: NextFu
     }
 
     const hashSecret = hashToken(parsed.data.client_secret)
-    if (hashSecret !== credencial.hash_client_secret_credencial_oauth_api) {
+    if (hashSecret !== credencial.hash_client_secret_api_credencial_oauth) {
       return res.status(401).json({ error: 'invalid_client' })
     }
 
     const { access_token, expires_in } = emitirTokenOAuthAcesso(
       credencial.id_organizacao,
-      credencial.escopo_credencial_oauth_api,
+      credencial.escopo_api_credencial_oauth,
     )
 
     res.status(200).json({
       access_token,
       token_type: 'Bearer',
       expires_in,
-      escopo: credencial.escopo_credencial_oauth_api,
+      escopo: credencial.escopo_api_credencial_oauth,
     })
   } catch (err) {
     next(err)

@@ -216,7 +216,7 @@ export async function obterLeituraDoProgresso(
     where: {
       id_leitura_legado_progresso_leitura_smart_read: idLeituraLegado,
       id_usuario: idUsuario,
-      ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
+      ...(idWorkspace ? clausulaWorkspaceLeituraSmartRead(idWorkspace) : {}),
     },
     orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
   })

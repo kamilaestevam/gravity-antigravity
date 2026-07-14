@@ -48,6 +48,7 @@ import {
 } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 import {
+  estadoProgressoKeepaliveSmartRead,
   estadoProgressoReduzidoUrgenteSmartRead,
   LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ,
 } from '../../../shared/estado-progresso-reduzido-urgente-smart-read.js'
@@ -310,6 +311,9 @@ export const smartReadApi = {
 
   async salvarProgressoLeituraKeepalive(idLeitura: string, estado: EstadoProgressoLeitura): Promise<void> {
     let corpo = JSON.stringify(estado)
+    if (corpo.length > LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ) {
+      corpo = JSON.stringify(estadoProgressoKeepaliveSmartRead(estado))
+    }
     if (corpo.length > LIMITE_CORPO_KEEPALIVE_PROGRESSO_SMART_READ) {
       corpo = JSON.stringify(estadoProgressoReduzidoUrgenteSmartRead(estado))
     }

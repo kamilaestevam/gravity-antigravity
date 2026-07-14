@@ -25,4 +25,13 @@ describe('criarArquivosLocaisRetomarDeLeitura', () => {
   it('retorna vazio quando nao ha arquivos nem total', () => {
     expect(criarArquivosLocaisRetomarDeLeitura(leituraSemDetalheArquivos(0))).toEqual([])
   })
+
+  it('usa nome_arquivo da lista no placeholder unico', () => {
+    const locais = criarArquivosLocaisRetomarDeLeitura(leituraSemDetalheArquivos(0), {
+      nome_arquivo: 'invoice.pdf',
+      total_arquivos: 1,
+    })
+    expect(locais).toHaveLength(1)
+    expect(locais[0]?.arquivo.name).toBe('invoice.pdf')
+  })
 })

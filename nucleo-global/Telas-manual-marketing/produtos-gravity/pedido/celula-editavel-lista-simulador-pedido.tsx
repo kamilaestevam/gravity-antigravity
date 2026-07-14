@@ -16,6 +16,7 @@ type Props = {
   labelColuna: string
   flashSalvo?: boolean
   flashErro?: boolean
+  classeDestaqueGuia?: string
   onIniciarEdicao: (info: {
     colunaId: string
     label: string
@@ -35,6 +36,7 @@ export function CelulaEditavelListaSimuladorPedido({
   labelColuna,
   flashSalvo,
   flashErro,
+  classeDestaqueGuia,
   onIniciarEdicao,
   children,
 }: Props) {
@@ -45,6 +47,7 @@ export function CelulaEditavelListaSimuladorPedido({
   const classes = [
     'pds-lista-celula',
     'gtv-celula',
+    classeDestaqueGuia,
     estado.editavel ? 'gtv-celula--editavel' : '',
     estado.bloqueada ? 'gtv-celula--bloqueada' : '',
     estado.somenteLeitura ? 'gtv-celula--somente-leitura' : '',

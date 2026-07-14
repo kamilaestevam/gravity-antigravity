@@ -236,8 +236,15 @@
 }
 
 /* Densidade compacta — simulador marketing (lista + chrome) */
+.pds-root .sds-main {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .pds-root .sds-content {
   padding: 10px 12px 14px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .pds-root .sds-mtg-header {

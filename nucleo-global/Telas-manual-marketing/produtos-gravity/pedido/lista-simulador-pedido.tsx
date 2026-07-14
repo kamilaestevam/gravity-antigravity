@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type DragEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -18,7 +18,6 @@ import {
   CaretDoubleUp,
   CaretDown,
   CaretRight,
-  Copy,
   CurrencyDollar,
   DownloadSimple,
   FilePdf,
@@ -27,6 +26,7 @@ import {
   MagnifyingGlass,
   Package,
   PencilLine,
+  StackPlus,
   Trash,
   Warning,
   X,
@@ -35,6 +35,7 @@ import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-s
 import {
   formatarValorListaPedidoSimulador,
   listarPedidosEmpresasSimulador,
+  materializarItensLinhaListaSimulador,
   resumirListaPedidosSimulador,
   type ItemListaPedidoSimulador,
   type LinhaListaPedidoSimulador,
@@ -82,16 +83,44 @@ import {
   tooltipExcluirListaSimulador,
   tooltipGerarPdfListaSimulador,
   tooltipTransferirListaSimulador,
+  type SelecaoListaSimuladorPedido,
 } from './regras-acoes-barra-lista-simulador-pedido'
 import { MenuNovoListaSimuladorPedido, ToastDemoNovoSimuladorPedido } from './menu-novo-lista-simulador-pedido'
 import { ModalNovoPedidoSimulador } from './modal-novo-pedido-simulador'
 import { ModalNovoItemSimuladorPedido } from './modal-novo-item-simulador-pedido'
 import { ModalDuplicarListaSimuladorPedido, mensagemToastDuplicacao } from './modal-duplicar-lista-simulador-pedido'
+import {
+  ModalEdicaoMassaListaSimuladorPedido,
+  mensagemToastEdicaoMassa,
+} from './modal-edicao-massa-lista-simulador-pedido'
 import { ModalExcluirListaSimuladorPedido, mensagemToastExclusao } from './modal-excluir-lista-simulador-pedido'
+import { ModalTransferirListaSimuladorPedido } from './modal-transferir-lista-simulador-pedido'
+import { ModalExplicacaoTransferenciaSimuladorPedido } from './modal-explicacao-transferencia-simulador-pedido'
+import './modal-explicacao-transferencia-simulador-pedido.css'
+import { GuiaPosTransferenciaSimuladorPedido } from './guia-pos-transferencia-simulador-pedido'
+import './guia-pos-transferencia-simulador-pedido.css'
 import {
   duplicarSelecaoListaSimulador,
   excluirSelecaoListaSimulador,
+  type ResumoDuplicacaoListaSimulador,
 } from './duplicar-excluir-lista-simulador-pedido'
+import type { NivelEdicaoMassaSimulador } from './campos-edicao-massa-simulador-pedido'
+import {
+  aplicarEdicaoMassaListaSimulador,
+  type CampoEmEdicaoMassaSimulador,
+  type ResumoEdicaoMassaListaSimulador,
+} from './edicao-massa-lista-simulador-pedido'
+import {
+  colunasDestaqueGuiaPosTransferenciaSimulador,
+  itemDestaqueGuiaPosTransferencia,
+  montarMensagemToastTransferencia,
+  type PassoGuiaPosTransferenciaSimulador,
+  type ResumoTransferenciaListaSimulador,
+} from './transferir-lista-simulador-pedido'
+import {
+  calcularJanelaColunasScrollListaSimulador,
+  scrollContainerParaLinhaListaSimulador,
+} from './janela-colunas-scroll-lista-simulador-pedido'
 import { montarLinhaNovoPedidoSimulador } from './montar-linha-novo-pedido-simulador'
 import type { FornecedorSimuladorNovoPedido } from './dados-fornecedores-simulador-novo-pedido'
 import type { FormNovoPedidoSimulador, ItemNovoPedidoSimulador } from './regras-modal-novo-pedido-simulador'
@@ -109,7 +138,50 @@ const STATUS_FILTROS: Array<{ id: string; label: string; cor: string; valor?: St
 
 const EXPORTAR_OPCOES = ['Excel (.xlsx)', 'CSV', 'TXT', 'XML', 'JSON', 'PDF']
 
-const ITENS_POR_PAGINA = 10
+const ITENS_POR_PAGINA_PADRAO = 100
+const ITENS_POR_PAGINA_MIN = 10
+const ITENS_POR_PAGINA_MAX = 200
+const ALTURA_LINHA_PEDIDO_LISTA_SIMULADOR = 30
+const ALTURA_CABECALHO_TABELA_LISTA_SIMULADOR = 34
+const TEXTO_CELULA_VAZIA_LISTA_SIMULADOR = '—'
+
+/** Paridade TabelaVirtualGlobal — primeiras/últimas + janela ±2, com reticências. */
+function calcularItensPaginacaoRodape(paginaEfetiva: number, totalPaginas: number): Array<number | '...'> {
+  if (totalPaginas <= 1) return []
+  const show = new Set([1, totalPaginas])
+  for (let p = Math.max(1, paginaEfetiva - 2); p <= Math.min(totalPaginas, paginaEfetiva + 2); p += 1) {
+    show.add(p)
+  }
+  const sorted = Array.from(show).sort((a, b) => a - b)
+  const items: Array<number | '...'> = []
+  sorted.forEach((p, i) => {
+    if (i > 0 && p - sorted[i - 1]! > 1) items.push('...')
+    items.push(p)
+  })
+  return items
+}
+
+function montarIdsPedidosExpandidosPosTransferencia(
+  resumo: ResumoTransferenciaListaSimulador,
+  idsNovosPedidos: readonly string[],
+): string[] {
+  const ids = new Set<string>(idsNovosPedidos)
+  if (resumo.pedidoOrigemId) ids.add(resumo.pedidoOrigemId)
+  if (resumo.pedidoDestinoId) ids.add(resumo.pedidoDestinoId)
+  return Array.from(ids)
+}
+
+function aplicarExpansaoPedidosPosTransferencia(
+  prev: Set<string>,
+  resumo: ResumoTransferenciaListaSimulador,
+  idsNovosPedidos: readonly string[],
+): Set<string> {
+  const next = new Set(prev)
+  for (const id of montarIdsPedidosExpandidosPosTransferencia(resumo, idsNovosPedidos)) {
+    next.add(id)
+  }
+  return next
+}
 
 function IconeColunasToolbar() {
   return (
@@ -217,7 +289,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [pagina, setPagina] = useState(1)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
-  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(criarEstadoColunasListaSimuladorPedido)
+  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(() => criarEstadoColunasListaSimuladorPedido())
   const [filtroAbaColunas, setFiltroAbaColunas] = useState<FiltroAbaColunas>('todas')
   const [colunasAberto, setColunasAberto] = useState(false)
   const [buscaColuna, setBuscaColuna] = useState('')
@@ -237,8 +309,99 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
   const [modalNovoItemAberto, setModalNovoItemAberto] = useState(false)
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+  const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
+  const [explicacaoTransferencia, setExplicacaoTransferencia] = useState<{
+    resumo: ResumoTransferenciaListaSimulador
+    idsNovosPedidos: string[]
+  } | null>(null)
+  const [guiaPosTransferencia, setGuiaPosTransferencia] = useState<{
+    passo: PassoGuiaPosTransferenciaSimulador
+    resumo: ResumoTransferenciaListaSimulador
+    idsNovosPedidos: string[]
+  } | null>(null)
+  const [idsNovosPedidosRecentes, setIdsNovosPedidosRecentes] = useState<string[]>([])
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
+  const tabelaWrapRef = useRef<HTMLDivElement>(null)
+  const colunasBtnRef = useRef<HTMLButtonElement>(null)
+  const colunasDropdownRef = useRef<HTMLDivElement>(null)
+  const colunasRef = useRef(colunas)
+  const [colunasDropdownPos, setColunasDropdownPos] = useState({ top: 0, left: 0 })
+  const [metricasScrollTabela, setMetricasScrollTabela] = useState({ scrollLeft: 0, viewportWidth: 0 })
+  const [itensPorPagina, setItensPorPagina] = useState(ITENS_POR_PAGINA_PADRAO)
+
+  useEffect(() => {
+    colunasRef.current = colunas
+  }, [colunas])
+
+  const sincronizarPosicaoDropdownColunas = useCallback(() => {
+    const btn = colunasBtnRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    const painelLargura = 360
+    setColunasDropdownPos({
+      top: rect.bottom + 4,
+      left: Math.max(8, Math.min(rect.right - painelLargura, window.innerWidth - painelLargura - 8)),
+    })
+  }, [])
+
+  const toggleColunasAberto = useCallback(() => {
+    setColunasAberto((prev) => {
+      const next = !prev
+      if (next) {
+        window.requestAnimationFrame(sincronizarPosicaoDropdownColunas)
+      }
+      return next
+    })
+  }, [sincronizarPosicaoDropdownColunas])
+
+  useEffect(() => {
+    if (!colunasAberto) return undefined
+    sincronizarPosicaoDropdownColunas()
+    const reposicionar = () => sincronizarPosicaoDropdownColunas()
+    window.addEventListener('resize', reposicionar)
+    window.addEventListener('scroll', reposicionar, true)
+    return () => {
+      window.removeEventListener('resize', reposicionar)
+      window.removeEventListener('scroll', reposicionar, true)
+    }
+  }, [colunasAberto, sincronizarPosicaoDropdownColunas])
+
+  useEffect(() => {
+    if (!colunasAberto) return undefined
+    function fecharSeClicouFora(e: MouseEvent) {
+      const alvo = e.target as Node
+      if (colunasDropdownRef.current?.contains(alvo)) return
+      if (colunasBtnRef.current?.contains(alvo)) return
+      setColunasAberto(false)
+    }
+    document.addEventListener('mousedown', fecharSeClicouFora)
+    return () => document.removeEventListener('mousedown', fecharSeClicouFora)
+  }, [colunasAberto])
+
+  const sincronizarMetricasScrollTabela = useCallback(() => {
+    const el = tabelaWrapRef.current
+    if (!el) return
+    setMetricasScrollTabela({ scrollLeft: el.scrollLeft, viewportWidth: el.clientWidth })
+  }, [])
+
+  useEffect(() => {
+    const el = tabelaWrapRef.current
+    if (!el) return undefined
+    const sync = () => {
+      sincronizarMetricasScrollTabela()
+      const thead = el.querySelector('thead')
+      const cabecalho = thead?.getBoundingClientRect().height ?? ALTURA_CABECALHO_TABELA_LISTA_SIMULADOR
+      const capacidade = Math.floor((el.clientHeight - cabecalho) / ALTURA_LINHA_PEDIDO_LISTA_SIMULADOR)
+      const next = Math.min(ITENS_POR_PAGINA_MAX, Math.max(ITENS_POR_PAGINA_MIN, capacidade))
+      setItensPorPagina((prev) => (prev === next ? prev : next))
+    }
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [sincronizarMetricasScrollTabela, colunas.length])
 
   const acoesExportacao = useMemo(
     () => EXPORTAR_OPCOES.map((op) => ({
@@ -252,14 +415,6 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   )
 
   const temExpandido = expandidos.size > 0
-
-  const toggleExpandirTodos = useCallback(() => {
-    if (temExpandido) {
-      setExpandidos(new Set())
-      return
-    }
-    setExpandidos(new Set(linhas.filter((l) => l.detalhesItens.length > 0).map((l) => l.id)))
-  }, [temExpandido, linhas])
 
   const rotuloEscopoWorkspaces = useMemo(() => {
     if (empresasSelecionadas.length === 0) return null
@@ -384,13 +539,30 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
 
   const resumo = useMemo(() => resumirListaPedidosSimulador(linhasFiltradas), [linhasFiltradas])
 
-  const totalPaginas = Math.max(1, Math.ceil(linhasFiltradas.length / ITENS_POR_PAGINA))
+  const totalPaginas = Math.max(1, Math.ceil(linhasFiltradas.length / itensPorPagina))
   const paginaAtual = Math.min(pagina, totalPaginas)
 
   const linhasPagina = useMemo(() => {
-    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA
-    return linhasFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA)
-  }, [linhasFiltradas, paginaAtual])
+    const inicio = (paginaAtual - 1) * itensPorPagina
+    return linhasFiltradas.slice(inicio, inicio + itensPorPagina)
+  }, [linhasFiltradas, paginaAtual, itensPorPagina])
+
+  const itensPaginacaoRodape = useMemo(
+    () => calcularItensPaginacaoRodape(paginaAtual, totalPaginas),
+    [paginaAtual, totalPaginas],
+  )
+
+  const toggleExpandirTodos = useCallback(() => {
+    if (temExpandido) {
+      setExpandidos(new Set())
+      return
+    }
+    const idsPagina = linhasPagina.filter((l) => l.itens > 0).map((l) => l.id)
+    setLinhas((prev) =>
+      prev.map((l) => (idsPagina.includes(l.id) ? materializarItensLinhaListaSimulador(l) : l)),
+    )
+    setExpandidos(new Set(idsPagina))
+  }, [temExpandido, linhasPagina])
 
   const chaveSelecao = useMemo(() => [...selecionados].sort().join('|'), [selecionados])
 
@@ -457,7 +629,52 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     return resultado
   }, [linhasPagina, expandidos])
 
-  const colunasVisiveis = colunas.filter((c) => c.visivel)
+  const colunasVisiveis = useMemo(() => {
+    if (guiaPosTransferencia) {
+      const idsGuia = new Set(colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo))
+      return colunas.filter((c) => idsGuia.has(c.id))
+    }
+    return colunas.filter((c) => c.visivel)
+  }, [colunas, guiaPosTransferencia])
+
+  useEffect(() => {
+    if (!guiaPosTransferencia) return undefined
+    const { resumo } = guiaPosTransferencia
+    const alvoItem = resumo.itensDestinoIds[0] ?? resumo.itensOrigemIds[0]
+    const wrap = tabelaWrapRef.current
+    if (!wrap) return undefined
+    wrap.scrollTo({ left: 0, behavior: 'auto' })
+    const timer = window.setTimeout(() => {
+      if (alvoItem) {
+        scrollContainerParaLinhaListaSimulador(wrap, `[data-pds-linha-id="item-${alvoItem}"]`)
+      }
+    }, 100)
+    return () => window.clearTimeout(timer)
+  }, [guiaPosTransferencia?.passo, guiaPosTransferencia?.resumo])
+
+  const janelaColunasTabela = useMemo(() => {
+    if (guiaPosTransferencia) {
+      return {
+        inicio: 0,
+        fim: colunasVisiveis.length,
+        espacoEsquerda: 0,
+        espacoDireita: 0,
+        usaJanela: false,
+      }
+    }
+    const base = calcularJanelaColunasScrollListaSimulador(
+      colunasVisiveis.length,
+      metricasScrollTabela.scrollLeft,
+      metricasScrollTabela.viewportWidth || 1200,
+    )
+    return base
+  }, [colunasVisiveis, metricasScrollTabela, guiaPosTransferencia])
+
+  const colunasRenderTabela = useMemo(
+    () => colunasVisiveis.slice(janelaColunasTabela.inicio, janelaColunasTabela.fim),
+    [colunasVisiveis, janelaColunasTabela.inicio, janelaColunasTabela.fim],
+  )
+
   const totalColunas = colunas.length
   const totalExibidas = colunasVisiveis.length
   const totalOcultas = colunas.filter((c) => !c.visivel && !c.manual).length
@@ -474,18 +691,57 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
 
   const toggleExpansao = (id: string) => {
     setExpandidos((prev) => {
+      const abrindo = !prev.has(id)
+      if (abrindo) {
+        setLinhas((linhas) =>
+          linhas.map((l) => (l.id === id ? materializarItensLinhaListaSimulador(l) : l)),
+        )
+        return new Set(prev).add(id)
+      }
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      next.delete(id)
       return next
     })
   }
 
-  const toggleSelecao = (id: string) => {
+  const syncFilhosPedido = (
+    linha: LinhaListaPedidoSimulador,
+    marcar: boolean,
+    next: Set<string>,
+  ) => {
+    for (const item of linha.detalhesItens) {
+      if (marcar) next.add(item.id)
+      else next.delete(item.id)
+    }
+  }
+
+  const toggleSelecaoPedido = (linha: LinhaListaPedidoSimulador) => {
     setSelecionados((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      const marcar = !next.has(linha.id)
+      if (marcar) next.add(linha.id)
+      else next.delete(linha.id)
+      syncFilhosPedido(linha, marcar, next)
+      return next
+    })
+  }
+
+  const toggleSelecaoItem = (
+    item: ItemListaPedidoSimulador,
+    pai: LinhaListaPedidoSimulador,
+  ) => {
+    setSelecionados((prev) => {
+      const next = new Set(prev)
+      const marcar = !next.has(item.id)
+      if (marcar) next.add(item.id)
+      else next.delete(item.id)
+
+      if (!marcar) {
+        next.delete(pai.id)
+      } else if (pai.detalhesItens.every((i) => next.has(i.id))) {
+        next.add(pai.id)
+      }
+
       return next
     })
   }
@@ -494,13 +750,19 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     if (todosPedidosPaginaSelecionados) {
       setSelecionados((prev) => {
         const next = new Set(prev)
-        for (const linha of linhasPagina) next.delete(linha.id)
+        for (const linha of linhasPagina) {
+          next.delete(linha.id)
+          syncFilhosPedido(linha, false, next)
+        }
         return next
       })
     } else {
       setSelecionados((prev) => {
         const next = new Set(prev)
-        for (const linha of linhasPagina) next.add(linha.id)
+        for (const linha of linhasPagina) {
+          next.add(linha.id)
+          syncFilhosPedido(linha, true, next)
+        }
         return next
       })
     }
@@ -558,22 +820,127 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     })
   }, [empresasSelecionadas])
 
-  const handleConfirmarDuplicar = useCallback(() => {
+  const handleConfirmarDuplicar = useCallback((): ResumoDuplicacaoListaSimulador => {
     const { linhas: proximas, resumo, idsNovosPedidos } = duplicarSelecaoListaSimulador(linhas, selecaoLista)
     setLinhas(proximas)
     setPagina(1)
-    setSelecionados(new Set())
     setExpandidos((prev) => {
       const next = new Set(prev)
       for (const id of idsNovosPedidos) next.add(id)
       return next
     })
-    setModalDuplicarAberto(false)
     setToastDemo({
       titulo: 'Duplicação concluída',
       mensagem: mensagemToastDuplicacao(resumo),
     })
+    return resumo
   }, [linhas, selecaoLista])
+
+  const handleFecharModalDuplicar = useCallback(() => {
+    setModalDuplicarAberto(false)
+    setSelecionados(new Set())
+  }, [])
+
+  const handleConfirmarEdicaoMassa = useCallback(
+    (payload: {
+      nivel: NivelEdicaoMassaSimulador
+      campos: CampoEmEdicaoMassaSimulador[]
+      selecao: SelecaoListaSimuladorPedido
+    }): ResumoEdicaoMassaListaSimulador => {
+      const { linhas: proximas, resumo } = aplicarEdicaoMassaListaSimulador(
+        linhas,
+        payload.selecao,
+        payload.nivel,
+        payload.campos,
+      )
+      setLinhas(proximas)
+      setToastDemo({
+        titulo: 'Edição em massa concluída',
+        mensagem: mensagemToastEdicaoMassa(resumo),
+      })
+      return resumo
+    },
+    [linhas],
+  )
+
+  const handleFecharModalEdicaoMassa = useCallback(() => {
+    setModalEdicaoMassaAberto(false)
+    setSelecionados(new Set())
+  }, [])
+
+  const handleFecharModalTransferir = useCallback(() => {
+    setModalTransferirAberto(false)
+    setSelecionados(new Set())
+  }, [])
+
+  const handleConcluidoTransferir = useCallback(
+    (
+      proximas: LinhaListaPedidoSimulador[],
+      resumo: ResumoTransferenciaListaSimulador,
+      idsNovosPedidos: string[],
+    ) => {
+      setLinhas(proximas)
+      setPagina(1)
+      setExpandidos((prev) => aplicarExpansaoPedidosPosTransferencia(prev, resumo, idsNovosPedidos))
+      setSelecionados(new Set())
+      setModalTransferirAberto(false)
+      setIdsNovosPedidosRecentes(idsNovosPedidos)
+      setExplicacaoTransferencia({ resumo, idsNovosPedidos })
+    },
+    [],
+  )
+
+  const encerrarGuiaPosTransferencia = useCallback(() => {
+    setGuiaPosTransferencia(null)
+    setIdsNovosPedidosRecentes([])
+  }, [])
+
+  const handleEntendiExplicacaoTransferencia = useCallback(() => {
+    if (!explicacaoTransferencia) return
+    const { resumo, idsNovosPedidos } = explicacaoTransferencia
+    setExplicacaoTransferencia(null)
+    setExpandidos((prev) => aplicarExpansaoPedidosPosTransferencia(prev, resumo, idsNovosPedidos))
+    setGuiaPosTransferencia({ passo: 1, resumo, idsNovosPedidos })
+    setToastDemo({
+      titulo: 'Transferência concluída',
+      mensagem: montarMensagemToastTransferencia(resumo),
+    })
+    const alvoScroll = idsNovosPedidos[0] ?? resumo.pedidoDestinoId ?? resumo.pedidoOrigemId
+    window.setTimeout(() => {
+      const wrap = tabelaWrapRef.current
+      if (!wrap) return
+      wrap.scrollTo({ left: 0, top: wrap.scrollTop, behavior: 'auto' })
+      window.requestAnimationFrame(() => {
+        scrollContainerParaLinhaListaSimulador(wrap, `[data-pds-linha-id="${alvoScroll}"]`)
+      })
+    }, 240)
+  }, [explicacaoTransferencia])
+
+  useEffect(() => {
+    if (!guiaPosTransferencia || guiaPosTransferencia.passo !== 1) return
+    const { resumo, idsNovosPedidos } = guiaPosTransferencia
+    setExpandidos((prev) => aplicarExpansaoPedidosPosTransferencia(prev, resumo, idsNovosPedidos))
+  }, [guiaPosTransferencia])
+
+  const handleProximoGuiaPosTransferencia = useCallback(() => {
+    setGuiaPosTransferencia((prev) => {
+      if (!prev || prev.passo >= 3) return prev
+      const nextPasso = (prev.passo + 1) as PassoGuiaPosTransferenciaSimulador
+      return { ...prev, passo: nextPasso }
+    })
+  }, [])
+
+  const handleConcluirGuiaPosTransferencia = useCallback(() => {
+    encerrarGuiaPosTransferencia()
+  }, [encerrarGuiaPosTransferencia])
+
+  useEffect(() => {
+    if (guiaPosTransferencia?.passo !== 3) return
+    const timer = window.setTimeout(() => {
+      encerrarGuiaPosTransferencia()
+    }, 20000)
+    return () => window.clearTimeout(timer)
+  }, [guiaPosTransferencia?.passo, encerrarGuiaPosTransferencia])
 
   const handleConfirmarExcluir = useCallback(() => {
     const { linhas: proximas, resumo } = excluirSelecaoListaSimulador(linhas, selecaoLista)
@@ -731,26 +1098,137 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     )
   }
 
+  function ehNovoPedidoPosTransferencia(pedidoId: string): boolean {
+    return idsNovosPedidosRecentes.includes(pedidoId)
+      || (guiaPosTransferencia?.idsNovosPedidos.includes(pedidoId) ?? false)
+  }
+
+  function itemEnvolvidoPosTransferencia(itemId: string): boolean {
+    if (!guiaPosTransferencia) return false
+    const { resumo } = guiaPosTransferencia
+    return resumo.itensOrigemIds.includes(itemId) || resumo.itensDestinoIds.includes(itemId)
+  }
+
+  function pedidoEnvolvidoPosTransferencia(pedidoId: string): 'origem' | 'destino' | null {
+    if (!guiaPosTransferencia) return null
+    const { resumo, idsNovosPedidos } = guiaPosTransferencia
+    if (pedidoId === resumo.pedidoOrigemId) return 'origem'
+    if (idsNovosPedidos.includes(pedidoId)) return 'destino'
+    if (resumo.pedidoDestinoId && pedidoId === resumo.pedidoDestinoId) return 'destino'
+    return null
+  }
+
+  function celulaDestaquePosTransferencia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): boolean {
+    if (!guiaPosTransferencia) return false
+
+    if (itemId) {
+      if (!itemEnvolvidoPosTransferencia(itemId)) return false
+      if (!colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)) {
+        return false
+      }
+      return itemDestaqueGuiaPosTransferencia(guiaPosTransferencia.passo, guiaPosTransferencia.resumo, itemId)
+    }
+
+    if (!colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)) {
+      return false
+    }
+    return pedidoEnvolvidoPosTransferencia(pedidoId) !== null
+  }
+
+  function resolverTipoDestaqueGuiaPosTransferencia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): 'origem' | 'destino' | 'neutro' | null {
+    if (!celulaDestaquePosTransferencia(pedidoId, colunaId, itemId)) return null
+    if (!guiaPosTransferencia) return null
+    const { resumo } = guiaPosTransferencia
+    if (itemId) {
+      if (resumo.itensOrigemIds.includes(itemId)) return 'origem'
+      if (resumo.itensDestinoIds.includes(itemId)) return 'destino'
+      return null
+    }
+    const papel = pedidoEnvolvidoPosTransferencia(pedidoId)
+    if (papel === 'origem') return 'origem'
+    if (papel === 'destino') return 'destino'
+    return 'neutro'
+  }
+
+  function classeTdDestaquePosTransferencia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): string | undefined {
+    const tipo = resolverTipoDestaqueGuiaPosTransferencia(pedidoId, colunaId, itemId)
+    if (!tipo) return undefined
+    if (tipo === 'neutro') return 'pds-lista-td--destaque-neutro'
+    return `pds-lista-td--destaque-${tipo}`
+  }
+
+  function classeCelulaDestaquePosTransferencia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): string | undefined {
+    const tipo = resolverTipoDestaqueGuiaPosTransferencia(pedidoId, colunaId, itemId)
+    if (!tipo) return undefined
+    if (tipo === 'neutro') return 'pds-lista-celula--destaque-neutro'
+    return `pds-lista-celula--destaque-${tipo}`
+  }
+
+  function classeDestaqueCabecalhoColuna(colunaId: string): string | undefined {
+    if (!guiaPosTransferencia) return undefined
+    return colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)
+      ? 'pds-lista-th-col--destaque-transferencia'
+      : undefined
+  }
+
+  function lerValorCampoCelulaLista(
+    colunaId: string,
+    campos: Record<string, string | null | undefined>,
+    item?: ItemListaPedidoSimulador,
+  ): string | null | undefined {
+    if (item && colunaId === 'quantidade_total_pedido') {
+      return campos.quantidade_inicial_item ?? campos.quantidade_total_pedido
+    }
+    if (item && colunaId === 'saldo_itens_do_pedido') {
+      return campos.saldo_itens_do_pedido ?? campos.quantidade_inicial_item ?? campos.quantidade_total_pedido
+    }
+    if (item && colunaId === 'quantidade_transferida_total') {
+      return campos.quantidade_transferida_total ?? '0'
+    }
+    return campos[colunaId]
+  }
+
   function renderCelulaConteudo(
     colunaId: string,
     linha: LinhaListaPedidoSimulador,
     item?: ItemListaPedidoSimulador,
   ) {
     const campos = item?.campos ?? linha.campos
-    const valor = campos[colunaId]
+    const valor = lerValorCampoCelulaLista(colunaId, campos, item)
 
     if (colunaId === 'numero_pedido') {
       if (item) {
+        const itemDestino = guiaPosTransferencia?.resumo.itensDestinoIds.includes(item.id) ?? false
         return (
-          <span className="pds-lista-numero pds-lista-numero--filho">
+          <span className={`pds-lista-numero pds-lista-numero--filho${itemEnvolvidoPosTransferencia(item.id) ? ' pds-lista-numero--item-transferencia' : ''}`}>
             <span className="pds-lista-sequencia">{item.sequencia}</span>
+            {itemDestino && <span className="pds-lista-badge-item-transferido">Transferido</span>}
             <span className="pds-lista-item-id">{item.numeroItem}</span>
             {item.alerta && <Warning size={12} weight="fill" className="pds-lista-alerta" aria-hidden />}
           </span>
         )
       }
       return (
-        <span className="pds-lista-numero">
+        <span className={`pds-lista-numero${ehNovoPedidoPosTransferencia(linha.id) ? ' pds-lista-numero--novo-pedido' : ''}`}>
+          {ehNovoPedidoPosTransferencia(linha.id) && (
+            <span className="pds-lista-badge-novo-pedido">Novo pedido</span>
+          )}
           {linha.numeroPedido}
           {(linha.numeroPedido.startsWith('PO-CONS') || linha.alertaIncoterm) && (
             <Warning size={12} weight="fill" className="pds-lista-alerta" aria-hidden />
@@ -788,7 +1266,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       if (linha.vincularExportador && !item) {
         return <button type="button" className="pds-lista-vincular">Vincular Exportador</button>
       }
-      if (!valor) return <span className="pds-lista-vazio">—</span>
+      if (!valor) return <span className="pds-lista-vazio">{TEXTO_CELULA_VAZIA_LISTA_SIMULADOR}</span>
       return (
         <span className="pds-lista-exportador">
           <LinkSimple size={12} weight="bold" aria-hidden />
@@ -801,7 +1279,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       const alertaPai = linha.alertaIncoterm && !item
       return (
         <span className="pds-lista-incoterm">
-          {valor ?? '—'}
+          {valor ?? TEXTO_CELULA_VAZIA_LISTA_SIMULADOR}
           {alertaPai && (
             <Warning size={12} weight="fill" className="pds-lista-alerta" aria-hidden />
           )}
@@ -813,7 +1291,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       return <span className="pds-lista-anexo">{valor}</span>
     }
 
-    return <span className={valor ? '' : 'pds-lista-vazio'}>{valor ?? '—'}</span>
+    return <span className={valor ? '' : 'pds-lista-vazio'}>{valor ?? TEXTO_CELULA_VAZIA_LISTA_SIMULADOR}</span>
   }
 
   function renderCelula(
@@ -823,6 +1301,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   ) {
     const nivel: NivelLinhaLista = item ? 'item' : 'pai'
     const flash = flashCelulas.get(chaveCelula(linha.id, coluna.id, item?.id))
+    const classeDestaque = classeCelulaDestaquePosTransferencia(linha.id, coluna.id, item?.id)
 
     return (
       <CelulaEditavelListaSimuladorPedido
@@ -833,6 +1312,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         labelColuna={coluna.label}
         flashSalvo={flash === 'salvo'}
         flashErro={flash === 'erro'}
+        classeDestaqueGuia={classeDestaque}
         onIniciarEdicao={setCelulaEmEdicao}
       >
         {renderCelulaConteudo(coluna.id, linha, item)}
@@ -927,18 +1407,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               tamanho="pequeno"
               icone={<ArrowRight size={14} weight="duotone" />}
               disabled={!acoesBarra.podeTransferir}
+              onClick={() => setModalTransferirAberto(true)}
             >
               {rotuloTransferir}
             </BotaoGlobal>
-          </TooltipGlobal>
-          <TooltipGlobal titulo={tooltipEditar.titulo} descricao={tooltipEditar.descricao}>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              icone={<PencilLine size={14} weight="duotone" />}
-              disabled={!acoesBarra.podeEditarMassa}
-              aria-label={tooltipEditar.titulo}
-            />
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipConsolidar.titulo} descricao={tooltipConsolidar.descricao}>
             <BotaoGlobal
@@ -949,11 +1421,21 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               aria-label={tooltipConsolidar.titulo}
             />
           </TooltipGlobal>
+          <TooltipGlobal titulo={tooltipEditar.titulo} descricao={tooltipEditar.descricao}>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<PencilLine size={14} weight="duotone" />}
+              disabled={!acoesBarra.podeEditarMassa}
+              aria-label={tooltipEditar.titulo}
+              onClick={() => setModalEdicaoMassaAberto(true)}
+            />
+          </TooltipGlobal>
           <TooltipGlobal titulo={tooltipDuplicar.titulo} descricao={tooltipDuplicar.descricao}>
             <BotaoGlobal
               variante="secundario"
               tamanho="pequeno"
-              icone={<Copy size={14} weight="duotone" />}
+              icone={<StackPlus size={14} weight="duotone" />}
               disabled={!acoesBarra.podeDuplicar}
               aria-label={tooltipDuplicar.titulo}
               onClick={() => setModalDuplicarAberto(true)}
@@ -1028,118 +1510,45 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         <div className="pds-lista-toolbar-dir gtv-toolbar-direita">
           <div className="pds-lista-dropdown-wrap">
             <button
+              ref={colunasBtnRef}
               type="button"
               className={`gtv-btn${colunasAberto ? ' gtv-btn--ativo' : ''}`}
-              onClick={() => setColunasAberto((v) => !v)}
+              onClick={toggleColunasAberto}
               aria-label="Gerenciar colunas"
+              aria-expanded={colunasAberto}
               title="Colunas"
             >
               <IconeColunasToolbar />
               Colunas
             </button>
-            {colunasAberto && (
-              <div className="pds-lista-dropdown pds-lista-dropdown--colunas">
-                <div className="pds-lista-dropdown-busca">
-                  <MagnifyingGlass size={12} aria-hidden />
-                  <input
-                    type="search"
-                    placeholder="Buscar coluna..."
-                    value={buscaColuna}
-                    onChange={(e) => setBuscaColuna(e.target.value)}
-                  />
-                </div>
-                <div className="pds-lista-dropdown-tabs">
-                  {([
-                    ['todas', `Todas (${totalColunas})`],
-                    ['exibidas', `Exibidas (${totalExibidas})`],
-                    ['ocultas', `Ocultas (${totalOcultas})`],
-                    ['manuais', `Manuais (${totalManuais})`],
-                  ] as Array<[FiltroAbaColunas, string]>).map(([id, label]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      className={`pds-lista-dropdown-tab ${filtroAbaColunas === id ? 'pds-lista-dropdown-tab--ativo' : ''}`}
-                      onClick={() => setFiltroAbaColunas(id)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="pds-lista-dropdown-acoes">
-                  <label className="pds-lista-dropdown-check">
-                    <input
-                      type="checkbox"
-                      checked={colunasVisiveis.length === colunas.length}
-                      onChange={() => setColunas((prev) => prev.map((c) => ({ ...c, visivel: true })))}
-                    />
-                    Selecionar tudo
-                  </label>
-                  <button
-                    type="button"
-                    className="pds-lista-restaurar"
-                    onClick={() => {
-                      setColunas(criarEstadoColunasListaSimuladorPedido())
-                      setFiltroAbaColunas('todas')
-                    }}
-                  >
-                    <ArrowCounterClockwise size={12} aria-hidden />
-                    Restaurar padrão
-                  </button>
-                </div>
-                <ul className="pds-lista-colunas-lista">
-                  {colunasFiltradas.map((c) => (
-                    <li
-                      key={c.id}
-                      className={[
-                        'pds-lista-coluna-item',
-                        dragColunaId === c.id ? 'pds-lista-coluna-item--arrastando' : '',
-                        classeDropColuna(c.id, false),
-                      ].filter(Boolean).join(' ') || undefined}
-                      onDragOver={(e) => handleColunaDragOver(e, c.id, false)}
-                      onDrop={(e) => handleColunaDrop(e, c.id, false)}
-                    >
-                      <label>
-                        <span
-                          className="pds-lista-coluna-handle"
-                          draggable
-                          aria-label={`Arrastar coluna ${c.label}`}
-                          onDragStart={(e) => {
-                            e.stopPropagation()
-                            handleColunaDragStart(c.id)
-                          }}
-                          onDragEnd={handleColunaDragEnd}
-                        >
-                          ⠿
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={c.visivel}
-                          onChange={() =>
-                            setColunas((prev) =>
-                              prev.map((col) => (col.id === c.id ? { ...col, visivel: !col.visivel } : col)),
-                            )
-                          }
-                        />
-                        {c.label}
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
           <BotaoCompletoExportar acoes={acoesExportacao} />
         </div>
       </div>
 
-      <div className="pds-lista-tabela-wrap">
+      <div
+        className={`pds-lista-tabela-wrap${guiaPosTransferencia ? ' pds-lista-tabela-wrap--guia-pos-transferencia' : ''}`}
+        ref={tabelaWrapRef}
+        onScroll={sincronizarMetricasScrollTabela}
+        style={
+          guiaPosTransferencia
+            ? ({ '--pds-guia-qtd-colunas': colunasVisiveis.length } as CSSProperties)
+            : undefined
+        }
+      >
         <table className="pds-lista-tabela">
           <colgroup>
             <col className="pds-lista-col-expand" />
             <col className="pds-lista-col-check" />
-            {colunasVisiveis.map((c) => (
+            {janelaColunasTabela.espacoEsquerda > 0 && (
+              <col className="pds-lista-col-espacador" style={{ width: janelaColunasTabela.espacoEsquerda }} />
+            )}
+            {colunasRenderTabela.map((c) => (
               <col key={c.id} className="pds-lista-col-dado" />
             ))}
+            {janelaColunasTabela.espacoDireita > 0 && (
+              <col className="pds-lista-col-espacador" style={{ width: janelaColunasTabela.espacoDireita }} />
+            )}
           </colgroup>
           <thead>
             <tr>
@@ -1153,19 +1562,28 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                   aria-label="Selecionar todos"
                 />
               </th>
-              {colunasVisiveis.map((c) => {
+              {janelaColunasTabela.espacoEsquerda > 0 && (
+                <th
+                  className="pds-lista-th-espacador-col"
+                  style={{ width: janelaColunasTabela.espacoEsquerda, minWidth: janelaColunasTabela.espacoEsquerda }}
+                  aria-hidden
+                />
+              )}
+              {colunasRenderTabela.map((c) => {
                 const arrastando = dragColunaId === c.id
                 const filtravel = colunaListaSimuladorFiltravel(c.id)
                 const filtroAtivo = filtrosAtivosKeys.has(c.id)
                 return (
                   <th
                     key={c.id}
+                    data-pds-coluna-id={c.id}
                     title={c.label}
                     draggable
                     className={[
                       'pds-lista-th-col',
                       arrastando ? 'pds-lista-th-col--arrastando' : '',
                       classeDropColuna(c.id, true),
+                      classeDestaqueCabecalhoColuna(c.id),
                     ].filter(Boolean).join(' ') || undefined}
                     style={{ opacity: arrastando ? 0.45 : undefined }}
                     onDragStart={() => handleColunaDragStart(c.id)}
@@ -1193,6 +1611,13 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                   </th>
                 )
               })}
+              {janelaColunasTabela.espacoDireita > 0 && (
+                <th
+                  className="pds-lista-th-espacador-col"
+                  style={{ width: janelaColunasTabela.espacoDireita, minWidth: janelaColunasTabela.espacoDireita }}
+                  aria-hidden
+                />
+              )}
             </tr>
           </thead>
           <tbody>
@@ -1200,15 +1625,16 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               if (entrada.tipo === 'pai') {
                 const linha = entrada.linha
                 const aberto = expandidos.has(linha.id)
-                const temItens = linha.detalhesItens.length > 0
+                const temItens = linha.itens > 0
                 const classes = [
                   selecionados.has(linha.id) ? 'pds-lista-row--sel' : '',
                   aberto ? 'pds-lista-row--pai-expandido' : '',
                   aberto && entrada.ultimoFilho ? 'pds-lista-row--pai-expandido-solo' : '',
+                  ehNovoPedidoPosTransferencia(linha.id) ? 'pds-lista-row--novo-pedido-transferencia' : '',
                 ].filter(Boolean).join(' ')
 
                 return (
-                  <tr key={linha.id} className={classes || undefined}>
+                  <tr key={linha.id} data-pds-linha-id={linha.id} className={classes || undefined}>
                     <td className="pds-lista-td-expand">
                       {temItens ? (
                         <button
@@ -1227,13 +1653,33 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                         type="checkbox"
                         className="gtv-checkbox"
                         checked={selecionados.has(linha.id)}
-                        onChange={() => toggleSelecao(linha.id)}
+                        onChange={() => toggleSelecaoPedido(linha)}
                         aria-label={`Selecionar ${linha.numeroPedido}`}
                       />
                     </td>
-                    {colunasVisiveis.map((c) => (
-                      <td key={c.id}>{renderCelula(c, linha)}</td>
+                    {janelaColunasTabela.espacoEsquerda > 0 && (
+                      <td
+                        className="pds-lista-td-espacador-col"
+                        style={{ width: janelaColunasTabela.espacoEsquerda, minWidth: janelaColunasTabela.espacoEsquerda }}
+                        aria-hidden
+                      />
+                    )}
+                    {colunasRenderTabela.map((c) => (
+                      <td
+                        key={c.id}
+                        data-pds-coluna-id={c.id}
+                        className={classeTdDestaquePosTransferencia(linha.id, c.id)}
+                      >
+                        {renderCelula(c, linha)}
+                      </td>
                     ))}
+                    {janelaColunasTabela.espacoDireita > 0 && (
+                      <td
+                        className="pds-lista-td-espacador-col"
+                        style={{ width: janelaColunasTabela.espacoDireita, minWidth: janelaColunasTabela.espacoDireita }}
+                        aria-hidden
+                      />
+                    )}
                   </tr>
                 )
               }
@@ -1243,23 +1689,46 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                 selecionados.has(item.id) ? 'pds-lista-row--sel' : '',
                 'pds-lista-row--filho',
                 ultimoFilho ? 'pds-lista-row--filho-ultimo' : '',
+                guiaPosTransferencia && itemEnvolvidoPosTransferencia(item.id)
+                  ? 'pds-lista-row--item-transferencia'
+                  : '',
               ].filter(Boolean).join(' ')
 
               return (
-                <tr key={item.id} className={classes}>
+                <tr key={item.id} data-pds-linha-id={`item-${item.id}`} className={classes}>
                   <td className="pds-lista-td-expand" />
                   <td className="pds-lista-td-check">
                     <input
                       type="checkbox"
                       className="gtv-checkbox gtv-checkbox--filho"
                       checked={selecionados.has(item.id)}
-                      onChange={() => toggleSelecao(item.id)}
+                      onChange={() => toggleSelecaoItem(item, pai)}
                       aria-label={`Selecionar item ${item.numeroItem}`}
                     />
                   </td>
-                  {colunasVisiveis.map((c) => (
-                    <td key={c.id}>{renderCelula(c, pai, item)}</td>
+                  {janelaColunasTabela.espacoEsquerda > 0 && (
+                    <td
+                      className="pds-lista-td-espacador-col"
+                      style={{ width: janelaColunasTabela.espacoEsquerda, minWidth: janelaColunasTabela.espacoEsquerda }}
+                      aria-hidden
+                    />
+                  )}
+                  {colunasRenderTabela.map((c) => (
+                    <td
+                      key={c.id}
+                      data-pds-coluna-id={c.id}
+                      className={classeTdDestaquePosTransferencia(pai.id, c.id, item.id)}
+                    >
+                      {renderCelula(c, pai, item)}
+                    </td>
                   ))}
+                  {janelaColunasTabela.espacoDireita > 0 && (
+                    <td
+                      className="pds-lista-td-espacador-col"
+                      style={{ width: janelaColunasTabela.espacoDireita, minWidth: janelaColunasTabela.espacoDireita }}
+                      aria-hidden
+                    />
+                  )}
                 </tr>
               )
             })}
@@ -1267,40 +1736,180 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         </table>
       </div>
 
-      <footer className="pds-lista-footer">
-        <span>
+      <footer className="pds-lista-footer gtv-paginacao" role="navigation" aria-label="Paginação">
+        <span className="gtv-paginacao-info">
           {linhasFiltradas.length} pedidos · {resumo.totalItens} itens · página {paginaAtual} de {totalPaginas}
         </span>
-        <div className="pds-lista-paginacao">
-          <button
-            type="button"
-            disabled={paginaAtual <= 1}
-            onClick={() => setPagina((p) => Math.max(1, p - 1))}
-          >
-            ‹
-          </button>
-          {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
+        {totalPaginas > 1 && (
+          <div className="gtv-paginacao-controles">
             <button
-              key={n}
               type="button"
-              className={n === paginaAtual ? 'pds-lista-pagina--ativa' : ''}
-              onClick={() => setPagina(n)}
+              className="gtv-pag-btn"
+              disabled={paginaAtual <= 1}
+              onClick={() => setPagina(1)}
+              aria-label="Primeira página"
             >
-              {n}
+              «
             </button>
-          ))}
-          <button
-            type="button"
-            disabled={paginaAtual >= totalPaginas}
-            onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
-          >
-            ›
-          </button>
-        </div>
+            <button
+              type="button"
+              className="gtv-pag-btn"
+              disabled={paginaAtual <= 1}
+              onClick={() => setPagina((p) => Math.max(1, p - 1))}
+              aria-label="Página anterior"
+            >
+              ‹
+            </button>
+            {itensPaginacaoRodape.map((item, i) =>
+              item === '...' ? (
+                <span key={`ellipsis-${i}`} className="gtv-pag-reticencias" aria-hidden="true">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={item}
+                  type="button"
+                  className={`gtv-pag-btn${item === paginaAtual ? ' gtv-pag-btn--ativo' : ''}`}
+                  onClick={() => setPagina(item)}
+                  aria-current={item === paginaAtual ? 'page' : undefined}
+                >
+                  {item}
+                </button>
+              ),
+            )}
+            <button
+              type="button"
+              className="gtv-pag-btn"
+              disabled={paginaAtual >= totalPaginas}
+              onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+              aria-label="Próxima página"
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              className="gtv-pag-btn"
+              disabled={paginaAtual >= totalPaginas}
+              onClick={() => setPagina(totalPaginas)}
+              aria-label="Última página"
+            >
+              »
+            </button>
+          </div>
+        )}
       </footer>
       </div>
 
       {renderPopoverEdicao()}
+
+      {colunasAberto && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={colunasDropdownRef}
+          className="pds-lista-dropdown pds-lista-dropdown--colunas pds-lista-dropdown--colunas-portal"
+          style={{ top: colunasDropdownPos.top, left: colunasDropdownPos.left }}
+          role="dialog"
+          aria-label="Gerenciar colunas"
+        >
+          <div className="pds-lista-dropdown-colunas-cabecalho">
+            <span className="pds-lista-dropdown-colunas-titulo">Colunas</span>
+            <button
+              type="button"
+              className="pds-lista-dropdown-colunas-fechar"
+              aria-label="Fechar painel de colunas"
+              onClick={() => setColunasAberto(false)}
+            >
+              <X size={14} weight="bold" />
+            </button>
+          </div>
+          <div className="pds-lista-dropdown-busca">
+            <MagnifyingGlass size={12} aria-hidden />
+            <input
+              type="search"
+              placeholder="Buscar coluna..."
+              value={buscaColuna}
+              onChange={(e) => setBuscaColuna(e.target.value)}
+            />
+          </div>
+          <div className="pds-lista-dropdown-tabs">
+            {([
+              ['todas', `Todas (${totalColunas})`],
+              ['exibidas', `Exibidas (${totalExibidas})`],
+              ['ocultas', `Ocultas (${totalOcultas})`],
+              ['manuais', `Manuais (${totalManuais})`],
+            ] as Array<[FiltroAbaColunas, string]>).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                className={`pds-lista-dropdown-tab ${filtroAbaColunas === id ? 'pds-lista-dropdown-tab--ativo' : ''}`}
+                onClick={() => setFiltroAbaColunas(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="pds-lista-dropdown-acoes">
+            <label className="pds-lista-dropdown-check">
+              <input
+                type="checkbox"
+                checked={colunasVisiveis.length === colunas.length}
+                onChange={() => setColunas((prev) => prev.map((c) => ({ ...c, visivel: true })))}
+              />
+              Selecionar tudo
+            </label>
+            <button
+              type="button"
+              className="pds-lista-restaurar"
+              onClick={() => {
+                setColunas(criarEstadoColunasListaSimuladorPedido())
+                setFiltroAbaColunas('todas')
+              }}
+            >
+              <ArrowCounterClockwise size={12} aria-hidden />
+              Restaurar padrão
+            </button>
+          </div>
+          <ul className="pds-lista-colunas-lista">
+            {colunasFiltradas.map((c) => (
+              <li
+                key={c.id}
+                className={[
+                  'pds-lista-coluna-item',
+                  dragColunaId === c.id ? 'pds-lista-coluna-item--arrastando' : '',
+                  classeDropColuna(c.id, false),
+                ].filter(Boolean).join(' ') || undefined}
+                onDragOver={(e) => handleColunaDragOver(e, c.id, false)}
+                onDrop={(e) => handleColunaDrop(e, c.id, false)}
+              >
+                <label>
+                  <span
+                    className="pds-lista-coluna-handle"
+                    draggable
+                    aria-label={`Arrastar coluna ${c.label}`}
+                    onDragStart={(e) => {
+                      e.stopPropagation()
+                      handleColunaDragStart(c.id)
+                    }}
+                    onDragEnd={handleColunaDragEnd}
+                  >
+                    ⋮⋮
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={c.visivel}
+                    onChange={() =>
+                      setColunas((prev) =>
+                        prev.map((col) => (col.id === c.id ? { ...col, visivel: !col.visivel } : col)),
+                      )
+                    }
+                  />
+                  {c.label}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>,
+        document.body,
+      )}
 
       {popoverFiltroAberto && typeof document !== 'undefined' && (() => {
         const col = colunasGt.find((c) => c.key === popoverFiltroAberto)
@@ -1337,15 +1946,45 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       <ModalDuplicarListaSimuladorPedido
         aberto={modalDuplicarAberto}
         selecao={selecaoLista}
-        onFechar={() => setModalDuplicarAberto(false)}
+        linhas={linhas}
+        onFechar={handleFecharModalDuplicar}
         onConfirmar={handleConfirmarDuplicar}
       />
+      <ModalEdicaoMassaListaSimuladorPedido
+        aberto={modalEdicaoMassaAberto}
+        selecao={selecaoLista}
+        linhas={linhas}
+        onFechar={handleFecharModalEdicaoMassa}
+        onConfirmar={handleConfirmarEdicaoMassa}
+      />
+      <ModalTransferirListaSimuladorPedido
+        aberto={modalTransferirAberto}
+        selecao={selecaoLista}
+        linhas={linhas}
+        onFechar={handleFecharModalTransferir}
+        onConcluido={handleConcluidoTransferir}
+      />
+      {explicacaoTransferencia && (
+        <ModalExplicacaoTransferenciaSimuladorPedido
+          aberto
+          resumo={explicacaoTransferencia.resumo}
+          onEntendi={handleEntendiExplicacaoTransferencia}
+        />
+      )}
       <ModalExcluirListaSimuladorPedido
         aberto={modalExcluirAberto}
         selecao={selecaoLista}
         onFechar={() => setModalExcluirAberto(false)}
         onConfirmar={handleConfirmarExcluir}
       />
+      {guiaPosTransferencia && (
+        <GuiaPosTransferenciaSimuladorPedido
+          passo={guiaPosTransferencia.passo}
+          resumo={guiaPosTransferencia.resumo}
+          onProximo={handleProximoGuiaPosTransferencia}
+          onConcluir={handleConcluirGuiaPosTransferencia}
+        />
+      )}
       {toastDemo && (
         <ToastDemoNovoSimuladorPedido
           titulo={toastDemo.titulo}

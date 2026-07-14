@@ -74,3 +74,35 @@
 ) {
   font-size: var(--sim-font-size-titulo) !important;
 }
+
+/* Lista Pedido — faixa PAINÉIS / STATUS (paridade Pedidos.css · abaixo do corpo 12px) */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-paineis-strip :where(*:not(.pds-lista-paineis-label)),
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-status-bar :where(*:not(.pds-lista-status-label)) {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-paineis-label,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-status-label {
+  font-size: 8px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+}
+
+/* Lista Pedido — células 10,5px (microtexto de tabela) */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela td,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela .pds-lista-celula,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela .pds-lista-celula-conteudo,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-numero,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-exportador,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-vincular,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-workspace,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-vazio,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-footer {
+  font-size: 10.5px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-th-col-label {
+  font-size: 9px !important;
+}

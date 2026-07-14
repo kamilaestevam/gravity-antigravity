@@ -49,11 +49,15 @@ export default defineConfig({
       '@nucleo/botao-global': path.resolve(
         __dirname,
         '../../nucleo-global/Botoes/botao-global/src/index.ts'
-      )
+      ),
+      '@nucleo/modal-confirmar-excluir-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'
+      ),
     }
   },
   server: {
-    port: 8888,
+    port: 8777,
     strictPort: true,
     host: true,
     fs: {

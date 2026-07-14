@@ -16,7 +16,11 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalNovoBidFreteInternacional } from '../pages/modal-novo-bid-frete-internacional'
-import { buildRotaNovaCotacaoManual } from './novo-bid-frete-internacional-utils'
+import { PRODUCT_CONFIG } from './config'
+import {
+  buildRotaNovaCotacaoManual,
+  buildUrlNovaLeituraSmartReadBidFreteInternacional,
+} from './novo-bid-frete-internacional-utils'
 import './dropdown-novo-bid-frete-internacional.css'
 
 type NovoSubmenu = 'painel' | 'buscar-frete' | 'avulsa' | 'bid' | null
@@ -143,13 +147,21 @@ export function DropdownNovoBidFreteInternacional({
       badge: t('comum.em_breve'),
       disabled: true,
     },
-    {
-      icon: 'sparkle',
+    ...(PRODUCT_CONFIG.features.smart_read ? [{
+      icon: 'sparkle' as const,
+      label: t('bidfrete.novo_bid.smart_read'),
+      desc: t('bidfrete.novo_bid.smart_read_desc'),
+      action: () => {
+        window.location.href = buildUrlNovaLeituraSmartReadBidFreteInternacional()
+        fechar()
+      },
+    }] : [{
+      icon: 'sparkle' as const,
       label: t('bidfrete.novo_bid.smart_read'),
       desc: t('bidfrete.novo_bid.smart_read_desc'),
       badge: t('comum.em_breve'),
       disabled: true,
-    },
+    }]),
     {
       icon: 'pencil',
       label: t('bidfrete.novo_bid.manual'),
@@ -176,13 +188,21 @@ export function DropdownNovoBidFreteInternacional({
       badge: t('comum.em_breve'),
       disabled: true,
     },
-    {
-      icon: 'sparkle',
+    ...(PRODUCT_CONFIG.features.smart_read ? [{
+      icon: 'sparkle' as const,
+      label: t('bidfrete.novo_bid.smart_read'),
+      desc: t('bidfrete.novo_bid.smart_read_desc'),
+      action: () => {
+        window.location.href = buildUrlNovaLeituraSmartReadBidFreteInternacional()
+        fechar()
+      },
+    }] : [{
+      icon: 'sparkle' as const,
       label: t('bidfrete.novo_bid.smart_read'),
       desc: t('bidfrete.novo_bid.smart_read_desc'),
       badge: t('comum.em_breve'),
       disabled: true,
-    },
+    }]),
     {
       icon: 'pencil',
       label: t('bidfrete.novo_bid.manual'),

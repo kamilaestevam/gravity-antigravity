@@ -22,6 +22,7 @@ import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitAdminTabs } from './ApiCockpitAdminTabs'
 import { ApiCockpitAdminKpis } from './ApiCockpitAdminKpis'
 import { SeletorOrganizacaoAdmin } from './SeletorOrganizacaoAdmin'
+import { BotaoGuiaIntegracaoSapGravity } from '../../components/ModalGuiaIntegracaoSapGravity'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -383,15 +384,18 @@ export function ApiWebhooksAdmin() {
           padding: '1.25rem 0 0.5rem',  // respiro vs stats acima e conteudo abaixo (padrao cga-tabs)
         }}>
           <ApiCockpitAdminTabs />
-          {idOrganizacao && (
-            <BotaoGlobal
-              variante="primario"
-              onClick={() => setModalCriarAberto(true)}
-              icone={<Plus size={16} />}
-            >
-              Novo Webhook
-            </BotaoGlobal>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BotaoGuiaIntegracaoSapGravity foco="webhook" mostrarRotulo />
+            {idOrganizacao && (
+              <BotaoGlobal
+                variante="primario"
+                onClick={() => setModalCriarAberto(true)}
+                icone={<Plus size={16} />}
+              >
+                Novo Webhook
+              </BotaoGlobal>
+            )}
+          </div>
         </div>
       }
     >

@@ -11,6 +11,7 @@ import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
+import { BotaoGuiaIntegracaoSapGravity } from '../../components/ModalGuiaIntegracaoSapGravity'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -254,13 +255,16 @@ export function ApiTokens() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
           <ApiCockpitTabs />
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => setModalCriarAberto(true)}
-            icone={<Plus size={16} />}
-          >
-            Novo Token
-          </BotaoGlobal>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BotaoGuiaIntegracaoSapGravity foco="token" mostrarRotulo />
+            <BotaoGlobal
+              variante="primario"
+              onClick={() => setModalCriarAberto(true)}
+              icone={<Plus size={16} />}
+            >
+              Novo Token
+            </BotaoGlobal>
+          </div>
         </div>
 
         <TabelaGlobal

@@ -38,6 +38,8 @@ model Pedido {
   referencia_importador_pedido                                String?
   referencia_exportador_pedido                                String?
   referencia_fabricante_pedido                                String?
+  /// Chave de correlacao com ERP/SAP do cliente (EBELN, PurchaseOrderByCustomer, etc.)
+  referencia_externa_erp_pedido                               String?
   valor_total_cambio_pedido                                   Decimal?                    @db.Decimal(18, 6)
   moeda_cambio_pedido                                         String?
   taxa_cambio_estimada_pedido                                 Decimal?                    @db.Decimal(18, 6)
@@ -153,6 +155,7 @@ model Pedido {
   snapshots_unidade_pedido                                    PedidoSnapshotUnidade[]
 
   @@index([id_organizacao, numero_pedido])
+  @@index([id_organizacao, referencia_externa_erp_pedido], map: "pedido_org_ref_ext_erp_idx")
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, status_pedido])

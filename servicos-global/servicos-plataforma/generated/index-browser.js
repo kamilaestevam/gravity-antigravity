@@ -954,6 +954,46 @@ exports.Prisma.ApiIntegracaoErpScalarFieldEnum = {
   data_atualizacao_api_integracao_erp: 'data_atualizacao_api_integracao_erp'
 };
 
+exports.Prisma.CredencialOAuthApiScalarFieldEnum = {
+  id_credencial_oauth_api: 'id_credencial_oauth_api',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  client_id_credencial_oauth_api: 'client_id_credencial_oauth_api',
+  hash_client_secret_credencial_oauth_api: 'hash_client_secret_credencial_oauth_api',
+  ambiente_credencial_oauth_api: 'ambiente_credencial_oauth_api',
+  escopo_credencial_oauth_api: 'escopo_credencial_oauth_api',
+  revogado_credencial_oauth_api: 'revogado_credencial_oauth_api',
+  data_revogacao_credencial_oauth_api: 'data_revogacao_credencial_oauth_api',
+  data_criacao_credencial_oauth_api: 'data_criacao_credencial_oauth_api',
+  data_atualizacao_credencial_oauth_api: 'data_atualizacao_credencial_oauth_api'
+};
+
+exports.Prisma.RegistroIdempotenciaApiScalarFieldEnum = {
+  id_registro_idempotencia_api: 'id_registro_idempotencia_api',
+  id_organizacao: 'id_organizacao',
+  chave_idempotencia_api: 'chave_idempotencia_api',
+  hash_corpo_requisicao_api: 'hash_corpo_requisicao_api',
+  codigo_resposta_http_idempotencia_api: 'codigo_resposta_http_idempotencia_api',
+  corpo_resposta_idempotencia_api: 'corpo_resposta_idempotencia_api',
+  data_expiracao_idempotencia_api: 'data_expiracao_idempotencia_api',
+  data_criacao_idempotencia_api: 'data_criacao_idempotencia_api'
+};
+
+exports.Prisma.WebhookEventoEnfileiradoScalarFieldEnum = {
+  id_webhook_evento_enfileirado: 'id_webhook_evento_enfileirado',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_evento_webhook_enfileirado: 'id_evento_webhook_enfileirado',
+  tipo_evento_webhook_enfileirado: 'tipo_evento_webhook_enfileirado',
+  payload_evento_webhook_enfileirado: 'payload_evento_webhook_enfileirado',
+  status_webhook_evento_enfileirado: 'status_webhook_evento_enfileirado',
+  quantidade_tentativas_webhook_evento_enfileirado: 'quantidade_tentativas_webhook_evento_enfileirado',
+  proxima_tentativa_webhook_evento_enfileirado: 'proxima_tentativa_webhook_evento_enfileirado',
+  ultimo_erro_webhook_evento_enfileirado: 'ultimo_erro_webhook_evento_enfileirado',
+  data_criacao_webhook_evento_enfileirado: 'data_criacao_webhook_evento_enfileirado',
+  data_atualizacao_webhook_evento_enfileirado: 'data_atualizacao_webhook_evento_enfileirado'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1082,6 +1122,17 @@ exports.ProtocoloApiIntegracaoErp = exports.$Enums.ProtocoloApiIntegracaoErp = {
   JDBC: 'JDBC'
 };
 
+exports.AmbienteIntegracaoApi = exports.$Enums.AmbienteIntegracaoApi = {
+  SANDBOX: 'SANDBOX',
+  PRODUCAO: 'PRODUCAO'
+};
+
+exports.StatusWebhookEventoEnfileirado = exports.$Enums.StatusWebhookEventoEnfileirado = {
+  PENDENTE: 'PENDENTE',
+  ENTREGUE: 'ENTREGUE',
+  FALHA_PERMANENTE: 'FALHA_PERMANENTE'
+};
+
 exports.Prisma.ModelName = {
   AtividadeDados: 'AtividadeDados',
   UsuariosAtividades: 'UsuariosAtividades',
@@ -1137,7 +1188,10 @@ exports.Prisma.ModelName = {
   WebhookConfiguracao: 'WebhookConfiguracao',
   WebhookLog: 'WebhookLog',
   LogRequisicaoApi: 'LogRequisicaoApi',
-  ApiIntegracaoErp: 'ApiIntegracaoErp'
+  ApiIntegracaoErp: 'ApiIntegracaoErp',
+  CredencialOAuthApi: 'CredencialOAuthApi',
+  RegistroIdempotenciaApi: 'RegistroIdempotenciaApi',
+  WebhookEventoEnfileirado: 'WebhookEventoEnfileirado'
 };
 
 /**

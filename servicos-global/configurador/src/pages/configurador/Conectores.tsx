@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { BotaoGuiaIntegracaoSapGravity } from '../../components/ModalGuiaIntegracaoSapGravity'
 
 /* ── Types ─────────────────────────────────────────────── */
 type ConectorId = 'sap' | 'onesource' | 'cargowise' | 'bysoft'
@@ -485,9 +486,12 @@ function SapConfig({ onBack }: { onBack: () => void }) {
             </span>
           </div>
         </div>
-        <span className="ws-badge ws-badge-success" style={{ gap: '0.375rem' }}>
-          <CloudCheck weight="bold" size={11}/> {t('workspace.connectors.status.conectado')}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="ws-badge ws-badge-success" style={{ gap: '0.375rem' }}>
+            <CloudCheck weight="bold" size={11}/> {t('workspace.connectors.status.conectado')}
+          </span>
+          <BotaoGuiaIntegracaoSapGravity foco="conector" mostrarRotulo />
+        </div>
       </div>
 
       {/* Sub-tabs */}
@@ -551,9 +555,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
             <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14} />} onClick={handleSave}>
               {saved ? t('workspace.connectors.btn_credenciais_salvas') : t('workspace.connectors.btn_salvar_credenciais')}
             </BotaoGlobal>
-            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<ArrowSquareOut weight="bold" size={14} />}>
-              {t('workspace.connectors.btn_doc_sap')}
-            </BotaoGlobal>
+            <BotaoGuiaIntegracaoSapGravity foco="conector" variante="fantasma" mostrarRotulo />
           </div>
         </div>
       )}
@@ -757,6 +759,16 @@ function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
     >
       {/* Top color bar */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: c.corPrimaria, opacity: 0.6 }}/>
+
+      {c.id === 'sap' && (
+        <div
+          style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1 }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <BotaoGuiaIntegracaoSapGravity foco="completo" variante="fantasma" />
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>

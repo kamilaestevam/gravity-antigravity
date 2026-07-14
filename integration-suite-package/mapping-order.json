@@ -1,0 +1,27 @@
+{
+  "versao": "1.0.0",
+  "descricao": "De-para status Pedido Gravity ↔ SAP S/4HANA (v1)",
+  "gravity_para_sap": {
+    "rascunho": "DRAFT",
+    "aberto": "OPEN",
+    "em_producao": "IN_PRODUCTION",
+    "pronto": "READY",
+    "embarcado": "SHIPPED",
+    "entregue": "DELIVERED",
+    "cancelado": "CANCELLED"
+  },
+  "sap_para_gravity": {
+    "DRAFT": "rascunho",
+    "OPEN": "aberto",
+    "IN_PRODUCTION": "em_producao",
+    "READY": "pronto",
+    "SHIPPED": "embarcado",
+    "DELIVERED": "entregue",
+    "CANCELLED": "cancelado"
+  },
+  "campos_correlacao": {
+    "gravityOrderId": "id_pedido",
+    "externalRef": "referencia_externa_erp_pedido",
+    "sapPurchaseOrder": "externalRef"
+  }
+}

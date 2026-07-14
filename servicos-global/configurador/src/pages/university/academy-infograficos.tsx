@@ -28,6 +28,7 @@ import { ManualInfograficoGabiJanela } from './manual-gabi-infografico-janela'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
+import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
 
 export type IdInfograficoAcademy =
   | 'organizacao-conta'
@@ -48,6 +49,7 @@ export type IdInfograficoAcademy =
   | 'hub-telas'
   | 'icones-menu-superior'
   | 'pedido-visao-geral'
+  | 'smart-docs-documentos'
 
 function InfograficoOrganizacaoWorkspacesAcademy() {
   return (
@@ -89,6 +91,7 @@ const REGISTRO_INFOGRAFICOS_ACADEMY: Record<IdInfograficoAcademy, React.Componen
   'hub-telas': ManualInfograficoHubTelas,
   'icones-menu-superior': ManualInfograficoIconesMenuSuperior,
   'pedido-visao-geral': ManualInfograficoPedidoVisaoGeral,
+  'smart-docs-documentos': ManualInfograficoSmartDocsDocumentos,
 }
 
 export function AcademyInfografico({ id }: { id: IdInfograficoAcademy | string }) {

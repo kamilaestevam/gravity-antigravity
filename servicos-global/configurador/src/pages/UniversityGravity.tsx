@@ -40,6 +40,7 @@ import { STORE_TRILHA } from './university/manual-store-academy'
 import { NAVEGACAO_TRILHA } from './university/manual-navegacao-academy'
 import { BID_FRETE_TRILHA } from './university/manual-bid-frete-academy'
 import { PEDIDO_TRILHA } from './university/manual-pedido-academy'
+import { SMART_READ_TRILHA } from './university/manual-smart-read-academy'
 import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
   DOC_LOGIN_METADADOS,
@@ -134,15 +135,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   store: [{ ...STORE_TRILHA, prog: 0 }],
   navegacao: [{ ...NAVEGACAO_TRILHA, prog: 0 }],
   pedido: [{ ...PEDIDO_TRILHA, prog: 0 }],
-  'smart-read': [{
-    tag: '#c084fc', emoji: '📄', nome: 'Guia Smart Docs', modulos: 4, duracao: '1h30', prog: 0,
-    fases: [
-      { nome: 'Anexando documentos', duracao: '25m', concluida: false },
-      { nome: 'Leitura inteligente', duracao: '25m', concluida: false },
-      { nome: 'Análise de Riscos', duracao: '25m', concluida: false },
-      { nome: 'Exportando Insights', duracao: '15m', concluida: false },
-    ],
-  }],
+  'smart-read': [{ ...SMART_READ_TRILHA, prog: 0 }],
   'bid-frete': [{
     ...BID_FRETE_TRILHA,
     prog: 0,
@@ -2040,7 +2033,7 @@ export function UniversityGravity() {
         { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: iconesStatusNavAcademy('store') },
         { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
         { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: iconesStatusNavAcademy('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: iconesStatusNavAcademy('smart-read'),   ...badgeEmBreve },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: iconesStatusNavAcademy('smart-read') },
         { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: iconesStatusNavAcademy('bid-frete') },
         { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: iconesStatusNavAcademy('bid-cambio'),   ...badgeEmBreve },
         { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: iconesStatusNavAcademy('processo'),     ...badgeEmBreve },

@@ -205,6 +205,7 @@ const INFOGRAFICOS_SECAO: Array<{
   { flag: 'mostrarInfograficoApiCockpitIntegracao', id: 'api-cockpit-integracao', skipSeAposParagrafo: true },
   { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
   { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
+  { flag: 'mostrarInfograficoSmartDocsDocumentos', id: 'smart-docs-documentos' },
 ]
 
 const INFOGRAFICOS_FLUXO: Array<{

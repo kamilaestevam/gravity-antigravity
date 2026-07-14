@@ -6,6 +6,7 @@ import {
   resolverPassoRetomarLeituraSmartRead,
 } from '../../../../servicos-global/produto/smart-read/shared/resolver-passo-retomar-leitura-smart-read.ts'
 import { estadoProgressoReduzidoUrgenteSmartRead } from '../../../../servicos-global/produto/smart-read/shared/estado-progresso-reduzido-urgente-smart-read.ts'
+import { estadoProgressoKeepaliveSmartRead } from '../../../../servicos-global/produto/smart-read/shared/estado-progresso-reduzido-urgente-smart-read.ts'
 import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
@@ -221,6 +222,34 @@ describe('progresso-leitura-smart-read', () => {
     expect(reduzido.passo).toBe(3)
     expect(reduzido.leitura.arquivos).toEqual([])
     expect(reduzido.leitura.id_leitura).toBe('abc12345')
+  })
+
+  it('estado keepalive mantem metadados dos arquivos sem extracao', () => {
+    const keepalive = estadoProgressoKeepaliveSmartRead({
+      passo: 2,
+      nome: 'Leitura X',
+      leitura: {
+        id_leitura: 'abc12345',
+        nome_leitura: 'Leitura X',
+        status_leitura: 'PROCESSING',
+        total_arquivos: 1,
+        arquivos_processados: 0,
+        arquivos: [
+          {
+            id_arquivo: 'a1',
+            nome_arquivo: 'f.pdf',
+            status_arquivo: 'PROCESSING',
+            resultado_extracao: [{ tipo_documento: 'INVOICE', dados: { n: 1 } }],
+          },
+        ],
+      },
+    })
+    expect(keepalive.leitura.arquivos).toHaveLength(1)
+    expect(keepalive.leitura.arquivos[0]).toMatchObject({
+      id_arquivo: 'a1',
+      nome_arquivo: 'f.pdf',
+      resultado_extracao: null,
+    })
   })
 
   it('prefere progresso salvo quando API retorna leitura sem arquivos', () => {

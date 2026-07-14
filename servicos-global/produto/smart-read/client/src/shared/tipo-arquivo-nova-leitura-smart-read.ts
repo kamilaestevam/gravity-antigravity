@@ -4,6 +4,7 @@
 
 import type { Leitura, StatusLeitura } from './schemas'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import { passoInicialLeituraSmartRead as passoInicialLeituraSmartReadShared } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
@@ -83,6 +84,53 @@ export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNova
     mensagem_erro: null,
     expandido: true,
   }))
+}
+
+/**
+ * Retomar leitura: usa `arquivos` da API quando existem; senão placeholders a partir de
+ * `total_arquivos` (lista/legado podem expor contagem sem detalhe de arquivo ainda).
+ */
+export function criarArquivosLocaisRetomarDeLeitura(
+  leitura: Leitura,
+  hint?: HintRetomarLeituraListaSmartRead | null,
+): ArquivoLocalNovaLeitura[] {
+  const total = Math.max(leitura.total_arquivos ?? 0, hint?.total_arquivos ?? 0)
+  const leituraEfetiva =
+    total > (leitura.total_arquivos ?? 0) ? { ...leitura, total_arquivos: total } : leitura
+
+  if (leituraEfetiva.arquivos.length > 0) {
+    return criarArquivosLocaisDeLeitura(leituraEfetiva)
+  }
+
+  // Leitura em andamento sem detalhe de arquivos (legado/lista podem vir com total 0):
+  // um placeholder permite o polling retomar em vez de tela vazia "Arquivos enviados 0".
+  const emAndamento =
+    leituraEfetiva.status_leitura === 'PROCESSING' || leituraEfetiva.status_leitura === 'PENDING'
+  const totalEfetivo = total > 0 ? total : emAndamento ? 1 : 0
+  if (totalEfetivo <= 0) return []
+
+  const nomeLista =
+    corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
+  const nomeDaLeitura =
+    corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+    leituraEfetiva.nome_leitura?.trim() ??
+    null
+  const nomeBase = nomeLista || nomeDaLeitura || 'documento'
+  const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)
+
+  return Array.from({ length: totalEfetivo }, (_, indice) => {
+    const nomeArquivo = totalEfetivo === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File([], nomeArquivo),
+      status_arquivo_local: statusLocal,
+      id_leitura: leituraEfetiva.id_leitura,
+      id_arquivo: null,
+      leitura: leituraEfetiva,
+      mensagem_erro: leituraEfetiva.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
+      expandido: true,
+    }
+  })
 }
 
 /**

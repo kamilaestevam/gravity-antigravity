@@ -44,6 +44,7 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
+import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 import {
   useListaPainelSmartRead,
   type AplicarConfigListaPainelCallbacks,
@@ -234,14 +235,24 @@ export function TabelaTransacoesLeituraSmartRead({
   }, [])
 
   const abrirLeituraDaTransacao = useCallback(
-    (item: TransacaoLeitura) => abrirLeituraExistente(item.id_leitura, item.passo_atual_leitura),
+    (item: TransacaoLeitura) =>
+      abrirLeituraExistente(
+        item.id_leitura,
+        resolverPassoRetomarLeituraSmartRead(item.status_leitura, item.passo_atual_leitura),
+      ),
     [abrirLeituraExistente],
   )
 
   const abrirLeituraDoDocumento = useCallback(
     (item: DocumentoLeituraLista) => {
       const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
-      abrirLeituraExistente(item.id_leitura, pai?.passo_atual_leitura ?? null)
+      abrirLeituraExistente(
+        item.id_leitura,
+        resolverPassoRetomarLeituraSmartRead(
+          pai?.status_leitura ?? 'PROCESSING',
+          pai?.passo_atual_leitura ?? null,
+        ),
+      )
     },
     [abrirLeituraExistente, transacoes],
   )

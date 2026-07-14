@@ -54,6 +54,7 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
         id_usuario: idUsuario,
         id_leitura_legado_progresso_leitura_smart_read: id_leitura,
       },
+      orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
     })
 
     if (!registro) {

@@ -18,8 +18,8 @@ import { useTranslation } from 'react-i18next'
 import type {
   DetalheMapeamentoSmartReadCotacaoBidFrete,
   PrefillFormularioCotacaoBidFreteSmartRead,
-} from '../../../../smart-read/shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
-import { ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE } from '../../../../smart-read/shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
+} from '../../../../../smart-read/shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
+import { ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE } from '../../../../../smart-read/shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
 import {
   avaliarCamposFaltantesPrefillCotacaoBidFrete,
   exigeCampoArmazenagemLclPrefill,
@@ -27,7 +27,7 @@ import {
   modalExigeAeroportoPrefill,
   modalExigePortoPrefill,
   resolverPassoInicialPrefillSmartRead,
-} from '../../../shared/regras-prefill-smart-read-cotacao-bid-frete-internacional.js'
+} from '../../../../shared/regras-prefill-smart-read-cotacao-bid-frete-internacional.js'
 import {
   INCOTERM_TODOS_NOVA_COTACAO,
   traduzirDescModalNovaCotacao,

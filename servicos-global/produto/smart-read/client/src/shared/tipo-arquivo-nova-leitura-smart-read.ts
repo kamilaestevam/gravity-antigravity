@@ -86,6 +86,39 @@ export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNova
 }
 
 /**
+ * Retomar leitura: usa `arquivos` da API quando existem; senão placeholders a partir de
+ * `total_arquivos` (lista/legado podem expor contagem sem detalhe de arquivo ainda).
+ */
+export function criarArquivosLocaisRetomarDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
+  if (leitura.arquivos.length > 0) {
+    return criarArquivosLocaisDeLeitura(leitura)
+  }
+
+  const total = leitura.total_arquivos ?? 0
+  if (total <= 0) return []
+
+  const nomeBase =
+    (corrigirEncodingNomeArquivoSmartRead(leitura.nome_leitura) ??
+      leitura.nome_leitura?.trim()) ||
+    'documento'
+  const statusLocal = statusArquivoLocalDeStatusLeitura(leitura.status_leitura)
+
+  return Array.from({ length: total }, (_, indice) => {
+    const nomeArquivo = total === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File([], nomeArquivo),
+      status_arquivo_local: statusLocal,
+      id_leitura: leitura.id_leitura,
+      id_arquivo: null,
+      leitura,
+      mensagem_erro: leitura.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
+      expandido: true,
+    }
+  })
+}
+
+/**
  * Consolida a leitura editada a partir dos arquivos locais. As edições de
  * Conferência ficam espalhadas em cada `item.leitura`, então reunimos o arquivo
  * resolvido de cada item numa única Leitura — pronta para persistir/restaurar.

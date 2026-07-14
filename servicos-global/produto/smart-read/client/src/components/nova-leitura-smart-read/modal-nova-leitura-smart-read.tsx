@@ -29,6 +29,7 @@ import {
   criarArquivoLocalNovaLeitura,
 
   criarArquivosLocaisDeLeitura,
+  criarArquivosLocaisRetomarDeLeitura,
   arquivoLocalTemBlobVisualizavel,
   consolidarLeituraDeArquivosLocais,
 
@@ -290,7 +291,7 @@ export function ModalNovaLeituraSmartRead({
   const aplicarLeituraHidratada = useCallback(
     async (id: string, leituraEfetiva: Leitura, salvo: EstadoSalvoLeitura | null) => {
       setNomeLeitura(salvo?.nome ?? leituraEfetiva.nome_leitura ?? 'Leitura')
-      const locais = criarArquivosLocaisDeLeitura(leituraEfetiva)
+      const locais = criarArquivosLocaisRetomarDeLeitura(leituraEfetiva)
       const hidratados = await Promise.all(
         locais.map(async (item) => {
           if (arquivoLocalTemBlobVisualizavel(item.arquivo)) return item
@@ -332,13 +333,6 @@ export function ModalNovaLeituraSmartRead({
     },
     [passoRetomarLista],
   )
-
-  const passoPlaceholderRetomar = useMemo(() => {
-    if (typeof passoRetomarLista === 'number' && passoRetomarLista >= 2 && passoRetomarLista <= 4) {
-      return passoRetomarLista
-    }
-    return 2
-  }, [passoRetomarLista])
 
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
@@ -407,13 +401,13 @@ export function ModalNovaLeituraSmartRead({
       setCamposEditados(new Set())
       setPassoConferenciaMontado(false)
       setArquivos([])
-      passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
-      setPasso(passoPlaceholderRetomar >= 3 ? 2 : passoPlaceholderRetomar)
+      passoSalvoRef.current = 0
+      setPasso(1)
       riscosIniciadosRef.current.delete(id)
       pollingEmVooRef.current.clear()
       void hidratarLeituraExistente(id)
     },
-    [passoPlaceholderRetomar, hidratarLeituraExistente],
+    [hidratarLeituraExistente],
   )
 
   useEffect(() => {
@@ -505,7 +499,10 @@ export function ModalNovaLeituraSmartRead({
           }
 
           const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leituraApi, salvo?.leitura)
-          if (leituraEfetiva && leituraEfetiva.arquivos.length > 0) {
+          const temDadosRetomar =
+            leituraEfetiva &&
+            (leituraEfetiva.arquivos.length > 0 || (leituraEfetiva.total_arquivos ?? 0) > 0)
+          if (temDadosRetomar) {
             await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
             // Passo 2: basta rehidratar os arquivos — o polling normal continua a análise.
             if (leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva) || passoSalvo < 3) {
@@ -1006,11 +1003,33 @@ export function ModalNovaLeituraSmartRead({
 
         const criada = await smartReadApi.enviarLeitura(item.arquivo)
 
+        const itemAtualizado: ArquivoLocalNovaLeitura = {
+          ...item,
+          status_arquivo_local: 'analisando',
+          id_leitura: criada.id_leitura,
+          id_arquivo: criada.id_arquivo,
+        }
         atualizarArquivo(item.id_arquivo_local, {
           status_arquivo_local: 'analisando',
           id_leitura: criada.id_leitura,
           id_arquivo: criada.id_arquivo,
         })
+
+        const arquivosAposEnvio = arquivos.map((arquivo) =>
+          arquivo.id_arquivo_local === item.id_arquivo_local ? itemAtualizado : arquivo,
+        )
+        const estadoEnvio = montarEstadoProgressoLeituraSmartRead({
+          arquivos: arquivosAposEnvio,
+          passo: 2,
+          nomeLeitura,
+          idLeituraExistente: criada.id_leitura,
+        })
+        if (estadoEnvio) {
+          persistirProgressoLeituraUrgenteSmartRead(criada.id_leitura, estadoEnvio)
+          estadoFlushRef.current = { idLeitura: criada.id_leitura, estado: estadoEnvio }
+          definirPendenteFlushProgressoLeituraSmartRead(estadoFlushRef.current)
+          passoSalvoRef.current = 2
+        }
 
         registrarArquivoSessaoLeituraSmartRead(criada.id_leitura, item.arquivo, criada.id_arquivo)
         if (criada.id_leitura && criada.id_arquivo) {
@@ -1046,7 +1065,7 @@ export function ModalNovaLeituraSmartRead({
 
     setEnviando(false)
 
-  }, [arquivos, atualizarArquivo, garantirPollingArquivo])
+  }, [arquivos, atualizarArquivo, nomeLeitura, garantirPollingArquivo])
 
 
 
@@ -1301,7 +1320,13 @@ export function ModalNovaLeituraSmartRead({
         {passo === 1 && <AreaAnexarNovaLeituraSmartRead onArquivosAdicionados={adicionarArquivos} />}
 
         {passo === 2 && (
-
+          hidratandoRetomar || recuperandoExtracaoRetomar ? (
+            <p className="sr-conf-vazio">
+              {recuperandoExtracaoRetomar
+                ? 'Recarregando análise dos arquivos…'
+                : 'Carregando leitura…'}
+            </p>
+          ) : (
           <DashboardAnaliseNovaLeituraSmartRead
             arquivos={arquivos}
             analiseCompleta={analiseCompleta}
@@ -1309,7 +1334,7 @@ export function ModalNovaLeituraSmartRead({
             inicioAnalise={inicioAnalise}
             tempoAnaliseSegundos={tempoAnaliseSegundos}
           />
-
+          )
         )}
 
         {passoConferenciaMontado && (

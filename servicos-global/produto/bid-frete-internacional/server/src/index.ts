@@ -30,6 +30,7 @@ import { comparativoRouter } from './routes/comparativo.js'
 import { visaoFornecedorBidFreteInternacionalRouter } from './routes/visao-fornecedor-bid-frete-internacional.js'
 import { visaoFornecedorBidFreteInternacionalPublicoRouter } from './routes/visao-fornecedor-bid-frete-internacional-publico.js'
 import { aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter } from './routes/aceite-aprovacao-proposta-bid-frete-internacional-publico.js'
+import { contratoPlataformaBidFreteInternacionalPublicoRouter } from './routes/contrato-plataforma-bid-frete-internacional-publico.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
@@ -129,6 +130,11 @@ app.use(
   '/api/v1/bid-frete-internacional/aceite-aprovacao-proposta-bid-frete-internacional/publico',
   rateLimitPresets.public(),
   aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter,
+)
+app.use(
+  '/api/v1/bid-frete-internacional/contrato-plataforma-bid-frete-internacional/publico',
+  rateLimitPresets.public(),
+  contratoPlataformaBidFreteInternacionalPublicoRouter,
 )
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---

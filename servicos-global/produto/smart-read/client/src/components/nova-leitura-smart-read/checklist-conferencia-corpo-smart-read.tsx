@@ -4,6 +4,7 @@
 
 import { CaretDown, Check, CircleNotch, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { TooltipConferenciaRegraSmartRead } from './tooltip-conferencia-regra-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
   contarChecklistPorStatus,
@@ -27,6 +28,7 @@ export type ItemChecklistCorpoSmartRead = {
     item: string
     motor: string
     tooltip_conferencia: string
+    base_normativa?: string
   }
   status: StatusChecklistMatrizInvoice
   rotulo_status: RotuloStatusChecklistInvoice
@@ -39,17 +41,6 @@ export type ItemChecklistCorpoSmartRead = {
 export type SecaoChecklistConferenciaSmartRead = {
   secao: string
   itens: ItemChecklistCorpoSmartRead[]
-}
-
-const ROTULO_MOTOR_MATRIZ: Record<string, string> = {
-  codigo: 'Código',
-  api: 'API',
-  llm: 'IA',
-  rag: 'RAG',
-}
-
-function rotuloMotorPadrao(motor: string): string {
-  return ROTULO_MOTOR_MATRIZ[motor] ?? motor
 }
 
 function rotuloSecaoPadrao(secao: string): string {
@@ -100,7 +91,6 @@ function LinhaChecklistAviacao({
   estaMarcado,
   alternarMarcado,
   exibirColunaCheck,
-  rotuloMotor = rotuloMotorPadrao,
 }: {
   item: ItemChecklistCorpoSmartRead
   rotuloInvoice?: string | null
@@ -108,7 +98,6 @@ function LinhaChecklistAviacao({
   estaMarcado?: (chave: string) => boolean
   alternarMarcado?: (chave: string) => void
   exibirColunaCheck: boolean
-  rotuloMotor?: (motor: string) => string
 }) {
   const chaveMarcacao = chaveItemChecklistUsuario(item.regra.id, rotuloInvoice)
   const marcado = estaMarcado?.(chaveMarcacao) ?? false
@@ -134,7 +123,11 @@ function LinhaChecklistAviacao({
       <td className="sr-conf-chk-col-item">
         <span className="sr-conf-chk-item-linha">
           <span className="sr-conf-chk-item-nome">{item.regra.item}</span>
-          <TooltipGlobal titulo={item.regra.item} descricao={item.regra.tooltip_conferencia}>
+          <TooltipConferenciaRegraSmartRead
+            titulo={item.regra.item}
+            tooltip_conferencia={item.regra.tooltip_conferencia}
+            base_normativa={item.regra.base_normativa}
+          >
             <button
               type="button"
               className="sr-conf-chk-item-info"
@@ -142,9 +135,8 @@ function LinhaChecklistAviacao({
             >
               <Info size={14} weight="duotone" aria-hidden />
             </button>
-          </TooltipGlobal>
+          </TooltipConferenciaRegraSmartRead>
         </span>
-        <span className="sr-conf-chk-item-motor">{rotuloMotor(item.regra.motor)}</span>
       </td>
       <td className="sr-conf-chk-col-resultado" title={item.detalhe ?? undefined}>
         <span className="sr-conf-chk-resultado">
@@ -191,9 +183,8 @@ type Props = {
   idPrefixo?: string
   classeCorpo?: string
   classificacaoProduto?: LinhaClassificacaoProdutoChecklist[]
-  /** Rótulos por seção/motor — default matriz Invoice; a matriz PL injeta os seus. */
+  /** Rótulo por seção — default matriz Invoice; a matriz PL injeta o seu. */
   rotuloSecao?: (secao: string) => string
-  rotuloMotor?: (motor: string) => string
 }
 
 export function ChecklistConferenciaCorpoSmartRead({
@@ -213,7 +204,6 @@ export function ChecklistConferenciaCorpoSmartRead({
   classeCorpo = 'sr-conf-checklist-corpo',
   classificacaoProduto,
   rotuloSecao = rotuloSecaoPadrao,
-  rotuloMotor = rotuloMotorPadrao,
 }: Props) {
   const exibirColunaCheck = Boolean(alternarMarcado)
   const exibirSelecionarTudo =
@@ -287,6 +277,7 @@ export function ChecklistConferenciaCorpoSmartRead({
               na={contagemSecao.na}
               total={contagemSecao.total}
               classe="sr-conf-checklist-secao-barra"
+              emAnalise={itens.some((item) => item.em_analise)}
             />
             <span className={`sr-conf-chk-veredito-secao ${classeVereditoSecao(veredito)}`}>
               {veredito}
@@ -369,7 +360,6 @@ export function ChecklistConferenciaCorpoSmartRead({
                         estaMarcado={estaMarcado}
                         alternarMarcado={alternarMarcado}
                         exibirColunaCheck={exibirColunaCheck}
-                        rotuloMotor={rotuloMotor}
                       />
                     ))}
                   </tbody>

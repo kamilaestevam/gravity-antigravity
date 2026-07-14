@@ -5,7 +5,18 @@
  */
 import { z } from 'zod'
 
-const valorMonetarioHistoricoTermometroSchema = z.union([z.number(), z.string()])
+const valorMonetarioHistoricoTermometroSchema = z.preprocess(
+  (valor) => {
+    if (valor == null) return valor
+    if (typeof valor === 'number' || typeof valor === 'string') return valor
+    if (typeof valor === 'object' && valor !== null && 'toString' in valor) {
+      const texto = String(valor)
+      return texto === '[object Object]' ? null : texto
+    }
+    return valor
+  },
+  z.union([z.number(), z.string()]).optional().nullable(),
+)
 
 export const propostaHistoricoTermometroResponseSchema = z.object({
   data_criacao_proposta_bid_frete_internacional: z.union([z.string(), z.date()]).optional().nullable(),

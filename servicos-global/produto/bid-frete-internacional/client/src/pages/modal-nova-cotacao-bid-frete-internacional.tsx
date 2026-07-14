@@ -95,6 +95,25 @@ import {
 } from '../../../shared/localizacao-complementar-resumo-nova-cotacao-bid-frete-internacional'
 import { calcularCubagemAutoDimensoesPorModalBidFreteInternacional } from '../../../shared/calcular-cubagem-m3-dimensoes-bid-frete-internacional'
 import {
+  TIPOS_VALOR_FRETE_BID_FRETE_INTERNACIONAL,
+  ROTULOS_TIPO_VALOR_FRETE_BID_FRETE_INTERNACIONAL,
+  ROTULO_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL,
+  opcoesSelectUnidadeFaixaValorFreteKgsBidFreteInternacional,
+  unidadeFaixaValorFreteKgsFromSelectBidFreteInternacional,
+  valorSelectUnidadeFaixaValorFreteKgsBidFreteInternacional,
+  type TipoValorFreteBidFreteInternacional,
+} from '../../../shared/tipo-valor-frete-bid-frete-internacional'
+import {
+  criarLinhaFaixaValorFreteCotacaoVazia,
+  faixasValorFreteCotacaoFormParaPayload,
+  faixasValorFreteCotacaoFormValidas,
+  quantidadeVolumeObrigatoriaNovaCotacaoBidFreteInternacional,
+  rotuloOrdemFaixaValorFreteCotacao,
+  textoFaixasValorFreteCotacaoResumoNovaCotacao,
+  textosLinhasFaixaValorFreteCotacaoResumoNovaCotacao,
+  type LinhaFaixaValorFreteCotacaoFormBidFreteInternacional,
+} from '../shared/faixas-valor-frete-cotacao-bid-frete-internacional'
+import {
   calcularDataLimiteRespostaSugeridaBidFreteInternacional,
   lerRegrasConfigBidFreteInternacional,
 } from '../../../shared/regras-config-bid-frete-internacional'
@@ -124,6 +143,19 @@ import {
   tipoPassoWizardNovaCotacao,
   type TipoPassoWizardNovaCotacao,
 } from '../shared/armazenagem-lcl-maritimo-bid-frete-internacional'
+import {
+  aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete,
+  extrairPrefillFormularioNovaCotacaoBidFreteSmartRead,
+} from '../shared/aplicar-prefill-smart-read-nova-cotacao-bid-frete-internacional'
+import {
+  carregarPrefillSmartReadNovaCotacaoBidFreteInternacional,
+  limparPrefillSmartReadNovaCotacaoBidFreteInternacional,
+} from '../shared/carregar-prefill-smart-read-nova-cotacao-bid-frete-internacional'
+import {
+  avaliarCamposFaltantesPrefillCotacaoBidFrete,
+  resolverPassoInicialPrefillSmartRead,
+  type TipoPassoInicialPrefillSmartRead,
+} from '../../../shared/regras-prefill-smart-read-cotacao-bid-frete-internacional.js'
 import {
   INCOTERM_TODOS_NOVA_COTACAO,
   traduzirDescModalNovaCotacao,
@@ -446,6 +478,9 @@ interface FormState {
   linhas_armazem_alfandegado_cotacao: LinhaArmazemAlfandegadoCotacao[]
   /** UI-only — checkbox revela painel C×L×A; não persiste no banco */
   exibir_cubagem_detalhada_cotacao: boolean
+  /** Aéreo — frete total ou faixas de peso/m³ solicitadas ao fornecedor */
+  tipo_valor_frete_cotacao_bid_frete_internacional: TipoValorFreteBidFreteInternacional
+  linhas_faixa_valor_frete_cotacao: LinhaFaixaValorFreteCotacaoFormBidFreteInternacional[]
   // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -510,6 +545,8 @@ const INITIAL_FORM: FormState = {
   opcao_incluir_armazenagem_cotacao: '',
   linhas_armazem_alfandegado_cotacao: [linhaArmazemAlfandegadoVazia(1)],
   exibir_cubagem_detalhada_cotacao: false,
+  tipo_valor_frete_cotacao_bid_frete_internacional: 'TOTAL',
+  linhas_faixa_valor_frete_cotacao: [criarLinhaFaixaValorFreteCotacaoVazia()],
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: false,
   valor_meta_cotacao_bid_frete_internacional: '',
@@ -1396,6 +1433,17 @@ const NC_ESTILOS_CONTEUDO = `
           align-items: end;
           margin-bottom: 0.75rem;
         }
+        .nc-linha-faixa-valor-row {
+          grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+        }
+        .nc-linha-faixa-valor-row > .nc-field:first-child,
+        .nc-linha-faixa-valor-row > .nc-field:nth-child(2) {
+          max-width: none;
+          min-width: 0;
+        }
+        .nc-linha-faixa-valor-row .sg-campo .sg-valor-unico {
+          white-space: nowrap;
+        }
         .nc-linha-armazem-row {
           display: grid;
           grid-template-columns: minmax(0, 1fr) auto;
@@ -1583,6 +1631,28 @@ const NC_ESTILOS_CONTEUDO = `
           font-size: 0.75rem;
           color: var(--text-muted, #64748b);
           line-height: 1.35;
+        }
+
+        .nc-smart-read-aviso-obrig {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+          padding: 0.875rem 1rem;
+          border-radius: 0.625rem;
+          border: 1px solid rgba(245, 158, 11, 0.45);
+          background: rgba(245, 158, 11, 0.08);
+          color: var(--text-primary, #e2e8f0);
+        }
+        .nc-smart-read-aviso-obrig svg {
+          flex-shrink: 0;
+          color: #f59e0b;
+          margin-top: 0.1rem;
+        }
+        .nc-smart-read-aviso-obrig-texto {
+          flex: 1;
+          font-size: 0.875rem;
+          line-height: 1.45;
         }
 
         select.nc-input {
@@ -2325,6 +2395,25 @@ const NC_ESTILOS_CONTEUDO = `
           border-radius: 4px;
           border: 1px solid var(--nc-accent-border);
         }
+        .nc-receipt-row--faixas-peso {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.625rem;
+          padding-bottom: 1rem;
+        }
+        .nc-receipt-faixas-peso-panel {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 1rem 1.25rem;
+          margin: 0;
+        }
+        .nc-receipt-faixa-peso-linha {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--text-primary, #f8fafc);
+          font-family: 'DM Mono', monospace;
+        }
 
         /* ── Footer de Navegação (legado — modal usa BotaoGlobal) ── */
         .nc-footer {
@@ -2427,6 +2516,46 @@ function limparHtmlNcm(texto: string): string {
   return texto.replace(/<[^>]*>/g, '').trim()
 }
 
+const ROTULO_PASSO_CORRECAO_SMART_READ: Record<TipoPassoInicialPrefillSmartRead, string> = {
+  modal: 'Modal e Operação',
+  origem: 'Origem e Destino',
+  carga: 'Carga e Incoterm',
+  armazenagem: 'Armazenagem',
+  fornecedores: 'Fornecedores',
+}
+
+function AvisoCamposObrigatoriosSmartRead({
+  camposFaltantes,
+  passoCorrecao,
+  onIrCompletar,
+}: {
+  camposFaltantes: string[]
+  passoCorrecao: TipoPassoInicialPrefillSmartRead | null
+  onIrCompletar?: () => void
+}) {
+  if (camposFaltantes.length === 0) return null
+  return (
+    <div className="nc-smart-read-aviso-obrig" role="alert">
+      <Warning weight="fill" size={18} aria-hidden />
+      <div className="nc-smart-read-aviso-obrig-texto">
+        <strong>Campos obrigatórios para cotação:</strong>{' '}
+        {camposFaltantes.join(', ')}.
+        {passoCorrecao ? (
+          <>
+            {' '}
+            Complete no passo &quot;{ROTULO_PASSO_CORRECAO_SMART_READ[passoCorrecao]}&quot; antes de criar a cotação.
+          </>
+        ) : null}
+      </div>
+      {passoCorrecao && onIrCompletar ? (
+        <BotaoGlobal variante="secundario" tamanho="compacto" onClick={onIrCompletar}>
+          Completar campos
+        </BotaoGlobal>
+      ) : null}
+    </div>
+  )
+}
+
 // ─── Componente Principal ────────────────────────────────────────────────────
 export default function ModalNovaCotacaoBidFreteInternacional() {
   const navigate = useNavigate()
@@ -2435,6 +2564,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [searchParams] = useSearchParams()
   const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
   const idPainelLista = idPainelListaBidFreteDoQueryParam(searchParams.get('id_painel_lista'))
+  const origemSmartRead = searchParams.get('origem') === 'smart-read'
+  const idLeituraSmartRead = searchParams.get('id_leitura')?.trim() ?? null
+  const fluxoSmartReadRef = useRef(false)
+  const [fluxoSmartReadAtivo, setFluxoSmartReadAtivo] = useState(false)
+  const [prefillSmartReadPronto, setPrefillSmartReadPronto] = useState(false)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(criarFormInicialNovaCotacao)
   const [salvando, setSalvando] = useState(false)
@@ -2474,6 +2608,71 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       ).indexOf('fornecedores') + 1,
     [form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional],
   )
+
+  useEffect(() => {
+    if (!origemSmartRead || !idLeituraSmartRead) return
+    const pacote = carregarPrefillSmartReadNovaCotacaoBidFreteInternacional()
+    if (!pacote || pacote.id_leitura !== idLeituraSmartRead) {
+      addNotification({
+        type: 'error',
+        message: 'Não foi possível carregar os dados da leitura Smart Docs para esta cotação.',
+      })
+      return
+    }
+    fluxoSmartReadRef.current = true
+    setFluxoSmartReadAtivo(true)
+    setForm((prev) => aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete(prev, pacote))
+    // Passo calculado direto do pacote (não depende do re-render do form).
+    const modalPacote = pacote.prefill.modal_cotacao_bid_frete_internacional
+    if (modalPacote) {
+      const seq = sequenciaPassosWizardNovaCotacao(
+        modalPacote,
+        pacote.prefill.modalidade_cotacao_bid_frete_internacional ?? '',
+      )
+      const idxResumo = seq.indexOf('resumo')
+      if (idxResumo >= 0) setStep(idxResumo + 1)
+    }
+    setPrefillSmartReadPronto(true)
+  }, [origemSmartRead, idLeituraSmartRead, addNotification])
+
+  useEffect(() => {
+    if (!prefillSmartReadPronto || !fluxoSmartReadRef.current) return
+    if (!form.modal_cotacao_bid_frete_internacional) return
+    const seq = sequenciaPassosWizardNovaCotacao(
+      form.modal_cotacao_bid_frete_internacional,
+      form.modalidade_cotacao_bid_frete_internacional,
+    )
+    const idxResumo = seq.indexOf('resumo')
+    if (idxResumo >= 0) setStep(idxResumo + 1)
+  }, [prefillSmartReadPronto, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
+
+  const camposFaltantesSmartRead = useMemo(() => {
+    if (!fluxoSmartReadAtivo) return []
+    return avaliarCamposFaltantesPrefillCotacaoBidFrete(
+      extrairPrefillFormularioNovaCotacaoBidFreteSmartRead(form),
+    )
+  }, [fluxoSmartReadAtivo, form])
+
+  const passoCorrecaoSmartRead = useMemo((): TipoPassoInicialPrefillSmartRead | null => {
+    if (!fluxoSmartReadAtivo || camposFaltantesSmartRead.length === 0) return null
+    return resolverPassoInicialPrefillSmartRead(
+      extrairPrefillFormularioNovaCotacaoBidFreteSmartRead(form),
+    )
+  }, [fluxoSmartReadAtivo, camposFaltantesSmartRead.length, form])
+
+  const irParaPassoCorrecaoSmartRead = useCallback(() => {
+    if (!passoCorrecaoSmartRead) return
+    const seq = sequenciaPassosWizardNovaCotacao(
+      form.modal_cotacao_bid_frete_internacional as ModalFrete,
+      form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
+    )
+    const idx = seq.indexOf(passoCorrecaoSmartRead)
+    if (idx >= 0) setStep(idx + 1)
+  }, [
+    passoCorrecaoSmartRead,
+    form.modal_cotacao_bid_frete_internacional,
+    form.modalidade_cotacao_bid_frete_internacional,
+  ])
 
   useEffect(() => {
     if (step !== passoFornecedoresWizard) return
@@ -2784,6 +2983,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   const modal = form.modal_cotacao_bid_frete_internacional
   const modalidade = modalidadeEfetivaNovaCotacao(form)
+  const quantidadeVolumeObrigatoriaCarga = quantidadeVolumeObrigatoriaNovaCotacaoBidFreteInternacional(
+    modal,
+    form.tipo_valor_frete_cotacao_bid_frete_internacional,
+  )
   const exigeContainerFcl = modal === 'MARITIMO' && modalidade === 'FCL'
   const rotuloUnidadeEmbalagemPorCodigo = useCallback(
     (codigo: string) => opcoesEmbalagem.find((opcao) => String(opcao.valor) === codigo)?.rotulo ?? codigo,
@@ -3028,7 +3231,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         if (!form.tipo_operacao_cotacao_bid_frete_internacional || !form.modal_cotacao_bid_frete_internacional) {
           return false
         }
-        if (form.modal_cotacao_bid_frete_internacional === 'AEREO') return true
+        if (form.modal_cotacao_bid_frete_internacional === 'AEREO') {
+          return true
+        }
         return !!form.modalidade_cotacao_bid_frete_internacional
       }
       case 'origem': {
@@ -3055,6 +3260,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       case 'carga': {
         const base = !!form.descricao_mercadoria_cotacao_bid_frete_internacional
           && !!form.incoterm_cotacao_bid_frete_internacional
+        const faixasAereoOk = modal !== 'AEREO'
+          || form.tipo_valor_frete_cotacao_bid_frete_internacional !== 'FAIXA_PESO'
+          || faixasValorFreteCotacaoFormValidas(form.linhas_faixa_valor_frete_cotacao)
         const perigosaOk = !form.eh_carga_perigosa_cotacao_bid_frete_internacional
           || (
             !!form.numero_onu_cotacao_bid_frete_internacional
@@ -3069,6 +3277,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           return (
             base
             && perigosaOk
+            && faixasAereoOk
             && form.linhas_container_fcl_cotacao.length > 0
             && form.linhas_container_fcl_cotacao.every(
               (l) => !!l.tipo_container.trim() && l.quantidade > 0,
@@ -3078,8 +3287,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         return (
           base
           && perigosaOk
+          && faixasAereoOk
           && !!form.tipo_container_cotacao_bid_frete_internacional
-          && form.quantidade_volume_cotacao_bid_frete_internacional > 0
+          && (!quantidadeVolumeObrigatoriaCarga || form.quantidade_volume_cotacao_bid_frete_internacional > 0)
         )
       }
       case 'armazenagem':
@@ -3095,7 +3305,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           && prazoLimiteRespostaPreenchido(form.data_limite_resposta_cotacao_bid_frete_internacional)
           && (form.opcao_fornecedor_pode_alterar_proposta === 'sim'
             || form.opcao_fornecedor_pode_alterar_proposta === 'nao')
-      case 'resumo': return true
+      case 'resumo':
+        return !fluxoSmartReadAtivo || camposFaltantesSmartRead.length === 0
       default: return false
     }
   }
@@ -3199,7 +3410,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         descricao_mercadoria_cotacao_bid_frete_internacional: form.descricao_mercadoria_cotacao_bid_frete_internacional,
         ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
         hs_code_cotacao_bid_frete_internacional: form.hs_code_cotacao_bid_frete_internacional || undefined,
-        quantidade_volume_cotacao_bid_frete_internacional: containersPersistidos.quantidade_volume_cotacao_bid_frete_internacional,
+        quantidade_volume_cotacao_bid_frete_internacional:
+          !quantidadeVolumeObrigatoriaCarga
+            && containersPersistidos.quantidade_volume_cotacao_bid_frete_internacional <= 0
+            ? undefined
+            : containersPersistidos.quantidade_volume_cotacao_bid_frete_internacional,
         tipo_container_cotacao_bid_frete_internacional:
           containersPersistidos.tipo_container_cotacao_bid_frete_internacional || undefined,
         peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional ? parseFloat(form.peso_kg_cotacao_bid_frete_internacional) : undefined,
@@ -3242,6 +3457,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? parseFloat(form.valor_meta_cotacao_bid_frete_internacional)
           : undefined,
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
+        tipo_valor_frete_cotacao_bid_frete_internacional:
+          form.modal_cotacao_bid_frete_internacional === 'AEREO'
+            ? form.tipo_valor_frete_cotacao_bid_frete_internacional
+            : 'TOTAL',
+        faixas_valor_frete_kgs_cotacao_bid_frete_internacional:
+          form.modal_cotacao_bid_frete_internacional === 'AEREO'
+            && form.tipo_valor_frete_cotacao_bid_frete_internacional === 'FAIXA_PESO'
+            ? faixasValorFreteCotacaoFormParaPayload(form.linhas_faixa_valor_frete_cotacao)
+            : undefined,
         eh_carga_perigosa_cotacao_bid_frete_internacional: form.eh_carga_perigosa_cotacao_bid_frete_internacional,
         incluir_armazenagem_cotacao_bid_frete_internacional: ehMaritimoLclCotacaoBidFreteInternacional(
           form.modal_cotacao_bid_frete_internacional,
@@ -3288,6 +3512,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           regrasOrganizacao.empresaPagadoraTaxaFechamentoPlataformaGravity,
       })
       idCotacaoSalva = cotacao.id_cotacao_bid_frete_internacional
+      if (fluxoSmartReadRef.current) {
+        limparPrefillSmartReadNovaCotacaoBidFreteInternacional()
+      }
       setCotacaoId(idCotacaoSalva)
 
       if (pretendiaDisparar) {
@@ -3434,6 +3661,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     modal_cotacao_bid_frete_internacional: 'MARITIMO',
                     modalidade_cotacao_bid_frete_internacional: '',
                     opcao_incluir_armazenagem_cotacao: '',
+                    tipo_valor_frete_cotacao_bid_frete_internacional: 'TOTAL',
+                    linhas_faixa_valor_frete_cotacao: [criarLinhaFaixaValorFreteCotacaoVazia()],
                     ...limparCamposCargaPerigosa(),
                   }))
                 }}
@@ -3467,6 +3696,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     modal_cotacao_bid_frete_internacional: 'RODOVIARIO',
                     modalidade_cotacao_bid_frete_internacional: '',
                     opcao_incluir_armazenagem_cotacao: '',
+                    tipo_valor_frete_cotacao_bid_frete_internacional: 'TOTAL',
+                    linhas_faixa_valor_frete_cotacao: [criarLinhaFaixaValorFreteCotacaoVazia()],
                     ...limparCamposCargaPerigosa(),
                   }))
                 }}
@@ -3537,6 +3768,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
         return (
           <div className="nc-step-content nc-origem-destino-stack">
+            {fluxoSmartReadAtivo ? (
+              <AvisoCamposObrigatoriosSmartRead
+                camposFaltantes={camposFaltantesSmartRead}
+                passoCorrecao={passoCorrecaoSmartRead}
+              />
+            ) : null}
             <div
               className={`nc-location-visual-card nc-location-visual-card--origin${origemPreenchida ? ' nc-location-visual-card--selected' : ''}`}
             >
@@ -4045,7 +4282,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             )}
 
             <section className="nc-cargo-subsecao" aria-labelledby="nc-cargo-quantidade">
-              <NcSubsecaoTitle id="nc-cargo-quantidade" icone={<Package {...ICONE_LABEL_SECAO} />} obrigatorio>
+              <NcSubsecaoTitle
+                id="nc-cargo-quantidade"
+                icone={<Package {...ICONE_LABEL_SECAO} />}
+                obrigatorio={quantidadeVolumeObrigatoriaCarga || exigeContainerFcl}
+              >
                 {t('bidfrete.nova_cotacao.quantidade')}
               </NcSubsecaoTitle>
               {exigeContainerFcl ? (
@@ -4123,7 +4364,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               ) : (
                 <>
                   <p className="nc-cargo-subsecao-hint">
-                    Modalidade <strong>{modalidadeLabel}</strong> — escolha o tipo de volume (caixa, palete, etc.) e a quantidade
+                    Modalidade <strong>{modalidadeLabel}</strong> — escolha o tipo de volume (caixa, palete, etc.)
+                    {quantidadeVolumeObrigatoriaCarga ? ' e a quantidade' : ''}
+                    {!quantidadeVolumeObrigatoriaCarga && (
+                      <> — <strong>quantidade opcional</strong> na cotação por faixa de peso</>
+                    )}
                   </p>
                   <div className="nc-cargo-subsecao-grid-quantidade nc-cargo-subsecao-grid-quantidade--embalagem">
                     <Field label="TIPO DE VOLUME" required icone={<Package {...ICONE_FIELD} />}>
@@ -4139,7 +4384,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       />
                     </Field>
 
-                    <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
+                    <Field label="QUANTIDADE" required={quantidadeVolumeObrigatoriaCarga} icone={<Hash {...ICONE_FIELD} />}>
                       <div className="nc-input-group">
                         <input
                           className="nc-input nc-input--with-suffix"
@@ -4164,7 +4409,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                             }
                           }}
                           onBlur={() => {
-                            if (form.quantidade_volume_cotacao_bid_frete_internacional <= 0) {
+                            if (
+                              quantidadeVolumeObrigatoriaCarga
+                              && form.quantidade_volume_cotacao_bid_frete_internacional <= 0
+                            ) {
                               set('quantidade_volume_cotacao_bid_frete_internacional', 1)
                             }
                           }}
@@ -4365,6 +4613,143 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {modal === 'AEREO' && (
+                  <>
+                    <Field
+                      label={t('bidfrete.nova_cotacao.incluir_faixa_peso_m3', {
+                        defaultValue: 'Incluir faixa de peso e m³',
+                      })}
+                      icone={<Scales {...ICONE_FIELD} />}
+                    >
+                      <SelectGlobal
+                        opcoes={TIPOS_VALOR_FRETE_BID_FRETE_INTERNACIONAL.map((tipo) => ({
+                          valor: tipo,
+                          rotulo: ROTULOS_TIPO_VALOR_FRETE_BID_FRETE_INTERNACIONAL[tipo],
+                        }))}
+                        valor={form.tipo_valor_frete_cotacao_bid_frete_internacional}
+                        aoMudarValor={(v) => {
+                          const tipo: TipoValorFreteBidFreteInternacional =
+                            v === 'FAIXA_PESO' ? 'FAIXA_PESO' : 'TOTAL'
+                          setForm((prev) => ({
+                            ...prev,
+                            tipo_valor_frete_cotacao_bid_frete_internacional: tipo,
+                            linhas_faixa_valor_frete_cotacao:
+                              tipo === 'FAIXA_PESO' && prev.linhas_faixa_valor_frete_cotacao.length === 0
+                                ? [criarLinhaFaixaValorFreteCotacaoVazia()]
+                                : prev.linhas_faixa_valor_frete_cotacao,
+                          }))
+                        }}
+                        placeholder={t('bidfrete.nova_cotacao.solicitar_cotacao_faixas_valor', {
+                          defaultValue: 'Solicitar cotação por faixas de valor',
+                        })}
+                        posicao="auto"
+                      />
+                    </Field>
+
+                    {form.tipo_valor_frete_cotacao_bid_frete_internacional === 'FAIXA_PESO' && (
+                      <div
+                        className="nc-cargo-cubagem-detalhe-panel nc-fade-in"
+                        role="region"
+                        aria-labelledby="nc-faixas-valor-cotacao-title"
+                      >
+                        <p id="nc-faixas-valor-cotacao-title" className="nc-helper-desc">
+                          {t('bidfrete.nova_cotacao.desc_faixas_valor_cotacao', {
+                            defaultValue:
+                              'Informe os limites de peso e a unidade (kg ou m³) para cada faixa solicitada ao fornecedor.',
+                          })}
+                        </p>
+                        {form.linhas_faixa_valor_frete_cotacao.map((linha, indice) => (
+                          <div key={linha.id_linha_faixa_valor_frete_cotacao} className="nc-linha-container-row nc-linha-faixa-valor-row">
+                            <Field
+                              label={rotuloOrdemFaixaValorFreteCotacao(indice + 1).toUpperCase()}
+                              icone={<Scales {...ICONE_FIELD} />}
+                            >
+                              <div className="nc-input-group">
+                                <input
+                                  className="nc-input nc-input--with-suffix"
+                                  type="text"
+                                  inputMode="decimal"
+                                  placeholder="Ex: 45 ou -45"
+                                  value={linha.limite_inferior_kg_faixa_valor_frete_cotacao}
+                                  onChange={(e) => {
+                                    const valor = e.target.value
+                                    setForm((prev) => ({
+                                      ...prev,
+                                      linhas_faixa_valor_frete_cotacao: prev.linhas_faixa_valor_frete_cotacao.map(
+                                        (l) => l.id_linha_faixa_valor_frete_cotacao === linha.id_linha_faixa_valor_frete_cotacao
+                                          ? { ...l, limite_inferior_kg_faixa_valor_frete_cotacao: valor }
+                                          : l,
+                                      ),
+                                    }))
+                                  }}
+                                />
+                                <span className="nc-input-suffix">kg</span>
+                              </div>
+                            </Field>
+                            <Field label="UNIDADE" icone={<Ruler {...ICONE_FIELD} />}>
+                              <SelectGlobal
+                                opcoes={opcoesSelectUnidadeFaixaValorFreteKgsBidFreteInternacional()}
+                                valor={valorSelectUnidadeFaixaValorFreteKgsBidFreteInternacional(
+                                  linha.unidade_faixa_valor_frete_cotacao,
+                                )}
+                                aoMudarValor={(v) => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    linhas_faixa_valor_frete_cotacao: prev.linhas_faixa_valor_frete_cotacao.map(
+                                      (l) => l.id_linha_faixa_valor_frete_cotacao === linha.id_linha_faixa_valor_frete_cotacao
+                                        ? {
+                                          ...l,
+                                          unidade_faixa_valor_frete_cotacao:
+                                            unidadeFaixaValorFreteKgsFromSelectBidFreteInternacional(v),
+                                        }
+                                        : l,
+                                    ),
+                                  }))
+                                }}
+                                placeholder={ROTULO_SELECT_UNIDADE_FAIXA_VALOR_FRETE_PENDENTE_BID_FRETE_INTERNACIONAL}
+                                posicao="auto"
+                              />
+                            </Field>
+                            {form.linhas_faixa_valor_frete_cotacao.length > 1 && (
+                              <button
+                                type="button"
+                                className="nc-btn-remover-linha"
+                                onClick={() => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    linhas_faixa_valor_frete_cotacao: prev.linhas_faixa_valor_frete_cotacao.filter(
+                                      (l) => l.id_linha_faixa_valor_frete_cotacao !== linha.id_linha_faixa_valor_frete_cotacao,
+                                    ),
+                                  }))
+                                }}
+                                aria-label="Remover faixa"
+                              >
+                                <Trash size={16} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className="nc-btn-adicionar-linha"
+                          onClick={() => {
+                            setForm((prev) => ({
+                              ...prev,
+                              linhas_faixa_valor_frete_cotacao: [
+                                ...prev.linhas_faixa_valor_frete_cotacao,
+                                criarLinhaFaixaValorFreteCotacaoVazia(),
+                              ],
+                            }))
+                          }}
+                        >
+                          <Plus size={14} weight="bold" />
+                          {t('bidfrete.nova_cotacao.adicionar_faixa_peso', { defaultValue: 'Incluir faixa' })}
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </section>
@@ -4854,6 +5239,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             : '',
         ].filter(Boolean).join(' | ')
 
+        const textoFaixasValorFreteResumo = modal === 'AEREO'
+          && form.tipo_valor_frete_cotacao_bid_frete_internacional === 'FAIXA_PESO'
+          ? textoFaixasValorFreteCotacaoResumoNovaCotacao(form.linhas_faixa_valor_frete_cotacao)
+          : null
+
         const textoCargaPerigosaResumo = form.eh_carga_perigosa_cotacao_bid_frete_internacional
           ? [
               form.numero_onu_cotacao_bid_frete_internacional
@@ -4901,6 +5291,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
         return (
           <div className="nc-step-content">
+            {fluxoSmartReadAtivo ? (
+              <AvisoCamposObrigatoriosSmartRead
+                camposFaltantes={camposFaltantesSmartRead}
+                passoCorrecao={passoCorrecaoSmartRead}
+                onIrCompletar={irParaPassoCorrecaoSmartRead}
+              />
+            ) : null}
             <NcSectionTitle icone={<FileText {...ICONE_LABEL_SECAO} />}>
               {t('bidfrete.nova_cotacao.resumo_cotacao')}
             </NcSectionTitle>
@@ -5208,6 +5605,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   <span className="nc-receipt-label"><Tag size={14} />{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
                   <span className="nc-receipt-value nc-receipt-value--incoterm">{form.incoterm_cotacao_bid_frete_internacional || '—'}</span>
                 </div>
+                {textoFaixasValorFreteResumo && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">
+                      <Scales size={14} />
+                      {t('bidfrete.nova_cotacao.resumo_faixas_peso', { defaultValue: 'Faixas de peso' })}
+                    </span>
+                    <span className="nc-receipt-value">{textoFaixasValorFreteResumo}</span>
+                  </div>
+                )}
                 {form.valor_meta_cotacao_bid_frete_internacional && (
                   <div className="nc-receipt-row">
                     <span className="nc-receipt-label"><Hash size={14} />{t('bidfrete.nova_cotacao.valor_alvo')}</span>
@@ -5281,6 +5687,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   // ─── Sucesso ──────────────────────────────────────────────────────────
   const handleFechar = () => {
+    if (fluxoSmartReadRef.current) {
+      limparPrefillSmartReadNovaCotacaoBidFreteInternacional()
+    }
     navigate(
       idPainelLista
         ? buildRotaListaBidFreteComPainelAtivo(idPainelLista)
@@ -5305,6 +5714,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   const handleVoltar = () => {
+    if (fluxoSmartReadRef.current && step === passoFornecedoresWizard) {
+      handleFechar()
+      return
+    }
     if (step > 1) setStep((s) => s - 1)
     else handleFechar()
   }

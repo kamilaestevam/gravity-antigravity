@@ -80,8 +80,24 @@ export const MANUAL_MARKUP_ITALICO_LITERAL_UI = '*_'
 /** Parágrafos dentro de subtópico em acordeão — respiro extra para leitura confortável. */
 export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16
 
+/** Espaço entre o cabeçalho clicável do subtópico e o primeiro parágrafo/conteúdo. */
+export const MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX = 16
+
 /** Espaço entre bloco de texto e screenshot em subtópico recolhível. */
 export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 6
+
+/**
+ * REGRA ÚNICA — vão (margem medida) entre uma frase introdutória e a imagem/figura
+ * que ela apresenta. Fonte da verdade para todo par «frase → print/infográfico».
+ * Não usar valores ad hoc; sempre referenciar esta constante.
+ */
+export const MANUAL_ESPACO_FRASE_IMAGEM_PX = 4
+
+/**
+ * REGRA ÚNICA — vão (margem medida) entre o fim de uma imagem/figura e o próximo texto.
+ * Complementa `MANUAL_ESPACO_FRASE_IMAGEM_PX` (sentido inverso). Não usar valores ad hoc.
+ */
+export const MANUAL_ESPACO_IMAGEM_FRASE_PX = 12
 
 /** Subtópico acordeão — sem recuo lateral (alinhado a infográficos e galerias). */
 export const MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX = 0
@@ -129,17 +145,20 @@ export const MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX = MANUAL_ESPACO_ENTRE_P
 /** Gap horizontal entre colunas em galerias PASSO (prints lado a lado). */
 export const MANUAL_ESPACO_GRADE_GALERIA_PX = 24
 
+/** Gap entre cards de capítulo no acordeão (doc-sec-N) e entre subtópicos de 1º nível (ex.: 4.01, 4.02). */
+export const MANUAL_ACORDEON_SECAO_GAP_PX = MANUAL_ESPACO_ENTRE_PASSOS_PX
+
 /** Hierarquia visual — subtópicos aninhados no acordeão (ex.: Cotação avulsa → Manual → Marítimo). */
 export const MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX = 22
 export const MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX = 20
 export const MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX = 28
-export const MANUAL_ACORDEON_SUBTOPICO_GAP_PX = 14
+export const MANUAL_ACORDEON_SUBTOPICO_GAP_PX = MANUAL_ESPACO_ENTRE_PASSOS_PX
 export const MANUAL_ACORDEON_SUBTOPICO_COR_LINHA = 'rgba(129,140,248,.38)'
 export const MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA = `2px dotted ${MANUAL_ACORDEON_SUBTOPICO_COR_LINHA}`
 
 /** Sumário — árvore de subcapítulos (paridade visual com acordeão aninhado). */
 export const MANUAL_SUMARIO_SUBTOPICO_RECUO_PX = 18
-export const MANUAL_SUMARIO_SUBTOPICO_GAP_PX = 11
+export const MANUAL_SUMARIO_SUBTOPICO_GAP_PX = MANUAL_ESPACO_ENTRE_PASSOS_PX
 export const MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX = 8
 export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX = 14
 export const MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX = 6

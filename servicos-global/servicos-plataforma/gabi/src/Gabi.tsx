@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useGabiAuthHeaders } from './use-gabi-auth-headers';
 import {
   PaperPlaneRight,
   Image as ImageIcon,
@@ -21,7 +22,7 @@ import {
 } from '@phosphor-icons/react';
 import './Gabi.css';
 
-// ── Tipos ──────────────────────────────────────────────────────────────────
+// ?? Tipos ??????????????????????????????????????????????????????????????????
 
 interface ToolCallLog {
   tool_id: string;
@@ -68,7 +69,7 @@ interface GabiChatProps {
 const escapeHtml = (str: string) =>
   str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Safe markdown-like renderer — returns React elements instead of raw HTML */
+/** Safe markdown-like renderer ? returns React elements instead of raw HTML */
 const renderMessageContent = (content: string): React.ReactNode => {
   const escaped = escapeHtml(content);
   const lines = escaped.split('\n');
@@ -101,6 +102,13 @@ const renderMessageContent = (content: string): React.ReactNode => {
 
 export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeaders }: GabiChatProps) {
   const { t } = useTranslation();
+  const obterGabiAuthHeaders = useGabiAuthHeaders();
+  const montarRequestHeaders = useCallback(async (): Promise<Record<string, string> | undefined> => {
+    const auth = await obterGabiAuthHeaders();
+    if (!auth) return undefined;
+    const { Authorization: _ignorar, ...contextoSemBearer } = extraHeaders ?? {};
+    return { ...contextoSemBearer, ...auth };
+  }, [obterGabiAuthHeaders, extraHeaders]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -139,10 +147,12 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
   const handleConfirm = useCallback(async (nonce: string, toolId: string) => {
     if (apiBaseUrl === undefined) return;
     try {
+      const requestHeaders = await montarRequestHeaders();
+      if (!requestHeaders) return;
       addTransparency(`Confirmando ${toolId}...`);
       const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/agente/confirmar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({ nonce, tool_id: toolId }),
       });
       const data = await resp.json();
@@ -160,7 +170,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
     } catch {
       addTransparency('Erro ao confirmar acao');
     }
-  }, [apiBaseUrl, extraHeaders, addTransparency]);
+  }, [apiBaseUrl, montarRequestHeaders, addTransparency]);
 
   const handleReject = useCallback((nonce: string) => {
     setMessages((prev) =>
@@ -178,15 +188,17 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
     );
     if (apiBaseUrl === undefined) return;
     try {
+      const requestHeaders = await montarRequestHeaders();
+      if (!requestHeaders) return;
       await fetch(`${apiBaseUrl}/api/v1/gabi/agente/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({ id_conversa: conversationId, id_mensagem: messageId, tipo }),
       });
     } catch {
       // Fire-and-forget
     }
-  }, [apiBaseUrl, extraHeaders, conversationId]);
+  }, [apiBaseUrl, montarRequestHeaders, conversationId]);
 
   const handleSend = useCallback(async (textOverride?: string) => {
     const textToSend = textOverride || inputVal;
@@ -210,7 +222,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
     abortRef.current = new AbortController();
 
     if (apiBaseUrl === undefined) {
-      // Fallback mock — apenas quando explicitamente sem backend
+      // Fallback mock ? apenas quando explicitamente sem backend
       setTimeout(() => {
         setIsTyping(false);
         clearTransparency();
@@ -227,10 +239,26 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
       return;
     }
 
+    const requestHeaders = await montarRequestHeaders();
+    if (!requestHeaders?.Authorization) {
+      setIsTyping(false);
+      clearTransparency();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Aguarde o login ou recarregue a pagina para falar com a Gabi.',
+          timestamp: formatTime(),
+        },
+      ]);
+      return;
+    }
+
     try {
       const resp = await fetch(`${apiBaseUrl}/api/v1/gabi/chats`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...extraHeaders },
+        headers: { 'Content-Type': 'application/json', ...requestHeaders },
         body: JSON.stringify({
           conversationId,
           message: textToSend,
@@ -278,7 +306,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
       setIsTyping(false);
       clearTransparency();
     }
-  }, [inputVal, images, apiBaseUrl, extraHeaders, conversationId, addTransparency, clearTransparency]);
+  }, [inputVal, images, apiBaseUrl, montarRequestHeaders, conversationId, addTransparency, clearTransparency]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -538,7 +566,7 @@ export default function GabiChat({ onClose, apiBaseUrl = '', headers: extraHeade
           <span className="gabi-footer-note-item">
             <span className="key">Enter</span> {t('gabi.enter_enviar')}
           </span>
-          <span className="gabi-footer-note-item">·</span>
+          <span className="gabi-footer-note-item">?</span>
           <span className="gabi-footer-note-item">
             <ImageIcon size={12} /> {t('gabi.cole_imagem')}
           </span>

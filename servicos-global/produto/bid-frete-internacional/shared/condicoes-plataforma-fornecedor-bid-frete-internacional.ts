@@ -5,8 +5,18 @@
  * SSOT para e-mail de disparo e página pública sem login.
  */
 
+import type { EmpresaPagadoraTaxaFechamentoPlataformaGravity } from './empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import {
+  ehContratanteGravityPagadorTaxaFechamento,
+  normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity,
+} from './empresa-pagadora-taxa-fechamento-plataforma-bid-frete-internacional.js'
+import { anexarTokenQueryContratoPlataformaBidFreteInternacional } from './identificacao-eletronica-contrato-bid-frete-internacional.js'
+
 export const ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL =
   '/bid-frete/visao-fornecedor-bid-frete-internacional/condicoes-plataforma'
+
+const ROTA_BASE_CONTRATO_PROPOSTA_PLATAFORMA =
+  '/bid-frete/visao-fornecedor-bid-frete-internacional/contrato-proposta'
 
 /** Taxa cobrada quando o cliente fecha o frete com o fornecedor na plataforma. */
 export const TAXA_FECHAMENTO_FRETE_USD = 10
@@ -24,14 +34,36 @@ export const DATA_VIGENCIA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACION
 export const TITULO_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL =
   'Aviso de Condições Comerciais — Fornecedores'
 
+export function extrairTokenDisparoDeLinkRespostaBidFreteInternacional(linkResposta: string): string | null {
+  try {
+    const segmentos = new URL(linkResposta).pathname.split('/').filter(Boolean)
+    return segmentos[segmentos.length - 1]?.trim() || null
+  } catch {
+    return null
+  }
+}
+
 export function resolverUrlCondicoesPlataformaFornecedorBidFreteInternacional(
   linkResposta: string,
+  pagador?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null,
+  token_disparo?: string | null,
 ): string {
+  const pagadorNormalizado = normalizarEmpresaPagadoraTaxaFechamentoPlataformaGravity(pagador)
+  const slug = ehContratanteGravityPagadorTaxaFechamento(pagadorNormalizado)
+    ? 'pagamento-contratante-gravity'
+    : 'pagamento-fornecedor'
+  const rotaBase = `${ROTA_BASE_CONTRATO_PROPOSTA_PLATAFORMA}/${slug}`
+  const token = token_disparo?.trim()
+    || extrairTokenDisparoDeLinkRespostaBidFreteInternacional(linkResposta)
+  const rotaComToken = anexarTokenQueryContratoPlataformaBidFreteInternacional(rotaBase, {
+    token_disparo: token,
+  })
   try {
     const url = new URL(linkResposta)
-    return `${url.origin}${ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL}`
+    const [path, query = ''] = rotaComToken.split('?')
+    return query ? `${url.origin}${path}?${query}` : `${url.origin}${path}`
   } catch {
-    return ROTA_CONDICOES_PLATAFORMA_FORNECEDOR_BID_FRETE_INTERNACIONAL
+    return rotaComToken
   }
 }
 

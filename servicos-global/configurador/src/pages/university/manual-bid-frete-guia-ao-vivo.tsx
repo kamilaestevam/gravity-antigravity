@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   ArrowFatLinesUp,
   CaretDown,
@@ -18,6 +18,31 @@ import {
 
 const CORPO = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 78%, transparent)'
 const CORPO_MUTED = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 58%, transparent)'
+
+/** Campos cujos 9 chips "Aplica-se em" ficam todos ativos, sem filtro pelo modal/tipo escolhido. */
+const CAMPOS_GUIA_TAGS_TODAS_ATIVAS = new Set<string>([
+  'carga_perigosa',
+  'portos_proximos_origem',
+  'portos_proximos_destino',
+  'coleta_origem',
+  'entrega_destino',
+  'ncm',
+  'descricao_mercadoria',
+  'hs_code',
+  'numero_onu',
+  'quantidade',
+  'peso_cubagem',
+  'incoterm',
+  'valor_alvo',
+  'prazo_respostas',
+  'fornecedor_pode_alterar',
+  'tipo_visibilidade',
+  'proposta_anonima',
+  'fornecedores',
+])
+
+/** Porto de embarque/destino — perfil fixo marítimo (imagem de referência). */
+const CAMPOS_GUIA_TAGS_PERFIL_PORTO = new Set<string>(['porto_origem', 'porto_destino'])
 
 /** Metadados de um campo acompanhado pelo painel Guia ao vivo. */
 export type CampoGuiaAoVivo<Id extends string = string> = {
@@ -142,6 +167,8 @@ function ConteudoExpandidoGuia<Id extends string>({
     || campo.aplicavelOperacao?.length
     || campo.habilitaPassosPosteriores?.length
     || campo.obrigatorio !== undefined
+  const tagsTodasAtivas = CAMPOS_GUIA_TAGS_TODAS_ATIVAS.has(campo.id)
+  const perfilTagsPorto = CAMPOS_GUIA_TAGS_PERFIL_PORTO.has(campo.id)
 
   if (!paragrafo && !temMetadadosRicos) return null
 
@@ -219,7 +246,11 @@ function ConteudoExpandidoGuia<Id extends string>({
           aplicavelOperacao={campo.aplicavelOperacao}
           aplicavelModal={campo.aplicavelModal}
           aplicavelModalidade={campo.aplicavelModalidade}
-          contexto={contextoSimulador}
+          contexto={tagsTodasAtivas ? undefined : contextoSimulador}
+          exibirTodasAtivas={tagsTodasAtivas}
+          perfilTagsPorto={perfilTagsPorto}
+          perfilTagsTipoOperacao={campo.id === 'tipo_operacao'}
+          perfilTagsModalidade={campo.id === 'modalidade'}
         />
       ) : null}
 
@@ -319,6 +350,7 @@ function LinhaGuiaAoVivo<Id extends string>({
         onClick={onToggle}
         title={`${campo.rotulo}: ${valor}`}
         aria-expanded={expandida}
+        aria-label={expandida ? `Recolher ${campo.rotulo}` : `Expandir ${campo.rotulo}`}
         className="sim-guia-linha"
         style={{
           display: 'flex',
@@ -420,29 +452,36 @@ type ManualBidFreteGuiaAoVivoProps<Id extends string> = {
   campoAtivo: Id | null
   textoContextual?: string
   contextoSimulador?: ContextoSimuladorModalOperacao
-  onSelecionarCampo: (id: Id) => void
+  onSelecionarCampo?: (id: Id) => void
+  /** Anima o estado vazio enquanto a demo aguarda o primeiro clique. */
+  conviteInterativo?: boolean
 }
 
-/** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação em acordeão. */
+/** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação do campo em foco. */
 export function ManualBidFreteGuiaAoVivo<Id extends string>({
   campos,
   selecoes,
   campoAtivo,
   textoContextual,
   contextoSimulador,
-  onSelecionarCampo,
+  conviteInterativo = false,
 }: ManualBidFreteGuiaAoVivoProps<Id>) {
   const totalCampos = campos.length
   const progresso = totalCampos > 0 ? Math.min(selecoes.length / totalCampos, 1) : 0
   const listaRef = useRef<HTMLDivElement>(null)
-  const cardAtivoRef = useRef<HTMLDivElement>(null)
+  const cardAbertoRef = useRef<HTMLDivElement>(null)
+  const [cardAbertoId, setCardAbertoId] = useState<Id | null>(null)
 
   const resolverCampo = (id: Id) => campos.find((campo) => campo.id === id)
 
   useEffect(() => {
-    if (!campoAtivo || !cardAtivoRef.current || !listaRef.current) return
-    cardAtivoRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [campoAtivo, selecoes.length])
+    if (campoAtivo) setCardAbertoId(campoAtivo)
+  }, [campoAtivo])
+
+  useEffect(() => {
+    if (!cardAbertoId || !cardAbertoRef.current || !listaRef.current) return
+    cardAbertoRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [cardAbertoId, selecoes.length])
 
   return (
     <aside
@@ -489,19 +528,20 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
           {selecoes.map((selecao) => {
             const campo = resolverCampo(selecao.id)
             if (!campo) return null
-            const expandida = campoAtivo === selecao.id
+            const expandida = cardAbertoId === selecao.id
             return (
-              <div
-                key={selecao.id}
-                ref={expandida ? cardAtivoRef : undefined}
-              >
+              <div key={selecao.id} ref={expandida ? cardAbertoRef : undefined}>
                 <LinhaGuiaAoVivo
                   campo={campo}
                   valor={selecao.valor}
                   expandida={expandida}
-                  textoExplicacao={expandida ? textoContextual : undefined}
+                  textoExplicacao={
+                    expandida && cardAbertoId === campoAtivo ? textoContextual : undefined
+                  }
                   contextoSimulador={contextoSimulador}
-                  onToggle={() => onSelecionarCampo(selecao.id)}
+                  onToggle={() => {
+                    setCardAbertoId((prev) => (prev === selecao.id ? null : selecao.id))
+                  }}
                 />
               </div>
             )
@@ -509,43 +549,19 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
         </div>
       ) : (
         <div
-          className="sim-guia-sticky-col__lista"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            borderRadius: 12,
-            border: '1px dashed rgba(129,140,248,.22)',
-            background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(15,23,42,.35) 100%)',
-            padding: '40px 18px',
-            marginBottom: 2,
-            flex: 1,
-            justifyContent: 'center',
-            minHeight: 220,
-          }}
+          className={[
+            'sim-guia-sticky-col__lista',
+            'sim-guia-convite-vazio',
+            conviteInterativo ? 'sim-guia-convite-vazio--ativo' : '',
+          ].filter(Boolean).join(' ')}
         >
-          <span style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(99,102,241,.14)',
-            border: '1px solid rgba(129,140,248,.28)',
-          }}>
+          <span
+            className={conviteInterativo ? 'sim-guia-convite-vazio__icone sim-affordance-guia-convite' : 'sim-guia-convite-vazio__icone'}
+          >
             <CursorClick size={24} weight="duotone" color="var(--ws-accent, var(--color-primary, #818cf8))" aria-hidden />
           </span>
-          <p style={{
-            margin: 0,
-            fontSize: '.76rem',
-            lineHeight: 1.55,
-            color: CORPO,
-            textAlign: 'center',
-            maxWidth: 260,
-          }}>
-            Selecione uma opção na tela ao lado: cada escolha fica registrada aqui, com a explicação do campo.
+          <p className="sim-guia-convite-vazio__texto">
+            Selecione uma opção na tela ao lado: cada escolha fica registrada aqui. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai. Clique em um card já preenchido se quiser revisar os detalhes.
           </p>
         </div>
       )}

@@ -2540,6 +2540,22 @@
   gap: 0.625rem;
   margin-bottom: 1rem;
   flex-shrink: 0;
+  --sr-conf-resumo-barra-altura: 0.5rem;
+}
+
+.sr-conf-resumo-triplo .sr-conf-progresso-barra,
+.sr-conf-resumo-triplo .sr-chk-info-barra,
+.sr-conf-resumo-triplo .sr-conf-resumo-checklist-barra {
+  height: var(--sr-conf-resumo-barra-altura);
+  min-height: var(--sr-conf-resumo-barra-altura);
+}
+
+.sr-conf-resumo-triplo .sr-conf-riscos-seg-bar,
+.sr-conf-resumo-triplo .sr-conf-riscos-seg-bar--compacta {
+  height: var(--sr-conf-resumo-barra-altura);
+  min-height: var(--sr-conf-resumo-barra-altura);
+  margin-top: 0;
+  max-width: none;
 }
 
 .sr-conf-resumo-bloco {
@@ -2721,8 +2737,7 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 }
 
 .sr-conf-riscos-seg-bar--compacta {
-  height: 0.375rem;
-  margin-top: 0.125rem;
+  margin-top: 0;
 }
 
 .sr-conf-resumo-checklist-pct {
@@ -2740,7 +2755,6 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 
 .sr-conf-resumo-checklist-barra {
   width: 100%;
-  height: 0.5rem;
   border-radius: 999px;
 }
 
@@ -3518,20 +3532,67 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   outline: none;
 }
 
+/* Tooltip de regra — análise + base legal */
+.sr-conf-chk-tooltip-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.45;
+}
+
+.sr-conf-chk-tooltip-analise {
+  display: block;
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+.sr-conf-chk-tooltip-separador {
+  display: block;
+  height: 1px;
+  margin: 0.5rem 0 0.4375rem;
+  background: rgba(129, 140, 248, 0.22);
+}
+
+.sr-conf-chk-tooltip-base-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  line-height: 1.2;
+}
+
+.sr-conf-chk-tooltip-base-texto {
+  display: block;
+  font-size: 0.6875rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+body.light-theme .sr-conf-chk-tooltip-analise {
+  color: #475569;
+}
+
+body.light-theme .sr-conf-chk-tooltip-separador {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+body.light-theme .sr-conf-chk-tooltip-base-cabecalho {
+  color: #6366f1;
+}
+
+body.light-theme .sr-conf-chk-tooltip-base-texto {
+  color: #64748b;
+}
+
 .sr-conf-chk-item-nome {
   display: block;
   font-weight: 600;
   line-height: 1.35;
-}
-
-.sr-conf-chk-item-motor {
-  display: inline-block;
-  margin-top: 0.125rem;
-  font-size: 0.625rem;
-  color: var(--text-muted);
-  padding: 0.0625rem 0.3125rem;
-  border-radius: 0.1875rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .sr-conf-chk-resultado {
@@ -3882,6 +3943,15 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   color: var(--text-muted);
 }
 
+.sr-chk-modal-aviso-analise {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+}
+
 /* Faixa de score + classificação de risco — checklist do packing list */
 .sr-chk-modal-score-pl {
   display: flex;
@@ -4022,9 +4092,24 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 
 .sr-chk-info-topo-dir {
   display: grid;
-  grid-template-columns: auto auto minmax(12rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: 0.75rem 1rem;
+}
+
+.sr-chk-info-invoices-linha--cards {
+  width: 100%;
+  min-width: 0;
+}
+
+.sr-chk-info-invoice-card--ativo {
+  border-color: rgba(129, 140, 248, 0.55);
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.28);
+}
+
+.sr-chk-info-invoice-card--interno:not(.sr-chk-info-invoice-card--destaque) {
+  width: auto;
 }
 
 .sr-chk-info-grafico-conferido {
@@ -4144,6 +4229,12 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
   gap: 0.5rem;
   flex: 0 0 auto;
   align-self: flex-start;
+}
+
+.sr-chk-info-invoice-topo-esq--grid {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
 }
 
 .sr-chk-info-invoices-destaque {
@@ -4418,6 +4509,95 @@ button.sr-conf-resumo-bloco:hover:not(.sr-conf-resumo-bloco--riscos-ativo):not(
 
 .sr-chk-info-barra--pendente {
   background: #64748b;
+}
+
+@keyframes sr-barra-em-analise-shimmer {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes sr-barra-em-analise-faixas {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 14px 0;
+  }
+}
+
+@keyframes sr-barra-em-analise-borda {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(96, 165, 250, 0.18),
+      0 0 0 0 rgba(96, 165, 250, 0);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(147, 197, 253, 0.45),
+      0 0 8px 0 rgba(96, 165, 250, 0.28);
+  }
+}
+
+.sr-chk-info-barra--em-analise,
+.sr-conf-riscos-seg-bar--em-analise,
+.sr-conf-progresso-barra--em-analise {
+  position: relative;
+  overflow: hidden;
+  animation: sr-barra-em-analise-borda 1.8s ease-in-out infinite;
+}
+
+.sr-chk-info-barra--em-analise > :not(.sr-barra-overlay-em-analise),
+.sr-conf-riscos-seg-bar--em-analise > :not(.sr-barra-overlay-em-analise) {
+  position: relative;
+  z-index: 0;
+}
+
+.sr-barra-overlay-em-analise {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sr-barra-overlay-em-analise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  background: repeating-linear-gradient(
+    -58deg,
+    transparent 0,
+    transparent 5px,
+    rgba(96, 165, 250, 0.18) 5px,
+    rgba(96, 165, 250, 0.18) 10px
+  );
+  background-size: 14px 14px;
+  animation: sr-barra-em-analise-faixas 0.85s linear infinite;
+}
+
+.sr-barra-overlay-em-analise::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(186, 230, 253, 0.2) 30%,
+    rgba(224, 242, 254, 0.65) 50%,
+    rgba(186, 230, 253, 0.2) 70%,
+    transparent 100%
+  );
+  animation: sr-barra-em-analise-shimmer 1.6s ease-in-out infinite;
 }
 
 .sr-chk-info-legenda {

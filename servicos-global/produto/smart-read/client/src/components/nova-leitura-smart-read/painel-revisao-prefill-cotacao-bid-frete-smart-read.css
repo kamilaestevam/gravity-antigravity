@@ -1,0 +1,116 @@
+.sr-prefill-bid-revisao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px 8px;
+}
+
+.sr-prefill-bid-revisao-cabecalho {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--ws-text, #e2e8f0);
+}
+
+.sr-prefill-bid-revisao-titulo {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sr-prefill-bid-revisao-subtitulo {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ws-text, #e2e8f0) 72%, transparent);
+}
+
+.sr-prefill-bid-revisao-tabela {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(8, 12, 24, 0.28);
+}
+
+.sr-prefill-bid-revisao-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) 110px;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  font-size: 0.78rem;
+  align-items: center;
+}
+
+.sr-prefill-bid-revisao-linha--cabecalho {
+  border-top: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ws-muted, #94a3b8);
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.sr-prefill-bid-revisao-campo {
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.sr-prefill-bid-revisao-valor {
+  color: #e2e8f0;
+  word-break: break-word;
+}
+
+.sr-prefill-bid-revisao-status {
+  justify-self: start;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sr-prefill-bid-revisao-status--mapeado {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.28);
+}
+
+.sr-prefill-bid-revisao-status--sugerido {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+}
+
+.sr-prefill-bid-revisao-status--pendente {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.24);
+}
+
+.sr-prefill-bid-revisao-status--rejeitado,
+.sr-prefill-bid-revisao-status--ignorado {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sr-prefill-bid-revisao-status--editado {
+  background: rgba(129, 140, 248, 0.14);
+  color: #a5b4fc;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.sr-prefill-bid-revisao-aviso {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #fbbf24;
+}
+
+.sr-prefill-bid-revisao-acoes {
+  display: flex;
+  justify-content: flex-end;
+}

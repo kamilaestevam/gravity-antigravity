@@ -24,6 +24,7 @@ import {
   type CardDefinicaoSmartRead,
 } from '../shared/use-preferencias-cards-smart-read'
 import { LinkMetodologiaSavingInsightsSmartRead } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
+import { ehStatusFluxoConcluidaKpi } from '../../../shared/status-fluxo-leitura-smart-read'
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -81,7 +82,7 @@ function renderCard(
 
   if (card.id === 'leituras_realizadas') {
     const valor = carregando ? '…' : (totalLeituras ?? transacoes.length)
-    const concluidas = transacoes.filter((t) => t.status_leitura === 'COMPLETED').length
+    const concluidas = transacoes.filter((t) => ehStatusFluxoConcluidaKpi(t.status_fluxo_leitura)).length
     return (
       <CardBasicoGlobal
         key={card.id}

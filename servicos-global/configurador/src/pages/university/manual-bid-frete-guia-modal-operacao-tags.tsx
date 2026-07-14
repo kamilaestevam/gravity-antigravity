@@ -113,7 +113,41 @@ function resolverEstadoTag(
   aplicavel: readonly string[],
   contexto: ContextoSimuladorModalOperacao | undefined,
   tipoContexto: 'operacao' | 'modal' | 'modalidade',
+  exibirTodasAtivas = false,
+  perfilTagsPorto = false,
+  perfilTagsTipoOperacao = false,
+  perfilTagsModalidade = false,
 ): EstadoTagGuia {
+  if (exibirTodasAtivas) return 'ativo'
+
+  if (perfilTagsTipoOperacao && tipoContexto === 'operacao') {
+    if (!contexto?.tipo_operacao) return 'aplica'
+    return contexto.tipo_operacao === id ? 'ativo' : 'inativo'
+  }
+
+  if (perfilTagsModalidade && tipoContexto === 'modalidade') {
+    if (!contexto?.modalidade) return 'aplica'
+    return contexto.modalidade === id ? 'ativo' : 'inativo'
+  }
+
+  if (perfilTagsPorto) {
+    if (contexto?.modal_frete === 'RODOVIARIO') {
+      if (tipoContexto === 'operacao') {
+        if (!contexto.tipo_operacao) return 'aplica'
+        return contexto.tipo_operacao === id ? 'ativo' : 'inativo'
+      }
+      if (tipoContexto === 'modal') return id === 'RODOVIARIO' ? 'ativo' : 'inativo'
+      if (id === 'FCL' || id === 'LCL') return 'inativo'
+      if (!contexto.modalidade) return 'aplica'
+      return contexto.modalidade === id ? 'ativo' : 'inativo'
+    }
+    if (contexto?.modal_frete === 'MARITIMO') {
+      if (tipoContexto === 'operacao') return 'ativo'
+      if (tipoContexto === 'modal') return id === 'MARITIMO' ? 'ativo' : 'inativo'
+      return id === 'FCL' || id === 'LCL' ? 'ativo' : 'inativo'
+    }
+  }
+
   const aplicaCampo = aplicavel.length === 0 || aplicavel.includes(id)
 
   if (!contexto) {
@@ -232,6 +266,10 @@ type TagsContextoCampoGuiaProps = {
   aplicavelModal: readonly ModalGuiaTag[]
   aplicavelModalidade: readonly ModalidadeGuiaTag[]
   contexto?: ContextoSimuladorModalOperacao
+  exibirTodasAtivas?: boolean
+  perfilTagsPorto?: boolean
+  perfilTagsTipoOperacao?: boolean
+  perfilTagsModalidade?: boolean
 }
 
 /** Tags de contexto — operação, modal e modalidade (FCL/LCL/FTL/LTL sempre visíveis). */
@@ -240,6 +278,10 @@ export function TagsContextoCampoGuia({
   aplicavelModal,
   aplicavelModalidade,
   contexto,
+  exibirTodasAtivas = false,
+  perfilTagsPorto = false,
+  perfilTagsTipoOperacao = false,
+  perfilTagsModalidade = false,
 }: TagsContextoCampoGuiaProps) {
   return (
     <div style={{
@@ -275,7 +317,7 @@ export function TagsContextoCampoGuia({
           <TagChip
             key={tag.id}
             tag={tag}
-            estado={resolverEstadoTag(tag.id, aplicavelOperacao, contexto, 'operacao')}
+            estado={resolverEstadoTag(tag.id, aplicavelOperacao, contexto, 'operacao', exibirTodasAtivas, perfilTagsPorto, perfilTagsTipoOperacao, perfilTagsModalidade)}
             somenteIcone
           />
         ))}
@@ -284,7 +326,7 @@ export function TagsContextoCampoGuia({
           <TagChip
             key={tag.id}
             tag={tag}
-            estado={resolverEstadoTag(tag.id, aplicavelModal, contexto, 'modal')}
+            estado={resolverEstadoTag(tag.id, aplicavelModal, contexto, 'modal', exibirTodasAtivas, perfilTagsPorto, perfilTagsTipoOperacao, perfilTagsModalidade)}
             somenteIcone
           />
         ))}
@@ -293,7 +335,7 @@ export function TagsContextoCampoGuia({
           <TagChip
             key={tag.id}
             tag={tag}
-            estado={resolverEstadoTag(tag.id, aplicavelModalidade, contexto, 'modalidade')}
+            estado={resolverEstadoTag(tag.id, aplicavelModalidade, contexto, 'modalidade', exibirTodasAtivas, perfilTagsPorto, perfilTagsTipoOperacao, perfilTagsModalidade)}
           />
         ))}
       </div>

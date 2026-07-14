@@ -1,4 +1,4 @@
-﻿/**
+/**
  * servico-analise-riscos-leitura-smart-read.ts — Pipeline Matriz Invoice: P1 Código → P2 API CNPJ → P3 LLM
  */
 
@@ -14,7 +14,18 @@ import {
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { aplicarFalhasMatrizAoResumoRiscos } from '../../../shared/montar-checklist-matriz-invoice-smart-read.js'
+import { complementarRiscosAgregadoresBlNoResumo } from '../../../shared/montar-checklist-matriz-bl-smart-read.js'
 import { executarPasso1ValidacaoCodigoPackingList } from '../../../shared/passo-1-validacao-codigo-packing-list-smart-read.js'
+import { executarPasso1ValidacaoCodigoAwb } from '../../../shared/passo-1-validacao-codigo-awb-smart-read.js'
+import { executarPasso1ValidacaoCodigoBl, filtrarRiscosLlmBlFreteCoerente } from '../../../shared/passo-1-validacao-codigo-bl-smart-read.js'
+import {
+  ehTipoCertificadoOrigem,
+  executarPasso1ValidacaoCodigoCertificadoOrigem,
+} from '../../../shared/passo-1-validacao-codigo-certificado-origem-smart-read.js'
+import {
+  ehTipoCertificadoFitossanitario,
+  executarPasso1ValidacaoCodigoCertificadoFitossanitario,
+} from '../../../shared/passo-1-validacao-codigo-certificado-fitossanitario-smart-read.js'
 import {
   anexarDisclaimerClassificacao,
   DISCLAIMER_CLASSIFICACAO_FISCAL,
@@ -33,9 +44,42 @@ import {
   montarPromptAnalistaPackingList,
 } from './prompt-analista-packing-list-smart-read.js'
 import {
+  SYSTEM_PROMPT_ANALISTA_AWB,
+  montarPromptAnalistaAwb,
+} from './prompt-analista-awb-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_BL,
+  montarPromptAnalistaBl,
+} from './prompt-analista-bl-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_CERTIFICADO_ORIGEM,
+  montarPromptAnalistaCertificadoOrigem,
+} from './prompt-analista-certificado-origem-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_CERTIFICADO_FITOSSANITARIO,
+  montarPromptAnalistaCertificadoFitossanitario,
+} from './prompt-analista-certificado-fitossanitario-smart-read.js'
+import {
+  ehTipoPedidoCompra,
+  executarPasso1ValidacaoCodigoPedidoCompra,
+} from '../../../shared/passo-1-validacao-codigo-pedido-compra-smart-read.js'
+import {
+  ehTipoPedidoVenda,
+  executarPasso1ValidacaoCodigoPedidoVenda,
+} from '../../../shared/passo-1-validacao-codigo-pedido-venda-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_PEDIDO_COMPRA,
+  montarPromptAnalistaPedidoCompra,
+} from './prompt-analista-pedido-compra-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_PEDIDO_VENDA,
+  montarPromptAnalistaPedidoVenda,
+} from './prompt-analista-pedido-venda-smart-read.js'
+import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
 } from './rag-normativo-analise-riscos-smart-read.js'
+import { criarControlePrazoPipelineAnaliseRiscos, PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS, PRAZO_GEMINI_ANALISE_RISCOS_MS, PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS } from './controle-prazo-pipeline-analise-riscos-smart-read.js'
 import { executarClassificacaoFiscalLlmLeituraSmartRead } from './servico-classificacao-fiscal-leitura-smart-read.js'
 import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
 import {
@@ -49,7 +93,7 @@ import {
 } from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
-const GEMINI_TIMEOUT_MS = 45_000
+const GEMINI_TIMEOUT_MS = PRAZO_GEMINI_ANALISE_RISCOS_MS
 
 const LlmRiscosEnvelopeSchema = z.object({
   riscos: z.array(RiscoAduaneiroLeituraSchema),
@@ -128,6 +172,7 @@ async function chamarLlmAnalistaMatriz(
     generationConfig: {
       temperature: 0.15,
       responseMimeType: 'application/json',
+      maxOutputTokens: 8192,
     },
     timeoutMs: GEMINI_TIMEOUT_MS,
   })
@@ -194,20 +239,101 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   idOrganizacao: string,
   contextoRegistro: ContextoRegistroUsoLlmLeituraSmartRead,
 ): Promise<AnaliseRiscosLeituraResponse> {
-  // Passo 1 — motor Código (aritmética, formatos, ISO, CNPJ módulo 11)
-  const { resumo: p1Resumo, contexto } = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
+  const somenteLlm = entrada.somente_llm === true && !!entrada.contexto_v1_referencia
+  const faseRapidaSemLlm = entrada.incluir_llm === false && !somenteLlm
+  const prazoMs = faseRapidaSemLlm
+    ? PRAZO_FASE_RAPIDA_ANALISE_RISCOS_MS
+    : PRAZO_MAXIMO_PIPELINE_ANALISE_RISCOS_MS
+  const prazoPipeline = criarControlePrazoPipelineAnaliseRiscos(prazoMs)
 
-  // Passo 1 PL — matriz Packing List (Código + Cross-Doc com invoice/BL)
-  const passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
-  contexto.regras = [...contexto.regras, ...passo1Pl.contexto.regras]
+  let p1Resumo: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['resumo']
+  let contexto: ReturnType<typeof executarPasso1ValidacaoCodigoInvoice>['contexto']
+  let passo1Pl: ReturnType<typeof executarPasso1ValidacaoCodigoPackingList>
+  let passo1Awb: ReturnType<typeof executarPasso1ValidacaoCodigoAwb>
+  let passo1Bl: ReturnType<typeof executarPasso1ValidacaoCodigoBl>
+  let passo1Co: ReturnType<typeof executarPasso1ValidacaoCodigoCertificadoOrigem>
+  let passo1Cf: ReturnType<typeof executarPasso1ValidacaoCodigoCertificadoFitossanitario>
+  let passo1Pc: ReturnType<typeof executarPasso1ValidacaoCodigoPedidoCompra>
+  let passo1Pv: ReturnType<typeof executarPasso1ValidacaoCodigoPedidoVenda>
+  let passo2: Awaited<ReturnType<typeof executarPasso2ApiCnpjInvoice>>
+  let tributos: Awaited<ReturnType<typeof buscarTributosNcmsLeituraSmartRead>>
 
-  // Passo 2 — API CNPJ Receita Federal
-  const passo2 = await executarPasso2ApiCnpjInvoice(entrada.documentos)
-  contexto.cnpj_oficial = passo2.cnpj_oficial
-  contexto.regras = [...contexto.regras, ...passo2.regras]
+  if (somenteLlm && entrada.contexto_v1_referencia) {
+    contexto = { ...entrada.contexto_v1_referencia }
+    p1Resumo = entrada.resumo_base_sem_llm ?? {
+      riscos: [],
+      total: 0,
+      criticos: 0,
+      atencao: 0,
+      informativos: 0,
+    }
+    passo1Pl = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [], cnpj_oficial: null },
+    }
+    passo1Awb = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo1Bl = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo1Co = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo1Cf = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo1Pc = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo1Pv = {
+      resumo: { riscos: [], total: 0, criticos: 0, atencao: 0, informativos: 0 },
+      contexto: { regras: [], ncms_encontrados: [], tributos_ncm: [] },
+    }
+    passo2 = { cnpj_oficial: contexto.cnpj_oficial ?? null, riscos: [], regras: [] }
+    tributos = contexto.tributos_ncm ?? []
+  } else {
+    const passo1 = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
+    p1Resumo = passo1.resumo
+    contexto = passo1.contexto
 
-  const tributos = await buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao)
-  contexto.tributos_ncm = tributos
+    passo1Pl = executarPasso1ValidacaoCodigoPackingList(entrada.documentos)
+    passo1Awb = executarPasso1ValidacaoCodigoAwb(entrada.documentos)
+    passo1Bl = executarPasso1ValidacaoCodigoBl(entrada.documentos)
+    passo1Co = executarPasso1ValidacaoCodigoCertificadoOrigem(entrada.documentos)
+    passo1Cf = executarPasso1ValidacaoCodigoCertificadoFitossanitario(entrada.documentos)
+    passo1Pc = executarPasso1ValidacaoCodigoPedidoCompra(entrada.documentos)
+    passo1Pv = executarPasso1ValidacaoCodigoPedidoVenda(entrada.documentos)
+    contexto.regras = [
+      ...contexto.regras,
+      ...passo1Pl.contexto.regras,
+      ...passo1Awb.contexto.regras,
+      ...passo1Bl.contexto.regras,
+      ...passo1Co.contexto.regras,
+      ...passo1Cf.contexto.regras,
+      ...passo1Pc.contexto.regras,
+      ...passo1Pv.contexto.regras,
+    ]
+
+    passo2 = { cnpj_oficial: null, riscos: [], regras: [] }
+    tributos = []
+    if (!prazoPipeline.esgotado()) {
+      const [passo2Resultado, tributosResultado] = await Promise.all([
+        executarPasso2ApiCnpjInvoice(entrada.documentos),
+        buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao),
+      ])
+      passo2 = passo2Resultado
+      contexto.cnpj_oficial = passo2.cnpj_oficial
+      contexto.regras = [...contexto.regras, ...passo2.regras]
+      tributos = tributosResultado
+      contexto.tributos_ncm = tributos
+    }
+  }
 
   const riscosV3Tributos = riscosNormativosDeTributos(tributos)
   const errosAritmeticos = p1Resumo.riscos
@@ -217,10 +343,17 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   let aviso: string | null = null
   let riscosLlm: RiscoAduaneiroLeitura[] = []
   let riscosLlmPackingList: RiscoAduaneiroLeitura[] = []
+  let riscosLlmAwb: RiscoAduaneiroLeitura[] = []
+  let riscosLlmBl: RiscoAduaneiroLeitura[] = []
+  let riscosLlmCo: RiscoAduaneiroLeitura[] = []
+  let riscosLlmCf: RiscoAduaneiroLeitura[] = []
+  let riscosLlmPc: RiscoAduaneiroLeitura[] = []
+  let riscosLlmPv: RiscoAduaneiroLeitura[] = []
   let riscosClassificacao: RiscoAduaneiroLeitura[] = []
-  const llmAtivo = entrada.incluir_llm !== false && !!process.env.GEMINI_API_KEY?.trim()
+  const llmAtivo =
+    (somenteLlm || entrada.incluir_llm !== false) && !!process.env.GEMINI_API_KEY?.trim()
 
-  if (entrada.incluir_llm !== false && !process.env.GEMINI_API_KEY?.trim()) {
+  if (!somenteLlm && entrada.incluir_llm !== false && !process.env.GEMINI_API_KEY?.trim()) {
     aviso =
       'GEMINI_API_KEY ausente — Passo 3 (Analista IA) indisponível. Configure a chave e reinicie o BFF.'
   }
@@ -231,91 +364,310 @@ export async function executarAnaliseRiscosLeituraSmartRead(
     id_leitura_legado: idLeitura,
   }
   const chamadasUso: UsoLlmChamadaLeituraSmartRead[] = []
+  const promessaResumoTokensLeitura = idLeitura
+    ? consultarResumoTokensLeituraSmartRead(contextoRegistro.prisma, idLeitura)
+    : Promise.resolve(null)
 
   if (llmAtivo) {
-    const itensClassificacao = montarItensParaClassificacaoFiscal(entrada.documentos)
-    try {
-      const classificacao = await executarClassificacaoFiscalLlmLeituraSmartRead(
-        itensClassificacao,
-        idOrganizacao,
-        registroComLeitura,
-      )
-      riscosClassificacao = classificacao.riscos
-      if (classificacao.uso_llm) chamadasUso.push(classificacao.uso_llm)
-    } catch (erro) {
-      aviso = `Classificação fiscal indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-      console.error('[smart-read][classificacao-fiscal]', aviso)
-    }
-
-    try {
-      const riscosBase = [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos, ...riscosClassificacao]
+    if (prazoPipeline.esgotado()) {
+      aviso = prazoPipeline.marcarAvisoEsgotado(aviso)
+      console.warn('[smart-read][analise-riscos]', aviso)
+    } else {
+      const itensClassificacao = montarItensParaClassificacaoFiscal(entrada.documentos)
+      const riscosBase = [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos]
       const chunksRag = precisaRagNormativoAnaliseRiscos(riscosBase, contexto)
         ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
         : undefined
 
-      const prompt = montarPromptAnalistaInvoice({
+      const documentosPacking = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('PACKING'),
+      )
+      const documentosInvoice = entrada.documentos.filter((d) =>
+        d.tipo_documento.toUpperCase().includes('INVOICE'),
+      )
+      const documentosAwb = entrada.documentos.filter((d) => {
+        const tipo = d.tipo_documento.toUpperCase()
+        return tipo.includes('AWB') || tipo.includes('AIR WAYBILL')
+      })
+      const documentosBl = entrada.documentos.filter((d) => {
+        const tipo = d.tipo_documento.toUpperCase()
+        if (tipo.includes('AWB') || tipo.includes('AIR WAYBILL')) return false
+        return (
+          tipo.includes('BILL OF LADING') ||
+          tipo.includes('SEA WAYBILL') ||
+          /(^|[^A-Z])(BL|MBL|HBL|B\/L)([^A-Z]|$)/.test(tipo)
+        )
+      })
+      const documentosCo = entrada.documentos.filter((d) =>
+        ehTipoCertificadoOrigem(d.tipo_documento),
+      )
+      const documentosCf = entrada.documentos.filter((d) =>
+        ehTipoCertificadoFitossanitario(d.tipo_documento),
+      )
+      const documentosPc = entrada.documentos.filter((d) => ehTipoPedidoCompra(d.tipo_documento))
+      const documentosPv = entrada.documentos.filter((d) => ehTipoPedidoVenda(d.tipo_documento))
+      const documentosBlAwb = [...documentosBl, ...documentosAwb]
+
+      const promptInvoice = montarPromptAnalistaInvoice({
         documentos: entrada.documentos,
         contexto,
         errosAritmeticos,
         chunksRag,
       })
-      const analista = await chamarLlmAnalistaMatriz(
-        SYSTEM_PROMPT_ANALISTA_INVOICE,
-        prompt,
-        registroComLeitura,
-      )
-      riscosLlm = analista.riscos
-      if (analista.uso_llm) chamadasUso.push(analista.uso_llm)
-    } catch (erro) {
-      if (!aviso) {
-        aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
-      }
-      console.error('[smart-read][analise-riscos]', aviso)
-    }
 
-    const documentosPacking = entrada.documentos.filter((d) =>
-      d.tipo_documento.toUpperCase().includes('PACKING'),
-    )
-    if (documentosPacking.length > 0) {
-      try {
+      type ResultadoTarefaLlm = {
+        riscos: RiscoAduaneiroLeitura[]
+        uso_llm: UsoLlmChamadaLeituraSmartRead | null
+      }
+      type TarefaLlm = {
+        rotulo: string
+        destino:
+          | 'classificacao'
+          | 'invoice'
+          | 'packing_list'
+          | 'awb'
+          | 'bl'
+          | 'certificado_origem'
+          | 'certificado_fitossanitario'
+          | 'pedido_compra'
+          | 'pedido_venda'
+        promessa: Promise<ResultadoTarefaLlm>
+      }
+
+      const tarefasLlm: TarefaLlm[] = [
+        {
+          rotulo: 'Classificação fiscal',
+          destino: 'classificacao',
+          promessa: executarClassificacaoFiscalLlmLeituraSmartRead(
+            itensClassificacao,
+            idOrganizacao,
+            registroComLeitura,
+          ).then((classificacao) => ({
+            riscos: classificacao.riscos,
+            uso_llm: classificacao.uso_llm,
+          })),
+        },
+        {
+          rotulo: 'Analista IA (invoice)',
+          destino: 'invoice',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_INVOICE,
+            promptInvoice,
+            registroComLeitura,
+          ),
+        },
+      ]
+
+      if (documentosPacking.length > 0) {
         const promptPl = montarPromptAnalistaPackingList({
           documentosPacking,
-          documentosInvoice: entrada.documentos.filter((d) =>
-            d.tipo_documento.toUpperCase().includes('INVOICE'),
-          ),
+          documentosInvoice,
           documentosConhecimento: entrada.documentos.filter((d) => {
             const tipo = d.tipo_documento.toUpperCase()
             return tipo.includes('BL') || tipo.includes('AWB')
           }),
           contexto,
         })
-        const analistaPl = await chamarLlmAnalistaMatriz(
-          SYSTEM_PROMPT_ANALISTA_PACKING_LIST,
-          promptPl,
-          registroComLeitura,
-        )
-        riscosLlmPackingList = analistaPl.riscos
-        if (analistaPl.uso_llm) chamadasUso.push(analistaPl.uso_llm)
+        tarefasLlm.push({
+          rotulo: 'Analista IA (packing list)',
+          destino: 'packing_list',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_PACKING_LIST,
+            promptPl,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosAwb.length > 0) {
+        const promptAwb = montarPromptAnalistaAwb({
+          documentosAwb,
+          documentosInvoice,
+          documentosPacking,
+          contexto,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (AWB)',
+          destino: 'awb',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_AWB,
+            promptAwb,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosBl.length > 0) {
+        const promptBl = montarPromptAnalistaBl({
+          documentosBl,
+          documentosInvoice,
+          documentosPacking,
+          contexto,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (BL)',
+          destino: 'bl',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_BL,
+            promptBl,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosCo.length > 0) {
+        const promptCo = montarPromptAnalistaCertificadoOrigem({
+          documentosCo,
+          documentosInvoice,
+          documentosPacking,
+          documentosBlAwb,
+          contexto,
+          chunksRag,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (Certificado de Origem)',
+          destino: 'certificado_origem',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_CERTIFICADO_ORIGEM,
+            promptCo,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosCf.length > 0) {
+        const promptCf = montarPromptAnalistaCertificadoFitossanitario({
+          documentosCf,
+          documentosInvoice,
+          documentosPacking,
+          documentosBlAwb,
+          documentosCo,
+          contexto,
+          chunksRag,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (Certificado Fitossanitário)',
+          destino: 'certificado_fitossanitario',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_CERTIFICADO_FITOSSANITARIO,
+            promptCf,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosPc.length > 0) {
+        const promptPc = montarPromptAnalistaPedidoCompra({
+          documentosPc,
+          documentosPv,
+          documentosInvoice,
+          contexto,
+          chunksRag,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (Pedido de Compra)',
+          destino: 'pedido_compra',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_PEDIDO_COMPRA,
+            promptPc,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      if (documentosPv.length > 0) {
+        const promptPv = montarPromptAnalistaPedidoVenda({
+          documentosPv,
+          documentosPc,
+          documentosInvoice,
+          contexto,
+          chunksRag,
+        })
+        tarefasLlm.push({
+          rotulo: 'Analista IA (Pedido de Venda)',
+          destino: 'pedido_venda',
+          promessa: chamarLlmAnalistaMatriz(
+            SYSTEM_PROMPT_ANALISTA_PEDIDO_VENDA,
+            promptPv,
+            registroComLeitura,
+          ),
+        })
+      }
+
+      try {
+        const resultadosLlm = await Promise.allSettled(tarefasLlm.map((t) => t.promessa))
+        for (const [indice, resultado] of resultadosLlm.entries()) {
+          const tarefa = tarefasLlm[indice]
+          if (resultado.status === 'fulfilled') {
+            if (tarefa.destino === 'classificacao') riscosClassificacao = resultado.value.riscos
+            else if (tarefa.destino === 'invoice') riscosLlm = resultado.value.riscos
+            else if (tarefa.destino === 'packing_list') riscosLlmPackingList = resultado.value.riscos
+            else if (tarefa.destino === 'awb') riscosLlmAwb = resultado.value.riscos
+            else if (tarefa.destino === 'bl') riscosLlmBl = resultado.value.riscos
+            else if (tarefa.destino === 'certificado_origem') riscosLlmCo = resultado.value.riscos
+            else if (tarefa.destino === 'certificado_fitossanitario') riscosLlmCf = resultado.value.riscos
+            else if (tarefa.destino === 'pedido_compra') riscosLlmPc = resultado.value.riscos
+            else if (tarefa.destino === 'pedido_venda') riscosLlmPv = resultado.value.riscos
+            if (resultado.value.uso_llm) chamadasUso.push(resultado.value.uso_llm)
+            continue
+          }
+          const msg = `${tarefa.rotulo} indisponível: ${resultado.reason instanceof Error ? resultado.reason.message : 'erro desconhecido'}`
+          if (!aviso) aviso = msg
+          console.error('[smart-read][analise-riscos]', msg)
+        }
       } catch (erro) {
         if (!aviso) {
-          aviso = `Analista IA do packing list indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+          aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
         }
-        console.error('[smart-read][analise-riscos-packing]', aviso)
+        console.error('[smart-read][analise-riscos]', aviso)
       }
     }
   }
 
+  riscosLlmBl = filtrarRiscosLlmBlFreteCoerente(riscosLlmBl, contexto.regras)
+
   const mesclado = mesclarRiscosAnaliseLeitura(
-    [...p1Resumo.riscos, ...passo1Pl.resumo.riscos, ...passo2.riscos, ...riscosV3Tributos],
-    [...riscosClassificacao, ...riscosLlm, ...riscosLlmPackingList],
+    [
+      ...p1Resumo.riscos,
+      ...passo1Pl.resumo.riscos,
+      ...passo1Awb.resumo.riscos,
+      ...passo1Bl.resumo.riscos,
+      ...passo1Co.resumo.riscos,
+      ...passo1Cf.resumo.riscos,
+      ...passo1Pc.resumo.riscos,
+      ...passo1Pv.resumo.riscos,
+      ...passo2.riscos,
+      ...riscosV3Tributos,
+    ],
+    [
+      ...riscosClassificacao,
+      ...riscosLlm,
+      ...riscosLlmPackingList,
+      ...riscosLlmAwb,
+      ...riscosLlmBl,
+      ...riscosLlmCo,
+      ...riscosLlmCf,
+      ...riscosLlmPc,
+      ...riscosLlmPv,
+    ],
   )
-  const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado)
+  const resumoFinal = aplicarFalhasMatrizAoResumoRiscos(contexto.regras, mesclado, (riscosComMotor) =>
+    complementarRiscosAgregadoresBlNoResumo(
+      {
+        regras: contexto.regras,
+        riscos: riscosComMotor,
+        pipelineConcluido: true,
+        llmHabilitado: llmAtivo,
+        carregando: false,
+        documentos: entrada.documentos,
+      },
+      riscosComMotor,
+    ),
+  )
 
   const uso_llm_chamada =
     chamadasUso.length > 0 ? somarUsoLlmChamadasLeituraSmartRead(chamadasUso) : null
-  const uso_llm_leitura = idLeitura
-    ? await consultarResumoTokensLeituraSmartRead(contextoRegistro.prisma, idLeitura)
-    : null
+  const uso_llm_leitura = await promessaResumoTokensLeitura
 
   return AnaliseRiscosLeituraResponseSchema.parse({
     resumo: resumoFinal,

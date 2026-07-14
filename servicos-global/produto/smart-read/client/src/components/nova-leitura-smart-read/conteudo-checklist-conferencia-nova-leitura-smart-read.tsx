@@ -148,6 +148,10 @@ export function ConteudoChecklistConferenciaNovaLeituraSmartRead({
               <InfograficoChecklistGeralSmartRead
                 resumo={resumoGeral}
                 onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
+                emAnalise={
+                  parametrosChecklist.carregando ||
+                  Boolean(parametrosChecklist.enriquecimento_ia_em_andamento)
+                }
                 selecaoInvoice={{
                   id: `${idPrefixo}-select-invoice`,
                   opcoes: opcoesSelecaoGeral,

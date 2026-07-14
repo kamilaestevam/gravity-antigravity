@@ -108,7 +108,11 @@ import {
   estiloWrapperTabelaListaBidFreteInternacional,
 } from '../shared/altura-tabela-lista-bid-frete-internacional'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
-import { buildRotaNovaCotacaoManual } from '../shared/novo-bid-frete-internacional-utils'
+import {
+  buildRotaNovaCotacaoManual,
+  buildUrlNovaLeituraSmartReadBidFreteInternacional,
+} from '../shared/novo-bid-frete-internacional-utils'
+import { PRODUCT_CONFIG } from '../shared/config'
 import {
   idPainelListaBidFreteDoQueryParam,
   QUERY_ID_PAINEL_LISTA_BID_FRETE,
@@ -1392,13 +1396,22 @@ export default function Cotacoes() {
                           badge: t('comum.em_breve'),
                           disabled: true,
                         },
-                        {
+                        ...(PRODUCT_CONFIG.features.smart_read ? [{
+                          icon: 'sparkle' as const,
+                          label: t('bidfrete.novo_bid.smart_read'),
+                          desc: t('bidfrete.novo_bid.smart_read_desc'),
+                          action: () => {
+                            window.location.href = buildUrlNovaLeituraSmartReadBidFreteInternacional()
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        }] : [{
                           icon: 'sparkle' as const,
                           label: t('bidfrete.novo_bid.smart_read'),
                           desc: t('bidfrete.novo_bid.smart_read_desc'),
                           badge: t('comum.em_breve'),
                           disabled: true,
-                        },
+                        }]),
                         {
                           icon: 'pencil' as const,
                           label: t('bidfrete.novo_bid.manual'),
@@ -1491,13 +1504,22 @@ export default function Cotacoes() {
                           badge: t('comum.em_breve'),
                           disabled: true,
                         },
-                        {
+                        ...(PRODUCT_CONFIG.features.smart_read ? [{
+                          icon: 'sparkle' as const,
+                          label: t('bidfrete.novo_bid.smart_read'),
+                          desc: t('bidfrete.novo_bid.smart_read_desc'),
+                          action: () => {
+                            window.location.href = buildUrlNovaLeituraSmartReadBidFreteInternacional()
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        }] : [{
                           icon: 'sparkle' as const,
                           label: t('bidfrete.novo_bid.smart_read'),
                           desc: t('bidfrete.novo_bid.smart_read_desc'),
                           badge: t('comum.em_breve'),
                           disabled: true,
-                        },
+                        }]),
                         {
                           icon: 'pencil' as const,
                           label: t('bidfrete.novo_bid.manual'),

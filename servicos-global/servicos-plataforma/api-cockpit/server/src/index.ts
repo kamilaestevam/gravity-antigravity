@@ -41,9 +41,15 @@ import { monitoramentoApiRouter } from './routes/monitoramento-api'
 import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
 import { proxyProdutosRouter } from './routes/proxy-produtos'
+import { oauthTokenRouter } from './routes/oauth-token'
+import { webhooksIntegracaoRouter } from './routes/webhooks-integracao'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 import { iniciarWorkerRetencao, pararWorkerRetencao } from './workers/retencao-log-requisicao-api'
+import {
+  iniciarWorkerWebhookDispatcher,
+  pararWorkerWebhookDispatcher,
+} from './workers/webhook-dispatcher'
 import {
   criarSidecarListenReady,
   registrarErroListenSidecar,
@@ -68,6 +74,8 @@ app.use(rateLimitPresets.internal())
 // app.use('/api/v1/cockpit/erp', erpRouter)
 app.use('/api/v1/cockpit/api-tokens',         tokensRouter)
 app.use('/api/v1/cockpit/webhooks',           webhooksRouter)
+app.use('/api/v1/cockpit/webhooks-integracao', requireInternalKey, webhooksIntegracaoRouter)
+app.use('/api/v1/cockpit/oauth',              oauthTokenRouter)
 app.use('/api/v1/cockpit/documentacao-api',   requireInternalKey, documentacaoApiRouter)
 app.use('/api/v1/cockpit/monitoramento-api',  monitoramentoApiRouter)
 
@@ -95,6 +103,7 @@ export const sidecarListenReady = listenHandles.sidecarListenReady
 const server = app.listen(PORT, () => {
   console.log(`[api-cockpit] Servidor rodando na porta ${PORT}`)
   iniciarWorkerRetencao()
+  iniciarWorkerWebhookDispatcher()
   listenHandles.aoSubirListen()
 })
 registrarErroListenSidecar(server, listenHandles, API_COCKPIT_SIDECAR, PORT, 'api-cockpit')
@@ -107,6 +116,7 @@ if (!API_COCKPIT_SIDECAR) {
   const shutdown = (sinal: string) => {
     console.log(`[api-cockpit] recebido ${sinal}, encerrando...`)
     pararWorkerRetencao()
+    pararWorkerWebhookDispatcher()
     void prisma.$disconnect()
     server.close(() => {
       console.log('[api-cockpit] servidor encerrado')

@@ -1,0 +1,45 @@
+name: Migrate Kit Integração ERP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    paths:
+      - 'servicos-global/servicos-plataforma/prisma/migrations/20260714180100_kit_integracao_sap_api_cockpit/**'
+      - 'servicos-global/servicos-plataforma/prisma/migrations/20260714180200_rename_kit_integracao_ddd/**'
+      - 'servicos-global/produto/pedido/prisma/migrations/20260714180000_pedido_referencia_externa_erp/**'
+      - 'scripts/ativamente/aplicar-kit-integracao-sap.ts'
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  migrate-production:
+    name: Kit Integração ERP (Production)
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      ORGANIZACAO_DATABASE_URL: ${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}
+      PEDIDO_DATABASE_URL: ${{ secrets.PROD_PEDIDO_DATABASE_URL }}
+      CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install
+
+      - name: Verificar secrets de produção
+        run: |
+          if [ -z "$ORGANIZACAO_DATABASE_URL" ]; then
+            echo "::error::Secret PROD_ORGANIZACAO_DATABASE_URL ausente (environment production)."
+            exit 1
+          fi
+          if [ -z "$PEDIDO_DATABASE_URL" ]; then
+            echo "::error::Secret PROD_PEDIDO_DATABASE_URL ausente (environment production)."
+            exit 1
+          fi
+
+      - name: Aplicar kit integração ERP — org + pedido (Produção)
+        run: npx tsx scripts/ativamente/aplicar-kit-integracao-sap.ts

@@ -4,6 +4,10 @@
 
 import type { ContextoAuditoriaV1Leitura, DocumentoAnaliseRisco } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { montarItensParaClassificacaoFiscal } from '../../../shared/analise-riscos-leitura-smart-read.js'
+import {
+  compactarDocumentoParaPromptLlmAnaliseRiscos,
+  serializarPayloadPromptLlm,
+} from '../../../shared/compactar-documento-prompt-llm-analise-riscos-smart-read.js'
 import { DISCLAIMER_CLASSIFICACAO_FISCAL } from '../../../shared/texto-analise-riscos-leitura-smart-read.js'
 
 export const SYSTEM_PROMPT_ANALISTA_INVOICE = `Voce e especialista em auditoria aduaneira e atua como inteligencia analitica do Gravity Smart Docs.
@@ -34,23 +38,24 @@ export function montarPromptAnalistaInvoice(params: {
   chunksRag?: string[]
 }): string {
   const itens = montarItensParaClassificacaoFiscal(params.documentos)
+  const documentosCompactos = params.documentos.map(compactarDocumentoParaPromptLlmAnaliseRiscos)
   return `PASSO 1 — ERROS ARITMETICOS (NAO RECALCULAR):
-${JSON.stringify(params.errosAritmeticos, null, 2)}
+${serializarPayloadPromptLlm(params.errosAritmeticos)}
 
 PASSO 2 — CNPJ OFICIAL (RFB):
-${JSON.stringify(params.contexto.cnpj_oficial ?? null, null, 2)}
+${serializarPayloadPromptLlm(params.contexto.cnpj_oficial ?? null)}
 
 ITENS PARA CLASSIFICACAO FISCAL:
-${JSON.stringify(itens, null, 2)}
+${serializarPayloadPromptLlm(itens)}
 
 TRIBUTOS NCM (Siscomex):
-${JSON.stringify(params.contexto.tributos_ncm, null, 2)}
+${serializarPayloadPromptLlm(params.contexto.tributos_ncm)}
 
 RAG NORMATIVO:
-${params.chunksRag?.length ? JSON.stringify(params.chunksRag) : 'nenhum'}
+${params.chunksRag?.length ? serializarPayloadPromptLlm(params.chunksRag) : 'nenhum'}
 
 INVOICE EXTRAIDA:
-${JSON.stringify(params.documentos, null, 2)}
+${serializarPayloadPromptLlm(documentosCompactos)}
 
 Retorne JSON: { "riscos": [{ "severidade": "critico|atencao|informativo", "categoria": "ncm|cnpj|incoterm|documental|cruzado|matematico|comercial|normativo", "titulo": "...", "motivo": "...", "analise": "...", "correcao_sugerida": "...", "evidencias": [...], "secao_matriz": "identificacao|cadastral|logistica|itens_fiscais|financeiro|bancario|pesos_embalagens|legitimidade", "id_regra_matriz": "S#-##", "motor_validacao": "llm", "status_matriz": "vermelho|amarelo|verde", "citacoes_normativas": [] }] }`
 }

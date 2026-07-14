@@ -6,7 +6,9 @@ import { Router, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { Prisma } from '../generated/client/index.js'
 import { AppError } from '../lib/app-error.js'
-import { persistirSnapshotLeituraSmartRead } from '../lib/snapshot-leitura-smart-read.js'
+import { persistirSnapshotLeituraSmartRead, obterLeituraDoSnapshot } from '../lib/snapshot-leitura-smart-read.js'
+import { resolverIdWorkspaceLeituraSmartRead } from '../lib/escopo-workspace-leitura-smart-read.js'
+import { mesclarLeiturasRetomarSmartRead } from '../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
 import {
   EstadoProgressoLeituraSchema,
   extrairDadosSessaoProgressoLeitura,
@@ -53,6 +55,7 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
         id_usuario: idUsuario,
         id_leitura_legado_progresso_leitura_smart_read: id_leitura,
       },
+      orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
     })
 
     if (!registro) {
@@ -86,15 +89,58 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
       throw new AppError('id_leitura do corpo diverge do path', 400, 'ID_LEITURA_DIVERGENTE')
     }
 
-    const dadosSessao = { nome: corpo.nome, leitura: corpo.leitura } satisfies Prisma.InputJsonObject
-    const dadosJson = dadosSessao as Prisma.InputJsonValue
-
     const existente = await prisma.progressoLeituraSmartRead.findFirst({
       where: {
         id_usuario: idUsuario,
         id_leitura_legado_progresso_leitura_smart_read: id_leitura,
       },
+      orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
     })
+
+    const dadosAnteriores = existente
+      ? extrairDadosSessaoProgressoLeitura(existente.dados_sessao_progresso_leitura_smart_read)
+      : null
+    const leituraCorpoSemExtracao =
+      corpo.passo >= 3 &&
+      corpo.leitura.arquivos.length === 0 &&
+      (!dadosAnteriores || dadosAnteriores.leitura.arquivos.length === 0)
+    if (leituraCorpoSemExtracao) {
+      throw new AppError(
+        'Nao e possivel avancar conferencia sem extracao persistida',
+        400,
+        'PROGRESSO_SEM_EXTRACAO',
+      )
+    }
+    let leituraCorpo = dadosAnteriores?.leitura
+      ? mesclarLeiturasRetomarSmartRead(corpo.leitura, dadosAnteriores.leitura)
+      : corpo.leitura
+
+    if (
+      leituraCorpo.arquivos.length === 0 &&
+      (leituraCorpo.total_arquivos ?? 0) > 0 &&
+      corpo.passo >= 2 &&
+      req.idOrganizacao
+    ) {
+      const idWorkspaceResolvido =
+        idWorkspace ?? resolverIdWorkspaceLeituraSmartRead(req, req.idOrganizacao)
+      const doSnapshot = await obterLeituraDoSnapshot(prisma, id_leitura, idWorkspaceResolvido)
+      if (doSnapshot?.arquivos.length) {
+        leituraCorpo = mesclarLeiturasRetomarSmartRead(leituraCorpo, doSnapshot)
+      }
+    }
+    const cacheAnterior = dadosAnteriores?.analise_riscos_cache ?? {}
+    const cacheCorpo = corpo.analise_riscos_cache ?? {}
+    const cacheMesclado =
+      Object.keys(cacheAnterior).length > 0 || Object.keys(cacheCorpo).length > 0
+        ? { ...cacheAnterior, ...cacheCorpo }
+        : undefined
+
+    const dadosSessao = {
+      nome: corpo.nome,
+      leitura: leituraCorpo,
+      ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
+    } satisfies Prisma.InputJsonObject
+    const dadosJson = dadosSessao as Prisma.InputJsonValue
 
     const registro = existente
       ? await prisma.progressoLeituraSmartRead.update({
@@ -131,7 +177,7 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
       idOrganizacao: req.idOrganizacao,
       idUsuario,
       idWorkspace,
-      leitura: corpo.leitura,
+      leitura: leituraCorpo,
       motivo: 'conferencia_usuario',
       extras: {
         data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),

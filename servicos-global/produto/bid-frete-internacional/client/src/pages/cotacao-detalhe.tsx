@@ -331,22 +331,33 @@ export default function DetalheCotacao() {
     setCarregando(true)
     setErro(null)
     try {
-      const [cot, bidList] = await Promise.all([
-        getCotacao(id),
-        getDisparoPorCotacaoBidFreteInternacional(id),
-      ])
+      const cot = await getCotacao(id)
       setCotacao(cot)
-      setBids(bidList)
       void carregarRankingPropostas(cot)
+      try {
+        const bidList = await getDisparoPorCotacaoBidFreteInternacional(id)
+        setBids(bidList)
+      } catch (disparoErr: unknown) {
+        console.warn('[DetalheCotacao] Falha ao carregar disparos — usando fallback da cotação:', disparoErr)
+        setBids(cot.disparo_cotacao_bid_frete_internacional ?? [])
+      }
     } catch (e: unknown) {
       setCotacao(null)
       setBids([])
       setPropostasRanking([])
-      setErro(e instanceof Error ? e.message : 'Erro ao carregar cotação')
+      const mensagem = e instanceof Error ? e.message : 'Erro ao carregar cotação'
+      setErro(
+        mensagem === 'Erro 500'
+          ? t(
+              'bidfrete.detalhe_cotacao.erro_servico_indisponivel',
+              'Serviço temporariamente indisponível. Aguarde alguns segundos e recarregue a página.',
+            )
+          : mensagem,
+      )
     } finally {
       setCarregando(false)
     }
-  }, [id, carregarRankingPropostas])
+  }, [id, carregarRankingPropostas, t])
 
   const mesclarCotacaoNoDetalhe = useCallback((cotacaoAtualizada: Cotacao) => {
     setCotacao((atual) => {
@@ -629,7 +640,24 @@ export default function DetalheCotacao() {
           />
         </aside>
         <div className="dc-cockpit-timeline-panel" aria-label={t('bidfrete.detalhe_cotacao.status', 'Status')}>
-          <TimelineFluxoCotacao statusAtual={cotacao.status_cotacao_bid_frete_internacional} />
+          <TimelineFluxoCotacao
+            statusAtual={cotacao.status_cotacao_bid_frete_internacional}
+            propostasRanking={propostasRanking}
+            id_fornecedor_vencedor={cotacao.id_fornecedor_vencedor_cotacao_bid_frete_internacional}
+            disparos={bids}
+            contextoTimeline={{
+              data_criacao_cotacao_bid_frete_internacional:
+                cotacao.data_criacao_cotacao_bid_frete_internacional,
+              data_limite_resposta_cotacao_bid_frete_internacional:
+                cotacao.data_limite_resposta_cotacao_bid_frete_internacional,
+              data_atualizacao_cotacao_bid_frete_internacional:
+                cotacao.data_atualizacao_cotacao_bid_frete_internacional,
+              data_aprovacao_cotacao_bid_frete_internacional:
+                cotacao.data_aprovacao_cotacao_bid_frete_internacional,
+              propostas_bid_frete_internacional: cotacao.propostas_bid_frete_internacional,
+              historico_aprovado: cotacao.historico_aprovado,
+            }}
+          />
         </div>
         {exibirAcoesHero && (
         <div className="dc-cockpit-actions-col">
@@ -1079,17 +1107,42 @@ export default function DetalheCotacao() {
           color: #c7d2fe;
         }
         .dc-fluxo-compact-label {
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.02em;
           color: #64748b;
           text-align: center;
-          line-height: 1.2;
+          line-height: 1.25;
           max-width: 100%;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          overflow: visible;
+          white-space: normal;
+          word-break: break-word;
+          hyphens: auto;
+        }
+        .dc-fluxo-compact-data-tag {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 0.1rem;
+          padding: 0.1rem 0.35rem;
+          border-radius: 999px;
+          font-size: 9px;
+          font-weight: 600;
+          line-height: 1.2;
+          color: #94a3b8;
+          background: rgba(148, 163, 184, 0.12);
+          border: 1px solid rgba(148, 163, 184, 0.18);
           white-space: nowrap;
+        }
+        .dc-fluxo-compact-etapa--done .dc-fluxo-compact-data-tag {
+          color: #86efac;
+          background: rgba(16, 185, 129, 0.12);
+          border-color: rgba(16, 185, 129, 0.22);
+        }
+        .dc-fluxo-compact-etapa--active .dc-fluxo-compact-data-tag {
+          color: #c4b5fd;
+          background: rgba(124, 58, 237, 0.14);
+          border-color: rgba(124, 58, 237, 0.28);
         }
         .dc-fluxo-compact-etapa--done .dc-fluxo-compact-label { color: #86efac; }
         .dc-fluxo-compact-etapa--active .dc-fluxo-compact-label { color: #a5b4fc; }

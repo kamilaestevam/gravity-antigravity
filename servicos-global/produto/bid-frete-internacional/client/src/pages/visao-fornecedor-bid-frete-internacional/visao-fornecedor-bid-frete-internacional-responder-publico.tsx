@@ -27,6 +27,7 @@ import {
 import type { CodigoBloqueioRespostaDisparoBidFreteInternacional } from '../../shared/visao-fornecedor-bid-frete-internacional-schemas'
 
 import { montarPayloadPropostaRespostaBidFreteInternacional } from '../../shared/montar-payload-proposta-resposta-bid-frete-internacional'
+import { estadoInicialFormularioRespostaFromCotacao } from '../../shared/faixas-valor-frete-proposta-bid-frete-internacional'
 import type { DisparoCotacaoBidFreteInternacional } from '../../shared/types'
 
 import {
@@ -153,7 +154,10 @@ export default function ResponderPublico() {
         const formEdicao = estadoFormularioFromProposta(data.disparo.proposta)
         setForm(formEdicao)
       } else {
-        setForm(ESTADO_INICIAL_FORMULARIO_RESPOSTA)
+        setForm({
+          ...ESTADO_INICIAL_FORMULARIO_RESPOSTA,
+          ...estadoInicialFormularioRespostaFromCotacao(data.disparo.cotacao),
+        })
       }
 
       setPageState('form')
@@ -465,6 +469,9 @@ export default function ResponderPublico() {
 
             onLinhasPeriodoArmazenagemChange={(linhas) =>
               setForm((prev) => ({ ...prev, linhas_periodo_armazenagem: linhas }))
+            }
+            onLinhasFaixaValorFreteChange={(linhas) =>
+              setForm((prev) => ({ ...prev, linhas_faixa_valor_frete_proposta: linhas }))
             }
 
             onSubmit={handleSubmit}

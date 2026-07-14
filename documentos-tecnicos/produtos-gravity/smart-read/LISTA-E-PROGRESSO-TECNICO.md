@@ -61,18 +61,15 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 
 ### `TransacaoLeitura` (linha da lista)
 
-**Hoje (runtime):** a coluna Status usa `status_leitura` legado (`PillStatusLeitura` em `colunas-lista-leitura-smart-read.tsx`).
-
-**Alvo (§14):** expor `status_fluxo_leitura` + `passo_atual_leitura` no BFF e trocar a pill para `PillStatusFluxoLeitura`.
+**Runtime (TASK-000424):** coluna Status usa `status_fluxo_leitura` (`PillStatusFluxoLeitura`). `status_leitura` DATI permanece no payload.
 
 ```typescript
 {
   id_leitura: string
   nome_leitura: string | null
   status_leitura: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'  // legado IA — interno/polling
-  // — alvo wiring §14 (ainda não no schema Zod bilateral):
-  // status_fluxo_leitura: StatusFluxoLeitura
-  // passo_atual_leitura: number | null
+  status_fluxo_leitura: StatusFluxoLeitura  // Lista / KPI
+  passo_atual_leitura: number | null       // 1–4 do progresso; null se só legado
   total_arquivos: number
   media_acertos: number | null
   data_envio: string | null
@@ -83,7 +80,7 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 }
 ```
 
-**SSOT status de fluxo (contrato):** `shared/status-fluxo-leitura-smart-read.ts` — valores `UPPER_SNAKE`; rótulos PT-BR em `ROTULO_STATUS_FLUXO_LEITURA` (reexport previsto em `formatacao-leitura-smart-read.ts`).
+**SSOT status de fluxo:** `shared/status-fluxo-leitura-smart-read.ts` — valores `UPPER_SNAKE`; rótulos PT-BR em `ROTULO_STATUS_FLUXO_LEITURA`.
 
 ### `EstadoProgressoLeitura` (PATCH/GET progresso)
 
@@ -332,62 +329,49 @@ Faixa acima das abas «Visão geral» / «Transações API». Componente: `clien
 
 ## 14. Status de fluxo do wizard (coluna Status da Lista)
 
-**Estado da entrega (2026-06):** fundação persistida + contrato SSOT + testes unitários de derivação. A **Lista ainda exibe** `status_leitura` legado (`PillStatusLeitura`); o wiring BFF/client para `status_fluxo_leitura` está **pendente** (checklist §14.4).
+**Estado (TASK-000424):** Lista exibe `status_fluxo_leitura` (Gravity). `status_leitura` (DATI) permanece no payload para polling/IA/Insights/Kanban — **não é apagado nem substituído**.
 
-**Objetivo:** a coluna **Status** passa a exibir o **fluxo do usuário** (`status_fluxo_leitura`), mantendo `status_leitura` só para polling/IA/backend.
+**Objetivo:** a coluna **Status** mostra o **fluxo do usuário** no wizard; DATI continua interno.
 
-| Status UI (pill) | Código persistido | Nº passo | Legado `status_leitura` típico |
-|------------------|-------------------|:--------:|--------------------------------|
-| Pronto para análise | `PRONTO_PARA_ANALISE` | 1 | `PENDING` / stub |
-| IA analisando | `IA_ANALISANDO` | 2 | `PROCESSING` |
-| Conferência (usuário) | `CONFERENCIA_PELO_USUARIO` | 3 | `COMPLETED` |
-| Validado (usuário) | `DADOS_VALIDADOS_PELO_USUARIO` | 4 | `COMPLETED` |
-| Finalizado | `FINALIZADO` | — | `COMPLETED` |
-| Falhou | `FALHOU` | 2* | `FAILED` |
+| # | Status UI (pill) | Código | Nº passo | Uso agora |
+|---|------------------|--------|:--------:|-----------|
+| 01 | Anexar arquivo | `ANEXAR_ARQUIVO` | 1 | Sim |
+| 02 | Análise de arquivo | `ANALISE_ARQUIVO` | 2 | Sim |
+| 03 | Conferência | `CONFERENCIA` | 3 | Sim |
+| 04 | Resultado das leituras | `RESULTADO_LEITURAS` | 4 | Sim — KPI «concluída(s)» |
+| 05 | Em integração | `EM_INTEGRACAO` | — | **Reservado** — só com integração via API |
+| 06 | Integração confirmada | `INTEGRACAO_CONFIRMADA` | — | **Reservado** — só com integração via API |
+| — | Falhou | `FALHOU` | 2* | Sim — espelha DATI `FAILED` ou erro Gravity |
 
 \* Falhou costuma ocorrer no passo 2.
 
-### 14.1 Persistência (Postgres Gravity) — **entregue**
+**Derivação (sem coluna persistida nesta entrega):** `shared/status-fluxo-leitura-smart-read.ts` → `derivarStatusFluxoLeitura({ status_leitura, passo_atual_leitura })`. Passo vem de `progresso_leitura_smart_read.passo_atual_*` quando houver; senão fallback pelo DATI (`PENDING`→01, `PROCESSING`→02, `COMPLETED`→04, `FAILED`→FALHOU).
+
+### 14.1 Persistência (Postgres Gravity)
 
 | Tabela | Coluna | Papel |
 |--------|--------|--------|
-| `progresso_leitura_smart_read` | `status_fluxo_progresso_leitura_smart_read` | Fonte de verdade durante o wizard |
-| `progresso_leitura_smart_read` | `passo_atual_progresso_leitura_smart_read` | Passo 1–4 (já existia) |
-| `snapshot_leitura_smart_read` | `status_fluxo_snapshot_leitura_smart_read` | Espelho para Lista/Insights (congelamento) |
-| `snapshot_leitura_smart_read` | `passo_atual_snapshot_leitura_smart_read` | Passo no momento do snapshot |
+| `progresso_leitura_smart_read` | `passo_atual_progresso_leitura_smart_read` | Passo 1–4 (já existia) — usado para derivar fluxo |
 | `snapshot_leitura_smart_read` | `status_leitura_snapshot_leitura_smart_read` | **Inalterado** — só status IA legado |
 
-Migration: `20260625120000_add_status_fluxo_leitura_smart_read` (aplicada em Railway `gravity-smart-read-producao`).
+Colunas dedicadas `status_fluxo_*` (persistência explícita) ficam para entrega futura / Coordenador — nesta task o fluxo é **derivado no BFF** e exposto no JSON da lista.
 
-**Backfill na migration:**
-
-| Tabela | Regra |
-|--------|--------|
-| `progresso_leitura_smart_read` | Por `passo_atual`: ≥4 → `DADOS_VALIDADOS_PELO_USUARIO`; 3 → `CONFERENCIA_PELO_USUARIO`; 2 → `IA_ANALISANDO`; senão `PRONTO_PARA_ANALISE` |
-| `snapshot_leitura_smart_read` | `FAILED` → `FALHOU` + passo 2; `COMPLETED` → `FINALIZADO` + passo 4; demais → `IA_ANALISANDO` + passo 2 |
-
-### 14.2 Artefatos entregues nesta task
+### 14.2 Artefatos
 
 | Artefato | Caminho |
 |----------|---------|
-| Contrato Zod + derivação | `shared/status-fluxo-leitura-smart-read.ts` (`derivarStatusFluxoLeitura`, `statusFluxoPorPassoEPersistencia`, `ROTULO_STATUS_FLUXO_LEITURA`) |
-| Colunas Prisma | `prisma/fragment.prisma` |
-| Pill (componente isolado, **não ligado** à lista) | `client/src/components/pill-status-fluxo-leitura-smart-read.tsx` |
-| Testes unitários | `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` |
+| Contrato Zod + derivação | `shared/status-fluxo-leitura-smart-read.ts` |
+| Pill Lista | `client/src/components/pill-status-fluxo-leitura-smart-read.tsx` |
+| Coluna Status | `client/src/shared/colunas-lista-leitura-smart-read.tsx` (`status_fluxo_leitura`) |
+| Testes unitários | `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` |
 
-### 14.3 Wiring pendente (próxima entrega)
+### 14.3 Fora do escopo (continuam em `status_leitura` DATI)
 
-| Camada | Arquivo | O que falta |
-|--------|---------|-------------|
-| BFF schemas | `server/src/schemas/leitura-smart-read.ts`, `progresso-leitura-smart-read.ts` | Campos `status_fluxo_leitura`, `passo_atual_leitura`, `fluxo_finalizado` |
-| BFF rotas/libs | `progresso-leitura-smart-read.ts`, `snapshot-leitura-smart-read.ts`, `registrar-vinculo-leitura-usuario-smart-read.ts`, `normalizar-transacao-leitura-smart-read.ts`, `montar-lista-transacoes-leitura-smart-read.ts` | Gravar/ler colunas `status_fluxo_*`; expor na lista |
-| Client schemas | `client/src/shared/schemas.ts` | Bilateral com BFF |
-| Lista UI | `colunas-lista-leitura-smart-read.tsx`, `filtrar-transacoes-lista-smart-read.ts`, `smart-read-leituras.css`, `formatacao-leitura-smart-read.ts` | Trocar pill; filtros por rótulo de fluxo; classes `.sr-pill-fluxo-*` |
-| Wizard | `modal-nova-leitura-smart-read.tsx` | Enviar `fluxo_finalizado: true` ao concluir passo 4 |
-| Cards KPI | `lista-leitura-cards-smart-read.tsx` | *(opcional)* contagem «concluídas» por `FINALIZADO` em vez de `COMPLETED` |
+- **Insights** — filtros e KPIs.
+- **Kanban** — colunas por `status_leitura`.
+- **Polling do wizard** — decide pelo legado.
+- **05 / 06** — integração API (não atribuir até existir o fluxo).
 
-### 14.4 Fora do escopo desta entrega (continuam em `status_leitura`)
+### 14.4 KPI «concluída(s) nesta página»
 
-- **Insights** — filtros e KPIs (`use-dados-insights-leitura-smart-read.ts`, `calcular-metricas-insights-leitura-smart-read.ts`).
-- **Kanban** — colunas por `status_leitura` (`KanbanLeituraSmartRead.tsx`; aba oculta no seletor).
-- **Polling do wizard** — `modal-nova-leitura-smart-read.tsx` ainda decide passo inicial pelo legado.
+Enquanto 05/06 não forem usados: conta `status_fluxo_leitura === RESULTADO_LEITURAS` (04).

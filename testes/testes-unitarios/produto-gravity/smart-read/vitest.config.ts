@@ -17,6 +17,11 @@ const resolveTsFromJs = {
 export default defineConfig({
   plugins: [resolveTsFromJs],
   root,
+  resolve: {
+    alias: {
+      '@nucleo/logo-produtos': path.resolve(root, 'nucleo-global/Logo/produtos/src/index.ts'),
+    },
+  },
   test: {
     globals: true,
     environment: 'node',

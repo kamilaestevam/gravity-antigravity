@@ -23,7 +23,8 @@ import {
   obterCacheAnaliseRiscosSessaoSmartRead,
   salvarCacheAnaliseRiscosSessaoSmartRead,
 } from '../../shared/cache-analise-riscos-sessao-smart-read'
-import { obterRequisicaoAnaliseRiscosEmVooSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
+import { persistirCacheAnaliseRiscosProgressoSmartRead } from '../../shared/persistencia-leitura-smart-read'
+import { obterRequisicaoAnaliseRiscosEmVooSmartRead, obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead, dispararAnaliseRiscosBackgroundSmartRead } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
 import { PainelDetalheRiscoExpandidoNovaLeituraSmartRead } from './painel-detalhe-risco-expandido-nova-leitura-smart-read'
@@ -281,17 +282,34 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     return v1
   }, [resumo, auditoriaV1Local])
 
-  const parametrosChecklist = useMemo(
-    () => ({
+  const parametrosChecklist = useMemo(() => {
+    const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
+    const carregandoEfetivo =
+      carregando || Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise))
+    const v1Disponivel = Boolean(auditoriaV1Local?.contexto.regras.length)
+    return {
       regras: regrasEfetivas,
       riscos: riscosEfetivos,
-      pipelineConcluido,
+      pipelineConcluido: pipelineConcluido || v1Disponivel,
       llmHabilitado,
-      carregando,
+      carregando: carregandoEfetivo,
+      analise_servidor_indisponivel: Boolean(erro) && (pipelineConcluido || v1Disponivel) && !carregandoEfetivo,
+      enriquecimento_ia_em_andamento: carregandoEfetivo && !emCache?.llm_ativo,
+      fase_enriquecimento_analise: obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead(chaveAnalise),
+      cnpj_oficial: emCache?.contexto_v1.cnpj_oficial ?? null,
       documentos,
-    }),
-    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos],
-  )
+    }
+  }, [
+    regrasEfetivas,
+    riscosEfetivos,
+    pipelineConcluido,
+    llmHabilitado,
+    carregando,
+    documentos,
+    erro,
+    chaveAnalise,
+    auditoriaV1Local,
+  ])
 
   const riscosVisiveis = useMemo(
     () => filtrarRiscosPorBusca(riscosEfetivos, busca),
@@ -317,6 +335,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     resposta: Awaited<ReturnType<typeof smartReadApi.analisarRiscosLeitura>>,
   ) {
     salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
+    if (idLeituraLegado) {
+      void persistirCacheAnaliseRiscosProgressoSmartRead(idLeituraLegado, chaveAnalise, resposta)
+    }
     setResumo(resposta.resumo)
     setRegrasContexto(resposta.contexto_v1.regras)
     setLlmHabilitado(resposta.llm_ativo)
@@ -329,45 +350,42 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     if (documentos.length === 0) return
 
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
-    if (emCache) {
+    if (emCache?.llm_ativo) {
       aplicarRespostaAnaliseRiscos(emCache)
       setCarregando(false)
       return
     }
 
-    const emVoo = obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnalise)
-    const seq = ++requisicaoSeq.current
+    if (emCache) {
+      aplicarRespostaAnaliseRiscos(emCache)
+    }
+
+    // Se já há requisição em voo, o disparo abaixo deduplica e anexa onConcluido à
+    // promessa existente — o retorno antecipado deixava a prévia sem resultado final.
     setCarregando(true)
     setErro(null)
     setAviso(null)
-    setPipelineConcluido(false)
+    if (!emCache) setPipelineConcluido(false)
     onIaInicio?.()
 
-    const promessa =
-      emVoo ??
-      smartReadApi.analisarRiscosLeitura({
-        documentos,
-        incluir_llm: true,
-        id_leitura_legado: idLeituraLegado ?? undefined,
-      })
-
-    promessa
-      .then((resposta) => {
-        if (requisicaoSeq.current !== seq) return
+    dispararAnaliseRiscosBackgroundSmartRead({
+      arquivos: arquivosAnalisaveis,
+      idLeituraLegado: idLeituraLegado ?? null,
+      onParcial: (resposta) => aplicarRespostaAnaliseRiscos(resposta),
+      onTokensAtualizados: onTokensAtualizados,
+      onConcluido: (resposta) => {
         aplicarRespostaAnaliseRiscos(resposta)
-      })
-      .catch((ex: unknown) => {
-        if (requisicaoSeq.current !== seq) return
+        setCarregando(false)
+        onIaFim?.()
+      },
+      onErro: (ex: unknown) => {
         setErro(ex instanceof Error ? ex.message : 'Falha na análise de riscos')
         setPipelineConcluido(!!auditoriaV1Local)
-      })
-      .finally(() => {
-        if (requisicaoSeq.current === seq) {
-          setCarregando(false)
-          onIaFim?.()
-        }
-      })
-  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, onIaInicio, onIaFim])
+        setCarregando(false)
+        onIaFim?.()
+      },
+    })
+  }, [arquivosAnalisaveis, chaveAnalise, documentos.length, idLeituraLegado, onIaFim, onIaInicio, onTokensAtualizados])
 
   function toggleExpandirRisco(risco: RiscoAduaneiroLeitura) {
     setRiscoExpandidoId((prev) => (prev === risco.id ? null : risco.id))
@@ -397,10 +415,19 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         </div>
       )}
 
-      {carregando && (
+      {carregando && !parametrosChecklist.pipelineConcluido && (
         <p className="sr-conf-riscos-carregando" role="status">
           <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
-          {resumoExibicao.total > 0 ? 'Enriquecendo com IA e validação NCM…' : 'Analisando documentos…'}
+          Analisando documentos…
+        </p>
+      )}
+
+      {carregando && parametrosChecklist.pipelineConcluido && (
+        <p className="sr-conf-riscos-carregando" role="status">
+          <CircleNotch size={18} className="sr-wizard-analise-arquivo-spin" aria-hidden />
+          {resumoExibicao.total > 0
+            ? 'Enriquecendo com IA e validação NCM…'
+            : 'Enriquecendo com IA…'}
         </p>
       )}
 

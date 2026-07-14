@@ -13,7 +13,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
-$servicosService = if ($Ambiente -eq 'producao') { 'gravity-servicos-producao' } else { 'gravity-servicos-teste' }
+$servicosService = if ($Ambiente -eq 'producao') { 'gravity-servicos-prod' } else { 'gravity-servicos-teste' }
 $pedidoService = if ($Ambiente -eq 'producao') { 'gravity-pedido-producao' } else { 'gravity-pedido-teste' }
 $cfgService = if ($Ambiente -eq 'producao') { 'site-usegravity' } else { 'gravity-configurador-teste' }
 

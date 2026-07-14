@@ -12,6 +12,19 @@
   gap: 14px;
 }
 
+.sr-prefill-bid-obrigatorio {
+  margin-left: 4px;
+  color: #f87171;
+  font-weight: 700;
+}
+
+.sr-prefill-bid-legenda-obrigatorio {
+  color: #f87171;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 .sr-prefill-bid-secao-opcoes {
   display: flex;
   flex-direction: column;

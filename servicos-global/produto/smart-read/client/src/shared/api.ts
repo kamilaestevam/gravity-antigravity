@@ -263,6 +263,17 @@ export const smartReadApi = {
     )
   },
 
+  salvarProgressoLeituraKeepalive(idLeitura: string, estado: EstadoProgressoLeitura): void {
+    const corpo = JSON.stringify(estado)
+    if (corpo.length > 60_000) return
+    void fetch(`/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`, {
+      method: 'PATCH',
+      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      body: corpo,
+      keepalive: true,
+    })
+  },
+
   async excluirLeitura(idLeitura: string): Promise<void> {
     const resposta = await fetch(`/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`, {
       method: 'DELETE',

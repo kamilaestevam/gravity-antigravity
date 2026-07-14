@@ -470,11 +470,13 @@ export function ModalNovaLeituraSmartRead({
 
   useEffect(() => {
     if (!aberto || !idLeituraExistente || hidratandoRetomar) return
-    const passoSalvo = passoSalvoRef.current
-    if (passoSalvo < 3) return
+    const passoSalvo = Math.max(passoSalvoRef.current, passo)
+    if (passoSalvo < 2) return
 
     const leituraConsolidada = consolidarLeituraDeArquivosLocais(arquivos)
     if (leituraTemExtracaoUtilRetomarSmartRead(leituraConsolidada)) return
+    // Passo 2 com arquivos locais: o polling normal cuida — recupera só se a tela está vazia.
+    if (arquivos.length > 0 && passoSalvo < 3) return
     if (recuperandoExtracaoRetomarRef.current) return
 
     const id = idLeituraAtual ?? idLeituraExistente
@@ -503,9 +505,12 @@ export function ModalNovaLeituraSmartRead({
           }
 
           const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leituraApi, salvo?.leitura)
-          if (leituraEfetiva && leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva)) {
+          if (leituraEfetiva && leituraEfetiva.arquivos.length > 0) {
             await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
-            return
+            // Passo 2: basta rehidratar os arquivos — o polling normal continua a análise.
+            if (leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva) || passoSalvo < 3) {
+              return
+            }
           }
           if (leituraEfetiva?.status_leitura === 'FAILED') return
 

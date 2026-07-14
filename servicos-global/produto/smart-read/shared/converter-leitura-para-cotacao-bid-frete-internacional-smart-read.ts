@@ -1,6 +1,11 @@
 /**
  * Converte LeituraSchema (snapshot Smart Read) → prefill do wizard Nova Cotação BID Frete.
  */
+import {
+  avaliarCamposFaltantesPrefillCotacaoBidFrete,
+  resolverPassoInicialPrefillSmartRead,
+  type TipoPassoInicialPrefillSmartRead,
+} from '../../bid-frete-internacional/shared/regras-prefill-smart-read-cotacao-bid-frete-internacional.js'
 import type {
   DetalheMapeamentoCampoSmartReadCotacaoBidFrete,
   DetalheMapeamentoSmartReadCotacaoBidFrete,
@@ -420,41 +425,19 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
     })
   }
 
-  const obrigatorios: Array<{ chave: keyof PrefillFormularioCotacaoBidFreteSmartRead; rotulo: string }> = [
-    { chave: 'modal_cotacao_bid_frete_internacional', rotulo: 'Modal' },
-    { chave: 'modalidade_cotacao_bid_frete_internacional', rotulo: 'Modalidade' },
-    { chave: 'tipo_operacao_cotacao_bid_frete_internacional', rotulo: 'Operação' },
-    { chave: 'descricao_mercadoria_cotacao_bid_frete_internacional', rotulo: 'Mercadoria' },
-    { chave: 'incoterm_cotacao_bid_frete_internacional', rotulo: 'Incoterm' },
-    { chave: 'quantidade_volume_cotacao_bid_frete_internacional', rotulo: 'Volumes' },
-  ]
-  for (const { chave, rotulo } of obrigatorios) {
-    if (prefill[chave] == null || prefill[chave] === '') {
-      camposFaltantes.push(rotulo)
-      registrarCampo(detalheCampos, {
-        caminho_origem: '—',
-        campo_destino: chave,
-        valor_origem: null,
-        valor_destino: null,
-        status_mapeamento: 'pendente',
-        motivo: 'obrigatorio_cotacao',
-      })
-    }
+  const camposFaltantesRegras = avaliarCamposFaltantesPrefillCotacaoBidFrete(prefill)
+  for (const rotulo of camposFaltantesRegras) {
+    if (!camposFaltantes.includes(rotulo)) camposFaltantes.push(rotulo)
   }
 
-  if (prefill.modal_cotacao_bid_frete_internacional === 'MARITIMO') {
-    if (!prefill.porto_origem_cotacao_bid_frete_internacional) camposFaltantes.push('Porto origem')
-    if (!prefill.porto_destino_cotacao_bid_frete_internacional) camposFaltantes.push('Porto destino')
-  } else if (prefill.modal_cotacao_bid_frete_internacional === 'AEREO') {
-    if (!prefill.aeroporto_origem_cotacao_bid_frete_internacional) camposFaltantes.push('Aeroporto origem')
-    if (!prefill.aeroporto_destino_cotacao_bid_frete_internacional) camposFaltantes.push('Aeroporto destino')
-  }
+  const passo_inicial_tipo: TipoPassoInicialPrefillSmartRead = resolverPassoInicialPrefillSmartRead(prefill)
 
   return {
     prefill,
     detalhe_mapeamento: { campos: detalheCampos, versao_contrato: 1 },
     campos_faltantes: [...new Set(camposFaltantes)],
-    iniciar_no_passo_fornecedores: camposFaltantes.length === 0,
+    passo_inicial_tipo,
+    iniciar_no_passo_fornecedores: passo_inicial_tipo === 'fornecedores',
   }
 }
 

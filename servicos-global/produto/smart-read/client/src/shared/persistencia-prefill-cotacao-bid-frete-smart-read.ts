@@ -7,7 +7,10 @@ import {
   type PacotePrefillCotacaoBidFreteSmartRead,
   type PrefillFormularioCotacaoBidFreteSmartRead,
 } from '../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
-import type { DetalheMapeamentoSmartReadCotacaoBidFrete } from '../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
+import type {
+  DetalheMapeamentoSmartReadCotacaoBidFrete,
+  PassoInicialPrefillSmartReadCotacaoBidFrete,
+} from '../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
 
 export function salvarPrefillCotacaoBidFreteSmartRead(pacote: PacotePrefillCotacaoBidFreteSmartRead): void {
   if (typeof sessionStorage === 'undefined') return
@@ -35,6 +38,7 @@ export function montarPacotePrefillCotacaoBidFreteSmartRead(params: {
   idBid?: string | null
   prefill: PrefillFormularioCotacaoBidFreteSmartRead
   detalheMapeamento: DetalheMapeamentoSmartReadCotacaoBidFrete
+  passoInicialTipo: PassoInicialPrefillSmartReadCotacaoBidFrete
   iniciarNoPassoFornecedores: boolean
 }): PacotePrefillCotacaoBidFreteSmartRead {
   return PacotePrefillCotacaoBidFreteSmartReadSchema.parse({
@@ -42,6 +46,7 @@ export function montarPacotePrefillCotacaoBidFreteSmartRead(params: {
     id_bid_bid_frete_internacional: params.idBid?.trim() || undefined,
     prefill: params.prefill,
     detalhe_mapeamento: params.detalheMapeamento,
+    passo_inicial_tipo: params.passoInicialTipo,
     iniciar_no_passo_fornecedores: params.iniciarNoPassoFornecedores,
     criado_em: new Date().toISOString(),
   })

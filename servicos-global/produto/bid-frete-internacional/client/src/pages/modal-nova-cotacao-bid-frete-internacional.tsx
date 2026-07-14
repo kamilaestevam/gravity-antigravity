@@ -2497,7 +2497,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const origemSmartRead = searchParams.get('origem') === 'smart-read'
   const idLeituraSmartRead = searchParams.get('id_leitura')?.trim() ?? null
   const fluxoSmartReadRef = useRef(false)
-  const iniciarPassoFornecedoresSmartReadRef = useRef(true)
+  const passoInicialSmartReadRef = useRef<TipoPassoWizardNovaCotacao | null>(null)
   const [prefillSmartReadPronto, setPrefillSmartReadPronto] = useState(false)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(criarFormInicialNovaCotacao)
@@ -2550,7 +2550,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       return
     }
     fluxoSmartReadRef.current = true
-    iniciarPassoFornecedoresSmartReadRef.current = pacote.iniciar_no_passo_fornecedores
+    passoInicialSmartReadRef.current = pacote.passo_inicial_tipo
+      ?? (pacote.iniciar_no_passo_fornecedores ? 'fornecedores' : 'modal')
     setForm((prev) => aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete(prev, pacote))
     setPrefillSmartReadPronto(true)
   }, [origemSmartRead, idLeituraSmartRead, addNotification])
@@ -2558,10 +2559,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   useEffect(() => {
     if (!prefillSmartReadPronto || !fluxoSmartReadRef.current) return
     if (!form.modal_cotacao_bid_frete_internacional) return
-    if (iniciarPassoFornecedoresSmartReadRef.current && passoFornecedoresWizard > 0) {
-      setStep(passoFornecedoresWizard)
-    }
-  }, [prefillSmartReadPronto, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional, passoFornecedoresWizard])
+    const tipoInicial = passoInicialSmartReadRef.current
+    if (!tipoInicial) return
+    const seq = sequenciaPassosWizardNovaCotacao(
+      form.modal_cotacao_bid_frete_internacional,
+      form.modalidade_cotacao_bid_frete_internacional,
+    )
+    const idx = seq.indexOf(tipoInicial)
+    if (idx >= 0) setStep(idx + 1)
+  }, [prefillSmartReadPronto, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
 
   useEffect(() => {
     if (step !== passoFornecedoresWizard) return

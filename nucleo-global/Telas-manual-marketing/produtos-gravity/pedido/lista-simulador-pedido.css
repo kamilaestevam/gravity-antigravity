@@ -94,15 +94,28 @@
 
 .pds-lista-paineis-label {
   flex-shrink: 0;
-  font-size: 0.625rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
   padding-right: 0.375rem;
   margin-right: 0.125rem;
   border-right: 1px solid rgba(129, 140, 248, 0.28);
   color: #a5b4fc;
+}
+
+/* Faixa PAINÉIS + STATUS — 10,5px uniforme (abas e chips) */
+.interactive-simulator-shell .pds-root .pds-lista-paineis-strip,
+.interactive-simulator-shell .pds-root .pds-lista-paineis-strip :where(*),
+.interactive-simulator-shell .pds-root .pds-lista-status-bar,
+.interactive-simulator-shell .pds-root .pds-lista-status-bar :where(*) {
+  font-size: 10.5px !important;
+}
+
+/* Rótulos PAINÉIS / STATUS — 9px (depois da faixa, para vencer o 10,5px) */
+.interactive-simulator-shell .pds-root .pds-lista-paineis-label,
+.interactive-simulator-shell .pds-root .pds-lista-status-label {
+  font-size: 9px !important;
 }
 
 .pds-lista-paineis-tabs {
@@ -336,9 +349,8 @@
 
 .pds-lista-status-label {
   flex-shrink: 0;
-  font-size: 0.625rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
   padding-right: 0.375rem;
@@ -982,7 +994,22 @@
   border-bottom: 1px solid var(--pds-border);
   color: var(--pds-text);
   vertical-align: middle;
+  text-align: center;
   font-size: calc(0.6875rem - 1.5px);
+}
+
+.pds-lista-tabela td:not(.pds-lista-td-check):not(.pds-lista-td-expand) .pds-lista-celula {
+  justify-content: center;
+}
+
+.pds-lista-tabela td:not(.pds-lista-td-check):not(.pds-lista-td-expand) .pds-lista-celula-conteudo {
+  justify-content: center;
+  width: 100%;
+}
+
+.pds-lista-tabela td:not(.pds-lista-td-check):not(.pds-lista-td-expand) .tg-trigger {
+  justify-content: center;
+  width: 100%;
 }
 
 .pds-lista-tabela .pds-lista-celula span[style*='border-radius'] {
@@ -1105,37 +1132,18 @@
 }
 
 .pds-lista-numero--filho {
-  padding-left: 8px;
   gap: 8px;
-}
-
-.pds-lista-sequencia {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 14px;
-  color: rgba(148, 163, 184, 0.85);
-  font-weight: 600;
-}
-
-.pds-lista-item-id {
-  color: #e2e8f0;
-  font-weight: 500;
-}
-
-.pds-lista-vazio {
-  color: rgba(100, 116, 139, 0.7);
-}
-
-.pds-lista-anexo {
-  color: var(--gtv-link);
-  font-size: calc(10px - 1.5px);
 }
 
 .pds-lista-numero {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  width: 100%;
+}
+
+.pds-lista-numero:not(.pds-lista-numero--filho) {
   color: var(--gtv-link);
   font-weight: 600;
   text-decoration: underline;

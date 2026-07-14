@@ -65,7 +65,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
             y={cy - 3}
             textAnchor="middle"
             fill="#ffffff"
-            fontSize="22"
+            fontSize="13"
             fontWeight="800"
             style={{ letterSpacing: '0.02em' }}
           >
@@ -76,7 +76,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
             y={cy + 12}
             textAnchor="middle"
             fill="#cbd5e1"
-            fontSize="9"
+            fontSize="13"
             fontWeight="600"
             style={{ letterSpacing: '0.04em' }}
           >

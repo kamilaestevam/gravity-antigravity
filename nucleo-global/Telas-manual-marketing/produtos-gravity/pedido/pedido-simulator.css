@@ -1,4 +1,5 @@
 @import '../smart-doc/smart-doc-simulator.css';
+@import '../../../Layout/menu-lateral-global/src/menu-lateral.css';
 
 .pds-shell-wrap {
   position: relative;
@@ -8,10 +9,30 @@
 }
 
 .pds-root {
-  --sds-accent: #6366f1;
-  --sds-accent-hover: #4f46e5;
-  --sds-accent-ring: #818cf8;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --sds-accent: #f59e0b;
+  --sds-accent-hover: #d97706;
+  --sds-accent-ring: #fbbf24;
+  font-family: var(--sim-font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: var(--sim-font-size, 12px);
+  line-height: var(--sim-line-height, 1.45);
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.pds-root .mlg-sidebar {
+  flex-shrink: 0;
+  height: 100%;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pds-root .sds-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .pds-root .sds-btn-novo {
@@ -24,8 +45,8 @@
 }
 
 .pds-root .srt-tab--active {
-  background: rgba(167, 139, 250, 0.15);
-  color: #a78bfa;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
   border-color: transparent;
 }
 
@@ -230,11 +251,11 @@
 }
 
 .pds-root .sds-mtg-page-title {
-  font-size: 0.9375rem;
+  font-size: var(--sim-font-size-titulo, 13px);
 }
 
 .pds-root .pds-mtg-subtitulo {
-  font-size: 0.625rem;
+  font-size: var(--sim-font-size, 12px);
 }
 
 .pds-root .sds-mtg-icon-btn,

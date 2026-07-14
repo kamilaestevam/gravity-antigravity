@@ -77,7 +77,7 @@ export function GraficoBarrasMensalSimuladorPedido({ dados }: Props) {
                   y={y + 3}
                   textAnchor="end"
                   fill="#64748b"
-                  fontSize="9"
+                  fontSize="13"
                   fontWeight="600"
                 >
                   {val}
@@ -94,7 +94,7 @@ export function GraficoBarrasMensalSimuladorPedido({ dados }: Props) {
             if (total === 0) {
               return (
                 <g key={item.mes}>
-                  <text x={x + w / 2} y={H - 10} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600">
+                  <text x={x + w / 2} y={H - 10} textAnchor="middle" fill="#cbd5e1" fontSize="13" fontWeight="600">
                     {item.mes}
                   </text>
                 </g>
@@ -150,13 +150,13 @@ export function GraficoBarrasMensalSimuladorPedido({ dados }: Props) {
                   y={yTop - 6}
                   textAnchor="middle"
                   fill="#ffffff"
-                  fontSize="11"
+                  fontSize="13"
                   fontWeight="700"
                   className="pds-grafico-barras-mes__total"
                 >
                   {total}
                 </text>
-                <text x={x + w / 2} y={H - 10} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600">
+                <text x={x + w / 2} y={H - 10} textAnchor="middle" fill="#cbd5e1" fontSize="13" fontWeight="600">
                   {item.mes}
                 </text>
               </g>

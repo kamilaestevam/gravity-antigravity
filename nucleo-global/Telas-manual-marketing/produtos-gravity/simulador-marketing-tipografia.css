@@ -1,0 +1,76 @@
+/**
+ * Tipografia dos simuladores no site Gravity (demo marketing).
+ * SSOT: Plus Jakarta Sans · títulos 13px · corpo 12px · line-height 1.45
+ */
+.interactive-simulator-shell {
+  --sim-font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --sim-font-size: 12px;
+  --sim-font-size-titulo: 13px;
+  --sim-line-height: 1.45;
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.interactive-simulator-shell :is(.sds-root, .pds-root) {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+}
+
+/* Corpo: 12px — neutraliza rem herdados dos CSS legados do simulador */
+.interactive-simulator-shell :is(.sds-root, .pds-root) :where(*) {
+  font-family: inherit;
+  line-height: inherit;
+  font-size: var(--sim-font-size) !important;
+}
+
+/* Títulos: 13px */
+.interactive-simulator-shell :is(.sds-root, .pds-root) :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .sds-mtg-page-title,
+  .sds-page-title,
+  .sds-page-title__text,
+  .mlg-logo-name,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo,
+  [class*='__titulo']:not([class*='subtitulo']):not([class*='__subtitulo'])
+) {
+  font-size: var(--sim-font-size-titulo) !important;
+}
+
+.interactive-simulator-shell :is(.sds-root, .pds-root) svg text {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size) !important;
+}
+
+/* BID Frete e demais simuladores sem .sds-root */
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+}
+
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) :where(*) {
+  font-family: inherit;
+  line-height: inherit;
+  font-size: var(--sim-font-size) !important;
+}
+
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6
+) {
+  font-size: var(--sim-font-size-titulo) !important;
+}

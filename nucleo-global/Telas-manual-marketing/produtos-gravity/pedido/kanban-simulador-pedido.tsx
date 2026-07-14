@@ -140,7 +140,7 @@ export function KanbanSimuladorPedido() {
                     >
                       {ok ? '✓' : '●'}
                     </span>
-                    <span style={{ color: ok ? '#cbd5e1' : '#64748b', fontWeight: ok ? 600 : 400, fontSize: 11 }}>
+                    <span style={{ color: ok ? '#cbd5e1' : '#64748b', fontWeight: ok ? 600 : 400 }}>
                       {etapa.rotulo}
                     </span>
                   </div>

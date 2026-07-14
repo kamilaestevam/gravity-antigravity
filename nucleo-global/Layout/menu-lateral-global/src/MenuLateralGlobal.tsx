@@ -97,6 +97,11 @@ export interface MenuLateralGlobalProps {
   defaultCollapsed?: boolean
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  /** Demo marketing: evita `<a href>` full-page; usa botões e callback */
+  modoDemonstracao?: boolean
+  onNavegarDemonstracao?: (to: string) => void
+  /** Rota ativa simulada (pathname + search) quando `modoDemonstracao` */
+  rotaAtivaDemonstracao?: string
 }
 
 function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
@@ -159,6 +164,9 @@ export function MenuLateralGlobal({
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse,
+  modoDemonstracao = false,
+  onNavegarDemonstracao,
+  rotaAtivaDemonstracao,
 }: MenuLateralGlobalProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -199,6 +207,12 @@ export function MenuLateralGlobal({
   const tenantBtnRef = useRef<HTMLButtonElement>(null)
   const prodBtnRef = useRef<HTMLButtonElement>(null)
   const location = useLocation()
+  const pathnameDemo = modoDemonstracao && rotaAtivaDemonstracao
+    ? rotaAtivaDemonstracao.split('?')[0] ?? rotaAtivaDemonstracao
+    : location.pathname
+  const searchDemo = modoDemonstracao && rotaAtivaDemonstracao?.includes('?')
+    ? `?${rotaAtivaDemonstracao.split('?')[1] ?? ''}`
+    : location.search
 
   const exibirSeletorProduto = produtos.length >= 1 && Boolean(onSwitchProduct)
 
@@ -305,8 +319,8 @@ export function MenuLateralGlobal({
 
     const hasChildren = item.children && item.children.length > 0
     const initiallyExpanded = hasChildren && (
-      navItemMatchesPath(item.to, location.pathname, location.search) ||
-      item.children?.some(child => navItemMatchesPath(child.to, location.pathname, location.search))
+      navItemMatchesPath(item.to, pathnameDemo, searchDemo) ||
+      item.children?.some(child => navItemMatchesPath(child.to, pathnameDemo, searchDemo))
     )
     const isExpanded = expandedItems[item.label] !== undefined ? expandedItems[item.label] : initiallyExpanded
     
@@ -349,15 +363,15 @@ export function MenuLateralGlobal({
       if (!to) return false
       if (to.includes('?')) {
         const [toPath, toQuery] = to.split('?')
-        if (location.pathname !== toPath) return false
+        if (pathnameDemo !== toPath) return false
         const toParams = new URLSearchParams(toQuery)
-        const currentParams = new URLSearchParams(location.search)
+        const currentParams = new URLSearchParams(searchDemo.replace(/^\?/, ''))
         for (const [key, val] of toParams.entries()) {
           if (currentParams.get(key) !== val) return false
         }
         return true
       }
-      return location.pathname === to
+      return pathnameDemo === to
     }
     const isActive = checkActive(item.to || '')
     const navLink = item.disabled ? (
@@ -365,6 +379,18 @@ export function MenuLateralGlobal({
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
       </div>
+    ) : modoDemonstracao ? (
+      <button
+        key={item.to || item.label}
+        type="button"
+        className={`mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
+        onClick={() => {
+          if (item.to) onNavegarDemonstracao?.(item.to)
+        }}
+      >
+        <div className="mlg-nav-icon">{item.icon}</div>
+        {textContent}
+      </button>
     ) : (
       <a
         key={item.to || item.label}

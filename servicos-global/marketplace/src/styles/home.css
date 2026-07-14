@@ -2,6 +2,8 @@
    GRAVITY — PREMIUM MARKETPLACE HOME STYLES (STRIPE & MONDAY)
    ============================================================ */
 
+@import '../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/simulador-marketing-tipografia.css';
+
 /* ---- Hero Section & Glows ---- */
 .hero {
   padding: 9rem 0 7rem;
@@ -627,7 +629,11 @@
   opacity: 1 !important;
 }
 
-/* Limpa a sobreposição da placa para exibir a imagem de tela perfeitamente nítida */
+.stack-layer.active:has(.interactive-simulator-shell) {
+  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.82));
+}
+
+/* Limpa a sobreposição da placa para exibir a tela perfeitamente nítida */
 .stack-layer.active .slab-top {
   border-color: rgba(var(--layer-color-rgb), 0.95);
   box-shadow: 
@@ -639,6 +645,18 @@
   -webkit-backdrop-filter: blur(24px);
   overflow: hidden;
   isolation: isolate;
+}
+
+/* Simulador vivo: fundo sólido, sem glass blur — nitidez tipo Apple Retina */
+.stack-layer.active .slab-top:has(.interactive-simulator-shell) {
+  background: #090b14;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(var(--layer-color-rgb), 0.55),
+    0 28px 56px -12px rgba(0, 0, 0, 0.88),
+    0 0 36px rgba(var(--layer-color-rgb), 0.22);
 }
 
 /* Smart Read / Pedido: tooltips do simulador não podem ser cortados pela placa */
@@ -654,12 +672,20 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  border-radius: 24px;
-  border: 18px solid #000;
-  box-shadow:
-    inset 0 0 30px rgba(0, 0, 0, 0.8),
-    0 0 0 2px rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  border: none;
+  box-shadow: none;
   background: #090b14;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.interactive-simulator-shell .sds-root,
+.interactive-simulator-shell .pds-root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .interactive-simulator-close {

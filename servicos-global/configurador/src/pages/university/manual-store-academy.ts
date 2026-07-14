@@ -7,7 +7,7 @@ import type { AulaDemo } from './manual-login-academy'
 import { blocosDeSecaoConfiguradorAcademy } from './academy-blocos-manual'
 import { DOC_STORE_SECAO } from './manual-store-conteudo'
 
-const FLUXOS = DOC_STORE_SECAO.fluxos ?? []
+const TITULO_ENTENDA_GRAVITY_STORE = 'Entenda a Gravity Store'
 
 function aulaStore(
   slug: string,
@@ -31,58 +31,16 @@ function aulaStore(
 }
 
 export const STORE_AULA_SLUGS = [
-  'gravity-store',
-  'como-acessar-a-store',
-  'buscar-e-filtrar',
-  'linhas-do-catalogo',
-  'status-dos-produtos',
-  'contratar-um-produto',
-  'cancelar-produto',
+  'entenda-a-gravity-store',
 ] as const
 
 export const AULAS_STORE: AulaDemo[] = [
   aulaStore(
     STORE_AULA_SLUGS[0],
-    DOC_STORE_SECAO.titulo,
-    '5m',
-    [],
+    TITULO_ENTENDA_GRAVITY_STORE,
+    '47m',
+    [0, 1, 2, 3, 4, 5],
     { incluirIntroSecao: true, incluirImagemSecao: true },
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Como acessar a Gravity Store',
-    '8m',
-    [0],
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Buscar e filtrar',
-    '8m',
-    [1],
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[3],
-    FLUXOS[2]?.tituloSumario ?? 'Linhas do catálogo',
-    '6m',
-    [2],
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[4],
-    FLUXOS[3]?.tituloSumario ?? 'Status dos produtos',
-    '8m',
-    [3],
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[5],
-    FLUXOS[4]?.tituloSumario ?? 'Contratar um produto',
-    '8m',
-    [4],
-  ),
-  aulaStore(
-    STORE_AULA_SLUGS[6],
-    FLUXOS[5]?.tituloSumario ?? 'Cancelar produto',
-    '4m',
-    [5],
   ),
 ]
 

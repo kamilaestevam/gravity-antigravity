@@ -1,6 +1,10 @@
 import React, { createContext, useCallback, useContext } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { resolverHrefManualParaAcademy, type RetornoGuiaAcademy } from './academy-link-guia'
+import { useLocation, useNavigate, type NavigateFunction } from 'react-router-dom'
+import {
+  produtoSlugDePathnameAcademy,
+  resolverHrefManualParaAcademy,
+  type RetornoGuiaAcademy,
+} from './academy-link-guia'
 
 const LINK_STYLE: React.CSSProperties = {
   color: '#818cf8',
@@ -21,6 +25,24 @@ export function restaurarScrollGuia(scrollY: number) {
     return
   }
   window.scrollTo({ top: scrollY, behavior: 'smooth' })
+}
+
+export function montarRetornoGuiaAcademy(pathname: string, hash: string): RetornoGuiaAcademy {
+  return {
+    pathname,
+    hash,
+    scrollY: scrollGuiaAtual(),
+  }
+}
+
+export function navegarComRetornoGuia(
+  navigate: NavigateFunction,
+  location: { pathname: string; hash: string },
+  href: string,
+) {
+  const destino = resolverHrefManualParaAcademy(href) ?? href
+  const retorno = montarRetornoGuiaAcademy(location.pathname, location.hash)
+  navigate(destino, { state: { retornoGuia: retorno } })
 }
 
 interface GuiaAcademyNavigationValue {
@@ -45,14 +67,8 @@ export function GuiaAcademyNavigationProvider({
   const location = useLocation()
 
   const navegarLinkInterno = useCallback((href: string) => {
-    const destino = resolverHrefManualParaAcademy(href, produtoSlug) ?? href
-    const retorno: RetornoGuiaAcademy = {
-      pathname: location.pathname,
-      hash: location.hash,
-      scrollY: scrollGuiaAtual(),
-    }
-    navigate(destino, { state: { retornoGuia: retorno } })
-  }, [location.hash, location.pathname, navigate, produtoSlug])
+    navegarComRetornoGuia(navigate, location, href)
+  }, [location, navigate])
 
   return (
     <GuiaAcademyNavigationContext.Provider value={{ produtoSlug, navegarLinkInterno }}>
@@ -66,38 +82,18 @@ export function AcademyLinkGuia({ href, rotulo }: { href: string; rotulo: string
   const navigate = useNavigate()
   const location = useLocation()
 
-  const destinoAcademy = resolverHrefManualParaAcademy(href, guia?.produtoSlug ?? 'configurador')
-
-  if (guia && destinoAcademy) {
-    return (
-      <button
-        type="button"
-        onClick={() => guia.navegarLinkInterno(href)}
-        style={{
-          ...LINK_STYLE,
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
-          font: 'inherit',
-        }}
-      >
-        {rotulo}
-      </button>
-    )
-  }
+  const destinoAcademy = resolverHrefManualParaAcademy(href)
 
   if (destinoAcademy) {
     return (
       <button
         type="button"
         onClick={() => {
-          const retorno: RetornoGuiaAcademy = {
-            pathname: location.pathname,
-            hash: location.hash,
-            scrollY: scrollGuiaAtual(),
+          if (guia) {
+            guia.navegarLinkInterno(href)
+            return
           }
-          navigate(destinoAcademy, { state: { retornoGuia: retorno } })
+          navegarComRetornoGuia(navigate, location, href)
         }}
         style={{
           ...LINK_STYLE,
@@ -138,3 +134,5 @@ export function lerRetornoGuiaAcademy(state: unknown): RetornoGuiaAcademy | null
     scrollY: typeof retorno.scrollY === 'number' ? retorno.scrollY : 0,
   }
 }
+
+export { produtoSlugDePathnameAcademy }

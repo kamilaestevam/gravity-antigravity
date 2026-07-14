@@ -1,6 +1,8 @@
 import React from 'react'
 import {
   ArrowsLeftRight,
+  ArrowDown,
+  ArrowUp,
   ClockCounterClockwise,
   FilePdf,
   GearSix,
@@ -11,8 +13,45 @@ import {
   Stack,
   type Icon,
 } from '@phosphor-icons/react'
+import {
+  MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX,
+  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+  MANUAL_ESPACO_PARAGRAFO_PX,
+  MANUAL_TITULO_INFOGRAFICO_ESTILO,
+} from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
+
+type CardOperacaoPedido = {
+  rotulo: string
+  descricao: string
+  icone: Icon
+  cor: string
+  borda: string
+  fundo: string
+  gradiente: string
+}
+
+const OPERACOES_PEDIDO: CardOperacaoPedido[] = [
+  {
+    rotulo: 'Importação',
+    descricao: 'Pedidos de **entrada** — compra no exterior e recebimento no país.',
+    icone: ArrowDown,
+    cor: '#2dd4bf',
+    borda: 'rgba(45,212,191,.38)',
+    fundo: 'rgba(45,212,191,.1)',
+    gradiente: 'linear-gradient(135deg, rgba(45,212,191,.14) 0%, rgba(8,12,24,.35) 72%)',
+  },
+  {
+    rotulo: 'Exportação',
+    descricao: 'Pedidos de **saída** — venda para o exterior a partir do workspace.',
+    icone: ArrowUp,
+    cor: '#fbbf24',
+    borda: 'rgba(251,191,36,.38)',
+    fundo: 'rgba(251,191,36,.1)',
+    gradiente: 'linear-gradient(135deg, rgba(251,191,36,.14) 0%, rgba(8,12,24,.35) 72%)',
+  },
+]
 
 type CardPedido = {
   num: number
@@ -79,6 +118,7 @@ const GRUPOS: GrupoPedido[] = [
   },
   {
     titulo: 'Ações e governança',
+    subtitulo: 'Do cadastro de POs às preferências e trilha de auditoria do workspace',
     colunas: 3,
     cards: [
       {
@@ -112,11 +152,97 @@ const GRUPOS: GrupoPedido[] = [
   },
 ]
 
+/** Espaço título de seção ↔ subtítulo (bloco de cabeçalho interno). */
+const ESPACO_TITULO_SUBTITULO_GRUPO_PX = 4
+
+const ESTILO_TITULO_GRUPO: React.CSSProperties = {
+  margin: 0,
+  fontSize: '.72rem',
+  fontWeight: 700,
+  letterSpacing: '.04em',
+  textTransform: 'uppercase',
+  color: '#818cf8',
+}
+
+const ESTILO_SUBTITULO_GRUPO: React.CSSProperties = {
+  margin: 0,
+  fontSize: '.7rem',
+  color: CORPO_70,
+  lineHeight: 1.45,
+}
+
+function TituloSubtituloGrupo({ titulo, subtitulo }: { titulo: string; subtitulo?: string }) {
+  return (
+    <div style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
+      <p style={{
+        ...ESTILO_TITULO_GRUPO,
+        marginBottom: subtitulo ? ESPACO_TITULO_SUBTITULO_GRUPO_PX : 0,
+      }}>
+        {titulo}
+      </p>
+      {subtitulo && (
+        <p style={ESTILO_SUBTITULO_GRUPO}>{subtitulo}</p>
+      )}
+    </div>
+  )
+}
+
 function renderDescricao(texto: string) {
   return texto.split('**').map((parte, i) =>
     i % 2 === 1
       ? <strong key={i} style={{ color: '#cbd5e1', fontWeight: 700 }}>{parte}</strong>
       : parte,
+  )
+}
+
+function CardOperacaoPedidoVisaoGeral({ card }: { card: CardOperacaoPedido }) {
+  const Icone = card.icone
+  return (
+    <div style={{
+      borderRadius: 12,
+      padding: '14px 15px',
+      background: card.gradiente,
+      border: `1px solid ${card.borda}`,
+      height: '100%',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 12,
+      boxShadow: `inset 0 1px 0 rgba(255,255,255,.04), 0 0 24px ${card.borda.replace(/[\d.]+\)$/, '.08)')}`,
+    }}>
+      <div style={{
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        background: card.fundo,
+        border: `1px solid ${card.borda}`,
+        boxShadow: `0 0 22px ${card.borda}`,
+      }}>
+        <Icone size={24} weight="duotone" color={card.cor} />
+      </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <p style={{
+          margin: 0,
+          fontWeight: 800,
+          fontSize: '.8rem',
+          color: '#e2e8f0',
+          lineHeight: 1.35,
+        }}>
+          {card.rotulo}
+        </p>
+        <p style={{
+          margin: '6px 0 0',
+          fontSize: '.72rem',
+          lineHeight: 1.5,
+          color: CORPO_70,
+        }}>
+          {renderDescricao(card.descricao)}
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -213,22 +339,17 @@ export function ManualInfograficoPedidoVisaoGeral() {
       background: 'linear-gradient(165deg, rgba(245,158,11,.07) 0%, rgba(99,102,241,.06) 42%, rgba(148,163,184,.04) 100%)',
       border: '1px solid rgba(148,163,184,.16)',
       borderRadius: 14,
-      padding: '18px 18px 14px',
-      marginTop: 0,
+      padding: '16px 18px 18px',
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
         gap: 12,
-        marginBottom: 18,
         flexWrap: 'wrap',
       }}>
         <div>
-          <p style={{
-            fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-            color: 'var(--ws-muted,#94a3b8)', margin: '0 0 6px',
-          }}>
+          <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
             Mapa do produto
           </p>
           <p style={{
@@ -260,29 +381,23 @@ export function ManualInfograficoPedidoVisaoGeral() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ marginTop: MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: MANUAL_ESPACO_PARAGRAFO_PX,
+        }}>
+          {OPERACOES_PEDIDO.map((card) => (
+            <CardOperacaoPedidoVisaoGeral key={card.rotulo} card={card} />
+          ))}
+        </div>
+
         {GRUPOS.map((grupo) => (
-          <section key={grupo.titulo}>
-            <p style={{
-              margin: '0 0 6px',
-              fontSize: '.7rem',
-              fontWeight: 800,
-              letterSpacing: '.06em',
-              textTransform: 'uppercase',
-              color: '#94a3b8',
-            }}>
-              {grupo.titulo}
-            </p>
-            {grupo.subtitulo && (
-              <p style={{
-                margin: '0 0 12px',
-                fontSize: '.7rem',
-                color: CORPO_70,
-                lineHeight: 1.45,
-              }}>
-                {grupo.subtitulo}
-              </p>
-            )}
+          <section
+            key={grupo.titulo}
+            style={{ marginTop: MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX }}
+          >
+            <TituloSubtituloGrupo titulo={grupo.titulo} subtitulo={grupo.subtitulo} />
             {grupo.fluxo ? (
               <div style={{
                 display: 'flex',
@@ -318,8 +433,8 @@ export function ManualInfograficoPedidoVisaoGeral() {
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        marginTop: 10,
-        paddingTop: 10,
+        marginTop: MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX,
+        paddingTop: 14,
         borderTop: '1px solid rgba(148,163,184,.12)',
         flexWrap: 'wrap',
       }}>

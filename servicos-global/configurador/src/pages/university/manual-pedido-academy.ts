@@ -9,6 +9,8 @@ import { DOC_PEDIDO_SECAO } from './manual-pedido-conteudo'
 
 const FLUXOS = DOC_PEDIDO_SECAO.fluxos ?? []
 
+const TITULO_PEDIDO_GRAVITY = 'Pedido Gravity'
+
 const OPCOES_PEDIDO = {
   incluirImagemSecao: false,
   fluxoComoManualCompleto: true,
@@ -36,9 +38,7 @@ function aulaPedido(
 }
 
 export const PEDIDO_AULA_SLUGS = [
-  'pedido-visao-geral',
-  'pedido-acesso',
-  'pedido-tipos-visualizacao',
+  'pedido-gravity',
   'pedido-visao-insights',
   'pedido-visao-lista',
   'pedido-visao-dashboard',
@@ -50,55 +50,43 @@ export const PEDIDO_AULA_SLUGS = [
 export const AULAS_PEDIDO: AulaDemo[] = [
   aulaPedido(
     PEDIDO_AULA_SLUGS[0],
-    DOC_PEDIDO_SECAO.titulo,
-    '10m',
-    [],
+    TITULO_PEDIDO_GRAVITY,
+    '24m',
+    [0, 1],
     { incluirIntroSecao: true },
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Como acessar o produto',
-    '6m',
-    [0],
-  ),
-  aulaPedido(
-    PEDIDO_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Tipos de visualização',
-    '8m',
-    [1],
-  ),
-  aulaPedido(
-    PEDIDO_AULA_SLUGS[3],
     FLUXOS[2]?.tituloSumario ?? 'Visão Insights',
     '22m',
     [2],
   ),
   aulaPedido(
-    PEDIDO_AULA_SLUGS[4],
+    PEDIDO_AULA_SLUGS[2],
     FLUXOS[3]?.tituloSumario ?? 'Visão Lista',
     '48m',
     [3],
   ),
   aulaPedido(
-    PEDIDO_AULA_SLUGS[5],
+    PEDIDO_AULA_SLUGS[3],
     FLUXOS[4]?.tituloSumario ?? 'Visão Dashboard',
     '26m',
     [4],
   ),
   aulaPedido(
-    PEDIDO_AULA_SLUGS[6],
+    PEDIDO_AULA_SLUGS[4],
     FLUXOS[5]?.tituloSumario ?? 'Visão Kanban',
     '16m',
     [5],
   ),
   aulaPedido(
-    PEDIDO_AULA_SLUGS[7],
+    PEDIDO_AULA_SLUGS[5],
     FLUXOS[6]?.tituloSumario ?? 'Configurações',
     '16m',
     [6],
   ),
   aulaPedido(
-    PEDIDO_AULA_SLUGS[8],
+    PEDIDO_AULA_SLUGS[6],
     FLUXOS[7]?.tituloSumario ?? 'Histórico',
     '12m',
     [7],

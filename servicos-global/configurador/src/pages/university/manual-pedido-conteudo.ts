@@ -379,21 +379,9 @@ export const DOC_PEDIDO_METADADOS: { rotulo: string; valor: string; href?: boole
 export const DOC_PEDIDO_SECAO: DocSecao = {
   num: 1,
   titulo: 'Visão geral',
+  tituloTopico: 'O que é Pedido',
   paragrafos: [
-    'O **Pedido** é o local da plataforma Gravity onde se faz a **gestão de pedidos** no comércio exterior — **todo o gerenciamento antes do embarque**. Pedidos **criados**, pedidos e itens **prontos**, pedidos **parciais**, **transferências** de pedidos e itens para **novo pedido** ou para **pedidos existentes**, **consolidação** de pedidos compatíveis, edição em massa e geração de documentos.',
-    'É possível **gerenciar os pedidos** de **quatro formas diferentes**: **Insights**, **Lista**, **Dashboard** e **Kanban**.',
-  ],
-  galeriaComparacaoAposParagrafo: [
-    {
-      indice: 1,
-      colunas: 4,
-      telas: [
-        { legenda: 'Insights', imagem: SCREENSHOT_PEDIDO_INSIGHTS },
-        { legenda: 'Lista', imagem: SCREENSHOT_PEDIDO_LISTA },
-        { legenda: 'Dashboard', imagem: SCREENSHOT_PEDIDO_DASHBOARD },
-        { legenda: 'Kanban', imagem: SCREENSHOT_PEDIDO_KANBAN },
-      ],
-    },
+    'O **Pedido** é o local da plataforma Gravity onde se faz a **gestão de pedidos** no comércio exterior, **todo o gerenciamento antes do embarque**. Pedidos **criados**, pedidos e itens **prontos**, pedidos **parciais**, **transferências** de pedidos e itens para **novo pedido** ou para **pedidos existentes**, **consolidação** de pedidos compatíveis, edição em massa e geração de documentos.',
   ],
   mostrarInfograficoPedidoVisaoGeral: true,
   fluxos: [
@@ -401,7 +389,6 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
       titulo: 'Como acessar o produto',
       tituloSumario: 'Como acessar o produto',
       modoCenarios: true,
-      cenariosLadoALado: true,
       paragrafos: [
         'Com o **Pedido** contratado e habilitado no workspace, há **dois caminhos** para abrir o produto: pelo **Hub** ou pelo **menu lateral** (**acesso rápido**, a partir de outro Produto Gravity).',
       ],
@@ -428,7 +415,6 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
       titulo: 'Tipos de visualização Pedido',
       tituloSumario: 'Tipos de visualização',
       modoCenarios: true,
-      cenariosLadoALado: true,
       paragrafos: [
         'No topo do produto, as abas **Insights**, **Lista**, **Dashboard** e **Kanban** alternam entre **quatro visualizações** do mesmo escopo de pedidos do workspace:',
       ],

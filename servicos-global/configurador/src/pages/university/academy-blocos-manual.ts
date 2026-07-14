@@ -206,6 +206,7 @@ const INFOGRAFICOS_SECAO: Array<{
   { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
   { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
   { flag: 'mostrarInfograficoSmartDocsDocumentos', id: 'smart-docs-documentos' },
+  { flag: 'mostrarInfograficoAdminTelas', id: 'admin-telas' },
 ]
 
 const INFOGRAFICOS_FLUXO: Array<{
@@ -225,7 +226,7 @@ function blocosInfograficosSecao(
   secao: DocSecaoConfigurador,
   idsExplicitos?: IdInfograficoAcademy[],
 ): BlocoConteudoAcademy[] {
-  if (idsExplicitos?.length) return idsExplicitos.map(blocoInfografico)
+  if (idsExplicitos !== undefined) return idsExplicitos.map(blocoInfografico)
   const blocos: BlocoConteudoAcademy[] = []
   for (const { flag, id, skipSeAposParagrafo } of INFOGRAFICOS_SECAO) {
     if (!secao[flag]) continue
@@ -294,6 +295,12 @@ function blocosDeFluxo(
   }
   if (fluxo.mostrarCatalogoHistoricoCompleto) {
     blocos.push({ tipo: 'catalogo_historico', dados: {} })
+  }
+  if (
+    fluxo.mostrarInfograficoHubGabiInsightsExplicacoes
+    && fluxo.infograficoHubGabiInsightsExplicacoesAposPassos
+  ) {
+    blocos.push(blocoInfografico('hub-gabi-insights-explicacoes'))
   }
   if (fluxo.callout && fluxo.calloutAposPassos) blocos.push(blocosDeCallout(fluxo.callout))
   blocos.push(...blocosInfograficosFluxo(fluxo, 'apos_passos'))
@@ -372,7 +379,7 @@ export function blocosDeSecaoConfiguradorAcademy(
       const imagemFinal = blocoImagemSecao(secao, curadoria)
       if (imagemFinal) blocos.push(imagemFinal)
     }
-  } else {
+  } else if (curadoria.infograficosSecao !== undefined) {
     blocos.push(...blocosInfograficosSecao(secao, curadoria.infograficosSecao))
   }
 

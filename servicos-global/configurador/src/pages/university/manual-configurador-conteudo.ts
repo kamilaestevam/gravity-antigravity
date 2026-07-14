@@ -40,6 +40,8 @@ export interface DocPassoVisual {
   rotuloPasso?: string
   /** Chip âmbar «Em construção» ao lado do `rotuloPasso` (Academy + Guia). */
   tagEmConstrucao?: boolean
+  /** Chip âmbar «Em breve» ao lado do `rotuloPasso` (produto ou fluxo ainda não liberado). */
+  tagEmBreve?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
   /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
@@ -488,10 +490,16 @@ export interface DocSecao {
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
   mostrarInfograficoHubTelas?: boolean
+  /** Manual Hub § Gabi Insights — cards O que entra / Como navegar / Como ler um card. */
+  mostrarInfograficoHubGabiInsightsExplicacoes?: boolean
+  /** Com `mostrarInfograficoHubGabiInsightsExplicacoes`, renderiza após o passo do screenshot. */
+  infograficoHubGabiInsightsExplicacoesAposPassos?: boolean
   /** Manual Smart Docs §01 — cards dos tipos de documento lidos pela IA. */
   mostrarInfograficoSmartDocsDocumentos?: boolean
   /** Manual Pedido §01 — mapa visual do ciclo do PO antes do embarque. */
   mostrarInfograficoPedidoVisaoGeral?: boolean
+  /** Manual Admin §01 — mapa das áreas do painel interno Gravity. */
+  mostrarInfograficoAdminTelas?: boolean
   /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
   mostrarInfograficoMapaNavegacaoGravity?: boolean
   /** Manual API Cockpit §01 — ponte visual ERP/COMEX ↔ Gravity (público não técnico). */

@@ -26,9 +26,11 @@ import { ManualInfograficoApiCockpitConsumo } from './manual-api-cockpit-infogra
 import { ManualInfograficoGabiCapacidades } from './manual-gabi-infografico-capacidades'
 import { ManualInfograficoGabiJanela } from './manual-gabi-infografico-janela'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoHubGabiInsightsExplicacoes } from './manual-hub-infografico-gabi-insights-explicacoes'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
+import { ManualInfograficoAdminTelas } from './manual-admin-infografico-telas'
 
 export type IdInfograficoAcademy =
   | 'organizacao-conta'
@@ -47,9 +49,11 @@ export type IdInfograficoAcademy =
   | 'gabi-capacidades'
   | 'gabi-janela'
   | 'hub-telas'
+  | 'hub-gabi-insights-explicacoes'
   | 'icones-menu-superior'
   | 'pedido-visao-geral'
   | 'smart-docs-documentos'
+  | 'admin-telas'
 
 function InfograficoOrganizacaoWorkspacesAcademy() {
   return (
@@ -89,9 +93,11 @@ const REGISTRO_INFOGRAFICOS_ACADEMY: Record<IdInfograficoAcademy, React.Componen
   'gabi-capacidades': ManualInfograficoGabiCapacidades,
   'gabi-janela': ManualInfograficoGabiJanela,
   'hub-telas': ManualInfograficoHubTelas,
+  'hub-gabi-insights-explicacoes': ManualInfograficoHubGabiInsightsExplicacoes,
   'icones-menu-superior': ManualInfograficoIconesMenuSuperior,
   'pedido-visao-geral': ManualInfograficoPedidoVisaoGeral,
   'smart-docs-documentos': ManualInfograficoSmartDocsDocumentos,
+  'admin-telas': ManualInfograficoAdminTelas,
 }
 
 export function AcademyInfografico({ id }: { id: IdInfograficoAcademy | string }) {

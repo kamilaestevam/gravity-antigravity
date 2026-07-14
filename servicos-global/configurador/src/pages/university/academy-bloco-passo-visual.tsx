@@ -51,6 +51,9 @@ function AcademyPassoRotuloLinha({ passo }: { passo: DocPassoVisual }) {
       {passo.tagEmConstrucao ? (
         <span className="ws-badge ws-badge-warning">Em construção</span>
       ) : null}
+      {passo.tagEmBreve ? (
+        <span className="ws-badge ws-badge-warning">Em breve</span>
+      ) : null}
     </div>
   )
 }
@@ -278,7 +281,7 @@ export function AcademyBlocoPassoVisual({
   }
 
   if (passo.imagemAbaixoTexto && passo.imagem) {
-    const blocoTextoComCallout = passo.calloutAoLadoTexto && calloutLista.length > 0 ? (
+    const corpoPasso = passo.calloutAoLadoTexto && calloutLista.length > 0 ? (
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
@@ -288,12 +291,8 @@ export function AcademyBlocoPassoVisual({
         <div>{corpoTextoPasso}</div>
         {blocoCalloutsFinal}
       </div>
-    ) : (
-      <>
-        {corpoTextoPasso}
-        {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
-      </>
-    )
+    ) : corpoTextoPasso
+
     return (
       <div className="uni-player-aula__bloco-passo">
         {passo.calloutAntes ? (
@@ -302,8 +301,9 @@ export function AcademyBlocoPassoVisual({
           </div>
         ) : null}
         <div className="uni-player-aula__passo-corpo">
-          {blocoTextoComCallout}
+          {corpoPasso}
         </div>
+        {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
         <ManualFiguraScreenshot
           src={passo.imagem}
           alt={passo.titulo}
@@ -311,7 +311,11 @@ export function AcademyBlocoPassoVisual({
           className="uni-player-aula__figura"
           semSombraExterna
         />
-        {passo.calloutAoLadoTexto ? null : blocoCalloutsFinal}
+        {passo.calloutAposImagem ? (
+          <div className="uni-player-aula__passo-callouts">
+            <CalloutPasso callout={passo.calloutAposImagem} />
+          </div>
+        ) : null}
       </div>
     )
   }

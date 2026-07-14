@@ -63,6 +63,8 @@ import {
   abrirCadeiaPassoManual,
 } from './manual-leitura-progresso'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoHubGabiInsightsExplicacoes } from './manual-hub-infografico-gabi-insights-explicacoes'
+import { ManualInfograficoAdminTelas } from './manual-admin-infografico-telas'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoPedidoInsights } from './manual-pedido-infografico-insights'
 import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
@@ -99,7 +101,7 @@ import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplic
 import { ManualInfograficoBidFreteNovaCotacaoResultadoEsperado } from './manual-bid-frete-infografico-nova-cotacao-resultado-esperado'
 import { ManualInfograficoBidFreteModalOperacaoCampos } from './manual-bid-frete-infografico-modal-operacao-campos'
 import { ManualBidFreteSimuladorModalOperacao } from './manual-bid-frete-simulador-modal-operacao'
-import { GuiaAcademyNavigationContext } from './guia-academy-link'
+import { GuiaAcademyNavigationContext, navegarComRetornoGuia, AcademyLinkGuia } from './guia-academy-link'
 import { resolverHrefManualParaAcademy } from './academy-link-guia'
 import { ManualInfograficoBidFreteOrigemDestinoCampos } from './manual-bid-frete-infografico-origem-destino-campos'
 import { ManualInfograficoBotaoInline, ManualInfograficoIconeControleMapaBidFreteInline, isIconeControleMapaBidFrete } from './manual-infografico-rich-text'
@@ -958,14 +960,18 @@ function ManualLinkInterno({ href, rotulo }: { href: string; rotulo: string }) {
     font: 'inherit',
   }
 
-  const destinoGuia = guiaNav
-    ? resolverHrefManualParaAcademy(href, guiaNav.produtoSlug)
-    : null
-  if (guiaNav && destinoGuia) {
+  const destinoGuia = resolverHrefManualParaAcademy(href)
+  if (destinoGuia) {
     return (
       <button
         type="button"
-        onClick={() => guiaNav.navegarLinkInterno(href)}
+        onClick={() => {
+          if (guiaNav) {
+            guiaNav.navegarLinkInterno(href)
+            return
+          }
+          navegarComRetornoGuia(navigate, location, href)
+        }}
         style={estiloBotaoLink}
       >
         {rotulo}
@@ -2483,6 +2489,9 @@ function ManualBlocoPassoVisual({
           {passo.tagEmConstrucao ? (
             <span className="ws-badge ws-badge-warning">Em construção</span>
           ) : null}
+          {passo.tagEmBreve ? (
+            <span className="ws-badge ws-badge-warning">Em breve</span>
+          ) : null}
           {prefixoPasso && (
             <span style={{
               fontSize: '.62rem',
@@ -3559,6 +3568,11 @@ export function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo;
       )}
       {fluxo.mostrarCatalogoHistoricoCompleto && (
         <ManualCatalogoHistoricoCompleto />
+      )}
+      {fluxo.mostrarInfograficoHubGabiInsightsExplicacoes && fluxo.infograficoHubGabiInsightsExplicacoesAposPassos && (
+        <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualInfograficoHubGabiInsightsExplicacoes />
+        </div>
       )}
       {fluxo.callout && fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
@@ -4772,6 +4786,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         </div>
       )}
 
+      {secao.mostrarInfograficoAdminTelas && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoAdminTelas />
+        </div>
+      )}
+
       {secao.mostrarInfograficoSmartDocsDocumentos && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoSmartDocsDocumentos />
@@ -5036,7 +5056,7 @@ export function ManualInfograficoOrganizacaoConta() {
             padding: '16px 0 0', lineHeight: 1.5,
           }}>
             Filiais, clientes e operações do dia a dia ficam nos{' '}
-            <Link to="/university-gravity/docs/configurador/workspaces" style={MANUAL_LINK_STYLE}>workspaces</Link>
+            <AcademyLinkGuia href="/university-gravity/docs/configurador/workspaces" rotulo="workspaces" />
             {' '},  a organização é a raiz da conta, não a unidade operacional.
           </p>
         </div>

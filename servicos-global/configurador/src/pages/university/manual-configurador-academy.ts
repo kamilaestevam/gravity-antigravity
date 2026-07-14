@@ -251,3 +251,17 @@ export const CONFIGURADOR_TRILHAS = CAPITULOS_CONFIGURADOR_DEF.map(cap => ({
 }))
 
 export const CONFIGURADOR_AULA_SLUGS = AULAS_CONFIGURADOR.map(a => a.slug)
+
+/** Metadados de curadoria — usado por `academy-link-guia` para resolver links /docs → /academy. */
+export const CONFIGURADOR_AULAS_CURADORIA = CAPITULOS_CONFIGURADOR_DEF.flatMap(cap =>
+  cap.aulas.map(a => ({
+    slug: a.slug,
+    manualCapitulos: a.manualCapitulos?.length
+      ? a.manualCapitulos
+      : a.manualCapitulo
+        ? [a.manualCapitulo]
+        : [],
+    fluxoIndices: a.curadoria?.fluxoIndices ?? [],
+    incluirIntroSecao: a.curadoria?.incluirIntroSecao !== false,
+  })),
+)

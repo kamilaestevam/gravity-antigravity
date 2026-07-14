@@ -13,6 +13,7 @@ import { AULAS_NAVEGACAO } from './manual-navegacao-academy'
 import { AULAS_BID_FRETE } from './manual-bid-frete-academy'
 import { AULAS_PEDIDO } from './manual-pedido-academy'
 import { AULAS_SMART_READ } from './manual-smart-read-academy'
+import { AULAS_ADMIN } from './manual-admin-academy'
 
 export type { AulaDemo } from './manual-login-academy'
 
@@ -55,6 +56,7 @@ export const CONTEUDO_DEMO: Record<string, import('./manual-login-academy').Aula
   'bid-frete': AULAS_BID_FRETE,
   pedido: AULAS_PEDIDO,
   'smart-read': AULAS_SMART_READ,
+  admin: AULAS_ADMIN,
 }
 
 export function getAulaDemo(produto: string, faseSlug: string) {

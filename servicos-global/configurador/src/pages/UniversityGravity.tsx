@@ -41,6 +41,7 @@ import { NAVEGACAO_TRILHA } from './university/manual-navegacao-academy'
 import { BID_FRETE_TRILHA } from './university/manual-bid-frete-academy'
 import { PEDIDO_TRILHA } from './university/manual-pedido-academy'
 import { SMART_READ_TRILHA } from './university/manual-smart-read-academy'
+import { ADMIN_TRILHA } from './university/manual-admin-academy'
 import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
   DOC_LOGIN_METADADOS,
@@ -84,6 +85,8 @@ import { DocNavegacaoManual } from './university/manual-navegacao-ui'
 import { DocHubManual } from './university/manual-hub-ui'
 import { DocStoreManual } from './university/manual-store-ui'
 import { DocSmartReadManual } from './university/manual-smart-read-ui'
+import { DocAdminManual } from './university/manual-admin-ui'
+import { DOC_ADMIN_SUBTITULO } from './university/manual-admin-conteudo'
 import { DocPedidoManual } from './university/manual-pedido-ui'
 import { DocBidFreteManual } from './university/manual-bid-frete-ui'
 import { DocApiCockpitManual } from './university/manual-api-cockpit-ui'
@@ -121,14 +124,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '19m', prog: 0,
     fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
-  admin: [{
-    tag: '#f43f5e', emoji: '🛡️', nome: 'Painel Administrativo', modulos: 3, duracao: '1h', prog: 0,
-    fases: [
-      { nome: 'Visão geral do Admin', duracao: '20m', concluida: false },
-      { nome: 'Impersonação de usuário', duracao: '20m', concluida: false },
-      { nome: 'Monitor de APIs e deploys', duracao: '20m', concluida: false },
-    ],
-  }],
+  admin: [{ ...ADMIN_TRILHA, prog: 0 }],
   configurador: CONFIGURADOR_TRILHAS.map(tr => ({ ...tr, prog: 0 })),
   gabi: [{ ...GABI_TRILHA, prog: 0 }],
   hub: [{ ...HUB_TRILHA, prog: 0 }],
@@ -2010,7 +2006,6 @@ export function UniversityGravity() {
   const badgeEmBreve = { badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const }
   const badgeAdminOnboarding = {
     badge: t('university.badge.restrito'),
-    badgeSecundario: t('university.badge.em_breve'),
     badgeVariant: 'muted' as const,
   }
 
@@ -2253,6 +2248,8 @@ export function UniversityGravity() {
                   ? <ShoppingBag weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'smart-read'
                   ? <MagnifyingGlass weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'admin'
+                  ? <ShieldStar weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'api-cockpit'
                   ? iconeConfiguradorManual('api-cockpit', 22)
                 : secao === 'docs' && docsConfiguradorPagina
@@ -2281,6 +2278,9 @@ export function UniversityGravity() {
               )}
               {secao === 'docs' && docsProdutoSlug === 'smart-read' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_SMART_READ_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'admin' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_ADMIN_SUBTITULO}</span>
               )}
               {secao === 'docs' && docsProdutoSlug === 'pedido' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_PEDIDO_SUBTITULO}</span>
@@ -2453,6 +2453,10 @@ export function UniversityGravity() {
             <DocSmartReadManual />
           )}
 
+          {secao === 'docs' && docsProdutoSlug === 'admin' && (
+            <DocAdminManual />
+          )}
+
           {secao === 'docs' && docsProdutoSlug === 'pedido' && (
             <DocPedidoManual />
           )}
@@ -2465,7 +2469,7 @@ export function UniversityGravity() {
             <DocApiCockpitManual />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'bid-frete' && docsProdutoSlug !== 'api-cockpit' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'admin' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'bid-frete' && docsProdutoSlug !== 'api-cockpit' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

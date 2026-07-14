@@ -7,7 +7,8 @@
  * - parágrafo / intro → primeiro passo / blocos padrão: 12px
  * - fim de um passo (tela) → próximo passo: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
  * - bloco anterior → título de fluxo H2/H3: 32px (`MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX`)
- * - conteúdo → rodapé / linha → botões: 24px
+ * - rótulo do infográfico ↔ primeiro card: 18px (`MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX`)
+ * - screenshot ↔ infográfico (mapa mental): 32px (`MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX`)
  * PlayerAula calcula o espaçamento externo dos blocos; componentes internos sem margin externa.
  */
 export const MANUAL_ESPACO_PARAGRAFO_PX = 12
@@ -26,6 +27,20 @@ export const MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX = 32
 
 /** Guia Gravity — callout / visual / texto ↔ título de fluxo (H2/H3, não passo). */
 export const MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX = 32
+
+/** Guia Gravity — rótulo superior do infográfico («Mapa mental…») ↔ primeiro card do diagrama. */
+export const MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX = MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+
+/** Estilo SSOT do rótulo superior dos infográficos (mapa mental, diagramas). */
+export const MANUAL_TITULO_INFOGRAFICO_ESTILO = {
+  fontSize: '.68rem',
+  fontWeight: 700,
+  letterSpacing: '.08em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--ws-muted,#94a3b8)',
+  margin: 0,
+  paddingBottom: MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+}
 
 /** Guia Gravity — recuo do texto do passo (padding à direita da linha vertical). */
 export const MANUAL_PASSO_GUIA_RECUO_TEXTO_PX = 18

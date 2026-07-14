@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { AcademyLinkGuia } from './guia-academy-link'
 import {
   SquaresFour,
   ShoppingBag,
@@ -220,7 +220,7 @@ function IconeToolbarMini({ slug }: { slug: string }) {
 function CardZona({ no }: { no: NoMapa }) {
   const Icone = no.icone
   const titulo = no.href
-    ? <Link to={no.href} style={{ ...LINK, fontWeight: 700, fontSize: '.88rem' }}>{no.titulo}</Link>
+    ? <AcademyLinkGuia href={no.href} rotulo={no.titulo} />
     : <span style={{ fontWeight: 700, fontSize: '.88rem', color: '#f1f5f9' }}>{no.titulo}</span>
 
   return (

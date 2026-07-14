@@ -7,20 +7,21 @@ import type { AulaDemo } from './manual-login-academy'
 import { blocosDeSecaoConfiguradorAcademy } from './academy-blocos-manual'
 import { DOC_HUB_SECAO } from './manual-hub-conteudo'
 
-const FLUXOS = DOC_HUB_SECAO.fluxos ?? []
-
 function aulaHub(
   slug: string,
   titulo: string,
   duracao: string,
   fluxoIndices: number[],
-  opcoes?: { incluirIntroSecao?: boolean },
+  opcoes?: { incluirIntroSecao?: boolean; cabecalhoH1?: boolean },
 ): AulaDemo {
   const blocos = blocosDeSecaoConfiguradorAcademy(DOC_HUB_SECAO, {
     incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
     fluxoIndices,
     incluirImagemSecao: false,
   })
+  if (opcoes?.cabecalhoH1 && !opcoes.incluirIntroSecao) {
+    blocos.unshift({ tipo: 'heading', dados: { text: titulo, nivel: 1 } })
+  }
   return {
     slug,
     titulo,
@@ -32,57 +33,25 @@ function aulaHub(
 
 export const HUB_AULA_SLUGS = [
   'hub-tela-principal',
-  'acesso-ao-hub',
-  'seus-produtos-gravity',
-  'acesso-a-gravity-store',
-  'aguardando-acao',
-  'vitrine-gravity-store',
-  'gabi-insights',
+  'gravity-store-na-tela-hub',
 ] as const
+
+const TITULO_GRAVITY_STORE_NA_TELA_HUB = 'Gravity Store na tela Hub'
 
 export const AULAS_HUB: AulaDemo[] = [
   aulaHub(
     HUB_AULA_SLUGS[0],
     DOC_HUB_SECAO.titulo,
-    '6m',
-    [],
+    '43m',
+    [0, 1, 2, 4, 6],
     { incluirIntroSecao: true },
   ),
   aulaHub(
     HUB_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Acesso ao Hub',
-    '6m',
-    [0],
-  ),
-  aulaHub(
-    HUB_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Seus produtos Gravity',
-    '10m',
-    [1],
-  ),
-  aulaHub(
-    HUB_AULA_SLUGS[3],
-    FLUXOS[2]?.tituloSumario ?? 'Acesso à Gravity Store',
-    '8m',
-    [2],
-  ),
-  aulaHub(
-    HUB_AULA_SLUGS[4],
-    FLUXOS[3]?.tituloSumario ?? 'Aguardando ação',
-    '5m',
-    [3],
-  ),
-  aulaHub(
-    HUB_AULA_SLUGS[5],
-    FLUXOS[4]?.tituloSumario ?? 'Vitrine Gravity Store no Hub',
-    '6m',
-    [4],
-  ),
-  aulaHub(
-    HUB_AULA_SLUGS[6],
-    FLUXOS[5]?.tituloSumario ?? 'Gabi Insights',
-    '8m',
-    [5],
+    TITULO_GRAVITY_STORE_NA_TELA_HUB,
+    '14m',
+    [3, 5],
+    { cabecalhoH1: true },
   ),
 ]
 

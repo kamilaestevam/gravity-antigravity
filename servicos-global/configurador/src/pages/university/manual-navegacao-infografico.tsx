@@ -8,6 +8,7 @@ import {
   X,
   Check,
 } from '@phosphor-icons/react'
+import { MANUAL_TITULO_INFOGRAFICO_ESTILO } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -73,10 +74,7 @@ export function ManualInfograficoMenuLateral() {
       borderRadius: 14,
       padding: '16px 18px 18px',
     }}>
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: 'var(--ws-muted,#94a3b8)', margin: '0 0 14px',
-      }}>
+      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Onde existe menu lateral?
       </p>
 

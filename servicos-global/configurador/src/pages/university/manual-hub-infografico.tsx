@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import {
   SquaresFour,
   PuzzlePiece,
@@ -8,6 +7,8 @@ import {
   Sparkle,
   ArrowDown,
 } from '@phosphor-icons/react'
+import { AcademyLinkGuia } from './guia-academy-link'
+import { MANUAL_TITULO_INFOGRAFICO_ESTILO } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 const LINK_STYLE: React.CSSProperties = {
@@ -61,10 +62,7 @@ export function ManualInfograficoHubTelas() {
       borderRadius: 14,
       padding: '16px 18px 18px',
     }}>
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: 'var(--ws-muted,#94a3b8)', margin: '0 0 14px',
-      }}>
+      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Mapa mental — o que você encontra no Hub
       </p>
 
@@ -98,7 +96,7 @@ export function ManualInfograficoHubTelas() {
           {RAMOS.map((ramo) => {
             const Icone = ramo.icone
             const titulo = 'href' in ramo && ramo.href
-              ? <Link to={ramo.href} style={{ ...LINK_STYLE, fontWeight: 700 }}>{ramo.titulo}</Link>
+              ? <AcademyLinkGuia href={ramo.href} rotulo={ramo.titulo} />
               : ramo.titulo
             return (
               <div

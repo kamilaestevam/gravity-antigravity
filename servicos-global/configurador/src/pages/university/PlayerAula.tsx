@@ -101,7 +101,16 @@ function calcularEspacoSuperiorBlocoGuia(
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
     return MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
   }
-  // Linha do título H1 → primeiro parágrafo
+  // H1 → tituloTopico (H2 roxo logo após a linha do título)
+  if (
+    bloco.tipo === 'heading'
+    && Number(bloco.dados.nivel ?? 1) === 2
+    && blocoAnterior?.tipo === 'heading'
+    && Number(blocoAnterior.dados.nivel ?? 1) <= 1
+  ) {
+    return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+  }
+  // Linha do título H1 → primeiro parágrafo (sem tituloTopico)
   if (
     bloco.tipo === 'texto'
     && blocoAnterior?.tipo === 'heading'
@@ -116,13 +125,29 @@ function calcularEspacoSuperiorBlocoGuia(
   if (bloco.tipo === 'imagem' && blocoAnterior?.tipo === 'imagem') {
     return 16
   }
+  // Screenshot → infográfico (mapa mental após print da seção)
+  if (bloco.tipo === 'infografico' && blocoAnterior?.tipo === 'imagem') {
+    return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
+  }
+  // Screenshot de passo → infográfico (ex.: Gabi Insights — Como usar o painel)
+  if (bloco.tipo === 'infografico' && blocoAnterior?.tipo === 'passo_visual') {
+    return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
+  }
   // Infográfico → screenshot seguinte (mesma seção visual)
   if (bloco.tipo === 'imagem' && blocoAnterior?.tipo === 'infografico') {
-    return 16
+    return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
+  }
+  // Screenshot de fluxo → primeiro passo visual do fluxo
+  if (classificacao === 'passo' && blocoAnterior?.tipo === 'imagem') {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
   // Fim da tela/screenshot de um passo → rótulo do próximo passo
   if (classificacao === 'passo' && blocoAnterior?.tipo === 'passo_visual') {
     return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+  }
+  // Infográfico → fluxo manual (H2 «Como acessar…»)
+  if (bloco.tipo === 'fluxo_manual' && blocoAnterior?.tipo === 'infografico') {
+    return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
   }
   // Infográfico → primeiro passo do fluxo (ex.: «Cadastrar webhook»)
   if (classificacao === 'passo' && blocoAnterior?.tipo === 'infografico') {
@@ -1005,6 +1030,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
       navigate(`${retornoGuia.pathname}${retornoGuia.hash}`, {
         state: { restaurarScrollGuia: retornoGuia.scrollY },
       })
+      return
+    }
+    if (window.history.length > 1) {
+      navigate(-1)
       return
     }
     navigate(`/university-gravity/academy/${produtoSlug}`)

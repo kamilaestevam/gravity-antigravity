@@ -99,6 +99,56 @@ export function consolidarLeituraDeArquivosLocais(itens: ArquivoLocalNovaLeitura
   return { ...base, arquivos: arquivos.length > 0 ? arquivos : base.arquivos }
 }
 
+function statusArquivoApiDeLocal(
+  status: StatusArquivoLocalNovaLeitura,
+): Leitura['arquivos'][number]['status_arquivo'] {
+  if (status === 'completo') return 'COMPLETED'
+  if (status === 'erro') return 'FAILED'
+  return 'PROCESSING'
+}
+
+/**
+ * Leitura mínima para persistir passo 2 com análise em andamento (antes de todos completos).
+ */
+export function montarLeituraMinimaProcessamentoDeArquivosLocais(
+  idLeitura: string,
+  nomeLeitura: string,
+  itens: ArquivoLocalNovaLeitura[],
+): Leitura | null {
+  const consolidada = consolidarLeituraDeArquivosLocais(itens)
+  if (consolidada && consolidada.arquivos.length > 0) {
+    return {
+      ...consolidada,
+      id_leitura: idLeitura,
+      nome_leitura: nomeLeitura,
+      status_leitura: consolidada.status_leitura ?? 'PROCESSING',
+    }
+  }
+
+  const enviados = itens.filter((item) => item.id_leitura && item.id_arquivo)
+  if (enviados.length === 0) return null
+
+  const arquivosApi = enviados.map((item) => {
+    const resolvido = resolverArquivoApiLeitura(item)
+    if (resolvido) return resolvido
+    return {
+      id_arquivo: item.id_arquivo!,
+      nome_arquivo: item.arquivo.name,
+      status_arquivo: statusArquivoApiDeLocal(item.status_arquivo_local),
+      resultado_extracao: null,
+    }
+  })
+
+  return {
+    id_leitura: idLeitura,
+    nome_leitura: nomeLeitura,
+    status_leitura: 'PROCESSING',
+    total_arquivos: itens.length,
+    arquivos_processados: itens.filter((item) => item.status_arquivo_local === 'completo').length,
+    arquivos: arquivosApi,
+  }
+}
+
 export function resolverArquivoApiLeitura(
   item: ArquivoLocalNovaLeitura,
 ): Leitura['arquivos'][number] | null {

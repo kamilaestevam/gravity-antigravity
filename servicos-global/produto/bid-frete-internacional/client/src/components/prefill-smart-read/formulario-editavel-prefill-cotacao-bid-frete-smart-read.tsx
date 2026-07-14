@@ -8,11 +8,14 @@ import {
   DownloadSimple,
   Export,
   Hash,
+  MapPin,
   Package,
   PencilSimple,
   Truck,
   Van,
+  Warning,
 } from '@phosphor-icons/react'
+import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useTranslation } from 'react-i18next'
 import type {
@@ -21,13 +24,21 @@ import type {
 } from '../../../../../smart-read/shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
 import { ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE } from '../../../../../smart-read/shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
 import {
+  aplicarRegrasDerivadasPrefill,
+} from '../../../../shared/classificacao-prefill-smart-read-cotacao-bid-frete-internacional.js'
+import {
   avaliarCamposFaltantesPrefillCotacaoBidFrete,
   exigeCampoArmazenagemLclPrefill,
   exigeLinhasContainerFclPrefill,
   modalExigeAeroportoPrefill,
   modalExigePortoPrefill,
+  modalExigeRodoviarioPrefill,
   resolverPassoInicialPrefillSmartRead,
 } from '../../../../shared/regras-prefill-smart-read-cotacao-bid-frete-internacional.js'
+import { ehCodigoPaisAmericaLatina } from '../../../../shared/rota-cotacao-bid-frete-internacional'
+import { useCidadesIbgeBidFreteInternacional } from '../../shared/use-cidades-ibge-bid-frete-internacional'
+import { useOpcoesUnidadeEmbalagemBidFreteInternacional } from '../../shared/use-opcoes-unidade-embalagem-bid-frete-internacional'
+import { useAeroportosPorPais, useContainersCadastros, usePaisesCadastros, usePortosPorPais } from '../../shared/useCadastrosLogistica'
 import {
   INCOTERM_TODOS_NOVA_COTACAO,
   traduzirDescModalNovaCotacao,
@@ -37,9 +48,14 @@ import {
   traduzirModalNovaCotacao,
   traduzirOperacaoNovaCotacao,
 } from '../../shared/traduzir-nova-cotacao-bid-frete-internacional'
-import { useAeroportosPorPais, useContainersCadastros, usePortosPorPais } from '../../shared/useCadastrosLogistica'
 import type { ModalFrete, ModalidadeCarga, TipoOperacao } from '../../shared/types'
 import './prefill-cotacao-bid-frete-smart-read.css'
+
+const UFS_BRASIL = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+  'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+]
+const OPCOES_ESTADOS_BR: SelectOpcao[] = UFS_BRASIL.map((uf) => ({ valor: uf, rotulo: uf }))
 
 type StatusLinha = 'mapeado' | 'sugerido' | 'pendente' | 'editado'
 
@@ -102,7 +118,7 @@ function statusCampo(
   detalhe: DetalheMapeamentoSmartReadCotacaoBidFrete,
 ): StatusLinha {
   const registro = detalhe.campos.find((c) => c.campo_destino === campo)
-  if (valorAtual == null || valorAtual === '') return 'pendente'
+  if (valorAtual == null || (typeof valorAtual !== 'boolean' && valorAtual === '')) return 'pendente'
   if (!registro) return 'editado'
   const original = registro.valor_destino
   if (String(valorAtual) !== String(original ?? '')) return 'editado'
@@ -144,12 +160,21 @@ function LinhaCampo({
 }
 
 function recalcularMeta(prefill: PrefillFormularioCotacaoBidFreteSmartRead): MetaPrefillCotacaoBidFreteSmartRead {
-  const passo_inicial_tipo = resolverPassoInicialPrefillSmartRead(prefill)
+  const normalizado = aplicarRegrasDerivadasPrefill(prefill)
+  const passo_inicial_tipo = resolverPassoInicialPrefillSmartRead(normalizado)
   return {
-    campos_faltantes: avaliarCamposFaltantesPrefillCotacaoBidFrete(prefill),
+    campos_faltantes: avaliarCamposFaltantesPrefillCotacaoBidFrete(normalizado),
     passo_inicial_tipo,
     iniciar_no_passo_fornecedores: passo_inicial_tipo === 'fornecedores',
   }
+}
+
+function publicarPrefill(
+  base: PrefillFormularioCotacaoBidFreteSmartRead,
+  onChange: Props['onChange'],
+): void {
+  const next = aplicarRegrasDerivadasPrefill(base)
+  onChange(next, recalcularMeta(next))
 }
 
 export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
@@ -163,8 +188,25 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
 
   const exigePorto = modalExigePortoPrefill(modal)
   const exigeAeroporto = modalExigeAeroportoPrefill(modal)
+  const exigeRodoviario = modalExigeRodoviarioPrefill(modal)
   const exigeArmazenagemLcl = exigeCampoArmazenagemLclPrefill(prefill)
   const exigeContainerFcl = exigeLinhasContainerFclPrefill(prefill)
+  const exigeTipoVolume = !exigeContainerFcl && modal !== ''
+
+  const { opcoes: opcoesPaises, carregando: carregandoPaises } = usePaisesCadastros()
+  const opcoesPaisesLatam = useMemo(
+    () => opcoesPaises.filter((o) => ehCodigoPaisAmericaLatina(String(o.valor))),
+    [opcoesPaises],
+  )
+  const { opcoes: opcoesEmbalagem, carregando: carregandoEmbalagem } = useOpcoesUnidadeEmbalagemBidFreteInternacional()
+  const ufOrigemRod = prefill.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional ?? ''
+  const ufDestinoRod = prefill.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional ?? ''
+  const { cidades: cidadesOrigemRod, carregando: carregandoCidadesOrigemRod } = useCidadesIbgeBidFreteInternacional(
+    prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional === 'BR' ? ufOrigemRod : '',
+  )
+  const { cidades: cidadesDestinoRod, carregando: carregandoCidadesDestinoRod } = useCidadesIbgeBidFreteInternacional(
+    prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? ufDestinoRod : '',
+  )
 
   const {
     opcoes: opcoesPortosOrigem,
@@ -206,39 +248,45 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
 
   const patchPrefill = useCallback(
     (patch: Partial<PrefillFormularioCotacaoBidFreteSmartRead>) => {
-      const next = { ...prefill, ...patch }
-      onChange(next, recalcularMeta(next))
+      publicarPrefill({ ...prefill, ...patch }, onChange)
     },
     [onChange, prefill],
   )
 
   const aoMudarModal = useCallback((novoModal: ModalFrete) => {
-    const base: PrefillFormularioCotacaoBidFreteSmartRead = {
+    publicarPrefill({
       ...prefill,
       modal_cotacao_bid_frete_internacional: novoModal,
-      modalidade_cotacao_bid_frete_internacional: novoModal === 'AEREO' ? 'AEREO_GERAL' : '',
+      modalidade_cotacao_bid_frete_internacional:
+        novoModal === 'AEREO' ? 'AEREO_GERAL'
+          : novoModal === 'RODOVIARIO' ? 'RODOVIARIO_LTL'
+            : '',
       opcao_incluir_armazenagem_cotacao: '',
       tipo_container_cotacao_bid_frete_internacional: '',
       porto_origem_cotacao_bid_frete_internacional: '',
       porto_destino_cotacao_bid_frete_internacional: '',
       aeroporto_origem_cotacao_bid_frete_internacional: '',
       aeroporto_destino_cotacao_bid_frete_internacional: '',
-    }
-    onChange(base, recalcularMeta(base))
+      pais_origem_rodoviario_cotacao_bid_frete_internacional: '',
+      pais_destino_rodoviario_cotacao_bid_frete_internacional: '',
+      estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: '',
+      estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: '',
+      cidade_origem_rodoviario_cotacao_bid_frete_internacional: '',
+      cidade_destino_rodoviario_cotacao_bid_frete_internacional: '',
+    }, onChange)
   }, [onChange, prefill])
 
   const aoMudarModalidade = useCallback((novaModalidade: ModalidadeCarga) => {
-    const base: PrefillFormularioCotacaoBidFreteSmartRead = {
+    publicarPrefill({
       ...prefill,
       modalidade_cotacao_bid_frete_internacional: novaModalidade,
       opcao_incluir_armazenagem_cotacao: novaModalidade === 'LCL' ? (prefill.opcao_incluir_armazenagem_cotacao ?? 'nao') : '',
       tipo_container_cotacao_bid_frete_internacional: novaModalidade === 'FCL' ? prefill.tipo_container_cotacao_bid_frete_internacional : '',
-    }
-    onChange(base, recalcularMeta(base))
+    }, onChange)
   }, [onChange, prefill])
 
   useEffect(() => {
-    onChange(prefill, recalcularMeta(prefill))
+    publicarPrefill(prefill, onChange)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- apenas na montagem
   }, [])
 
@@ -252,85 +300,6 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
 
   return (
     <div className="nc-root sr-prefill-bid-formulario">
-      <div className="sr-prefill-bid-secao-opcoes">
-        <h4 className="sr-prefill-bid-secao-titulo">Operação e modal</h4>
-        <div className="nc-options-grid-2 sr-prefill-bid-opcoes-compactas">
-          {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map((op) => (
-            <OptionButton
-              key={op}
-              selected={prefill.tipo_operacao_cotacao_bid_frete_internacional === op}
-              onClick={() => patchPrefill({ tipo_operacao_cotacao_bid_frete_internacional: op })}
-              icon={op === 'IMPORTACAO' ? <DownloadSimple weight="duotone" size={20} /> : <Export weight="duotone" size={20} />}
-              label={traduzirOperacaoNovaCotacao(t, op)}
-              description={traduzirDescOperacaoNovaCotacao(t, op)}
-            />
-          ))}
-        </div>
-        <div className="nc-options-grid-3 sr-prefill-bid-opcoes-compactas">
-          <OptionButton
-            selected={modal === 'MARITIMO'}
-            onClick={() => aoMudarModal('MARITIMO')}
-            icon={<Anchor weight="duotone" size={20} />}
-            label={traduzirModalNovaCotacao(t, 'MARITIMO')}
-            description={traduzirDescModalNovaCotacao(t, 'MARITIMO')}
-          />
-          <OptionButton
-            selected={modal === 'AEREO'}
-            onClick={() => aoMudarModal('AEREO')}
-            icon={<AirplaneTilt weight="duotone" size={20} />}
-            label={traduzirModalNovaCotacao(t, 'AEREO')}
-            description={traduzirDescModalNovaCotacao(t, 'AEREO')}
-          />
-          <OptionButton
-            selected={modal === 'RODOVIARIO'}
-            onClick={() => aoMudarModal('RODOVIARIO')}
-            icon={<Truck weight="duotone" size={20} />}
-            label={traduzirModalNovaCotacao(t, 'RODOVIARIO')}
-            description={traduzirDescModalNovaCotacao(t, 'RODOVIARIO')}
-          />
-        </div>
-        {modal !== 'AEREO' && modal && (
-          <div className="nc-options-grid-2 sr-prefill-bid-opcoes-compactas">
-            {modal === 'MARITIMO' && (
-              <>
-                <OptionButton
-                  selected={modalidade === 'FCL'}
-                  onClick={() => aoMudarModalidade('FCL')}
-                  icon={<Package weight="duotone" size={18} />}
-                  label={traduzirLabelModalidadeNovaCotacao(t, 'FCL')}
-                  description={traduzirDescModalidadeNovaCotacao(t, 'FCL')}
-                />
-                <OptionButton
-                  selected={modalidade === 'LCL'}
-                  onClick={() => aoMudarModalidade('LCL')}
-                  icon={<Package weight="duotone" size={18} />}
-                  label={traduzirLabelModalidadeNovaCotacao(t, 'LCL')}
-                  description={traduzirDescModalidadeNovaCotacao(t, 'LCL')}
-                />
-              </>
-            )}
-            {modal === 'RODOVIARIO' && (
-              <>
-                <OptionButton
-                  selected={modalidade === 'RODOVIARIO_FTL'}
-                  onClick={() => aoMudarModalidade('RODOVIARIO_FTL')}
-                  icon={<Van weight="duotone" size={18} />}
-                  label={traduzirLabelModalidadeNovaCotacao(t, 'RODOVIARIO_FTL')}
-                  description={traduzirDescModalidadeNovaCotacao(t, 'RODOVIARIO_FTL')}
-                />
-                <OptionButton
-                  selected={modalidade === 'RODOVIARIO_LTL'}
-                  onClick={() => aoMudarModalidade('RODOVIARIO_LTL')}
-                  icon={<Van weight="duotone" size={18} />}
-                  label={traduzirLabelModalidadeNovaCotacao(t, 'RODOVIARIO_LTL')}
-                  description={traduzirDescModalidadeNovaCotacao(t, 'RODOVIARIO_LTL')}
-                />
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
       <div className="sr-prefill-bid-revisao-tabela" role="table" aria-label="Campos editáveis da cotação">
         <div className="sr-prefill-bid-revisao-linha sr-prefill-bid-revisao-linha--cabecalho" role="row">
           <span role="columnheader">Campo da cotação</span>
@@ -353,56 +322,69 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
         </LinhaCampo>
 
         <LinhaCampo
-          campo="incoterm_cotacao_bid_frete_internacional"
-          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.incoterm_cotacao_bid_frete_internacional}
-          status={statusPorCampo.get('incoterm_cotacao_bid_frete_internacional') ?? 'pendente'}
+          campo="tipo_operacao_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.tipo_operacao_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('tipo_operacao_cotacao_bid_frete_internacional') ?? 'pendente'}
         >
-          <div className="sr-prefill-bid-incoterm-grid">
-            {INCOTERM_TODOS_NOVA_COTACAO.map((inc) => (
-              <button
-                key={inc}
-                type="button"
-                className={`nc-incoterm-btn ${prefill.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm-btn--selected' : ''}`}
-                onClick={() => patchPrefill({ incoterm_cotacao_bid_frete_internacional: inc })}
-              >
-                {inc}
-              </button>
+          <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
+            {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map((op) => (
+              <OptionButton
+                key={op}
+                selected={prefill.tipo_operacao_cotacao_bid_frete_internacional === op}
+                onClick={() => patchPrefill({ tipo_operacao_cotacao_bid_frete_internacional: op })}
+                icon={op === 'IMPORTACAO' ? <DownloadSimple weight="duotone" size={18} /> : <Export weight="duotone" size={18} />}
+                label={traduzirOperacaoNovaCotacao(t, op)}
+              />
             ))}
           </div>
         </LinhaCampo>
 
-        <LinhaCampo
-          campo="descricao_mercadoria_cotacao_bid_frete_internacional"
-          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.descricao_mercadoria_cotacao_bid_frete_internacional}
-          status={statusPorCampo.get('descricao_mercadoria_cotacao_bid_frete_internacional') ?? 'pendente'}
-        >
-          <textarea
-            className="nc-input sr-prefill-bid-textarea"
-            rows={2}
-            value={prefill.descricao_mercadoria_cotacao_bid_frete_internacional ?? ''}
-            onChange={(e) => patchPrefill({ descricao_mercadoria_cotacao_bid_frete_internacional: e.target.value })}
-            placeholder="Descrição da mercadoria"
-          />
+        <LinhaCampo campo="modal" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modal_cotacao_bid_frete_internacional} status={statusPorCampo.get('modal_cotacao_bid_frete_internacional') ?? 'pendente'}>
+          <div className="nc-options-grid-3 sr-prefill-bid-opcoes-inline">
+            <OptionButton selected={modal === 'MARITIMO'} onClick={() => aoMudarModal('MARITIMO')} icon={<Anchor weight="duotone" size={18} />} label={traduzirModalNovaCotacao(t, 'MARITIMO')} />
+            <OptionButton selected={modal === 'AEREO'} onClick={() => aoMudarModal('AEREO')} icon={<AirplaneTilt weight="duotone" size={18} />} label={traduzirModalNovaCotacao(t, 'AEREO')} />
+            <OptionButton selected={modal === 'RODOVIARIO'} onClick={() => aoMudarModal('RODOVIARIO')} icon={<Truck weight="duotone" size={18} />} label={traduzirModalNovaCotacao(t, 'RODOVIARIO')} />
+          </div>
         </LinhaCampo>
 
+        {modal !== 'AEREO' && modal && (
+          <LinhaCampo campo="modalidade" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modalidade_cotacao_bid_frete_internacional} status={statusPorCampo.get('modalidade_cotacao_bid_frete_internacional') ?? 'pendente'}>
+            <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
+              {modal === 'MARITIMO' && (
+                <>
+                  <OptionButton selected={modalidade === 'FCL'} onClick={() => aoMudarModalidade('FCL')} icon={<Package weight="duotone" size={16} />} label={traduzirLabelModalidadeNovaCotacao(t, 'FCL')} />
+                  <OptionButton selected={modalidade === 'LCL'} onClick={() => aoMudarModalidade('LCL')} icon={<Package weight="duotone" size={16} />} label={traduzirLabelModalidadeNovaCotacao(t, 'LCL')} />
+                </>
+              )}
+              {modal === 'RODOVIARIO' && (
+                <>
+                  <OptionButton selected={modalidade === 'RODOVIARIO_FTL'} onClick={() => aoMudarModalidade('RODOVIARIO_FTL')} icon={<Van weight="duotone" size={16} />} label={traduzirLabelModalidadeNovaCotacao(t, 'RODOVIARIO_FTL')} />
+                  <OptionButton selected={modalidade === 'RODOVIARIO_LTL'} onClick={() => aoMudarModalidade('RODOVIARIO_LTL')} icon={<Van weight="duotone" size={16} />} label={traduzirLabelModalidadeNovaCotacao(t, 'RODOVIARIO_LTL')} />
+                </>
+              )}
+            </div>
+          </LinhaCampo>
+        )}
+
         <LinhaCampo
-          campo="quantidade_volume_cotacao_bid_frete_internacional"
-          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.quantidade_volume_cotacao_bid_frete_internacional}
-          status={statusPorCampo.get('quantidade_volume_cotacao_bid_frete_internacional') ?? 'pendente'}
+          campo="eh_carga_perigosa_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.eh_carga_perigosa_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('eh_carga_perigosa_cotacao_bid_frete_internacional') ?? 'pendente'}
         >
-          <input
-            className="nc-input"
-            type="number"
-            min={1}
-            value={prefill.quantidade_volume_cotacao_bid_frete_internacional ?? ''}
-            onChange={(e) => {
-              const n = Number(e.target.value)
-              patchPrefill({
-                quantidade_volume_cotacao_bid_frete_internacional: Number.isFinite(n) && n > 0 ? n : undefined,
-              })
-            }}
-            placeholder="1"
-          />
+          <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
+            <OptionButton
+              selected={prefill.eh_carga_perigosa_cotacao_bid_frete_internacional === true}
+              onClick={() => patchPrefill({ eh_carga_perigosa_cotacao_bid_frete_internacional: true })}
+              icon={<Warning weight="duotone" size={16} />}
+              label="Sim"
+            />
+            <OptionButton
+              selected={prefill.eh_carga_perigosa_cotacao_bid_frete_internacional === false}
+              onClick={() => patchPrefill({ eh_carga_perigosa_cotacao_bid_frete_internacional: false })}
+              icon={<Package weight="duotone" size={16} />}
+              label="Não"
+            />
+          </div>
         </LinhaCampo>
 
         {exigePorto && (
@@ -499,23 +481,442 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           </>
         )}
 
+        {exigeRodoviario && (
+          <>
+            <LinhaCampo
+              campo="pais_origem_rodoviario_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.pais_origem_rodoviario_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('pais_origem_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={opcoesPaisesLatam}
+                valor={prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({
+                  pais_origem_rodoviario_cotacao_bid_frete_internacional: String(v ?? ''),
+                  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: '',
+                  cidade_origem_rodoviario_cotacao_bid_frete_internacional: '',
+                })}
+                placeholder="País de origem"
+                buscavel
+                carregando={carregandoPaises}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional"
+              rotulo="Estado/província origem (rod.)"
+              status={statusPorCampo.get('estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={OPCOES_ESTADOS_BR}
+                  valor={ufOrigemRod || null}
+                  aoMudarValor={(v) => patchPrefill({
+                    estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: String(v ?? ''),
+                    cidade_origem_rodoviario_cotacao_bid_frete_internacional: '',
+                  })}
+                  placeholder="UF"
+                  buscavel
+                  desabilitado={!prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional}
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={ufOrigemRod}
+                  onChange={(e) => patchPrefill({ estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Estado ou província"
+                />
+              )}
+            </LinhaCampo>
+            <LinhaCampo
+              campo="cidade_origem_rodoviario_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.cidade_origem_rodoviario_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('cidade_origem_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={cidadesOrigemRod}
+                  valor={prefill.cidade_origem_rodoviario_cotacao_bid_frete_internacional || null}
+                  aoMudarValor={(v) => patchPrefill({ cidade_origem_rodoviario_cotacao_bid_frete_internacional: String(v ?? '') })}
+                  placeholder="Cidade"
+                  buscavel
+                  carregando={carregandoCidadesOrigemRod}
+                  desabilitado={!ufOrigemRod}
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={prefill.cidade_origem_rodoviario_cotacao_bid_frete_internacional ?? ''}
+                  onChange={(e) => patchPrefill({ cidade_origem_rodoviario_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Cidade"
+                />
+              )}
+            </LinhaCampo>
+            <LinhaCampo
+              campo="pais_destino_rodoviario_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.pais_destino_rodoviario_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('pais_destino_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={opcoesPaisesLatam}
+                valor={prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({
+                  pais_destino_rodoviario_cotacao_bid_frete_internacional: String(v ?? ''),
+                  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: '',
+                  cidade_destino_rodoviario_cotacao_bid_frete_internacional: '',
+                })}
+                placeholder="País de destino"
+                buscavel
+                carregando={carregandoPaises}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional"
+              rotulo="Estado/província destino (rod.)"
+              status={statusPorCampo.get('estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={OPCOES_ESTADOS_BR}
+                  valor={ufDestinoRod || null}
+                  aoMudarValor={(v) => patchPrefill({
+                    estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: String(v ?? ''),
+                    cidade_destino_rodoviario_cotacao_bid_frete_internacional: '',
+                  })}
+                  placeholder="UF"
+                  buscavel
+                  desabilitado={!prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional}
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={ufDestinoRod}
+                  onChange={(e) => patchPrefill({ estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Estado ou província"
+                />
+              )}
+            </LinhaCampo>
+            <LinhaCampo
+              campo="cidade_destino_rodoviario_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.cidade_destino_rodoviario_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('cidade_destino_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={cidadesDestinoRod}
+                  valor={prefill.cidade_destino_rodoviario_cotacao_bid_frete_internacional || null}
+                  aoMudarValor={(v) => patchPrefill({ cidade_destino_rodoviario_cotacao_bid_frete_internacional: String(v ?? '') })}
+                  placeholder="Cidade"
+                  buscavel
+                  carregando={carregandoCidadesDestinoRod}
+                  desabilitado={!ufDestinoRod}
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={prefill.cidade_destino_rodoviario_cotacao_bid_frete_internacional ?? ''}
+                  onChange={(e) => patchPrefill({ cidade_destino_rodoviario_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Cidade"
+                />
+              )}
+            </LinhaCampo>
+          </>
+        )}
+
+        <LinhaCampo
+          campo="ncm_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.ncm_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('ncm_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <input
+            className="nc-input"
+            value={prefill.ncm_cotacao_bid_frete_internacional ?? ''}
+            onChange={(e) => patchPrefill({ ncm_cotacao_bid_frete_internacional: e.target.value })}
+            placeholder="NCM"
+            autoComplete="off"
+          />
+        </LinhaCampo>
+
+        <LinhaCampo
+          campo="descricao_mercadoria_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.descricao_mercadoria_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('descricao_mercadoria_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <textarea
+            className="nc-input sr-prefill-bid-textarea"
+            rows={2}
+            value={prefill.descricao_mercadoria_cotacao_bid_frete_internacional ?? ''}
+            onChange={(e) => patchPrefill({ descricao_mercadoria_cotacao_bid_frete_internacional: e.target.value })}
+            placeholder="Descrição da mercadoria"
+          />
+        </LinhaCampo>
+
+        <LinhaCampo
+          campo="hs_code_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.hs_code_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('hs_code_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <input
+            className="nc-input"
+            value={prefill.hs_code_cotacao_bid_frete_internacional ?? ''}
+            onChange={(e) => patchPrefill({ hs_code_cotacao_bid_frete_internacional: e.target.value.slice(0, 10) })}
+            placeholder="HS Code"
+            autoComplete="off"
+          />
+        </LinhaCampo>
+
         {exigeContainerFcl && (
-          <LinhaCampo
-            campo="tipo_container_cotacao_bid_frete_internacional"
-            rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.tipo_container_cotacao_bid_frete_internacional}
-            status={statusPorCampo.get('tipo_container_cotacao_bid_frete_internacional') ?? 'pendente'}
-          >
-            <SelectGlobal
-              iconeEsquerda={<Hash size={16} />}
-              opcoes={opcoesContainers}
-              valor={prefill.tipo_container_cotacao_bid_frete_internacional || null}
-              aoMudarValor={(v) => patchPrefill({ tipo_container_cotacao_bid_frete_internacional: String(v ?? '') })}
-              placeholder="Tipo de container"
-              buscavel
-              carregando={carregandoContainers}
-              posicao="auto"
-            />
-          </LinhaCampo>
+          <>
+            <LinhaCampo
+              campo="tipo_container_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.tipo_container_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('tipo_container_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<Hash size={16} />}
+                opcoes={opcoesContainers}
+                valor={prefill.tipo_container_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({ tipo_container_cotacao_bid_frete_internacional: String(v ?? '') })}
+                placeholder="Tipo de container"
+                buscavel
+                carregando={carregandoContainers}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="quantidade_volume_cotacao_bid_frete_internacional"
+              rotulo="Quantidade de containers"
+              status={statusPorCampo.get('quantidade_volume_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <input
+                className="nc-input"
+                type="number"
+                min={1}
+                value={prefill.quantidade_volume_cotacao_bid_frete_internacional ?? ''}
+                onChange={(e) => {
+                  const n = Number(e.target.value)
+                  patchPrefill({
+                    quantidade_volume_cotacao_bid_frete_internacional: Number.isFinite(n) && n > 0 ? n : undefined,
+                  })
+                }}
+                placeholder="1"
+              />
+            </LinhaCampo>
+          </>
+        )}
+
+        {exigeTipoVolume && (
+          <>
+            <LinhaCampo
+              campo="tipo_container_cotacao_bid_frete_internacional"
+              rotulo="Tipo de volume"
+              status={statusPorCampo.get('tipo_container_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<Package size={16} />}
+                opcoes={opcoesEmbalagem}
+                valor={prefill.tipo_container_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({ tipo_container_cotacao_bid_frete_internacional: String(v ?? '') })}
+                placeholder="Tipo de embalagem"
+                buscavel
+                carregando={carregandoEmbalagem}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="quantidade_volume_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.quantidade_volume_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('quantidade_volume_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <input
+                className="nc-input"
+                type="number"
+                min={1}
+                value={prefill.quantidade_volume_cotacao_bid_frete_internacional ?? ''}
+                onChange={(e) => {
+                  const n = Number(e.target.value)
+                  patchPrefill({
+                    quantidade_volume_cotacao_bid_frete_internacional: Number.isFinite(n) && n > 0 ? n : undefined,
+                  })
+                }}
+                placeholder="1"
+              />
+            </LinhaCampo>
+          </>
+        )}
+
+        <LinhaCampo
+          campo="peso_kg_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.peso_kg_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('peso_kg_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <input
+            className="nc-input"
+            value={prefill.peso_kg_cotacao_bid_frete_internacional ?? ''}
+            onChange={(e) => patchPrefill({ peso_kg_cotacao_bid_frete_internacional: e.target.value })}
+            placeholder="Peso em kg"
+            autoComplete="off"
+          />
+        </LinhaCampo>
+
+        <LinhaCampo
+          campo="cubagem_m3_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.cubagem_m3_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('cubagem_m3_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <input
+            className="nc-input"
+            value={prefill.cubagem_m3_cotacao_bid_frete_internacional ?? ''}
+            onChange={(e) => patchPrefill({ cubagem_m3_cotacao_bid_frete_internacional: e.target.value })}
+            placeholder="Cubagem em m³"
+            autoComplete="off"
+          />
+        </LinhaCampo>
+
+        <LinhaCampo
+          campo="incoterm_cotacao_bid_frete_internacional"
+          rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.incoterm_cotacao_bid_frete_internacional}
+          status={statusPorCampo.get('incoterm_cotacao_bid_frete_internacional') ?? 'pendente'}
+        >
+          <div className="sr-prefill-bid-incoterm-grid">
+            {INCOTERM_TODOS_NOVA_COTACAO.map((inc) => (
+              <button
+                key={inc}
+                type="button"
+                className={`nc-incoterm-btn ${prefill.incoterm_cotacao_bid_frete_internacional === inc ? 'nc-incoterm-btn--selected' : ''}`}
+                onClick={() => patchPrefill({ incoterm_cotacao_bid_frete_internacional: inc })}
+              >
+                {inc}
+              </button>
+            ))}
+          </div>
+        </LinhaCampo>
+
+        {prefill.exibir_campos_extras_origem_cotacao && (
+          <>
+            <LinhaCampo
+              campo="origem_pais_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.origem_pais_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('origem_pais_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={opcoesPaises}
+                valor={prefill.origem_pais_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({ origem_pais_cotacao_bid_frete_internacional: String(v ?? '') })}
+                placeholder="País de coleta (EXW)"
+                buscavel
+                carregando={carregandoPaises}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="estado_provincia_origem_cotacao_bid_frete_internacional"
+              rotulo="Estado/província origem (pick-up)"
+              status={statusPorCampo.get('estado_provincia_origem_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.origem_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={OPCOES_ESTADOS_BR}
+                  valor={prefill.estado_provincia_origem_cotacao_bid_frete_internacional || null}
+                  aoMudarValor={(v) => patchPrefill({ estado_provincia_origem_cotacao_bid_frete_internacional: String(v ?? '') })}
+                  placeholder="UF"
+                  buscavel
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={prefill.estado_provincia_origem_cotacao_bid_frete_internacional ?? ''}
+                  onChange={(e) => patchPrefill({ estado_provincia_origem_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Estado ou província"
+                />
+              )}
+            </LinhaCampo>
+            <LinhaCampo
+              campo="endereco_origem_cotacao_bid_frete_internacional"
+              rotulo="Endereço origem (pick-up)"
+              status={statusPorCampo.get('endereco_origem_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <input
+                className="nc-input"
+                value={prefill.endereco_origem_cotacao_bid_frete_internacional ?? ''}
+                onChange={(e) => patchPrefill({ endereco_origem_cotacao_bid_frete_internacional: e.target.value })}
+                placeholder="Endereço de coleta"
+                autoComplete="off"
+              />
+            </LinhaCampo>
+          </>
+        )}
+
+        {prefill.exibir_campos_extras_destino_cotacao && (
+          <>
+            <LinhaCampo
+              campo="destino_pais_cotacao_bid_frete_internacional"
+              rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.destino_pais_cotacao_bid_frete_internacional}
+              status={statusPorCampo.get('destino_pais_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={opcoesPaises}
+                valor={prefill.destino_pais_cotacao_bid_frete_internacional || null}
+                aoMudarValor={(v) => patchPrefill({ destino_pais_cotacao_bid_frete_internacional: String(v ?? '') })}
+                placeholder="País de entrega (DDP/DPU)"
+                buscavel
+                carregando={carregandoPaises}
+                posicao="auto"
+              />
+            </LinhaCampo>
+            <LinhaCampo
+              campo="estado_provincia_destino_cotacao_bid_frete_internacional"
+              rotulo="Estado/província destino (entrega)"
+              status={statusPorCampo.get('estado_provincia_destino_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              {prefill.destino_pais_cotacao_bid_frete_internacional === 'BR' ? (
+                <SelectGlobal
+                  iconeEsquerda={<MapPin size={16} />}
+                  opcoes={OPCOES_ESTADOS_BR}
+                  valor={prefill.estado_provincia_destino_cotacao_bid_frete_internacional || null}
+                  aoMudarValor={(v) => patchPrefill({ estado_provincia_destino_cotacao_bid_frete_internacional: String(v ?? '') })}
+                  placeholder="UF"
+                  buscavel
+                  posicao="auto"
+                />
+              ) : (
+                <input
+                  className="nc-input"
+                  value={prefill.estado_provincia_destino_cotacao_bid_frete_internacional ?? ''}
+                  onChange={(e) => patchPrefill({ estado_provincia_destino_cotacao_bid_frete_internacional: e.target.value })}
+                  placeholder="Estado ou província"
+                />
+              )}
+            </LinhaCampo>
+            <LinhaCampo
+              campo="endereco_destino_cotacao_bid_frete_internacional"
+              rotulo="Endereço destino (entrega)"
+              status={statusPorCampo.get('endereco_destino_cotacao_bid_frete_internacional') ?? 'pendente'}
+            >
+              <input
+                className="nc-input"
+                value={prefill.endereco_destino_cotacao_bid_frete_internacional ?? ''}
+                onChange={(e) => patchPrefill({ endereco_destino_cotacao_bid_frete_internacional: e.target.value })}
+                placeholder="Endereço de entrega"
+                autoComplete="off"
+              />
+            </LinhaCampo>
+          </>
         )}
 
         {exigeArmazenagemLcl && (

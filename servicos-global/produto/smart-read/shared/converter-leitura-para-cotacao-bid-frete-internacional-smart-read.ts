@@ -2,6 +2,11 @@
  * Converte LeituraSchema (snapshot Smart Read) → prefill do wizard Nova Cotação BID Frete.
  */
 import {
+  aplicarRegrasDerivadasPrefill,
+  inferirModalidadeRodoviarioPrefill,
+  inferirTipoOperacaoPrefill,
+} from '../../bid-frete-internacional/shared/classificacao-prefill-smart-read-cotacao-bid-frete-internacional.js'
+import {
   avaliarCamposFaltantesPrefillCotacaoBidFrete,
   resolverPassoInicialPrefillSmartRead,
   type TipoPassoInicialPrefillSmartRead,
@@ -150,6 +155,7 @@ export type ResultadoConversaoLeituraCotacaoBidFrete = {
   prefill: PrefillFormularioCotacaoBidFreteSmartRead
   detalhe_mapeamento: DetalheMapeamentoSmartReadCotacaoBidFrete
   campos_faltantes: string[]
+  passo_inicial_tipo: TipoPassoInicialPrefillSmartRead
   iniciar_no_passo_fornecedores: boolean
 }
 
@@ -197,15 +203,67 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
         })
       }
 
-      const ncm = valorCampo(dados, ['items[].ncm', 'items[].hsCode', 'ncm', 'hsCode'])
-      if (ncm) {
-        prefill.ncm_cotacao_bid_frete_internacional = ncm.replace(/\D/g, '').slice(0, 8)
+      const ncmBruto = valorCampo(dados, ['items[].ncm', 'ncm'])
+      if (ncmBruto) {
+        prefill.ncm_cotacao_bid_frete_internacional = ncmBruto.replace(/\D/g, '').slice(0, 8)
         registrarCampo(detalheCampos, {
           caminho_origem: `${prefixo}.items[].ncm`,
           campo_destino: 'ncm_cotacao_bid_frete_internacional',
-          valor_origem: ncm,
+          valor_origem: ncmBruto,
           valor_destino: prefill.ncm_cotacao_bid_frete_internacional,
           status_mapeamento: 'mapeado',
+        })
+      }
+
+      const hsBruto = valorCampo(dados, ['items[].hsCode', 'hsCode', 'items[].hs_code'])
+      if (hsBruto) {
+        prefill.hs_code_cotacao_bid_frete_internacional = hsBruto.replace(/[^\dA-Za-z]/g, '').slice(0, 10)
+        registrarCampo(detalheCampos, {
+          caminho_origem: `${prefixo}.items[].hsCode`,
+          campo_destino: 'hs_code_cotacao_bid_frete_internacional',
+          valor_origem: hsBruto,
+          valor_destino: prefill.hs_code_cotacao_bid_frete_internacional,
+          status_mapeamento: 'mapeado',
+        })
+      } else if (prefill.ncm_cotacao_bid_frete_internacional) {
+        prefill.hs_code_cotacao_bid_frete_internacional = prefill.ncm_cotacao_bid_frete_internacional
+        registrarCampo(detalheCampos, {
+          caminho_origem: `${prefixo}.items[].ncm`,
+          campo_destino: 'hs_code_cotacao_bid_frete_internacional',
+          valor_origem: prefill.ncm_cotacao_bid_frete_internacional,
+          valor_destino: prefill.hs_code_cotacao_bid_frete_internacional,
+          status_mapeamento: 'sugerido',
+          motivo: 'copiado_de_ncm',
+        })
+      }
+
+      const unNumber = valorCampo(dados, [
+        'dangerousGoods.unNumber',
+        'hazmat.unNumber',
+        'unNumber',
+        'imo.unNumber',
+      ])
+      const ehPerigosaDoc = Boolean(unNumber)
+        || /dangerous|hazmat|imo|perigosa/i.test(JSON.stringify(dados).slice(0, 2000))
+      if (ehPerigosaDoc) {
+        prefill.eh_carga_perigosa_cotacao_bid_frete_internacional = true
+        registrarCampo(detalheCampos, {
+          caminho_origem: unNumber ? `${prefixo}.unNumber` : `${prefixo}.*`,
+          campo_destino: 'eh_carga_perigosa_cotacao_bid_frete_internacional',
+          valor_origem: unNumber ?? true,
+          valor_destino: true,
+          status_mapeamento: unNumber ? 'mapeado' : 'sugerido',
+          motivo: unNumber ? undefined : 'inferido_por_hazmat',
+        })
+      } else {
+        prefill.eh_carga_perigosa_cotacao_bid_frete_internacional = false
+        registrarCampo(detalheCampos, {
+          caminho_origem: '—',
+          campo_destino: 'eh_carga_perigosa_cotacao_bid_frete_internacional',
+          valor_origem: null,
+          valor_destino: false,
+          status_mapeamento: 'sugerido',
+          motivo: 'padrao_nao_perigosa',
         })
       }
 
@@ -320,6 +378,9 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
 
   const containers = extrairContainers(dadosMesclados)
   const modalTransporte = valorCampo(dadosMesclados, ['shipmentDetails.transportMode', 'shipment.modal'])
+  const pesoKgInferencia = prefill.peso_kg_cotacao_bid_frete_internacional
+    ? Number(prefill.peso_kg_cotacao_bid_frete_internacional)
+    : null
   const temAeroporto = Boolean(
     prefill.aeroporto_origem_cotacao_bid_frete_internacional
     || prefill.aeroporto_destino_cotacao_bid_frete_internacional,
@@ -337,6 +398,21 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
       campo_destino: 'modal_cotacao_bid_frete_internacional',
       valor_origem: modalTransporte,
       valor_destino: 'AEREO',
+      status_mapeamento: 'mapeado',
+    })
+  } else if (modalTransporte && /ROAD|RODO|TRUCK|LTL|FTL/i.test(modalTransporte)) {
+    prefill.modal_cotacao_bid_frete_internacional = 'RODOVIARIO'
+    const modalidadeRod = inferirModalidadeRodoviarioPrefill({
+      pesoKg: pesoKgInferencia,
+      quantidadeVolumes: prefill.quantidade_volume_cotacao_bid_frete_internacional ?? null,
+      textoModalidade: modalTransporte,
+    })
+    prefill.modalidade_cotacao_bid_frete_internacional = modalidadeRod
+    registrarCampo(detalheCampos, {
+      caminho_origem: 'shipmentDetails.transportMode',
+      campo_destino: 'modal_cotacao_bid_frete_internacional',
+      valor_origem: modalTransporte,
+      valor_destino: 'RODOVIARIO',
       status_mapeamento: 'mapeado',
     })
   } else if (containers.length > 0 || temPorto || (modalTransporte && /SEA|MARITIM|OCEAN/i.test(modalTransporte))) {
@@ -374,15 +450,36 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
     })
   }
 
-  prefill.tipo_operacao_cotacao_bid_frete_internacional = 'IMPORTACAO'
-  registrarCampo(detalheCampos, {
-    caminho_origem: '—',
-    campo_destino: 'tipo_operacao_cotacao_bid_frete_internacional',
-    valor_origem: null,
-    valor_destino: 'IMPORTACAO',
-    status_mapeamento: 'sugerido',
-    motivo: 'padrao_importacao',
+  const textoOperacao = valorCampo(dadosMesclados, [
+    'document.operationType',
+    'operationType',
+    'shipmentDetails.operation',
+  ])
+  const paisDestinoInferencia = valorCampo(dadosMesclados, [
+    'document.destinationCountry',
+    'destinationCountry',
+    'importer.country',
+  ])
+  const operacaoInferida = inferirTipoOperacaoPrefill({
+    textoOperacao,
+    paisOrigem: prefill.origem_pais_cotacao_bid_frete_internacional ?? null,
+    paisDestino: prefill.destino_pais_cotacao_bid_frete_internacional
+      ?? paisDestinoInferencia?.slice(0, 2).toUpperCase()
+      ?? null,
   })
+  prefill.tipo_operacao_cotacao_bid_frete_internacional = operacaoInferida ?? 'IMPORTACAO'
+  registrarCampo(detalheCampos, {
+    caminho_origem: textoOperacao ? 'document.operationType' : '—',
+    campo_destino: 'tipo_operacao_cotacao_bid_frete_internacional',
+    valor_origem: textoOperacao ?? operacaoInferida,
+    valor_destino: prefill.tipo_operacao_cotacao_bid_frete_internacional,
+    status_mapeamento: textoOperacao || operacaoInferida ? (textoOperacao ? 'mapeado' : 'sugerido') : 'sugerido',
+    motivo: !textoOperacao && !operacaoInferida ? 'padrao_importacao' : undefined,
+  })
+
+  if (paisDestinoInferencia && !prefill.destino_pais_cotacao_bid_frete_internacional) {
+    prefill.destino_pais_cotacao_bid_frete_internacional = paisDestinoInferencia.slice(0, 2).toUpperCase()
+  }
 
   if (containers.length > 0) {
     prefill.quantidade_volume_cotacao_bid_frete_internacional = containers.length
@@ -425,15 +522,17 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
     })
   }
 
-  const camposFaltantesRegras = avaliarCamposFaltantesPrefillCotacaoBidFrete(prefill)
+  const prefillComRegras = aplicarRegrasDerivadasPrefill(prefill)
+
+  const camposFaltantesRegras = avaliarCamposFaltantesPrefillCotacaoBidFrete(prefillComRegras)
   for (const rotulo of camposFaltantesRegras) {
     if (!camposFaltantes.includes(rotulo)) camposFaltantes.push(rotulo)
   }
 
-  const passo_inicial_tipo: TipoPassoInicialPrefillSmartRead = resolverPassoInicialPrefillSmartRead(prefill)
+  const passo_inicial_tipo: TipoPassoInicialPrefillSmartRead = resolverPassoInicialPrefillSmartRead(prefillComRegras)
 
   return {
-    prefill,
+    prefill: prefillComRegras,
     detalhe_mapeamento: { campos: detalheCampos, versao_contrato: 1 },
     campos_faltantes: [...new Set(camposFaltantes)],
     passo_inicial_tipo,
@@ -459,5 +558,13 @@ export const ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE: Record<string, string> = {
   peso_kg_cotacao_bid_frete_internacional: 'Peso (kg)',
   cubagem_m3_cotacao_bid_frete_internacional: 'Cubagem (m³)',
   incoterm_cotacao_bid_frete_internacional: 'Incoterm',
+  hs_code_cotacao_bid_frete_internacional: 'HS Code',
+  eh_carga_perigosa_cotacao_bid_frete_internacional: 'Carga perigosa',
+  exibir_campos_extras_origem_cotacao: 'Exibir campos origem',
+  exibir_campos_extras_destino_cotacao: 'Exibir campos destino',
+  pais_origem_rodoviario_cotacao_bid_frete_internacional: 'País origem (rod.)',
+  pais_destino_rodoviario_cotacao_bid_frete_internacional: 'País destino (rod.)',
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional: 'Cidade origem (rod.)',
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional: 'Cidade destino (rod.)',
   opcao_incluir_armazenagem_cotacao: 'Armazenagem LCL',
 }

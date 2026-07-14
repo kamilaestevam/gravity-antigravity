@@ -14,8 +14,22 @@ export type FormularioNovaCotacaoBidFreteBase = {
   aeroporto_destino_cotacao_bid_frete_internacional: string
   origem_pais_cotacao_bid_frete_internacional: string
   destino_pais_cotacao_bid_frete_internacional: string
+  exibir_campos_extras_origem_cotacao: boolean
+  exibir_campos_extras_destino_cotacao: boolean
+  estado_provincia_origem_cotacao_bid_frete_internacional: string
+  estado_provincia_destino_cotacao_bid_frete_internacional: string
+  endereco_origem_cotacao_bid_frete_internacional: string
+  endereco_destino_cotacao_bid_frete_internacional: string
+  pais_origem_rodoviario_cotacao_bid_frete_internacional: string
+  pais_destino_rodoviario_cotacao_bid_frete_internacional: string
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: string
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: string
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional: string
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional: string
+  eh_carga_perigosa_cotacao_bid_frete_internacional: boolean
   descricao_mercadoria_cotacao_bid_frete_internacional: string
   ncm_cotacao_bid_frete_internacional: string
+  hs_code_cotacao_bid_frete_internacional: string
   quantidade_volume_cotacao_bid_frete_internacional: number
   tipo_container_cotacao_bid_frete_internacional: string
   linhas_container_fcl_cotacao: ReturnType<typeof linhaContainerCotacaoVazia>[]
@@ -60,10 +74,47 @@ export function aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete<T extends F
       p.origem_pais_cotacao_bid_frete_internacional ?? formAtual.origem_pais_cotacao_bid_frete_internacional,
     destino_pais_cotacao_bid_frete_internacional:
       p.destino_pais_cotacao_bid_frete_internacional ?? formAtual.destino_pais_cotacao_bid_frete_internacional,
+    exibir_campos_extras_origem_cotacao:
+      p.exibir_campos_extras_origem_cotacao ?? formAtual.exibir_campos_extras_origem_cotacao,
+    exibir_campos_extras_destino_cotacao:
+      p.exibir_campos_extras_destino_cotacao ?? formAtual.exibir_campos_extras_destino_cotacao,
+    estado_provincia_origem_cotacao_bid_frete_internacional:
+      p.estado_provincia_origem_cotacao_bid_frete_internacional
+      ?? formAtual.estado_provincia_origem_cotacao_bid_frete_internacional,
+    estado_provincia_destino_cotacao_bid_frete_internacional:
+      p.estado_provincia_destino_cotacao_bid_frete_internacional
+      ?? formAtual.estado_provincia_destino_cotacao_bid_frete_internacional,
+    endereco_origem_cotacao_bid_frete_internacional:
+      p.endereco_origem_cotacao_bid_frete_internacional ?? formAtual.endereco_origem_cotacao_bid_frete_internacional,
+    endereco_destino_cotacao_bid_frete_internacional:
+      p.endereco_destino_cotacao_bid_frete_internacional ?? formAtual.endereco_destino_cotacao_bid_frete_internacional,
+    pais_origem_rodoviario_cotacao_bid_frete_internacional:
+      p.pais_origem_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.pais_origem_rodoviario_cotacao_bid_frete_internacional,
+    pais_destino_rodoviario_cotacao_bid_frete_internacional:
+      p.pais_destino_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.pais_destino_rodoviario_cotacao_bid_frete_internacional,
+    estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional:
+      p.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional,
+    estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional:
+      p.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional,
+    cidade_origem_rodoviario_cotacao_bid_frete_internacional:
+      p.cidade_origem_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.cidade_origem_rodoviario_cotacao_bid_frete_internacional,
+    cidade_destino_rodoviario_cotacao_bid_frete_internacional:
+      p.cidade_destino_rodoviario_cotacao_bid_frete_internacional
+      ?? formAtual.cidade_destino_rodoviario_cotacao_bid_frete_internacional,
+    eh_carga_perigosa_cotacao_bid_frete_internacional:
+      p.eh_carga_perigosa_cotacao_bid_frete_internacional
+      ?? formAtual.eh_carga_perigosa_cotacao_bid_frete_internacional,
     descricao_mercadoria_cotacao_bid_frete_internacional:
       p.descricao_mercadoria_cotacao_bid_frete_internacional ?? formAtual.descricao_mercadoria_cotacao_bid_frete_internacional,
     ncm_cotacao_bid_frete_internacional:
       p.ncm_cotacao_bid_frete_internacional ?? formAtual.ncm_cotacao_bid_frete_internacional,
+    hs_code_cotacao_bid_frete_internacional:
+      p.hs_code_cotacao_bid_frete_internacional ?? formAtual.hs_code_cotacao_bid_frete_internacional,
     quantidade_volume_cotacao_bid_frete_internacional:
       p.quantidade_volume_cotacao_bid_frete_internacional ?? formAtual.quantidade_volume_cotacao_bid_frete_internacional,
     tipo_container_cotacao_bid_frete_internacional:

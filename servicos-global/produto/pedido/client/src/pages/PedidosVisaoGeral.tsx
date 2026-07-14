@@ -7,7 +7,8 @@
  * SVG, funil por status, donut por tipo de operação.
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { usePainelInsightsAtivo } from '../components/pedidos-visualizacao-context'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -17,7 +18,6 @@ import {
   MagnifyingGlass,
   DownloadSimple,
   UploadSimple,
-  CurrencyCircleDollar,
   TrendUp,
   TrendDown,
   Timer,
@@ -30,6 +30,8 @@ import {
   ArrowCounterClockwise,
   Play,
   Pause,
+  Eye,
+  EyeSlash,
   Globe,
   MapTrifold,
   List,
@@ -58,7 +60,9 @@ import {
   useMapaRotulosStatusPedido,
 } from '../shared/visaoGeralTopKpi'
 import type {
+  TipoOperacaoMapa,
   VisaoGeralMapPin,
+  VisaoGeralPedidoCardDetalhe,
   VisaoGeralRotaDetalhe,
   VisaoGeralResumoVencimentos,
   VisaoGeralVencimentoCambio,
@@ -71,6 +75,56 @@ const fmtMoeda = (v: number) =>
 
 const fmtMoedaSafe = (v: number) =>
   Number.isFinite(v) && v > 0 ? fmtMoeda(v) : '—'
+
+type StatFluxoCambioPin = {
+  chaveRotulo: 'total_a_receber' | 'total_a_pagar'
+  valor: number
+  moeda: string
+  corValor: string
+}
+
+function resolverStatFluxoCambioPin(pin: VisaoGeralMapPin): StatFluxoCambioPin | null {
+  if (pin.tipoOperacao === 'importacao' && pin.totalAPagar > 0) {
+    return {
+      chaveRotulo: 'total_a_pagar',
+      valor: pin.totalAPagar,
+      moeda: pin.moedaCambio,
+      corValor: '#f59e0b',
+    }
+  }
+  if (pin.tipoOperacao === 'exportacao' && pin.totalAReceber > 0) {
+    return {
+      chaveRotulo: 'total_a_receber',
+      valor: pin.totalAReceber,
+      moeda: pin.moedaCambio,
+      corValor: '#34d399',
+    }
+  }
+  return null
+}
+
+function resolverStatFluxoCambioDetalhe(
+  detalhe: { totalAReceber: number; totalAPagar: number; moedaCambio: string },
+  tipoOperacao: TipoOperacaoMapa | undefined,
+): StatFluxoCambioPin | null {
+  if (tipoOperacao === 'importacao' && detalhe.totalAPagar > 0) {
+    return {
+      chaveRotulo: 'total_a_pagar',
+      valor: detalhe.totalAPagar,
+      moeda: detalhe.moedaCambio,
+      corValor: '#f59e0b',
+    }
+  }
+  if (tipoOperacao === 'exportacao' && detalhe.totalAReceber > 0) {
+    return {
+      chaveRotulo: 'total_a_receber',
+      valor: detalhe.totalAReceber,
+      moeda: detalhe.moedaCambio,
+      corValor: '#34d399',
+    }
+  }
+  return null
+}
 
 const fmtDataPt = (iso: string) => {
   const [y, m, d] = iso.split('-')
@@ -170,23 +224,6 @@ function MiniTimelineVencimentos({
         })}
       </svg>
     </button>
-  )
-}
-
-function MiniArcoCambio({ color }: { color: string }) {
-  const pathD = 'M 2,14 Q 36,2 70,14'
-  return (
-    <div className="bfd-route-mini-arco" aria-hidden="true">
-      <svg width="72" height="24" viewBox="0 0 72 24" style={{ overflow: 'visible' }}>
-        <path d={pathD} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="3,3" />
-        <path d={pathD} fill="none" stroke={color} strokeWidth="1.2" strokeDasharray="14, 120" opacity="0.85">
-          <animate attributeName="stroke-dashoffset" values="134;0" dur="5s" repeatCount="indefinite" />
-        </path>
-      </svg>
-      <div className="bfd-route-mini-arco__icon">
-        <CurrencyCircleDollar size={12} weight="duotone" color="#fbbf24" />
-      </div>
-    </div>
   )
 }
 
@@ -1232,11 +1269,13 @@ function projectGlobePoint(
 }
 
 const GLOBE_PIN_VISIVEL_MIN_RZ = -0.12
+const ALTURA_FLIP_TOOLTIP_MAPA = 200
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const painelInsightsAtivo = usePainelInsightsAtivo()
   const painelInsightsAtivoRef = useRef(painelInsightsAtivo)
   useEffect(() => {
@@ -1249,21 +1288,19 @@ function VisaoGeralMapa() {
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
-  const [modalDrillDown, setModalDrillDown] = useState<
-    | { view: 'vencimentos'; routeIdx: number; tab: 'pagar' | 'receber' }
-    | { view: 'timeline'; routeIdx: number }
-    | null
-  >(null)
 
-  useEffect(() => {
-    setModalDrillDown(null)
-  }, [selectedLocKey])
+  const abrirPedidoDoMapa = (card: VisaoGeralPedidoCardDetalhe) => {
+    setSelectedLocKey(null)
+    navigate('/pedido/pedidos/lista', {
+      state: {
+        openPedidoId: card.id,
+        abrirDrawer: true,
+        numeroPedido: card.numero_pedido,
+      },
+    })
+  }
 
-  const handleModalFecharOuVoltar = () => {
-    if (modalDrillDown !== null) {
-      setModalDrillDown(null)
-      return
-    }
+  const handleModalFechar = () => {
     setSelectedLocKey(null)
   }
 
@@ -1271,6 +1308,12 @@ function VisaoGeralMapa() {
   const globeRoutesRef = useRef(globeRoutes)
   useEffect(() => { pinsRef.current = pins }, [pins])
   useEffect(() => { globeRoutesRef.current = globeRoutes }, [globeRoutes])
+
+  const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(false)
+  const rotasAnimacaoVisiveisRef = useRef(false)
+  useEffect(() => {
+    rotasAnimacaoVisiveisRef.current = rotasAnimacaoVisiveis
+  }, [rotasAnimacaoVisiveis])
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1290,6 +1333,51 @@ function VisaoGeralMapa() {
   const panRef = useRef({ x: 0, y: 0 })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mapCanvasWrapperRef = useRef<HTMLDivElement>(null)
+  const [tooltipAncoragem, setTooltipAncoragem] = useState<{
+    x: number
+    y: number
+    abaixo: boolean
+  } | null>(null)
+
+  const pinHoverado =
+    hoveredPin !== null
+      ? projectedPins.find((p) => p.id === hoveredPin && p.opacity > 0.7) ?? null
+      : null
+
+  const atualizarTooltipAncoragem = () => {
+    if (hoveredPin === null) {
+      setTooltipAncoragem(null)
+      return
+    }
+    const pin = projectedPins.find((p) => p.id === hoveredPin)
+    const wrapper = mapCanvasWrapperRef.current
+    if (!pin || !wrapper || pin.opacity <= 0.7) {
+      setTooltipAncoragem(null)
+      return
+    }
+    const rect = wrapper.getBoundingClientRect()
+    setTooltipAncoragem({
+      x: rect.left + pin.px,
+      y: rect.top + pin.py,
+      abaixo: pin.py < ALTURA_FLIP_TOOLTIP_MAPA,
+    })
+  }
+
+  useLayoutEffect(() => {
+    atualizarTooltipAncoragem()
+  }, [hoveredPin, projectedPins])
+
+  useEffect(() => {
+    if (hoveredPin === null) return
+    const aoRolarOuRedimensionar = () => atualizarTooltipAncoragem()
+    window.addEventListener('scroll', aoRolarOuRedimensionar, true)
+    window.addEventListener('resize', aoRolarOuRedimensionar)
+    return () => {
+      window.removeEventListener('scroll', aoRolarOuRedimensionar, true)
+      window.removeEventListener('resize', aoRolarOuRedimensionar)
+    }
+  }, [hoveredPin, projectedPins])
   
   // Dragging and Rotation state refs
   const isDraggingRef = useRef(false)
@@ -1452,6 +1540,7 @@ function VisaoGeralMapa() {
       ctx.stroke()
 
       // Rotas (arco abaulado entre origem e destino)
+      if (rotasAnimacaoVisiveisRef.current) {
       const currentHovered = hoveredPinRef.current
       globeRoutesRef.current.forEach((route, routeIdx) => {
         const fromPin = pinsRef.current.find(p => p.id === route.fromId)
@@ -1533,6 +1622,7 @@ function VisaoGeralMapa() {
           ctx.restore()
         })
       })
+      }
 
       // Pinos (overlay HTML) — projeta e publica
       const offsetX = canvas.offsetLeft || 0
@@ -1732,7 +1822,7 @@ function VisaoGeralMapa() {
       ctx.setLineDash([]) // Reset
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
-      
+      if (rotasAnimacaoVisiveisRef.current) {
       globeRoutesRef.current.forEach((route, routeIdx) => {
         const fromPin = pinsRef.current.find(p => p.id === route.fromId)
         const toPin = pinsRef.current.find(p => p.id === route.toId)
@@ -1898,6 +1988,7 @@ function VisaoGeralMapa() {
           })
         }
       })
+      }
       
       // 6. Project and Slipped-In Map Pins Overlay Coordinates
       const offsetX = canvas.offsetLeft || 0
@@ -2036,6 +2127,7 @@ function VisaoGeralMapa() {
       
       <div className="bfd-map-container bfd-map-container--sem-painel-lateral">
         <div 
+          ref={mapCanvasWrapperRef}
           className="bfd-map-canvas-wrapper"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -2085,6 +2177,27 @@ function VisaoGeralMapa() {
               <Minus size={16} weight="bold" />
             </button>
 
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setRotasAnimacaoVisiveis((prev) => !prev)
+              }}
+              title={
+                rotasAnimacaoVisiveis
+                  ? t('pedido.visao_geral.mapa.ocultar_trilhos')
+                  : t('pedido.visao_geral.mapa.exibir_trilhos')
+              }
+              aria-pressed={!rotasAnimacaoVisiveis}
+              className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+            >
+              {rotasAnimacaoVisiveis ? (
+                <Eye size={16} weight="bold" />
+              ) : (
+                <EyeSlash size={16} weight="bold" />
+              )}
+            </button>
+
             <button 
               onClick={handleReset} 
               title={t('pedido.visao_geral.mapa.restaurar_globo')}
@@ -2111,6 +2224,7 @@ function VisaoGeralMapa() {
             const isHovered = hoveredPin === pin.id
             const isExportacao = pin.tipoOperacao === 'exportacao'
             const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] ?? iconeTipoOperacaoMapa(pin.tipoOperacao, 12, 'bold')
+            const tooltipAbaixo = pin.py < ALTURA_FLIP_TOOLTIP_MAPA
             
             return (
               <div
@@ -2150,64 +2264,125 @@ function VisaoGeralMapa() {
                   <span className="bfd-map-pin__icon-inner">{Icon}</span>
                 </div>
                 
-                {/* Tooltip */}
+                {/* Ponte invisível pin ↔ tooltip (portal) */}
                 {isHovered && pin.opacity > 0.7 && (
-                  <div className="bfd-map-tooltip">
-                    <div className="bfd-map-tooltip__header">
-                      <span className="bfd-map-tooltip__flag">{pin.flag}</span>
-                      <div className="bfd-map-tooltip__title-wrap">
-                        <span className="bfd-map-tooltip__title">{pin.label}</span>
-                        <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bfd-map-tooltip__body">
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.pedidos_count', { count: pin.pedidosCount })}</span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
-                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: pin.contratosCambioCount })}</span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_receber')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#34d399' }}>
-                          {pin.totalAReceber > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAReceber)}` : '—'}
-                        </span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#f59e0b' }}>
-                          {pin.totalAPagar > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAPagar)}` : '—'}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                        <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
-                          {t('pedido.visao_geral.mapa.parceiro_abreviado')}: <strong>{pin.parceiro}</strong>
-                        </span>
-                      </div>
-                      <div className="bfd-map-tooltip__hint">👉 {t('pedido.visao_geral.mapa.clique_ver_rotas')}</div>
-                    </div>
-                    <div className="bfd-map-tooltip__after" />
-                  </div>
+                  <div
+                    className={[
+                      'bfd-map-pin-hover-bridge',
+                      tooltipAbaixo ? 'bfd-map-pin-hover-bridge--abaixo' : 'bfd-map-pin-hover-bridge--acima',
+                    ].join(' ')}
+                    aria-hidden
+                  />
                 )}
               </div>
             )
           })}
         </div>
 
-        {/* Premium Detail Modal Overlay */}
-        {selectedLocKey !== null && (() => {
+        {/* Tooltip via portal — sempre acima do header/KPIs; flip abaixo quando pin perto do topo */}
+        {pinHoverado && tooltipAncoragem && typeof document !== 'undefined'
+          ? createPortal(
+              <div
+                className={[
+                  'bfd-map-tooltip',
+                  'bfd-map-tooltip--portal',
+                  tooltipAncoragem.abaixo ? 'bfd-map-tooltip--abaixo' : '',
+                ].filter(Boolean).join(' ')}
+                style={{
+                  left: tooltipAncoragem.x,
+                  top: tooltipAncoragem.abaixo
+                    ? tooltipAncoragem.y + 36
+                    : tooltipAncoragem.y - 36,
+                  transform: tooltipAncoragem.abaixo
+                    ? 'translate(-50%, 0)'
+                    : 'translate(-50%, -100%)',
+                }}
+                onMouseEnter={() => {
+                  setHoveredPin(pinHoverado.id)
+                  isRotationPausedRef.current = true
+                }}
+                onMouseLeave={() => {
+                  setHoveredPin(null)
+                  isRotationPausedRef.current = false
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  isRotationPausedRef.current = true
+                  setSelectedLocKey(pinHoverado.locKey)
+                }}
+              >
+                <div className="bfd-map-tooltip__header">
+                  <span className="bfd-map-tooltip__flag">{pinHoverado.flag}</span>
+                  <div className="bfd-map-tooltip__title-wrap">
+                    <span className="bfd-map-tooltip__title">{pinHoverado.label}</span>
+                    <span className="bfd-map-tooltip__subtitle">{pinHoverado.portCode} • {pinHoverado.country}</span>
+                  </div>
+                </div>
+
+                <div className="bfd-map-tooltip__body">
+                  <div className="bfd-map-tooltip__stat">
+                    <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                    <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.pedidos_count', { count: pinHoverado.pedidosCount })}</span>
+                  </div>
+                  <div className="bfd-map-tooltip__stat">
+                    <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.valor_total')}</span>
+                    <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
+                      {pinHoverado.valorTotal > 0 ? `${pinHoverado.moeda} ${fmtMoedaSafe(pinHoverado.valorTotal)}` : '—'}
+                    </span>
+                  </div>
+                  {pinHoverado.pctVolume > 0 && (
+                    <div className="bfd-map-tooltip__stat">
+                      <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.participacao_volume')}</span>
+                      <span className="bfd-map-tooltip__stat-val">
+                        {t('pedido.visao_geral.mapa.participacao_volume_valor', { pct: pinHoverado.pctVolume })}
+                      </span>
+                    </div>
+                  )}
+                  {(() => {
+                    const fluxoCambio = resolverStatFluxoCambioPin(pinHoverado)
+                    if (!fluxoCambio) return null
+                    return (
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">{t(`pedido.visao_geral.mapa.${fluxoCambio.chaveRotulo}`)}</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: fluxoCambio.corValor }}>
+                          {`${fluxoCambio.moeda} ${fmtMoedaSafe(fluxoCambio.valor)}`}
+                        </span>
+                      </div>
+                    )
+                  })()}
+                  {pinHoverado.contratosCambioCount > 0 && (
+                    <div className="bfd-map-tooltip__stat">
+                      <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
+                      <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: pinHoverado.contratosCambioCount })}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
+                      {t('pedido.visao_geral.mapa.parceiro_abreviado')}: <strong>{pinHoverado.parceiro}</strong>
+                    </span>
+                  </div>
+                  <div className="bfd-map-tooltip__hint">{t('pedido.visao_geral.mapa.clique_no_icone_pedidos_rotas')}</div>
+                </div>
+                <div className="bfd-map-tooltip__after" />
+              </div>,
+              document.body,
+            )
+          : null}
+
+        {/* Modal via portal — paridade BID Frete; evita corte por overflow/transform do card do mapa */}
+        {selectedLocKey !== null && typeof document !== 'undefined'
+          ? createPortal(
+              (() => {
           const detalhe = detalhesPorLocKey[selectedLocKey]
           if (!detalhe) return null
-          const connections = detalhe.rotas
+          const pinDetalhe = detalhe.pinId != null ? pins.find((p) => p.id === detalhe.pinId) : null
+          const pedidosLocal = detalhe.pedidosCards
           
           return (
-            <div className="bfd-modal-mapa-overlay" onClick={handleModalFecharOuVoltar}>
+            <div className="bfd-modal-mapa-overlay" onClick={handleModalFechar}>
               <div className="bfd-modal-mapa-card" onClick={e => e.stopPropagation()}>
                 <div className="bfd-modal-mapa-header">
                   <div className="bfd-modal-mapa-title-group">
@@ -2217,142 +2392,99 @@ function VisaoGeralMapa() {
                       <span className="bfd-modal-mapa-subtitle">{detalhe.code} • {detalhe.country}</span>
                     </div>
                   </div>
-                  <button type="button" className="bfd-modal-mapa-close-btn" onClick={handleModalFecharOuVoltar}>✕</button>
+                  <button type="button" className="bfd-modal-mapa-close-btn" onClick={handleModalFechar}>✕</button>
                 </div>
 
-                <div
-                  className="bfd-modal-mapa-cambio-resumo"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                    gap: '0.65rem',
-                    padding: '0.85rem 1.25rem',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    background: 'rgba(255,255,255,0.02)',
-                  }}
-                >
+                <div className="bfd-modal-mapa-cambio-resumo">
                   <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.hud.pedidos_count', { count: detalhe.pedidosCount })}</strong>
+                    <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                    <strong className="bfd-modal-mapa-cambio-item__valor">{t('pedido.visao_geral.hud.pedidos_count', { count: detalhe.pedidosCount })}</strong>
                   </div>
                   <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
-                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: detalhe.contratosCambioCount })}</strong>
-                  </div>
-                  <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_receber')}</span>
-                    <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>
-                      {detalhe.totalAReceber > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAReceber)}` : '—'}
+                    <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.valor_total')}</span>
+                    <strong className="bfd-modal-mapa-cambio-item__valor">
+                      {pinDetalhe && pinDetalhe.valorTotal > 0
+                        ? `${pinDetalhe.moeda} ${fmtMoedaSafe(pinDetalhe.valorTotal)}`
+                        : '—'}
                     </strong>
                   </div>
-                  <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
-                    <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>
-                      {detalhe.totalAPagar > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAPagar)}` : '—'}
-                    </strong>
-                  </div>
+                  {pinDetalhe && pinDetalhe.pctVolume > 0 && (
+                    <div className="bfd-modal-mapa-cambio-item">
+                      <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.participacao_volume')}</span>
+                      <strong className="bfd-modal-mapa-cambio-item__valor">
+                        {t('pedido.visao_geral.mapa.participacao_volume_valor', { pct: pinDetalhe.pctVolume })}
+                      </strong>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bfd-modal-mapa-body">
-                  {modalDrillDown?.view === 'vencimentos' && connections[modalDrillDown.routeIdx] ? (
-                    <PainelVencimentosExpandido
-                      route={connections[modalDrillDown.routeIdx]}
-                      tabInicial={modalDrillDown.tab}
-                      onVoltar={() => setModalDrillDown(null)}
-                    />
-                  ) : modalDrillDown?.view === 'timeline' && connections[modalDrillDown.routeIdx] ? (
-                    <PainelTimelineExpandido
-                      route={connections[modalDrillDown.routeIdx]}
-                      onVoltar={() => setModalDrillDown(null)}
-                    />
-                  ) : connections.length === 0 ? (
+                  {pedidosLocal.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
-                      {t('pedido.visao_geral.mapa.sem_rotas')}
+                      {t('pedido.visao_geral.mapa.sem_pedidos')}
                     </div>
                   ) : (
-                    connections.map((route, idx) => {
-                      const isExportacao = route.tipoOperacao === 'exportacao'
+                    pedidosLocal.map((card) => {
+                      const isExportacao = card.tipoOperacao === 'exportacao'
                       const tipoColor = isExportacao ? '#a78bfa' : '#f59e0b'
-                      const tipoIcon = iconeTipoOperacaoMapa(route.tipoOperacao, 14, 'bold')
+                      const tipoIcon = iconeTipoOperacaoMapa(card.tipoOperacao, 14, 'bold')
                       const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--exportacao' : 'bfd-route-badge bfd-route-badge--importacao'
                       const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--exportacao' : 'bfd-route-card bfd-route-card--importacao'
-                      const totalVencimentos =
-                        route.resumoVencimentosPagar.quantidade + route.resumoVencimentosReceber.quantidade
-                      const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
-                      
-                      return (
-                        <div key={idx} className={cardClass}>
-                          <MiniArcoCambio color={tipoColor} />
 
+                      return (
+                        <div key={card.id} className={cardClass}>
                           <div className="bfd-route-header">
                             <div className="bfd-route-ports">
-                              <span className="bfd-route-port-name" title={origem}>{origem}</span>
+                              <span className="bfd-route-port-flag">{card.origemFlag}</span>
+                              <span className="bfd-route-port-name" title={card.origemLabel}>{card.origemLabel}</span>
                               <span className="bfd-route-arrow-icon">➔</span>
-                              <span className="bfd-route-port-name" title={destino}>{destino}</span>
+                              <span className="bfd-route-port-flag">{card.destinoFlag}</span>
+                              <span className="bfd-route-port-name" title={card.destinoLabel}>{card.destinoLabel}</span>
                             </div>
-                            
                             <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {tipoIcon} {t(`pedido.visao_geral.modal.${route.tipoOperacao}`, { defaultValue: route.tipoOperacao })}
+                              {tipoIcon} {t(`pedido.visao_geral.modal.${card.tipoOperacao}`, { defaultValue: card.tipoOperacao })}
                             </span>
                           </div>
 
-                          <div className="bfd-route-vencimentos">
-                            <MiniTimelineVencimentos
-                              timeline={route.timelineVencimentos}
-                              onExpand={() => setModalDrillDown({ view: 'timeline', routeIdx: idx })}
-                            />
-                            <div className="bfd-route-vencimentos__cols">
-                              <ResumoVencimentosCol
-                                titulo={t('pedido.visao_geral.mapa.vencimentos_pagar')}
-                                resumo={route.resumoVencimentosPagar}
-                                preview={route.vencimentosPagar}
-                                corValor="#f59e0b"
-                              />
-                              <ResumoVencimentosCol
-                                titulo={t('pedido.visao_geral.mapa.vencimentos_receber')}
-                                resumo={route.resumoVencimentosReceber}
-                                preview={route.vencimentosReceber}
-                                corValor="#34d399"
-                              />
-                            </div>
-                          </div>
-
-                          {totalVencimentos > 0 && (
-                            <button
-                              type="button"
-                              className="bfd-route-ver-todos-btn"
-                              onMouseDown={e => e.stopPropagation()}
-                              onClick={e => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setModalDrillDown({
-                                  view: 'vencimentos',
-                                  routeIdx: idx,
-                                  tab: route.resumoVencimentosPagar.quantidade > 0 ? 'pagar' : 'receber',
-                                })
-                              }}
-                            >
-                              {t('pedido.visao_geral.mapa.ver_todos_vencimentos', { count: totalVencimentos })}
-                            </button>
-                          )}
-                          
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.hud.pedidos_count', { count: route.pedidos })}</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.col_status')}</span>
+                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>
+                                {t(`pedido.status.${card.status}`, { defaultValue: card.status })}
+                              </span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.valor_total')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{route.moeda} {fmtMoedaSafe(route.valorTotal)}</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>
+                                {card.valorTotal > 0 ? `${card.moeda} ${fmtMoedaSafe(card.valorTotal)}` : '—'}
+                              </span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.incoterm')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>{route.incoterm}</span>
+                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>{card.incoterm}</span>
+                            </div>
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.col_workspace')}</span>
+                              <span className="bfd-route-stat-value" title={card.nome_workspace}>{card.nome_workspace}</span>
                             </div>
                           </div>
-                          
-                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            <span>{t('pedido.visao_geral.mapa.parceiro_lider')}: <strong>{route.parceiro}</strong></span>
+
+                          <div className="bfd-pedido-card-footer">
+                            <span className="bfd-pedido-card-numero">
+                              <strong>{card.numero_pedido}</strong>
+                            </span>
+                            <button
+                              type="button"
+                              className={`bfd-pedido-card-btn-abrir${isExportacao ? ' bfd-pedido-card-btn-abrir--exportacao' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                abrirPedidoDoMapa(card)
+                              }}
+                            >
+                              <Eye size={12} weight="bold" />
+                              <span>{t('pedido.visao_geral.mapa.abrir_pedido', { numero: card.numero_pedido })}</span>
+                              <ArrowRight size={10} weight="bold" />
+                            </button>
                           </div>
                         </div>
                       )
@@ -2364,17 +2496,18 @@ function VisaoGeralMapa() {
                   <button
                     type="button"
                     className="bfd-modal-mapa-close-action"
-                    onClick={handleModalFecharOuVoltar}
+                    onClick={handleModalFechar}
                   >
-                    {modalDrillDown !== null
-                      ? t('pedido.visao_geral.mapa.voltar_rotas')
-                      : t('comum.fechar')}
+                    {t('comum.fechar')}
                   </button>
                 </div>
               </div>
             </div>
           )
-        })()}
+              })(),
+              document.body,
+            )
+          : null}
       </div>
       </div>
 
@@ -3174,6 +3307,11 @@ export default function VisaoGeral() {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.2);
         }
+        .bfd-map-control-btn--rotas-ocultas {
+          color: #fbbf24;
+          border-color: rgba(251, 191, 36, 0.35);
+          background: rgba(251, 191, 36, 0.12);
+        }
         @media (max-width: 1023px) {
           .bfd-map-controls {
             left: 50%;
@@ -3206,6 +3344,24 @@ export default function VisaoGeral() {
         .bfd-map-pin__icon-inner { display: flex; }
         .bfd-map-pin__icon-inner svg { width: 13px; height: 13px; }
 
+        .bfd-map-pin-hover-bridge {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 400px;
+          pointer-events: auto;
+          z-index: 1;
+          background: transparent;
+        }
+        .bfd-map-pin-hover-bridge--acima {
+          bottom: 10px;
+          height: 300px;
+        }
+        .bfd-map-pin-hover-bridge--abaixo {
+          top: 10px;
+          height: 300px;
+        }
+
         /* ── World Map Tooltip ───────────────────────────────────── */
         .bfd-map-tooltip {
           position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
@@ -3213,9 +3369,31 @@ export default function VisaoGeral() {
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 1.1rem;
           box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15);
-          display: flex; flex-direction: column; gap: 0.8rem; pointer-events: none;
+          display: flex; flex-direction: column; gap: 0.8rem; pointer-events: auto;
+          cursor: pointer;
           animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
+          z-index: 50;
+        }
+        .bfd-map-tooltip--portal {
+          position: fixed;
+          bottom: auto;
+          left: auto;
+          z-index: 100100;
+          margin: 0;
+          animation: none;
+        }
+        .bfd-map-tooltip--abaixo {
+          animation: tooltipFadeDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .bfd-map-tooltip--abaixo .bfd-map-tooltip__after {
+          bottom: auto;
+          top: -6px;
+          transform: translate3d(-50%, 0, 0) rotate(225deg);
+          border-right: none;
+          border-bottom: none;
+          border-left: 1px solid rgba(255, 255, 255, 0.12);
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
         .bfd-map-tooltip__after {
           content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
@@ -3345,6 +3523,35 @@ export default function VisaoGeral() {
           transform: rotate(90deg);
         }
 
+        .bfd-modal-mapa-cambio-resumo {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.85rem 1.5rem;
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .bfd-modal-mapa-cambio-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          min-width: 0;
+        }
+        .bfd-modal-mapa-cambio-item__label {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          font-weight: 500;
+          line-height: 1.35;
+          letter-spacing: 0.02em;
+        }
+        .bfd-modal-mapa-cambio-item__valor {
+          font-size: 0.88rem;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.35;
+          letter-spacing: 0.02em;
+        }
+
         .bfd-modal-mapa-body {
           flex: 1;
           min-height: 0;
@@ -3360,7 +3567,6 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
           padding: 1.25rem;
-          padding-right: 5.5rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
@@ -3441,30 +3647,6 @@ export default function VisaoGeral() {
           margin: 0.25rem 0;
           width: 100%;
           height: 30px;
-        }
-
-        .bfd-route-mini-arco {
-          position: absolute;
-          top: 0.55rem;
-          right: 0.65rem;
-          width: 72px;
-          height: 24px;
-          z-index: 2;
-        }
-
-        .bfd-route-mini-arco__icon {
-          position: absolute;
-          left: 50%;
-          top: 55%;
-          transform: translate(-50%, -50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid rgba(251, 191, 36, 0.35);
         }
 
         .bfd-route-vencimentos {
@@ -3812,6 +3994,56 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
+        .bfd-pedido-card-footer {
+          font-size: 0.72rem;
+          color: #cbd5e1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          padding-top: 0.5rem;
+          margin-top: 0.25rem;
+          gap: 0.75rem;
+        }
+        .bfd-pedido-card-numero {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-pedido-card-btn-abrir {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+          background: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.25);
+          color: #f59e0b;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 0.68rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          letter-spacing: 0.02em;
+          box-shadow: 0 0 10px rgba(245, 158, 11, 0.06);
+        }
+        .bfd-pedido-card-btn-abrir:hover {
+          background: rgba(245, 158, 11, 0.25);
+          transform: translateY(-1px) scale(1.02);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+        .bfd-pedido-card-btn-abrir--exportacao {
+          background: rgba(167, 139, 250, 0.12);
+          border-color: rgba(167, 139, 250, 0.25);
+          color: #c084fc;
+          box-shadow: 0 0 10px rgba(167, 139, 250, 0.06);
+        }
+        .bfd-pedido-card-btn-abrir--exportacao:hover {
+          background: rgba(167, 139, 250, 0.25);
+          box-shadow: 0 4px 12px rgba(167, 139, 250, 0.2);
+        }
+
         .bfd-modal-mapa-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -3963,6 +4195,10 @@ export default function VisaoGeral() {
           from { opacity: 0; transform: translate3d(-50%, 8px, 0); }
           to { opacity: 1; transform: translate3d(-50%, 0, 0); }
         }
+        @keyframes tooltipFadeDown {
+          from { opacity: 0; transform: translate(-50%, -8px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 1200px) {
@@ -4007,6 +4243,7 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
           flex: 1;
           width: 100%;
+          overflow: visible;
         }
         .pedido-visao-geral .bfd-rankings-card {
           padding: 0;

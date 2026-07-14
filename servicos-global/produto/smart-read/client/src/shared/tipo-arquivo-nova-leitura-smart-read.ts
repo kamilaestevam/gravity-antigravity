@@ -107,8 +107,8 @@ export function criarArquivosLocaisRetomarDeLeitura(
   const nomeLista =
     corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
   const nomeBase =
-    nomeLista ??
-    (corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+    (nomeLista ??
+      corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
       leituraEfetiva.nome_leitura?.trim()) ||
     'documento'
   const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)

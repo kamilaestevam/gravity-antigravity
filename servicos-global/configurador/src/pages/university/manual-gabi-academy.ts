@@ -9,69 +9,36 @@ import { DOC_GABI_SECOES, SCREENSHOT_GABI_JANELA_CONTROLES, SCREENSHOT_GABI_JANE
 import { IDS_EXEMPLOS_AULA_O_QUE_E_GABI } from './manual-gabi-exemplo-conversa-dados'
 
 const SECAO_O_QUE_E = DOC_GABI_SECOES[0]
-const SECAO_ONDE = DOC_GABI_SECOES[1]
-const SECAO_O_QUE_FAZ = DOC_GABI_SECOES[2]
 const SECAO_LIMITES = DOC_GABI_SECOES[3]
 
-const BLOCOS_FERRAMENTAS_POR_PRODUTO: BlocoConteudo[] = [
+const BLOCOS_JANELA_GABI: BlocoConteudo[] = [
   {
     tipo: 'heading',
-    dados: { text: 'O que ela faz em cada módulo', nivel: 2 },
+    dados: { text: 'A janela do chat em 4 partes', nivel: 2 },
   },
   {
     tipo: 'texto',
     dados: {
-      text: 'As capacidades da Gabi evoluem a cada atualização. Hoje ela está mais conectada a estes módulos:',
+      text: 'Depois de clicar no botão roxo, a **janela da Gabi** abre flutuando sobre a tela. Você não precisa sair do produto em que está. Ela pode ser **movida**, **expandida** e **redimensionada** do seu jeito.',
+    },
+  },
+  { tipo: 'infografico', dados: { id: 'gabi-janela' } },
+  {
+    tipo: 'imagem',
+    dados: {
+      src: SCREENSHOT_GABI_JANELA_CONTROLES,
+      alt: 'Janela da Gabi com controles, sugestões e campo de pergunta',
+      caption: 'Controles no cabeçalho (− expandir ×), sugestões rápidas, campo Pergunte algo… e botão enviar.',
+      larguraMaxima: 400,
     },
   },
   {
-    tipo: 'lista_legenda',
+    tipo: 'imagem',
     dados: {
-      emLinha: 0,
-      itens: JSON.stringify([
-        {
-          label: 'Pedido',
-          descricao:
-            'Leitura (lista, detalhe, KPIs, insights, tendências) e escrita (criar, editar, exclusão com preview, edição em massa, consolidar, transferir, duplicar).',
-        },
-        {
-          label: 'BID Frete Internacional',
-          descricao: 'KPIs, listagem e detalhe de cotações de frete.',
-        },
-        {
-          label: 'Configurador',
-          descricao:
-            'Organização, workspaces, usuários, assinaturas e consulta ao histórico; escritas sensíveis com confirmação.',
-        },
-        {
-          label: 'Hub e Store',
-          descricao: 'Orientação sobre navegação, produtos contratados e catálogo da Gravity Store.',
-        },
-        {
-          label: 'Admin',
-          descricao: 'Visão global de organizações, produtos e segurança. Apenas Gravity Admin.',
-        },
-      ]),
-    },
-  },
-  {
-    tipo: 'timeline',
-    dados: {
-      titulo: 'Tipos de ação no chat',
-      itens: JSON.stringify([
-        {
-          label: 'Consulta',
-          descricao: 'Buscar listas, detalhes e indicadores. Executada automaticamente quando você tem permissão.',
-        },
-        {
-          label: 'Alteração simples',
-          descricao: 'Criar ou editar registros de baixo impacto. A Gabi valida antes de concluir.',
-        },
-        {
-          label: 'Ação sensível',
-          descricao: 'Exclusões, consolidações, transferências e impacto financeiro. Ela mostra o que vai mudar e pede sua confirmação.',
-        },
-      ]),
+      src: SCREENSHOT_GABI_JANELA_EXPANDIDA,
+      alt: 'Janela da Gabi expandida em quase tela cheia',
+      caption: 'Modo expandido: quase tela cheia. Clique de novo no ícone de expandir para voltar ao tamanho anterior.',
+      larguraMaxima: 520,
     },
   },
 ]
@@ -117,44 +84,7 @@ const BLOCOS_O_QUE_E_A_GABI: BlocoConteudo[] = [
     tipo: 'gabi_conversas',
     dados: { ids: JSON.stringify([...IDS_EXEMPLOS_AULA_O_QUE_E_GABI]) },
   },
-]
-
-const BLOCOS_ONDE_ENCONTRAR: BlocoConteudo[] = [
-  ...blocosDeSecaoLogin(SECAO_ONDE) as BlocoConteudo[],
-  {
-    tipo: 'heading',
-    dados: { text: 'A janela do chat em 4 partes', nivel: 2 },
-  },
-  {
-    tipo: 'texto',
-    dados: {
-      text: 'Depois de clicar no botão roxo, a **janela da Gabi** abre flutuando sobre a tela. Você não precisa sair do produto em que está. Ela pode ser **movida**, **expandida** e **redimensionada** do seu jeito.',
-    },
-  },
-  { tipo: 'infografico', dados: { id: 'gabi-janela' } },
-  {
-    tipo: 'imagem',
-    dados: {
-      src: SCREENSHOT_GABI_JANELA_CONTROLES,
-      alt: 'Janela da Gabi com controles, sugestões e campo de pergunta',
-      caption: 'Controles no cabeçalho (− expandir ×), sugestões rápidas, campo Pergunte algo… e botão enviar.',
-      largura: 'full',
-    },
-  },
-  {
-    tipo: 'imagem',
-    dados: {
-      src: SCREENSHOT_GABI_JANELA_EXPANDIDA,
-      alt: 'Janela da Gabi expandida em quase tela cheia',
-      caption: 'Modo expandido: quase tela cheia. Clique de novo no ícone de expandir para voltar ao tamanho anterior.',
-      largura: 'full',
-    },
-  },
-]
-
-const BLOCOS_O_QUE_ELA_FAZ: BlocoConteudo[] = [
-  ...blocosDeSecaoLogin(SECAO_O_QUE_FAZ) as BlocoConteudo[],
-  ...BLOCOS_FERRAMENTAS_POR_PRODUTO,
+  ...BLOCOS_JANELA_GABI,
 ]
 
 const BLOCOS_LIMITES: BlocoConteudo[] = [
@@ -172,12 +102,10 @@ const BLOCOS_LIMITES: BlocoConteudo[] = [
 
 export const GABI_AULA_SLUGS = [
   'o-que-e-a-gabi',
-  'onde-encontrar',
-  'o-que-ela-faz',
   'limites-e-permissoes',
 ] as const
 
-const GABI_DURACOES = ['20m', '8m', '10m', '6m'] as const
+const GABI_DURACOES = ['24m', '6m'] as const
 
 export const AULAS_GABI: AulaDemo[] = [
   {
@@ -189,22 +117,8 @@ export const AULAS_GABI: AulaDemo[] = [
   },
   {
     slug: GABI_AULA_SLUGS[1],
-    titulo: SECAO_ONDE.titulo,
-    duracao: GABI_DURACOES[1],
-    blocos: BLOCOS_ONDE_ENCONTRAR,
-    manualSecao: SECAO_ONDE.num,
-  },
-  {
-    slug: GABI_AULA_SLUGS[2],
-    titulo: 'O que ela faz na prática',
-    duracao: GABI_DURACOES[2],
-    blocos: BLOCOS_O_QUE_ELA_FAZ,
-    manualSecao: SECAO_O_QUE_FAZ.num,
-  },
-  {
-    slug: GABI_AULA_SLUGS[3],
     titulo: SECAO_LIMITES.titulo,
-    duracao: GABI_DURACOES[3],
+    duracao: GABI_DURACOES[1],
     blocos: BLOCOS_LIMITES,
     manualSecao: SECAO_LIMITES.num,
   },

@@ -25,6 +25,9 @@ import { ManualInfograficoApiCockpitWebhookVsApi } from './manual-api-cockpit-in
 import { ManualInfograficoApiCockpitConsumo } from './manual-api-cockpit-infografico-consumo'
 import { ManualInfograficoGabiCapacidades } from './manual-gabi-infografico-capacidades'
 import { ManualInfograficoGabiJanela } from './manual-gabi-infografico-janela'
+import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
+import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 
 export type IdInfograficoAcademy =
   | 'organizacao-conta'
@@ -42,6 +45,9 @@ export type IdInfograficoAcademy =
   | 'api-cockpit-consumo'
   | 'gabi-capacidades'
   | 'gabi-janela'
+  | 'hub-telas'
+  | 'icones-menu-superior'
+  | 'pedido-visao-geral'
 
 function InfograficoOrganizacaoWorkspacesAcademy() {
   return (
@@ -80,6 +86,9 @@ const REGISTRO_INFOGRAFICOS_ACADEMY: Record<IdInfograficoAcademy, React.Componen
   'api-cockpit-consumo': ManualInfograficoApiCockpitConsumo,
   'gabi-capacidades': ManualInfograficoGabiCapacidades,
   'gabi-janela': ManualInfograficoGabiJanela,
+  'hub-telas': ManualInfograficoHubTelas,
+  'icones-menu-superior': ManualInfograficoIconesMenuSuperior,
+  'pedido-visao-geral': ManualInfograficoPedidoVisaoGeral,
 }
 
 export function AcademyInfografico({ id }: { id: IdInfograficoAcademy | string }) {

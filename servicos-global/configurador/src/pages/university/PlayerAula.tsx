@@ -25,7 +25,11 @@ import { ManualGabiExemplosConversa } from './manual-gabi-exemplo-conversa'
 import { ManualConfiguradorAccordionHistoricoCatalogo } from './manual-configurador-accordion-historico-catalogo'
 import { ManualFiguraScreenshot } from './manual-figura-screenshot'
 import { AcademyBlocoPassoVisual } from './academy-bloco-passo-visual'
+import { AcademyBlocoCenariosGrade, type PayloadCenariosGradeAcademy } from './academy-bloco-cenarios-grade'
+import { AcademyBlocoFluxoManual } from './academy-bloco-fluxo-manual'
 import type { DocPassoVisual } from './manual-login-conteudo'
+import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-conteudo'
+import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
@@ -85,7 +89,7 @@ function classificarBlocoGuia(bloco: BlocoConteudo): ClassificacaoBlocoGuia {
     const nivel = Number(bloco.dados.nivel ?? 1)
     return nivel <= 1 ? 'titulo' : 'subtitulo'
   }
-  if (['imagem', 'video', 'infografico', 'origem_dados', 'catalogo_historico', 'gabi_conversas'].includes(bloco.tipo)) return 'visual'
+  if (['imagem', 'video', 'infografico', 'origem_dados', 'catalogo_historico', 'gabi_conversas', 'topicos_imagem_lateral', 'cenarios_grade', 'fluxo_manual', 'galeria_comparacao'].includes(bloco.tipo)) return 'visual'
   return 'normal'
 }
 
@@ -107,6 +111,15 @@ function calcularEspacoSuperiorBlocoGuia(
   }
 
   const classificacao = classificarBlocoGuia(bloco)
+
+  // Screenshot → screenshot (galeria da mesma seção)
+  if (bloco.tipo === 'imagem' && blocoAnterior?.tipo === 'imagem') {
+    return 16
+  }
+  // Infográfico → screenshot seguinte (mesma seção visual)
+  if (bloco.tipo === 'imagem' && blocoAnterior?.tipo === 'infografico') {
+    return 16
+  }
   // Fim da tela/screenshot de um passo → rótulo do próximo passo
   if (classificacao === 'passo' && blocoAnterior?.tipo === 'passo_visual') {
     return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
@@ -253,9 +266,19 @@ function BlocoLinksExternos({ bloco }: { bloco: BlocoConteudo }) {
 function BlocoImagem({ bloco }: { bloco: BlocoConteudo; semMargemVertical?: boolean }) {
   const src = String(bloco.dados.src ?? '')
   const alt = String(bloco.dados.alt ?? '')
+  const larguraMaximaRaw = bloco.dados.larguraMaxima
+  const larguraMaxima = larguraMaximaRaw != null && larguraMaximaRaw !== ''
+    ? Number(larguraMaximaRaw)
+    : undefined
+  const figuraStyle: React.CSSProperties = {
+    ...SEM_MARGEM,
+    ...(larguraMaxima != null && Number.isFinite(larguraMaxima)
+      ? { maxWidth: larguraMaxima, marginLeft: 'auto', marginRight: 'auto' }
+      : {}),
+  }
   if (!src) {
     return (
-      <figure style={SEM_MARGEM}>
+      <figure style={figuraStyle}>
         <div style={{
           width: '100%', aspectRatio: '16/7', borderRadius: 12,
           background: 'rgba(148,163,184,.08)',
@@ -276,8 +299,15 @@ function BlocoImagem({ bloco }: { bloco: BlocoConteudo; semMargemVertical?: bool
     )
   }
   return (
-    <figure style={SEM_MARGEM}>
-      <ManualFiguraScreenshot src={src} alt={alt} larguraTotal className="uni-player-aula__figura" semSombraExterna />
+    <figure style={figuraStyle}>
+      <ManualFiguraScreenshot
+        src={src}
+        alt={alt}
+        larguraTotal={larguraMaxima == null}
+        larguraMaxima={larguraMaxima}
+        className="uni-player-aula__figura"
+        semSombraExterna
+      />
       {bloco.dados.caption && (
         <figcaption style={{ textAlign: 'center', fontSize: '.78rem', color: CONTENT_MUTED, marginTop: 10, fontStyle: 'italic' }}>
           {String(bloco.dados.caption)}
@@ -770,6 +800,54 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       return (
         <div style={SEM_MARGEM}>
           <ManualGabiExemplosConversa ids={ids} />
+        </div>
+      )
+    }
+
+    case 'topicos_imagem_lateral': {
+      const topicos = JSON.parse(String(bloco.dados.payload ?? '[]')) as DocTopicoImagemLateral[]
+      return (
+        <div style={SEM_MARGEM}>
+          <ManualTopicosImagemLateral topicos={topicos} />
+        </div>
+      )
+    }
+
+    case 'cenarios_grade': {
+      const payload = JSON.parse(String(bloco.dados.payload ?? '{}')) as PayloadCenariosGradeAcademy
+      return (
+        <div style={SEM_MARGEM}>
+          <AcademyBlocoCenariosGrade payload={payload} />
+        </div>
+      )
+    }
+
+    case 'fluxo_manual': {
+      const fluxo = JSON.parse(String(bloco.dados.payload ?? '{}')) as DocFluxo
+      const numeroSecaoFluxo = Number(bloco.dados.numeroSecaoFluxo ?? 1)
+      return (
+        <div style={SEM_MARGEM}>
+          <AcademyBlocoFluxoManual fluxo={fluxo} numeroSecaoFluxo={numeroSecaoFluxo} />
+        </div>
+      )
+    }
+
+    case 'galeria_comparacao': {
+      type GaleriaPayload = {
+        telas: { legenda: string; imagem: string; paragrafoAntes?: string }[]
+        colunas?: number
+        ampliarInferiorDireito?: boolean
+        textoAcimaEstiloCorpo?: boolean
+      }
+      const galeria = JSON.parse(String(bloco.dados.payload ?? '{}')) as GaleriaPayload
+      return (
+        <div style={SEM_MARGEM}>
+          <ManualGaleriaComparacaoIntro
+            telas={galeria.telas}
+            colunas={galeria.colunas}
+            ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+            textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+          />
         </div>
       )
     }

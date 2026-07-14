@@ -843,6 +843,38 @@ type ManualSubtopicosContextValue = {
 
 const ManualSubtopicosContext = createContext<ManualSubtopicosContextValue | null>(null)
 
+/** Estado de acordeões de subtópicos — necessário fora de `DocManualUmaSecao` (ex.: Guia Academy). */
+export function ManualSubtopicosProvider({ children }: { children: React.ReactNode }) {
+  const [subtopicosAbertos, setSubtopicosAbertos] = useState<Record<string, number[]>>({})
+  const abrirSubtopico = useCallback((prefix: string, num: number) => {
+    setSubtopicosAbertos((prev) => {
+      const atual = prev[prefix] ?? []
+      if (atual.includes(num)) return prev
+      return { ...prev, [prefix]: [...atual, num] }
+    })
+  }, [])
+  const toggleSubtopico = useCallback((prefix: string, num: number) => {
+    setSubtopicosAbertos((prev) => {
+      const atual = prev[prefix] ?? []
+      return {
+        ...prev,
+        [prefix]: atual.includes(num) ? atual.filter((n) => n !== num) : [...atual, num],
+      }
+    })
+  }, [])
+  const value = useMemo<ManualSubtopicosContextValue>(() => ({
+    abertosPorPrefix: subtopicosAbertos,
+    toggle: toggleSubtopico,
+    abrir: abrirSubtopico,
+  }), [subtopicosAbertos, toggleSubtopico, abrirSubtopico])
+
+  return (
+    <ManualSubtopicosContext.Provider value={value}>
+      {children}
+    </ManualSubtopicosContext.Provider>
+  )
+}
+
 export type ManualLeituraContextValue = {
   ativo: boolean
   fluxoPorSecao: Map<number, DocFluxo>
@@ -3347,7 +3379,7 @@ function ManualInfograficoPermissoesUsuarioEmbutido({ fluxo, aposPassoNum }: {
   )
 }
 
-function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numeroSecaoFluxo: number }) {
+export function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numeroSecaoFluxo: number }) {
   const prefixoPasso = fluxo.prefixoPassosVisuais
   const ancoraPassosPrefix = fluxo.ancoraPassosPrefix
 
@@ -4514,7 +4546,7 @@ function ManualTopicoImagemLateralTexto({
   )
 }
 
-function ManualTopicosImagemLateral({ topicos }: { topicos: DocTopicoImagemLateral[] }) {
+export function ManualTopicosImagemLateral({ topicos }: { topicos: DocTopicoImagemLateral[] }) {
   if (topicos.length === 0) return null
 
   if (topicos.length > 1) {

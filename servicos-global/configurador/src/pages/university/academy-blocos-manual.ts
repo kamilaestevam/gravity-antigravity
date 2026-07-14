@@ -16,7 +16,7 @@ export type TipoBlocoAcademy =
   | 'heading' | 'texto' | 'imagem' | 'video' | 'citacao' | 'destaque'
   | 'definicao' | 'dois_colunas' | 'timeline' | 'destaque_escuro' | 'infografico' | 'origem_dados'
   | 'lista_legenda' | 'requisitos_cadastro' | 'passo_visual' | 'catalogo_historico'
-  | 'gabi_conversas'
+  | 'gabi_conversas' | 'topicos_imagem_lateral' | 'cenarios_grade' | 'fluxo_manual' | 'galeria_comparacao'
 
 export interface BlocoConteudoAcademy {
   tipo: TipoBlocoAcademy
@@ -59,16 +59,27 @@ function figurasAposParagrafoSecao(
   return (secao.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
+function blocosGaleriaComparacaoAposParagrafo(
+  secao: { galeriaComparacaoAposParagrafo?: DocSecaoConfigurador['galeriaComparacaoAposParagrafo'] },
+  indice: number,
+): BlocoConteudoAcademy[] {
+  return (secao.galeriaComparacaoAposParagrafo ?? [])
+    .filter((g) => g.indice === indice)
+    .map((galeria) => ({
+      tipo: 'galeria_comparacao' as const,
+      dados: { payload: JSON.stringify(galeria) },
+    }))
+}
+
 function blocoImagemFigura(fig: DocFiguraAposParagrafo): BlocoConteudoAcademy {
-  return {
-    tipo: 'imagem',
-    dados: {
-      src: fig.imagem,
-      alt: fig.legenda ?? '',
-      caption: fig.legenda ?? '',
-      largura: 'full',
-    },
+  const dados: Record<string, string | number> = {
+    src: fig.imagem,
+    alt: fig.legenda ?? '',
+    caption: fig.legenda ?? '',
+    largura: 'full',
   }
+  if (fig.larguraMaxima != null) dados.larguraMaxima = fig.larguraMaxima
+  return { tipo: 'imagem', dados }
 }
 
 function tituloCallout(tipo: string): string {
@@ -192,14 +203,21 @@ const INFOGRAFICOS_SECAO: Array<{
   { flag: 'mostrarInfograficoOrganizacaoWorkspaces', id: 'organizacao-workspaces' },
   { flag: 'mostrarInfograficoFornecedoresComex', id: 'fornecedores-comex' },
   { flag: 'mostrarInfograficoApiCockpitIntegracao', id: 'api-cockpit-integracao', skipSeAposParagrafo: true },
+  { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
+  { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
 ]
 
-const INFOGRAFICOS_FLUXO: Array<{ flag: keyof DocFluxo; id: IdInfograficoAcademy }> = [
+const INFOGRAFICOS_FLUXO: Array<{
+  flag: keyof DocFluxo
+  id: IdInfograficoAcademy
+  aposPassos?: boolean
+}> = [
   { flag: 'mostrarInfograficoTiposUsuario', id: 'tipos-usuario' },
   { flag: 'mostrarInfograficoPapeisFornecedor', id: 'papeis-fornecedor' },
   { flag: 'mostrarInfograficoPermissoesUsuario', id: 'permissoes-usuario' },
   { flag: 'mostrarInfograficoApiCockpitWebhookVsApi', id: 'api-cockpit-webhook-vs-api' },
   { flag: 'mostrarInfograficoApiCockpitConsumo', id: 'api-cockpit-consumo' },
+  { flag: 'mostrarInfograficoIconesMenuSuperior', id: 'icones-menu-superior', aposPassos: true },
 ]
 
 function blocosInfograficosSecao(
@@ -219,12 +237,15 @@ function blocosInfograficosSecao(
   return blocos
 }
 
-function blocosInfograficosFluxo(fluxo: DocFluxo): BlocoConteudoAcademy[] {
+function blocosInfograficosFluxo(fluxo: DocFluxo, momento: 'antes_passos' | 'apos_passos'): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
-  for (const { flag, id } of INFOGRAFICOS_FLUXO) {
-    if (fluxo[flag] && !(flag === 'mostrarInfograficoPermissoesUsuario' && fluxo.infograficoPermissoesUsuarioAposPasso != null)) {
-      blocos.push(blocoInfografico(id))
-    }
+  for (const { flag, id, aposPassos: suportaAposPassos } of INFOGRAFICOS_FLUXO) {
+    if (!fluxo[flag]) continue
+    if (flag === 'mostrarInfograficoPermissoesUsuario' && fluxo.infograficoPermissoesUsuarioAposPasso != null) continue
+    const depoisDosPassos = Boolean(suportaAposPassos && fluxo.infograficoIconesMenuSuperiorAposPassos)
+    if (momento === 'antes_passos' && depoisDosPassos) continue
+    if (momento === 'apos_passos' && !depoisDosPassos) continue
+    blocos.push(blocoInfografico(id))
   }
   return blocos
 }
@@ -240,21 +261,41 @@ function blocosDeFluxo(
   }
   for (let i = 0; i < (fluxo.paragrafos ?? []).length; i++) {
     blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(fluxo.paragrafos![i]) } })
+    for (const fig of figurasAposParagrafoSecao(fluxo, i)) {
+      blocos.push(blocoImagemFigura(fig))
+    }
     if (fluxo.calloutAposParagrafo?.indice === i) {
       blocos.push(blocosDeCallout(fluxo.calloutAposParagrafo.callout))
     }
   }
   if (fluxo.callout && !fluxo.calloutAposPassos) blocos.push(blocosDeCallout(fluxo.callout))
-  blocos.push(...blocosInfograficosFluxo(fluxo))
+  blocos.push(...blocosInfograficosFluxo(fluxo, 'antes_passos'))
   const passosBrutos = fluxo.passosVisuais ?? []
   const passos = maxPassos != null ? passosBrutos.slice(0, maxPassos) : passosBrutos
-  for (let i = 0; i < passos.length; i++) {
-    blocos.push(...blocosDePassoConfigurador(passos[i], i))
+  if (fluxo.modoCenarios && fluxo.cenariosLadoALado && passos.length > 0) {
+    blocos.push({
+      tipo: 'cenarios_grade',
+      dados: {
+        payload: JSON.stringify({
+          passos,
+          cenariosLadoALado: true,
+          cenariosImagensAlinhadas: fluxo.cenariosImagensAlinhadas ?? false,
+        }),
+      },
+    })
+  } else {
+    for (let i = 0; i < passos.length; i++) {
+      const passo = fluxo.modoCenarios
+        ? { ...passos[i], ocultarRotuloPasso: true }
+        : passos[i]
+      blocos.push(...blocosDePassoConfigurador(passo, i))
+    }
   }
   if (fluxo.mostrarCatalogoHistoricoCompleto) {
     blocos.push({ tipo: 'catalogo_historico', dados: {} })
   }
   if (fluxo.callout && fluxo.calloutAposPassos) blocos.push(blocosDeCallout(fluxo.callout))
+  blocos.push(...blocosInfograficosFluxo(fluxo, 'apos_passos'))
   return blocos
 }
 
@@ -269,6 +310,8 @@ export interface CuradoriaSecaoAcademy {
   incluirImagemSecao?: boolean
   /** Infográficos da seção quando a intro está omitida (ex.: aula 2 do capítulo). */
   infograficosSecao?: IdInfograficoAcademy[]
+  /** Renderiza cada fluxo com `ManualSecaoFluxo` (infográficos, acordeões, galerias do manual). */
+  fluxoComoManualCompleto?: boolean
 }
 
 function blocoImagemSecao(
@@ -300,6 +343,7 @@ export function blocosDeSecaoConfiguradorAcademy(
     }
     for (let i = 0; i < secao.paragrafos.length; i++) {
       blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(secao.paragrafos[i]) } })
+      blocos.push(...blocosGaleriaComparacaoAposParagrafo(secao, i))
       for (const fig of figurasAposParagrafoSecao(secao, i)) {
         blocos.push(blocoImagemFigura(fig))
       }
@@ -309,6 +353,12 @@ export function blocosDeSecaoConfiguradorAcademy(
       ) {
         blocos.push(blocoInfografico('api-cockpit-integracao'))
       }
+    }
+    if (secao.topicosImagemLateral?.length) {
+      blocos.push({
+        tipo: 'topicos_imagem_lateral',
+        dados: { payload: JSON.stringify(secao.topicosImagemLateral) },
+      })
     }
     blocos.push(...blocosInfograficosSecao(secao))
     if (curadoria.incluirOrigemDados && secao.origemDados && curadoria.manualCapitulo) {
@@ -333,6 +383,16 @@ export function blocosDeSecaoConfiguradorAcademy(
     if (!fluxo) continue
     const tituloFluxoNorm = tituloFluxoAcademy(fluxo).trim().toLocaleLowerCase('pt-BR')
     const omitirTitulo = Boolean(tituloTopicoNorm && tituloFluxoNorm === tituloTopicoNorm)
+    if (curadoria.fluxoComoManualCompleto) {
+      if (!omitirTitulo) {
+        blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+      }
+      blocos.push({
+        tipo: 'fluxo_manual',
+        dados: { payload: JSON.stringify(fluxo), numeroSecaoFluxo: idx + 2 },
+      })
+      continue
+    }
     blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, { omitirTitulo }))
   }
   return blocos

@@ -155,11 +155,56 @@ function CalloutPasso({ callout }: { callout: { tipo: string; texto: string } })
  * Passo visual — ritmo Guia (`/modelo-espacamento-guia`): 12px no corpo e entre partes
  * (rótulo↔título↔parágrafos↔screenshot↔callout). Margem externa do bloco vem do PlayerAula.
  */
-export function AcademyBlocoPassoVisual({ passo }: { passo: DocPassoVisual; primeiro?: boolean }) {
+export function AcademyBlocoPassoVisual({
+  passo,
+  primeiro: _primeiro,
+  emGradeCenarios = false,
+  cenarioParte = 'completo',
+}: {
+  passo: DocPassoVisual
+  primeiro?: boolean
+  emGradeCenarios?: boolean
+  cenarioParte?: 'completo' | 'texto' | 'figuras'
+}) {
+  if (cenarioParte === 'figuras') {
+    const figuras = passo.figurasAposParagrafo ?? []
+    if (figuras.length > 0) {
+      return (
+        <div className="uni-player-aula__bloco-passo">
+          {figuras.map((fig) => (
+            <ManualFiguraScreenshot
+              key={fig.imagem}
+              src={fig.imagem}
+              alt={fig.legenda ?? passo.titulo}
+              larguraMaxima={fig.larguraMaxima}
+              larguraTotal={fig.larguraMaxima == null}
+              className="uni-player-aula__figura"
+              semSombraExterna
+            />
+          ))}
+        </div>
+      )
+    }
+    if (passo.imagem) {
+      return (
+        <div className="uni-player-aula__bloco-passo">
+          <ManualFiguraScreenshot
+            src={passo.imagem}
+            alt={passo.titulo}
+            larguraTotal
+            className="uni-player-aula__figura"
+            semSombraExterna
+          />
+        </div>
+      )
+    }
+    return null
+  }
+
   const calloutLista = passo.dicaAoLadoImagem || passo.calloutAposImagem
     ? []
     : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
-  const semRotulo = passo.ocultarRotuloPasso === true
+  const semRotulo = passo.ocultarRotuloPasso === true || emGradeCenarios
   const semTitulo = passo.ocultarTituloPasso === true
   const temCabecalho = !semRotulo || !semTitulo
   const temParagrafos = (passo.paragrafos?.length ?? 0) > 0
@@ -179,6 +224,97 @@ export function AcademyBlocoPassoVisual({ passo }: { passo: DocPassoVisual; prim
       ))}
     </div>
   ) : null
+
+  const corpoTextoPasso = (
+    <>
+      {!semRotulo ? (
+        <AcademyPassoRotuloLinha passo={passo} />
+      ) : null}
+      {!semTitulo ? (
+        <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+      ) : null}
+      {temParagrafos ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }}>
+          {passo.paragrafos!.map((p, i) => (
+            <p key={i} style={{ ...ESTILO_CORPO, margin: 0 }}>
+              <AcademyTextoRich texto={p} />
+            </p>
+          ))}
+        </div>
+      ) : null}
+    </>
+  )
+
+  if (cenarioParte === 'texto') {
+    const blocoTextoComCallout = passo.calloutAoLadoTexto && calloutLista.length > 0 ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
+        gap: 20,
+        alignItems: 'center',
+      }}>
+        <div>{corpoTextoPasso}</div>
+        {blocoCalloutsFinal}
+      </div>
+    ) : (
+      <>
+        {corpoTextoPasso}
+        {blocoCalloutsFinal}
+      </>
+    )
+    return (
+      <div
+        className="uni-player-aula__bloco-passo"
+        style={emGradeCenarios ? { height: '100%', display: 'flex', flexDirection: 'column' } : undefined}
+      >
+        {passo.calloutAntes ? (
+          <div style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
+            <CalloutPasso callout={passo.calloutAntes} />
+          </div>
+        ) : null}
+        {blocoTextoComCallout}
+      </div>
+    )
+  }
+
+  if (passo.imagemAbaixoTexto && passo.imagem) {
+    const blocoTextoComCallout = passo.calloutAoLadoTexto && calloutLista.length > 0 ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) minmax(220px, 38%)',
+        gap: 20,
+        alignItems: 'center',
+      }}>
+        <div>{corpoTextoPasso}</div>
+        {blocoCalloutsFinal}
+      </div>
+    ) : (
+      <>
+        {corpoTextoPasso}
+        {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
+      </>
+    )
+    return (
+      <div className="uni-player-aula__bloco-passo">
+        {passo.calloutAntes ? (
+          <div style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
+            <CalloutPasso callout={passo.calloutAntes} />
+          </div>
+        ) : null}
+        <div className="uni-player-aula__passo-corpo">
+          {blocoTextoComCallout}
+        </div>
+        <ManualFiguraScreenshot
+          src={passo.imagem}
+          alt={passo.titulo}
+          larguraTotal
+          className="uni-player-aula__figura"
+          semSombraExterna
+        />
+        {passo.calloutAoLadoTexto ? null : blocoCalloutsFinal}
+      </div>
+    )
+  }
 
   if (temSequenciaTextoFigura) {
     return (
@@ -212,7 +348,8 @@ export function AcademyBlocoPassoVisual({ passo }: { passo: DocPassoVisual; prim
                 key={fig.imagem}
                 src={fig.imagem}
                 alt={fig.legenda ?? passo.titulo}
-                larguraTotal
+                larguraMaxima={fig.larguraMaxima}
+                larguraTotal={fig.larguraMaxima == null}
                 className="uni-player-aula__figura"
                 semSombraExterna
               />

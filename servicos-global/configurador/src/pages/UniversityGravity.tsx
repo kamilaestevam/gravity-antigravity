@@ -35,6 +35,11 @@ import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
 import { BEM_VINDO_TRILHA } from './university/manual-bem-vindo-academy'
 import { GABI_TRILHA } from './university/manual-gabi-academy'
+import { HUB_TRILHA } from './university/manual-hub-academy'
+import { STORE_TRILHA } from './university/manual-store-academy'
+import { NAVEGACAO_TRILHA } from './university/manual-navegacao-academy'
+import { BID_FRETE_TRILHA } from './university/manual-bid-frete-academy'
+import { PEDIDO_TRILHA } from './university/manual-pedido-academy'
 import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
   DOC_LOGIN_METADADOS,
@@ -125,30 +130,10 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   }],
   configurador: CONFIGURADOR_TRILHAS.map(tr => ({ ...tr, prog: 0 })),
   gabi: [{ ...GABI_TRILHA, prog: 0 }],
-  hub: [{
-    tag: '#a78bfa', emoji: '🏠', nome: 'Hub e Navegação', modulos: 2, duracao: '30m', prog: 0,
-    fases: [
-      { nome: 'Navegando pelo Hub', duracao: '15m', concluida: false },
-      { nome: 'Trocando de Workspace', duracao: '15m', concluida: false },
-    ],
-  }],
-  store: [{
-    tag: '#10b981', emoji: '🛒', nome: 'Gravity Store', modulos: 2, duracao: '45m', prog: 0,
-    fases: [
-      { nome: 'Explorando o Marketplace', duracao: '25m', concluida: false },
-      { nome: 'Contratando um produto', duracao: '20m', concluida: false },
-    ],
-  }],
-  pedido: [{
-    tag: '#f59e0b', emoji: '📦', nome: 'Guia Pedido', modulos: 5, duracao: '2h', prog: 0,
-    fases: [
-      { nome: 'Lista de Pedidos', duracao: '25m', concluida: false },
-      { nome: 'Criando um Pedido', duracao: '20m', concluida: false },
-      { nome: 'Edição em Massa', duracao: '25m', concluida: false },
-      { nome: 'Colunas e Filtros', duracao: '25m', concluida: false },
-      { nome: 'Relatórios e Exportação', duracao: '25m', concluida: false },
-    ],
-  }],
+  hub: [{ ...HUB_TRILHA, prog: 0 }],
+  store: [{ ...STORE_TRILHA, prog: 0 }],
+  navegacao: [{ ...NAVEGACAO_TRILHA, prog: 0 }],
+  pedido: [{ ...PEDIDO_TRILHA, prog: 0 }],
   'smart-read': [{
     tag: '#c084fc', emoji: '📄', nome: 'Guia Smart Docs', modulos: 4, duracao: '1h30', prog: 0,
     fases: [
@@ -159,13 +144,8 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   'bid-frete': [{
-    tag: '#60a5fa', emoji: '✈️', nome: 'BID Frete Internacional', modulos: 4, duracao: '1h30', prog: 0,
-    fases: [
-      { nome: 'Nova Cotação', duracao: '25m', concluida: false },
-      { nome: 'Comparando Fretes', duracao: '25m', concluida: false },
-      { nome: 'Aprovação e Follow-up', duracao: '25m', concluida: false },
-      { nome: 'Relatórios de Frete', duracao: '15m', concluida: false },
-    ],
+    ...BID_FRETE_TRILHA,
+    prog: 0,
   }],
   'bid-cambio': [{
     tag: '#facc15', emoji: '💱', nome: 'BID Câmbio', modulos: 3, duracao: '1h', prog: 0,
@@ -195,7 +175,7 @@ const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
 
 // Visão geral agrupada (sem produto selecionado)
 const GRUPOS_TRILHAS = [
-  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.configurador[0]] },
+  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.navegacao[0], TRILHAS_POR_PRODUTO.configurador[0]] },
   { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
   { tituloKey: 'university.grupo.explorar',      trilhas: [TRILHAS_POR_PRODUTO['bid-frete'][0], TRILHAS_POR_PRODUTO['bid-cambio'][0], TRILHAS_POR_PRODUTO.store[0]] },
 ]
@@ -220,7 +200,7 @@ type ProdutoSlug = keyof typeof ICON_MAP
 
 /** Módulos da plataforma — disponíveis independente do produto contratado */
 const MODULOS_PLATAFORMA: ProdutoSlug[] = [
-  'bem-vindo', 'login', 'admin', 'configurador', 'gabi', 'hub', 'store',
+  'bem-vindo', 'login', 'navegacao', 'admin', 'configurador', 'gabi', 'hub', 'store',
 ]
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
@@ -2051,16 +2031,17 @@ export function UniversityGravity() {
         { to: '/university-gravity/academy',              label: t('university.nav.visao_geral'),    icon: <SquaresFour weight="duotone" size={16} /> },
         { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
         { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: iconesStatusNavAcademy('bem-vindo') },
-        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: iconesStatusNavAcademy('login'),        ...badgeEmBreve },
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: iconesStatusNavAcademy('login') },
+        { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: iconesStatusNavAcademy('navegacao') },
         { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        trailing: iconesStatusNavAcademy('admin'),        ...badgeAdminOnboarding },
-        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: iconesStatusNavAcademy('configurador'), ...badgeEmBreve },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: iconesStatusNavAcademy('configurador') },
         { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: iconesStatusNavAcademy('gabi') },
-        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: iconesStatusNavAcademy('hub'),          ...badgeEmBreve },
-        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: iconesStatusNavAcademy('store'),        ...badgeEmBreve },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: iconesStatusNavAcademy('hub') },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: iconesStatusNavAcademy('store') },
         { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: iconesStatusNavAcademy('pedido'),       ...badgeEmBreve },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: iconesStatusNavAcademy('pedido') },
         { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: iconesStatusNavAcademy('smart-read'),   ...badgeEmBreve },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: iconesStatusNavAcademy('bid-frete'),    ...badgeEmBreve },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: iconesStatusNavAcademy('bid-frete') },
         { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: iconesStatusNavAcademy('bid-cambio'),   ...badgeEmBreve },
         { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: iconesStatusNavAcademy('processo'),     ...badgeEmBreve },
       ],

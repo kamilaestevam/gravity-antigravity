@@ -66,6 +66,13 @@ export function avaliarCamposFaltantesPrefillCotacaoBidFrete(
     faltantes.push('Volumes')
   }
 
+  if (modalExigeRodoviarioPrefill(modal)) {
+    if (!prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional?.trim()) faltantes.push('País origem')
+    if (!prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional?.trim()) faltantes.push('País destino')
+    if (!prefill.cidade_origem_rodoviario_cotacao_bid_frete_internacional?.trim()) faltantes.push('Cidade origem')
+    if (!prefill.cidade_destino_rodoviario_cotacao_bid_frete_internacional?.trim()) faltantes.push('Cidade destino')
+  }
+
   if (modalExigePortoPrefill(modal)) {
     if (!prefill.porto_origem_cotacao_bid_frete_internacional?.trim()) faltantes.push('Porto origem')
     if (!prefill.porto_destino_cotacao_bid_frete_internacional?.trim()) faltantes.push('Porto destino')
@@ -98,6 +105,15 @@ export function resolverPassoInicialPrefillSmartRead(
 
   if (!modal || !prefill.tipo_operacao_cotacao_bid_frete_internacional) return 'modal'
   if (modal !== 'AEREO' && !modalidade) return 'modal'
+
+  if (modalExigeRodoviarioPrefill(modal)) {
+    if (!prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional?.trim()
+      || !prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional?.trim()
+      || !prefill.cidade_origem_rodoviario_cotacao_bid_frete_internacional?.trim()
+      || !prefill.cidade_destino_rodoviario_cotacao_bid_frete_internacional?.trim()) {
+      return 'origem'
+    }
+  }
 
   if (modalExigePortoPrefill(modal)) {
     if (!prefill.porto_origem_cotacao_bid_frete_internacional?.trim()

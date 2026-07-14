@@ -4,30 +4,17 @@
  */
 
 import { useAuth } from '@clerk/clerk-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback } from 'react'
 
-export function useGabiAuthHeaders(): Record<string, string> | undefined {
+export function useGabiAuthHeaders() {
   const { getToken, isSignedIn } = useAuth()
-  const [bearer, setBearer] = useState<string | undefined>()
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      setBearer(undefined)
-      return
-    }
-    let cancelado = false
-    void getToken().then((token) => {
-      if (!cancelado) {
-        setBearer(token ?? undefined)
-      }
-    })
-    return () => {
-      cancelado = true
-    }
+  const obterGabiAuthHeaders = useCallback(async (): Promise<Record<string, string> | undefined> => {
+    if (!isSignedIn) return undefined
+    const token = await getToken()
+    if (!token) return undefined
+    return { Authorization: `Bearer ${token}` }
   }, [getToken, isSignedIn])
 
-  return useMemo(() => {
-    if (!bearer) return undefined
-    return { Authorization: `Bearer ${bearer}` }
-  }, [bearer])
+  return obterGabiAuthHeaders
 }

@@ -451,7 +451,7 @@ const STORAGE_CONVERSA_GABI = 'gravity_gabi_conversa_id'
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const { t } = useTranslation()
-  const gabiHeaders = useGabiRequestHeaders()
+  const { obterGabiRequestHeaders, contextoPronto } = useGabiRequestHeaders()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
@@ -641,6 +641,12 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
   const handleSend = useCallback(async (text?: string) => {
     const msg = text || inputVal.trim()
     if (!msg) return
+    if (!contextoPronto) {
+      console.warn('[GabiOnboardingWidget] headers GABI indisponíveis (auth/me)')
+      return
+    }
+
+    const gabiHeaders = await obterGabiRequestHeaders()
     if (!gabiHeaders) {
       console.warn('[GabiOnboardingWidget] headers GABI indisponíveis (auth/me)')
       return
@@ -710,7 +716,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
       { id: assistantId, role: 'assistant', content: '', streaming: true },
     ])
     streamText(fullText, assistantId, suggestions)
-  }, [conversationId, gabiHeaders, inputVal, pathname, streamText])
+  }, [conversationId, contextoPronto, obterGabiRequestHeaders, inputVal, pathname, streamText])
 
   useEffect(() => {
     handleSendRef.current = handleSend

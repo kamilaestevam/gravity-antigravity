@@ -44,8 +44,8 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
-import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
-import type { HintRetomarLeituraListaSmartRead } from '../../../../shared/hint-retomar-leitura-lista-smart-read.js'
+import { resolverPassoRetomarLeituraSmartRead } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import {
   useListaPainelSmartRead,
   type AplicarConfigListaPainelCallbacks,

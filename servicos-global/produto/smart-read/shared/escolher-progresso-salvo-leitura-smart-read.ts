@@ -1,9 +1,13 @@
 /**
- * Progresso remoto (Postgres) é SSOT para o corpo da leitura.
- * localStorage só entra se a API falhar; passo/cache podem ser elevados pelo local.
+ * Mescla progresso remoto (Postgres) e local (localStorage).
+ * Passo = maior; leitura = lado com mais extração; cache mesclado dos dois.
  */
 
 import type { AnaliseRiscosCacheProgressoLeitura } from './analise-riscos-cache-progresso-smart-read.js'
+import {
+  mesclarLeiturasRetomarSmartRead,
+  type LeituraRetomarSmartRead,
+} from './escolher-leitura-efetiva-retomar-smart-read.js'
 
 export type ProgressoSalvoLeituraSmartRead = {
   passo: number
@@ -12,7 +16,13 @@ export type ProgressoSalvoLeituraSmartRead = {
   analise_riscos_cache?: AnaliseRiscosCacheProgressoLeitura
 }
 
-function mesclarCacheProgresso<T extends ProgressoSalvoLeituraSmartRead>(a: T, b: T): T {
+function mesclarProgressoSalvo<T extends ProgressoSalvoLeituraSmartRead>(a: T, b: T): T {
+  const passo = Math.max(a.passo, b.passo)
+  const leitura = mesclarLeiturasRetomarSmartRead(
+    a.leitura as LeituraRetomarSmartRead & T['leitura'],
+    b.leitura as LeituraRetomarSmartRead & T['leitura'],
+  ) as T['leitura']
+
   const cacheA = a.analise_riscos_cache ?? {}
   const cacheB = b.analise_riscos_cache ?? {}
   const cacheMesclado =
@@ -21,11 +31,12 @@ function mesclarCacheProgresso<T extends ProgressoSalvoLeituraSmartRead>(a: T, b
       : undefined
 
   return {
-    ...a,
-    passo: Math.max(a.passo, b.passo),
-    nome: a.nome || b.nome,
+    ...(a.passo >= b.passo ? a : b),
+    passo,
+    nome: (a.passo >= b.passo ? a.nome : b.nome) || (a.passo >= b.passo ? b.nome : a.nome),
+    leitura,
     ...(cacheMesclado ? { analise_riscos_cache: cacheMesclado } : {}),
-  } as T
+  }
 }
 
 export function escolherProgressoSalvoLeituraSmartRead<T extends ProgressoSalvoLeituraSmartRead>(
@@ -35,5 +46,5 @@ export function escolherProgressoSalvoLeituraSmartRead<T extends ProgressoSalvoL
   if (!remoto && !local) return null
   if (!remoto) return local
   if (!local) return remoto
-  return mesclarCacheProgresso(remoto, local)
+  return mesclarProgressoSalvo(remoto, local)
 }

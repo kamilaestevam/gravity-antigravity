@@ -101,22 +101,22 @@ import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arqui
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
-import {
-  PainelRevisaoPrefillCotacaoBidFreteSmartRead,
-  converterLeituraParaCotacaoBidFreteInternacional,
-  type PayloadContinuarPrefillCotacaoBidFreteSmartRead,
-} from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
+import type { PayloadContinuarPrefillCotacaoBidFreteSmartRead } from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
 import {
   montarPacotePrefillCotacaoBidFreteSmartRead,
   salvarPrefillCotacaoBidFreteSmartRead,
 } from '../../shared/persistencia-prefill-cotacao-bid-frete-smart-read'
 import { buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional } from '../../shared/navegacao-cotacao-bid-frete-smart-read'
-import { consolidarLeituraDeArquivosLocais } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 
 import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
 
 const GabiChat = lazy(() => import('@plataforma/gabi/src/Gabi'))
+const PainelRevisaoPrefillCotacaoBidFreteSmartRead = lazy(
+  () => import('./painel-revisao-prefill-cotacao-bid-frete-smart-read').then((mod) => ({
+    default: mod.PainelRevisaoPrefillCotacaoBidFreteSmartRead,
+  })),
+)
 
 
 
@@ -275,13 +275,15 @@ export function ModalNovaLeituraSmartRead({
   const inicioSessaoRef = useRef<number>(Date.now())
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
-  const pollRetomarIniciadoRef = useRef<Set<string>>(new Set())
+  const pollingEmVooRef = useRef<Map<string, Promise<void>>>(new Map())
   const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
 
   useEffect(() => {
     ativo.current = true
+    pollingEmVooRef.current.clear()
     return () => {
       ativo.current = false
+      pollingEmVooRef.current.clear()
     }
   }, [])
 
@@ -408,6 +410,7 @@ export function ModalNovaLeituraSmartRead({
       passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
       setPasso(passoPlaceholderRetomar >= 3 ? 2 : passoPlaceholderRetomar)
       riscosIniciadosRef.current.delete(id)
+      pollingEmVooRef.current.clear()
       void hidratarLeituraExistente(id)
     },
     [passoPlaceholderRetomar, hidratarLeituraExistente],
@@ -449,7 +452,7 @@ export function ModalNovaLeituraSmartRead({
     if (!aberto) {
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
-      pollRetomarIniciadoRef.current.clear()
+      pollingEmVooRef.current.clear()
       idLeituraRetomarAnteriorRef.current = null
     }
     abertoAnteriorRef.current = aberto
@@ -467,12 +470,11 @@ export function ModalNovaLeituraSmartRead({
 
   useEffect(() => {
     if (!aberto || !idLeituraExistente || hidratandoRetomar) return
-    const passoSalvo = Math.max(passoSalvoRef.current, passo)
-    if (passoSalvo < 2) return
+    const passoSalvo = passoSalvoRef.current
+    if (passoSalvo < 3) return
 
     const leituraConsolidada = consolidarLeituraDeArquivosLocais(arquivos)
     if (leituraTemExtracaoUtilRetomarSmartRead(leituraConsolidada)) return
-    if (arquivos.length > 0 && passoSalvo < 3) return
     if (recuperandoExtracaoRetomarRef.current) return
 
     const id = idLeituraAtual ?? idLeituraExistente
@@ -501,14 +503,9 @@ export function ModalNovaLeituraSmartRead({
           }
 
           const leituraEfetiva = escolherLeituraEfetivaRetomarSmartRead(leituraApi, salvo?.leitura)
-          if (leituraEfetiva && leituraEfetiva.arquivos.length > 0) {
+          if (leituraEfetiva && leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva)) {
             await aplicarLeituraHidratada(id, leituraEfetiva, salvo)
-            if (
-              leituraTemExtracaoUtilRetomarSmartRead(leituraEfetiva) ||
-              passoSalvo < 3
-            ) {
-              return
-            }
+            return
           }
           if (leituraEfetiva?.status_leitura === 'FAILED') return
 
@@ -674,22 +671,7 @@ export function ModalNovaLeituraSmartRead({
     void salvarProgressoAtual(passo)
   }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
 
-  // Passo 2 em andamento: persiste id_leitura + metadados antes da análise terminar.
-  useEffect(() => {
-    if (!aberto || passo !== 2 || hidratandoRetomarRef.current) return
-    const id = idLeituraAtual ?? idLeituraExistente
-    if (!id || !arquivos.some((item) => item.id_leitura)) return
-    const estado = montarEstadoProgressoLeituraSmartRead({
-      arquivos,
-      passo,
-      nomeLeitura,
-      idLeituraExistente: id,
-    })
-    if (!estado) return
-    persistirProgressoLeituraUrgenteSmartRead(id, estado)
-  }, [aberto, passo, arquivos, nomeLeitura, idLeituraAtual, idLeituraExistente])
-
-
+  // Persistência parcial do passo 2 só via estadoFlush + pagehide (evita PATCH durante OCR).
 
   const atualizarArquivo = useCallback(
 
@@ -890,8 +872,21 @@ export function ModalNovaLeituraSmartRead({
       }
 
       while (ativo.current) {
-
-        const leitura = await smartReadApi.obterLeitura(idLeitura)
+        let leitura: Leitura
+        try {
+          leitura = await smartReadApi.obterLeitura(idLeitura)
+        } catch {
+          if (Date.now() - inicio > LIMITE_POLLING_MS) {
+            contadorIaRef.current.marcarIaInativa()
+            atualizarArquivo(idArquivoLocal, {
+              status_arquivo_local: 'erro',
+              mensagem_erro: 'Falha ao consultar status da análise',
+            })
+            return
+          }
+          await new Promise((r) => setTimeout(r, INTERVALO_POLLING_MS))
+          continue
+        }
 
         if (!ativo.current) return
 
@@ -902,10 +897,13 @@ export function ModalNovaLeituraSmartRead({
           atualizarArquivo(idArquivoLocal, { id_arquivo: arquivoApi.id_arquivo })
         }
 
-        if (leitura.status_leitura === 'COMPLETED') {
+        const arquivoConcluido = arquivoApi?.status_arquivo === 'COMPLETED'
+        if (leitura.status_leitura === 'COMPLETED' || arquivoConcluido) {
           atualizarArquivo(idArquivoLocal, {
             status_arquivo_local: 'completo',
-            leitura,
+            leitura: arquivoConcluido && leitura.status_leitura !== 'COMPLETED'
+              ? { ...leitura, status_leitura: 'COMPLETED' }
+              : leitura,
             id_arquivo: arquivoApi?.id_arquivo ?? null,
             expandido: true,
           })
@@ -957,19 +955,30 @@ export function ModalNovaLeituraSmartRead({
 
   )
 
+  const garantirPollingArquivo = useCallback(
+    (idArquivoLocal: string, idLeitura: string, arquivoOriginal: File) => {
+      const emVoo = pollingEmVooRef.current.get(idArquivoLocal)
+      if (emVoo) return emVoo
+      const promessa = pollingArquivo(idArquivoLocal, idLeitura, arquivoOriginal).finally(() => {
+        pollingEmVooRef.current.delete(idArquivoLocal)
+      })
+      pollingEmVooRef.current.set(idArquivoLocal, promessa)
+      return promessa
+    },
+    [pollingArquivo],
+  )
+
   useEffect(() => {
     if (!aberto || passo < 2 || hidratandoRetomar) return
     for (const item of arquivos) {
       if (
         item.id_leitura &&
-        (item.status_arquivo_local === 'analisando' || item.status_arquivo_local === 'enviando') &&
-        !pollRetomarIniciadoRef.current.has(item.id_arquivo_local)
+        (item.status_arquivo_local === 'analisando' || item.status_arquivo_local === 'enviando')
       ) {
-        pollRetomarIniciadoRef.current.add(item.id_arquivo_local)
-        void pollingArquivo(item.id_arquivo_local, item.id_leitura, item.arquivo)
+        void garantirPollingArquivo(item.id_arquivo_local, item.id_leitura, item.arquivo)
       }
     }
-  }, [aberto, arquivos, hidratandoRetomar, passo, pollingArquivo])
+  }, [aberto, arquivos, hidratandoRetomar, passo, garantirPollingArquivo])
 
   const enviarArquivos = useCallback(async () => {
 
@@ -1008,7 +1017,7 @@ export function ModalNovaLeituraSmartRead({
           )
         }
 
-        await pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
+        await garantirPollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
 
       } catch (excecao) {
 
@@ -1032,7 +1041,7 @@ export function ModalNovaLeituraSmartRead({
 
     setEnviando(false)
 
-  }, [arquivos, atualizarArquivo, pollingArquivo])
+  }, [arquivos, atualizarArquivo, garantirPollingArquivo])
 
 
 
@@ -1063,7 +1072,10 @@ export function ModalNovaLeituraSmartRead({
       if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
         try {
           setRedirecionandoCotacao(true)
-          const payload = prefillContinuarRef.current ?? (() => {
+          const payload = prefillContinuarRef.current ?? await (async () => {
+            const { converterLeituraParaCotacaoBidFreteInternacional } = await import(
+              '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
+            )
             const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
             return {
               prefill: conversao.prefill,
@@ -1322,14 +1334,16 @@ export function ModalNovaLeituraSmartRead({
         )}
 
         {passo === 4 && origemBidFrete && leituraConsolidada ? (
-          <PainelRevisaoPrefillCotacaoBidFreteSmartRead
-            leitura={leituraConsolidada}
-            onContinuar={(payload) => {
-              prefillContinuarRef.current = payload
-              void handleContinuarPasso()
-            }}
-            continuando={redirecionandoCotacao}
-          />
+          <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
+            <PainelRevisaoPrefillCotacaoBidFreteSmartRead
+              leitura={leituraConsolidada}
+              onContinuar={(payload) => {
+                prefillContinuarRef.current = payload
+                void handleContinuarPasso()
+              }}
+              continuando={redirecionandoCotacao}
+            />
+          </Suspense>
         ) : passo === 4 ? (
           <AreaResultadoNovaLeituraSmartRead
             arquivos={arquivos}

@@ -124,15 +124,19 @@ export function TabelaTransacoesLeituraSmartRead({
   const [passoRetomarLista, setPassoRetomarLista] = useState<number | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const origemPedido = searchParams.get('origem') === 'pedido'
+  const origemProduto = searchParams.get('origem')
+  const origemPedido = origemProduto === 'pedido'
 
   useEffect(() => {
-    if (searchParams.get('origem') === 'pedido' && searchParams.get('acao') === 'nova-leitura') {
-      setModalNovaLeituraAberto(true)
-      const next = new URLSearchParams(searchParams)
-      next.delete('acao')
-      setSearchParams(next, { replace: true })
-    }
+    const origem = searchParams.get('origem')
+    const abreNovaLeitura =
+      searchParams.get('acao') === 'nova-leitura'
+      && (origem === 'pedido' || origem === 'bid-frete-internacional')
+    if (!abreNovaLeitura) return
+    setModalNovaLeituraAberto(true)
+    const next = new URLSearchParams(searchParams)
+    next.delete('acao')
+    setSearchParams(next, { replace: true })
   }, [searchParams, setSearchParams])
 
   const handleExpandidosMudar = useCallback((count: number) => {

@@ -33,3 +33,14 @@ export function buildRotaNovaCotacaoManual(idPainelLista?: string | null): strin
 export function buildQueryIdBid(idBid: string): string {
   return `${QUERY_ID_BID}=${encodeURIComponent(idBid)}`
 }
+
+/** Query `origem` reconhecida pelo Smart Docs ao abrir Nova Leitura a partir do BID Frete. */
+export const ORIGEM_SMART_READ_BID_FRETE_INTERNACIONAL = 'bid-frete-internacional'
+
+export function buildUrlNovaLeituraSmartReadBidFreteInternacional(): string {
+  const params = new URLSearchParams({
+    origem: ORIGEM_SMART_READ_BID_FRETE_INTERNACIONAL,
+    acao: 'nova-leitura',
+  })
+  return `/smart-read/lista?${params.toString()}`
+}

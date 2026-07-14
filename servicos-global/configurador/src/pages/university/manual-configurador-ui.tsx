@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Gear, Crown, Buildings, Users, Handshake, CreditCard, Receipt, Pulse,
@@ -12,10 +13,7 @@ import {
   Circle, CheckCircle, CircleHalf, Prohibit,
   type Icon,
 } from '@phosphor-icons/react'
-import {
-  HISTORICO_CATALOGO_SECOES,
-  type HistoricoCatalogoSecao,
-} from './manual-historico-catalogo'
+import { ManualConfiguradorAccordionHistoricoCatalogo } from './manual-configurador-accordion-historico-catalogo'
 import {
   type ConfiguradorManualSlug,
   type DocTooltipKpi,
@@ -48,7 +46,7 @@ import {
   rotuloPassoNoCapitulo,
   encontrarPassoPorNum,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX, MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -101,7 +99,8 @@ import type { ManualBidFreteEscopoConfig } from './manual-bid-frete-escopo-aplic
 import { ManualInfograficoBidFreteNovaCotacaoResultadoEsperado } from './manual-bid-frete-infografico-nova-cotacao-resultado-esperado'
 import { ManualInfograficoBidFreteModalOperacaoCampos } from './manual-bid-frete-infografico-modal-operacao-campos'
 import { ManualBidFreteSimuladorModalOperacao } from './manual-bid-frete-simulador-modal-operacao'
-import { ManualBidFreteSimuladorOrigemDestino } from './manual-bid-frete-simulador-origem-destino'
+import { GuiaAcademyNavigationContext } from './guia-academy-link'
+import { resolverHrefManualParaAcademy } from './academy-link-guia'
 import { ManualInfograficoBidFreteOrigemDestinoCampos } from './manual-bid-frete-infografico-origem-destino-campos'
 import { ManualInfograficoBotaoInline, ManualInfograficoIconeControleMapaBidFreteInline, isIconeControleMapaBidFrete } from './manual-infografico-rich-text'
 import { ManualInfograficoPedidoListaTransferirResultadoEsperado } from './manual-pedido-infografico-lista-transferir-resultado-esperado'
@@ -125,6 +124,9 @@ import { ManualInfograficoSmartDocsInsights } from './manual-smart-read-infograf
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
 import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
 import { ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit'
+import { ManualInfograficoApiCockpitIntegracao } from './manual-api-cockpit-infografico-integracao'
+import { ManualInfograficoApiCockpitWebhookVsApi } from './manual-api-cockpit-infografico-webhook-vs-api'
+import { ManualInfograficoApiCockpitConsumo } from './manual-api-cockpit-infografico-consumo'
 import { ManualSmartReadTabelaCatalogoColunasLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
@@ -841,7 +843,7 @@ type ManualSubtopicosContextValue = {
 
 const ManualSubtopicosContext = createContext<ManualSubtopicosContextValue | null>(null)
 
-type ManualLeituraContextValue = {
+export type ManualLeituraContextValue = {
   ativo: boolean
   fluxoPorSecao: Map<number, DocFluxo>
   isLido: (id: string) => boolean
@@ -853,9 +855,9 @@ type ManualLeituraContextValue = {
   percentual: number
 }
 
-const ManualLeituraContext = createContext<ManualLeituraContextValue | null>(null)
+export const ManualLeituraContext = createContext<ManualLeituraContextValue | null>(null)
 
-function ManualBotaoMarcarLido({
+export function ManualBotaoMarcarLido({
   estado,
   onToggle,
   rotulo,
@@ -907,6 +909,7 @@ function ManualLinkInterno({ href, rotulo }: { href: string; rotulo: string }) {
   const location = useLocation()
   const navigate = useNavigate()
   const scrollToSecao = useContext(ManualScrollSecaoContext)
+  const guiaNav = useContext(GuiaAcademyNavigationContext)
   const hashIdx = href.indexOf('#')
   const pathname = (hashIdx >= 0 ? href.slice(0, hashIdx) : href).replace(/\/$/, '')
   const hash = hashIdx >= 0 ? href.slice(hashIdx) : ''
@@ -921,6 +924,21 @@ function ManualLinkInterno({ href, rotulo }: { href: string; rotulo: string }) {
     padding: 0,
     cursor: 'pointer',
     font: 'inherit',
+  }
+
+  const destinoGuia = guiaNav
+    ? resolverHrefManualParaAcademy(href, guiaNav.produtoSlug)
+    : null
+  if (guiaNav && destinoGuia) {
+    return (
+      <button
+        type="button"
+        onClick={() => guiaNav.navegarLinkInterno(href)}
+        style={estiloBotaoLink}
+      >
+        {rotulo}
+      </button>
+    )
   }
 
   if (secaoNum != null && scrollToSecao && mesmaPagina) {
@@ -967,7 +985,7 @@ function gridColunasGaleriaTelas(quantidade: number): string {
 
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
   destaque: { bg: 'rgba(251,191,36,.1)', borda: 'rgba(251,191,36,.38)', label: 'Bom saber', cor: '#fbbf24' },
-  aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso', cor: '#f87171' },
+  aviso: { bg: 'rgba(239,68,68,.08)', borda: 'rgba(248,113,113,.35)', label: 'Aviso importante', cor: '#f87171' },
   exemplo: { bg: 'rgba(148,163,184,.08)', borda: 'rgba(148,163,184,.25)', label: '💡 Exemplo', cor: '#94a3b8' },
   dica: { bg: 'rgba(99,102,241,.07)', borda: 'rgba(99,102,241,.3)', label: '💡 Dica', cor: '#818cf8' },
   lembrete: { bg: 'rgba(251,191,36,.08)', borda: 'rgba(251,191,36,.32)', label: 'Lembrete', cor: '#fbbf24' },
@@ -1190,7 +1208,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '192'
+const MANUAL_SCREENSHOT_CACHE_KEY = '195'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1310,16 +1328,16 @@ function ManualFiguraScreenshot({
         )}
       </div>
 
-      {telaCheia && (
+      {telaCheia && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label={alt}
           onClick={() => setTelaCheia(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
+            position: 'fixed', inset: 0, zIndex: 200000,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '24px', background: 'rgba(2,6,23,.92)', backdropFilter: 'blur(4px)',
+            padding: '24px', background: '#020617',
           }}
         >
           <button
@@ -1343,9 +1361,11 @@ function ManualFiguraScreenshot({
               maxWidth: 'min(96vw, 1920px)', maxHeight: '92vh',
               width: 'auto', height: 'auto', objectFit: 'contain',
               borderRadius: 10, boxShadow: '0 24px 80px rgba(0,0,0,.55)',
+              background: '#0b0f1a',
             }}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )
@@ -1786,23 +1806,27 @@ function ManualGaleriaTelaImagemCelula({ tela }: { tela: DocGaleriaTela }) {
     <div style={{ width: '100%' }}>
       <p style={{
         fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-        marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
-        minHeight: '2.25rem',
+        margin: '0 0 10px', textAlign: 'center', letterSpacing: '.04em',
+        minHeight: '2.5rem',
         display: 'flex',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         justifyContent: 'center',
+        lineHeight: 1.35,
+        padding: '0 4px',
       }}>{tela.legenda}</p>
       {figuras}
     </div>
   )
 }
 
-function ManualGaleriaTelasBloco({
+export function ManualGaleriaTelasBloco({
   telas,
   fraseAposIndice,
+  fraseEntreCardsEImagens,
 }: {
   telas: DocGaleriaTela[]
   fraseAposIndice?: { indice: number; texto: string }
+  fraseEntreCardsEImagens?: string
 }) {
   if (telas.length === 0) return null
 
@@ -1810,24 +1834,36 @@ function ManualGaleriaTelasBloco({
     const alinharCards = items.length > 0 && items.every((tela) => tela.tooltipKpi != null)
 
     if (alinharCards) {
+      const colunas = gridColunasGaleriaTelas(items.length)
       return (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: gridColunasGaleriaTelas(items.length),
-          gap: 14,
-          marginTop,
-          alignItems: 'stretch',
-        }}>
-          {items.map((tela) => (
-            <ManualTooltipKpiCard
-              key={`card-${tela.legenda}`}
-              tooltip={tela.tooltipKpi!}
-              preencherAltura
-            />
-          ))}
-          {items.map((tela) => (
-            <ManualGaleriaTelaImagemCelula key={`img-${tela.legenda}`} tela={tela} />
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_GRADE_GALERIA_PX, marginTop }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: colunas,
+            gap: 12,
+            alignItems: 'stretch',
+          }}>
+            {items.map((tela) => (
+              <ManualTooltipKpiCard
+                key={`card-${tela.legenda}`}
+                tooltip={tela.tooltipKpi!}
+                preencherAltura
+              />
+            ))}
+          </div>
+          {fraseEntreCardsEImagens ? (
+            <ManualParagrafo texto={fraseEntreCardsEImagens} marginBottom={0} />
+          ) : null}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: colunas,
+            gap: 12,
+            alignItems: 'start',
+          }}>
+            {items.map((tela) => (
+              <ManualGaleriaTelaImagemCelula key={`img-${tela.legenda}`} tela={tela} />
+            ))}
+          </div>
         </div>
       )
     }
@@ -1853,7 +1889,7 @@ function ManualGaleriaTelasBloco({
     || fraseAposIndice.indice < 0
     || fraseAposIndice.indice >= telas.length - 1
   ) {
-    return gradeTelas(telas, 20)
+    return gradeTelas(telas, MANUAL_ESPACO_GRADE_GALERIA_PX)
   }
 
   const antes = telas.slice(0, fraseAposIndice.indice + 1)
@@ -1874,22 +1910,35 @@ function ManualGaleriaTelasBloco({
   )
 }
 
+const MANUAL_CALLOUT_ICONE: Partial<Record<string, Icon>> = {
+  aviso: Warning,
+}
+
 function ManualCalloutBloco({ callout, marginTop = 12, marginBottom = 0 }: {
   callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   marginTop?: number
   marginBottom?: number
 }) {
   const c = CALLOUT_STYLE[callout.tipo]
+  const Icone = MANUAL_CALLOUT_ICONE[callout.tipo]
   return (
     <div style={{
       background: c.bg, border: `1px solid ${c.borda}`, borderRadius: 8,
       padding: '12px 16px', marginTop, marginBottom,
+      display: 'flex', gap: 14,
     }}>
-      <p style={{
-        fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5,
-        letterSpacing: '.06em', textTransform: 'uppercase',
-      }}>{c.label}</p>
-      <p style={MANUAL_ESTILO_CALLOUT_CORPO}><ManualTextoRich texto={callout.texto} /></p>
+      {Icone ? (
+        <Icone weight="fill" size={20} style={{ color: c.cor, flexShrink: 0, marginTop: 2 }} />
+      ) : null}
+      <div style={{ minWidth: 0 }}>
+        <p style={{
+          fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5,
+          letterSpacing: '.06em', textTransform: 'uppercase',
+        }}>{c.label}</p>
+        <p style={{ ...MANUAL_ESTILO_CALLOUT_CORPO, margin: 0 }}>
+          <ManualTextoRich texto={callout.texto} />
+        </p>
+      </div>
     </div>
   )
 }
@@ -1922,58 +1971,7 @@ function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_P
   )
 }
 
-function ManualColunasTabela({ colunas }: { colunas: DocColunaTabela[] }) {
-  return (
-    <div style={{
-      marginTop: 16,
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-      gap: 14,
-    }}>
-      {colunas.map((col) => (
-        <div
-          key={col.coluna}
-          style={{
-            background: 'rgba(99,102,241,.06)',
-            border: '1px solid rgba(99,102,241,.18)',
-            borderRadius: 10,
-            overflow: 'hidden',
-          }}
-        >
-          {col.imagem && (
-            <ManualFiguraScreenshot
-              src={col.imagem}
-              alt={`Coluna ${col.coluna}`}
-            />
-          )}
-          <div style={{ padding: '12px 14px' }}>
-            <p style={{
-              fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
-              color: '#818cf8', margin: '0 0 4px',
-            }}>
-              {col.coluna}
-            </p>
-            {col.tituloColuna && (
-              <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 6px' }}>
-                {col.tituloColuna}
-              </p>
-            )}
-            <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: col.detalhes?.length ? '0 0 8px' : 0, lineHeight: 1.45 }}>
-              {col.descricao}
-            </p>
-            {col.detalhes && col.detalhes.length > 0 && (
-              <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
-                {col.detalhes.map((item) => (
-                  <li key={item} style={{ marginBottom: 3 }}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tabela'
 
 function ManualTooltipKpiCard({
   tooltip,
@@ -1985,34 +1983,52 @@ function ManualTooltipKpiCard({
   return (
     <div
       style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
         background: 'rgba(99,102,241,.06)',
         border: '1px solid rgba(99,102,241,.18)',
-        borderRadius: 10,
-        padding: '12px 14px',
-        ...(preencherAltura ? {
-          height: '100%',
-          width: '100%',
-          boxSizing: 'border-box',
-        } : {}),
+        borderRadius: 12,
+        padding: '16px 18px',
+        boxSizing: 'border-box',
+        ...(preencherAltura ? { height: '100%', width: '100%' } : {}),
       }}
     >
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
-        color: '#818cf8', margin: '0 0 10px',
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 5,
+        paddingBottom: 10,
+        borderBottom: '1px solid rgba(99,102,241,.14)',
       }}>
-        {tooltip.card}
-      </p>
-      <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 10px' }}>
-        Tooltip: {tooltip.tituloTooltip}
-      </p>
-      <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 8px', lineHeight: 1.45 }}>
+        <p style={{
+          fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
+          color: '#818cf8', margin: 0, lineHeight: 1.35,
+        }}>
+          {tooltip.card}
+        </p>
+        <p style={{
+          fontSize: '.7rem', fontWeight: 600, color: 'rgba(226,232,240,.78)',
+          margin: 0, lineHeight: 1.4,
+        }}>
+          {tooltip.tituloTooltip}
+        </p>
+      </div>
+      <p style={{
+        fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.5, flex: preencherAltura ? 1 : undefined,
+      }}>
         <ManualTextoRich texto={tooltip.descricao} />
       </p>
-      <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
+      {tooltip.detalhes.length > 0 ? (
+      <ul style={{
+        margin: 0, paddingLeft: 18, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5,
+        display: 'flex', flexDirection: 'column', gap: 4,
+      }}>
         {tooltip.detalhes.map((item) => (
-          <li key={item} style={{ marginBottom: 3 }}><ManualTextoRichLinha texto={item} /></li>
+          <li key={item} style={{ margin: 0 }}><ManualTextoRichLinha texto={item} /></li>
         ))}
       </ul>
+      ) : null}
     </div>
   )
 }
@@ -2424,11 +2440,17 @@ function ManualBlocoPassoVisual({
         ? { flex: 1, height: '100%', boxSizing: 'border-box' as const, paddingBottom: 8 }
         : {}),
     }}>
+      {passo.calloutAntes ? (
+        <ManualCalloutBloco callout={passo.calloutAntes} marginTop={0} marginBottom={espacoParagrafoPx} />
+      ) : null}
       {!semRotuloPasso && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '0 0 8px' }}>
           <span style={{ ...MANUAL_ESTILO_PASSO_ROTULO, margin: 0 }}>
-            {String(passo.num).padStart(2, '0')}
+            {passo.rotuloPasso ?? String(passo.num).padStart(2, '0')}
           </span>
+          {passo.tagEmConstrucao ? (
+            <span className="ws-badge ws-badge-warning">Em construção</span>
+          ) : null}
           {prefixoPasso && (
             <span style={{
               fontSize: '.62rem',
@@ -2864,7 +2886,13 @@ function ManualBlocoPassoVisual({
   ) : null
 
   const gradeColunas = passo.colunasTabela && passo.colunasTabela.length > 0
-    ? <ManualColunasTabela colunas={passo.colunasTabela} />
+    ? (
+      <ManualInfograficoColunasTabela
+        colunas={passo.colunasTabela}
+        titulo="Colunas da auditoria"
+        subtitulo="Cada card resume o que você vê na tabela de Histórico."
+      />
+    )
     : null
 
   const tabelaCatalogoColunasSmartRead = passo.mostrarCatalogoColunasListaSmartRead
@@ -2978,6 +3006,7 @@ function ManualBlocoPassoVisual({
       <ManualGaleriaTelasBloco
         telas={passo.galeriaTelas}
         fraseAposIndice={passo.galeriaFraseAposIndice}
+        fraseEntreCardsEImagens={passo.galeriaFraseEntreCardsEImagens}
       />
     ) : null
 
@@ -3075,6 +3104,7 @@ function ManualBlocoPassoVisual({
       <ManualGaleriaTelasBloco
         telas={passo.galeriaTelas}
         fraseAposIndice={passo.galeriaFraseAposIndice}
+        fraseEntreCardsEImagens={passo.galeriaFraseEntreCardsEImagens}
       />
     ) : null
 
@@ -3397,6 +3427,16 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
           <ManualInfograficoTiposUsuario />
         </div>
       )}
+      {fluxo.mostrarInfograficoApiCockpitWebhookVsApi && (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }}>
+          <ManualInfograficoApiCockpitWebhookVsApi />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoApiCockpitConsumo && (
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }}>
+          <ManualInfograficoApiCockpitConsumo />
+        </div>
+      )}
       {fluxo.mostrarInfograficoSmartDocsInsights && (
         <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoSmartDocsInsights />
@@ -3505,7 +3545,7 @@ function ManualSecaoFluxo({ fluxo, numeroSecaoFluxo }: { fluxo: DocFluxo; numero
   )
 }
 
-function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
+export function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
   const titulo = origem.titulo ?? 'De onde vem esse dado'
   return (
     <div
@@ -3518,39 +3558,52 @@ function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
         padding: '20px 22px 24px',
       }}
     >
+      {/* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */}
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: '#fbbf24', margin: '0 0 12px',
+        color: '#fbbf24', margin: 0,
+        padding: `0 0 ${MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX}px`,
       }}>
         {titulo}
       </p>
-      {origem.paragrafos.map((p, i) => (
-        <ManualParagrafo
-          key={i}
-          texto={p}
-          marginBottom={
-            i === origem.paragrafos.length - 1 && origem.etapas.length > 0
-              ? 20
-              : manualMargemParagrafo(i, origem.paragrafos.length)
-          }
-        />
-      ))}
+      {origem.paragrafos.length > 0 && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
+          paddingBottom: origem.etapas.length > 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 0,
+        }}>
+          {origem.paragrafos.map((p, i) => (
+            <p key={i} style={{ ...MANUAL_ESTILO_CORPO, margin: 0 }}>
+              <ManualTextoRich texto={p} />
+            </p>
+          ))}
+        </div>
+      )}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: 20,
-        marginTop: origem.paragrafos.length === 0 ? 0 : undefined,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
       }}>
         {origem.etapas.map((etapa) => (
-          <div key={etapa.legenda}>
+          <div
+            key={etapa.legenda}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: MANUAL_ESPACO_PARAGRAFO_PX,
+            }}
+          >
             <p style={{
-              fontSize: '.72rem', fontWeight: 700, color: '#fbbf24',
-              marginBottom: 8, letterSpacing: '.04em',
+              ...MANUAL_ESTILO_PASSO_TITULO,
+              margin: 0,
             }}>
               {etapa.legenda}
             </p>
             {etapa.paragrafos.map((p, i) => (
-              <ManualParagrafo key={i} texto={p} marginBottom={manualMargemParagrafo(i, etapa.paragrafos.length)} />
+              <p key={i} style={{ ...MANUAL_ESTILO_CORPO, margin: 0 }}>
+                <ManualTextoRich texto={p} />
+              </p>
             ))}
             <ManualFiguraScreenshot src={etapa.imagem} alt={etapa.legenda} />
           </div>
@@ -3571,7 +3624,21 @@ function galeriaComparacaoAposParagrafoSecao(secao: DocSecao, indice: number) {
   return (secao.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
 }
 
-function ManualGaleriaComparacaoIntro({
+function ManualInfograficoApiCockpitIntegracaoEmbutido({ secao, aposParagrafoIndice }: {
+  secao: DocSecao
+  aposParagrafoIndice: number
+}) {
+  if (!secao.mostrarInfograficoApiCockpitIntegracao) return null
+  const indiceAlvo = secao.infograficoApiCockpitIntegracaoAposParagrafo ?? -1
+  if (indiceAlvo !== aposParagrafoIndice) return null
+  return (
+    <div style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
+      <ManualInfograficoApiCockpitIntegracao />
+    </div>
+  )
+}
+
+export function ManualGaleriaComparacaoIntro({
   telas,
   ampliarInferiorDireito,
   colunas,
@@ -4555,6 +4622,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                     />
                   )
                 })()}
+                <ManualInfograficoApiCockpitIntegracaoEmbutido secao={secao} aposParagrafoIndice={i} />
               </div>
             ))}
           </div>
@@ -4627,6 +4695,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   />
                 )
               })()}
+              <ManualInfograficoApiCockpitIntegracaoEmbutido secao={secao} aposParagrafoIndice={i} />
             </div>
           ))}
 
@@ -4686,6 +4755,13 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.mostrarInfograficoMapaNavegacaoGravity && (
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoMapaNavegacaoGravity />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoApiCockpitIntegracao
+        && secao.infograficoApiCockpitIntegracaoAposParagrafo == null && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoApiCockpitIntegracao />
         </div>
       )}
 
@@ -4827,11 +4903,14 @@ export function ManualInfograficoOrganizacaoConta() {
       background: 'rgba(148,163,184,.04)',
       border: '1px solid rgba(148,163,184,.14)',
       borderRadius: 16,
-      padding: '22px 24px 26px',
+      padding: '32px 24px 26px',
     }}>
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+        color: MANUAL_TIPO.meta,
+        /* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */
+        margin: 0,
+        padding: '0 0 28px',
       }}>
         Da conta à empresa: o que é a Organização
       </p>
@@ -4844,7 +4923,10 @@ export function ManualInfograficoOrganizacaoConta() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#818cf8', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#818cf8',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             Como ela nasce
           </p>
           <div style={{ display: 'flex', alignItems: 'stretch', gap: 6, flexWrap: 'wrap' }}>
@@ -4868,12 +4950,15 @@ export function ManualInfograficoOrganizacaoConta() {
               )
             })}
           </div>
-          <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '12px 0 0', lineHeight: 1.5 }}>
+          <p style={{
+            fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0,
+            padding: '16px 0 0', lineHeight: 1.5,
+          }}>
             A organização é criada uma única vez, no onboarding. Depois disso você só revisa e atualiza os dados em Configurador → Organização.
           </p>
           <p style={{
-            fontSize: '.68rem', fontWeight: 600, color: '#a5b4fc', margin: '10px 0 0',
-            letterSpacing: '.03em',
+            fontSize: '.68rem', fontWeight: 600, color: '#a5b4fc',
+            margin: 0, padding: '10px 0 0', letterSpacing: '.03em',
           }}>
             ↓ Veja as telas reais desse passo em &quot;De onde vem esse dado&quot;, logo abaixo
           </p>
@@ -4886,7 +4971,10 @@ export function ManualInfograficoOrganizacaoConta() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#fbbf24', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#fbbf24',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             O que fica na organização
           </p>
           <div style={{
@@ -4911,7 +4999,10 @@ export function ManualInfograficoOrganizacaoConta() {
               </div>
             ))}
           </div>
-          <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '12px 0 0', lineHeight: 1.5 }}>
+          <p style={{
+            fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0,
+            padding: '16px 0 0', lineHeight: 1.5,
+          }}>
             Filiais, clientes e operações do dia a dia ficam nos{' '}
             <Link to="/university-gravity/docs/configurador/workspaces" style={MANUAL_LINK_STYLE}>workspaces</Link>
             {' '},  a organização é a raiz da conta, não a unidade operacional.
@@ -4955,11 +5046,12 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
       background: 'rgba(148,163,184,.04)',
       border: '1px solid rgba(148,163,184,.14)',
       borderRadius: 16,
-      padding: '22px 24px 26px',
+      padding: '32px 24px 26px',
     }}>
+      {/* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */}
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: '0 0 14px',
+        color: MANUAL_TIPO.meta, margin: 0, padding: '0 0 28px',
       }}>
         O que é um workspace
       </p>
@@ -4967,8 +5059,8 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: 12,
-        marginBottom: 22,
+        gap: 20,
+        paddingBottom: 28,
       }}>
         {definicoesWorkspace.map((item) => (
           <div
@@ -5011,7 +5103,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
 
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+        color: MANUAL_TIPO.meta, margin: 0, padding: '0 0 28px',
       }}>
         Organização × Workspaces: dois cenários comuns
       </p>
@@ -5024,7 +5116,10 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#818cf8', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#818cf8',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             Cenário 1: Importador / Exportador
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -5052,7 +5147,10 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
+            <p style={{
+              fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0,
+              padding: '8px 0 0', lineHeight: 1.5, textAlign: 'center',
+            }}>
               Cada matriz ou filial que importa ou exporta é um workspace com dados isolados.
             </p>
           </div>
@@ -5065,7 +5163,10 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#34d399', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#34d399',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             Cenário 2: Despachante / Agente
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -5093,7 +5194,10 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
+            <p style={{
+              fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0,
+              padding: '8px 0 0', lineHeight: 1.5, textAlign: 'center',
+            }}>
               Cada cliente importador ou exportador atendido vira um workspace separado.
             </p>
           </div>
@@ -5101,7 +5205,8 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
       </div>
 
       <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 16, paddingTop: 12,
+        display: 'flex', flexWrap: 'wrap', gap: '8px 14px',
+        marginTop: 0, paddingTop: 28,
         borderTop: '1px dashed rgba(148,163,184,.15)',
       }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#818cf8' }}>
@@ -5129,11 +5234,14 @@ export function ManualInfograficoFornecedoresComex() {
       background: 'rgba(148,163,184,.04)',
       border: '1px solid rgba(148,163,184,.14)',
       borderRadius: 16,
-      padding: '22px 24px 26px',
+      padding: '32px 24px 26px',
     }}>
+      {/* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */}
       <p style={{
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+        color: MANUAL_TIPO.meta,
+        margin: 0,
+        padding: '0 0 32px',
       }}>
         Papéis COMEX do fornecedor: relação com a sua operação
       </p>
@@ -5144,12 +5252,31 @@ export function ManualInfograficoFornecedoresComex() {
           background: 'rgba(96,165,250,.06)',
           border: '1px solid rgba(96,165,250,.22)',
           borderRadius: 14,
-          padding: '18px 16px 20px',
+          padding: '20px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#60a5fa', margin: '0 0 14px', letterSpacing: '.04em' }}>
-            Sua operação: Importação
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            padding: '0 0 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap',
+          }}>
+            <span style={{ fontSize: '.75rem', fontWeight: 600, color: '#94a3b8', letterSpacing: '.02em' }}>
+              Sua operação:
+            </span>
+            <strong style={{
+              fontWeight: 900,
+              fontSize: '.88rem',
+              letterSpacing: '.06em',
+              textTransform: 'uppercase',
+              color: '#dbeafe',
+              background: 'rgba(96,165,250,.22)',
+              border: '1px solid rgba(96,165,250,.5)',
+              borderRadius: 8,
+              padding: '4px 12px',
+              lineHeight: 1.2,
+            }}>
+              Importação
+            </strong>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <div style={{ ...INFO_ORG, width: '100%', background: 'rgba(96,165,250,.1)', borderColor: 'rgba(96,165,250,.3)', color: '#bfdbfe' }}>
               <Buildings size={16} weight="duotone" style={{ marginBottom: 4, color: '#93c5fd' }} />
               <div>Seu workspace</div>
@@ -5161,7 +5288,10 @@ export function ManualInfograficoFornecedoresComex() {
               <strong>Fornecedor · Exportador</strong>
               <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Vendedor no exterior: exporta para você</div>
             </div>
-            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
+            <p style={{
+              fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0, padding: '10px 0 0',
+              lineHeight: 1.55, textAlign: 'center',
+            }}>
               <strong style={{ color: '#34d399' }}>Exportador na importação</strong>: cadastre o fabricante ou trading company que vende a mercadoria que sua empresa está importando.
             </p>
           </div>
@@ -5172,12 +5302,31 @@ export function ManualInfograficoFornecedoresComex() {
           background: 'rgba(52,211,153,.06)',
           border: '1px solid rgba(52,211,153,.2)',
           borderRadius: 14,
-          padding: '18px 16px 20px',
+          padding: '20px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#34d399', margin: '0 0 14px', letterSpacing: '.04em' }}>
-            Sua operação: Exportação
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            padding: '0 0 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap',
+          }}>
+            <span style={{ fontSize: '.75rem', fontWeight: 600, color: '#94a3b8', letterSpacing: '.02em' }}>
+              Sua operação:
+            </span>
+            <strong style={{
+              fontWeight: 900,
+              fontSize: '.88rem',
+              letterSpacing: '.06em',
+              textTransform: 'uppercase',
+              color: '#d1fae5',
+              background: 'rgba(52,211,153,.22)',
+              border: '1px solid rgba(52,211,153,.5)',
+              borderRadius: 8,
+              padding: '4px 12px',
+              lineHeight: 1.2,
+            }}>
+              Exportação
+            </strong>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <div style={{ ...INFO_ORG, width: '100%', background: 'rgba(52,211,153,.12)', borderColor: 'rgba(52,211,153,.35)', color: '#a7f3d0' }}>
               <Buildings size={16} weight="duotone" style={{ marginBottom: 4, color: '#6ee7b7' }} />
               <div>Seu workspace</div>
@@ -5189,27 +5338,31 @@ export function ManualInfograficoFornecedoresComex() {
               <strong>Fornecedor · Importador</strong>
               <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Comprador no exterior: importa de você</div>
             </div>
-            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
+            <p style={{
+              fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0, padding: '10px 0 0',
+              lineHeight: 1.55, textAlign: 'center',
+            }}>
               <strong style={{ color: '#60a5fa' }}>Importador na exportação</strong>: cadastre o cliente estrangeiro que compra a mercadoria que sua empresa exporta. Ele atua como importador na operação.
             </p>
           </div>
         </div>
       </div>
 
-      <div style={{
-        marginTop: 16,
-        padding: '14px 16px',
-        background: 'rgba(251,191,36,.05)',
-        border: '1px solid rgba(251,191,36,.18)',
-        borderRadius: 12,
-      }}>
-        <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: '#fbbf24' }}>Fornecedor ≠ Workspace.</strong> Workspace é a sua unidade operacional (filial ou cliente do despachante). Fornecedor é um terceiro cadastrado no Configurador: aparece em pedidos, processos, cotações de frete e demais fluxos COMEX. Além de Importador e Exportador, você pode marcar Agente, Despachante, Armador e outros papéis no mesmo cadastro.
-        </p>
+      <div style={{ paddingTop: 28 }}>
+        <div style={{
+          padding: '14px 16px',
+          background: 'rgba(251,191,36,.05)',
+          border: '1px solid rgba(251,191,36,.18)',
+          borderRadius: 12,
+        }}>
+          <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
+            <strong style={{ color: '#fbbf24' }}>Fornecedor ≠ Workspace.</strong> Workspace é a sua unidade operacional (filial ou cliente do despachante). Fornecedor é um terceiro cadastrado no Configurador: aparece em pedidos, processos, cotações de frete e demais fluxos COMEX. Além de Importador e Exportador, você pode marcar Agente, Despachante, Armador e outros papéis no mesmo cadastro.
+          </p>
+        </div>
       </div>
 
       <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 14, paddingTop: 12,
+        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 0, paddingTop: 28,
         borderTop: '1px dashed rgba(148,163,184,.15)',
       }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#34d399' }}>
@@ -5284,7 +5437,7 @@ function ManualCamadaAcessoFluxo() {
   return (
     <div style={{
       marginBottom: 22,
-      padding: '18px 20px 20px',
+      padding: '32px 24px 26px',
       background: 'linear-gradient(135deg, rgba(99,102,241,.08) 0%, rgba(8,12,24,.35) 50%, rgba(52,211,153,.06) 100%)',
       border: '1px solid rgba(99,102,241,.2)',
       borderRadius: 14,
@@ -5298,7 +5451,10 @@ function ManualCamadaAcessoFluxo() {
       <p style={{
         position: 'relative',
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-        color: '#a5b4fc', margin: '0 0 16px',
+        color: '#a5b4fc',
+        /* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */
+        margin: 0,
+        padding: '0 0 28px',
       }}>
         Fluxo de acesso: Standard e Fornecedor
       </p>
@@ -5528,12 +5684,15 @@ function ManualBlocoFornecedorInteracao() {
   return (
     <div style={{
       marginTop: 18,
-      padding: '16px 18px 18px',
+      padding: '32px 24px 26px',
       borderRadius: 14,
       background: 'linear-gradient(145deg, rgba(52,211,153,.08) 0%, rgba(52,211,153,.02) 100%)',
       border: '1px solid rgba(52,211,153,.22)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        margin: 0, padding: '0 0 28px',
+      }}>
         <Handshake size={18} weight="duotone" color="#34d399" />
         <p style={{
           margin: 0, fontSize: '.72rem', fontWeight: 800, letterSpacing: '.06em',
@@ -5542,7 +5701,9 @@ function ManualBlocoFornecedorInteracao() {
           Fornecedor: como interage com a organização
         </p>
       </div>
-      <p style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, margin: '0 0 14px', lineHeight: 1.55 }}>
+      <p style={{
+        fontSize: '.78rem', color: MANUAL_CORPO_70, margin: 0, padding: '0 0 18px', lineHeight: 1.55,
+      }}>
         O parceiro pode operar com a organização de duas formas. O Master escolhe qual modelo usar;
         <strong style={{ color: '#a7f3d0' }}> o acesso à plataforma não é obrigatório</strong>.
       </p>
@@ -5556,7 +5717,7 @@ function ManualBlocoFornecedorInteracao() {
             <Desktop size={18} weight="duotone" color="#818cf8" />
           </span>
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
+            <p style={{ margin: 0, padding: '0 0 10px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
               Com usuário na plataforma
             </p>
             <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
@@ -5574,7 +5735,7 @@ function ManualBlocoFornecedorInteracao() {
             <EnvelopeSimple size={18} weight="duotone" color="#34d399" />
           </span>
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
+            <p style={{ margin: 0, padding: '0 0 10px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
               Só por e-mail, sem acesso
             </p>
             <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
@@ -5702,11 +5863,14 @@ export function ManualInfograficoTiposUsuario() {
         background: 'rgba(148,163,184,.04)',
         border: '1px solid rgba(148,163,184,.14)',
         borderRadius: 16,
-        padding: '22px 24px 26px',
+        padding: '32px 24px 26px',
       }}>
         <p style={{
           fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
-          color: MANUAL_TIPO.meta, margin: '0 0 18px',
+          color: MANUAL_TIPO.meta,
+          /* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */
+          margin: 0,
+          padding: '0 0 28px',
         }}>
           Tipos de usuário na organização
         </p>
@@ -5718,7 +5882,10 @@ export function ManualInfograficoTiposUsuario() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#fbbf24', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#fbbf24',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             Quem gerencia a conta
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -5782,7 +5949,10 @@ export function ManualInfograficoTiposUsuario() {
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
+            <p style={{
+              fontSize: '.72rem', color: MANUAL_CORPO_70, margin: 0, padding: '8px 0 0',
+              lineHeight: 1.5, textAlign: 'center',
+            }}>
               Só o Master convida pessoas e altera patentes, permissões e{' '}
               <Link to={LINK_DOC_WORKSPACES} style={MANUAL_LINK_STYLE}>workspaces</Link>
               {' '}de outros usuários.
@@ -5796,7 +5966,10 @@ export function ManualInfograficoTiposUsuario() {
           borderRadius: 14,
           padding: '18px 16px 20px',
         }}>
-          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#818cf8', margin: '0 0 14px', letterSpacing: '.04em' }}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 800, color: '#818cf8',
+            margin: 0, padding: '0 0 14px', letterSpacing: '.04em',
+          }}>
             O que muda entre os tipos
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -5863,121 +6036,8 @@ export function ManualInfograficoTiposUsuario() {
   )
 }
 
-const HISTORICO_TABELA_TH: React.CSSProperties = {
-  padding: '11px 14px',
-  textAlign: 'left',
-  fontSize: '.66rem',
-  fontWeight: 700,
-  letterSpacing: '.06em',
-  textTransform: 'uppercase',
-  borderBottom: '1px solid rgba(148,163,184,.15)',
-}
-
-const HISTORICO_TABELA_TD: React.CSSProperties = {
-  padding: '11px 14px',
-  fontSize: '.76rem',
-  lineHeight: 1.45,
-  verticalAlign: 'top',
-  borderBottom: '1px solid rgba(148,163,184,.08)',
-  color: '#e2e8f0',
-}
-
-function ManualHistoricoTabelaSecao({ secao }: { secao: HistoricoCatalogoSecao }) {
-  const minWidth = Math.max(480, secao.colunas.length * 110)
-
-  return (
-    <div style={{
-      marginTop: 18,
-      borderRadius: 14,
-      border: '1px solid rgba(148,163,184,.14)',
-      background: 'linear-gradient(145deg, rgba(99,102,241,.06) 0%, rgba(148,163,184,.04) 50%, rgba(52,211,153,.04) 100%)',
-      boxShadow: '0 8px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04)',
-      overflow: 'hidden',
-    }}>
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: MANUAL_TIPO.meta, margin: 0, padding: '14px 16px 12px',
-        borderBottom: '1px solid rgba(148,163,184,.1)',
-      }}>
-        {secao.titulo}
-      </p>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', minWidth, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              {secao.colunas.map((col) => (
-                <th
-                  key={col.chave}
-                  style={{
-                    ...HISTORICO_TABELA_TH,
-                    width: col.largura,
-                    color: col.destaque ? '#a5b4fc' : '#94a3b8',
-                    background: col.destaque ? 'rgba(99,102,241,.08)' : 'transparent',
-                  }}
-                >
-                  {col.rotulo}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {secao.linhas.map((linha, i) => (
-              <tr
-                key={`${secao.titulo}-${i}`}
-                style={{ background: i % 2 === 0 ? 'rgba(8,12,24,.15)' : 'transparent' }}
-              >
-                {secao.colunas.map((col) => {
-                  const valor = linha[col.chave] ?? ''
-                  const ehNum = col.chave === 'num'
-                  const ehTecnico = col.chave === 'acao' || col.chave === 'campo' || col.chave === 'gatilho' || col.chave === 'prefixo'
-                  const ehUsuario = col.chave === 'traducao'
-                  return (
-                    <td
-                      key={col.chave}
-                      style={{
-                        ...HISTORICO_TABELA_TD,
-                        fontWeight: ehNum || col.destaque || ehUsuario ? 600 : 400,
-                        color: ehNum ? '#94a3b8' : '#e2e8f0',
-                        background: col.destaque ? 'rgba(99,102,241,.04)' : undefined,
-                        fontFamily: ehTecnico
-                          ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
-                          : undefined,
-                        fontSize: ehTecnico ? '.7rem' : '.76rem',
-                      }}
-                    >
-                      <ManualTextoRich texto={valor} />
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {secao.notaRodape && (
-        <p style={{
-          margin: 0,
-          padding: '10px 16px 14px',
-          fontSize: '.72rem',
-          lineHeight: 1.5,
-          color: MANUAL_CORPO_70,
-          borderTop: '1px solid rgba(148,163,184,.08)',
-        }}>
-          <ManualTextoRich texto={secao.notaRodape} />
-        </p>
-      )}
-    </div>
-  )
-}
-
 function ManualCatalogoHistoricoCompleto() {
-  return (
-    <div style={{ marginTop: 8, marginBottom: 8 }}>
-      {HISTORICO_CATALOGO_SECOES.map((secao) => (
-        <ManualHistoricoTabelaSecao key={secao.titulo} secao={secao} />
-      ))}
-    </div>
-  )
+  return <ManualConfiguradorAccordionHistoricoCatalogo />
 }
 
 const COMPARATIVO_TIPOS_USUARIO: {
@@ -5988,9 +6048,9 @@ const COMPARATIVO_TIPOS_USUARIO: {
 }[] = [
   {
     criterio: 'Camadas de acesso',
-    master: 'Nenhuma: acesso direto a tudo',
-    standard: '1º workspaces habilitados · 2º permissões granulares por produto',
-    fornecedor: '1º workspaces habilitados · 2º permissões granulares (obrigatórias)',
+    master: 'Acesso direto a tudo',
+    standard: 'Workspaces habilitados · Permissões granulares por produto',
+    fornecedor: 'Workspaces habilitados · Permissões granulares (obrigatórias)',
   },
   {
     criterio: 'O que é',
@@ -6406,7 +6466,7 @@ function ManualSumarioSubitensArvore({
   )
 }
 
-function ManualSumarioBloco({
+export function ManualSumarioBloco({
   entradas,
   totalCapitulos,
   totalSubcapitulos,

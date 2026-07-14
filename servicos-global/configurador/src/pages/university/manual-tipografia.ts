@@ -1,12 +1,61 @@
 /**
  * SSOT — ritmo vertical e alinhamento dos manuais University Gravity (Login, Hub, Configurador…).
  *
- * Documentação: documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md §9.1.1, §9.1.2 e §9.7
- *
- * Com font-size 0.9rem e line-height 1.8, 12px entre parágrafos ≈ 0,75 linha:
- * separa ideias sem “buraco” excessivo (evita 18–24px ad hoc espalhados no código).
+ * Guia Gravity — modelo `/modelo-espacamento-guia`:
+ * - H1 → linha roxa: 24px (`MANUAL_ESPACO_TITULO_LINHA_GUIA_PX` + ::after)
+ * - linha roxa → 1º parágrafo: 18px (`MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX`)
+ * - parágrafo / intro → primeiro passo / blocos padrão: 12px
+ * - fim de um passo (tela) → próximo passo: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
+ * - bloco anterior → título de fluxo H2/H3: 32px (`MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX`)
+ * - conteúdo → rodapé / linha → botões: 24px
+ * PlayerAula calcula o espaçamento externo dos blocos; componentes internos sem margin externa.
  */
 export const MANUAL_ESPACO_PARAGRAFO_PX = 12
+
+/** Guia Gravity — parágrafo ↔ parágrafo. (teste: alinhado a 12px) */
+export const MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX = 12
+
+/** Guia Gravity — título H1 ↔ linha sob o título. */
+export const MANUAL_ESPACO_TITULO_LINHA_GUIA_PX = 24
+
+/** Guia Gravity — após a linha do título ↔ primeiro parágrafo. */
+export const MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX = 18
+
+/** Guia Gravity — fim de um passo (screenshot) ↔ início do próximo passo. */
+export const MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX = 32
+
+/** Guia Gravity — callout / visual / texto ↔ título de fluxo (H2/H3, não passo). */
+export const MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX = 32
+
+/** Guia Gravity — recuo do texto do passo (padding à direita da linha vertical). */
+export const MANUAL_PASSO_GUIA_RECUO_TEXTO_PX = 18
+
+/** Guia Gravity — espessura da linha vertical do passo. */
+export const MANUAL_PASSO_GUIA_BORDA_PX = 3
+
+/**
+ * Guia Gravity — subtítulo dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
+ * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
+ * (tela, cards, etapa temática), não uma sequência operacional numerada.
+ * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
+ * + screenshot/galeria abaixo, alinhados à esquerda do passo.
+ * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
+ * operacionais seguintes na mesma seção (ex.: etapas de «Novo token») ficam em texto simples, sem borda.
+ *
+ * Sequência texto + screenshot no mesmo subtítulo (`figurasAposParagrafo`):
+ * - texto → screenshot na mesma etapa: 12px (`MANUAL_ESPACO_PARAGRAFO_PX`)
+ * - fim da screenshot → próxima instrução: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
+ */
+
+/**
+ * Guia Gravity — margem esquerda do screenshot/galeria/dica no passo.
+ * 0 = alinhados à linha vertical (sem recuo extra). CSS: `.uni-player-aula__bloco-passo > …`
+ */
+export const MANUAL_PASSO_GUIA_MARGEM_ESQUERDA_IMAGEM_PX = 0
+
+/** Guia Gravity — margem esquerda de callout no passo (igual à imagem). */
+export const MANUAL_PASSO_GUIA_MARGEM_ESQUERDA_CALLOUT_PX =
+  MANUAL_PASSO_GUIA_MARGEM_ESQUERDA_IMAGEM_PX
 
 /** Marcação rich text — ver MANUAL-GRAVITY-ONBOARDING.md §9.7 e skill manual-markdown-rich-text */
 export const MANUAL_MARKUP_NEGRITO_BOTAO = '**'
@@ -34,6 +83,14 @@ export const MANUAL_CORPO_TIPOGRAFIA = {
   lineHeight: 1.8,
   textAlign: MANUAL_ALINHAMENTO_CORPO,
   textJustify: 'inter-word',
+} as const
+
+/** Tipografia do Guia Gravity — mesma do manual (corpo justificado, SSOT §9.1.2). */
+export const MANUAL_GUIA_CORPO_TIPOGRAFIA = {
+  fontSize: MANUAL_CORPO_TIPOGRAFIA.fontSize,
+  lineHeight: MANUAL_CORPO_TIPOGRAFIA.lineHeight,
+  textAlign: MANUAL_ALINHAMENTO_CORPO,
+  textJustify: 'inter-word' as const,
 } as const
 
 /** Grid 50/50 texto + screenshot nas intros laterais (evita coluna estreita que impede justificar). */

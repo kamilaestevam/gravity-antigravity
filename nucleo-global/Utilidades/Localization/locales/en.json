@@ -2,7 +2,7 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": {
-      "academy": "Onboarding",
+      "academy": "Gravity Guide",
       "visao_geral": "Overview",
       "minha_jornada": "My Journey",
       "docs": "Manuals",
@@ -16,12 +16,12 @@
       "nao_comprado_titulo": "Not contracted",
       "nao_comprado_desc": "You can still access and explore the content",
       "concluido_titulo": "Completed",
-      "concluido_desc": "You finished all onboarding for this item",
+      "concluido_desc": "You finished the Gravity Guide for this item",
       "nao_concluido_titulo": "Open",
-      "nao_concluido_desc": "Onboarding has not been completed yet"
+      "nao_concluido_desc": "Gravity Guide has not been completed yet"
     },
     "academy": {
-      "subtitulo": "Product-guided onboarding — trails for Login, Configurator, Hub and the modules contracted in your organization."
+      "subtitulo": "Gravity Guide — visual trails per product for Login, Configurator, Hub and your organization's modules."
     },
     "badge": {
       "em_breve": "Coming Soon",
@@ -30,6 +30,7 @@
       "convidar_usuario": "Invite user"
     },
     "produto": {
+      "bem_vindo": "Welcome",
       "login": "Login",
       "navegacao": "Navigation",
       "admin": "Admin",
@@ -49,7 +50,7 @@
     },
     "banner": {
       "em_construcao": "Under construction",
-      "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
+      "descricao": "The platform's single learning hub — Gravity Guide per product, gamified journey and certificate, with GABI as the knowledge source and tutor."
     },
     "acao": {
       "continuar": "Continue",
@@ -58,13 +59,10 @@
     },
     "aula": {
       "voltar": "Back",
-      "voltar_onboarding": "Back to onboarding",
+      "voltar_onboarding": "Back to Gravity Guide",
       "marcar_concluida": "Mark as complete",
       "inicio": "Start",
-      "fim": "End of module",
-      "manual_complemento_titulo": "Want to go deeper? The manual has more detail",
-      "manual_complemento_desc": "This session covers the onboarding essentials. The manual adds screen references, metadata, and extra context to reinforce what you learned. We'll open the matching section for you.",
-      "manual_complemento_acao": "Open section in manual"
+      "fim": "End of module"
     },
     "grupo": {
       "comece_aqui": "Start here",
@@ -85,7 +83,7 @@
       "subtitulo": "Scroll the journey or use the pills to jump to each block — all chapters are listed below."
     },
     "dashboard": {
-      "titulo": "Your onboarding",
+      "titulo": "Gravity Guide",
       "subtitulo": "Overview of your progress, products, metrics and rewards",
       "modulos_titulo": "Contracted modules",
       "etapas_progresso": "{{feitas}}/{{total}} steps",
@@ -93,7 +91,7 @@
       "continuar_jornada": "Continue journey",
       "etapa_atual": "Step {{atual}} of {{total}} · {{nome}}",
       "nivel_xp_faltam": "Level {{nivel}} · {{xp}} XP to level up",
-      "produtos_onboarding_concluido": "Products with onboarding completed",
+      "produtos_onboarding_concluido": "Products with Gravity Guide completed",
       "manuais_lidos": "Manuals read",
       "o_que_falta": "What's left",
       "iniciar": "Start",

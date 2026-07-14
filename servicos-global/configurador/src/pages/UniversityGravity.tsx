@@ -1,4 +1,4 @@
-﻿/**
+/**
  * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
  * ⚠️ PROTÓTIPO / WIP. Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
@@ -8,7 +8,8 @@
  * documentos-tecnicos/produtos-gravity/university-gravity/ (PRD + MODELO-DADOS + SPECS).
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
@@ -17,7 +18,7 @@ import {
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
-  Compass, CaretDown, SealCheck,
+  Compass, CaretDown, SealCheck, HandWaving,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -32,17 +33,42 @@ import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
+import { BEM_VINDO_TRILHA } from './university/manual-bem-vindo-academy'
+import { GABI_TRILHA } from './university/manual-gabi-academy'
 import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
   DOC_LOGIN_METADADOS,
   DOC_LOGIN_SECOES,
   DOC_LOGIN_SUBTITULO,
+  montarEntradasSumarioLogin,
   type DocPassoVisual,
   type DocSecao,
 } from './university/manual-login-conteudo'
 import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
-import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
-import { DocConfiguradorManual, iconeConfiguradorManual, MANUAL_ESTILO_ACORDEON_SECAO, useManualSumarioScroll } from './university/manual-configurador-ui'
+import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug, type DocFluxo, type DocSecao as DocSecaoConfigurador } from './university/manual-configurador-conteudo'
+import {
+  DocConfiguradorManual,
+  iconeConfiguradorManual,
+  MANUAL_ESTILO_ACORDEON_SECAO,
+  useManualSumarioScroll,
+  ManualSumarioBloco,
+  ManualLeituraContext,
+  ManualBotaoMarcarLido,
+} from './university/manual-configurador-ui'
+import {
+  ancoraPassosLogin,
+  calcularEstadoCapitulo,
+  calcularEstadoLeitura,
+  carregarLidosManual,
+  contarLidosManual,
+  idPassoManual,
+  idSecaoManual,
+  idsPassosFluxo,
+  montarFluxoPorSecaoLogin,
+  montarIdsRastreaveisLeituraLogin,
+  percentualLeituraManual,
+  salvarLidosManual,
+} from './university/manual-leitura-progresso'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
 import { DOC_STORE_SUBTITULO } from './university/manual-store-conteudo'
@@ -57,6 +83,7 @@ import { DocBidFreteManual } from './university/manual-bid-frete-ui'
 import { DocApiCockpitManual } from './university/manual-api-cockpit-ui'
 import { DOC_API_COCKPIT_SUBTITULO } from './university/manual-api-cockpit-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
+import { ManualPainelRequisitosCadastro } from './university/manual-login-painel-requisitos'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -83,8 +110,9 @@ interface Trilha {
 
 // ── Catálogo WIP: virá do banco via API ───────────────────────────────────
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
+  'bem-vindo': [{ ...BEM_VINDO_TRILHA, prog: 0 }],
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 6, duracao: '26m', prog: 0,
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '19m', prog: 0,
     fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
   admin: [{
@@ -96,6 +124,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   configurador: CONFIGURADOR_TRILHAS.map(tr => ({ ...tr, prog: 0 })),
+  gabi: [{ ...GABI_TRILHA, prog: 0 }],
   hub: [{
     tag: '#a78bfa', emoji: '🏠', nome: 'Hub e Navegação', modulos: 2, duracao: '30m', prog: 0,
     fases: [
@@ -111,7 +140,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   pedido: [{
-    tag: '#f59e0b', emoji: '📦', nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 0,
+    tag: '#f59e0b', emoji: '📦', nome: 'Guia Pedido', modulos: 5, duracao: '2h', prog: 0,
     fases: [
       { nome: 'Lista de Pedidos', duracao: '25m', concluida: false },
       { nome: 'Criando um Pedido', duracao: '20m', concluida: false },
@@ -121,7 +150,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   'smart-read': [{
-    tag: '#c084fc', emoji: '📄', nome: 'Onboarding Smart Docs', modulos: 4, duracao: '1h30', prog: 0,
+    tag: '#c084fc', emoji: '📄', nome: 'Guia Smart Docs', modulos: 4, duracao: '1h30', prog: 0,
     fases: [
       { nome: 'Anexando documentos', duracao: '25m', concluida: false },
       { nome: 'Leitura inteligente', duracao: '25m', concluida: false },
@@ -147,7 +176,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   processo: [{
-    tag: '#facc15', emoji: '🔀', nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0,
+    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '2h30', prog: 0,
     fases: [
       { nome: 'Criando um Processo', duracao: '25m', concluida: false },
       { nome: 'Dados Técnicos', duracao: '25m', concluida: false },
@@ -161,17 +190,18 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
 
 // Produtos que esta organização contratou (WIP: virá do backend)
 const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
-  'login', 'configurador', 'pedido', 'processo', 'smart-read',
+  'bem-vindo', 'login', 'configurador', 'pedido', 'processo', 'smart-read',
 ]
 
 // Visão geral agrupada (sem produto selecionado)
 const GRUPOS_TRILHAS = [
-  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.configurador[0]] },
+  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.configurador[0]] },
   { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
   { tituloKey: 'university.grupo.explorar',      trilhas: [TRILHAS_POR_PRODUTO['bid-frete'][0], TRILHAS_POR_PRODUTO['bid-cambio'][0], TRILHAS_POR_PRODUTO.store[0]] },
 ]
 
 const ICON_MAP = {
+  'bem-vindo':  HandWaving,
   login:        SignIn,
   navegacao:    Compass,
   admin:        ShieldStar,
@@ -190,7 +220,7 @@ type ProdutoSlug = keyof typeof ICON_MAP
 
 /** Módulos da plataforma — disponíveis independente do produto contratado */
 const MODULOS_PLATAFORMA: ProdutoSlug[] = [
-  'login', 'admin', 'configurador', 'gabi', 'hub', 'store',
+  'bem-vindo', 'login', 'admin', 'configurador', 'gabi', 'hub', 'store',
 ]
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
@@ -434,16 +464,16 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
         </span>
       </figure>
 
-      {telaCheia && (
+      {telaCheia && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label={alt}
           onClick={fechar}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
+            position: 'fixed', inset: 0, zIndex: 200000,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '24px', background: 'rgba(2,6,23,.92)', backdropFilter: 'blur(4px)',
+            padding: '24px', background: '#020617',
           }}
         >
           <button
@@ -467,105 +497,13 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
               maxWidth: 'min(96vw, 1920px)', maxHeight: '92vh',
               width: 'auto', height: 'auto', objectFit: 'contain',
               borderRadius: 10, boxShadow: '0 24px 80px rgba(0,0,0,.55)',
+              background: '#0b0f1a',
             }}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </>
-  )
-}
-
-function ManualPainelRequisitosCadastro() {
-  const grupos: { rotulo: string; itens: string[] }[] = [
-    {
-      rotulo: 'Composição da senha',
-      itens: [
-        'No mínimo 8 caracteres',
-        'Pelo menos 1 letra maiúscula',
-        'Pelo menos 1 letra minúscula',
-        'Pelo menos 1 número',
-        'Pelo menos 1 caractere especial',
-      ],
-    },
-    {
-      rotulo: 'Confirmação e aceite legal',
-      itens: [
-        'A confirmação de senha confere',
-        'Aceite dos Termos de Uso e Política de Privacidade',
-      ],
-    },
-  ]
-
-  return (
-    <div style={{
-      marginTop: 14,
-      borderRadius: 12,
-      border: '1px solid rgba(99,102,241,.22)',
-      background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(15,23,42,.35) 48%)',
-      overflow: 'hidden',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.04)',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-        padding: '10px 14px', borderBottom: '1px solid rgba(148,163,184,.12)',
-        background: 'rgba(99,102,241,.06)',
-      }}>
-        <span style={{
-          fontSize: '.65rem', fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase',
-          color: '#a5b4fc',
-        }}>
-          Exigências obrigatórias
-        </span>
-        <span style={{
-          fontSize: '.62rem', fontWeight: 700, color: '#818cf8',
-          background: 'rgba(99,102,241,.14)', border: '1px solid rgba(99,102,241,.25)',
-          borderRadius: 999, padding: '2px 8px',
-        }}>
-          7 itens
-        </span>
-      </div>
-
-      <div style={{ padding: '12px 14px 10px' }}>
-        {grupos.map((grupo, gi) => (
-          <div key={grupo.rotulo} style={{ marginTop: gi === 0 ? 0 : 12 }}>
-            <p style={{
-              fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-              color: MANUAL_TIPO.meta, margin: '0 0 8px', paddingBottom: 6,
-              borderBottom: '1px solid rgba(148,163,184,.1)',
-            }}>
-              {grupo.rotulo}
-            </p>
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {grupo.itens.map((item) => (
-                <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, position: 'relative' }}>
-                  <span style={{
-                    width: 18, height: 18, borderRadius: 999, flexShrink: 0, marginTop: 1,
-                    display: 'grid', placeItems: 'center',
-                    background: 'rgba(239,68,68,.12)', border: '1px solid rgba(248,113,113,.45)',
-                    color: '#f87171',
-                  }}>
-                    <WarningCircle size={11} weight="fill" />
-                  </span>
-                  <span style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, lineHeight: 1.45 }}>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 12, paddingTop: 10,
-          borderTop: '1px dashed rgba(148,163,184,.15)',
-        }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#4ade80' }}>
-            <CheckCircle size={13} weight="fill" /> Atendido: item verde no formulário
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#f87171' }}>
-            <WarningCircle size={13} weight="fill" /> Pendente: item vermelho até corrigir
-          </span>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -588,7 +526,7 @@ function ManualCalloutBloco({ callout, marginTop = 12 }: {
   )
 }
 
-function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+function ManualBlocoPassoVisual({ passo, ancoraPassoId }: { passo: DocPassoVisual; ancoraPassoId?: string }) {
   const calloutLista = passo.callouts ?? (passo.callout ? [passo.callout] : [])
   const empilharImagem =
     passo.imagemAbaixoTexto ??
@@ -639,7 +577,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
   if (passo.galeriaTelas?.length) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={blocoBase}>
         {colunaTexto}
         <div style={{
           display: 'grid',
@@ -663,7 +601,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
   if (empilharImagem && passo.imagem) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={blocoBase}>
         {colunaTexto}
         <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
@@ -673,7 +611,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
   }
 
   return (
-    <div style={{
+    <div id={ancoraPassoId} style={{
       ...blocoBase,
       display: 'grid',
       gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
@@ -688,13 +626,85 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
 function DocLoginManual() {
   const location = useLocation()
+  const manualSlug = 'login'
+  const fluxoPorSecao = useMemo(() => montarFluxoPorSecaoLogin(DOC_LOGIN_SECOES), [])
+  const idsRastreaveis = useMemo(() => montarIdsRastreaveisLeituraLogin(DOC_LOGIN_SECOES), [])
+  const [lidos, setLidos] = useState<Set<string>>(() => carregarLidosManual(manualSlug))
+  useEffect(() => {
+    setLidos(carregarLidosManual(manualSlug))
+  }, [])
+  const persistirLidos = useCallback((next: Set<string>) => {
+    setLidos(next)
+    salvarLidosManual(manualSlug, next)
+  }, [])
+  const toggleCapitulo = useCallback((secaoNum: number) => {
+    const fluxo = fluxoPorSecao.get(secaoNum)
+    const filhos = fluxo ? idsPassosFluxo(fluxo) : []
+    const next = new Set(lidos)
+    if (filhos.length > 0) {
+      const estado = calcularEstadoLeitura(lidos, filhos)
+      if (estado === 'lido') filhos.forEach(id => next.delete(id))
+      else filhos.forEach(id => next.add(id))
+    } else {
+      const id = idSecaoManual(secaoNum)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+    }
+    persistirLidos(next)
+  }, [fluxoPorSecao, lidos, persistirLidos])
+  const togglePasso = useCallback((id: string) => {
+    const next = new Set(lidos)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    persistirLidos(next)
+  }, [lidos, persistirLidos])
+  const leituraCtx = useMemo(() => ({
+    ativo: true,
+    fluxoPorSecao,
+    isLido: (id: string) => lidos.has(id),
+    estadoCapitulo: (secaoNum: number) => {
+      const fluxo = fluxoPorSecao.get(secaoNum)
+      return calcularEstadoCapitulo(lidos, secaoNum, fluxo)
+    },
+    toggleCapitulo,
+    togglePasso,
+    totalRastreaveis: idsRastreaveis.length,
+    totalLidos: contarLidosManual(lidos, idsRastreaveis),
+    percentual: percentualLeituraManual(lidos, idsRastreaveis),
+  }), [fluxoPorSecao, lidos, toggleCapitulo, togglePasso, idsRastreaveis])
 
+  const entradasSumario = useMemo(() => montarEntradasSumarioLogin(), [])
+  const totalCapitulosSumario = entradasSumario.length
+  const totalSubcapitulosSumario = entradasSumario.reduce(
+    (acc, e) => acc + (e.subitens?.length ?? 0),
+    0,
+  )
   const todosNums = DOC_LOGIN_SECOES.map(s => s.num)
   const [abertos, setAbertos] = useState<number[]>([])
+  const [gruposSumarioAbertos, setGruposSumarioAbertos] = useState<Record<number, boolean>>({})
   const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
-  const { scrollToSecao } = useManualSumarioScroll(abertos, setAbertos)
+  const toggleGrupoSumario = useCallback((secaoNum: number) => {
+    setGruposSumarioAbertos(prev => ({ ...prev, [secaoNum]: !prev[secaoNum] }))
+  }, [])
+  const expandirGrupoSumario = useCallback((secaoNum: number) => {
+    setGruposSumarioAbertos(prev => (prev[secaoNum] ? prev : { ...prev, [secaoNum]: true }))
+  }, [])
+  const secaoScroll = useMemo((): DocSecaoConfigurador => ({
+    num: 1,
+    titulo: 'Login',
+    paragrafos: [],
+    fluxos: DOC_LOGIN_SECOES
+      .filter(s => (s.passosVisuais?.length ?? 0) > 0)
+      .map((s): DocFluxo => ({
+        titulo: s.titulo,
+        paragrafos: [],
+        passosVisuais: s.passosVisuais as DocFluxo['passosVisuais'],
+        ancoraPassosPrefix: ancoraPassosLogin(s.num),
+      })),
+  }), [])
+  const { scrollToSecao, scrollToItem } = useManualSumarioScroll(abertos, setAbertos, undefined, undefined, secaoScroll)
 
   useEffect(() => {
     const m = /^#doc-sec-(\d+)$/.exec(location.hash)
@@ -702,6 +712,7 @@ function DocLoginManual() {
   }, [location.hash, scrollToSecao])
 
   return (
+    <ManualLeituraContext.Provider value={leituraCtx}>
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
       {/* Badge */}
       <span style={{
@@ -750,55 +761,23 @@ function DocLoginManual() {
         ))}
       </div>
 
-      {/* Sumário */}
-      <div style={{
-        background: 'rgba(148,163,184,.05)', border: '1px solid rgba(148,163,184,.12)',
-        borderRadius: 14, padding: '20px 26px', marginBottom: 16,
-      }}>
-        <p style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.12em', color: 'var(--ws-muted,#64748b)', textTransform: 'uppercase', marginBottom: 14 }}>
-          Sumário
-        </p>
-        <ol style={{ margin: 0, padding: 0, listStyle: 'none', columns: 2, gap: 24, fontSize: '.85rem' }}>
-          {DOC_LOGIN_SECOES.map(s => (
-            <li key={s.num} style={{ marginBottom: 7, display: 'flex', alignItems: 'baseline', gap: 12 }}>
-              <span style={{ ...MANUAL_ESTILO_SECAO_NUMERO, minWidth: 22 }}>{s.num}.</span>
-              <button onClick={() => scrollToSecao(s.num)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818cf8', padding: 0, textAlign: 'left', lineHeight: 1.4 }}>
-                {s.titulo}
-              </button>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Expandir / recolher todas */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-        <button
-          type="button"
-          onClick={toggleTodos}
-          title={todosAbertos ? 'Recolher todas as seções' : 'Expandir todas as seções'}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600, padding: '4px 2px',
-          }}
-        >
-          <CaretDown
-            weight="bold"
-            size={12}
-            style={{
-              transform: todosAbertos ? 'rotate(180deg)' : 'none',
-              transition: 'transform .2s',
-            }}
-          />
-          {todosAbertos ? 'Recolher todas' : 'Expandir todas'}
-        </button>
-      </div>
+      <ManualSumarioBloco
+        entradas={entradasSumario}
+        totalCapitulos={totalCapitulosSumario}
+        totalSubcapitulos={totalSubcapitulosSumario}
+        gruposAbertos={gruposSumarioAbertos}
+        onToggleGrupo={toggleGrupoSumario}
+        onExpandirGrupo={expandirGrupoSumario}
+        scrollToItem={scrollToItem}
+        todosAbertos={todosAbertos}
+        toggleTodos={toggleTodos}
+      />
 
       {/* Seções */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {DOC_LOGIN_SECOES.map(s => {
           const aberto = abertos.includes(s.num)
+          const estadoCap = leituraCtx.estadoCapitulo(s.num)
           return (
             <div key={s.num} id={`doc-sec-${s.num}`} style={{
               ...MANUAL_ESTILO_ACORDEON_SECAO,
@@ -806,19 +785,61 @@ function DocLoginManual() {
               borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s',
             }}>
               {/* Header da seção */}
-              <button onClick={() => toggle(s.num)} style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 16,
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
                 background: aberto ? 'rgba(99,102,241,.07)' : 'rgba(148,163,184,.03)',
-                border: 'none', cursor: 'pointer', padding: '16px 22px',
-                color: 'var(--ws-text,#f1f5f9)', textAlign: 'left', transition: 'background .15s',
+                padding: '16px 22px',
+                color: 'var(--ws-text,#f1f5f9)',
+                transition: 'background .15s',
               }}>
+                <button
+                  type="button"
+                  onClick={() => toggle(s.num)}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: 'inherit',
+                    textAlign: 'left',
+                  }}
+                >
                 <span style={MANUAL_ESTILO_SECAO_NUMERO}>{String(s.num).padStart(2, '0')}</span>
-                <span style={{ fontWeight: 700, fontSize: '1rem', flex: 1, minWidth: 0 }}>{s.titulo}</span>
                 <span style={{
-                  color: '#818cf8', flexShrink: 0,
-                  transform: aberto ? 'rotate(180deg)' : 'none', transition: 'transform .25s', fontSize: '.9rem',
-                }}>▾</span>
+                    fontWeight: 700, fontSize: '1rem', flex: 1, minWidth: 0,
+                    opacity: estadoCap === 'lido' ? 0.65 : 1,
+                  }}>{s.titulo}</span>
               </button>
+                <ManualBotaoMarcarLido
+                  estado={estadoCap}
+                  onToggle={() => toggleCapitulo(s.num)}
+                  rotulo={s.titulo}
+                />
+                <button
+                  type="button"
+                  onClick={() => toggle(s.num)}
+                  aria-label={aberto ? `Recolher ${s.titulo}` : `Expandir ${s.titulo}`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#818cf8',
+                    flexShrink: 0,
+                    transform: aberto ? 'rotate(180deg)' : 'none',
+                    transition: 'transform .25s',
+                    fontSize: '.9rem',
+                    padding: 0,
+                  }}
+                >▾</button>
+              </div>
 
               {/* Corpo da seção */}
               {aberto && (
@@ -856,7 +877,11 @@ function DocLoginManual() {
                         />
                       ))}
                       {s.passosVisuais.map(passo => (
-                        <ManualBlocoPassoVisual key={passo.num} passo={passo} />
+                        <ManualBlocoPassoVisual
+                          key={passo.num}
+                          passo={passo}
+                          ancoraPassoId={idPassoManual(ancoraPassosLogin(s.num), passo.num)}
+                        />
                       ))}
                     </>
                   ) : (
@@ -878,11 +903,10 @@ function DocLoginManual() {
                     <div style={{
                       display: 'grid',
                       gridTemplateColumns: s.listaEmLinha
-                        ? `repeat(${s.lista.length}, minmax(0, 1fr))`
+                        ? 'repeat(3, minmax(0, 1fr))'
                         : 'repeat(auto-fill, minmax(260px, 1fr))',
                       gap: s.listaEmLinha ? 8 : 10,
                       marginTop: 20,
-                      overflowX: s.listaEmLinha ? 'auto' : undefined,
                     }}>
                       {s.lista.map((item, i) => {
                         const [label, ...rest] = item.replace(/^[-–]\s*/, '').split(':')
@@ -973,6 +997,7 @@ function DocLoginManual() {
         })}
       </div>
     </div>
+    </ManualLeituraContext.Provider>
   )
 }
 
@@ -1014,6 +1039,43 @@ interface JornadaEtapa {
   clicavel: boolean
 }
 
+/**
+ * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
+ * Valores: slugs antigos que contam como conclusão do slug atual.
+ */
+const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
+  'acessar-workspaces': [
+    'gerenciando-workspaces',
+    'configurando-workspaces',
+    'criar-workspace',
+    'editar-workspace',
+    'ativar-workspace',
+    'excluir-workspace',
+  ],
+  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
+  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
+  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
+}
+
+function faseEstaConcluida(fase: Fase, concluidas: Set<string>): boolean {
+  if (!fase.slug) return fase.concluida
+  if (concluidas.has(fase.slug)) return true
+  const legados = SLUGS_LEGADOS_AULA_CONCLUIDA[fase.slug]
+  if (!legados?.length) return false
+  return legados.some(slug => concluidas.has(slug))
+}
+
+/** Promove slugs legados → atuais para persistência e desbloqueio linear. */
+function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
+  const s = new Set(slugs)
+  for (const [atual, legados] of Object.entries(SLUGS_LEGADOS_AULA_CONCLUIDA)) {
+    if (s.has(atual)) continue
+    const legadoOk = legados.some(slug => s.has(slug))
+    if (legadoOk) s.add(atual)
+  }
+  return s
+}
+
 /** Distribui `total` XP entre `n` etapas; o resto sobra na última. */
 function xpPorEtapa(total: number, n: number): number[] {
   if (n <= 0) return []
@@ -1031,7 +1093,7 @@ function calcularIndiceAtualGlobal(trilhas: Trilha[], aulasConcluidas: Set<strin
   let idx = 0
   for (const trilha of trilhas) {
     for (const fase of trilha.fases) {
-      const feita = fase.slug ? aulasConcluidas.has(fase.slug) : fase.concluida
+      const feita = faseEstaConcluida(fase, aulasConcluidas)
       if (!feita) return idx
       idx += 1
     }
@@ -1046,7 +1108,7 @@ function calcularEtapasJornada(
 ): JornadaEtapa[] {
   const offset = opts?.offsetNumero ?? 0
   const xps = xpPorEtapa(JORNADA_XP_TOTAL, fases.length)
-  const feitas = fases.map(fase => (fase.slug ? aulasConcluidas.has(fase.slug) : fase.concluida))
+  const feitas = fases.map(fase => faseEstaConcluida(fase, aulasConcluidas))
   const idxAtualLocal = feitas.findIndex(feita => !feita)
   return fases.map((fase, i) => {
     const indiceGlobal = offset + i
@@ -1109,16 +1171,16 @@ function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
     <div
       className={`uni-jornada-node${anelPulsante}`}
       style={{
-        flexShrink: 0, width: 48, height: 48, borderRadius: '50%', zIndex: 1,
+        flexShrink: 0, width: 28, height: 28, borderRadius: '50%', zIndex: 1,
         display: 'grid', placeItems: 'center',
         background: etapa.feita ? 'rgba(129,140,248,.45)' : 'var(--bg-base,#1e293b)',
         border: `2px solid ${etapa.feita || etapa.atual ? (etapa.feita ? 'rgba(129,140,248,.65)' : UNI_COR) : 'rgba(148,163,184,.22)'}`,
       }}
     >
       {etapa.feita
-        ? <CheckFat weight="fill" size={18} style={{ color: '#c7d2fe' }} />
+        ? <CheckFat weight="fill" size={12} style={{ color: '#c7d2fe' }} />
         : <span style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.95rem',
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.72rem',
             color: etapa.atual ? UNI_COR : 'var(--ws-muted,#94a3b8)',
           }}>{etapa.numero}</span>}
     </div>
@@ -1259,9 +1321,9 @@ function JornadaSidebar({ xp, gp, feitas, total, xpMeta = JORNADA_XP_TOTAL, rank
         {xpMeta > 0 && (
           <>
             <div style={{ marginTop: 10 }}><BarraProgresso pct={Math.min(pct, 100)} altura={6} /></div>
-            <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
-              {t('university.jornada.tarefas_concluidas', { feitas, total })}
-            </div>
+        <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
+          {t('university.jornada.tarefas_concluidas', { feitas, total })}
+        </div>
           </>
         )}
       </JornadaCardBox>
@@ -1314,6 +1376,7 @@ function BarraSegmentada({ total, preenchidos, cor }: { total: number; preenchid
 }
 
 function siglaModuloOnboarding(slug: keyof typeof TRILHAS_POR_PRODUTO): string {
+  if (slug === 'bem-vindo') return 'BV'
   if (slug === 'pedido') return 'P'
   if (slug === 'processo') return 'Pr'
   if (slug === 'smart-read') return 'S'
@@ -1685,11 +1748,11 @@ function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = t
       }}>
         <div style={{ position: 'relative' }}>
           <div style={{
-            position: 'absolute', left: 23, top: 24, bottom: 24, width: 2,
+            position: 'absolute', left: 13, top: 48, bottom: 48, width: 2,
             background: 'linear-gradient(180deg, ' + UNI_COR + ', rgba(148,163,184,.15))',
           }} />
           {etapas.map(etapa => (
-            <div key={etapa.fase.slug ?? `${trilha.slug}-${etapa.numero}`} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
+            <div key={etapa.fase.slug ?? `${trilha.slug}-${etapa.numero}`} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
               <JornadaNode etapa={etapa} />
               <JornadaEtapaCard etapa={etapa} onAbrir={onAbrirFase} />
             </div>
@@ -1833,12 +1896,17 @@ export function UniversityGravity() {
   // Controle local de aulas concluídas (WIP: virá do banco via API)
   const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
     const salvo = sessionStorage.getItem(CHAVE_AULAS_CONCLUIDAS)
-    return salvo ? new Set(JSON.parse(salvo)) : new Set<string>()
+    const bruto = salvo ? (JSON.parse(salvo) as string[]) : []
+    const norm = normalizarSlugsConclusaoAcademy(bruto)
+    const normArr = [...norm]
+    if (normArr.length !== bruto.length || normArr.some(s => !bruto.includes(s))) {
+      sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify(normArr))
+    }
+    return norm
   })
   const marcarConcluida = useCallback((slug: string) => {
     setAulasConcluidas(prev => {
-      const novo = new Set(prev)
-      novo.add(slug)
+      const novo = normalizarSlugsConclusaoAcademy([...prev, slug])
       sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify([...novo]))
       return novo
     })
@@ -1852,7 +1920,7 @@ export function UniversityGravity() {
       ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
       : { pct: 0 }
     return {
-      slug,
+    slug,
       prog: agregado.pct,
       emoji: trilha?.emoji ?? '📦',
     }
@@ -1982,10 +2050,11 @@ export function UniversityGravity() {
       children: [
         { to: '/university-gravity/academy',              label: t('university.nav.visao_geral'),    icon: <SquaresFour weight="duotone" size={16} /> },
         { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: iconesStatusNavAcademy('bem-vindo') },
         { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: iconesStatusNavAcademy('login'),        ...badgeEmBreve },
         { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        trailing: iconesStatusNavAcademy('admin'),        ...badgeAdminOnboarding },
         { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: iconesStatusNavAcademy('configurador'), ...badgeEmBreve },
-        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: iconesStatusNavAcademy('gabi'),         ...badgeEmBreve },
+        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: iconesStatusNavAcademy('gabi') },
         { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: iconesStatusNavAcademy('hub'),          ...badgeEmBreve },
         { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: iconesStatusNavAcademy('store'),        ...badgeEmBreve },
         { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
@@ -2312,11 +2381,11 @@ export function UniversityGravity() {
                 onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
               />
             ) : (
-              <JornadaModulo
+                <JornadaModulo
                 trilha={trilhaAtiva}
-                aulasConcluidas={aulasConcluidas}
-                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
-              />
+                  aulasConcluidas={aulasConcluidas}
+                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                />
             )
           )}
 

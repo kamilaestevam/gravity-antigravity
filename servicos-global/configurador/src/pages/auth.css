@@ -64,6 +64,8 @@
   padding: 4rem 6rem;
   position: relative;
   overflow: hidden;
+  /* Opaco: sem isto o painel deixa ver o que estiver atrás (ex.: shell University). */
+  background: var(--bg-dark);
 }
 
 /* Dynamic Gradient Orbs */

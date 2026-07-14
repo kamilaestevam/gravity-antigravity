@@ -4,7 +4,9 @@
  */
 
 import { AULAS_LOGIN } from './manual-login-academy'
+import { AULAS_BEM_VINDO } from './manual-bem-vindo-academy'
 import { CONFIGURADOR_TRILHAS, AULAS_CONFIGURADOR } from './manual-configurador-academy'
+import { AULAS_GABI } from './manual-gabi-academy'
 
 export type { AulaDemo } from './manual-login-academy'
 
@@ -20,6 +22,7 @@ export type TipoBloco =
   | 'timeline'
   | 'destaque_escuro'
   | 'infografico'
+  | 'origem_dados'
 
 export interface BlocoConteudo {
   tipo: TipoBloco
@@ -27,8 +30,10 @@ export interface BlocoConteudo {
 }
 
 export const CONTEUDO_DEMO: Record<string, import('./manual-login-academy').AulaDemo[]> = {
+  'bem-vindo': AULAS_BEM_VINDO,
   login: AULAS_LOGIN,
   configurador: AULAS_CONFIGURADOR,
+  gabi: AULAS_GABI,
 }
 
 export function getAulaDemo(produto: string, faseSlug: string) {

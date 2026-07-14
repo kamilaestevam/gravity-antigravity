@@ -27,7 +27,7 @@ const PAPEIS_GESTOR = [
   {
     icone: Key,
     titulo: 'Gerar token',
-    descricao: 'Cria a chave de acesso que autoriza a conexão — primeiro passo antes de ligar o ERP.',
+    descricao: 'Cria a chave de acesso que autoriza a conexão, primeiro passo antes de ligar o ERP.',
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.28)',
     fundo: 'rgba(251,191,36,.08)',
@@ -65,7 +65,7 @@ export function ManualInfograficoApiCockpitIntegracao() {
           fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
           color: 'var(--ws-muted,#94a3b8)', margin: 0,
         }}>
-          Ponte de integração — Gravity ↔ sistemas da sua empresa
+          Ponte de integração: Gravity ↔ sistemas da sua empresa
         </p>
       </div>
 
@@ -115,7 +115,7 @@ export function ManualInfograficoApiCockpitIntegracao() {
             API Cockpit
           </div>
           <div style={{ fontSize: '.64rem', color: CORPO_70, marginTop: 6, lineHeight: 1.45 }}>
-            Porta oficial de entrada e saída — é <strong style={{ color: '#bfdbfe' }}>daqui</strong> que a integração acontece
+            Porta oficial de entrada e saída: é <strong style={{ color: '#bfdbfe' }}>daqui</strong> que a integração acontece
           </div>
         </div>
 
@@ -156,8 +156,8 @@ export function ManualInfograficoApiCockpitIntegracao() {
         fontSize: '.72rem', color: CORPO_70, lineHeight: 1.55, margin: 0, textAlign: 'center',
         padding: `0 0 ${MANUAL_ESPACO_PARAGRAFO_PX}px`,
       }}>
-        O ERP ou sistema de Comex <strong style={{ color: '#cbd5e1' }}>envia e consulta dados</strong> pelo API Cockpit —
-        você não precisa programar; seu time de TI usa o <strong style={{ color: '#cbd5e1' }}>token</strong> que você gera aqui.
+        O ERP ou sistema de Comex <strong style={{ color: '#cbd5e1' }}>envia e consulta dados</strong> pelo API Cockpit.
+        Você não precisa programar; seu time de TI usa o <strong style={{ color: '#cbd5e1' }}>token</strong> que você gera aqui.
       </p>
 
       {/* padding (não margin): no Guia, `.uni-player-aula__ritmo p { margin: 0 !important }` anula margin. */}

@@ -43,12 +43,12 @@ O conteúdo do onboarding deve ser **profissional, variado e escalonável**. Cad
 { tipo: 'heading', dados: { text: 'Estrutura da tela', nivel: 2 } }
 ```
 
-**Visual:**
-- H1: fundo com cor de destaque do produto (`#1e293b` elevado + borda inferior accent), fonte 1.65rem, bold 800
-- H2: fonte 1.2rem, bold 700, sem fundo, margem superior generosa
-- H3: fonte 1rem, cor accent, bold 700
+**Visual (Guia / PlayerAula — padrão vigente):**
+- H1: fonte 1.65rem, bold 800, cor texto; linha roxa sob o título (`.uni-player-aula__titulo-guia`)
+- H2 / H3 (títulos de fluxo ou bloco temático, **não** passo): fonte **1rem**, bold 700, cor accent `#a78bfa` (roxo)
+- Rótulo **PASSO NN** + título do passo: ver §9.1 (índigo 12px / texto 0.92rem) — não usar o estilo H2/H3
 
-**Regra:** H1 apenas no início da aula. H2 a cada novo bloco temático.
+**Regra:** H1 apenas no início da aula. H2 a cada novo bloco temático (ex.: «Acessar organização»).
 
 ---
 
@@ -390,11 +390,14 @@ Além das aulas em blocos (`PlayerAula`), o Configurador expõe manuais descriti
 |----------|---------|-----|------------|
 | Rótulo **PASSO NN** | `12px` | `#818cf8` (índigo) | `text-transform: uppercase`, `letter-spacing: .08em` |
 | Título do passo | `0.92rem` (~15px) | `var(--ws-text, #f1f5f9)` 100% | Peso 700 |
+| Título de fluxo / H2–H3 Guia (não passo) | `1rem` | `#a78bfa` (accent) | Peso 700 — ex.: «Acessar organização» (`PlayerAula` heading nivel 2/3) |
 | **Corpo** (parágrafos, callouts, legendas, timeline) | `0.9rem` (~14px) | `color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)` | `text-align: justify` · `MANUAL_CORPO_70` |
-| Títulos de seção / cards | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
+| Títulos de seção / cards (manual descritivo) | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
 | Metadados (versão, data, rota) | `.78rem` | `--ws-muted` | Não é corpo narrativo |
 
 **Regra:** todo texto explicativo do manual usa `ManualParagrafo` / `ManualTextoRich` com `MANUAL_CORPO_70` e **`text-align: justify`**. Títulos e rótulos permanecem alinhados à esquerda (100% de opacidade).
+
+**Regra — sem hífen/travessão no texto do aluno:** no corpo narrativo da Academy/Guia (parágrafos, títulos, legendas visíveis), **não** usar `—`, `–` nem hífen longo como pausa. Prefira ponto, vírgula ou dois-pontos (ex.: `da organização. Cada unidade…`).
 
 #### 9.1.1 Ritmo vertical — espaço entre parágrafos
 

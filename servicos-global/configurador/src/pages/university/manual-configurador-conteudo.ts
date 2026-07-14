@@ -36,11 +36,17 @@ export interface DocPassoVisual {
   imagemAbaixoTexto?: boolean
   /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
   ocultarRotuloPasso?: boolean
+  /** Substitui «Passo NN» por subtítulo do fluxo (ex.: «Cards do token»). Ver `manual-tipografia` — layout subtítulo Guia. */
+  rotuloPasso?: string
+  /** Chip âmbar «Em construção» ao lado do `rotuloPasso` (Academy + Guia). */
+  tagEmConstrucao?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
   /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
   badgeEmDesenvolvimento?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Dica/aviso no topo do passo, antes do rótulo «Passo NN». */
+  calloutAntes?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
   calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
   callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }[]
@@ -48,6 +54,8 @@ export interface DocPassoVisual {
   galeriaTelas?: DocGaleriaTela[]
   /** Frase em largura total entre duas linhas da galeria (`indice` = último item da 1ª linha, 0-based). */
   galeriaFraseAposIndice?: { indice: number; texto: string }
+  /** Com galeria de tooltips KPI (cards + prints), frase entre a fileira de cards e a de screenshots. */
+  galeriaFraseEntreCardsEImagens?: string
   linkCapitulo?: { texto: string; href: string }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
   figurasAposParagrafo?: DocFiguraAposParagrafo[]
@@ -430,6 +438,10 @@ export interface DocFluxo {
   mostrarInfograficoPedidoInsights?: boolean
   /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
   mostrarInfograficoBidFreteInsights?: boolean
+  /** Manual API Cockpit § Webhooks — comparação Token+API vs Webhook antes dos passos. */
+  mostrarInfograficoApiCockpitWebhookVsApi?: boolean
+  /** Manual API Cockpit § Consumo — mapa do log de requisições com token. */
+  mostrarInfograficoApiCockpitConsumo?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -457,10 +469,17 @@ export interface DocFluxo {
 export interface DocSecao {
   num: number
   titulo: string
+  /**
+   * Título de tópico no Guia (H2 roxo, mesmo estilo de «Acessar organização»),
+   * renderizado logo abaixo do H1 — não substitui o título da seção.
+   */
+  tituloTopico?: string
   paragrafos: string[]
   imagem?: string
   layoutTextoImagemLateral?: boolean
   listaEmLinha?: boolean
+  /** Com `listaEmLinha`, colunas da grade (padrão: quantidade de itens, até 4). */
+  listaColunas?: number
   lista?: string[]
   fluxos?: DocFluxo[]
   origemDados?: DocOrigemDados
@@ -475,6 +494,10 @@ export interface DocSecao {
   mostrarInfograficoPedidoVisaoGeral?: boolean
   /** Manual Navegação §01 — mapa completo de áreas, menus e caminhos. */
   mostrarInfograficoMapaNavegacaoGravity?: boolean
+  /** Manual API Cockpit §01 — ponte visual ERP/COMEX ↔ Gravity (público não técnico). */
+  mostrarInfograficoApiCockpitIntegracao?: boolean
+  /** Com `mostrarInfograficoApiCockpitIntegracao`, renderiza após o parágrafo de índice `N` (0 = primeiro). */
+  infograficoApiCockpitIntegracaoAposParagrafo?: number
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/aviso logo após o parágrafo de índice `indice` (só em layout texto+imagem lateral). */
   calloutAposParagrafo?: { indice: number; callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string } }
@@ -620,6 +643,7 @@ interface PassoAreaExtras {
   imagemAbaixoTexto?: boolean
   tooltipsKpiAposImagem?: boolean
   paragrafosAposImagem?: string[]
+  galeriaFraseEntreCardsEImagens?: string
 }
 
 const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
@@ -899,7 +923,6 @@ const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
   },
   {
     coluna: 'Ação',
@@ -986,6 +1009,7 @@ export function passosComAcessoPadrao(
       imagemAbaixoTexto: extrasArea?.imagemAbaixoTexto,
       tooltipsKpiAposImagem: extrasArea?.tooltipsKpiAposImagem,
       paragrafosAposImagem: extrasArea?.paragrafosAposImagem,
+      galeriaFraseEntreCardsEImagens: extrasArea?.galeriaFraseEntreCardsEImagens,
     },
   ]
   return [
@@ -1228,6 +1252,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 2,
     titulo: 'Organização',
+    tituloTopico: 'O que é Organização?',
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-organizacao-tela.png',
     mostrarInfograficoOrganizacao: true,
@@ -1257,7 +1282,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar organização',
+        titulo: 'Acessar organização',
+        tituloSumario: 'Acessar organização',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e revisar os dados cadastrais da organização.',
         ],
@@ -1277,11 +1303,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 3,
     titulo: 'Workspaces',
+    tituloTopico: 'Entenda o que são Workspaces no Gravity',
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-workspaces-acesso-tela.png',
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
-      '**Workspaces** são as unidades operacionais da organização — cada unidade opera com dados, usuários e registros isolados.',
+      '**Workspaces** são as unidades operacionais da organização. Cada unidade opera com dados, usuários e registros isolados.',
     ],
     calloutAposParagrafo: {
       indice: 0,
@@ -1450,10 +1477,11 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 4,
     titulo: 'Usuários',
+    tituloTopico: 'Acessar usuários',
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-usuarios-tela.png',
     paragrafos: [
-      `O controle dos **Usuários** fica localizado no menu lateral do **Configurador** (item **Usuários**), onde você gerencia quem acessa a organização: convites, edições de cadastro, ${LINK_MANUAL_PERMISSOES} por produto e vínculo com ${LINK_MANUAL_WORKSPACES}.`,
+      `O controle dos **usuários** fica localizado no menu lateral do **Configurador** (item **Usuários**), onde você gerencia quem acessa a organização: convites, edições de cadastro, ${LINK_MANUAL_PERMISSOES} por produto e vínculo com ${LINK_MANUAL_WORKSPACES}.`,
     ],
     calloutAposParagrafo: {
       indice: 0,
@@ -1472,8 +1500,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Tipos de usuário',
         mostrarInfograficoTiposUsuario: true,
         paragrafos: [
-          'No Gravity existem três tipos de usuário: **Master**, **Standard** e **Fornecedor**. Cada tipo define quanto da plataforma cada pessoa pode ver e operar.',
-          `**Master** administra a conta com acesso irrestrito. **Standard** (equipe interna) e **Fornecedor** (parceiro externo) dependem de duas camadas definidas pelo Master: ${LINK_MANUAL_WORKSPACES} habilitados e ${LINK_MANUAL_PERMISSOES} granulares em cada produto.`,
+          'No Gravity existem **três tipos de usuário**: **Master**, **Standard** e **Fornecedor**. Cada tipo define quanto da plataforma cada pessoa pode ver e operar.',
+          `**Master** administra a conta com **acesso irrestrito**. **Standard** (**equipe interna**) e **Fornecedor** (**parceiro externo**) dependem de **duas camadas** definidas pelo **Master**: **${LINK_MANUAL_WORKSPACES}** habilitados e **${LINK_MANUAL_PERMISSOES}** granulares em cada produto.`,
         ],
         passosVisuais: [],
       },
@@ -1517,7 +1545,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Preencher dados e enviar',
             paragrafos: [
               `Informe o e-mail do convidado e escolha o tipo de usuário. Master tem acesso total na organização; Standard e Fornecedor dependem das ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} definidos nos fluxos seguintes.`,
-              `Revise ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} no modal e clique em **Enviar convite**. O convidado entra na lista com badge Convidado (amarelo) até concluir o cadastro.`,
             ],
             galeriaTelas: [
               { legenda: '1 · Modal vazio', imagem: '/university/screenshots/configurador-usuarios-convite-modal-vazio.png' },
@@ -1525,7 +1552,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'dica',
-              texto: 'O e-mail do convite é o login do convidado. Confira se não há erro de digitação antes de enviar.',
+              texto: `Revise ${LINK_MANUAL_PERMISSOES} e ${LINK_MANUAL_WORKSPACES} no modal e clique em **Enviar convite**. O convidado entra na lista com badge Convidado (amarelo) até concluir o cadastro.`,
             },
           },
           {
@@ -1590,7 +1617,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
                 titulo: 'Entrar na grade de permissões',
                 imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
                 paragrafos: [
-                  'O modal *_Editar usuário_* abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
+                  'O modal abre na aba **Permissões**. A grade lista cada produto contratado com as colunas **Ver** e **Editar**.',
                 ],
               },
             ],
@@ -1605,7 +1632,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              'Marque **Pode cotar frete internacional** no produto **BID Frete Internacional** para habilitar fornecedores como agentes de carga.',
+              'A opção libera a visão de parceiro: **responder cotações**, **enviar propostas** e **acessar o painel BID Frete Internacional, Fornecedor**. Vale para usuários **Fornecedor** com empresa vinculada (ex.: agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -1675,7 +1703,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Desativar e ativar usuário',
         paragrafos: [
           'Suspenda quem não deve mais entrar na plataforma e reative quando necessário.',
-          'Usuários não podem ser excluídos: O Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
+          'Usuários não podem ser excluídos: o **Master** precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -1984,11 +2012,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 6,
     titulo: 'Assinaturas',
+    tituloTopico: 'Gerenciando assinaturas',
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-assinaturas-tela.png',
     paragrafos: [
       '**Assinaturas** reúne os Produtos Gravity que a organização contratou na **Gravity Store**: Cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
-      'Somente usuários **Master** gerenciam assinaturas: Suspender, consultar contrato, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado nos produtos.',
+      'Somente usuários **Master** gerenciam assinaturas: suspender, consultar contrato, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado nos produtos.',
     ],
     lista: [
       '**Ativa**: Módulo em uso normalmente',
@@ -1998,7 +2027,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     callout: {
       tipo: 'dica',
-      texto: 'O modal *_Editar assinatura_* é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
+      texto: 'O modal **Editar assinatura** é somente leitura, exceto a aba **Workspaces**, onde você habilita o produto por unidade.',
     },
     fluxos: [
       {
@@ -2028,7 +2057,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Consultar assinatura',
         paragrafos: [
           'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store: Uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
-          'Todas as abas são **somente leitura**, exceto Workspaces, onde você pode alterar em quais unidades o produto está habilitado (ou use o Fluxo 3 na tabela).',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -2040,6 +2068,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Aba Dados',
+            calloutAntes: {
+              tipo: 'dica',
+              texto: 'Todas as abas são **somente leitura**, exceto **Workspaces**, onde você pode alterar em quais unidades o produto está habilitado (ou use o Fluxo 3 na tabela).',
+            },
             imagem: '/university/screenshots/configurador-assinaturas-modal-geral.png',
             paragrafos: [
               'Identificação do Produto Gravity contratado: Nome, descrição, status da assinatura e datas relevantes do contrato. Somente leitura.',
@@ -2110,7 +2142,6 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Workspaces do produto',
         paragrafos: [
           `Cada assinatura pode estar **ativa em um ou mais** ${LINK_MANUAL_WORKSPACES}. Expanda a linha na tabela para ver e alterar em quais ${LINK_MANUAL_WORKSPACES} o produto está habilitado.`,
-          `Marque ou desmarque ${LINK_MANUAL_WORKSPACES}, use Habilitar/Bloquear em lote e clique em Salvar alterações: As mudanças valem na próxima sessão dos usuários daquela unidade.`,
         ],
         passosVisuais: renumerarPassos([
           {
@@ -2122,6 +2153,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Bloquear workspace',
+            calloutAntes: {
+              tipo: 'dica',
+              texto: `Marque ou desmarque ${LINK_MANUAL_WORKSPACES}, use **Habilitar/Bloquear** em lote e clique em **Salvar alterações**: as mudanças valem na próxima sessão dos usuários daquela unidade.`,
+            },
             galeriaTelas: [
               { legenda: '1 · Seta desabilitar', imagem: '/university/screenshots/configurador-assinaturas-workspaces-seta-desabilitar.png' },
               { legenda: '2 · Workspace bloqueado', imagem: '/university/screenshots/configurador-assinaturas-workspaces-bloqueado.png' },
@@ -2198,9 +2233,15 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Cancelar assinatura',
         tituloSumario: 'Cancelar assinatura',
         paragrafos: [
-          'Encerre definitivamente o contrato de um produto Gravity. Diferente de **suspender**, o cancelamento é **irreversível**: A assinatura sai de **Produtos Contratados** e o módulo pode voltar a aparecer em **Produtos Disponíveis para Contratação** se a organização quiser reassinar.',
-          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03 — cancelamento em 20/02 só passa a valer em 05/03.',
+          'Encerre definitivamente o contrato de um produto Gravity. Diferente de **suspender**, o cancelamento é **irreversível**: a assinatura sai de **Produtos Contratados** e o módulo pode voltar a aparecer em **Produtos Disponíveis para Contratação** se a organização quiser reassinar.',
         ],
+        calloutAposParagrafo: {
+          indice: 0,
+          callout: {
+            tipo: 'aviso',
+            texto: 'A cobrança da Gravity **não é pró rata**: ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: contratação em 05/02 com vigência até 05/03 — cancelamento em 20/02 só passa a valer em 05/03.',
+          },
+        },
         passosVisuais: renumerarPassos([
           {
             titulo: 'Iniciar cancelamento',
@@ -2217,7 +2258,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Confirmar no modal',
             imagem: '/university/screenshots/configurador-assinaturas-cancelar-modal.png',
             paragrafos: [
-              'O modal *_Cancelar Assinatura_* exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
+              'O modal **Cancelar Assinatura** exibe o nome do produto e avisa que a ação é irreversível e que o acesso será bloqueado.',
             ],
           },
           {
@@ -2234,6 +2275,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 7,
     titulo: 'Financeiro',
+    tituloTopico: 'Financeiro da conta',
     paragrafos: [
       '**Financeiro** é onde a empresa que contratou a plataforma Gravity gerencia todos os dados de **cobrança**, **pagamentos**, **valores**, **produtos**, **boletos** e **notas** da relação comercial entre a organização e a Gravity.',
       'Consulte faturas, baixe documentos de cobrança e acompanhe a tabela de **Produtos × Valores** do catálogo contratado. Status de fatura: **Emitida** e **Enviada** (em aberto), **Paga**, **Em atraso**, **Anulada** e **Incobrável**. Os cards do topo resumem vencimento, valor pendente e quantidade em aberto.',
@@ -2337,7 +2379,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'Abrir a aba Produtos & Valores',
             imagem: '/university/screenshots/configurador-financeiro-aba-produtos.png',
             paragrafos: [
-              'Clique na aba Produtos & Valores: Como indicado pela seta na imagem. A tabela mostra preço unitário, franquia free e status de negociação especial por produto.',
+              'Clique na aba Produtos & Valores: como indicado pela seta na imagem. A tabela mostra preço unitário, franquia free e status de negociação especial por produto.',
             ],
             callout: {
               tipo: 'dica',
@@ -2398,8 +2440,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           {
             paragrafos: [
               'No menu lateral do Configurador, clique em Taxas e moeda. A tela abre na aba Cotação Atual, com os cards de resumo no topo.',
-              'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
             ],
+            imagemAbaixoTexto: true,
+            galeriaFraseEntreCardsEImagens:
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip: Veja abaixo o que cada indicador mostra:',
             galeriaTelas: [...TAXAS_MOEDA_GALERIA_TOOLTIPS_KPI],
           },
         ),
@@ -2430,6 +2474,9 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 10,
     titulo: 'Histórico',
+    tituloTopico: 'O que é histórico?',
+    listaEmLinha: true,
+    listaColunas: 4,
     paragrafos: [
       `**Histórico** registra alterações sensíveis na organização e nos ${LINK_MANUAL_WORKSPACES}: Convites, mudanças de ${LINK_MANUAL_PERMISSOES}, workspaces, assinaturas e eventos de segurança.`,
       'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando — sem alterar registros.',
@@ -2467,8 +2514,9 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               imagemAbaixoTexto: true,
               paragrafos: [
                 'A tela abre com os **três cards de resumo** no topo e a **tabela de auditoria** abaixo.',
-                'Passe o mouse no ícone **(i)** de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
               ],
+              galeriaFraseEntreCardsEImagens:
+                'Passe o mouse no ícone **(i)** de cada card para abrir o tooltip. Veja abaixo o que cada indicador mostra:',
               galeriaTelas: [...HISTORICO_GALERIA_TOOLTIPS_KPI],
             },
             {
@@ -2497,7 +2545,9 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ],
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Entender as colunas',
+            titulo: 'Entendendo as colunas',
+            rotuloPasso: 'Entendendo as colunas',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-tabela.png',
             imagemAbaixoTexto: true,
             paragrafos: ['Cada linha é um evento gravado automaticamente. As cinco colunas resumem o que aconteceu:'],
@@ -2505,6 +2555,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Filtrar e localizar',
+            rotuloPasso: 'Filtrar e localizar',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-filtros.png',
             paragrafos: [
               'Use os filtros no cabeçalho de cada coluna para restringir por período, **Ação**, **Local** ou **Usuário**.',
@@ -2513,6 +2565,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Exportar registros',
+            rotuloPasso: 'Exportar registros',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-exportar.png',
             paragrafos: [
               'No menu de exportação, baixe os registros **visíveis na página** em Excel, CSV, TXT, XML, PDF ou JSON.',
@@ -2522,20 +2576,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               texto: 'A exportação reflete o recorte atual (filtros + página).',
             },
           },
-          {
-            titulo: 'Navegar entre páginas',
-            paragrafos: [
-              'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela.',
-            ],
-          },
         ]),
       },
       {
         titulo: 'O que o histórico registra',
         tituloSumario: 'O que o histórico registra',
         paragrafos: [
-          'Nesta tela do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo).',
-          'Abaixo, a tabela com todos os eventos que o histórico registra na plataforma.',
+          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma — módulo, ação e contexto de cada evento auditável.',
+          'Na tela **Histórico** do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo). No catálogo abaixo, expanda cada seção para ver o detalhe.',
         ],
         calloutAposParagrafo: {
           indice: 1,

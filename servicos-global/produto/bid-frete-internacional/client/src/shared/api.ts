@@ -217,9 +217,12 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
   }
 }
 
+let contextUserName = ''
+
 export function setApiContext(ctx: { idOrganizacao: string; userId: string; userName?: string }): void {
   injectTenantGetter(() => ctx.idOrganizacao)
   injectUserGetter(() => ctx.userId)
+  if (ctx.userName) contextUserName = ctx.userName
 }
 
 const headers = () => {
@@ -242,6 +245,12 @@ const headers = () => {
   customHeaders['x-id-organizacao'] = orgId
   customHeaders['x-id-usuario'] = userId
   if (idWorkspace) customHeaders['x-id-workspace'] = idWorkspace
+
+  const userName = contextUserName || useShellStore.getState().currentUser.name?.trim() || ''
+  if (userName) {
+    customHeaders['x-nome-usuario'] = userName
+    customHeaders['x-user-name'] = userName
+  }
 
   return customHeaders
 }

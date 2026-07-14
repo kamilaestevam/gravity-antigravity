@@ -231,6 +231,7 @@ export function ModalNovaLeituraSmartRead({
   const hidratandoRetomarRef = useRef(false)
   const idLeituraRetomarAnteriorRef = useRef<string | null>(null)
   const inicioSessaoRef = useRef<number>(Date.now())
+  const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
 
   useEffect(() => {
     ativo.current = true
@@ -382,13 +383,16 @@ export function ModalNovaLeituraSmartRead({
         setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
       }
     }
+    if (!aberto && abertoAnteriorRef.current) {
+      void salvarProgressoRef.current(passoSalvoRef.current >= 2 ? passoSalvoRef.current : passo)
+    }
     if (!aberto) {
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
       idLeituraRetomarAnteriorRef.current = null
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura])
+  }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura, passo])
 
   useEffect(() => {
     if (!aberto || !idLeituraExistente) return
@@ -486,12 +490,19 @@ export function ModalNovaLeituraSmartRead({
     },
     [arquivos, idLeituraExistente, nomeLeitura, passo],
   )
+  salvarProgressoRef.current = salvarProgressoAtual
 
   // Salva quando a análise termina (passo 2) ou ao mudar de passo com documento lido.
   useEffect(() => {
     if (!aberto || passo < 2 || !analiseCompleta || hidratandoRetomarRef.current) return
     void salvarProgressoAtual(passo)
   }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
+
+  useEffect(() => {
+    return () => {
+      void salvarProgressoRef.current(passoSalvoRef.current >= 2 ? passoSalvoRef.current : undefined)
+    }
+  }, [])
 
 
 

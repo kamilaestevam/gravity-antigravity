@@ -130,6 +130,27 @@ describe('progresso-leitura-smart-read', () => {
     expect(escolhido?.passo).toBe(3)
   })
 
+  it('mantém extração remota quando local tem passo maior sem arquivos', () => {
+    const leituraComExtracao = {
+      ...leituraMinima,
+      arquivos: [
+        {
+          id_arquivo: 'arq-ok',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'BL', dados: { n: '1' } }],
+        },
+      ],
+    }
+    const escolhido = escolherProgressoSalvoLeituraSmartRead(
+      { nome: 'BL', passo: 2, leitura: leituraComExtracao },
+      { nome: 'BL', passo: 3, leitura: { ...leituraMinima, arquivos: [] } },
+    )
+    expect(escolhido?.passo).toBe(3)
+    expect(escolhido?.leitura.arquivos).toHaveLength(1)
+    expect(escolhido?.leitura.arquivos[0]).toMatchObject({ id_arquivo: 'arq-ok' })
+  })
+
   it('mescla analise_riscos_cache quando passo local vence sem cache', () => {
     const base = { nome: 'Leitura', leitura: leituraMinima }
     const cacheRemoto = {

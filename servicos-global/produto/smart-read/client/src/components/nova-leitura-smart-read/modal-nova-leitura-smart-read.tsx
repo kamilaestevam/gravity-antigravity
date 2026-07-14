@@ -275,13 +275,15 @@ export function ModalNovaLeituraSmartRead({
   const inicioSessaoRef = useRef<number>(Date.now())
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
-  const pollRetomarIniciadoRef = useRef<Set<string>>(new Set())
+  const pollingEmVooRef = useRef<Map<string, Promise<void>>>(new Map())
   const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
 
   useEffect(() => {
     ativo.current = true
+    pollingEmVooRef.current.clear()
     return () => {
       ativo.current = false
+      pollingEmVooRef.current.clear()
     }
   }, [])
 
@@ -408,6 +410,7 @@ export function ModalNovaLeituraSmartRead({
       passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
       setPasso(passoPlaceholderRetomar >= 3 ? 2 : passoPlaceholderRetomar)
       riscosIniciadosRef.current.delete(id)
+      pollingEmVooRef.current.clear()
       void hidratarLeituraExistente(id)
     },
     [passoPlaceholderRetomar, hidratarLeituraExistente],
@@ -449,7 +452,7 @@ export function ModalNovaLeituraSmartRead({
     if (!aberto) {
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
-      pollRetomarIniciadoRef.current.clear()
+      pollingEmVooRef.current.clear()
       idLeituraRetomarAnteriorRef.current = null
     }
     abertoAnteriorRef.current = aberto
@@ -686,7 +689,10 @@ export function ModalNovaLeituraSmartRead({
       idLeituraExistente: id,
     })
     if (!estado) return
-    persistirProgressoLeituraUrgenteSmartRead(id, estado)
+    const timer = window.setTimeout(() => {
+      persistirProgressoLeituraUrgenteSmartRead(id, estado)
+    }, 400)
+    return () => window.clearTimeout(timer)
   }, [aberto, passo, arquivos, nomeLeitura, idLeituraAtual, idLeituraExistente])
 
 
@@ -902,10 +908,13 @@ export function ModalNovaLeituraSmartRead({
           atualizarArquivo(idArquivoLocal, { id_arquivo: arquivoApi.id_arquivo })
         }
 
-        if (leitura.status_leitura === 'COMPLETED') {
+        const arquivoConcluido = arquivoApi?.status_arquivo === 'COMPLETED'
+        if (leitura.status_leitura === 'COMPLETED' || arquivoConcluido) {
           atualizarArquivo(idArquivoLocal, {
             status_arquivo_local: 'completo',
-            leitura,
+            leitura: arquivoConcluido && leitura.status_leitura !== 'COMPLETED'
+              ? { ...leitura, status_leitura: 'COMPLETED' }
+              : leitura,
             id_arquivo: arquivoApi?.id_arquivo ?? null,
             expandido: true,
           })
@@ -957,19 +966,30 @@ export function ModalNovaLeituraSmartRead({
 
   )
 
+  const garantirPollingArquivo = useCallback(
+    (idArquivoLocal: string, idLeitura: string, arquivoOriginal: File) => {
+      const emVoo = pollingEmVooRef.current.get(idArquivoLocal)
+      if (emVoo) return emVoo
+      const promessa = pollingArquivo(idArquivoLocal, idLeitura, arquivoOriginal).finally(() => {
+        pollingEmVooRef.current.delete(idArquivoLocal)
+      })
+      pollingEmVooRef.current.set(idArquivoLocal, promessa)
+      return promessa
+    },
+    [pollingArquivo],
+  )
+
   useEffect(() => {
     if (!aberto || passo < 2 || hidratandoRetomar) return
     for (const item of arquivos) {
       if (
         item.id_leitura &&
-        (item.status_arquivo_local === 'analisando' || item.status_arquivo_local === 'enviando') &&
-        !pollRetomarIniciadoRef.current.has(item.id_arquivo_local)
+        (item.status_arquivo_local === 'analisando' || item.status_arquivo_local === 'enviando')
       ) {
-        pollRetomarIniciadoRef.current.add(item.id_arquivo_local)
-        void pollingArquivo(item.id_arquivo_local, item.id_leitura, item.arquivo)
+        void garantirPollingArquivo(item.id_arquivo_local, item.id_leitura, item.arquivo)
       }
     }
-  }, [aberto, arquivos, hidratandoRetomar, passo, pollingArquivo])
+  }, [aberto, arquivos, hidratandoRetomar, passo, garantirPollingArquivo])
 
   const enviarArquivos = useCallback(async () => {
 
@@ -1008,7 +1028,7 @@ export function ModalNovaLeituraSmartRead({
           )
         }
 
-        await pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
+        await garantirPollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
 
       } catch (excecao) {
 
@@ -1032,7 +1052,7 @@ export function ModalNovaLeituraSmartRead({
 
     setEnviando(false)
 
-  }, [arquivos, atualizarArquivo, pollingArquivo])
+  }, [arquivos, atualizarArquivo, garantirPollingArquivo])
 
 
 

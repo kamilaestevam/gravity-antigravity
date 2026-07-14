@@ -2901,7 +2901,7 @@ body.light-theme .cw-xml-viewer {
 /* ── University: Jornada do Módulo (etapa atual pulsando) ── */
 @keyframes uniJornadaPulse {
   0%   { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.45); }
-  70%  { box-shadow: 0 0 0 10px rgba(129, 140, 248, 0); }
+  70%  { box-shadow: 0 0 0 6px rgba(129, 140, 248, 0); }
   100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
 }
 .uni-jornada-node--current { animation: uniJornadaPulse 2s infinite; }
@@ -2974,7 +2974,6 @@ body.light-theme .cw-xml-viewer {
   background-attachment: fixed;
 }
 
-.uni-academy-player .mlg-sidebar,
 .uni-academy-player .ws-main,
 .uni-player-aula,
 .uni-player-aula__nav,
@@ -2982,7 +2981,9 @@ body.light-theme .cw-xml-viewer {
   background: transparent;
 }
 
+/* Sidebar opaco no Academy — transparente deixava o Ampliar/conteúdo vazar por baixo. */
 .uni-academy-player .mlg-sidebar {
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.06) 0%, var(--ws-surface, #1e293b) 120px);
   border-right-color: rgba(26, 30, 46, 0.85);
 }
 
@@ -3067,16 +3068,149 @@ body.light-theme .cw-xml-viewer {
   color: var(--ws-text, #f1f5f9);
 }
 
+/* Guia Gravity — ritmo (/modelo-espacamento-guia): margin-top dos blocos vem do PlayerAula. */
+.uni-player-aula__ritmo.uni-ritmo-r3 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  margin: 0 !important;
+}
+
+.uni-ritmo-r3 > .uni-player-aula__bloco {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  box-sizing: border-box;
+}
+
+.uni-player-aula__ritmo p,
+.uni-player-aula__ritmo h1,
+.uni-player-aula__ritmo h2,
+.uni-player-aula__ritmo h3 {
+  margin: 0 !important;
+}
+
+.uni-player-aula__ritmo h2,
+.uni-player-aula__ritmo h3 {
+  scroll-margin-top: 1.25rem;
+}
+
+/* Título: vão título→linha 24px via ::after — não depende de padding no h1. */
+.uni-player-aula__titulo-guia {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  width: 100%;
+}
+
+.uni-player-aula__titulo-guia::after {
+  content: '';
+  display: block !important;
+  width: 100%;
+  height: 3px !important;
+  margin-top: 24px !important;
+  background: #a78bfa !important;
+  border-radius: 2px;
+}
+
+.uni-player-aula__titulo-guia-espaco,
+.uni-player-aula__titulo-guia-linha {
+  display: none !important;
+}
+
+.uni-player-aula__bloco-passo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+}
+
+/* Subtítulo com várias etapas (texto + screenshot): 12px dentro da etapa, 32px entre etapas. */
+.uni-player-aula__passo-etapa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
+  margin-top: 32px;
+}
+
+.uni-player-aula__passo-etapa > .uni-player-aula__figura {
+  margin: 0;
+}
+
+.uni-player-aula__passo-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 3px solid rgba(99, 102, 241, 0.45);
+}
+
+/* Painel / screenshot / galeria / dica — 12px entre si; alinhados à esquerda do passo. */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-painel,
+.uni-player-aula__bloco-passo > .uni-player-aula__figura,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-callouts {
+  margin-top: 12px;
+  margin-left: 0;
+}
+
+.uni-player-aula__passo-corpo > * {
+  margin: 0 !important;
+}
+
+.uni-player-aula__passo-rotulo-linha .ws-badge {
+  flex-shrink: 0;
+}
+
+/* Screenshot no mesmo fluxo do parágrafo — sem sombra que simula “buraco” extra */
+.uni-player-aula__figura figure {
+  margin: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.uni-player-aula__passo-galeria {
+  display: block;
+  margin: 0;
+  width: 100%;
+}
+
+.uni-player-aula__passo-galeria-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.uni-player-aula__passo-galeria-item > * {
+  margin: 0 !important;
+}
+
 body.light-theme .uni-academy-player {
   background: var(--ws-bg-body, #f1f5f9);
 }
 
-body.light-theme .uni-academy-player .mlg-sidebar,
 body.light-theme .uni-academy-player .ws-main,
 body.light-theme .uni-player-aula,
 body.light-theme .uni-player-aula__nav,
 body.light-theme .uni-player-aula__content {
   background: transparent;
+}
+
+body.light-theme .uni-academy-player .mlg-sidebar {
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.06) 0%, var(--ws-surface, #ffffff) 120px);
+}
+
+/* Rodapé da aula — 24px do conteúdo até a linha; 24px da linha até os botões */
+.uni-player-aula__rodape-nav {
+  margin-top: 24px !important;
+  padding-top: 24px !important;
 }
 
 .uni-player-aula__footer-btn {
@@ -3146,76 +3280,7 @@ body.light-theme .uni-player-aula__content {
   transform: translateY(-1px);
 }
 
-/* ── Academy: CTA manual complementar (fim da aula) ── */
-.uni-academy-manual-cta {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  margin-top: 2.25rem;
-  padding: 1rem 1.15rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(167, 139, 250, 0.03) 48%, rgba(148, 163, 184, 0.02) 100%);
-  border: 1px solid rgba(129, 140, 248, 0.16);
-  box-shadow: 0 4px 18px rgba(10, 13, 20, 0.22);
-}
-
-.uni-academy-manual-cta__icon {
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(129, 140, 248, 0.08);
-  border: 1px solid rgba(129, 140, 248, 0.18);
-  color: #94a3f8;
-}
-
-.uni-academy-manual-cta__body {
-  flex: 1;
-  min-width: 0;
-}
-
-.uni-academy-manual-cta__titulo {
-  margin: 0 0 0.35rem;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--ws-text, #e2e8f0);
-  letter-spacing: -0.005em;
-  line-height: 1.35;
-}
-
-.uni-academy-manual-cta__desc {
-  margin: 0 0 0.75rem;
-  font-size: 0.76rem;
-  line-height: 1.5;
-  color: var(--ws-muted, #94a3b8);
-  font-weight: 400;
-}
-
-.uni-academy-manual-cta__acao {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 8px;
-  border: 1px solid rgba(129, 140, 248, 0.22);
-  background: rgba(129, 140, 248, 0.1);
-  color: #a5b4fc;
-  font-size: 0.72rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.uni-academy-manual-cta__acao:hover {
-  background: rgba(129, 140, 248, 0.16);
-  border-color: rgba(129, 140, 248, 0.32);
-  color: #c7d2fe;
-}
-
-/* ── Docs: voltar ao onboarding (sticky — visível após scroll à seção) ── */
+/* ── Docs: voltar ao Guia Gravity (sticky — visível após scroll à seção) ── */
 .uni-docs-voltar-academy {
   position: sticky;
   top: 0;
@@ -3313,11 +3378,15 @@ body.light-theme .uni-player-aula__content {
 }
 
 .uni-academy-infografico {
-  margin: 0.25rem 0;
+  margin: 0;
 }
 
 .uni-academy-infografico > div {
   max-width: 100%;
+}
+
+.uni-academy-origem-dados {
+  margin: 0.25rem 0;
 }
 
 /* ── University: ícones de status no menu lateral (disponível + concluído) ── */

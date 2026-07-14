@@ -22,6 +22,7 @@ export interface VisaoGeralMapPin {
   geoLat: number
   geoLng: number
   pedidosCount: number
+  valorTotal: number
   maiorValor: number
   moeda: string
   pctVolume: number
@@ -59,6 +60,23 @@ export interface VisaoGeralDetalheLocal {
   moedaCambio: string
   pinId: number | null
   rotas: VisaoGeralRotaDetalhe[]
+  pedidosCards: VisaoGeralPedidoCardDetalhe[]
+}
+
+export interface VisaoGeralPedidoCardDetalhe {
+  id: string
+  numero_pedido: string
+  tipoOperacao: TipoOperacaoMapa
+  status: string
+  valorTotal: number
+  moeda: string
+  incoterm: string
+  parceiro: string
+  nome_workspace: string
+  origemLabel: string
+  destinoLabel: string
+  origemFlag: string
+  destinoFlag: string
 }
 
 export interface VisaoGeralVencimentoCambio {
@@ -813,6 +831,21 @@ function toNumero(valor: unknown): number {
   return Number.isFinite(n) ? n : 0
 }
 
+/** Mesma regra de `acumularCambio` — evita pin de exportação sem valor quando só há câmbio. */
+function resolverValorMonetarioPedido(p: Pedido): number {
+  return toNumero(p.valor_total_pedido) || toNumero(p.valor_total_cambio_pedido)
+}
+
+function resolverMoedaPedidoMapa(p: Pedido): string {
+  return p.moeda_pedido?.trim() || p.moeda_cambio_pedido?.trim() || 'BRL'
+}
+
+function resolverValorEfetivoLoc(loc: LocAgg, cambio: CambioLocAgg | undefined): number {
+  if (loc.valorTotal > 0) return loc.valorTotal
+  if (!cambio) return 0
+  return Math.max(cambio.totalAReceber, cambio.totalAPagar, cambio.maiorValor)
+}
+
 function acumularCambio(map: Map<string, CambioLocAgg>, locKey: string, p: Pedido) {
   let agg = map.get(locKey)
   const moedaCambio = p.moeda_cambio_pedido?.trim() || p.moeda_pedido?.trim() || 'BRL'
@@ -1094,12 +1127,73 @@ function rotasParaLoc(
     .map(r => finalizarRotaDetalhe(r, hojeIso))
 }
 
+function montarPedidoCardDetalhe(
+  p: Pedido,
+  orig: LocPedido,
+  dest: LocPedido,
+  nomesWorkspacePorId: ReadonlyMap<string, string>,
+): VisaoGeralPedidoCardDetalhe {
+  const geoOrig = resolverGeo(orig.country, orig.cidade)
+  const geoDest = resolverGeo(dest.country, dest.cidade)
+  const valor = resolverValorMonetarioPedido(p)
+  const moeda = resolverMoedaPedidoMapa(p)
+  const idWorkspace = p.company_id?.trim() || 'sem-workspace'
+
+  return {
+    id: p.id,
+    numero_pedido: p.numero_pedido,
+    tipoOperacao: p.tipo_operacao,
+    status: p.status,
+    valorTotal: valor,
+    moeda,
+    incoterm: (p.incoterm ?? '—').toUpperCase(),
+    parceiro: p.tipo_operacao === 'importacao'
+      ? orig.parceiro
+      : (p.nome_importador?.trim() ?? '—'),
+    nome_workspace: nomesWorkspacePorId.get(idWorkspace) ?? '—',
+    origemLabel: orig.label,
+    destinoLabel: dest.label,
+    origemFlag: geoOrig.flag,
+    destinoFlag: geoDest.flag,
+  }
+}
+
+function pedidosCardsParaLoc(
+  locKey: string,
+  pedidos: Pedido[],
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+  nomesWorkspacePorId: ReadonlyMap<string, string>,
+): VisaoGeralPedidoCardDetalhe[] {
+  const somenteTipo = locKey.startsWith('modal|') ? (locKey.split('|')[1] as TipoOperacaoMapa) : null
+  const cards: VisaoGeralPedidoCardDetalhe[] = []
+
+  for (const p of pedidos) {
+    if (somenteTipo && p.tipo_operacao !== somenteTipo) continue
+
+    const orig = locOrigem(p, fornecedoresPorId)
+    if (!orig) continue
+
+    const dest = p.tipo_operacao === 'importacao'
+      ? locDestinoImport(resolverHubBrasilPorLogistica(p, 'destino'))
+      : locDestinoExport(p, fornecedoresPorId)
+
+    if (!somenteTipo && orig.key !== locKey && dest.key !== locKey) continue
+
+    cards.push(montarPedidoCardDetalhe(p, orig, dest, nomesWorkspacePorId))
+  }
+
+  return cards.sort((a, b) => b.valorTotal - a.valorTotal).slice(0, 20)
+}
+
 function montarDetalheLoc(
   loc: LocAgg,
   cambio: CambioLocAgg | undefined,
   pinId: number | null,
   rotasMap: Map<string, RotaAggInterna>,
   hojeIso: string,
+  pedidos: Pedido[],
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+  nomesWorkspacePorId: ReadonlyMap<string, string>,
 ): VisaoGeralDetalheLocal {
   return {
     locKey: loc.key,
@@ -1114,6 +1208,7 @@ function montarDetalheLoc(
     moedaCambio: cambio?.moedaCambio ?? loc.moeda,
     pinId,
     rotas: rotasParaLoc(loc.key, rotasMap, hojeIso),
+    pedidosCards: pedidosCardsParaLoc(loc.key, pedidos, fornecedoresPorId, nomesWorkspacePorId),
   }
 }
 
@@ -1122,6 +1217,8 @@ function montarDetalheModal(
   pedidos: Pedido[],
   rotasMap: Map<string, RotaAggInterna>,
   hojeIso: string,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+  nomesWorkspacePorId: ReadonlyMap<string, string>,
 ): VisaoGeralDetalheLocal {
   const locKey = `modal|${tipo}`
   const filtrados = pedidos.filter(p => p.tipo_operacao === tipo)
@@ -1157,6 +1254,7 @@ function montarDetalheModal(
       .sort((a, b) => b.pedidos - a.pedidos)
       .slice(0, 12)
       .map(r => finalizarRotaDetalhe(r, hojeIso)),
+    pedidosCards: pedidosCardsParaLoc(`modal|${tipo}`, pedidos, fornecedoresPorId, nomesWorkspacePorId),
   }
 }
 
@@ -1314,8 +1412,8 @@ export function buildVisaoGeralMapa(
   const hojeIso = formatDataIso(new Date())
 
   for (const p of pedidos) {
-    const valor = toNumero(p.valor_total_pedido)
-    const moeda = p.moeda_pedido ?? 'BRL'
+    const valor = resolverValorMonetarioPedido(p)
+    const moeda = resolverMoedaPedidoMapa(p)
     valorGlobal += valor
 
     const orig = locOrigem(p, fornecedoresPorId)
@@ -1385,6 +1483,8 @@ export function buildVisaoGeralMapa(
 
   const montarPin = (loc: LocAgg, papel: PapelPinMapa): VisaoGeralMapPin => {
     const cambio = cambioPorLoc.get(loc.key)
+    const valorEfetivo = resolverValorEfetivoLoc(loc, cambio)
+    const moedaEfetiva = loc.valorTotal > 0 ? loc.moeda : (cambio?.moedaCambio ?? loc.moeda)
     const id = pins.length + 1
     pinByKey.set(loc.key, id)
     return {
@@ -1398,9 +1498,10 @@ export function buildVisaoGeralMapa(
       geoLat: loc.geoLat!,
       geoLng: loc.geoLng!,
       pedidosCount: loc.count,
-      maiorValor: cambio?.maiorValor ?? loc.valorTotal,
-      moeda: loc.moeda,
-      pctVolume: valorGlobal > 0 ? Math.round((loc.valorTotal / valorGlobal) * 1000) / 10 : 0,
+      valorTotal: valorEfetivo,
+      maiorValor: cambio?.maiorValor ?? valorEfetivo,
+      moeda: moedaEfetiva,
+      pctVolume: valorGlobal > 0 ? Math.round((valorEfetivo / valorGlobal) * 1000) / 10 : 0,
       tipoOperacao: loc.tipoOperacao,
       parceiro: loc.parceiro,
       flag: loc.flag,
@@ -1431,10 +1532,13 @@ export function buildVisaoGeralMapa(
       pinByKey.get(loc.key) ?? null,
       rotasMap,
       hojeIso,
+      pedidos,
+      fornecedoresPorId,
+      nomesWorkspacePorId,
     )
   }
-  detalhesPorLocKey['modal|importacao'] = montarDetalheModal('importacao', pedidos, rotasMap, hojeIso)
-  detalhesPorLocKey['modal|exportacao'] = montarDetalheModal('exportacao', pedidos, rotasMap, hojeIso)
+  detalhesPorLocKey['modal|importacao'] = montarDetalheModal('importacao', pedidos, rotasMap, hojeIso, fornecedoresPorId, nomesWorkspacePorId)
+  detalhesPorLocKey['modal|exportacao'] = montarDetalheModal('exportacao', pedidos, rotasMap, hojeIso, fornecedoresPorId, nomesWorkspacePorId)
 
   const conexoesPorPin: Record<number, VisaoGeralRotaDetalhe[]> = {}
   for (const pin of pins) {

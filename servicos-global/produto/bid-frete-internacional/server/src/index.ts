@@ -157,11 +157,15 @@ app.use(createProductAuditPlugin({
     const id_organizacao = req.headers['x-id-organizacao'] as string | undefined
     const actor_id  = req.headers['x-id-usuario']   as string | undefined
     if (!id_organizacao || !actor_id) return null
+    const nomeHeader =
+      (req.headers['x-user-name'] as string | undefined)?.trim()
+      || (req.headers['x-nome-usuario'] as string | undefined)?.trim()
+      || actor_id
     return {
       id_organizacao,
       id_ator_historico_log: actor_id,
-      nome_ator_historico_log: actor_id,
-      tipo_ator_historico_log: 'USUARIO'
+      nome_ator_historico_log: nomeHeader,
+      tipo_ator_historico_log: 'USUARIO',
     }
   },
 }))

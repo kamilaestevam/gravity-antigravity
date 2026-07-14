@@ -2,7 +2,7 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": {
-      "academy": "Onboarding",
+      "academy": "Guía Gravity",
       "visao_geral": "Visión general",
       "minha_jornada": "Mi Recorrido",
       "docs": "Manuales",
@@ -16,12 +16,12 @@
       "nao_comprado_titulo": "No contratado",
       "nao_comprado_desc": "Aún puede acceder y explorar el contenido",
       "concluido_titulo": "Completado",
-      "concluido_desc": "Finalizó todo el onboarding de este ítem",
+      "concluido_desc": "Finalizó todo el Guía Gravity de este ítem",
       "nao_concluido_titulo": "Pendiente",
-      "nao_concluido_desc": "El onboarding aún no fue finalizado"
+      "nao_concluido_desc": "El Guía Gravity aún no fue finalizado"
     },
     "academy": {
-      "subtitulo": "Onboarding guiado por producto — rutas para Login, Configurador, Hub y los módulos contratados en su organización."
+      "subtitulo": "Guía Gravity — rutas visuales por producto para Login, Configurador, Hub y los módulos de su organización."
     },
     "badge": {
       "em_breve": "Próximamente",
@@ -49,7 +49,7 @@
     },
     "banner": {
       "em_construcao": "En construcción",
-      "descricao": "El hub único de aprendizaje de la plataforma — onboarding por producto, recorrido gamificado y certificado, con GABI como fuente de conocimiento y tutora."
+      "descricao": "El hub único de aprendizaje de la plataforma — Guía Gravity por producto, recorrido gamificado y certificado, con GABI como fuente de conocimiento y tutora."
     },
     "acao": {
       "continuar": "Continuar",
@@ -58,13 +58,10 @@
     },
     "aula": {
       "voltar": "Volver",
-      "voltar_onboarding": "Volver al onboarding",
+      "voltar_onboarding": "Volver al Guía Gravity",
       "marcar_concluida": "Marcar como completada",
       "inicio": "Inicio",
-      "fim": "Fin del módulo",
-      "manual_complemento_titulo": "¿Quieres profundizar? El manual tiene más detalle",
-      "manual_complemento_desc": "Esta sesión cubre lo esencial del onboarding. En el manual encontrarás referencias de pantalla, metadatos y contexto extra para consolidar lo aprendido. Abriremos la sección correspondiente.",
-      "manual_complemento_acao": "Abrir sección en el manual"
+      "fim": "Fin del módulo"
     },
     "grupo": {
       "comece_aqui": "Empieza aquí",
@@ -85,7 +82,7 @@
       "subtitulo": "Desplázate por la jornada o usa las píldoras para ir a cada bloque — todos los capítulos están listados abajo."
     },
     "dashboard": {
-      "titulo": "Tu onboarding",
+      "titulo": "Guía Gravity",
       "subtitulo": "Visión general de lo que ya hiciste, productos, métricas y recompensas",
       "modulos_titulo": "Módulos contratados",
       "etapas_progresso": "{{feitas}}/{{total}} etapas",
@@ -93,7 +90,7 @@
       "continuar_jornada": "Continuar recorrido",
       "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
       "nivel_xp_faltam": "Nivel {{nivel}} · {{xp}} XP para subir",
-      "produtos_onboarding_concluido": "Productos con onboarding completado",
+      "produtos_onboarding_concluido": "Productos con Guía Gravity completado",
       "manuais_lidos": "Manuales leídos",
       "o_que_falta": "Lo que falta",
       "iniciar": "Iniciar",
@@ -7054,6 +7051,8 @@
         "legenda_exportacao": "Exportación",
         "aumentar_zoom": "Aumentar Zoom",
         "diminuir_zoom": "Disminuir Zoom",
+        "exibir_trilhos": "Mostrar rutas entre ubicaciones",
+        "ocultar_trilhos": "Ocultar rutas entre ubicaciones",
         "restaurar_globo": "Restaurar Globo",
         "pausar_rotacao": "Pausar Rotación",
         "iniciar_rotacao": "Iniciar Rotación",
@@ -7074,17 +7073,24 @@
         "vencidos_count": "{{count}} vencidos",
         "proximos_7_dias_count": "{{count}} en los próximos 7 días",
         "mais_vencimentos": "+{{count}} más",
-        "voltar_rotas": "Volver a las rutas",
+        "voltar_rotas": "Volver a los pedidos",
         "expandir_grafico_vencimentos": "Expandir gráfico de vencimientos",
         "maior_valor": "Mayor Valor",
         "participacao_volume": "Participación en el Volumen",
+        "participacao_volume_valor": "{{pct}}% del volumen",
         "valor_total": "Valor Total",
         "incoterm": "Incoterm",
         "parceiro_abreviado": "Socio",
         "parceiro_lider": "Socio Principal",
-        "clique_ver_rotas": "Clic para ver rutas",
-        "rotas_ativas": "Rutas de Pedidos: {{local}}",
-        "sem_rotas": "Ninguna ruta de pedido para esta ubicación."
+        "clique_ver_rotas": "Clic para ver los pedidos",
+        "clique_ver_pedidos_rotas": "Clic para ver los pedidos",
+        "clique_no_icone_pedidos_rotas": "Clic en el ícono del mapa para ver los pedidos",
+        "rotas_ativas": "Pedidos: {{local}}",
+        "sem_rotas": "Ningún pedido en esta ubicación.",
+        "sem_pedidos": "Ningún pedido en esta ubicación.",
+        "abrir_pedido": "Abrir {{numero}}",
+        "col_status": "Estado",
+        "col_workspace": "Workspace"
       },
       "hud": {
         "titulo": "Rankings Globales de Pedidos",

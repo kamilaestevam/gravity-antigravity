@@ -2,10 +2,11 @@
  * Geradores de blocos Academy a partir do SSOT dos manuais.
  */
 
-import type { DocPassoVisual as DocPassoLogin } from './manual-login-conteudo'
+import type { DocPassoVisual as DocPassoLogin, DocSecao as DocSecaoLogin } from './manual-login-conteudo'
 import type {
+  ConfiguradorManualSlug,
+  DocFiguraAposParagrafo,
   DocFluxo,
-  DocOrigemDados,
   DocPassoVisual as DocPassoConfigurador,
   DocSecao as DocSecaoConfigurador,
 } from './manual-configurador-conteudo'
@@ -13,7 +14,9 @@ import type { IdInfograficoAcademy } from './academy-infograficos'
 
 export type TipoBlocoAcademy =
   | 'heading' | 'texto' | 'imagem' | 'video' | 'citacao' | 'destaque'
-  | 'definicao' | 'dois_colunas' | 'timeline' | 'destaque_escuro' | 'infografico'
+  | 'definicao' | 'dois_colunas' | 'timeline' | 'destaque_escuro' | 'infografico' | 'origem_dados'
+  | 'lista_legenda' | 'requisitos_cadastro' | 'passo_visual' | 'catalogo_historico'
+  | 'gabi_conversas' | 'topicos_imagem_lateral' | 'cenarios_grade' | 'fluxo_manual' | 'galeria_comparacao'
 
 export interface BlocoConteudoAcademy {
   tipo: TipoBlocoAcademy
@@ -22,15 +25,67 @@ export interface BlocoConteudoAcademy {
 
 export function limparTextoManual(texto: string): string {
   return texto
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\{\{link:([^|]+)\|([^}]+)\}\}/g, '$2')
+    // Mantém **negrito** e {{link:…}} para AcademyTextoRich (PlayerAula).
     .replace(/\{\{icone:[^}]+\}\}/g, '👁')
+}
+
+const RE_LINK_MARKUP = /^\{\{link:([^|]+)\|([^}]+)\}\}$/
+
+function splitLabelDescListaAcademy(item: string): {
+  label: string
+  descricao: string
+  linkHref?: string
+  linkRotulo?: string
+} {
+  const cleaned = item.replace(/^[-–]\s*/, '').trim()
+  const re = /^((?:[^{]|(?:\{\{link:[^}]+\}\}))+)(?::|\s+[—–])\s*(.*)$/s
+  const match = cleaned.match(re)
+  const parsed = match
+    ? { label: match[1].trim(), descricao: match[2].trim() }
+    : { label: cleaned, descricao: '' }
+  const link = RE_LINK_MARKUP.exec(parsed.label)
+  if (!link) return parsed
+  return {
+    ...parsed,
+    linkHref: link[1],
+    linkRotulo: link[2],
+  }
+}
+
+function figurasAposParagrafoSecao(
+  secao: { figurasAposParagrafo?: DocFiguraAposParagrafo[] },
+  indice: number,
+): DocFiguraAposParagrafo[] {
+  return (secao.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
+}
+
+function blocosGaleriaComparacaoAposParagrafo(
+  secao: { galeriaComparacaoAposParagrafo?: DocSecaoConfigurador['galeriaComparacaoAposParagrafo'] },
+  indice: number,
+): BlocoConteudoAcademy[] {
+  return (secao.galeriaComparacaoAposParagrafo ?? [])
+    .filter((g) => g.indice === indice)
+    .map((galeria) => ({
+      tipo: 'galeria_comparacao' as const,
+      dados: { payload: JSON.stringify(galeria) },
+    }))
+}
+
+function blocoImagemFigura(fig: DocFiguraAposParagrafo): BlocoConteudoAcademy {
+  const dados: Record<string, string | number> = {
+    src: fig.imagem,
+    alt: fig.legenda ?? '',
+    caption: fig.legenda ?? '',
+    largura: 'full',
+  }
+  if (fig.larguraMaxima != null) dados.larguraMaxima = fig.larguraMaxima
+  return { tipo: 'imagem', dados }
 }
 
 function tituloCallout(tipo: string): string {
   const map: Record<string, string> = {
     dica: 'Dica',
-    aviso: 'Atenção',
+    aviso: 'Aviso importante',
     seguranca: 'Segurança',
     exemplo: 'Exemplo',
     destaque: 'Destaque',
@@ -49,162 +104,206 @@ function blocosDeCallout(callout: { tipo: string; texto: string }): BlocoConteud
   }
 }
 
-function blocosDePassoLogin(passo: DocPassoLogin): BlocoConteudoAcademy[] {
-  const blocos: BlocoConteudoAcademy[] = [
-    { tipo: 'heading', dados: { text: `${passo.num}. ${passo.titulo}`, nivel: 2 } },
-  ]
-  for (const paragrafo of passo.paragrafos) {
-    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
-  }
-  if (passo.imagem) {
-    blocos.push({
-      tipo: 'imagem',
-      dados: { src: passo.imagem, alt: passo.titulo, largura: 'full' },
-    })
-  }
-  if (passo.galeriaTelas) {
-    for (const tela of passo.galeriaTelas) {
-      blocos.push({ tipo: 'heading', dados: { text: tela.legenda, nivel: 3 } })
-      blocos.push({
-        tipo: 'imagem',
-        dados: { src: tela.imagem, alt: tela.legenda, largura: 'full' },
-      })
-    }
-  }
-  if (passo.callout) blocos.push(blocosDeCallout(passo.callout))
-  for (const callout of passo.callouts ?? []) blocos.push(blocosDeCallout(callout))
-  return blocos
+function blocosDePassoLogin(passo: DocPassoLogin, indicePasso: number): BlocoConteudoAcademy[] {
+  return [{
+    tipo: 'passo_visual',
+    dados: {
+      payload: JSON.stringify(passo),
+      primeiro: indicePasso === 0 ? 1 : 0,
+    },
+  }]
 }
 
-export function blocosDeSecaoLogin(secao: {
-  num: number
-  titulo: string
-  paragrafos: string[]
-  imagem?: string
-  callout?: { tipo: string; texto: string }
-  passosVisuais?: DocPassoLogin[]
+function blocosListaLegenda(secao: {
+  lista?: string[]
+  listaEmLinha?: boolean
+  listaColunas?: number
 }): BlocoConteudoAcademy[] {
-  const blocos: BlocoConteudoAcademy[] = [
-    { tipo: 'heading', dados: { text: `${secao.num}. ${secao.titulo}`, nivel: 1 } },
-  ]
-  for (const paragrafo of secao.paragrafos) {
-    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
-  }
-  if (secao.imagem) {
-    blocos.push({
-      tipo: 'imagem',
-      dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
-    })
-  }
-  if (secao.callout) blocos.push(blocosDeCallout(secao.callout))
-  for (const passo of secao.passosVisuais ?? []) {
-    blocos.push(...blocosDePassoLogin(passo))
-  }
-  return blocos
+  if (!secao.lista?.length) return []
+  const itens = secao.lista.map((item) => splitLabelDescListaAcademy(item))
+  const colunas = secao.listaColunas ?? (secao.listaEmLinha ? Math.min(secao.lista.length, 4) : 0)
+  return [{
+    tipo: 'lista_legenda',
+    dados: {
+      emLinha: secao.listaEmLinha ? 1 : 0,
+      colunas,
+      itens: JSON.stringify(itens),
+    },
+  }]
 }
 
-function blocosDePassoConfigurador(passo: DocPassoConfigurador, indice: number): BlocoConteudoAcademy[] {
-  const titulo = passo.titulo
-  const num = passo.num ?? indice + 1
+export function blocosDeSecaoLogin(
+  secao: DocSecaoLogin,
+  opcoes?: { nivelTitulo?: number },
+): BlocoConteudoAcademy[] {
+  const nivelTitulo = opcoes?.nivelTitulo ?? 1
   const blocos: BlocoConteudoAcademy[] = [
-    { tipo: 'heading', dados: { text: `${num}. ${titulo}`, nivel: 2 } },
+    { tipo: 'heading', dados: { text: secao.titulo, nivel: nivelTitulo } },
   ]
-  for (const paragrafo of passo.paragrafos ?? []) {
-    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
-  }
-  if (passo.imagem) {
-    blocos.push({
-      tipo: 'imagem',
-      dados: { src: passo.imagem, alt: titulo, largura: 'full' },
-    })
-  }
-  if (passo.galeriaTelas) {
-    for (const tela of passo.galeriaTelas) {
-      blocos.push({ tipo: 'heading', dados: { text: tela.legenda, nivel: 3 } })
-      blocos.push({
-        tipo: 'imagem',
-        dados: { src: tela.imagem, alt: tela.legenda, largura: 'full' },
-      })
-    }
-  }
-  if (passo.callout) blocos.push(blocosDeCallout(passo.callout))
-  for (const callout of passo.callouts ?? []) blocos.push(blocosDeCallout(callout))
-  return blocos
-}
 
-function blocosDeOrigemDados(origem: DocOrigemDados): BlocoConteudoAcademy[] {
-  const blocos: BlocoConteudoAcademy[] = []
-  if (origem.titulo) {
-    blocos.push({ tipo: 'heading', dados: { text: origem.titulo, nivel: 2 } })
-  }
-  for (const paragrafo of origem.paragrafos) {
-    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
-  }
-  for (const etapa of origem.etapas) {
-    blocos.push({ tipo: 'heading', dados: { text: etapa.legenda, nivel: 3 } })
-    for (const paragrafo of etapa.paragrafos) {
+  if (secao.layoutTextoImagemLateral && secao.imagem) {
+    for (const paragrafo of secao.paragrafos) {
       blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
     }
     blocos.push({
       tipo: 'imagem',
-      dados: { src: etapa.imagem, alt: etapa.legenda, largura: 'full' },
+      dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
     })
+    blocos.push(...blocosListaLegenda(secao))
+  } else {
+    for (const paragrafo of secao.paragrafos) {
+      blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
+    }
+    if (secao.imagem) {
+      blocos.push({
+        tipo: 'imagem',
+        dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
+      })
+    }
+    blocos.push(...blocosListaLegenda(secao))
   }
+
+  if (secao.callout) blocos.push(blocosDeCallout(secao.callout))
+  secao.passosVisuais?.forEach((passo, i) => {
+    blocos.push(...blocosDePassoLogin(passo, i))
+  })
   return blocos
+}
+
+function blocosDePassoConfigurador(passo: DocPassoConfigurador, indice: number): BlocoConteudoAcademy[] {
+  return [{
+    tipo: 'passo_visual',
+    dados: {
+      payload: JSON.stringify(passo),
+      primeiro: indice === 0 ? 1 : 0,
+    },
+  }]
+}
+
+function tituloFluxoAcademy(fluxo: DocFluxo): string {
+  if (fluxo.tituloSumario) return fluxo.tituloSumario
+  return fluxo.titulo.replace(/^Fluxo\s+\d+:\s*/i, '').trim()
+}
+
+function blocoOrigemDados(manualCapitulo: ConfiguradorManualSlug): BlocoConteudoAcademy {
+  return { tipo: 'origem_dados', dados: { manualCapitulo } }
 }
 
 function blocoInfografico(id: IdInfograficoAcademy): BlocoConteudoAcademy {
   return { tipo: 'infografico', dados: { id } }
 }
 
-const INFOGRAFICOS_SECAO: Array<{ flag: keyof DocSecaoConfigurador; id: IdInfograficoAcademy }> = [
+const INFOGRAFICOS_SECAO: Array<{
+  flag: keyof DocSecaoConfigurador
+  id: IdInfograficoAcademy
+  /** Não repetir no fim quando já embutido após parágrafo (`infograficoApiCockpitIntegracaoAposParagrafo`). */
+  skipSeAposParagrafo?: boolean
+}> = [
   { flag: 'mostrarInfograficoOrganizacao', id: 'organizacao-conta' },
   { flag: 'mostrarInfograficoOrganizacaoWorkspaces', id: 'organizacao-workspaces' },
   { flag: 'mostrarInfograficoFornecedoresComex', id: 'fornecedores-comex' },
+  { flag: 'mostrarInfograficoApiCockpitIntegracao', id: 'api-cockpit-integracao', skipSeAposParagrafo: true },
+  { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
+  { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
+  { flag: 'mostrarInfograficoSmartDocsDocumentos', id: 'smart-docs-documentos' },
+  { flag: 'mostrarInfograficoAdminTelas', id: 'admin-telas' },
 ]
 
-const INFOGRAFICOS_FLUXO: Array<{ flag: keyof DocFluxo; id: IdInfograficoAcademy }> = [
+const INFOGRAFICOS_FLUXO: Array<{
+  flag: keyof DocFluxo
+  id: IdInfograficoAcademy
+  aposPassos?: boolean
+}> = [
   { flag: 'mostrarInfograficoTiposUsuario', id: 'tipos-usuario' },
   { flag: 'mostrarInfograficoPapeisFornecedor', id: 'papeis-fornecedor' },
   { flag: 'mostrarInfograficoPermissoesUsuario', id: 'permissoes-usuario' },
+  { flag: 'mostrarInfograficoApiCockpitWebhookVsApi', id: 'api-cockpit-webhook-vs-api' },
+  { flag: 'mostrarInfograficoApiCockpitConsumo', id: 'api-cockpit-consumo' },
+  { flag: 'mostrarInfograficoIconesMenuSuperior', id: 'icones-menu-superior', aposPassos: true },
 ]
 
 function blocosInfograficosSecao(
   secao: DocSecaoConfigurador,
   idsExplicitos?: IdInfograficoAcademy[],
 ): BlocoConteudoAcademy[] {
-  if (idsExplicitos?.length) return idsExplicitos.map(blocoInfografico)
+  if (idsExplicitos !== undefined) return idsExplicitos.map(blocoInfografico)
   const blocos: BlocoConteudoAcademy[] = []
-  for (const { flag, id } of INFOGRAFICOS_SECAO) {
-    if (secao[flag]) blocos.push(blocoInfografico(id))
+  for (const { flag, id, skipSeAposParagrafo } of INFOGRAFICOS_SECAO) {
+    if (!secao[flag]) continue
+    if (
+      skipSeAposParagrafo
+      && secao.infograficoApiCockpitIntegracaoAposParagrafo != null
+    ) continue
+    blocos.push(blocoInfografico(id))
   }
   return blocos
 }
 
-function blocosInfograficosFluxo(fluxo: DocFluxo): BlocoConteudoAcademy[] {
+function blocosInfograficosFluxo(fluxo: DocFluxo, momento: 'antes_passos' | 'apos_passos'): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
-  for (const { flag, id } of INFOGRAFICOS_FLUXO) {
-    if (fluxo[flag] && !(flag === 'mostrarInfograficoPermissoesUsuario' && fluxo.infograficoPermissoesUsuarioAposPasso != null)) {
-      blocos.push(blocoInfografico(id))
+  for (const { flag, id, aposPassos: suportaAposPassos } of INFOGRAFICOS_FLUXO) {
+    if (!fluxo[flag]) continue
+    if (flag === 'mostrarInfograficoPermissoesUsuario' && fluxo.infograficoPermissoesUsuarioAposPasso != null) continue
+    const depoisDosPassos = Boolean(suportaAposPassos && fluxo.infograficoIconesMenuSuperiorAposPassos)
+    if (momento === 'antes_passos' && depoisDosPassos) continue
+    if (momento === 'apos_passos' && !depoisDosPassos) continue
+    blocos.push(blocoInfografico(id))
+  }
+  return blocos
+}
+
+function blocosDeFluxo(
+  fluxo: DocFluxo,
+  maxPassos?: number,
+  opcoes?: { omitirTitulo?: boolean },
+): BlocoConteudoAcademy[] {
+  const blocos: BlocoConteudoAcademy[] = []
+  if (!opcoes?.omitirTitulo) {
+    blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+  }
+  for (let i = 0; i < (fluxo.paragrafos ?? []).length; i++) {
+    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(fluxo.paragrafos![i]) } })
+    for (const fig of figurasAposParagrafoSecao(fluxo, i)) {
+      blocos.push(blocoImagemFigura(fig))
+    }
+    if (fluxo.calloutAposParagrafo?.indice === i) {
+      blocos.push(blocosDeCallout(fluxo.calloutAposParagrafo.callout))
     }
   }
-  return blocos
-}
-
-function blocosDeFluxo(fluxo: DocFluxo, maxPassos?: number): BlocoConteudoAcademy[] {
-  const blocos: BlocoConteudoAcademy[] = [
-    { tipo: 'heading', dados: { text: fluxo.titulo, nivel: 2 } },
-  ]
-  for (const paragrafo of fluxo.paragrafos ?? []) {
-    blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
-  }
   if (fluxo.callout && !fluxo.calloutAposPassos) blocos.push(blocosDeCallout(fluxo.callout))
-  blocos.push(...blocosInfograficosFluxo(fluxo))
-  const passos = maxPassos != null ? fluxo.passosVisuais.slice(0, maxPassos) : fluxo.passosVisuais
-  for (let i = 0; i < passos.length; i++) {
-    blocos.push(...blocosDePassoConfigurador(passos[i], i))
+  blocos.push(...blocosInfograficosFluxo(fluxo, 'antes_passos'))
+  const passosBrutos = fluxo.passosVisuais ?? []
+  const passos = maxPassos != null ? passosBrutos.slice(0, maxPassos) : passosBrutos
+  if (fluxo.modoCenarios && fluxo.cenariosLadoALado && passos.length > 0) {
+    blocos.push({
+      tipo: 'cenarios_grade',
+      dados: {
+        payload: JSON.stringify({
+          passos,
+          cenariosLadoALado: true,
+          cenariosImagensAlinhadas: fluxo.cenariosImagensAlinhadas ?? false,
+        }),
+      },
+    })
+  } else {
+    for (let i = 0; i < passos.length; i++) {
+      const passo = fluxo.modoCenarios
+        ? { ...passos[i], ocultarRotuloPasso: true }
+        : passos[i]
+      blocos.push(...blocosDePassoConfigurador(passo, i))
+    }
+  }
+  if (fluxo.mostrarCatalogoHistoricoCompleto) {
+    blocos.push({ tipo: 'catalogo_historico', dados: {} })
+  }
+  if (
+    fluxo.mostrarInfograficoHubGabiInsightsExplicacoes
+    && fluxo.infograficoHubGabiInsightsExplicacoesAposPassos
+  ) {
+    blocos.push(blocoInfografico('hub-gabi-insights-explicacoes'))
   }
   if (fluxo.callout && fluxo.calloutAposPassos) blocos.push(blocosDeCallout(fluxo.callout))
+  blocos.push(...blocosInfograficosFluxo(fluxo, 'apos_passos'))
   return blocos
 }
 
@@ -212,10 +311,26 @@ export interface CuradoriaSecaoAcademy {
   fluxoIndices?: number[]
   maxPassosPorFluxo?: number
   incluirOrigemDados?: boolean
+  manualCapitulo?: ConfiguradorManualSlug
   /** Intro da seção (título + parágrafos + imagem). Default true. */
   incluirIntroSecao?: boolean
+  /** Screenshot da seção no topo da intro. Default true. */
+  incluirImagemSecao?: boolean
   /** Infográficos da seção quando a intro está omitida (ex.: aula 2 do capítulo). */
   infograficosSecao?: IdInfograficoAcademy[]
+  /** Renderiza cada fluxo com `ManualSecaoFluxo` (infográficos, acordeões, galerias do manual). */
+  fluxoComoManualCompleto?: boolean
+}
+
+function blocoImagemSecao(
+  secao: DocSecaoConfigurador,
+  curadoria: CuradoriaSecaoAcademy,
+): BlocoConteudoAcademy | null {
+  if (curadoria.incluirImagemSecao === false || !secao.imagem) return null
+  return {
+    tipo: 'imagem',
+    dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
+  }
 }
 
 export function blocosDeSecaoConfiguradorAcademy(
@@ -227,30 +342,66 @@ export function blocosDeSecaoConfiguradorAcademy(
 
   if (incluirIntro) {
     blocos.push({ tipo: 'heading', dados: { text: secao.titulo, nivel: 1 } })
-    for (const paragrafo of secao.paragrafos) {
-      blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(paragrafo) } })
+    if (secao.tituloTopico?.trim()) {
+      blocos.push({ tipo: 'heading', dados: { text: secao.tituloTopico.trim(), nivel: 2 } })
     }
-    blocos.push(...blocosInfograficosSecao(secao))
-    if (secao.imagem) {
+    if (secao.layoutTextoImagemLateral) {
+      const imagemAposTitulo = blocoImagemSecao(secao, curadoria)
+      if (imagemAposTitulo) blocos.push(imagemAposTitulo)
+    }
+    for (let i = 0; i < secao.paragrafos.length; i++) {
+      blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(secao.paragrafos[i]) } })
+      blocos.push(...blocosGaleriaComparacaoAposParagrafo(secao, i))
+      for (const fig of figurasAposParagrafoSecao(secao, i)) {
+        blocos.push(blocoImagemFigura(fig))
+      }
+      if (
+        secao.mostrarInfograficoApiCockpitIntegracao
+        && secao.infograficoApiCockpitIntegracaoAposParagrafo === i
+      ) {
+        blocos.push(blocoInfografico('api-cockpit-integracao'))
+      }
+    }
+    if (secao.topicosImagemLateral?.length) {
       blocos.push({
-        tipo: 'imagem',
-        dados: { src: secao.imagem, alt: secao.titulo, caption: secao.titulo, largura: 'full' },
+        tipo: 'topicos_imagem_lateral',
+        dados: { payload: JSON.stringify(secao.topicosImagemLateral) },
       })
     }
+    blocos.push(...blocosInfograficosSecao(secao))
+    if (curadoria.incluirOrigemDados && secao.origemDados && curadoria.manualCapitulo) {
+      blocos.push(blocoOrigemDados(curadoria.manualCapitulo))
+    }
+    blocos.push(...blocosListaLegenda(secao))
     if (secao.calloutAposParagrafo) blocos.push(blocosDeCallout(secao.calloutAposParagrafo.callout))
     if (secao.callout) blocos.push(blocosDeCallout(secao.callout))
-  } else {
+    if (!secao.layoutTextoImagemLateral) {
+      const imagemFinal = blocoImagemSecao(secao, curadoria)
+      if (imagemFinal) blocos.push(imagemFinal)
+    }
+  } else if (curadoria.infograficosSecao !== undefined) {
     blocos.push(...blocosInfograficosSecao(secao, curadoria.infograficosSecao))
   }
 
-  if (curadoria.incluirOrigemDados && secao.origemDados) {
-    blocos.push(...blocosDeOrigemDados(secao.origemDados))
-  }
   const fluxos = secao.fluxos ?? []
   const indices = curadoria.fluxoIndices ?? fluxos.map((_, i) => i)
+  const tituloTopicoNorm = secao.tituloTopico?.trim().toLocaleLowerCase('pt-BR') ?? ''
   for (const idx of indices) {
     const fluxo = fluxos[idx]
-    if (fluxo) blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo))
+    if (!fluxo) continue
+    const tituloFluxoNorm = tituloFluxoAcademy(fluxo).trim().toLocaleLowerCase('pt-BR')
+    const omitirTitulo = Boolean(tituloTopicoNorm && tituloFluxoNorm === tituloTopicoNorm)
+    if (curadoria.fluxoComoManualCompleto) {
+      if (!omitirTitulo) {
+        blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+      }
+      blocos.push({
+        tipo: 'fluxo_manual',
+        dados: { payload: JSON.stringify(fluxo), numeroSecaoFluxo: idx + 2 },
+      })
+      continue
+    }
+    blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, { omitirTitulo }))
   }
   return blocos
 }

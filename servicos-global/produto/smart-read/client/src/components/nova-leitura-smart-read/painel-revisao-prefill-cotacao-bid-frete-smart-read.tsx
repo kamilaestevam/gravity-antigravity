@@ -84,7 +84,7 @@ function mensagemAviso(meta: MetaPrefillCotacaoBidFreteSmartRead): string | null
 
   }
 
-  return `Campos obrigatórios ausentes (${meta.campos_faltantes.join(', ')}). O wizard abrirá no passo "${meta.passo_inicial_tipo}" para você completar antes de fornecedores.`
+  return `Campos obrigatórios ausentes (${meta.campos_faltantes.join(', ')}). A cotação abrirá no passo Resumo para você revisar e completar o que faltar.`
 
 }
 

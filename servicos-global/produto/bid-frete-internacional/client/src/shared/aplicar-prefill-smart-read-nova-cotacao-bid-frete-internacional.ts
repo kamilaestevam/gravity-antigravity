@@ -1,7 +1,10 @@
 /**
  * Hidrata o formulário Nova Cotação com prefill vindo do Smart Docs (sessionStorage).
  */
-import type { PacotePrefillCotacaoBidFreteSmartRead } from '../../../../smart-read/shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
+import type {
+  PacotePrefillCotacaoBidFreteSmartRead,
+  PrefillFormularioCotacaoBidFreteSmartRead,
+} from '../../../../smart-read/shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
 import { linhaContainerCotacaoVazia } from './containers-cotacao-bid-frete-internacional'
 
 export type FormularioNovaCotacaoBidFreteBase = {
@@ -37,6 +40,69 @@ export type FormularioNovaCotacaoBidFreteBase = {
   cubagem_m3_cotacao_bid_frete_internacional: string
   incoterm_cotacao_bid_frete_internacional: string
   opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
+}
+
+export function extrairPrefillFormularioNovaCotacaoBidFreteSmartRead(
+  form: FormularioNovaCotacaoBidFreteBase,
+): PrefillFormularioCotacaoBidFreteSmartRead {
+  const modal = form.modal_cotacao_bid_frete_internacional
+  const modalidade = form.modalidade_cotacao_bid_frete_internacional
+  const exigeFcl = modal === 'MARITIMO' && modalidade === 'FCL'
+  const tipoContainer = exigeFcl
+    ? form.linhas_container_fcl_cotacao[0]?.tipo_container?.trim()
+      || form.tipo_container_cotacao_bid_frete_internacional
+    : form.tipo_container_cotacao_bid_frete_internacional
+
+  return {
+    tipo_operacao_cotacao_bid_frete_internacional:
+      form.tipo_operacao_cotacao_bid_frete_internacional
+        ? form.tipo_operacao_cotacao_bid_frete_internacional as PrefillFormularioCotacaoBidFreteSmartRead['tipo_operacao_cotacao_bid_frete_internacional']
+        : undefined,
+    modal_cotacao_bid_frete_internacional:
+      modal ? modal as PrefillFormularioCotacaoBidFreteSmartRead['modal_cotacao_bid_frete_internacional'] : undefined,
+    modalidade_cotacao_bid_frete_internacional:
+      modalidade ? modalidade as PrefillFormularioCotacaoBidFreteSmartRead['modalidade_cotacao_bid_frete_internacional'] : undefined,
+    porto_origem_cotacao_bid_frete_internacional: form.porto_origem_cotacao_bid_frete_internacional || undefined,
+    porto_destino_cotacao_bid_frete_internacional: form.porto_destino_cotacao_bid_frete_internacional || undefined,
+    aeroporto_origem_cotacao_bid_frete_internacional: form.aeroporto_origem_cotacao_bid_frete_internacional || undefined,
+    aeroporto_destino_cotacao_bid_frete_internacional: form.aeroporto_destino_cotacao_bid_frete_internacional || undefined,
+    origem_pais_cotacao_bid_frete_internacional: form.origem_pais_cotacao_bid_frete_internacional || undefined,
+    destino_pais_cotacao_bid_frete_internacional: form.destino_pais_cotacao_bid_frete_internacional || undefined,
+    exibir_campos_extras_origem_cotacao: form.exibir_campos_extras_origem_cotacao,
+    exibir_campos_extras_destino_cotacao: form.exibir_campos_extras_destino_cotacao,
+    estado_provincia_origem_cotacao_bid_frete_internacional:
+      form.estado_provincia_origem_cotacao_bid_frete_internacional || undefined,
+    estado_provincia_destino_cotacao_bid_frete_internacional:
+      form.estado_provincia_destino_cotacao_bid_frete_internacional || undefined,
+    endereco_origem_cotacao_bid_frete_internacional: form.endereco_origem_cotacao_bid_frete_internacional || undefined,
+    endereco_destino_cotacao_bid_frete_internacional: form.endereco_destino_cotacao_bid_frete_internacional || undefined,
+    pais_origem_rodoviario_cotacao_bid_frete_internacional:
+      form.pais_origem_rodoviario_cotacao_bid_frete_internacional || undefined,
+    pais_destino_rodoviario_cotacao_bid_frete_internacional:
+      form.pais_destino_rodoviario_cotacao_bid_frete_internacional || undefined,
+    estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional:
+      form.estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional || undefined,
+    estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional:
+      form.estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional || undefined,
+    cidade_origem_rodoviario_cotacao_bid_frete_internacional:
+      form.cidade_origem_rodoviario_cotacao_bid_frete_internacional || undefined,
+    cidade_destino_rodoviario_cotacao_bid_frete_internacional:
+      form.cidade_destino_rodoviario_cotacao_bid_frete_internacional || undefined,
+    eh_carga_perigosa_cotacao_bid_frete_internacional: form.eh_carga_perigosa_cotacao_bid_frete_internacional,
+    descricao_mercadoria_cotacao_bid_frete_internacional:
+      form.descricao_mercadoria_cotacao_bid_frete_internacional || undefined,
+    ncm_cotacao_bid_frete_internacional: form.ncm_cotacao_bid_frete_internacional || undefined,
+    hs_code_cotacao_bid_frete_internacional: form.hs_code_cotacao_bid_frete_internacional || undefined,
+    quantidade_volume_cotacao_bid_frete_internacional:
+      form.quantidade_volume_cotacao_bid_frete_internacional > 0
+        ? form.quantidade_volume_cotacao_bid_frete_internacional
+        : undefined,
+    tipo_container_cotacao_bid_frete_internacional: tipoContainer || undefined,
+    peso_kg_cotacao_bid_frete_internacional: form.peso_kg_cotacao_bid_frete_internacional || undefined,
+    cubagem_m3_cotacao_bid_frete_internacional: form.cubagem_m3_cotacao_bid_frete_internacional || undefined,
+    incoterm_cotacao_bid_frete_internacional: form.incoterm_cotacao_bid_frete_internacional || undefined,
+    opcao_incluir_armazenagem_cotacao: form.opcao_incluir_armazenagem_cotacao,
+  }
 }
 
 export function aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete<T extends FormularioNovaCotacaoBidFreteBase>(

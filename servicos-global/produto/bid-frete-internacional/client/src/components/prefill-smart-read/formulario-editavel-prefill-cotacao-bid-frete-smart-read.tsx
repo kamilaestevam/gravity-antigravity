@@ -129,11 +129,13 @@ function LinhaCampo({
   campo,
   rotulo,
   status,
+  obrigatorio = false,
   children,
 }: {
   campo: string
   rotulo: string
   status: StatusLinha
+  obrigatorio?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -141,6 +143,15 @@ function LinhaCampo({
       <span className="sr-prefill-bid-revisao-campo sr-prefill-bid-campo-editavel" role="cell">
         <PencilSimple weight="duotone" size={13} className="dt-row-edit-icon" aria-hidden />
         {rotulo}
+        {obrigatorio && (
+          <span
+            className="sr-prefill-bid-obrigatorio"
+            title="Obrigatório para criar a cotação"
+            aria-label="obrigatório"
+          >
+            *
+          </span>
+        )}
       </span>
       <div className="sr-prefill-bid-revisao-valor sr-prefill-bid-valor-controle" role="cell">
         {children}
@@ -302,7 +313,10 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
     <div className="nc-root sr-prefill-bid-formulario">
       <div className="sr-prefill-bid-revisao-tabela" role="table" aria-label="Campos editáveis da cotação">
         <div className="sr-prefill-bid-revisao-linha sr-prefill-bid-revisao-linha--cabecalho" role="row">
-          <span role="columnheader">Campo da cotação</span>
+          <span role="columnheader">
+            Campo da cotação
+            <span className="sr-prefill-bid-legenda-obrigatorio"> (* obrigatório)</span>
+          </span>
           <span role="columnheader">Valor</span>
           <span role="columnheader">Origem</span>
         </div>
@@ -325,6 +339,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           campo="tipo_operacao_cotacao_bid_frete_internacional"
           rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.tipo_operacao_cotacao_bid_frete_internacional}
           status={statusPorCampo.get('tipo_operacao_cotacao_bid_frete_internacional') ?? 'pendente'}
+          obrigatorio
         >
           <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
             {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map((op) => (
@@ -339,7 +354,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           </div>
         </LinhaCampo>
 
-        <LinhaCampo campo="modal" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modal_cotacao_bid_frete_internacional} status={statusPorCampo.get('modal_cotacao_bid_frete_internacional') ?? 'pendente'}>
+        <LinhaCampo campo="modal" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modal_cotacao_bid_frete_internacional} status={statusPorCampo.get('modal_cotacao_bid_frete_internacional') ?? 'pendente'} obrigatorio>
           <div className="nc-options-grid-3 sr-prefill-bid-opcoes-inline">
             <OptionButton selected={modal === 'MARITIMO'} onClick={() => aoMudarModal('MARITIMO')} icon={<Anchor weight="duotone" size={18} />} label={traduzirModalNovaCotacao(t, 'MARITIMO')} />
             <OptionButton selected={modal === 'AEREO'} onClick={() => aoMudarModal('AEREO')} icon={<AirplaneTilt weight="duotone" size={18} />} label={traduzirModalNovaCotacao(t, 'AEREO')} />
@@ -348,7 +363,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
         </LinhaCampo>
 
         {modal !== 'AEREO' && modal && (
-          <LinhaCampo campo="modalidade" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modalidade_cotacao_bid_frete_internacional} status={statusPorCampo.get('modalidade_cotacao_bid_frete_internacional') ?? 'pendente'}>
+          <LinhaCampo campo="modalidade" rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.modalidade_cotacao_bid_frete_internacional} status={statusPorCampo.get('modalidade_cotacao_bid_frete_internacional') ?? 'pendente'} obrigatorio>
             <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
               {modal === 'MARITIMO' && (
                 <>
@@ -393,6 +408,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="porto_origem_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.porto_origem_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('porto_origem_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<Anchor size={16} />}
@@ -414,6 +430,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="porto_destino_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.porto_destino_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('porto_destino_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<Anchor size={16} />}
@@ -440,6 +457,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="aeroporto_origem_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.aeroporto_origem_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('aeroporto_origem_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<AirplaneTilt size={16} />}
@@ -461,6 +479,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="aeroporto_destino_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.aeroporto_destino_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('aeroporto_destino_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<AirplaneTilt size={16} />}
@@ -487,6 +506,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="pais_origem_rodoviario_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.pais_origem_rodoviario_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('pais_origem_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
@@ -535,6 +555,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="cidade_origem_rodoviario_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.cidade_origem_rodoviario_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('cidade_origem_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               {prefill.pais_origem_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
                 <SelectGlobal
@@ -561,6 +582,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="pais_destino_rodoviario_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.pais_destino_rodoviario_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('pais_destino_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
@@ -609,6 +631,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="cidade_destino_rodoviario_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.cidade_destino_rodoviario_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('cidade_destino_rodoviario_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               {prefill.pais_destino_rodoviario_cotacao_bid_frete_internacional === 'BR' ? (
                 <SelectGlobal
@@ -652,6 +675,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           campo="descricao_mercadoria_cotacao_bid_frete_internacional"
           rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.descricao_mercadoria_cotacao_bid_frete_internacional}
           status={statusPorCampo.get('descricao_mercadoria_cotacao_bid_frete_internacional') ?? 'pendente'}
+          obrigatorio
         >
           <textarea
             className="nc-input sr-prefill-bid-textarea"
@@ -682,6 +706,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="tipo_container_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.tipo_container_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('tipo_container_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <SelectGlobal
                 iconeEsquerda={<Hash size={16} />}
@@ -698,6 +723,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="quantidade_volume_cotacao_bid_frete_internacional"
               rotulo="Quantidade de containers"
               status={statusPorCampo.get('quantidade_volume_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <input
                 className="nc-input"
@@ -738,6 +764,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
               campo="quantidade_volume_cotacao_bid_frete_internacional"
               rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.quantidade_volume_cotacao_bid_frete_internacional}
               status={statusPorCampo.get('quantidade_volume_cotacao_bid_frete_internacional') ?? 'pendente'}
+              obrigatorio
             >
               <input
                 className="nc-input"
@@ -788,6 +815,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           campo="incoterm_cotacao_bid_frete_internacional"
           rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.incoterm_cotacao_bid_frete_internacional}
           status={statusPorCampo.get('incoterm_cotacao_bid_frete_internacional') ?? 'pendente'}
+          obrigatorio
         >
           <div className="sr-prefill-bid-incoterm-grid">
             {INCOTERM_TODOS_NOVA_COTACAO.map((inc) => (
@@ -924,6 +952,7 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
             campo="opcao_incluir_armazenagem_cotacao"
             rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.opcao_incluir_armazenagem_cotacao}
             status={statusPorCampo.get('opcao_incluir_armazenagem_cotacao') ?? 'pendente'}
+            obrigatorio
           >
             <div className="nc-options-grid-2 sr-prefill-bid-opcoes-inline">
               <OptionButton

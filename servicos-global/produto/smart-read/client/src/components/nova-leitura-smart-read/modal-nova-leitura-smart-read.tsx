@@ -49,6 +49,10 @@ import {
   persistirProgressoLeituraUrgenteSmartRead,
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
+import {
+  definirPendenteFlushProgressoLeituraSmartRead,
+  executarFlushProgressoLeituraSmartReadPendente,
+} from '../../shared/registro-flush-progresso-leitura-smart-read'
 import { montarEstadoProgressoLeituraSmartRead } from '../../shared/montar-estado-progresso-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
@@ -370,10 +374,10 @@ export function ModalNovaLeituraSmartRead({
       setConferenciaSelecao(null)
       setCompararAberto(false)
       setCamposEditados(new Set())
-      setPassoConferenciaMontado(passoPlaceholderRetomar >= 3)
+      setPassoConferenciaMontado(false)
       setArquivos([])
       passoSalvoRef.current = passoPlaceholderRetomar >= 2 ? passoPlaceholderRetomar : 0
-      setPasso(passoPlaceholderRetomar)
+      setPasso(passoPlaceholderRetomar >= 3 ? 2 : passoPlaceholderRetomar)
       riscosIniciadosRef.current.delete(id)
       void hidratarLeituraExistente(id)
     },
@@ -405,7 +409,13 @@ export function ModalNovaLeituraSmartRead({
       }
     }
     if (!aberto && abertoAnteriorRef.current) {
-      void salvarProgressoRef.current(passoSalvoRef.current >= 2 ? passoSalvoRef.current : passo)
+      const pendente = estadoFlushRef.current
+      if (pendente) {
+        persistirProgressoLeituraUrgenteSmartRead(pendente.idLeitura, pendente.estado)
+        void persistirProgressoLeituraSmartRead(pendente.idLeitura, pendente.estado)
+      } else {
+        void salvarProgressoRef.current(passoSalvoRef.current >= 2 ? passoSalvoRef.current : passo)
+      }
     }
     if (!aberto) {
       setChaveSessaoTokens(null)
@@ -490,8 +500,15 @@ export function ModalNovaLeituraSmartRead({
   ])
 
   useEffect(() => {
-    if (passo >= 3) setPassoConferenciaMontado(true)
-  }, [passo])
+    const leituraConsolidada = consolidarLeituraDeArquivosLocais(arquivos)
+    if (
+      passo >= 3 &&
+      !hidratandoRetomar &&
+      leituraTemExtracaoUtilRetomarSmartRead(leituraConsolidada)
+    ) {
+      setPassoConferenciaMontado(true)
+    }
+  }, [passo, hidratandoRetomar, arquivos])
 
   useEffect(() => {
     if (passo === 4) {
@@ -585,6 +602,7 @@ export function ModalNovaLeituraSmartRead({
         return false
       }
       estadoFlushRef.current = { idLeitura, estado }
+      definirPendenteFlushProgressoLeituraSmartRead({ idLeitura, estado })
       passoSalvoRef.current = passoAlvo
       if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo: passoAlvo, nome: nomeEfetivo })
       return true
@@ -604,27 +622,14 @@ export function ModalNovaLeituraSmartRead({
     estadoFlushRef.current = estado
       ? { idLeitura: estado.leitura.id_leitura, estado }
       : null
+    definirPendenteFlushProgressoLeituraSmartRead(estadoFlushRef.current)
   }, [arquivos, passo, nomeLeitura, idLeituraExistente])
 
   useEffect(() => {
-    if (!aberto) return
-    const flush = () => {
-      const pendente = estadoFlushRef.current
-      if (!pendente) return
-      persistirProgressoLeituraUrgenteSmartRead(pendente.idLeitura, pendente.estado)
-      void persistirProgressoLeituraSmartRead(pendente.idLeitura, pendente.estado)
-    }
-    const onVisibilidade = () => {
-      if (document.visibilityState === 'hidden') flush()
-    }
-    window.addEventListener('pagehide', flush)
-    document.addEventListener('visibilitychange', onVisibilidade)
     return () => {
-      flush()
-      window.removeEventListener('pagehide', flush)
-      document.removeEventListener('visibilitychange', onVisibilidade)
+      executarFlushProgressoLeituraSmartReadPendente()
     }
-  }, [aberto])
+  }, [])
 
   // Salva quando a análise termina (passo 2) ou ao mudar de passo com documento lido.
   useEffect(() => {

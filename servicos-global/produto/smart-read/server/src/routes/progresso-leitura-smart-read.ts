@@ -97,6 +97,17 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
     const dadosAnteriores = existente
       ? extrairDadosSessaoProgressoLeitura(existente.dados_sessao_progresso_leitura_smart_read)
       : null
+    const leituraCorpoSemExtracao =
+      corpo.passo >= 3 &&
+      corpo.leitura.arquivos.length === 0 &&
+      (!dadosAnteriores || dadosAnteriores.leitura.arquivos.length === 0)
+    if (leituraCorpoSemExtracao) {
+      throw new AppError(
+        'Nao e possivel avancar conferencia sem extracao persistida',
+        400,
+        'PROGRESSO_SEM_EXTRACAO',
+      )
+    }
     const leituraCorpo = dadosAnteriores?.leitura
       ? mesclarLeiturasRetomarSmartRead(corpo.leitura, dadosAnteriores.leitura)
       : corpo.leitura

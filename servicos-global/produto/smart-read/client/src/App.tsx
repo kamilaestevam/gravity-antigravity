@@ -17,6 +17,7 @@ import {
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { LogoSmartDocs, NOME_PRODUTO_EXIBICAO } from './shared/marca-smart-docs'
 import { setApiContext, injectTokenGetter } from './shared/api'
+import { executarFlushProgressoLeituraSmartReadPendente } from './shared/registro-flush-progresso-leitura-smart-read'
 import { rotaSmartRead } from './shared/rotas-smart-read'
 import { SmartReadVisualizacaoLayout } from './components/SmartReadVisualizacaoLayout'
 import { SmartReadMultiView } from './components/SmartReadMultiView'
@@ -136,6 +137,12 @@ export default function App() {
   useEffect(() => {
     injectTokenGetter(() => getToken())
   }, [getToken])
+
+  useEffect(() => {
+    return () => {
+      executarFlushProgressoLeituraSmartReadPendente()
+    }
+  }, [])
 
   useEffect(() => {
     setApiContext({

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-07-06T01:16:14.750Z
+// Gerado em: 2026-07-14T20:52:57.328Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, notificacoes, api-cockpit
 // Serviços ausentes (fragment não encontrado): processos-core, ncm-sync
 // ============================================================================
@@ -1705,6 +1705,17 @@ enum ProtocoloApiIntegracaoErp {
   JDBC
 }
 
+enum AmbienteIntegracaoApi {
+  SANDBOX
+  PRODUCAO
+}
+
+enum StatusWebhookEventoEnfileirado {
+  PENDENTE
+  ENTREGUE
+  FALHA_PERMANENTE
+}
+
 // ---------------------------------------------------------------------------
 // ApiToken — tokens de API emitidos a usuários da organização
 // ---------------------------------------------------------------------------
@@ -1870,4 +1881,81 @@ model ApiIntegracaoErp {
   @@index([id_organizacao, id_produto_gravity], map: "aierp_org_prd_idx")
   @@index([id_organizacao, id_usuario],         map: "aierp_org_usr_idx")
   @@map("api_integracao_erp")
+}
+
+// ---------------------------------------------------------------------------
+// CredencialOAuthApi — client_id/secret para grant client_credentials (integradores)
+// ---------------------------------------------------------------------------
+
+model CredencialOAuthApi {
+  id_credencial_oauth_api String @id @default(cuid())
+
+  id_organizacao String
+  id_usuario     String?
+
+  client_id_credencial_oauth_api          String @unique
+  hash_client_secret_credencial_oauth_api String
+
+  ambiente_credencial_oauth_api AmbienteIntegracaoApi @default(SANDBOX)
+  escopo_credencial_oauth_api   EscopoApiToken        @default(LEITURA)
+
+  revogado_credencial_oauth_api       Boolean   @default(false)
+  data_revogacao_credencial_oauth_api DateTime?
+
+  data_criacao_credencial_oauth_api     DateTime @default(now())
+  data_atualizacao_credencial_oauth_api DateTime @updatedAt
+
+  @@index([id_organizacao], map: "coa_org_idx")
+  @@index([id_organizacao, id_usuario], map: "coa_org_usr_idx")
+  @@map("credencial_oauth_api")
+}
+
+// ---------------------------------------------------------------------------
+// RegistroIdempotenciaApi — Idempotency-Key / x-chave-idempotencia por organizacao
+// ---------------------------------------------------------------------------
+
+model RegistroIdempotenciaApi {
+  id_registro_idempotencia_api String @id @default(cuid())
+
+  id_organizacao String
+
+  chave_idempotencia_api          String
+  hash_corpo_requisicao_api       String
+  codigo_resposta_http_idempotencia_api Int
+  corpo_resposta_idempotencia_api Json
+
+  data_expiracao_idempotencia_api DateTime
+  data_criacao_idempotencia_api     DateTime @default(now())
+
+  @@unique([id_organizacao, chave_idempotencia_api], map: "ridem_org_chave_uq")
+  @@index([id_organizacao], map: "ridem_org_idx")
+  @@index([data_expiracao_idempotencia_api], map: "ridem_exp_idx")
+  @@map("registro_idempotencia_api")
+}
+
+// ---------------------------------------------------------------------------
+// WebhookEventoEnfileirado — fila de eventos para entrega com retry
+// ---------------------------------------------------------------------------
+
+model WebhookEventoEnfileirado {
+  id_webhook_evento_enfileirado String @id @default(cuid())
+
+  id_organizacao     String
+  id_produto_gravity String?
+
+  id_evento_webhook_enfileirado String @unique
+  tipo_evento_webhook_enfileirado String
+  payload_evento_webhook_enfileirado Json
+
+  status_webhook_evento_enfileirado StatusWebhookEventoEnfileirado @default(PENDENTE)
+  quantidade_tentativas_webhook_evento_enfileirado Int @default(0)
+  proxima_tentativa_webhook_evento_enfileirado DateTime @default(now())
+  ultimo_erro_webhook_evento_enfileirado String?
+
+  data_criacao_webhook_evento_enfileirado     DateTime @default(now())
+  data_atualizacao_webhook_evento_enfileirado DateTime @updatedAt
+
+  @@index([id_organizacao], map: "whee_org_idx")
+  @@index([status_webhook_evento_enfileirado, proxima_tentativa_webhook_evento_enfileirado], map: "whee_status_prox_idx")
+  @@map("webhook_evento_enfileirado")
 }

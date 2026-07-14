@@ -50,6 +50,8 @@ import {
 } from '../../shared/persistencia-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
+import { mesclarLeiturasRetomarSmartRead } from '../../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
+import { leituraSemExtracaoUtilRetomarSmartRead } from '../../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 
 import {
   carregarBlobArquivoLeituraSmartRead,
@@ -305,6 +307,14 @@ export function ModalNovaLeituraSmartRead({
       let leitura: Leitura | null = null
       try {
         leitura = await smartReadApi.obterLeitura(id)
+        if (
+          leitura &&
+          salvo?.leitura &&
+          leituraSemExtracaoUtilRetomarSmartRead(leitura) &&
+          !leituraSemExtracaoUtilRetomarSmartRead(salvo.leitura)
+        ) {
+          leitura = mesclarLeiturasRetomarSmartRead(leitura, salvo.leitura)
+        }
       } catch (erro) {
         leitura = salvo?.leitura ?? null
         if (!leitura) {

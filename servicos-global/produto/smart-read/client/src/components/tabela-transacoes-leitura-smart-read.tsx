@@ -126,6 +126,8 @@ export function TabelaTransacoesLeituraSmartRead({
   const [searchParams, setSearchParams] = useSearchParams()
   const origemProduto = searchParams.get('origem')
   const origemPedido = origemProduto === 'pedido'
+  const origemBidFrete = origemProduto === 'bid-frete-internacional'
+  const idBidOrigem = searchParams.get('id_bid')
 
   useEffect(() => {
     const origem = searchParams.get('origem')
@@ -581,6 +583,8 @@ export function TabelaTransacoesLeituraSmartRead({
         idLeituraExistente={idLeituraExistente}
         passoRetomarLista={passoRetomarLista}
         origemPedido={origemPedido}
+        origemBidFrete={origemBidFrete}
+        idBidOrigem={idBidOrigem}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])

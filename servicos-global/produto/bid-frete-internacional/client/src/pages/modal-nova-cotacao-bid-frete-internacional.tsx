@@ -143,6 +143,11 @@ import {
   tipoPassoWizardNovaCotacao,
   type TipoPassoWizardNovaCotacao,
 } from '../shared/armazenagem-lcl-maritimo-bid-frete-internacional'
+import { aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete } from '../shared/aplicar-prefill-smart-read-nova-cotacao-bid-frete-internacional'
+import {
+  carregarPrefillSmartReadNovaCotacaoBidFreteInternacional,
+  limparPrefillSmartReadNovaCotacaoBidFreteInternacional,
+} from '../shared/carregar-prefill-smart-read-nova-cotacao-bid-frete-internacional'
 import {
   INCOTERM_TODOS_NOVA_COTACAO,
   traduzirDescModalNovaCotacao,
@@ -2489,6 +2494,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [searchParams] = useSearchParams()
   const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
   const idPainelLista = idPainelListaBidFreteDoQueryParam(searchParams.get('id_painel_lista'))
+  const origemSmartRead = searchParams.get('origem') === 'smart-read'
+  const idLeituraSmartRead = searchParams.get('id_leitura')?.trim() ?? null
+  const fluxoSmartReadRef = useRef(false)
+  const iniciarPassoFornecedoresSmartReadRef = useRef(true)
+  const [prefillSmartReadPronto, setPrefillSmartReadPronto] = useState(false)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(criarFormInicialNovaCotacao)
   const [salvando, setSalvando] = useState(false)
@@ -2528,6 +2538,30 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       ).indexOf('fornecedores') + 1,
     [form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional],
   )
+
+  useEffect(() => {
+    if (!origemSmartRead || !idLeituraSmartRead) return
+    const pacote = carregarPrefillSmartReadNovaCotacaoBidFreteInternacional()
+    if (!pacote || pacote.id_leitura !== idLeituraSmartRead) {
+      addNotification({
+        type: 'error',
+        message: 'Não foi possível carregar os dados da leitura Smart Docs para esta cotação.',
+      })
+      return
+    }
+    fluxoSmartReadRef.current = true
+    iniciarPassoFornecedoresSmartReadRef.current = pacote.iniciar_no_passo_fornecedores
+    setForm((prev) => aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete(prev, pacote))
+    setPrefillSmartReadPronto(true)
+  }, [origemSmartRead, idLeituraSmartRead, addNotification])
+
+  useEffect(() => {
+    if (!prefillSmartReadPronto || !fluxoSmartReadRef.current) return
+    if (!form.modal_cotacao_bid_frete_internacional) return
+    if (iniciarPassoFornecedoresSmartReadRef.current && passoFornecedoresWizard > 0) {
+      setStep(passoFornecedoresWizard)
+    }
+  }, [prefillSmartReadPronto, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional, passoFornecedoresWizard])
 
   useEffect(() => {
     if (step !== passoFornecedoresWizard) return
@@ -3366,6 +3400,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           regrasOrganizacao.empresaPagadoraTaxaFechamentoPlataformaGravity,
       })
       idCotacaoSalva = cotacao.id_cotacao_bid_frete_internacional
+      if (fluxoSmartReadRef.current) {
+        limparPrefillSmartReadNovaCotacaoBidFreteInternacional()
+      }
       setCotacaoId(idCotacaoSalva)
 
       if (pretendiaDisparar) {
@@ -5525,6 +5562,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   // ─── Sucesso ──────────────────────────────────────────────────────────
   const handleFechar = () => {
+    if (fluxoSmartReadRef.current) {
+      limparPrefillSmartReadNovaCotacaoBidFreteInternacional()
+    }
     navigate(
       idPainelLista
         ? buildRotaListaBidFreteComPainelAtivo(idPainelLista)
@@ -5549,6 +5589,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   const handleVoltar = () => {
+    if (fluxoSmartReadRef.current && step === passoFornecedoresWizard) {
+      handleFechar()
+      return
+    }
     if (step > 1) setStep((s) => s - 1)
     else handleFechar()
   }

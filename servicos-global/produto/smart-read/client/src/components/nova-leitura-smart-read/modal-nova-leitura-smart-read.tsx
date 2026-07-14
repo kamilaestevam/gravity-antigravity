@@ -91,6 +91,16 @@ import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arqui
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
+import {
+  PainelRevisaoPrefillCotacaoBidFreteSmartRead,
+  converterLeituraParaCotacaoBidFreteInternacional,
+} from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
+import {
+  montarPacotePrefillCotacaoBidFreteSmartRead,
+  salvarPrefillCotacaoBidFreteSmartRead,
+} from '../../shared/persistencia-prefill-cotacao-bid-frete-smart-read'
+import { buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional } from '../../shared/navegacao-cotacao-bid-frete-smart-read'
+import { consolidarLeituraDeArquivosLocais } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 
 import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
@@ -140,6 +150,12 @@ type Props = {
   /** Quando true (redirect do Pedido), dispara criação de pedido ao concluir passo 4. */
   origemPedido?: boolean
 
+  /** Quando true (redirect do BID Frete), revisão DE/PARA e abre Nova Cotação no passo Fornecedores. */
+  origemBidFrete?: boolean
+
+  /** BID vinculado quando o fluxo veio de Novo → BID → Smart Docs. */
+  idBidOrigem?: string | null
+
 }
 
 
@@ -169,6 +185,10 @@ export function ModalNovaLeituraSmartRead({
   onConcluido,
 
   origemPedido = false,
+
+  origemBidFrete = false,
+
+  idBidOrigem = null,
 
 }: Props) {
 
@@ -205,6 +225,12 @@ export function ModalNovaLeituraSmartRead({
   const riscosIniciadosRef = useRef<Set<string>>(new Set())
 
   const [enviando, setEnviando] = useState(false)
+  const [redirecionandoCotacao, setRedirecionandoCotacao] = useState(false)
+
+  const leituraConsolidada = useMemo(
+    () => consolidarLeituraDeArquivosLocais(arquivos),
+    [arquivos],
+  )
 
   const extracaoEmAndamento = useMemo(
     () => passo >= 2 && !analiseCompleta && (enviando || algumArquivoEmAnalise(arquivos)),
@@ -904,6 +930,36 @@ export function ModalNovaLeituraSmartRead({
 
     if (passo >= 4) {
 
+      if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
+        try {
+          setRedirecionandoCotacao(true)
+          const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
+          salvarPrefillCotacaoBidFreteSmartRead(
+            montarPacotePrefillCotacaoBidFreteSmartRead({
+              idLeitura: idLeituraAtual,
+              idBid: idBidOrigem,
+              prefill: conversao.prefill,
+              detalheMapeamento: conversao.detalhe_mapeamento,
+              iniciarNoPassoFornecedores: conversao.iniciar_no_passo_fornecedores,
+            }),
+          )
+          onConcluido?.()
+          await handleFechar()
+          window.location.href = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
+            idLeituraAtual,
+            idBidOrigem,
+          )
+          return
+        } catch (erro) {
+          setRedirecionandoCotacao(false)
+          addNotification({
+            type: 'error',
+            title: 'Falha ao preparar cotação',
+            message: mensagemDeExcecao(erro, 'Nao foi possivel abrir a nova cotacao a partir da leitura.'),
+          })
+        }
+      }
+
       if (origemPedido && idLeituraAtual) {
         try {
           const resultado = await smartReadApi.criarPedidoDeLeitura(idLeituraAtual)
@@ -1119,13 +1175,19 @@ export function ModalNovaLeituraSmartRead({
           </div>
         )}
 
-        {passo === 4 && (
+        {passo === 4 && origemBidFrete && leituraConsolidada ? (
+          <PainelRevisaoPrefillCotacaoBidFreteSmartRead
+            leitura={leituraConsolidada}
+            onContinuar={() => void handleContinuarPasso()}
+            continuando={redirecionandoCotacao}
+          />
+        ) : passo === 4 ? (
           <AreaResultadoNovaLeituraSmartRead
             arquivos={arquivos}
             camposEditados={camposEditados.size}
             tempoTotalMs={tempoTotalMs}
           />
-        )}
+        ) : null}
 
       </div>
 

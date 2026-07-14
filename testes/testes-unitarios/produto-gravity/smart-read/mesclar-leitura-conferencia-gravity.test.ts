@@ -19,6 +19,33 @@ const leituraBase = (dados: Record<string, unknown>): Leitura => ({
 })
 
 describe('Smart Read — mesclar leitura com conferência Gravity', () => {
+  it('usa snapshot quando legado tem arquivo sem extracao', () => {
+    const base: Leitura = {
+      id_leitura: 'leitura-1',
+      nome_leitura: 'Legado shell',
+      status_leitura: 'COMPLETED',
+      total_arquivos: 1,
+      arquivos_processados: 1,
+      arquivos: [
+        {
+          id_arquivo: 'arq-legado',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED',
+          resultado_extracao: null,
+        },
+      ],
+    }
+    const conferencia = leituraBase({ exportador: 'Foo Ltda', numero: '100' })
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, conferencia)
+
+    expect(mesclada.arquivos).toHaveLength(1)
+    expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({
+      exportador: 'Foo Ltda',
+      numero: '100',
+    })
+  })
+
   it('usa snapshot quando legado vem sem arquivos', () => {
     const base: Leitura = {
       id_leitura: 'leitura-1',

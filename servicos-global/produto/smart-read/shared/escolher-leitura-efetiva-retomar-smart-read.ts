@@ -1,28 +1,40 @@
 /**
- * Ao retomar: usa a fonte com mais dados de extração (API, snapshot ou progresso salvo).
+ * Ao retomar: API (legado+snapshot) é fonte fresca; progresso salvo complementa se tiver mais extração.
  */
+import {
+  riquezaLeituraRetomarSmartRead,
+  type LeituraExtracaoRetomarSmartRead,
+} from './leitura-sem-extracao-retomar-smart-read.js'
 
-export type LeituraRetomarSmartRead = {
+export type LeituraRetomarSmartRead = LeituraExtracaoRetomarSmartRead & {
   id_leitura: string
   status_leitura: string
-  arquivos: readonly {
-    resultado_extracao?: readonly unknown[] | null
-  }[]
 }
 
-function contarExtracaoLeituraRetomar(leitura: LeituraRetomarSmartRead | null | undefined): number {
-  if (!leitura) return 0
-  return leitura.arquivos.reduce(
-    (total, arquivo) => total + (arquivo.resultado_extracao?.length ?? 0),
-    0,
-  )
-}
-
-function riquezaLeituraRetomar(leitura: LeituraRetomarSmartRead | null | undefined): number {
-  if (!leitura) return 0
-  const extracao = contarExtracaoLeituraRetomar(leitura)
-  if (extracao > 0) return extracao
-  return leitura.arquivos.length
+export function mesclarLeiturasRetomarSmartRead<T extends LeituraRetomarSmartRead>(
+  leituraApi: T,
+  leituraSalva: T,
+): T {
+  const fonteArquivos =
+    riquezaLeituraRetomarSmartRead(leituraSalva) > riquezaLeituraRetomarSmartRead(leituraApi)
+      ? leituraSalva
+      : leituraApi
+  return {
+    ...leituraApi,
+    nome_leitura: leituraApi.nome_leitura ?? leituraSalva.nome_leitura,
+    status_leitura: leituraApi.status_leitura ?? leituraSalva.status_leitura,
+    total_arquivos: Math.max(
+      leituraApi.total_arquivos ?? 0,
+      leituraSalva.total_arquivos ?? 0,
+      fonteArquivos.arquivos.length,
+    ),
+    arquivos_processados: Math.max(
+      leituraApi.arquivos_processados ?? 0,
+      leituraSalva.arquivos_processados ?? 0,
+      fonteArquivos.arquivos.length,
+    ),
+    arquivos: [...fonteArquivos.arquivos],
+  } as T
 }
 
 export function escolherLeituraEfetivaRetomarSmartRead<T extends LeituraRetomarSmartRead>(
@@ -32,9 +44,5 @@ export function escolherLeituraEfetivaRetomarSmartRead<T extends LeituraRetomarS
   if (!leituraApi && !leituraSalva) return null
   if (!leituraApi) return leituraSalva ?? null
   if (!leituraSalva) return leituraApi
-
-  const riquezaApi = riquezaLeituraRetomar(leituraApi)
-  const riquezaSalva = riquezaLeituraRetomar(leituraSalva)
-  if (riquezaSalva > riquezaApi) return leituraSalva
-  return leituraApi
+  return mesclarLeiturasRetomarSmartRead(leituraApi, leituraSalva)
 }

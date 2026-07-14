@@ -222,6 +222,7 @@ export function ModalNovaLeituraSmartRead({
   const [arquivoExclusaoPendente, setArquivoExclusaoPendente] =
     useState<ArquivoLocalNovaLeitura | null>(null)
   const [gabiAberta, setGabiAberta] = useState(false)
+  const [hidratandoRetomar, setHidratandoRetomar] = useState(false)
 
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
@@ -293,6 +294,7 @@ export function ModalNovaLeituraSmartRead({
   const hidratarLeituraExistente = useCallback(
     async (id: string) => {
       hidratandoRetomarRef.current = true
+      setHidratandoRetomar(true)
       try {
       const salvo = await carregarProgressoLeituraSmartRead(id)
       hidratarCacheAnaliseRiscosDeProgresso(salvo)
@@ -335,6 +337,7 @@ export function ModalNovaLeituraSmartRead({
       }
       } finally {
         hidratandoRetomarRef.current = false
+        setHidratandoRetomar(false)
       }
     },
     [aplicarLeituraHidratada],
@@ -466,7 +469,11 @@ export function ModalNovaLeituraSmartRead({
       if (!idLeitura || passoAlvo < 2 || !todosArquivosAnaliseCompleta(arquivos)) return false
       if (passoSalvoRef.current >= 3 && passoAlvo < passoSalvoRef.current) return false
       const leituraBase = consolidarLeituraDeArquivosLocais(arquivos)
-      if (!leituraBase) return false
+      if (!leituraBase || leituraBase.arquivos.length === 0) return false
+      const temExtracao = leituraBase.arquivos.some(
+        (arquivo) => (arquivo.resultado_extracao?.length ?? 0) > 0,
+      )
+      if (passoAlvo >= 3 && !temExtracao) return false
       const nomeEfetivo = (nomeOverride ?? nomeLeitura).trim() || nomeLeitura
       const leitura = { ...leituraBase, nome_leitura: nomeEfetivo }
       if (import.meta.env.DEV) {
@@ -1044,6 +1051,9 @@ export function ModalNovaLeituraSmartRead({
 
         {passoConferenciaMontado && (
           <div className="sr-wizard-passo-painel" hidden={passo !== 3}>
+            {hidratandoRetomar && idLeituraExistente ? (
+              <p className="sr-conf-vazio">Carregando leitura…</p>
+            ) : (
             <AreaConferenciaNovaLeituraSmartRead
               arquivos={arquivos}
               selecao={conferenciaSelecao}
@@ -1057,6 +1067,7 @@ export function ModalNovaLeituraSmartRead({
               onIaInicio={() => contadorTokens.marcarIaAtiva()}
               onIaFim={() => contadorTokens.marcarIaInativa()}
             />
+            )}
           </div>
         )}
 

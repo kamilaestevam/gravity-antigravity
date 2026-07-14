@@ -2,6 +2,10 @@
  * Mescla leitura do legado com snapshot/progresso Gravity (conferência).
  */
 import type { Leitura } from '../schemas/leitura-smart-read.js'
+import {
+  leituraSemExtracaoUtilRetomarSmartRead,
+  leituraTemExtracaoUtilRetomarSmartRead,
+} from '../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 
 type ItemExtracao = NonNullable<Leitura['arquivos'][number]['resultado_extracao']>[number]
 
@@ -48,7 +52,10 @@ export function mesclarLeituraComConferenciaGravity(
 ): Leitura {
   if (!conferencia) return base
 
-  if (base.arquivos.length === 0 && conferencia.arquivos.length > 0) {
+  if (
+    leituraTemExtracaoUtilRetomarSmartRead(conferencia) &&
+    (base.arquivos.length === 0 || leituraSemExtracaoUtilRetomarSmartRead(base))
+  ) {
     return {
       ...conferencia,
       id_leitura: base.id_leitura || conferencia.id_leitura,

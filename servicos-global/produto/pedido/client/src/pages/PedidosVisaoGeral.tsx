@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   MagnifyingGlass,
   DownloadSimple,
@@ -35,7 +36,6 @@ import {
   Globe,
   MapTrifold,
   List,
-  MapPin,
   Clock,
   CheckCircle,
   ChatText,
@@ -52,6 +52,22 @@ import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/u
 import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
 import type { Pedido } from '../shared/types'
 import {
+  buildVisaoGeralMapa,
+  type TipoOperacaoMapa,
+  type VisaoGeralMapPin,
+  type VisaoGeralPedidoCardDetalhe,
+  type VisaoGeralRotaDetalhe,
+  type VisaoGeralResumoVencimentos,
+  type VisaoGeralVencimentoCambio,
+} from '../shared/visaoGeralMapaPedido'
+import {
+  filtrarPedidosMapaInsights,
+  filtrosMapaInsightsPedidoIniciais,
+  type FiltrosMapaInsightsPedido,
+} from '../shared/filtrar-dados-mapa-insights-pedido'
+import { PainelRefinarMapaPedido } from '../shared/componentes/PainelRefinarMapaPedido'
+import '../../../../bid-frete-internacional/client/src/shared/bid-frete-visao-geral-mapa.css'
+import {
   DASHBOARD_TOP_KPI_STATUS_MAPA,
   type DashboardTopKpiWidgetId,
 } from '../shared/useDashboardTopKpiStatus'
@@ -59,14 +75,7 @@ import {
   calcularTopKpiCardsVisaoGeral,
   useMapaRotulosStatusPedido,
 } from '../shared/visaoGeralTopKpi'
-import type {
-  TipoOperacaoMapa,
-  VisaoGeralMapPin,
-  VisaoGeralPedidoCardDetalhe,
-  VisaoGeralRotaDetalhe,
-  VisaoGeralResumoVencimentos,
-  VisaoGeralVencimentoCambio,
-} from '../shared/visaoGeralMapaPedido'
+import { InsightsKpiTooltipPedido } from '../shared/insights-kpi-tooltip-pedido'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -1282,10 +1291,45 @@ function VisaoGeralMapa() {
     painelInsightsAtivoRef.current = painelInsightsAtivo
   }, [painelInsightsAtivo])
 
-  const { mapa, total } = useVisaoGeralPedido()
-  const { pins, globeRoutes, detalhesPorLocKey, topOrigens, topDestinos, modaisGlobo } = mapa
+  const mapaRotulosStatus = useMapaRotulosStatusPedido()
+  const rotulosStatus = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const [slug, cfg] of Object.entries(mapaRotulosStatus)) {
+      map.set(slug, cfg.label)
+    }
+    return map
+  }, [mapaRotulosStatus])
+  const coresStatus = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const [slug, cfg] of Object.entries(mapaRotulosStatus)) {
+      map.set(slug, cfg.cor)
+    }
+    return map
+  }, [mapaRotulosStatus])
 
-  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
+  const {
+    mapa: mapaBase,
+    pedidos: pedidosBase,
+    fornecedoresPorId,
+    nomesWorkspacePorId,
+  } = useVisaoGeralPedido()
+
+  const [filtrosMapaInsights, setFiltrosMapaInsights] = useState<FiltrosMapaInsightsPedido>(
+    () => filtrosMapaInsightsPedidoIniciais(),
+  )
+  const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+
+  const pedidosFiltrados = useMemo(
+    () => filtrarPedidosMapaInsights(pedidosBase, filtrosMapaInsights, fornecedoresPorId),
+    [pedidosBase, filtrosMapaInsights, fornecedoresPorId],
+  )
+
+  const mapa = useMemo(
+    () => buildVisaoGeralMapa(pedidosFiltrados, nomesWorkspacePorId, fornecedoresPorId),
+    [pedidosFiltrados, nomesWorkspacePorId, fornecedoresPorId],
+  )
+
+  const { pins, globeRoutes, detalhesPorLocKey } = mapa
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
 
@@ -2111,8 +2155,7 @@ function VisaoGeralMapa() {
   }
   
   return (
-    <div className="bfd-map-rankings-row">
-      <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+      <div className="bfd-card bfd-map-card bfd-map-card--insights-split bfd-card--accent-amber">
       <div className="bfd-map-card__header" style={{ marginBottom: '0.65rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
@@ -2125,10 +2168,27 @@ function VisaoGeralMapa() {
         </div>
       </div>
       
-      <div className="bfd-map-container bfd-map-container--sem-painel-lateral">
+      <div
+        className={`bfd-map-card__split${
+          painelFiltrosMapaExpandido ? '' : ' bfd-map-card__split--filtros-recolhidos'
+        }`}
+      >
+        <PainelRefinarMapaPedido
+          filtros={filtrosMapaInsights}
+          onFiltrosChange={setFiltrosMapaInsights}
+          pedidos={pedidosBase}
+          fornecedoresPorId={fornecedoresPorId}
+          mapaBase={mapaBase}
+          mapaFiltrado={mapa}
+          totalPedidosFiltrados={pedidosFiltrados.length}
+          rotulosStatus={rotulosStatus}
+          coresStatus={coresStatus}
+          onPainelExpandidoChange={setPainelFiltrosMapaExpandido}
+        />
+        <div className="bfd-map-container bfd-map-container--sem-painel-lateral bfd-map-container--expandido">
         <div 
           ref={mapCanvasWrapperRef}
-          className="bfd-map-canvas-wrapper"
+          className="bfd-map-canvas-wrapper bfd-map-canvas-wrapper--compacto"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -2138,85 +2198,114 @@ function VisaoGeralMapa() {
           onTouchEnd={handleMouseUpOrLeave}
           style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
         >
+          <div className="bfd-map-canvas-clip">
           {/* The high-performance 3D Canvas */}
           <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
           
           {/* Floating Legend */}
-          <div className="bfd-map-legend-floating">
+          <div className="bfd-map-legend-floating bfd-map-legend-floating--compacto">
             <span className="bfd-map-legend__item">
-              <DownloadSimple size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
+              <DownloadSimple size={13} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
             </span>
             <span className="bfd-map-legend__item">
-              <UploadSimple size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
+              <UploadSimple size={13} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
             </span>
           </div>
           
-          {/* Floating Zoom & Control Panel */}
-          <div className="bfd-map-controls">
-            <button
-              onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-              title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
-              className="bfd-map-control-btn"
-            >
-              {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
-            </button>
+          </div>
 
-            <button
-              onClick={handleZoomIn}
-              title={t('pedido.visao_geral.mapa.aumentar_zoom')}
-              className="bfd-map-control-btn"
-            >
-              <Plus size={16} weight="bold" />
-            </button>
-            
-            <button 
-              onClick={handleZoomOut} 
-              title={t('pedido.visao_geral.mapa.diminuir_zoom')}
-              className="bfd-map-control-btn"
-            >
-              <Minus size={16} weight="bold" />
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                setRotasAnimacaoVisiveis((prev) => !prev)
-              }}
-              title={
-                rotasAnimacaoVisiveis
-                  ? t('pedido.visao_geral.mapa.ocultar_trilhos')
-                  : t('pedido.visao_geral.mapa.exibir_trilhos')
+          {/* Menu padrão globo/mapa — centro inferior do canvas (paridade BID Frete) */}
+          <div className="bfd-map-controls bfd-map-controls--interno">
+            <TooltipGlobal
+              descricao={
+                vista === 'globo'
+                  ? t('pedido.visao_geral.mapa.ver_mapa', { defaultValue: 'Ver como mapa' })
+                  : t('pedido.visao_geral.mapa.ver_globo', { defaultValue: 'Ver como globo' })
               }
-              aria-pressed={!rotasAnimacaoVisiveis}
-              className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+              posicaoPreferida="acima"
             >
-              {rotasAnimacaoVisiveis ? (
-                <Eye size={16} weight="bold" />
-              ) : (
-                <EyeSlash size={16} weight="bold" />
-              )}
-            </button>
-
-            <button 
-              onClick={handleReset} 
-              title={t('pedido.visao_geral.mapa.restaurar_globo')}
-              className="bfd-map-control-btn"
-            >
-              <ArrowCounterClockwise size={16} weight="bold" />
-            </button>
-
-            {vista === 'globo' && (
               <button
-                onClick={toggleRotation}
-                title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
+                type="button"
+                onClick={() => setVista((prev) => (prev === 'globo' ? 'mapa' : 'globo'))}
                 className="bfd-map-control-btn"
               >
-                {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
               </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.aumentar_zoom', { defaultValue: 'Aumentar zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomIn} className="bfd-map-control-btn">
+                <Plus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.diminuir_zoom', { defaultValue: 'Diminuir zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomOut} className="bfd-map-control-btn">
+                <Minus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                rotasAnimacaoVisiveis
+                  ? t('pedido.visao_geral.mapa.ocultar_trilhos', { defaultValue: 'Ocultar rotas' })
+                  : t('pedido.visao_geral.mapa.exibir_trilhos', { defaultValue: 'Exibir rotas' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setRotasAnimacaoVisiveis((prev) => !prev)
+                }}
+                aria-pressed={!rotasAnimacaoVisiveis}
+                className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+              >
+                {rotasAnimacaoVisiveis ? (
+                  <Eye size={16} weight="bold" />
+                ) : (
+                  <EyeSlash size={16} weight="bold" />
+                )}
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                vista === 'mapa'
+                  ? t('pedido.visao_geral.mapa.restaurar_mapa', { defaultValue: 'Restaurar mapa' })
+                  : t('pedido.visao_geral.mapa.restaurar_globo', { defaultValue: 'Restaurar globo' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleReset} className="bfd-map-control-btn">
+                <ArrowCounterClockwise size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            {vista === 'globo' && (
+              <TooltipGlobal
+                descricao={
+                  isAutoRotating
+                    ? t('pedido.visao_geral.mapa.pausar_rotacao', { defaultValue: 'Pausar rotação' })
+                    : t('pedido.visao_geral.mapa.iniciar_rotacao', { defaultValue: 'Iniciar rotação' })
+                }
+                posicaoPreferida="acima"
+              >
+                <button type="button" onClick={toggleRotation} className="bfd-map-control-btn">
+                  {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                </button>
+              </TooltipGlobal>
             )}
           </div>
 
+          <div className="bfd-map-pins-overlay">
           {/* Dynamic HTML Overlay Pins */}
           {projectedPins.map(pin => {
             if (pin.opacity <= 0.05) return null
@@ -2510,153 +2599,8 @@ function VisaoGeralMapa() {
           : null}
       </div>
       </div>
-
-      <div className="bfd-card bfd-rankings-card bfd-card--accent-amber">
-        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-          <div className="bfd-map-panel__header">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span className="bfd-map-panel__live-dot" />
-                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
-              </div>
-            </div>
-            <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
-          </div>
-
-          <div className="bfd-map-panel__tabs">
-            <button
-              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-            >
-              <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
-            </button>
-            <button
-              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-            >
-              <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
-            </button>
-            <button
-              className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
-            >
-              <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
-            </button>
-          </div>
-
-          <div className="bfd-map-panel__list">
-            {activeTab === 'origens' && (topOrigens.length === 0 ? (
-              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-            ) : topOrigens.map(item => {
-              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-
-              return (
-                <div
-                  key={item.rank}
-                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isRotationPausedRef.current = true
-                    setSelectedLocKey(item.locKey)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__row-info">
-                    <span className="bfd-map-panel__row-city">{item.name}</span>
-                    <span className="bfd-map-panel__row-code">{item.code}</span>
-                  </div>
-                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                </div>
-              )
-            }))}
-
-            {activeTab === 'destinos' && (topDestinos.length === 0 ? (
-              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-            ) : topDestinos.map(item => {
-              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-
-              return (
-                <div
-                  key={item.rank}
-                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isRotationPausedRef.current = true
-                    setSelectedLocKey(item.locKey)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__row-info">
-                    <span className="bfd-map-panel__row-city">{item.name}</span>
-                    <span className="bfd-map-panel__row-code">{item.code}</span>
-                  </div>
-                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                </div>
-              )
-            }))}
-
-            {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
-              const isExportacao = item.key === 'exportacao'
-              return (
-                <div
-                  key={item.key}
-                  className="bfd-map-panel__row has-link"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedLocKey(`modal|${item.key}`)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                  <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                    {TIPO_OPERACAO_ICONS[item.key] ?? iconeTipoOperacaoMapa(item.key, 14, 'duotone')}
-                  </span>
-                  <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                    <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                      {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
-                    </span>
-                    <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                      {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                    <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                      {item.pct}%
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </div>
-    </div>
+      </div>
   )
 }
 
@@ -2764,6 +2708,80 @@ export default function VisaoGeral() {
         .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
         .bfd-kpi__progress-fill { height: 100%; background: #f59e0b; border-radius: 3px; }
 
+        .cg-card__tooltip--portal:has(.bfd-kpi-tooltip-insights) {
+          width: min(380px, 92vw);
+        }
+        .bfd-kpi-tooltip-insights__lista {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          max-height: 220px;
+          overflow-y: auto;
+          margin-top: 0.35rem;
+          padding-right: 0.15rem;
+        }
+        .bfd-kpi-tooltip-insights__head,
+        .bfd-kpi-tooltip-insights__row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 1.15fr);
+          gap: 0.5rem;
+          align-items: center;
+          font-size: 0.72rem;
+          line-height: 1.35;
+        }
+        .bfd-kpi-tooltip-insights__head--duas-colunas,
+        .bfd-kpi-tooltip-insights__row--duas-colunas {
+          grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 1.15fr);
+        }
+        .bfd-kpi-tooltip-insights__head {
+          font-size: 0.68rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #94a3b8;
+          padding-bottom: 0.25rem;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .bfd-kpi-tooltip-insights__valor-cabecalho,
+        .bfd-kpi-tooltip-insights__valor {
+          text-align: right;
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__row span:first-child {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__link {
+          color: #fbbf24;
+          font-weight: 700;
+          text-decoration: none;
+          letter-spacing: 0.02em;
+          font-family: 'DM Mono', ui-monospace, monospace;
+          font-size: 0.7rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__link:hover {
+          color: #fde68a;
+          text-decoration: underline;
+        }
+        .bfd-kpi-tooltip-insights__valor {
+          color: #cbd5e1;
+        }
+        .bfd-kpi-tooltip-insights__row strong {
+          font-weight: 800;
+          color: #ffffff;
+        }
+        .bfd-kpi-tooltip-insights__mais {
+          margin: 0.45rem 0 0;
+          font-size: 0.72rem;
+          color: #94a3b8;
+          text-align: center;
+        }
+
         /* ── Base Cards and Containers ───────────────────────────── */
         .bfd-card {
           background: rgba(255, 255, 255, 0.04);
@@ -2841,7 +2859,7 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        .bfd-map-legend-floating {
+        .bfd-map-legend-floating:not(.bfd-map-legend-floating--compacto) {
           position: absolute;
           left: 1.25rem;
           top: 2rem;
@@ -3279,13 +3297,17 @@ export default function VisaoGeral() {
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: -2.5rem;
+          bottom: 0.65rem;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           gap: 0.5rem;
           z-index: 30;
-          transition: left 0.3s ease, transform 0.3s ease;
+          pointer-events: auto;
+        }
+        .bfd-map-controls .tg-trigger {
+          display: inline-flex;
+          flex-shrink: 0;
         }
         .bfd-map-control-btn {
           width: 32px;
@@ -3315,6 +3337,7 @@ export default function VisaoGeral() {
         @media (max-width: 1023px) {
           .bfd-map-controls {
             left: 50%;
+            transform: translateX(-50%);
           }
         }
         .bfd-map-bg {
@@ -4215,24 +4238,143 @@ export default function VisaoGeral() {
         .pedido-visao-geral.bfd-dashboard {
           padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
         }
-        .pedido-visao-geral .bfd-map-rankings-row {
-          display: contents;
-        }
         .pedido-visao-geral .bfd-map-card {
-          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
+          padding: 1.15rem 1.35rem 1.35rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
           position: relative;
           min-height: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-card__header {
+          flex: 0 0 auto;
+        }
+        .pedido-visao-geral .bfd-map-card__split {
+          display: grid;
+          grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+          gap: 1rem;
+          align-items: stretch;
+          flex: 1;
+          min-height: 0;
+          height: 100%;
           overflow: visible;
+        }
+        .pedido-visao-geral .bfd-map-card__split--filtros-recolhidos {
+          grid-template-columns: 56px minmax(0, 1fr);
+          gap: 0.65rem;
+        }
+        .pedido-visao-geral .bfd-map-card__split > .bfd-map-filtros-shell {
+          height: 100%;
+          max-height: 100%;
+          min-height: 0;
+          align-self: stretch;
+          overflow: visible;
+          display: flex;
+          flex-direction: column;
+        }
+        .pedido-visao-geral .bfd-map-filtros-shell > .tg-trigger {
+          z-index: 35;
+        }
+        .pedido-visao-geral .bfd-map-card__split .bfd-map-filtros-panel {
+          flex: 1;
+          min-height: 0;
+          max-height: none;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-right: 0.75rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__meta {
+          flex-shrink: 0;
+          min-width: 5.5rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.28rem;
+          padding: 0.14rem 0.42rem;
+          border-radius: 7px;
+          background: rgba(255, 255, 255, 0.04);
+          font-variant-numeric: tabular-nums;
+          letter-spacing: 0.01em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-label {
+          font-size: 0.56rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-count {
+          font-size: 0.64rem;
+          font-weight: 800;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--todos {
+          background: rgba(245, 158, 11, 0.14);
+          color: #fbbf24;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--zero {
+          background: rgba(239, 68, 68, 0.12);
+          color: #f87171;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao--restrita .bfd-map-filtro-secao__pill:not(.bfd-map-filtro-secao__pill--zero) {
+          color: #fcd34d;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__item-contagem {
+          flex-shrink: 0;
+          min-width: 1.35rem;
+          padding: 0.1rem 0.34rem;
+          border-radius: 6px;
+          font-size: 0.58rem;
+          font-weight: 800;
+          line-height: 1.2;
+          text-align: center;
+          color: #94a3b8;
+          background: rgba(255, 255, 255, 0.05);
+          font-variant-numeric: tabular-nums;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__local-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__status-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card.is-active .bfd-map-filtros-panel__item-contagem {
+          color: #fbbf24;
+          background: rgba(245, 158, 11, 0.14);
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card {
+          position: relative;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card .bfd-map-filtros-panel__item-contagem {
+          position: absolute;
+          top: 0.42rem;
+          right: 0.42rem;
+        }
+        .pedido-visao-geral .bfd-map-card__split > .bfd-map-container--expandido {
+          min-height: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-filtros-shell {
+          --bfd-filtro-opcao-selecionada: #f59e0b;
+          --bfd-filtro-opcao-selecionada-fundo: rgba(245, 158, 11, 0.08);
+          --bfd-filtro-opcao-selecionada-fundo-forte: rgba(245, 158, 11, 0.18);
+          --bfd-filtro-opcao-selecionada-borda: #f59e0b;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__progress-fill:not(.bfd-map-filtro-secao__progress-fill--todos) {
+          background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__progress-fill--todos {
+          background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__toolbar-btn:disabled {
+          opacity: 0.45;
+          cursor: default;
+          pointer-events: none;
         }
         .pedido-visao-geral .bfd-map-container {
           position: relative;
           flex: 1;
           min-height: 0;
           border-radius: 12px;
-          overflow: visible;
+          overflow: hidden;
           background: transparent;
           display: flex;
           gap: 1.5rem;
@@ -4243,30 +4385,33 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
           flex: 1;
           width: 100%;
-          overflow: visible;
-        }
-        .pedido-visao-geral .bfd-rankings-card {
-          padding: 0;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
-          flex: 1;
           min-height: 0;
           height: 100%;
-          border: none;
-          border-radius: 14px;
-          box-shadow: none;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-canvas-wrapper--compacto .bfd-map-legend-floating--compacto {
+          left: 0.65rem;
+          right: auto;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.45rem;
+          padding: 0.55rem 0.7rem;
+        }
+        .pedido-visao-geral .bfd-map-canvas-wrapper--compacto .bfd-map-legend-floating--compacto .bfd-map-legend__item {
+          font-size: 0.72rem;
+          gap: 0.4rem;
+          white-space: nowrap;
         }
         .pedido-visao-geral .bfd-globe-row {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 320px minmax(280px, 0.72fr);
+          grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.72fr);
           gap: 1.25rem;
           margin-bottom: 1.25rem;
           align-items: stretch;
-          --bfd-visao-geral-linha-altura: 400px;
+          --bfd-visao-geral-linha-altura: 540px;
         }
         .pedido-visao-geral .bfd-globe-row__coluna-direita {
           display: flex;
@@ -4276,7 +4421,6 @@ export default function VisaoGeral() {
           overflow: hidden;
         }
         .pedido-visao-geral .bfd-globe-row .bfd-map-card,
-        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
         .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
           min-height: var(--bfd-visao-geral-linha-altura);
           max-height: var(--bfd-visao-geral-linha-altura);
@@ -4308,39 +4452,18 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-globe-row .bfd-funil__bar-wrap {
           height: 12px;
         }
-        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card .bfd-map-right-panel {
-          padding: 1rem;
-          gap: 0.65rem;
-        }
-        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__header {
-          gap: 0.15rem;
-        }
-        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__row {
-          padding: 0.35rem 0.5rem;
-        }
         @media (max-width: 1200px) {
           .pedido-visao-geral .bfd-globe-row {
             grid-template-columns: 1fr;
             --bfd-visao-geral-linha-altura: auto;
           }
-          .pedido-visao-geral .bfd-map-rankings-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.25rem;
-          }
           .pedido-visao-geral .bfd-globe-row .bfd-map-card,
-          .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
           .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
             min-height: 0;
             max-height: none;
           }
           .pedido-visao-geral .bfd-map-container {
             min-height: 280px;
-          }
-        }
-        @media (max-width: 1023px) {
-          .pedido-visao-geral .bfd-map-rankings-row {
-            grid-template-columns: 1fr;
           }
         }
 `}</style>
@@ -4373,6 +4496,12 @@ export default function VisaoGeral() {
               tendencia={tendencias[index]}
               subtexto={subtextos[index]}
               variante="padrao"
+              tooltip={(
+                <InsightsKpiTooltipPedido
+                  tituloContagem={card.titulo}
+                  pedidos={pedidos.filter((p) => p.status === card.slug)}
+                />
+              )}
             />
           )
         })}

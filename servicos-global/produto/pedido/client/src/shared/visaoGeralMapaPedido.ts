@@ -1563,3 +1563,24 @@ export function buildVisaoGeralMapa(
     modaisGlobo,
   }
 }
+
+/** País de origem do pedido — mesma regra de `locOrigem` usada no globo. */
+export function resolverPaisOrigemPedidoMapa(
+  p: Pedido,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+): string | null {
+  const loc = locOrigem(p, fornecedoresPorId)
+  return loc?.country?.trim() || null
+}
+
+/** País de destino do pedido — mesma regra de destino usada no globo. */
+export function resolverPaisDestinoPedidoMapa(
+  p: Pedido,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+): string | null {
+  if (p.tipo_operacao === 'importacao') {
+    return 'Brasil'
+  }
+  const dest = locDestinoExport(p, fornecedoresPorId)
+  return dest.country?.trim() || null
+}

@@ -135,4 +135,30 @@ export function lerRetornoGuiaAcademy(state: unknown): RetornoGuiaAcademy | null
   }
 }
 
+/** Estado limpo ao abrir aula pela camada do módulo (lista de tarefas / XP). */
+export const STATE_NAVEGACAO_CAMADA_GUIA = {} as const
+
+export function rotaModuloGuiaAcademy(produtoSlug: string): string {
+  return `/university-gravity/academy/${produtoSlug}`
+}
+
+/**
+ * Voltar no Guia — duas variações:
+ * 1. Link interno: retorna à aula de origem (pathname + hash + scroll).
+ * 2. Camada normal: retorna à lista de tarefas do módulo (`/academy/{produto}`).
+ */
+export function voltarNoGuiaAcademy(
+  navigate: NavigateFunction,
+  produtoSlug: string,
+  retornoGuia: RetornoGuiaAcademy | null,
+) {
+  if (retornoGuia) {
+    navigate(`${retornoGuia.pathname}${retornoGuia.hash}`, {
+      state: { restaurarScrollGuia: retornoGuia.scrollY },
+    })
+    return
+  }
+  navigate(rotaModuloGuiaAcademy(produtoSlug))
+}
+
 export { produtoSlugDePathnameAcademy }

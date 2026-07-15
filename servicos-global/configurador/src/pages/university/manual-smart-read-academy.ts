@@ -9,6 +9,8 @@ import { DOC_SMART_READ_SECAO } from './manual-smart-read-conteudo'
 
 const FLUXOS = DOC_SMART_READ_SECAO.fluxos ?? []
 
+const TITULO_ENTENDENDO_SMART_DOCS = 'Entendendo o Smart Docs'
+
 const OPCOES_SMART_READ = {
   fluxoComoManualCompleto: true,
 } as const
@@ -35,9 +37,7 @@ function aulaSmartRead(
 }
 
 export const SMART_READ_AULA_SLUGS = [
-  'smart-read-visao-geral',
-  'smart-read-acesso',
-  'smart-read-tipos-visualizacao',
+  'smart-read-entendendo',
   'smart-read-visao-insight',
   'smart-read-visao-lista',
   'smart-read-nova-leitura',
@@ -49,55 +49,43 @@ export const SMART_READ_AULA_SLUGS = [
 export const AULAS_SMART_READ: AulaDemo[] = [
   aulaSmartRead(
     SMART_READ_AULA_SLUGS[0],
-    DOC_SMART_READ_SECAO.titulo,
-    '8m',
-    [],
+    TITULO_ENTENDENDO_SMART_DOCS,
+    '20m',
+    [0, 1],
     { incluirIntroSecao: true },
   ),
   aulaSmartRead(
     SMART_READ_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Como acessar o produto',
-    '6m',
-    [0],
-  ),
-  aulaSmartRead(
-    SMART_READ_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Tipos de visualização',
-    '6m',
-    [1],
-  ),
-  aulaSmartRead(
-    SMART_READ_AULA_SLUGS[3],
     FLUXOS[2]?.tituloSumario ?? 'Visão Insight',
     '20m',
     [2],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[4],
+    SMART_READ_AULA_SLUGS[2],
     FLUXOS[3]?.tituloSumario ?? 'Visão Lista',
     '38m',
     [3],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[5],
+    SMART_READ_AULA_SLUGS[3],
     FLUXOS[4]?.tituloSumario ?? 'Nova Leitura',
     '28m',
     [4],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[6],
+    SMART_READ_AULA_SLUGS[4],
     FLUXOS[5]?.tituloSumario ?? 'Configurações',
     '14m',
     [5],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[7],
+    SMART_READ_AULA_SLUGS[5],
     FLUXOS[6]?.tituloSumario ?? 'Histórico',
     '10m',
     [6],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[8],
+    SMART_READ_AULA_SLUGS[6],
     FLUXOS[7]?.tituloSumario ?? 'Requisitos técnicos',
     '8m',
     [7],

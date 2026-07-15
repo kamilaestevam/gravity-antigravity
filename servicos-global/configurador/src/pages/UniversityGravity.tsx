@@ -32,6 +32,7 @@ import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
+import { STATE_NAVEGACAO_CAMADA_GUIA } from './university/guia-academy-link'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
 import { BEM_VINDO_TRILHA } from './university/manual-bem-vindo-academy'
 import { GABI_TRILHA } from './university/manual-gabi-academy'
@@ -2352,13 +2353,13 @@ export function UniversityGravity() {
                 aulasConcluidas={aulasConcluidas}
                 capituloAtivo={capituloAtivo}
                 onSelecionarCapitulo={setCapituloAtivo}
-                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
               />
             ) : (
                 <JornadaModulo
                 trilha={trilhaAtiva}
                   aulasConcluidas={aulasConcluidas}
-                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
                 />
             )
           )}

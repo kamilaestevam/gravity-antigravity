@@ -198,6 +198,31 @@ function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
   )
 }
 
+/** Espelha o corpo renderizado por `introFluxo` em `ManualSecaoFluxo` (modo `intro`). */
+function fluxoTemConteudoIntroAcademy(fluxo: DocFluxo): boolean {
+  if ((fluxo.paragrafos?.length ?? 0) > 0) return true
+  if (fluxo.callout && !fluxo.calloutAposPassos) return true
+  if ((fluxo.figurasAposInfografico?.length ?? 0) > 0) return true
+  if (fluxo.mostrarInfograficoPermissoesUsuario && fluxo.infograficoPermissoesUsuarioAposPasso == null) {
+    return true
+  }
+  if (fluxo.mostrarInfograficoIconesMenuSuperior && !fluxo.infograficoIconesMenuSuperiorAposPassos) {
+    return true
+  }
+  const flagsInfograficoIntro: Array<keyof DocFluxo> = [
+    'mostrarInfograficoPapeisFornecedor',
+    'mostrarInfograficoMenuLateral',
+    'mostrarInfograficoTiposUsuario',
+    'mostrarInfograficoSmartDocsInsights',
+    'mostrarInfograficoPedidoInsights',
+    'mostrarInfograficoBidFreteInsights',
+    'mostrarInfograficoBidFretePainelCotacao',
+    'mostrarInfograficoApiCockpitWebhookVsApi',
+    'mostrarInfograficoApiCockpitConsumo',
+  ]
+  return flagsInfograficoIntro.some((flag) => Boolean(fluxo[flag]))
+}
+
 /** Academy: paridade Pedido Gravity — H1 + tópico intro (H2) + subtópicos como H2 no menu. */
 function blocosDeFluxoAcademySubtopicosComoTitulos(
   fluxo: DocFluxo,
@@ -210,14 +235,16 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
   if (tituloIntro) {
     blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })
   }
-  blocos.push({
-    tipo: 'fluxo_manual',
-    dados: {
-      payload: JSON.stringify(fluxo),
-      numeroSecaoFluxo,
-      modo: 'intro',
-    },
-  })
+  if (fluxoTemConteudoIntroAcademy(fluxo)) {
+    blocos.push({
+      tipo: 'fluxo_manual',
+      dados: {
+        payload: JSON.stringify(fluxo),
+        numeroSecaoFluxo,
+        modo: 'intro',
+      },
+    })
+  }
 
   for (const passo of fluxo.passosVisuais ?? []) {
     // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
@@ -276,6 +303,7 @@ const INFOGRAFICOS_SECAO: Array<{
   { flag: 'mostrarInfograficoApiCockpitIntegracao', id: 'api-cockpit-integracao', skipSeAposParagrafo: true },
   { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
   { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
+  { flag: 'mostrarInfograficoSmartDocsOQueE', id: 'smart-docs-o-que-e' },
   { flag: 'mostrarInfograficoSmartDocsDocumentos', id: 'smart-docs-documentos' },
   { flag: 'mostrarInfograficoAdminTelas', id: 'admin-telas' },
 ]
@@ -416,10 +444,6 @@ export function blocosDeSecaoConfiguradorAcademy(
     if (secao.tituloTopico?.trim()) {
       blocos.push({ tipo: 'heading', dados: { text: secao.tituloTopico.trim(), nivel: 2 } })
     }
-    if (secao.layoutTextoImagemLateral) {
-      const imagemAposTitulo = blocoImagemSecao(secao, curadoria)
-      if (imagemAposTitulo) blocos.push(imagemAposTitulo)
-    }
     for (let i = 0; i < secao.paragrafos.length; i++) {
       blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(secao.paragrafos[i]) } })
       blocos.push(...blocosGaleriaComparacaoAposParagrafo(secao, i))
@@ -432,6 +456,10 @@ export function blocosDeSecaoConfiguradorAcademy(
       ) {
         blocos.push(blocoInfografico('api-cockpit-integracao'))
       }
+    }
+    if (secao.layoutTextoImagemLateral) {
+      const imagemAposTitulo = blocoImagemSecao(secao, curadoria)
+      if (imagemAposTitulo) blocos.push(imagemAposTitulo)
     }
     if (secao.topicosImagemLateral?.length) {
       blocos.push({

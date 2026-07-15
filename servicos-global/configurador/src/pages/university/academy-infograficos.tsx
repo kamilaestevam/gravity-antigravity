@@ -30,6 +30,7 @@ import { ManualInfograficoHubGabiInsightsExplicacoes } from './manual-hub-infogr
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
+import { ManualInfograficoSmartDocsOQueE } from './manual-smart-read-infografico-o-que-e'
 import { ManualInfograficoAdminTelas } from './manual-admin-infografico-telas'
 
 export type IdInfograficoAcademy =
@@ -52,6 +53,7 @@ export type IdInfograficoAcademy =
   | 'hub-gabi-insights-explicacoes'
   | 'icones-menu-superior'
   | 'pedido-visao-geral'
+  | 'smart-docs-o-que-e'
   | 'smart-docs-documentos'
   | 'admin-telas'
 
@@ -96,6 +98,7 @@ const REGISTRO_INFOGRAFICOS_ACADEMY: Record<IdInfograficoAcademy, React.Componen
   'hub-gabi-insights-explicacoes': ManualInfograficoHubGabiInsightsExplicacoes,
   'icones-menu-superior': ManualInfograficoIconesMenuSuperior,
   'pedido-visao-geral': ManualInfograficoPedidoVisaoGeral,
+  'smart-docs-o-que-e': ManualInfograficoSmartDocsOQueE,
   'smart-docs-documentos': ManualInfograficoSmartDocsDocumentos,
   'admin-telas': ManualInfograficoAdminTelas,
 }

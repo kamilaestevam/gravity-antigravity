@@ -11,8 +11,6 @@ const LINK_MANUAL_SMART_READ_CONFIGURACOES =
   '{{link:/university-gravity/docs/smart-read#doc-sec-7|Configurações}}'
 const LINK_MANUAL_PEDIDO_LISTA =
   '{{link:/university-gravity/docs/pedido#doc-sec-5|Pedido · Visão Lista}}'
-const LINK_MANUAL_SMART_READ_LISTA_PAINEIS =
-  '{{link:/university-gravity/docs/smart-read#manual-passo-lista-9|5.09 Painéis}}'
 const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API Cockpit}}'
 
 /**
@@ -24,6 +22,8 @@ const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API
  * - tela_smart_read_lista_exportar_planilha.png → smart-docs-lista-exportar-planilha.png
  * - tela_smart_docs_tela_lista_paineis_novo_nome_validar → smart-docs-lista-paineis-novo-nome-validar.png
  * - tela_smart_docs_tela_lista_paineis_novo_nome_validado → smart-docs-lista-paineis-novo-nome-validado.png
+ * - tela_smart_docs_tela_insight_tooltip_1 → smart-docs-insights-tooltip-1.png (Evolução diária — tooltip)
+ * - tela_smart_docs_tela_insight_tooltip_2 → smart-docs-insights-tooltip-2.png (Campos corretos × errados — tooltip)
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
@@ -65,6 +65,10 @@ const SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API = '/university/screenshots/smar
 const SCREENSHOT_SMART_DOCS_LISTA_NOVA_LEITURA = '/university/screenshots/smart-docs-lista-nova-leitura.png'
 const SCREENSHOT_SMART_DOCS_INSIGHTS_NOVA_LEITURA =
   '/university/screenshots/smart-docs-insights-nova-leitura.png'
+const SCREENSHOT_SMART_DOCS_INSIGHTS_TOOLTIP_1 =
+  '/university/screenshots/smart-docs-insights-tooltip-1.png'
+const SCREENSHOT_SMART_DOCS_INSIGHTS_TOOLTIP_2 =
+  '/university/screenshots/smart-docs-insights-tooltip-2.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_4_PASSOS =
   '/university/screenshots/smart-docs-nova-leitura-4-passos.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL =
@@ -77,17 +81,6 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-anexado.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXEMPLO_ERRO =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-exemplo-erro.png'
-const SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_LINK =
-  '/university/screenshots/smart-docs-lista-fluxo-edicao-link.png'
-const SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_CONFERENCIA =
-  '/university/screenshots/smart-docs-lista-fluxo-edicao-conferencia.png'
-const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_SETA =
-  '/university/screenshots/smart-docs-lista-filtro-seta.png'
-const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_MODAL =
-  '/university/screenshots/smart-docs-lista-filtro-modal.png'
-const SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL =
-  '/university/screenshots/smart-docs-lista-filtro-final.png'
-
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -104,19 +97,25 @@ export const DOC_SMART_READ_METADADOS: { rotulo: string; valor: string; href?: b
 
 export const DOC_SMART_READ_SECAO: DocSecao = {
   num: 1,
-  titulo: 'Visão geral',
+  titulo: 'Entendendo o Smart Docs',
+  tituloTopico: 'O que é Smart Docs',
   paragrafos: [
-    'O **Smart Docs** é o produto Gravity de **leitura inteligente**, **gestão de documentos** e **gestão de riscos** no comércio exterior.',
+    'O Smart Docs é o produto Gravity de leitura inteligente, gestão de documentos e gestão de riscos no comércio exterior.',
   ],
-  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
-  layoutTextoImagemLateral: true,
+  figurasAposParagrafo: [
+    {
+      indice: 0,
+      imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+      legenda: 'Tela principal do Smart Docs — Insights',
+    },
+  ],
+  mostrarInfograficoSmartDocsOQueE: true,
   mostrarInfograficoSmartDocsDocumentos: true,
   fluxos: [
     {
       titulo: 'Como acessar o produto',
       tituloSumario: 'Como acessar o produto',
       modoCenarios: true,
-      cenariosLadoALado: true,
       paragrafos: [
         'Com o **Smart Docs** contratado e habilitado no workspace, há **dois caminhos** para abrir o produto: pelo **Hub** ou pelo **menu lateral** (**acesso rápido**, a partir de outro Produto Gravity).',
       ],
@@ -132,7 +131,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
         {
           titulo: 'Menu lateral — acesso rápido',
           paragrafos: [
-            'Já em outro **Produto Gravity** do mesmo workspace, abra o **seletor de produtos** no topo do menu lateral e escolha **Smart Docs**.',
+            'Quando tiver em outro **Produto Gravity** do mesmo **workspace**, abra o **seletor de produtos** no topo do menu lateral e escolha **Smart Docs**.',
           ],
           imagem: SCREENSHOT_SMART_DOCS_ACESSO_MENU_LATERAL,
           imagemAbaixoTexto: true,
@@ -146,7 +145,6 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
         'A gestão via **Smart Docs** pode ser feita utilizando **dois tipos de visualizações**: **Insights** e **Lista**.',
       ],
       modoCenarios: true,
-      cenariosLadoALado: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Insights',
@@ -167,20 +165,105 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Visão Insight',
-      tituloSumario: 'Visão Insight',
+      titulo: 'Insights',
+      tituloSumario: 'Insights',
+      tituloTopicoAcademy: 'Mapa de métricas',
+      prefixoPassosVisuais: 'Insights',
+      ancoraPassosPrefix: 'insights',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Visão **consolidada** das **leituras em tempo real**: o print e o **mapa** **das** **métricas** abaixo detalham cada bloco da tela. Todos os números consideram apenas leituras **concluídas** no workspace.',
-      ],
-      figurasAposParagrafo: [
-        {
-          indice: 0,
-          imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
-          legenda: 'Tela Insights',
-        },
+        'A aba **Insights** consolida a leitura operacional do workspace: **KPIs** de volume e acurácia, **evolução diária**, distribuição por tipo de documento, **economia estimada** e rankings por emissor. O quadro abaixo descreve os **seis indicadores** da tela. Avance nos subtópicos do menu para interagir com cada área. Ajuste a base de cálculo em ' +
+          LINK_MANUAL_SMART_READ_CONFIGURACOES +
+          '.',
       ],
       mostrarInfograficoSmartDocsInsights: true,
-      passosVisuais: [],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'KPIs do topo',
+          tituloCurto: 'KPIs do topo',
+          paragrafos: [
+            'A primeira linha da aba **Insights** exibe **quatro cards**: **documentos lidos**, **campos lidos**, **saving digitação** e **saving em erros**. Cada card resume o workspace com totais e variação quando disponível.',
+          ],
+          imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+          imagemAbaixoTexto: true,
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto:
+              'Os valores refletem apenas leituras **concluídas** no workspace. Métricas de economia dependem da **base de cálculo** definida em ' +
+              LINK_MANUAL_SMART_READ_CONFIGURACOES +
+              '.',
+          },
+        },
+        {
+          titulo: 'Indicadores da grade',
+          tituloCurto: 'Indicadores da grade',
+          rotuloPasso: 'Indicadores da grade',
+          paragrafos: [
+            'Abaixo dos KPIs, a grade reúne **cinco widgets**: evolução diária, acurácia dos campos, tipos de documento, economia estimada e ranking por emissor. Cada bloco resume o escopo do workspace; use **Base de cálculo →** no widget de economia para revisar a metodologia.',
+            'Passe o mouse sobre **barras**, **fatias** e **blocos** dos gráficos da grade para abrir o **tooltip** com o recorte do período, volume de documentos e campos, acertos × erros e percentuais.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              layoutCardInsightGradeSmartDocs: true,
+              telas: [
+                {
+                  legenda: '02 · Evolução diária',
+                  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+                  larguraMaxima: 686,
+                  cardInsightGradeSmartDocs: 2,
+                },
+                {
+                  legenda: '03 · Campos corretos × errados',
+                  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+                  larguraMaxima: 450,
+                  cardInsightGradeSmartDocs: 3,
+                },
+                {
+                  legenda: '04 · Tipos de documento',
+                  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+                  larguraMaxima: 640,
+                  cardInsightGradeSmartDocs: 4,
+                },
+                {
+                  legenda: '05 · Economia estimada',
+                  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+                  larguraMaxima: 457,
+                  cardInsightGradeSmartDocs: 5,
+                },
+                {
+                  legenda: '06 · Ranking por emissor',
+                  imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
+                  larguraMaxima: 559,
+                  cardInsightGradeSmartDocs: 6,
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Ajuste minuto digitado, valor por campo e demais parâmetros da **base de cálculo** em ' +
+                  LINK_MANUAL_SMART_READ_CONFIGURACOES +
+                  ' para refletir o custo real da operação.',
+              },
+            },
+            {
+              indice: 1,
+              colunas: 2,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_INSIGHTS_TOOLTIP_1,
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_INSIGHTS_TOOLTIP_2,
+                },
+              ],
+            },
+          ],
+        },
+      ]),
     },
     {
       titulo: 'Visão Lista',
@@ -267,7 +350,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           mostrarInfograficoSmartDocsListaCustomizacao: true,
           galeriaTelasAposTabela: [
             {
-              legenda: '01 · Ocultar e exibir colunas nativas',
+              legenda: 'Ocultar e exibir colunas nativas',
               pilaresCustomizacao: ['01', '02'],
               imagem: SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR,
               paragrafoAntes:
@@ -278,9 +361,11 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               },
             },
             {
-              legenda: '03 · Arrastar com sua preferência',
+              legenda: 'Arrastar com sua preferência',
               pilaresCustomizacao: ['03'],
-              imagem: SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR_ARRASTAR,
+              simuladorSmartReadListaArrastarColunas: true,
+              fraseDemonstracaoAnimada:
+                '**Tela animada** — acompanhe a mão rearrastando os **cabeçalhos** da tabela para definir a ordem das colunas. O ciclo se repete automaticamente; você só observa, sem precisar clicar.',
               paragrafoAntes:
                 'No mesmo menu, **arraste** os itens para definir a **ordem** das colunas na tabela.',
               calloutDepois: {
@@ -309,24 +394,6 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ],
           mostrarIndicadorCursorVisualizacao: true,
           indicadorCursorVisualizacaoAposParagrafo: 1,
-          galeriaComparacaoAposParagrafo: [
-            {
-              indice: 1,
-              colunas: 2,
-              telas: [
-                {
-                  legenda: 'Abrir leitura pelo link',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_LINK,
-                  paragrafoAntes: 'Clique no **Nome da leitura** na Lista',
-                },
-                {
-                  legenda: 'Conferência — editar campos',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FLUXO_EDICAO_CONFERENCIA,
-                  paragrafoAntes: 'Na etapa **Conferência**, revise e corrija os campos extraídos',
-                },
-              ],
-            },
-          ],
           calloutAposParagrafo: {
             indice: 1,
             callout: {
@@ -343,41 +410,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
             'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
-            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
-              LINK_MANUAL_SMART_READ_LISTA_PAINEIS +
-              ') e reutilize depois.',
-          ],
-          galeriaComparacaoAposParagrafo: [
-            {
-              indice: 1,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_SETA,
-                  paragrafoAntes: '**Ícone de funil** no cabeçalho da coluna',
-                },
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_MODAL,
-                  paragrafoAntes: 'Popover: **ordenar** e **filtrar**',
-                },
-              ],
-            },
-            {
-              indice: 2,
-              colunas: 1,
-              textoAcimaEstiloCorpo: true,
-              telas: [
-                {
-                  legenda: '',
-                  imagem: SCREENSHOT_SMART_DOCS_LISTA_FILTRO_FINAL,
-                  paragrafoAntes:
-                    'Chip *_Coluna: valor_* na barra — **combinação** de filtros e *_Limpar todos_*',
-                },
-              ],
-            },
+            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo e reutilize depois.',
           ],
           callout: {
             tipo: 'dica',
@@ -421,8 +454,9 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
               telas: [
                 {
                   legenda: '',
@@ -461,8 +495,26 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
+                  paragrafoAntes:
+                    'A **faixa de painéis** fica abaixo da barra da tabela — troque de aba para restaurar o recorte salvo (**filtros**, **colunas** e **ordem**)',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              tituloEtapa: 'Criar novo painel',
+              textoIntro:
+                'Clique em **+** na faixa para abrir o fluxo. O **nome** precisa ser **único** entre suas abas; depois personalize **filtros** e **colunas** só nesse painel.',
               telas: [
                 {
                   legenda: '',
@@ -478,7 +530,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
-                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                  paragrafoAntes: '**03.** Confirme — o **nome** precisa ser **único** entre seus painéis',
                 },
                 {
                   legenda: '',

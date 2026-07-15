@@ -197,6 +197,8 @@ export interface DocPassoVisual {
     mostrarCardsKanbanCabecalhoPedido?: boolean
     /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
     layoutCardInsightGradePedido?: boolean
+    /** Manual Smart Docs § Insights — card numerado à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradeSmartDocs?: boolean
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
@@ -428,6 +430,8 @@ export interface DocGaleriaComparacaoTela {
   alturaMaxima?: number
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
   cardInsightGradePedido?: number
+  /** Manual Smart Docs § Insights — card numerado à esquerda + print à direita (número do bloco em `cardInsightGradeSmartDocs`). */
+  cardInsightGradeSmartDocs?: number
   /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
   preencherCelulaGrade?: boolean
 }
@@ -466,6 +470,10 @@ export interface DocGaleriaTela {
   pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
   /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
   simuladorBidFretePainelInsights?: boolean
+  /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
+  simuladorSmartReadListaArrastarColunas?: boolean
+  /** Frase com ícone de vídeo acima de simuladores/telas animadas do manual. */
+  fraseDemonstracaoAnimada?: string
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Chips numerados do infográfico do mapa Pedido (ex.: ['01'] = selecionar pin). */
@@ -578,6 +586,8 @@ export interface DocSecao {
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
   mostrarInfograficoHubTelas?: boolean
+  /** Manual Smart Docs §01 — mapa conceitual do produto (leitura, gestão, riscos). */
+  mostrarInfograficoSmartDocsOQueE?: boolean
   /** Manual Smart Docs §01 — cards dos tipos de documento lidos pela IA. */
   mostrarInfograficoSmartDocsDocumentos?: boolean
   /** Manual Pedido §01 — mapa visual do ciclo do PO antes do embarque. */

@@ -104,7 +104,15 @@ const PRODUTOS_MANUAL: ProdutoManualDef[] = [
     produtoSlug: 'smart-read',
     docsPath: '/university-gravity/docs/smart-read',
     secao: DOC_SMART_READ_SECAO,
-    aulas: curadoriaSequencial(SMART_READ_AULA_SLUGS),
+    aulas: [
+      { slug: SMART_READ_AULA_SLUGS[0], incluirIntroSecao: true, fluxoIndices: [0, 1] },
+      { slug: SMART_READ_AULA_SLUGS[1], fluxoIndices: [2] },
+      { slug: SMART_READ_AULA_SLUGS[2], fluxoIndices: [3] },
+      { slug: SMART_READ_AULA_SLUGS[3], fluxoIndices: [4] },
+      { slug: SMART_READ_AULA_SLUGS[4], fluxoIndices: [5] },
+      { slug: SMART_READ_AULA_SLUGS[5], fluxoIndices: [6] },
+      { slug: SMART_READ_AULA_SLUGS[6], fluxoIndices: [7] },
+    ],
   },
   {
     produtoSlug: 'bid-frete',

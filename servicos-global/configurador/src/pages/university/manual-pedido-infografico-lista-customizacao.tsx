@@ -127,14 +127,18 @@ function CardPilar({ pilar }: { pilar: PilarCustomizacao }) {
 }
 
 /** Manual Pedido §05 — mapa da customização da Lista */
-export function ManualInfograficoPedidoListaCustomizacao() {
+export function ManualInfograficoPedidoListaCustomizacao({
+  margemSuperiorPx = 20,
+}: {
+  margemSuperiorPx?: number
+}) {
   return (
     <div style={{
       background: 'linear-gradient(165deg, rgba(245,158,11,.09) 0%, rgba(148,163,184,.04) 42%, rgba(129,140,248,.05) 100%)',
       border: '1px solid rgba(148,163,184,.18)',
       borderRadius: 14,
       padding: '18px 18px 16px',
-      marginTop: 20,
+      marginTop: margemSuperiorPx,
       boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
     }}>
       <div style={{

@@ -4,6 +4,9 @@
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs',
+  "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
+  "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
   'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs',
   "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
   "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs"
@@ -23,6 +26,8 @@ $mapa = @{
   'tela_smart_docs_tela_principal' = 'smart-docs-tela-principal.png'
   'tela_smart_docs_tela_lista_visao_geral' = 'smart-docs-lista-visao-geral.png'
   'tela_smart_docs_tela_insight_nova_leitura' = 'smart-docs-insights-nova-leitura.png'
+  'tela_smart_docs_tela_insight_tooltip_1' = 'smart-docs-insights-tooltip-1.png'
+  'tela_smart_docs_tela_insight_tooltip_2' = 'smart-docs-insights-tooltip-2.png'
   'tela_smart_docs_tela_lista' = 'smart-docs-lista.png'
   'tela_smart_read_lista_colunas_customizar' = 'smart-docs-lista-colunas-customizar.png'
   'tela_smart_read_lista_colunas_customizar_arrastar' = 'smart-docs-lista-colunas-customizar-arrastar.png'

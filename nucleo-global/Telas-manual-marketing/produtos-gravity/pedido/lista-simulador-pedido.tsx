@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type DragEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -58,6 +58,14 @@ import {
   resolverLadoDropColuna,
   type LadoDropColuna,
 } from './reordenar-colunas-lista-simulador-pedido'
+import { criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido } from './criar-estado-colunas-demonstracao-arrastar-lista-simulador-pedido'
+import { IndicadorCursorArrastarListaSimuladorPedido } from './indicador-cursor-arrastar-lista-simulador-pedido'
+import { IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido } from './indicador-cabecalho-fantasma-arrastar-lista-simulador-pedido'
+import {
+  CURSOR_ARRASTAR_LISTA_INICIAL,
+  iniciarMotorAnimacaoArrastarColunasLista,
+  type EstadoCursorArrastarLista,
+} from './motor-animacao-arrastar-colunas-lista-simulador-pedido'
 import {
   calcularValoresUnicosCampoListaSimulador,
   colunaListaSimuladorFiltravel,
@@ -173,6 +181,8 @@ function estiloChipStatusFiltro(id: string, cor: string, ativo: boolean): CSSPro
 type Props = {
   empresasSelecionadas: PerfilEmpresaSimulador[]
   onAbrirMenuWorkspaces?: () => void
+  /** Demo automática do manual — cursor arrasta itens do menu Colunas em loop. */
+  modoDemonstracaoArrastarColunas?: boolean
 }
 
 function ListaNumeradaWorkspacesTooltipSimulador({ nomes }: { nomes: readonly string[] }) {
@@ -209,7 +219,11 @@ function chaveCelula(linhaId: string, colunaId: string, itemId?: string): string
   return itemId ? `${linhaId}:${itemId}:${colunaId}` : `${linhaId}:${colunaId}`
 }
 
-export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspaces }: Props) {
+export function ListaSimuladorPedido({
+  empresasSelecionadas,
+  onAbrirMenuWorkspaces,
+  modoDemonstracaoArrastarColunas = false,
+}: Props) {
   const [paineisLista, setPaineisLista] = useState<PainelItemSimulador[]>(PAINEIS_LISTA_SIMULADOR_INICIAIS)
   const [painelAtualId, setPainelAtualId] = useState('geral')
   const [statusFiltro, setStatusFiltro] = useState('todas')
@@ -217,7 +231,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [pagina, setPagina] = useState(1)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
-  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(criarEstadoColunasListaSimuladorPedido)
+  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(() =>
+    modoDemonstracaoArrastarColunas
+      ? criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido()
+      : criarEstadoColunasListaSimuladorPedido(),
+  )
   const [filtroAbaColunas, setFiltroAbaColunas] = useState<FiltroAbaColunas>('todas')
   const [colunasAberto, setColunasAberto] = useState(false)
   const [buscaColuna, setBuscaColuna] = useState('')
@@ -239,6 +257,10 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
+  const shellDemonstracaoRef = useRef<HTMLDivElement>(null)
+  const [cursorArrastar, setCursorArrastar] = useState<EstadoCursorArrastarLista>(
+    CURSOR_ARRASTAR_LISTA_INICIAL,
+  )
 
   const acoesExportacao = useMemo(
     () => EXPORTAR_OPCOES.map((op) => ({
@@ -302,6 +324,30 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const aplicarReordenacaoColuna = useCallback((fromId: string, toId: string, lado: LadoDropColuna) => {
     setColunas((prev) => reordenarColunasListaSimulador(prev, fromId, toId, lado))
   }, [])
+
+  useEffect(() => {
+    if (!modoDemonstracaoArrastarColunas) return undefined
+
+    return iniciarMotorAnimacaoArrastarColunasLista({
+      ativo: true,
+      containerRef: shellDemonstracaoRef,
+      aoMoverColuna: aplicarReordenacaoColuna,
+      aoArrastarColuna: setDragColunaId,
+      aoPreverDrop: (destinoId, lado) => {
+        setDragOverColunaId(destinoId)
+        if (lado) setLadoDropColuna(lado)
+      },
+      aoAtualizarCursor: setCursorArrastar,
+      aoReiniciarColunas: () => {
+        setColunas(criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido())
+        setColunasAberto(false)
+        setDragColunaId(null)
+        setDragOverColunaId(null)
+        const areaRolagem = shellDemonstracaoRef.current?.querySelector<HTMLElement>('.pds-lista-tabela-wrap')
+        if (areaRolagem) areaRolagem.scrollLeft = 0
+      },
+    })
+  }, [aplicarReordenacaoColuna, modoDemonstracaoArrastarColunas])
 
   const handleColunaDragStart = useCallback((colunaId: string) => {
     setDragColunaId(colunaId)
@@ -841,7 +887,15 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   }
 
   return (
-    <div className="pds-lista">
+    <div
+      ref={shellDemonstracaoRef}
+      className={[
+        'pds-lista',
+        modoDemonstracaoArrastarColunas ? 'pds-lista--demo-arrastar' : '',
+      ].filter(Boolean).join(' ')}
+      role={modoDemonstracaoArrastarColunas ? 'img' : undefined}
+      aria-label={modoDemonstracaoArrastarColunas ? 'Demonstração animada — arrastar colunas direto na tabela' : undefined}
+    >
       <div className="lp-stats-row">
         <div className="lp-cards">
           <CardBasicoGlobal
@@ -978,7 +1032,8 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               onClick={() => setModalExcluirAberto(true)}
             />
           </TooltipGlobal>
-          {(Object.keys(filtrosAtivos).length > 0 || busca.trim().length > 0 || rotuloEscopoWorkspaces) && (
+          {!modoDemonstracaoArrastarColunas
+          && (Object.keys(filtrosAtivos).length > 0 || busca.trim().length > 0 || rotuloEscopoWorkspaces) && (
             <FiltroChips
               colunas={colunasGt}
               filtrosAtivos={filtrosAtivos}
@@ -1090,6 +1145,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                   {colunasFiltradas.map((c) => (
                     <li
                       key={c.id}
+                      data-coluna-demo-id={modoDemonstracaoArrastarColunas ? c.id : undefined}
                       className={[
                         'pds-lista-coluna-item',
                         dragColunaId === c.id ? 'pds-lista-coluna-item--arrastando' : '',
@@ -1160,6 +1216,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                 return (
                   <th
                     key={c.id}
+                    data-coluna-th-demo-id={modoDemonstracaoArrastarColunas ? c.id : undefined}
                     title={c.label}
                     draggable
                     className={[
@@ -1353,6 +1410,18 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
           onFechar={() => setToastDemo(null)}
         />
       )}
+      {modoDemonstracaoArrastarColunas ? (
+        <div className="pds-lista-demo-arrastar-camada" aria-hidden>
+          <IndicadorCursorArrastarListaSimuladorPedido estado={cursorArrastar} />
+          {dragColunaId && cursorArrastar.arrastando ? (
+            <IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido
+              rotulo={colunas.find((coluna) => coluna.id === dragColunaId)?.label ?? ''}
+              x={cursorArrastar.x}
+              y={cursorArrastar.y}
+            />
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

@@ -2,15 +2,10 @@ import React, { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ManualInfograficoMiniaturaSequenciaTelas } from './manual-university-infografico-sequencia-telas'
 import { TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
-import { Link } from 'react-router-dom'
+import { AcademyLinkGuia } from './guia-academy-link'
 import { ArrowsLeftRight, GearSix, GitBranch, MapPin, Sparkle, Target, UploadSimple } from '@phosphor-icons/react'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
-const LINK_STYLE: React.CSSProperties = {
-  color: '#818cf8',
-  textDecoration: 'underline',
-  textUnderlineOffset: 2,
-}
 
 const L = {
   cockpit: '{{link:/university-gravity/docs/api-cockpit|Configurador · API Cockpit}}',
@@ -573,9 +568,7 @@ function ManualInfograficoRichText({ texto }: { texto: string }) {
     }
     if (match[2] && match[3]) {
       partes.push(
-        <Link key={k++} to={match[2]} style={LINK_STYLE}>
-          {match[3]}
-        </Link>,
+        <AcademyLinkGuia key={k++} href={match[2]} rotulo={match[3]} />,
       )
     } else if (match[4]) {
       partes.push(

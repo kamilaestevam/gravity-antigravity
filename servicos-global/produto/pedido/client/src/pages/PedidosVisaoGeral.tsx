@@ -1048,18 +1048,17 @@ function GraficoListaIncoterms({ incoterms }: { incoterms: VisaoGeralIncoterm[] 
           <div
             key={inc.incoterm}
             className="bfd-incoterms__row bfd-incoterms__row--hover"
-            style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}
             onMouseEnter={(e) => incotermTooltip.aoEntrar(e, inc)}
             onMouseLeave={incotermTooltip.aoSair}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <div className="bfd-incoterms__row-top">
               <span className="bfd-incoterms__code">{inc.incoterm}</span>
-              <span className="bfd-incoterms__count" style={{ fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>
+              <span className="bfd-incoterms__count">
                 {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
               </span>
             </div>
-            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }} />
+            <div className="bfd-incoterms__bar">
+              <div className="bfd-incoterms__bar-fill" style={{ width: `${inc.pct}%` }} />
             </div>
           </div>
         ))}
@@ -4490,7 +4489,6 @@ export default function VisaoGeral() {
         /* ── Charts Grid ─────────────────────────────────────────── */
         .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; overflow: visible; }
         .bfd-charts-grid .bfd-card { height: 380px; overflow: visible; }
-        .bfd-bottom-grid { overflow: visible; }
         .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
         .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -4531,7 +4529,48 @@ export default function VisaoGeral() {
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; overflow: visible; }
+        .bfd-insights-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+          overflow: visible;
+        }
+        .bfd-insights-grid .bfd-card {
+          min-height: 260px;
+          overflow: visible;
+          display: flex;
+          flex-direction: column;
+        }
+        .bfd-insights-grid .bfd-best__saving {
+          flex-wrap: wrap;
+        }
+        .bfd-insights-grid .bfd-taxa {
+          flex: 1;
+          justify-content: center;
+          align-items: center;
+          min-width: 0;
+        }
+        .bfd-insights-grid .bfd-incoterms-wrap,
+        .bfd-insights-grid .bfd-incoterms {
+          min-width: 0;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best {
+          flex: 1;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best__saving {
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin: 0;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best__meta {
+          text-align: center;
+          max-width: 100%;
+        }
 
         /* ── Melhor cotação ──────────────────────────────────────── */
         .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -4574,13 +4613,43 @@ export default function VisaoGeral() {
         .bfd-funil__pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
 
         /* ── Top Incoterms ───────────────────────────────────────── */
-        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; }
-        .bfd-incoterms__row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; }
-        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; }
-        .bfd-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
-
-        /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
+        .bfd-incoterms__row {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding: 0.4rem 0;
+          align-items: stretch;
+        }
+        .bfd-incoterms__row-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          width: 100%;
+          min-width: 0;
+        }
+        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; flex-shrink: 0; }
+        .bfd-incoterms__count {
+          font-size: 0.85rem;
+          color: #cbd5e1;
+          letter-spacing: 0.02em;
+          font-weight: 600;
+          text-align: right;
+          white-space: nowrap;
+        }
+        .bfd-incoterms__bar {
+          width: 100%;
+          height: 6px;
+          background: rgba(255, 255, 255, 0.04);
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        .bfd-incoterms__bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #f59e0b, #d97706);
+          border-radius: 3px;
+        }
 
         /* ── Taxa ────────────────────────────────────────────────── */
         .bfd-taxa { display: flex; align-items: center; gap: 1.25rem; }
@@ -4626,7 +4695,6 @@ export default function VisaoGeral() {
           .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
           .bfd-charts-grid { grid-template-columns: 1fr; }
           .bfd-insights-grid { grid-template-columns: 1fr; }
-          .bfd-bottom-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
           .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
@@ -5163,7 +5231,7 @@ export default function VisaoGeral() {
       {/* Insights Row */}
       <div className="bfd-insights-grid">
         {/* Maior pedido */}
-        <div className="bfd-card bfd-card--accent-amber">
+        <div className="bfd-card bfd-card--accent-amber bfd-card--maior-pedido">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
@@ -5173,7 +5241,7 @@ export default function VisaoGeral() {
           <div className="bfd-best">
             {maiorPedido ? (
               <>
-                <div className="bfd-best__saving" style={{ margin: '0.35rem 0 0.5rem' }}>
+                <div className="bfd-best__saving">
                   <span className="bfd-best__saving-badge">
                     <Trophy size={12} /> {maiorPedido.numero}
                   </span>
@@ -5199,10 +5267,7 @@ export default function VisaoGeral() {
           </div>
           <GraficoListaIncoterms incoterms={incoterms} />
         </div>
-      </div>
 
-      {/* Bottom Row */}
-      <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
         <div className="bfd-card bfd-card--accent-emerald bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>

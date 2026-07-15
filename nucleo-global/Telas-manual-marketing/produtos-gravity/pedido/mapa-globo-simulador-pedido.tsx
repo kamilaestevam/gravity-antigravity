@@ -19,6 +19,7 @@ import {
 } from './geo-terra-globo-simulador-pedido'
 import {
   agregarMapaPedidosEmpresasSimulador,
+  type MapaPedidoEmpresaSimulador,
   type PinMapaSimuladorPedido,
 } from './dados-mapa-globo-simulador-pedido'
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
@@ -54,13 +55,14 @@ function desenharSetaDirecionalRota(
 type PinProjetado = PinMapaSimuladorPedido & { px: number; py: number; opacity: number }
 
 type Props = {
-  empresasSelecionadas: PerfilEmpresaSimulador[]
+  empresasSelecionadas?: PerfilEmpresaSimulador[]
+  mapaEscopoOverride?: MapaPedidoEmpresaSimulador
 }
 
-export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
+export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopoOverride }: Props) {
   const mapaEscopo = useMemo(
-    () => agregarMapaPedidosEmpresasSimulador(empresasSelecionadas),
-    [empresasSelecionadas],
+    () => mapaEscopoOverride ?? agregarMapaPedidosEmpresasSimulador(empresasSelecionadas),
+    [empresasSelecionadas, mapaEscopoOverride],
   )
 
   const canvasRef = useRef<HTMLCanvasElement>(null)

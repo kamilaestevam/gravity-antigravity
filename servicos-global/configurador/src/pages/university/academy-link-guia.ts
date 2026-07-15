@@ -170,8 +170,14 @@ function hashDeManualPasso(secao: DocSecao, hashPart: string): string | null {
   const match = /^#manual-passo-([^-]+(?:-[^-]+)*)-(\d+)$/.exec(hashPart)
   if (!match) return null
   const prefix = match[1]
+  const passoNum = Number(match[2])
   const fluxo = secao.fluxos?.find(f => f.ancoraPassosPrefix === prefix)
   if (!fluxo) return null
+  const passo = fluxo.passosVisuais?.find(p => p.num === passoNum)
+  if (passo) {
+    const tituloPasso = passo.tituloCurto?.trim() || passo.titulo
+    return `#${idAncoraTituloGuia(tituloPasso)}`
+  }
   return `#${idAncoraTituloGuia(fluxo.tituloSumario ?? fluxo.titulo)}`
 }
 

@@ -3152,6 +3152,35 @@ body.light-theme .cw-xml-viewer {
   border-left: 3px solid rgba(99, 102, 241, 0.45);
 }
 
+/* Corpo do passo após bloco anterior no mesmo passo */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo {
+  margin-top: 12px;
+  margin-left: 0;
+}
+
+/* Infográfico UX10 → texto do passo: 32px (Guia — screenshot ↔ infográfico) */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-corpo {
+  margin-top: 32px;
+}
+
+/* Infográfico UX10 → etapa do passo (texto + screenshots): 32px */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-etapa {
+  margin-top: 32px;
+}
+
+.uni-player-aula__passo-etapa > .uni-player-aula__passo-corpo,
+.uni-player-aula__passo-etapa > .uni-player-aula__figura,
+.uni-player-aula__passo-etapa > .uni-player-aula__passo-callouts {
+  margin-top: 0;
+}
+
+/* Primeiro bloco do passo não empilha margin-top extra */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria:first-child,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo:first-child,
+.uni-player-aula__bloco-passo > .uni-player-aula__figura:first-child {
+  margin-top: 0;
+}
+
 /* Painel / screenshot / galeria / dica — 12px entre si; alinhados à esquerda do passo. */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-painel,
 .uni-player-aula__bloco-passo > .uni-player-aula__figura,
@@ -3159,6 +3188,11 @@ body.light-theme .cw-xml-viewer {
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-callouts {
   margin-top: 12px;
   margin-left: 0;
+}
+
+/* Texto do passo → infográfico UX10 / galeria de seção: 32px (Guia — screenshot ↔ infográfico). */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria {
+  margin-top: 32px;
 }
 
 .uni-player-aula__passo-corpo > * {

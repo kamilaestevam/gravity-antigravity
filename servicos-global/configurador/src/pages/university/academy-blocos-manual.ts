@@ -185,6 +185,77 @@ function tituloFluxoAcademy(fluxo: DocFluxo): string {
   return fluxo.titulo.replace(/^Fluxo\s+\d+:\s*/i, '').trim()
 }
 
+function tituloPassoAcademy(passo: DocPassoConfigurador): string {
+  return passo.tituloCurto?.trim() || passo.titulo
+}
+
+function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
+  return Boolean(
+    fluxo.mostrarCatalogoHistoricoCompleto
+    || (fluxo.callout && fluxo.calloutAposPassos)
+    || (fluxo.mostrarInfograficoIconesMenuSuperior && fluxo.infograficoIconesMenuSuperiorAposPassos)
+    || (fluxo.mostrarInfograficoHubTelas && fluxo.infograficoHubTelasAposPassos)
+  )
+}
+
+/** Academy: paridade Pedido Gravity — H1 + tópico intro (H2) + subtópicos como H2 no menu. */
+function blocosDeFluxoAcademySubtopicosComoTitulos(
+  fluxo: DocFluxo,
+  numeroSecaoFluxo: number,
+): BlocoConteudoAcademy[] {
+  const blocos: BlocoConteudoAcademy[] = []
+
+  blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 1 } })
+  const tituloIntro = fluxo.tituloTopicoAcademy?.trim()
+  if (tituloIntro) {
+    blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })
+  }
+  blocos.push({
+    tipo: 'fluxo_manual',
+    dados: {
+      payload: JSON.stringify(fluxo),
+      numeroSecaoFluxo,
+      modo: 'intro',
+    },
+  })
+
+  for (const passo of fluxo.passosVisuais ?? []) {
+    // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
+    const tituloPasso = tituloPassoAcademy(passo)
+    blocos.push({
+      tipo: 'heading',
+      dados: {
+        text: tituloPasso,
+        nivel: 2,
+        ...(passo.rotuloPasso?.trim() ? { ocultarNoCorpo: true } : {}),
+        ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
+      },
+    })
+    blocos.push({
+      tipo: 'fluxo_manual',
+      dados: {
+        payload: JSON.stringify(fluxo),
+        numeroSecaoFluxo,
+        modo: 'passo',
+        passoNum: passo.num,
+      },
+    })
+  }
+
+  if (fluxoTemRodapeAcademy(fluxo)) {
+    blocos.push({
+      tipo: 'fluxo_manual',
+      dados: {
+        payload: JSON.stringify(fluxo),
+        numeroSecaoFluxo,
+        modo: 'rodape',
+      },
+    })
+  }
+
+  return blocos
+}
+
 function blocoOrigemDados(manualCapitulo: ConfiguradorManualSlug): BlocoConteudoAcademy {
   return { tipo: 'origem_dados', dados: { manualCapitulo } }
 }
@@ -392,6 +463,10 @@ export function blocosDeSecaoConfiguradorAcademy(
     const tituloFluxoNorm = tituloFluxoAcademy(fluxo).trim().toLocaleLowerCase('pt-BR')
     const omitirTitulo = Boolean(tituloTopicoNorm && tituloFluxoNorm === tituloTopicoNorm)
     if (curadoria.fluxoComoManualCompleto) {
+      if (fluxo.mostrarMapaSubtopicosPassos && fluxo.ancoraPassosPrefix) {
+        blocos.push(...blocosDeFluxoAcademySubtopicosComoTitulos(fluxo, idx + 2))
+        continue
+      }
       if (!omitirTitulo) {
         blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
       }

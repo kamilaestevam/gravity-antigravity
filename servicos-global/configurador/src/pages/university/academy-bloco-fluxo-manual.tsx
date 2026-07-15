@@ -1,16 +1,32 @@
 import React from 'react'
 import type { DocFluxo } from './manual-configurador-conteudo'
-import { ManualSecaoFluxo, ManualSubtopicosProvider } from './manual-configurador-ui'
+import {
+  ManualSecaoFluxo,
+  ManualSubtopicosProvider,
+  type ModoSecaoFluxoAcademy,
+} from './manual-configurador-ui'
 
-/** Corpo completo de um fluxo do manual — paridade com /docs (passos, infográficos, acordeões). */
-export function AcademyBlocoFluxoManual({ fluxo, numeroSecaoFluxo = 1 }: {
+/** Corpo de um fluxo do manual na Academy — intro, passo isolado ou fluxo completo (/docs). */
+export function AcademyBlocoFluxoManual({
+  fluxo,
+  numeroSecaoFluxo = 1,
+  modo = 'completo',
+  passoNum,
+}: {
   fluxo: DocFluxo
   numeroSecaoFluxo?: number
+  modo?: ModoSecaoFluxoAcademy
+  passoNum?: number
 }) {
   return (
     <div className="uni-academy-fluxo-manual">
       <ManualSubtopicosProvider>
-        <ManualSecaoFluxo fluxo={fluxo} numeroSecaoFluxo={numeroSecaoFluxo} />
+        <ManualSecaoFluxo
+          fluxo={fluxo}
+          numeroSecaoFluxo={numeroSecaoFluxo}
+          modo={modo}
+          passoNum={passoNum}
+        />
       </ManualSubtopicosProvider>
     </div>
   )

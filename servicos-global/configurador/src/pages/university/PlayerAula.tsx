@@ -17,6 +17,7 @@ import {
   MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+  MANUAL_ESPACO_FRASE_IMAGEM_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
 } from './manual-tipografia'
@@ -70,6 +71,7 @@ function extrairTitulosSumarioAula(blocos: BlocoConteudo[]): { id: string; texto
       h1s.push({ id: novoId(texto, indiceBloco), texto, nivel: 1, indiceBloco })
       return
     }
+    if (bloco.dados.ocultarNoSumario) return
     headings.push({ id: novoId(texto, indiceBloco), texto, nivel, indiceBloco })
   })
 
@@ -98,6 +100,17 @@ function calcularEspacoSuperiorBlocoGuia(
   _indice: number,
   blocoAnterior: BlocoConteudo | null,
 ): number {
+  if (bloco.tipo === 'heading' && bloco.dados.ocultarNoCorpo) {
+    // H2 só no menu: mantém 32px após o passo anterior; o corpo do próximo passo não empilha +18px.
+    if (
+      blocoAnterior?.tipo === 'fluxo_manual'
+      && String(blocoAnterior.dados.modo ?? 'completo') === 'passo'
+    ) {
+      return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    }
+    return 0
+  }
+
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
     return MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
   }
@@ -117,6 +130,56 @@ function calcularEspacoSuperiorBlocoGuia(
     && Number(blocoAnterior.dados.nivel ?? 1) <= 1
   ) {
     return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+  }
+  // H1 → intro do fluxo (parágrafos + UX10 antes do primeiro subtópico)
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && blocoAnterior?.tipo === 'heading'
+    && Number(blocoAnterior.dados.nivel ?? 1) <= 1
+    && String(bloco.dados.modo ?? 'completo') === 'intro'
+  ) {
+    return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+  }
+  // H2 tituloTopico → intro do fluxo
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && blocoAnterior?.tipo === 'heading'
+    && Number(blocoAnterior.dados.nivel ?? 1) === 2
+    && String(bloco.dados.modo ?? 'completo') === 'intro'
+  ) {
+    return MANUAL_ESPACO_PARAGRAFO_PX
+  }
+
+  // H2 subtópico → corpo do passo (1º parágrafo ou infográfico na Academy)
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && blocoAnterior?.tipo === 'heading'
+    && Number(blocoAnterior.dados.nivel ?? 1) === 2
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+  ) {
+    if (blocoAnterior.dados.ocultarNoCorpo) return 0
+    return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+  }
+
+  // Fim de um passo (fluxo modo passo) → H2 do próximo subtópico
+  if (
+    bloco.tipo === 'heading'
+    && Number(bloco.dados.nivel ?? 1) === 2
+    && blocoAnterior?.tipo === 'fluxo_manual'
+    && String(blocoAnterior.dados.modo ?? 'completo') === 'passo'
+  ) {
+    if (bloco.dados.ocultarNoCorpo) return 0
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+  }
+
+  // Passo com `rotuloPasso` (sem H2) → próximo passo ou passo anterior
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+    && blocoAnterior?.tipo === 'fluxo_manual'
+    && String(blocoAnterior.dados.modo ?? 'completo') === 'passo'
+  ) {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   const classificacao = classificarBlocoGuia(bloco)
@@ -474,6 +537,18 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       }
       const texto = String(bloco.dados.text)
       const idAncora = bloco.dados.idAncora ? String(bloco.dados.idAncora) : undefined
+      const ocultarNoCorpo = Boolean(bloco.dados.ocultarNoCorpo)
+      const estiloOculto: React.CSSProperties = {
+        position: 'absolute',
+        width: 1,
+        height: 1,
+        padding: 0,
+        margin: -1,
+        overflow: 'hidden',
+        clip: 'rect(0,0,0,0)',
+        whiteSpace: 'nowrap',
+        border: 0,
+      }
       // Título H1: padding-bottom + border (padrão da tela correta) — spacer separado falhava visualmente.
       if (nivel <= 1) {
         return (
@@ -482,7 +557,11 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
           </h1>
         )
       }
-      return <Tag id={idAncora} style={styles[nivel] ?? styles[1]}>{texto}</Tag>
+      return (
+        <Tag id={idAncora} style={ocultarNoCorpo ? estiloOculto : (styles[nivel] ?? styles[1])} aria-hidden={ocultarNoCorpo || undefined}>
+          {texto}
+        </Tag>
+      )
     }
 
     case 'texto':
@@ -850,9 +929,17 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
     case 'fluxo_manual': {
       const fluxo = JSON.parse(String(bloco.dados.payload ?? '{}')) as DocFluxo
       const numeroSecaoFluxo = Number(bloco.dados.numeroSecaoFluxo ?? 1)
+      const modo = String(bloco.dados.modo ?? 'completo') as 'completo' | 'intro' | 'passo' | 'rodape'
+      const passoNumRaw = bloco.dados.passoNum
+      const passoNum = passoNumRaw != null ? Number(passoNumRaw) : undefined
       return (
         <div style={SEM_MARGEM}>
-          <AcademyBlocoFluxoManual fluxo={fluxo} numeroSecaoFluxo={numeroSecaoFluxo} />
+          <AcademyBlocoFluxoManual
+            fluxo={fluxo}
+            numeroSecaoFluxo={numeroSecaoFluxo}
+            modo={modo}
+            passoNum={passoNum}
+          />
         </div>
       )
     }

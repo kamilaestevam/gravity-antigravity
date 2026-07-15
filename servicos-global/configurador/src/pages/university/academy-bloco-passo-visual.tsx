@@ -336,8 +336,13 @@ export function AcademyBlocoPassoVisual({
           semSombraExterna
         />
         {passo.calloutAposImagem ? (
-          <div className="uni-player-aula__passo-callouts">
-            <CalloutPasso callout={passo.calloutAposImagem} />
+          <div
+            className="uni-player-aula__passo-callouts"
+            style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_PARAGRAFO_PX }}
+          >
+            {(Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, i) => (
+              <CalloutPasso key={i} callout={callout} />
+            ))}
           </div>
         ) : null}
       </div>
@@ -484,8 +489,17 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {passo.calloutAposImagem ? (
-        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
-          <CalloutPasso callout={passo.calloutAposImagem} />
+        <div
+          style={{
+            marginTop: MANUAL_ESPACO_PARAGRAFO_PX,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: MANUAL_ESPACO_PARAGRAFO_PX,
+          }}
+        >
+          {(Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, i) => (
+            <CalloutPasso key={i} callout={callout} />
+          ))}
         </div>
       ) : null}
       {passo.galeriaTelas?.length ? (

@@ -111,6 +111,29 @@ const TITULOS_ABA_PEDIDO_CONFIGURACOES = new Set([
   'numeração',
 ])
 
+/** Passos visíveis no corpo, omitidos do menu lateral / sumário do Guia. */
+const PASSOS_OCULTOS_SUMARIO_PEDIDO_CONFIGURACOES = new Set([
+  'adicionar card',
+  'detalhes ao adicionar',
+  'ocultar card',
+  'remover card',
+  'reativar card',
+  'nova coluna personalizada tipo texto',
+  'nova coluna personalizada tipo numérico',
+  'nova coluna personalizada tipo data',
+  'nova coluna personalizada tipo percentual',
+  'nova coluna personalizada tipo lista',
+  'nova coluna personalizada tipo checkbox',
+  'nova coluna personalizada tipo tipo documento',
+  'nova coluna personalizada tipo fórmula',
+  'editar coluna personalizada',
+  'ocultar coluna personalizada',
+  'excluir colunas personalizadas',
+  'colunas de status',
+  'card do kanban',
+  'modal do kanban',
+])
+
 function renumerarPassosConfig(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => {
     const tituloCurto = passo.tituloCurto?.trim()
@@ -125,6 +148,9 @@ function renumerarPassosConfig(passos: PassoSemNumero[]): DocPassoVisual[] {
     return {
       ...passo,
       num: i + 1,
+      ...(PASSOS_OCULTOS_SUMARIO_PEDIDO_CONFIGURACOES.has(tituloCurtoNorm)
+        ? { ocultarNoSumario: true }
+        : {}),
       ...(usarRotuloPassoGuia
         ? { rotuloPasso: tituloCurto, ocultarTituloPasso: true }
         : {}),

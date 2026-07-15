@@ -3774,10 +3774,22 @@ function ManualBlocoPassoVisual({
         {passo.calloutAposImagem ? (
           passoAcademyIsolado ? (
             <div className="uni-player-aula__passo-callouts">
-              <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={0} />
+              {(Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, idx) => (
+                <ManualCalloutBloco
+                  key={idx}
+                  callout={callout}
+                  marginTop={idx === 0 ? 0 : MANUAL_ESPACO_PARAGRAFO_PX}
+                />
+              ))}
             </div>
           ) : (
-            <ManualCalloutBloco callout={passo.calloutAposImagem} marginTop={MANUAL_ESPACO_IMAGEM_FRASE_PX} />
+            (Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, idx) => (
+              <ManualCalloutBloco
+                key={idx}
+                callout={callout}
+                marginTop={idx === 0 ? MANUAL_ESPACO_IMAGEM_FRASE_PX : MANUAL_ESPACO_PARAGRAFO_PX}
+              />
+            ))
           )
         ) : null}
         {passo.paragrafosAposImagem && passo.paragrafosAposImagem.length > 0 && (

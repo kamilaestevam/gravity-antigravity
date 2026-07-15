@@ -82,6 +82,14 @@ export const MANUAL_MARKUP_NEGRITO_BOTAO = '**'
 /** Frase literal da UI (link, checkbox, placeholder, modal) — itálico semi-negrito no render */
 export const MANUAL_MARKUP_ITALICO_LITERAL_UI = '*_'
 
+/** Guia PlayerAula — menu lateral de tópicos (paridade com `.uni-player-aula__article`). */
+export const MANUAL_GUIA_NAV_LARGURA_PX = 280
+export const MANUAL_GUIA_NAV_PADDING_TOP_PX = 32
+export const MANUAL_GUIA_NAV_PADDING_HORIZONTAL_PX = 24
+export const MANUAL_GUIA_NAV_GAP_ITENS_PX = MANUAL_ESPACO_PARAGRAFO_PX
+export const MANUAL_GUIA_NAV_VOLTAR_MARGEM_INFERIOR_PX = MANUAL_ESPACO_PARAGRAFO_PX
+export const MANUAL_GUIA_NAV_CABECALHO_AULA_PADDING_INFERIOR_PX = MANUAL_ESPACO_PARAGRAFO_PX
+
 /** Parágrafos dentro de subtópico em acordeão — respiro extra para leitura confortável. */
 export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16
 

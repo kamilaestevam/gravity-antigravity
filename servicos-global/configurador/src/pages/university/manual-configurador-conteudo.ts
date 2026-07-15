@@ -209,8 +209,8 @@ export interface DocPassoVisual {
     NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number],
     'indice'
   >[]
-  /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
-  calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Com `imagemAbaixoTexto`, callout(s) logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
+  calloutAposImagem?: DocCalloutManual | DocCalloutManual[]
   /** Com `imagemAbaixoTexto`, legenda roxa logo abaixo do screenshot principal. */
   legendaAposImagem?: string
   legendaAposImagemAlinhamento?: 'left' | 'center'
@@ -1226,6 +1226,7 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
     ) {
       function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
         passos.forEach((passo) => {
+          if (passo.ocultarNoSumario) return
           itens.push({
             rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
             titulo: passo.tituloCurto ?? passo.titulo,

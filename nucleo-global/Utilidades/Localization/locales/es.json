@@ -7090,7 +7090,49 @@
         "sem_pedidos": "Ningún pedido en esta ubicación.",
         "abrir_pedido": "Abrir {{numero}}",
         "col_status": "Estado",
-        "col_workspace": "Workspace"
+        "col_workspace": "Workspace",
+        "refinar": {
+          "titulo": "Refinar mapa",
+          "recolher": "Contraer Refinar mapa",
+          "expandir": "Expandir Refinar mapa",
+          "aria_filtros": "Filtros del mapa",
+          "aria_filtros_compacto": "Filtros del mapa (compacto)",
+          "expandir_todas": "Expandir todas",
+          "recolher_todas": "Contraer todas",
+          "expandir_todas_secoes": "Expandir todas las secciones",
+          "recolher_todas_secoes": "Contraer todas las secciones",
+          "limpar_filtros": "Limpiar filtros",
+          "limpar_selecao": "Limpiar selección",
+          "todos": "Todos",
+          "resumo_todos": "Mostrando todos · {{pedidos}} pedidos · {{locais}} ubicaciones · {{rotas}} rutas",
+          "resumo_filtrado": "{{totalPedidos}}/{{totalPedidosBase}} pedidos · {{pinsAtivos}}/{{pinsBase}} ubicaciones · {{rotasAtivas}}/{{rotasBase}} rutas · {{filtros}} filtro(s)",
+          "localizar": "Buscar",
+          "localizar_aria": "Buscar elemento en la lista",
+          "limpar_busca": "Limpiar búsqueda",
+          "busca_sem_resultado": "Ningún elemento coincide con la búsqueda.",
+          "vazio_origem": "Ningún país de origen en los pedidos actuales.",
+          "vazio_destino": "Ningún país de destino en los pedidos actuales.",
+          "vazio_exportador": "Ningún exportador en los pedidos actuales.",
+          "vazio_importador": "Ningún importador en los pedidos actuales."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operación",
+            "origem": "Origen (país)",
+            "destino": "Destino (país)",
+            "exportador": "Exportador",
+            "importador": "Importador",
+            "status": "Estado del pedido"
+          },
+          "operacao": {
+            "importacao": {
+              "tooltip": "Pedidos con origen fuera de Brasil y destino en Brasil"
+            },
+            "exportacao": {
+              "tooltip": "Pedidos con origen en Brasil y destino en el exterior"
+            }
+          }
+        }
       },
       "hud": {
         "titulo": "Rankings Globales de Pedidos",
@@ -7123,7 +7165,15 @@
         "valor_total_subtexto": "Ticket promedio R$ {{valor}}",
         "taxa_atraso_titulo": "Tasa de retraso",
         "taxa_atraso_subtexto_one": "{{count}} pedido retrasado",
-        "taxa_atraso_subtexto_other": "{{count}} pedidos retrasados"
+        "taxa_atraso_subtexto_other": "{{count}} pedidos retrasados",
+        "tooltip_volume": "Volumen total",
+        "tooltip_volume_multiplas_moedas": "Varias monedas",
+        "tooltip_importacao": "Importación",
+        "tooltip_exportacao": "Exportación",
+        "tooltip_coluna_pedido": "Pedido",
+        "tooltip_coluna_valor": "Valor",
+        "tooltip_mais_pedidos_one": "+{{count}} pedido no mostrado",
+        "tooltip_mais_pedidos_other": "+{{count}} pedidos no mostrados"
       },
       "alertas": {
         "titulo": "Alertas",

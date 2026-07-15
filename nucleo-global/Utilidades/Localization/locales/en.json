@@ -8331,7 +8331,49 @@
         "sem_pedidos": "No orders for this location.",
         "abrir_pedido": "Open {{numero}}",
         "col_status": "Status",
-        "col_workspace": "Workspace"
+        "col_workspace": "Workspace",
+        "refinar": {
+          "titulo": "Refine map",
+          "recolher": "Collapse Refine map",
+          "expandir": "Expand Refine map",
+          "aria_filtros": "Map filters",
+          "aria_filtros_compacto": "Map filters (compact)",
+          "expandir_todas": "Expand all",
+          "recolher_todas": "Collapse all",
+          "expandir_todas_secoes": "Expand all sections",
+          "recolher_todas_secoes": "Collapse all sections",
+          "limpar_filtros": "Clear filters",
+          "limpar_selecao": "Clear selection",
+          "todos": "All",
+          "resumo_todos": "Showing all · {{pedidos}} orders · {{locais}} locations · {{rotas}} routes",
+          "resumo_filtrado": "{{totalPedidos}}/{{totalPedidosBase}} orders · {{pinsAtivos}}/{{pinsBase}} locations · {{rotasAtivas}}/{{rotasBase}} routes · {{filtros}} filter(s)",
+          "localizar": "Search",
+          "localizar_aria": "Search list item",
+          "limpar_busca": "Clear search",
+          "busca_sem_resultado": "No items match the search.",
+          "vazio_origem": "No origin countries in current orders.",
+          "vazio_destino": "No destination countries in current orders.",
+          "vazio_exportador": "No exporters in current orders.",
+          "vazio_importador": "No importers in current orders."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operation",
+            "origem": "Origin (country)",
+            "destino": "Destination (country)",
+            "exportador": "Exporter",
+            "importador": "Importer",
+            "status": "Order status"
+          },
+          "operacao": {
+            "importacao": {
+              "tooltip": "Orders with origin outside Brazil and destination in Brazil"
+            },
+            "exportacao": {
+              "tooltip": "Orders with origin in Brazil and destination abroad"
+            }
+          }
+        }
       },
       "hud": {
         "titulo": "Global Order Rankings",
@@ -8364,7 +8406,15 @@
         "valor_total_subtexto": "Average ticket R$ {{valor}}",
         "taxa_atraso_titulo": "Delay rate",
         "taxa_atraso_subtexto_one": "{{count}} delayed order",
-        "taxa_atraso_subtexto_other": "{{count}} delayed orders"
+        "taxa_atraso_subtexto_other": "{{count}} delayed orders",
+        "tooltip_volume": "Total volume",
+        "tooltip_volume_multiplas_moedas": "Multiple currencies",
+        "tooltip_importacao": "Import",
+        "tooltip_exportacao": "Export",
+        "tooltip_coluna_pedido": "Order",
+        "tooltip_coluna_valor": "Value",
+        "tooltip_mais_pedidos_one": "+{{count}} order not shown",
+        "tooltip_mais_pedidos_other": "+{{count}} orders not shown"
       },
       "alertas": {
         "titulo": "Alerts",

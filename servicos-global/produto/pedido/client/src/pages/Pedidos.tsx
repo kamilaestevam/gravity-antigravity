@@ -5804,22 +5804,28 @@ export default function Pedidos() {
   const tabelaRef = useRef<GTVirtualHandle | null>(null)
   const pendingInlineEditRef = useRef<PendingEdicaoKanban | null>(null)
   const pendingOpenDrawerRef = useRef<string | null>(null)
+  const pendingExpandirItensRef = useRef<string | null>(null)
 
   // Navegação via Kanban / Visão Geral:
   //   { openPedidoId, editCampo, numeroPedido } → edição inline na célula
   //   { openPedidoId, abrirDrawer, numeroPedido } → abre drawer na lista
+  //   { openPedidoId, expandirItens, numeroPedido } → foca pedido e expande itens na lista
   //   { numeroPedido }                          → apenas filtrar na lista (Abrir pedido completo)
   useEffect(() => {
     const st = location.state as {
       openPedidoId?: string
       editCampo?: string
       abrirDrawer?: boolean
+      expandirItens?: boolean
       numeroPedido?: string
     } | null
     if (!st?.openPedidoId && !st?.numeroPedido) return
     window.history.replaceState({}, '')
 
-    if (st.openPedidoId && st.abrirDrawer) {
+    if (st.openPedidoId && st.expandirItens) {
+      pendingExpandirItensRef.current = st.openPedidoId
+      setPedidoFocoId(st.openPedidoId)
+    } else if (st.openPedidoId && st.abrirDrawer) {
       pendingOpenDrawerRef.current = st.openPedidoId
       setPedidoFocoId(st.openPedidoId)
     } else if (st.openPedidoId && st.editCampo) {
@@ -5857,6 +5863,21 @@ export default function Pedidos() {
     pendingOpenDrawerRef.current = null
     setPedidoEditandoId(pedido.id)
     setDrawerAberto(true)
+  }, [pedidos, carregando])
+
+  // Expande itens do pedido na tabela (tooltip KPI Insights, etc.)
+  useEffect(() => {
+    const pendingId = pendingExpandirItensRef.current
+    if (!pendingId || carregando) return
+    const pedido = pedidos.find(p => p.id === pendingId)
+    if (!pedido) return
+    pendingExpandirItensRef.current = null
+    tabelaRef.current?.expandir(pendingId)
+    for (const ms of [300, 700, 1200]) {
+      setTimeout(() => {
+        tabelaRef.current?.rolarParaCelula(pendingId, 'numero_pedido')
+      }, ms)
+    }
   }, [pedidos, carregando])
 
   // Dispara edição inline assim que o pedido estiver no array e o carregamento terminar

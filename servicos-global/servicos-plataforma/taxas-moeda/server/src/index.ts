@@ -38,7 +38,7 @@ import { taxasMoedaRouter } from './routes/taxas-moeda.js'
 import {
   criarSidecarListenReady,
   registrarErroListenSidecar,
-} from '../../../../middleware/sidecar-listen-ready.js'
+} from '../../../middleware/sidecar-listen-ready.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8032)

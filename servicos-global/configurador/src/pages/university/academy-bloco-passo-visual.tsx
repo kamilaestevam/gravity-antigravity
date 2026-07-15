@@ -59,6 +59,12 @@ const ESTILO_PASSO_TITULO: React.CSSProperties = {
   fontWeight: 700, fontSize: '.92rem', color: MANUAL_TITULO_COR,
 }
 
+function classNamePassoCorpoAcademy(passo: DocPassoVisual): string {
+  return passo.destaqueRotuloPassoGuia
+    ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--destaque'
+    : 'uni-player-aula__passo-corpo'
+}
+
 function AcademyPassoRotuloLinha({ passo }: { passo: DocPassoVisual }) {
   if (passo.ocultarRotuloPasso) return null
   return (
@@ -318,7 +324,7 @@ export function AcademyBlocoPassoVisual({
             <CalloutPasso callout={passo.calloutAntes} />
           </div>
         ) : null}
-        <div className="uni-player-aula__passo-corpo">
+        <div className={classNamePassoCorpoAcademy(passo)}>
           {corpoPasso}
         </div>
         {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
@@ -330,8 +336,13 @@ export function AcademyBlocoPassoVisual({
           semSombraExterna
         />
         {passo.calloutAposImagem ? (
-          <div className="uni-player-aula__passo-callouts">
-            <CalloutPasso callout={passo.calloutAposImagem} />
+          <div
+            className="uni-player-aula__passo-callouts"
+            style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_PARAGRAFO_PX }}
+          >
+            {(Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, i) => (
+              <CalloutPasso key={i} callout={callout} />
+            ))}
           </div>
         ) : null}
       </div>
@@ -349,7 +360,7 @@ export function AcademyBlocoPassoVisual({
         {passo.paragrafos!.map((p, i) => (
           <div key={i} className="uni-player-aula__passo-etapa">
             {i === 0 ? (
-              <div className="uni-player-aula__passo-corpo">
+              <div className={classNamePassoCorpoAcademy(passo)}>
                 {!semRotulo ? (
                   <AcademyPassoRotuloLinha passo={passo} />
                 ) : null}
@@ -405,7 +416,7 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {temCorpoTexto ? (
-        <div className="uni-player-aula__passo-corpo">
+        <div className={classNamePassoCorpoAcademy(passo)}>
           {!semRotulo ? (
             <AcademyPassoRotuloLinha passo={passo} />
           ) : null}
@@ -478,8 +489,17 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {passo.calloutAposImagem ? (
-        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
-          <CalloutPasso callout={passo.calloutAposImagem} />
+        <div
+          style={{
+            marginTop: MANUAL_ESPACO_PARAGRAFO_PX,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: MANUAL_ESPACO_PARAGRAFO_PX,
+          }}
+        >
+          {(Array.isArray(passo.calloutAposImagem) ? passo.calloutAposImagem : [passo.calloutAposImagem]).map((callout, i) => (
+            <CalloutPasso key={i} callout={callout} />
+          ))}
         </div>
       ) : null}
       {passo.galeriaTelas?.length ? (

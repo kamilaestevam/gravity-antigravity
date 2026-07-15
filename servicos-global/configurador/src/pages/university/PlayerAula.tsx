@@ -1147,17 +1147,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           onClick={voltarGuia}
         />
 
-        <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="uni-player-aula__nav-sumario">
           {!(titulosSumario.length === 1
             && titulosSumario[0]!.texto.trim().toLocaleLowerCase('pt-BR') === aula.titulo.trim().toLocaleLowerCase('pt-BR')) && (
-            <div style={{
-              padding: '10px 10px 6px',
-              fontSize: '.72rem',
-              fontWeight: 700,
-              letterSpacing: '.04em',
-              textTransform: 'uppercase',
-              color: CONTENT_MUTED,
-            }}>
+            <div className="uni-player-aula__nav-cabecalho-aula">
               {aula.titulo}
             </div>
           )}
@@ -1173,29 +1166,12 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                   onClick={() => irParaTitulo(titulo.id)}
                   title={titulo.texto}
                   aria-current={ativo ? 'location' : undefined}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
-                    background: ativo ? 'rgba(129,140,248,.14)' : 'transparent',
-                    color: ativo ? UNI_COR : CONTENT_MUTED,
-                    fontWeight: ativo ? 700 : 500, fontSize: '.82rem', width: '100%',
-                    borderLeft: ativo ? `3px solid ${UNI_COR}` : '3px solid transparent',
-                    boxShadow: ativo ? `0 0 0 1px rgba(129,140,248,.25)` : 'none',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                  }}
+                  className={`uni-player-aula__nav-item${ativo ? ' uni-player-aula__nav-item--ativo' : ''}`}
                 >
-                  <span style={{
-                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                    display: 'grid', placeItems: 'center', fontSize: '.65rem', fontWeight: 800,
-                    background: ativo ? UNI_COR : 'transparent',
-                    border: ativo ? 'none' : '1.5px solid rgba(148,163,184,.35)',
-                    color: ativo ? '#0f172a' : 'var(--ws-muted,#94a3b8)',
-                    boxShadow: ativo ? `0 0 0 3px ${UNI_COR}40` : 'none',
-                  }}>
+                  <span className="uni-player-aula__nav-numero">
                     {idx + 1}
                   </span>
-                  <span style={{ flex: 1, lineHeight: 1.3, color: ativo ? undefined : CONTENT_TEXT }}>
+                  <span className="uni-player-aula__nav-item-texto">
                     {titulo.texto}
                   </span>
                 </button>

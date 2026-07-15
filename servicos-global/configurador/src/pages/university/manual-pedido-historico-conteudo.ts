@@ -23,15 +23,15 @@ const PEDIDO_HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+    detalhes: ['Ordenação decrescente, com o mais recente no topo'],
   },
   {
     coluna: 'Ação',
-    descricao: 'O que aconteceu — ex.: **Criou**, **Transferiu**, **Editou em massa**.',
+    descricao: 'O que aconteceu, ex.: **Criou**, **Transferiu**, **Editou em massa**.',
   },
   {
     coluna: 'Local',
-    descricao: 'Módulo e recurso — ex.: **Pedido | Pedido**, **Pedido | Consolidacao**.',
+    descricao: 'Módulo e recurso, ex.: **Pedido | Pedido**, **Pedido | Consolidacao**.',
   },
   {
     coluna: 'Usuário',
@@ -39,7 +39,7 @@ const PEDIDO_HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   },
   {
     coluna: 'Detalhes',
-    descricao: 'Resumo do que mudou — número do pedido, campos alterados, ID da transferência, etc.',
+    descricao: 'Resumo do que mudou: número do pedido, campos alterados, ID da transferência, etc.',
   },
 ]
 
@@ -52,22 +52,28 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
     titulo: 'Visão geral',
     tituloCurto: 'Visão geral',
     paragrafos: [
-      'A tela de **Histórico** exibe a trilha de auditoria do produto **Pedido** no workspace ativo — a mesma interface do Configurador, com escopo filtrado ao módulo.',
+      'A tela de **Histórico** exibe a trilha de auditoria do produto **Pedido** no workspace ativo, com a mesma interface do Configurador e escopo filtrado ao módulo. **Aqui ficam registradas as ações de todos os usuários**; o que é gravado está em {{link:/university-gravity/docs/pedido#manual-passo-historico-3|O que registra}}.',
       'Os **três cards** no topo resumem volume e distribuição dos eventos da **página atual** (25 registros por página). Passe o mouse no ícone **(i)** de cada card para ver o tooltip.',
     ],
     imagem: SCREENSHOT_PEDIDO_HISTORICO_TELA_PRINCIPAL,
     imagemAbaixoTexto: true,
-    callout: {
-      tipo: 'dica',
-      texto:
-        '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do Pedido** — operações do módulo (Lista, Dashboard, Kanban, Configurações).',
-    },
+    calloutAposImagem: [
+      {
+        tipo: 'dica',
+        texto:
+          '**Configurador › Histórico**: convites, permissões e segurança da conta. **Histórico do Pedido**: operações do módulo (Lista, Dashboard, Kanban, Configurações).',
+      },
+      {
+        tipo: 'dica',
+        texto: 'Apenas usuários **Master** têm acesso a esta tela.',
+      },
+    ],
   },
   {
     titulo: 'Como acessar',
     tituloCurto: 'Como acessar',
     paragrafos: [
-      'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Pedido** — filtrada automaticamente para o workspace ativo.',
+      'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Pedido**, filtrada automaticamente para o workspace ativo.',
       'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
     ],
     galeriaComparacaoAposParagrafo: [
@@ -106,7 +112,7 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
     callout: {
       tipo: 'lembrete',
       texto:
-        'Algumas rotas geram **dois** registros (log dedicado + captura automática) — por exemplo **Duplicou** + **Criou**. Isso é esperado.',
+        'Algumas rotas geram **dois** registros (log dedicado + captura automática), por exemplo **Duplicou** + **Criou**. Isso é esperado.',
     },
   },
   {
@@ -135,7 +141,6 @@ export const PASSOS_MANUAL_PEDIDO_HISTORICO: DocPassoVisual[] = renumerarPassosH
           {
             legenda: '',
             imagem: SCREENSHOT_PEDIDO_HISTORICO_FILTROS_EXPORTAR,
-            paragrafoAntes: 'Filtros por coluna e menu **Exportar**',
           },
         ],
       },

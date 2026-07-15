@@ -17,6 +17,7 @@ import {
 } from '@phosphor-icons/react'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { useTranslation } from 'react-i18next'
 import type {
   DetalheMapeamentoSmartReadCotacaoBidFrete,
@@ -262,6 +263,21 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
       publicarPrefill({ ...prefill, ...patch }, onChange)
     },
     [onChange, prefill],
+  )
+
+  const aoMudarNcm = useCallback(
+    (codigo: string, descricao?: string) => {
+      const patch: Partial<PrefillFormularioCotacaoBidFreteSmartRead> = {
+        ncm_cotacao_bid_frete_internacional: codigo,
+      }
+      if (descricao) {
+        patch.descricao_mercadoria_cotacao_bid_frete_internacional = descricao
+          .replace(/<[^>]*>/g, '')
+          .trim()
+      }
+      patchPrefill(patch)
+    },
+    [patchPrefill],
   )
 
   const aoMudarModal = useCallback((novoModal: ModalFrete) => {
@@ -662,12 +678,11 @@ export default function FormularioEditavelPrefillCotacaoBidFreteSmartRead({
           rotulo={ROTULOS_CAMPO_PREFILL_COTACAO_BID_FRETE.ncm_cotacao_bid_frete_internacional}
           status={statusPorCampo.get('ncm_cotacao_bid_frete_internacional') ?? 'pendente'}
         >
-          <input
-            className="nc-input"
+          <SelectNcmGlobal
+            className="sr-prefill-bid-campo-ncm"
+            label=""
             value={prefill.ncm_cotacao_bid_frete_internacional ?? ''}
-            onChange={(e) => patchPrefill({ ncm_cotacao_bid_frete_internacional: e.target.value })}
-            placeholder="NCM"
-            autoComplete="off"
+            onChange={aoMudarNcm}
           />
         </LinhaCampo>
 

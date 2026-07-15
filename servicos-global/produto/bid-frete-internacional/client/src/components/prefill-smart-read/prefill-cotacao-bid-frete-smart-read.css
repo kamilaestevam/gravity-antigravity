@@ -209,6 +209,37 @@
   box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
 }
 
+/* SelectNcmGlobal — mesma busca por código/descrição da Nova Cotação */
+.sr-prefill-bid-campo-ncm {
+  width: 100%;
+  min-width: 0;
+}
+
+.sr-prefill-bid-campo-ncm .cg-label {
+  display: none;
+}
+
+.sr-prefill-bid-campo-ncm .cg-wrapper {
+  width: 100%;
+}
+
+.sr-prefill-bid-campo-ncm input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+
+.sr-prefill-bid-campo-ncm input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
 .sr-prefill-bid-revisao-status--editado {
   background: rgba(129, 140, 248, 0.14);
   color: #a5b4fc;

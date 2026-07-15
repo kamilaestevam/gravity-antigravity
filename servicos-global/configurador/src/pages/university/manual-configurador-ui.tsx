@@ -1458,7 +1458,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '223'
+const MANUAL_SCREENSHOT_CACHE_KEY = '224'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -1794,29 +1794,29 @@ function ManualGaleriaLegendaPrintPasso({
   margemAbaixo,
   modoTituloSubtopico = false,
   semAlturaMinima = false,
+  passoAcademyGuia = false,
 }: {
   texto: string
   entreLinhas?: boolean
   /** Sobrescreve margin-bottom padrão (ex.: print largura total → `MANUAL_ESPACO_PARAGRAFO_PX`). */
   margemAbaixo?: number
-  /** Subtópico em acordeão — título + print (paridade Pedido §Lista), sem chip «Passo NN». */
+  /** Subtópico em acordeão — instrução operacional simples; só **NN.** vira chip de passo. */
   modoTituloSubtopico?: boolean
   /** Fluxo de coluna única (cenário) — dispensa a altura mínima usada só p/ alinhar grades. */
   semAlturaMinima?: boolean
+  /** Guia Academy — borda lateral só em **Passo NN** (`.uni-player-aula__passo-corpo`). */
+  passoAcademyGuia?: boolean
 }) {
   const matchNumerado = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
   const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
 
-  if (modoTituloSubtopico) {
-    const textoTitulo = matchNumerado ? matchNumerado[2].trim() : texto
+  if (modoTituloSubtopico && !matchNumerado) {
     return (
-      <div style={{
-        marginBottom,
-        textAlign: 'left',
-        minHeight: (entreLinhas || semAlturaMinima) ? undefined : '2.75rem',
-      }}>
-        <ManualParagrafo texto={textoTitulo} marginBottom={0} alinhamentoAcordeao={modoTituloSubtopico} />
-      </div>
+      <ManualGaleriaTelaParagrafoFigura
+        texto={texto}
+        entreLinhas={entreLinhas}
+        margemAbaixo={margemAbaixo}
+      />
     )
   }
 
@@ -1825,18 +1825,35 @@ function ManualGaleriaLegendaPrintPasso({
     return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} margemAbaixo={margemAbaixo} />
   }
   const [, numero, legenda] = match
-  return (
+  const linhaPassoNumerado = (
     <div style={{
       display: 'flex',
       gap: 10,
       alignItems: 'flex-start',
-      marginBottom,
       textAlign: 'left',
     }}>
       <ManualGaleriaChipNumeroPasso numero={numero} />
       <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
         <ManualParagrafo texto={legenda.trim()} marginBottom={0} />
       </div>
+    </div>
+  )
+  if (passoAcademyGuia) {
+    return (
+      <div
+        className="uni-player-aula__passo-corpo"
+        style={{ marginBottom, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+      >
+        {linhaPassoNumerado}
+      </div>
+    )
+  }
+  return (
+    <div style={{
+      marginBottom,
+      textAlign: 'left',
+    }}>
+      {linhaPassoNumerado}
     </div>
   )
 }
@@ -2872,9 +2889,141 @@ function ManualBlocoPassoVisual({
     />
   ))
 
+  const passoCorpoAcademySubtitulo = Boolean(
+    passoAcademyIsolado && passo.rotuloPasso && !passo.rotuloPassoAposGaleriaComparacao,
+  )
+
+  const WrapperCorpoSubtituloGuia = passoCorpoAcademySubtitulo
+    ? ({ children }: { children: React.ReactNode }) => (
+        <div
+          className="uni-player-aula__passo-corpo"
+          style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+        >
+          {children}
+        </div>
+      )
+    : ({ children }: { children: React.ReactNode }) => <>{children}</>
+
+  const blocoGaleriasAposParagrafoIndice = (indiceParagrafo: number) => {
+    const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, indiceParagrafo)
+    return (
+      <>
+        {galeriasParagrafo.map((galeria, idxGaleria) => (
+          <React.Fragment key={`galeria-${indiceParagrafo}-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.infograficoConsolidarPasso2Regras ? 'c2' : ''}-${galeria.infograficoConsolidarResultadoEsperado ? 'cr' : ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}>
+            <ManualGaleriaComparacaoIntro
+              telas={galeria.telas}
+              ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+              colunas={galeria.colunas}
+              colunasGradeTemplate={galeria.colunasGradeTemplate}
+              gradeTelasMesmaAltura={galeria.gradeTelasMesmaAltura}
+              textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+              espacoTextoFiguraPx={galeria.espacoTextoFiguraPx}
+              legendaPasso={galeria.legendaPasso}
+              pilaresImportarFormas={galeria.pilaresImportarFormas}
+              tituloEtapa={galeria.tituloEtapa}
+              textoIntro={galeria.textoIntro}
+              cenariosAcesso={galeria.cenariosAcesso}
+              textoAoLado={galeria.textoAoLado}
+              infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+              infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
+              infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
+              infograficoBidFreteBidPacoteCotacoes={galeria.infograficoBidFreteBidPacoteCotacoes}
+              infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
+              telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
+              textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
+              simuladorBidFreteModalOperacao={galeria.simuladorBidFreteModalOperacao}
+              infograficoBidFreteOrigemDestinoCampos={galeria.infograficoBidFreteOrigemDestinoCampos}
+              telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
+              textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
+              calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
+              textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+              calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
+              simuladorBidFreteOrigemDestino={galeria.simuladorBidFreteOrigemDestino}
+              infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
+              infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
+              layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
+              rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
+              layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
+              infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
+              mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
+              infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
+              infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
+              rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
+              rotuloEdicaoMassaExemplosPasso2={galeria.rotuloEdicaoMassaExemplosPasso2}
+              layoutEdicaoMassaExemplosPasso1={galeria.layoutEdicaoMassaExemplosPasso1}
+              layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
+              layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
+              layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
+              layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
+              mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
+              chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
+              mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
+              chipsBidFreteModalTransporteAoLadoTitulo={galeria.chipsBidFreteModalTransporteAoLadoTitulo}
+              iconesEscopoBidFrete={galeria.iconesEscopoBidFrete}
+              chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
+              chipBidFreteFormaManual={galeria.chipBidFreteFormaManual}
+              chipBidFreteBid={galeria.chipBidFreteBid}
+              mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
+              chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
+              calloutApos={galeria.calloutApos}
+              mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
+              mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
+              espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
+              espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
+              emAcordeaoSubtopico={emAcordeaoSubtopico}
+              passoAcademyGuia={passoAcademyIsolado}
+            />
+            {passo.mostrarCatalogoDashboardSugestoesPedido
+            && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
+              <ManualPedidoAccordionDashboardSugestoes />
+            ) : null}
+            {passo.mostrarCatalogoDashboardTiposVisualizacaoPedido
+            && passo.catalogoDashboardTiposVisualizacaoAposGaleriaIndice === idxGaleria ? (
+              <ManualPedidoAccordionDashboardTiposVisualizacao />
+            ) : null}
+          </React.Fragment>
+        ))}
+        {passo.mostrarInfograficoBidFreteNovaCotacaoFluxo
+        && passo.bidFreteNovaCotacaoEscopoAposGaleriaParagrafo === indiceParagrafo ? (
+          <>
+            {passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo ? (
+              <ManualParagrafo
+                texto={passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo}
+                marginBottom={MANUAL_ESPACO_FRASE_IMAGEM_PX}
+                alinhamentoAcordeao={emAcordeaoSubtopico}
+              />
+            ) : null}
+            <div style={{
+              marginTop: passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo
+                ? 0
+                : MANUAL_ESPACO_FRASE_IMAGEM_PX,
+              marginBottom: MANUAL_ESPACO_IMAGEM_FRASE_PX,
+            }}>
+              <ManualInfograficoBidFreteNovaCotacaoFluxo />
+            </div>
+          </>
+        ) : null}
+        {passo.mostrarLegendaEscopoIconesBidFrete
+        && passo.bidFreteNovaCotacaoEscopoAposGaleriaParagrafo === indiceParagrafo ? (
+          <>
+            {passo.textoAntesLegendaEscopoIconesBidFrete ? (
+              <ManualParagrafo
+                texto={passo.textoAntesLegendaEscopoIconesBidFrete}
+                marginBottom={MANUAL_ESPACO_FRASE_IMAGEM_PX}
+                alinhamentoAcordeao={emAcordeaoSubtopico}
+              />
+            ) : null}
+            <ManualBidFreteInfograficoLegendaEscopoIcones />
+          </>
+        ) : null}
+      </>
+    )
+  }
+
   const blocoTexto = (
     <div
-      className={passoAcademyIsolado ? 'uni-player-aula__passo-corpo' : undefined}
       style={passoAcademyIsolado ? {
         width: '100%',
         minWidth: 0,
@@ -2895,6 +3044,7 @@ function ManualBlocoPassoVisual({
           : {}),
       }}
     >
+      <WrapperCorpoSubtituloGuia>
       {passoAcademyIsolado && passo.rotuloPasso && !passo.rotuloPassoAposGaleriaComparacao ? (
         <div
           className="uni-player-aula__passo-rotulo-linha"
@@ -3133,6 +3283,7 @@ function ManualBlocoPassoVisual({
                   layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
                   calloutApos={galeria.calloutApos}
                   emAcordeaoSubtopico={emAcordeaoSubtopico}
+              passoAcademyGuia={passoAcademyIsolado}
                 />
               ))}
             </>
@@ -3194,120 +3345,8 @@ function ManualBlocoPassoVisual({
             <ManualBidFreteInfograficoLegendaEscopoIcones />
           ) : null}
           {(() => {
-            const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, i)
-            return (
-              <>
-                {galeriasParagrafo.map((galeria, idxGaleria) => (
-            <React.Fragment key={`galeria-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.infograficoConsolidarPasso2Regras ? 'c2' : ''}-${galeria.infograficoConsolidarResultadoEsperado ? 'cr' : ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}>
-              <ManualGaleriaComparacaoIntro
-                telas={galeria.telas}
-                ampliarInferiorDireito={galeria.ampliarInferiorDireito}
-                colunas={galeria.colunas}
-                colunasGradeTemplate={galeria.colunasGradeTemplate}
-                gradeTelasMesmaAltura={galeria.gradeTelasMesmaAltura}
-                textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
-                espacoTextoFiguraPx={galeria.espacoTextoFiguraPx}
-                legendaPasso={galeria.legendaPasso}
-                pilaresImportarFormas={galeria.pilaresImportarFormas}
-                tituloEtapa={galeria.tituloEtapa}
-                textoIntro={galeria.textoIntro}
-                cenariosAcesso={galeria.cenariosAcesso}
-                textoAoLado={galeria.textoAoLado}
-                infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
-                infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
-                infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
-                infograficoBidFreteBidPacoteCotacoes={galeria.infograficoBidFreteBidPacoteCotacoes}
-                infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
-                telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
-                textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
-                simuladorBidFreteModalOperacao={galeria.simuladorBidFreteModalOperacao}
-                infograficoBidFreteOrigemDestinoCampos={galeria.infograficoBidFreteOrigemDestinoCampos}
-                telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
-                textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
-                calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
-                textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
-                telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
-                calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
-                calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
-                simuladorBidFreteOrigemDestino={galeria.simuladorBidFreteOrigemDestino}
-                infograficoConsolidarPasso2Regras={galeria.infograficoConsolidarPasso2Regras}
-                infograficoConsolidarResultadoEsperado={galeria.infograficoConsolidarResultadoEsperado}
-                layoutConsolidarResultadoUnificado={galeria.layoutConsolidarResultadoUnificado}
-                rotuloConsolidarExemplosPasso2={galeria.rotuloConsolidarExemplosPasso2}
-                layoutConsolidarExemplosPasso2={galeria.layoutConsolidarExemplosPasso2}
-                infograficoEdicaoMassaPasso1Regras={galeria.infograficoEdicaoMassaPasso1Regras}
-                mostrarCatalogoEdicaoMassaPedidoLista={galeria.mostrarCatalogoEdicaoMassaPedidoLista}
-                infograficoEdicaoMassaPasso2Regras={galeria.infograficoEdicaoMassaPasso2Regras}
-                infograficoEdicaoMassaResultadoEsperado={galeria.infograficoEdicaoMassaResultadoEsperado}
-                rotuloEdicaoMassaExemplosPasso1={galeria.rotuloEdicaoMassaExemplosPasso1}
-                rotuloEdicaoMassaExemplosPasso2={galeria.rotuloEdicaoMassaExemplosPasso2}
-                layoutEdicaoMassaExemplosPasso1={galeria.layoutEdicaoMassaExemplosPasso1}
-                layoutEdicaoMassaExemplosPasso2={galeria.layoutEdicaoMassaExemplosPasso2}
-                layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
-                layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
-              layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
-              mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
-              chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
-              mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
-              chipsBidFreteModalTransporteAoLadoTitulo={galeria.chipsBidFreteModalTransporteAoLadoTitulo}
-              iconesEscopoBidFrete={galeria.iconesEscopoBidFrete}
-              chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
-              chipBidFreteFormaManual={galeria.chipBidFreteFormaManual}
-              chipBidFreteBid={galeria.chipBidFreteBid}
-              mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
-              chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
-              calloutApos={galeria.calloutApos}
-              mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
-              mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
-              espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
-              espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
-              emAcordeaoSubtopico={emAcordeaoSubtopico}
-              />
-              {passo.mostrarCatalogoDashboardSugestoesPedido
-              && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
-                <ManualPedidoAccordionDashboardSugestoes />
-              ) : null}
-              {passo.mostrarCatalogoDashboardTiposVisualizacaoPedido
-              && passo.catalogoDashboardTiposVisualizacaoAposGaleriaIndice === idxGaleria ? (
-                <ManualPedidoAccordionDashboardTiposVisualizacao />
-              ) : null}
-            </React.Fragment>
-          ))}
-                {passo.mostrarInfograficoBidFreteNovaCotacaoFluxo
-                && passo.bidFreteNovaCotacaoEscopoAposGaleriaParagrafo === i ? (
-                  <>
-                    {passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo ? (
-                      <ManualParagrafo
-                        texto={passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo}
-                        marginBottom={MANUAL_ESPACO_FRASE_IMAGEM_PX}
-                        alinhamentoAcordeao={emAcordeaoSubtopico}
-                      />
-                    ) : null}
-                    <div style={{
-                      marginTop: passo.textoAntesInfograficoBidFreteNovaCotacaoFluxo
-                        ? 0
-                        : MANUAL_ESPACO_FRASE_IMAGEM_PX,
-                      marginBottom: MANUAL_ESPACO_IMAGEM_FRASE_PX,
-                    }}>
-                      <ManualInfograficoBidFreteNovaCotacaoFluxo />
-                    </div>
-                  </>
-                ) : null}
-                {passo.mostrarLegendaEscopoIconesBidFrete
-                && passo.bidFreteNovaCotacaoEscopoAposGaleriaParagrafo === i ? (
-                  <>
-                    {passo.textoAntesLegendaEscopoIconesBidFrete ? (
-                      <ManualParagrafo
-                        texto={passo.textoAntesLegendaEscopoIconesBidFrete}
-                        marginBottom={MANUAL_ESPACO_FRASE_IMAGEM_PX}
-                        alinhamentoAcordeao={emAcordeaoSubtopico}
-                      />
-                    ) : null}
-                    <ManualBidFreteInfograficoLegendaEscopoIcones />
-                  </>
-                ) : null}
-              </>
-            )
+            if (passoCorpoAcademySubtitulo) return null
+            return blocoGaleriasAposParagrafoIndice(i)
           })()}
         </div>
         )
@@ -3318,6 +3357,7 @@ function ManualBlocoPassoVisual({
         </div>
       ) : null}
       {(passo.paragrafos?.length ?? 0) === 0
+        && !passoCorpoAcademySubtitulo
         ? (() => {
           const galeriasSemParagrafo = galeriaComparacaoAposParagrafoPasso(passo, 0)
           return galeriasSemParagrafo.map((galeria, idxGaleria) => (
@@ -3364,6 +3404,7 @@ function ManualBlocoPassoVisual({
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasSemParagrafo, idxGaleria, galeria)}
               espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
+              passoAcademyGuia={passoAcademyIsolado}
             />
           ))
         })()
@@ -3393,6 +3434,65 @@ function ManualBlocoPassoVisual({
         <ManualPedidoAccordionDashboardTiposVisualizacao />
       ) : null}
       {!passo.calloutAoLadoTexto && blocoCallouts}
+      </WrapperCorpoSubtituloGuia>
+      {passoCorpoAcademySubtitulo ? (
+        <div className="uni-player-aula__passo-galeria">
+          {(passo.paragrafos ?? []).map((_, indiceParagrafo) => (
+            <React.Fragment key={`galeria-subtitulo-par-${indiceParagrafo}`}>
+              {blocoGaleriasAposParagrafoIndice(indiceParagrafo)}
+            </React.Fragment>
+          ))}
+          {(passo.paragrafos?.length ?? 0) === 0
+            ? galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria, idxGaleria) => (
+              <ManualGaleriaComparacaoIntro
+                key={`galeria-sem-par-${idxGaleria}-${galeria.infograficoBidFreteNovaCotacaoResultadoEsperado ? 'res' : ''}-${galeria.telas.map((t) => t.imagem).join('|')}`}
+                telas={galeria.telas}
+                ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+                colunas={galeria.colunas}
+                textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                legendaPasso={galeria.legendaPasso}
+                pilaresImportarFormas={galeria.pilaresImportarFormas}
+                tituloEtapa={galeria.tituloEtapa}
+                textoIntro={galeria.textoIntro}
+                cenariosAcesso={galeria.cenariosAcesso}
+                textoAoLado={galeria.textoAoLado}
+                infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
+                infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
+                infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}
+                infograficoBidFreteBidPacoteCotacoes={galeria.infograficoBidFreteBidPacoteCotacoes}
+                infograficoBidFreteModalOperacaoCampos={galeria.infograficoBidFreteModalOperacaoCampos}
+                telasAposInfograficoBidFreteModalOperacaoCampos={galeria.telasAposInfograficoBidFreteModalOperacaoCampos}
+                textoAposInfograficoBidFreteModalOperacaoCampos={galeria.textoAposInfograficoBidFreteModalOperacaoCampos}
+                simuladorBidFreteModalOperacao={galeria.simuladorBidFreteModalOperacao}
+                infograficoBidFreteOrigemDestinoCampos={galeria.infograficoBidFreteOrigemDestinoCampos}
+                telasAposInfograficoBidFreteOrigemDestinoCampos={galeria.telasAposInfograficoBidFreteOrigemDestinoCampos}
+                textoAposInfograficoBidFreteOrigemDestinoCampos={galeria.textoAposInfograficoBidFreteOrigemDestinoCampos}
+                calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos={galeria.calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos}
+                textoSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.textoSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                telasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.telasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete={galeria.calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete}
+                calloutAposSecaoDestinoOrigemDestinoBidFrete={galeria.calloutAposSecaoDestinoOrigemDestinoBidFrete}
+                simuladorBidFreteOrigemDestino={galeria.simuladorBidFreteOrigemDestino}
+                mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
+                chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
+                mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
+                chipsBidFreteModalTransporteAoLadoTitulo={galeria.chipsBidFreteModalTransporteAoLadoTitulo}
+                iconesEscopoBidFrete={galeria.iconesEscopoBidFrete}
+                chipBidFreteModalTransporte={galeria.chipBidFreteModalTransporte}
+                chipBidFreteFormaManual={galeria.chipBidFreteFormaManual}
+                chipBidFreteBid={galeria.chipBidFreteBid}
+                mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
+                chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
+                calloutApos={galeria.calloutApos}
+                espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriaComparacaoAposParagrafoPasso(passo, 0), idxGaleria, galeria)}
+                espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
+                emAcordeaoSubtopico={emAcordeaoSubtopico}
+                passoAcademyGuia={passoAcademyIsolado}
+              />
+            ))
+            : null}
+        </div>
+      ) : null}
     </div>
   )
 
@@ -3750,6 +3850,7 @@ function ManualBlocoPassoVisual({
             margemSuperiorPx={ehPrimeiraAposTexto ? MANUAL_ESPACO_FRASE_IMAGEM_PX : undefined}
             espacoSuperiorEtapa={idxGaleria > 0 && ehSubsecaoComTitulo}
             emAcordeaoSubtopico={emAcordeaoSubtopico}
+            passoAcademyGuia={passoAcademyIsolado}
           />
             </div>
           </React.Fragment>
@@ -4499,6 +4600,7 @@ export function ManualGaleriaComparacaoIntro({
   espacoInferiorAposEtapaPx,
   margemSuperiorPx,
   emAcordeaoSubtopico = false,
+  passoAcademyGuia = false,
 }: {
   telas: DocGaleriaComparacaoTela[]
   ampliarInferiorDireito?: boolean
@@ -4576,6 +4678,8 @@ export function ManualGaleriaComparacaoIntro({
   margemSuperiorPx?: number
   /** Galeria dentro de subtópico recolhível — usa ritmo `manual-tipografia` (28px antes do print). */
   emAcordeaoSubtopico?: boolean
+  /** Guia Academy — borda lateral só em **Passo NN** (`paragrafoAntes` numerado). */
+  passoAcademyGuia?: boolean
 }) {
   if (
     telas.length === 0
@@ -4673,6 +4777,7 @@ export function ManualGaleriaComparacaoIntro({
               texto={tela.paragrafoAntes}
               margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
               modoTituloSubtopico={modoTituloSubtopico}
+              passoAcademyGuia={passoAcademyGuia}
             />
           )
           : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />

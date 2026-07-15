@@ -54,6 +54,38 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'
       ),
+      '@nucleo/dashboard': path.resolve(
+        __dirname,
+        '../../nucleo-global/Dashboard/dashboard-global/src/index.ts'
+      ),
+      '@nucleo/kanban-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Kanban/kanban-global/src/index.ts'
+      ),
+      '@nucleo/gravity-loader-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Feedback/gravity-loader-global/src/index.ts'
+      ),
+      '@nucleo/query-builder-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Dashboard/dashboard-global/src/DashboardConstrutorConsulta/DashboardConstrutorConsulta.tsx'
+      ),
+      '@nucleo/modal-passo-passo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Modais/modal-passo-passo-global/src/index.ts'
+      ),
+      '@nucleo/select-colunas-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Tabelas/select-colunas-global/src/index.ts'
+      ),
+      '@nucleo/tabela-virtual-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Tabelas/tabela-virtual-global/src/index.ts'
+      ),
+      '@nucleo/menu-lateral-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Layout/menu-lateral-global/src/index.ts'
+      ),
     }
   },
   server: {

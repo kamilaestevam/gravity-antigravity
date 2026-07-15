@@ -101,7 +101,7 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
         if (e.target === e.currentTarget && !salvando) onFechar()
       }}
     >
-      <div className="pds-mecr-dialog" onClick={(e) => e.stopPropagation()}>
+      <div className="pds-mecr-dialog pds-mecr-dialog--tutorial" onClick={(e) => e.stopPropagation()}>
         <header className="pds-mecr-header">
           <div className="pds-mecr-header-texto">
             <h3 id="pds-mecr-titulo" className="pds-mecr-titulo">
@@ -126,6 +126,7 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
             Esta empresa será cadastrada como {rotuloPapel}. Você pode editar os demais dados depois em Cadastros.
           </p>
 
+          <div data-sds-tutorial-alvo="pedido-cadastro-rapido-campos">
           <div className="pds-mecr-campo">
             <label className="pds-mecr-label" htmlFor="pds-mecr-nome">
               Nome do {rotuloPapel} *
@@ -151,9 +152,10 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
               placeholder="Selecione o país"
             />
           </div>
+          </div>
 
           {ehBr ? (
-            <div className="pds-mecr-campo">
+            <div className="pds-mecr-campo" data-sds-tutorial-alvo="pedido-cadastro-rapido-fiscal">
               <label
                 className={`pds-mecr-label${cnpj.trim() ? '' : ' pds-mecr-label--erro'}`}
                 htmlFor="pds-mecr-cnpj"
@@ -174,7 +176,7 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
               </p>
             </div>
           ) : (
-            <div className="pds-mecr-campo">
+            <div className="pds-mecr-campo" data-sds-tutorial-alvo="pedido-cadastro-rapido-fiscal">
               <label className="pds-mecr-label" htmlFor="pds-mecr-tin">
                 Tax ID / TIN (opcional)
               </label>
@@ -197,6 +199,7 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
           <BotaoGlobal variante="secundario" tamanho="padrao" onClick={onFechar} disabled={salvando}>
             Cancelar
           </BotaoGlobal>
+          <span data-sds-tutorial-alvo="pedido-cadastro-rapido-salvar" style={{ display: 'inline-flex' }}>
           <BotaoGlobal
             variante="primario"
             tamanho="padrao"
@@ -206,6 +209,7 @@ export function ModalEmpresaCadastroRapidoSimuladorPedido({
           >
             {salvando ? 'Salvando…' : 'Salvar e usar'}
           </BotaoGlobal>
+          </span>
         </footer>
       </div>
     </div>,

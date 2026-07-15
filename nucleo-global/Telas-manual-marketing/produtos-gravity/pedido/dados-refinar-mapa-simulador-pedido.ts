@@ -89,17 +89,30 @@ const STATUS_REFINAR_MAPA: OpcaoStatusRefinarMapa[] = [
 ]
 
 /**
- * Estado inicial — operação é opt-out (BID Frete): aceso = visível no mapa; apagado = oculta.
- * Origem, destino, exportadores, importadores e status são opt-in (vazio = sem restrição).
+ * Estado inicial — tudo selecionado (padrão demo): desmarcar um item restringe o mapa.
+ * Operação mantém opt-out (ambas ligadas = todas as rotas visíveis).
  */
-export function criarFiltrosRefinarMapaIniciais(): FiltrosRefinarMapaSimuladorPedido {
+export function criarFiltrosRefinarMapaIniciais(
+  opcoes?: OpcoesRefinarMapaSimuladorPedido,
+): FiltrosRefinarMapaSimuladorPedido {
+  if (!opcoes) {
+    return {
+      operacoes: new Set(OPERACOES_REFINAR_MAPA_SIMULADOR_PEDIDO),
+      origens: new Set(),
+      destinos: new Set(),
+      exportadores: new Set(),
+      importadores: new Set(),
+      status: new Set(),
+    }
+  }
+
   return {
     operacoes: new Set(OPERACOES_REFINAR_MAPA_SIMULADOR_PEDIDO),
-    origens: new Set(),
-    destinos: new Set(),
-    exportadores: new Set(),
-    importadores: new Set(),
-    status: new Set(),
+    origens: new Set(opcoes.origens.map((item) => item.codigo)),
+    destinos: new Set(opcoes.destinos.map((item) => item.codigo)),
+    exportadores: new Set(opcoes.exportadores),
+    importadores: new Set(opcoes.importadores),
+    status: new Set(opcoes.status.map((item) => item.id)),
   }
 }
 
@@ -229,8 +242,8 @@ export function montarOpcoesRefinarMapaSimuladorPedido(
   }
 }
 
-function conjuntoAtivo<T>(conjunto: Set<T>): boolean {
-  return conjunto.size > 0
+function conjuntoRestringe(conjunto: Set<unknown>, totalOpcoes: number): boolean {
+  return totalOpcoes > 0 && conjunto.size < totalOpcoes
 }
 
 function todasOperacoesRefinarAtivas(filtros: FiltrosRefinarMapaSimuladorPedido): boolean {
@@ -241,15 +254,16 @@ function rotaPassaFiltros(
   rota: RotaMapaSimuladorPedido,
   meta: MetadadosRotaRefinarMapaSimuladorPedido | undefined,
   filtros: FiltrosRefinarMapaSimuladorPedido,
+  opcoes: OpcoesRefinarMapaSimuladorPedido,
 ): boolean {
   if (!meta) return true
 
   if (!todasOperacoesRefinarAtivas(filtros) && !filtros.operacoes.has(meta.operacao)) return false
-  if (conjuntoAtivo(filtros.origens) && !filtros.origens.has(meta.origemPais)) return false
-  if (conjuntoAtivo(filtros.destinos) && !filtros.destinos.has(meta.destinoPais)) return false
-  if (conjuntoAtivo(filtros.exportadores) && !filtros.exportadores.has(meta.exportador)) return false
-  if (conjuntoAtivo(filtros.importadores) && !filtros.importadores.has(meta.importador)) return false
-  if (conjuntoAtivo(filtros.status) && !filtros.status.has(meta.status)) return false
+  if (conjuntoRestringe(filtros.origens, opcoes.origens.length) && !filtros.origens.has(meta.origemPais)) return false
+  if (conjuntoRestringe(filtros.destinos, opcoes.destinos.length) && !filtros.destinos.has(meta.destinoPais)) return false
+  if (conjuntoRestringe(filtros.exportadores, opcoes.exportadores.length) && !filtros.exportadores.has(meta.exportador)) return false
+  if (conjuntoRestringe(filtros.importadores, opcoes.importadores.length) && !filtros.importadores.has(meta.importador)) return false
+  if (conjuntoRestringe(filtros.status, opcoes.status.length) && !filtros.status.has(meta.status)) return false
 
   return true
 }
@@ -258,9 +272,10 @@ export function filtrarMapaRefinarSimuladorPedido(
   mapa: MapaPedidoEmpresaSimulador,
   metadados: Map<string, MetadadosRotaRefinarMapaSimuladorPedido>,
   filtros: FiltrosRefinarMapaSimuladorPedido,
+  opcoes: OpcoesRefinarMapaSimuladorPedido,
 ): MapaPedidoEmpresaSimulador {
   const rotas = mapa.rotas.filter((rota) =>
-    rotaPassaFiltros(rota, metadados.get(chaveRota(rota)), filtros),
+    rotaPassaFiltros(rota, metadados.get(chaveRota(rota)), filtros, opcoes),
   )
 
   const pinIds = new Set<number>()
@@ -274,19 +289,29 @@ export function filtrarMapaRefinarSimuladorPedido(
   return { pins, rotas }
 }
 
-export function contarFiltrosRefinarMapaAtivos(filtros: FiltrosRefinarMapaSimuladorPedido): number {
+export function contarFiltrosRefinarMapaAtivos(
+  filtros: FiltrosRefinarMapaSimuladorPedido,
+  opcoes: OpcoesRefinarMapaSimuladorPedido,
+): number {
   const operacoesDesligadas = OPERACOES_REFINAR_MAPA_SIMULADOR_PEDIDO.filter(
     (operacao) => !filtros.operacoes.has(operacao),
   ).length
 
+  const itensDesmarcados = (selecionados: number, total: number) =>
+    total > 0 && selecionados < total ? total - selecionados : 0
+
   return (
     operacoesDesligadas +
-    filtros.origens.size +
-    filtros.destinos.size +
-    filtros.exportadores.size +
-    filtros.importadores.size +
-    filtros.status.size
+    itensDesmarcados(filtros.origens.size, opcoes.origens.length) +
+    itensDesmarcados(filtros.destinos.size, opcoes.destinos.length) +
+    itensDesmarcados(filtros.exportadores.size, opcoes.exportadores.length) +
+    itensDesmarcados(filtros.importadores.size, opcoes.importadores.length) +
+    itensDesmarcados(filtros.status.size, opcoes.status.length)
   )
+}
+
+function somarPedidosMapa(mapa: MapaPedidoEmpresaSimulador): number {
+  return mapa.pins.reduce((total, pin) => total + pin.pedidosCount, 0)
 }
 
 export function formatarResumoRefinarMapaSimuladorPedido(
@@ -294,10 +319,55 @@ export function formatarResumoRefinarMapaSimuladorPedido(
   mapaFiltrado: MapaPedidoEmpresaSimulador,
   totalFiltrosAtivos: number,
 ): string {
-  if (totalFiltrosAtivos === 0) {
-    return `Exibindo todos — ${mapaBase.pins.length} terminais — ${mapaBase.rotas.length} rotas`
+  const contadores = calcularContadoresRefinarMapaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos)
+  if (contadores.modo === 'todos') {
+    return `Exibindo todos — ${contadores.terminais} terminais — ${contadores.rotas} rotas`
   }
-  return `${mapaFiltrado.pins.length} terminais — ${mapaFiltrado.rotas.length} rotas ativas`
+  return `${contadores.terminais}/${contadores.terminaisBase} terminais — ${contadores.rotas}/${contadores.rotasBase} rotas — ${contadores.filtrosAtivos} filtro(s)`
+}
+
+export function formatarResumoRefinarMapaTelaCheiaSimuladorPedido(
+  mapaBase: MapaPedidoEmpresaSimulador,
+  mapaFiltrado: MapaPedidoEmpresaSimulador,
+  totalFiltrosAtivos: number,
+): string {
+  const contadores = calcularContadoresRefinarMapaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos)
+  if (contadores.modo === 'todos') {
+    return `Exibindo todos · ${contadores.pedidos} pedidos · ${contadores.locais} locais · ${contadores.rotas} rotas`
+  }
+  return `${contadores.pedidos}/${contadores.pedidosBase} pedidos · ${contadores.locais}/${contadores.locaisBase} locais · ${contadores.rotas}/${contadores.rotasBase} rotas · ${contadores.filtrosAtivos} filtro(s)`
+}
+
+export type ContadoresRefinarMapaSimuladorPedido = {
+  modo: 'todos' | 'filtrado'
+  terminais: number
+  terminaisBase: number
+  locais: number
+  locaisBase: number
+  pedidos: number
+  pedidosBase: number
+  rotas: number
+  rotasBase: number
+  filtrosAtivos: number
+}
+
+export function calcularContadoresRefinarMapaSimuladorPedido(
+  mapaBase: MapaPedidoEmpresaSimulador,
+  mapaFiltrado: MapaPedidoEmpresaSimulador,
+  totalFiltrosAtivos: number,
+): ContadoresRefinarMapaSimuladorPedido {
+  return {
+    modo: totalFiltrosAtivos === 0 ? 'todos' : 'filtrado',
+    terminais: mapaFiltrado.pins.length,
+    terminaisBase: mapaBase.pins.length,
+    locais: mapaFiltrado.pins.length,
+    locaisBase: mapaBase.pins.length,
+    pedidos: somarPedidosMapa(mapaFiltrado),
+    pedidosBase: somarPedidosMapa(mapaBase),
+    rotas: mapaFiltrado.rotas.length,
+    rotasBase: mapaBase.rotas.length,
+    filtrosAtivos: totalFiltrosAtivos,
+  }
 }
 
 export function prepararContextoRefinarMapaSimuladorPedido(empresas: PerfilEmpresaSimulador[]) {

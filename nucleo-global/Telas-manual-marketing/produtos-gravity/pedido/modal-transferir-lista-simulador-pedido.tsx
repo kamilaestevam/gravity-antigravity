@@ -56,6 +56,11 @@ type Props = {
     resumo: ResumoTransferenciaListaSimulador,
     idsNovosPedidos: string[],
   ) => void
+  onEstadoTutorialChange?: (estado: {
+    passo: number
+    concluido: boolean
+    cenario: CenarioTransferSimulador | null
+  }) => void
 }
 
 type Passo = 1 | 2 | 3 | 4 | 5
@@ -74,7 +79,7 @@ const CENARIOS: {
 
 function SeletorCenario({ cenarioSelecionado, onChange }: { cenarioSelecionado: CenarioTransferSimulador | null; onChange: (c: CenarioTransferSimulador) => void }) {
   return (
-    <div className="modal-transferir__cenario-cards">
+    <div className="modal-transferir__cenario-cards" data-sds-tutorial-alvo="pedido-transferir-cenarios">
       <span className="modal-transferir__cenario-cards-label">{T.cenario_tipo_label}</span>
       <div className="modal-transferir__cenario-cards-grid">
         {CENARIOS.map((c) => {
@@ -86,7 +91,11 @@ function SeletorCenario({ cenarioSelecionado, onChange }: { cenarioSelecionado: 
                 <span className="modal-transferir__cenario-card-nome">{c.nome}</span>
                 <span className="modal-transferir__cenario-card-desc">{c.descricao}</span>
               </span>
-              {!c.reversivel && <span className="modal-transferir__badge-irreversivel">{T.badge_irreversivel}</span>}
+              {!c.reversivel && (
+                <span className="modal-transferir__badge-irreversivel" data-sds-tutorial-alvo="pedido-transferir-badge-irreversivel">
+                  {T.badge_irreversivel}
+                </span>
+              )}
             </button>
           )
         })}
@@ -109,6 +118,7 @@ function SeletorItemQuantidade(props: {
   const parcialSelecionado = todosIds.some((id) => itensQuantidades.has(id)) && !todosSelecionados
 
   return (
+    <div data-sds-tutorial-alvo="pedido-transferir-quantidades">
     <table className="modal-transferir__tabela-itens" aria-label={T.aria_tabela_itens}>
       <thead>
         <tr>
@@ -125,7 +135,7 @@ function SeletorItemQuantidade(props: {
         </tr>
       </thead>
       <tbody>
-        {itensComPedido.map(({ item, pedido }) => {
+        {itensComPedido.map(({ item, pedido }, indice) => {
           const selecionado = itensQuantidades.has(item.id)
           const qty = itensQuantidades.get(item.id) ?? 0
           const qtyMax = lerSaldoTransferivelItemSimulador(item)
@@ -135,7 +145,12 @@ function SeletorItemQuantidade(props: {
           const descricao = item.campos.descricao_item ?? '—'
           return (
             <tr key={item.id} className="modal-transferir__tabela-itens-row" onClick={() => onToggleItem(item.id)} aria-selected={selecionado}>
-              <td className="modal-transferir__col-check"><input type="checkbox" checked={selecionado} readOnly aria-label={interpolarTextoTransferir(T.aria_selecionar_item, { item: partNumber })} /></td>
+              <td
+                className="modal-transferir__col-check"
+                {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'pedido-transferir-checkbox' } : {})}
+              >
+                <input type="checkbox" checked={selecionado} readOnly aria-label={interpolarTextoTransferir(T.aria_selecionar_item, { item: partNumber })} />
+              </td>
               {multiPedido && <td className="modal-transferir__col-pedido"><span className="modal-transferir__pedido-numero">{pedido.numeroPedido}</span></td>}
               <td className="modal-transferir__col-seq">{item.sequencia}</td>
               <td><strong>{partNumber.length > 20 ? (
@@ -149,7 +164,11 @@ function SeletorItemQuantidade(props: {
                 </TooltipGlobal>
               ) : <span>{descricao}</span>}</td>
               <td>{fmtQuantidadeSimulador(qtyMax)}</td>
-              <td className="modal-transferir__col-qty" onClick={(e) => e.stopPropagation()}>
+              <td
+                className="modal-transferir__col-qty"
+                onClick={(e) => e.stopPropagation()}
+                {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'pedido-transferir-qtd' } : {})}
+              >
                 {selecionado ? (
                   <div className="modal-transferir__qty-celula">
                     <input
@@ -183,6 +202,7 @@ function SeletorItemQuantidade(props: {
         })}
       </tbody>
     </table>
+    </div>
   )
 }
 
@@ -231,7 +251,7 @@ function PreviewImpacto({ preview, indice, total }: { preview: TransferPreviewSi
   )
 }
 
-export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, onFechar, onConcluido }: Props) {
+export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, onFechar, onConcluido, onEstadoTutorialChange }: Props) {
   const [selecaoCongelada, setSelecaoCongelada] = useState(selecao)
   const [linhasCongeladas, setLinhasCongeladas] = useState(linhas)
   const [passo, setPasso] = useState<Passo>(1)
@@ -281,6 +301,11 @@ export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, o
     setLinhasResultado(null)
     setIdsNovosPedidosResultado([])
   }, [aberto, selecao, linhas])
+
+  useEffect(() => {
+    if (!aberto) return
+    onEstadoTutorialChange?.({ passo, concluido, cenario })
+  }, [aberto, passo, concluido, cenario, onEstadoTutorialChange])
 
   const pedidos = useMemo(() => montarPedidosEnvolvidosTransferir(selecaoCongelada, linhasCongeladas), [selecaoCongelada, linhasCongeladas])
   const itensAvulsos = useMemo(() => filtrarItensAvulsosSelecao(selecaoCongelada), [selecaoCongelada])
@@ -438,23 +463,31 @@ export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, o
   ]
 
   const footer = concluido ? (
-    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}><BotaoGlobal variante="primario" tamanho="medio" onClick={handleFecharResultado}>{T.fechar}</BotaoGlobal></div>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+      <span data-sds-tutorial-alvo="pedido-transferir-fechar" style={{ display: 'inline-flex' }}>
+        <BotaoGlobal variante="primario" tamanho="medio" onClick={handleFecharResultado}>{T.fechar}</BotaoGlobal>
+      </span>
+    </div>
   ) : (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
       <BotaoGlobal variante="fantasma" tamanho="padrao" onClick={passo === 1 ? onFechar : voltar} disabled={confirmando}>{passo === 1 ? T.cancelar : T.voltar}</BotaoGlobal>
       {passo === 5 ? (
-        <BotaoGlobal variante="primario" tamanho="padrao" onClick={handleConfirmar} disabled={confirmando} carregando={confirmando} iconeDireita={<ArrowRight size={14} weight="bold" />}>{confirmando ? T.transferindo : T.confirmar}</BotaoGlobal>
+        <span data-sds-tutorial-alvo="pedido-transferir-confirmar" style={{ display: 'inline-flex' }}>
+          <BotaoGlobal variante="primario" tamanho="padrao" onClick={handleConfirmar} disabled={confirmando} carregando={confirmando} iconeDireita={<ArrowRight size={14} weight="bold" />}>{confirmando ? T.transferindo : T.confirmar}</BotaoGlobal>
+        </span>
       ) : (
-        <BotaoGlobal variante="primario" tamanho="padrao" onClick={() => void avancar()} disabled={!podeProsseguir || carregandoPreview} carregando={carregandoPreview} iconeDireita={<ArrowRight size={14} weight="bold" />}>{carregandoPreview ? T.calculando : passo === 4 ? T.revisar_confirmar : T.proximo}</BotaoGlobal>
+        <span data-sds-tutorial-alvo="pedido-transferir-proximo" style={{ display: 'inline-flex' }}>
+          <BotaoGlobal variante="primario" tamanho="padrao" onClick={() => void avancar()} disabled={!podeProsseguir || carregandoPreview} carregando={carregandoPreview} iconeDireita={<ArrowRight size={14} weight="bold" />}>{carregandoPreview ? T.calculando : passo === 4 ? T.revisar_confirmar : T.proximo}</BotaoGlobal>
+        </span>
       )}
     </div>
   )
 
   return (
-    <ModalPassoPassoGlobal titulo={titulo} tituloNode={tituloNode} icone={<ArrowSquareOut size={20} weight="duotone" />} subtitulo={T.subtitulo} aberto={aberto} passos={PASSOS} passoAtual={passo} onProximo={() => undefined} onVoltar={() => undefined} onFechar={concluido ? handleFecharResultado : onFechar} tamanho={multiPedido ? '2xl' : 'xl'} ocultarStepper={concluido} footerCustom={footer}>
+    <ModalPassoPassoGlobal titulo={titulo} tituloNode={tituloNode} icone={<ArrowSquareOut size={20} weight="duotone" />} subtitulo={T.subtitulo} aberto={aberto} passos={PASSOS} passoAtual={passo} onProximo={() => undefined} onVoltar={() => undefined} onFechar={concluido ? handleFecharResultado : onFechar} tamanho={multiPedido ? '2xl' : 'xl'} ocultarStepper={concluido} classNameDialog="modal-transferir" footerCustom={footer}>
       <div className="modal-transferir__corpo">
         {concluido && resumoFinal ? (
-          <div className="modal-transferir__resultado" role="status" aria-live="polite">
+          <div className="modal-transferir__resultado" role="status" aria-live="polite" data-sds-tutorial-alvo="pedido-transferir-resultado">
             <div className="modal-transferir__resultado-sucesso"><CheckCircle size={20} weight="fill" className="modal-transferir__icone-sucesso" /><p className="modal-transferir__resultado-texto">{T.resultado_titulo}</p></div>
             <div className="modal-transferir__secao-titulo"><ArrowSquareOut size={14} weight="duotone" className="modal-transferir__secao-icone" />{T.secao_origem_resultado}</div>
             <ul className="modal-transferir__lista-resultado">
@@ -485,17 +518,22 @@ export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, o
             {passo === 2 && <SeletorItemQuantidade itensComPedido={itensComPedido} itensQuantidades={itensQuantidades} onToggleItem={handleToggleItem} onToggleTodos={handleToggleTodos} onQuantidadeChange={handleQuantidadeItemChange} multiPedido={multiPedido} />}
             {passo === 3 && cenario && (
               cenario === 'reducao_simples' ? (
-                <div className="modal-transferir__destinos"><div className="modal-transferir__alerta"><Warning size={14} weight="fill" />{T.alerta_reducao}</div></div>
+                <div className="modal-transferir__destinos" data-sds-tutorial-alvo="pedido-transferir-alerta-reducao"><div className="modal-transferir__alerta"><Warning size={14} weight="fill" />{T.alerta_reducao}</div></div>
               ) : (
                 <div className="modal-transferir__destinos">
                   {destinos.map((destino, idx) => (
                     <div key={idx} className="modal-transferir__destino-bloco">
                       <div className="modal-transferir__destino-titulo">{T.destino_titulo}</div>
                       {cenario === 'split_pedido_existente' && (
-                        <SelectGlobal label={T.destino_id_label} placeholder={T.destino_id_placeholder} buscavel opcoes={pedidosDestinoDisponiveis.map((p) => ({ valor: p.id, rotulo: p.numeroPedido }))} valor={destino.pedido_id ?? null} aoMudarValor={(v) => setDestinos((prev) => prev.map((d, i) => (i === idx ? { ...d, pedido_id: v != null ? String(v) : undefined } : d)))} obrigatorio />
+                        <div data-sds-tutorial-alvo="pedido-transferir-destino-pedido-existente">
+                          <SelectGlobal label={T.destino_id_label} placeholder={T.destino_id_placeholder} buscavel opcoes={pedidosDestinoDisponiveis.map((p) => ({ valor: p.id, rotulo: p.numeroPedido }))} valor={destino.pedido_id ?? null} aoMudarValor={(v) => setDestinos((prev) => prev.map((d, i) => (i === idx ? { ...d, pedido_id: v != null ? String(v) : undefined } : d)))} obrigatorio />
+                        </div>
                       )}
                       {cenario === 'split_novo_pedido' && (
-                        <div className="modal-transferir__destino-linha">
+                        <div
+                          className="modal-transferir__destino-linha"
+                          data-sds-tutorial-alvo="pedido-transferir-destino-novo-pedido"
+                        >
                           <label className="modal-transferir__label" htmlFor="destino-numero-novo-sim">{T.novo_pedido_label}</label>
                           <input id="destino-numero-novo-sim" type="text" className="modal-transferir__input" value={numeroPedidoNovo} onChange={(e) => setNumeroPedidoNovo(e.target.value)} placeholder={T.novo_pedido_placeholder} />
                         </div>
@@ -507,9 +545,9 @@ export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, o
               )
             )}
             {passo === 4 && (carregandoPreview ? <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0' }} aria-live="polite"><GravityLoader texto={T.calculando} tamanho="sm" /></div> : erroPreview ? <div className="modal-transferir__erro" role="alert"><Warning size={16} weight="fill" />{erroPreview}</div> : previews.length > 0 ? (
-              <div className="modal-transferir__preview-wrapper">
+              <div className="modal-transferir__preview-wrapper" data-sds-tutorial-alvo="pedido-transferir-preview">
                 {temAvisoTipo && (
-                  <div className="modal-transferir__aviso-tipos">
+                  <div className="modal-transferir__aviso-tipos" data-sds-tutorial-alvo="pedido-transferir-aviso-tipos">
                     <Warning weight="duotone" size={18} className="modal-transferir__aviso-tipos-icone" />
                     <div>
                       <p className="modal-transferir__aviso-tipos-titulo">{T.aviso_tipos_titulo}</p>
@@ -528,8 +566,8 @@ export function ModalTransferirListaSimuladorPedido({ aberto, selecao, linhas, o
             ) : null)}
             {passo === 5 && (
               <div className="modal-transferir__confirmacao-bloco">
-                <div className="modal-transferir__alerta modal-transferir__alerta--confirmacao"><ArrowRight size={14} weight="bold" />{cenarioInfo?.reversivel ? T.passo5_reversivel : T.passo5_irreversivel}</div>
-                <div className="modal-transferir__preview-wrapper">{previews.map((prev, idx) => <PreviewImpacto key={idx} preview={prev} indice={idx} total={previews.length} />)}</div>
+                <div className="modal-transferir__alerta modal-transferir__alerta--confirmacao" data-sds-tutorial-alvo="pedido-transferir-confirmacao-alerta"><ArrowRight size={14} weight="bold" />{cenarioInfo?.reversivel ? T.passo5_reversivel : T.passo5_irreversivel}</div>
+                <div className="modal-transferir__preview-wrapper" data-sds-tutorial-alvo="pedido-transferir-preview">{previews.map((prev, idx) => <PreviewImpacto key={idx} preview={prev} indice={idx} total={previews.length} />)}</div>
                 {erroConfirmar && <div className="modal-transferir__erro" role="alert"><Warning size={16} weight="fill" />{erroConfirmar}</div>}
               </div>
             )}

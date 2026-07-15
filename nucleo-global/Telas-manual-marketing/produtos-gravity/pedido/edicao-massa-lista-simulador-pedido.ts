@@ -9,7 +9,6 @@ import type {
   ItemListaPedidoSimulador,
   LinhaListaPedidoSimulador,
 } from './dados-lista-simulador-pedido'
-import { filtrarItensAvulsosSelecao } from './duplicar-excluir-lista-simulador-pedido'
 import type { SelecaoListaSimuladorPedido } from './regras-acoes-barra-lista-simulador-pedido'
 
 export type CampoEmEdicaoMassaSimulador = {
@@ -125,16 +124,127 @@ function lerValorItem(item: ItemListaPedidoSimulador, campo: string): string | n
 }
 
 export type AlvoEdicaoMassaSimulador = {
-  pedidosCompletos: LinhaListaPedidoSimulador[]
-  itensAvulsos: Array<{ item: ItemListaPedidoSimulador; pai: LinhaListaPedidoSimulador }>
+  pedidosEscopo: LinhaListaPedidoSimulador[]
+  pedidosCompletosIds: Set<string>
+  itemIdsEscopo: Set<string> | null
+}
+
+export type EstatisticasEscopoEdicaoMassaSimulador = {
+  pedidos: number
+  itens: number
+  inteiros: Array<{ numero: string; itens: number }>
+  parciais: Array<{ numero: string; itensSel: number; itensTotal: number }>
+}
+
+/** Espelha `pedidosParaEdicaoMassa` em Pedidos.tsx — pedidos pais únicos no escopo. */
+export function resolverPedidosParaEdicaoMassaSimulador(
+  selecao: SelecaoListaSimuladorPedido,
+  linhas: readonly LinhaListaPedidoSimulador[],
+): LinhaListaPedidoSimulador[] {
+  if (selecao.pedidos.length === 0) {
+    if (selecao.itens.length === 0) return []
+    const idsPais = [...new Set(selecao.itens.map((i) => i.pai.id))]
+    const mapa = new Map(linhas.map((l) => [l.id, l]))
+    return idsPais.map((id) => mapa.get(id)).filter((p): p is LinhaListaPedidoSimulador => p != null)
+  }
+  if (selecao.itens.length === 0) return [...selecao.pedidos]
+
+  const idsJaInclusos = new Set(selecao.pedidos.map((p) => p.id))
+  const extras: LinhaListaPedidoSimulador[] = []
+  for (const { pai } of selecao.itens) {
+    if (!idsJaInclusos.has(pai.id)) {
+      extras.push(pai)
+      idsJaInclusos.add(pai.id)
+    }
+  }
+  return extras.length > 0 ? [...selecao.pedidos, ...extras] : [...selecao.pedidos]
+}
+
+/** Espelha `itensSelecionadosIdsParaMassa` — null = todos os itens dos pedidos do escopo. */
+export function resolverItensIdsEscopoEdicaoMassaSimulador(
+  selecao: SelecaoListaSimuladorPedido,
+): string[] | null {
+  if (selecao.itens.length === 0) return null
+  if (selecao.pedidos.length === 0) {
+    return selecao.itens.map((i) => i.item.id)
+  }
+  const idsSet = new Set<string>()
+  for (const pedido of selecao.pedidos) {
+    for (const item of pedido.detalhesItens) idsSet.add(item.id)
+  }
+  for (const { item } of selecao.itens) idsSet.add(item.id)
+  return [...idsSet]
+}
+
+/** Espelha `pedidoIdsCompletoParaMassa` — pedidos com seleção integral (cabeçalho + todos os itens). */
+export function resolverPedidoIdsCompletoEdicaoMassaSimulador(
+  selecao: SelecaoListaSimuladorPedido,
+): Set<string> | null {
+  if (selecao.pedidos.length === 0 || selecao.itens.length === 0) return null
+  return new Set(selecao.pedidos.map((p) => p.id))
+}
+
+export function calcularEstatisticasEscopoEdicaoMassaSimulador(
+  selecao: SelecaoListaSimuladorPedido,
+  linhas: readonly LinhaListaPedidoSimulador[],
+): EstatisticasEscopoEdicaoMassaSimulador {
+  const pedidosEscopo = resolverPedidosParaEdicaoMassaSimulador(selecao, linhas)
+  const itemIdsEscopo = resolverItensIdsEscopoEdicaoMassaSimulador(selecao)
+  const pedidosCompletos = resolverPedidoIdsCompletoEdicaoMassaSimulador(selecao)
+  const temSelecaoItens = selecao.itens.length > 0
+
+  let totalItens = 0
+  const inteiros: EstatisticasEscopoEdicaoMassaSimulador['inteiros'] = []
+  const parciais: EstatisticasEscopoEdicaoMassaSimulador['parciais'] = []
+
+  if (!temSelecaoItens) {
+    for (const pedido of pedidosEscopo) {
+      const n = pedido.detalhesItens.length
+      totalItens += n
+      inteiros.push({ numero: pedido.numeroPedido, itens: n })
+    }
+  } else {
+    const itensSel = new Set(itemIdsEscopo ?? [])
+    for (const pedido of pedidosEscopo) {
+      const totalPedido = pedido.detalhesItens.length
+      if (pedidosCompletos?.has(pedido.id)) {
+        totalItens += totalPedido
+        inteiros.push({ numero: pedido.numeroPedido, itens: totalPedido })
+      } else {
+        const qtdSelecionada = pedido.detalhesItens.filter((i) => itensSel.has(i.id)).length
+        totalItens += qtdSelecionada
+        if (qtdSelecionada >= totalPedido && totalPedido > 0) {
+          inteiros.push({ numero: pedido.numeroPedido, itens: totalPedido })
+        } else if (qtdSelecionada > 0) {
+          parciais.push({
+            numero: pedido.numeroPedido,
+            itensSel: qtdSelecionada,
+            itensTotal: totalPedido,
+          })
+        }
+      }
+    }
+  }
+
+  return {
+    pedidos: pedidosEscopo.length,
+    itens: totalItens,
+    inteiros,
+    parciais,
+  }
 }
 
 export function resolverAlvosEdicaoMassaSimulador(
   selecao: SelecaoListaSimuladorPedido,
+  linhas: readonly LinhaListaPedidoSimulador[],
 ): AlvoEdicaoMassaSimulador {
+  const pedidosEscopo = resolverPedidosParaEdicaoMassaSimulador(selecao, linhas)
+  const itemIdsArray = resolverItensIdsEscopoEdicaoMassaSimulador(selecao)
+  const pedidosCompletos = resolverPedidoIdsCompletoEdicaoMassaSimulador(selecao)
   return {
-    pedidosCompletos: selecao.pedidos,
-    itensAvulsos: filtrarItensAvulsosSelecao(selecao),
+    pedidosEscopo,
+    pedidosCompletosIds: pedidosCompletos ?? new Set(pedidosEscopo.map((p) => p.id)),
+    itemIdsEscopo: itemIdsArray ? new Set(itemIdsArray) : null,
   }
 }
 
@@ -145,16 +255,22 @@ function itensNoEscopo(
 ): Array<{ item: ItemListaPedidoSimulador; pai: LinhaListaPedidoSimulador }> {
   const lista: Array<{ item: ItemListaPedidoSimulador; pai: LinhaListaPedidoSimulador }> = []
 
-  if (campoNivel === 'item') {
-    if (nivel === 'item' || nivel === 'combinado') {
-      for (const pedido of alvos.pedidosCompletos) {
-        for (const item of pedido.detalhesItens) lista.push({ item, pai: pedido })
-      }
-      for (const avulso of alvos.itensAvulsos) lista.push(avulso)
-    }
+  if (campoNivel !== 'item' || nivel === 'pedido') return lista
+
+  for (const pedido of alvos.pedidosEscopo) {
+    const candidatos = alvos.itemIdsEscopo
+      ? pedido.detalhesItens.filter((item) => alvos.itemIdsEscopo!.has(item.id))
+      : pedido.detalhesItens
+    for (const item of candidatos) lista.push({ item, pai: pedido })
   }
 
   return lista
+}
+
+function pedidosNoEscopoPedido(
+  alvos: AlvoEdicaoMassaSimulador,
+): LinhaListaPedidoSimulador[] {
+  return alvos.pedidosEscopo
 }
 
 export function gerarPreviewEdicaoMassaSimulador(
@@ -163,7 +279,7 @@ export function gerarPreviewEdicaoMassaSimulador(
   nivel: NivelEdicaoMassaSimulador,
   campos: CampoEmEdicaoMassaSimulador[],
 ): PreviewEdicaoMassaSimulador {
-  const alvos = resolverAlvosEdicaoMassaSimulador(selecao)
+  const alvos = resolverAlvosEdicaoMassaSimulador(selecao, linhas)
   const camposValidos = campos.filter((c) => c.valor.trim() !== '')
   const porPedidoMap = new Map<string, PreviewPorPedidoEdicaoMassaSimulador>()
   let itensAfetados = 0
@@ -183,10 +299,10 @@ export function gerarPreviewEdicaoMassaSimulador(
     const aplicaPedido =
       campoEdit.nivel === 'pedido' &&
       (nivel === 'pedido' || nivel === 'combinado') &&
-      alvos.pedidosCompletos.length > 0
+      alvos.pedidosEscopo.length > 0
 
     if (aplicaPedido) {
-      for (const pedido of alvos.pedidosCompletos) {
+      for (const pedido of pedidosNoEscopoPedido(alvos)) {
         const atual = lerValorPedido(pedido, campoEdit.campo)
         const novo = calcularNovoValorCampo(atual, campoEdit.tipo, campoEdit.operacao, campoEdit.valor)
         ensurePedido(pedido).alteracoes.push({
@@ -215,12 +331,12 @@ export function gerarPreviewEdicaoMassaSimulador(
   }
 
   const por_pedido = [...porPedidoMap.values()]
-  const pedidos_afetados = por_pedido.length
+  const escopo = calcularEstatisticasEscopoEdicaoMassaSimulador(selecao, linhas)
 
   const camposPreview: PreviewCampoEdicaoMassaSimulador[] = camposValidos.map((c) => {
     const valores = new Set<string>()
     if (c.nivel === 'pedido') {
-      for (const p of alvos.pedidosCompletos) valores.add(formatarExibicao(lerValorPedido(p, c.campo)))
+      for (const p of alvos.pedidosEscopo) valores.add(formatarExibicao(lerValorPedido(p, c.campo)))
     } else {
       for (const { item } of itensNoEscopo(alvos, nivel, 'item')) {
         valores.add(formatarExibicao(lerValorItem(item, c.campo)))
@@ -229,13 +345,13 @@ export function gerarPreviewEdicaoMassaSimulador(
     return { campo: c.campo, valores_distintos: [...valores] }
   })
 
-  if (itensAfetados === 0 && camposValidos.some((c) => c.nivel === 'item')) {
-    itensAfetados = itensNoEscopo(alvos, nivel, 'item').length
-  }
+  const temCamposItem =
+    camposValidos.some((c) => c.nivel === 'item') &&
+    (nivel === 'item' || nivel === 'combinado')
 
   return {
-    pedidos_afetados,
-    itens_afetados: itensAfetados,
+    pedidos_afetados: escopo.pedidos,
+    itens_afetados: temCamposItem ? itensAfetados : escopo.itens,
     campos: camposPreview,
     por_pedido,
   }
@@ -275,17 +391,12 @@ export function aplicarEdicaoMassaListaSimulador(
   }
 }
 
-export function montarTituloModalEdicaoMassaSimulador(selecao: SelecaoListaSimuladorPedido): string {
-  const itensAvulsos = filtrarItensAvulsosSelecao(selecao)
-  const nPed = selecao.pedidos.length
-  const nItem = itensAvulsos.length
-  if (nPed > 0 && nItem > 0) {
-    return `Editar em massa · ${nPed} pedido${nPed !== 1 ? 's' : ''} e ${nItem} item${nItem !== 1 ? 's' : ''}`
-  }
-  if (nItem > 0 && nPed === 0) {
-    return `Editar em massa · ${nItem} item${nItem !== 1 ? 's' : ''}`
-  }
-  return `Editar em massa · ${nPed} pedido${nPed !== 1 ? 's' : ''}`
+export function montarTituloModalEdicaoMassaSimulador(
+  selecao: SelecaoListaSimuladorPedido,
+  linhas: readonly LinhaListaPedidoSimulador[],
+): string {
+  const n = resolverPedidosParaEdicaoMassaSimulador(selecao, linhas).length
+  return `Editar em massa · ${n} pedido${n !== 1 ? 's' : ''}`
 }
 
 export function mensagemToastEdicaoMassa(resumo: ResumoEdicaoMassaListaSimulador): string {

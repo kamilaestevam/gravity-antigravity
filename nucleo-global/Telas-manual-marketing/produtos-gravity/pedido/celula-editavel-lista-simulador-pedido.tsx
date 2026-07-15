@@ -1,5 +1,5 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { Warning } from '@phosphor-icons/react'
+import { Warning, PencilSimple } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ItemListaPedidoSimulador, LinhaListaPedidoSimulador } from './dados-lista-simulador-pedido'
 import {
@@ -17,6 +17,8 @@ type Props = {
   flashSalvo?: boolean
   flashErro?: boolean
   classeDestaqueGuia?: string
+  dataTutorialAlvo?: string
+  exemploEdicao?: boolean
   onIniciarEdicao: (info: {
     colunaId: string
     label: string
@@ -37,6 +39,8 @@ export function CelulaEditavelListaSimuladorPedido({
   flashSalvo,
   flashErro,
   classeDestaqueGuia,
+  dataTutorialAlvo,
+  exemploEdicao,
   onIniciarEdicao,
   children,
 }: Props) {
@@ -48,6 +52,7 @@ export function CelulaEditavelListaSimuladorPedido({
     'pds-lista-celula',
     'gtv-celula',
     classeDestaqueGuia,
+    exemploEdicao ? 'pds-lista-celula--exemplo-edicao' : '',
     estado.editavel ? 'gtv-celula--editavel' : '',
     estado.bloqueada ? 'gtv-celula--bloqueada' : '',
     estado.somenteLeitura ? 'gtv-celula--somente-leitura' : '',
@@ -80,12 +85,21 @@ export function CelulaEditavelListaSimuladorPedido({
     <div
       ref={ref}
       className={classes}
+      {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
       role={estado.editavel ? 'button' : undefined}
       tabIndex={estado.editavel ? 0 : undefined}
       onClick={estado.editavel ? handleClick : undefined}
       onKeyDown={estado.editavel ? handleKeyDown : undefined}
     >
       <span className="pds-lista-celula-conteudo">{children}</span>
+      {exemploEdicao ? (
+        <PencilSimple
+          size={11}
+          weight="bold"
+          className="pds-lista-celula-icone-edicao"
+          aria-hidden
+        />
+      ) : null}
       {divergente ? (
         <Warning
           size={12}

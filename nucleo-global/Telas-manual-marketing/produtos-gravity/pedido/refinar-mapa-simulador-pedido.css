@@ -6,7 +6,7 @@
   min-height: 0;
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 10px;
   align-items: stretch;
 }
@@ -205,6 +205,51 @@
   font-size: 0.5625rem;
   line-height: 1.35;
   color: #94a3b8;
+}
+
+.pds-map-refinar-panel__contadores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.pds-map-refinar-panel__contadores-prefixo {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+}
+
+.pds-map-refinar-panel__contador-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  white-space: nowrap;
+}
+
+.pds-map-refinar-panel__contador-chip strong {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.pds-map-refinar-panel__contador-chip-base {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.pds-map-refinar-panel__contador-chip--filtro strong {
+  color: #a78bfa;
 }
 
 .pds-map-refinar-panel__toolbar {

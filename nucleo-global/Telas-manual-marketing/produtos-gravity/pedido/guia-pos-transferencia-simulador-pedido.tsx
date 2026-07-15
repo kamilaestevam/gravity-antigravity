@@ -22,6 +22,7 @@ type Props = {
   resumo: ResumoTransferenciaListaSimulador
   onProximo: () => void
   onConcluir: () => void
+  dataTutorialAlvo?: string
 }
 
 function resolverNumeroPedidoDestino(resumo: ResumoTransferenciaListaSimulador): string {
@@ -52,7 +53,7 @@ function LegendaDestaquesLista() {
   )
 }
 
-export function GuiaPosTransferenciaSimuladorPedido({ passo, resumo, onProximo, onConcluir }: Props) {
+export function GuiaPosTransferenciaSimuladorPedido({ passo, resumo, onProximo, onConcluir, dataTutorialAlvo }: Props) {
   const qtyOperacao = fmtQuantidadeSimulador(resumo.quantidadeTotal)
   const qtyTransferidaOrigem = fmtQuantidadeSimulador(
     resumo.quantidadeTransferidaAcumuladaOrigem ?? resumo.quantidadeTotal,
@@ -71,7 +72,11 @@ export function GuiaPosTransferenciaSimuladorPedido({ passo, resumo, onProximo, 
   const tinhaTransferenciaAnterior = (resumo.quantidadeTransferidaAnteriorOrigem ?? 0) > 0
 
   return (
-    <aside className="pds-transf-guia" aria-label="Guia pós-transferência">
+    <aside
+      className="pds-transf-guia"
+      aria-label="Guia pós-transferência"
+      {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
+    >
       <div className="pds-transf-guia__cabecalho">
         <p className="pds-transf-guia__meta">Pós-transferência · passo {passo} de {totalPassos}</p>
         <div className="pds-transf-guia__progresso" aria-hidden>

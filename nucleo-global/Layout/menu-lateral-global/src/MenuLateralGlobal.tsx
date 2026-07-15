@@ -102,6 +102,8 @@ export interface MenuLateralGlobalProps {
   onNavegarDemonstracao?: (to: string) => void
   /** Rota ativa simulada (pathname + search) quando `modoDemonstracao` */
   rotaAtivaDemonstracao?: string
+  /** data-sds-tutorial-alvo no seletor de workspace (demo marketing) */
+  dataTutorialAlvoWorkspace?: string
 }
 
 function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
@@ -167,6 +169,7 @@ export function MenuLateralGlobal({
   modoDemonstracao = false,
   onNavegarDemonstracao,
   rotaAtivaDemonstracao,
+  dataTutorialAlvoWorkspace,
 }: MenuLateralGlobalProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -539,7 +542,11 @@ export function MenuLateralGlobal({
       </div>
 
       {/* ── Workspace switcher ── */}
-      <div className="mlg-tenant-wrapper" ref={wsRef}>
+      <div
+        className="mlg-tenant-wrapper"
+        ref={wsRef}
+        {...(dataTutorialAlvoWorkspace ? { 'data-sds-tutorial-alvo': dataTutorialAlvoWorkspace } : {})}
+      >
         {isCollapsed ? (
           <TooltipGlobal descricao={tenantRotulo.descricaoTooltip}>
             <div className="mlg-tenant">

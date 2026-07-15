@@ -98,11 +98,21 @@ import {
   mensagemToastEdicaoMassa,
 } from './modal-edicao-massa-lista-simulador-pedido'
 import { ModalExcluirListaSimuladorPedido, mensagemToastExclusao } from './modal-excluir-lista-simulador-pedido'
+import { ModalConsolidarListaSimuladorPedido } from './modal-consolidar-lista-simulador-pedido'
+import {
+  mensagemToastConsolidacao,
+  celulaDestaqueGuiaPosConsolidacao,
+  colunasDestaqueGuiaPosConsolidacaoSimulador,
+  type PassoGuiaPosConsolidacaoSimulador,
+  type ResumoConsolidacaoListaSimulador,
+} from './consolidar-lista-simulador-pedido'
 import { ModalTransferirListaSimuladorPedido } from './modal-transferir-lista-simulador-pedido'
 import { ModalExplicacaoTransferenciaSimuladorPedido } from './modal-explicacao-transferencia-simulador-pedido'
 import './modal-explicacao-transferencia-simulador-pedido.css'
 import { GuiaPosTransferenciaSimuladorPedido } from './guia-pos-transferencia-simulador-pedido'
 import './guia-pos-transferencia-simulador-pedido.css'
+import { GuiaPosConsolidacaoSimuladorPedido } from './guia-pos-consolidacao-simulador-pedido'
+import './guia-pos-consolidacao-simulador-pedido.css'
 import {
   duplicarSelecaoListaSimulador,
   excluirSelecaoListaSimulador,
@@ -118,6 +128,7 @@ import {
   colunasDestaqueGuiaPosTransferenciaSimulador,
   itemDestaqueGuiaPosTransferencia,
   montarMensagemToastTransferencia,
+  type CenarioTransferSimulador,
   type PassoGuiaPosTransferenciaSimulador,
   type ResumoTransferenciaListaSimulador,
 } from './transferir-lista-simulador-pedido'
@@ -126,6 +137,7 @@ import {
   scrollContainerParaLinhaListaSimulador,
 } from './janela-colunas-scroll-lista-simulador-pedido'
 import { montarLinhaNovoPedidoSimulador } from './montar-linha-novo-pedido-simulador'
+import type { EstadoTutorialListaPedido } from './dados-tutorial-opcional-simulador-pedido'
 import type { FornecedorSimuladorNovoPedido } from './dados-fornecedores-simulador-novo-pedido'
 import type { FormNovoPedidoSimulador, ItemNovoPedidoSimulador } from './regras-modal-novo-pedido-simulador'
 
@@ -258,7 +270,10 @@ function estiloChipStatusFiltro(id: string, cor: string, ativo: boolean): CSSPro
 
 type Props = {
   empresasSelecionadas: PerfilEmpresaSimulador[]
+  numeroPedidoFoco?: string | null
+  onConsumirFocoLista?: () => void
   onAbrirMenuWorkspaces?: () => void
+  onEstadoTutorialChange?: (estado: EstadoTutorialListaPedido) => void
 }
 
 function ListaNumeradaWorkspacesTooltipSimulador({ nomes }: { nomes: readonly string[] }) {
@@ -295,7 +310,13 @@ function chaveCelula(linhaId: string, colunaId: string, itemId?: string): string
   return itemId ? `${linhaId}:${itemId}:${colunaId}` : `${linhaId}:${colunaId}`
 }
 
-export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspaces }: Props) {
+export function ListaSimuladorPedido({
+  empresasSelecionadas,
+  numeroPedidoFoco = null,
+  onConsumirFocoLista,
+  onAbrirMenuWorkspaces,
+  onEstadoTutorialChange,
+}: Props) {
   const [paineisLista, setPaineisLista] = useState<PainelItemSimulador[]>(PAINEIS_LISTA_SIMULADOR_INICIAIS)
   const [painelAtualId, setPainelAtualId] = useState('geral')
   const [statusFiltro, setStatusFiltro] = useState('todas')
@@ -321,10 +342,20 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   const [sortCampo, setSortCampo] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null)
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
+  const [passoModalNovoPedido, setPassoModalNovoPedido] = useState(1)
   const [modalNovoItemAberto, setModalNovoItemAberto] = useState(false)
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [modalConsolidarAberto, setModalConsolidarAberto] = useState(false)
+  const [passoModalConsolidar, setPassoModalConsolidar] = useState(1)
+  const [modalConsolidarConcluido, setModalConsolidarConcluido] = useState(false)
   const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+  const [passoModalEdicaoMassa, setPassoModalEdicaoMassa] = useState(1)
+  const [menuNovoAberto, setMenuNovoAberto] = useState(false)
+  const [cadastroRapidoEmpresaAberto, setCadastroRapidoEmpresaAberto] = useState(false)
   const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
+  const [passoModalTransferir, setPassoModalTransferir] = useState(1)
+  const [cenarioModalTransferir, setCenarioModalTransferir] = useState<CenarioTransferSimulador | null>(null)
+  const [modalTransferirConcluido, setModalTransferirConcluido] = useState(false)
   const [explicacaoTransferencia, setExplicacaoTransferencia] = useState<{
     resumo: ResumoTransferenciaListaSimulador
     idsNovosPedidos: string[]
@@ -335,6 +366,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     idsNovosPedidos: string[]
   } | null>(null)
   const [idsNovosPedidosRecentes, setIdsNovosPedidosRecentes] = useState<string[]>([])
+  const [guiaPosConsolidacao, setGuiaPosConsolidacao] = useState<{
+    passo: PassoGuiaPosConsolidacaoSimulador
+    resumo: ResumoConsolidacaoListaSimulador
+    idPedidoConsolidado: string
+  } | null>(null)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
   const tabelaWrapRef = useRef<HTMLDivElement>(null)
@@ -348,6 +384,56 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   useEffect(() => {
     colunasRef.current = colunas
   }, [colunas])
+
+  useEffect(() => {
+    if (!onEstadoTutorialChange) return
+    const linhaListaExpandida = expandidos.size > 0 ? [...expandidos][0] ?? null : null
+    onEstadoTutorialChange({
+      linhaListaExpandida,
+      menuNovoAberto,
+      modalNovoPedidoAberto,
+      passoModalNovoPedido,
+      cadastroRapidoEmpresaAberto,
+      modalTransferirAberto,
+      passoModalTransferir,
+      cenarioModalTransferir,
+      modalTransferirConcluido,
+      modalNovoItemAberto,
+      modalEdicaoMassaAberto,
+      passoModalEdicaoMassa,
+      modalDuplicarAberto,
+      modalExcluirAberto,
+      modalConsolidarAberto,
+      passoModalConsolidar,
+      modalConsolidarConcluido,
+      explicacaoTransferenciaAberta: explicacaoTransferencia !== null,
+      guiaPosTransferenciaPasso: guiaPosTransferencia?.passo ?? null,
+      guiaPosConsolidacaoPasso: guiaPosConsolidacao?.passo ?? null,
+      idPedidoConsolidadoDestaque: guiaPosConsolidacao?.idPedidoConsolidado ?? null,
+    })
+  }, [
+    expandidos,
+    menuNovoAberto,
+    modalNovoPedidoAberto,
+    passoModalNovoPedido,
+    cadastroRapidoEmpresaAberto,
+    modalTransferirAberto,
+    passoModalTransferir,
+    cenarioModalTransferir,
+    modalTransferirConcluido,
+    modalNovoItemAberto,
+    modalEdicaoMassaAberto,
+    passoModalEdicaoMassa,
+    modalDuplicarAberto,
+    modalExcluirAberto,
+    modalConsolidarAberto,
+    passoModalConsolidar,
+    modalConsolidarConcluido,
+    explicacaoTransferencia,
+    guiaPosTransferencia,
+    guiaPosConsolidacao,
+    onEstadoTutorialChange,
+  ])
 
   const sincronizarPosicaoDropdownColunas = useCallback(() => {
     const btn = colunasBtnRef.current
@@ -603,6 +689,17 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     setSortDir(null)
   }, [empresasSelecionadas])
 
+  useEffect(() => {
+    if (!numeroPedidoFoco || linhas.length === 0) return
+    const linha = linhas.find((l) => l.numeroPedido === numeroPedidoFoco)
+    if (!linha) return
+    setBusca(numeroPedidoFoco)
+    setStatusFiltro('todas')
+    setPagina(1)
+    setExpandidos(new Set([linha.id]))
+    onConsumirFocoLista?.()
+  }, [numeroPedidoFoco, linhas, onConsumirFocoLista])
+
   const linhasBase = linhas
 
   const linhasFiltradas = useMemo(() => {
@@ -723,8 +820,12 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       const idsGuia = new Set(colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo))
       return colunas.filter((c) => idsGuia.has(c.id))
     }
+    if (guiaPosConsolidacao) {
+      const idsGuia = new Set(colunasDestaqueGuiaPosConsolidacaoSimulador(guiaPosConsolidacao.passo))
+      return colunas.filter((c) => idsGuia.has(c.id))
+    }
     return colunas.filter((c) => c.visivel)
-  }, [colunas, guiaPosTransferencia])
+  }, [colunas, guiaPosTransferencia, guiaPosConsolidacao])
 
   useEffect(() => {
     if (!guiaPosTransferencia) return undefined
@@ -741,8 +842,28 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     return () => window.clearTimeout(timer)
   }, [guiaPosTransferencia?.passo, guiaPosTransferencia?.resumo])
 
+  useEffect(() => {
+    if (!guiaPosConsolidacao) return undefined
+    const { idPedidoConsolidado, passo } = guiaPosConsolidacao
+    const wrap = tabelaWrapRef.current
+    if (!wrap) return undefined
+    wrap.scrollTo({ left: 0, behavior: 'auto' })
+    const timer = window.setTimeout(() => {
+      if (passo === 2) {
+        const pedido = linhas.find((l) => l.id === idPedidoConsolidado)
+        const primeiroItem = pedido?.detalhesItens?.[0]
+        if (primeiroItem) {
+          scrollContainerParaLinhaListaSimulador(wrap, `[data-pds-linha-id="item-${primeiroItem.id}"]`)
+          return
+        }
+      }
+      scrollContainerParaLinhaListaSimulador(wrap, `[data-pds-linha-id="${idPedidoConsolidado}"]`)
+    }, 100)
+    return () => window.clearTimeout(timer)
+  }, [guiaPosConsolidacao?.passo, guiaPosConsolidacao?.idPedidoConsolidado, linhas])
+
   const janelaColunasTabela = useMemo(() => {
-    if (guiaPosTransferencia) {
+    if (guiaPosTransferencia || guiaPosConsolidacao) {
       return {
         inicio: 0,
         fim: colunasVisiveis.length,
@@ -757,11 +878,17 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       metricasScrollTabela.viewportWidth || 1200,
     )
     return base
-  }, [colunasVisiveis, metricasScrollTabela, guiaPosTransferencia])
+  }, [colunasVisiveis, metricasScrollTabela, guiaPosTransferencia, guiaPosConsolidacao])
 
   const colunasRenderTabela = useMemo(
     () => colunasVisiveis.slice(janelaColunasTabela.inicio, janelaColunasTabela.fim),
     [colunasVisiveis, janelaColunasTabela.inicio, janelaColunasTabela.fim],
+  )
+
+  const idColunaTutorialCabecalho = colunasRenderTabela[0]?.id ?? null
+  const idColunaTutorialFiltro = useMemo(
+    () => colunasRenderTabela.find((c) => colunaListaSimuladorFiltravel(c.id))?.id ?? null,
+    [colunasRenderTabela],
   )
 
   const totalColunas = colunas.length
@@ -932,6 +1059,72 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     setSelecionados(new Set())
   }, [])
 
+  const handleConcluidoConsolidar = useCallback(
+    (
+      proximas: LinhaListaPedidoSimulador[],
+      resumo: ResumoConsolidacaoListaSimulador,
+      idNovoPedido: string,
+    ) => {
+      setLinhas(proximas)
+      setPagina(1)
+      setExpandidos(new Set([idNovoPedido]))
+      setSelecionados(new Set())
+      setModalConsolidarAberto(false)
+      setPassoModalConsolidar(1)
+      setModalConsolidarConcluido(false)
+      setGuiaPosConsolidacao({ passo: 1, resumo, idPedidoConsolidado: idNovoPedido })
+      setToastDemo({
+        titulo: 'Consolidação concluída',
+        mensagem: mensagemToastConsolidacao(resumo),
+      })
+      window.setTimeout(() => {
+        const wrap = tabelaWrapRef.current
+        if (!wrap) return
+        wrap.scrollTo({ left: 0, top: wrap.scrollTop, behavior: 'auto' })
+        window.requestAnimationFrame(() => {
+          scrollContainerParaLinhaListaSimulador(wrap, `[data-pds-linha-id="${idNovoPedido}"]`)
+        })
+      }, 240)
+    },
+    [],
+  )
+
+  const encerrarGuiaPosConsolidacao = useCallback(() => {
+    setGuiaPosConsolidacao(null)
+  }, [])
+
+  const handleProximoGuiaPosConsolidacao = useCallback(() => {
+    setGuiaPosConsolidacao((prev) => {
+      if (!prev || prev.passo >= 3) return prev
+      const nextPasso = (prev.passo + 1) as PassoGuiaPosConsolidacaoSimulador
+      return { ...prev, passo: nextPasso }
+    })
+  }, [])
+
+  const handleConcluirGuiaPosConsolidacao = useCallback(() => {
+    encerrarGuiaPosConsolidacao()
+  }, [encerrarGuiaPosConsolidacao])
+
+  useEffect(() => {
+    if (!guiaPosConsolidacao || guiaPosConsolidacao.passo < 2) return
+    setExpandidos(new Set([guiaPosConsolidacao.idPedidoConsolidado]))
+  }, [guiaPosConsolidacao?.passo, guiaPosConsolidacao?.idPedidoConsolidado])
+
+  useEffect(() => {
+    if (guiaPosConsolidacao?.passo !== 3) return
+    const timer = window.setTimeout(() => {
+      encerrarGuiaPosConsolidacao()
+    }, 20000)
+    return () => window.clearTimeout(timer)
+  }, [guiaPosConsolidacao?.passo, encerrarGuiaPosConsolidacao])
+
+  const handleFecharModalConsolidar = useCallback(() => {
+    setModalConsolidarAberto(false)
+    setPassoModalConsolidar(1)
+    setModalConsolidarConcluido(false)
+    setSelecionados(new Set())
+  }, [])
+
   const handleConfirmarEdicaoMassa = useCallback(
     (payload: {
       nivel: NivelEdicaoMassaSimulador
@@ -956,11 +1149,15 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
 
   const handleFecharModalEdicaoMassa = useCallback(() => {
     setModalEdicaoMassaAberto(false)
+    setPassoModalEdicaoMassa(1)
     setSelecionados(new Set())
   }, [])
 
   const handleFecharModalTransferir = useCallback(() => {
     setModalTransferirAberto(false)
+    setPassoModalTransferir(1)
+    setCenarioModalTransferir(null)
+    setModalTransferirConcluido(false)
     setSelecionados(new Set())
   }, [])
 
@@ -1189,6 +1386,65 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     )
   }
 
+  function ehPedidoConsolidadoDestaque(pedidoId: string): boolean {
+    return guiaPosConsolidacao?.idPedidoConsolidado === pedidoId
+  }
+
+  function celulaDestaquePosConsolidacao(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): boolean {
+    if (!guiaPosConsolidacao) return false
+    return celulaDestaqueGuiaPosConsolidacao(
+      guiaPosConsolidacao.passo,
+      guiaPosConsolidacao.idPedidoConsolidado,
+      pedidoId,
+      colunaId,
+      itemId,
+    )
+  }
+
+  function classeTdDestaqueGuia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): string | undefined {
+    const transf = classeTdDestaquePosTransferencia(pedidoId, colunaId, itemId)
+    if (transf) return transf
+    if (celulaDestaquePosConsolidacao(pedidoId, colunaId, itemId)) {
+      return 'pds-lista-td--destaque-consolidado'
+    }
+    return undefined
+  }
+
+  function classeCelulaDestaqueGuia(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): string | undefined {
+    const transf = classeCelulaDestaquePosTransferencia(pedidoId, colunaId, itemId)
+    if (transf) return transf
+    if (celulaDestaquePosConsolidacao(pedidoId, colunaId, itemId)) {
+      return 'pds-lista-celula--destaque-consolidado'
+    }
+    return undefined
+  }
+
+  function classeDestaqueCabecalhoColuna(colunaId: string): string | undefined {
+    if (guiaPosTransferencia) {
+      return colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)
+        ? 'pds-lista-th-col--destaque-transferencia'
+        : undefined
+    }
+    if (guiaPosConsolidacao) {
+      return colunasDestaqueGuiaPosConsolidacaoSimulador(guiaPosConsolidacao.passo).includes(colunaId)
+        ? 'pds-lista-th-col--destaque-consolidacao'
+        : undefined
+    }
+    return undefined
+  }
+
   function ehNovoPedidoPosTransferencia(pedidoId: string): boolean {
     return idsNovosPedidosRecentes.includes(pedidoId)
       || (guiaPosTransferencia?.idsNovosPedidos.includes(pedidoId) ?? false)
@@ -1271,11 +1527,97 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     return `pds-lista-celula--destaque-${tipo}`
   }
 
-  function classeDestaqueCabecalhoColuna(colunaId: string): string | undefined {
-    if (!guiaPosTransferencia) return undefined
-    return colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)
-      ? 'pds-lista-th-col--destaque-transferencia'
-      : undefined
+  const celulaTutorialListaAlvo = useMemo(() => {
+    if (guiaPosConsolidacao) {
+      for (const entrada of linhasRender) {
+        if (entrada.tipo === 'pai') {
+          const { linha } = entrada
+          for (const c of colunasRenderTabela) {
+            if (celulaDestaquePosConsolidacao(linha.id, c.id)) {
+              return {
+                pedidoId: linha.id,
+                itemId: undefined as string | undefined,
+                colunaId: c.id,
+                exemploEdicao: false,
+              }
+            }
+          }
+        } else {
+          const { item, pai } = entrada
+          for (const c of colunasRenderTabela) {
+            if (celulaDestaquePosConsolidacao(pai.id, c.id, item.id)) {
+              return {
+                pedidoId: pai.id,
+                itemId: item.id,
+                colunaId: c.id,
+                exemploEdicao: false,
+              }
+            }
+          }
+        }
+      }
+      return null
+    }
+
+    if (guiaPosTransferencia) {
+      for (const entrada of linhasRender) {
+        if (entrada.tipo === 'pai') {
+          const { linha } = entrada
+          for (const c of colunasRenderTabela) {
+            if (celulaDestaquePosTransferencia(linha.id, c.id)) {
+              return {
+                pedidoId: linha.id,
+                itemId: undefined as string | undefined,
+                colunaId: c.id,
+                exemploEdicao: false,
+              }
+            }
+          }
+        } else {
+          const { item, pai } = entrada
+          for (const c of colunasRenderTabela) {
+            if (celulaDestaquePosTransferencia(pai.id, c.id, item.id)) {
+              return {
+                pedidoId: pai.id,
+                itemId: item.id,
+                colunaId: c.id,
+                exemploEdicao: false,
+              }
+            }
+          }
+        }
+      }
+      return null
+    }
+
+    const colunaEdicao =
+      colunasRenderTabela.find((c) => c.id === 'status')
+      ?? colunasRenderTabela.find((c) => c.id === 'incoterm')
+      ?? colunasRenderTabela.find((c) => c.id !== 'numero_pedido' && c.id !== 'tipo_operacao')
+
+    if (!colunaEdicao) return null
+
+    const primeiroFilho = linhasRender.find((e) => e.tipo === 'filho')
+    if (!primeiroFilho || primeiroFilho.tipo !== 'filho') return null
+
+    return {
+      pedidoId: primeiroFilho.pai.id,
+      itemId: primeiroFilho.item.id,
+      colunaId: colunaEdicao.id,
+      exemploEdicao: true,
+    }
+  }, [linhasRender, colunasRenderTabela, guiaPosTransferencia, guiaPosConsolidacao])
+
+  function resolverTutorialAlvoCelula(
+    pedidoId: string,
+    colunaId: string,
+    itemId?: string,
+  ): { dataTutorialAlvo?: string; exemploEdicao?: boolean } {
+    if (!celulaTutorialListaAlvo) return {}
+    const { pedidoId: alvoPedido, itemId: alvoItem, colunaId: alvoColuna, exemploEdicao } = celulaTutorialListaAlvo
+    if (alvoPedido !== pedidoId || alvoColuna !== colunaId) return {}
+    if ((alvoItem ?? null) !== (itemId ?? null)) return {}
+    return { dataTutorialAlvo: 'pedido-lista-celulas', exemploEdicao }
   }
 
   function lerValorCampoCelulaLista(
@@ -1389,10 +1731,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     coluna: ColunaListaSimuladorPedido,
     linha: LinhaListaPedidoSimulador,
     item?: ItemListaPedidoSimulador,
+    opcoesTutorialCelula?: { dataTutorialAlvo?: string; exemploEdicao?: boolean },
   ) {
     const nivel: NivelLinhaLista = item ? 'item' : 'pai'
     const flash = flashCelulas.get(chaveCelula(linha.id, coluna.id, item?.id))
-    const classeDestaque = classeCelulaDestaquePosTransferencia(linha.id, coluna.id, item?.id)
+    const classeDestaque = classeCelulaDestaqueGuia(linha.id, coluna.id, item?.id)
 
     return (
       <CelulaEditavelListaSimuladorPedido
@@ -1404,6 +1747,8 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         flashSalvo={flash === 'salvo'}
         flashErro={flash === 'erro'}
         classeDestaqueGuia={classeDestaque}
+        dataTutorialAlvo={opcoesTutorialCelula?.dataTutorialAlvo}
+        exemploEdicao={opcoesTutorialCelula?.exemploEdicao}
         onIniciarEdicao={setCelulaEmEdicao}
       >
         {renderCelulaConteudo(coluna.id, linha, item)}
@@ -1414,7 +1759,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
   return (
     <div className="pds-lista">
       <div className="lp-stats-row">
-        <div className="lp-cards">
+        <div className="lp-cards" data-sds-tutorial-alvo="pedido-lista-cards">
           <CardBasicoGlobal
             titulo="Valor Total"
             icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
@@ -1440,7 +1785,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         onPainelAtualIdChange={setPainelAtualId}
       />
 
-      <div className="pds-lista-status-bar">
+      <div className="pds-lista-status-bar" data-sds-tutorial-alvo="pedido-lista-status-pills">
         <span className="pds-lista-status-label">Status</span>
         <div className="pds-lista-status-pills">
         {STATUS_FILTROS.map((s) => (
@@ -1459,9 +1804,9 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       </div>
       </div>
 
-      <div className="pds-lista-toolbar gtv-toolbar">
+      <div className="pds-lista-toolbar gtv-toolbar" data-sds-tutorial-alvo="pedido-lista-toolbar">
         <div className="pds-lista-toolbar-esq gtv-toolbar-esquerda">
-          <div className="gtv-busca-wrapper">
+          <div className="gtv-busca-wrapper" data-sds-tutorial-alvo="pedido-lista-busca">
             <span className="gtv-busca-icone"><MagnifyingGlass size={14} aria-hidden /></span>
             <input
               type="search"
@@ -1477,6 +1822,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
             <button
               type="button"
               className="pds-lista-expandir-todos"
+              data-sds-tutorial-alvo="pedido-lista-expandir-todos"
               onClick={toggleExpandirTodos}
               aria-label={temExpandido ? 'Recolher todos os itens' : 'Expandir todos os itens'}
             >
@@ -1490,31 +1836,40 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
             onAbrirNovoItemManual={() => setModalNovoItemAberto(true)}
             onCriarPainel={handleCriarPainelMenu}
             onDemoAcao={(titulo, mensagem) => setToastDemo({ titulo, mensagem })}
+            onMenuAbertoChange={setMenuNovoAberto}
           />
           <span className="pds-lista-toolbar-divisor" aria-hidden="true" />
           <TooltipGlobal titulo={tooltipTransferir.titulo} descricao={tooltipTransferir.descricao}>
-            <BotaoGlobal
-              className="pds-lista-btn-transferir"
-              variante="secundario"
-              tamanho="pequeno"
-              icone={<ArrowRight size={14} weight="duotone" />}
-              disabled={!acoesBarra.podeTransferir}
-              onClick={() => setModalTransferirAberto(true)}
-            >
-              {rotuloTransferir}
-            </BotaoGlobal>
+            <span data-sds-tutorial-alvo="pedido-lista-transferir" className="pds-lista-btn-transferir-wrap">
+              <BotaoGlobal
+                className="pds-lista-btn-transferir"
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<ArrowRight size={14} weight="duotone" />}
+                disabled={!acoesBarra.podeTransferir}
+                onClick={() => setModalTransferirAberto(true)}
+              >
+                {rotuloTransferir}
+              </BotaoGlobal>
+            </span>
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipConsolidar.titulo} descricao={tooltipConsolidar.descricao}>
+            <span data-sds-tutorial-alvo="pedido-lista-consolidar" className="pds-lista-btn-consolidar-wrap" style={{ display: 'inline-flex' }}>
             <BotaoGlobal
+              className="pds-lista-btn-consolidar"
               variante="secundario"
               tamanho="pequeno"
               icone={<GitMerge size={14} weight="duotone" />}
               disabled={!acoesBarra.podeConsolidar}
               aria-label={tooltipConsolidar.titulo}
+              onClick={() => setModalConsolidarAberto(true)}
             />
+            </span>
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipEditar.titulo} descricao={tooltipEditar.descricao}>
+            <span data-sds-tutorial-alvo="pedido-lista-edicao-massa" className="pds-lista-btn-edicao-massa-wrap" style={{ display: 'inline-flex' }}>
             <BotaoGlobal
+              className="pds-lista-btn-edicao-massa"
               variante="secundario"
               tamanho="pequeno"
               icone={<PencilLine size={14} weight="duotone" />}
@@ -1522,6 +1877,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               aria-label={tooltipEditar.titulo}
               onClick={() => setModalEdicaoMassaAberto(true)}
             />
+            </span>
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipDuplicar.titulo} descricao={tooltipDuplicar.descricao}>
             <BotaoGlobal
@@ -1534,16 +1890,21 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
             />
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipPdf.titulo} descricao={tooltipPdf.descricao}>
+            <span data-sds-tutorial-alvo="pedido-lista-gerar-documento" className="pds-lista-btn-gerar-documento-wrap" style={{ display: 'inline-flex' }}>
             <BotaoGlobal
+              className="pds-lista-btn-gerar-documento"
               variante="secundario"
               tamanho="pequeno"
               icone={<FilePdf size={14} weight="duotone" />}
               disabled={!acoesBarra.podeGerarPdf}
               aria-label={tooltipPdf.titulo}
             />
+            </span>
           </TooltipGlobal>
           <TooltipGlobal titulo={tooltipExcluir.titulo} descricao={tooltipExcluir.descricao}>
+            <span data-sds-tutorial-alvo="pedido-lista-excluir" className="pds-lista-btn-excluir-wrap" style={{ display: 'inline-flex' }}>
             <BotaoGlobal
+              className="pds-lista-btn-excluir"
               variante="perigo"
               tamanho="pequeno"
               icone={<Trash size={14} weight="duotone" />}
@@ -1551,9 +1912,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               aria-label={tooltipExcluir.titulo}
               onClick={() => setModalExcluirAberto(true)}
             />
+            </span>
           </TooltipGlobal>
           {itensFiltrosConsolidados.length > 0 ? (
             <FiltrosConsolidadosListaSimuladorPedido
+              dataTutorialAlvo="pedido-lista-filtros"
               itens={itensFiltrosConsolidados}
               onLimparTodos={handleLimparTodosFiltros}
               podeLimparTodos={podeLimparFiltrosConsolidados}
@@ -1566,6 +1929,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               ref={colunasBtnRef}
               type="button"
               className={`gtv-btn${colunasAberto ? ' gtv-btn--ativo' : ''}`}
+              data-sds-tutorial-alvo="pedido-lista-colunas"
               onClick={toggleColunasAberto}
               aria-label="Gerenciar colunas"
               aria-expanded={colunasAberto}
@@ -1575,16 +1939,25 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               Colunas
             </button>
           </div>
+          <span data-sds-tutorial-alvo="pedido-lista-exportar" style={{ display: 'inline-flex' }}>
           <BotaoCompletoExportar acoes={acoesExportacao} />
+          </span>
         </div>
       </div>
 
       <div
-        className={`pds-lista-tabela-wrap${guiaPosTransferencia ? ' pds-lista-tabela-wrap--guia-pos-transferencia' : ''}`}
+        className={`pds-lista-tabela-wrap${
+          guiaPosTransferencia
+            ? ' pds-lista-tabela-wrap--guia-pos-transferencia'
+            : guiaPosConsolidacao
+              ? ' pds-lista-tabela-wrap--guia-pos-consolidacao'
+              : ''
+        }`}
+        data-sds-tutorial-alvo="pedido-lista-tabela"
         ref={tabelaWrapRef}
         onScroll={sincronizarMetricasScrollTabela}
         style={
-          guiaPosTransferencia
+          guiaPosTransferencia || guiaPosConsolidacao
             ? ({ '--pds-guia-qtd-colunas': colunasVisiveis.length } as CSSProperties)
             : undefined
         }
@@ -1606,7 +1979,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
           <thead>
             <tr>
               <th className="pds-lista-th-expand" aria-label="Expandir" />
-              <th className="pds-lista-th-check">
+              <th className="pds-lista-th-check" data-sds-tutorial-alvo="pedido-lista-selecao">
                 <input
                   type="checkbox"
                   className="gtv-checkbox"
@@ -1639,6 +2012,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                       classeDestaqueCabecalhoColuna(c.id),
                     ].filter(Boolean).join(' ') || undefined}
                     style={{ opacity: arrastando ? 0.45 : undefined }}
+                    {...(c.id === idColunaTutorialCabecalho ? { 'data-sds-tutorial-alvo': 'pedido-lista-cabecalho-colunas' } : {})}
                     onDragStart={() => handleColunaDragStart(c.id)}
                     onDragOver={(e) => handleColunaDragOver(e, c.id, true)}
                     onDrop={(e) => handleColunaDrop(e, c.id, true)}
@@ -1651,6 +2025,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                         className={`gtv-filtro-btn${filtroAtivo ? ' gtv-filtro-btn--ativo' : ''}`}
                         aria-label={`Filtrar por ${c.label}`}
                         title={`Filtrar por ${c.label}`}
+                        {...(c.id === idColunaTutorialFiltro ? { 'data-sds-tutorial-alvo': 'pedido-lista-filtro-coluna' } : {})}
                         onClick={(e) => {
                           e.stopPropagation()
                           onFiltroColuna(c.id, e.currentTarget)
@@ -1674,7 +2049,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
             </tr>
           </thead>
           <tbody>
-            {linhasRender.map((entrada) => {
+            {linhasRender.map((entrada, indiceRender) => {
               if (entrada.tipo === 'pai') {
                 const linha = entrada.linha
                 const aberto = expandidos.has(linha.id)
@@ -1684,15 +2059,22 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                   aberto ? 'pds-lista-row--pai-expandido' : '',
                   aberto && entrada.ultimoFilho ? 'pds-lista-row--pai-expandido-solo' : '',
                   ehNovoPedidoPosTransferencia(linha.id) ? 'pds-lista-row--novo-pedido-transferencia' : '',
+                  ehPedidoConsolidadoDestaque(linha.id) ? 'pds-lista-row--pedido-consolidado-novo' : '',
                 ].filter(Boolean).join(' ')
 
                 return (
-                  <tr key={linha.id} data-pds-linha-id={linha.id} className={classes || undefined}>
+                  <tr
+                    key={linha.id}
+                    data-pds-linha-id={linha.id}
+                    className={classes || undefined}
+                    {...(indiceRender === 0 ? { 'data-sds-tutorial-alvo': 'pedido-lista-linha' } : {})}
+                  >
                     <td className="pds-lista-td-expand">
                       {temItens ? (
                         <button
                           type="button"
                           className="pds-lista-expandir"
+                          {...(indiceRender === 0 ? { 'data-sds-tutorial-alvo': 'pedido-lista-expandir' } : {})}
                           onClick={() => toggleExpansao(linha.id)}
                           aria-expanded={aberto}
                           aria-label={aberto ? `Recolher ${linha.numeroPedido}` : `Expandir ${linha.numeroPedido}`}
@@ -1721,9 +2103,9 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                       <td
                         key={c.id}
                         data-pds-coluna-id={c.id}
-                        className={classeTdDestaquePosTransferencia(linha.id, c.id)}
+                        className={classeTdDestaqueGuia(linha.id, c.id)}
                       >
-                        {renderCelula(c, linha)}
+                        {renderCelula(c, linha, undefined, resolverTutorialAlvoCelula(linha.id, c.id))}
                       </td>
                     ))}
                     {janelaColunasTabela.espacoDireita > 0 && (
@@ -1748,7 +2130,14 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               ].filter(Boolean).join(' ')
 
               return (
-                <tr key={item.id} data-pds-linha-id={`item-${item.id}`} className={classes}>
+                <tr
+                  key={item.id}
+                  data-pds-linha-id={`item-${item.id}`}
+                  className={classes}
+                  {...(linhasRender.findIndex((e) => e.tipo === 'filho') === indiceRender
+                    ? { 'data-sds-tutorial-alvo': 'pedido-lista-itens' }
+                    : {})}
+                >
                   <td className="pds-lista-td-expand" />
                   <td className="pds-lista-td-check">
                     <input
@@ -1770,9 +2159,14 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
                     <td
                       key={c.id}
                       data-pds-coluna-id={c.id}
-                      className={classeTdDestaquePosTransferencia(pai.id, c.id, item.id)}
+                      className={classeTdDestaqueGuia(pai.id, c.id, item.id)}
                     >
-                      {renderCelula(c, pai, item)}
+                      {renderCelula(
+                        c,
+                        pai,
+                        item,
+                        resolverTutorialAlvoCelula(pai.id, c.id, item.id),
+                      )}
                     </td>
                   ))}
                   {janelaColunasTabela.espacoDireita > 0 && (
@@ -1859,6 +2253,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         <div
           ref={colunasDropdownRef}
           className="pds-lista-dropdown pds-lista-dropdown--colunas pds-lista-dropdown--colunas-portal"
+          data-sds-tutorial-alvo="pedido-lista-colunas-painel"
           style={{ top: colunasDropdownPos.top, left: colunasDropdownPos.left }}
           role="dialog"
           aria-label="Gerenciar colunas"
@@ -1988,6 +2383,8 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       <ModalNovoPedidoSimulador
         aberto={modalNovoPedidoAberto}
         onFechar={() => setModalNovoPedidoAberto(false)}
+        onPassoChange={setPassoModalNovoPedido}
+        onCadastroRapidoChange={setCadastroRapidoEmpresaAberto}
         onSalvo={handleSalvarNovoPedido}
       />
       <ModalNovoItemSimuladorPedido
@@ -1999,9 +2396,19 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
       <ModalDuplicarListaSimuladorPedido
         aberto={modalDuplicarAberto}
         selecao={selecaoLista}
-        linhas={linhas}
         onFechar={handleFecharModalDuplicar}
         onConfirmar={handleConfirmarDuplicar}
+      />
+      <ModalConsolidarListaSimuladorPedido
+        aberto={modalConsolidarAberto}
+        linhas={linhas}
+        selecao={selecaoLista}
+        onFechar={handleFecharModalConsolidar}
+        onConcluido={handleConcluidoConsolidar}
+        onEstadoTutorialChange={({ passo, concluido }) => {
+          setPassoModalConsolidar(passo)
+          setModalConsolidarConcluido(concluido)
+        }}
       />
       <ModalEdicaoMassaListaSimuladorPedido
         aberto={modalEdicaoMassaAberto}
@@ -2009,6 +2416,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         linhas={linhas}
         onFechar={handleFecharModalEdicaoMassa}
         onConfirmar={handleConfirmarEdicaoMassa}
+        onEstadoTutorialChange={setPassoModalEdicaoMassa}
       />
       <ModalTransferirListaSimuladorPedido
         aberto={modalTransferirAberto}
@@ -2016,6 +2424,11 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
         linhas={linhas}
         onFechar={handleFecharModalTransferir}
         onConcluido={handleConcluidoTransferir}
+        onEstadoTutorialChange={({ passo, concluido, cenario }) => {
+          setPassoModalTransferir(passo)
+          setCenarioModalTransferir(cenario)
+          setModalTransferirConcluido(concluido)
+        }}
       />
       {explicacaoTransferencia && (
         <ModalExplicacaoTransferenciaSimuladorPedido
@@ -2036,6 +2449,16 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
           resumo={guiaPosTransferencia.resumo}
           onProximo={handleProximoGuiaPosTransferencia}
           onConcluir={handleConcluirGuiaPosTransferencia}
+          dataTutorialAlvo="pedido-guia-pos-transferencia"
+        />
+      )}
+      {guiaPosConsolidacao && (
+        <GuiaPosConsolidacaoSimuladorPedido
+          passo={guiaPosConsolidacao.passo}
+          resumo={guiaPosConsolidacao.resumo}
+          onProximo={handleProximoGuiaPosConsolidacao}
+          onConcluir={handleConcluirGuiaPosConsolidacao}
+          dataTutorialAlvo="pedido-guia-pos-consolidacao"
         />
       )}
       {toastDemo && (

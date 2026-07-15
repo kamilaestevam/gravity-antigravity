@@ -18,6 +18,8 @@ import {
   contarFiltrosRefinarMapaAtivos,
   criarFiltrosRefinarMapaIniciais,
   formatarResumoRefinarMapaSimuladorPedido,
+  formatarResumoRefinarMapaTelaCheiaSimuladorPedido,
+  calcularContadoresRefinarMapaSimuladorPedido,
   type FiltrosRefinarMapaSimuladorPedido,
   type OpcoesRefinarMapaSimuladorPedido,
   type SecaoRefinarMapaSimuladorPedido,
@@ -31,6 +33,7 @@ type Props = {
   opcoes: OpcoesRefinarMapaSimuladorPedido
   filtros: FiltrosRefinarMapaSimuladorPedido
   onFiltrosChange: (filtros: FiltrosRefinarMapaSimuladorPedido) => void
+  variantePainel?: 'card' | 'tela-cheia'
 }
 
 function clonarFiltros(filtros: FiltrosRefinarMapaSimuladorPedido): FiltrosRefinarMapaSimuladorPedido {
@@ -51,7 +54,6 @@ type SecaoProps = {
   ativos: number
   total: number
   colapsada: boolean
-  filtroOptOut?: boolean
   onToggle: () => void
   children: ReactNode
 }
@@ -63,16 +65,16 @@ function SecaoRefinarMapa({
   ativos,
   total,
   colapsada,
-  filtroOptOut = false,
   onToggle,
   children,
 }: SecaoProps) {
-  const semRestricao = filtroOptOut ? ativos === total : ativos === 0 || ativos === total
+  const semRestricao = ativos === total || total === 0
   const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
 
   return (
     <section
       id={`pds-map-refinar-secao-${id}`}
+      data-sds-tutorial-alvo={`pedido-insights-refinar-${id}`}
       className={`pds-map-refinar-secao${colapsada ? ' pds-map-refinar-secao--colapsada' : ''}${semRestricao ? '' : ' pds-map-refinar-secao--restrita'}`}
     >
       <button
@@ -118,15 +120,26 @@ export function RefinarMapaSimuladorPedido({
   opcoes,
   filtros,
   onFiltrosChange,
+  variantePainel = 'card',
 }: Props) {
   const [expandido, setExpandido] = useState(true)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<SecaoRefinarMapaSimuladorPedido>>(
     () => new Set(SECOES_REFINAR_MAPA_SIMULADOR_PEDIDO),
   )
 
-  const totalFiltrosAtivos = useMemo(() => contarFiltrosRefinarMapaAtivos(filtros), [filtros])
+  const totalFiltrosAtivos = useMemo(
+    () => contarFiltrosRefinarMapaAtivos(filtros, opcoes),
+    [filtros, opcoes],
+  )
   const resumo = useMemo(
-    () => formatarResumoRefinarMapaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos),
+    () =>
+      variantePainel === 'tela-cheia'
+        ? formatarResumoRefinarMapaTelaCheiaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos)
+        : formatarResumoRefinarMapaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos),
+    [mapaBase, mapaFiltrado, totalFiltrosAtivos, variantePainel],
+  )
+  const contadores = useMemo(
+    () => calcularContadoresRefinarMapaSimuladorPedido(mapaBase, mapaFiltrado, totalFiltrosAtivos),
     [mapaBase, mapaFiltrado, totalFiltrosAtivos],
   )
 
@@ -148,7 +161,7 @@ export function RefinarMapaSimuladorPedido({
   }
 
   function limparFiltros() {
-    onFiltrosChange(criarFiltrosRefinarMapaIniciais())
+    onFiltrosChange(criarFiltrosRefinarMapaIniciais(opcoes))
   }
 
   function expandirComSecao(id: SecaoRefinarMapaSimuladorPedido) {
@@ -199,7 +212,11 @@ export function RefinarMapaSimuladorPedido({
 
   function renderPainelRecolhido() {
     return (
-      <aside className="pds-map-refinar-rail" aria-label="Filtros do mapa (compacto)">
+      <aside
+        className="pds-map-refinar-rail"
+        aria-label="Filtros do mapa (compacto)"
+        data-sds-tutorial-alvo="pedido-insights-refinar-rail"
+      >
         <div className="pds-map-refinar-rail__grupo">
           {opcoes.operacoes.map((item) => {
             const ativo = filtros.operacoes.has(item.id)
@@ -230,7 +247,7 @@ export function RefinarMapaSimuladorPedido({
         <div className="pds-map-refinar-rail__grupo">
           <button
             type="button"
-            className={`pds-map-refinar-rail__btn${origemAtivos > 0 ? ' is-active' : ''}`}
+            className={`pds-map-refinar-rail__btn${origemAtivos < opcoes.origens.length ? ' is-active' : ''}`}
             title="Origem"
             onClick={() => expandirComSecao('origem')}
           >
@@ -238,7 +255,7 @@ export function RefinarMapaSimuladorPedido({
           </button>
           <button
             type="button"
-            className={`pds-map-refinar-rail__btn${destinoAtivos > 0 ? ' is-active' : ''}`}
+            className={`pds-map-refinar-rail__btn${destinoAtivos < opcoes.destinos.length ? ' is-active' : ''}`}
             title="Destino"
             onClick={() => expandirComSecao('destino')}
           >
@@ -251,7 +268,7 @@ export function RefinarMapaSimuladorPedido({
         <div className="pds-map-refinar-rail__grupo">
           <button
             type="button"
-            className={`pds-map-refinar-rail__btn${exportadorAtivos > 0 ? ' is-active' : ''}`}
+            className={`pds-map-refinar-rail__btn${exportadorAtivos < opcoes.exportadores.length ? ' is-active' : ''}`}
             title="Exportadores"
             onClick={() => expandirComSecao('exportadores')}
           >
@@ -259,7 +276,7 @@ export function RefinarMapaSimuladorPedido({
           </button>
           <button
             type="button"
-            className={`pds-map-refinar-rail__btn${importadorAtivos > 0 ? ' is-active' : ''}`}
+            className={`pds-map-refinar-rail__btn${importadorAtivos < opcoes.importadores.length ? ' is-active' : ''}`}
             title="Importadores"
             onClick={() => expandirComSecao('importadores')}
           >
@@ -313,6 +330,7 @@ export function RefinarMapaSimuladorPedido({
   return (
     <div
       className={`pds-map-refinar-shell${expandido ? '' : ' pds-map-refinar-shell--recolhido'}`}
+      data-sds-tutorial-alvo="pedido-insights-refinar-mapa"
     >
       <TooltipGlobal
         descricao={expandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
@@ -320,6 +338,7 @@ export function RefinarMapaSimuladorPedido({
         <button
           type="button"
           className="mlg-toggle-btn pds-map-refinar-shell__toggle"
+          data-sds-tutorial-alvo="pedido-insights-refinar-toggle"
           onClick={() => setExpandido((prev) => !prev)}
           aria-expanded={expandido}
           aria-controls="pds-map-refinar-panel"
@@ -336,10 +355,52 @@ export function RefinarMapaSimuladorPedido({
         >
           <div className="pds-map-refinar-panel__topo">
             <p className="pds-map-refinar-panel__titulo">Refinar mapa</p>
-            <p className="pds-map-refinar-panel__resumo">{resumo}</p>
+            {variantePainel === 'tela-cheia' ? (
+              <p
+                className="pds-map-refinar-panel__resumo"
+                data-sds-tutorial-alvo="pedido-insights-refinar-contadores"
+                aria-label={resumo}
+              >
+                {resumo}
+              </p>
+            ) : (
+              <div
+                className="pds-map-refinar-panel__contadores"
+                data-sds-tutorial-alvo="pedido-insights-refinar-contadores"
+                aria-label={resumo}
+              >
+                {contadores.modo === 'todos' ? (
+                  <>
+                    <span className="pds-map-refinar-panel__contadores-prefixo">Exibindo todos</span>
+                    <span className="pds-map-refinar-panel__contador-chip">
+                      <strong>{contadores.terminais}</strong> terminais
+                    </span>
+                    <span className="pds-map-refinar-panel__contador-chip">
+                      <strong>{contadores.rotas}</strong> rotas
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="pds-map-refinar-panel__contador-chip">
+                      <strong>{contadores.terminais}</strong>
+                      <span className="pds-map-refinar-panel__contador-chip-base">/{contadores.terminaisBase}</span>{' '}
+                      terminais
+                    </span>
+                    <span className="pds-map-refinar-panel__contador-chip">
+                      <strong>{contadores.rotas}</strong>
+                      <span className="pds-map-refinar-panel__contador-chip-base">/{contadores.rotasBase}</span>{' '}
+                      rotas
+                    </span>
+                    <span className="pds-map-refinar-panel__contador-chip pds-map-refinar-panel__contador-chip--filtro">
+                      <strong>{contadores.filtrosAtivos}</strong> filtro{contadores.filtrosAtivos !== 1 ? 's' : ''}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="pds-map-refinar-panel__toolbar">
+          <div className="pds-map-refinar-panel__toolbar" data-sds-tutorial-alvo="pedido-insights-refinar-toolbar">
             <button type="button" className="pds-map-refinar-panel__toolbar-btn" onClick={alternarTodasSecoes}>
               <CaretDown
                 weight="bold"
@@ -367,7 +428,6 @@ export function RefinarMapaSimuladorPedido({
               ativos={operacaoAtivos}
               total={opcoes.operacoes.length}
               colapsada={secoesColapsadas.has('operacao')}
-              filtroOptOut
               onToggle={() => alternarSecao('operacao')}
             >
               <div className="pds-map-refinar-operacao-grid">

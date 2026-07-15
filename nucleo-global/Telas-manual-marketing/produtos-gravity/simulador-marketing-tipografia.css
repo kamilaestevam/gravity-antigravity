@@ -142,6 +142,98 @@
   font-size: 10px !important;
 }
 
+.interactive-simulator-shell .pds-root .pds-insights-kpis .cg-card__value {
+  font-size: 26px !important;
+}
+
+/* Dashboard Pedido — valores dos cards KPI (neutraliza regra global 12px) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .db-kpi-value {
+  font-size: 32px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.03em !important;
+  font-weight: 700 !important;
+}
+
+/* Dashboard Pedido — KPIs do topo (Rascunho / Aberto / Em andamento / Consolidado) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_total_pedidos'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_pedidos_abertos'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_saldo_total'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_valor_total'] .db-kpi-value {
+  font-size: 40px !important;
+}
+
+/* Dashboard Pedido — KPIs do topo: cards compactos (metade da altura original) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) > div {
+  padding: 6px 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) > div > div:first-child {
+  padding-bottom: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) .db-kpi-value {
+  font-size: 34px !important;
+}
+
+/* Dashboard Pedido — faixa PAINÉIS (paridade PedidosListaPainelBar + Pedidos.css) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-paineis-lista-strip__label {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab--rotulo,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab__nome {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab-add {
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab-form input {
+  font-size: 10px !important;
+}
+
+/* Dashboard Pedido — toolbar (calendário, filtro, +, Widgets) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .pedido-dashboard-toolbar.gtv-toolbar {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .pedido-dashboard-widgets-seletor__btn.gtv-btn {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-insights-kpis .cg-card__subtext {
+  font-size: 10px !important;
+}
+
 .interactive-simulator-shell .pds-root .pds-insights :is(
   .pds-insights-card__titulo,
   .pds-funil-painel__titulo,
@@ -152,12 +244,20 @@
   font-size: 11px !important;
 }
 
+.interactive-simulator-shell .pds-root .pds-mapa-globo__expandir-btn {
+  width: 24px !important;
+  height: 24px !important;
+}
+
 /* Pedido — painel Refinar mapa (Insights) */
 .interactive-simulator-shell .pds-root .pds-map-refinar-panel__titulo {
   font-size: 9px !important;
 }
 
 .interactive-simulator-shell .pds-root .pds-map-refinar-panel__resumo,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contadores,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contadores-prefixo,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contador-chip,
 .interactive-simulator-shell .pds-root .pds-map-refinar-panel__toolbar-btn,
 .interactive-simulator-shell .pds-root .pds-map-refinar-panel__limpar,
 .interactive-simulator-shell .pds-root .pds-map-refinar-secao__title h3,

@@ -34,6 +34,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
     <section
       className="pds-grafico-donut-operacao pds-insights-card pds-insights-card--com-tooltip"
       aria-label="Distribuição por tipo de operação"
+      data-sds-tutorial-alvo="pedido-insights-donut-operacao"
     >
       <div className="pds-grafico-donut-operacao__header">
         <span className="pds-grafico-donut-operacao__icone" aria-hidden>

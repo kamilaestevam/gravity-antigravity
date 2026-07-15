@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { CheckCircle, Clock, Timer, Coins } from '@phosphor-icons/react'
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
-import { CardKpiSimulador } from '../smart-doc/card-kpi-simulador'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   TooltipGraficoInsightsSimulador,
   formatarPercentualTooltipInsightsSimulador,
@@ -43,12 +43,13 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
 
   return (
     <div className="pds-insights">
-      <div className="pds-insights-kpis">
+      <div className="pds-insights-kpis" data-sds-tutorial-alvo="pedido-insights-kpis">
         {insights.kpis.map((kpi) => (
-          <CardKpiSimulador
+          <CardBasicoGlobal
             key={kpi.id}
             titulo={kpi.titulo}
             valor={kpi.count.toLocaleString('pt-BR')}
+            subtexto={kpi.sub}
             variante={kpi.variante}
             icone={ICONES_KPI_PEDIDO[kpi.id]}
             className="pds-insights-kpi-card"
@@ -80,7 +81,7 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
 
         <GraficoDonutOperacaoSimuladorPedido dados={insights.distribuicaoOperacao} />
 
-        <section className="pds-insights-card pds-insights-card--com-tooltip" aria-label="Moedas dos pedidos">
+        <section className="pds-insights-card pds-insights-card--com-tooltip" aria-label="Moedas dos pedidos" data-sds-tutorial-alvo="pedido-insights-moedas">
           <h3 className="pds-insights-card__titulo">Moedas dos Pedidos</h3>
           <div className="sr-insights-tt-host" ref={moedaTooltip.containerRef}>
             <ul className="pds-insights-legenda-lista">
@@ -120,7 +121,11 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
       </div>
 
       <div className="pds-insights-grid-secundario pds-insights-grid-secundario--duo">
-        <section className="pds-insights-card" aria-label="Maior pedido do período">
+        <section
+          className="pds-insights-card"
+          aria-label="Maior pedido do período"
+          data-sds-tutorial-alvo="pedido-insights-maior-pedido"
+        >
           <h3 className="pds-insights-card__titulo">Maior Pedido do Período</h3>
           <span className="pds-insights-chip">{insights.maiorPedidoChip}</span>
           <p className="pds-insights-destaque-valor">{insights.maiorPedidoValor}</p>
@@ -129,7 +134,11 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
           </p>
         </section>
 
-        <section className="pds-insights-card pds-insights-card--com-tooltip" aria-label="Top incoterms">
+        <section
+          className="pds-insights-card pds-insights-card--com-tooltip"
+          aria-label="Top incoterms"
+          data-sds-tutorial-alvo="pedido-insights-incoterms"
+        >
           <h3 className="pds-insights-card__titulo">Top Incoterms</h3>
           <div className="sr-insights-tt-host" ref={incotermTooltip.containerRef}>
             <div className="pds-insights-incoterm">
@@ -171,7 +180,11 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
           </div>
         </section>
 
-        <section className="pds-insights-card pds-insights-card--com-tooltip" aria-label="Taxa de aprovação">
+        <section
+          className="pds-insights-card pds-insights-card--com-tooltip"
+          aria-label="Taxa de aprovação"
+          data-sds-tutorial-alvo="pedido-insights-taxa-aprovacao"
+        >
           <h3 className="pds-insights-card__titulo">Taxa de Aprovação</h3>
           <div className="pds-insights-taxa">
             <div className="pds-insights-taxa__donut" aria-hidden>

@@ -1,0 +1,292 @@
+/* Destaque de alvo — tutorial Gabi no simulador Pedido (reusa classes sds-tutorial-*) */
+
+.pds-root.sds-tutorial-destaque-ativo .smart-read-vis-toolbar,
+.pds-root.sds-tutorial-destaque-ativo .srt-tabs,
+.pds-root.sds-tutorial-destaque-ativo .pds-lista-tabela-wrap,
+.pds-root.sds-tutorial-destaque-ativo .pds-lista-tabela thead,
+body.sds-tutorial-destaque-ativo .mpp-dialog,
+body.sds-tutorial-destaque-ativo .modal-transferir,
+body.sds-tutorial-destaque-ativo .modal-consolidar,
+body.sds-tutorial-destaque-ativo .pds-mecr-overlay,
+body.sds-tutorial-destaque-ativo .pds-mnp-cadastro-overlay,
+body.sds-tutorial-destaque-ativo .mce__overlay {
+  overflow: visible !important;
+}
+
+body.sds-tutorial-destaque-ativo .modal-consolidar .modal-consolidar__corpo,
+body.sds-tutorial-destaque-ativo .modal-consolidar .modal-consolidar__secao {
+  overflow: visible !important;
+}
+
+body.sds-tutorial-destaque-ativo .modal-edicao-massa__corpo,
+body.sds-tutorial-destaque-ativo .modal-edicao-massa__corpo-inner {
+  overflow: visible !important;
+}
+
+.pds-insights-kpis.sds-tutorial-alvo--destacado,
+.pds-mapa-globo.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__canvas-wrap.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__controles.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__legenda.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__pins-layer.sds-tutorial-alvo--destacado,
+.pds-map-refinar-shell.sds-tutorial-alvo--destacado,
+.pds-map-refinar-rail.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__expandir-btn.sds-tutorial-alvo--destacado,
+.pds-map-refinar-panel__toolbar.sds-tutorial-alvo--destacado,
+.pds-map-refinar-panel__contadores.sds-tutorial-alvo--destacado,
+.pds-map-refinar-secao.sds-tutorial-alvo--destacado,
+.pds-map-refinar-shell__toggle.sds-tutorial-alvo--destacado,
+.pds-alertas-painel.sds-tutorial-alvo--destacado,
+.pds-alertas-painel__grid.sds-tutorial-alvo--destacado,
+.pds-funil-painel.sds-tutorial-alvo--destacado,
+.pds-grafico-barras-mes.sds-tutorial-alvo--destacado,
+.pds-grafico-donut-operacao.sds-tutorial-alvo--destacado,
+.pds-insights-card.sds-tutorial-alvo--destacado,
+.lp-cards.sds-tutorial-alvo--destacado,
+.pds-lista-toolbar.sds-tutorial-alvo--destacado,
+.pds-lista-filtros-consolidados.sds-tutorial-alvo--destacado,
+.pds-lista-tabela-wrap.sds-tutorial-alvo--destacado,
+.pds-lista-status-bar.sds-tutorial-alvo--destacado,
+.pds-kanban.sds-tutorial-alvo--destacado,
+.pds-kanban-detalhe.sds-tutorial-alvo--destacado,
+.pds-banner-config.sds-tutorial-alvo--destacado,
+.pds-shell-nav-wrap.sds-tutorial-alvo--destacado {
+  border-radius: 10px;
+}
+
+.pds-lista-btn-novo.sds-tutorial-alvo--destacado,
+.pds-lista-btn-transferir.sds-tutorial-alvo--destacado,
+.pds-lista-btn-transferir-wrap.sds-tutorial-alvo--destacado,
+.pds-lista-btn-consolidar-wrap.sds-tutorial-alvo--destacado,
+.pds-lista-btn-edicao-massa-wrap.sds-tutorial-alvo--destacado,
+.pds-lista-btn-gerar-documento-wrap.sds-tutorial-alvo--destacado,
+.pds-lista-btn-excluir-wrap.sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-lista-colunas'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-lista-exportar'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 20 !important;
+  isolation: isolate;
+  overflow: visible !important;
+}
+
+.pds-lista-btn-novo.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-transferir.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-transferir-wrap.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-consolidar-wrap.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-edicao-massa-wrap.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-gerar-documento-wrap.sds-tutorial-alvo--destacado::after,
+.pds-lista-btn-excluir-wrap.sds-tutorial-alvo--destacado::after,
+[data-sds-tutorial-alvo='pedido-lista-colunas'].sds-tutorial-alvo--destacado::after,
+[data-sds-tutorial-alvo='pedido-lista-exportar'].sds-tutorial-alvo--destacado::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(0.5rem + 8px);
+  border: 2px solid rgba(165, 180, 252, 0.6);
+  box-shadow:
+    0 0 0 5px rgba(99, 102, 241, 0.22),
+    0 0 0 12px rgba(99, 102, 241, 0.11),
+    0 0 24px rgba(99, 102, 241, 0.14);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mpp-dialog.sds-tutorial-alvo--destacado,
+.modal-transferir.sds-tutorial-alvo--destacado,
+.modal-consolidar.sds-tutorial-alvo--destacado {
+  z-index: 120 !important;
+}
+
+.pds-transf-guia.sds-tutorial-alvo--destacado,
+.pds-cons-guia.sds-tutorial-alvo--destacado,
+.pds-transf-explicacao-modal.sds-tutorial-alvo--destacado,
+.mce__aviso.sds-tutorial-alvo--destacado,
+.pds-mnp-cadastro-dialog.sds-tutorial-alvo--destacado,
+.pds-mecr-dialog.sds-tutorial-alvo--destacado,
+.pds-novo-dropdown.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__corpo-inner.sds-tutorial-alvo--destacado {
+  border-radius: 10px;
+}
+
+.em-secao.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__campos-lista.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__adicionar-campo.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__nivel-toggle.sds-tutorial-alvo--destacado {
+  border-radius: 8px;
+}
+
+body.sds-tutorial-destaque-ativo .pds-transf-guia,
+body.sds-tutorial-destaque-ativo .pds-cons-guia {
+  z-index: 10040 !important;
+}
+
+body.sds-tutorial-destaque-ativo .pds-mnp-cadastro-overlay {
+  z-index: 10040 !important;
+}
+
+body.sds-tutorial-destaque-ativo .modal-consolidar.mpg-dialog,
+body.sds-tutorial-destaque-ativo .modal-transferir.mpg-dialog {
+  z-index: 10040 !important;
+}
+.pds-lista-celula.sds-tutorial-alvo--destacado,
+.pds-lista-celula--exemplo-edicao.sds-tutorial-alvo--destacado,
+.pds-mnp-form.sds-tutorial-alvo--destacado,
+.pds-mnp-secao-comercial.sds-tutorial-alvo--destacado,
+.modal-transferir__cenario-cards.sds-tutorial-alvo--destacado,
+.modal-transferir__preview-wrapper.sds-tutorial-alvo--destacado,
+.modal-consolidar__campo-alvo.sds-tutorial-alvo--destacado,
+.modal-consolidar__checkbox-label.sds-tutorial-alvo--destacado,
+.modal-consolidar__aviso-comparar.sds-tutorial-alvo--destacado,
+.modal-consolidar__secao.sds-tutorial-alvo--destacado,
+.modal-consolidar__stat-card.sds-tutorial-alvo--destacado,
+.modal-consolidar__linha.sds-tutorial-alvo--destacado,
+.modal-consolidar__origem-select.sds-tutorial-alvo--destacado,
+.modal-consolidar__resultado.sds-tutorial-alvo--destacado,
+.modal-transferir__col-check.sds-tutorial-alvo--destacado,
+.modal-transferir__col-qty.sds-tutorial-alvo--destacado,
+.modal-transferir__badge-irreversivel.sds-tutorial-alvo--destacado,
+.modal-transferir__destino-bloco.sds-tutorial-alvo--destacado,
+.modal-transferir__destino-linha.sds-tutorial-alvo--destacado,
+.modal-transferir__aviso-tipos.sds-tutorial-alvo--destacado,
+.modal-transferir__destinos.sds-tutorial-alvo--destacado,
+.pds-lista-expandir.sds-tutorial-alvo--destacado,
+.pds-lista-expandir-todos.sds-tutorial-alvo--destacado,
+.pds-lista-th-col.sds-tutorial-alvo--destacado,
+.pds-lista-th-col .gtv-filtro-btn.sds-tutorial-alvo--destacado,
+.pds-lista-dropdown--colunas-portal.sds-tutorial-alvo--destacado,
+.pds-mecr-corpo > [data-sds-tutorial-alvo='pedido-cadastro-rapido-campos'].sds-tutorial-alvo--destacado,
+.mce__aviso-texto strong.sds-tutorial-alvo--destacado,
+.pds-kanban-card.sds-tutorial-alvo--destacado {
+  border-radius: 8px;
+}
+
+.modal-transferir__col-check.sds-tutorial-alvo--destacado,
+.modal-transferir__col-qty.sds-tutorial-alvo--destacado,
+.modal-transferir__badge-irreversivel.sds-tutorial-alvo--destacado,
+.modal-consolidar__campo-alvo.sds-tutorial-alvo--destacado,
+.modal-consolidar__checkbox-label.sds-tutorial-alvo--destacado,
+.modal-consolidar__aviso-comparar.sds-tutorial-alvo--destacado,
+.modal-consolidar__linha.sds-tutorial-alvo--destacado,
+.modal-consolidar__origem-select.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.modal-consolidar__campo-alvo.sds-tutorial-alvo--destacado .modal-consolidar__input {
+  border-color: rgba(165, 180, 252, 0.85);
+}
+
+.modal-consolidar__secao.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.modal-consolidar__aviso-comparar.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.em-secao.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__campos-lista.sds-tutorial-alvo--destacado,
+.modal-edicao-massa__adicionar-campo.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.modal-consolidar__resultado.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.modal-transferir__destino-linha.sds-tutorial-alvo--destacado,
+.modal-transferir__destinos > [data-sds-tutorial-alvo='pedido-transferir-destino-pedido-existente'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.modal-transferir__destino-linha.sds-tutorial-alvo--destacado .modal-transferir__input {
+  border-color: rgba(165, 180, 252, 0.85);
+}
+
+.pds-lista-expandir.sds-tutorial-alvo--destacado,
+.pds-lista-expandir-todos.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 6px;
+}
+
+.pds-lista-th-col.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 3;
+  box-shadow:
+    inset 0 0 0 2px rgba(165, 180, 252, 0.85),
+    0 0 0 4px rgba(99, 102, 241, 0.18);
+}
+
+.pds-lista-th-col .gtv-filtro-btn.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.9),
+    0 0 0 5px rgba(99, 102, 241, 0.22);
+  border-radius: 6px;
+}
+
+body.sds-tutorial-destaque-ativo .pds-mapa-globo__split,
+body.sds-tutorial-destaque-ativo .pds-mapa-globo__canvas-wrap,
+body.sds-tutorial-destaque-ativo .pds-map-refinar-panel,
+body.sds-tutorial-destaque-ativo .pds-map-refinar-acordeao {
+  overflow: visible !important;
+}
+
+.pds-map-refinar-secao.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__expandir-btn.sds-tutorial-alvo--destacado,
+.pds-map-refinar-panel__toolbar.sds-tutorial-alvo--destacado,
+.pds-map-refinar-panel__contadores.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__controles.sds-tutorial-alvo--destacado,
+.pds-mapa-globo__legenda.sds-tutorial-alvo--destacado,
+.pds-alertas-painel__grid.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+[data-sds-tutorial-alvo='pedido-insights-mapa-linhas'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 6;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.9),
+    0 0 0 6px rgba(99, 102, 241, 0.28);
+  border-radius: 8px;
+}
+
+.pds-lista-dropdown--colunas-portal.sds-tutorial-alvo--destacado {
+  z-index: 10050 !important;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+}

@@ -12,12 +12,14 @@ type Props = {
   itens: readonly ItemFiltroConsolidadoListaSimuladorPedido[]
   onLimparTodos?: () => void
   podeLimparTodos?: boolean
+  dataTutorialAlvo?: string
 }
 
 export function FiltrosConsolidadosListaSimuladorPedido({
   itens,
   onLimparTodos,
   podeLimparTodos = false,
+  dataTutorialAlvo,
 }: Props) {
   if (itens.length === 0) return null
 
@@ -44,7 +46,12 @@ export function FiltrosConsolidadosListaSimuladorPedido({
   )
 
   return (
-    <div className="pds-lista-filtros-consolidados" role="status" aria-label="Filtros ativos">
+    <div
+      className="pds-lista-filtros-consolidados"
+      role="status"
+      aria-label="Filtros ativos"
+      {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
+    >
       <TooltipGlobal
         titulo="Filtros ativos"
         descricao={tooltip}

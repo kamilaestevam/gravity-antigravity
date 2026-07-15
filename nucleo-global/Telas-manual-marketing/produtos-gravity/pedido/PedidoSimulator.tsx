@@ -18,6 +18,7 @@ import { PERFIS_EMPRESA_SIMULADOR } from '../smart-doc/dados-cliente-maduro-simu
 import { InsightsSimuladorPedido } from './insights-simulador-pedido'
 import { KanbanSimuladorPedido } from './kanban-simulador-pedido'
 import { ListaSimuladorPedido } from './lista-simulador-pedido'
+import { DashboardSimuladorPedido } from './dashboard-simulador-pedido'
 import { instalarMockApiNcmSimuladorPedido } from './instalar-mock-api-ncm-simulador-pedido'
 import { resolverEscopoWorkspacesPedidoSimulador } from './pedido-escopo-workspaces-simulador'
 import { NAV_ITENS_SIMULADOR_PEDIDO } from './pedido-nav-simulador-marketing'
@@ -57,6 +58,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   )
   const [menuLateralContraida, setMenuLateralContraida] = useState(true)
   const [sinalAbrirMenuWorkspaces, setSinalAbrirMenuWorkspaces] = useState(0)
+  const [pedidoFocoLista, setPedidoFocoLista] = useState<string | null>(null)
 
   useEffect(() => instalarMockApiNcmSimuladorPedido(), [])
 
@@ -161,6 +163,11 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                   </span>
                   <div className="pds-mtg-titulo-grupo">
                     <span className="sds-mtg-page-title pds-mtg-page-title--solo">{tituloPagina}</span>
+                    {abaAtiva === 'dashboard' ? (
+                      <span className="pds-mtg-page-subtitulo">KPIs e widgets configuráveis</span>
+                    ) : abaAtiva === 'kanban' ? (
+                      <span className="pds-mtg-page-subtitulo">Pedidos organizados por status</span>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -229,17 +236,23 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
             ) : abaAtiva === 'lista' ? (
               <ListaSimuladorPedido
                 empresasSelecionadas={empresasSelecionadas}
+                numeroPedidoFoco={pedidoFocoLista}
+                onConsumirFocoLista={() => setPedidoFocoLista(null)}
                 onAbrirMenuWorkspaces={() => {
                   setMenuLateralContraida(false)
                   setSinalAbrirMenuWorkspaces((n) => n + 1)
                 }}
               />
             ) : abaAtiva === 'dashboard' ? (
-              <div className="pds-banner-config">
-                Dashboard operacional — visão em tempo real (simulação).
-              </div>
+              <DashboardSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
             ) : (
-              <KanbanSimuladorPedido />
+              <KanbanSimuladorPedido
+                empresasSelecionadas={empresasSelecionadas}
+                onAbrirPedidoCompleto={(numeroPedido) => {
+                  setPedidoFocoLista(numeroPedido)
+                  setRotaSimulada('/pedido/pedidos/lista')
+                }}
+              />
             )}
           </div>
         </div>

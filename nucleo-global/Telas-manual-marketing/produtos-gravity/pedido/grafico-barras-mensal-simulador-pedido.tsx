@@ -27,7 +27,7 @@ export function GraficoBarrasMensalSimuladorPedido({ dados }: Props) {
   const gridTicks = [0, 0.25, 0.5, 0.75, 1]
 
   return (
-    <section className="pds-grafico-barras-mes pds-insights-card pds-insights-card--com-tooltip" aria-label="Pedidos por mês">
+    <section className="pds-grafico-barras-mes pds-insights-card pds-insights-card--com-tooltip" aria-label="Pedidos por mês" data-sds-tutorial-alvo="pedido-insights-pedidos-mes">
       <div className="pds-grafico-barras-mes__header">
         <div className="pds-grafico-barras-mes__titulo-wrap">
           <span className="pds-grafico-barras-mes__icone" aria-hidden>

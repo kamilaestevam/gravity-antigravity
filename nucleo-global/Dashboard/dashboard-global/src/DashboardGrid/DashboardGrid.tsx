@@ -44,7 +44,7 @@ function buildLayouts(
       w: w.position.w,
       h: w.position.h,
       minW: 2,
-      minH: 2,
+      minH: w.position.h < 2 ? 1 : 2,
       isDraggable: emMovimento,
       isResizable: emRedimensionamento,
     }

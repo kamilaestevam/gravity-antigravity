@@ -3,8 +3,11 @@ import {
   CaretDown,
   CaretRight,
   CheckCircle,
+  CubeTransparent,
   Funnel,
   Info,
+  ListChecks,
+  Package,
   PencilSimpleLine,
   Plus,
   Spinner,
@@ -32,10 +35,12 @@ import {
 import type { LinhaListaPedidoSimulador } from './dados-lista-simulador-pedido'
 import {
   aplicarEdicaoMassaListaSimulador,
+  calcularEstatisticasEscopoEdicaoMassaSimulador,
   criarCampoEdicaoVazioSimulador,
   detectarMultiplosValoresPedidoSimulador,
   gerarPreviewEdicaoMassaSimulador,
   montarTituloModalEdicaoMassaSimulador,
+  resolverPedidosParaEdicaoMassaSimulador,
   type CampoEmEdicaoMassaSimulador,
   type PreviewEdicaoMassaSimulador,
   type ResumoEdicaoMassaListaSimulador,
@@ -55,6 +60,7 @@ type Props = {
     campos: CampoEmEdicaoMassaSimulador[]
     selecao: SelecaoListaSimuladorPedido
   }) => ResumoEdicaoMassaListaSimulador
+  onEstadoTutorialChange?: (passo: number) => void
 }
 
 const PASSOS: PassoConfig[] = [
@@ -82,6 +88,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
   linhas,
   onFechar,
   onConfirmar,
+  onEstadoTutorialChange,
 }: Props) {
   const [passo, setPasso] = useState<1 | 2 | 3>(1)
   const [nivel, setNivel] = useState<NivelEdicaoMassaSimulador>('combinado')
@@ -98,12 +105,24 @@ export function ModalEdicaoMassaListaSimuladorPedido({
   const [selecaoCongelada, setSelecaoCongelada] = useState(selecao)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const pedidos = selecaoCongelada.pedidos
+  useEffect(() => {
+    if (!aberto) return
+    onEstadoTutorialChange?.(passo)
+  }, [aberto, passo, onEstadoTutorialChange])
+
+  const pedidosEscopo = useMemo(
+    () => resolverPedidosParaEdicaoMassaSimulador(selecaoCongelada, linhas),
+    [selecaoCongelada, linhas],
+  )
+  const estatisticasEscopo = useMemo(
+    () => calcularEstatisticasEscopoEdicaoMassaSimulador(selecaoCongelada, linhas),
+    [selecaoCongelada, linhas],
+  )
   const temTiposMistos = useMemo(() => selecaoTemTiposOperacaoIncompativeis(selecaoCongelada), [selecaoCongelada])
 
   const disponiveis = useMemo(
-    () => camposEdicaoMassaParaNivelSimulador(nivel, pedidos),
-    [nivel, pedidos],
+    () => camposEdicaoMassaParaNivelSimulador(nivel, pedidosEscopo),
+    [nivel, pedidosEscopo],
   )
 
   useEffect(() => {
@@ -119,20 +138,20 @@ export function ModalEdicaoMassaListaSimuladorPedido({
     setFiltroPedido(null)
     setDeparaAbertos(new Set())
     setSelecaoCongelada(selecao)
-    const iniciais = camposEdicaoMassaParaNivelSimulador('combinado', selecao.pedidos)
+    const iniciais = camposEdicaoMassaParaNivelSimulador('combinado', selecao.pedidos.length > 0 ? selecao.pedidos : resolverPedidosParaEdicaoMassaSimulador(selecao, linhas))
     setCampos(iniciais.length > 0 ? [criarCampoEdicaoVazioSimulador(iniciais[0])] : [])
     // eslint-disable-next-line react-hooks/exhaustive-deps -- snapshot na abertura
-  }, [aberto])
+  }, [aberto, selecao, linhas])
 
   useEffect(() => {
-    const defs = camposEdicaoMassaParaNivelSimulador(nivel, pedidos)
+    const defs = camposEdicaoMassaParaNivelSimulador(nivel, pedidosEscopo)
     if (defs.length > 0) {
       setCampos([criarCampoEdicaoVazioSimulador(defs[0])])
     } else {
       setCampos([])
     }
     setPreview(null)
-  }, [nivel, pedidos])
+  }, [nivel, pedidosEscopo])
 
   const solicitarPreview = useCallback(() => {
     const camposValidos = campos.filter((c) => c.valor.trim() !== '')
@@ -240,7 +259,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
   }
 
   const renderInputValor = (campo: CampoEmEdicaoMassaSimulador, def?: DefinicaoCampoEdicaoMassaSimulador) => {
-    const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValoresPedidoSimulador(pedidos, campo.campo)
+    const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValoresPedidoSimulador(pedidosEscopo, campo.campo)
     const placeholder = temMultiplos ? 'Múltiplos valores' : 'Valor'
 
     if (campo.tipo === 'select') {
@@ -333,7 +352,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         </div>
       )}
 
-      <div className="em-secao">
+      <div className="em-secao" data-sds-tutorial-alvo="pedido-edicao-massa-nivel">
         <span className="em-secao-titulo">Nível de edição</span>
         <div className="modal-edicao-massa__nivel-toggle" role="group" aria-label="Nível de edição">
           {(['combinado', 'pedido', 'item'] as NivelEdicaoMassaSimulador[]).map((n) => (
@@ -348,17 +367,26 @@ export function ModalEdicaoMassaListaSimuladorPedido({
             </button>
           ))}
         </div>
+        <p className="modal-edicao-massa__nivel-ajuda">
+          <strong>Combinado</strong> — edita campos de pedido e de item na mesma operação.{' '}
+          <strong>Pedido</strong> — só cabeçalho (status, incoterm, exportador…).{' '}
+          <strong>Item</strong> — só linhas selecionadas (NCM, part number, quantidade…).
+        </p>
       </div>
 
       <div className="modal-edicao-massa__separador" role="separator" />
 
       <div className="em-secao">
         <span className="em-secao-titulo">Campos a editar</span>
-        <div className="modal-edicao-massa__campos-lista">
+        <p className="modal-edicao-massa__campos-ajuda">
+          Cada linha altera uma coluna. Você pode adicionar quantas precisar — todas se aplicam aos pedidos e itens
+          selecionados na lista.
+        </p>
+        <div className="modal-edicao-massa__campos-lista" data-sds-tutorial-alvo="pedido-edicao-massa-campo">
           {campos.map((campo) => {
             const def = disponiveis.find((d) => d.campo === campo.campo)
             const ops = OPERACOES_POR_TIPO_MASSA_SIMULADOR[campo.tipo]
-            const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValoresPedidoSimulador(pedidos, campo.campo)
+            const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValoresPedidoSimulador(pedidosEscopo, campo.campo)
             return (
               <div key={campo.uid} className="modal-edicao-massa__campo-linha">
                 <SelectGlobal
@@ -381,7 +409,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
                   aoMudarValor={(v) => v != null && handleMudarOperacao(campo.uid, v as OperacaoCampoMassaSimulador)}
                   aria-label="Operação"
                 />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} {...(campo.uid === campos[0]?.uid ? { 'data-sds-tutorial-alvo': 'pedido-edicao-massa-valor' } : {})}>
                   {renderInputValor(campo, def)}
                   {temMultiplos && (
                     <span className="modal-edicao-massa__badge-multiplos">
@@ -404,7 +432,12 @@ export function ModalEdicaoMassaListaSimuladorPedido({
             )
           })}
         </div>
-        <button type="button" className="modal-edicao-massa__adicionar-campo" onClick={handleAdicionarCampo}>
+        <button
+          type="button"
+          className="modal-edicao-massa__adicionar-campo"
+          data-sds-tutorial-alvo="pedido-edicao-massa-adicionar-campo"
+          onClick={handleAdicionarCampo}
+        >
           <Plus size={14} />
           Adicionar campo
         </button>
@@ -414,37 +447,99 @@ export function ModalEdicaoMassaListaSimuladorPedido({
 
       <div className="em-secao" aria-live="polite">
         <span className="em-secao-titulo">Pré-visualização</span>
-        {carregandoPreview ? (
+        {carregandoPreview && (
           <div className="modal-edicao-massa__preview-loading">
             <Spinner size={14} className="modal-edicao-massa__spinner" aria-hidden="true" />
             <span>Calculando alterações…</span>
           </div>
-        ) : preview ? (
-          <div data-em-stats style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-            {[
-              { rotulo: 'Pedidos', valor: preview.pedidos_afetados },
-              { rotulo: 'Itens', valor: preview.itens_afetados },
-              { rotulo: 'Campos', valor: camposValidos.length },
-            ].map((stat) => (
+        )}
+        <div
+          data-sds-tutorial-alvo="pedido-edicao-massa-preview"
+          data-em-stats
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '0.625rem' }}
+        >
+          {[
+            {
+              rotulo: 'Pedidos',
+              valor: estatisticasEscopo.pedidos,
+              icone: Package,
+              cor: '#94a3b8',
+              borda: 'rgba(148,163,184,0.3)',
+            },
+            {
+              rotulo: 'Itens',
+              valor: estatisticasEscopo.itens,
+              icone: ListChecks,
+              cor: '#94a3b8',
+              borda: 'rgba(148,163,184,0.3)',
+            },
+            {
+              rotulo: 'Inteiros',
+              valor: estatisticasEscopo.inteiros.length,
+              icone: Package,
+              cor: '#4ade80',
+              borda: 'rgba(74,222,128,0.4)',
+            },
+            {
+              rotulo: 'Parciais',
+              valor: estatisticasEscopo.parciais.length,
+              icone: CubeTransparent,
+              cor: estatisticasEscopo.parciais.length > 0 ? '#fbbf24' : '#94a3b8',
+              borda: estatisticasEscopo.parciais.length > 0 ? 'rgba(251,191,36,0.4)' : 'rgba(148,163,184,0.3)',
+            },
+          ].map((stat) => {
+            const Icone = stat.icone
+            return (
               <div
                 key={stat.rotulo}
+                title={
+                  stat.rotulo === 'Inteiros'
+                    ? estatisticasEscopo.inteiros.map((p) => `${p.numero} (${p.itens} itens)`).join(', ') ||
+                      'Nenhum pedido inteiro'
+                    : stat.rotulo === 'Parciais'
+                      ? estatisticasEscopo.parciais
+                          .map((p) => `${p.numero} (${p.itensSel}/${p.itensTotal})`)
+                          .join(', ') || 'Nenhum pedido parcial'
+                      : undefined
+                }
                 style={{
-                  padding: '0.875rem 1rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem 0.875rem',
                   background: 'rgba(15, 23, 42, 0.5)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(99, 102, 241, 0.12)',
+                  borderTop: `2px solid ${stat.borda}`,
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
                 }}
               >
-                <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                  {stat.rotulo}
+                <Icone size={20} weight="duotone" style={{ color: stat.cor, flexShrink: 0 }} />
+                <div>
+                  <span style={{ display: 'block', fontSize: '1.375rem', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>
+                    {stat.valor}
+                  </span>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: '0.6875rem',
+                      color: 'rgba(255,255,255,0.7)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {stat.rotulo}
+                  </span>
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent)' }}>{stat.valor}</div>
               </div>
-            ))}
-          </div>
-        ) : (
+            )
+          })}
+        </div>
+        {!preview && camposValidos.length === 0 && (
           <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-            Preencha ao menos um campo para ver o impacto.
+            Preencha ao menos um campo para ver o impacto das alterações.
           </span>
         )}
       </div>
@@ -459,8 +554,8 @@ export function ModalEdicaoMassaListaSimuladorPedido({
   )
 
   const renderPasso2 = () => (
-    <div className="modal-edicao-massa__corpo-inner">
-      {pedidos.length >= 2 && (
+    <div className="modal-edicao-massa__corpo-inner" data-sds-tutorial-alvo="pedido-edicao-massa-revisao">
+      {pedidosEscopo.length >= 2 && (
         <div
           style={{
             display: 'flex',
@@ -480,8 +575,8 @@ export function ModalEdicaoMassaListaSimuladorPedido({
               tamanho="compacto"
               placeholder="Filtrar por pedido"
               opcoes={[
-                { valor: '__todos__', rotulo: `Todos os pedidos (${pedidos.length})` },
-                ...pedidos.map((p) => ({
+                { valor: '__todos__', rotulo: `Todos os pedidos (${pedidosEscopo.length})` },
+                ...pedidosEscopo.map((p) => ({
                   valor: p.id,
                   rotulo: `${p.numeroPedido} · ${p.detalhesItens.length} itens`,
                 })),
@@ -494,7 +589,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         </div>
       )}
 
-      <div className="em-filtro-bar">
+      <div className="em-filtro-bar" data-sds-tutorial-alvo="pedido-edicao-massa-filtros-revisao">
         <Funnel size={14} weight="duotone" style={{ color: 'var(--text-muted)', alignSelf: 'center' }} />
         {(['todos', 'alterados', 'sem-efeito'] as const).map((f) => {
           const contagem =
@@ -679,7 +774,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
   const renderPasso3 = () => {
     if (!resumo) return null
     return (
-      <div className="modal-edicao-massa__confirmacao">
+      <div className="modal-edicao-massa__confirmacao" data-sds-tutorial-alvo="pedido-edicao-massa-resultado">
         <div
           style={{
             display: 'flex',
@@ -775,6 +870,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         </BotaoGlobal>
       )}
       {passo === 1 ? (
+        <span data-sds-tutorial-alvo="pedido-edicao-massa-revisar" style={{ display: 'inline-flex' }}>
         <BotaoGlobal
           variante="primario"
           tamanho="medio"
@@ -783,7 +879,9 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         >
           Revisar
         </BotaoGlobal>
+        </span>
       ) : passo === 2 ? (
+        <span data-sds-tutorial-alvo="pedido-edicao-massa-salvar" style={{ display: 'inline-flex' }}>
         <BotaoGlobal
           variante="primario"
           tamanho="medio"
@@ -796,10 +894,13 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         >
           {feedbackBotao === 'sucesso' ? 'Aplicado' : feedbackBotao === 'erro' ? 'Falhou' : 'Aplicar'}
         </BotaoGlobal>
+        </span>
       ) : (
+        <span data-sds-tutorial-alvo="pedido-edicao-massa-fechar" style={{ display: 'inline-flex' }}>
         <BotaoGlobal variante="primario" tamanho="medio" onClick={fechar}>
           Fechar
         </BotaoGlobal>
+        </span>
       )}
     </div>
   )
@@ -846,7 +947,7 @@ export function ModalEdicaoMassaListaSimuladorPedido({
         }
       `}</style>
       <ModalPassoPassoGlobal
-        titulo={passo === 3 ? 'Edição concluída' : montarTituloModalEdicaoMassaSimulador(selecaoCongelada)}
+        titulo={passo === 3 ? 'Edição concluída' : montarTituloModalEdicaoMassaSimulador(selecaoCongelada, linhas)}
         icone={<PencilSimpleLine size={20} weight="duotone" />}
         subtitulo="Altere vários pedidos ou itens de uma só vez"
         aberto={aberto}

@@ -1,176 +1,231 @@
-import { ArrowRight, CheckCircle, X } from '@phosphor-icons/react'
-import { useState } from 'react'
+/**
+ * KanbanSimuladorPedido — paridade visual com PedidosKanban.tsx (marketing).
+ */
+
+import { useCallback, useMemo, useState, type ReactElement } from 'react'
+import { KanbanGlobal } from '@nucleo/kanban-global'
 import {
-  CARDS_KANBAN_INICIAIS_PEDIDO_SIMULADOR,
-  type CardKanbanPedidoSimulador,
+  ArrowRight,
+  ArrowsLeftRight,
+  CalendarBlank,
+  CheckCircle,
+  CurrencyDollar,
+  MagnifyingGlass,
+  Package,
+  PencilSimple,
+  Spinner,
+  Tag,
+  XCircle,
+} from '@phosphor-icons/react'
+import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
+import {
+  COLUNAS_KANBAN_SIMULADOR_PEDIDO,
+  KANBAN_PREFS_SIMULADOR_PEDIDO,
+  listarPedidosKanbanSimulador,
+  pedidosKanbanParaItens,
+  type PedidoKanbanItemSimulador,
+  type PedidoKanbanSimulador,
   type StatusKanbanPedidoSimulador,
 } from './dados-kanban-simulador-pedido'
+import { ModalKanbanSimuladorPedido } from './modal-kanban-simulador-pedido'
 import './kanban-simulador-pedido.css'
 
-const COLUNAS_KANBAN: { status: StatusKanbanPedidoSimulador; titulo: string; cor: string }[] = [
-  { status: 'abertura', titulo: 'Abertura', cor: '#818cf8' },
-  { status: 'anuencia', titulo: 'Anuência', cor: '#fbbf24' },
-  { status: 'desembaraco', titulo: 'Desembaraço', cor: '#10b981' },
-]
-
-const ETAPAS_TIMELINE = [
-  { chave: 'criacao', rotulo: 'Criação do Pedido' },
-  { chave: 'bid', rotulo: 'Vincular Cotação de Frete (BID)' },
-  { chave: 'li', rotulo: 'Registrar Licença de Importação' },
-] as const
-
-function etapaConcluida(status: StatusKanbanPedidoSimulador, chave: (typeof ETAPAS_TIMELINE)[number]['chave']): boolean {
-  if (chave === 'criacao') return true
-  if (chave === 'bid') return status !== 'abertura'
-  return status === 'desembaraco'
+const COLUNAS_BASE_ICONES: Record<string, ReactElement> = {
+  rascunho: <PencilSimple size={16} weight="duotone" />,
+  aberto: <ArrowRight size={16} weight="duotone" />,
+  em_andamento: <Spinner size={16} weight="duotone" />,
+  aprovado: <CheckCircle size={16} weight="duotone" />,
+  transferencia: <ArrowsLeftRight size={16} weight="duotone" />,
+  consolidado: <Package size={16} weight="duotone" />,
+  cancelado: <XCircle size={16} weight="duotone" />,
 }
 
-export function KanbanSimuladorPedido() {
-  const [cards, setCards] = useState<CardKanbanPedidoSimulador[]>(CARDS_KANBAN_INICIAIS_PEDIDO_SIMULADOR)
-  const [selecionado, setSelecionado] = useState<CardKanbanPedidoSimulador | null>(null)
+function dataCriticaCard(
+  pedido: PedidoKanbanSimulador,
+  campo: string | null,
+): { label: string; urgencia: 'ok' | 'alerta' | 'urgente' } | null {
+  if (!campo) return null
+  const val = (pedido as unknown as Record<string, unknown>)[campo]
+  if (!val) return null
+  const data = new Date(String(val))
+  if (Number.isNaN(data.getTime())) return null
+  const hoje = new Date()
+  const diffDias = Math.ceil((data.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
+  let urgencia: 'ok' | 'alerta' | 'urgente' = 'ok'
+  if (diffDias <= 1) urgencia = 'urgente'
+  else if (diffDias <= 7) urgencia = 'alerta'
+  return { label: data.toLocaleDateString('pt-BR'), urgencia }
+}
 
-  function handleDragStart(e: React.DragEvent, cardId: string) {
-    e.dataTransfer.setData('cardId', cardId)
-  }
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault()
-  }
-
-  function handleDrop(e: React.DragEvent, status: StatusKanbanPedidoSimulador) {
-    const cardId = e.dataTransfer.getData('cardId')
-    setCards((lista) =>
-      lista.map((card) => (card.id === cardId ? { ...card, status } : card)),
-    )
-    setSelecionado((prev) => (prev?.id === cardId ? { ...prev, status } : prev))
-  }
-
-  function avancarCard(status: StatusKanbanPedidoSimulador) {
-    if (!selecionado) return
-    setCards((lista) =>
-      lista.map((card) => (card.id === selecionado.id ? { ...card, status } : card)),
-    )
-    setSelecionado((prev) => (prev ? { ...prev, status } : null))
-  }
+function CardKanbanSimuladorPedido({
+  item,
+}: {
+  item: PedidoKanbanItemSimulador
+}) {
+  const p = item.pedido
+  const cardConfig = KANBAN_PREFS_SIMULADOR_PEDIDO.card
+  const campos = cardConfig.campos
+  const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
+  const critica = dataCriticaCard(p, cardConfig.dataCritica)
+  const tipoLabel = p.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'
+  const tipoColor = p.tipo_operacao === 'importacao' ? '#818cf8' : '#34d399'
+  const valorLabel = p.valor_total_pedido != null
+    ? p.valor_total_pedido.toLocaleString('pt-BR', {
+      minimumFractionDigits: p.casas_decimais_valor_pedido,
+      maximumFractionDigits: p.casas_decimais_valor_pedido,
+    })
+    : null
 
   return (
-    <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', minHeight: 0 }}>
-      <div className="pds-kanban">
-        {COLUNAS_KANBAN.map((coluna) => {
-          const cardsColuna = cards.filter((card) => card.status === coluna.status)
-          return (
-            <div
-              key={coluna.status}
-              className="pds-kanban-col"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, coluna.status)}
-            >
-              <div className="pds-kanban-col__head">
-                <div className="pds-kanban-col__titulo">
-                  <span className="pds-kanban-col__dot" style={{ background: coluna.cor }} />
-                  {coluna.titulo}
-                </div>
-                <span className="pds-kanban-col__count">{cardsColuna.length}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-                {cardsColuna.map((card) => (
-                  <button
-                    key={card.id}
-                    type="button"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, card.id)}
-                    onClick={() => setSelecionado(card)}
-                    className="pds-kanban-card"
-                    style={{ borderLeft: `2.5px solid ${coluna.cor}`, ['--pds-col-cor' as string]: coluna.cor }}
-                  >
-                    <p className="pds-kanban-card__titulo">{card.titulo}</p>
-                    <div className="pds-kanban-card__meta">
-                      <span>{card.cliente}</span>
-                      <span className="pds-kanban-card__valor">{card.valor}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )
-        })}
+    <div className="kbp-card">
+      <div className="kbp-card-header">
+        <span className="kbp-card-numero">{p.numero_pedido}</span>
+        <span className="kbp-card-tipo" style={{ color: tipoColor }}>{tipoLabel}</span>
       </div>
 
-      {selecionado && (
-        <aside className="pds-kanban-drawer">
-          <div className="pds-kanban-drawer__head">
-            <p className="pds-kanban-drawer__titulo">Detalhamento do Processo</p>
-            <button type="button" className="pds-kanban-drawer__fechar" onClick={() => setSelecionado(null)} aria-label="Fechar">
-              <X size={14} />
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div>
-              <p className="pds-kanban-drawer__campo-label">Referência</p>
-              <p className="pds-kanban-drawer__campo-valor" style={{ fontWeight: 700, color: '#fff' }}>
-                {selecionado.titulo}
-              </p>
-            </div>
-            <div>
-              <p className="pds-kanban-drawer__campo-label">Cliente</p>
-              <p className="pds-kanban-drawer__campo-valor">{selecionado.cliente}</p>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <div>
-                <p className="pds-kanban-drawer__campo-label">Data de Abertura</p>
-                <p className="pds-kanban-drawer__campo-valor">{selecionado.data}</p>
-              </div>
-              <div>
-                <p className="pds-kanban-drawer__campo-label">Valor Total FOB</p>
-                <p className="pds-kanban-drawer__campo-valor pds-kanban-drawer__campo-valor--destaque">
-                  {selecionado.valor}
-                </p>
-              </div>
-            </div>
-
-            <div className="pds-kanban-timeline">
-              <p className="pds-kanban-timeline__titulo">Rastreabilidade de Etapas</p>
-              {ETAPAS_TIMELINE.map((etapa) => {
-                const ok = etapaConcluida(selecionado.status, etapa.chave)
-                return (
-                  <div key={etapa.chave} className="pds-kanban-timeline__item">
-                    <span
-                      className={`pds-kanban-timeline__icone ${ok ? 'pds-kanban-timeline__icone--ok' : 'pds-kanban-timeline__icone--pendente'}`}
-                    >
-                      {ok ? '✓' : '●'}
-                    </span>
-                    <span style={{ color: ok ? '#cbd5e1' : '#64748b', fontWeight: ok ? 600 : 400 }}>
-                      {etapa.rotulo}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="pds-kanban-drawer__acoes">
-            {selecionado.status === 'abertura' && (
-              <button type="button" className="pds-kanban-btn-acao pds-kanban-btn-acao--indigo" onClick={() => avancarCard('anuencia')}>
-                <span>Vincular Cotação (BID)</span>
-                <ArrowRight size={12} />
-              </button>
-            )}
-            {selecionado.status === 'anuencia' && (
-              <button type="button" className="pds-kanban-btn-acao pds-kanban-btn-acao--amber" onClick={() => avancarCard('desembaraco')}>
-                <span>Registrar Anuência da LI</span>
-                <ArrowRight size={12} />
-              </button>
-            )}
-            {selecionado.status === 'desembaraco' && (
-              <button type="button" className="pds-kanban-btn-acao pds-kanban-btn-acao--green" onClick={() => setSelecionado(null)}>
-                <CheckCircle size={14} />
-                <span>Emitir Declaração de Importação</span>
-              </button>
-            )}
-          </div>
-        </aside>
+      {isVisivel('nome_exportador') && p.nome_exportador && (
+        <div className="kbp-card-parceiro">{p.nome_exportador}</div>
       )}
+
+      {isVisivel('nome_importador') && p.nome_importador && (
+        <div className="kbp-card-parceiro">{p.nome_importador}</div>
+      )}
+
+      {critica && (
+        <div className={`kbp-card-data-critica kbp-card-data-critica--${critica.urgencia}`}>
+          <CalendarBlank size={11} />
+          {critica.label}
+        </div>
+      )}
+
+      <div className="kbp-card-footer">
+        {isVisivel('valor_total_pedido') && valorLabel != null && (
+          <span className="kbp-card-valor">
+            <CurrencyDollar size={11} />
+            {valorLabel} {p.moeda_pedido}
+          </span>
+        )}
+        {isVisivel('incoterm') && p.incoterm && (
+          <span className="kbp-card-incoterm">
+            <ArrowsLeftRight size={10} />
+            {p.incoterm}
+          </span>
+        )}
+        {isVisivel('numero_invoice') && p.numero_invoice && (
+          <span className="kbp-card-incoterm">INV {p.numero_invoice}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export interface KanbanSimuladorPedidoProps {
+  empresasSelecionadas: PerfilEmpresaSimulador[]
+  onAbrirPedidoCompleto: (numeroPedido: string) => void
+}
+
+export function KanbanSimuladorPedido({
+  empresasSelecionadas,
+  onAbrirPedidoCompleto,
+}: KanbanSimuladorPedidoProps) {
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, StatusKanbanPedidoSimulador>>({})
+  const [busca, setBusca] = useState('')
+  const [modalPedido, setModalPedido] = useState<PedidoKanbanSimulador | null>(null)
+
+  const pedidos = useMemo(() => {
+    const base = listarPedidosKanbanSimulador(empresasSelecionadas)
+    return base.map(p => ({
+      ...p,
+      status: statusOverrides[p.id] ?? p.status,
+    }))
+  }, [empresasSelecionadas, statusOverrides])
+
+  const colunas = useMemo(
+    () => COLUNAS_KANBAN_SIMULADOR_PEDIDO.map(col => ({
+      ...col,
+      icon: COLUNAS_BASE_ICONES[col.key] ?? <Tag size={16} weight="duotone" />,
+    })),
+    [],
+  )
+
+  const itens = useMemo(
+    () => pedidosKanbanParaItens(pedidos),
+    [pedidos],
+  )
+
+  const itensFiltrados = useMemo(() => {
+    if (!busca.trim()) return itens
+    const q = busca.toLowerCase()
+    return itens.filter(({ pedido: p }) =>
+      [p.numero_pedido, p.nome_exportador, p.nome_importador, p.incoterm, p.status]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(q),
+    )
+  }, [itens, busca])
+
+  const handleMover = useCallback((itemId: string, novaColunaKey: string) => {
+    setStatusOverrides(prev => ({
+      ...prev,
+      [itemId]: novaColunaKey as StatusKanbanPedidoSimulador,
+    }))
+    setModalPedido(prev =>
+      prev?.id === itemId
+        ? { ...prev, status: novaColunaKey as StatusKanbanPedidoSimulador }
+        : prev,
+    )
+  }, [])
+
+  const toolbar = (
+    <div className="kbp-toolbar">
+      <div className="kbp-search-wrap">
+        <MagnifyingGlass size={15} className="kbp-search-icon" />
+        <input
+          type="text"
+          className="kbp-search"
+          placeholder="Localizar pedido..."
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+        />
+      </div>
+      <span className="kbp-total">
+        {itensFiltrados.length} pedidos
+      </span>
+    </div>
+  )
+
+  return (
+    <div className="pds-kanban-simulador kbp-page" data-sds-tutorial-alvo="pedido-kanban-colunas">
+      <KanbanGlobal<PedidoKanbanItemSimulador>
+        colunas={colunas}
+        itens={itensFiltrados}
+        renderCard={item => <CardKanbanSimuladorPedido item={item} />}
+        onMoverItem={handleMover}
+        onCardClick={item => setModalPedido(item.pedido)}
+        isLoading={false}
+        skeletonCount={5}
+        emptyLabel="Nenhum pedido encontrado"
+        getItemLabel={item => item.pedido.numero_pedido}
+        getItemDate={item => item.pedido.data_emissao_pedido ?? undefined}
+        toolbarSlot={toolbar}
+        labels={{
+          sortNewest: 'Mais recente primeiro',
+          sortOldest: 'Mais antigo primeiro',
+          sortAlpha: 'Ordem alfabética',
+          sortPopoverTitle: 'Ordenar lista',
+          sortPopoverClose: 'Fechar ordenação',
+          sortButtonTitle: 'Ordenar coluna',
+        }}
+      />
+
+      <ModalKanbanSimuladorPedido
+        pedido={modalPedido}
+        aberto={modalPedido !== null}
+        colunas={colunas}
+        onFechar={() => setModalPedido(null)}
+        onAbrirPedidoCompleto={onAbrirPedidoCompleto}
+      />
     </div>
   )
 }

@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
+  ArrowsOut,
+  CornersIn,
   DownloadSimple,
   UploadSimple,
   Globe,
@@ -13,6 +16,7 @@ import {
   Eye,
   EyeSlash,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '../../../Feedback/tooltip-global/src/tooltip'
 import {
   GLOBE_PIN_VISIVEL_MIN_RZ,
   getCartesian,
@@ -72,8 +76,11 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
     [empresasSelecionadas],
   )
 
-  const [filtrosRefinar, setFiltrosRefinar] = useState<FiltrosRefinarMapaSimuladorPedido>(
-    () => criarFiltrosRefinarMapaIniciais(),
+  const [filtrosRefinar, setFiltrosRefinar] = useState<FiltrosRefinarMapaSimuladorPedido | null>(null)
+
+  const filtrosResolvidos = useMemo(
+    () => filtrosRefinar ?? criarFiltrosRefinarMapaIniciais(contextoRefinar.opcoes),
+    [filtrosRefinar, contextoRefinar.opcoes],
   )
 
   const mapaEscopo = useMemo(
@@ -81,15 +88,16 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
       filtrarMapaRefinarSimuladorPedido(
         contextoRefinar.mapaBase,
         contextoRefinar.metadados,
-        filtrosRefinar,
+        filtrosResolvidos,
+        contextoRefinar.opcoes,
       ),
-    [contextoRefinar, filtrosRefinar],
+    [contextoRefinar, filtrosResolvidos],
   )
 
   useEffect(() => {
-    setFiltrosRefinar(criarFiltrosRefinarMapaIniciais())
+    setFiltrosRefinar(criarFiltrosRefinarMapaIniciais(contextoRefinar.opcoes))
     setRotasVisiveis(false)
-  }, [empresasSelecionadas])
+  }, [contextoRefinar])
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasWrapRef = useRef<HTMLDivElement>(null)
@@ -99,12 +107,27 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const hoveredPinRef = useRef<number | null>(null)
   const [projectedPins, setProjectedPins] = useState<PinProjetado[]>([])
-  const [vista, setVista] = useState<'globo' | 'mapa'>('globo')
+  const [vista, setVista] = useState<'globo' | 'mapa'>('mapa')
   const vistaRef = useRef<'globo' | 'mapa'>('globo')
   const [isAutoRotating, setIsAutoRotating] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [rotasVisiveis, setRotasVisiveis] = useState(false)
   const rotasVisiveisRef = useRef(false)
+  const [telaCheia, setTelaCheia] = useState(false)
+
+  useEffect(() => {
+    if (!telaCheia) return undefined
+    const overflowAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const aoTecla = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') setTelaCheia(false)
+    }
+    window.addEventListener('keydown', aoTecla)
+    return () => {
+      document.body.style.overflow = overflowAnterior
+      window.removeEventListener('keydown', aoTecla)
+    }
+  }, [telaCheia])
 
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ x: 0, y: 0 })
@@ -562,26 +585,68 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
   }
 
   return (
-    <section className="pds-mapa-globo pds-insights-card" aria-label="Visão geral global de pedidos">
-      <div className="pds-mapa-globo__header">
-        <h3 className="pds-insights-card__titulo">Visão Geral Global de Pedidos</h3>
-        <p className="pds-mapa-globo__subtitulo">
-          Origins, destinations and volume by location (drag to rotate)
-        </p>
-      </div>
+    <>
+      {telaCheia && typeof document !== 'undefined'
+        ? createPortal(
+            <button
+              type="button"
+              className="pds-mapa-globo__backdrop"
+              aria-label="Fechar mapa expandido"
+              onClick={() => setTelaCheia(false)}
+            />,
+            document.body,
+          )
+        : null}
 
-      <div className="pds-mapa-globo__split">
-        <RefinarMapaSimuladorPedido
-          mapaBase={contextoRefinar.mapaBase}
-          mapaFiltrado={mapaEscopo}
-          opcoes={contextoRefinar.opcoes}
-          filtros={filtrosRefinar}
-          onFiltrosChange={setFiltrosRefinar}
+      {telaCheia ? (
+        <div
+          className="pds-mapa-globo__placeholder"
+          style={{ minHeight: 'var(--pds-insights-linha-altura, 360px)' }}
+          aria-hidden
         />
+      ) : null}
+
+      <section
+        className={`pds-mapa-globo pds-insights-card${telaCheia ? ' pds-mapa-globo--tela-cheia' : ''}`}
+        aria-label="Visão geral global de pedidos"
+        role={telaCheia ? 'dialog' : undefined}
+        aria-modal={telaCheia ? true : undefined}
+      >
+        <div className="pds-mapa-globo__header">
+          <div className="pds-mapa-globo__header-texto">
+            <h3 className="pds-insights-card__titulo">Visão Geral Global de Pedidos</h3>
+            <p className="pds-mapa-globo__subtitulo">
+              Origens, destinos e volume por localização (arraste para girar)
+            </p>
+          </div>
+          <TooltipGlobal descricao={telaCheia ? 'Recolher mapa' : 'Expandir mapa'}>
+            <button
+              type="button"
+              className="pds-mapa-globo__expandir-btn"
+              data-sds-tutorial-alvo="pedido-insights-mapa-expandir"
+              aria-expanded={telaCheia}
+              aria-label={telaCheia ? 'Recolher mapa' : 'Expandir mapa'}
+              onClick={() => setTelaCheia((prev) => !prev)}
+            >
+              {telaCheia ? <CornersIn size={16} weight="bold" /> : <ArrowsOut size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
+        </div>
+
+        <div className="pds-mapa-globo__split">
+          <RefinarMapaSimuladorPedido
+            mapaBase={contextoRefinar.mapaBase}
+            mapaFiltrado={mapaEscopo}
+            opcoes={contextoRefinar.opcoes}
+            filtros={filtrosResolvidos}
+            onFiltrosChange={setFiltrosRefinar}
+            variantePainel={telaCheia ? 'tela-cheia' : 'card'}
+          />
 
         <div
           ref={canvasWrapRef}
           className="pds-mapa-globo__canvas-wrap"
+          data-sds-tutorial-alvo="pedido-insights-mapa-interacao"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -590,7 +655,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
         >
         <canvas ref={canvasRef} className="pds-mapa-globo__canvas" />
 
-        <div className="pds-mapa-globo__legenda">
+        <div className="pds-mapa-globo__legenda" data-sds-tutorial-alvo="pedido-insights-mapa-legenda">
           <span>
             <DownloadSimple size={14} weight="bold" style={{ color: '#f59e0b' }} />
             Importação
@@ -601,7 +666,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
           </span>
         </div>
 
-        <div className="pds-mapa-globo__controles">
+        <div className="pds-mapa-globo__controles" data-sds-tutorial-alvo="pedido-insights-mapa-controles">
           <button
             type="button"
             className="pds-mapa-globo__controle-btn"
@@ -636,6 +701,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
           <button
             type="button"
             className={`pds-mapa-globo__controle-btn${rotasVisiveis ? '' : ' pds-mapa-globo__controle-btn--rotas-ocultas'}`}
+            data-sds-tutorial-alvo="pedido-insights-mapa-linhas"
             onClick={(e) => {
               e.stopPropagation()
               setRotasVisiveis((prev) => !prev)
@@ -672,6 +738,11 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
           )}
         </div>
 
+        <div
+          className="pds-mapa-globo__pins-layer"
+          data-sds-tutorial-alvo="pedido-insights-mapa-pins"
+          aria-hidden={projectedPins.length === 0}
+        >
         {projectedPins.map((pin) => {
           if (pin.opacity <= 0.05) return null
           const isHovered = hoveredPin === pin.id
@@ -711,7 +782,9 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
                 <MapPin size={13} weight="fill" color="#0f172a" />
               </div>
               {isHovered && pin.opacity > 0.7 && (
-                <div className="pds-mapa-globo__tooltip">
+                <div
+                  className={`pds-mapa-globo__tooltip${pin.py < 150 ? ' pds-mapa-globo__tooltip--abaixo' : ''}`}
+                >
                   <div className="pds-mapa-globo__tooltip-header">
                     <span className="pds-mapa-globo__tooltip-flag">{pin.flag}</span>
                     <div>
@@ -742,18 +815,21 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
                   {pin.fornecedorPrincipal && (
                     <div className="pds-mapa-globo__tooltip-footer">
                       <span>
-                        Fornecedor: <strong>{pin.fornecedorPrincipal}</strong>
+                        Parceiro: <strong>{pin.fornecedorPrincipal}</strong>
                       </span>
                       <span className="pds-mapa-globo__tooltip-hint">👉 Passe o mouse para ver rotas</span>
                     </div>
                   )}
+                  <div className="pds-mapa-globo__tooltip-after" aria-hidden />
                 </div>
               )}
             </div>
           )
         })}
         </div>
+        </div>
       </div>
     </section>
+    </>
   )
 }

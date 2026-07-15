@@ -190,7 +190,7 @@ export function ModalExplicacaoTransferenciaSimuladorPedido({ aberto, resumo, on
           </div>
         </header>
 
-        <div className="pds-transf-explicacao-modal__cards">
+        <div className="pds-transf-explicacao-modal__cards" data-sds-tutorial-alvo="pedido-explicacao-transferencia-cards">
           {cards.map((card) => (
             <CardExplicacaoPedido
               key={card.id}
@@ -201,14 +201,16 @@ export function ModalExplicacaoTransferenciaSimuladorPedido({ aberto, resumo, on
           ))}
         </div>
 
-        <p className="pds-transf-explicacao-modal__dica">
+        <p className="pds-transf-explicacao-modal__dica" data-sds-tutorial-alvo="pedido-explicacao-transferencia-detalhes">
           Ao clicar em Entendi, um guia em 2 passos mostra o contexto dos pedidos e depois os saldos e quantidades transferidas.
         </p>
 
         <footer className="pds-transf-explicacao-modal__footer">
+          <span data-sds-tutorial-alvo="pedido-explicacao-transferencia-entendi" style={{ display: 'inline-flex' }}>
           <BotaoGlobal variante="primario" tamanho="padrao" onClick={onEntendi}>
             Entendi
           </BotaoGlobal>
+          </span>
         </footer>
       </div>
     </div>

@@ -1,12 +1,13 @@
 /**
- * Tela de match — agrupa documentos da leitura em uma ou mais cotações BID Frete.
+ * Tela de match — arrastar documentos entre cotações; criar/excluir grupos.
  */
-import { useMemo, useState } from 'react'
-import { ArrowsLeftRight, Plus, Sparkle } from '@phosphor-icons/react'
+import { useCallback, useMemo, useState } from 'react'
+import { ArrowsLeftRight, DotsSixVertical, Plus, Trash, Sparkle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { LeituraParaConversaoCotacaoBidFrete } from '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
 import {
   criarGrupoVazioMatchPrefill,
+  excluirGrupoMatchPrefill,
   listarDocumentosMatchPrefillCotacaoBidFrete,
   moverDocumentoEntreGruposMatchPrefill,
   sugerirGruposMatchPrefillCotacaoBidFrete,
@@ -18,6 +19,8 @@ type Props = {
   onConfirmar: (grupos: GrupoCotacaoMatchPrefillBidFrete[]) => void
 }
 
+const TIPO_DRAG = 'application/x-sr-prefill-doc-id'
+
 export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
   leitura,
   onConfirmar,
@@ -27,6 +30,8 @@ export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
     [leitura],
   )
   const [grupos, setGrupos] = useState(() => sugerirGruposMatchPrefillCotacaoBidFrete(documentos))
+  const [idArrastando, setIdArrastando] = useState<string | null>(null)
+  const [idGrupoSobre, setIdGrupoSobre] = useState<string | null>(null)
 
   const mapaDocs = useMemo(
     () => new Map(documentos.map((d) => [d.id_documento, d])),
@@ -35,6 +40,10 @@ export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
 
   const gruposValidos = grupos.filter((g) => g.ids_documentos.length > 0)
 
+  const moverPara = useCallback((idDocumento: string, idGrupoDestino: string) => {
+    setGrupos((atual) => moverDocumentoEntreGruposMatchPrefill(atual, idDocumento, idGrupoDestino))
+  }, [])
+
   return (
     <div className="sr-prefill-bid-match">
       <div className="sr-prefill-bid-revisao-cabecalho">
@@ -42,55 +51,79 @@ export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
         <div>
           <h3 className="sr-prefill-bid-revisao-titulo">Combinar documentos nas cotações</h3>
           <p className="sr-prefill-bid-revisao-subtitulo">
-            O Smart Docs já separou {documentos.length} documento(s). Agrupe invoice + packing do
-            mesmo embarque na mesma cotação, ou separe em cotações distintas.
+            Arraste invoice e packing do mesmo embarque para a mesma cotação. Crie ou exclua
+            cotações conforme precisar — depois disso saberemos quantas abrir.
           </p>
         </div>
       </div>
 
       <div className="sr-prefill-bid-match-grade">
         {grupos.map((grupo) => (
-          <section key={grupo.id_grupo} className="sr-prefill-bid-match-grupo" aria-label={grupo.nome_grupo}>
+          <section
+            key={grupo.id_grupo}
+            className={`sr-prefill-bid-match-grupo${idGrupoSobre === grupo.id_grupo ? ' sr-prefill-bid-match-grupo--sobre' : ''}`}
+            aria-label={grupo.nome_grupo}
+            onDragOver={(e) => {
+              e.preventDefault()
+              e.dataTransfer.dropEffect = 'move'
+              setIdGrupoSobre(grupo.id_grupo)
+            }}
+            onDragLeave={() => {
+              setIdGrupoSobre((atual) => (atual === grupo.id_grupo ? null : atual))
+            }}
+            onDrop={(e) => {
+              e.preventDefault()
+              const id = e.dataTransfer.getData(TIPO_DRAG) || idArrastando
+              setIdGrupoSobre(null)
+              setIdArrastando(null)
+              if (id) moverPara(id, grupo.id_grupo)
+            }}
+          >
             <header className="sr-prefill-bid-match-grupo-cabecalho">
               <Sparkle weight="duotone" size={14} aria-hidden />
               <strong>{grupo.nome_grupo}</strong>
               <span>{grupo.ids_documentos.length} doc.</span>
+              {grupos.length > 1 && (
+                <button
+                  type="button"
+                  className="sr-prefill-bid-match-excluir"
+                  title="Excluir cotação"
+                  aria-label={`Excluir ${grupo.nome_grupo}`}
+                  onClick={() => setGrupos((atual) => excluirGrupoMatchPrefill(atual, grupo.id_grupo))}
+                >
+                  <Trash weight="bold" size={14} />
+                </button>
+              )}
             </header>
             <ul className="sr-prefill-bid-match-lista">
               {grupo.ids_documentos.map((id) => {
                 const doc = mapaDocs.get(id)
                 if (!doc) return null
                 return (
-                  <li key={id} className="sr-prefill-bid-match-item">
-                    <div>
+                  <li
+                    key={id}
+                    className={`sr-prefill-bid-match-item${idArrastando === id ? ' sr-prefill-bid-match-item--arrastando' : ''}`}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData(TIPO_DRAG, id)
+                      e.dataTransfer.effectAllowed = 'move'
+                      setIdArrastando(id)
+                    }}
+                    onDragEnd={() => {
+                      setIdArrastando(null)
+                      setIdGrupoSobre(null)
+                    }}
+                  >
+                    <DotsSixVertical className="sr-prefill-bid-match-handle" size={16} weight="bold" aria-hidden />
+                    <div className="sr-prefill-bid-match-item-texto">
                       <div className="sr-prefill-bid-match-item-titulo">{doc.rotulo}</div>
                       <div className="sr-prefill-bid-match-item-resumo">{doc.resumo}</div>
                     </div>
-                    <label className="sr-prefill-bid-match-mover">
-                      <span className="sr-visually-hidden">Mover para</span>
-                      <select
-                        value={grupo.id_grupo}
-                        onChange={(e) => {
-                          const destino = e.target.value
-                          if (destino === grupo.id_grupo) return
-                          setGrupos((atual) =>
-                            moverDocumentoEntreGruposMatchPrefill(atual, id, destino),
-                          )
-                        }}
-                        aria-label={`Mover ${doc.rotulo}`}
-                      >
-                        {grupos.map((g) => (
-                          <option key={g.id_grupo} value={g.id_grupo}>
-                            {g.nome_grupo}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
                   </li>
                 )
               })}
               {grupo.ids_documentos.length === 0 && (
-                <li className="sr-prefill-bid-match-vazio">Arraste documentos para cá via o seletor</li>
+                <li className="sr-prefill-bid-match-vazio">Solte documentos aqui</li>
               )}
             </ul>
           </section>

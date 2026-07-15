@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CaretDown,
@@ -20,11 +20,13 @@ import { corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import type { Pedido } from '../types'
 import {
   contarFiltrosMapaPedidoAtivos,
+  contarPedidosPorOperacaoMapaPedido,
   FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO,
   filtrarItensListaMapaPedidoPorBusca,
-  filtrosMapaInsightsPedidoIniciais,
   itemFiltroMapaPedidoSelecionado,
   listarExportadoresPedidoMapa,
+  montarFiltrosMapaPedidoTodos,
+  operacaoFiltroMapaPedidoSelecionada,
   listarImportadoresPedidoMapa,
   listarPaisesDestinoPedidoMapa,
   listarPaisesOrigemPedidoMapa,
@@ -65,7 +67,14 @@ interface SecaoFiltroMapaPedidoProps {
   colapsada: boolean
   onToggle: () => void
   children: ReactNode
-  semanticaOptOut?: boolean
+}
+
+function TagContagemFiltroMapaPedido({ quantidade }: { quantidade: number }) {
+  return (
+    <span className="bfd-map-filtros-panel__item-contagem" aria-hidden>
+      {quantidade}
+    </span>
+  )
 }
 
 function SecaoFiltroMapaPedido({
@@ -77,21 +86,36 @@ function SecaoFiltroMapaPedido({
   colapsada,
   onToggle,
   children,
-  semanticaOptOut = false,
 }: SecaoFiltroMapaPedidoProps) {
   const { t } = useTranslation()
-  const semRestricao = semanticaOptOut
-    ? ativos === total
-    : ativos === 0 || ativos === total
+  const semRestricao = total > 0 && ativos >= total
+  const nenhumSelecionado = total > 0 && ativos === 0
   const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
-  const rotuloMeta = semRestricao
-    ? t('pedido.visao_geral.mapa.refinar.todos', { defaultValue: 'Todos' })
-    : `${ativos}/${total}`
+  const rotuloContagem = total === 0 ? '0' : `${ativos}/${total}`
+  const tituloSecao =
+    nenhumSelecionado
+      ? t('pedido.visao_geral.mapa.refinar.secao_nenhum_selecionado', {
+        defaultValue: '{{titulo}}: nenhum selecionado (0/{{total}})',
+        titulo,
+        total,
+      })
+      : semRestricao
+        ? t('pedido.visao_geral.mapa.refinar.secao_sem_restricao', {
+          defaultValue: '{{titulo}}: todos selecionados ({{total}})',
+          titulo,
+          total,
+        })
+        : t('pedido.visao_geral.mapa.refinar.secao_filtros_ativos', {
+          defaultValue: '{{titulo}}: {{ativos}}/{{total}} selecionado(s)',
+          titulo,
+          ativos,
+          total,
+        })
 
   return (
     <section
       id={`ped-map-filtro-secao-${id}`}
-      className={`bfd-map-filtro-secao ${colapsada ? 'bfd-map-filtro-secao--colapsada' : ''}${semRestricao ? '' : ' bfd-map-filtro-secao--restrita'}`}
+      className={`bfd-map-filtro-secao ${colapsada ? 'bfd-map-filtro-secao--colapsada' : ''}${semRestricao ? '' : ' bfd-map-filtro-secao--restrita'}${nenhumSelecionado ? ' bfd-map-filtro-secao--zero' : ''}`}
     >
       <button
         type="button"
@@ -99,6 +123,7 @@ function SecaoFiltroMapaPedido({
         onClick={onToggle}
         aria-expanded={!colapsada}
         aria-controls={`ped-map-filtro-secao-${id}-corpo`}
+        title={tituloSecao}
       >
         <div className="bfd-map-filtro-secao__title">
           <CaretDown
@@ -113,16 +138,14 @@ function SecaoFiltroMapaPedido({
           <div className="bfd-map-filtro-secao__progress" aria-hidden>
             <div
               className={`bfd-map-filtro-secao__progress-fill${semRestricao ? ' bfd-map-filtro-secao__progress-fill--todos' : ''}`}
-              style={{
-                width: `${pct}%`,
-                background: semRestricao ? undefined : '#f59e0b',
-              }}
+              style={{ width: `${pct}%` }}
             />
           </div>
           <span
-            className={`bfd-map-filtro-secao__pill${semRestricao ? ' bfd-map-filtro-secao__pill--todos' : ''}`}
+            className={`bfd-map-filtro-secao__pill${semRestricao ? ' bfd-map-filtro-secao__pill--todos' : ''}${nenhumSelecionado ? ' bfd-map-filtro-secao__pill--zero' : ''}`}
+            aria-label={rotuloContagem}
           >
-            {rotuloMeta}
+            {semRestricao ? total : rotuloContagem}
           </span>
         </div>
       </button>
@@ -186,6 +209,7 @@ export function PainelRefinarMapaPedido({
     () => listarStatusPedidoMapa(pedidos, rotulosStatus, coresStatus),
     [pedidos, rotulosStatus, coresStatus],
   )
+  const contagemOperacao = useMemo(() => contarPedidosPorOperacaoMapaPedido(pedidos), [pedidos])
 
   const totalFiltrosAtivos = contarFiltrosMapaPedidoAtivos(filtros, {
     total_paises_origem: paisesOrigem.length,
@@ -205,7 +229,7 @@ export function PainelRefinarMapaPedido({
     rotasBase: mapaBase.globeRoutes.length,
   })
 
-  const operacaoAtivos = FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO.filter((f) => filtros.operacao.has(f.id)).length
+  const operacaoAtivos = filtros.operacao.size
   const origemAtivos = filtros.paises_origem.size
   const destinoAtivos = filtros.paises_destino.size
   const exportadorAtivos = filtros.exportadores.size
@@ -213,17 +237,64 @@ export function PainelRefinarMapaPedido({
   const statusAtivos = filtros.status.size
   const todasSecoesColapsadas = secoesColapsadas.size === SECOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length
 
-  const limparFiltros = () => onFiltrosChange(filtrosMapaInsightsPedidoIniciais())
+  const inicializouFiltrosPadraoRef = useRef(false)
+
+  useEffect(() => {
+    if (inicializouFiltrosPadraoRef.current || pedidos.length === 0) return
+    inicializouFiltrosPadraoRef.current = true
+    onFiltrosChange(
+      montarFiltrosMapaPedidoTodos(pedidos, fornecedoresPorId, flagsPorPais, rotulosStatus, coresStatus),
+    )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pedidos.length])
+
+  const limparFiltros = () =>
+    onFiltrosChange(
+      montarFiltrosMapaPedidoTodos(pedidos, fornecedoresPorId, flagsPorPais, rotulosStatus, coresStatus),
+    )
 
   const alternarOperacao = (id: FiltroOperacaoMapaInsightsPedido) => {
+    const total = OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length
+    const atual = filtros.operacao
+
+    if (atual.size >= total) {
+      const next = new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO)
+      next.delete(id)
+      onFiltrosChange({ ...filtros, operacao: next })
+      return
+    }
+
+    if (atual.has(id)) {
+      onFiltrosChange({
+        ...filtros,
+        operacao: (() => {
+          const next = new Set(atual)
+          next.delete(id)
+          return next
+        })(),
+      })
+      return
+    }
+
+    const next = new Set(atual)
+    next.add(id)
     onFiltrosChange({
       ...filtros,
-      operacao: (() => {
-        const next = new Set(filtros.operacao)
-        if (next.has(id)) next.delete(id)
-        else next.add(id)
-        return next
-      })(),
+      operacao: next.size >= total ? new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO) : next,
+    })
+  }
+
+  const selecionarTodasOperacoes = () => {
+    onFiltrosChange({
+      ...filtros,
+      operacao: new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO),
+    })
+  }
+
+  const limparOperacoes = () => {
+    onFiltrosChange({
+      ...filtros,
+      operacao: new Set(),
     })
   }
 
@@ -235,7 +306,7 @@ export function PainelRefinarMapaPedido({
     const total = todosItens.length
     const atual = filtros[campo]
 
-    if (atual.size === 0 || atual.size >= total) {
+    if (atual.size >= total) {
       const next = new Set(todosItens.map((item) => item.id))
       next.delete(id)
       onFiltrosChange({ ...filtros, [campo]: next })
@@ -258,16 +329,17 @@ export function PainelRefinarMapaPedido({
     next.add(id)
     onFiltrosChange({
       ...filtros,
-      [campo]: next.size >= total ? new Set() : next,
+      [campo]: next.size >= total ? new Set(todosItens.map((item) => item.id)) : next,
     })
   }
 
   const selecionarTodosSet = (
     campo: 'paises_origem' | 'paises_destino' | 'exportadores' | 'importadores' | 'status',
+    itens: readonly ItemListaFiltroMapaPedido[],
   ) => {
     onFiltrosChange({
       ...filtros,
-      [campo]: new Set(),
+      [campo]: new Set(itens.map((item) => item.id)),
     })
   }
 
@@ -312,18 +384,27 @@ export function PainelRefinarMapaPedido({
 
   function renderToolbarSelecao(total: number, ativos: number, onTodos: () => void, onLimpar: () => void) {
     if (total === 0) return null
-    const semRestricao = ativos === 0 || ativos === total
+    const todosSelecionados = ativos >= total
+    const nenhumSelecionado = ativos === 0
     return (
       <div className="bfd-map-filtros-panel__secao-toolbar">
-        <button type="button" className="bfd-map-filtros-panel__toolbar-btn" onClick={onTodos}>
+        <button
+          type="button"
+          className="bfd-map-filtros-panel__toolbar-btn"
+          onClick={onTodos}
+          disabled={todosSelecionados}
+        >
           <SelectionAll size={12} weight="bold" />
           {t('tabela.selecionar_tudo', { defaultValue: 'Selecionar tudo' })}
         </button>
-        {!semRestricao ? (
-          <button type="button" className="bfd-map-filtros-panel__toolbar-btn" onClick={onLimpar}>
-            {t('pedido.visao_geral.mapa.refinar.limpar_selecao', { defaultValue: 'Limpar seleção' })}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className="bfd-map-filtros-panel__toolbar-btn"
+          onClick={onLimpar}
+          disabled={nenhumSelecionado}
+        >
+          {t('pedido.visao_geral.mapa.refinar.limpar_tudo', { defaultValue: 'Limpar tudo' })}
+        </button>
       </div>
     )
   }
@@ -407,6 +488,7 @@ export function PainelRefinarMapaPedido({
                   <span className="bfd-map-filtros-panel__local-texto">
                     <span className="bfd-map-filtros-panel__local-nome">{item.label}</span>
                   </span>
+                  <TagContagemFiltroMapaPedido quantidade={item.quantidade} />
                   {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
                 </button>
               )
@@ -425,7 +507,7 @@ export function PainelRefinarMapaPedido({
       >
         <div className="bfd-map-filtros-rail__grupo">
           {FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO.map((filtro) => {
-            const ativo = filtros.operacao.has(filtro.id)
+            const ativo = operacaoFiltroMapaPedidoSelecionada(filtros.operacao, filtro.id)
             return (
               <button
                 key={filtro.id}
@@ -561,11 +643,17 @@ export function PainelRefinarMapaPedido({
               total={FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO.length}
               colapsada={secoesColapsadas.has('operacao')}
               onToggle={() => alternarSecao('operacao')}
-              semanticaOptOut
             >
+              {renderToolbarSelecao(
+                FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO.length,
+                operacaoAtivos,
+                selecionarTodasOperacoes,
+                limparOperacoes,
+              )}
               <div className="bfd-map-filtros-panel__operacao-grid">
                 {FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO.map((filtro) => {
-                  const ativo = filtros.operacao.has(filtro.id)
+                  const ativo = operacaoFiltroMapaPedidoSelecionada(filtros.operacao, filtro.id)
+                  const quantidade = contagemOperacao.get(filtro.id) ?? 0
                   return (
                     <button
                       key={filtro.id}
@@ -580,6 +668,7 @@ export function PainelRefinarMapaPedido({
                       <span className="bfd-map-filtros-panel__operacao-label">
                         {traduzirLabelFiltroOperacaoMapaPedido(t, filtro.id)}
                       </span>
+                      <TagContagemFiltroMapaPedido quantidade={quantidade} />
                     </button>
                   )
                 })}
@@ -598,7 +687,7 @@ export function PainelRefinarMapaPedido({
               {renderToolbarSelecao(
                 paisesOrigem.length,
                 origemAtivos,
-                () => selecionarTodosSet('paises_origem'),
+                () => selecionarTodosSet('paises_origem', paisesOrigem),
                 () => limparSet('paises_origem'),
               )}
               {renderListaItens(
@@ -624,7 +713,7 @@ export function PainelRefinarMapaPedido({
               {renderToolbarSelecao(
                 paisesDestino.length,
                 destinoAtivos,
-                () => selecionarTodosSet('paises_destino'),
+                () => selecionarTodosSet('paises_destino', paisesDestino),
                 () => limparSet('paises_destino'),
               )}
               {renderListaItens(
@@ -650,7 +739,7 @@ export function PainelRefinarMapaPedido({
               {renderToolbarSelecao(
                 exportadores.length,
                 exportadorAtivos,
-                () => selecionarTodosSet('exportadores'),
+                () => selecionarTodosSet('exportadores', exportadores),
                 () => limparSet('exportadores'),
               )}
               {renderListaItens(
@@ -677,7 +766,7 @@ export function PainelRefinarMapaPedido({
               {renderToolbarSelecao(
                 importadores.length,
                 importadorAtivos,
-                () => selecionarTodosSet('importadores'),
+                () => selecionarTodosSet('importadores', importadores),
                 () => limparSet('importadores'),
               )}
               {renderListaItens(
@@ -704,7 +793,7 @@ export function PainelRefinarMapaPedido({
               {renderToolbarSelecao(
                 statusOpcoes.length,
                 statusAtivos,
-                () => selecionarTodosSet('status'),
+                () => selecionarTodosSet('status', statusOpcoes),
                 () => limparSet('status'),
               )}
               <div className="bfd-map-filtros-panel__status-lista">
@@ -720,6 +809,7 @@ export function PainelRefinarMapaPedido({
                     >
                       <span className="bfd-map-filtros-panel__status-dot" style={{ backgroundColor: filtro.cor, color: filtro.cor }} />
                       <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
+                      <TagContagemFiltroMapaPedido quantidade={filtro.quantidade} />
                       {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
                     </button>
                   )

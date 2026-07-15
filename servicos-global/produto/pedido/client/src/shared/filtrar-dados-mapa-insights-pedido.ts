@@ -26,6 +26,7 @@ export interface ItemListaFiltroMapaPedido {
   id: string
   label: string
   flag?: string
+  quantidade: number
 }
 
 export const FILTROS_OPERACAO_MAPA_INSIGHTS_PEDIDO: ReadonlyArray<{
@@ -60,7 +61,7 @@ export type SecaoFiltroMapaInsightsPedidoId = (typeof SECOES_FILTRO_MAPA_INSIGHT
 
 export function filtrosMapaInsightsPedidoIniciais(): FiltrosMapaInsightsPedido {
   return {
-    operacao: new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO),
+    operacao: new Set(),
     paises_origem: new Set(),
     paises_destino: new Set(),
     exportadores: new Set(),
@@ -69,18 +70,70 @@ export function filtrosMapaInsightsPedidoIniciais(): FiltrosMapaInsightsPedido {
   }
 }
 
-function dimensaoOptInSemRestricao(selecionados: ReadonlySet<string>, total: number): boolean {
-  if (total === 0) return true
-  return selecionados.size === 0 || selecionados.size >= total
+/** Estado ainda não inicializado (antes do primeiro sync com todos os itens). */
+export function estaFiltrosMapaPedidoSemInicializar(filtros: FiltrosMapaInsightsPedido): boolean {
+  return (
+    filtros.operacao.size === 0 &&
+    filtros.paises_origem.size === 0 &&
+    filtros.paises_destino.size === 0 &&
+    filtros.exportadores.size === 0 &&
+    filtros.importadores.size === 0 &&
+    filtros.status.size === 0
+  )
 }
 
-/** Item aparece marcado quando a dimensão está em "todos" ou o id está no conjunto. */
+export function montarFiltrosMapaPedidoTodos(
+  pedidos: readonly Pedido[],
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+  flagsPorPais: ReadonlyMap<string, string> = new Map(),
+  rotulosPorStatus: ReadonlyMap<string, string> = new Map(),
+  coresPorStatus: ReadonlyMap<string, string> = new Map(),
+): FiltrosMapaInsightsPedido {
+  const paisesOrigem = listarPaisesOrigemPedidoMapa(pedidos, fornecedoresPorId, flagsPorPais)
+  const paisesDestino = listarPaisesDestinoPedidoMapa(pedidos, fornecedoresPorId, flagsPorPais)
+  const exportadores = listarExportadoresPedidoMapa(pedidos)
+  const importadores = listarImportadoresPedidoMapa(pedidos)
+  const statusOpcoes = listarStatusPedidoMapa(pedidos, rotulosPorStatus, coresPorStatus)
+
+  return {
+    operacao: new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO),
+    paises_origem: new Set(paisesOrigem.map((item) => item.id)),
+    paises_destino: new Set(paisesDestino.map((item) => item.id)),
+    exportadores: new Set(exportadores.map((item) => item.id)),
+    importadores: new Set(importadores.map((item) => item.id)),
+    status: new Set(statusOpcoes.map((item) => item.id)),
+  }
+}
+
+function operacaoSemRestricao(filtros: ReadonlySet<FiltroOperacaoMapaInsightsPedido>): boolean {
+  return filtros.size >= OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length
+}
+
+/** Operação marcada quando está no conjunto selecionado. */
+export function operacaoFiltroMapaPedidoSelecionada(
+  filtros: ReadonlySet<FiltroOperacaoMapaInsightsPedido>,
+  id: FiltroOperacaoMapaInsightsPedido,
+): boolean {
+  return filtros.has(id)
+}
+
+function dimensaoOptInSemRestricao(selecionados: ReadonlySet<string>, total: number): boolean {
+  if (total === 0) return true
+  return selecionados.size >= total
+}
+
+function dimensaoComSelecaoRestrita(selecionados: ReadonlySet<string>, total: number): boolean {
+  if (total === 0) return false
+  return selecionados.size < total
+}
+
+/** Item marcado quando o id está explicitamente selecionado. */
 export function itemFiltroMapaPedidoSelecionado(
   selecionados: ReadonlySet<string>,
-  total: number,
+  _total: number,
   id: string,
 ): boolean {
-  return dimensaoOptInSemRestricao(selecionados, total) || selecionados.has(id)
+  return selecionados.has(id)
 }
 
 export function contarFiltrosMapaPedidoAtivos(
@@ -93,8 +146,9 @@ export function contarFiltrosMapaPedidoAtivos(
     total_status?: number
   },
 ): number {
-  const operacoesDesligadas = OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO
-    .filter((f) => !filtros.operacao.has(f)).length
+  const operacoesDesligadas = operacaoSemRestricao(filtros.operacao)
+    ? 0
+    : OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length - filtros.operacao.size
 
   const totalOrigem = opcoes?.total_paises_origem ?? 0
   const totalDestino = opcoes?.total_paises_destino ?? 0
@@ -102,19 +156,24 @@ export function contarFiltrosMapaPedidoAtivos(
   const totalImportadores = opcoes?.total_importadores ?? 0
   const totalStatus = opcoes?.total_status ?? 0
 
-  const origemRestrita = !dimensaoOptInSemRestricao(filtros.paises_origem, totalOrigem)
-  const destinoRestrito = !dimensaoOptInSemRestricao(filtros.paises_destino, totalDestino)
-  const exportadorRestrito = !dimensaoOptInSemRestricao(filtros.exportadores, totalExportadores)
-  const importadorRestrito = !dimensaoOptInSemRestricao(filtros.importadores, totalImportadores)
-  const statusRestrito = !dimensaoOptInSemRestricao(filtros.status, totalStatus)
+  const origemRestrita = dimensaoComSelecaoRestrita(filtros.paises_origem, totalOrigem)
+  const destinoRestrito = dimensaoComSelecaoRestrita(filtros.paises_destino, totalDestino)
+  const exportadorRestrito = dimensaoComSelecaoRestrita(filtros.exportadores, totalExportadores)
+  const importadorRestrito = dimensaoComSelecaoRestrita(filtros.importadores, totalImportadores)
+  const statusRestrito = dimensaoComSelecaoRestrita(filtros.status, totalStatus)
+
+  const pesoDimensao = (selecionados: ReadonlySet<string>, total: number): number => {
+    if (total === 0 || selecionados.size >= total) return 0
+    return selecionados.size === 0 ? total : selecionados.size
+  }
 
   return (
     operacoesDesligadas +
-    (origemRestrita ? filtros.paises_origem.size : 0) +
-    (destinoRestrito ? filtros.paises_destino.size : 0) +
-    (exportadorRestrito ? filtros.exportadores.size : 0) +
-    (importadorRestrito ? filtros.importadores.size : 0) +
-    (statusRestrito ? filtros.status.size : 0)
+    pesoDimensao(filtros.paises_origem, totalOrigem) +
+    pesoDimensao(filtros.paises_destino, totalDestino) +
+    pesoDimensao(filtros.exportadores, totalExportadores) +
+    pesoDimensao(filtros.importadores, totalImportadores) +
+    pesoDimensao(filtros.status, totalStatus)
   )
 }
 
@@ -127,23 +186,32 @@ export function listarPaisesOrigemPedidoMapa(
   fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
   flagsPorPais: ReadonlyMap<string, string> = new Map(),
 ): ItemListaFiltroMapaPedido[] {
-  const vistos = new Set<string>()
-  const itens: ItemListaFiltroMapaPedido[] = []
+  const contagens = new Map<string, { label: string; flag: string; quantidade: number }>()
 
   for (const p of pedidos) {
     const pais = resolverPaisOrigemPedidoMapa(p, fornecedoresPorId)
     if (!pais) continue
     const id = normalizarChaveLista(pais)
-    if (vistos.has(id)) continue
-    vistos.add(id)
-    itens.push({
-      id,
+    const existente = contagens.get(id)
+    if (existente) {
+      existente.quantidade += 1
+      continue
+    }
+    contagens.set(id, {
       label: pais,
       flag: flagsPorPais.get(id) ?? '🌍',
+      quantidade: 1,
     })
   }
 
-  return itens.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  return [...contagens.entries()]
+    .map(([id, item]) => ({
+      id,
+      label: item.label,
+      flag: item.flag,
+      quantidade: item.quantidade,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
 }
 
 export function listarPaisesDestinoPedidoMapa(
@@ -151,53 +219,60 @@ export function listarPaisesDestinoPedidoMapa(
   fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
   flagsPorPais: ReadonlyMap<string, string> = new Map(),
 ): ItemListaFiltroMapaPedido[] {
-  const vistos = new Set<string>()
-  const itens: ItemListaFiltroMapaPedido[] = []
+  const contagens = new Map<string, { label: string; flag: string; quantidade: number }>()
 
   for (const p of pedidos) {
     const pais = resolverPaisDestinoPedidoMapa(p, fornecedoresPorId)
     if (!pais) continue
     const id = normalizarChaveLista(pais)
-    if (vistos.has(id)) continue
-    vistos.add(id)
-    itens.push({
-      id,
+    const existente = contagens.get(id)
+    if (existente) {
+      existente.quantidade += 1
+      continue
+    }
+    contagens.set(id, {
       label: pais,
       flag: flagsPorPais.get(id) ?? '🌍',
+      quantidade: 1,
     })
   }
 
-  return itens.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  return [...contagens.entries()]
+    .map(([id, item]) => ({
+      id,
+      label: item.label,
+      flag: item.flag,
+      quantidade: item.quantidade,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
 }
 
 export function listarExportadoresPedidoMapa(pedidos: readonly Pedido[]): ItemListaFiltroMapaPedido[] {
-  const vistos = new Set<string>()
-  const itens: ItemListaFiltroMapaPedido[] = []
+  const contagens = new Map<string, number>()
 
   for (const p of pedidos) {
     const nome = p.nome_exportador?.trim()
     if (!nome) continue
-    if (vistos.has(nome)) continue
-    vistos.add(nome)
-    itens.push({ id: nome, label: nome })
+    contagens.set(nome, (contagens.get(nome) ?? 0) + 1)
   }
 
-  return itens.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  return [...contagens.entries()]
+    .map(([nome, quantidade]) => ({ id: nome, label: nome, quantidade }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
 }
 
 export function listarImportadoresPedidoMapa(pedidos: readonly Pedido[]): ItemListaFiltroMapaPedido[] {
-  const vistos = new Set<string>()
-  const itens: ItemListaFiltroMapaPedido[] = []
+  const contagens = new Map<string, number>()
 
   for (const p of pedidos) {
     const nome = p.nome_importador?.trim()
     if (!nome) continue
-    if (vistos.has(nome)) continue
-    vistos.add(nome)
-    itens.push({ id: nome, label: nome })
+    contagens.set(nome, (contagens.get(nome) ?? 0) + 1)
   }
 
-  return itens.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  return [...contagens.entries()]
+    .map(([nome, quantidade]) => ({ id: nome, label: nome, quantidade }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
 }
 
 export function listarStatusPedidoMapa(
@@ -205,21 +280,34 @@ export function listarStatusPedidoMapa(
   rotulosPorStatus: ReadonlyMap<string, string> = new Map(),
   coresPorStatus: ReadonlyMap<string, string> = new Map(),
 ): Array<ItemListaFiltroMapaPedido & { cor: string }> {
-  const vistos = new Set<string>()
-  const itens: Array<ItemListaFiltroMapaPedido & { cor: string }> = []
+  const contagens = new Map<string, number>()
 
   for (const p of pedidos) {
     const status = p.status?.trim()
-    if (!status || vistos.has(status)) continue
-    vistos.add(status)
-    itens.push({
+    if (!status) continue
+    contagens.set(status, (contagens.get(status) ?? 0) + 1)
+  }
+
+  return [...contagens.entries()]
+    .map(([status, quantidade]) => ({
       id: status,
       label: rotulosPorStatus.get(status) ?? status.replace(/_/g, ' '),
       cor: coresPorStatus.get(status) ?? '#94a3b8',
-    })
-  }
+      quantidade,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
 
-  return itens.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+export function contarPedidosPorOperacaoMapaPedido(
+  pedidos: readonly Pedido[],
+): ReadonlyMap<FiltroOperacaoMapaInsightsPedido, number> {
+  const contagens = new Map<FiltroOperacaoMapaInsightsPedido, number>()
+  for (const p of pedidos) {
+    const operacao = p.tipo_operacao
+    if (operacao !== 'importacao' && operacao !== 'exportacao') continue
+    contagens.set(operacao, (contagens.get(operacao) ?? 0) + 1)
+  }
+  return contagens
 }
 
 export function filtrarItensListaMapaPedidoPorBusca(
@@ -244,10 +332,9 @@ function pedidoAtendeFiltroOperacao(
   p: Pedido,
   filtros: ReadonlySet<FiltroOperacaoMapaInsightsPedido>,
 ): boolean {
-  const operacoesAtivas = OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.filter((f) => filtros.has(f))
-  if (operacoesAtivas.length === OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length) return true
-  if (operacoesAtivas.length === 0) return false
-  return operacoesAtivas.includes(p.tipo_operacao)
+  if (operacaoSemRestricao(filtros)) return true
+  if (filtros.size === 0) return false
+  return filtros.has(p.tipo_operacao)
 }
 
 function pedidoAtendeFiltroOptIn(
@@ -256,9 +343,35 @@ function pedidoAtendeFiltroOptIn(
   total: number,
 ): boolean {
   if (dimensaoOptInSemRestricao(selecionados, total)) return true
+  if (selecionados.size === 0) return false
   const chave = valor?.trim()
   if (!chave) return false
   return selecionados.has(chave)
+}
+
+export function resolverTotaisFiltroMapaPedido(
+  pedidos: readonly Pedido[],
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+  opcoes?: {
+    total_paises_origem?: number
+    total_paises_destino?: number
+    total_exportadores?: number
+    total_importadores?: number
+    total_status?: number
+  },
+) {
+  return {
+    total_paises_origem:
+      opcoes?.total_paises_origem ?? listarPaisesOrigemPedidoMapa(pedidos, fornecedoresPorId).length,
+    total_paises_destino:
+      opcoes?.total_paises_destino ?? listarPaisesDestinoPedidoMapa(pedidos, fornecedoresPorId).length,
+    total_exportadores:
+      opcoes?.total_exportadores ?? listarExportadoresPedidoMapa(pedidos).length,
+    total_importadores:
+      opcoes?.total_importadores ?? listarImportadoresPedidoMapa(pedidos).length,
+    total_status:
+      opcoes?.total_status ?? new Set(pedidos.map((p) => p.status?.trim()).filter(Boolean)).size,
+  }
 }
 
 export function filtrarPedidosMapaInsights(
@@ -273,17 +386,19 @@ export function filtrarPedidosMapaInsights(
     total_status?: number
   },
 ): Pedido[] {
-  if (
-    contarFiltrosMapaPedidoAtivos(filtros, opcoes) === 0
-  ) {
+  const totais = resolverTotaisFiltroMapaPedido(pedidos, fornecedoresPorId, opcoes)
+
+  if (contarFiltrosMapaPedidoAtivos(filtros, totais) === 0) {
     return [...pedidos]
   }
 
-  const totalOrigem = opcoes?.total_paises_origem ?? listarPaisesOrigemPedidoMapa(pedidos, fornecedoresPorId).length
-  const totalDestino = opcoes?.total_paises_destino ?? listarPaisesDestinoPedidoMapa(pedidos, fornecedoresPorId).length
-  const totalExportadores = opcoes?.total_exportadores ?? listarExportadoresPedidoMapa(pedidos).length
-  const totalImportadores = opcoes?.total_importadores ?? listarImportadoresPedidoMapa(pedidos).length
-  const totalStatus = opcoes?.total_status ?? new Set(pedidos.map((p) => p.status)).size
+  const {
+    total_paises_origem: totalOrigem,
+    total_paises_destino: totalDestino,
+    total_exportadores: totalExportadores,
+    total_importadores: totalImportadores,
+    total_status: totalStatus,
+  } = totais
 
   return pedidos.filter((p) => {
     if (!pedidoAtendeFiltroOperacao(p, filtros.operacao)) return false

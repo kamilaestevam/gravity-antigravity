@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   MagnifyingGlass,
   DownloadSimple,
@@ -2211,71 +2212,97 @@ function VisaoGeralMapa() {
             </span>
           </div>
           
-          {/* Floating Zoom & Control Panel */}
-          <div className="bfd-map-controls">
-            <button
-              onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-              title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
-              className="bfd-map-control-btn"
-            >
-              {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
-            </button>
+          </div>
 
-            <button
-              onClick={handleZoomIn}
-              title={t('pedido.visao_geral.mapa.aumentar_zoom')}
-              className="bfd-map-control-btn"
-            >
-              <Plus size={16} weight="bold" />
-            </button>
-            
-            <button 
-              onClick={handleZoomOut} 
-              title={t('pedido.visao_geral.mapa.diminuir_zoom')}
-              className="bfd-map-control-btn"
-            >
-              <Minus size={16} weight="bold" />
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                setRotasAnimacaoVisiveis((prev) => !prev)
-              }}
-              title={
-                rotasAnimacaoVisiveis
-                  ? t('pedido.visao_geral.mapa.ocultar_trilhos')
-                  : t('pedido.visao_geral.mapa.exibir_trilhos')
+          {/* Menu padrão globo/mapa — centro inferior do canvas (paridade BID Frete) */}
+          <div className="bfd-map-controls bfd-map-controls--interno">
+            <TooltipGlobal
+              descricao={
+                vista === 'globo'
+                  ? t('pedido.visao_geral.mapa.ver_mapa', { defaultValue: 'Ver como mapa' })
+                  : t('pedido.visao_geral.mapa.ver_globo', { defaultValue: 'Ver como globo' })
               }
-              aria-pressed={!rotasAnimacaoVisiveis}
-              className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+              posicaoPreferida="acima"
             >
-              {rotasAnimacaoVisiveis ? (
-                <Eye size={16} weight="bold" />
-              ) : (
-                <EyeSlash size={16} weight="bold" />
-              )}
-            </button>
-
-            <button 
-              onClick={handleReset} 
-              title={t('pedido.visao_geral.mapa.restaurar_globo')}
-              className="bfd-map-control-btn"
-            >
-              <ArrowCounterClockwise size={16} weight="bold" />
-            </button>
-
-            {vista === 'globo' && (
               <button
-                onClick={toggleRotation}
-                title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
+                type="button"
+                onClick={() => setVista((prev) => (prev === 'globo' ? 'mapa' : 'globo'))}
                 className="bfd-map-control-btn"
               >
-                {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
               </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.aumentar_zoom', { defaultValue: 'Aumentar zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomIn} className="bfd-map-control-btn">
+                <Plus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.diminuir_zoom', { defaultValue: 'Diminuir zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomOut} className="bfd-map-control-btn">
+                <Minus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                rotasAnimacaoVisiveis
+                  ? t('pedido.visao_geral.mapa.ocultar_trilhos', { defaultValue: 'Ocultar rotas' })
+                  : t('pedido.visao_geral.mapa.exibir_trilhos', { defaultValue: 'Exibir rotas' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setRotasAnimacaoVisiveis((prev) => !prev)
+                }}
+                aria-pressed={!rotasAnimacaoVisiveis}
+                className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+              >
+                {rotasAnimacaoVisiveis ? (
+                  <Eye size={16} weight="bold" />
+                ) : (
+                  <EyeSlash size={16} weight="bold" />
+                )}
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                vista === 'mapa'
+                  ? t('pedido.visao_geral.mapa.restaurar_mapa', { defaultValue: 'Restaurar mapa' })
+                  : t('pedido.visao_geral.mapa.restaurar_globo', { defaultValue: 'Restaurar globo' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleReset} className="bfd-map-control-btn">
+                <ArrowCounterClockwise size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            {vista === 'globo' && (
+              <TooltipGlobal
+                descricao={
+                  isAutoRotating
+                    ? t('pedido.visao_geral.mapa.pausar_rotacao', { defaultValue: 'Pausar rotação' })
+                    : t('pedido.visao_geral.mapa.iniciar_rotacao', { defaultValue: 'Iniciar rotação' })
+                }
+                posicaoPreferida="acima"
+              >
+                <button type="button" onClick={toggleRotation} className="bfd-map-control-btn">
+                  {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                </button>
+              </TooltipGlobal>
             )}
-          </div>
           </div>
 
           <div className="bfd-map-pins-overlay">
@@ -3270,13 +3297,17 @@ export default function VisaoGeral() {
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: -2.5rem;
+          bottom: 0.65rem;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           gap: 0.5rem;
           z-index: 30;
-          transition: left 0.3s ease, transform 0.3s ease;
+          pointer-events: auto;
+        }
+        .bfd-map-controls .tg-trigger {
+          display: inline-flex;
+          flex-shrink: 0;
         }
         .bfd-map-control-btn {
           width: 32px;
@@ -3306,6 +3337,7 @@ export default function VisaoGeral() {
         @media (max-width: 1023px) {
           .bfd-map-controls {
             left: 50%;
+            transform: translateX(-50%);
           }
         }
         .bfd-map-bg {
@@ -4227,6 +4259,7 @@ export default function VisaoGeral() {
           flex: 1;
           min-height: 0;
           height: 100%;
+          overflow: visible;
         }
         .pedido-visao-geral .bfd-map-card__split--filtros-recolhidos {
           grid-template-columns: 56px minmax(0, 1fr);
@@ -4237,15 +4270,82 @@ export default function VisaoGeral() {
           max-height: 100%;
           min-height: 0;
           align-self: stretch;
-          overflow: hidden;
+          overflow: visible;
           display: flex;
           flex-direction: column;
+        }
+        .pedido-visao-geral .bfd-map-filtros-shell > .tg-trigger {
+          z-index: 35;
         }
         .pedido-visao-geral .bfd-map-card__split .bfd-map-filtros-panel {
           flex: 1;
           min-height: 0;
           max-height: none;
           overflow-y: auto;
+          overflow-x: hidden;
+          padding-right: 0.75rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__meta {
+          flex-shrink: 0;
+          min-width: 5.5rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.28rem;
+          padding: 0.14rem 0.42rem;
+          border-radius: 7px;
+          background: rgba(255, 255, 255, 0.04);
+          font-variant-numeric: tabular-nums;
+          letter-spacing: 0.01em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-label {
+          font-size: 0.56rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-count {
+          font-size: 0.64rem;
+          font-weight: 800;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--todos {
+          background: rgba(245, 158, 11, 0.14);
+          color: #fbbf24;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--zero {
+          background: rgba(239, 68, 68, 0.12);
+          color: #f87171;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao--restrita .bfd-map-filtro-secao__pill:not(.bfd-map-filtro-secao__pill--zero) {
+          color: #fcd34d;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__item-contagem {
+          flex-shrink: 0;
+          min-width: 1.35rem;
+          padding: 0.1rem 0.34rem;
+          border-radius: 6px;
+          font-size: 0.58rem;
+          font-weight: 800;
+          line-height: 1.2;
+          text-align: center;
+          color: #94a3b8;
+          background: rgba(255, 255, 255, 0.05);
+          font-variant-numeric: tabular-nums;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__local-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__status-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card.is-active .bfd-map-filtros-panel__item-contagem {
+          color: #fbbf24;
+          background: rgba(245, 158, 11, 0.14);
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card {
+          position: relative;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card .bfd-map-filtros-panel__item-contagem {
+          position: absolute;
+          top: 0.42rem;
+          right: 0.42rem;
         }
         .pedido-visao-geral .bfd-map-card__split > .bfd-map-container--expandido {
           min-height: 0;
@@ -4260,6 +4360,14 @@ export default function VisaoGeral() {
         }
         .pedido-visao-geral .bfd-map-filtro-secao__progress-fill:not(.bfd-map-filtro-secao__progress-fill--todos) {
           background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__progress-fill--todos {
+          background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__toolbar-btn:disabled {
+          opacity: 0.45;
+          cursor: default;
+          pointer-events: none;
         }
         .pedido-visao-geral .bfd-map-container {
           position: relative;

@@ -7,6 +7,12 @@
  */
 
 import { z } from 'zod'
+import {
+  passoPorStatusFluxoLeituraSmartRead,
+  statusFluxoPorPassoLeituraSmartRead,
+} from './passo-status-fluxo-leitura-smart-read.js'
+
+export { passoPorStatusFluxoLeituraSmartRead }
 
 export const StatusFluxoLeituraEnum = z.enum([
   'ANEXAR_ARQUIVO',
@@ -57,10 +63,7 @@ export type EntradaDerivarStatusFluxoLeitura = {
 }
 
 export function statusFluxoPorPasso(passo: number): StatusFluxoLeitura {
-  if (passo <= 1) return 'ANEXAR_ARQUIVO'
-  if (passo === 2) return 'ANALISE_ARQUIVO'
-  if (passo === 3) return 'CONFERENCIA'
-  return 'RESULTADO_LEITURAS'
+  return statusFluxoPorPassoLeituraSmartRead(passo)
 }
 
 /**
@@ -74,7 +77,7 @@ export function derivarStatusFluxoLeitura(
 
   const passo = entrada.passo_atual_leitura
   if (typeof passo === 'number' && passo >= 1 && passo <= 4) {
-    return statusFluxoPorPasso(passo)
+    return statusFluxoPorPassoLeituraSmartRead(passo)
   }
 
   if (entrada.status_leitura === 'PENDING') return 'ANEXAR_ARQUIVO'

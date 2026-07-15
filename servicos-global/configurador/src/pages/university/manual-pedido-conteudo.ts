@@ -1,6 +1,7 @@
 import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_PEDIDO_CONFIGURACOES } from './manual-pedido-configuracoes-conteudo'
 import { PASSOS_MANUAL_PEDIDO_HISTORICO } from './manual-pedido-historico-conteudo'
+import { PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO } from './manual-pedido-lista-novo-pedido-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -13,6 +14,10 @@ const LINK_MANUAL_PEDIDO_LISTA_DETALHAMENTO_COLUNAS =
   '{{link:/university-gravity/docs/pedido#manual-passo-lista-2|5.02 Detalhamento das colunas}}'
 const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
   '{{link:/university-gravity/docs/pedido#manual-passo-lista-11|5.11 Painéis}}'
+const LINK_MANUAL_PEDIDO_LISTA_IMPORTAR =
+  '{{link:/university-gravity/docs/pedido#manual-passo-lista-10|5.10 Importar dados}}'
+const LINK_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO =
+  '{{link:/university-gravity/docs/pedido#manual-passo-lista-12|5.12 Novo pedido e item}}'
 
 /**
  * SSOT: Drive `6. Produtos Gravity/1. Pedido` → `public/university/screenshots/pedido-*.png`
@@ -71,7 +76,7 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * Transferir (Drive: tela_pedido_lista_transferir_* → pedido-lista-transferir-*.png)
  * Consolidar (Drive: tela_pedido_lista_consolidar_* → pedido-lista-consolidar-*.png)
  * Edição em massa (Drive: tela_pedido_lista_edicao_em_massa_* → pedido-lista-edicao-massa-*.png)
- * Novo pedido manual (§5.12 — badge Em desenvolvimento; prints pendentes)
+ * Novo pedido e item (§5.12 — 4 formas + Novo item; prints inline)
  * Gerar documentos (Drive: tela_pedido_visao_lista_gerar_documento_*):
  * - tela_pedido_visao_lista_gerar_documento_1 → pedido-lista-gerar-documento-1.png
  * - tela_pedido_visao_lista_gerar_documento_2 → pedido-lista-gerar-documento-2.png
@@ -1184,13 +1189,15 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Importar dados',
           tituloCurto: 'Importar',
           paragrafos: [
-            'O Smart Import prevê **dois caminhos**: **planilha modelo Gravity** (template `.xlsx` oficial) e **planilha do usuário** (arquivo do fornecedor). **Somente o template está homologado hoje** — o upload de planilha própria está **em breve**.',
+            'Este capítulo detalha o caminho **Importação** via **Smart Import**. Para o mapa das **quatro formas** de criar pedido ou item, veja ' +
+              LINK_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO +
+              '.',
+            'O Smart Import prevê **dois caminhos**: **planilha modelo Gravity** (template `.xlsx` oficial) e **planilha do usuário** (arquivo do fornecedor). **Somente o template está homologado hoje**; o upload de planilha própria está **em breve**.',
           ],
-          mostrarInfograficoPedidoListaImportarFormas: true,
           galeriaComparacaoAposCaminhosImportacao: [
             {
               tituloEtapa: '**Etapa 1 — Upload (template oficial):**',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1216,7 +1223,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1239,9 +1246,9 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           ],
           galeriaComparacaoAposParagrafo: [
             {
-              indice: 0,
+              indice: 1,
               tituloEtapa: '**Etapa 2 — Mapeamento:**',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               infograficoMapeamentoImportarColunas: true,
               telas: [
@@ -1253,8 +1260,8 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 0,
-              colunas: 4,
+              indice: 1,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1293,9 +1300,9 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 0,
+              indice: 1,
               tituloEtapa: '**Etapa 3 — Preview:**',
-              colunas: 2,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1311,8 +1318,8 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 0,
-              colunas: 2,
+              indice: 1,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1335,9 +1342,9 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               ],
             },
             {
-              indice: 0,
+              indice: 1,
               tituloEtapa: '**Etapa 4 — Resultado:**',
-              colunas: 2,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1354,9 +1361,9 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
           ],
           mostrarCaminhosImportacaoPlanilhaPedidoLista: true,
-          caminhosImportacaoPlanilhaAposParagrafo: 0,
+          caminhosImportacaoPlanilhaAposParagrafo: 1,
           calloutAposParagrafo: {
-            indice: 0,
+            indice: 1,
             callout: {
               tipo: 'lembrete',
               texto:
@@ -1389,8 +1396,9 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
+              espacoTextoFiguraPx: 12,
               telas: [
                 {
                   legenda: '',
@@ -1406,13 +1414,13 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
-                  paragrafoAntes: '**03.** Confirme — o nome precisa ser **único** entre seus painéis',
+                  paragrafoAntes: '**03.** Confirme: o nome precisa ser **único** entre seus painéis',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
                   paragrafoAntes:
-                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                    '**04.** Nova aba criada. Personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
                 },
               ],
             },
@@ -1420,17 +1428,10 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
+              'Os filtros ficam **salvos no painel ativo**. Ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
           },
         },
-        {
-          titulo: 'Novo pedido e item',
-          tituloCurto: 'Novo pedido e item',
-          badgeEmDesenvolvimento: true,
-          paragrafos: [
-            'Na **Lista**, use **Novo pedido** para abrir o formulário de cabeçalho e, em seguida, inclua **itens** (linhas de produto) com quantidades e referências comerciais — o pedido permanece em **rascunho** até salvar.',
-          ],
-        },
+        PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO,
         {
           titulo: 'Transferir pedidos e itens',
           tituloCurto: 'Transferir',
@@ -1447,7 +1448,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               mostrarChipsTransferirTresTipos: true,
               textoIntro:
                 'Antes de escolher **Novo pedido**, **Pedido existente** ou **Redução simples**, o fluxo é **o mesmo**: selecionar o item na Lista, abrir **Transferir** e só então escolher o tipo no modal (passo **04**).',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1493,7 +1494,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 1,
               tituloEtapa: '**Passo a passo para transferir item(s) para um novo pedido:**',
               chipTransferirTituloEtapa: 'novo',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1520,7 +1521,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 1,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1554,7 +1555,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 1,
               tituloEtapa: '**Passo a passo para transferir item(s) para um pedido existente:**',
               chipTransferirTituloEtapa: 'existente',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1581,7 +1582,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 1,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1608,7 +1609,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 1,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1637,7 +1638,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 1,
               tituloEtapa: '**Passo a passo para reduzir quantidade de itens de um pedido:**',
               chipTransferirTituloEtapa: 'reducao',
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -1664,7 +1665,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 1,
-              colunas: 4,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {

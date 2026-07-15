@@ -286,7 +286,10 @@ export function ModalNovaLeituraSmartRead({
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
   const pollingEmVooRef = useRef<Map<string, Promise<void>>>(new Map())
   const progressoUploadGravadoRef = useRef<Set<string>>(new Set())
-  const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
+  const prefillContinuarRef = useRef<{
+    payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead
+    manterWizard: boolean
+  } | null>(null)
 
   useEffect(() => {
     ativo.current = true
@@ -1175,7 +1178,8 @@ export function ModalNovaLeituraSmartRead({
       if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
         try {
           setRedirecionandoCotacao(true)
-          const payload = prefillContinuarRef.current ?? await (async () => {
+          const pacoteRef = prefillContinuarRef.current
+          const payload = pacoteRef?.payload ?? await (async () => {
             const { converterLeituraParaCotacaoBidFreteInternacional } = await import(
               '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
             )
@@ -1188,6 +1192,7 @@ export function ModalNovaLeituraSmartRead({
               iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
             }
           })()
+          const manterWizard = pacoteRef?.manterWizard === true
           salvarPrefillCotacaoBidFreteSmartRead(
             montarPacotePrefillCotacaoBidFreteSmartRead({
               idLeitura: idLeituraAtual,
@@ -1199,12 +1204,18 @@ export function ModalNovaLeituraSmartRead({
             }),
           )
           prefillContinuarRef.current = null
-          onConcluido?.()
-          await handleFechar()
-          window.location.href = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
+          const url = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
             idLeituraAtual,
             idBidOrigem,
           )
+          if (manterWizard) {
+            window.open(url, '_blank', 'noopener,noreferrer')
+            setRedirecionandoCotacao(false)
+            return
+          }
+          onConcluido?.()
+          await handleFechar()
+          window.location.href = url
           return
         } catch (erro) {
           setRedirecionandoCotacao(false)
@@ -1451,8 +1462,11 @@ export function ModalNovaLeituraSmartRead({
           <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
             <PainelRevisaoPrefillCotacaoBidFreteSmartRead
               leitura={leituraConsolidada}
-              onContinuar={(payload) => {
-                prefillContinuarRef.current = payload
+              onContinuar={(payload, opcoes) => {
+                prefillContinuarRef.current = {
+                  payload,
+                  manterWizard: opcoes?.manter_wizard_aberto === true,
+                }
                 void handleContinuarPasso()
               }}
               continuando={redirecionandoCotacao}

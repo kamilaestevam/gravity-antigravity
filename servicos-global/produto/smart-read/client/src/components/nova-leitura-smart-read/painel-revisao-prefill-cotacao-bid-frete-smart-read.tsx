@@ -2,8 +2,9 @@
  * Passo 4 (BID Frete) — match multi-documento + revisão editável antes de Nova Cotação.
  */
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
-import { ArrowRight, Sparkle } from '@phosphor-icons/react'
+import { ArrowRight, Sparkle, WarningCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import {
   converterLeituraParaCotacaoBidFreteInternacional,
   type LeituraParaConversaoCotacaoBidFrete,
@@ -104,11 +105,14 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
   const [indiceGrupoAtivo, setIndiceGrupoAtivo] = useState(0)
 
   const estadoAtivo = estadosGrupos[indiceGrupoAtivo] ?? null
+  const addNotification = useShellStore((s) => s.addNotification)
+  const [tentouContinuarIncompleto, setTentouContinuarIncompleto] = useState(false)
 
   const handleConfirmarMatch = useCallback(
     (grupos: GrupoCotacaoMatchPrefillBidFrete[]) => {
       setEstadosGrupos(grupos.map((grupo) => montarEstadoGrupo(leitura, grupo)))
       setIndiceGrupoAtivo(0)
+      setTentouContinuarIncompleto(false)
       setFase('revisao')
     },
     [leitura],
@@ -116,6 +120,7 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
 
   const handleChange = useCallback(
     (novoPrefill: PrefillFormularioCotacaoBidFreteSmartRead, novoMeta: MetaPrefillCotacaoBidFreteSmartRead) => {
+      setTentouContinuarIncompleto(false)
       setEstadosGrupos((atual) =>
         atual.map((item, i) =>
           i === indiceGrupoAtivo ? { ...item, prefill: novoPrefill, meta: novoMeta } : item,
@@ -124,6 +129,27 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
     },
     [indiceGrupoAtivo],
   )
+
+  const handleContinuar = useCallback(() => {
+    if (!estadoAtivo) return
+    const faltantes = estadoAtivo.meta.campos_faltantes
+    if (faltantes.length > 0) {
+      setTentouContinuarIncompleto(true)
+      addNotification({
+        type: 'warning',
+        title: 'Complete os campos obrigatórios',
+        message: `Falta preencher: ${faltantes.join(', ')}.`,
+      })
+      return
+    }
+    onContinuar({
+      prefill: estadoAtivo.prefill,
+      detalhe_mapeamento: estadoAtivo.conversao.detalhe_mapeamento,
+      campos_faltantes: estadoAtivo.meta.campos_faltantes,
+      passo_inicial_tipo: estadoAtivo.meta.passo_inicial_tipo,
+      iniciar_no_passo_fornecedores: estadoAtivo.meta.iniciar_no_passo_fornecedores,
+    })
+  }, [addNotification, estadoAtivo, onContinuar])
 
   if (fase === 'match') {
     return (
@@ -140,6 +166,8 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
 
   const aviso = mensagemAviso(estadoAtivo.meta)
   const totalGrupos = estadosGrupos.length
+  const faltantesAtivos = estadoAtivo.meta.campos_faltantes
+  const podeContinuar = faltantesAtivos.length === 0 && !continuando
 
   return (
     <div className="sr-prefill-bid-revisao">
@@ -163,7 +191,10 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
               role="tab"
               aria-selected={i === indiceGrupoAtivo}
               className={`sr-prefill-bid-aba${i === indiceGrupoAtivo ? ' sr-prefill-bid-aba--ativa' : ''}`}
-              onClick={() => setIndiceGrupoAtivo(i)}
+              onClick={() => {
+                setIndiceGrupoAtivo(i)
+                setTentouContinuarIncompleto(false)
+              }}
             >
               {item.grupo.nome_grupo}
             </button>
@@ -191,21 +222,25 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
 
       {aviso && <p className="sr-prefill-bid-revisao-aviso">{aviso}</p>}
 
+      {tentouContinuarIncompleto && faltantesAtivos.length > 0 && (
+        <div className="sr-prefill-bid-bloqueio" role="alert">
+          <WarningCircle weight="fill" size={18} aria-hidden />
+          <div>
+            <strong>Não é possível continuar ainda</strong>
+            <p>Preencha os obrigatórios: {faltantesAtivos.join(', ')}.</p>
+          </div>
+        </div>
+      )}
+
       <div className="sr-prefill-bid-revisao-acoes">
         <BotaoGlobal
           variante="primario"
           tamanho="padrao"
           iconeDireita={<ArrowRight weight="bold" />}
-          onClick={() =>
-            onContinuar({
-              prefill: estadoAtivo.prefill,
-              detalhe_mapeamento: estadoAtivo.conversao.detalhe_mapeamento,
-              campos_faltantes: estadoAtivo.meta.campos_faltantes,
-              passo_inicial_tipo: estadoAtivo.meta.passo_inicial_tipo,
-              iniciar_no_passo_fornecedores: estadoAtivo.meta.iniciar_no_passo_fornecedores,
-            })
-          }
+          onClick={handleContinuar}
           disabled={continuando}
+          className={!podeContinuar && !continuando ? 'sr-prefill-bid-continuar--bloqueado' : undefined}
+          aria-disabled={!podeContinuar}
         >
           {totalGrupos > 1
             ? `Continuar cotação ${indiceGrupoAtivo + 1} de ${totalGrupos}`

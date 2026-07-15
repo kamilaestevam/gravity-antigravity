@@ -173,10 +173,10 @@ export function moverDocumentoEntreGruposMatchPrefill(
     ids_documentos: g.ids_documentos.filter((id) => id !== idDocumento),
   }))
   return semDoc.map((g) =>
-    g.id_grupo === idGrupoDestino
+    g.id_grupo === idGrupoDestino && !g.ids_documentos.includes(idDocumento)
       ? { ...g, ids_documentos: [...g.ids_documentos, idDocumento] }
       : g,
-  ).filter((g) => g.ids_documentos.length > 0)
+  )
 }
 
 export function criarGrupoVazioMatchPrefill(
@@ -187,4 +187,31 @@ export function criarGrupoVazioMatchPrefill(
     ...grupos,
     { id_grupo: `grupo-${n}-${Date.now()}`, nome_grupo: `Cotação ${n}`, ids_documentos: [] },
   ]
+}
+
+/** Remove cotação; documentos vão para a primeira cotação restante. Não remove a última. */
+export function excluirGrupoMatchPrefill(
+  grupos: GrupoCotacaoMatchPrefillBidFrete[],
+  idGrupo: string,
+): GrupoCotacaoMatchPrefillBidFrete[] {
+  if (grupos.length <= 1) return grupos
+  const removido = grupos.find((g) => g.id_grupo === idGrupo)
+  if (!removido) return grupos
+  const restantes = grupos.filter((g) => g.id_grupo !== idGrupo)
+  const [primeiro, ...outros] = restantes
+  if (!primeiro) return grupos
+  const mesclado: GrupoCotacaoMatchPrefillBidFrete = {
+    ...primeiro,
+    ids_documentos: [...primeiro.ids_documentos, ...removido.ids_documentos],
+  }
+  return renomearGruposMatchPrefill([mesclado, ...outros])
+}
+
+export function renomearGruposMatchPrefill(
+  grupos: GrupoCotacaoMatchPrefillBidFrete[],
+): GrupoCotacaoMatchPrefillBidFrete[] {
+  return grupos.map((g, i) => ({
+    ...g,
+    nome_grupo: g.nome_grupo.replace(/^Cotação\s+\d+/i, `Cotação ${i + 1}`),
+  }))
 }

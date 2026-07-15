@@ -8298,6 +8298,9 @@
         "ocultar_trilhos": "Hide tracks between locations",
         "restaurar_globo": "Restore Globe",
         "restaurar_mapa": "Restore map",
+        "abrir_modal": "Open map fullscreen",
+        "fechar_modal": "Close expanded map",
+        "modal_titulo": "Global orders map",
         "pausar_rotacao": "Pause Rotation",
         "iniciar_rotacao": "Start Rotation",
         "pedidos_ativos": "Orders",
@@ -8440,6 +8443,15 @@
         "aprovadas": "Approved",
         "em_andamento": "In progress",
         "recusadas": "Rejected"
+      },
+      "grafico_tooltip": {
+        "pedidos": "orders",
+        "participacao": "Share",
+        "em_tempo": "On time",
+        "atrasadas": "Late",
+        "sem_resposta": "No response",
+        "vencimentos_pagar": "To pay",
+        "vencimentos_receber": "To receive"
       },
       "moedas": {
         "titulo": "Order Currencies",

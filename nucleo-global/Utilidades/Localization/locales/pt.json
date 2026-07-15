@@ -8374,6 +8374,9 @@
         "ocultar_trilhos": "Ocultar trilhos entre locais",
         "restaurar_globo": "Restaurar Globo",
         "restaurar_mapa": "Restaurar mapa",
+        "abrir_modal": "Abrir mapa em tela cheia",
+        "fechar_modal": "Fechar mapa ampliado",
+        "modal_titulo": "Mapa global de pedidos",
         "pausar_rotacao": "Pausar Rotação",
         "iniciar_rotacao": "Iniciar Rotação",
         "pedidos_ativos": "Pedidos",
@@ -8516,6 +8519,15 @@
         "aprovadas": "Aprovadas",
         "em_andamento": "Em andamento",
         "recusadas": "Recusadas"
+      },
+      "grafico_tooltip": {
+        "pedidos": "pedidos",
+        "participacao": "Participação",
+        "em_tempo": "Em tempo",
+        "atrasadas": "Atrasadas",
+        "sem_resposta": "Sem resposta",
+        "vencimentos_pagar": "A pagar",
+        "vencimentos_receber": "A receber"
       },
       "moedas": {
         "titulo": "Moedas dos Pedidos",

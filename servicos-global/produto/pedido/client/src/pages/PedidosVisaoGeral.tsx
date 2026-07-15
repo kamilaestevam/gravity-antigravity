@@ -35,6 +35,8 @@ import {
   EyeSlash,
   Globe,
   MapTrifold,
+  ArrowsOut,
+  X,
   List,
   Clock,
   CheckCircle,
@@ -49,7 +51,13 @@ import {
 } from '@phosphor-icons/react'
 
 import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/useVisaoGeralPedido'
-import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
+import type { VisaoGeralAlertaTipo, VisaoGeralMensal, VisaoGeralModal, VisaoGeralFunil, VisaoGeralIncoterm, VisaoGeralMoeda } from '../shared/useVisaoGeralPedido'
+import {
+  TooltipGraficoInsightsPedido,
+  formatarPercentualTooltipGraficoPedido,
+  useHoverTooltipGraficoPedido,
+} from '../shared/insights-grafico-tooltip-pedido'
+import '../shared/insights-grafico-tooltip-pedido.css'
 import type { Pedido } from '../shared/types'
 import {
   buildVisaoGeralMapa,
@@ -198,14 +206,18 @@ function MiniTimelineVencimentos({
   onExpand?: () => void
 }) {
   const { t } = useTranslation()
+  const timelineTooltip = useHoverTooltipGraficoPedido<import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento>()
   if (timeline.length === 0) return null
   const max = Math.max(1, ...timeline.flatMap(item => [item.receber, item.pagar]))
   const slotW = 14
   const svgW = Math.max(timeline.length * slotW, 42)
+  const rotuloPagar = t('pedido.visao_geral.grafico_tooltip.vencimentos_pagar')
+  const rotuloReceber = t('pedido.visao_geral.grafico_tooltip.vencimentos_receber')
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className="bfd-route-mini-timeline bfd-route-mini-timeline--clickable"
       aria-label={t('pedido.visao_geral.mapa.expandir_grafico_vencimentos')}
       onClick={e => {
@@ -213,26 +225,65 @@ function MiniTimelineVencimentos({
         e.stopPropagation()
         onExpand?.()
       }}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onExpand?.()
+        }
+      }}
     >
-      <svg width="100%" height="100%" viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="xMidYMid meet">
-        <line x1="0" y1="22" x2={svgW} y2="22" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-        {timeline.map((mes, idx) => {
-          const hRec = mes.receber > 0 ? Math.max(4, (mes.receber / max) * 18) : 0
-          const hPag = mes.pagar > 0 ? Math.max(4, (mes.pagar / max) * 18) : 0
-          const x = idx * slotW + 2
-          return (
-            <g key={mes.chave}>
-              {hPag > 0 && (
-                <rect x={x} y={22 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.92} />
-              )}
-              {hRec > 0 && (
-                <rect x={x + 5} y={22 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.92} />
-              )}
-            </g>
-          )
-        })}
-      </svg>
-    </button>
+      <div className="sr-insights-tt-host bfd-route-mini-timeline__host" ref={timelineTooltip.containerRef}>
+        <svg width="100%" height="100%" viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="xMidYMid meet">
+          <line x1="0" y1="22" x2={svgW} y2="22" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+          {timeline.map((mes, idx) => {
+            const hRec = mes.receber > 0 ? Math.max(4, (mes.receber / max) * 18) : 0
+            const hPag = mes.pagar > 0 ? Math.max(4, (mes.pagar / max) * 18) : 0
+            const x = idx * slotW + 2
+            return (
+              <g key={mes.chave}>
+                <rect
+                  x={idx * slotW}
+                  y={0}
+                  width={slotW}
+                  height={40}
+                  fill="transparent"
+                  className="bfd-chart-hit"
+                  onMouseEnter={(e) => {
+                    e.stopPropagation()
+                    timelineTooltip.aoEntrar(e, mes)
+                  }}
+                  onMouseLeave={timelineTooltip.aoSair}
+                />
+                {hPag > 0 && (
+                  <rect x={x} y={22 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.92} />
+                )}
+                {hRec > 0 && (
+                  <rect x={x + 5} y={22 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.92} />
+                )}
+              </g>
+            )
+          })}
+        </svg>
+        {timelineTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={timelineTooltip.estado.ancora}
+            containerRef={timelineTooltip.containerRef}
+            preferirAcima
+            conteudo={{
+              titulo: timelineTooltip.estado.dados.label,
+              linhas: [
+                ...(timelineTooltip.estado.dados.pagar > 0
+                  ? [{ cor: '#f59e0b', rotulo: rotuloPagar, valor: fmtMoedaSafe(timelineTooltip.estado.dados.pagar) }]
+                  : []),
+                ...(timelineTooltip.estado.dados.receber > 0
+                  ? [{ cor: '#34d399', rotulo: rotuloReceber, valor: fmtMoedaSafe(timelineTooltip.estado.dados.receber) }]
+                  : []),
+              ],
+            }}
+          />
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -360,6 +411,7 @@ function PainelTimelineExpandido({
   onVoltar: () => void
 }) {
   const { t } = useTranslation()
+  const timelineTooltip = useHoverTooltipGraficoPedido<import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento>()
   const isExportacao = route.tipoOperacao === 'exportacao'
   const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
   const timeline = route.timelineVencimentos
@@ -367,6 +419,8 @@ function PainelTimelineExpandido({
   const slotW = 72
   const chartH = 160
   const svgW = Math.max(timeline.length * slotW, 320)
+  const rotuloPagar = t('pedido.visao_geral.grafico_tooltip.vencimentos_pagar')
+  const rotuloReceber = t('pedido.visao_geral.grafico_tooltip.vencimentos_receber')
 
   return (
     <div className="bfd-timeline-expandido">
@@ -388,7 +442,7 @@ function PainelTimelineExpandido({
         </span>
       </div>
 
-      <div className="bfd-timeline-expandido__chart-wrap">
+      <div className="sr-insights-tt-host bfd-timeline-expandido__chart-wrap" ref={timelineTooltip.containerRef}>
         <svg
           className="bfd-timeline-expandido__chart"
           viewBox={`0 0 ${svgW} ${chartH + 48}`}
@@ -401,6 +455,16 @@ function PainelTimelineExpandido({
             const hRec = mes.receber > 0 ? Math.max(8, (mes.receber / max) * (chartH - 24)) : 0
             return (
               <g key={mes.chave}>
+                <rect
+                  x={idx * slotW + 12}
+                  y={0}
+                  width={slotW}
+                  height={chartH + 48}
+                  fill="transparent"
+                  className="bfd-chart-hit"
+                  onMouseEnter={(e) => timelineTooltip.aoEntrar(e, mes)}
+                  onMouseLeave={timelineTooltip.aoSair}
+                />
                 {hPag > 0 && (
                   <>
                     <rect x={x} y={chartH - hPag} width={14} height={hPag} rx={3} fill="#f59e0b" opacity={0.92} />
@@ -424,6 +488,23 @@ function PainelTimelineExpandido({
             )
           })}
         </svg>
+        {timelineTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={timelineTooltip.estado.ancora}
+            containerRef={timelineTooltip.containerRef}
+            conteudo={{
+              titulo: timelineTooltip.estado.dados.label,
+              linhas: [
+                ...(timelineTooltip.estado.dados.pagar > 0
+                  ? [{ cor: '#f59e0b', rotulo: rotuloPagar, valor: fmtMoedaSafe(timelineTooltip.estado.dados.pagar) }]
+                  : []),
+                ...(timelineTooltip.estado.dados.receber > 0
+                  ? [{ cor: '#34d399', rotulo: rotuloReceber, valor: fmtMoedaSafe(timelineTooltip.estado.dados.receber) }]
+                  : []),
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -536,8 +617,9 @@ function desenharSetaDirecionalRota(
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
 function GraficoBarrasMensal() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { mensal } = useVisaoGeralPedido()
+  const mesTooltip = useHoverTooltipGraficoPedido<VisaoGeralMensal>()
   const W = 520
   const H = 280
   const pad = { top: 35, right: 20, bottom: 40, left: 40 }
@@ -551,8 +633,10 @@ function GraficoBarrasMensal() {
 
   // Y-axis grid ticks (from 0 = top/max to 1 = bottom/zero)
   const gridTicks = [0, 0.25, 0.5, 0.75, 1]
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
 
   return (
+    <div className="sr-insights-tt-host bfd-chart-wrap" ref={mesTooltip.containerRef}>
     <svg viewBox={`0 0 ${W} ${H}`} className="bfd-chart-svg" style={{ overflow: 'visible' }}>
       <defs>
         {/* Vibrant blue gradient (Aprovadas) */}
@@ -643,33 +727,42 @@ function GraficoBarrasMensal() {
 
         return (
           <g key={i} className="bfd-chart-bar-group" filter="url(#col-shadow)">
-            {/* Top Segment: Mint/Emerald Gradient Capsule */}
             <rect
-              x={x}
-              y={yTopSeg}
-              width={w}
-              height={hTopDraw}
-              rx={6}
-              ry={6}
-              fill="url(#grad-aprov)"
+              x={pad.left + i * barW}
+              y={pad.top}
+              width={barW}
+              height={innerH}
+              fill="transparent"
+              className="bfd-chart-hit"
+              onMouseEnter={(e) => mesTooltip.aoEntrar(e, d)}
+              onMouseLeave={mesTooltip.aoSair}
             />
-            
-            {/* Middle Segment: Blue Gradient Rect */}
-            <rect
-              x={x}
-              y={yMidSeg}
-              width={w}
-              height={hMidDraw}
-              fill="url(#grad-and)"
-            />
-            
-            {/* Bottom Segment: Rose Red Gradient Rounded Bottom */}
-            <path
-              d={botPath}
-              fill="url(#grad-rec)"
-            />
-            
-            {/* Total value text above the bar */}
+            {d.aprovadas > 0 && (
+              <rect
+                x={x}
+                y={yTopSeg}
+                width={w}
+                height={hTopDraw}
+                rx={6}
+                ry={6}
+                fill="url(#grad-aprov)"
+              />
+            )}
+            {d.andamento > 0 && (
+              <rect
+                x={x}
+                y={yMidSeg}
+                width={w}
+                height={hMidDraw}
+                fill="url(#grad-and)"
+              />
+            )}
+            {d.recusadas > 0 && (
+              <path
+                d={botPath}
+                fill="url(#grad-rec)"
+              />
+            )}
             <text
               x={x + w / 2}
               y={yTop - 10}
@@ -681,8 +774,6 @@ function GraficoBarrasMensal() {
             >
               {total}
             </text>
-            
-            {/* Month label below the bar */}
             <text
               x={x + w / 2}
               y={H - 12}
@@ -698,20 +789,50 @@ function GraficoBarrasMensal() {
         )
       })}
     </svg>
+    {mesTooltip.estado && (() => {
+      const dados = mesTooltip.estado.dados
+      const totalMes = dados.aprovadas + dados.andamento + dados.recusadas
+      return (
+        <TooltipGraficoInsightsPedido
+          ancora={mesTooltip.estado.ancora}
+          containerRef={mesTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: dados.mes,
+            total: totalMes,
+            totalRotulo: rotuloPedidos,
+            barra: [
+              { cor: '#f59e0b', pct: (dados.aprovadas / Math.max(1, totalMes)) * 100 },
+              { cor: '#8b5cf6', pct: (dados.andamento / Math.max(1, totalMes)) * 100 },
+              { cor: '#f87171', pct: (dados.recusadas / Math.max(1, totalMes)) * 100 },
+            ],
+            linhas: [
+              { cor: '#f59e0b', rotulo: t('pedido.visao_geral.barras.aprovadas'), valor: dados.aprovadas },
+              { cor: '#8b5cf6', rotulo: t('pedido.visao_geral.barras.em_andamento'), valor: dados.andamento },
+              { cor: '#f87171', rotulo: t('pedido.visao_geral.barras.recusadas'), valor: dados.recusadas },
+            ],
+          }}
+        />
+      )
+    })()}
+    </div>
   )
 }
 
 // ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
 
 function GraficoDonutModal() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { modal } = useVisaoGeralPedido()
+  const donutTooltip = useHoverTooltipGraficoPedido<VisaoGeralModal>()
   const total = modal.reduce((s, m) => s + m.count, 0)
   const cx = 80
   const cy = 80
   const r = 58
   const stroke = 16
   const circ = 2 * Math.PI * r
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   let offset = 0
   const arcs = modal.map(m => {
@@ -742,20 +863,46 @@ function GraficoDonutModal() {
         <text x={cx} y={cy - 4} textAnchor="middle" fill="#ffffff" fontSize="28" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{total}</text>
         <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.donut.legenda_total')}</text>
       </svg>
-      <div className="bfd-donut__legend">
-        {modal.map(m => (
-          <div key={m.key} className="bfd-donut__legend-row">
-            <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: m.cor, display: 'inline-block' }} />
-            </span>
-            <span className="bfd-donut__legend-label">{m.label}</span>
-            <div className="bfd-donut__legend-bar">
-              <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
+      <div className="sr-insights-tt-host bfd-donut__legend-wrap" ref={donutTooltip.containerRef}>
+        <div className="bfd-donut__legend">
+          {modal.map(m => (
+            <div
+              key={m.key}
+              className="bfd-donut__legend-row bfd-donut__legend-row--hover"
+              onMouseEnter={(e) => donutTooltip.aoEntrar(e, m)}
+              onMouseLeave={donutTooltip.aoSair}
+            >
+              <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: m.cor, display: 'inline-block' }} />
+              </span>
+              <span className="bfd-donut__legend-label">{m.label}</span>
+              <div className="bfd-donut__legend-bar">
+                <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
+              </div>
+              <span className="bfd-donut__legend-count" style={{ color: m.cor }}>{m.count}</span>
+              <span className="bfd-donut__legend-pct">{m.pct}%</span>
             </div>
-            <span className="bfd-donut__legend-count" style={{ color: m.cor }}>{m.count}</span>
-            <span className="bfd-donut__legend-pct">{m.pct}%</span>
-          </div>
-        ))}
+          ))}
+        </div>
+        {donutTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={donutTooltip.estado.ancora}
+            containerRef={donutTooltip.containerRef}
+            formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+            conteudo={{
+              titulo: donutTooltip.estado.dados.label,
+              total: donutTooltip.estado.dados.count,
+              totalRotulo: rotuloPedidos,
+              linhas: [
+                {
+                  cor: donutTooltip.estado.dados.cor,
+                  rotulo: rotuloParticipacao,
+                  valor: formatarPercentualTooltipGraficoPedido(donutTooltip.estado.dados.pct, i18n.language),
+                },
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -764,30 +911,178 @@ function GraficoDonutModal() {
 // ─── Funil ──────────────────────────────────────────────────────────────────
 
 function FunilStatus() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { funil } = useVisaoGeralPedido()
+  const funilTooltip = useHoverTooltipGraficoPedido<VisaoGeralFunil & { pct: number }>()
   const total = funil.reduce((s, f) => s + f.count, 0)
   const maxCount = Math.max(0, ...funil.map(f => f.count))
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   return (
-    <div className="bfd-funil">
-      {funil.map(f => {
-        const pct = total ? Math.round((f.count / total) * 100) : 0
-        const barW = maxCount ? (f.count / maxCount) * 100 : 0
-        return (
-          <div key={f.label} className="bfd-funil__row">
-            <span className="bfd-funil__label">{f.label}</span>
-            <div className="bfd-funil__bar-wrap">
-              <div
-                className="bfd-funil__bar"
-                style={{ width: `${barW}%`, background: f.color }}
-              />
+    <div className="sr-insights-tt-host bfd-funil-wrap" ref={funilTooltip.containerRef}>
+      <div className="bfd-funil">
+        {funil.map(f => {
+          const pct = total ? Math.round((f.count / total) * 100) : 0
+          const barW = maxCount ? (f.count / maxCount) * 100 : 0
+          const item = { ...f, pct }
+          return (
+            <div
+              key={f.label}
+              className="bfd-funil__row bfd-funil__row--hover"
+              onMouseEnter={(e) => funilTooltip.aoEntrar(e, item)}
+              onMouseLeave={funilTooltip.aoSair}
+            >
+              <span className="bfd-funil__label">{f.label}</span>
+              <div className="bfd-funil__bar-wrap">
+                <div
+                  className="bfd-funil__bar"
+                  style={{ width: `${barW}%`, background: f.color }}
+                />
+              </div>
+              <span className="bfd-funil__count">{f.count}</span>
+              <span className="bfd-funil__pct">{pct}%</span>
             </div>
-            <span className="bfd-funil__count">{f.count}</span>
-            <span className="bfd-funil__pct">{pct}%</span>
+          )
+        })}
+      </div>
+      {funilTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={funilTooltip.estado.ancora}
+          containerRef={funilTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: funilTooltip.estado.dados.label,
+            total: funilTooltip.estado.dados.count,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: funilTooltip.estado.dados.color,
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(funilTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Listas com barra (moedas / incoterms) ───────────────────────────────────
+
+function GraficoListaMoedas({ moedas }: { moedas: VisaoGeralMoeda[] }) {
+  const { t, i18n } = useTranslation()
+  const moedaTooltip = useHoverTooltipGraficoPedido<VisaoGeralMoeda>()
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
+
+  return (
+    <div className="sr-insights-tt-host bfd-cambio-wrap" ref={moedaTooltip.containerRef}>
+      <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+        {moedas.length === 0 && (
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.moedas.vazio')}</span>
+        )}
+        {moedas.map(m => (
+          <div
+            key={m.codigo}
+            className="bfd-cambio__row bfd-cambio__row--hover"
+            style={{ padding: '0.68rem 0' }}
+            onMouseEnter={(e) => moedaTooltip.aoEntrar(e, m)}
+            onMouseLeave={moedaTooltip.aoSair}
+          >
+            <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
+            <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{t('pedido.visao_geral.moedas.pedidos_count', { count: m.quantidade })}</span>
+            <span
+              className="bfd-cambio__var"
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.5rem',
+                borderRadius: '6px',
+                color: '#f59e0b',
+                background: 'rgba(245,158,11,0.1)',
+              }}
+            >
+              {m.pct}%
+            </span>
           </div>
-        )
-      })}
+        ))}
+      </div>
+      {moedaTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={moedaTooltip.estado.ancora}
+          containerRef={moedaTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: moedaTooltip.estado.dados.codigo,
+            total: moedaTooltip.estado.dados.quantidade,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: '#f59e0b',
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(moedaTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function GraficoListaIncoterms({ incoterms }: { incoterms: VisaoGeralIncoterm[] }) {
+  const { t, i18n } = useTranslation()
+  const incotermTooltip = useHoverTooltipGraficoPedido<VisaoGeralIncoterm>()
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
+
+  return (
+    <div className="sr-insights-tt-host bfd-incoterms-wrap" ref={incotermTooltip.containerRef}>
+      <div className="bfd-incoterms">
+        {incoterms.length === 0 && (
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.incoterms.vazio')}</span>
+        )}
+        {incoterms.map(inc => (
+          <div
+            key={inc.incoterm}
+            className="bfd-incoterms__row bfd-incoterms__row--hover"
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}
+            onMouseEnter={(e) => incotermTooltip.aoEntrar(e, inc)}
+            onMouseLeave={incotermTooltip.aoSair}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <span className="bfd-incoterms__code">{inc.incoterm}</span>
+              <span className="bfd-incoterms__count" style={{ fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>
+                {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
+              </span>
+            </div>
+            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      {incotermTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={incotermTooltip.estado.ancora}
+          containerRef={incotermTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: incotermTooltip.estado.dados.incoterm,
+            total: incotermTooltip.estado.dados.count,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: '#f59e0b',
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(incotermTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -795,19 +1090,21 @@ function FunilStatus() {
 // ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
 
 function TaxaAprovacao() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { aprovacao } = useVisaoGeralPedido()
+  const taxaTooltip = useHoverTooltipGraficoPedido<{ rotulo: string; pct: number; cor: string }>()
   const { percentual_em_tempo, percentual_atraso, nao_respondidas } = aprovacao
   const cx = 55
   const cy = 55
   const r = 42
   const stroke = 10
   const circ = 2 * Math.PI * r
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   const segments = [
-    { pct: percentual_em_tempo, cor: '#f59e0b', label: t('pedido.visao_geral.taxa_aprovacao.em_tempo', { pct: percentual_em_tempo }) },
-    { pct: percentual_atraso, cor: '#fbbf24', label: t('pedido.visao_geral.taxa_aprovacao.atrasadas', { pct: percentual_atraso }) },
-    { pct: nao_respondidas, cor: '#f87171', label: t('pedido.visao_geral.taxa_aprovacao.sem_resposta', { pct: nao_respondidas }) },
+    { pct: percentual_em_tempo, cor: '#f59e0b', rotulo: t('pedido.visao_geral.grafico_tooltip.em_tempo') },
+    { pct: percentual_atraso, cor: '#fbbf24', rotulo: t('pedido.visao_geral.grafico_tooltip.atrasadas') },
+    { pct: nao_respondidas, cor: '#f87171', rotulo: t('pedido.visao_geral.grafico_tooltip.sem_resposta') },
   ]
   let off = 0
 
@@ -835,13 +1132,38 @@ function TaxaAprovacao() {
         <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="22" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{percentual_em_tempo}%</text>
         <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.taxa_aprovacao.em_tempo_short')}</text>
       </svg>
-      <div className="bfd-taxa__legend">
-        {segments.map((s, i) => (
-          <div key={i} className="bfd-taxa__legend-row">
-            <span className="bfd-taxa__dot" style={{ background: s.cor }} />
-            <span>{s.label}</span>
-          </div>
-        ))}
+      <div className="sr-insights-tt-host bfd-taxa__legend-wrap" ref={taxaTooltip.containerRef}>
+        <div className="bfd-taxa__legend">
+          {segments.map((s, i) => (
+            <div
+              key={i}
+              className="bfd-taxa__legend-row bfd-taxa__legend-row--hover"
+              onMouseEnter={(e) => taxaTooltip.aoEntrar(e, s)}
+              onMouseLeave={taxaTooltip.aoSair}
+            >
+              <span className="bfd-taxa__dot" style={{ background: s.cor }} />
+              <span>{t(`pedido.visao_geral.taxa_aprovacao.${i === 0 ? 'em_tempo' : i === 1 ? 'atrasadas' : 'sem_resposta'}`, { pct: s.pct })}</span>
+            </div>
+          ))}
+        </div>
+        {taxaTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={taxaTooltip.estado.ancora}
+            containerRef={taxaTooltip.containerRef}
+            formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+            conteudo={{
+              titulo: taxaTooltip.estado.dados.rotulo,
+              total: formatarPercentualTooltipGraficoPedido(taxaTooltip.estado.dados.pct, i18n.language),
+              linhas: [
+                {
+                  cor: taxaTooltip.estado.dados.cor,
+                  rotulo: rotuloParticipacao,
+                  valor: formatarPercentualTooltipGraficoPedido(taxaTooltip.estado.dados.pct, i18n.language),
+                },
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -1318,6 +1640,7 @@ function VisaoGeralMapa() {
     () => filtrosMapaInsightsPedidoIniciais(),
   )
   const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+  const [mapaFullscreenAberto, setMapaFullscreenAberto] = useState(false)
 
   const pedidosFiltrados = useMemo(
     () => filtrarPedidosMapaInsights(pedidosBase, filtrosMapaInsights, fornecedoresPorId),
@@ -1352,6 +1675,11 @@ function VisaoGeralMapa() {
   const globeRoutesRef = useRef(globeRoutes)
   useEffect(() => { pinsRef.current = pins }, [pins])
   useEffect(() => { globeRoutesRef.current = globeRoutes }, [globeRoutes])
+
+  useEffect(() => {
+    setHoveredPin(null)
+    setSelectedLocKey(null)
+  }, [pins, globeRoutes])
 
   const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(false)
   const rotasAnimacaoVisiveisRef = useRef(false)
@@ -1463,6 +1791,20 @@ function VisaoGeralMapa() {
     panRef.current = { x: 0, y: 0 }
     isRotationPausedRef.current = !isAutoRotatingRef.current
   }
+
+  useEffect(() => {
+    if (!mapaFullscreenAberto) return
+    const overflowAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const aoPressionarEscape = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') setMapaFullscreenAberto(false)
+    }
+    window.addEventListener('keydown', aoPressionarEscape)
+    return () => {
+      document.body.style.overflow = overflowAnterior
+      window.removeEventListener('keydown', aoPressionarEscape)
+    }
+  }, [mapaFullscreenAberto])
   
   // Generate 5500 Fibonacci points on the sphere for ultra-high-definition realistic mapping
   const samples = 16000
@@ -2070,7 +2412,7 @@ function VisaoGeralMapa() {
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints, painelInsightsAtivo])
+  }, [activePoints, painelInsightsAtivo, pins, globeRoutes])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -2154,7 +2496,7 @@ function VisaoGeralMapa() {
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   
-  return (
+  const mapaCard = (
       <div className="bfd-card bfd-map-card bfd-map-card--insights-split bfd-card--accent-amber">
       <div className="bfd-map-card__header" style={{ marginBottom: '0.65rem' }}>
         <div>
@@ -2165,6 +2507,29 @@ function VisaoGeralMapa() {
             <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.mapa.titulo')}</p>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5, display: 'block', marginLeft: '28px' }}>{t('pedido.visao_geral.mapa.subtitulo')}</span>
+        </div>
+        <div className="bfd-map-card__header-actions">
+          <TooltipGlobal
+            descricao={
+              mapaFullscreenAberto
+                ? t('pedido.visao_geral.mapa.fechar_modal', { defaultValue: 'Fechar mapa ampliado' })
+                : t('pedido.visao_geral.mapa.abrir_modal', { defaultValue: 'Abrir mapa em tela cheia' })
+            }
+            posicaoPreferida="esquerda"
+          >
+            <button
+              type="button"
+              className="bfd-map-card__expand-btn"
+              onClick={() => setMapaFullscreenAberto((prev) => !prev)}
+              aria-label={
+                mapaFullscreenAberto
+                  ? t('pedido.visao_geral.mapa.fechar_modal', { defaultValue: 'Fechar mapa ampliado' })
+                  : t('pedido.visao_geral.mapa.abrir_modal', { defaultValue: 'Abrir mapa em tela cheia' })
+              }
+            >
+              {mapaFullscreenAberto ? <X size={16} weight="bold" /> : <ArrowsOut size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
       
@@ -2601,6 +2966,38 @@ function VisaoGeralMapa() {
       </div>
       </div>
       </div>
+  )
+
+  return (
+    <>
+      {mapaFullscreenAberto ? (
+        <div
+          className="bfd-map-card-placeholder"
+          aria-hidden
+          style={{ minHeight: 'var(--bfd-visao-geral-linha-altura, 540px)' }}
+        />
+      ) : null}
+      {mapaFullscreenAberto && typeof document !== 'undefined'
+        ? createPortal(
+            <div className="bfd-mapa-fullscreen-layer">
+              <div
+                className="bfd-mapa-fullscreen-backdrop"
+                onClick={() => setMapaFullscreenAberto(false)}
+                aria-hidden
+              />
+              <div
+                className="bfd-mapa-fullscreen-host"
+                role="dialog"
+                aria-modal
+                aria-label={t('pedido.visao_geral.mapa.modal_titulo', { defaultValue: 'Mapa global de pedidos' })}
+              >
+                {mapaCard}
+              </div>
+            </div>,
+            document.body,
+          )
+        : mapaCard}
+    </>
   )
 }
 
@@ -4091,8 +4488,9 @@ export default function VisaoGeral() {
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
-        .bfd-charts-grid .bfd-card { height: 380px; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; overflow: visible; }
+        .bfd-charts-grid .bfd-card { height: 380px; overflow: visible; }
+        .bfd-bottom-grid { overflow: visible; }
         .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
         .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -4133,7 +4531,7 @@ export default function VisaoGeral() {
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; overflow: visible; }
 
         /* ── Melhor cotação ──────────────────────────────────────── */
         .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -4251,6 +4649,92 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-map-card__header {
           flex: 0 0 auto;
         }
+        .pedido-visao-geral .bfd-map-card__header-actions {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.35rem;
+          flex-shrink: 0;
+        }
+        .pedido-visao-geral .bfd-map-card__expand-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2rem;
+          height: 2rem;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.04);
+          color: #cbd5e1;
+          cursor: pointer;
+          transition: all 0.18s ease;
+        }
+        .pedido-visao-geral .bfd-map-card__expand-btn:hover {
+          color: #fbbf24;
+          border-color: rgba(245, 158, 11, 0.35);
+          background: rgba(245, 158, 11, 0.1);
+        }
+        .bfd-mapa-fullscreen-layer {
+          position: fixed;
+          inset: 0;
+          z-index: 10050;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2.5vh 2.5vw;
+          pointer-events: auto;
+        }
+        .bfd-mapa-fullscreen-backdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(8, 10, 18, 0.82);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          animation: bfdMapaFullscreenBackdropIn 0.28s ease forwards;
+        }
+        @keyframes bfdMapaFullscreenBackdropIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .bfd-mapa-fullscreen-host {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: 96vh;
+          max-height: 96vh;
+          min-height: 0;
+          pointer-events: auto;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-card {
+          height: 100%;
+          max-height: 100%;
+          min-height: 0;
+          overflow: hidden;
+          box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+          animation: bfdMapaFullscreenCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes bfdMapaFullscreenCardIn {
+          from { opacity: 0; transform: scale(0.985); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-card__split {
+          flex: 1;
+          min-height: 0;
+          height: 100%;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-container {
+          min-height: 0;
+          flex: 1;
+          height: 100%;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-canvas-wrapper {
+          min-height: 0;
+          height: 100%;
+        }
+        .bfd-map-card-placeholder {
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px dashed rgba(255, 255, 255, 0.06);
+        }
         .pedido-visao-geral .bfd-map-card__split {
           display: grid;
           grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
@@ -4332,6 +4816,7 @@ export default function VisaoGeral() {
           color: #94a3b8;
           background: rgba(255, 255, 255, 0.05);
           font-variant-numeric: tabular-nums;
+          pointer-events: none;
         }
         .pedido-visao-geral .bfd-map-filtros-panel__local-item.is-active .bfd-map-filtros-panel__item-contagem,
         .pedido-visao-geral .bfd-map-filtros-panel__status-item.is-active .bfd-map-filtros-panel__item-contagem,
@@ -4341,6 +4826,9 @@ export default function VisaoGeral() {
         }
         .pedido-visao-geral .bfd-map-filtros-panel__operacao-card {
           position: relative;
+          padding-right: 2.35rem;
+          pointer-events: auto;
+          z-index: 1;
         }
         .pedido-visao-geral .bfd-map-filtros-panel__operacao-card .bfd-map-filtros-panel__item-contagem {
           position: absolute;
@@ -4357,6 +4845,9 @@ export default function VisaoGeral() {
           --bfd-filtro-opcao-selecionada-fundo: rgba(245, 158, 11, 0.08);
           --bfd-filtro-opcao-selecionada-fundo-forte: rgba(245, 158, 11, 0.18);
           --bfd-filtro-opcao-selecionada-borda: #f59e0b;
+          position: relative;
+          z-index: 4;
+          pointer-events: auto;
         }
         .pedido-visao-geral .bfd-map-filtro-secao__progress-fill:not(.bfd-map-filtro-secao__progress-fill--todos) {
           background: #f59e0b !important;
@@ -4610,7 +5101,7 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
+          <div className="bfd-card bfd-card--accent-indigo bfd-card--com-tooltip" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
             <div className="cg-card__header" style={{ marginBottom: '0.75rem' }}>
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
@@ -4625,7 +5116,7 @@ export default function VisaoGeral() {
       {/* Charts Row */}
       <div className="bfd-charts-grid">
         {/* Barras mensal */}
-        <div className="bfd-card bfd-card--accent-blue">
+        <div className="bfd-card bfd-card--accent-blue bfd-card--com-tooltip">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <div className="cg-card__header">
               <div className="cg-card__icon-wrap">
@@ -4644,7 +5135,7 @@ export default function VisaoGeral() {
         </div>
 
         {/* Donut tipo de operação */}
-        <div className="bfd-card bfd-card--accent-emerald">
+        <div className="bfd-card bfd-card--accent-emerald bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
@@ -4655,7 +5146,7 @@ export default function VisaoGeral() {
         </div>
 
         {/* Moedas dos pedidos */}
-        <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
+        <div className="bfd-card bfd-card--accent-amber bfd-card--com-tooltip" style={{ height: '100%', justifyContent: 'flex-start' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <div className="cg-card__header">
               <div className="cg-card__icon-wrap">
@@ -4665,30 +5156,7 @@ export default function VisaoGeral() {
             </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
-          <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            {moedas.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.moedas.vazio')}</span>
-            )}
-            {moedas.map(m => (
-              <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.68rem 0' }}>
-                <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
-                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{t('pedido.visao_geral.moedas.pedidos_count', { count: m.quantidade })}</span>
-                <span
-                  className="bfd-cambio__var"
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '6px',
-                    color: '#f59e0b',
-                    background: 'rgba(245,158,11,0.1)',
-                  }}
-                >
-                  {m.pct}%
-                </span>
-              </div>
-            ))}
-          </div>
+          <GraficoListaMoedas moedas={moedas} />
         </div>
       </div>
 
@@ -4722,38 +5190,21 @@ export default function VisaoGeral() {
         </div>
 
         {/* Top Incoterms */}
-        <div className="bfd-card bfd-card--accent-purple">
+        <div className="bfd-card bfd-card--accent-purple bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.incoterms.titulo')}</p>
           </div>
-          <div className="bfd-incoterms">
-            {incoterms.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.incoterms.vazio')}</span>
-            )}
-            {incoterms.map(inc => (
-              <div key={inc.incoterm} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span className="bfd-incoterms__code">{inc.incoterm}</span>
-                  <span className="bfd-incoterms__count" style={{ fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>
-                    {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
-                  </span>
-                </div>
-                <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <GraficoListaIncoterms incoterms={incoterms} />
         </div>
       </div>
 
       {/* Bottom Row */}
       <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
-        <div className="bfd-card bfd-card--accent-emerald">
+        <div className="bfd-card bfd-card--accent-emerald bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />

@@ -1,4 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CaretDown,
@@ -160,7 +169,7 @@ function SecaoFiltroMapaPedido({
 
 export interface PainelRefinarMapaPedidoProps {
   filtros: FiltrosMapaInsightsPedido
-  onFiltrosChange: (filtros: FiltrosMapaInsightsPedido) => void
+  onFiltrosChange: Dispatch<SetStateAction<FiltrosMapaInsightsPedido>>
   pedidos: readonly Pedido[]
   fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>
   mapaBase: VisaoGeralMapaData
@@ -253,49 +262,28 @@ export function PainelRefinarMapaPedido({
       montarFiltrosMapaPedidoTodos(pedidos, fornecedoresPorId, flagsPorPais, rotulosStatus, coresStatus),
     )
 
+  /** Opt-out: card ativo = exibe; inativo = oculta (paridade BID Frete). */
   const alternarOperacao = (id: FiltroOperacaoMapaInsightsPedido) => {
-    const total = OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length
-    const atual = filtros.operacao
-
-    if (atual.size >= total) {
-      const next = new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO)
-      next.delete(id)
-      onFiltrosChange({ ...filtros, operacao: next })
-      return
-    }
-
-    if (atual.has(id)) {
-      onFiltrosChange({
-        ...filtros,
-        operacao: (() => {
-          const next = new Set(atual)
-          next.delete(id)
-          return next
-        })(),
-      })
-      return
-    }
-
-    const next = new Set(atual)
-    next.add(id)
-    onFiltrosChange({
-      ...filtros,
-      operacao: next.size >= total ? new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO) : next,
+    onFiltrosChange((prev) => {
+      const operacao = new Set(prev.operacao)
+      if (operacao.has(id)) operacao.delete(id)
+      else operacao.add(id)
+      return { ...prev, operacao }
     })
   }
 
   const selecionarTodasOperacoes = () => {
-    onFiltrosChange({
-      ...filtros,
+    onFiltrosChange((prev) => ({
+      ...prev,
       operacao: new Set(OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO),
-    })
+    }))
   }
 
   const limparOperacoes = () => {
-    onFiltrosChange({
-      ...filtros,
+    onFiltrosChange((prev) => ({
+      ...prev,
       operacao: new Set(),
-    })
+    }))
   }
 
   const alternarItemSet = (
@@ -660,7 +648,10 @@ export function PainelRefinarMapaPedido({
                       type="button"
                       className={`bfd-map-filtros-panel__operacao-card ${ativo ? 'is-active' : ''}`}
                       aria-pressed={ativo}
-                      onClick={() => alternarOperacao(filtro.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        alternarOperacao(filtro.id)
+                      }}
                     >
                       <span className="bfd-map-filtros-panel__operacao-icone">
                         {ICONE_FILTRO_OPERACAO_PEDIDO[filtro.id]}

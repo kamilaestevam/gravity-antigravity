@@ -48,7 +48,7 @@ import {
   rotuloPassoNoCapitulo,
   encontrarPassoPorNum,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -73,6 +73,8 @@ import {
 } from './manual-pedido-infografico-insights'
 import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualInfograficoPedidoConfiguracoesColunasAdaptacao } from './manual-pedido-infografico-configuracoes-colunas-adaptacao'
+import { ManualInfograficoPedidoConfiguracoesStatusAdaptacao } from './manual-pedido-infografico-configuracoes-status-adaptacao'
 import {
   ManualInfograficoBidFreteMapa,
   ManualPilaresMapaBidFreteChips,
@@ -1736,16 +1738,19 @@ function ManualGaleriaTelaParagrafoFigura({
   texto,
   entreLinhas = false,
   margemAbaixo,
+  alturaFixaLegenda,
 }: {
   texto: string
   /** @deprecated Preferir `margemAbaixo` em `ManualGaleriaLegendaPrintPasso`. Mantido só em grades legadas. */
   entreLinhas?: boolean
   /** Sobrescreve o vão frase → imagem (SSOT `MANUAL_ESPACO_FRASE_IMAGEM_PX`). */
   margemAbaixo?: number
+  alturaFixaLegenda?: number
 }) {
   return (
     <div style={{
-      marginBottom: margemAbaixo ?? (entreLinhas ? MANUAL_ESPACO_PARAGRAFO_PX : MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX),
+      marginBottom: alturaFixaLegenda ? 0 : (margemAbaixo ?? (entreLinhas ? MANUAL_ESPACO_PARAGRAFO_PX : MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX)),
+      minHeight: alturaFixaLegenda,
       textAlign: 'left',
     }}>
       <ManualParagrafo texto={texto} marginBottom={0} />
@@ -1795,6 +1800,7 @@ function ManualGaleriaLegendaPrintPasso({
   modoTituloSubtopico = false,
   semAlturaMinima = false,
   passoAcademyGuia = false,
+  alturaFixaLegenda,
 }: {
   texto: string
   entreLinhas?: boolean
@@ -1806,6 +1812,8 @@ function ManualGaleriaLegendaPrintPasso({
   semAlturaMinima?: boolean
   /** Guia Academy — borda lateral só em **Passo NN** (`.uni-player-aula__passo-corpo`). */
   passoAcademyGuia?: boolean
+  /** Grade multi-coluna — alinha legendas e empurra prints para a mesma baseline. */
+  alturaFixaLegenda?: number
 }) {
   const matchNumerado = texto.match(/^\*\*(\d{2})\.\*\*\s+([\s\S]+)$/)
   const marginBottom = margemAbaixo ?? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
@@ -1822,7 +1830,14 @@ function ManualGaleriaLegendaPrintPasso({
 
   const match = matchNumerado
   if (!match) {
-    return <ManualGaleriaTelaParagrafoFigura texto={texto} entreLinhas={entreLinhas} margemAbaixo={margemAbaixo} />
+    return (
+      <ManualGaleriaTelaParagrafoFigura
+        texto={texto}
+        entreLinhas={entreLinhas}
+        margemAbaixo={alturaFixaLegenda ? 0 : margemAbaixo}
+        alturaFixaLegenda={alturaFixaLegenda}
+      />
+    )
   }
   const [, numero, legenda] = match
   const linhaPassoNumerado = (
@@ -1838,11 +1853,14 @@ function ManualGaleriaLegendaPrintPasso({
       </div>
     </div>
   )
+  const estiloLegendaGrade = alturaFixaLegenda && !semAlturaMinima
+    ? { minHeight: alturaFixaLegenda, marginBottom: 0 as const }
+    : { marginBottom }
   if (passoAcademyGuia) {
     return (
       <div
         className="uni-player-aula__passo-corpo"
-        style={{ marginBottom, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+        style={{ ...estiloLegendaGrade, width: '100%', minWidth: 0, boxSizing: 'border-box' }}
       >
         {linhaPassoNumerado}
       </div>
@@ -1850,7 +1868,7 @@ function ManualGaleriaLegendaPrintPasso({
   }
   return (
     <div style={{
-      marginBottom,
+      ...estiloLegendaGrade,
       textAlign: 'left',
     }}>
       {linhaPassoNumerado}
@@ -2896,7 +2914,9 @@ function ManualBlocoPassoVisual({
   const WrapperCorpoSubtituloGuia = passoCorpoAcademySubtitulo
     ? ({ children }: { children: React.ReactNode }) => (
         <div
-          className="uni-player-aula__passo-corpo"
+          className={passo.destaqueRotuloPassoGuia
+            ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--destaque'
+            : 'uni-player-aula__passo-corpo'}
           style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
         >
           {children}
@@ -2973,7 +2993,6 @@ function ManualBlocoPassoVisual({
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
               espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
-              passoAcademyGuia={passoAcademyIsolado}
             />
             {passo.mostrarCatalogoDashboardSugestoesPedido
             && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
@@ -3095,7 +3114,12 @@ function ManualBlocoPassoVisual({
                 <span>{passo.titulo}</span>
               </p>
             ) : (
-              <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX + 4 }}>
+              <p style={{
+                ...MANUAL_ESTILO_PASSO_TITULO,
+                marginBottom: passo.mostrarInfograficoPedidoConfiguracoesStatusAdaptacao
+                  ? MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+                  : MANUAL_ESPACO_PARAGRAFO_PX + 4,
+              }}>
                 {passo.titulo}
               </p>
             )}
@@ -3283,7 +3307,6 @@ function ManualBlocoPassoVisual({
                   layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
                   calloutApos={galeria.calloutApos}
                   emAcordeaoSubtopico={emAcordeaoSubtopico}
-              passoAcademyGuia={passoAcademyIsolado}
                 />
               ))}
             </>
@@ -3351,6 +3374,16 @@ function ManualBlocoPassoVisual({
         </div>
         )
       })}
+      {passo.mostrarInfograficoPedidoConfiguracoesColunasAdaptacao ? (
+        <div style={{ marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }}>
+          <ManualInfograficoPedidoConfiguracoesColunasAdaptacao />
+        </div>
+      ) : null}
+      {passo.mostrarInfograficoPedidoConfiguracoesStatusAdaptacao ? (
+        <div style={{ marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }}>
+          <ManualInfograficoPedidoConfiguracoesStatusAdaptacao />
+        </div>
+      ) : null}
       {(passo.paragrafos?.length ?? 0) === 0 && passo.mostrarInfograficoBidFreteNovaCotacaoFluxo ? (
         <div style={{ marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
           <ManualInfograficoBidFreteNovaCotacaoFluxo />
@@ -3404,7 +3437,6 @@ function ManualBlocoPassoVisual({
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasSemParagrafo, idxGaleria, galeria)}
               espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
-              passoAcademyGuia={passoAcademyIsolado}
             />
           ))
         })()
@@ -3487,7 +3519,6 @@ function ManualBlocoPassoVisual({
                 espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriaComparacaoAposParagrafoPasso(passo, 0), idxGaleria, galeria)}
                 espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
                 emAcordeaoSubtopico={emAcordeaoSubtopico}
-                passoAcademyGuia={passoAcademyIsolado}
               />
             ))
             : null}
@@ -3850,7 +3881,6 @@ function ManualBlocoPassoVisual({
             margemSuperiorPx={ehPrimeiraAposTexto ? MANUAL_ESPACO_FRASE_IMAGEM_PX : undefined}
             espacoSuperiorEtapa={idxGaleria > 0 && ehSubsecaoComTitulo}
             emAcordeaoSubtopico={emAcordeaoSubtopico}
-            passoAcademyGuia={passoAcademyIsolado}
           />
             </div>
           </React.Fragment>
@@ -4727,6 +4757,8 @@ export function ManualGaleriaComparacaoIntro({
 
   const alinharCalloutsNaGrade = telas.length > 1 && telas.some((t) => t.calloutAntes)
 
+  const gradePassoDuasLinhas = textoAcimaEstiloCorpo && colunasGrade > 1 && !printLarguraTotal
+
   const renderTela = (
     tela: DocGaleriaComparacaoTela,
     opts?: {
@@ -4734,88 +4766,132 @@ export function ManualGaleriaComparacaoIntro({
       alturaLegendaChipGrade?: number
       margemAbaixoLegenda?: number
       forcarLarguraTotal?: boolean
+      /** Grade PASSO — linha 1 só legendas (baseline inferior alinhada). */
+      parte?: 'legenda' | 'imagem'
     },
-  ) => (
-    <div
-      key={tela.imagem}
-      style={{
-        ...((printLarguraTotal || opts?.forcarLarguraTotal) ? { width: '100%', minWidth: 0 } : {}),
-        ...((textoAcimaEstiloCorpo && colunasGrade > 1 && !printLarguraTotal && !opts?.forcarLarguraTotal)
-          || alinharCalloutsNaGrade
-          || opts?.alinharLegendaChipGrade
-          || gradeTelasMesmaAltura
-          ? { display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }
-          : {}),
-      }}
-    >
-      {tela.calloutAntes ? (
-        <div style={alinharCalloutsNaGrade ? { flex: '1 1 0', marginBottom: 10 } : undefined}>
-          <ManualCalloutBloco callout={tela.calloutAntes} marginTop={0} marginBottom={alinharCalloutsNaGrade ? 0 : 10} />
-        </div>
-      ) : tela.chipConsolidarExemplo && tela.paragrafoAntes ? (
-        <ManualGaleriaLegendaConsolidarExemplo
-          chip={tela.chipConsolidarExemplo}
-          texto={tela.paragrafoAntes}
-          margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
-          alturaFixaLegenda={opts?.alinharLegendaChipGrade
-            ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
-            : undefined}
-        />
-      ) : tela.chipEdicaoMassaExemplo && tela.paragrafoAntes ? (
-        <ManualGaleriaLegendaEdicaoMassaExemplo
-          chip={tela.chipEdicaoMassaExemplo}
-          texto={tela.paragrafoAntes}
-          margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
-          alturaFixaLegenda={opts?.alinharLegendaChipGrade
-            ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
-            : undefined}
-        />
-      ) : tela.paragrafoAntes ? (
-        textoAcimaEstiloCorpo
-          ? (
-            <ManualGaleriaLegendaPrintPasso
-              texto={tela.paragrafoAntes}
-              margemAbaixo={opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx}
-              modoTituloSubtopico={modoTituloSubtopico}
-              passoAcademyGuia={passoAcademyGuia}
-            />
-          )
-          : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
-      ) : null}
-      {tela.legenda.trim() ? (
-        <p style={{
-          fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
-          marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
-        }}>
-          {tela.legenda}
-        </p>
-      ) : null}
-      <ManualFiguraScreenshot
-        src={tela.imagem}
-        alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
-        ampliarInferiorDireito={ampliarInferiorDireito}
-        larguraMaxima={tela.larguraMaxima}
-        alturaMaxima={tela.alturaMaxima}
-        larguraTotal={printLarguraTotal || opts?.forcarLarguraTotal}
-        preencherCelulaGrade={
-          tela.preencherCelulaGrade !== undefined
-            ? tela.preencherCelulaGrade
-            : gradeTelasMesmaAltura
-        }
-      />
-      {tela.legendaApos?.trim() ? (
-        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
-          <ManualGaleriaTelaLegendaStep
-            legenda={tela.legendaApos}
-            alinhamento={tela.legendaAposAlinhamento ?? 'left'}
+  ) => {
+    const usarFlexColunaGrade = (gradePassoDuasLinhas && opts?.parte)
+      ? false
+      : ((textoAcimaEstiloCorpo && colunasGrade > 1 && !printLarguraTotal && !opts?.forcarLarguraTotal)
+        || alinharCalloutsNaGrade
+        || opts?.alinharLegendaChipGrade
+        || gradeTelasMesmaAltura)
+    const alinharLegendaAlturaFixa = opts?.alinharLegendaChipGrade && !opts?.parte
+    const margemAbaixoLegenda = opts?.parte === 'legenda'
+      ? 0
+      : (opts?.margemAbaixoLegenda ?? espacoLegendaPrintFiguraPx)
+
+    const blocoLegenda = (
+      <>
+        {tela.calloutAntes ? (
+          <div style={alinharCalloutsNaGrade ? { flex: '1 1 0', marginBottom: 10 } : undefined}>
+            <ManualCalloutBloco callout={tela.calloutAntes} marginTop={0} marginBottom={alinharCalloutsNaGrade ? 0 : 10} />
+          </div>
+        ) : tela.chipConsolidarExemplo && tela.paragrafoAntes ? (
+          <ManualGaleriaLegendaConsolidarExemplo
+            chip={tela.chipConsolidarExemplo}
+            texto={tela.paragrafoAntes}
+            margemAbaixo={margemAbaixoLegenda}
+            alturaFixaLegenda={alinharLegendaAlturaFixa
+              ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
+              : undefined}
+          />
+        ) : tela.chipEdicaoMassaExemplo && tela.paragrafoAntes ? (
+          <ManualGaleriaLegendaEdicaoMassaExemplo
+            chip={tela.chipEdicaoMassaExemplo}
+            texto={tela.paragrafoAntes}
+            margemAbaixo={margemAbaixoLegenda}
+            alturaFixaLegenda={alinharLegendaAlturaFixa
+              ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
+              : undefined}
+          />
+        ) : tela.paragrafoAntes ? (
+          textoAcimaEstiloCorpo
+            ? (
+              <ManualGaleriaLegendaPrintPasso
+                texto={tela.paragrafoAntes}
+                margemAbaixo={margemAbaixoLegenda}
+                modoTituloSubtopico={modoTituloSubtopico}
+                passoAcademyGuia={passoAcademyGuia}
+                alturaFixaLegenda={alinharLegendaAlturaFixa
+                  ? (opts?.alturaLegendaChipGrade ?? MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX)
+                  : undefined}
+              />
+            )
+            : <ManualTextoUx10AcimaFigura texto={tela.paragrafoAntes} />
+        ) : null}
+        {opts?.parte !== 'legenda' && tela.legenda.trim() ? (
+          <p style={{
+            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+            marginBottom: 10, textAlign: 'center', letterSpacing: '.03em', lineHeight: 1.4,
+          }}>
+            {tela.legenda}
+          </p>
+        ) : null}
+      </>
+    )
+
+    const blocoImagem = (
+      <>
+        <div style={alinharLegendaAlturaFixa ? { marginTop: 'auto', width: '100%', minWidth: 0 } : undefined}>
+          <ManualFiguraScreenshot
+            src={tela.imagem}
+            alt={tela.legenda.trim() || tela.paragrafoAntes?.replace(/\*\*/g, '') || 'Captura de tela'}
+            ampliarInferiorDireito={ampliarInferiorDireito}
+            larguraMaxima={tela.larguraMaxima}
+            alturaMaxima={tela.alturaMaxima}
+            larguraTotal={printLarguraTotal || opts?.forcarLarguraTotal}
+            preencherCelulaGrade={
+              tela.preencherCelulaGrade !== undefined
+                ? tela.preencherCelulaGrade
+                : gradeTelasMesmaAltura
+            }
           />
         </div>
-      ) : null}
-      {tela.paragrafoDepois ? (
-        <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
-      ) : null}
-    </div>
-  )
+        {tela.legendaApos?.trim() ? (
+          <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+            <ManualGaleriaTelaLegendaStep
+              legenda={tela.legendaApos}
+              alinhamento={tela.legendaAposAlinhamento ?? 'left'}
+            />
+          </div>
+        ) : null}
+        {tela.paragrafoDepois ? (
+          <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
+        ) : null}
+      </>
+    )
+
+    if (opts?.parte === 'legenda') {
+      return (
+        <div style={{ width: '100%', minWidth: 0 }}>
+          {blocoLegenda}
+        </div>
+      )
+    }
+    if (opts?.parte === 'imagem') {
+      return (
+        <div style={{ width: '100%', minWidth: 0 }}>
+          {blocoImagem}
+        </div>
+      )
+    }
+
+    return (
+      <div
+        key={tela.imagem}
+        style={{
+          ...((printLarguraTotal || opts?.forcarLarguraTotal) ? { width: '100%', minWidth: 0 } : {}),
+          ...(usarFlexColunaGrade
+            ? { display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }
+            : {}),
+        }}
+      >
+        {blocoLegenda}
+        {blocoImagem}
+      </div>
+    )
+  }
 
   const gradeComTextoAoLado = (textoAoLado?.length || infograficoMapeamentoImportarColunas)
     && telas.length === 1
@@ -5231,7 +5307,49 @@ export function ManualGaleriaComparacaoIntro({
             ) : null}
           </div>
         )
-      })() : (
+      })() : gradePassoDuasLinhas ? (
+      telas.length <= colunasGrade ? (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: colunasGradeTemplate ?? `repeat(${colunasGrade}, minmax(0, 1fr))`,
+        columnGap: espacoGradeGaleriaPx,
+        rowGap: espacoLegendaPrintFiguraPx,
+      }}>
+        {telas.map((tela) => (
+          <div key={`${tela.imagem}-leg`} style={{ alignSelf: 'end', minWidth: 0 }}>
+            {renderTela(tela, { parte: 'legenda' })}
+          </div>
+        ))}
+        {telas.map((tela) => (
+          <div key={`${tela.imagem}-img`} style={{ minWidth: 0 }}>
+            {renderTela(tela, { parte: 'imagem' })}
+          </div>
+        ))}
+      </div>
+      ) : (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: colunasGradeTemplate ?? `repeat(${colunasGrade}, minmax(0, 1fr))`,
+        columnGap: espacoGradeGaleriaPx,
+        rowGap: espacoGradeGaleriaPx,
+      }}>
+        {telas.map((tela) => (
+          <div
+            key={tela.imagem}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: espacoLegendaPrintFiguraPx,
+              minWidth: 0,
+            }}
+          >
+            {renderTela(tela, { parte: 'legenda' })}
+            {renderTela(tela, { parte: 'imagem' })}
+          </div>
+        ))}
+      </div>
+      )
+      ) : (
       <div style={{
       display: 'grid',
       gridTemplateColumns: printLarguraTotal
@@ -5239,7 +5357,7 @@ export function ManualGaleriaComparacaoIntro({
         : (colunasGradeTemplate ?? `repeat(${colunasGrade}, minmax(0, 1fr))`),
       width: printLarguraTotal ? '100%' : undefined,
       gap: espacoGradeGaleriaPx,
-      alignItems: alinharCalloutsNaGrade || gradeTelasMesmaAltura || (textoAcimaEstiloCorpo && colunasGrade > 1)
+      alignItems: alinharCalloutsNaGrade || gradeTelasMesmaAltura
         ? 'stretch'
         : 'start',
     }}>

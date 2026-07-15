@@ -49,15 +49,20 @@ export const MANUAL_PASSO_GUIA_RECUO_TEXTO_PX = 18
 export const MANUAL_PASSO_GUIA_BORDA_PX = 3
 
 /**
- * Guia Gravity — subtítulo dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
+ * Guia Gravity — título de bloco dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
  * (tela, cards, etapa temática), não uma sequência operacional numerada.
  * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
  * — a borda não envolve galeria/screenshot; estes ficam em `.uni-player-aula__passo-galeria` abaixo.
- * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
+ * A borda lateral vale só no bloco de **Passo NN** ou **título** (`rotuloPasso`); instruções
  * operacionais (ex.: «Escolha 7 dias…» em `paragrafoAntes` sem `**NN.**`) ficam em texto simples, sem borda.
  *
- * Sequência texto + screenshot no mesmo subtítulo (`figurasAposParagrafo`):
+ * Abas principais (ex.: **Cards**, **Tabela**) são **H2 de fluxo** no corpo — não usam `rotuloPasso`.
+ *
+ * Seção crítica no Guia: `destaqueRotuloPassoGuia` no passo visual aplica
+ * `.uni-player-aula__passo-corpo--destaque` (brilho indigo) — usar só onde o conteúdo marcar.
+ *
+ * Sequência texto + screenshot no mesmo título (`figurasAposParagrafo`):
  * - texto → screenshot na mesma etapa: 12px (`MANUAL_ESPACO_PARAGRAFO_PX`)
  * - fim da screenshot → próxima instrução: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
  */

@@ -3152,6 +3152,31 @@ body.light-theme .cw-xml-viewer {
   border-left: 3px solid rgba(99, 102, 241, 0.45);
 }
 
+/* Guia — seção crítica (`destaqueRotuloPassoGuia`): brilho indigo, só onde o conteúdo marcar. */
+.uni-player-aula__passo-corpo--destaque {
+  position: relative;
+  margin-left: 0;
+  padding: 16px 18px 16px 20px;
+  border-left: 4px solid rgba(165, 180, 252, 0.9);
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(
+    90deg,
+    rgba(99, 102, 241, 0.18) 0%,
+    rgba(99, 102, 241, 0.05) 62%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.28),
+    0 10px 32px rgba(99, 102, 241, 0.14);
+}
+
+.uni-player-aula__passo-corpo--destaque .uni-player-aula__passo-rotulo-linha p {
+  color: #c7d2fe;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 20px rgba(129, 140, 248, 0.55);
+}
+
 /* Corpo do passo após bloco anterior no mesmo passo */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo {
   margin-top: 12px;

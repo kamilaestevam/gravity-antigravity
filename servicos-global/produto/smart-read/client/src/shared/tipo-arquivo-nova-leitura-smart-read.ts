@@ -102,19 +102,24 @@ export function criarArquivosLocaisRetomarDeLeitura(
     return criarArquivosLocaisDeLeitura(leituraEfetiva)
   }
 
-  if (total <= 0) return []
+  // Leitura em andamento sem detalhe de arquivos (legado/lista podem vir com total 0):
+  // um placeholder permite o polling retomar em vez de tela vazia "Arquivos enviados 0".
+  const emAndamento =
+    leituraEfetiva.status_leitura === 'PROCESSING' || leituraEfetiva.status_leitura === 'PENDING'
+  const totalEfetivo = total > 0 ? total : emAndamento ? 1 : 0
+  if (totalEfetivo <= 0) return []
 
   const nomeLista =
     corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
-  const nomeBase =
-    (nomeLista ??
-      corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
-      leituraEfetiva.nome_leitura?.trim()) ||
-    'documento'
+  const nomeDaLeitura =
+    corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+    leituraEfetiva.nome_leitura?.trim() ??
+    null
+  const nomeBase = nomeLista || nomeDaLeitura || 'documento'
   const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)
 
-  return Array.from({ length: total }, (_, indice) => {
-    const nomeArquivo = total === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
+  return Array.from({ length: totalEfetivo }, (_, indice) => {
+    const nomeArquivo = totalEfetivo === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
     return {
       id_arquivo_local: crypto.randomUUID(),
       arquivo: new File([], nomeArquivo),

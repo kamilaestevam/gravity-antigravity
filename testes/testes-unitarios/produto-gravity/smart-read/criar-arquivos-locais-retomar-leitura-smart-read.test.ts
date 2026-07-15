@@ -22,8 +22,20 @@ describe('criarArquivosLocaisRetomarDeLeitura', () => {
     expect(locais[0]?.arquivo.name).toBe('Leitura 950-1')
   })
 
-  it('retorna vazio quando nao ha arquivos nem total', () => {
-    expect(criarArquivosLocaisRetomarDeLeitura(leituraSemDetalheArquivos(0))).toEqual([])
+  it('retorna vazio quando nao ha arquivos nem total e status COMPLETED', () => {
+    expect(
+      criarArquivosLocaisRetomarDeLeitura({
+        ...leituraSemDetalheArquivos(0),
+        status_leitura: 'COMPLETED',
+      }),
+    ).toEqual([])
+  })
+
+  it('cria 1 placeholder quando PROCESSING com total 0 e arquivos vazio', () => {
+    const locais = criarArquivosLocaisRetomarDeLeitura(leituraSemDetalheArquivos(0))
+    expect(locais).toHaveLength(1)
+    expect(locais[0]?.status_arquivo_local).toBe('analisando')
+    expect(locais[0]?.id_leitura).toBe('leitura-950')
   })
 
   it('usa nome_arquivo da lista no placeholder unico', () => {

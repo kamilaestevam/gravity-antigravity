@@ -44,7 +44,7 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
-import { resolverPassoRetomarLeituraSmartRead } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
+import { resolverPassoRetomarDaListaSmartRead } from '../../../shared/resolver-passo-retomar-da-lista-smart-read'
 import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import {
   useListaPainelSmartRead,
@@ -229,6 +229,18 @@ export function TabelaTransacoesLeituraSmartRead({
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
+  const montarHintRetomarLista = useCallback(
+    (item: TransacaoLeitura): HintRetomarLeituraListaSmartRead => ({
+      nome_arquivo: item.nome_arquivo,
+      nome_leitura: item.nome_leitura,
+      total_arquivos: item.total_arquivos,
+      status_leitura: item.status_leitura,
+      status_fluxo_leitura: item.status_fluxo_leitura,
+      passo_retomar: resolverPassoRetomarDaListaSmartRead(item),
+    }),
+    [],
+  )
+
   const abrirLeituraExistente = useCallback(
     (
       idLeitura: string,
@@ -245,30 +257,24 @@ export function TabelaTransacoesLeituraSmartRead({
   )
 
   const abrirLeituraDaTransacao = useCallback(
-    (item: TransacaoLeitura) =>
-      abrirLeituraExistente(
-        item.id_leitura,
-        resolverPassoRetomarLeituraSmartRead(item.status_leitura, item.passo_atual_leitura),
-        { nome_arquivo: item.nome_arquivo, total_arquivos: item.total_arquivos },
-      ),
-    [abrirLeituraExistente],
+    (item: TransacaoLeitura) => {
+      const hint = montarHintRetomarLista(item)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
+    },
+    [abrirLeituraExistente, montarHintRetomarLista],
   )
 
   const abrirLeituraDoDocumento = useCallback(
     (item: DocumentoLeituraLista) => {
       const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
-      abrirLeituraExistente(
-        item.id_leitura,
-        resolverPassoRetomarLeituraSmartRead(
-          pai?.status_leitura ?? 'PROCESSING',
-          pai?.passo_atual_leitura ?? null,
-        ),
-        pai
-          ? { nome_arquivo: pai.nome_arquivo, total_arquivos: pai.total_arquivos }
-          : null,
-      )
+      if (!pai) {
+        abrirLeituraExistente(item.id_leitura, 2, null)
+        return
+      }
+      const hint = montarHintRetomarLista(pai)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
     },
-    [abrirLeituraExistente, transacoes],
+    [abrirLeituraExistente, montarHintRetomarLista, transacoes],
   )
 
   const colunas = useMemo(

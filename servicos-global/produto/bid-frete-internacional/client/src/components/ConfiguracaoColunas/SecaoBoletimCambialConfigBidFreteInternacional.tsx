@@ -43,6 +43,19 @@ function fmtMes(iso: string): string {
   return `${mes.charAt(0).toUpperCase()}${mes.slice(1)}/${d.getUTCFullYear()}`
 }
 
+function fmtDataCurta(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  const d = new Date(iso.includes('T') ? iso : `${iso}T12:00:00`)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleDateString('pt-BR')
+}
+
+function rotuloBoletimTag(boletim: string | null, dataCotacao: string | null): string | null {
+  if (boletim?.trim()) return boletim.trim()
+  if (dataCotacao) return 'Boletim'
+  return null
+}
+
 type LinhaPtax = {
   moeda: string
   nome: string
@@ -185,120 +198,117 @@ export function SecaoBoletimCambialConfigBidFreteInternacional() {
   }, [previsoesUsd, t])
 
   return (
-    <section className="cfg-secao">
-      <div className="cfg-secao__header">
-        <div>
-          <h2 className="cfg-secao__titulo">
-            {t('bidfrete.configuracoes.boletim_cambial_titulo', 'Boletim Cambial')}
-          </h2>
-          <p className="cfg-secao__desc">
-            {t(
-              'bidfrete.configuracoes.boletim_cambial_desc_admin',
-              'Taxas oficiais do admin (PTAX) e previsão de dólar futuro (BACEN Focus). Somente leitura.',
-            )}
-          </p>
-        </div>
-        <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={() => { void carregarPtax(); void carregarFuturo() }}>
-          {carregando ? <CircleNotch size={14} className="cfg-spin" /> : <ArrowsClockwise size={14} />}
-          {t('bidfrete.config.taxa_cambio.atualizar', 'Atualizar')}
-        </BotaoGlobal>
-      </div>
-
-      <p className="cfg-hint-sync" style={{ fontSize: '0.8125rem', color: '#94a3b8', marginBottom: '1rem' }}>
-        <Clock size={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-        {mensagemSyncPtax}
-        {ultimaRespostaApi && !erroPtax && (
-          <span style={{ display: 'block', marginTop: 4, opacity: 0.85 }}>
-            {t('bidfrete.config.taxa_cambio.resposta_api', 'Consulta API: {{data}}', {
-              data: fmtDataHora(ultimaRespostaApi),
-            })}
-          </span>
-        )}
-      </p>
-
-      <ConfiguracaoSecaoGlobal
-        label={t('bidfrete.config.taxa_cambio.ptax_titulo', 'PTAX — todas as moedas do admin')}
-        count={`${linhasPtax.filter(l => l.venda != null).length}/${linhasPtax.length}`}
-      />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-        {carregando ? (
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>{t('bidfrete.config.carregando', 'Carregando…')}</p>
-        ) : (
-          linhasPtax.map(linha => (
-            <div
-              key={linha.moeda}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto auto',
-                gap: '1rem',
-                alignItems: 'center',
-                padding: '0.65rem 0.75rem',
-                background: '#334155',
-                borderRadius: '8px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                <CurrencyCircleDollar size={18} style={{ color: '#10b981', flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>
-                    {linha.moeda} / BRL
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{linha.nome}</div>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Venda</div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{fmtTaxa(linha.venda)}</div>
-              </div>
-              <div style={{ textAlign: 'right', minWidth: '8rem' }}>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                  {linha.boletim ?? 'Boletim'} · {linha.data_cotacao ?? '—'}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                  sync {fmtDataHora(linha.sincronizado_em)}
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <div style={{ marginTop: '1.75rem' }}>
-        <ConfiguracaoSecaoGlobal
-          label={t('bidfrete.config.taxa_cambio.futuro_titulo', 'Dólar futuro (BACEN Focus)')}
-          count={String(previsoesUsd.length)}
-        />
-        <p className="cfg-hint-sync" style={{ fontSize: '0.8125rem', color: '#94a3b8', margin: '0.5rem 0 1rem' }}>
-          <ChartLine size={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-          {mensagemSyncFocus}
-        </p>
-        {carregandoFuturo ? (
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>{t('bidfrete.config.carregando', 'Carregando…')}</p>
-        ) : previsoesUsd.length === 0 ? (
-          <p style={{ color: '#64748b', fontSize: '0.8125rem' }}>
-            {t('bidfrete.config.taxa_cambio.futuro_vazio', 'Sem previsões USD disponíveis.')}
-          </p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {previsoesUsd.map(p => (
-              <div
-                key={p.mes}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '0.65rem 0.75rem',
-                  background: '#334155',
-                  borderRadius: '8px',
-                }}
-              >
-                <span style={{ color: '#f1f5f9', fontWeight: 600 }}>{fmtMes(p.mes)}</span>
-                <span style={{ color: '#cbd5e1' }}>R$ {fmtTaxa(p.mediano)}</span>
-              </div>
-            ))}
+    <div className="cfg-cards-wrapper">
+      <section className="cfg-secao">
+        <div className="cfg-secao__header">
+          <div>
+            <h2 className="cfg-secao__titulo">
+              {t('bidfrete.configuracoes.boletim_cambial_titulo', 'Boletim Cambial')}
+            </h2>
+            <p className="cfg-secao__desc">
+              {t(
+                'bidfrete.configuracoes.boletim_cambial_desc_admin',
+                'Taxas oficiais do admin (PTAX) e previsão de dólar futuro (BACEN Focus). Somente leitura.',
+              )}
+            </p>
           </div>
-        )}
-      </div>
-    </section>
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            onClick={() => { void carregarPtax(); void carregarFuturo() }}
+          >
+            {carregando ? <CircleNotch size={14} className="cfg-spin" /> : <ArrowsClockwise size={14} />}
+            {t('bidfrete.config.taxa_cambio.atualizar', 'Atualizar')}
+          </BotaoGlobal>
+        </div>
+
+        <p className="cfg-taxa-cambio-sync">
+          <Clock size={14} aria-hidden />
+          <span>
+            {mensagemSyncPtax}
+            {ultimaRespostaApi && !erroPtax && (
+              <span className="cfg-taxa-cambio-sync__sub">
+                {t('bidfrete.config.taxa_cambio.resposta_api', 'Consulta API: {{data}}', {
+                  data: fmtDataHora(ultimaRespostaApi),
+                })}
+              </span>
+            )}
+          </span>
+        </p>
+
+        <ConfiguracaoSecaoGlobal
+          label={t('bidfrete.config.taxa_cambio.ptax_titulo', 'PTAX — todas as moedas do admin')}
+          count={`${linhasPtax.filter(l => l.venda != null).length}/${linhasPtax.length}`}
+        />
+
+        <div className="cfg-taxa-cambio-lista">
+          {carregando ? (
+            <p className="cfg-hint">{t('bidfrete.config.carregando', 'Carregando…')}</p>
+          ) : (
+            linhasPtax.map(linha => {
+              const boletimTag = rotuloBoletimTag(linha.boletim, linha.data_cotacao)
+              const dataTag = fmtDataCurta(linha.data_cotacao)
+              const syncTag = linha.sincronizado_em ? fmtDataHora(linha.sincronizado_em) : null
+              return (
+              <div key={linha.moeda} className="cfg-taxa-cambio-linha">
+                <div className="cfg-taxa-cambio-linha__moeda">
+                  <CurrencyCircleDollar size={18} className="cfg-taxa-cambio-linha__icone" aria-hidden />
+                  <div className="cfg-taxa-cambio-linha__corpo">
+                    <div className="cfg-taxa-cambio-linha__titulo">
+                      <span className="cfg-taxa-cambio-linha__codigo">{linha.moeda} / BRL</span>
+                      {(boletimTag || dataTag || syncTag) && (
+                        <div className="cfg-taxa-cambio-tags">
+                          {boletimTag && (
+                            <span className="cfg-taxa-cambio-tag cfg-taxa-cambio-tag--boletim">{boletimTag}</span>
+                          )}
+                          {dataTag && (
+                            <span className="cfg-taxa-cambio-tag">{dataTag}</span>
+                          )}
+                          {syncTag && (
+                            <span className="cfg-taxa-cambio-tag cfg-taxa-cambio-tag--sync">sync {syncTag}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="cfg-taxa-cambio-linha__nome">{linha.nome}</div>
+                  </div>
+                </div>
+                <div className="cfg-taxa-cambio-linha__col">
+                  <div className="cfg-taxa-cambio-linha__rotulo">Venda</div>
+                  <div className="cfg-taxa-cambio-linha__valor">{fmtTaxa(linha.venda)}</div>
+                </div>
+              </div>
+            )})
+          )}
+        </div>
+
+        <div className="cfg-taxa-cambio-bloco">
+          <ConfiguracaoSecaoGlobal
+            label={t('bidfrete.config.taxa_cambio.futuro_titulo', 'Dólar futuro (BACEN Focus)')}
+            count={String(previsoesUsd.length)}
+          />
+          <p className="cfg-taxa-cambio-sync">
+            <ChartLine size={14} aria-hidden />
+            <span>{mensagemSyncFocus}</span>
+          </p>
+          {carregandoFuturo ? (
+            <p className="cfg-hint">{t('bidfrete.config.carregando', 'Carregando…')}</p>
+          ) : previsoesUsd.length === 0 ? (
+            <p className="cfg-taxa-cambio-vazio">
+              {t('bidfrete.config.taxa_cambio.futuro_vazio', 'Sem previsões USD disponíveis.')}
+            </p>
+          ) : (
+            <div className="cfg-taxa-cambio-lista">
+              {previsoesUsd.map(p => (
+                <div key={p.mes} className="cfg-taxa-cambio-linha cfg-taxa-cambio-linha--futuro">
+                  <span className="cfg-taxa-cambio-linha__codigo">{fmtMes(p.mes)}</span>
+                  <span className="cfg-taxa-cambio-linha__valor">R$ {fmtTaxa(p.mediano)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   )
 }

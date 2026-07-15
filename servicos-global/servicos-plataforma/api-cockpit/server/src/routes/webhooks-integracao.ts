@@ -3,15 +3,18 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { PrismaClient } from '../../../../generated/index.js'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
 import { requireInternalKey } from '../middleware/requireInternalKey'
 import { hashToken } from '../crypto'
 import { eventoWebhookIntegracaoValido } from '../lib/catalogo-eventos-webhook'
+import { prismaOrgPlataforma } from '../lib/prisma-org-plataforma.js'
+import {
+  assertPrismaDelegate,
+  assertPrismaDelegateCreate,
+} from '../lib/assert-prisma-delegate.js'
 
 export const webhooksIntegracaoRouter = Router()
-const prisma = new PrismaClient()
 
 webhooksIntegracaoRouter.use(requireInternalKey)
 
@@ -42,15 +45,21 @@ webhooksIntegracaoRouter.post('/enfileirar-evento-integracao', async (req, res, 
     }
 
     const idEvento = parsed.data.id_evento ?? randomUUID()
+    const prisma = prismaOrgPlataforma()
+    const webhookEvento = assertPrismaDelegate(prisma, 'webhookEventoEnfileirado', 'enfileirar-evento-integracao')
 
-    const existente = await prisma.webhookEventoEnfileirado.findUnique({
+    const existente = await webhookEvento.findUnique({
       where: { id_evento_webhook_enfileirado: idEvento },
     })
     if (existente) {
       return res.status(200).json({ id_evento: idEvento, status: existente.status_webhook_evento_enfileirado })
     }
 
-    const enfileirado = await prisma.webhookEventoEnfileirado.create({
+    const enfileirado = await assertPrismaDelegateCreate(
+      prisma,
+      'webhookEventoEnfileirado',
+      'enfileirar-evento-integracao',
+    ).create({
       data: {
         id_organizacao: parsed.data.id_organizacao,
         id_produto_gravity: parsed.data.id_produto_gravity ?? null,
@@ -58,7 +67,7 @@ webhooksIntegracaoRouter.post('/enfileirar-evento-integracao', async (req, res, 
         tipo_evento_webhook_enfileirado: parsed.data.tipo_evento,
         payload_evento_webhook_enfileirado: parsed.data.payload as object,
       },
-    })
+    }) as { id_evento_webhook_enfileirado: string; status_webhook_evento_enfileirado: string }
 
     res.status(202).json({
       id_evento: enfileirado.id_evento_webhook_enfileirado,
@@ -78,8 +87,13 @@ webhooksIntegracaoRouter.post('/credenciais-oauth', async (req, res, next) => {
 
     const clientId = `gravity_oauth_${randomUUID().replace(/-/g, '').slice(0, 16)}`
     const clientSecret = `gravity_oauth_secret_${randomUUID().replace(/-/g, '')}`
+    const prisma = prismaOrgPlataforma()
 
-    const credencial = await prisma.apiCredencialOauth.create({
+    const credencial = await assertPrismaDelegateCreate(
+      prisma,
+      'apiCredencialOauth',
+      'credenciais-oauth',
+    ).create({
       data: {
         id_organizacao: parsed.data.id_organizacao,
         id_usuario: parsed.data.id_usuario ?? null,
@@ -88,7 +102,11 @@ webhooksIntegracaoRouter.post('/credenciais-oauth', async (req, res, next) => {
         ambiente_api_credencial_oauth: parsed.data.ambiente,
         escopo_api_credencial_oauth: parsed.data.escopo,
       },
-    })
+    }) as {
+      id_api_credencial_oauth: string
+      ambiente_api_credencial_oauth: string
+      escopo_api_credencial_oauth: string
+    }
 
     res.status(201).json({
       id_api_credencial_oauth: credencial.id_api_credencial_oauth,
@@ -105,7 +123,10 @@ webhooksIntegracaoRouter.post('/credenciais-oauth', async (req, res, next) => {
 webhooksIntegracaoRouter.get('/credenciais-oauth', async (req, res, next) => {
   try {
     const idOrganizacao = z.string().min(1).parse(req.query.id_organizacao)
-    const credenciais = await prisma.apiCredencialOauth.findMany({
+    const prisma = prismaOrgPlataforma()
+    const apiCredencial = assertPrismaDelegate(prisma, 'apiCredencialOauth', 'credenciais-oauth GET')
+
+    const credenciais = await apiCredencial.findMany({
       where: { id_organizacao: idOrganizacao, revogado_api_credencial_oauth: false },
       select: {
         id_api_credencial_oauth: true,

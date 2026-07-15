@@ -44,6 +44,11 @@ import { formatarErrosEvitadosEstudoSmartRead } from '../../../shared/dados-base
 import {
   LinkMetodologiaSavingInsightsSmartRead,
 } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
+import {
+  TooltipGraficoInsightsSmartRead,
+  useHoverTooltipInsightsSmartRead,
+  type ConteudoTooltipInsightsSmartRead,
+} from './tooltip-grafico-insights-smart-read'
 
 type Props = {
   metricas: MetricasInsightsLeituraSmartRead
@@ -54,6 +59,75 @@ type CabecalhoPainelProps = {
   icone: ReactNode
   titulo: string
   complemento?: ReactNode
+}
+
+function montarTooltipCamposAcertos(
+  metricas: MetricasInsightsLeituraSmartRead,
+): ConteudoTooltipInsightsSmartRead {
+  const total = metricas.camposCorretos + metricas.camposErrados
+  const pctCorretos = total > 0 ? (metricas.camposCorretos / total) * 100 : 0
+  const pctErrados = total > 0 ? 100 - pctCorretos : 0
+
+  return {
+    titulo: 'Campos lidos',
+    total: metricas.totalCampos,
+    totalRotulo: 'campos',
+    barra: [
+      { cor: '#34d399', pct: pctCorretos },
+      { cor: '#f87171', pct: pctErrados },
+    ],
+    linhas: [
+      { cor: '#34d399', rotulo: 'Corretos', valor: metricas.camposCorretos, pct: pctCorretos },
+      { cor: '#f87171', rotulo: 'Errados', valor: metricas.camposErrados, pct: pctErrados },
+    ],
+  }
+}
+
+function montarTooltipTipoDocumento(
+  item: { rotulo: string; quantidade: number },
+  totalDocumentos: number,
+): ConteudoTooltipInsightsSmartRead {
+  const totalPct = totalDocumentos
+    ? Math.round((item.quantidade / totalDocumentos) * 100)
+    : 0
+
+  return {
+    titulo: item.rotulo,
+    subtitulo: `${totalPct}% do total`,
+    total: item.quantidade,
+    totalRotulo: 'documentos',
+    barra: [{ cor: '#818cf8', pct: Math.max(totalPct, 4) }],
+    linhas: [
+      { cor: '#818cf8', rotulo: 'Participação', valor: `${totalPct}%`, pct: totalPct },
+    ],
+  }
+}
+
+function montarTooltipRankingEntidade(
+  item: RankingEntidadeInsightsSmartRead,
+  metrica: 'erro' | 'acerto',
+): ConteudoTooltipInsightsSmartRead {
+  const totalCampos = item.campos_corretos + item.campos_errados
+  const pctCorretos = totalCampos > 0 ? (item.campos_corretos / totalCampos) * 100 : 0
+  const pctErrados = totalCampos > 0 ? (item.campos_errados / totalCampos) * 100 : 0
+
+  return {
+    titulo: item.nome,
+    subtitulo: `${item.documentos} ${item.documentos === 1 ? 'documento' : 'documentos'}`,
+    total:
+      metrica === 'erro'
+        ? item.campos_errados
+        : formatarPercentualLeitura(item.media_acertos),
+    totalRotulo: metrica === 'erro' ? 'campos errados' : 'taxa de acerto',
+    barra: [
+      { cor: '#34d399', pct: pctCorretos },
+      { cor: '#f87171', pct: pctErrados },
+    ],
+    linhas: [
+      { cor: '#34d399', rotulo: 'Corretos', valor: item.campos_corretos, pct: pctCorretos },
+      { cor: '#f87171', rotulo: 'Errados', valor: item.campos_errados, pct: pctErrados },
+    ],
+  }
 }
 
 function CabecalhoPainelInsightsSmartRead({ icone, titulo, complemento }: CabecalhoPainelProps) {
@@ -222,6 +296,7 @@ export function PainelCamposAcertosInsightsSmartRead({
   metricas: MetricasInsightsLeituraSmartRead
   className?: string
 }) {
+  const { containerRef, estado, aoEntrar, aoSair } = useHoverTooltipInsightsSmartRead<ConteudoTooltipInsightsSmartRead>()
   const total = metricas.camposCorretos + metricas.camposErrados
   const pctCorretos = total > 0 ? (metricas.camposCorretos / total) * 100 : 0
   const pctErrados = total > 0 ? 100 - pctCorretos : 0
@@ -254,7 +329,12 @@ export function PainelCamposAcertosInsightsSmartRead({
       {total === 0 ? (
         <p className="sr-insights-vazio">Sem campos classificados na amostra.</p>
       ) : (
-        <div className="sr-insights-donut-wrap">
+        <div
+          ref={containerRef}
+          className="sr-insights-donut-wrap sr-insights-tt-host"
+          onMouseEnter={(evento) => aoEntrar(evento, montarTooltipCamposAcertos(metricas))}
+          onMouseLeave={aoSair}
+        >
           <svg viewBox="0 0 100 100" className="sr-insights-donut" aria-hidden>
             <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(248,113,113,0.35)" strokeWidth="12" />
             <circle
@@ -282,6 +362,13 @@ export function PainelCamposAcertosInsightsSmartRead({
               {formatarPercentualLeitura(metricas.taxaAcertoCampos)} acerto
             </span>
           </div>
+          {estado != null && (
+            <TooltipGraficoInsightsSmartRead
+              ancora={estado.ancora}
+              conteudo={estado.dados}
+              containerRef={containerRef}
+            />
+          )}
         </div>
       )}
       </div>
@@ -296,6 +383,7 @@ export function PainelTiposDocumentoInsightsSmartRead({
   metricas: MetricasInsightsLeituraSmartRead
   className?: string
 }) {
+  const { containerRef, estado, aoEntrar, aoSair } = useHoverTooltipInsightsSmartRead<ConteudoTooltipInsightsSmartRead>()
   const max = Math.max(...metricas.porTipoDocumento.map((t) => t.quantidade), 1)
 
   return (
@@ -305,7 +393,7 @@ export function PainelTiposDocumentoInsightsSmartRead({
         titulo="TIPOS DE DOCUMENTO"
       />
 
-      <div className="sr-insights-card__corpo">
+      <div ref={containerRef} className="sr-insights-card__corpo sr-insights-tt-host">
       {metricas.porTipoDocumento.length === 0 ? (
         <p className="sr-insights-vazio">Nenhum documento extraído na amostra.</p>
       ) : (
@@ -317,7 +405,13 @@ export function PainelTiposDocumentoInsightsSmartRead({
           return (
             <div key={item.tipo} className="sr-insights-funil__row">
               <span className="sr-insights-funil__label">{item.rotulo}</span>
-              <div className="sr-insights-funil__bar-wrap">
+              <div
+                className="sr-insights-funil__bar-wrap sr-insights-funil__bar-wrap--interativo"
+                onMouseEnter={(evento) =>
+                  aoEntrar(evento, montarTooltipTipoDocumento(item, metricas.totalDocumentos))
+                }
+                onMouseLeave={aoSair}
+              >
                 <div
                   className="sr-insights-funil__bar"
                   style={{ width: `${pct}%`, background: '#818cf8' }}
@@ -328,6 +422,13 @@ export function PainelTiposDocumentoInsightsSmartRead({
             </div>
           )
         })
+      )}
+      {estado != null && (
+        <TooltipGraficoInsightsSmartRead
+          ancora={estado.ancora}
+          conteudo={estado.dados}
+          containerRef={containerRef}
+        />
       )}
       </div>
     </section>
@@ -388,11 +489,12 @@ function RankingColuna({
   metrica: 'erro' | 'acerto'
   vazio: string
 }) {
+  const { containerRef, estado, aoEntrar, aoSair } = useHoverTooltipInsightsSmartRead<ConteudoTooltipInsightsSmartRead>()
   const maxErros = Math.max(...itens.map((i) => i.campos_errados), 1)
   const maxAcerto = Math.max(...itens.map((i) => i.media_acertos ?? 0), 0.01)
 
   return (
-    <div className="sr-insights-ranking-coluna">
+    <div ref={containerRef} className="sr-insights-ranking-coluna sr-insights-tt-host">
       <h3 className="sr-insights-ranking-coluna__titulo">{titulo}</h3>
       {itens.length === 0 ? (
         <p className="sr-insights-vazio">{vazio}</p>
@@ -421,7 +523,13 @@ function RankingColuna({
                   <p className="sr-insights-ranking-meta">
                     {item.documentos} doc. · {item.campos_corretos}✓ · {item.campos_errados}✗
                   </p>
-                  <div className="sr-insights-funil__bar-wrap sr-insights-ranking-bar">
+                  <div
+                    className="sr-insights-funil__bar-wrap sr-insights-ranking-bar sr-insights-funil__bar-wrap--interativo"
+                    onMouseEnter={(evento) =>
+                      aoEntrar(evento, montarTooltipRankingEntidade(item, metrica))
+                    }
+                    onMouseLeave={aoSair}
+                  >
                     <div
                       className="sr-insights-funil__bar"
                       style={{
@@ -435,6 +543,13 @@ function RankingColuna({
             )
           })}
         </ul>
+      )}
+      {estado != null && (
+        <TooltipGraficoInsightsSmartRead
+          ancora={estado.ancora}
+          conteudo={estado.dados}
+          containerRef={containerRef}
+        />
       )}
     </div>
   )

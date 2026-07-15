@@ -76,6 +76,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
     {
       titulo: 'Insights',
       tituloSumario: 'Insights',
+      tituloTopicoAcademy: 'Mapa de métricas',
       prefixoPassosVisuais: 'Insights',
       ancoraPassosPrefix: 'insights',
       mostrarMapaSubtopicosPassos: true,

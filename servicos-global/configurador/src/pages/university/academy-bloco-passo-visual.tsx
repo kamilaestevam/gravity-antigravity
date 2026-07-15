@@ -8,6 +8,11 @@ import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tab
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { AcademyLinkGuia } from './guia-academy-link'
 import {
+  ManualInfograficoIconeControleMapaPedidoInline,
+  ManualInfograficoPinMapaPedidoInline,
+  isIconeControleMapaPedido,
+} from './manual-infografico-rich-text'
+import {
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
@@ -27,6 +32,22 @@ const MANUAL_CORPO_70 = 'rgba(226,232,240,.72)'
 const ACADEMY_ICONES: Record<string, React.ComponentType<{ size?: number }>> = {
   olho: Eye,
   'olho-riscado': EyeSlash,
+}
+
+function AcademyIconeInline({ slug }: { slug: string }) {
+  if (slug === 'pin-mapa-pedido') {
+    return <ManualInfograficoPinMapaPedidoInline />
+  }
+  if (isIconeControleMapaPedido(slug)) {
+    return <ManualInfograficoIconeControleMapaPedidoInline slug={slug} />
+  }
+  const Icon = ACADEMY_ICONES[slug]
+  if (!Icon) return null
+  return (
+    <span style={{ display: 'inline-flex', verticalAlign: 'text-bottom', margin: '0 3px', color: MANUAL_CORPO_70 }} aria-hidden>
+      <Icon size={16} />
+    </span>
+  )
 }
 
 const ESTILO_PASSO_ROTULO: React.CSSProperties = {
@@ -104,13 +125,10 @@ function AcademyTextoRich({ texto }: { texto: string }) {
         ),
       )
     } else if (match[6]) {
-      const Icon = ACADEMY_ICONES[match[6]]
       partes.push(
-        Icon ? (
-          <span key={`i-${ki++}`} style={{ display: 'inline-flex', verticalAlign: 'text-bottom', margin: '0 3px', color: MANUAL_CORPO_70 }} aria-hidden>
-            <Icon size={16} />
-          </span>
-        ) : match[0],
+        <span key={`i-${ki++}`}>
+          <AcademyIconeInline slug={match[6]} />
+        </span>,
       )
     } else if (match[0].startsWith('https://')) {
       partes.push(

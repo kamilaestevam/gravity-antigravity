@@ -19,7 +19,6 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * Nomenclatura: `pedido-{area}-{descricao}.png` (ex.: pedido-lista-visao-geral.png)
  *
  * Prints no Drive (`1. Pedido`):
- * - tela_pedido_visao_insight.png   → pedido-tela-principal.png
  * - tela_pedido_visao_lista.png     → pedido-lista.png
  * - tela_pedido_visao_dashboard.png → pedido-dashboard.png
  * - tela_pedido_visao_kanban.png    → pedido-kanban.png
@@ -81,12 +80,81 @@ const LINK_MANUAL_PEDIDO_LISTA_PAINEIS =
  * - tela_pedido_historico_1 → pedido-historico-1.png (menu — clique em Histórico)
  * - tela_pedido_historico_2 → pedido-historico-2.png (tela de auditoria)
  * - tela_pedido_historico_3 → pedido-historico-3.png (filtros e exportar)
+ * Insights (Drive: tela_pedido_insigiths_tooltip.png):
+ * - tela_pedido_insigiths_tooltip → pedido-insights-tooltip.png (KPIs do topo — tooltip)
+ * - tela_pedido_acesso_via_insights_alerta → pedido-insights-alerta.png (Alertas do dia)
+ * - tela_pedido_acesso_via_insights_pin → pedido-insights-pin.png (Pins — clique no mapa)
+ * - tela_pedido_acesso_via_insights_pin_2 → pedido-insights-pin-2.png (Pins — tooltip do local)
+ * - tela_pedido_acesso_via_insights_pin_3 → pedido-insights-pin-3.png (Pins — modal de pedidos)
+ * - tela_pedido_acesso_via_insights_mapa_globo → pedido-insights-mapa-globo.png (Mapa — globo)
+ * - tela_pedido_acesso_via_insights_mapa_seta_globo → pedido-insights-mapa-seta-globo.png (Mapa — vista globo)
+ * - tela_pedido_acesso_via_insights_mapa_marcado → pedido-insights-mapa-marcado.png (Mapa — pin destacado)
+ * - tela_pedido_acesso_via_insights_mapa_ampliado → pedido-insights-mapa-ampliado.png (Mapa — zoom ampliado)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_1 → pedido-insights-mapa-refinar-1.png (Filtro — painel Refinar mapa)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_modal_1 → pedido-insights-mapa-refinar-modal-1.png (Filtro — Operação)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_modal_2 → pedido-insights-mapa-refinar-modal-2.png (Filtro — resultado no mapa)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_origem_pais → pedido-insights-mapa-refinar-origem-pais.png (Refinar — Origem país)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_destino_pais → pedido-insights-mapa-refinar-destino-pais.png (Refinar — Destino país)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_exportador → pedido-insights-mapa-refinar-exportador.png (Refinar — Exportador)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_importador → pedido-insights-mapa-refinar-importador.png (Refinar — Importador)
+ * - tela_pedido_acesso_via_insights_mapa_refinar_mapa_status → pedido-insights-mapa-refinar-status.png (Refinar — Status)
+ * - tela_pedido_acesso_via_insights_mapa_globo_1 → pedido-insights-mapa-globo-1.png (Controles — globo 1)
+ * - tela_pedido_acesso_via_insights_mapa_globo_2 → pedido-insights-mapa-globo-2.png (Controles — globo 2)
+ * - tela_pedido_acesso_via_insights_mapa_zoom_aumentar → pedido-insights-mapa-zoom-aumentar.png (Controles — zoom in)
+ * - tela_pedido_acesso_via_insights_mapa_zoom_diminuir → pedido-insights-mapa-zoom-diminuir.png (Controles — zoom out)
+ * - tela_pedido_acesso_via_insights_mapa_restaurar_padrao → pedido-insights-mapa-restaurar-padrao.png (Controles — restaurar)
+ * - tela_pedido_acesso_via_insights_mapa_exibir_ocultar_linhas_conexao → pedido-insights-mapa-exibir-ocultar-linhas-conexao.png (Controles — trilhos)
+ * - tela_pedido_acesso_via_insights_mapa_pausar_iniciar_rotacao_globo → pedido-insights-mapa-pausar-iniciar-rotacao-globo.png (Controles — rotação)
+ * - tela_pedido_acesso_via_insights_mapa_ampliar_1 → pedido-insights-mapa-ampliar-1.png (Controles — ampliar 1)
+ * - tela_pedido_acesso_via_insights_mapa_ampliar_2 → pedido-insights-mapa-ampliar-2.png (Controles — ampliar 2)
+ * - tela_pedido_acesso_via_insights_alertas → pedido-insights-alertas.png (Grade — alertas)
+ * - tela_pedido_acesso_via_insights_funil_pedidos → pedido-insights-funil-pedidos.png (Grade — funil)
+ * - tela_pedido_acesso_via_insights_pedidos_mes → pedido-insights-pedidos-mes.png (Grade — evolução mensal)
+ * - tela_pedido_acesso_via_insights_distribuicao → pedido-insights-distribuicao.png (Grade — tipo de operação)
+ * - tela_pedido_acesso_via_insights_moedas_pedidos → pedido-insights-moedas-pedidos.png (Grade — moedas)
+ * - tela_pedido_acesso_via_insights_maior_pedidos → pedido-insights-maior-pedidos.png (Grade — maior pedido)
+ * - tela_pedido_visao_insight_incoterm → pedido-insights-incoterm.png (Grade — Incoterms)
+ * - tela_pedido_visao_insight_taxa_aprovacao → pedido-insights-taxa-aprovacao.png (Grade — taxa de aprovação)
  */
 
-const SCREENSHOT_PEDIDO_INSIGHTS = '/university/screenshots/pedido-tela-principal.png'
+
 const SCREENSHOT_PEDIDO_LISTA = '/university/screenshots/pedido-lista.png'
 const SCREENSHOT_PEDIDO_DASHBOARD = '/university/screenshots/pedido-dashboard.png'
 const SCREENSHOT_PEDIDO_KANBAN = '/university/screenshots/pedido-kanban.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_TOOLTIP = '/university/screenshots/pedido-insights-tooltip.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_ALERTA = '/university/screenshots/pedido-insights-alerta.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_PIN = '/university/screenshots/pedido-insights-pin.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_PIN_2 = '/university/screenshots/pedido-insights-pin-2.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_PIN_3 = '/university/screenshots/pedido-insights-pin-3.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO = '/university/screenshots/pedido-insights-mapa-globo.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_SETA_GLOBO = '/university/screenshots/pedido-insights-mapa-seta-globo.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_MARCADO = '/university/screenshots/pedido-insights-mapa-marcado.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_AMPLIADO = '/university/screenshots/pedido-insights-mapa-ampliado.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_1 = '/university/screenshots/pedido-insights-mapa-refinar-1.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_MODAL_1 = '/university/screenshots/pedido-insights-mapa-refinar-modal-1.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_MODAL_2 = '/university/screenshots/pedido-insights-mapa-refinar-modal-2.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_ORIGEM_PAIS = '/university/screenshots/pedido-insights-mapa-refinar-origem-pais.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_DESTINO_PAIS = '/university/screenshots/pedido-insights-mapa-refinar-destino-pais.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_EXPORTADOR = '/university/screenshots/pedido-insights-mapa-refinar-exportador.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_IMPORTADOR = '/university/screenshots/pedido-insights-mapa-refinar-importador.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_STATUS = '/university/screenshots/pedido-insights-mapa-refinar-status.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO_1 = '/university/screenshots/pedido-insights-mapa-globo-1.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO_2 = '/university/screenshots/pedido-insights-mapa-globo-2.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_ZOOM_AUMENTAR = '/university/screenshots/pedido-insights-mapa-zoom-aumentar.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_ZOOM_DIMINUIR = '/university/screenshots/pedido-insights-mapa-zoom-diminuir.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_RESTAURAR_PADRAO = '/university/screenshots/pedido-insights-mapa-restaurar-padrao.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_EXIBIR_OCULTAR_LINHAS = '/university/screenshots/pedido-insights-mapa-exibir-ocultar-linhas-conexao.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_PAUSAR_INICIAR_ROTACAO = '/university/screenshots/pedido-insights-mapa-pausar-iniciar-rotacao-globo.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_AMPLIAR_1 = '/university/screenshots/pedido-insights-mapa-ampliar-1.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_MAPA_AMPLIAR_2 = '/university/screenshots/pedido-insights-mapa-ampliar-2.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_ALERTAS = '/university/screenshots/pedido-insights-alertas.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_FUNIL = '/university/screenshots/pedido-insights-funil-pedidos.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_PEDIDOS_MES = '/university/screenshots/pedido-insights-pedidos-mes.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_DISTRIBUICAO = '/university/screenshots/pedido-insights-distribuicao.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_MOEDAS = '/university/screenshots/pedido-insights-moedas-pedidos.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_MAIOR_PEDIDO = '/university/screenshots/pedido-insights-maior-pedidos.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_INCOTERM = '/university/screenshots/pedido-insights-incoterm.png'
+const SCREENSHOT_PEDIDO_INSIGHTS_GRADE_TAXA_APROVACAO = '/university/screenshots/pedido-insights-taxa-aprovacao.png'
 const SCREENSHOT_PEDIDO_ACESSO_HUB = '/university/screenshots/pedido-acesso-hub.png'
 const SCREENSHOT_PEDIDO_ACESSO_MENU_LATERAL = '/university/screenshots/pedido-acesso-menu-lateral.png'
 const SCREENSHOT_PEDIDO_LISTA_EXPANDIR_SETA = '/university/screenshots/pedido-lista-expandir-seta.png'
@@ -422,10 +490,8 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
         {
           titulo: 'Insights',
           paragrafos: [
-            'Cockpit com **KPIs** e **visão consolidada**.',
+            'Cockpit com **KPIs**, **mapa global**, **alertas** e demais indicadores consolidados do workspace.',
           ],
-          imagem: SCREENSHOT_PEDIDO_INSIGHTS,
-          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Lista',
@@ -454,20 +520,329 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Visão Insights',
-      tituloSumario: 'Visão Insights',
+      titulo: 'Insights',
+      tituloSumario: 'Insights',
+      tituloTopicoAcademy: 'Mapa de métricas',
+      prefixoPassosVisuais: 'Insights',
+      ancoraPassosPrefix: 'insights',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        '**Insights** concentra os indicadores principais do **workspace**: volume de pedidos, status, evolução temporal e demais KPIs derivados dos pedidos ativos no escopo selecionado. O print e o mapa das métricas abaixo detalham cada bloco da tela.',
-      ],
-      figurasAposParagrafo: [
-        {
-          indice: 0,
-          imagem: SCREENSHOT_PEDIDO_INSIGHTS,
-          legenda: 'Tela Insights',
-        },
+        'A aba **Insights** consolida a leitura operacional do workspace: **KPIs** por status, **mapa global** com **Rankings Globais**, alertas, funil e gráficos. O quadro abaixo descreve os **dez indicadores** da tela. Avance nos subtópicos do menu para interagir com cada área. Personalize os cards em ' +
+          LINK_MANUAL_PEDIDO_CONFIGURACOES +
+          '.',
       ],
       mostrarInfograficoPedidoInsights: true,
-      passosVisuais: [],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'KPIs do topo',
+          tituloCurto: 'KPIs do topo',
+          paragrafos: [
+            'A primeira linha da aba **Insights** exibe **quatro cards fixos** por status do workspace (ex.: rascunho, aberto, em andamento, consolidado). Cada card traz **contagem**, **tendência** (seta para cima ou para baixo) e **valor agregado** na moeda do workspace. Passe o mouse para ver o resumo no tooltip.',
+          ],
+          imagem: SCREENSHOT_PEDIDO_INSIGHTS_TOOLTIP,
+          imagemAbaixoTexto: true,
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto:
+              'Os rótulos e cores dos quatro cards seguem a configuração de **status** do workspace em ' +
+              LINK_MANUAL_PEDIDO_CONFIGURACOES +
+              '.',
+          },
+        },
+        {
+          titulo: 'Mapa',
+          tituloCurto: 'Mapa',
+          paragrafos: [
+            'É possível ter uma **visão global** dos pedidos em andamento no mapa da aba **Insights**.',
+          ],
+          mostrarInfograficoPedidoMapa: true,
+          imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO,
+          imagemAbaixoTexto: true,
+          galeriaComparacaoAposImagem: [
+            {
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_SETA_GLOBO,
+                  paragrafoAntes:
+                    'Use o ícone **Globo**{{icone:globo-mapa-pedido}} na barra do mapa para alternar a **vista 3D**. Arraste o planeta para girar.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_MARCADO,
+                  paragrafoAntes:
+                    'O mapa destaca **pins** e **rotas** conforme o volume de pedidos por local.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_AMPLIAR_1,
+                  larguraMaxima: 720,
+                  paragrafoAntes:
+                    'No canto **superior direito** do card do mapa, clique no **ícone de expandir** para ampliar só o mapa e examinar pins com mais precisão.',
+                },
+              ],
+            },
+            {
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              rotuloPasso: 'PIN',
+              textoIntro:
+                'No mapa da aba **Insights**, basta **clicar no pin**{{icone:pin-mapa-pedido}} do local desejado para destacá-lo e abrir o **modal com os pedidos** vinculados àquele ponto.',
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_PIN,
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_PIN_2,
+                  paragrafoAntes:
+                    'Ao passar o mouse no **pin**, o tooltip mostra o **local** e o **volume** de pedidos naquele ponto.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_PIN_3,
+                  paragrafoAntes:
+                    'O **modal** lista os pedidos vinculados ao local. Abra cada card para ir direto à **Lista**.',
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Em cada card do modal, use **Abrir pedido**{{botao:abrir-pedido-lista-pedido}} para ir direto ao **pedido** e aos **itens** na **Lista**.',
+              },
+            },
+          ],
+        },
+        {
+          titulo: 'Refinar mapa',
+          tituloCurto: 'Refinar mapa',
+          rotuloPasso: 'Refinar mapa',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Combine filtros no painel **Refinar mapa** e recalcule pins e rotas em tempo real.',
+          ],
+          galeriaTelasAposTabela: [
+            {
+              legenda: 'Painel Refinar mapa',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_1,
+              paragrafoAntes:
+                'No canto do mapa, abra o painel **Refinar mapa**: seis acordeões concentram **Operação**, **Origem**, **Destino**, **Exportador**, **Importador** e **Status do pedido**.',
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'O resumo no topo do painel mostra quantos **pedidos**, **locais** e **rotas** permanecem visíveis após cada filtro.',
+              },
+            },
+            {
+              legenda: 'Refinar mapa - Operação',
+              pilaresFiltrosMapaPedido: ['01'],
+              paragrafoAntes:
+                'Em **Operação**, marque **Importação** e/ou **Exportação** para controlar o fluxo exibido no mapa.',
+              imagensCompostas: [
+                {
+                  paragrafoAntes:
+                    'O mapa recalcula **pins** e **rotas** em tempo real conforme a seleção.',
+                  figuras: [
+                    { imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_MODAL_1 },
+                    { imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_MODAL_2 },
+                  ],
+                },
+              ],
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Por padrão, **Importação** e **Exportação** vêm selecionadas. Ajuste a combinação para refinar o escopo.',
+              },
+            },
+            {
+              legenda: 'Refinar mapa - Origem',
+              pilaresFiltrosMapaPedido: ['02'],
+              paragrafoAntes:
+                'Em **Origem**, selecione o **país** de saída. Use **Selecionar tudo**, **Limpar tudo** ou **Localizar** para encontrar o país desejado.',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_ORIGEM_PAIS,
+            },
+            {
+              legenda: 'Refinar mapa - Destino',
+              pilaresFiltrosMapaPedido: ['03'],
+              paragrafoAntes:
+                'Em **Destino**, selecione o **país** de chegada. Use **Selecionar tudo**, **Limpar tudo** ou **Localizar** para focalizar a chegada no mapa.',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_DESTINO_PAIS,
+            },
+            {
+              legenda: 'Refinar mapa - Exportador',
+              pilaresFiltrosMapaPedido: ['04'],
+              paragrafoAntes:
+                'Em **Exportador**, selecione o cadastro desejado. Use **Selecionar tudo**, **Limpar tudo** ou **Localizar** para focalizar pins por parceiro de saída.',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_EXPORTADOR,
+            },
+            {
+              legenda: 'Refinar mapa - Importador',
+              pilaresFiltrosMapaPedido: ['05'],
+              paragrafoAntes:
+                'Em **Importador**, selecione o cadastro desejado. Use **Selecionar tudo**, **Limpar tudo** ou **Localizar** para ver pedidos por destinatário.',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_IMPORTADOR,
+            },
+            {
+              legenda: 'Refinar mapa - Status',
+              pilaresFiltrosMapaPedido: ['06'],
+              paragrafoAntes:
+                'Em **Status**, marque os estágios do pedido (**Rascunho**, **Aberto**, **Em andamento** e/ou **Consolidado**) e combine com os demais critérios do painel.',
+              imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_REFINAR_STATUS,
+              calloutDepois: {
+                tipo: 'dica',
+                texto:
+                  'Lembre que os filtros são **cumulativos**. Ao cruzar critérios, você afunila o mapa em tempo real. Use **Limpar filtros** no painel para restaurar a visão completa.',
+              },
+            },
+          ],
+          subsecaoAposGaleriaTabela: {
+            rotuloPasso: 'Controle de exibição do mapa',
+            paragrafos: [
+              'Gerencie a visualização do mapa pela barra de ferramentas na aba **Insights**: alterne a **vista em globo**, aplique **zoom**, **restaure** o enquadramento, **exiba ou oculte trilhos**, **pause a rotação** do globo e **amplie** o mapa em tela cheia.',
+            ],
+            mostrarInfograficoPedidoControlesMapa: true,
+            galeriaTelas: [
+              {
+                legenda: 'Visualização em globo',
+                pilaresControlesMapaPedido: ['vista'],
+                paragrafoAntes:
+                  'Use o **globo interativo**{{icone:globo-mapa-pedido}} para explorar a distribuição geográfica dos pedidos. Arraste o planeta para girar a vista 3D.',
+                imagensCompostas: [
+                  {
+                    figuras: [
+                      { imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO_1 },
+                    ],
+                  },
+                  {
+                    figuras: [
+                      {
+                        imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_GLOBO_2,
+                        paragrafoAntes:
+                          'Na barra do mapa, clique no ícone **Globo** para alternar entre **globo** e **mapa plano**{{icone:mapa-plano-pedido}}.',
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                legenda: 'Zoom in',
+                pilaresControlesMapaPedido: ['zoom'],
+                paragrafoAntes:
+                  'Aplique **Zoom in**{{icone:zoom-in-pedido}} para focar em uma área restrita e inspecionar pins e trilhos de perto.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_ZOOM_AUMENTAR,
+              },
+              {
+                legenda: 'Zoom out',
+                pilaresControlesMapaPedido: ['zoom'],
+                paragrafoAntes:
+                  'Use **Zoom out**{{icone:zoom-out-pedido}} para afastar a visualização e recuperar o contexto geográfico completo dos pedidos.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_ZOOM_DIMINUIR,
+              },
+              {
+                legenda: 'Restaurar mapa',
+                pilaresControlesMapaPedido: ['restaurar'],
+                paragrafoAntes:
+                  'Clique em **Restaurar**{{icone:restaurar-mapa-pedido}} para redefinir o enquadramento e voltar à visão padrão de todos os pins.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_RESTAURAR_PADRAO,
+              },
+              {
+                legenda: 'Trilhos de conexão',
+                pilaresControlesMapaPedido: ['trilhos'],
+                paragrafoAntes:
+                  'Alterne **exibir**{{icone:exibir-trilhos-pedido}} ou **ocultar trilhos**{{icone:ocultar-trilhos-pedido}} para limpar ou destacar as conexões importação/exportação entre locais.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_EXIBIR_OCULTAR_LINHAS,
+              },
+              {
+                legenda: 'Rotação do globo',
+                pilaresControlesMapaPedido: ['rotacao'],
+                paragrafoAntes:
+                  'Na vista em **globo**, **pause**{{icone:pausar-globo-pedido}} ou **inicie**{{icone:iniciar-globo-pedido}} a rotação automática para fixar ou retomar o giro do planeta.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_PAUSAR_INICIAR_ROTACAO,
+              },
+              {
+                legenda: 'Ampliar mapa',
+                paragrafoAntes:
+                  'No canto **superior direito** do card do mapa, clique no **ícone de expandir** para ampliar só o mapa e examinar pins com mais precisão.',
+                imagem: SCREENSHOT_PEDIDO_INSIGHTS_MAPA_AMPLIAR_1,
+              },
+            ],
+          },
+          simuladorPedidoFiltrosMapa: true,
+        },
+        {
+          titulo: 'Indicadores da grade',
+          tituloCurto: 'Indicadores da grade',
+          rotuloPasso: 'Indicadores da grade',
+          paragrafos: [
+            'Abaixo do bloco **mapa + Rankings**, a grade reúne **oito widgets**: alertas, funil, evolução mensal e gráficos de composição. Cada card resume o escopo do workspace; clique para abrir detalhes na **Lista** quando disponível.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              layoutCardInsightGradePedido: true,
+              telas: [
+                {
+                  legenda: '03 · Alertas do dia',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_ALERTAS,
+                  larguraMaxima: 559,
+                  cardInsightGradePedido: 3,
+                },
+                {
+                  legenda: '04 · Funil por status',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_FUNIL,
+                  larguraMaxima: 568,
+                  cardInsightGradePedido: 4,
+                },
+                {
+                  legenda: '05 · Evolução mensal',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_PEDIDOS_MES,
+                  larguraMaxima: 686,
+                  cardInsightGradePedido: 5,
+                },
+                {
+                  legenda: '06 · Tipo de operação',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_DISTRIBUICAO,
+                  larguraMaxima: 450,
+                  cardInsightGradePedido: 6,
+                },
+                {
+                  legenda: '07 · Moedas dos pedidos',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_MOEDAS,
+                  larguraMaxima: 457,
+                  cardInsightGradePedido: 7,
+                },
+                {
+                  legenda: '08 · Maior pedido',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_MAIOR_PEDIDO,
+                  larguraMaxima: 385,
+                  cardInsightGradePedido: 8,
+                },
+                {
+                  legenda: '09 · Top Incoterms',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_INCOTERM,
+                  larguraMaxima: 640,
+                  cardInsightGradePedido: 9,
+                },
+                {
+                  legenda: '10 · Taxa de aprovação',
+                  imagem: SCREENSHOT_PEDIDO_INSIGHTS_GRADE_TAXA_APROVACAO,
+                  larguraMaxima: 300,
+                  cardInsightGradePedido: 10,
+                },
+              ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Personalize quais widgets aparecem na grade pelo menu **Widgets**: exiba, oculte e reordene os blocos conforme sua rotina.',
+              },
+            },
+          ],
+        },
+      ]),
     },
     {
       titulo: 'Visão Lista',

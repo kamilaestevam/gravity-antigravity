@@ -55,7 +55,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   const [idsEmpresasEscopo, setIdsEmpresasEscopo] = useState<IdEmpresa[]>(() =>
     EMPRESAS.map((empresa) => empresa.id),
   )
-  const [menuLateralContraida, setMenuLateralContraida] = useState(false)
+  const [menuLateralContraida, setMenuLateralContraida] = useState(true)
   const [sinalAbrirMenuWorkspaces, setSinalAbrirMenuWorkspaces] = useState(0)
 
   useEffect(() => instalarMockApiNcmSimuladorPedido(), [])
@@ -85,14 +85,6 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
     if (abaAtiva === 'lista') return 'Lista'
     if (abaAtiva === 'dashboard') return 'Dashboard'
     return 'Kanban'
-  }, [abaAtiva, isConfiguracoes])
-
-  const subtituloPagina = useMemo(() => {
-    if (isConfiguracoes) return 'Personalize cards, colunas e status do produto'
-    if (abaAtiva === 'insights') return 'Panorama dos pedidos — volume, status, valores e prazos'
-    if (abaAtiva === 'lista') return 'Pedidos de importação e exportação em tabela virtual'
-    if (abaAtiva === 'dashboard') return 'Indicadores operacionais em tempo real'
-    return 'Pipeline visual por etapa do pedido'
   }, [abaAtiva, isConfiguracoes])
 
   const iconePagina = useMemo(() => {
@@ -168,8 +160,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                     {iconePagina}
                   </span>
                   <div className="pds-mtg-titulo-grupo">
-                    <span className="sds-mtg-page-title">{tituloPagina}</span>
-                    <span className="pds-mtg-subtitulo">{subtituloPagina}</span>
+                    <span className="sds-mtg-page-title pds-mtg-page-title--solo">{tituloPagina}</span>
                   </div>
                 </div>
               </div>

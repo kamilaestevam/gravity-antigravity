@@ -10,6 +10,8 @@ import {
   Play,
   Pause,
   MapPin,
+  Eye,
+  EyeSlash,
 } from '@phosphor-icons/react'
 import {
   GLOBE_PIN_VISIVEL_MIN_RZ,
@@ -18,11 +20,18 @@ import {
   projectGlobePoint,
 } from './geo-terra-globo-simulador-pedido'
 import {
-  agregarMapaPedidosEmpresasSimulador,
   type PinMapaSimuladorPedido,
 } from './dados-mapa-globo-simulador-pedido'
+import {
+  criarFiltrosRefinarMapaIniciais,
+  filtrarMapaRefinarSimuladorPedido,
+  prepararContextoRefinarMapaSimuladorPedido,
+  type FiltrosRefinarMapaSimuladorPedido,
+} from './dados-refinar-mapa-simulador-pedido'
+import { RefinarMapaSimuladorPedido } from './refinar-mapa-simulador-pedido'
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
 import './mapa-globo-simulador-pedido.css'
+import './refinar-mapa-simulador-pedido.css'
 
 function desenharSetaDirecionalRota(
   ctx: CanvasRenderingContext2D,
@@ -58,10 +67,29 @@ type Props = {
 }
 
 export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
-  const mapaEscopo = useMemo(
-    () => agregarMapaPedidosEmpresasSimulador(empresasSelecionadas),
+  const contextoRefinar = useMemo(
+    () => prepararContextoRefinarMapaSimuladorPedido(empresasSelecionadas),
     [empresasSelecionadas],
   )
+
+  const [filtrosRefinar, setFiltrosRefinar] = useState<FiltrosRefinarMapaSimuladorPedido>(
+    () => criarFiltrosRefinarMapaIniciais(),
+  )
+
+  const mapaEscopo = useMemo(
+    () =>
+      filtrarMapaRefinarSimuladorPedido(
+        contextoRefinar.mapaBase,
+        contextoRefinar.metadados,
+        filtrosRefinar,
+      ),
+    [contextoRefinar, filtrosRefinar],
+  )
+
+  useEffect(() => {
+    setFiltrosRefinar(criarFiltrosRefinarMapaIniciais())
+    setRotasVisiveis(false)
+  }, [empresasSelecionadas])
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasWrapRef = useRef<HTMLDivElement>(null)
@@ -75,6 +103,8 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
   const vistaRef = useRef<'globo' | 'mapa'>('globo')
   const [isAutoRotating, setIsAutoRotating] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
+  const [rotasVisiveis, setRotasVisiveis] = useState(false)
+  const rotasVisiveisRef = useRef(false)
 
   const isDraggingRef = useRef(false)
   const dragStartRef = useRef({ x: 0, y: 0 })
@@ -97,6 +127,10 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
     isAutoRotatingRef.current = isAutoRotating
     isRotationPausedRef.current = !isAutoRotating
   }, [isAutoRotating])
+
+  useEffect(() => {
+    rotasVisiveisRef.current = rotasVisiveis
+  }, [rotasVisiveis])
 
   useEffect(() => {
     pinsRef.current = mapaEscopo.pins
@@ -211,6 +245,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
       })
 
       routesRef.current.forEach((route, routeIdx) => {
+        if (!rotasVisiveisRef.current) return
         const fromPin = pinsRef.current.find((p) => p.id === route.fromId)
         const toPin = pinsRef.current.find((p) => p.id === route.toId)
         if (!fromPin || !toPin) return
@@ -365,6 +400,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
       ctx.setLineDash([])
 
       routesRef.current.forEach((route, routeIdx) => {
+        if (!rotasVisiveisRef.current) return
         const fromPin = pinsRef.current.find((p) => p.id === route.fromId)
         const toPin = pinsRef.current.find((p) => p.id === route.toId)
         if (!fromPin || !toPin) return
@@ -534,15 +570,24 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
         </p>
       </div>
 
-      <div
-        ref={canvasWrapRef}
-        className="pds-mapa-globo__canvas-wrap"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-      >
+      <div className="pds-mapa-globo__split">
+        <RefinarMapaSimuladorPedido
+          mapaBase={contextoRefinar.mapaBase}
+          mapaFiltrado={mapaEscopo}
+          opcoes={contextoRefinar.opcoes}
+          filtros={filtrosRefinar}
+          onFiltrosChange={setFiltrosRefinar}
+        />
+
+        <div
+          ref={canvasWrapRef}
+          className="pds-mapa-globo__canvas-wrap"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        >
         <canvas ref={canvasRef} className="pds-mapa-globo__canvas" />
 
         <div className="pds-mapa-globo__legenda">
@@ -587,6 +632,18 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
             }}
           >
             <Minus size={16} weight="bold" />
+          </button>
+          <button
+            type="button"
+            className={`pds-mapa-globo__controle-btn${rotasVisiveis ? '' : ' pds-mapa-globo__controle-btn--rotas-ocultas'}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              setRotasVisiveis((prev) => !prev)
+            }}
+            aria-pressed={!rotasVisiveis}
+            title={rotasVisiveis ? 'Ocultar linhas de rota' : 'Exibir linhas de rota'}
+          >
+            {rotasVisiveis ? <Eye size={16} weight="bold" /> : <EyeSlash size={16} weight="bold" />}
           </button>
           <button
             type="button"
@@ -695,6 +752,7 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
             </div>
           )
         })}
+        </div>
       </div>
     </section>
   )

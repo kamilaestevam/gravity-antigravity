@@ -106,3 +106,174 @@
 .interactive-simulator-shell .pds-root .pds-lista .pds-lista-th-col-label {
   font-size: 9px !important;
 }
+
+/* Nº Pedido / Nº Item — +0,5px */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'],
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-numero,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-item-id,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-badge-novo-pedido,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-badge-item-transferido {
+  font-size: 11px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='numero_pedido'] .pds-lista-th-col-label {
+  font-size: 9.5px !important;
+}
+
+/* Tipo de Operação + Status — pills +0,5px */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='tipo_operacao'] span[style*='border-radius'],
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='status'] span[style*='border-radius'] {
+  font-size: calc(0.5625rem - 1px) !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='tipo_operacao'] .pds-lista-th-col-label,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='status'] .pds-lista-th-col-label {
+  font-size: 9.5px !important;
+}
+
+/* Lista Pedido — título da página (padrão solo: todas as abas) */
+.interactive-simulator-shell .pds-root .pds-mtg-page-title--solo {
+  font-size: calc(var(--sim-font-size-titulo) + 2.5px) !important;
+  transform: translateY(1px);
+}
+
+/* Insights Pedido — títulos −2px */
+.interactive-simulator-shell .pds-root .pds-insights .cg-card__label {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-insights :is(
+  .pds-insights-card__titulo,
+  .pds-funil-painel__titulo,
+  .pds-alertas-painel__titulo,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo
+) {
+  font-size: 11px !important;
+}
+
+/* Pedido — painel Refinar mapa (Insights) */
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__titulo {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__resumo,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__toolbar-btn,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__limpar,
+.interactive-simulator-shell .pds-root .pds-map-refinar-secao__title h3,
+.interactive-simulator-shell .pds-root .pds-map-refinar-operacao-card__label,
+.interactive-simulator-shell .pds-root .pds-map-refinar-lista__texto,
+.interactive-simulator-shell .pds-root .pds-map-refinar-status-item__label,
+.interactive-simulator-shell .pds-root .pds-map-refinar-secao__pill {
+  font-size: 9px !important;
+}
+
+/* Lista Pedido — toolbar compacta (Novo, Transferir) */
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-novo-wrap .gb-btn--pequeno,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-btn-transferir.gb-btn--pequeno {
+  font-size: 10px !important;
+}
+
+/* Lista Pedido — Filtro, Colunas e Exportar (fonte igual + altura menor) */
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip-label,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip-valor,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-btn,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-export-wrapper > .gtv-btn {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-btn,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-export-wrapper > .gtv-btn {
+  height: 24px !important;
+  min-height: 24px !important;
+}
+
+/* Lista Pedido — campo Buscar (toolbar) */
+.interactive-simulator-shell .pds-root .pds-lista .gtv-busca-input.pds-lista-busca-input {
+  font-size: calc(0.6875rem - 0.5px) !important;
+  height: 1.5rem !important;
+  min-height: 1.5rem !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .gtv-busca-input.pds-lista-busca-input::placeholder {
+  font-size: calc(0.6875rem - 0.5px) !important;
+}
+
+/* Pedido — abas Insights / Lista / Dashboard / Kanban */
+.interactive-simulator-shell .pds-root .srt-tab,
+.interactive-simulator-shell .pds-root .srt-tab span {
+  font-size: 10px !important;
+  line-height: 1.15 !important;
+}
+
+.interactive-simulator-shell .pds-root .srt-tab {
+  min-height: 20px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+.interactive-simulator-shell .pds-root .srt-tab svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista-filtros-consolidados .fc-limpar-todos {
+  font-size: 9.5px !important;
+}
+
+/* Pedido — menu lateral compacto (MenuLateralGlobal) */
+.interactive-simulator-shell .pds-root .mlg-sidebar {
+  width: 188px !important;
+  min-width: 188px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-sidebar.collapsed {
+  width: 72px !important;
+  min-width: 72px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-logo-name {
+  font-size: 13px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-logo-gravity {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-tenant-name {
+  font-size: 12px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-tenant-plan {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-nav-item {
+  font-size: 12px !important;
+}
+
+/* Dropdown workspaces — densidade compacta */
+.interactive-simulator-shell .pds-root .mlg-ws-search__input {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-toolbar__btn {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-name {
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-plan {
+  font-size: 9px !important;
+  line-height: 1.15 !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-avatar {
+  font-size: 9px !important;
+}

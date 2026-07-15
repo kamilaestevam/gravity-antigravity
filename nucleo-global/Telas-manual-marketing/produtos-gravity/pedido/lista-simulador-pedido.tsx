@@ -1,12 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { EdicaoTextoPopoverGlobal } from '../../../Tabelas/tabela-virtual-global/src/EdicaoTextoPopoverGlobal'
-import { FiltroChips } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltroChips'
 import { FiltroPopoverColuna } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltroPopoverColuna'
+import { rotulofiltro } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/rotulofiltro'
+import {
+  FiltrosConsolidadosListaSimuladorPedido,
+  type ItemFiltroConsolidadoListaSimuladorPedido,
+} from './filtros-consolidados-lista-simulador-pedido'
 import { BotaoCompletoExportar } from '../../../Tabelas/tabela-virtual-global/src/BotaoCompletoExportar'
 import type { FiltroAtivo, FiltrosAtivosMap } from '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/tipos'
 import '../../../Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
@@ -201,6 +205,15 @@ const STATUS_CORES: Record<StatusListaPedidoSimulador, string> = {
   CONSOLIDADO: '#a78bfa',
 }
 
+/** Texto um tom mais claro — melhora leitura das pílulas na tabela (fundo escuro). */
+const STATUS_CORES_NITIDO: Record<StatusListaPedidoSimulador, string> = {
+  RASCUNHO: '#cbd5e1',
+  ABERTO: '#f9a8d4',
+  'EM ANDAMENTO': '#fdba74',
+  TRANSFERIDO: '#5eead4',
+  CONSOLIDADO: '#c4b5fd',
+}
+
 const STATUS_LABELS: Record<StatusListaPedidoSimulador, string> = {
   RASCUNHO: 'Rascunho',
   ABERTO: 'Aberto',
@@ -211,10 +224,11 @@ const STATUS_LABELS: Record<StatusListaPedidoSimulador, string> = {
 
 function estiloStatusBadge(status: StatusListaPedidoSimulador): CSSProperties {
   const cor = STATUS_CORES[status]
+  const corTexto = STATUS_CORES_NITIDO[status]
   return {
-    color: cor,
-    background: `${cor}1e`,
-    border: `1px solid ${cor}33`,
+    color: corTexto,
+    background: `${cor}28`,
+    border: `1px solid ${cor}55`,
     whiteSpace: 'nowrap',
   }
 }
@@ -424,15 +438,90 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
     return `${nomes.length} selecionados`
   }, [empresasSelecionadas])
 
-  const tooltipEscopoWorkspaces = useMemo(() => {
-    if (empresasSelecionadas.length === 0) return null
-    const nomes = empresasSelecionadas.map((empresa) => empresa.nome)
-    if (nomes.length === 0) return null
-    return <ListaNumeradaWorkspacesTooltipSimulador nomes={nomes} />
-  }, [empresasSelecionadas])
-
   const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
   const colunasGt = useMemo(() => montarColunasGtListaSimulador(colunas), [colunas])
+
+  const itensFiltrosConsolidados = useMemo((): ItemFiltroConsolidadoListaSimuladorPedido[] => {
+    const itens: ItemFiltroConsolidadoListaSimuladorPedido[] = []
+
+    if (rotuloEscopoWorkspaces) {
+      const nomes = empresasSelecionadas.map((empresa) => empresa.nome)
+      itens.push({
+        id: 'workspaces',
+        rotulo: 'Workspaces',
+        valorResumo: rotuloEscopoWorkspaces,
+        detalhe: nomes.length > 2 ? <ListaNumeradaWorkspacesTooltipSimulador nomes={nomes} /> : undefined,
+      })
+    }
+
+    const termoBusca = busca.trim()
+    if (termoBusca) {
+      itens.push({
+        id: 'busca',
+        rotulo: 'Busca',
+        valorResumo: termoBusca,
+      })
+    }
+
+    if (statusFiltro !== 'todas') {
+      const status = STATUS_FILTROS.find((s) => s.id === statusFiltro)
+      if (status) {
+        itens.push({
+          id: 'status-bar',
+          rotulo: 'Status',
+          valorResumo: status.label,
+        })
+      }
+    }
+
+    for (const col of colunasGt) {
+      const filtro = filtrosAtivos[col.key]
+      if (!filtro) continue
+
+      const rotuloColuna = col.rotulo ?? col.label
+      const valorResumo = rotulofiltro(filtro, 2)
+      let detalhe: ReactNode | undefined
+
+      if (filtro.tipo === 'enum') {
+        const valores = Array.from(filtro.valor)
+        if (valores.length > 2) {
+          detalhe = (
+            <ol className="pds-lista-filtros-consolidados-tooltip-enum">
+              {valores.map((valor, indice) => (
+                <li key={valor} className="pds-lista-filtros-consolidados-tooltip-enum-item">
+                  <span className="pds-lista-filtros-consolidados-tooltip-num" aria-hidden="true">
+                    {indice + 1}.
+                  </span>
+                  <span>{valor}</span>
+                </li>
+              ))}
+            </ol>
+          )
+        }
+      }
+
+      itens.push({
+        id: col.key,
+        rotulo: rotuloColuna,
+        valorResumo,
+        detalhe,
+      })
+    }
+
+    return itens
+  }, [
+    rotuloEscopoWorkspaces,
+    empresasSelecionadas,
+    busca,
+    statusFiltro,
+    colunasGt,
+    filtrosAtivos,
+  ])
+
+  const podeLimparFiltrosConsolidados = useMemo(
+    () => busca.trim().length > 0 || statusFiltro !== 'todas' || Object.keys(filtrosAtivos).length > 0,
+    [busca, statusFiltro, filtrosAtivos],
+  )
 
   const workspacesNomes = useMemo(
     () => Array.from(new Set(linhas.map((l) => l.workspace).filter(Boolean))).sort(),
@@ -785,6 +874,8 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
 
   const handleLimparTodosFiltros = useCallback(() => {
     setFiltrosAtivos({})
+    setBusca('')
+    setStatusFiltro('todas')
     setPagina(1)
   }, [])
 
@@ -1375,7 +1466,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
             <input
               type="search"
               className="gtv-busca-input pds-lista-busca-input"
-              placeholder="Buscar pedido."
+              placeholder="Buscar"
               value={busca}
               onChange={(e) => { setBusca(e.target.value); setPagina(1) }}
             />
@@ -1403,6 +1494,7 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
           <span className="pds-lista-toolbar-divisor" aria-hidden="true" />
           <TooltipGlobal titulo={tooltipTransferir.titulo} descricao={tooltipTransferir.descricao}>
             <BotaoGlobal
+              className="pds-lista-btn-transferir"
               variante="secundario"
               tamanho="pequeno"
               icone={<ArrowRight size={14} weight="duotone" />}
@@ -1460,52 +1552,13 @@ export function ListaSimuladorPedido({ empresasSelecionadas, onAbrirMenuWorkspac
               onClick={() => setModalExcluirAberto(true)}
             />
           </TooltipGlobal>
-          {(Object.keys(filtrosAtivos).length > 0 || busca.trim().length > 0 || rotuloEscopoWorkspaces) && (
-            <FiltroChips
-              colunas={colunasGt}
-              filtrosAtivos={filtrosAtivos}
-              onLimparFiltro={handleLimparFiltro}
+          {itensFiltrosConsolidados.length > 0 ? (
+            <FiltrosConsolidadosListaSimuladorPedido
+              itens={itensFiltrosConsolidados}
               onLimparTodos={handleLimparTodosFiltros}
-              onEditarFiltro={onFiltroColuna}
-              thresholdConsolidar={2}
-              prefixo={(
-                <>
-                  {rotuloEscopoWorkspaces ? (
-                    <TooltipGlobal
-                      titulo="Workspaces"
-                      descricao={tooltipEscopoWorkspaces ?? rotuloEscopoWorkspaces}
-                      interativo
-                      posicaoPreferida="abaixo"
-                    >
-                      <button
-                        type="button"
-                        className="fc-chip fc-chip--escopo fc-chip--escopo-btn"
-                        onClick={onAbrirMenuWorkspaces}
-                        aria-label="Alterar workspaces selecionados"
-                      >
-                        <span className="fc-chip-label">Workspaces:</span>
-                        <span className="fc-chip-valor">{rotuloEscopoWorkspaces}</span>
-                      </button>
-                    </TooltipGlobal>
-                  ) : null}
-                  {busca.trim().length > 0 ? (
-                    <span className="fc-chip">
-                      <span className="fc-chip-label">Busca:</span>
-                      <span className="fc-chip-valor">{busca}</span>
-                      <button
-                        type="button"
-                        className="fc-chip-remove"
-                        onClick={() => { setBusca(''); setPagina(1) }}
-                        aria-label="Remover busca"
-                      >
-                        <X size={10} weight="bold" />
-                      </button>
-                    </span>
-                  ) : null}
-                </>
-              )}
+              podeLimparTodos={podeLimparFiltrosConsolidados}
             />
-          )}
+          ) : null}
         </div>
         <div className="pds-lista-toolbar-dir gtv-toolbar-direita">
           <div className="pds-lista-dropdown-wrap">

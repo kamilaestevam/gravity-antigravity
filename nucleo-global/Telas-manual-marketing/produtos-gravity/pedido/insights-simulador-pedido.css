@@ -21,16 +21,19 @@
   font-size: 1.25rem;
 }
 
+.pds-insights-kpis .cg-card__label {
+  font-size: calc(0.75rem - 2px);
+}
+
 .pds-insights-globe-row {
-  --pds-insights-linha-altura: 300px;
+  --pds-insights-linha-altura: 360px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 200px minmax(180px, 0.72fr);
+  grid-template-columns: minmax(0, 1.85fr) minmax(200px, 0.85fr);
   gap: 8px;
   align-items: stretch;
 }
 
 .pds-insights-globe-row > .pds-mapa-globo,
-.pds-insights-globe-row > .pds-rankings-hud,
 .pds-insights-globe-row__coluna-direita {
   min-height: var(--pds-insights-linha-altura);
   max-height: var(--pds-insights-linha-altura);
@@ -59,11 +62,21 @@
 
 .pds-insights-card__titulo {
   margin: 0 0 8px;
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem - 2px);
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #e2e8f0;
+}
+
+.pds-insights :is(
+  .pds-insights-card__titulo,
+  .pds-funil-painel__titulo,
+  .pds-alertas-painel__titulo,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo
+) {
+  font-size: calc(0.6875rem - 2px);
 }
 
 .pds-insights-ranking-lista {

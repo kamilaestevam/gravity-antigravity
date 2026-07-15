@@ -8,7 +8,6 @@ import {
   useHoverTooltipInsightsSimulador,
 } from '../smart-doc/tooltip-grafico-insights-simulador'
 import { MapaGloboSimuladorPedido } from './mapa-globo-simulador-pedido'
-import { RankingsHudSimuladorPedido } from './rankings-hud-simulador-pedido'
 import { AlertasPainelSimuladorPedido } from './alertas-painel-simulador-pedido'
 import { FunilPainelSimuladorPedido } from './funil-painel-simulador-pedido'
 import { GraficoBarrasMensalSimuladorPedido } from './grafico-barras-mensal-simulador-pedido'
@@ -69,13 +68,6 @@ export function InsightsSimuladorPedido({ empresasSelecionadas }: Props) {
 
       <div className="pds-insights-globe-row">
         <MapaGloboSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
-
-        <RankingsHudSimuladorPedido
-          totalPedidos={insights.totalPedidos}
-          origens={insights.hudOrigens}
-          destinos={insights.hudDestinos}
-          modais={insights.hudModais}
-        />
 
         <div className="pds-insights-globe-row__coluna-direita">
           <AlertasPainelSimuladorPedido alertas={insights.alertas} />

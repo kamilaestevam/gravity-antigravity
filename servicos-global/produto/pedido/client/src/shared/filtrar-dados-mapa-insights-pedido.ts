@@ -105,8 +105,9 @@ export function montarFiltrosMapaPedidoTodos(
   }
 }
 
+/** Todos os cards de operação ativos = sem restrição (opt-out, paridade BID Frete). */
 function operacaoSemRestricao(filtros: ReadonlySet<FiltroOperacaoMapaInsightsPedido>): boolean {
-  return filtros.size >= OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length
+  return OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.every((op) => filtros.has(op))
 }
 
 /** Operação marcada quando está no conjunto selecionado. */
@@ -146,9 +147,9 @@ export function contarFiltrosMapaPedidoAtivos(
     total_status?: number
   },
 ): number {
-  const operacoesDesligadas = operacaoSemRestricao(filtros.operacao)
-    ? 0
-    : OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.length - filtros.operacao.size
+  const operacoesDesligadas = OPERACOES_FILTRO_MAPA_INSIGHTS_PEDIDO.filter(
+    (op) => !filtros.operacao.has(op),
+  ).length
 
   const totalOrigem = opcoes?.total_paises_origem ?? 0
   const totalDestino = opcoes?.total_paises_destino ?? 0

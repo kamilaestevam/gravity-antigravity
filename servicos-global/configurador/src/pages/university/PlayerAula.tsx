@@ -150,6 +150,16 @@ function calcularEspacoSuperiorBlocoGuia(
     return MANUAL_ESPACO_PARAGRAFO_PX
   }
 
+  // Intro vazia do fluxo → primeiro H2 subtópico (linha roxa → subtítulo: 18px)
+  if (
+    bloco.tipo === 'heading'
+    && Number(bloco.dados.nivel ?? 1) === 2
+    && blocoAnterior?.tipo === 'fluxo_manual'
+    && String(blocoAnterior.dados.modo ?? 'completo') === 'intro'
+  ) {
+    return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+  }
+
   // H2 subtópico → corpo do passo (1º parágrafo ou infográfico na Academy)
   if (
     bloco.tipo === 'fluxo_manual'

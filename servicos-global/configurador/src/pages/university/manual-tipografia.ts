@@ -53,9 +53,9 @@ export const MANUAL_PASSO_GUIA_BORDA_PX = 3
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
  * (tela, cards, etapa temática), não uma sequência operacional numerada.
  * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
- * + screenshot/galeria abaixo, alinhados à esquerda do passo.
+ * — a borda não envolve galeria/screenshot; estes ficam em `.uni-player-aula__passo-galeria` abaixo.
  * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
- * operacionais seguintes na mesma seção (ex.: etapas de «Novo token») ficam em texto simples, sem borda.
+ * operacionais (ex.: «Escolha 7 dias…» em `paragrafoAntes` sem `**NN.**`) ficam em texto simples, sem borda.
  *
  * Sequência texto + screenshot no mesmo subtítulo (`figurasAposParagrafo`):
  * - texto → screenshot na mesma etapa: 12px (`MANUAL_ESPACO_PARAGRAFO_PX`)

@@ -210,6 +210,14 @@
   overflow: hidden;
 }
 
+.sr-insights-funil__bar-wrap--interativo {
+  cursor: default;
+}
+
+.sr-insights-donut-wrap.sr-insights-tt-host {
+  cursor: default;
+}
+
 .sr-insights-funil__bar {
   height: 100%;
   border-radius: 4px;

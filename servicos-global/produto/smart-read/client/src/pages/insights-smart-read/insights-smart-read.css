@@ -1061,6 +1061,11 @@
   animation: sr-insights-tooltip-in 0.12s ease-out;
 }
 
+.sr-insights-tt--portal {
+  position: fixed;
+  z-index: 10050;
+}
+
 .sr-insights-tt--abaixo {
   transform: translate(-50%, 0);
   animation-name: sr-insights-tooltip-in-abaixo;

@@ -366,7 +366,6 @@ export function PainelCamposAcertosInsightsSmartRead({
             <TooltipGraficoInsightsSmartRead
               ancora={estado.ancora}
               conteudo={estado.dados}
-              containerRef={containerRef}
             />
           )}
         </div>
@@ -427,7 +426,6 @@ export function PainelTiposDocumentoInsightsSmartRead({
         <TooltipGraficoInsightsSmartRead
           ancora={estado.ancora}
           conteudo={estado.dados}
-          containerRef={containerRef}
         />
       )}
       </div>
@@ -548,7 +546,6 @@ function RankingColuna({
         <TooltipGraficoInsightsSmartRead
           ancora={estado.ancora}
           conteudo={estado.dados}
-          containerRef={containerRef}
         />
       )}
     </div>

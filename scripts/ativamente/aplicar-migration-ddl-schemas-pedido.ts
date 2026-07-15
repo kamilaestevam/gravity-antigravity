@@ -3,7 +3,7 @@
  * Usado no boot quando prisma migrate deploy falha (P3009) ou migrate-all-tenants não rodou.
  */
 import { createHash, randomUUID } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { Client } from 'pg'
 
@@ -286,4 +286,142 @@ export async function aplicarListaPainelEmSchemasComPedido(
     'ddl-pedido-lista_painel',
     configuradorUrl,
   )
+}
+
+/** Lista migrations do Pedido em ordem lexicografica (nome da pasta). */
+export function listarNomesMigrationsPedido(): string[] {
+  const dir = join(REPO_ROOT, 'servicos-global/produto/pedido/prisma/migrations')
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(join(dir, d.name, 'migration.sql')))
+    .map((d) => d.name)
+    .sort()
+}
+
+/** Conflitos esperados ao reaplicar migrations legadas em schema limpo (smoke local). */
+function ehConflitoDdlReplaySmoke(msg: string): boolean {
+  const lower = msg.toLowerCase()
+  return (
+    lower.includes('does not exist') ||
+    lower.includes('already exists') ||
+    lower.includes('duplicate key') ||
+    lower.includes('duplicate column') ||
+    lower.includes('cannot be implemented') ||
+    lower.includes('is not a view')
+  )
+}
+
+/**
+ * Aplica uma migration.sql em um schema PostgreSQL especifico (smoke / bootstrap local).
+ */
+export async function aplicarMigrationEmSchemaEspecifico(
+  pedidoUrl: string,
+  schemaName: string,
+  migrationName: string,
+  logPrefix: string,
+  opcoes?: { modoReplaySmoke?: boolean },
+): Promise<void> {
+  const sqlPath = join(
+    REPO_ROOT,
+    'servicos-global/produto/pedido/prisma/migrations',
+    migrationName,
+    'migration.sql',
+  )
+  if (!existsSync(sqlPath)) {
+    throw new Error(`[${logPrefix}] migration.sql ausente: ${migrationName}`)
+  }
+  const sql = readFileSync(sqlPath, 'utf-8')
+  const checksum = createHash('sha256').update(sql).digest('hex')
+
+  const client = new Client({ connectionString: pedidoUrl })
+  await client.connect()
+  try {
+    await client.query('BEGIN')
+    try {
+      await client.query(`SET LOCAL search_path TO "${schemaName}", public`)
+      await client.query(CREATE_MIGRATIONS_TABLE)
+
+      const { rows: applied } = await client.query<{ migration_name: string }>(
+        `SELECT migration_name FROM "_prisma_migrations"
+         WHERE migration_name = $1 AND finished_at IS NOT NULL AND rolled_back_at IS NULL`,
+        [migrationName],
+      )
+      if (applied.length > 0) {
+        console.log(`[${logPrefix}] ${schemaName} — ${migrationName} ja aplicada`)
+        await client.query('ROLLBACK')
+        return
+      }
+
+      await client.query(sql)
+      await client.query(
+        `INSERT INTO "_prisma_migrations" (id, checksum, finished_at, migration_name, applied_steps_count)
+         VALUES ($1, $2, NOW(), $3, 1)`,
+        [randomUUID(), checksum, migrationName],
+      )
+      await client.query('COMMIT')
+      console.log(`[${logPrefix}] ${schemaName} — ${migrationName} OK`)
+    } catch (err) {
+      await client.query('ROLLBACK')
+      const msg = err instanceof Error ? err.message : String(err)
+      if (opcoes?.modoReplaySmoke && ehConflitoDdlReplaySmoke(msg)) {
+        await client.query('BEGIN')
+        try {
+          await client.query(`SET LOCAL search_path TO "${schemaName}", public`)
+          await client.query(CREATE_MIGRATIONS_TABLE)
+          await client.query(
+            `INSERT INTO "_prisma_migrations" (id, checksum, finished_at, migration_name, applied_steps_count)
+             VALUES ($1, $2, NOW(), $3, 1)`,
+            [randomUUID(), checksum, migrationName],
+          )
+          await client.query('COMMIT')
+          console.warn(`[${logPrefix}] ${schemaName} — ${migrationName} SKIP replay (${msg.slice(0, 120)})`)
+          return
+        } catch (err2) {
+          await client.query('ROLLBACK')
+          const msg2 = err2 instanceof Error ? err2.message : String(err2)
+          throw new Error(`[${logPrefix}] Falha ao registrar skip de "${migrationName}": ${msg2}`)
+        }
+      }
+      throw new Error(`[${logPrefix}] Falha em schema "${schemaName}" (${migrationName}): ${msg}`)
+    }
+  } finally {
+    await client.end()
+  }
+}
+
+/** Provisiona schema vazio (sem migrations). */
+export async function criarSchemaSeNaoExistir(pedidoUrl: string, schemaName: string): Promise<void> {
+  const client = new Client({ connectionString: pedidoUrl })
+  await client.connect()
+  try {
+    await client.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)
+  } finally {
+    await client.end()
+  }
+}
+
+/** Remove schema e todo conteudo (smoke teardown). */
+export async function droparSchemaSeExistir(pedidoUrl: string, schemaName: string): Promise<void> {
+  const client = new Client({ connectionString: pedidoUrl })
+  await client.connect()
+  try {
+    await client.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`)
+  } finally {
+    await client.end()
+  }
+}
+
+/** Replay de todas as migrations do Pedido em um unico schema. */
+export async function aplicarTodasMigrationsPedidoEmSchema(
+  pedidoUrl: string,
+  schemaName: string,
+  logPrefix = 'smoke-bootstrap-pedido',
+): Promise<void> {
+  await criarSchemaSeNaoExistir(pedidoUrl, schemaName)
+  const migrations = listarNomesMigrationsPedido()
+  console.log(`[${logPrefix}] Aplicando ${migrations.length} migrations em "${schemaName}"`)
+  for (const migrationName of migrations) {
+    await aplicarMigrationEmSchemaEspecifico(pedidoUrl, schemaName, migrationName, logPrefix, {
+      modoReplaySmoke: true,
+    })
+  }
 }

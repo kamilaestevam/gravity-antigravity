@@ -54,6 +54,7 @@ import {
   criarSidecarListenReady,
   registrarErroListenSidecar,
 } from '../../../middleware/sidecar-listen-ready.js'
+import { PrismaModeloNaoProvisionadoError } from './lib/assert-prisma-delegate.js'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -88,6 +89,9 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
   console.error(err)
   if (err instanceof z.ZodError) {
     return res.status(400).json({ error: 'Validation Error', issues: err.issues })
+  }
+  if (err instanceof PrismaModeloNaoProvisionadoError) {
+    return res.status(503).json({ error: err.message, code: err.code })
   }
   const e = err as { statusCode?: number; message?: string }
   return res.status(e.statusCode ?? 500).json({

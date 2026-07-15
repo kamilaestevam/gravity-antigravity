@@ -132,6 +132,11 @@ async function proxyParaProduto(
       headers['x-id-workspace'] = idWorkspace.trim()
     }
 
+    const smokeSchemaPedido = req.headers['x-gravity-smoke-schema-pedido']
+    if (typeof smokeSchemaPedido === 'string' && smokeSchemaPedido.trim()) {
+      headers['x-gravity-smoke-schema-pedido'] = smokeSchemaPedido.trim()
+    }
+
     const chaveIdempotencia = extrairChaveIdempotencia(req.headers)
     const hashCorpo =
       req.method !== 'GET' && req.method !== 'HEAD'
@@ -198,6 +203,13 @@ async function proxyParaProduto(
   }
 }
 
+function subPathAposPrefixo(originalUrl: string, prefixo: string): string {
+  const pathOnly = originalUrl.split('?')[0]
+  const idx = pathOnly.indexOf(prefixo)
+  if (idx === -1) return ''
+  return pathOnly.slice(idx + prefixo.length) || ''
+}
+
 async function handlerPedidos(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const tokenValidado = await validarBearerToken(req.headers['authorization'])
@@ -215,7 +227,7 @@ async function handlerPedidos(req: Request, res: Response, next: NextFunction): 
     }
 
     const produto = PRODUTOS['pedidos']
-    const subPath = req.path.replace(/^\/pedidos/, '') || ''
+    const subPath = subPathAposPrefixo(req.originalUrl, '/pedidos')
 
     await proxyParaProduto(req, res, next, produto, tokenValidado, subPath)
   } catch (err) {
@@ -240,7 +252,7 @@ async function handlerOrdersAlias(req: Request, res: Response, next: NextFunctio
     }
 
     const produto = PRODUTOS['pedidos']
-    const subPath = req.path.replace(/^\/v1\/orders/, '') || ''
+    const subPath = subPathAposPrefixo(req.originalUrl, '/v1/orders')
 
     await proxyParaProduto(req, res, next, produto, tokenValidado, subPath, true)
   } catch (err) {

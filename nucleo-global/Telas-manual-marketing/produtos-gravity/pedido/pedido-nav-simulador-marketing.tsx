@@ -50,5 +50,6 @@ export const NAV_ITENS_SIMULADOR_PEDIDO: NavItem[] = [
     to: '/pedido/configuracoes',
     label: 'Configurações',
     icon: <GearSix weight="duotone" size={20} />,
+    dataTutorialAlvo: 'pedido-shell-nav-config',
   },
 ]

@@ -134,27 +134,24 @@ import {
 } from './transferir-lista-simulador-pedido'
 import {
   calcularJanelaColunasScrollListaSimulador,
+  scrollContainerParaColunaListaSimuladorAposLayout,
   scrollContainerParaLinhaListaSimulador,
 } from './janela-colunas-scroll-lista-simulador-pedido'
 import { montarLinhaNovoPedidoSimulador } from './montar-linha-novo-pedido-simulador'
 import type { EstadoTutorialListaPedido } from './dados-tutorial-opcional-simulador-pedido'
 import type { FornecedorSimuladorNovoPedido } from './dados-fornecedores-simulador-novo-pedido'
 import type { FormNovoPedidoSimulador, ItemNovoPedidoSimulador } from './regras-modal-novo-pedido-simulador'
+import { useConfigSimuladorPedido } from './estado-config-simulador-pedido'
+import { CARDS_CATALOGO_SIMULADOR, statusParaListaValor } from './catalogo-config-simulador-pedido'
 
 type FiltroAbaColunas = 'todas' | 'exibidas' | 'ocultas' | 'manuais'
 
-const STATUS_FILTROS: Array<{ id: string; label: string; cor: string; valor?: StatusListaPedidoSimulador }> = [
+const STATUS_FILTROS_BASE: Array<{ id: string; label: string; cor: string; valor?: StatusListaPedidoSimulador }> = [
   { id: 'todas', label: 'Todos', cor: '#818cf8' },
-  { id: 'rascunho', label: 'Rascunho', cor: '#94a3b8', valor: 'RASCUNHO' },
-  { id: 'aberto', label: 'Aberto', cor: '#f472b6', valor: 'ABERTO' },
-  { id: 'andamento', label: 'Em Andamento', cor: '#fb923c', valor: 'EM ANDAMENTO' },
-  { id: 'transferido', label: 'Transferido', cor: '#2dd4bf', valor: 'TRANSFERIDO' },
-  { id: 'consolidado', label: 'Consolidado', cor: '#a78bfa', valor: 'CONSOLIDADO' },
 ]
 
 const EXPORTAR_OPCOES = ['Excel (.xlsx)', 'CSV', 'TXT', 'XML', 'JSON', 'PDF']
 
-const ITENS_POR_PAGINA_PADRAO = 100
 const ITENS_POR_PAGINA_MIN = 10
 const ITENS_POR_PAGINA_MAX = 200
 const ALTURA_LINHA_PEDIDO_LISTA_SIMULADOR = 30
@@ -271,7 +268,9 @@ function estiloChipStatusFiltro(id: string, cor: string, ativo: boolean): CSSPro
 type Props = {
   empresasSelecionadas: PerfilEmpresaSimulador[]
   numeroPedidoFoco?: string | null
+  colunaIdFoco?: string | null
   onConsumirFocoLista?: () => void
+  onConsumirFocoColuna?: () => void
   onAbrirMenuWorkspaces?: () => void
   onEstadoTutorialChange?: (estado: EstadoTutorialListaPedido) => void
 }
@@ -313,10 +312,36 @@ function chaveCelula(linhaId: string, colunaId: string, itemId?: string): string
 export function ListaSimuladorPedido({
   empresasSelecionadas,
   numeroPedidoFoco = null,
+  colunaIdFoco = null,
   onConsumirFocoLista,
+  onConsumirFocoColuna,
   onAbrirMenuWorkspaces,
   onEstadoTutorialChange,
 }: Props) {
+  const { config } = useConfigSimuladorPedido()
+
+  const statusFiltros = useMemo(() => {
+    const dinamicos = [...config.status]
+      .sort((a, b) => a.ordem - b.ordem)
+      .map((s) => ({
+        id: s.nome,
+        label: s.rotulo,
+        cor: s.cor,
+        valor: statusParaListaValor(s.nome) as StatusListaPedidoSimulador,
+      }))
+    return [...STATUS_FILTROS_BASE, ...dinamicos]
+  }, [config.status])
+
+  const cardsListaVisiveis = useMemo(
+    () =>
+      [...config.cardsAtivos]
+        .filter((c) => c.visivel)
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((pref) => CARDS_CATALOGO_SIMULADOR.find((c) => c.id === pref.id))
+        .filter((c): c is NonNullable<typeof c> => c != null),
+    [config.cardsAtivos],
+  )
+
   const [paineisLista, setPaineisLista] = useState<PainelItemSimulador[]>(PAINEIS_LISTA_SIMULADOR_INICIAIS)
   const [painelAtualId, setPainelAtualId] = useState('geral')
   const [statusFiltro, setStatusFiltro] = useState('todas')
@@ -373,13 +398,33 @@ export function ListaSimuladorPedido({
   } | null>(null)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
+  const [colunaDestaqueFoco, setColunaDestaqueFoco] = useState<string | null>(null)
   const tabelaWrapRef = useRef<HTMLDivElement>(null)
   const colunasBtnRef = useRef<HTMLButtonElement>(null)
   const colunasDropdownRef = useRef<HTMLDivElement>(null)
   const colunasRef = useRef(colunas)
   const [colunasDropdownPos, setColunasDropdownPos] = useState({ top: 0, left: 0 })
   const [metricasScrollTabela, setMetricasScrollTabela] = useState({ scrollLeft: 0, viewportWidth: 0 })
-  const [itensPorPagina, setItensPorPagina] = useState(ITENS_POR_PAGINA_PADRAO)
+  const [itensPorPagina, setItensPorPagina] = useState(config.tabela.linhasPorPagina)
+
+  useEffect(() => {
+    setItensPorPagina(config.tabela.linhasPorPagina)
+  }, [config.tabela.linhasPorPagina])
+
+  useEffect(() => {
+    setColunas((prev) => {
+      const base = prev.filter((c) => !c.manual)
+      const personalizadas: ColunaListaSimuladorPedido[] = config.colunasPersonalizadas
+        .filter((c) => c.visivel)
+        .map((c) => ({
+          id: `custom_${c.chave}`,
+          label: c.nome,
+          manual: true,
+          visivel: true,
+        }))
+      return [...base, ...personalizadas]
+    })
+  }, [config.colunasPersonalizadas])
 
   useEffect(() => {
     colunasRef.current = colunas
@@ -550,7 +595,7 @@ export function ListaSimuladorPedido({
     }
 
     if (statusFiltro !== 'todas') {
-      const status = STATUS_FILTROS.find((s) => s.id === statusFiltro)
+      const status = statusFiltros.find((s) => s.id === statusFiltro)
       if (status) {
         itens.push({
           id: 'status-bar',
@@ -703,7 +748,7 @@ export function ListaSimuladorPedido({
   const linhasBase = linhas
 
   const linhasFiltradas = useMemo(() => {
-    const statusValor = STATUS_FILTROS.find((s) => s.id === statusFiltro)?.valor
+    const statusValor = statusFiltros.find((s) => s.id === statusFiltro)?.valor
     const termo = busca.trim().toLowerCase()
     let resultado = linhasBase.filter((l) => {
       if (statusValor && l.status !== statusValor) return false
@@ -826,6 +871,37 @@ export function ListaSimuladorPedido({
     }
     return colunas.filter((c) => c.visivel)
   }, [colunas, guiaPosTransferencia, guiaPosConsolidacao])
+
+  useEffect(() => {
+    if (!colunaIdFoco) return undefined
+    const indice = colunasVisiveis.findIndex((c) => c.id === colunaIdFoco)
+    if (indice < 0) return undefined
+
+    const wrap = tabelaWrapRef.current
+    if (!wrap) return undefined
+
+    setColunaDestaqueFoco(colunaIdFoco)
+    onConsumirFocoColuna?.()
+
+    const cancelarScroll = scrollContainerParaColunaListaSimuladorAposLayout(
+      wrap,
+      colunaIdFoco,
+      indice,
+      () => {
+        setMetricasScrollTabela({
+          scrollLeft: wrap.scrollLeft,
+          viewportWidth: wrap.clientWidth,
+        })
+      },
+    )
+
+    const timerDestaque = window.setTimeout(() => setColunaDestaqueFoco(null), 2800)
+
+    return () => {
+      cancelarScroll()
+      window.clearTimeout(timerDestaque)
+    }
+  }, [colunaIdFoco, colunasVisiveis, onConsumirFocoColuna])
 
   useEffect(() => {
     if (!guiaPosTransferencia) return undefined
@@ -1410,6 +1486,9 @@ export function ListaSimuladorPedido({
     colunaId: string,
     itemId?: string,
   ): string | undefined {
+    if (colunaDestaqueFoco === colunaId) {
+      return 'pds-lista-td--foco-nova-coluna'
+    }
     const transf = classeTdDestaquePosTransferencia(pedidoId, colunaId, itemId)
     if (transf) return transf
     if (celulaDestaquePosConsolidacao(pedidoId, colunaId, itemId)) {
@@ -1423,6 +1502,9 @@ export function ListaSimuladorPedido({
     colunaId: string,
     itemId?: string,
   ): string | undefined {
+    if (colunaDestaqueFoco === colunaId) {
+      return 'pds-lista-celula--foco-nova-coluna'
+    }
     const transf = classeCelulaDestaquePosTransferencia(pedidoId, colunaId, itemId)
     if (transf) return transf
     if (celulaDestaquePosConsolidacao(pedidoId, colunaId, itemId)) {
@@ -1432,6 +1514,9 @@ export function ListaSimuladorPedido({
   }
 
   function classeDestaqueCabecalhoColuna(colunaId: string): string | undefined {
+    if (colunaDestaqueFoco === colunaId) {
+      return 'pds-lista-th-col--foco-nova-coluna'
+    }
     if (guiaPosTransferencia) {
       return colunasDestaqueGuiaPosTransferenciaSimulador(guiaPosTransferencia.passo).includes(colunaId)
         ? 'pds-lista-th-col--destaque-transferencia'
@@ -1760,19 +1845,33 @@ export function ListaSimuladorPedido({
     <div className="pds-lista">
       <div className="lp-stats-row">
         <div className="lp-cards" data-sds-tutorial-alvo="pedido-lista-cards">
-          <CardBasicoGlobal
-            titulo="Valor Total"
-            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={formatarValorListaPedidoSimulador(resumo.valorTotal)}
-            variante="sucesso"
-            subtexto="Soma dos pedidos filtrados"
-          />
-          <CardBasicoGlobal
-            titulo="Total de Pedidos"
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--pds-accent)' }} />}
-            valor={resumo.totalPedidos}
-            subtexto={`${resumo.totalItens} total de itens`}
-          />
+          {cardsListaVisiveis.length > 0 ? (
+            cardsListaVisiveis.map((card) => (
+              <CardBasicoGlobal
+                key={card.id}
+                titulo={card.nome}
+                icone={<Package weight="duotone" size={16} style={{ color: card.cor }} />}
+                valor={card.id === 'valor_total' ? formatarValorListaPedidoSimulador(resumo.valorTotal) : resumo.totalPedidos}
+                subtexto={card.descricao}
+              />
+            ))
+          ) : (
+            <>
+              <CardBasicoGlobal
+                titulo="Valor Total"
+                icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+                valor={formatarValorListaPedidoSimulador(resumo.valorTotal)}
+                variante="sucesso"
+                subtexto="Soma dos pedidos filtrados"
+              />
+              <CardBasicoGlobal
+                titulo="Total de Pedidos"
+                icone={<Package weight="duotone" size={16} style={{ color: 'var(--pds-accent)' }} />}
+                valor={resumo.totalPedidos}
+                subtexto={`${resumo.totalItens} total de itens`}
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -1788,7 +1887,7 @@ export function ListaSimuladorPedido({
       <div className="pds-lista-status-bar" data-sds-tutorial-alvo="pedido-lista-status-pills">
         <span className="pds-lista-status-label">Status</span>
         <div className="pds-lista-status-pills">
-        {STATUS_FILTROS.map((s) => (
+        {statusFiltros.map((s) => (
           <button
             key={s.id}
             type="button"
@@ -2013,6 +2112,7 @@ export function ListaSimuladorPedido({
                     ].filter(Boolean).join(' ') || undefined}
                     style={{ opacity: arrastando ? 0.45 : undefined }}
                     {...(c.id === idColunaTutorialCabecalho ? { 'data-sds-tutorial-alvo': 'pedido-lista-cabecalho-colunas' } : {})}
+                    {...(c.id === 'saldo_itens_do_pedido' ? { 'data-sds-tutorial-alvo': 'pedido-lista-coluna-saldo' } : {})}
                     onDragStart={() => handleColunaDragStart(c.id)}
                     onDragOver={(e) => handleColunaDragOver(e, c.id, true)}
                     onDrop={(e) => handleColunaDrop(e, c.id, true)}

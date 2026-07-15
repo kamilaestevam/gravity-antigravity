@@ -17,6 +17,8 @@ export interface KanbanColunaDef {
   colapsavel?: boolean
   /** Esta coluna não aceita drops nem permite arrastar de dentro dela */
   isReadOnly?: boolean
+  /** Demo Gabi — data-sds-tutorial-alvo no container da coluna */
+  dataTutorialAlvo?: string
 }
 
 // ── Item ──────────────────────────────────────────────────────────────────────
@@ -173,4 +175,18 @@ export interface KanbanGlobalProps<T extends KanbanItem = KanbanItem> {
    * Todos os campos são opcionais; se ausentes, usa o padrão em pt-BR.
    */
   labels?: KanbanLabels
+  /** Demo Gabi — data-sds-tutorial-alvo no grid do board */
+  dataTutorialAlvoBoard?: string
+  /** Demo Gabi — alvos por id de card no wrapper arrastável */
+  dataTutorialAlvoPorCardId?: Record<string, string>
+  /** Card que recebe alvo no botão ⋮ Mover para */
+  dataTutorialAlvoMoverMenuCardId?: string
+  dataTutorialAlvoMoverMenu?: string
+  dataTutorialAlvoMoverOpcoes?: string
+  onMoverMenuOpenChange?: (itemId: string, aberto: boolean) => void
+  /** Coluna que recebe alvo no botão ordenar */
+  dataTutorialAlvoSortColunaKey?: string
+  dataTutorialAlvoSort?: string
+  dataTutorialAlvoSortOpcoes?: string
+  onSortPopoverOpenChange?: (colunaKey: string, aberto: boolean) => void
 }

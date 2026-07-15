@@ -34,6 +34,7 @@ interface ToolbarIconBtnProps {
   ariaLabel: string
   onClick?: () => void
   'data-testid'?: string
+  'data-sds-tutorial-alvo'?: string
   ariaExpanded?: boolean
   ariaHaspopup?: React.AriaAttributes['aria-haspopup']
   destacado?: boolean
@@ -46,6 +47,7 @@ function ToolbarIconBtn({
   ariaLabel,
   onClick,
   'data-testid': dataTestId,
+  'data-sds-tutorial-alvo': dataTutorialAlvo,
   ariaExpanded,
   ariaHaspopup,
   destacado = false,
@@ -60,6 +62,7 @@ function ToolbarIconBtn({
         aria-expanded={ariaExpanded}
         aria-haspopup={ariaHaspopup}
         data-testid={dataTestId}
+        {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
         className="pedido-dashboard-toolbar-botao-icone"
         onClick={onClick}
       />
@@ -212,6 +215,7 @@ function StatusSeletorSimulador({
         ariaHaspopup="listbox"
         ariaExpanded={open}
         data-testid="btn-status-dashboard"
+        data-sds-tutorial-alvo="pedido-dashboard-status"
         destacado={!isTodosActive}
         onClick={() => setOpen(v => !v)}
       />
@@ -223,9 +227,10 @@ function StatusSeletorSimulador({
 interface AdicionarWidgetProps {
   onAbrirSugestoes: () => void
   onCriarWidgetZero: () => void
+  onMenuOpenChange?: (aberto: boolean) => void
 }
 
-function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero }: AdicionarWidgetProps) {
+function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero, onMenuOpenChange }: AdicionarWidgetProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -261,6 +266,10 @@ function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero }: Adici
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  useEffect(() => {
+    onMenuOpenChange?.(open)
+  }, [open, onMenuOpenChange])
+
   const fechar = () => setOpen(false)
 
   const painel = open && typeof document !== 'undefined'
@@ -275,6 +284,7 @@ function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero }: Adici
             type="button"
             role="menuitem"
             className="pedido-dashboard-toolbar-icon-dropdown__opcao pedido-dashboard-adicionar-widget__opcao"
+            data-sds-tutorial-alvo="pedido-dashboard-adicionar-sugestoes"
             onClick={() => { fechar(); onAbrirSugestoes() }}
           >
             <ChartBar size={14} weight="duotone" aria-hidden="true" />
@@ -291,6 +301,7 @@ function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero }: Adici
             type="button"
             role="menuitem"
             className="pedido-dashboard-toolbar-icon-dropdown__opcao pedido-dashboard-adicionar-widget__opcao"
+            data-sds-tutorial-alvo="pedido-dashboard-adicionar-criar-zero"
             onClick={() => { fechar(); onCriarWidgetZero() }}
           >
             <PencilSimple size={14} weight="duotone" aria-hidden="true" />
@@ -311,7 +322,7 @@ function AdicionarWidgetSimulador({ onAbrirSugestoes, onCriarWidgetZero }: Adici
     : null
 
   return (
-    <div ref={ref} className="pedido-dashboard-toolbar-icon-dropdown">
+    <div ref={ref} className="pedido-dashboard-toolbar-icon-dropdown" data-sds-tutorial-alvo="pedido-dashboard-adicionar">
       <ToolbarIconBtn
         titulo={t('nucleo.dashboard.barra.adicionar_dashboard', { defaultValue: 'Adicionar widget' })}
         descricao={t('pedido.dashboard.adicionar_widget_menu_descricao', { defaultValue: 'Sugestões ou widget personalizado' })}
@@ -334,6 +345,7 @@ interface SeletorWidgetsProps {
   onReordenar: (fromId: string, toId: string) => void
   onSelecionarTodos: () => void
   onRestaurarPadrao: () => void
+  onPainelOpenChange?: (aberto: boolean) => void
 }
 
 function SeletorWidgetsSimulador({
@@ -343,6 +355,7 @@ function SeletorWidgetsSimulador({
   onReordenar,
   onSelecionarTodos,
   onRestaurarPadrao,
+  onPainelOpenChange,
 }: SeletorWidgetsProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -355,8 +368,12 @@ function SeletorWidgetsSimulador({
   const widgetsVisiveisIds = useMemo(() => idsWidgetsVisiveis(widgets), [widgets])
   const algumOculto = widgetsVisiveisIds.length < widgets.length
 
+  useEffect(() => {
+    onPainelOpenChange?.(open)
+  }, [open, onPainelOpenChange])
+
   return (
-    <div className="pedido-dashboard-widgets-seletor">
+    <div className="pedido-dashboard-widgets-seletor" data-sds-tutorial-alvo="pedido-dashboard-widgets-seletor">
       <button
         ref={btnRef}
         type="button"
@@ -371,6 +388,7 @@ function SeletorWidgetsSimulador({
         {t('pedido.dashboard.widgets', { defaultValue: 'Widgets' })}
       </button>
       {open && (
+        <div data-sds-tutorial-alvo="pedido-dashboard-widgets-painel">
         <SelectColunasGlobal
           colunas={colunas}
           colunasVisiveis={widgetsVisiveisIds}
@@ -382,6 +400,7 @@ function SeletorWidgetsSimulador({
           triggerRef={btnRef}
           posicao={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 200 }}
         />
+        </div>
       )}
     </div>
   )
@@ -407,6 +426,8 @@ export interface BarraFerramentasDashboardSimuladorPedidoProps {
   onClearFilters: () => void
   onAbrirSugestoes: () => void
   onCriarWidgetZero: () => void
+  onAdicionarMenuOpenChange?: (aberto: boolean) => void
+  onWidgetsSeletorOpenChange?: (aberto: boolean) => void
   widgetsSeletor?: SeletorWidgetsProps
 }
 
@@ -425,6 +446,8 @@ export function BarraFerramentasDashboardSimuladorPedido({
   onClearFilters,
   onAbrirSugestoes,
   onCriarWidgetZero,
+  onAdicionarMenuOpenChange,
+  onWidgetsSeletorOpenChange,
   widgetsSeletor,
 }: BarraFerramentasDashboardSimuladorPedidoProps) {
   const { t } = useTranslation()
@@ -469,6 +492,7 @@ export function BarraFerramentasDashboardSimuladorPedido({
                         ariaHaspopup="listbox"
                         ariaExpanded={open}
                         data-testid="btn-periodo-dashboard"
+                        data-sds-tutorial-alvo="pedido-dashboard-periodo"
                         onClick={onToggle}
                       />
                     )}
@@ -487,11 +511,15 @@ export function BarraFerramentasDashboardSimuladorPedido({
               <AdicionarWidgetSimulador
                 onAbrirSugestoes={onAbrirSugestoes}
                 onCriarWidgetZero={onCriarWidgetZero}
+                onMenuOpenChange={onAdicionarMenuOpenChange}
               />
             </div>
 
             {temWidgets && widgetsSeletor != null && (
-              <SeletorWidgetsSimulador {...widgetsSeletor} />
+              <SeletorWidgetsSimulador
+                {...widgetsSeletor}
+                onPainelOpenChange={onWidgetsSeletorOpenChange}
+              />
             )}
           </div>
 
@@ -519,7 +547,7 @@ export function BarraFerramentasDashboardSimuladorPedido({
       </div>
 
       {temRodape && (
-        <div className="pedido-dashboard-menu__rodape">
+        <div className="pedido-dashboard-menu__rodape" data-sds-tutorial-alvo="pedido-dashboard-filtros-ativos">
           <div className="pedido-dashboard-menu__filtros-ativos">
             <span className="pedido-dashboard-menu__label">
               {t('nucleo.dashboard.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}

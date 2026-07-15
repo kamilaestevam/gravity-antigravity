@@ -2,8 +2,64 @@
  * dados-tutorial-opcional-simulador-pedido.ts — mapa de cliques por tela (demo landing Pedido)
  */
 
-import type { TelaTutorialOpcional } from '../smart-doc/dados-tutorial-opcional-simulador-smart-doc'
+import type { TelaTutorialOpcional, ItemTutorialOpcional } from '../smart-doc/dados-tutorial-opcional-simulador-smart-doc'
 import type { CenarioTransferSimulador } from './transferir-lista-simulador-pedido'
+
+/** Passos de painéis repetidos em TODAS as telas contextuais do Dashboard */
+export const EXPLORAR_PAINELS_DASHBOARD_PEDIDO: ItemTutorialOpcional[] = [
+  {
+    titulo: 'Painéis — faixa',
+    descricao: 'Padrão, COMERCIAL e FINANCEIRO guardam layouts independentes — cada aba lembra seus próprios widgets',
+    idAlvo: 'pedido-dashboard-faixa-paineis',
+  },
+  {
+    titulo: 'Painéis — Padrão',
+    descricao: 'Layout inicial com KPIs, GABI e gráficos — o painel ativo define qual grade você está editando',
+    idAlvo: 'pedido-dashboard-painel-padrao',
+  },
+  {
+    titulo: 'Painéis — COMERCIAL',
+    descricao: 'Segunda vista salva — troque de aba sem misturar widgets com os outros painéis',
+    idAlvo: 'pedido-dashboard-painel-comercial',
+  },
+  {
+    titulo: 'Painéis — FINANCEIRO',
+    descricao: 'Terceira vista para métricas financeiras — layout exclusivo desta aba',
+    idAlvo: 'pedido-dashboard-painel-financeiro',
+  },
+  {
+    titulo: 'Painéis — criar (+)',
+    descricao: 'Use o + para nomear um painel novo — widgets adicionados ficam só neste painel',
+    idAlvo: 'pedido-dashboard-painel-criar',
+  },
+]
+
+function explorarComPaineisDashboard(passos: ItemTutorialOpcional[]): ItemTutorialOpcional[] {
+  return [...EXPLORAR_PAINELS_DASHBOARD_PEDIDO, ...passos]
+}
+
+/** Passos de Configurações — criar coluna no Kanban (repetidos nas telas contextuais do Kanban) */
+export const EXPLORAR_CONFIG_COLUNA_KANBAN: ItemTutorialOpcional[] = [
+  {
+    titulo: 'Config — menu lateral',
+    descricao: 'Em Configurações você cria novas colunas do Kanban, renomeia etapas e define cores do pipeline',
+    idAlvo: 'pedido-shell-nav-config',
+  },
+  {
+    titulo: 'Config — ícone topo',
+    descricao: 'Atalho rápido (engrenagem) para as mesmas preferências de colunas e automações',
+    idAlvo: 'pedido-kanban-config-topo',
+  },
+  {
+    titulo: 'Config — nova coluna',
+    descricao: 'Em Configurações › Colunas, use + Nova coluna para adicionar etapas personalizadas ao board',
+    idAlvo: 'pedido-kanban-config-topo',
+  },
+]
+
+function explorarComConfigColunaKanban(passos: ItemTutorialOpcional[]): ItemTutorialOpcional[] {
+  return [...EXPLORAR_CONFIG_COLUNA_KANBAN, ...passos]
+}
 
 export const TELAS_TUTORIAL_OPCIONAL_PEDIDO: Record<string, TelaTutorialOpcional> = {
   insights: {
@@ -69,8 +125,11 @@ export const TELAS_TUTORIAL_OPCIONAL_PEDIDO: Record<string, TelaTutorialOpcional
       { titulo: '13. Gerar documento', descricao: 'Gere PDF da seleção quando houver pedidos marcados', idAlvo: 'pedido-lista-gerar-documento' },
       { titulo: '14. Excluir', descricao: 'Remova pedidos ou itens selecionados da grade', idAlvo: 'pedido-lista-excluir' },
       { titulo: '15. Personalize colunas', descricao: 'Abra Colunas para exibir, ocultar e arrastar a ordem das colunas', idAlvo: 'pedido-lista-colunas' },
-      { titulo: '16. Exportar a grade', descricao: 'Exporte a lista em Excel, CSV, PDF e outros formatos', idAlvo: 'pedido-lista-exportar' },
-      { titulo: '17. Crie registros', descricao: 'Abra Novo para pedido manual, item, Smart Import ou API', idAlvo: 'pedido-lista-novo' },
+      { titulo: '16. Nova coluna (Config)', descricao: 'Em Configurações › Colunas › Personalizadas, crie colunas de texto, número, data, checkbox, fórmula e mais', idAlvo: 'pedido-shell-nav-config' },
+      { titulo: '17. Saldo do pedido', descricao: 'Coluna Saldo = Qtd. Inicial − Transferida − Cancelada. Ajuste a fórmula em Configurações › Campos Calculados', idAlvo: 'pedido-lista-coluna-saldo' },
+      { titulo: '18. Status do pedido', descricao: 'Cada status (Rascunho, Aberto, Em andamento…) define o pipeline — crie novos em Configurações › Status', idAlvo: 'pedido-lista-status-pills' },
+      { titulo: '19. Exportar a grade', descricao: 'Exporte a lista em Excel, CSV, PDF e outros formatos', idAlvo: 'pedido-lista-exportar' },
+      { titulo: '20. Crie registros', descricao: 'Abra Novo para pedido manual, item, Smart Import ou API', idAlvo: 'pedido-lista-novo' },
     ],
     avancar: {
       acao: 'Ver detalhe',
@@ -100,47 +159,507 @@ export const TELAS_TUTORIAL_OPCIONAL_PEDIDO: Record<string, TelaTutorialOpcional
   dashboard: {
     id: 'dashboard',
     titulo: 'Dashboard',
-    resumo: 'Visão operacional em tempo real — preview do módulo no tenant completo.',
+    resumo: 'Painéis personalizáveis, KPIs, GABI AI, gráficos e widgets com drag-and-drop.',
     explorar: [
-      { titulo: '1. Leia o banner', descricao: 'Indica que o dashboard completo chegará no produto real', idAlvo: 'pedido-shell-banner-dashboard' },
-      { titulo: '2. Use as abas superiores', descricao: 'Clique em Insights ou Lista para retomar a demonstração', idAlvo: 'pedido-shell-abas' },
+      { titulo: '1. Abas do produto', descricao: 'Alterne Insights, Lista, Dashboard e Kanban — cada modo mostra outra visão dos pedidos', idAlvo: 'pedido-shell-abas' },
+      { titulo: '2. Painéis — faixa', descricao: 'Padrão, COMERCIAL e FINANCEIRO guardam layouts independentes de widgets', idAlvo: 'pedido-dashboard-faixa-paineis' },
+      { titulo: '3. Painéis — Padrão', descricao: 'Layout inicial — KPIs, GABI e gráficos do painel ativo', idAlvo: 'pedido-dashboard-painel-padrao' },
+      { titulo: '4. Painéis — COMERCIAL', descricao: 'Clique para trocar — cada aba lembra seus próprios widgets e posições', idAlvo: 'pedido-dashboard-painel-comercial' },
+      { titulo: '5. Painéis — FINANCEIRO', descricao: 'Aba dedicada a métricas financeiras — independente dos outros painéis', idAlvo: 'pedido-dashboard-painel-financeiro' },
+      { titulo: '6. Painéis — criar (+)', descricao: 'Use o + para nomear um painel personalizado com layout exclusivo', idAlvo: 'pedido-dashboard-painel-criar' },
+      { titulo: '7. Filtro de período', descricao: 'Abra o calendário e mude o intervalo — KPIs e gráficos recalculam', idAlvo: 'pedido-dashboard-periodo' },
+      { titulo: '8. Filtro de status', descricao: 'Marque Abertos, Em andamento, Atrasados ou Concluídos — combine com o período', idAlvo: 'pedido-dashboard-status' },
+      { titulo: '9. Adicionar widget', descricao: 'Clique no + da barra — abre o menu com Sugestões da GABI ou Criar do zero', idAlvo: 'pedido-dashboard-adicionar' },
+      { titulo: '10. Gerenciar widgets', descricao: 'Botão Widgets: exiba, oculte, reordene ou restaure o layout padrão', idAlvo: 'pedido-dashboard-widgets-seletor' },
+      { titulo: '11. KPI Rascunho', descricao: 'Primeiro card da linha de status — contagem de pedidos em rascunho', idAlvo: 'pedido-dashboard-kpi-rascunho' },
+      { titulo: '12. KPI Aberto', descricao: 'Segundo card — pedidos abertos no escopo filtrado', idAlvo: 'pedido-dashboard-kpi-aberto' },
+      { titulo: '13. KPI Em andamento', descricao: 'Terceiro card — pedidos em execução operacional', idAlvo: 'pedido-dashboard-kpi-andamento' },
+      { titulo: '14. KPI Consolidado', descricao: 'Quarto card — pedidos já consolidados', idAlvo: 'pedido-dashboard-kpi-consolidado' },
+      { titulo: '15. GABI AI · Insights', descricao: 'Widget roxo com alertas acionáveis gerados pela IA sobre seus pedidos', idAlvo: 'pedido-dashboard-gabi' },
+      { titulo: '16. Carrossel GABI', descricao: 'Passe o mouse para pausar; use as setas ou aguarde a rotação automática', idAlvo: 'pedido-dashboard-gabi-nav' },
+      { titulo: '17. Ação rápida GABI', descricao: 'Clique em Corrigir agora ou Publicar pedidos nos cards de insight', idAlvo: 'pedido-dashboard-gabi-acao' },
+      { titulo: '18. Pedidos por mês', descricao: 'Gráfico de linha com volume mensal — passe o mouse nos pontos', idAlvo: 'pedido-dashboard-grafico-pedidos-mes' },
+      { titulo: '19. Evolução do valor', descricao: 'Tendência financeira dos últimos meses', idAlvo: 'pedido-dashboard-grafico-valor' },
+      { titulo: '20. Faixa Alertas', descricao: 'Separador que agrupa KPIs operacionais críticos', idAlvo: 'pedido-dashboard-section-alertas' },
+      { titulo: '21. Pedidos atrasados', descricao: 'KPI em vermelho — fora do prazo no filtro atual', idAlvo: 'pedido-dashboard-kpi-atrasados' },
+      { titulo: '22. Sem exportador', descricao: 'Pendência de vínculo com exportador', idAlvo: 'pedido-dashboard-kpi-sem-exportador' },
+      { titulo: '23. Qtd. pronta', descricao: 'Itens prontos para embarque ou faturamento', idAlvo: 'pedido-dashboard-kpi-qtd-pronta' },
+      { titulo: '24. Distribuição por status', descricao: 'Proporção Aberto, Andamento, Consolidado, Rascunho e Cancelado', idAlvo: 'pedido-dashboard-dist-status' },
+      { titulo: '25. Importação × Exportação', descricao: 'Mix de operações no painel de distribuição', idAlvo: 'pedido-dashboard-dist-operacao' },
+      { titulo: '26. Qtd. inicial', descricao: 'Quantidade inicial total dos itens', idAlvo: 'pedido-dashboard-kpi-qtd-inicial' },
+      { titulo: '27. Qtd. transferida', descricao: 'Volume já transferido entre pedidos', idAlvo: 'pedido-dashboard-kpi-qtd-transferida' },
+      { titulo: '28. Valor dos itens', descricao: 'Valor total agregado das linhas de item', idAlvo: 'pedido-dashboard-kpi-valor-itens' },
+      { titulo: '29. Menu do widget (⋮)', descricao: 'Em qualquer card — abre Editar, Excluir, Mover e Mudar tamanho', idAlvo: 'pedido-dashboard-widget-menu' },
+      { titulo: '30. Grade completa', descricao: 'Role a página — todos os widgets respondem aos filtros globais', idAlvo: 'pedido-dashboard-grid' },
+      { titulo: '31. Filtros ativos', descricao: 'Quando período ou status estão aplicados, o rodapé lista os chips — clique em Limpar para resetar', idAlvo: 'pedido-dashboard-filtros-ativos' },
+      { titulo: '32. Troque o workspace', descricao: 'Selecione outra filial no menu lateral para mudar o escopo', idAlvo: 'pedido-insights-seletor-workspace' },
+      { titulo: '33. Vá para o Kanban', descricao: 'Pipeline visual por etapa', idAlvo: 'pedido-shell-aba-kanban' },
     ],
     avancar: {
-      acao: 'Retomar demo',
-      titulo: 'Volte ao Insights',
-      descricao: 'Clique na aba Insights no topo da tela',
-      idAlvo: 'pedido-shell-aba-insights',
+      acao: 'Menu do widget',
+      titulo: 'Abra o menu ⋮',
+      descricao: 'Clique nos três pontos do primeiro KPI (Rascunho) para ver Editar, Excluir e layout',
+      idAlvo: 'pedido-dashboard-widget-menu',
+    },
+  },
+  'dashboard-painel-nome': {
+    id: 'dashboard-painel-nome',
+    titulo: 'Novo painel',
+    resumo: 'Nomeie o painel — cada aba guarda widgets e layout independentes.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Nome do painel', descricao: 'Digite um nome curto (ex.: Exportação Q2, Diretoria) — até 60 caracteres', idAlvo: 'pedido-dashboard-painel-nome' },
+      { titulo: '2. Confirmar (✓)', descricao: 'Salva o painel e ativa a nova aba — widgets que você adicionar ficam só aqui', idAlvo: 'pedido-dashboard-painel-nome-salvar' },
+      { titulo: '3. Cancelar (×)', descricao: 'Descarta a criação e volta à faixa de painéis sem alterar nada', idAlvo: 'pedido-dashboard-painel-nome-cancelar' },
+    ]),
+    avancar: {
+      acao: 'Confirmar',
+      titulo: 'Crie o painel',
+      descricao: 'Digite o nome e clique em ✓ — a nova aba abre automaticamente',
+      idAlvo: 'pedido-dashboard-painel-nome-salvar',
+    },
+  },
+  'dashboard-menu-adicionar': {
+    id: 'dashboard-menu-adicionar',
+    titulo: 'Adicionar widget',
+    resumo: 'Escolha entre sugestões inteligentes da GABI ou montar um widget personalizado.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Sugestões da GABI', descricao: 'Widgets recomendados com base no catálogo e no layout atual', idAlvo: 'pedido-dashboard-adicionar-sugestoes' },
+      { titulo: '2. Criar do zero', descricao: 'Abre o wizard em 3 passos: campo, operação/nome e tipo de gráfico', idAlvo: 'pedido-dashboard-adicionar-criar-zero' },
+    ]),
+    avancar: {
+      acao: 'Explorar sugestões',
+      titulo: 'Abra as sugestões',
+      descricao: 'Clique em Sugestões da GABI para ver widgets recomendados',
+      idAlvo: 'pedido-dashboard-adicionar-sugestoes',
+    },
+  },
+  'dashboard-menu-widget': {
+    id: 'dashboard-menu-widget',
+    titulo: 'Menu do card',
+    resumo: 'Ações por widget — edição, exclusão e layout no grid.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Editar', descricao: 'Renomeie o card, troque o tipo de gráfico ou defina período próprio', idAlvo: 'pedido-dashboard-widget-editar' },
+      { titulo: '2. Excluir', descricao: 'Remove o widget do painel atual (ação imediata na demo)', idAlvo: 'pedido-dashboard-widget-excluir' },
+      { titulo: '3. Mover', descricao: 'Ativa o modo arrastar — reposicione o card na grade do painel ativo', idAlvo: 'pedido-dashboard-widget-mover-item' },
+      { titulo: '4. Mudar tamanho', descricao: 'Ativa alças de redimensionamento nas bordas do card', idAlvo: 'pedido-dashboard-widget-redimensionar-item' },
+    ]),
+    avancar: {
+      acao: 'Editar card',
+      titulo: 'Abra a edição',
+      descricao: 'Clique em Editar para ajustar nome, gráfico e período',
+      idAlvo: 'pedido-dashboard-widget-editar',
+    },
+  },
+  'dashboard-movendo-widget': {
+    id: 'dashboard-movendo-widget',
+    titulo: 'Movendo widget',
+    resumo: 'Modo de reorganização — arraste o card pelo cabeçalho ou corpo.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Arraste o card', descricao: 'Solte em outra célula da grade para trocar a posição neste painel', idAlvo: 'pedido-dashboard-widget-mover' },
+      { titulo: '2. Concluir', descricao: 'No menu ⋮, clique em Concluir para sair do modo mover', idAlvo: 'pedido-dashboard-widget-concluir' },
+    ]),
+    avancar: {
+      acao: 'Concluir',
+      titulo: 'Finalize o layout',
+      descricao: 'Abra o ⋮ e clique em Concluir',
+      idAlvo: 'pedido-dashboard-widget-concluir',
+    },
+  },
+  'dashboard-redimensionando-widget': {
+    id: 'dashboard-redimensionando-widget',
+    titulo: 'Redimensionando widget',
+    resumo: 'Modo de tamanho — arraste bordas ou cantos do card.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Ajuste o tamanho', descricao: 'Use as alças nas bordas para ampliar ou reduzir o widget', idAlvo: 'pedido-dashboard-widget-redimensionar' },
+      { titulo: '2. Concluir', descricao: 'No menu ⋮, clique em Concluir para fixar o novo tamanho', idAlvo: 'pedido-dashboard-widget-concluir' },
+    ]),
+    avancar: {
+      acao: 'Concluir',
+      titulo: 'Finalize o tamanho',
+      descricao: 'Abra o ⋮ e clique em Concluir',
+      idAlvo: 'pedido-dashboard-widget-concluir',
+    },
+  },
+  'dashboard-widgets-painel': {
+    id: 'dashboard-widgets-painel',
+    titulo: 'Gerenciar widgets',
+    resumo: 'Painel para exibir, ocultar, reordenar e restaurar widgets do painel.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Marque visibilidade', descricao: 'Checkbox em cada widget — oculte cards sem excluir do painel atual', idAlvo: 'pedido-dashboard-widgets-painel' },
+      { titulo: '2. Reordene', descricao: 'Arraste pelo ícone ≡ para mudar a ordem na lista (reflete na grade)', idAlvo: 'pedido-dashboard-widgets-painel' },
+      { titulo: '3. Selecionar tudo', descricao: 'Exibe todos os widgets de uma vez neste painel', idAlvo: 'pedido-dashboard-widgets-painel' },
+      { titulo: '4. Restaurar padrão', descricao: 'Volta ao layout original de widgets e posições do painel', idAlvo: 'pedido-dashboard-widgets-painel' },
+    ]),
+    avancar: {
+      acao: 'Fechar painel',
+      titulo: 'Volte ao dashboard',
+      descricao: 'Clique fora ou no X para fechar o painel Widgets',
+      idAlvo: 'pedido-dashboard-grid',
+    },
+  },
+  'dashboard-sugestoes': {
+    id: 'dashboard-sugestoes',
+    titulo: 'Sugestões da GABI',
+    resumo: 'Widgets recomendados com base no seu catálogo de métricas e no layout atual.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Confiança da sugestão', descricao: 'Badges Alta, Média ou Baixa indicam o quão relevante é cada widget', idAlvo: 'pedido-dashboard-sugestoes-lista' },
+      { titulo: '2. Adicionar sugestão', descricao: 'Clique em Adicionar — o widget entra na grade do painel ativo', idAlvo: 'pedido-dashboard-sugestoes-adicionar' },
+      { titulo: '3. Métricas derivadas', descricao: 'Taxa de atraso, ticket médio e conclusão de itens — KPIs calculados', idAlvo: 'pedido-dashboard-sugestoes-derivadas' },
+      { titulo: '4. Criar do zero', descricao: 'Abra o construtor para escolher campos, operação e tipo de gráfico', idAlvo: 'pedido-dashboard-sugestoes-criar-zero' },
+    ]),
+    avancar: {
+      acao: 'Fechar painel',
+      titulo: 'Volte ao dashboard',
+      descricao: 'Feche o painel lateral ou adicione um widget sugerido',
+      idAlvo: 'pedido-dashboard-grid',
+    },
+  },
+  'dashboard-construtor': {
+    id: 'dashboard-construtor',
+    titulo: 'Criar widget',
+    resumo: 'Wizard em 3 passos: campos, operação e visualização do gráfico.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Buscar campo', descricao: 'Filtre o catálogo por nome da métrica (ex.: valor, pedidos, qtd.)', idAlvo: 'pedido-dashboard-construtor-busca' },
+      { titulo: '2. Escolha a métrica', descricao: 'Marque um campo — badges indicam moeda (R$), percentual ou número', idAlvo: 'pedido-dashboard-construtor-campos' },
+      { titulo: '3. Nome do widget', descricao: 'Passo 2 — título exibido no cabeçalho do card (obrigatório)', idAlvo: 'pedido-dashboard-construtor-titulo' },
+      { titulo: '4. Operação', descricao: 'COUNT, SUM ou AVG — conforme agregações disponíveis do campo', idAlvo: 'pedido-dashboard-construtor-operacao' },
+      { titulo: '5. Período do widget', descricao: 'Intervalo exclusivo deste card — pode diferir do filtro global', idAlvo: 'pedido-dashboard-construtor-periodo' },
+      { titulo: '6. Tipos de gráfico', descricao: 'KPI, linha, área, barras, barras H, distribuição, donut, tabela, funil ou gauge', idAlvo: 'pedido-dashboard-construtor-tipos-grafico' },
+      { titulo: '7. Salvar', descricao: 'Clique em Salvar widget — o card entra na grade do painel ativo', idAlvo: 'pedido-dashboard-construtor-salvar' },
+    ]),
+    avancar: {
+      acao: 'Passo 1 de 3',
+      titulo: 'Escolha um campo',
+      descricao: 'Marque uma métrica e clique em Próximo',
+      idAlvo: 'pedido-dashboard-construtor-campos',
+    },
+  },
+  'dashboard-editar-widget': {
+    id: 'dashboard-editar-widget',
+    titulo: 'Editar widget',
+    resumo: 'Ajuste título, tipo de gráfico e período próprio do card.',
+    explorar: explorarComPaineisDashboard([
+      { titulo: '1. Renomeie o card', descricao: 'Altere o título exibido no cabeçalho do widget', idAlvo: 'pedido-dashboard-editar-titulo' },
+      { titulo: '2. Tipos de gráfico', descricao: 'KPI, linha, área, barras, donut, distribuição, tabela, funil ou gauge — só tipos compatíveis', idAlvo: 'pedido-dashboard-editar-grafico' },
+      { titulo: '3. Período do widget', descricao: 'Intervalo exclusivo — independente do filtro global da barra', idAlvo: 'pedido-dashboard-editar-periodo' },
+      { titulo: '4. Indicador (leitura)', descricao: 'Campos e operações do widget — somente visualização nesta edição rápida', idAlvo: 'pedido-dashboard-editar-indicador' },
+      { titulo: '5. Cancelar ou salvar', descricao: 'Cancelar descarta; Salvar aplica no painel ativo', idAlvo: 'pedido-dashboard-editar-salvar' },
+    ]),
+    avancar: {
+      acao: 'Salvar',
+      titulo: 'Aplique as mudanças',
+      descricao: 'Clique em Salvar para atualizar o card na grade',
+      idAlvo: 'pedido-dashboard-editar-salvar',
     },
   },
   kanban: {
     id: 'kanban',
     titulo: 'Kanban',
-    resumo: 'Pipeline visual por etapa — arraste cards entre colunas na demonstração.',
+    resumo: 'Pipeline visual por status — busque, ordene, arraste cards entre colunas e personalize colunas em Configurações.',
     explorar: [
-      { titulo: '1. Veja as colunas', descricao: 'Abertura, Anuência e Desembaraço com contagem por etapa', idAlvo: 'pedido-kanban-colunas' },
-      { titulo: '2. Arraste um card', descricao: 'Mova um card para outra coluna ou clique para abrir detalhes', idAlvo: 'pedido-kanban-card' },
-      { titulo: '3. Leia a timeline', descricao: 'No painel lateral, veja etapas concluídas do pedido selecionado', idAlvo: 'pedido-kanban-detalhe' },
+      { titulo: '1. Buscar pedido', descricao: 'Digite número, exportador, importador ou incoterm para filtrar os cards', idAlvo: 'pedido-kanban-busca' },
+      { titulo: '2. Total filtrado', descricao: 'Contador atualiza conforme a busca — mostra quantos pedidos estão visíveis', idAlvo: 'pedido-kanban-total' },
+      { titulo: '3. Board completo', descricao: 'Sete colunas de status — role horizontalmente para ver todo o pipeline', idAlvo: 'pedido-kanban-board' },
+      { titulo: '4. Coluna Rascunho', descricao: 'Pedidos ainda não publicados — cinza', idAlvo: 'pedido-kanban-coluna-rascunho' },
+      { titulo: '5. Coluna Aberto', descricao: 'Pedidos abertos aguardando execução — azul', idAlvo: 'pedido-kanban-coluna-aberto' },
+      { titulo: '6. Coluna Em Andamento', descricao: 'Operação em curso — laranja', idAlvo: 'pedido-kanban-coluna-em-andamento' },
+      { titulo: '7. Coluna Aprovado', descricao: 'Pedidos aprovados internamente — amarelo', idAlvo: 'pedido-kanban-coluna-aprovado' },
+      { titulo: '8. Coluna Transferido', descricao: 'Itens já transferidos entre pedidos — teal', idAlvo: 'pedido-kanban-coluna-transferencia' },
+      { titulo: '9. Coluna Consolidado', descricao: 'Pedidos consolidados — roxo', idAlvo: 'pedido-kanban-coluna-consolidado' },
+      { titulo: '10. Coluna Cancelado', descricao: 'Somente leitura — cards não podem ser arrastados para cá nem de lá', idAlvo: 'pedido-kanban-coluna-cancelado' },
+      { titulo: '11. Ordenar coluna', descricao: 'No cabeçalho de Aberto — mais recente, mais antigo ou ordem alfabética', idAlvo: 'pedido-kanban-ordenar' },
+      { titulo: '12. Card de pedido', descricao: 'Cada card resume exportador, datas e valor — clique para abrir o modal', idAlvo: 'pedido-kanban-card' },
+      { titulo: '13. Número do pedido', descricao: 'Identificador no topo do card', idAlvo: 'pedido-kanban-card-numero' },
+      { titulo: '14. Tipo de operação', descricao: 'Badge Importação (índigo) ou Exportação (verde)', idAlvo: 'pedido-kanban-card-tipo' },
+      { titulo: '15. Parceiros', descricao: 'Exportador e importador configurados nas preferências do card', idAlvo: 'pedido-kanban-card-parceiro' },
+      { titulo: '16. Data crítica', descricao: 'Prev. coleta com cor de urgência — verde, amarelo ou vermelho', idAlvo: 'pedido-kanban-card-data-critica' },
+      { titulo: '17. Valor e incoterm', descricao: 'Rodapé do card com valor total, moeda e incoterm', idAlvo: 'pedido-kanban-card-rodape' },
+      { titulo: '18. Menu Mover para (⋮)', descricao: 'Alternativa ao arrastar — escolha a coluna de destino no menu', idAlvo: 'pedido-kanban-mover-menu' },
+      { titulo: '19. Arrastar entre colunas', descricao: 'Segure e arraste o card — solte em outra coluna para mudar o status', idAlvo: 'pedido-kanban-card' },
+      { titulo: '20. Clique no card', descricao: 'Abre o painel rápido com abas Pedido, Quantidades, Datas e Lembrete', idAlvo: 'pedido-kanban-card' },
+      { titulo: '21. Configurações (menu)', descricao: 'No menu lateral — abre preferências do pipeline e colunas do Kanban', idAlvo: 'pedido-shell-nav-config' },
+      { titulo: '22. Configurações (topo)', descricao: 'Ícone de engrenagem no cabeçalho — mesmo atalho para Configurações', idAlvo: 'pedido-kanban-config-topo' },
+      { titulo: '23. Nova coluna', descricao: 'Em Configurações › Colunas, clique em + Nova coluna para criar etapas personalizadas no pipeline', idAlvo: 'pedido-kanban-config-topo' },
     ],
     avancar: {
-      acao: 'Retomar demo',
-      titulo: 'Volte ao Insights',
-      descricao: 'Clique na aba Insights na barra superior',
-      idAlvo: 'pedido-shell-aba-insights',
+      acao: 'Abrir detalhe',
+      titulo: 'Clique em um card',
+      descricao: 'Abra o modal de detalhe para ver campos, quantidades e datas',
+      idAlvo: 'pedido-kanban-card',
+    },
+  },
+  'kanban-menu-mover': {
+    id: 'kanban-menu-mover',
+    titulo: 'Mover card',
+    resumo: 'Escolha a coluna de destino sem arrastar.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Colunas disponíveis', descricao: 'Lista todas as colunas exceto a atual — Cancelado fica desabilitado', idAlvo: 'pedido-kanban-mover-opcoes' },
+      { titulo: '2. Confirme o destino', descricao: 'Clique na coluna — o card muda de status na demonstração', idAlvo: 'pedido-kanban-mover-opcoes' },
+    ]),
+    avancar: {
+      acao: 'Fechar menu',
+      titulo: 'Volte ao board',
+      descricao: 'Clique fora ou escolha uma coluna para mover o card',
+      idAlvo: 'pedido-kanban-board',
+    },
+  },
+  'kanban-ordenar': {
+    id: 'kanban-ordenar',
+    titulo: 'Ordenar coluna',
+    resumo: 'Reorganize os cards dentro da coluna Aberto.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Mais recente', descricao: 'Ordena por data de emissão — padrão do board', idAlvo: 'pedido-kanban-ordenar-opcoes' },
+      { titulo: '2. Mais antigo', descricao: 'Inverte a ordem cronológica', idAlvo: 'pedido-kanban-ordenar-opcoes' },
+      { titulo: '3. Alfabética', descricao: 'Ordena pelo número do pedido', idAlvo: 'pedido-kanban-ordenar-opcoes' },
+    ]),
+    avancar: {
+      acao: 'Fechar',
+      titulo: 'Aplique a ordenação',
+      descricao: 'Escolha uma opção — o popover fecha automaticamente',
+      idAlvo: 'pedido-kanban-ordenar',
+    },
+  },
+  'kanban-modal-pedido': {
+    id: 'kanban-modal-pedido',
+    titulo: 'Detalhe do pedido',
+    resumo: 'Painel rápido — aba Pedido com dados comerciais do card selecionado.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Cabeçalho', descricao: 'Número do pedido e badge Importação/Exportação', idAlvo: 'pedido-kanban-modal-cabecalho' },
+      { titulo: '2. Status atual', descricao: 'Badge colorido conforme a coluna onde o card está', idAlvo: 'pedido-kanban-modal-status' },
+      { titulo: '3. Abas do modal', descricao: 'Alterne Pedido, Quantidades, Datas e Lembrete', idAlvo: 'pedido-kanban-modal-abas' },
+      { titulo: '4. Campos do pedido', descricao: 'Exportador, moeda, invoice, incoterm, valor e referências', idAlvo: 'pedido-kanban-modal-campos-pedido' },
+      { titulo: '5. Abrir pedido completo', descricao: 'Vai para a Lista com o pedido em foco', idAlvo: 'pedido-kanban-modal-abrir-completo' },
+      { titulo: '6. Fechar', descricao: 'Retorna ao board sem sair da aba Kanban', idAlvo: 'pedido-kanban-modal-fechar' },
+    ]),
+    avancar: {
+      acao: 'Quantidades',
+      titulo: 'Veja as quantidades',
+      descricao: 'Clique na aba Quantidades para saldos e volumes',
+      idAlvo: 'pedido-kanban-modal-aba-quantidades',
+    },
+  },
+  'kanban-modal-quantidades': {
+    id: 'kanban-modal-quantidades',
+    titulo: 'Detalhe — Quantidades',
+    resumo: 'Volumes do pedido: inicial, pronta, transferida, cancelada e saldo.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Qtd. inicial', descricao: 'Volume total contratado no pedido', idAlvo: 'pedido-kanban-modal-qtd-inicial' },
+      { titulo: '2. Qtd. pronta', descricao: 'Itens prontos para embarque ou faturamento', idAlvo: 'pedido-kanban-modal-qtd-pronta' },
+      { titulo: '3. Qtd. transferida', descricao: 'Volume já movido para outro pedido', idAlvo: 'pedido-kanban-modal-qtd-transferida' },
+      { titulo: '4. Saldo', descricao: 'Destaque em roxo — saldo restante dos itens', idAlvo: 'pedido-kanban-modal-qtd-saldo' },
+    ]),
+    avancar: {
+      acao: 'Datas',
+      titulo: 'Veja o cronograma',
+      descricao: 'Clique na aba Datas para prazos e confirmações',
+      idAlvo: 'pedido-kanban-modal-aba-datas',
+    },
+  },
+  'kanban-modal-datas': {
+    id: 'kanban-modal-datas',
+    titulo: 'Detalhe — Datas',
+    resumo: 'Cronograma operacional — previstas e confirmadas.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Data P.O.', descricao: 'Data de emissão do pedido', idAlvo: 'pedido-kanban-modal-data-emissao' },
+      { titulo: '2. Prev. coleta', descricao: 'Prazo previsto de coleta — vermelho se vencida', idAlvo: 'pedido-kanban-modal-data-coleta' },
+      { titulo: '3. Prev. pronto', descricao: 'Quando o pedido deve estar pronto', idAlvo: 'pedido-kanban-modal-data-pronto' },
+      { titulo: '4. Prev. inspeção', descricao: 'Data prevista de inspeção de qualidade', idAlvo: 'pedido-kanban-modal-data-inspecao' },
+    ]),
+    avancar: {
+      acao: 'Lembrete',
+      titulo: 'Configure lembretes',
+      descricao: 'Clique na aba Lembrete para ir ao pedido completo',
+      idAlvo: 'pedido-kanban-modal-aba-lembrete',
+    },
+  },
+  'kanban-modal-lembrete': {
+    id: 'kanban-modal-lembrete',
+    titulo: 'Detalhe — Lembrete',
+    resumo: 'Atalho para configurar lembretes no pedido completo.',
+    explorar: explorarComConfigColunaKanban([
+      { titulo: '1. Informação', descricao: 'Lembretes são configurados na tela completa do pedido', idAlvo: 'pedido-kanban-modal-lembrete-info' },
+      { titulo: '2. Abrir pedido completo', descricao: 'Redireciona para a Lista com o pedido selecionado', idAlvo: 'pedido-kanban-modal-abrir-completo' },
+    ]),
+    avancar: {
+      acao: 'Fechar',
+      titulo: 'Volte ao Kanban',
+      descricao: 'Clique em Fechar ou no X para retornar ao board',
+      idAlvo: 'pedido-kanban-modal-fechar',
     },
   },
   config: {
     id: 'config',
     titulo: 'Configurações',
-    resumo: 'Preferências de pipeline e colunas — módulo simulado para o tenant.',
+    resumo: 'Personalize cards, colunas, Kanban e status — tudo reflete na Lista, Dashboard e Kanban.',
     explorar: [
-      { titulo: '1. Leia o banner', descricao: 'Pipeline e colunas da lista serão configuráveis no produto real', idAlvo: 'pedido-shell-banner-config' },
-      { titulo: '2. Use o menu lateral', descricao: 'Navegue entre módulos ou volte às abas Insights e Lista', idAlvo: 'pedido-shell-nav-lateral' },
+      { titulo: '1. Menu lateral', descricao: 'Navegue entre Cards, Tabela, Colunas, Kanban, Status e mais', idAlvo: 'pedido-config-sidebar' },
+      { titulo: '2. Cards KPI', descricao: 'Escolha indicadores do topo da Lista — período, ativos e catálogo', idAlvo: 'pedido-config-cards' },
+      { titulo: '3. Tabela', descricao: 'Linhas por página e destaque de pedidos atrasados', idAlvo: 'pedido-config-tabela' },
+      { titulo: '4. Colunas personalizadas', descricao: 'Crie campos extras — texto, número, data, fórmula…', idAlvo: 'pedido-config-colunas-personalizadas' },
+      { titulo: '5. Status', descricao: 'Pipeline de etapas — reordene e crie novos status', idAlvo: 'pedido-config-status' },
+      { titulo: '6. Salvar', descricao: 'Clique em Salvar — as preferências aplicam em todas as visualizações', idAlvo: 'pedido-config-salvar' },
     ],
     avancar: {
-      acao: 'Retomar demo',
-      titulo: 'Volte ao Insights',
-      descricao: 'Clique na aba Insights no topo da tela',
-      idAlvo: 'pedido-shell-aba-insights',
+      acao: 'Explorar Cards',
+      titulo: 'Abra Cards',
+      descricao: 'No menu lateral, clique em Cards para configurar os KPIs da Lista',
+      idAlvo: 'pedido-config-sidebar',
+    },
+  },
+  'config-cards': {
+    id: 'config-cards',
+    titulo: 'Config — Cards',
+    resumo: 'KPIs no topo da Lista e Insights.',
+    explorar: [
+      { titulo: '1. Período', descricao: '7 dias, 30 dias, 6 meses, 1 ano ou Tudo — comparação dos indicadores', idAlvo: 'pedido-config-cards' },
+      { titulo: '2. Preview', descricao: 'Veja como os cards ficarão na tela antes de salvar', idAlvo: 'pedido-config-cards-preview' },
+      { titulo: '3. Ativos', descricao: 'Arraste, oculte (olho) ou remova cards da faixa superior', idAlvo: 'pedido-config-cards' },
+      { titulo: '4. Catálogo', descricao: 'Clique em + para adicionar Total BRL, Atrasados, Saldo Atual, Alertas…', idAlvo: 'pedido-config-cards' },
+      { titulo: '5. Adicionar KPI', descricao: 'Botão para criar card personalizado com métrica própria', idAlvo: 'pedido-config-cards-adicionar' },
+    ],
+    avancar: { acao: 'Tabela', titulo: 'Próxima seção', descricao: 'Clique em Tabela no menu lateral', idAlvo: 'pedido-config-sidebar' },
+  },
+  'config-tabela': {
+    id: 'config-tabela',
+    titulo: 'Config — Tabela',
+    resumo: 'Preferências da grade da Lista.',
+    explorar: [
+      { titulo: '1. Linhas por página', descricao: '25, 50, 100 ou 200 — padrão ao abrir a Lista', idAlvo: 'pedido-config-tabela-linhas' },
+      { titulo: '2. Pedidos atrasados', descricao: 'Toggle para destacar linhas vencidas em vermelho', idAlvo: 'pedido-config-tabela-atrasados' },
+    ],
+    avancar: { acao: 'Colunas', titulo: 'Abra Colunas', descricao: 'Expanda Colunas no menu lateral', idAlvo: 'pedido-config-sidebar' },
+  },
+  'config-colunas-casas-decimais': {
+    id: 'config-colunas-casas-decimais',
+    titulo: 'Config — Casas decimais',
+    resumo: 'Precisão numérica por coluna.',
+    explorar: [
+      { titulo: '1. Campos do pedido', descricao: 'Valor total, quantidades, peso, cubagem — ajuste com +/−', idAlvo: 'pedido-config-colunas-decimais' },
+      { titulo: '2. Saldo', descricao: 'Casas decimais do Saldo do Pedido refletem na Lista e no Kanban', idAlvo: 'pedido-config-colunas-decimais' },
+    ],
+    avancar: { acao: 'Formato data', titulo: 'Formato de Data', descricao: 'Clique em Formato de Data no submenu Colunas', idAlvo: 'pedido-config-sidebar' },
+  },
+  'config-colunas-formato-data': {
+    id: 'config-colunas-formato-data',
+    titulo: 'Config — Formato de data',
+    resumo: 'Padrão global de datas na grade e exportações.',
+    explorar: [
+      { titulo: '1. Escolha o formato', descricao: 'DD/MM/AAAA (Brasil), ISO, EUA, compacto…', idAlvo: 'pedido-config-formato-data-opcoes' },
+      { titulo: '2. Preview', descricao: 'Veja a data de hoje no formato selecionado', idAlvo: 'pedido-config-colunas-data' },
+    ],
+    avancar: { acao: 'Personalizadas', titulo: 'Colunas personalizadas', descricao: 'Abra Personalizadas no submenu', idAlvo: 'pedido-config-colunas-personalizadas' },
+  },
+  'config-colunas-personalizadas': {
+    id: 'config-colunas-personalizadas',
+    titulo: 'Config — Colunas personalizadas',
+    resumo: 'Crie campos extras na tabela de pedidos.',
+    explorar: [
+      { titulo: '1. Criar coluna', descricao: 'Botão + Criar Coluna — escolha tipo: texto, número, data, checkbox, fórmula…', idAlvo: 'pedido-kanban-config-nova-coluna' },
+      { titulo: '2. Lista ativa', descricao: 'Arraste para reordenar, olho para ocultar, lixo para excluir', idAlvo: 'pedido-config-colunas-lista' },
+      { titulo: '3. Reflete na Lista', descricao: 'Colunas criadas aparecem na grade e no seletor Colunas da Lista', idAlvo: 'pedido-shell-aba-lista' },
+    ],
+    avancar: { acao: 'Criar', titulo: 'Crie uma coluna', descricao: 'Clique em + Criar Coluna', idAlvo: 'pedido-kanban-config-nova-coluna' },
+  },
+  'config-modal-nova-coluna': {
+    id: 'config-modal-nova-coluna',
+    titulo: 'Nova coluna',
+    resumo: 'Defina nome e tipo do campo personalizado.',
+    explorar: [
+      { titulo: '1. Nome', descricao: 'Identificador exibido no cabeçalho da grade', idAlvo: 'pedido-config-modal-nova-coluna' },
+      { titulo: '2. Tipo', descricao: 'Texto, Número, Data, Checkbox, Percentual, Fórmula…', idAlvo: 'pedido-config-modal-nova-coluna' },
+    ],
+    avancar: { acao: 'Confirmar', titulo: 'Clique em Salvar', descricao: 'A coluna entra na lista Ativas e na grade da Lista', idAlvo: 'pedido-config-modal-nova-coluna' },
+  },
+  'config-colunas-campos-calculados': {
+    id: 'config-colunas-campos-calculados',
+    titulo: 'Config — Campos calculados',
+    resumo: 'Fórmulas como Saldo do Pedido.',
+    explorar: [
+      { titulo: '1. Saldo do pedido', descricao: 'Fórmula nativa: Inicial − Transferida − Cancelada', idAlvo: 'pedido-config-saldo-formula' },
+      { titulo: '2. Validar com GABI', descricao: 'A fórmula é validada antes de salvar', idAlvo: 'pedido-config-saldo-formula' },
+      { titulo: '3. Na Lista', descricao: 'Saldo aparece na grade e na aba Quantidades do Kanban', idAlvo: 'pedido-lista-coluna-saldo' },
+    ],
+    avancar: { acao: 'Kanban', titulo: 'Kanban', descricao: 'Expanda Kanban no menu lateral', idAlvo: 'pedido-config-sidebar' },
+  },
+  'config-kanban-colunas': {
+    id: 'config-kanban-colunas',
+    titulo: 'Config — Kanban colunas',
+    resumo: 'Quais status viram colunas no board.',
+    explorar: [
+      { titulo: '1. Preview', descricao: 'Pílulas mostram colunas visíveis no board', idAlvo: 'pedido-config-kanban-preview' },
+      { titulo: '2. Ocultar coluna', descricao: 'Clique no olho para remover coluna do Kanban (não exclui o status)', idAlvo: 'pedido-kanban-config-ordem-colunas' },
+      { titulo: '3. Novo status', descricao: 'Para nova coluna de pipeline, crie um Status em Configurações › Status', idAlvo: 'pedido-config-status' },
+    ],
+    avancar: { acao: 'Ver board', titulo: 'Abra o Kanban', descricao: 'Clique na aba Kanban no topo', idAlvo: 'pedido-shell-aba-kanban' },
+  },
+  'config-kanban-card': {
+    id: 'config-kanban-card',
+    titulo: 'Config — Card Kanban',
+    resumo: 'Campos exibidos em cada card.',
+    explorar: [
+      { titulo: '1. Preview do card', descricao: 'Mock mostra exportador, valor, incoterm e barra de saldo', idAlvo: 'pedido-config-kanban-card-preview' },
+      { titulo: '2. Saldo (barra)', descricao: 'Barra de progresso do saldo — adicione em Disponíveis se oculto', idAlvo: 'pedido-kanban-config-campos-card' },
+      { titulo: '3. Data crítica', descricao: 'Prev. Coleta ou Prev. Pronto — cor de urgência no card', idAlvo: 'pedido-kanban-config-campos-card' },
+    ],
+    avancar: { acao: 'Modal', titulo: 'Campos do modal', descricao: 'Clique em Modal no submenu Kanban', idAlvo: 'pedido-config-kanban-modal' },
+  },
+  'config-kanban-modal': {
+    id: 'config-kanban-modal',
+    titulo: 'Config — Modal Kanban',
+    resumo: 'Abas Pedido, Quantidades e Datas do painel rápido.',
+    explorar: [
+      { titulo: '1. Abas', descricao: 'Alterne Pedido, Quantidades e Datas — contador mostra campos ativos', idAlvo: 'pedido-config-kanban-modal-abas' },
+      { titulo: '2. Reordenar', descricao: 'Arraste campos ativos — olho oculta, X remove', idAlvo: 'pedido-config-kanban-modal' },
+      { titulo: '3. Lembrete', descricao: 'Aba Lembrete é fixa e não configurável', idAlvo: 'pedido-config-kanban-modal' },
+    ],
+    avancar: { acao: 'Status', titulo: 'Status do pedido', descricao: 'Abra Status em PEDIDO no menu lateral', idAlvo: 'pedido-config-status' },
+  },
+  'config-status': {
+    id: 'config-status',
+    titulo: 'Config — Status',
+    resumo: 'Pipeline de etapas do pedido.',
+    explorar: [
+      { titulo: '1. Status de sistema', descricao: 'Rascunho, Aberto, Cancelado… — fixos, não excluíveis', idAlvo: 'pedido-config-status-lista' },
+      { titulo: '2. Novo status', descricao: 'Clique em + Novo Status — nome e cor personalizados', idAlvo: 'pedido-config-novo-status' },
+      { titulo: '3. Reflete em tudo', descricao: 'Mudanças aparecem nas pills da Lista, colunas do Kanban e KPIs do Dashboard', idAlvo: 'pedido-lista-status-pills' },
+    ],
+    avancar: { acao: 'Criar status', titulo: '+ Novo Status', descricao: 'Expanda o pipeline com etapas customizadas', idAlvo: 'pedido-config-novo-status' },
+  },
+  'config-numeracao': {
+    id: 'config-numeracao',
+    titulo: 'Config — Numeração',
+    resumo: 'Formato automático do número do pedido.',
+    explorar: [
+      { titulo: '1. Prefixo e dígitos', descricao: 'Ex: PO-2026/0001 — ajuste prefixo, ano e casas', idAlvo: 'pedido-config-numeracao' },
+      { titulo: '2. Reinício', descricao: 'Nunca, todo ano ou todo mês', idAlvo: 'pedido-config-numeracao' },
+      { titulo: '3. Automação', descricao: 'Número automático ao criar, duplicar ou consolidar', idAlvo: 'pedido-config-numeracao' },
+    ],
+    avancar: { acao: 'Templates', titulo: 'Templates PDF', descricao: 'Abra Templates PDF no menu', idAlvo: 'pedido-config-templates-pdf' },
+  },
+  'config-templates-pdf': {
+    id: 'config-templates-pdf',
+    titulo: 'Config — Templates PDF',
+    resumo: 'Handlebars para geração de documentos.',
+    explorar: [
+      { titulo: '1. Novo template', descricao: 'Crie template com variáveis {{numero_pedido}}, {{exportador}}, {{itens}}', idAlvo: 'pedido-config-novo-template' },
+      { titulo: '2. Lista vazia', descricao: 'Sem templates — use + Novo template para começar', idAlvo: 'pedido-config-templates-vazio' },
+    ],
+    avancar: { acao: 'Voltar', titulo: 'Retome a demo', descricao: 'Clique na aba Lista ou Kanban', idAlvo: 'pedido-shell-aba-lista' },
+  },
+  'config-kanban': {
+    id: 'config-kanban',
+    titulo: 'Configurações — Kanban',
+    resumo: 'Atalho do tour quando você abre Config a partir do Kanban.',
+    explorar: [
+      { titulo: '1. Colunas do board', descricao: 'Kanban › Colunas — visibilidade das etapas', idAlvo: 'pedido-kanban-config-colunas' },
+      { titulo: '2. Card e Modal', descricao: 'Personalize campos do card e do painel rápido', idAlvo: 'pedido-kanban-config-campos-card' },
+      { titulo: '3. Voltar ao Kanban', descricao: 'Clique na aba Kanban para ver as mudanças', idAlvo: 'pedido-shell-aba-kanban' },
+    ],
+    avancar: {
+      acao: 'Colunas Kanban',
+      titulo: 'Abra Kanban › Colunas',
+      descricao: 'No menu lateral, Kanban › Colunas',
+      idAlvo: 'pedido-kanban-config-colunas',
     },
   },
   'novo-pedido-1': {
@@ -535,6 +1054,26 @@ export const TELAS_TUTORIAL_OPCIONAL_PEDIDO: Record<string, TelaTutorialOpcional
   },
 }
 
+export type AbaModalKanbanPedido = 'pedido' | 'quantidades' | 'datas' | 'lembrete'
+
+export type EstadoTutorialKanbanPedido = {
+  modalKanbanAberto: boolean
+  abaModalKanban: AbaModalKanbanPedido
+  menuMoverCardKanbanAberto: boolean
+  sortPopoverKanbanAberto: boolean
+}
+
+export type EstadoTutorialDashboardPedido = {
+  sugestoesDashboardAberto: boolean
+  construtorDashboardAberto: boolean
+  editarWidgetDashboardAberto: boolean
+  modoLayoutWidget: 'moving' | 'resizing' | null
+  adicionarWidgetMenuAberto: boolean
+  widgetsSeletorAberto: boolean
+  widgetMenuAberto: boolean
+  criandoPainelDashboardAberto: boolean
+}
+
 export type EstadoTutorialListaPedido = {
   linhaListaExpandida: string | null
   menuNovoAberto: boolean
@@ -559,10 +1098,69 @@ export type EstadoTutorialListaPedido = {
   guiaPosTransferenciaPasso: number | null
 }
 
+export type EstadoTutorialConfigPedido = {
+  categoriaAtiva: string
+  modalNovaColunaAberto: boolean
+  modalNovoStatusAberto: boolean
+  modalNovoTemplateAberto: boolean
+  abaModalKanbanConfig: 'pedido' | 'quantidades' | 'datas'
+}
+
+export const ESTADO_TUTORIAL_CONFIG_PEDIDO_INICIAL: EstadoTutorialConfigPedido = {
+  categoriaAtiva: 'cards',
+  modalNovaColunaAberto: false,
+  modalNovoStatusAberto: false,
+  modalNovoTemplateAberto: false,
+  abaModalKanbanConfig: 'pedido',
+}
+
+export const ESTADO_TUTORIAL_KANBAN_PEDIDO_INICIAL: EstadoTutorialKanbanPedido = {
+  modalKanbanAberto: false,
+  abaModalKanban: 'pedido',
+  menuMoverCardKanbanAberto: false,
+  sortPopoverKanbanAberto: false,
+}
+
+export const ESTADO_TUTORIAL_DASHBOARD_PEDIDO_INICIAL: EstadoTutorialDashboardPedido = {
+  sugestoesDashboardAberto: false,
+  construtorDashboardAberto: false,
+  editarWidgetDashboardAberto: false,
+  modoLayoutWidget: null,
+  adicionarWidgetMenuAberto: false,
+  widgetsSeletorAberto: false,
+  widgetMenuAberto: false,
+  criandoPainelDashboardAberto: false,
+}
+
+export const ESTADO_TUTORIAL_LISTA_PEDIDO_INICIAL: EstadoTutorialListaPedido = {
+  linhaListaExpandida: null,
+  menuNovoAberto: false,
+  modalNovoPedidoAberto: false,
+  passoModalNovoPedido: 1,
+  cadastroRapidoEmpresaAberto: false,
+  modalTransferirAberto: false,
+  passoModalTransferir: 1,
+  cenarioModalTransferir: null,
+  modalTransferirConcluido: false,
+  modalNovoItemAberto: false,
+  modalEdicaoMassaAberto: false,
+  passoModalEdicaoMassa: 1,
+  modalDuplicarAberto: false,
+  modalExcluirAberto: false,
+  modalConsolidarAberto: false,
+  passoModalConsolidar: 1,
+  modalConsolidarConcluido: false,
+  idPedidoConsolidadoDestaque: null,
+  guiaPosConsolidacaoPasso: null,
+  explicacaoTransferenciaAberta: false,
+  guiaPosTransferenciaPasso: null,
+}
+
 export type EstadoShellTutorialPedido = {
   abaAtiva: 'insights' | 'lista' | 'dashboard' | 'kanban'
   isConfiguracoes: boolean
-} & EstadoTutorialListaPedido
+  configAcessoDeKanban: boolean
+} & EstadoTutorialListaPedido & EstadoTutorialDashboardPedido & EstadoTutorialKanbanPedido & EstadoTutorialConfigPedido
 
 export function resolverIdTelaShellSimuladorPedido(estado: EstadoShellTutorialPedido): string | null {
   if (estado.cadastroRapidoEmpresaAberto) return 'cadastro-rapido-empresa'
@@ -592,7 +1190,32 @@ export function resolverIdTelaShellSimuladorPedido(estado: EstadoShellTutorialPe
   if (estado.modalDuplicarAberto) return 'duplicar'
   if (estado.modalExcluirAberto) return 'excluir'
   if (estado.explicacaoTransferenciaAberta) return 'explicacao-transferencia'
-  if (estado.isConfiguracoes) return 'config'
+  if (estado.isConfiguracoes) {
+    if (estado.modalNovaColunaAberto) return 'config-modal-nova-coluna'
+    if (estado.configAcessoDeKanban && estado.categoriaAtiva.startsWith('kanban')) {
+      return `config-${estado.categoriaAtiva}`
+    }
+    const telaConfig = `config-${estado.categoriaAtiva}`
+    if (telaConfig in TELAS_TUTORIAL_OPCIONAL_PEDIDO) return telaConfig
+    return estado.configAcessoDeKanban ? 'config-kanban' : 'config'
+  }
+  if (estado.criandoPainelDashboardAberto) return 'dashboard-painel-nome'
+  if (estado.editarWidgetDashboardAberto) return 'dashboard-editar-widget'
+  if (estado.construtorDashboardAberto) return 'dashboard-construtor'
+  if (estado.sugestoesDashboardAberto) return 'dashboard-sugestoes'
+  if (estado.modoLayoutWidget === 'moving') return 'dashboard-movendo-widget'
+  if (estado.modoLayoutWidget === 'resizing') return 'dashboard-redimensionando-widget'
+  if (estado.widgetMenuAberto) return 'dashboard-menu-widget'
+  if (estado.adicionarWidgetMenuAberto) return 'dashboard-menu-adicionar'
+  if (estado.widgetsSeletorAberto) return 'dashboard-widgets-painel'
+  if (estado.modalKanbanAberto) {
+    if (estado.abaModalKanban === 'quantidades') return 'kanban-modal-quantidades'
+    if (estado.abaModalKanban === 'datas') return 'kanban-modal-datas'
+    if (estado.abaModalKanban === 'lembrete') return 'kanban-modal-lembrete'
+    return 'kanban-modal-pedido'
+  }
+  if (estado.menuMoverCardKanbanAberto) return 'kanban-menu-mover'
+  if (estado.sortPopoverKanbanAberto) return 'kanban-ordenar'
   if (estado.abaAtiva === 'dashboard') return 'dashboard'
   if (estado.abaAtiva === 'kanban') return 'kanban'
   if (estado.abaAtiva === 'lista') {
@@ -613,6 +1236,23 @@ const PREFIXOS_TELA_TUTORIAL_MODAL_PEDIDO = [
   'duplicar',
   'excluir',
   'explicacao-transferencia',
+  'config',
+  'config-kanban',
+  'config-cards',
+  'config-tabela',
+  'config-colunas-casas-decimais',
+  'config-colunas-formato-data',
+  'config-colunas-personalizadas',
+  'config-colunas-campos-calculados',
+  'config-modal-nova-coluna',
+  'config-kanban-colunas',
+  'config-kanban-card',
+  'config-kanban-modal',
+  'config-status',
+  'config-numeracao',
+  'config-templates-pdf',
+  'dashboard-',
+  'kanban-',
 ] as const
 
 /** Modais e overlays — Gabi abre no canto superior direito da placa */

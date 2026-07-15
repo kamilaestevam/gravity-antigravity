@@ -377,3 +377,34 @@
 .interactive-simulator-shell .pds-root .mlg-ws-item-avatar {
   font-size: 9px !important;
 }
+
+/* Pedido — modal Nova Coluna (portaled em document.body, fora do .pds-root) */
+.mg-dialog:has(.mnc-corpo) {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mg-dialog:has(.mnc-corpo) :is(
+  .mnc-corpo,
+  .mnc-input,
+  .mnc-input::placeholder,
+  .mnc-select,
+  .mnc-tipo-btn,
+  .mnc-tipo-btn__label,
+  .mnc-label-secao,
+  .mnc-hint,
+  .sg-campo,
+  .sg-valor-selecionado,
+  .sg-placeholder
+) {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+.mg-dialog:has(.mnc-corpo) .mnc-corpo .mnc-input,
+.mg-dialog:has(.mnc-corpo) .mnc-corpo .mnc-input::placeholder {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}

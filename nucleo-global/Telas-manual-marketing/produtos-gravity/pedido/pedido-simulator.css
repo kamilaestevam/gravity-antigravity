@@ -205,6 +205,52 @@
   color: #94a3b8;
 }
 
+.pds-config-simulador {
+  margin: 0 0 12px;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  color: #cbd5e1;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.pds-config-simulador__titulo {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.pds-config-simulador__intro {
+  margin: 0 0 1rem;
+  color: #94a3b8;
+}
+
+.pds-config-simulador__secao {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.pds-config-simulador__secao-titulo {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.pds-config-simulador__lista {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: #94a3b8;
+}
+
+.pds-config-simulador__lista li {
+  margin-bottom: 0.25rem;
+}
+
 .pds-mtg-titulo-grupo {
   display: flex;
   flex-direction: column;

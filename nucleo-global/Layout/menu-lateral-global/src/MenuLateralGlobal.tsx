@@ -42,6 +42,8 @@ export interface NavItem {
   sectionDivider?: boolean
   /** Se true, o link abre em nova aba (target="_blank" + rel noopener). Use para links cross-aplicação (ex: produto -> Configurador). */
   external?: boolean
+  /** data-sds-tutorial-alvo no item de navegação (demo marketing) */
+  dataTutorialAlvo?: string
 }
 
 export interface MenuLateralGlobalProps {
@@ -390,6 +392,7 @@ export function MenuLateralGlobal({
         onClick={() => {
           if (item.to) onNavegarDemonstracao?.(item.to)
         }}
+        {...(item.dataTutorialAlvo ? { 'data-sds-tutorial-alvo': item.dataTutorialAlvo } : {})}
       >
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}

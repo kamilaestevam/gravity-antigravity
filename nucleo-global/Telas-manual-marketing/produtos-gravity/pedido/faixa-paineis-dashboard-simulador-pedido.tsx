@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 
@@ -16,16 +16,22 @@ const PAINEIS_PADRAO: PainelDashboardSimulador[] = [
 export interface FaixaPaineisDashboardSimuladorPedidoProps {
   painelAtualId: string
   onTrocarPainel: (id: string) => void
+  onCriandoPainelChange?: (criando: boolean) => void
 }
 
 export function FaixaPaineisDashboardSimuladorPedido({
   painelAtualId,
   onTrocarPainel,
+  onCriandoPainelChange,
 }: FaixaPaineisDashboardSimuladorPedidoProps) {
   const { t } = useTranslation()
   const [paineis, setPaineis] = useState<PainelDashboardSimulador[]>(PAINEIS_PADRAO)
   const [criando, setCriando] = useState(false)
   const [nomeNovo, setNomeNovo] = useState('')
+
+  useEffect(() => {
+    onCriandoPainelChange?.(criando)
+  }, [criando, onCriandoPainelChange])
 
   function confirmarNovoPainel() {
     const nome = nomeNovo.trim()
@@ -45,6 +51,7 @@ export function FaixaPaineisDashboardSimuladorPedido({
       className="lp-faixa-navegacao"
       aria-label={t('pedido.dashboard.faixa_paineis', { defaultValue: 'Painéis do dashboard' })}
       data-testid="dashboard-faixa-paineis-simulador"
+      data-sds-tutorial-alvo="pedido-dashboard-faixa-paineis"
     >
       <section
         className="lp-faixa-navegacao__paineis"
@@ -79,6 +86,9 @@ export function FaixaPaineisDashboardSimuladorPedido({
                     onClick={() => onTrocarPainel(painel.id)}
                     aria-current={ativo ? 'true' : undefined}
                     aria-label={painel.nome}
+                    {...(painel.id === 'comercial' ? { 'data-sds-tutorial-alvo': 'pedido-dashboard-painel-comercial' } : {})}
+                    {...(painel.id === 'padrao' ? { 'data-sds-tutorial-alvo': 'pedido-dashboard-painel-padrao' } : {})}
+                    {...(painel.id === 'financeiro' ? { 'data-sds-tutorial-alvo': 'pedido-dashboard-painel-financeiro' } : {})}
                   >
                     <span className="lp-painel-tab__nome">{painel.nome}</span>
                   </button>
@@ -89,6 +99,7 @@ export function FaixaPaineisDashboardSimuladorPedido({
             {criando ? (
               <form
                 className="lp-painel-tab-form"
+                data-sds-tutorial-alvo="pedido-dashboard-painel-nome"
                 onSubmit={e => {
                   e.preventDefault()
                   confirmarNovoPainel()
@@ -105,7 +116,12 @@ export function FaixaPaineisDashboardSimuladorPedido({
                   autoFocus
                   maxLength={60}
                 />
-                <button type="submit" className="lp-painel-tab-form__ok" aria-label={t('comum.salvar', { defaultValue: 'Salvar' })}>
+                <button
+                  type="submit"
+                  className="lp-painel-tab-form__ok"
+                  aria-label={t('comum.salvar', { defaultValue: 'Salvar' })}
+                  data-sds-tutorial-alvo="pedido-dashboard-painel-nome-salvar"
+                >
                   ✓
                 </button>
                 <button
@@ -113,6 +129,7 @@ export function FaixaPaineisDashboardSimuladorPedido({
                   className="lp-painel-tab-form__cancel"
                   onClick={() => { setCriando(false); setNomeNovo('') }}
                   aria-label={t('comum.cancelar', { defaultValue: 'Cancelar' })}
+                  data-sds-tutorial-alvo="pedido-dashboard-painel-nome-cancelar"
                 >
                   <X size={11} />
                 </button>
@@ -122,6 +139,7 @@ export function FaixaPaineisDashboardSimuladorPedido({
                 type="button"
                 className="lp-painel-tab-add"
                 data-testid="dashboard-painel-criar"
+                data-sds-tutorial-alvo="pedido-dashboard-painel-criar"
                 aria-label={t('pedido.dashboard.adicionar_painel', { defaultValue: 'Adicionar painel' })}
                 title={t('pedido.dashboard.adicionar_painel', { defaultValue: 'Adicionar painel' })}
                 onClick={() => setCriando(true)}

@@ -72,6 +72,12 @@ export interface WidgetContainerProps {
   onMover?: () => void
   onRedimensionar?: () => void
   onConcluirLayout?: () => void
+  /** Alvo do guia Gabi (demo marketing) */
+  dataTutorialAlvo?: string
+  /** Alvo do botão ⋮ no guia Gabi */
+  dataTutorialAlvoMenu?: string
+  /** Notifica abertura do menu ⋮ (guia Gabi) */
+  onMenuWidgetOpenChange?: (aberto: boolean) => void
 }
 
 // ─── Menu de opções (dropdown em portal — evita clip do react-grid-layout) ───
@@ -83,6 +89,8 @@ interface OptionsMenuProps {
   onMover?: () => void
   onRedimensionar?: () => void
   onConcluirLayout?: () => void
+  dataTutorialAlvoMenu?: string
+  onMenuOpenChange?: (aberto: boolean) => void
 }
 
 const MENU_DROPDOWN_MIN_WIDTH = 170
@@ -94,6 +102,8 @@ function OptionsMenu({
   onMover,
   onRedimensionar,
   onConcluirLayout,
+  dataTutorialAlvoMenu,
+  onMenuOpenChange,
 }: OptionsMenuProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -137,6 +147,10 @@ function OptionsMenu({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  useEffect(() => {
+    onMenuOpenChange?.(open)
+  }, [open, onMenuOpenChange])
+
   const dropdown = open && menuPos
     ? createPortal(
         <div
@@ -162,6 +176,7 @@ function OptionsMenu({
             onClick={() => { if (onEdit) { onEdit(); setOpen(false) } }}
             role="menuitem"
             data-testid="dashboard-widget-menu-editar"
+            data-sds-tutorial-alvo="pedido-dashboard-widget-editar"
           >
             <PencilSimple size={14} />
             {t('nucleo.dashboard.painel.editar')}
@@ -177,6 +192,7 @@ function OptionsMenu({
             onClick={() => { if (onRemove) { onRemove(); setOpen(false) } }}
             role="menuitem"
             data-testid="dashboard-widget-menu-excluir"
+            data-sds-tutorial-alvo="pedido-dashboard-widget-excluir"
           >
             <Trash size={14} />
             {t('nucleo.dashboard.painel.excluir', { defaultValue: 'Excluir' })}
@@ -195,6 +211,7 @@ function OptionsMenu({
               onClick={() => { if (onConcluirLayout) { onConcluirLayout(); setOpen(false) } }}
               role="menuitem"
               data-testid="dashboard-widget-menu-concluir"
+              data-sds-tutorial-alvo="pedido-dashboard-widget-concluir"
             >
               <Check size={14} weight="bold" />
               {t('nucleo.dashboard.painel.concluir_layout', { defaultValue: 'Concluir' })}
@@ -211,6 +228,7 @@ function OptionsMenu({
                 onClick={() => { if (onMover) { onMover(); setOpen(false) } }}
                 role="menuitem"
                 data-testid="dashboard-widget-menu-mover"
+                data-sds-tutorial-alvo="pedido-dashboard-widget-mover-item"
               >
                 <ArrowsOutCardinal size={14} />
                 {t('nucleo.dashboard.painel.mover', { defaultValue: 'Mover' })}
@@ -225,6 +243,7 @@ function OptionsMenu({
                 onClick={() => { if (onRedimensionar) { onRedimensionar(); setOpen(false) } }}
                 role="menuitem"
                 data-testid="dashboard-widget-menu-mudar-tamanho"
+                data-sds-tutorial-alvo="pedido-dashboard-widget-redimensionar-item"
               >
                 <CornersOut size={14} />
                 {t('nucleo.dashboard.painel.mudar_tamanho', { defaultValue: 'Mudar tamanho' })}
@@ -249,6 +268,7 @@ function OptionsMenu({
         data-testid="dashboard-widget-menu-btn"
         aria-haspopup="menu"
         aria-expanded={open}
+        {...(dataTutorialAlvoMenu ? { 'data-sds-tutorial-alvo': dataTutorialAlvoMenu } : {})}
       >
         <DotsThreeVertical size={18} weight="bold" />
       </button>
@@ -280,6 +300,9 @@ export function DashboardPainelContainer({
   onMover,
   onRedimensionar,
   onConcluirLayout,
+  dataTutorialAlvo,
+  dataTutorialAlvoMenu,
+  onMenuWidgetOpenChange,
 }: WidgetContainerProps) {
   const { t } = useTranslation()
   const isPartial = result?.partial === true
@@ -335,6 +358,7 @@ export function DashboardPainelContainer({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
+      {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
     >
       <div style={headerGridStyle}>
         <div className={dragHandleClass} style={titleAreaStyle}>
@@ -390,6 +414,8 @@ export function DashboardPainelContainer({
               onMover={onMover}
               onRedimensionar={onRedimensionar}
               onConcluirLayout={onConcluirLayout}
+              dataTutorialAlvoMenu={dataTutorialAlvoMenu}
+              onMenuOpenChange={dataTutorialAlvoMenu ? onMenuWidgetOpenChange : undefined}
             />
           </div>
         )}
@@ -419,7 +445,7 @@ export function DashboardPainelContainer({
       </div>
 
       {emMovimento && (
-        <div className="db-no-drag" style={styles.faixaInteracao} data-testid="dashboard-widget-faixa-mover">
+        <div className="db-no-drag" style={styles.faixaInteracao} data-testid="dashboard-widget-faixa-mover" data-sds-tutorial-alvo="pedido-dashboard-widget-mover">
           <ArrowsOutCardinal size={14} weight="bold" />
           <span>
             {t('nucleo.dashboard.painel.faixa_mover', {
@@ -430,7 +456,7 @@ export function DashboardPainelContainer({
       )}
 
       {emRedimensionamento && (
-        <div className="db-no-drag" style={styles.faixaInteracao} data-testid="dashboard-widget-faixa-redimensionar">
+        <div className="db-no-drag" style={styles.faixaInteracao} data-testid="dashboard-widget-faixa-redimensionar" data-sds-tutorial-alvo="pedido-dashboard-widget-redimensionar">
           <CornersOut size={14} weight="bold" />
           <span>
             {t('nucleo.dashboard.painel.faixa_redimensionar', {

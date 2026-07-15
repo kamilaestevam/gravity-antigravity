@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ChartPieSlice,
   Gear,
@@ -22,7 +22,24 @@ import { DashboardSimuladorPedido } from './dashboard-simulador-pedido'
 import { instalarMockApiNcmSimuladorPedido } from './instalar-mock-api-ncm-simulador-pedido'
 import { resolverEscopoWorkspacesPedidoSimulador } from './pedido-escopo-workspaces-simulador'
 import { NAV_ITENS_SIMULADOR_PEDIDO } from './pedido-nav-simulador-marketing'
+import { TutorialOpcionalSimuladorSmartDoc } from '../smart-doc/tutorial-opcional-simulador-smart-doc'
+import { useEfeitoDestaqueTutorialSimulador } from '../smart-doc/efeito-destaque-tutorial-simulador-smart-doc'
+import {
+  ESTADO_TUTORIAL_DASHBOARD_PEDIDO_INICIAL,
+  ESTADO_TUTORIAL_KANBAN_PEDIDO_INICIAL,
+  ESTADO_TUTORIAL_LISTA_PEDIDO_INICIAL,
+  ESTADO_TUTORIAL_CONFIG_PEDIDO_INICIAL,
+  TELAS_TUTORIAL_OPCIONAL_PEDIDO,
+  resolverIdTelaShellSimuladorPedido,
+  resolverPosicaoPreferencialTutorialPedido,
+  type EstadoTutorialConfigPedido,
+  type EstadoTutorialDashboardPedido,
+  type EstadoTutorialKanbanPedido,
+  type EstadoTutorialListaPedido,
+} from './dados-tutorial-opcional-simulador-pedido'
 import './pedido-simulator.css'
+import { ConfiguracoesSimuladorPedido } from './configuracoes-simulador-pedido'
+import { ConfigSimuladorPedidoProvider } from './estado-config-simulador-pedido'
 
 type AbaVisualizacao = 'insights' | 'lista' | 'dashboard' | 'kanban'
 
@@ -51,6 +68,13 @@ function pathFromAba(aba: AbaVisualizacao): string {
   }
 }
 
+const ALVO_ABA_TUTORIAL: Record<AbaVisualizacao, string> = {
+  insights: 'pedido-shell-aba-insights',
+  lista: 'pedido-shell-aba-lista',
+  dashboard: 'pedido-shell-aba-dashboard',
+  kanban: 'pedido-shell-aba-kanban',
+}
+
 function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () => void }) {
   const [rotaSimulada, setRotaSimulada] = useState('/pedido/pedidos/lista')
   const [idsEmpresasEscopo, setIdsEmpresasEscopo] = useState<IdEmpresa[]>(() =>
@@ -59,6 +83,24 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   const [menuLateralContraida, setMenuLateralContraida] = useState(true)
   const [sinalAbrirMenuWorkspaces, setSinalAbrirMenuWorkspaces] = useState(0)
   const [pedidoFocoLista, setPedidoFocoLista] = useState<string | null>(null)
+  const [colunaFocoLista, setColunaFocoLista] = useState<string | null>(null)
+  const [estadoTutorialLista, setEstadoTutorialLista] = useState<EstadoTutorialListaPedido>(
+    () => ({ ...ESTADO_TUTORIAL_LISTA_PEDIDO_INICIAL }),
+  )
+  const [estadoTutorialDashboard, setEstadoTutorialDashboard] = useState<EstadoTutorialDashboardPedido>(
+    () => ({ ...ESTADO_TUTORIAL_DASHBOARD_PEDIDO_INICIAL }),
+  )
+  const [estadoTutorialKanban, setEstadoTutorialKanban] = useState<EstadoTutorialKanbanPedido>(
+    () => ({ ...ESTADO_TUTORIAL_KANBAN_PEDIDO_INICIAL }),
+  )
+  const [estadoTutorialConfig, setEstadoTutorialConfig] = useState<EstadoTutorialConfigPedido>(
+    () => ({ ...ESTADO_TUTORIAL_CONFIG_PEDIDO_INICIAL }),
+  )
+  const [configAcessoDeKanban, setConfigAcessoDeKanban] = useState(false)
+  const [alvoTutorialDestacado, setAlvoTutorialDestacado] = useState<string | null>(null)
+  const refRaizTutorial = useRef<HTMLDivElement>(null)
+
+  useEfeitoDestaqueTutorialSimulador(alvoTutorialDestacado, refRaizTutorial)
 
   useEffect(() => instalarMockApiNcmSimuladorPedido(), [])
 
@@ -80,6 +122,17 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   const abaAtiva = abaFromPath(rotaSimulada)
   const isConfiguracoes = rotaSimulada === '/pedido/configuracoes'
   const isPedidosView = rotaSimulada.startsWith('/pedido/pedidos')
+
+  const idTelaTutorial = resolverIdTelaShellSimuladorPedido({
+    abaAtiva,
+    isConfiguracoes,
+    configAcessoDeKanban,
+    ...estadoTutorialLista,
+    ...estadoTutorialDashboard,
+    ...estadoTutorialKanban,
+    ...estadoTutorialConfig,
+  })
+  const posicaoTutorial = resolverPosicaoPreferencialTutorialPedido(idTelaTutorial)
 
   const tituloPagina = useMemo(() => {
     if (isConfiguracoes) return 'Configurações'
@@ -109,7 +162,17 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
 
   function onNavegarDemonstracao(to: string) {
     if (to.includes('historico-organizacao')) return
+    if (to.includes('/pedido/configuracoes')) {
+      setConfigAcessoDeKanban(abaAtiva === 'kanban')
+    } else if (!to.includes('/pedido/configuracoes')) {
+      setConfigAcessoDeKanban(false)
+    }
     setRotaSimulada(to)
+  }
+
+  function abrirConfiguracoes() {
+    setConfigAcessoDeKanban(abaAtiva === 'kanban')
+    setRotaSimulada('/pedido/configuracoes')
   }
 
   return (
@@ -129,7 +192,8 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
         </button>
       )}
 
-      <div className="sds-root pds-root" onClick={(e) => e.stopPropagation()}>
+      <div className="sds-root pds-root" ref={refRaizTutorial} onClick={(e) => e.stopPropagation()}>
+        <div data-sds-tutorial-alvo="pedido-shell-nav-lateral">
         <MenuLateralGlobal
           moduleName="Pedido"
           moduleColor={PEDIDO_META.color}
@@ -151,7 +215,9 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
           modoDemonstracao
           rotaAtivaDemonstracao={rotaSimulada}
           onNavegarDemonstracao={onNavegarDemonstracao}
+          dataTutorialAlvoWorkspace="pedido-insights-seletor-workspace"
         />
+        </div>
 
         <div className="sds-main">
           <div className="sds-main-header">
@@ -188,7 +254,13 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                 <button type="button" className="sds-mtg-lang-btn" aria-label="Idioma">
                   BR
                 </button>
-                <button type="button" className="sds-mtg-icon-btn" aria-label="Configurações">
+                <button
+                  type="button"
+                  className="sds-mtg-icon-btn"
+                  aria-label="Configurações"
+                  data-sds-tutorial-alvo="pedido-kanban-config-topo"
+                  onClick={abrirConfiguracoes}
+                >
                   <Gear size={15} weight="duotone" />
                 </button>
                 <div className="sds-mtg-sep" aria-hidden="true" />
@@ -198,9 +270,14 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
               </div>
             </header>
 
-            {isPedidosView && (
+            {(isPedidosView || isConfiguracoes) && (
               <div className="smart-read-vis-toolbar">
-                <nav className="srt-tabs" aria-label="Modo de visualização do Pedido" role="tablist">
+                <nav
+                  className="srt-tabs"
+                  aria-label="Modo de visualização do Pedido"
+                  role="tablist"
+                  data-sds-tutorial-alvo="pedido-shell-abas"
+                >
                   {(
                     [
                       { aba: 'insights' as const, label: 'Insights', icon: ChartPieSlice },
@@ -215,7 +292,13 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                       role="tab"
                       aria-selected={abaAtiva === aba}
                       className={`srt-tab${abaAtiva === aba ? ' srt-tab--active' : ''}`}
-                      onClick={() => setRotaSimulada(pathFromAba(aba))}
+                      data-sds-tutorial-alvo={ALVO_ABA_TUTORIAL[aba]}
+                      onClick={() => {
+                        if (isConfiguracoes) {
+                          setConfigAcessoDeKanban(false)
+                        }
+                        setRotaSimulada(pathFromAba(aba))
+                      }}
                     >
                       <Icone weight="duotone" size={14} />
                       <span>{label}</span>
@@ -228,23 +311,34 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
 
           <div className="sds-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
             {isConfiguracoes ? (
-              <div className="pds-banner-config">
-                Configurações — etapas do pipeline e colunas da lista (simulação).
-              </div>
+              <ConfiguracoesSimuladorPedido
+                onEstadoTutorialChange={setEstadoTutorialConfig}
+                onIrParaColunaLista={(colunaId) => {
+                  setColunaFocoLista(colunaId)
+                  setConfigAcessoDeKanban(false)
+                  setRotaSimulada('/pedido/pedidos/lista')
+                }}
+              />
             ) : abaAtiva === 'insights' ? (
               <InsightsSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
             ) : abaAtiva === 'lista' ? (
               <ListaSimuladorPedido
                 empresasSelecionadas={empresasSelecionadas}
                 numeroPedidoFoco={pedidoFocoLista}
+                colunaIdFoco={colunaFocoLista}
                 onConsumirFocoLista={() => setPedidoFocoLista(null)}
+                onConsumirFocoColuna={() => setColunaFocoLista(null)}
                 onAbrirMenuWorkspaces={() => {
                   setMenuLateralContraida(false)
                   setSinalAbrirMenuWorkspaces((n) => n + 1)
                 }}
+                onEstadoTutorialChange={setEstadoTutorialLista}
               />
             ) : abaAtiva === 'dashboard' ? (
-              <DashboardSimuladorPedido empresasSelecionadas={empresasSelecionadas} />
+              <DashboardSimuladorPedido
+                empresasSelecionadas={empresasSelecionadas}
+                onEstadoTutorialChange={setEstadoTutorialDashboard}
+              />
             ) : (
               <KanbanSimuladorPedido
                 empresasSelecionadas={empresasSelecionadas}
@@ -252,15 +346,32 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                   setPedidoFocoLista(numeroPedido)
                   setRotaSimulada('/pedido/pedidos/lista')
                 }}
+                onEstadoTutorialChange={setEstadoTutorialKanban}
               />
             )}
           </div>
         </div>
+
+        {idTelaTutorial && (
+          <TutorialOpcionalSimuladorSmartDoc
+            idTela={idTelaTutorial}
+            telas={TELAS_TUTORIAL_OPCIONAL_PEDIDO}
+            habilitado
+            posicaoFixa
+            refAncoraSimulador={refRaizTutorial}
+            posicaoPreferencial={posicaoTutorial}
+            onAlvoDestacadoChange={setAlvoTutorialDestacado}
+          />
+        )}
       </div>
     </div>
   )
 }
 
 export function PedidoSimulator({ onFecharSimulador }: { onFecharSimulador?: () => void }) {
-  return <PedidoSimulatorInner onFecharSimulador={onFecharSimulador} />
+  return (
+    <ConfigSimuladorPedidoProvider>
+      <PedidoSimulatorInner onFecharSimulador={onFecharSimulador} />
+    </ConfigSimuladorPedidoProvider>
+  )
 }

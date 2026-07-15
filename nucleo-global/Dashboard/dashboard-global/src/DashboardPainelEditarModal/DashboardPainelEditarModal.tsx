@@ -143,6 +143,7 @@ export function DashboardPainelEditarModal({
             tamanho="padrao"
             onClick={handleSalvar}
             disabled={!podeSalvar}
+            data-sds-tutorial-alvo="pedido-dashboard-editar-salvar"
           >
             {t('nucleo.dashboard.modal_editar.salvar')}
           </BotaoGlobal>
@@ -156,6 +157,7 @@ export function DashboardPainelEditarModal({
               {t('nucleo.dashboard.construtor.secao_configuracao', { defaultValue: 'Configuração' })}
             </span>
             <div className="dq-form__stack">
+              <div data-sds-tutorial-alvo="pedido-dashboard-editar-titulo">
               <CampoGeralGlobal
                 label={t('nucleo.dashboard.modal_editar.label_titulo')}
                 htmlFor="widget-edit-title"
@@ -173,7 +175,9 @@ export function DashboardPainelEditarModal({
                   autoFocus
                 />
               </CampoGeralGlobal>
+              </div>
 
+              <div data-sds-tutorial-alvo="pedido-dashboard-editar-grafico">
               <CampoGeralGlobal label={t('nucleo.dashboard.modal_editar.tipo_grafico')}>
                 <div className="dq-chart__grid dq-chart__grid--editar">
                   {chartOptions.map(opt => {
@@ -207,7 +211,9 @@ export function DashboardPainelEditarModal({
                   })}
                 </div>
               </CampoGeralGlobal>
+              </div>
 
+              <div data-sds-tutorial-alvo="pedido-dashboard-editar-periodo">
               <CampoGeralGlobal label={t('nucleo.dashboard.modal_editar.periodo')}>
                 <PeriodoCampoFormulario
                   value={period}
@@ -215,10 +221,11 @@ export function DashboardPainelEditarModal({
                   onChange={setPeriod}
                 />
               </CampoGeralGlobal>
+              </div>
             </div>
           </div>
 
-          <div className="dq-secao dq-secao--indicador">
+          <div className="dq-secao dq-secao--indicador" data-sds-tutorial-alvo="pedido-dashboard-editar-indicador">
             <span className="dq-secao-titulo">
               {t('nucleo.dashboard.modal_editar.secao_indicador', { defaultValue: 'Indicador' })}
             </span>

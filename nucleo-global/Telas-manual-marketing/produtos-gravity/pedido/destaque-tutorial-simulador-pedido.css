@@ -50,8 +50,56 @@ body.sds-tutorial-destaque-ativo .modal-edicao-massa__corpo-inner {
 .pds-kanban.sds-tutorial-alvo--destacado,
 .pds-kanban-detalhe.sds-tutorial-alvo--destacado,
 .pds-banner-config.sds-tutorial-alvo--destacado,
-.pds-shell-nav-wrap.sds-tutorial-alvo--destacado {
+.pds-shell-nav-wrap.sds-tutorial-alvo--destacado,
+.pds-dashboard-simulador.sds-tutorial-alvo--destacado,
+.lp-faixa-navegacao.sds-tutorial-alvo--destacado,
+.pedido-dashboard-menu.sds-tutorial-alvo--destacado,
+.pedido-dashboard-widgets-seletor.sds-tutorial-alvo--destacado,
+.dp-gabi-painel-host.sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-grid'].sds-tutorial-alvo--destacado {
   border-radius: 10px;
+}
+
+body.sds-tutorial-destaque-ativo .pds-dashboard-simulador,
+body.sds-tutorial-destaque-ativo .pedido-dashboard-chrome,
+body.sds-tutorial-destaque-ativo .react-grid-layout {
+  overflow: visible !important;
+}
+
+[data-sds-tutorial-alvo='pedido-dashboard-widget-menu'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-periodo'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-status'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-adicionar'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-painel-criar'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-painel-nome'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-painel-padrao'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-faixa-paineis'].sds-tutorial-alvo--destacado,
+.lp-painel-tab.lp-painel-tab--rotulo.sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 20 !important;
+  isolation: isolate;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+}
+
+[data-sds-tutorial-alvo^='pedido-dashboard-kpi-'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo^='pedido-dashboard-grafico-'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo^='pedido-dashboard-dist-'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-gabi'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-dashboard-section-alertas'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+}
+
+body.sds-tutorial-destaque-ativo .mpp-dialog,
+body.sds-tutorial-destaque-ativo .mpg-dialog {
+  z-index: 10040 !important;
 }
 
 .pds-lista-btn-novo.sds-tutorial-alvo--destacado,
@@ -289,4 +337,98 @@ body.sds-tutorial-destaque-ativo .pds-map-refinar-acordeao {
     0 0 0 2px rgba(165, 180, 252, 0.75),
     0 0 0 6px rgba(99, 102, 241, 0.2),
     0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Kanban simulador Pedido ─────────────────────────────────────────────── */
+
+body.sds-tutorial-destaque-ativo .pds-kanban-simulador,
+body.sds-tutorial-destaque-ativo .pds-kanban-simulador .kg-board,
+body.sds-tutorial-destaque-ativo .pds-kanban-simulador .kg-grid {
+  overflow: visible !important;
+}
+
+.pds-kanban-simulador.sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-board'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-toolbar'].sds-tutorial-alvo--destacado {
+  border-radius: 10px;
+}
+
+[data-sds-tutorial-alvo^='pedido-kanban-coluna-'].sds-tutorial-alvo--destacado,
+.kg-card-wrapper.sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-busca'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-ordenar'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-mover-menu'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+}
+
+.kg-sort-popover.sds-tutorial-alvo--destacado,
+.kg-mover-menu.sds-tutorial-alvo--destacado {
+  z-index: 10050 !important;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+body.sds-tutorial-destaque-ativo .kbp-modal-overlay {
+  z-index: 10040 !important;
+}
+
+.kbp-modal-dialog.sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-modal-dialog'].sds-tutorial-alvo--destacado {
+  z-index: 10045 !important;
+  border-radius: 12px;
+}
+
+[data-sds-tutorial-alvo^='pedido-kanban-card'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo^='pedido-kanban-modal-'].sds-tutorial-alvo--destacado {
+  border-radius: 8px;
+}
+
+[data-sds-tutorial-alvo='pedido-kanban-modal-abas'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-modal-cabecalho'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-modal-status'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+}
+
+[data-sds-tutorial-alvo='pedido-config-sidebar'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-config-cards'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-config-salvar'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-lista-coluna-saldo'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+}
+
+.pds-lista-th-col.sds-tutorial-alvo--destacado {
+  border-radius: 4px;
+}
+[data-sds-tutorial-alvo='pedido-kanban-config-topo'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-shell-nav-config'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-config-nova-coluna'].sds-tutorial-alvo--destacado,
+[data-sds-tutorial-alvo='pedido-kanban-config-colunas'].sds-tutorial-alvo--destacado {
+  position: relative;
+  z-index: 4;
+  box-shadow:
+    0 0 0 2px rgba(165, 180, 252, 0.75),
+    0 0 0 6px rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+}
+
+.pds-config-simulador.sds-tutorial-alvo--destacado,
+.pds-config-simulador__secao.sds-tutorial-alvo--destacado {
+  border-radius: 10px;
 }

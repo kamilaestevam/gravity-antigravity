@@ -98,9 +98,12 @@ import {
   type GabiInsightItemSimulador,
 } from './dados-dashboard-simulador-pedido'
 import './dashboard-simulador-pedido.css'
+import { resolverAlvoTutorialWidgetDashboardSimulador } from './alvos-tutorial-dashboard-simulador-pedido'
+import type { EstadoTutorialDashboardPedido } from './dados-tutorial-opcional-simulador-pedido'
 
 export interface DashboardSimuladorPedidoProps {
   empresasSelecionadas: PerfilEmpresaSimulador[]
+  onEstadoTutorialChange?: (estado: EstadoTutorialDashboardPedido) => void
 }
 
 function widgetTituloFoiCustomizado(widget: DashboardWidgetConfig): boolean {
@@ -248,7 +251,7 @@ function cloneWidgetsPadrao(): DashboardWidgetConfig[] {
   return JSON.parse(JSON.stringify(WIDGETS_PADRAO_DASHBOARD_SIMULADOR_PEDIDO)) as DashboardWidgetConfig[]
 }
 
-export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimuladorPedidoProps) {
+export function DashboardSimuladorPedido({ empresasSelecionadas, onEstadoTutorialChange }: DashboardSimuladorPedidoProps) {
   const { t } = useTranslation()
   const podeEditarDashboard = true
 
@@ -267,6 +270,10 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
   const [editingWidget, setEditingWidget] = useState<DashboardWidgetConfig | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
+  const [adicionarWidgetMenuAberto, setAdicionarWidgetMenuAberto] = useState(false)
+  const [widgetsSeletorAberto, setWidgetsSeletorAberto] = useState(false)
+  const [widgetMenuAberto, setWidgetMenuAberto] = useState(false)
+  const [criandoPainelDashboardAberto, setCriandoPainelDashboardAberto] = useState(false)
 
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
   const [gabiPaused, setGabiPaused] = useState(false)
@@ -411,6 +418,30 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
     return () => clearInterval(timer)
   }, [gabiPaused, scrollGabi])
 
+  useEffect(() => {
+    if (!onEstadoTutorialChange) return
+    onEstadoTutorialChange({
+      sugestoesDashboardAberto: suggestionsOpen,
+      construtorDashboardAberto: queryBuilderOpen,
+      editarWidgetDashboardAberto: editModalOpen,
+      modoLayoutWidget: widgetLayoutInteracao?.modo ?? null,
+      adicionarWidgetMenuAberto,
+      widgetsSeletorAberto,
+      widgetMenuAberto,
+      criandoPainelDashboardAberto,
+    })
+  }, [
+    onEstadoTutorialChange,
+    suggestionsOpen,
+    queryBuilderOpen,
+    editModalOpen,
+    widgetLayoutInteracao,
+    adicionarWidgetMenuAberto,
+    widgetsSeletorAberto,
+    widgetMenuAberto,
+    criandoPainelDashboardAberto,
+  ])
+
   const activeWidgets = useMemo(() =>
     ordenarWidgetsLista(widgets)
       .filter(widgetEstaVisivel)
@@ -428,10 +459,14 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
     const layoutModo = widgetLayoutInteracao?.widgetId === widget.id
       ? widgetLayoutInteracao.modo
       : null
+    const alvoTutorial = resolverAlvoTutorialWidgetDashboardSimulador(widget.id)
 
     return {
       habilitarMenuOpcoes: podeEditarDashboard,
       layoutModo,
+      dataTutorialAlvo: alvoTutorial,
+      dataTutorialAlvoMenu: widget.id === 'kpi_total_pedidos' ? 'pedido-dashboard-widget-menu' : undefined,
+      onMenuWidgetOpenChange: widget.id === 'kpi_total_pedidos' ? setWidgetMenuAberto : undefined,
       onEdit: (w: DashboardWidgetConfig) => {
         const stored = widgets.find(x => x.id === w.id) ?? w
         setEditingWidget(stored)
@@ -458,7 +493,7 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
         computed_at: new Date().toISOString(),
       }
       const controlesCarrossel = (
-        <div className="dp-gabi-header-right db-no-drag">
+        <div className="dp-gabi-header-right db-no-drag" data-sds-tutorial-alvo="pedido-dashboard-gabi-nav">
           <button className="dp-gabi-nav-btn" type="button" onClick={() => scrollGabi('left')} aria-label="Insight anterior">
             <CaretLeft size={12} weight="bold" />
           </button>
@@ -493,8 +528,8 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
                 <RocketLaunch size={120} weight="fill" />
               </div>
               <div className="dp-gabi-main">
-                <div className="dp-gabi-track" ref={gabiCarouselRef}>
-                  {insightsData.map((ins: GabiInsightItemSimulador) => (
+                <div className="dp-gabi-track" ref={gabiCarouselRef} data-sds-tutorial-alvo="pedido-dashboard-gabi-carrossel">
+                  {insightsData.map((ins: GabiInsightItemSimulador, indiceInsight) => (
                     <div
                       key={ins.id}
                       className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
@@ -515,7 +550,11 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
                             </div>
                           )}
                           {ins.textoLink && (
-                            <button className="dp-gabi-insight-link" type="button">
+                            <button
+                              className="dp-gabi-insight-link"
+                              type="button"
+                              {...(indiceInsight === 0 ? { 'data-sds-tutorial-alvo': 'pedido-dashboard-gabi-acao' } : {})}
+                            >
                               {ins.textoLink} <CaretRight size={10} />
                             </button>
                           )}
@@ -533,7 +572,11 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
 
     if (chartType === 'SECTION_LABEL') {
       return (
-        <div key={widget.id} style={sectionLabelStyle}>
+        <div
+          key={widget.id}
+          style={sectionLabelStyle}
+          data-sds-tutorial-alvo="pedido-dashboard-section-alertas"
+        >
           <span style={sectionLabelTextStyle}>{widget.title}</span>
           <div style={sectionLabelLineStyle} />
         </div>
@@ -735,6 +778,7 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
             <FaixaPaineisDashboardSimuladorPedido
               painelAtualId={painelAtualId}
               onTrocarPainel={handleTrocarPainel}
+              onCriandoPainelChange={setCriandoPainelDashboardAberto}
             />
             <BarraFerramentasDashboardSimuladorPedido
               onboarding={onboardingBarra}
@@ -751,6 +795,8 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
               statusCounts={statusCounts}
               onAbrirSugestoes={() => setSuggestionsOpen(true)}
               onCriarWidgetZero={() => setQueryBuilderOpen(true)}
+              onAdicionarMenuOpenChange={setAdicionarWidgetMenuAberto}
+              onWidgetsSeletorOpenChange={setWidgetsSeletorAberto}
               widgetsSeletor={temWidgets ? {
                 widgets,
                 getWidgetLabel,
@@ -763,7 +809,9 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
           </div>
         </div>
 
+        <div data-sds-tutorial-alvo="pedido-dashboard-grid">
         <DashboardGrid
+          className="pds-dashboard-grid-tutorial"
           widgets={activeWidgets}
           renderWidget={renderWidget}
           layoutInteracao={widgetLayoutInteracao}
@@ -776,6 +824,7 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
             })))
           }}
         />
+        </div>
 
         <DashboardConstrutorConsulta
           aberto={queryBuilderOpen}
@@ -784,6 +833,7 @@ export function DashboardSimuladorPedido({ empresasSelecionadas }: DashboardSimu
           periodoInicial={slicers.period}
           onSave={handleQueryBuilderSave}
           onCancel={() => setQueryBuilderOpen(false)}
+          dataTutorialAlvoBotaoAvancar="pedido-dashboard-construtor-salvar"
         />
 
         <DashboardPainelEditarModal

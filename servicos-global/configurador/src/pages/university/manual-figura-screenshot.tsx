@@ -11,8 +11,8 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
   cursor: 'pointer',
 }
 
-/** Acima do MenuLateralGlobal / shell University (evita sidebar transparente por cima do Ampliar). */
-const Z_INDEX_AMPLIAR_TELA_CHEIA = 200000
+/** Acima do MenuLateralGlobal / shell University (evita sidebar por cima do Ampliar). */
+export const Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA = 200000
 
 const MANUAL_SCREENSHOT_CACHE_KEY = '195'
 
@@ -137,7 +137,7 @@ export function ManualFiguraScreenshot({
           aria-label={alt}
           onClick={() => setTelaCheia(false)}
           style={{
-            position: 'fixed', inset: 0, zIndex: Z_INDEX_AMPLIAR_TELA_CHEIA,
+            position: 'fixed', inset: 0, zIndex: Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '24px',
             background: '#020617',

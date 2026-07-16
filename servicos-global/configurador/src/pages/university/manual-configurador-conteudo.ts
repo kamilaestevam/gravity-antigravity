@@ -234,6 +234,18 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Smart Docs § Nova Leitura — mapa das abas e do comparativo do passo Conferência. */
+  mostrarInfograficoSmartDocsConferencia?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Conferência (padrão: 0). */
+  infograficoSmartDocsConferenciaAposParagrafo?: number
+  /** Manual Smart Docs § Nova Leitura — infográfico + accordion do Checklist de Conferência. */
+  mostrarInfograficoSmartDocsChecklistConferencia?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Checklist (padrão: 0). */
+  infograficoSmartDocsChecklistConferenciaAposParagrafo?: number
+  /** Manual Smart Docs § Nova Leitura — regra acerto × erro ao editar campo na Conferência. */
+  mostrarInfograficoSmartDocsEditarCamposMetrica?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico de métrica (padrão: 1). */
+  infograficoSmartDocsEditarCamposMetricaAposParagrafo?: number
   /** Manual Smart Docs §05.10 — swimlane Lista Leitura → integração API Cockpit. */
   mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
@@ -361,6 +373,11 @@ export interface DocPassoVisual {
   rotuloSecao?: string
   /** `num` do passo pai — abre cadeia de acordeões ao navegar pelo sumário. */
   numPai?: number
+  /** Cards numerados UX 10 (formato `**rótulo**: descrição`) após parágrafo `listaAposParagrafo` (padrão: 0). */
+  lista?: string[]
+  listaAposParagrafo?: number
+  listaEmLinha?: boolean
+  listaColunas?: number
 }
 
 export type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'passosFilhos'> & {
@@ -411,7 +428,8 @@ export type DocChipEdicaoMassaExemploId =
 
 export interface DocGaleriaComparacaoTela {
   legenda: string
-  imagem: string
+  /** Omitido quando a célula usa simulador animado em vez de screenshot. */
+  imagem?: string
   paragrafoAntes?: string
   /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
   legendaApos?: string
@@ -424,6 +442,8 @@ export interface DocGaleriaComparacaoTela {
   chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
   /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
   calloutAntes?: DocCalloutManual
+  /** Dica/aviso abaixo do print (ritmo: `MANUAL_ESPACO_IMAGEM_FRASE_PX` → callout). */
+  calloutDepois?: DocCalloutManual
   /** Largura máxima do print (coluna estreita — ex.: preview de e-mail). */
   larguraMaxima?: number
   /** Altura máxima do print (miniatura vertical — ex.: preview de e-mail longo). */
@@ -434,6 +454,12 @@ export interface DocGaleriaComparacaoTela {
   cardInsightGradeSmartDocs?: number
   /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
   preencherCelulaGrade?: boolean
+  /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
+  simuladorSmartReadListaArrastarColunas?: boolean
+  /** Manual Smart Docs · Nova Leitura passo Análise — demo automática do card na sidebar. */
+  simuladorSmartReadCardAnaliseArquivo?: boolean
+  /** Frase com ícone de vídeo acima de simuladores/telas animadas do manual. */
+  fraseDemonstracaoAnimada?: string
 }
 
 /** Bloco com rótulo, intro e galeria após a galeria principal do passo. */
@@ -472,6 +498,8 @@ export interface DocGaleriaTela {
   simuladorBidFretePainelInsights?: boolean
   /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
   simuladorSmartReadListaArrastarColunas?: boolean
+  /** Manual Smart Docs · Nova Leitura passo Análise — demo automática do card na sidebar. */
+  simuladorSmartReadCardAnaliseArquivo?: boolean
   /** Frase com ícone de vídeo acima de simuladores/telas animadas do manual. */
   fraseDemonstracaoAnimada?: string
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
@@ -1230,6 +1258,12 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
     ) {
       function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
         passos.forEach((passo) => {
+          if (passo.ocultarNoSumario) {
+            if (passo.passosFilhos?.length) {
+              adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)
+            }
+            return
+          }
           itens.push({
             rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
             titulo: passo.tituloCurto ?? passo.titulo,

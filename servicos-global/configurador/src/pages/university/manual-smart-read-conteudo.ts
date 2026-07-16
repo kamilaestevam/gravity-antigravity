@@ -79,8 +79,76 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR_SETA =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-anexar-seta.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO =
   '/university/screenshots/smart-docs-nova-leitura-passo-1-anexado.png'
-const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXEMPLO_ERRO =
-  '/university/screenshots/smart-docs-nova-leitura-passo-1-exemplo-erro.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXCLUIR_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-1-excluir-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXCLUIR_2 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-1-excluir-2.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_A =
+  '/university/screenshots/smart-docs-nova-leitura-passo-2-a.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_B =
+  '/university/screenshots/smart-docs-nova-leitura-passo-2-b.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_METRICAS =
+  '/university/screenshots/smart-docs-nova-leitura-passo-2-metricas.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_TOKENS =
+  '/university/screenshots/smart-docs-nova-leitura-tokens.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_AVANCAR =
+  '/university/screenshots/smart-docs-nova-leitura-passo-2-avancar.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_FILTROS =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-filtros.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_FILTROS_EXEMPLO =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-filtros-exemplo.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_JUNTAS =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-juntas.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ITENS =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-itens.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ITENS_ABERTO =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-itens-aberto.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ABERTA =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-aberta.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITAR =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-aberta-editar.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITADO =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-aberta-editado.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_CONFERIDO =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-conferencia-campos-sessao-conferido.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-check-list-acesso-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_2 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-check-list-acesso-2.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_3 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-check-list-acesso-3.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_4 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-check-list-acesso-4.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comparar-arquivo-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_2 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comparar-arquivo-2.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_3 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comparar-arquivo-3.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_4 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comparar-arquivo-4.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_5 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comparar-arquivo-5.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-analise-risco-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_2 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-analise-risco-2.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_3 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-analise-risco-3.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_1 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-1.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_2 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-2.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_3 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-3.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_4 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-4.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONSULTOR_INTELIGENTE =
+  '/university/screenshots/smart-docs-nova-leitura-passo-3-consultor-inteligente.png'
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -577,14 +645,15 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       titulo: 'Nova Leitura',
       tituloSumario: 'Nova Leitura',
+      tituloTopicoAcademy: 'O que é?',
       paragrafos: [
-        'O wizard **Nova Leitura** tem quatro etapas: **Anexar**, **Análise do arquivo**, **Conferência** e **Resultado**. Use o mapa abaixo para navegar — hoje o manual detalha o **passo 1 (Anexar)**; as etapas 2 a 4 serão ampliadas conforme novos prints forem publicados.',
+        'O wizard **Nova Leitura** tem quatro etapas: {{wizard:1|Anexar}}, {{wizard:2|Análise do arquivo}}, {{wizard:3|Conferência}} e {{wizard:4|Resultado}}. Use o mapa abaixo para navegar.',
       ],
       figurasAposParagrafo: [
         {
           indice: 0,
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_4_PASSOS,
-          legenda: 'Stepper — Anexar · Análise · Conferência · Resultado',
+          legenda: 'Stepper · Anexar · Análise · Conferência · Resultado',
         },
       ],
       prefixoPassosVisuais: 'Nova Leitura',
@@ -598,23 +667,27 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Iniciar',
-          tituloCurto: 'Iniciar',
+          titulo: 'Como iniciar uma nova leitura',
+          tituloCurto: 'Como iniciar uma nova leitura',
           paragrafos: [
             'Existem **duas formas** de iniciar uma nova leitura: clique no botão **+ Novo** na aba **Insights** ou na aba **Lista**. O modal abre no passo **Anexar**, com o stepper das quatro etapas no topo.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
               ampliarInferiorDireito: true,
               telas: [
                 {
-                  legenda: 'Via Insights',
+                  legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_INSIGHTS_NOVA_LEITURA,
+                  paragrafoAntes: 'Clique em **+ Novo** na aba **Insights**',
                 },
                 {
-                  legenda: 'Via Lista',
+                  legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_NOVA_LEITURA,
+                  paragrafoAntes: 'Clique em **+ Novo** na aba **Lista**',
                 },
               ],
             },
@@ -626,45 +699,68 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           etapaWizard: 1,
           estiloTituloWizard: true,
           paragrafos: [
-            'Após clicar em **+ Novo**, abre-se a tela do **passo 1 — Anexar** para enviar os documentos da leitura. O stepper no topo mostra as quatro etapas do wizard.',
+            'Após clicar em **+ Novo**, abre-se a tela **Anexar** para enviar os documentos da leitura.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
               telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL,
-                  paragrafoAntes:
-                    'Nome da **leitura**, lista de **arquivos enviados** e botões **Cancelar** / **Enviar**.',
                 },
                 {
                   legenda: '',
-                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR,
-                  paragrafoAntes:
-                    'Selecione **arquivos** pelo **explorador** ou **solte** na **área indicada** (PDF, imagens, XML, CSV, XLS/XLSX — até **50 MB** por arquivo).',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR_SETA,
+                  paragrafoAntes: 'Clique em **área indicada**',
                 },
               ],
             },
           ],
         },
         {
+          titulo: 'Selecionar arquivos',
+          tituloCurto: 'Selecionar arquivos',
+          rotuloPasso: 'Selecionar arquivos',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Selecione **arquivos** pelo **explorador** ou **solte** na **área indicada** (PDF, imagens, XML, CSV, XLS/XLSX, até **50 MB** por arquivo).',
+          ],
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXAR,
+          imagemAbaixoTexto: true,
+        },
+        {
           titulo: 'Card do arquivo',
           tituloCurto: 'Card',
+          rotuloPasso: 'Card',
+          ocultarNoSumario: true,
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'Cada anexo vira um **card** na sidebar com nome original, status **Arquivo enviado**, ícones **Visualizar** (nova aba) e **Excluir** (modal de confirmação). Com pelo menos um arquivo, **Enviar** avança para a **Análise do arquivo**.',
+            'Cada anexo vira um **card** na sidebar com nome original, status **Arquivo enviado** e ícone **Visualizar** (nova aba). Com pelo menos um arquivo, **Enviar** avança para a **Análise do arquivo**.',
           ],
         },
         {
-          titulo: 'Validação de formato',
-          tituloCurto: 'Validação',
-          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXEMPLO_ERRO,
-          imagemAbaixoTexto: true,
+          titulo: 'Excluir',
+          tituloCurto: 'Excluir',
+          rotuloPasso: 'Excluir',
+          ocultarNoSumario: true,
           paragrafos: [
-            'Arquivos fora da lista de extensões ou acima do limite exibem erro na interface — corrija o anexo antes de **Enviar**.',
+            'Antes de **Enviar**, é possível **excluir** um anexo pelo ícone **Excluir** no card.',
+          ],
+          galeriaTelasAposTabela: [
+            {
+              legenda: '',
+              imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXCLUIR_1,
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_EXCLUIR_2,
+              paragrafoAntes: 'Confirme no **modal**. O arquivo sai da leitura antes de **Enviar**.',
+            },
           ],
         },
         {
@@ -673,12 +769,95 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           etapaWizard: 2,
           estiloTituloWizard: true,
           paragrafos: [
-            'Após **Enviar**, o wizard avança para **Análise do arquivo** — a IA classifica os documentos e prepara a extração.',
+            'Estamos no **segundo passo** da leitura. Agora as IAs do Gravity começam a trabalhar analisando os arquivos.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Seção em construção — aguardando prints da etapa **Análise do arquivo**.',
-          },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_A,
+                  calloutDepois: {
+                    tipo: 'dica',
+                    texto:
+                      'A variação de tempo depende de quantos documentos, do tamanho dos arquivos e da sua internet. Em documentos pequenos, de **10** a **20** segundos; em arquivos grandes, pode chegar a **um minuto e meio**.',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_B,
+                  paragrafoAntes:
+                    'Com todas as análises concluídas, os cards exibem o tempo final, o **saving** da leitura e o acumulado do workspace.',
+                },
+              ],
+            },
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              rotuloPasso: 'CARD da análise do arquivo',
+              telas: [
+                {
+                  legenda: '',
+                  simuladorSmartReadCardAnaliseArquivo: true,
+                  fraseDemonstracaoAnimada:
+                    '**Tela animada**: acompanhe o cursor nas três etapas: **01** identificar e separar os documentos do arquivo, **02** conferir a lista separada e **03** abrir o **preview** de cada um pelo ícone **Visualizar**. O ciclo se repete automaticamente.',
+                  paragrafoAntes:
+                    'No card do arquivo, o Smart Doc mostra quantos documentos identificou. **Expanda** o card para ver cada um separado e use **Visualizar** para abrir o preview.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Tempo de leitura e saving',
+          tituloCurto: 'Tempo e saving',
+          rotuloPasso: 'Tempo de leitura e saving',
+          ocultarNoSumario: true,
+          etapaWizard: 2,
+          paragrafos: [
+            'Com a análise concluída, três cards no topo do painel resumem a leitura e o histórico do workspace.',
+          ],
+          lista: [
+            '**Tempo de leitura**: mostra quanto tempo a IA levou nesta análise. O valor é exibido em **HH MM SS**.',
+            '**Recursos reduzidos com a leitura**: estima os minutos de trabalho manual que você deixou de fazer nesta leitura. Abra **Base de cálculo** para revisar a metodologia.',
+            '**Tempo reduzido acumulado**: consolida o histórico do workspace com quantidade de **documentos** processados e **saving** total em horas.',
+          ],
+          listaAposParagrafo: 0,
+          listaEmLinha: true,
+          listaColunas: 3,
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_METRICAS,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Uso de tokens',
+          tituloCurto: 'Tokens',
+          rotuloPasso: 'Uso de tokens',
+          ocultarNoSumario: true,
+          etapaWizard: 2,
+          paragrafos: [
+            'Na sidebar, o painel **Uso de IA** mostra o consumo de **tokens** desta leitura e o acumulado do plano no mês.',
+          ],
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_TOKENS,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Avançar para Conferência',
+          tituloCurto: 'Avançar',
+          rotuloPasso: 'Avançar para Conferência',
+          ocultarNoSumario: true,
+          etapaWizard: 2,
+          paragrafos: [
+            'Com a análise concluída, o botão **Continuar** na base da sidebar é habilitado.',
+            'Clique em **Continuar** para avançar da etapa **Análise do arquivo** para **Conferência**, onde você revisa e corrige os campos extraídos antes de concluir a leitura.',
+          ],
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_2_AVANCAR,
+          imagemAbaixoTexto: true,
         },
         {
           titulo: 'Conferência',
@@ -686,12 +865,268 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           etapaWizard: 3,
           estiloTituloWizard: true,
           paragrafos: [
-            'Na **Conferência**, você revisa e corrige os campos extraídos antes de concluir a leitura.',
+            'Estamos agora no **terceiro passo** do Smart Docs, **o mais importante de todos eles**. Aqui os dados extraídos serão organizados em abas e incluídos nos campos; é possível fazer conferência, edição, checklist e análise de risco feita pela **IA**.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Seção em construção — aguardando prints da etapa **Conferência**.',
-          },
+          mostrarInfograficoSmartDocsConferencia: true,
+          imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3,
+          imagemAbaixoTexto: true,
+        },
+        {
+          titulo: 'Conferência de Campos',
+          tituloCurto: 'Campos',
+          rotuloPasso: 'Conferência de Campos',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'Na primeira aba, os dados extraídos aparecem por **seções**, com campos editáveis e barra de progresso da conferência.',
+            'No topo, alterne entre **Verificados**, **Preenchidos**, **Vazios** e **Preenchidos alterados** para focar o que ainda precisa de revisão.',
+            'Expanda **sessões** e **itens** para conferir campo a campo.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              rotuloPasso: 'Filtros da conferência',
+              telas: [
+                { legenda: '', imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_FILTROS },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_FILTROS_EXEMPLO,
+                  paragrafoAntes: 'Exemplo com filtro ativo para localizar campos **vazios** ou **alterados**.',
+                },
+              ],
+            },
+            {
+              indice: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              rotuloPasso: 'Sessões e itens',
+              telas: [
+                { legenda: '', imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_JUNTAS },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ITENS,
+                  paragrafoAntes:
+                    'Abas com a extração de todos os itens do documento; neste exemplo, da **Invoice** (**Item 1**, **Item 2**, **Item 3**…).',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ITENS_ABERTO,
+                  paragrafoAntes: 'Expanda a **sessão** e os **itens** para ver os campos extraídos.',
+                },
+                { legenda: '', imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_ABERTA },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Editar campos',
+          tituloCurto: 'Editar campos',
+          rotuloPasso: 'Editar campos',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'Clique no valor para **editar** o campo na conferência.',
+            'A métrica de acertos e erros é com essa base: a cada campo extraído **editado** na conferência, consideramos **erro** do Smart Doc.',
+          ],
+          mostrarInfograficoSmartDocsEditarCamposMetrica: true,
+          infograficoSmartDocsEditarCamposMetricaAposParagrafo: 1,
+          figurasAposParagrafo: [
+            { indice: 0, imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITAR },
+            { indice: 0, imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITADO },
+          ],
+        },
+        {
+          titulo: 'Comparar arquivo',
+          tituloCurto: 'Comparar',
+          rotuloPasso: 'Comparar arquivo',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'O **Comparar arquivo** cruza campo a campo a leitura atual com um **segundo PDF**. Útil quando o exportador envia versão revisada ou quando você quer validar divergências antes de concluir.',
+            'Abra pelo botão **Comparar arquivo** na barra da aba **Conferência de Campos**. À esquerda fica o documento atual (editável); à direita, envie o arquivo comparado. Após o processamento, a tabela marca **iguais**, **divergentes**, campos **só em um documento** e **vazios em ambos**.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_1,
+                  paragrafoAntes: 'Botão **Comparar arquivo** na barra da Conferência. Abre o modal lado a lado.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_2,
+                  paragrafoAntes: 'Envie o **segundo PDF** no painel direito para iniciar a comparação.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_3,
+                  paragrafoAntes: 'Enquanto o arquivo comparado é processado, aguarde a extração pela IA.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_4,
+                  paragrafoAntes: '**Resumo da comparação**: percentual de campos iguais e filtros por status.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_5,
+                  paragrafoAntes: 'Tabela **campo a campo** por seção. Edite o documento atual direto na coluna esquerda.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Checklist',
+          tituloCurto: 'Checklist',
+          rotuloPasso: 'Checklist',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'O **Checklist** é a matriz de validação documental da Conferência: cada regra compara o que foi lido no PDF com critérios de código, APIs da Receita, cruzamento entre documentos da leitura e IA.',
+            'Abra pelo ícone **Checklist** na barra da aba **Conferência de Campos**. O modal mostra contagem por status (**CONFORME**, **ATENÇÃO**, **FALHA**, **PENDENTE**, **N/A**), filtro por documento e seções expansíveis com o resultado de cada regra.',
+          ],
+          mostrarInfograficoSmartDocsChecklistConferencia: true,
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_1,
+                  paragrafoAntes: 'Acesso ao **Checklist** pela barra da Conferência. Resumo por status e barra segmentada.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_2,
+                  paragrafoAntes: 'Seletor de **documento** e visão das seções da matriz (ex.: Identificação, Cadastral, Logística).',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_3,
+                  paragrafoAntes: 'Detalhe de uma regra: status, resultado lido e ícone **i** com base legal quando disponível no SSOT.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CHECK_LIST_ACESSO_4,
+                  paragrafoAntes: 'Expanda seções para percorrer todas as regras do tipo de documento selecionado.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Consultor Inteligente',
+          tituloCurto: 'Consultor',
+          rotuloPasso: 'Consultor Inteligente',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'Na aba **Consultor Inteligente**, converse com a **IA** sobre a leitura. Use as sugestões prontas ou digite perguntas livres com contexto dos documentos.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONSULTOR_INTELIGENTE,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Análise de Riscos',
+          tituloCurto: 'Riscos',
+          rotuloPasso: 'Análise de Riscos',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'Na aba **Análise de Riscos**, a IA e motores determinísticos apontam **alertas aduaneiros** por severidade (**Crítico**, **Atenção**, **Informativo**).',
+            'Expanda cada risco para ver **motivo**, **evidências** no documento, **correção sugerida** e ações para aplicar na conferência. Marque como conferido conforme revisa.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_1,
+                  paragrafoAntes: 'Visão geral da aba: lista de riscos com severidade e busca.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_2,
+                  paragrafoAntes: 'Risco **expandido**: análise, evidências e correção sugerida.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_ANALISE_RISCO_3,
+                  paragrafoAntes: 'Detalhe com **evidência visual** no documento ou ação de correção.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          titulo: 'Comunicação com Fornecedor',
+          tituloCurto: 'Fornecedor',
+          rotuloPasso: 'Comunicação com Fornecedor',
+          ocultarNoSumario: true,
+          etapaWizard: 3,
+          paragrafos: [
+            'Na aba **Comunicação com Fornecedor**, monte o e-mail ao exportador a partir dos **riscos** (pré-selecionados) e dos **campos que você editou** na conferência (desmarcados por padrão).',
+            'Marque o que entra na mensagem, revise o texto gerado e copie ou envie, alinhando pendências sem redigir tudo do zero.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_1,
+                  paragrafoAntes: 'Introdução da aba: selecione **riscos** e **campos editados** para a comunicação.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_2,
+                  paragrafoAntes: 'Lista de **riscos** com checkboxes: todos vêm marcados por padrão.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_3,
+                  paragrafoAntes: 'Seção **campos editados**: marque os que devem constar no e-mail ao fornecedor.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_4,
+                  paragrafoAntes: '**Prévia do e-mail** gerado com os itens selecionados.',
+                },
+              ],
+            },
+          ],
         },
         {
           titulo: 'Resultado',
@@ -703,7 +1138,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ],
           callout: {
             tipo: 'lembrete',
-            texto: 'Seção em construção — aguardando prints da etapa **Resultado**.',
+            texto: 'Seção em construção: aguardando prints da etapa **Resultado**.',
           },
         },
       ]),

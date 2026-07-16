@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Eye, EyeSlash, Lightbulb, Warning } from '@phosphor-icons/react'
 import type { DocPassoVisual } from './manual-configurador-conteudo'
 import { ManualFiguraScreenshot } from './manual-figura-screenshot'
-import { ManualGaleriaComparacaoIntro, ManualGaleriaTelasBloco } from './manual-configurador-ui'
+import { ManualGaleriaComparacaoIntro, ManualGaleriaTelasBloco, chaveTelasGaleriaComparacao } from './manual-configurador-ui'
 import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tabela'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { AcademyLinkGuia } from './guia-academy-link'
@@ -14,9 +14,83 @@ import {
 } from './manual-infografico-rich-text'
 import {
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
+  MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
+  classePassoCorpoAcademy,
 } from './manual-tipografia'
+
+function AcademyGaleriaRotuloPasso({ rotuloPasso }: { rotuloPasso?: string }) {
+  const rotulo = rotuloPasso?.trim()
+  if (!rotulo) return null
+  return (
+    <div
+      className="uni-player-aula__passo-rotulo-linha"
+      style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+    >
+      <p style={{ ...ESTILO_PASSO_ROTULO, margin: 0 }}>{rotulo}</p>
+    </div>
+  )
+}
+
+function AcademyGaleriaComparacaoPasso({
+  galeria,
+  idxGaleria,
+  indiceParagrafo,
+  semParagrafo = false,
+}: {
+  galeria: NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number]
+  idxGaleria: number
+  indiceParagrafo?: number
+  semParagrafo?: boolean
+}) {
+  const chaveTelas = chaveTelasGaleriaComparacao(galeria.telas)
+  const prefixoChave = semParagrafo
+    ? `galeria-sem-par-${idxGaleria}`
+    : `galeria-par-${indiceParagrafo}-${idxGaleria}`
+  const rotulo = galeria.rotuloPasso?.trim()
+  const textoIntro = galeria.textoIntro?.trim()
+  const textoCorpo = textoIntro
+    || (galeria.textoAcimaEstiloCorpo && galeria.telas[0]?.paragrafoAntes?.trim()
+      ? galeria.telas[0].paragrafoAntes
+      : undefined)
+  const telas = rotulo && galeria.textoAcimaEstiloCorpo && !textoIntro && galeria.telas[0]?.paragrafoAntes?.trim()
+    ? [{ ...galeria.telas[0], paragrafoAntes: undefined }, ...galeria.telas.slice(1)]
+    : galeria.telas
+  return (
+    <div
+      key={`${prefixoChave}-${chaveTelas}`}
+      className="uni-player-aula__passo-galeria"
+      style={
+        idxGaleria > 0
+          ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }
+          : undefined
+      }
+    >
+      {rotulo ? (
+        <div
+          className={classePassoCorpoAcademy({}, true)}
+          style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+        >
+          <AcademyGaleriaRotuloPasso rotuloPasso={rotulo} />
+          {textoCorpo ? (
+            <p style={{ ...ESTILO_CORPO, margin: 0 }}>
+              <AcademyTextoRich texto={textoCorpo} />
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      <ManualGaleriaComparacaoIntro
+        telas={telas}
+        ampliarInferiorDireito={galeria.ampliarInferiorDireito}
+        colunas={galeria.colunas}
+        textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+        layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
+        calloutApos={galeria.calloutApos}
+      />
+    </div>
+  )
+}
 
 function galeriaComparacaoAposParagrafoPasso(passo: DocPassoVisual, indice: number) {
   return (passo.galeriaComparacaoAposParagrafo ?? []).filter((g) => g.indice === indice)
@@ -225,8 +299,9 @@ export function AcademyBlocoPassoVisual({
   const calloutLista = passo.dicaAoLadoImagem || passo.calloutAposImagem
     ? []
     : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
-  const semRotulo = passo.ocultarRotuloPasso === true || emGradeCenarios
+  const semRotulo = passo.ocultarRotuloPasso === true || passo.estiloTituloWizard === true || emGradeCenarios
   const semTitulo = passo.ocultarTituloPasso === true
+  const classeCorpoPasso = classePassoCorpoAcademy(passo, !semRotulo)
   const temCabecalho = !semRotulo || !semTitulo
   const temParagrafos = (passo.paragrafos?.length ?? 0) > 0
   const temSequenciaTextoFigura = temParagrafos
@@ -318,7 +393,7 @@ export function AcademyBlocoPassoVisual({
             <CalloutPasso callout={passo.calloutAntes} />
           </div>
         ) : null}
-        <div className="uni-player-aula__passo-corpo">
+        <div className={classeCorpoPasso}>
           {corpoPasso}
         </div>
         {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
@@ -349,7 +424,7 @@ export function AcademyBlocoPassoVisual({
         {passo.paragrafos!.map((p, i) => (
           <div key={i} className="uni-player-aula__passo-etapa">
             {i === 0 ? (
-              <div className="uni-player-aula__passo-corpo">
+              <div className={classeCorpoPasso}>
                 {!semRotulo ? (
                   <AcademyPassoRotuloLinha passo={passo} />
                 ) : null}
@@ -405,7 +480,7 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {temCorpoTexto ? (
-        <div className="uni-player-aula__passo-corpo">
+        <div className={classeCorpoPasso}>
           {!semRotulo ? (
             <AcademyPassoRotuloLinha passo={passo} />
           ) : null}
@@ -420,16 +495,12 @@ export function AcademyBlocoPassoVisual({
                     <AcademyTextoRich texto={p} />
                   </p>
                   {galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria, idxGaleria) => (
-                    <div
-                      key={`galeria-par-${i}-${idxGaleria}-${galeria.telas.map((t) => t.imagem).join('|')}`}
-                      className="uni-player-aula__passo-galeria"
-                    >
-                      <ManualGaleriaComparacaoIntro
-                        telas={galeria.telas}
-                        ampliarInferiorDireito={galeria.ampliarInferiorDireito}
-                        colunas={galeria.colunas}
-                      />
-                    </div>
+                    <AcademyGaleriaComparacaoPasso
+                      key={`galeria-par-${i}-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
+                      galeria={galeria}
+                      idxGaleria={idxGaleria}
+                      indiceParagrafo={i}
+                    />
                   ))}
                 </React.Fragment>
               ))}
@@ -446,16 +517,12 @@ export function AcademyBlocoPassoVisual({
       ) : null}
       {(passo.paragrafos?.length ?? 0) === 0
         ? galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria, idxGaleria) => (
-          <div
-            key={`galeria-sem-par-${idxGaleria}-${galeria.telas.map((t) => t.imagem).join('|')}`}
-            className="uni-player-aula__passo-galeria"
-          >
-            <ManualGaleriaComparacaoIntro
-              telas={galeria.telas}
-              ampliarInferiorDireito={galeria.ampliarInferiorDireito}
-              colunas={galeria.colunas}
-            />
-          </div>
+          <AcademyGaleriaComparacaoPasso
+            key={`galeria-sem-par-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
+            galeria={galeria}
+            idxGaleria={idxGaleria}
+            semParagrafo
+          />
         ))
         : null}
       {passo.imagem ? (

@@ -254,7 +254,9 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
       dados: {
         text: tituloPasso,
         nivel: 2,
-        ...(passo.rotuloPasso?.trim() ? { ocultarNoCorpo: true } : {}),
+        // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
+        ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
+        ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
         ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
       },
     })

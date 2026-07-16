@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA } from './manual-figura-screenshot'
 import { ManualInfograficoMiniaturaSequenciaTelas } from './manual-university-infografico-sequencia-telas'
 import { TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
 import { AcademyLinkGuia } from './guia-academy-link'
@@ -822,7 +823,7 @@ function MiniCardFluxoSap() {
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 9999,
+            zIndex: Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA,
             background: 'rgba(2,6,16,.78)',
             backdropFilter: 'blur(3px)',
             display: 'flex',

@@ -30,7 +30,7 @@ import { AcademyBlocoCenariosGrade, type PayloadCenariosGradeAcademy } from './a
 import { AcademyBlocoFluxoManual } from './academy-bloco-fluxo-manual'
 import type { DocPassoVisual } from './manual-login-conteudo'
 import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-conteudo'
-import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manual-configurador-ui'
+import { ManualGaleriaComparacaoIntro, ManualTagPassoWizard, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia, voltarNoGuiaAcademy } from './guia-academy-link'
@@ -95,20 +95,38 @@ function classificarBlocoGuia(bloco: BlocoConteudo): ClassificacaoBlocoGuia {
   return 'normal'
 }
 
+/** Ignora H2 `ocultarNoCorpo` (âncora fantasma do sumário) ao medir ritmo entre passos visíveis. */
+function blocoAnteriorEfetivoGuia(blocos: BlocoConteudo[], indice: number): BlocoConteudo | null {
+  for (let i = indice - 1; i >= 0; i--) {
+    const candidato = blocos[i]!
+    if (candidato.tipo === 'heading' && candidato.dados.ocultarNoCorpo) continue
+    return candidato
+  }
+  return null
+}
+
 function calcularEspacoSuperiorBlocoGuia(
   bloco: BlocoConteudo,
-  _indice: number,
-  blocoAnterior: BlocoConteudo | null,
+  indice: number,
+  blocos: BlocoConteudo[],
 ): number {
+  const blocoAnterior = indice > 0 ? blocos[indice - 1]! : null
+  const anteriorEfetivo = blocoAnteriorEfetivoGuia(blocos, indice)
+
   if (bloco.tipo === 'heading' && bloco.dados.ocultarNoCorpo) {
-    // H2 só no menu: mantém 32px após o passo anterior; o corpo do próximo passo não empilha +18px.
-    if (
-      blocoAnterior?.tipo === 'fluxo_manual'
-      && String(blocoAnterior.dados.modo ?? 'completo') === 'passo'
-    ) {
-      return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-    }
+    // H2 só no sumário: sem faixa vazia entre sub-passos do mesmo fluxo (ex.: Card → Excluir em Anexar).
     return 0
+  }
+
+  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Riscos → Fornecedor).
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+    && anteriorEfetivo?.tipo === 'fluxo_manual'
+    && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+    && blocoAnterior !== anteriorEfetivo
+  ) {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
@@ -157,7 +175,15 @@ function calcularEspacoSuperiorBlocoGuia(
     && Number(blocoAnterior.dados.nivel ?? 1) === 2
     && String(bloco.dados.modo ?? 'completo') === 'passo'
   ) {
-    if (blocoAnterior.dados.ocultarNoCorpo) return 0
+    if (blocoAnterior.dados.ocultarNoCorpo) {
+      if (
+        anteriorEfetivo?.tipo === 'fluxo_manual'
+        && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+      ) {
+        return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+      }
+      return MANUAL_ESPACO_PARAGRAFO_PX
+    }
     return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
   }
 
@@ -172,7 +198,18 @@ function calcularEspacoSuperiorBlocoGuia(
     return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
-  // Passo com `rotuloPasso` (sem H2) → próximo passo ou passo anterior
+  // Passo Academy após outro passo (H2 fantasma do sumário ou adjacente) — 32px
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+    && anteriorEfetivo?.tipo === 'fluxo_manual'
+    && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+    && blocoAnterior?.tipo !== 'fluxo_manual'
+  ) {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+  }
+
+  // Passo com `rotuloPasso` (sem H2) → passo anterior adjacente
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -227,7 +264,7 @@ function calcularEspacoSuperiorBlocoGuia(
 function estiloBlocoGuia(
   bloco: BlocoConteudo,
   indice: number,
-  blocoAnterior: BlocoConteudo | null,
+  blocos: BlocoConteudo[],
 ): React.CSSProperties {
   // marginTop no wrapper: o ritmo é flex column (não colapsa). CSS não deve forçar margin-top nos blocos.
   return {
@@ -235,7 +272,7 @@ function estiloBlocoGuia(
     marginRight: 0,
     marginBottom: 0,
     paddingTop: 0,
-    marginTop: calcularEspacoSuperiorBlocoGuia(bloco, indice, blocoAnterior),
+    marginTop: calcularEspacoSuperiorBlocoGuia(bloco, indice, blocos),
   }
 }
 
@@ -538,6 +575,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       const texto = String(bloco.dados.text)
       const idAncora = bloco.dados.idAncora ? String(bloco.dados.idAncora) : undefined
       const ocultarNoCorpo = Boolean(bloco.dados.ocultarNoCorpo)
+      const etapaWizard = bloco.dados.etapaWizard != null ? Number(bloco.dados.etapaWizard) : undefined
       const estiloOculto: React.CSSProperties = {
         position: 'absolute',
         width: 1,
@@ -558,8 +596,22 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         )
       }
       return (
-        <Tag id={idAncora} style={ocultarNoCorpo ? estiloOculto : (styles[nivel] ?? styles[1])} aria-hidden={ocultarNoCorpo || undefined}>
-          {texto}
+        <Tag
+          id={idAncora}
+          className={etapaWizard != null && Number.isFinite(etapaWizard) && !ocultarNoCorpo
+            ? 'uni-player-aula__titulo-etapa-wizard'
+            : undefined}
+          style={ocultarNoCorpo ? estiloOculto : (styles[nivel] ?? styles[1])}
+          aria-hidden={ocultarNoCorpo || undefined}
+        >
+          {etapaWizard != null && Number.isFinite(etapaWizard) && !ocultarNoCorpo ? (
+            <>
+              <ManualTagPassoWizard numero={etapaWizard} />
+              <span>{texto}</span>
+            </>
+          ) : (
+            texto
+          )}
         </Tag>
       )
     }
@@ -1211,7 +1263,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                   <div
                     key={idx}
                     className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}`}
-                    style={estiloBlocoGuia(bloco, idx, idx > 0 ? aula.blocos[idx - 1]! : null)}
+                    style={estiloBlocoGuia(bloco, idx, aula.blocos)}
                   >
                     <BlocoRenderer bloco={blocoComAncora} />
                   </div>

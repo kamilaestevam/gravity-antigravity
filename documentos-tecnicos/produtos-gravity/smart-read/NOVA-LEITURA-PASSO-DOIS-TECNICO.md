@@ -1,4 +1,4 @@
-﻿# Nova Leitura — Passo 02 (Análise do arquivo) — Smart Docs
+# Nova Leitura — Passo 02 (Análise do arquivo) — Smart Docs
 
 > **Escopo deste documento:** somente **Passo 2** do wizard.  
 > **Branch de referência UX:** `tela_smart_read_tela_2` (dashboard métricas + pipeline IA + globo).  
@@ -23,7 +23,7 @@
 | Estilos | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.css` |
 | Modal metodologia saving | `client/src/pages/insights-smart-read/metodologia-saving-insights-smart-read.tsx` |
 | BFF polling | `server/src/routes/leituras-smart-read.ts` (`GET /:id_leitura`) |
-| Campo `tempo_analise_segundos` | `server/src/schemas/progresso-leitura-smart-read.ts` |
+| Campo `tempo_processo_total_ms` | `server/src/schemas/leitura-smart-read.ts` (dentro de `LeituraSchema` no progresso) |
 | Contador «Uso de IA» (sidebar) | `client/src/components/nova-leitura-smart-read/contador-tokens-discreto-nova-leitura-smart-read.tsx` |
 | Hook contador (observador passivo) | `client/src/shared/use-contador-tokens-leitura-smart-read.ts` |
 | Análise de riscos pós-OCR | `client/src/shared/disparar-analise-riscos-background-smart-read.ts` |
@@ -61,7 +61,7 @@ Corpo (grid lateral + principal):
 | Cards sidebar | Exibem `resultado_extracao` quando disponível; chips de `tipo_documento` recolhidos ou lista expandida |
 | Visualizar original | Ícone olho no card → blob URL (mesmo passo 1) |
 | Visualizar documento | Expandir card → ícone olho por tipo → blob/preview do documento identificado |
-| Tempo de leitura | Cronômetro `HH : MM : SS`; congela em `tempo_analise_segundos` ao concluir análise |
+| Tempo de leitura | Cronômetro `HH : MM : SS`; acumula em `tempo_processo_total_ms` e persiste no progresso |
 | Recursos reduzidos | `calcularSavingNovaLeituraSmartRead` — base manual − tempo de leitura; link **Base de cálculo →** abre modal metodologia (z-index acima do wizard) |
 | Tempo reduzido acumulado | Infográfico workspace (`useSavingAcumuladoWorkspaceSmartRead`); recarrega ao abrir metodologia |
 | Pipeline IA | Três etapas simuladas no client: Primeira (~6s), Segunda (~12s), Terceira (~16s) até API marcar completo |
@@ -69,7 +69,7 @@ Corpo (grid lateral + principal):
 | SLA UX | Progresso client-side completa em ~16s; testes EMT validam execução total ≤ **75s** |
 | Voltar | Retorna ao passo 1 (arquivos preservados) |
 | Continuar | Avança para passo 3 «Conferência» quando análise finalizada (exige ao menos **um** arquivo `completo`) |
-| Cancelar | Fecha modal; persiste progresso incl. `tempo_analise_segundos` quando aplicável |
+| Cancelar | Fecha modal; persiste progresso incl. `tempo_processo_total_ms` quando aplicável |
 | Erro parcial | Polling pode concluir com mix de arquivos `completo` + `erro`; usuário segue para Conferência só com os que analisaram |
 
 Persistência: ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) e [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §3 (`PATCH /progresso`).

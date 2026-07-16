@@ -3,12 +3,12 @@
  * Normaliza resultado_extracao.dados em seções/campos com labels DDD (map legado).
  */
 
-import { isCampoEditadoLeitura, lerValorPorCaminho } from './definir-valor-por-caminho-dados-leitura-smart-read'
 import { mapearRotuloCampoLegadoConferencia, ordenarSecoesConferencia } from './mapear-rotulo-campo-legado-conferencia-smart-read'
 import {
   prepararDadosConferenciaLeitura,
   valorCampoExtracaoLegadoPreenchido,
 } from '../../../shared/mesclar-dados-extracao-legado-smart-read'
+import { isCampoEditadoLeitura } from './definir-valor-por-caminho-dados-leitura-smart-read'
 
 export type CampoConferenciaLeitura = {
   chave: string
@@ -27,14 +27,8 @@ export type EstatisticasConferenciaLeitura = {
   total: number
   preenchidos: number
   vazios: number
-  preenchidosAlterados: number
   percentual: number
-}
-
-export type OpcoesEstatisticasConferenciaLeitura = {
-  idArquivoLocal: string
-  indiceDocumento: number
-  camposEditados?: ReadonlySet<string>
+  preenchidosAlterados: number
 }
 
 type CampoLegado = {
@@ -206,22 +200,10 @@ function resolverValorCampoLegado(item: CampoLegado): unknown {
   )
 }
 
-function resolverValorCampoConferencia(
-  item: CampoLegado,
-  chave: string,
-  dadosRaiz?: Record<string, unknown>,
-): unknown {
-  const legado = resolverValorCampoLegado(item)
-  if (!dadosRaiz || !/\[\d+\]/.test(chave)) return legado
-  const aoVivo = lerValorPorCaminho(dadosRaiz, chave)
-  return aoVivo !== undefined ? aoVivo : legado
-}
-
 function processarListaCampos(
   mapa: Map<string, CampoConferenciaLeitura[]>,
   campos: CampoLegado[],
   secaoPadrao?: string,
-  dadosRaiz?: Record<string, unknown>,
 ) {
   for (const item of campos) {
     const chave = String(item.key ?? item.name ?? item.field ?? item.label ?? 'campo')
@@ -233,19 +215,11 @@ function processarListaCampos(
       item.groupName ??
       secaoPadrao ??
       mapearRotuloCampoLegadoConferencia(chave).secao_tela
-    adicionarCampo(
-      mapa,
-      secao,
-      criarCampo(chave, rotulo, resolverValorCampoConferencia(item, chave, dadosRaiz)),
-    )
+    adicionarCampo(mapa, secao, criarCampo(chave, rotulo, resolverValorCampoLegado(item)))
   }
 }
 
-function processarSecoesLegado(
-  mapa: Map<string, CampoConferenciaLeitura[]>,
-  secoes: unknown[],
-  dadosRaiz?: Record<string, unknown>,
-) {
+function processarSecoesLegado(mapa: Map<string, CampoConferenciaLeitura[]>, secoes: unknown[]) {
   secoes.forEach((bruto, indice) => {
     if (!bruto || typeof bruto !== 'object') return
     const sec = bruto as Record<string, unknown>
@@ -257,7 +231,7 @@ function processarSecoesLegado(
 
     const camposBrutos = sec.fields ?? sec.campos ?? sec.items
     if (Array.isArray(camposBrutos)) {
-      processarListaCampos(mapa, camposBrutos as CampoLegado[], titulo, dadosRaiz)
+      processarListaCampos(mapa, camposBrutos as CampoLegado[], titulo)
       return
     }
 
@@ -279,12 +253,12 @@ export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> |
     dadosPreparados.categories ??
     dadosPreparados.fieldGroups
   if (Array.isArray(secoesLegado)) {
-    processarSecoesLegado(mapa, secoesLegado, dadosPreparados)
+    processarSecoesLegado(mapa, secoesLegado)
   }
 
   const listaCampos = dadosPreparados.fields ?? dadosPreparados.campos
   if (Array.isArray(listaCampos)) {
-    processarListaCampos(mapa, listaCampos as CampoLegado[], undefined, dadosPreparados)
+    processarListaCampos(mapa, listaCampos as CampoLegado[])
   }
 
   if (mapa.size === 0) {
@@ -306,9 +280,15 @@ export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> |
   )
 }
 
+export type ContextoEstatisticasConferenciaLeitura = {
+  idArquivoLocal?: string
+  indiceDocumento?: number
+  camposEditados?: ReadonlySet<string>
+}
+
 export function calcularEstatisticasConferencia(
   secoes: SecaoConferenciaLeitura[],
-  opcoes?: OpcoesEstatisticasConferenciaLeitura,
+  contexto?: ContextoEstatisticasConferenciaLeitura,
 ): EstatisticasConferenciaLeitura {
   let total = 0
   let preenchidos = 0
@@ -316,14 +296,16 @@ export function calcularEstatisticasConferencia(
   for (const secao of secoes) {
     for (const campo of secao.campos) {
       total++
-      if (!campo.preenchido) continue
-      preenchidos++
+      if (campo.preenchido) preenchidos++
       if (
-        opcoes?.camposEditados &&
+        campo.preenchido &&
+        contexto?.camposEditados &&
+        contexto.idArquivoLocal != null &&
+        contexto.indiceDocumento != null &&
         isCampoEditadoLeitura(
-          opcoes.camposEditados,
-          opcoes.idArquivoLocal,
-          opcoes.indiceDocumento,
+          contexto.camposEditados,
+          contexto.idArquivoLocal,
+          contexto.indiceDocumento,
           campo.chave,
         )
       ) {
@@ -333,5 +315,5 @@ export function calcularEstatisticasConferencia(
   }
   const vazios = total - preenchidos
   const percentual = total > 0 ? Math.round((preenchidos / total) * 100) : 0
-  return { total, preenchidos, vazios, preenchidosAlterados, percentual }
+  return { total, preenchidos, vazios, percentual, preenchidosAlterados }
 }

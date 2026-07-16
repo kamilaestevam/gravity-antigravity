@@ -80,6 +80,7 @@ export const LeituraSchema = z.object({
   total_arquivos: z.number(),
   arquivos_processados: z.number(),
   arquivos: z.array(ArquivoLeituraSchema),
+  tempo_processo_total_ms: z.number().int().min(0).nullable().optional(),
 })
 export type Leitura = z.infer<typeof LeituraSchema>
 

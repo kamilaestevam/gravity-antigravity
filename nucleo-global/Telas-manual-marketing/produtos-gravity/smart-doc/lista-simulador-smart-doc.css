@@ -1,0 +1,125 @@
+/* Lista Smart Doc simulador — paridade layout Pedido + regras Smart Read */
+.sds-lista.pds-lista {
+  --pds-accent: #a78bfa;
+  --pds-accent-hover: #8b5cf6;
+  --pds-border: rgba(167, 139, 250, 0.14);
+  --gtv-link: #a78bfa;
+  --gtv-accent: #a78bfa;
+  --sds-lista-link: #a78bfa;
+}
+
+.sds-lista.pds-lista .pds-lista-paineis {
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.sds-lista-segmentos {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+  padding: 0.25rem 0;
+}
+
+.sds-lista-segmento-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.125rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 8px;
+}
+
+.sds-lista-segmento-tab {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sds-lista-segmento-tab--ativa {
+  color: #e9d5ff;
+  background: rgba(167, 139, 250, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.35);
+}
+
+.sds-lista-tvg-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sds-lista-tvg-wrap .gtv-container {
+  border: none;
+  border-radius: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.sds-lista-tvg-wrap .gtv-toolbar {
+  border-top: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+.sds-lista-acoes-barra {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.sds-lista-btn-expandir-todos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  background: rgba(167, 139, 250, 0.08);
+  color: #c4b5fd;
+  cursor: pointer;
+}
+
+.sds-lista-btn-expandir-todos:hover {
+  background: rgba(167, 139, 250, 0.16);
+}
+
+.sds-lista-toast-demo {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 5000;
+  max-width: 320px;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: #1e293b;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  font-size: 0.75rem;
+  color: #e2e8f0;
+}
+
+.sds-lista-toast-demo strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #e9d5ff;
+}
+
+.sds-lista .lp-cards .cg-card__icone {
+  color: var(--pds-accent);
+}
+
+.sds-lista-chrome-tabela {
+  flex: 1;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sds-lista-chrome-tabela[data-sds-tutorial-alvo='lista-tabela'] {
+  min-height: 420px;
+}

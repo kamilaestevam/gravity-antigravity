@@ -2,7 +2,7 @@
  * tutorial-opcional-simulador-smart-doc.tsx — guia opcional da Gabi por tela
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ArrowRight,
@@ -24,15 +24,30 @@ import './destaque-tutorial-simulador-smart-doc.css'
 export const Z_INDEX_TUTORIAL_SIMULADOR = 12100
 
 const CHAVE_DESLOCAMENTO_TUTORIAL = 'sds-tutorial-deslocamento'
+const CHAVE_DESLOCAMENTO_TUTORIAL_ESQUERDA = 'sds-tutorial-deslocamento-esquerda'
+const CHAVE_DESLOCAMENTO_TUTORIAL_SUPERIOR_ESQUERDA = 'sds-tutorial-deslocamento-sup-esquerda'
 const CHAVE_DESLOCAMENTO_TUTORIAL_MODAL = 'sds-tutorial-deslocamento-modal'
 const LIMIAR_ARRASTE_FAB_PX = 6
 
-export type PosicaoPreferencialTutorial = 'inferior-direita' | 'superior-direita'
+export type PosicaoPreferencialTutorial =
+  | 'inferior-direita'
+  | 'inferior-esquerda'
+  | 'superior-direita'
+  | 'superior-esquerda'
 
 type DeslocamentoTutorial = { x: number; y: number }
 
 function chaveDeslocamentoTutorial(posicao: PosicaoPreferencialTutorial): string {
-  return posicao === 'superior-direita' ? CHAVE_DESLOCAMENTO_TUTORIAL_MODAL : CHAVE_DESLOCAMENTO_TUTORIAL
+  switch (posicao) {
+    case 'superior-direita':
+      return CHAVE_DESLOCAMENTO_TUTORIAL_MODAL
+    case 'superior-esquerda':
+      return CHAVE_DESLOCAMENTO_TUTORIAL_SUPERIOR_ESQUERDA
+    case 'inferior-esquerda':
+      return CHAVE_DESLOCAMENTO_TUTORIAL_ESQUERDA
+    default:
+      return CHAVE_DESLOCAMENTO_TUTORIAL
+  }
 }
 
 function lerDeslocamentoSalvo(posicao: PosicaoPreferencialTutorial): DeslocamentoTutorial {
@@ -62,6 +77,12 @@ type Props = {
   refAncoraSimulador?: RefObject<HTMLElement | null>
   /** Canto padrão — modais usam superior-direita para não cobrir botões do rodapé */
   posicaoPreferencial?: PosicaoPreferencialTutorial
+  /** Só o ícone FAB visível — evita cantos superiores (ex.: tampar fechar do modal) */
+  posicaoPreferencialPainelFechado?: PosicaoPreferencialTutorial
+  /** Classe extra no host (ex.: wizard Nova Leitura portaled fora do overlay) */
+  classeHost?: string
+  /** Impede arrastar a pilha para a faixa do cabeçalho (botão fechar do modal) */
+  reservarCabecalhoModal?: boolean
   onAlvoDestacadoChange?: (idAlvo: string | null) => void
 }
 
@@ -74,6 +95,9 @@ export function TutorialOpcionalSimuladorSmartDoc({
   posicaoFixa = false,
   refAncoraSimulador,
   posicaoPreferencial = 'inferior-direita',
+  posicaoPreferencialPainelFechado = 'inferior-direita',
+  classeHost,
+  reservarCabecalhoModal = false,
   onAlvoDestacadoChange,
 }: Props) {
   const registroTelas = telasProp ?? TELAS_TUTORIAL_OPCIONAL
@@ -113,12 +137,16 @@ export function TutorialOpcionalSimuladorSmartDoc({
   const alvoDestaque =
     explorarAlvoHover ?? (painelAberto ? (avancarEfetivo?.idAlvo ?? null) : null)
 
+  const posicaoAtiva = painelAberto ? posicaoPreferencial : posicaoPreferencialPainelFechado
+
   const ancoradoNoSimulador = Boolean(posicaoFixa && refAncoraSimulador)
-  const ancoraSuperiorDireita = posicaoPreferencial === 'superior-direita'
+  const ancoraSuperiorDireita = posicaoAtiva === 'superior-direita'
+  const ancoraSuperiorEsquerda = posicaoAtiva === 'superior-esquerda'
+  const ancoraInferiorEsquerda = posicaoAtiva === 'inferior-esquerda'
 
   useEffect(() => {
-    setDeslocamento(lerDeslocamentoSalvo(posicaoPreferencial))
-  }, [posicaoPreferencial])
+    setDeslocamento(lerDeslocamentoSalvo(posicaoAtiva))
+  }, [posicaoAtiva])
 
   useLayoutEffect(() => {
     if (!ancoradoNoSimulador || !refAncoraSimulador?.current) {
@@ -153,16 +181,19 @@ export function TutorialOpcionalSimuladorSmartDoc({
   }, [ancoradoNoSimulador, refAncoraSimulador])
 
   const limitarDeslocamento = useCallback((x: number, y: number): DeslocamentoTutorial => {
-    const container = refContainerTutorial.current
     const pilha = refPilha.current
-    if (!container || !pilha) return { x, y }
+    if (!pilha) return { x, y }
 
-    const area = container.getBoundingClientRect()
+    const areaFonte = refAncoraSimulador?.current ?? refContainerTutorial.current
+    if (!areaFonte) return { x, y }
+
+    const area = areaFonte.getBoundingClientRect()
     const bloco = pilha.getBoundingClientRect()
     const margem = 8
-    const maxEsquerda = -(area.width - bloco.width - margem * 2)
+    const reservaTopo = reservarCabecalhoModal ? 52 : 0
 
     if (ancoraSuperiorDireita) {
+      const maxEsquerda = -(area.width - bloco.width - margem * 2)
       const maxBaixo = Math.max(0, area.height - bloco.height - margem * 2)
       return {
         x: Math.min(0, Math.max(maxEsquerda, x)),
@@ -170,22 +201,44 @@ export function TutorialOpcionalSimuladorSmartDoc({
       }
     }
 
-    const maxCima = -(area.height - bloco.height - margem * 2)
+    if (ancoraSuperiorEsquerda) {
+      const maxDireita = Math.max(0, area.width - bloco.width - margem * 2)
+      const maxBaixo = Math.max(0, area.height - bloco.height - margem * 2)
+      return {
+        x: Math.max(0, Math.min(maxDireita, x)),
+        y: Math.max(0, Math.min(maxBaixo, y)),
+      }
+    }
+
+    if (ancoraInferiorEsquerda) {
+      const maxDireita = Math.max(0, area.width - bloco.width - margem * 2)
+      const maxCima = -(area.height - bloco.height - margem * 2)
+      return {
+        x: Math.max(0, Math.min(maxDireita, x)),
+        y: Math.min(0, Math.max(maxCima, y)),
+      }
+    }
+
+    const maxEsquerda = -(area.width - bloco.width - margem * 2)
+    const maxCima = -(area.height - bloco.height - margem * 2 - reservaTopo)
 
     return {
       x: Math.min(0, Math.max(maxEsquerda, x)),
       y: Math.min(0, Math.max(maxCima, y)),
     }
-  }, [ancoraSuperiorDireita])
+  }, [ancoraSuperiorDireita, ancoraSuperiorEsquerda, ancoraInferiorEsquerda, refAncoraSimulador, reservarCabecalhoModal])
 
   const iniciarArraste = useCallback(
-    (clientX: number, clientY: number) => {
+    (ev: PointerEvent<HTMLElement>) => {
+      if (ev.button !== 0) return
+      ev.preventDefault()
+      ev.currentTarget.setPointerCapture(ev.pointerId)
       arrasteAtivoRef.current = true
       fabClicavelRef.current = true
       setArrastando(true)
       origemArrasteRef.current = {
-        px: clientX,
-        py: clientY,
+        px: ev.clientX,
+        py: ev.clientY,
         ox: deslocamento.x,
         oy: deslocamento.y,
       }
@@ -226,17 +279,17 @@ export function TutorialOpcionalSimuladorSmartDoc({
     if (typeof window === 'undefined') return
     try {
       window.sessionStorage.setItem(
-        chaveDeslocamentoTutorial(posicaoPreferencial),
+        chaveDeslocamentoTutorial(posicaoAtiva),
         JSON.stringify(deslocamento),
       )
     } catch {
       /* ignora */
     }
-  }, [deslocamento, posicaoPreferencial])
+  }, [deslocamento, posicaoAtiva])
 
   useEffect(() => {
     setDeslocamento((atual) => limitarDeslocamento(atual.x, atual.y))
-  }, [estiloAncora, painelAberto, posicaoPreferencial, limitarDeslocamento])
+  }, [estiloAncora, painelAberto, posicaoAtiva, limitarDeslocamento])
 
   useEffect(() => {
     if (!habilitado || !tela) {
@@ -310,7 +363,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
   const conteudo = (
     <div
       ref={refContainerTutorial}
-      className={`sds-tutorial${posicaoFixa ? ' sds-tutorial--fixo' : ''}${ancoradoNoSimulador ? ' sds-tutorial--ancorado' : ''}${ancoraSuperiorDireita ? ' sds-tutorial--superior-direita' : ''}`}
+      className={`sds-tutorial${posicaoFixa ? ' sds-tutorial--fixo' : ''}${ancoradoNoSimulador ? ' sds-tutorial--ancorado' : ''}${ancoraSuperiorDireita ? ' sds-tutorial--superior-direita' : ''}${ancoraSuperiorEsquerda ? ' sds-tutorial--superior-esquerda' : ''}${ancoraInferiorEsquerda ? ' sds-tutorial--inferior-esquerda' : ''}${classeHost ? ` ${classeHost}` : ''}`}
       style={ancoradoNoSimulador ? estiloAncora : undefined}
       aria-label="Guia da Gabi — demonstração interativa"
       onClick={(e) => e.stopPropagation()}
@@ -332,10 +385,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
           >
             <header
               className="sds-tutorial__cabecalho"
-              onPointerDown={(ev) => {
-                if (ev.button !== 0) return
-                iniciarArraste(ev.clientX, ev.clientY)
-              }}
+              onPointerDown={iniciarArraste}
             >
               <button
                 type="button"
@@ -344,8 +394,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
                 title="Arrastar"
                 onPointerDown={(ev) => {
                   ev.stopPropagation()
-                  if (ev.button !== 0) return
-                  iniciarArraste(ev.clientX, ev.clientY)
+                  iniciarArraste(ev)
                 }}
               >
                 <DotsSixVertical size={14} weight="bold" />
@@ -436,10 +485,7 @@ export function TutorialOpcionalSimuladorSmartDoc({
         aria-controls="sds-tutorial-painel"
         aria-label={painelAberto ? 'Fechar guia da Gabi' : 'Abrir guia da Gabi'}
         title="Gabi · guia da demo (arraste para mover)"
-        onPointerDown={(ev) => {
-          if (ev.button !== 0) return
-          iniciarArraste(ev.clientX, ev.clientY)
-        }}
+        onPointerDown={iniciarArraste}
         onClick={(ev) => {
           if (!fabClicavelRef.current) {
             ev.preventDefault()

@@ -41,10 +41,10 @@ export const NAV_ITENS_SIMULADOR_PEDIDO: NavItem[] = [
     ],
   },
   {
-    to: '/workspace/historico-organizacao?id_produto_historico_log=pedido',
+    to: '/pedido/historico',
     label: 'Histórico',
     icon: <ClockCounterClockwise weight="duotone" size={20} />,
-    external: true,
+    dataTutorialAlvo: 'pedido-shell-nav-historico',
   },
   {
     to: '/pedido/configuracoes',

@@ -28,6 +28,8 @@
   padding: 1rem;
   box-sizing: border-box;
   pointer-events: none;
+  transition: justify-content 0.32s cubic-bezier(0.33, 1, 0.68, 1),
+    align-items 0.32s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Modais — canto superior direito (não cobre Próximo / Confirmar) */
@@ -45,6 +47,58 @@
   margin-bottom: auto;
 }
 
+/* Wizard passo 1 — libera dropzone central */
+.sds-tutorial--superior-esquerda {
+  left: 1rem;
+  right: auto;
+  top: 1rem;
+  bottom: auto;
+  align-items: flex-start;
+}
+
+.sds-tutorial--superior-esquerda.sds-tutorial--fixo {
+  left: 1rem;
+  right: auto;
+  top: 1rem;
+  bottom: auto;
+}
+
+.sds-tutorial--superior-esquerda.sds-tutorial--ancorado {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.sds-tutorial--superior-esquerda .sds-tutorial__pilha {
+  align-items: flex-start;
+  margin-left: 0;
+  margin-right: auto;
+  margin-top: 0;
+  margin-bottom: auto;
+}
+
+/* Menu + Novo aberto — libera o canto superior direito */
+.sds-tutorial--inferior-esquerda {
+  left: 1rem;
+  right: auto;
+  align-items: flex-start;
+}
+
+.sds-tutorial--inferior-esquerda.sds-tutorial--fixo {
+  left: 1rem;
+  right: auto;
+}
+
+.sds-tutorial--inferior-esquerda.sds-tutorial--ancorado {
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.sds-tutorial--inferior-esquerda .sds-tutorial__pilha {
+  align-items: flex-start;
+  margin-left: 0;
+  margin-right: auto;
+}
+
 .sds-tutorial__pilha {
   display: flex;
   flex-direction: column;
@@ -55,9 +109,11 @@
   pointer-events: none;
   touch-action: none;
   will-change: transform;
+  transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 .sds-tutorial__pilha--arrastando {
+  transition: none;
   cursor: grabbing;
   user-select: none;
 }
@@ -520,6 +576,22 @@
   position: absolute;
   right: 1.25rem;
   bottom: 1.25rem;
+}
+
+.sds-tutorial--wizard-nl.sds-tutorial--inferior-direita.sds-tutorial--ancorado {
+  padding-top: 3.25rem;
+}
+
+.sds-tutorial--wizard-nl .sds-tutorial__pilha {
+  max-width: min(21rem, calc(100% - 3.5rem));
+}
+
+.sds-tutorial--wizard-nl .sds-tutorial__painel {
+  max-height: min(20rem, 46vh);
+}
+
+.sds-tutorial--wizard-nl .sds-tutorial__card-avancar {
+  max-width: min(19rem, calc(100vw - 2rem));
 }
 
 @media (prefers-reduced-motion: reduce) {

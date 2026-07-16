@@ -105,6 +105,51 @@ export const TELAS_TUTORIAL_OPCIONAL_PEDIDO: Record<string, TelaTutorialOpcional
       idAlvo: 'pedido-shell-aba-lista',
     },
   },
+  historico: {
+    id: 'historico',
+    titulo: 'Histórico',
+    resumo: 'Auditoria de ações no produto Pedido — última parada do menu lateral; use as abas acima para sair.',
+    explorar: [
+      {
+        titulo: '1. Filtro do produto',
+        descricao: 'O banner indica que os logs estão filtrados ao Pedido e aos últimos 30 dias',
+        idAlvo: 'pedido-historico-banner',
+      },
+      {
+        titulo: '2. KPIs de atividade',
+        descricao: 'Total de eventos, volume dos últimos 7 dias e distribuição por status (sucesso, falha, parcial)',
+        idAlvo: 'pedido-historico-kpis',
+      },
+      {
+        titulo: '3. Tabela de auditoria',
+        descricao: 'Data, ação, local, usuário e detalhes — use Buscar, filtros por coluna e Exportar',
+        idAlvo: 'pedido-historico-tabela',
+      },
+      {
+        titulo: '4. Menu lateral',
+        descricao: 'Histórico e Configurações ficam na barra esquerda do módulo Pedido',
+        idAlvo: 'pedido-shell-nav-historico',
+      },
+      {
+        titulo: '5. Topo desativado',
+        descricao:
+          'Hub, busca, University e demais ícones do topo estão inativos — passe o mouse em cada um para ver o que existe no produto real',
+        idAlvo: 'pedido-shell-hub-demo',
+      },
+      {
+        titulo: '6. Como sair desta tela',
+        descricao: 'Use as abas Insights, Lista, Dashboard ou Kanban logo acima para continuar explorando o Pedido',
+        idAlvo: 'pedido-shell-abas',
+      },
+    ],
+    avancar: {
+      acao: 'Sair do Histórico',
+      titulo: 'Clique na aba Lista',
+      descricao:
+        'Nesta demo o Hub não funciona. Clique em Lista, na faixa de abas acima, para voltar à grade de pedidos.',
+      idAlvo: 'pedido-shell-aba-lista',
+    },
+  },
   lista: {
     id: 'lista',
     titulo: 'Lista de pedidos',
@@ -1159,6 +1204,7 @@ export const ESTADO_TUTORIAL_LISTA_PEDIDO_INICIAL: EstadoTutorialListaPedido = {
 export type EstadoShellTutorialPedido = {
   abaAtiva: 'insights' | 'lista' | 'dashboard' | 'kanban'
   isConfiguracoes: boolean
+  isHistorico: boolean
   configAcessoDeKanban: boolean
 } & EstadoTutorialListaPedido & EstadoTutorialDashboardPedido & EstadoTutorialKanbanPedido & EstadoTutorialConfigPedido
 
@@ -1199,6 +1245,7 @@ export function resolverIdTelaShellSimuladorPedido(estado: EstadoShellTutorialPe
     if (telaConfig in TELAS_TUTORIAL_OPCIONAL_PEDIDO) return telaConfig
     return estado.configAcessoDeKanban ? 'config-kanban' : 'config'
   }
+  if (estado.isHistorico) return 'historico'
   if (estado.criandoPainelDashboardAberto) return 'dashboard-painel-nome'
   if (estado.editarWidgetDashboardAberto) return 'dashboard-editar-widget'
   if (estado.construtorDashboardAberto) return 'dashboard-construtor'
@@ -1236,6 +1283,7 @@ const PREFIXOS_TELA_TUTORIAL_MODAL_PEDIDO = [
   'duplicar',
   'excluir',
   'explicacao-transferencia',
+  'historico',
   'config',
   'config-kanban',
   'config-cards',

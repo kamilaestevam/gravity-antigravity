@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   ChartPieSlice,
+  ClockCounterClockwise,
   Gear,
   GlobeHemisphereWest,
   GraduationCap,
@@ -40,6 +41,42 @@ import {
 import './pedido-simulator.css'
 import { ConfiguracoesSimuladorPedido } from './configuracoes-simulador-pedido'
 import { ConfigSimuladorPedidoProvider } from './estado-config-simulador-pedido'
+import { HistoricoSimuladorPedido } from './historico-simulador-pedido'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+
+type BotaoTopoDemoDesativadoProps = {
+  tituloTooltip: string
+  descricaoTooltip: string
+  className: string
+  ariaLabel: string
+  dataTutorialAlvo?: string
+  children: ReactNode
+}
+
+function BotaoTopoDemoDesativado({
+  tituloTooltip,
+  descricaoTooltip,
+  className,
+  ariaLabel,
+  dataTutorialAlvo,
+  children,
+}: BotaoTopoDemoDesativadoProps) {
+  return (
+    <TooltipGlobal titulo={tituloTooltip} descricao={descricaoTooltip} posicaoPreferida="bottom">
+      <span className="pds-shell-acao-demo-wrap">
+        <button
+          type="button"
+          className={`${className} pds-shell-acao-demo-desativada`}
+          aria-label={ariaLabel}
+          disabled
+          {...(dataTutorialAlvo ? { 'data-sds-tutorial-alvo': dataTutorialAlvo } : {})}
+        >
+          {children}
+        </button>
+      </span>
+    </TooltipGlobal>
+  )
+}
 
 type AbaVisualizacao = 'insights' | 'lista' | 'dashboard' | 'kanban'
 
@@ -121,11 +158,13 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
 
   const abaAtiva = abaFromPath(rotaSimulada)
   const isConfiguracoes = rotaSimulada === '/pedido/configuracoes'
+  const isHistorico = rotaSimulada === '/pedido/historico'
   const isPedidosView = rotaSimulada.startsWith('/pedido/pedidos')
 
   const idTelaTutorial = resolverIdTelaShellSimuladorPedido({
     abaAtiva,
     isConfiguracoes,
+    isHistorico,
     configAcessoDeKanban,
     ...estadoTutorialLista,
     ...estadoTutorialDashboard,
@@ -135,20 +174,22 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   const posicaoTutorial = resolverPosicaoPreferencialTutorialPedido(idTelaTutorial)
 
   const tituloPagina = useMemo(() => {
+    if (isHistorico) return 'Histórico'
     if (isConfiguracoes) return 'Configurações'
     if (abaAtiva === 'insights') return 'Insights'
     if (abaAtiva === 'lista') return 'Lista'
     if (abaAtiva === 'dashboard') return 'Dashboard'
     return 'Kanban'
-  }, [abaAtiva, isConfiguracoes])
+  }, [abaAtiva, isConfiguracoes, isHistorico])
 
   const iconePagina = useMemo(() => {
+    if (isHistorico) return <ClockCounterClockwise size={22} weight="duotone" />
     if (isConfiguracoes) return <Gear size={22} weight="duotone" />
     if (abaAtiva === 'insights') return <ChartPieSlice size={22} weight="duotone" />
     if (abaAtiva === 'lista') return <ListBullets size={22} weight="duotone" />
     if (abaAtiva === 'dashboard') return <SquaresFour size={22} weight="duotone" />
     return <Kanban size={22} weight="duotone" />
-  }, [abaAtiva, isConfiguracoes])
+  }, [abaAtiva, isConfiguracoes, isHistorico])
 
   function alternarEmpresaEscopo(id: IdEmpresa) {
     setIdsEmpresasEscopo((atual) => {
@@ -161,18 +202,12 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
   }
 
   function onNavegarDemonstracao(to: string) {
-    if (to.includes('historico-organizacao')) return
     if (to.includes('/pedido/configuracoes')) {
       setConfigAcessoDeKanban(abaAtiva === 'kanban')
     } else if (!to.includes('/pedido/configuracoes')) {
       setConfigAcessoDeKanban(false)
     }
     setRotaSimulada(to)
-  }
-
-  function abrirConfiguracoes() {
-    setConfigAcessoDeKanban(abaAtiva === 'kanban')
-    setRotaSimulada('/pedido/configuracoes')
   }
 
   return (
@@ -183,6 +218,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
           className="interactive-simulator-close"
           aria-label="Fechar demonstração"
           title="Fechar"
+          data-sds-tutorial-alvo="pedido-shell-fechar-demo"
           onClick={(e) => {
             e.stopPropagation()
             onFecharSimulador()
@@ -229,7 +265,11 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                   </span>
                   <div className="pds-mtg-titulo-grupo">
                     <span className="sds-mtg-page-title pds-mtg-page-title--solo">{tituloPagina}</span>
-                    {abaAtiva === 'dashboard' ? (
+                    {isHistorico ? (
+                      <span className="pds-mtg-page-subtitulo">
+                        Registro de alterações na organização e workspaces
+                      </span>
+                    ) : abaAtiva === 'dashboard' ? (
                       <span className="pds-mtg-page-subtitulo">KPIs e widgets configuráveis</span>
                     ) : abaAtiva === 'kanban' ? (
                       <span className="pds-mtg-page-subtitulo">Pedidos organizados por status</span>
@@ -238,31 +278,57 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                 </div>
               </div>
               <div className="sds-mtg-right">
-                <button type="button" className="sds-mtg-nav-btn" aria-label="Voltar ao Hub">
+                <BotaoTopoDemoDesativado
+                  className="sds-mtg-nav-btn"
+                  ariaLabel="Hub (preview — indisponível na demonstração)"
+                  tituloTooltip="Hub"
+                  descricaoTooltip="Volta ao hub central de módulos e workspaces — recurso do tenant completo"
+                  dataTutorialAlvo="pedido-shell-hub-demo"
+                >
                   <GlobeHemisphereWest size={12} weight="duotone" />
                   Hub
-                </button>
-                <button type="button" className="sds-mtg-icon-btn" aria-label="Buscar na tela">
-                  <MagnifyingGlass size={15} />
-                </button>
-                <button type="button" className="sds-mtg-icon-btn" aria-label="Gravity University">
-                  <GraduationCap size={15} weight="duotone" />
-                </button>
-                <button type="button" className="sds-mtg-icon-btn" aria-label="Dicas" style={{ color: PEDIDO_META.color }}>
-                  <Info size={15} weight="fill" />
-                </button>
-                <button type="button" className="sds-mtg-lang-btn" aria-label="Idioma">
-                  BR
-                </button>
-                <button
-                  type="button"
+                </BotaoTopoDemoDesativado>
+                <BotaoTopoDemoDesativado
                   className="sds-mtg-icon-btn"
-                  aria-label="Configurações"
-                  data-sds-tutorial-alvo="pedido-kanban-config-topo"
-                  onClick={abrirConfiguracoes}
+                  ariaLabel="Buscar na tela (preview — indisponível na demonstração)"
+                  tituloTooltip="Buscar na tela"
+                  descricaoTooltip="Localiza pedidos, campos e ações na visualização atual do produto"
+                >
+                  <MagnifyingGlass size={15} />
+                </BotaoTopoDemoDesativado>
+                <BotaoTopoDemoDesativado
+                  className="sds-mtg-icon-btn"
+                  ariaLabel="Gravity University (preview — indisponível na demonstração)"
+                  tituloTooltip="Gravity University"
+                  descricaoTooltip="Tutoriais e manuais do Pedido no contexto da tela em que você está"
+                >
+                  <GraduationCap size={15} weight="duotone" />
+                </BotaoTopoDemoDesativado>
+                <BotaoTopoDemoDesativado
+                  className="sds-mtg-icon-btn"
+                  ariaLabel="Dicas (preview — indisponível na demonstração)"
+                  tituloTooltip="Dicas do produto"
+                  descricaoTooltip="Orientações contextuais da Gabi e atalhos do módulo no tenant completo"
+                >
+                  <Info size={15} weight="fill" style={{ color: PEDIDO_META.color }} />
+                </BotaoTopoDemoDesativado>
+                <BotaoTopoDemoDesativado
+                  className="sds-mtg-lang-btn"
+                  ariaLabel="Idioma (preview — indisponível na demonstração)"
+                  tituloTooltip="Idioma"
+                  descricaoTooltip="Alterna português, inglês e espanhol em toda a interface do Gravity"
+                >
+                  BR
+                </BotaoTopoDemoDesativado>
+                <BotaoTopoDemoDesativado
+                  className="sds-mtg-icon-btn"
+                  ariaLabel="Configurações do topo (preview — indisponível na demonstração)"
+                  tituloTooltip="Configurações rápidas"
+                  descricaoTooltip="Atalho às preferências do Pedido — nesta demo use o menu lateral"
+                  dataTutorialAlvo="pedido-kanban-config-topo"
                 >
                   <Gear size={15} weight="duotone" />
-                </button>
+                </BotaoTopoDemoDesativado>
                 <div className="sds-mtg-sep" aria-hidden="true" />
                 <div className="sds-mtg-avatar" aria-hidden="true">
                   D
@@ -270,7 +336,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
               </div>
             </header>
 
-            {(isPedidosView || isConfiguracoes) && (
+            {(isPedidosView || isConfiguracoes || isHistorico) && (
               <div className="smart-read-vis-toolbar">
                 <nav
                   className="srt-tabs"
@@ -290,8 +356,8 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
                       key={aba}
                       type="button"
                       role="tab"
-                      aria-selected={abaAtiva === aba}
-                      className={`srt-tab${abaAtiva === aba ? ' srt-tab--active' : ''}`}
+                      aria-selected={!isHistorico && abaAtiva === aba}
+                      className={`srt-tab${!isHistorico && abaAtiva === aba ? ' srt-tab--active' : ''}`}
                       data-sds-tutorial-alvo={ALVO_ABA_TUTORIAL[aba]}
                       onClick={() => {
                         if (isConfiguracoes) {
@@ -310,7 +376,9 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
           </div>
 
           <div className="sds-content" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-            {isConfiguracoes ? (
+            {isHistorico ? (
+              <HistoricoSimuladorPedido />
+            ) : isConfiguracoes ? (
               <ConfiguracoesSimuladorPedido
                 onEstadoTutorialChange={setEstadoTutorialConfig}
                 onIrParaColunaLista={(colunaId) => {

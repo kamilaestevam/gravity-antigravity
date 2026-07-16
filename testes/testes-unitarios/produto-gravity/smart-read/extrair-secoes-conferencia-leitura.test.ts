@@ -86,6 +86,21 @@ describe('Smart Read — extrair seções conferência', () => {
     const stats = calcularEstatisticasConferencia(secoes)
     expect(stats.total).toBeGreaterThan(0)
     expect(stats.preenchidos + stats.vazios).toBe(stats.total)
+    expect(stats.preenchidosAlterados).toBe(0)
+  })
+
+  it('conta preenchidos alterados na conferência', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      exporter: { name: 'Acme', country: 'US' },
+      observations: '',
+    })
+    const camposEditados = new Set(['local-1:0:exporter.name'])
+    const stats = calcularEstatisticasConferencia(secoes, {
+      idArquivoLocal: 'local-1',
+      indiceDocumento: 0,
+      camposEditados,
+    })
+    expect(stats.preenchidosAlterados).toBe(1)
   })
 
   it('interpreta lista fields com section do legado', () => {

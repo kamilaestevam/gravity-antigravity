@@ -3,7 +3,7 @@
  * Normaliza resultado_extracao.dados em seções/campos com labels DDD (map legado).
  */
 
-import { lerValorPorCaminho } from './definir-valor-por-caminho-dados-leitura-smart-read'
+import { isCampoEditadoLeitura, lerValorPorCaminho } from './definir-valor-por-caminho-dados-leitura-smart-read'
 import { mapearRotuloCampoLegadoConferencia, ordenarSecoesConferencia } from './mapear-rotulo-campo-legado-conferencia-smart-read'
 import {
   prepararDadosConferenciaLeitura,
@@ -27,7 +27,14 @@ export type EstatisticasConferenciaLeitura = {
   total: number
   preenchidos: number
   vazios: number
+  preenchidosAlterados: number
   percentual: number
+}
+
+export type OpcoesEstatisticasConferenciaLeitura = {
+  idArquivoLocal: string
+  indiceDocumento: number
+  camposEditados?: ReadonlySet<string>
 }
 
 type CampoLegado = {
@@ -299,16 +306,32 @@ export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> |
   )
 }
 
-export function calcularEstatisticasConferencia(secoes: SecaoConferenciaLeitura[]): EstatisticasConferenciaLeitura {
+export function calcularEstatisticasConferencia(
+  secoes: SecaoConferenciaLeitura[],
+  opcoes?: OpcoesEstatisticasConferenciaLeitura,
+): EstatisticasConferenciaLeitura {
   let total = 0
   let preenchidos = 0
+  let preenchidosAlterados = 0
   for (const secao of secoes) {
     for (const campo of secao.campos) {
       total++
-      if (campo.preenchido) preenchidos++
+      if (!campo.preenchido) continue
+      preenchidos++
+      if (
+        opcoes?.camposEditados &&
+        isCampoEditadoLeitura(
+          opcoes.camposEditados,
+          opcoes.idArquivoLocal,
+          opcoes.indiceDocumento,
+          campo.chave,
+        )
+      ) {
+        preenchidosAlterados++
+      }
     }
   }
   const vazios = total - preenchidos
   const percentual = total > 0 ? Math.round((preenchidos / total) * 100) : 0
-  return { total, preenchidos, vazios, percentual }
+  return { total, preenchidos, vazios, preenchidosAlterados, percentual }
 }

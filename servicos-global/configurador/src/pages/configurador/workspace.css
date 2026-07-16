@@ -3308,6 +3308,17 @@ body.light-theme .cw-xml-viewer {
   margin-left: 0;
 }
 
+/* Subtítulo do passo → infográfico UX10: 32px */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria--secao-visual,
+.uni-player-aula__bloco-passo > * + .uni-player-aula__passo-galeria--secao-visual {
+  margin-top: 32px;
+}
+
+/* Infográfico UX10 → galeria de passo (ex.: Refinar mapa → 01 Tipo de Operação): 32px */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-galeria {
+  margin-top: 32px;
+}
+
 /* Texto do passo → infográfico UX10 / galeria de seção: 32px (Guia — screenshot ↔ infográfico). */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria {
   margin-top: 32px;

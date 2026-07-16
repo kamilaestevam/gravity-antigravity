@@ -2911,18 +2911,7 @@ function ManualBlocoPassoVisual({
     passoAcademyIsolado && passo.rotuloPasso && !passo.rotuloPassoAposGaleriaComparacao,
   )
 
-  const WrapperCorpoSubtituloGuia = passoCorpoAcademySubtitulo
-    ? ({ children }: { children: React.ReactNode }) => (
-        <div
-          className={passo.destaqueRotuloPassoGuia
-            ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--destaque'
-            : 'uni-player-aula__passo-corpo'}
-          style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
-        >
-          {children}
-        </div>
-      )
-    : ({ children }: { children: React.ReactNode }) => <>{children}</>
+  const WrapperCorpoSubtituloGuia = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
   const blocoGaleriasAposParagrafoIndice = (indiceParagrafo: number) => {
     const galeriasParagrafo = galeriaComparacaoAposParagrafoPasso(passo, indiceParagrafo)
@@ -2993,6 +2982,7 @@ function ManualBlocoPassoVisual({
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
               espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
+              passoAcademyGuia={passoAcademyIsolado}
             />
             {passo.mostrarCatalogoDashboardSugestoesPedido
             && passo.catalogoDashboardSugestoesAposGaleriaIndice === idxGaleria ? (
@@ -3043,6 +3033,13 @@ function ManualBlocoPassoVisual({
 
   const blocoTexto = (
     <div
+      className={
+        passoCorpoAcademySubtitulo
+          ? (passo.destaqueRotuloPassoGuia
+            ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--destaque'
+            : 'uni-player-aula__passo-corpo')
+          : undefined
+      }
       style={passoAcademyIsolado ? {
         width: '100%',
         minWidth: 0,
@@ -3519,6 +3516,7 @@ function ManualBlocoPassoVisual({
                 espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriaComparacaoAposParagrafoPasso(passo, 0), idxGaleria, galeria)}
                 espacoInferiorAposEtapaPx={galeria.espacoInferiorAposEtapaPx}
                 emAcordeaoSubtopico={emAcordeaoSubtopico}
+                passoAcademyGuia={passoAcademyIsolado}
               />
             ))
             : null}
@@ -3551,20 +3549,34 @@ function ManualBlocoPassoVisual({
     ? <ManualSmartReadTabelaCatalogoColunasLista />
     : null
 
+  const infograficoBidFreteSecaoVisualAcademy = passoAcademyIsolado
+    ? (passo.mostrarInfograficoBidFreteMapa
+      ? <ManualInfograficoBidFreteMapa />
+      : passo.mostrarInfograficoBidFreteFiltrosMapa
+        ? <ManualInfograficoBidFreteFiltrosMapa />
+        : passo.mostrarInfograficoBidFreteControlesMapa
+          ? <ManualInfograficoBidFreteControlesMapa />
+          : passo.mostrarInfograficoBidFretePainelCotacao
+            ? <ManualInfograficoBidFretePainelCotacao />
+            : passo.mostrarInfograficoBidFreteAbasPainelCotacao
+              ? <ManualInfograficoBidFreteAbasPainelCotacao />
+              : null)
+    : null
+
   const infograficoListaCustomizacao = passo.mostrarInfograficoSmartDocsListaCustomizacao
     ? <ManualInfograficoSmartDocsListaCustomizacao />
     : passo.mostrarInfograficoPedidoListaCustomizacao
       ? <ManualInfograficoPedidoListaCustomizacao />
       : passo.mostrarInfograficoBidFreteMapa
-        ? <ManualInfograficoBidFreteMapa />
+        ? (infograficoBidFreteSecaoVisualAcademy ? null : <ManualInfograficoBidFreteMapa />)
         : passo.mostrarInfograficoBidFretePainelCotacao
-          ? <ManualInfograficoBidFretePainelCotacao />
+          ? (infograficoBidFreteSecaoVisualAcademy ? null : <ManualInfograficoBidFretePainelCotacao />)
           : passo.mostrarInfograficoBidFreteFiltrosMapa
-          ? <ManualInfograficoBidFreteFiltrosMapa />
+          ? (infograficoBidFreteSecaoVisualAcademy ? null : <ManualInfograficoBidFreteFiltrosMapa />)
           : passo.mostrarInfograficoBidFreteAbasPainelCotacao
-            ? <ManualInfograficoBidFreteAbasPainelCotacao />
+            ? (infograficoBidFreteSecaoVisualAcademy ? null : <ManualInfograficoBidFreteAbasPainelCotacao />)
       : passo.mostrarInfograficoBidFreteControlesMapa
-        ? <ManualInfograficoBidFreteControlesMapa />
+        ? (infograficoBidFreteSecaoVisualAcademy ? null : <ManualInfograficoBidFreteControlesMapa />)
         : passo.mostrarInfograficoPedidoFiltrosMapa
           ? <ManualInfograficoPedidoFiltrosMapa />
         : passo.mostrarInfograficoPedidoMapa
@@ -3707,9 +3719,13 @@ function ManualBlocoPassoVisual({
     </>
   ) : null
 
-  const blocoInfograficoMapaPedidoAcademy = passoAcademyIsolado && passo.mostrarInfograficoPedidoMapa ? (
+  const blocoInfograficoSecaoVisualAcademy = passoAcademyIsolado && (
+    passo.mostrarInfograficoPedidoMapa || infograficoBidFreteSecaoVisualAcademy
+  ) ? (
     <div className="uni-player-aula__passo-galeria uni-player-aula__passo-galeria--secao-visual">
-      <ManualInfograficoPedidoMapa />
+      {passo.mostrarInfograficoPedidoMapa
+        ? <ManualInfograficoPedidoMapa />
+        : infograficoBidFreteSecaoVisualAcademy}
     </div>
   ) : null
 
@@ -3944,7 +3960,7 @@ function ManualBlocoPassoVisual({
         className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
         style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
-        {blocoInfograficoMapaPedidoAcademy}
+        {blocoInfograficoSecaoVisualAcademy}
         {passoAcademyIsolado ? (
           <div className="uni-player-aula__passo-etapa">
             {blocoTextoComCallout}
@@ -4074,8 +4090,9 @@ function ManualBlocoPassoVisual({
         className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
         style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
-        {blocoInfograficoMapaPedidoAcademy}
-        {blocoTexto}
+        {passoAcademyIsolado ? blocoTexto : null}
+        {blocoInfograficoSecaoVisualAcademy}
+        {passoAcademyIsolado ? null : blocoTexto}
         {blocoListaCustomizacao ? (
           passoAcademyIsolado ? (
             <div className="uni-player-aula__passo-galeria">{blocoListaCustomizacao}</div>
@@ -4352,7 +4369,7 @@ export function ManualSecaoFluxo({
         </div>
       )}
       {fluxo.mostrarInfograficoBidFreteInsights && (
-        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualInfograficoBidFreteInsights />
         </div>
       )}

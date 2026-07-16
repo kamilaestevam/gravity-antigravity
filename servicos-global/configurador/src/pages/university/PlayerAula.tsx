@@ -33,6 +33,7 @@ import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-con
 import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
+import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
 import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
@@ -1003,7 +1004,7 @@ interface PlayerAulaProps {
   aula: AulaDemo
   todasAulas: AulaDemo[]
   concluidas: Set<string>
-  onMarcarConcluida: (slug: string) => void
+  onMarcarConcluida: (slug: string) => Promise<boolean>
 }
 
 export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas, onMarcarConcluida }: PlayerAulaProps) {
@@ -1011,11 +1012,12 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const location = useLocation()
   const { t } = useTranslation()
   const retornoGuia = lerRetornoGuiaAcademy(location.state)
+  const [salvandoConclusao, setSalvandoConclusao] = useState(false)
 
   const idxAtual = todasAulas.findIndex(a => a.slug === faseSlug)
   const anterior = idxAtual > 0 ? todasAulas[idxAtual - 1] : null
   const proxima  = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
-  const jaConcluida = concluidas.has(faseSlug)
+  const jaConcluida = aulaGuiaEstaConcluida(faseSlug, concluidas)
 
   const idPorIndiceBloco = useMemo(() => {
     const mapa = new Map<number, string>()
@@ -1152,6 +1154,17 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     navigate(`/university-gravity/academy/${produtoSlug}`)
   }
 
+  const handleConcluirAula = async () => {
+    if (salvandoConclusao) return
+    setSalvandoConclusao(true)
+    try {
+      const ok = await onMarcarConcluida(faseSlug)
+      if (ok && proxima && !jaConcluida) navParaFase(proxima.slug)
+    } finally {
+      setSalvandoConclusao(false)
+    }
+  }
+
   return (
     <GuiaAcademyNavigationProvider produtoSlug={produtoSlug}>
     <div className="uni-player-aula">
@@ -1252,18 +1265,20 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
             <button
               type="button"
               className="uni-player-aula__footer-btn"
-              onClick={() => anterior && navParaFase(anterior.slug)}
-              disabled={!anterior}
+              onClick={() => (anterior ? navParaFase(anterior.slug) : voltarGuia())}
             >
               <ArrowLeft size={15} />
-              <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                {anterior ? anterior.titulo : t('university.aula.voltar')}
+              </span>
             </button>
 
             {/* Marcar concluída */}
             <button
               type="button"
               className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
-              onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
+              disabled={salvandoConclusao}
+              onClick={() => { void handleConcluirAula() }}
             >
               <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
               {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}

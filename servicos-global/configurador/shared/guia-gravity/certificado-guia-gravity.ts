@@ -3,6 +3,7 @@
  */
 
 import { produtoGuiaConcluido100, SLUGS_MODULO_BASICO_GUIA } from './slugs-aula-por-produto.js'
+import { normalizarSlugsConclusaoAcademyGuia } from './conclusao-academy-guia-gravity.js'
 
 export const TIPOS_CERTIFICADO_GUIA_GRAVITY = [
   'MODULO_BASICO',
@@ -72,15 +73,16 @@ export function gerarCodigoVerificacaoGuia(tipo: TipoCertificadoGuiaGravity, emi
 export function avaliarTiposCertificadoElegiveis(
   aulasConcluidas: ReadonlySet<string>,
 ): TipoCertificadoGuiaGravity[] {
+  const concluidas = normalizarSlugsConclusaoAcademyGuia(aulasConcluidas)
   const elegiveis: TipoCertificadoGuiaGravity[] = []
 
   const moduloBasicoOk = SLUGS_MODULO_BASICO_GUIA.every(slug =>
-    produtoGuiaConcluido100(slug, aulasConcluidas),
+    produtoGuiaConcluido100(slug, concluidas),
   )
   if (moduloBasicoOk) elegiveis.push('MODULO_BASICO')
 
   for (const slug of ['pedido', 'bid-frete', 'smart-read'] as const) {
-    if (produtoGuiaConcluido100(slug, aulasConcluidas)) {
+    if (produtoGuiaConcluido100(slug, concluidas)) {
       elegiveis.push(
         slug === 'pedido' ? 'PEDIDO' : slug === 'bid-frete' ? 'BID_FRETE' : 'SMART_READ',
       )

@@ -8,6 +8,7 @@ import {
   parseDuracaoAcademy,
   somarDuracaoFases,
 } from './duracao-academy-guia-gravity'
+import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
 
 export interface FaseComDuracao {
   slug?: string
@@ -209,7 +210,7 @@ export function minutosConcluidosModulo(
   aulasConcluidas: Set<string>,
 ): number {
   return fases.reduce((soma, f) => {
-    if (!f.slug || !aulasConcluidas.has(f.slug)) return soma
+    if (!f.slug || !aulaGuiaEstaConcluida(f.slug, aulasConcluidas)) return soma
     return soma + parseDuracaoAcademy(f.duracao)
   }, 0)
 }

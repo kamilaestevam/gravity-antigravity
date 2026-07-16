@@ -72,6 +72,7 @@ import {
   TIPOS_CERTIFICADO_GUIA,
   type CertificadoEmitidoGuia,
   type MapaCertificadosGuia,
+  aulaGuiaEstaConcluida,
 } from './university/certificado-guia-gravity'
 import { BarraProgressoComRitmo } from './university/barra-progresso-com-ritmo'
 import {
@@ -92,7 +93,7 @@ import {
   type DocPassoVisual,
   type DocSecao,
 } from './university/manual-login-conteudo'
-import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
+import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug, type DocFluxo, type DocSecao as DocSecaoConfigurador } from './university/manual-configurador-conteudo'
 import {
   DocConfiguradorManual,
@@ -1065,30 +1066,9 @@ interface JornadaEtapa {
   clicavel: boolean
 }
 
-/**
- * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
- * Valores: slugs antigos que contam como conclusão do slug atual.
- */
-const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
-  'acessar-workspaces': [
-    'gerenciando-workspaces',
-    'configurando-workspaces',
-    'criar-workspace',
-    'editar-workspace',
-    'ativar-workspace',
-    'excluir-workspace',
-  ],
-  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
-  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
-  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
-}
-
 function faseEstaConcluida(fase: Fase, concluidas: Set<string>): boolean {
   if (!fase.slug) return fase.concluida
-  if (concluidas.has(fase.slug)) return true
-  const legados = SLUGS_LEGADOS_AULA_CONCLUIDA[fase.slug]
-  if (!legados?.length) return false
-  return legados.some(slug => concluidas.has(slug))
+  return aulaGuiaEstaConcluida(fase.slug, concluidas)
 }
 
 function iniciaisNome(nome: string): string {
@@ -2322,12 +2302,13 @@ export function UniversityGravity() {
     void recarregarRanking()
   }, [aulasConcluidas, recarregarRanking])
 
-  const marcarConcluida = useCallback(async (slug: string) => {
-    if (!produtoSlug) return
+  const marcarConcluida = useCallback(async (slug: string): Promise<boolean> => {
+    if (!produtoSlug) return false
     try {
-      await marcarAulaConcluida(slug, produtoSlug)
+      return await marcarAulaConcluida(slug, produtoSlug)
     } catch (err) {
       console.warn('[UniversityGravity] falha ao concluir aula via API', err)
+      return false
     }
   }, [marcarAulaConcluida, produtoSlug])
 
@@ -2617,7 +2598,7 @@ export function UniversityGravity() {
         {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
         {secao === 'academy' && faseAulaSlug && produtoSlug && (() => {
           const aula = getAulaDemo(produtoSlug, faseAulaSlug)
-          const todasAulas = getAulasCapituloDemo(produtoSlug, faseAulaSlug)
+          const todasAulas = getAulasDemo(produtoSlug)
           if (!aula) return (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
               Aula não encontrada.
@@ -2769,6 +2750,13 @@ export function UniversityGravity() {
 
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <UniBotaoVoltarPadrao
+                  label={t('university.aula.voltar_onboarding')}
+                  onClick={() => navigate('/university-gravity/academy')}
+                />
+              </div>
             trilhasAtivas.length > 1 ? (
               <JornadaMultiCapitulos
                 produtoSlug={produtoSlug}
@@ -2788,6 +2776,7 @@ export function UniversityGravity() {
                   onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
                 />
             )
+            </>
           )}
 
           {/* ══ VIEW: visão geral agrupada ══ */}

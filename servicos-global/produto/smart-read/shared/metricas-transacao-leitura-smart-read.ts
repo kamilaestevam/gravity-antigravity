@@ -1,6 +1,7 @@
 /**
  * Métricas agregadas por leitura para a lista (paridade com Insights).
  */
+import { compararCamposEdicaoLeituraSmartRead } from './comparar-campos-edicao-leitura-smart-read.js'
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
   normalizarTipoDocumentoBaseSmartRead,
@@ -74,9 +75,17 @@ function contarCamposDados(dados: Record<string, unknown>, profundidade = 0): nu
 }
 
 function resolverContagemCampos(
-  item: { dados: Record<string, unknown> },
+  item: { dados: Record<string, unknown>; dados_original?: Record<string, unknown> },
   tipo: TipoDocumentoBaseSmartRead,
 ): { total: number; corretos: number; errados: number } {
+  if (item.dados_original != null) {
+    const comparacao = compararCamposEdicaoLeituraSmartRead(item.dados_original, item.dados)
+    return {
+      total: comparacao.total,
+      corretos: comparacao.corretos,
+      errados: comparacao.errados,
+    }
+  }
   const base = resolverParametrosTempoDocumentoSmartRead(tipo)
   const contadosExtracao = contarCamposDados(item.dados)
   const total = Math.max(contadosExtracao, base.campos_medio)

@@ -104,7 +104,7 @@ Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
 | **Layout** | Dashboard métricas (3 cards) + pipeline IA (3 análises + globo) + sidebar com cards/documentos |
 | **Entrada** | **Enviar** no passo 1 ou retomar leitura `PROCESSING` |
 | **Polling** | `GET /api/v1/smart-read/leituras/:id_leitura` até `COMPLETED` / `FAILED` |
-| **Tempo** | Cronômetro congela em `tempo_analise_segundos` ao concluir; persistido no progresso |
+| **Tempo** | Cronômetro acumula em `tempo_processo_total_ms`; persistido no progresso da leitura |
 | **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia, z-index acima do wizard) |
 | **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — só após análise finalizada) |
 | **Documentos** | Chips/lista expandível no card; visualizar por tipo abre nova aba |

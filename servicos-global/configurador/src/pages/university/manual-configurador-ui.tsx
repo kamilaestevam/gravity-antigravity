@@ -121,6 +121,7 @@ import {
   type ManualPilarFiltrosMapaPedidoId,
 } from './manual-pedido-infografico-filtros-mapa'
 import { ManualPedidoSimuladorFiltrosMapa } from './manual-pedido-simulador-filtros-mapa'
+import { ManualPedidoSimuladorListaArrastarColunas } from './manual-pedido-simulador-lista-arrastar-colunas'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
@@ -2125,9 +2126,11 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
         legendaPrincipal={tela.legenda}
       />
     )
-    : tela.imagem
-      ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-      : null
+    : tela.simuladorPedidoListaArrastarColunas
+      ? <ManualPedidoSimuladorListaArrastarColunas />
+      : tela.imagem
+        ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        : null
 
   const restoAposParagrafo = (
     <>

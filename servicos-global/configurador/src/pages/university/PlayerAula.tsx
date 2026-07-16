@@ -34,7 +34,7 @@ import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manu
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
-import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
+import { GuiaAcademyNavigationProvider, AcademyLinkGuia, idAncoraTituloGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -64,6 +64,24 @@ function extrairTitulosSumarioAula(blocos: BlocoConteudo[]): { id: string; texto
   const h1s: { id: string; texto: string; nivel: number; indiceBloco: number }[] = []
 
   blocos.forEach((bloco, indiceBloco) => {
+    if (bloco.tipo === 'topicos_imagem_lateral') {
+      try {
+        const topicos = JSON.parse(String(bloco.dados.payload ?? '[]')) as { titulo?: string }[]
+        topicos.forEach((topico) => {
+          const texto = topico.titulo?.trim()
+          if (!texto) return
+          headings.push({
+            id: idAncoraTituloGuia(texto),
+            texto,
+            nivel: 2,
+            indiceBloco,
+          })
+        })
+      } catch {
+        /* payload inválido */
+      }
+      return
+    }
     if (bloco.tipo !== 'heading') return
     const nivel = Number(bloco.dados.nivel ?? 1)
     const texto = String(bloco.dados.text ?? '').trim()
@@ -560,7 +578,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         whiteSpace: 'nowrap',
         border: 0,
       }
-      // Título H1: oculto quando já aparece no breadcrumb (sem título no padrão duplicado).
+      // H1 da aula — título principal com linha roxa (`.uni-player-aula__titulo-guia`).
       if (nivel <= 1) {
         if (ocultarNoCorpo) {
           return (
@@ -1032,8 +1050,6 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     const filtrados = todos.filter(
       (item) => !(item.nivel <= 1 && item.texto.trim().toLocaleLowerCase('pt-BR') === tituloAula),
     )
-    // Aula com um único tópico (ex.: Boas-vindas): mantém o item mesmo se repetir o título.
-    if (filtrados.length === 0 && todos.length > 0) return todos.slice(0, 1)
     return filtrados
   }, [aula.blocos, aula.titulo])
 
@@ -1217,28 +1233,12 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}>
                 {t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)}
               </span>
-              <span style={{ color: '#cbd5e1' }}>/</span>
-              <span style={{ color: CONTENT_MUTED }}>{aula.titulo}</span>
             </div>
             {aula.blocos.map((bloco, idx) => {
               const idAncora = idPorIndiceBloco.get(idx)
-              let blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
+              const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
                 ? { ...bloco, dados: { ...bloco.dados, idAncora } }
                 : bloco
-              if (blocoComAncora.tipo === 'heading' && Number(blocoComAncora.dados.nivel ?? 1) <= 1) {
-                const textoTitulo = String(blocoComAncora.dados.text ?? '').trim()
-                const tituloAula = aula.titulo.trim()
-                if (
-                  textoTitulo &&
-                  tituloAula &&
-                  textoTitulo.localeCompare(tituloAula, 'pt-BR', { sensitivity: 'accent' }) === 0
-                ) {
-                  blocoComAncora = {
-                    ...blocoComAncora,
-                    dados: { ...blocoComAncora.dados, ocultarNoCorpo: true },
-                  }
-                }
-              }
               return (
                 <div
                   key={idx}

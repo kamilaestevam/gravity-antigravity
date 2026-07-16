@@ -482,6 +482,8 @@ export interface DocGaleriaTela {
   pilaresControlesMapaPedido?: Array<'vista' | 'zoom' | 'restaurar' | 'trilhos' | 'rotacao'>
   /** Chips numerados do infográfico de filtros do mapa Pedido (ex.: ['01'] = operação). */
   pilaresFiltrosMapaPedido?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
+  /** Manual Pedido § Lista — simulador React com demo automática de arrastar colunas. */
+  simuladorPedidoListaArrastarColunas?: boolean
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }

@@ -2757,7 +2757,7 @@ export function UniversityGravity() {
                   onClick={() => navigate('/university-gravity/academy')}
                 />
               </div>
-            trilhasAtivas.length > 1 ? (
+              {trilhasAtivas.length > 1 ? (
               <JornadaMultiCapitulos
                 produtoSlug={produtoSlug}
                 trilhas={trilhasAtivas}
@@ -2768,14 +2768,14 @@ export function UniversityGravity() {
                 onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
               />
             ) : (
-                <JornadaModulo
+              <JornadaModulo
                 produtoSlug={produtoSlug}
                 trilha={trilhaAtiva}
-                  aulasConcluidas={aulasConcluidas}
-                  dataInicioJornada={dataInicioJornada}
-                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
-                />
-            )
+                aulasConcluidas={aulasConcluidas}
+                dataInicioJornada={dataInicioJornada}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+              />
+            )}
             </>
           )}
 

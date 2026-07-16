@@ -530,6 +530,8 @@ export interface DocFluxo {
   mostrarInfograficoItensMenuUsuario?: boolean
   /** Com `mostrarInfograficoItensMenuUsuario`, renderiza o infográfico após os passos visuais. */
   infograficoItensMenuUsuarioAposPassos?: boolean
+  /** Manual Navegação — funcionalidades comuns das listas operacionais (GTV). */
+  mostrarInfograficoFuncionalidadesLista?: boolean
   /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
   mostrarInfograficoTiposUsuario?: boolean
   /** Manual Histórico §04 — catálogo completo de eventos (tabelas). */

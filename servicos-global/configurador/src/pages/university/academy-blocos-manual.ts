@@ -304,6 +304,10 @@ const INFOGRAFICOS_FLUXO: Array<{
     aposPassos: true,
     flagAposPassos: 'infograficoItensMenuUsuarioAposPassos',
   },
+  {
+    flag: 'mostrarInfograficoFuncionalidadesLista',
+    id: 'funcionalidades-listas',
+  },
 ]
 
 function blocosInfograficosSecao(

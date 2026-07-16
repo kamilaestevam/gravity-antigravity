@@ -750,23 +750,18 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              colunas: 3,
+              colunas: 2,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
-                  legenda: '',
-                  imagem: S('lista_excluir_setas'),
+                  legenda: '01 · Selecionar e excluir',
+                  imagem: S('lista_excluir_1'),
                   paragrafoAntes: '**Selecione** a linha e clique **Excluir**',
                 },
                 {
-                  legenda: '',
-                  imagem: S('lista_excluir_modal'),
-                  paragrafoAntes: '**Revise** o preview no modal (permitidos e bloqueados)',
-                },
-                {
-                  legenda: '',
-                  imagem: S('lista_excluir_confirmacao'),
-                  paragrafoAntes: '**Confirme** a exclusão — ação irreversível',
+                  legenda: '02 · Preview no modal',
+                  imagem: S('lista_excluir_2'),
+                  paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme** — ação irreversível',
                 },
               ],
             },
@@ -774,7 +769,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Só entram na exclusão cotações em **Rascunho** ou **nunca enviadas** ao fornecedor **sem propostas**. Itens **já enviados** ou **com propostas** aparecem como bloqueados no preview. Para **BIDs agrupados**, todas as cotações filhas precisam ser excluíveis. Para **várias linhas**, marque pelo **checkbox** à esquerda e use **Excluir**.',
+              'Apenas cotações com status **Aprovada** não podem ser excluídas permanentemente — aparecem como **bloqueadas** no preview. Para **BIDs agrupados**, todas as cotações filhas precisam ser excluíveis. Para **várias linhas**, marque pelo **checkbox** à esquerda e use **Excluir**.',
           },
         },
         {

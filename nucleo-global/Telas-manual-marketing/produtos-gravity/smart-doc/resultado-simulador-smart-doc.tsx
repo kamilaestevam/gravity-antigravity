@@ -215,7 +215,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
                       {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'nl-baixar-dati' } : {})}
                     >
                       <DownloadSimple size={14} />
-                      Baixar pacote DATI
+                      Baixar pacote docs
                     </button>
                   </article>
                 )

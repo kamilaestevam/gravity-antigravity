@@ -19,7 +19,7 @@ export interface EstadoJornadaGuiaGravity {
   dataInicioJornada: Date | null
   diasOfensiva: number
   recarregar: () => Promise<void>
-  marcarAulaConcluida: (slugAula: string, slugProduto: string) => Promise<void>
+  marcarAulaConcluida: (slugAula: string, slugProduto: string) => Promise<boolean>
   marcarManualLido: (slugManual: string) => Promise<void>
 }
 
@@ -80,27 +80,36 @@ export function useJornadaGuiaGravity(): EstadoJornadaGuiaGravity {
     void recarregar()
   }, [recarregar])
 
-  const marcarAulaConcluida = useCallback(async (slugAula: string, slugProduto: string) => {
+  const marcarAulaConcluida = useCallback(async (slugAula: string, slugProduto: string): Promise<boolean> => {
     const token = await getToken()
     if (!token) throw new Error('Sessão expirada')
-    const res = await fetch(`/api/v1/guia-gravity/aulas/${encodeURIComponent(slugAula)}/concluir`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ slug_produto_guia_gravity: slugProduto }),
-    })
-    if (!res.ok) throw new Error(`Falha ao concluir aula (${res.status})`)
-    const raw = await res.json()
-    const parsed = guiaGravityJornadaResponseSchema.parse(raw)
-    const aplicado = aplicarRespostaJornada(parsed)
-    setDados(aplicado.dados)
-    setAulasConcluidas(aplicado.aulasConcluidas)
-    setMapaCertificados(aplicado.mapaCertificados)
-    setDataInicioJornada(aplicado.dataInicioJornada)
-    setDiasOfensiva(aplicado.diasOfensiva)
-  }, [getToken])
+
+    setAulasConcluidas(prev => normalizarSlugsConclusaoAcademy([...prev, slugAula]))
+
+    try {
+      const res = await fetch(`/api/v1/guia-gravity/aulas/${encodeURIComponent(slugAula)}/concluir`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ slug_produto_guia_gravity: slugProduto }),
+      })
+      if (!res.ok) throw new Error(`Falha ao concluir aula (${res.status})`)
+      const raw = await res.json()
+      const parsed = guiaGravityJornadaResponseSchema.parse(raw)
+      const aplicado = aplicarRespostaJornada(parsed)
+      setDados(aplicado.dados)
+      setAulasConcluidas(aplicado.aulasConcluidas)
+      setMapaCertificados(aplicado.mapaCertificados)
+      setDataInicioJornada(aplicado.dataInicioJornada)
+      setDiasOfensiva(aplicado.diasOfensiva)
+      return true
+    } catch (e) {
+      await recarregar()
+      throw e
+    }
+  }, [getToken, recarregar])
 
   const marcarManualLido = useCallback(async (slugManual: string) => {
     const token = await getToken()

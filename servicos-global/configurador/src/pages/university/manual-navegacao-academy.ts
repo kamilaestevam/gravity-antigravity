@@ -4,22 +4,29 @@
  */
 
 import type { AulaDemo } from './manual-login-academy'
-import { blocosDeSecaoConfiguradorAcademy } from './academy-blocos-manual'
+import { blocosDeSecaoConfiguradorAcademy, type CuradoriaSecaoAcademy } from './academy-blocos-manual'
 import { DOC_NAVEGACAO_SECAO } from './manual-navegacao-conteudo'
 
 const FLUXOS = DOC_NAVEGACAO_SECAO.fluxos ?? []
+
+type OpcoesAulaNavegacao = Pick<
+  CuradoriaSecaoAcademy,
+  'incluirIntroSecao' | 'tituloIntroAcademy' | 'titulosFluxoAcademy'
+>
 
 function aulaNavegacao(
   slug: string,
   titulo: string,
   duracao: string,
   fluxoIndices: number[],
-  opcoes?: { incluirIntroSecao?: boolean },
+  opcoes?: OpcoesAulaNavegacao,
 ): AulaDemo {
   const blocos = blocosDeSecaoConfiguradorAcademy(DOC_NAVEGACAO_SECAO, {
     incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
     incluirImagemSecao: false,
     fluxoIndices,
+    tituloIntroAcademy: opcoes?.tituloIntroAcademy,
+    titulosFluxoAcademy: opcoes?.titulosFluxoAcademy,
   })
   return {
     slug,
@@ -33,21 +40,17 @@ function aulaNavegacao(
 export const NAVEGACAO_AULA_SLUGS = [
   'navegacao-plataforma',
   'menu-superior',
-  'menu-lateral-produtos',
-  'troca-produtos-gravity',
-  'troca-workspaces',
-  'menu-lateral-configuracao',
+  'menu-lateral',
   'acesso-gravity-university',
-  'navegacao-gravity-university',
 ] as const
 
 export const AULAS_NAVEGACAO: AulaDemo[] = [
   aulaNavegacao(
     NAVEGACAO_AULA_SLUGS[0],
-    DOC_NAVEGACAO_SECAO.titulo,
+    'Navegação na plataforma',
     '8m',
     [],
-    { incluirIntroSecao: true },
+    { incluirIntroSecao: true, tituloIntroAcademy: 'Navegação na plataforma' },
   ),
   aulaNavegacao(
     NAVEGACAO_AULA_SLUGS[1],
@@ -57,39 +60,28 @@ export const AULAS_NAVEGACAO: AulaDemo[] = [
   ),
   aulaNavegacao(
     NAVEGACAO_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Menu lateral — Produtos Gravity',
-    '5m',
-    [1],
+    'Menu lateral',
+    '35m',
+    [1, 2, 3, 4],
+    {
+      titulosFluxoAcademy: {
+        1: 'Produtos contratados',
+        2: 'Troca de produtos',
+        3: 'Troca de workspaces',
+        4: 'Configuração',
+      },
+    },
   ),
   aulaNavegacao(
     NAVEGACAO_AULA_SLUGS[3],
-    FLUXOS[2]?.tituloSumario ?? 'Troca de Produtos Gravity',
-    '8m',
-    [2],
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[4],
-    FLUXOS[3]?.tituloSumario ?? 'Troca de workspaces',
-    '10m',
-    [3],
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[5],
-    FLUXOS[4]?.tituloSumario ?? 'Menu lateral — Configuração',
+    'Como acessar a Gravity University',
     '12m',
-    [4],
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[6],
-    FLUXOS[5]?.tituloSumario ?? 'Como acessar a Gravity University',
-    '6m',
-    [5],
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[7],
-    FLUXOS[6]?.tituloSumario ?? 'Navegação na Gravity University',
-    '6m',
-    [6],
+    [5, 6],
+    {
+      titulosFluxoAcademy: {
+        6: 'Navegação na University',
+      },
+    },
   ),
 ]
 

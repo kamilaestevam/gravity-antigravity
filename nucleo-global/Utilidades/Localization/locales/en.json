@@ -8,6 +8,10 @@
       "docs": "Manuals",
       "builders": "Gravity Partner",
       "produtos_gravity": "Gravity Products",
+      "modulo_basico": "Basic Module",
+      "modulo_basico_subtitulo": "For all Gravity products",
+      "modulo_por_produto_gravity": "Module by Gravity Product",
+      "modulo_por_produto_gravity_subtitulo": "Tracks per contracted product",
       "modulos_plataforma": "All Gravity products"
     },
     "nav_status": {
@@ -178,26 +182,26 @@
     "certificado": {
       "secao_titulo": "My certificates",
       "contagem": "{{obtidos}}/{{total}} earned",
-      "tipo_modulo_basico": "Basic module",
+      "tipo_modulo_basico": "Basic Module",
       "tipo_pedido": "Pedido",
-      "tipo_bid_frete": "Bid Frete",
+      "tipo_bid_frete": "BID Frete Internacional",
       "tipo_smart_read": "Smart Docs",
       "tipo": "CERTIFICATE OF COMPLETION",
       "numero": "No. {{numero}}",
       "intro": "This certifies that",
-      "descricao": "has successfully completed the Gravity University training module, fulfilling all required steps and assessments:",
+      "descricao": "Has successfully completed the Gravity University training module, fulfilling all required steps and assessments:",
       "nivel_rotulo": "LEVEL ACHIEVED",
       "xp_rotulo": "XP EARNED",
       "data_rotulo": "COMPLETED ON",
       "equipe": "Gravity University Team",
       "emissao_oficial": "Official issuance · DATI Tecnologia",
       "verificar_em": "Verify at university.gravity.com/verify",
-      "vazio": "Complete the Basic module or a product (Pedido, Bid Frete, Smart Docs) to unlock certificates",
+      "vazio": "Complete the Basic Module or a product (Pedido, BID Frete Internacional, Smart Docs) to unlock certificates",
       "ver": "View certificate",
       "abrir": "Open certificate — {{modulo}}",
       "fechar": "Close",
-      "modal_titulo": "Certificate of completion",
-      "aria_certificado": "Certificate of completion — {{modulo}}"
+      "modal_titulo": "Certificate of Completion",
+      "aria_certificado": "Certificate of Completion — {{modulo}}"
     },
     "dica": {
       "titulo": "Tips and Explanations",
@@ -232,7 +236,19 @@
       "descricao": "Manuals and videos for the whole platform — GABI's knowledge base."
     },
     "builders": {
-      "descricao": "Pointers for integrators and developers (API Cockpit)."
+      "descricao": "Gravity partner program — commercial, integration, and onboarding.",
+      "badge_em_breve": "Coming soon",
+      "titulo_hero": "Coming soon: become a Gravity Partner",
+      "subtitulo_hero": "An ecosystem for those who take the platform further — alongside Gravity.",
+      "intro": "We are preparing tracks, benefits, and tools for three partner profiles. Interest-list signup opens soon.",
+      "perfil_comercial_titulo": "Commercial partner",
+      "perfil_comercial_descricao": "Resell, refer, and grow the Gravity customer base with sales collateral, commissions, and dedicated support.",
+      "perfil_integrador_titulo": "Integrator",
+      "perfil_integrador_descricao": "Connect ERPs, APIs, and custom flows via API Cockpit — with docs, sandbox, and technical certification.",
+      "perfil_onboarding_titulo": "Onboarding",
+      "perfil_onboarding_descricao": "Deploy, train teams, and accelerate Gravity product adoption across your customers' organizations.",
+      "perfil_em_breve": "Coming soon",
+      "rodape": "Want to be notified when the program launches? Watch Gravity University — interest-list signup is coming soon."
     }
   },
   "BIDFRETE": {

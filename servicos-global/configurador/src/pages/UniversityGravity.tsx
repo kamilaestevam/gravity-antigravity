@@ -35,7 +35,7 @@ import { useJornadaGuiaGravity } from '../hooks/use-jornada-guia-gravity'
 import { useAssinaturasJornadaGuiaGravity } from '../hooks/use-assinaturas-jornada-guia-gravity'
 import { useRankingGuiaGravity } from '../hooks/use-ranking-guia-gravity'
 import { GuiaGravityDadosProvider, useGuiaGravityDados } from '../contexts/guia-gravity-dados-context'
-import { produtoCompradoNaOrganizacao } from '../../shared/guia-gravity/produtos-jornada-guia-gravity.js'
+import { produtoCompradoNaOrganizacao, PRODUTOS_GUIA_PLATAFORMA } from '../../shared/guia-gravity/produtos-jornada-guia-gravity.js'
 import { slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-manuais-guia-gravity.js'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
@@ -64,12 +64,15 @@ import { calcularNivelGuiaGravity } from './university/niveis-guia-gravity'
 import { DashboardInfoNiveisGuiaGravity } from './university/dashboard-info-niveis-guia-gravity'
 import { DashboardInfoRitmoGuiaGravity } from './university/dashboard-info-ritmo-guia-gravity'
 import { PainelCertificadosGuiaGravity } from './university/painel-certificados-guia-gravity'
+import { GravityPartnerEmBreve } from './university/gravity-partner-em-breve'
 import {
   contarCertificadosObtidos,
+  resolverNomeCertificadoGuiaGravity,
   SLUGS_MODULO_BASICO_GUIA,
   TIPOS_CERTIFICADO_GUIA,
   type CertificadoEmitidoGuia,
   type MapaCertificadosGuia,
+  aulaGuiaEstaConcluida,
 } from './university/certificado-guia-gravity'
 import { BarraProgressoComRitmo } from './university/barra-progresso-com-ritmo'
 import {
@@ -90,7 +93,7 @@ import {
   type DocPassoVisual,
   type DocSecao,
 } from './university/manual-login-conteudo'
-import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
+import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug, type DocFluxo, type DocSecao as DocSecaoConfigurador } from './university/manual-configurador-conteudo'
 import {
   DocConfiguradorManual,
@@ -197,7 +200,11 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   }],
 }
 
-// Visão geral agrupada (sem produto selecionado)
+const SLUGS_PLATAFORMA_GUIA = new Set<string>(PRODUTOS_GUIA_PLATAFORMA)
+
+function slugPertenceModuloBasicoPlataforma(slug: string): boolean {
+  return SLUGS_PLATAFORMA_GUIA.has(slug)
+}
 const GRUPOS_TRILHAS = [
   { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.navegacao[0], TRILHAS_POR_PRODUTO.configurador[0]] },
   { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
@@ -1060,30 +1067,9 @@ interface JornadaEtapa {
   clicavel: boolean
 }
 
-/**
- * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
- * Valores: slugs antigos que contam como conclusão do slug atual.
- */
-const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
-  'acessar-workspaces': [
-    'gerenciando-workspaces',
-    'configurando-workspaces',
-    'criar-workspace',
-    'editar-workspace',
-    'ativar-workspace',
-    'excluir-workspace',
-  ],
-  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
-  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
-  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
-}
-
 function faseEstaConcluida(fase: Fase, concluidas: Set<string>): boolean {
   if (!fase.slug) return fase.concluida
-  if (concluidas.has(fase.slug)) return true
-  const legados = SLUGS_LEGADOS_AULA_CONCLUIDA[fase.slug]
-  if (!legados?.length) return false
-  return legados.some(slug => concluidas.has(slug))
+  return aulaGuiaEstaConcluida(fase.slug, concluidas)
 }
 
 function iniciaisNome(nome: string): string {
@@ -1232,27 +1218,6 @@ function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
         </span>
       </TooltipGlobal>
     </span>
-  )
-}
-
-function LegendaStatusNavAcademy() {
-  const { t } = useTranslation()
-  return (
-    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
-      <span className="uni-nav-legenda-status__item">
-        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
-          <Package size={9} weight="fill" />
-        </span>
-        {t('university.nav_status.contrato_abrev')}
-      </span>
-      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
-      <span className="uni-nav-legenda-status__item">
-        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
-          <CheckCircle size={9} weight="fill" />
-        </span>
-        {t('university.nav_status.concluido_abrev')}
-      </span>
-    </div>
   )
 }
 
@@ -1684,6 +1649,39 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
     setProdutosFiltrados(new Set(produtosContratados))
   }, [produtosContratados])
 
+  const produtosPlataforma = useMemo(
+    () => produtosContratados.filter(slug => slugPertenceModuloBasicoPlataforma(slug)),
+    [produtosContratados],
+  )
+  const produtosGravityContratados = useMemo(
+    () => produtosContratados.filter(slug => !slugPertenceModuloBasicoPlataforma(slug)),
+    [produtosContratados],
+  )
+
+  const alternarFiltroModuloBasico = () => {
+    setProdutosFiltrados(prev => {
+      const todosSelecionados = produtosPlataforma.every(s => prev.has(s))
+      const next = new Set(prev)
+      if (todosSelecionados) {
+        produtosPlataforma.forEach(s => next.delete(s))
+        if (next.size === 0) {
+          const fallback = produtosGravityContratados[0] ?? produtosPlataforma[0]
+          if (fallback) next.add(fallback)
+        }
+      } else {
+        produtosPlataforma.forEach(s => next.add(s))
+      }
+      return next
+    })
+  }
+
+  const modulosPlataforma = modulos.filter(m => slugPertenceModuloBasicoPlataforma(m.slug))
+  const pctModuloBasico = modulosPlataforma.length
+    ? Math.round(modulosPlataforma.reduce((soma, m) => soma + m.pct, 0) / modulosPlataforma.length)
+    : 0
+  const concluidoModuloBasico = modulosPlataforma.length > 0 && modulosPlataforma.every(m => m.pct >= 100)
+  const selecionadoModuloBasico = produtosPlataforma.length > 0 && produtosPlataforma.every(s => produtosFiltrados.has(s))
+
   const alternarFiltroProduto = (slug: string) => {
     setProdutosFiltrados(prev => {
       const next = new Set(prev)
@@ -1844,7 +1842,32 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
             </div>
             <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
             <div className="uni-dashboard-produtos-contratados__tags">
-              {produtosContratados.map(slug => {
+              {produtosPlataforma.length > 0 && (
+                <button
+                  type="button"
+                  className={[
+                    'uni-dashboard-tag-contratado',
+                    selecionadoModuloBasico ? 'is-selecionado' : 'is-desabilitado',
+                    selecionadoModuloBasico && concluidoModuloBasico ? 'is-concluido' : '',
+                    selecionadoModuloBasico && pctModuloBasico > 0 && !concluidoModuloBasico ? 'is-andamento' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={alternarFiltroModuloBasico}
+                  aria-pressed={selecionadoModuloBasico}
+                  title={t(selecionadoModuloBasico ? 'university.dashboard.filtro_produto_desativar' : 'university.dashboard.filtro_produto_ativar', {
+                    produto: t('university.nav.modulo_basico'),
+                  })}
+                >
+                  <GraduationCap weight="duotone" size={15} color={selecionadoModuloBasico ? (concluidoModuloBasico ? '#34d399' : '#818cf8') : '#64748b'} />
+                  <span>{t('university.nav.modulo_basico')}</span>
+                  {selecionadoModuloBasico && concluidoModuloBasico && (
+                    <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />
+                  )}
+                  {selecionadoModuloBasico && !concluidoModuloBasico && pctModuloBasico > 0 && (
+                    <span className="uni-dashboard-tag-contratado__pct">{pctModuloBasico}%</span>
+                  )}
+                </button>
+              )}
+              {produtosGravityContratados.map(slug => {
                 const prog = modulos.find(m => m.slug === slug)
                 const pct = prog?.pct ?? 0
                 const concluido = pct >= 100
@@ -2289,12 +2312,13 @@ export function UniversityGravity() {
     void recarregarRanking()
   }, [aulasConcluidas, recarregarRanking])
 
-  const marcarConcluida = useCallback(async (slug: string) => {
-    if (!produtoSlug) return
+  const marcarConcluida = useCallback(async (slug: string): Promise<boolean> => {
+    if (!produtoSlug) return false
     try {
-      await marcarAulaConcluida(slug, produtoSlug)
+      return await marcarAulaConcluida(slug, produtoSlug)
     } catch (err) {
       console.warn('[UniversityGravity] falha ao concluir aula via API', err)
+      return false
     }
   }, [marcarAulaConcluida, produtoSlug])
 
@@ -2319,6 +2343,11 @@ export function UniversityGravity() {
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
+  const nomeCertificado = resolverNomeCertificadoGuiaGravity({
+    nomeUsuario: currentUser.name,
+    nomeCompletoClerk: user?.fullName,
+    nomeCurtoClerk: user?.firstName,
+  })
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
@@ -2436,7 +2465,7 @@ export function UniversityGravity() {
       children: [
         { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-minha-jornada' },
         { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy />, dataTutorialAlvo: 'qt-menu-legenda-status' },
-        { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></>, dataTutorialAlvo: 'qt-menu-modulo-basico' },
+        { label: t('university.nav.modulo_basico'), sectionSubtitle: t('university.nav.modulo_basico_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <GraduationCap weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-modulo-basico' },
         { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
         { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: statusNavAcademy('login') },
         { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: statusNavAcademy('navegacao') },
@@ -2445,7 +2474,7 @@ export function UniversityGravity() {
         { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: statusNavAcademy('gabi') },
         { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: statusNavAcademy('hub') },
         { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: statusNavAcademy('store') },
-        { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
+        { label: t('university.nav.modulo_por_produto_gravity'), sectionSubtitle: t('university.nav.modulo_por_produto_gravity_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <PuzzlePiece weight="duotone" size={16} /> },
         { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido'),       dataTutorialAlvo: 'qt-menu-pedido' },
         { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read'),   dataTutorialAlvo: 'qt-menu-smart-read' },
         { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete'),    dataTutorialAlvo: 'qt-menu-bid-frete' },
@@ -2454,7 +2483,7 @@ export function UniversityGravity() {
       ],
     },
     ...(universityManuaisDocsVisiveis() ? [navItemManuais] : []),
-    { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
+    { to: '/university-gravity/builders', label: t('university.nav.builders'), icon: <PuzzlePiece weight="duotone" size={18} />, active: secao === 'builders', className: secao === 'builders' ? 'mlg-submenu-item' : undefined, ...badgeEmBreve },
   ]
 
   const tituloSecao = secao === 'docs'
@@ -2485,6 +2514,7 @@ export function UniversityGravity() {
         moduleName={t('university.modulo_nome')}
         moduleColor={UNI_COR}
         defaultCollapsed={false}
+        defaultExpandAllSubmenus
         alvoTourAtivo={alvoTourMenu}
         workspaces={isGravityAdmin ? orgWorkspaceItems : undefined}
         onSwitchWorkspace={isGravityAdmin ? handleTrocarOrganizacao : undefined}
@@ -2580,7 +2610,7 @@ export function UniversityGravity() {
         {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
         {secao === 'academy' && faseAulaSlug && produtoSlug && (() => {
           const aula = getAulaDemo(produtoSlug, faseAulaSlug)
-          const todasAulas = getAulasCapituloDemo(produtoSlug, faseAulaSlug)
+          const todasAulas = getAulasDemo(produtoSlug)
           if (!aula) return (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
               Aula não encontrada.
@@ -2723,7 +2753,7 @@ export function UniversityGravity() {
               mapaCertificados={mapaCertificados}
               diasOfensiva={diasOfensiva}
               dataInicioJornada={dataInicioJornada}
-              nomeUsuario={userName}
+              nomeUsuario={nomeCertificado}
               manuaisLidos={manuaisLidos}
               manuaisTotal={manuaisTotal}
               onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
@@ -2737,7 +2767,14 @@ export function UniversityGravity() {
 
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
-            trilhasAtivas.length > 1 ? (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <UniBotaoVoltarPadrao
+                  label={t('university.aula.voltar_onboarding')}
+                  onClick={() => navigate('/university-gravity/academy')}
+                />
+              </div>
+              {trilhasAtivas.length > 1 ? (
               <JornadaMultiCapitulos
                 produtoSlug={produtoSlug}
                 trilhas={trilhasAtivas}
@@ -2748,14 +2785,15 @@ export function UniversityGravity() {
                 onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
               />
             ) : (
-                <JornadaModulo
+              <JornadaModulo
                 produtoSlug={produtoSlug}
                 trilha={trilhaAtiva}
-                  aulasConcluidas={aulasConcluidas}
-                  dataInicioJornada={dataInicioJornada}
-                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
-                />
-            )
+                aulasConcluidas={aulasConcluidas}
+                dataInicioJornada={dataInicioJornada}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+              />
+            )}
+            </>
           )}
 
           {/* ══ VIEW: visão geral agrupada ══ */}
@@ -2875,16 +2913,7 @@ export function UniversityGravity() {
             </div>
           )}
 
-          {secao === 'builders' && (
-            <div style={{
-              textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
-              border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,
-            }}>
-              <div style={{ fontSize: 48, opacity: .2 }}>🧩</div>
-              <p style={{ marginTop: 10, fontWeight: 600 }}>{t('university.vazio.em_breve', { secao: tituloSecao })}</p>
-              <p style={{ fontSize: '.82rem', marginTop: 4 }}>{t('university.builders.descricao')}</p>
-            </div>
-          )}
+          {secao === 'builders' && <GravityPartnerEmBreve />}
 
         </div>
         )}

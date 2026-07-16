@@ -27,6 +27,16 @@ export function restaurarScrollGuia(scrollY: number) {
   window.scrollTo({ top: scrollY, behavior: 'smooth' })
 }
 
+export function idAncoraTituloGuia(texto: string): string {
+  const slug = texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return `guia-titulo-${slug || 'secao'}`
+}
+
 export function montarRetornoGuiaAcademy(pathname: string, hash: string): RetornoGuiaAcademy {
   return {
     pathname,

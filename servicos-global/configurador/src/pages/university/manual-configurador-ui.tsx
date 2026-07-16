@@ -121,6 +121,7 @@ import {
   type ManualPilarFiltrosMapaPedidoId,
 } from './manual-pedido-infografico-filtros-mapa'
 import { ManualPedidoSimuladorFiltrosMapa } from './manual-pedido-simulador-filtros-mapa'
+import { ManualPedidoSimuladorListaArrastarColunas } from './manual-pedido-simulador-lista-arrastar-colunas'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
@@ -2125,9 +2126,11 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
         legendaPrincipal={tela.legenda}
       />
     )
-    : tela.imagem
-      ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-      : null
+    : tela.simuladorPedidoListaArrastarColunas
+      ? <ManualPedidoSimuladorListaArrastarColunas />
+      : tela.imagem
+        ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        : null
 
   const restoAposParagrafo = (
     <>
@@ -5712,26 +5715,28 @@ export function ManualTopicosImagemLateral({ topicos }: { topicos: DocTopicoImag
   if (topicos.length > 1) {
     return (
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
-        columnGap: 28,
-        rowGap: 28,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 32,
         marginTop: 20,
-        alignItems: 'start',
       }}>
         {topicos.map((topico, i) => (
-          <React.Fragment key={topico.titulo}>
-            <div style={{ gridColumn: 1, gridRow: i + 1 }}>
-              <ManualTopicoImagemLateralTexto topico={topico} indice={i} />
-            </div>
-            <div style={{ gridColumn: 2, gridRow: i + 1, width: '100%', minWidth: 0 }}>
-              <ManualFiguraScreenshot
-                src={topico.imagem}
-                alt={topico.titulo}
-                larguraMaxima={topico.larguraMaxima}
-              />
-            </div>
-          </React.Fragment>
+          <div
+            key={topico.titulo}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+              width: '100%',
+            }}
+          >
+            <ManualTopicoImagemLateralTexto topico={topico} indice={i} />
+            <ManualFiguraScreenshot
+              src={topico.imagem}
+              alt={topico.titulo}
+              larguraMaxima={topico.larguraMaxima}
+            />
+          </div>
         ))}
       </div>
     )

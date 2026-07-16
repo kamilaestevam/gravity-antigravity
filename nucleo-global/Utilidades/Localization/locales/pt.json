@@ -8,6 +8,10 @@
       "docs": "Manuais",
       "builders": "Gravity Partner",
       "produtos_gravity": "Produtos Gravity",
+      "modulo_basico": "Módulo Básico",
+      "modulo_basico_subtitulo": "Para todos os produtos Gravity",
+      "modulo_por_produto_gravity": "Módulo por Produto Gravity",
+      "modulo_por_produto_gravity_subtitulo": "Trilhas por produto contratado",
       "modulos_plataforma": "Todos os produtos Gravity"
     },
     "nav_status": {
@@ -236,26 +240,26 @@
     "certificado": {
       "secao_titulo": "Meus certificados",
       "contagem": "{{obtidos}}/{{total}} obtidos",
-      "tipo_modulo_basico": "Módulo básico",
+      "tipo_modulo_basico": "Módulo Básico",
       "tipo_pedido": "Pedido",
-      "tipo_bid_frete": "Bid Frete",
+      "tipo_bid_frete": "BID Frete Internacional",
       "tipo_smart_read": "Smart Docs",
       "tipo": "CERTIFICADO DE CONCLUSÃO",
       "numero": "Nº {{numero}}",
       "intro": "Certificamos que",
-      "descricao": "concluiu com aproveitamento o módulo do programa de capacitação Gravity University, cumprindo todas as etapas e avaliações propostas:",
+      "descricao": "Concluiu com aproveitamento o módulo do programa de capacitação Gravity University, cumprindo todas as etapas e avaliações propostas:",
       "nivel_rotulo": "NÍVEL ALCANÇADO",
       "xp_rotulo": "XP CONQUISTADO",
       "data_rotulo": "CONCLUÍDO EM",
       "equipe": "Equipe Gravity University",
       "emissao_oficial": "Emissão oficial · DATI Tecnologia",
       "verificar_em": "Verifique em university.gravity.com/verificar",
-      "vazio": "Conclua o Módulo básico ou um produto (Pedido, Bid Frete, Smart Docs) para desbloquear certificados",
+      "vazio": "Conclua o Módulo Básico ou um produto (Pedido, BID Frete Internacional, Smart Docs) para desbloquear certificados",
       "ver": "Ver certificado",
       "abrir": "Abrir certificado — {{modulo}}",
       "fechar": "Fechar",
-      "modal_titulo": "Certificado de conclusão",
-      "aria_certificado": "Certificado de conclusão — {{modulo}}"
+      "modal_titulo": "Certificado de Conclusão",
+      "aria_certificado": "Certificado de Conclusão — {{modulo}}"
     },
     "dica": {
       "titulo": "Dicas e Explicações",
@@ -290,7 +294,19 @@
       "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI."
     },
     "builders": {
-      "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)."
+      "descricao": "Programa de parceiros Gravity — comercial, integração e onboarding.",
+      "badge_em_breve": "Em breve",
+      "titulo_hero": "Em breve, você pode ser um Gravity Partner",
+      "subtitulo_hero": "Um ecossistema para quem leva a plataforma mais longe — junto com a Gravity.",
+      "intro": "Estamos preparando trilhas, benefícios e ferramentas para três perfis de parceiro. Cadastre-se na lista de interesse em breve.",
+      "perfil_comercial_titulo": "Parceiro comercial",
+      "perfil_comercial_descricao": "Revenda, indique e expanda a base de clientes Gravity com material de vendas, comissionamento e suporte dedicado.",
+      "perfil_integrador_titulo": "Integrador",
+      "perfil_integrador_descricao": "Conecte ERPs, APIs e fluxos customizados via API Cockpit — com documentação, sandbox e certificação técnica.",
+      "perfil_onboarding_titulo": "Onboarding",
+      "perfil_onboarding_descricao": "Implante, treine equipes e acelere a adoção dos produtos Gravity nas organizações dos seus clientes.",
+      "perfil_em_breve": "Em breve",
+      "rodape": "Quer ser avisado quando o programa abrir? Fique de olho na Gravity University — em breve liberamos o cadastro de interesse."
     }
   },
   "comum": {

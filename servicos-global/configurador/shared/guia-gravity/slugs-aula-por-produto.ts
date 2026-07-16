@@ -3,18 +3,16 @@
  * Mantido alinhado aos *_AULA_SLUGS dos manuais Academy.
  */
 
+import { aulaGuiaEstaConcluida } from './conclusao-academy-guia-gravity.js'
+
 export const SLUGS_AULA_POR_PRODUTO_GUIA: Readonly<Record<string, readonly string[]>> = {
   'bem-vindo': ['boas-vindas', 'o-que-e-o-gravity', 'o-guia-gravity'],
   login: ['meu-primeiro-acesso', 'entrar-email-senha', 'recuperar-senha'],
   navegacao: [
     'navegacao-plataforma',
     'menu-superior',
-    'menu-lateral-produtos',
-    'troca-produtos-gravity',
-    'troca-workspaces',
-    'menu-lateral-configuracao',
+    'menu-lateral',
     'acesso-gravity-university',
-    'navegacao-gravity-university',
   ],
   admin: [
     'admin-visao-geral',
@@ -48,12 +46,12 @@ export const SLUGS_AULA_POR_PRODUTO_GUIA: Readonly<Record<string, readonly strin
     'pedido-historico',
   ],
   'bid-frete': [
-    'bid-frete-visao-geral',
-    'bid-frete-acesso',
+    'bid-frete-entendendo',
     'bid-frete-insights',
+    'bid-frete-lista',
+    'bid-frete-tipos-cotacao',
     'bid-frete-nova-cotacao',
     'bid-frete-painel-cotacao',
-    'bid-frete-lista',
     'bid-frete-configuracoes',
   ],
   'smart-read': [
@@ -85,5 +83,5 @@ export function produtoGuiaConcluido100(
 ): boolean {
   const slugs = SLUGS_AULA_POR_PRODUTO_GUIA[slugProduto]
   if (!slugs?.length) return false
-  return slugs.every(slug => aulasConcluidas.has(slug))
+  return slugs.every(slug => aulaGuiaEstaConcluida(slug, aulasConcluidas))
 }

@@ -33,7 +33,8 @@ import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-con
 import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
-import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
+import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
+import { GuiaAcademyNavigationProvider, AcademyLinkGuia, idAncoraTituloGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -63,6 +64,24 @@ function extrairTitulosSumarioAula(blocos: BlocoConteudo[]): { id: string; texto
   const h1s: { id: string; texto: string; nivel: number; indiceBloco: number }[] = []
 
   blocos.forEach((bloco, indiceBloco) => {
+    if (bloco.tipo === 'topicos_imagem_lateral') {
+      try {
+        const topicos = JSON.parse(String(bloco.dados.payload ?? '[]')) as { titulo?: string }[]
+        topicos.forEach((topico) => {
+          const texto = topico.titulo?.trim()
+          if (!texto) return
+          headings.push({
+            id: idAncoraTituloGuia(texto),
+            texto,
+            nivel: 2,
+            indiceBloco,
+          })
+        })
+      } catch {
+        /* payload inválido */
+      }
+      return
+    }
     if (bloco.tipo !== 'heading') return
     const nivel = Number(bloco.dados.nivel ?? 1)
     const texto = String(bloco.dados.text ?? '').trim()
@@ -559,8 +578,15 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         whiteSpace: 'nowrap',
         border: 0,
       }
-      // Título H1: padding-bottom + border (padrão da tela correta) — spacer separado falhava visualmente.
+      // H1 da aula — título principal com linha roxa (`.uni-player-aula__titulo-guia`).
       if (nivel <= 1) {
+        if (ocultarNoCorpo) {
+          return (
+            <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={estiloOculto} aria-hidden>
+              {texto}
+            </h1>
+          )
+        }
         return (
           <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={styles[1]}>
             {texto}
@@ -996,7 +1022,7 @@ interface PlayerAulaProps {
   aula: AulaDemo
   todasAulas: AulaDemo[]
   concluidas: Set<string>
-  onMarcarConcluida: (slug: string) => void
+  onMarcarConcluida: (slug: string) => Promise<boolean>
 }
 
 export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas, onMarcarConcluida }: PlayerAulaProps) {
@@ -1004,11 +1030,12 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const location = useLocation()
   const { t } = useTranslation()
   const retornoGuia = lerRetornoGuiaAcademy(location.state)
+  const [salvandoConclusao, setSalvandoConclusao] = useState(false)
 
   const idxAtual = todasAulas.findIndex(a => a.slug === faseSlug)
   const anterior = idxAtual > 0 ? todasAulas[idxAtual - 1] : null
   const proxima  = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
-  const jaConcluida = concluidas.has(faseSlug)
+  const jaConcluida = aulaGuiaEstaConcluida(faseSlug, concluidas)
 
   const idPorIndiceBloco = useMemo(() => {
     const mapa = new Map<number, string>()
@@ -1023,8 +1050,6 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     const filtrados = todos.filter(
       (item) => !(item.nivel <= 1 && item.texto.trim().toLocaleLowerCase('pt-BR') === tituloAula),
     )
-    // Aula com um único tópico (ex.: Boas-vindas): mantém o item mesmo se repetir o título.
-    if (filtrados.length === 0 && todos.length > 0) return todos.slice(0, 1)
     return filtrados
   }, [aula.blocos, aula.titulo])
 
@@ -1145,6 +1170,17 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     navigate(`/university-gravity/academy/${produtoSlug}`)
   }
 
+  const handleConcluirAula = async () => {
+    if (salvandoConclusao) return
+    setSalvandoConclusao(true)
+    try {
+      const ok = await onMarcarConcluida(faseSlug)
+      if (ok && proxima && !jaConcluida) navParaFase(proxima.slug)
+    } finally {
+      setSalvandoConclusao(false)
+    }
+  }
+
   return (
     <GuiaAcademyNavigationProvider produtoSlug={produtoSlug}>
     <div className="uni-player-aula">
@@ -1197,8 +1233,6 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}>
                 {t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)}
               </span>
-              <span style={{ color: '#cbd5e1' }}>/</span>
-              <span style={{ color: CONTENT_MUTED }}>{aula.titulo}</span>
             </div>
             {aula.blocos.map((bloco, idx) => {
               const idAncora = idPorIndiceBloco.get(idx)
@@ -1231,18 +1265,20 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
             <button
               type="button"
               className="uni-player-aula__footer-btn"
-              onClick={() => anterior && navParaFase(anterior.slug)}
-              disabled={!anterior}
+              onClick={() => (anterior ? navParaFase(anterior.slug) : voltarGuia())}
             >
               <ArrowLeft size={15} />
-              <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                {anterior ? anterior.titulo : t('university.aula.voltar')}
+              </span>
             </button>
 
             {/* Marcar concluída */}
             <button
               type="button"
               className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
-              onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
+              disabled={salvandoConclusao}
+              onClick={() => { void handleConcluirAula() }}
             >
               <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
               {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}

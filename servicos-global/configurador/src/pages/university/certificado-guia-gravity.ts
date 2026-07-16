@@ -5,6 +5,11 @@
 import type { GuiaGravityJornadaResponse } from '../../../shared/guia-gravity/guia-gravity-jornada-schema.js'
 import { tipoCertificadoPrismaParaFront } from '../../../shared/guia-gravity/certificado-guia-gravity.js'
 import { SLUGS_MODULO_BASICO_GUIA as SLUGS_MODULO_BASICO_SHARED } from '../../../shared/guia-gravity/slugs-aula-por-produto.js'
+import {
+  aulaGuiaEstaConcluida as aulaGuiaEstaConcluidaShared,
+  normalizarSlugsConclusaoAcademyGuia,
+} from '../../../shared/guia-gravity/conclusao-academy-guia-gravity.js'
+import { produtoGuiaConcluido100 } from '../../../shared/guia-gravity/slugs-aula-por-produto.js'
 
 export const SLUGS_MODULO_BASICO_GUIA = SLUGS_MODULO_BASICO_SHARED
 
@@ -26,32 +31,14 @@ export interface CertificadoEmitidoGuia {
 
 export type MapaCertificadosGuia = Partial<Record<TipoCertificadoGuia, CertificadoEmitidoGuia>>
 
-/**
- * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
- */
-const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
-  'acessar-workspaces': [
-    'gerenciando-workspaces',
-    'configurando-workspaces',
-    'criar-workspace',
-    'editar-workspace',
-    'ativar-workspace',
-    'excluir-workspace',
-  ],
-  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
-  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
-  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
-}
-
 /** Promove slugs legados → atuais para desbloqueio linear. */
 export function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
-  const s = new Set(slugs)
-  for (const [atual, legados] of Object.entries(SLUGS_LEGADOS_AULA_CONCLUIDA)) {
-    if (s.has(atual)) continue
-    const legadoOk = legados?.some(slug => s.has(slug)) ?? false
-    if (legadoOk) s.add(atual)
-  }
-  return s
+  return normalizarSlugsConclusaoAcademyGuia(slugs)
+}
+
+/** Slug de aula concluída (inclui equivalências legadas após normalização). */
+export function aulaGuiaEstaConcluida(slugAula: string, concluidas: ReadonlySet<string>): boolean {
+  return aulaGuiaEstaConcluidaShared(slugAula, concluidas)
 }
 
 export function certificadosApiParaMapaGuia(
@@ -79,24 +66,40 @@ export function formatarDataCertificadoGuia(iso: string, locale: string): string
 export function chaveI18nCertificadoGuia(tipo: TipoCertificadoGuia): string {
   const mapa: Record<TipoCertificadoGuia, string> = {
     'modulo-basico': 'university.certificado.tipo_modulo_basico',
-    pedido: 'university.certificado.tipo_pedido',
-    'bid-frete': 'university.certificado.tipo_bid_frete',
-    'smart-read': 'university.certificado.tipo_smart_read',
+    pedido: 'university.produto.pedido',
+    'bid-frete': 'university.produto.bid_frete',
+    'smart-read': 'university.produto.smart_read',
   }
   return mapa[tipo]
 }
 
-export function avaliarTiposCertificadoElegiveis(opts: {
-  produtoConcluido100: (slug: string) => boolean
-}): TipoCertificadoGuia[] {
-  const { produtoConcluido100 } = opts
+/** Nome completo no certificado — prioriza Clerk fullName, depois nome do /me. */
+export function resolverNomeCertificadoGuiaGravity(opts: {
+  nomeUsuario?: string | null
+  nomeCompletoClerk?: string | null
+  nomeCurtoClerk?: string | null
+}): string {
+  const candidatos = [
+    opts.nomeCompletoClerk?.trim(),
+    opts.nomeUsuario?.trim(),
+    opts.nomeCurtoClerk?.trim(),
+  ].filter((n): n is string => Boolean(n))
+
+  const comMaisPalavras = candidatos.find(n => n.split(/\s+/).filter(Boolean).length >= 2)
+  return comMaisPalavras ?? candidatos[0] ?? 'Usuário'
+}
+
+export function avaliarTiposCertificadoElegiveis(
+  aulasConcluidas: ReadonlySet<string>,
+): TipoCertificadoGuia[] {
+  const concluidas = normalizarSlugsConclusaoAcademyGuia(aulasConcluidas)
   const elegiveis: TipoCertificadoGuia[] = []
 
-  const moduloBasicoOk = SLUGS_MODULO_BASICO_GUIA.every(slug => produtoConcluido100(slug))
+  const moduloBasicoOk = SLUGS_MODULO_BASICO_GUIA.every(slug => produtoGuiaConcluido100(slug, concluidas))
   if (moduloBasicoOk) elegiveis.push('modulo-basico')
 
   for (const tipo of ['pedido', 'bid-frete', 'smart-read'] as const) {
-    if (produtoConcluido100(tipo)) elegiveis.push(tipo)
+    if (produtoGuiaConcluido100(tipo, concluidas)) elegiveis.push(tipo)
   }
 
   return elegiveis

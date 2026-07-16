@@ -60,22 +60,46 @@
   overflow: visible;
 }
 
-/* KPI cards compactos — hover não corta no topo do simulador (−3px altura proporcional) */
-.pds-lista .lp-cards .cg-card {
-  padding: calc(0.5rem - 1.5px) 0.75rem;
+/* KPI cards compactos — paridade lista Pedido no player Academy / manual */
+.pds-lista .cg-card {
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  box-shadow: none;
 }
 
-.pds-lista .lp-cards .cg-card__body {
-  padding-top: calc(0.25rem - 0.375px);
-  gap: calc(0.125rem - 0.125px);
+.pds-lista .cg-card:hover {
+  transform: none;
+  box-shadow: none;
 }
 
-.pds-lista .lp-cards .cg-card__value {
-  font-size: calc(1.375rem - 0.5px);
+.pds-lista .cg-card__header {
+  gap: 0.35rem;
 }
 
-.pds-lista .lp-cards .cg-card__subtext {
-  font-size: calc(0.75rem - 0.25px);
+.pds-lista .cg-card__icon-wrap svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pds-lista .cg-card__label {
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+}
+
+.pds-lista .cg-card__body {
+  padding-top: 0.3rem;
+  gap: 0.15rem;
+}
+
+.pds-lista .cg-card__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pds-lista .cg-card__subtext {
+  font-size: 0.5625rem;
+  line-height: 1.25;
 }
 
 .pds-lista-chrome {

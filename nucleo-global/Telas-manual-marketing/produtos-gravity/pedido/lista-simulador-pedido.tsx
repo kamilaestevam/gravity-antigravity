@@ -63,6 +63,15 @@ import {
   resolverLadoDropColuna,
   type LadoDropColuna,
 } from './reordenar-colunas-lista-simulador-pedido'
+import { criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido } from './criar-estado-colunas-demonstracao-arrastar-lista-simulador-pedido'
+import { IndicadorCursorArrastarListaSimuladorPedido } from './indicador-cursor-arrastar-lista-simulador-pedido'
+import { IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido } from './indicador-cabecalho-fantasma-arrastar-lista-simulador-pedido'
+import {
+  CURSOR_ARRASTAR_LISTA_INICIAL,
+  iniciarMotorAnimacaoArrastarColunasLista,
+  type EstadoCursorArrastarLista,
+} from './motor-animacao-arrastar-colunas-lista-simulador-pedido'
+import './indicador-cursor-arrastar-lista-simulador-pedido.css'
 import {
   calcularValoresUnicosCampoListaSimulador,
   colunaListaSimuladorFiltravel,
@@ -156,9 +165,9 @@ const ITENS_POR_PAGINA_MIN = 10
 const ITENS_POR_PAGINA_MAX = 200
 const ALTURA_LINHA_PEDIDO_LISTA_SIMULADOR = 30
 const ALTURA_CABECALHO_TABELA_LISTA_SIMULADOR = 34
-const TEXTO_CELULA_VAZIA_LISTA_SIMULADOR = '—'
+const TEXTO_CELULA_VAZIA_LISTA_SIMULADOR = '?'
 
-/** Paridade TabelaVirtualGlobal — primeiras/últimas + janela ±2, com reticências. */
+/** Paridade TabelaVirtualGlobal ? primeiras/?ltimas + janela ?2, com retic?ncias. */
 function calcularItensPaginacaoRodape(paginaEfetiva: number, totalPaginas: number): Array<number | '...'> {
   if (totalPaginas <= 1) return []
   const show = new Set([1, totalPaginas])
@@ -214,7 +223,7 @@ const STATUS_CORES: Record<StatusListaPedidoSimulador, string> = {
   CONSOLIDADO: '#a78bfa',
 }
 
-/** Texto um tom mais claro — melhora leitura das pílulas na tabela (fundo escuro). */
+/** Texto um tom mais claro ? melhora leitura das p?lulas na tabela (fundo escuro). */
 const STATUS_CORES_NITIDO: Record<StatusListaPedidoSimulador, string> = {
   RASCUNHO: '#cbd5e1',
   ABERTO: '#f9a8d4',
@@ -273,6 +282,8 @@ type Props = {
   onConsumirFocoColuna?: () => void
   onAbrirMenuWorkspaces?: () => void
   onEstadoTutorialChange?: (estado: EstadoTutorialListaPedido) => void
+  /** Demo autom?tica do manual ? cursor arrasta colunas no cabe?alho em loop. */
+  modoDemonstracaoArrastarColunas?: boolean
 }
 
 function ListaNumeradaWorkspacesTooltipSimulador({ nomes }: { nomes: readonly string[] }) {
@@ -317,6 +328,7 @@ export function ListaSimuladorPedido({
   onConsumirFocoColuna,
   onAbrirMenuWorkspaces,
   onEstadoTutorialChange,
+  modoDemonstracaoArrastarColunas = false,
 }: Props) {
   const { config } = useConfigSimuladorPedido()
 
@@ -349,7 +361,11 @@ export function ListaSimuladorPedido({
   const [pagina, setPagina] = useState(1)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
-  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(() => criarEstadoColunasListaSimuladorPedido())
+  const [colunas, setColunas] = useState<ColunaListaSimuladorPedido[]>(() =>
+    modoDemonstracaoArrastarColunas
+      ? criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido()
+      : criarEstadoColunasListaSimuladorPedido(),
+  )
   const [filtroAbaColunas, setFiltroAbaColunas] = useState<FiltroAbaColunas>('todas')
   const [colunasAberto, setColunasAberto] = useState(false)
   const [buscaColuna, setBuscaColuna] = useState('')
@@ -398,6 +414,10 @@ export function ListaSimuladorPedido({
   } | null>(null)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [toastDemo, setToastDemo] = useState<{ titulo: string; mensagem: string } | null>(null)
+  const shellDemonstracaoRef = useRef<HTMLDivElement>(null)
+  const [cursorArrastar, setCursorArrastar] = useState<EstadoCursorArrastarLista>(
+    CURSOR_ARRASTAR_LISTA_INICIAL,
+  )
   const [colunaDestaqueFoco, setColunaDestaqueFoco] = useState<string | null>(null)
   const tabelaWrapRef = useRef<HTMLDivElement>(null)
   const colunasBtnRef = useRef<HTMLButtonElement>(null)
@@ -412,6 +432,7 @@ export function ListaSimuladorPedido({
   }, [config.tabela.linhasPorPagina])
 
   useEffect(() => {
+    if (modoDemonstracaoArrastarColunas) return
     setColunas((prev) => {
       const base = prev.filter((c) => !c.manual)
       const personalizadas: ColunaListaSimuladorPedido[] = config.colunasPersonalizadas
@@ -424,7 +445,7 @@ export function ListaSimuladorPedido({
         }))
       return [...base, ...personalizadas]
     })
-  }, [config.colunasPersonalizadas])
+  }, [config.colunasPersonalizadas, modoDemonstracaoArrastarColunas])
 
   useEffect(() => {
     colunasRef.current = colunas
@@ -677,6 +698,30 @@ export function ListaSimuladorPedido({
   const aplicarReordenacaoColuna = useCallback((fromId: string, toId: string, lado: LadoDropColuna) => {
     setColunas((prev) => reordenarColunasListaSimulador(prev, fromId, toId, lado))
   }, [])
+
+  useEffect(() => {
+    if (!modoDemonstracaoArrastarColunas) return undefined
+
+    return iniciarMotorAnimacaoArrastarColunasLista({
+      ativo: true,
+      containerRef: shellDemonstracaoRef,
+      aoMoverColuna: aplicarReordenacaoColuna,
+      aoArrastarColuna: setDragColunaId,
+      aoPreverDrop: (destinoId, lado) => {
+        setDragOverColunaId(destinoId)
+        if (lado) setLadoDropColuna(lado)
+      },
+      aoAtualizarCursor: setCursorArrastar,
+      aoReiniciarColunas: () => {
+        setColunas(criarEstadoColunasDemonstracaoArrastarListaSimuladorPedido())
+        setColunasAberto(false)
+        setDragColunaId(null)
+        setDragOverColunaId(null)
+        const areaRolagem = shellDemonstracaoRef.current?.querySelector<HTMLElement>('.pds-lista-tabela-wrap')
+        if (areaRolagem) areaRolagem.scrollLeft = 0
+      },
+    })
+  }, [aplicarReordenacaoColuna, modoDemonstracaoArrastarColunas])
 
   const handleColunaDragStart = useCallback((colunaId: string) => {
     setDragColunaId(colunaId)
@@ -1110,7 +1155,7 @@ export function ListaSimuladorPedido({
     })
     setToastDemo({
       titulo: 'Pedido criado',
-      mensagem: `${form.numero_pedido} adicionado à lista (simulação).`,
+      mensagem: `${form.numero_pedido} adicionado ? lista (simula??o).`,
     })
   }, [empresasSelecionadas])
 
@@ -1124,7 +1169,7 @@ export function ListaSimuladorPedido({
       return next
     })
     setToastDemo({
-      titulo: 'Duplicação concluída',
+      titulo: 'Duplica??o conclu?da',
       mensagem: mensagemToastDuplicacao(resumo),
     })
     return resumo
@@ -1150,7 +1195,7 @@ export function ListaSimuladorPedido({
       setModalConsolidarConcluido(false)
       setGuiaPosConsolidacao({ passo: 1, resumo, idPedidoConsolidado: idNovoPedido })
       setToastDemo({
-        titulo: 'Consolidação concluída',
+        titulo: 'Consolida??o conclu?da',
         mensagem: mensagemToastConsolidacao(resumo),
       })
       window.setTimeout(() => {
@@ -1215,7 +1260,7 @@ export function ListaSimuladorPedido({
       )
       setLinhas(proximas)
       setToastDemo({
-        titulo: 'Edição em massa concluída',
+        titulo: 'Edi??o em massa conclu?da',
         mensagem: mensagemToastEdicaoMassa(resumo),
       })
       return resumo
@@ -1266,7 +1311,7 @@ export function ListaSimuladorPedido({
     setExpandidos((prev) => aplicarExpansaoPedidosPosTransferencia(prev, resumo, idsNovosPedidos))
     setGuiaPosTransferencia({ passo: 1, resumo, idsNovosPedidos })
     setToastDemo({
-      titulo: 'Transferência concluída',
+      titulo: 'Transfer?ncia conclu?da',
       mensagem: montarMensagemToastTransferencia(resumo),
     })
     const alvoScroll = idsNovosPedidos[0] ?? resumo.pedidoDestinoId ?? resumo.pedidoOrigemId
@@ -1313,7 +1358,7 @@ export function ListaSimuladorPedido({
     setSelecionados(new Set())
     setModalExcluirAberto(false)
     setToastDemo({
-      titulo: 'Exclusão concluída',
+      titulo: 'Exclus?o conclu?da',
       mensagem: mensagemToastExclusao(resumo),
     })
   }, [linhas, selecaoLista])
@@ -1349,7 +1394,7 @@ export function ListaSimuladorPedido({
     setExpandidos((prev) => new Set(prev).add(pedidoId))
     setToastDemo({
       titulo: 'Item adicionado',
-      mensagem: `${partNumber} vinculado ao pedido (simulação).`,
+      mensagem: `${partNumber} vinculado ao pedido (simula??o).`,
     })
   }, [])
 
@@ -1756,10 +1801,10 @@ export function ListaSimuladorPedido({
     }
 
     if (colunaId === 'tipo_operacao' && valor) {
-      const importacao = valor === 'IMPORTAÇÃO'
+      const importacao = valor === 'IMPORTA??O'
       return (
         <StatusBadgeGlobal
-          valor={importacao ? 'Importação' : 'Exportação'}
+          valor={importacao ? 'Importa??o' : 'Exporta??o'}
           genero="feminino"
           style={importacao
             ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', whiteSpace: 'nowrap' }
@@ -1842,7 +1887,15 @@ export function ListaSimuladorPedido({
   }
 
   return (
-    <div className="pds-lista">
+    <div
+      ref={shellDemonstracaoRef}
+      className={[
+        'pds-lista',
+        modoDemonstracaoArrastarColunas ? 'pds-lista--demo-arrastar' : '',
+      ].filter(Boolean).join(' ')}
+      role={modoDemonstracaoArrastarColunas ? 'img' : undefined}
+      aria-label={modoDemonstracaoArrastarColunas ? 'Demonstra��o animada ? arrastar colunas direto na tabela' : undefined}
+    >
       <div className="lp-stats-row">
         <div className="lp-cards" data-sds-tutorial-alvo="pedido-lista-cards">
           {cardsListaVisiveis.length > 0 ? (
@@ -2013,7 +2066,7 @@ export function ListaSimuladorPedido({
             />
             </span>
           </TooltipGlobal>
-          {itensFiltrosConsolidados.length > 0 ? (
+          {!modoDemonstracaoArrastarColunas && itensFiltrosConsolidados.length > 0 ? (
             <FiltrosConsolidadosListaSimuladorPedido
               dataTutorialAlvo="pedido-lista-filtros"
               itens={itensFiltrosConsolidados}
@@ -2102,6 +2155,7 @@ export function ListaSimuladorPedido({
                   <th
                     key={c.id}
                     data-pds-coluna-id={c.id}
+                    data-coluna-th-demo-id={modoDemonstracaoArrastarColunas ? c.id : undefined}
                     title={c.label}
                     draggable
                     className={[
@@ -2283,9 +2337,9 @@ export function ListaSimuladorPedido({
         </table>
       </div>
 
-      <footer className="pds-lista-footer gtv-paginacao" role="navigation" aria-label="Paginação">
+      <footer className="pds-lista-footer gtv-paginacao" role="navigation" aria-label="Pagina??o">
         <span className="gtv-paginacao-info">
-          {linhasFiltradas.length} pedidos · {resumo.totalItens} itens · página {paginaAtual} de {totalPaginas}
+          {linhasFiltradas.length} pedidos ? {resumo.totalItens} itens ? p?gina {paginaAtual} de {totalPaginas}
         </span>
         {totalPaginas > 1 && (
           <div className="gtv-paginacao-controles">
@@ -2294,23 +2348,23 @@ export function ListaSimuladorPedido({
               className="gtv-pag-btn"
               disabled={paginaAtual <= 1}
               onClick={() => setPagina(1)}
-              aria-label="Primeira página"
+              aria-label="Primeira p?gina"
             >
-              «
+              ?
             </button>
             <button
               type="button"
               className="gtv-pag-btn"
               disabled={paginaAtual <= 1}
               onClick={() => setPagina((p) => Math.max(1, p - 1))}
-              aria-label="Página anterior"
+              aria-label="P?gina anterior"
             >
-              ‹
+              ?
             </button>
             {itensPaginacaoRodape.map((item, i) =>
               item === '...' ? (
                 <span key={`ellipsis-${i}`} className="gtv-pag-reticencias" aria-hidden="true">
-                  …
+                  ?
                 </span>
               ) : (
                 <button
@@ -2329,18 +2383,18 @@ export function ListaSimuladorPedido({
               className="gtv-pag-btn"
               disabled={paginaAtual >= totalPaginas}
               onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
-              aria-label="Próxima página"
+              aria-label="Pr?xima p?gina"
             >
-              ›
+              ?
             </button>
             <button
               type="button"
               className="gtv-pag-btn"
               disabled={paginaAtual >= totalPaginas}
               onClick={() => setPagina(totalPaginas)}
-              aria-label="Última página"
+              aria-label="?ltima p?gina"
             >
-              »
+              ?
             </button>
           </div>
         )}
@@ -2413,13 +2467,14 @@ export function ListaSimuladorPedido({
               }}
             >
               <ArrowCounterClockwise size={12} aria-hidden />
-              Restaurar padrão
+              Restaurar padr?o
             </button>
           </div>
           <ul className="pds-lista-colunas-lista">
             {colunasFiltradas.map((c) => (
               <li
                 key={c.id}
+                data-coluna-demo-id={modoDemonstracaoArrastarColunas ? c.id : undefined}
                 className={[
                   'pds-lista-coluna-item',
                   dragColunaId === c.id ? 'pds-lista-coluna-item--arrastando' : '',
@@ -2439,7 +2494,7 @@ export function ListaSimuladorPedido({
                     }}
                     onDragEnd={handleColunaDragEnd}
                   >
-                    ⋮⋮
+                    ??
                   </span>
                   <input
                     type="checkbox"
@@ -2568,6 +2623,18 @@ export function ListaSimuladorPedido({
           onFechar={() => setToastDemo(null)}
         />
       )}
+      {modoDemonstracaoArrastarColunas ? (
+        <div className="pds-lista-demo-arrastar-camada" aria-hidden>
+          <IndicadorCursorArrastarListaSimuladorPedido estado={cursorArrastar} />
+          {dragColunaId && cursorArrastar.arrastando ? (
+            <IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido
+              rotulo={colunas.find((coluna) => coluna.id === dragColunaId)?.label ?? ''}
+              x={cursorArrastar.x}
+              y={cursorArrastar.y}
+            />
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

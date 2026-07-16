@@ -11,14 +11,17 @@
       "modulos_plataforma": "All Gravity products"
     },
     "nav_status": {
-      "comprado_titulo": "Contracted",
-      "comprado_desc": "Module active in your organization",
-      "nao_comprado_titulo": "Not contracted",
-      "nao_comprado_desc": "You can still access and explore the content",
+      "comprado_titulo": "Gravity product contracted by your company",
+      "comprado_desc": "This product is active in your organization's contract",
+      "nao_comprado_titulo": "Gravity product not contracted by your company",
+      "nao_comprado_desc": "You can still access and explore the Gravity Guide for this product",
       "concluido_titulo": "Completed",
       "concluido_desc": "You finished the Gravity Guide for this item",
       "nao_concluido_titulo": "Open",
-      "nao_concluido_desc": "Gravity Guide has not been completed yet"
+      "nao_concluido_desc": "Gravity Guide has not been completed yet",
+      "legenda_titulo": "Gravity Guide status legend",
+      "contrato_abrev": "Contracted",
+      "concluido_abrev": "Completed"
     },
     "academy": {
       "subtitulo": "Gravity Guide — visual trails per product for Login, Configurator, Hub and your organization's modules."
@@ -76,6 +79,7 @@
     },
     "progresso": {
       "produtos_contratados": "Progress on contracted products",
+      "todos_guias": "Progress across all guides",
       "concluidos": "completed"
     },
     "capitulos": {
@@ -92,6 +96,7 @@
       "etapa_atual": "Step {{atual}} of {{total}} · {{nome}}",
       "nivel_xp_faltam": "Level {{nivel}} · {{xp}} XP to level up",
       "produtos_onboarding_concluido": "Products with Gravity Guide completed",
+      "contratados_concluidos": "{{feitos}}/{{total}} contracted completed",
       "manuais_lidos": "Manuals read",
       "o_que_falta": "What's left",
       "iniciar": "Start",

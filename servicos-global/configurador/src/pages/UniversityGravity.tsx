@@ -1,7 +1,11 @@
 /**
  * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
- * ⚠️ PROTÓTIPO / WIP. Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
+ * Publicação em produção controlada por `university-gravity-publicacao.ts`
+ * (decisão PO MASTER Daniel — Guia Gravity já atende usuários; manual fora de prod).
+ * Ver documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md
+ *
+ * Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
  * com título "Gravity University" + opções e dropdown de organizações, e as
  * mesmas ações de topo (Hub, busca/localizar, dica, notificações, localizador,
  * idioma, usuário). Textos via i18n (namespace `university`). Implementação real em
@@ -18,7 +22,7 @@ import {
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
-  Compass, CaretDown, SealCheck, HandWaving,
+  Compass, CaretDown, HandWaving,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -32,6 +36,9 @@ import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
+import {
+  universityManuaisDocsVisiveis,
+} from './university/university-gravity-publicacao'
 import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
 import { BEM_VINDO_TRILHA } from './university/manual-bem-vindo-academy'
 import { GABI_TRILHA } from './university/manual-gabi-academy'
@@ -187,10 +194,9 @@ const ICON_MAP = {
 
 type ProdutoSlug = keyof typeof ICON_MAP
 
-/** Módulos da plataforma — disponíveis independente do produto contratado */
-const MODULOS_PLATAFORMA: ProdutoSlug[] = [
-  'bem-vindo', 'login', 'navegacao', 'admin', 'configurador', 'gabi', 'hub', 'store',
-]
+function produtoCompradoOrganizacao(slug: ProdutoSlug): boolean {
+  return (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
+}
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
@@ -1122,6 +1128,13 @@ function calcularProgressoProduto(slug: keyof typeof TRILHAS_POR_PRODUTO, aulasC
   return { feitas, total, xp, pct }
 }
 
+function produtoGuiaConcluido(slug: ProdutoSlug, aulasConcluidas: Set<string>): boolean {
+  const trilhas = TRILHAS_POR_PRODUTO[slug as keyof typeof TRILHAS_POR_PRODUTO]
+  return trilhas
+    ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100
+    : false
+}
+
 function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
   const modulos = PRODUTOS_CONTRATADOS.map(slug => {
     const trilha = TRILHAS_POR_PRODUTO[slug][0]
@@ -1132,6 +1145,68 @@ function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
   const concluidas = modulos.filter(m => m.pct >= 100).length
   const emAndamento = modulos.filter(m => m.pct > 0 && m.pct < 100).length
   return { modulos, xpTotal, concluidas, emAndamento, certificados: concluidas, gp: xpTotal * 2 }
+}
+
+function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
+  slug: ProdutoSlug
+  aulasConcluidas: Set<string>
+  compacto?: boolean
+}) {
+  const { t } = useTranslation()
+  const comprado = produtoCompradoOrganizacao(slug)
+  const concluido = produtoGuiaConcluido(slug, aulasConcluidas)
+
+  const tituloContrato = comprado
+    ? 'university.nav_status.comprado_titulo'
+    : 'university.nav_status.nao_comprado_titulo'
+  const descContrato = comprado
+    ? 'university.nav_status.comprado_desc'
+    : 'university.nav_status.nao_comprado_desc'
+
+  return (
+    <span className={`uni-nav-status-icons${compacto ? ' uni-nav-status-icons--compacto' : ''}`}>
+      <TooltipGlobal titulo={t(tituloContrato)} descricao={t(descContrato)}>
+        <span
+          className={`uni-nav-status-pill uni-nav-status-pill--contrato${comprado ? ' is-on' : ''}`}
+          aria-label={t(tituloContrato)}
+        >
+          <Package size={compacto ? 10 : 11} weight={comprado ? 'fill' : 'regular'} />
+        </span>
+      </TooltipGlobal>
+      <TooltipGlobal
+        titulo={t(concluido ? 'university.nav_status.concluido_titulo' : 'university.nav_status.nao_concluido_titulo')}
+        descricao={t(concluido ? 'university.nav_status.concluido_desc' : 'university.nav_status.nao_concluido_desc')}
+      >
+        <span
+          className={`uni-nav-status-pill uni-nav-status-pill--concluido${concluido ? ' is-on' : ''}`}
+          aria-label={t(concluido ? 'university.nav_status.concluido_titulo' : 'university.nav_status.nao_concluido_titulo')}
+        >
+          <CheckCircle size={compacto ? 10 : 11} weight={concluido ? 'fill' : 'regular'} />
+        </span>
+      </TooltipGlobal>
+    </span>
+  )
+}
+
+function LegendaStatusNavAcademy() {
+  const { t } = useTranslation()
+  return (
+    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
+          <Package size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.contrato_abrev')}
+      </span>
+      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
+          <CheckCircle size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.concluido_abrev')}
+      </span>
+    </div>
+  )
 }
 
 function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
@@ -1581,6 +1656,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
             </div>
             <BarraSegmentada total={modulos.length} preenchidos={concluidas} cor="#818cf8" />
           </div>
+          {universityManuaisDocsVisiveis() ? (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
               <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>
@@ -1592,6 +1668,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
             </div>
             <BarraSegmentada total={MANUAIS_LIDOS_DEMO.total} preenchidos={MANUAIS_LIDOS_DEMO.lidos} cor={UNI_COR} />
           </div>
+          ) : null}
         </div>
 
         {/* O que falta */}
@@ -1821,6 +1898,12 @@ export function UniversityGravity() {
 
   useMeSync()
 
+  useEffect(() => {
+    if (!universityManuaisDocsVisiveis() && pathname.includes('/docs')) {
+      navigate('/university-gravity/academy', { replace: true })
+    }
+  }, [pathname, navigate])
+
   const secao = pathname.includes('/docs') ? 'docs'
     : pathname.includes('/builders') ? 'builders'
     : pathname.includes('/minha-jornada') ? 'jornada'
@@ -1889,7 +1972,7 @@ export function UniversityGravity() {
       ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
       : { pct: 0 }
     return {
-    slug,
+      slug,
       prog: agregado.pct,
       emoji: trilha?.emoji ?? '📦',
     }
@@ -1957,51 +2040,9 @@ export function UniversityGravity() {
     return <IconComp weight="duotone" size={size} />
   }
 
-  const produtoComprado = (slug: ProdutoSlug) =>
-    MODULOS_PLATAFORMA.includes(slug)
-    || (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
-
-  const produtoConcluido = (slug: ProdutoSlug) => {
-    const trilhas = TRILHAS_POR_PRODUTO[slug as keyof typeof TRILHAS_POR_PRODUTO]
-    return trilhas ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100 : false
-  }
-
-  const iconesStatusNavAcademy = (slug: ProdutoSlug) => {
-    const comprado = produtoComprado(slug)
-    const concluido = produtoConcluido(slug)
-    const verdeStatus = '#34d399'
-    const iconCompradoOn = { color: verdeStatus, opacity: 0.42 }
-    const iconConcluidoOn = { color: verdeStatus }
-    const iconOff = { color: '#64748b', opacity: 0.3 }
-    return (
-      <span className="uni-nav-status-icons">
-        <TooltipGlobal
-          titulo={t(comprado ? 'university.nav_status.comprado_titulo' : 'university.nav_status.nao_comprado_titulo')}
-          descricao={t(comprado ? 'university.nav_status.comprado_desc' : 'university.nav_status.nao_comprado_desc')}
-        >
-          <span className="uni-nav-status-icons__icone" aria-hidden>
-            <SealCheck
-              size={14}
-              weight={comprado ? 'fill' : 'regular'}
-              style={comprado ? iconCompradoOn : iconOff}
-            />
-          </span>
-        </TooltipGlobal>
-        <TooltipGlobal
-          titulo={t(concluido ? 'university.nav_status.concluido_titulo' : 'university.nav_status.nao_concluido_titulo')}
-          descricao={t(concluido ? 'university.nav_status.concluido_desc' : 'university.nav_status.nao_concluido_desc')}
-        >
-          <span className="uni-nav-status-icons__icone" aria-hidden>
-            <CheckCircle
-              size={14}
-              weight={concluido ? 'fill' : 'regular'}
-              style={concluido ? iconConcluidoOn : iconOff}
-            />
-          </span>
-        </TooltipGlobal>
-      </span>
-    )
-  }
+  const statusNavAcademy = (slug: ProdutoSlug) => (
+    <IconesStatusNavAcademy slug={slug} aulasConcluidas={aulasConcluidas} />
+  )
 
   const badgeEmBreve = { badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const }
   const badgeAdminOnboarding = {
@@ -2009,32 +2050,7 @@ export function UniversityGravity() {
     badgeVariant: 'muted' as const,
   }
 
-  const navItems = [
-    {
-      to: '/university-gravity/academy',
-      label: t('university.nav.academy'),
-      icon: <Books weight="duotone" size={18} />,
-      ...badgeEmBreve,
-      children: [
-        { to: '/university-gravity/academy',              label: t('university.nav.visao_geral'),    icon: <SquaresFour weight="duotone" size={16} /> },
-        { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
-        { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: iconesStatusNavAcademy('bem-vindo') },
-        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: iconesStatusNavAcademy('login') },
-        { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: iconesStatusNavAcademy('navegacao') },
-        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        trailing: iconesStatusNavAcademy('admin'),        ...badgeAdminOnboarding },
-        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: iconesStatusNavAcademy('configurador') },
-        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: iconesStatusNavAcademy('gabi') },
-        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: iconesStatusNavAcademy('hub') },
-        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: iconesStatusNavAcademy('store') },
-        { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: iconesStatusNavAcademy('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: iconesStatusNavAcademy('smart-read') },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: iconesStatusNavAcademy('bid-frete') },
-        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: iconesStatusNavAcademy('bid-cambio'),   ...badgeEmBreve },
-        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: iconesStatusNavAcademy('processo'),     ...badgeEmBreve },
-      ],
-    },
-    {
+  const navItemManuais = {
       to: '/university-gravity/docs',
       label: t('university.nav.docs'),
       icon: <FileText weight="duotone" size={18} />,
@@ -2073,7 +2089,35 @@ export function UniversityGravity() {
         },
         { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIconManual('processo'),     ...badgeEmBreve },
       ],
+    }
+
+  const navItems = [
+    {
+      to: '/university-gravity/academy',
+      label: t('university.nav.academy'),
+      icon: <Books weight="duotone" size={18} />,
+      ...badgeEmBreve,
+      children: [
+        { to: '/university-gravity/academy',              label: t('university.nav.visao_geral'),    icon: <SquaresFour weight="duotone" size={16} /> },
+        { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy /> },
+        { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: statusNavAcademy('login') },
+        { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: statusNavAcademy('navegacao') },
+        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        trailing: statusNavAcademy('admin'),        ...badgeAdminOnboarding },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: statusNavAcademy('configurador') },
+        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: statusNavAcademy('gabi') },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: statusNavAcademy('hub') },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: statusNavAcademy('store') },
+        { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido') },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read') },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete') },
+        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: statusNavAcademy('bid-cambio'),   ...badgeEmBreve },
+        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: statusNavAcademy('processo'),     ...badgeEmBreve },
+      ],
     },
+    ...(universityManuaisDocsVisiveis() ? [navItemManuais] : []),
     { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
     { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
   ]
@@ -2313,7 +2357,6 @@ export function UniversityGravity() {
                 <BarraProgresso pct={pctGeral} altura={8} />
                 <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>{pctGeral}%</span>
               </div>
-              {/* Pills de produto */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {progressoContratados.map(p => (
                   <button

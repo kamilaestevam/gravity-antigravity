@@ -11,14 +11,17 @@
       "modulos_plataforma": "Todos los productos Gravity"
     },
     "nav_status": {
-      "comprado_titulo": "Contratado",
-      "comprado_desc": "Módulo activo en su organización",
-      "nao_comprado_titulo": "No contratado",
-      "nao_comprado_desc": "Aún puede acceder y explorar el contenido",
+      "comprado_titulo": "Producto Gravity contratado por la empresa",
+      "comprado_desc": "Este producto está activo en el contrato de su organización",
+      "nao_comprado_titulo": "Producto Gravity no contratado por la empresa",
+      "nao_comprado_desc": "Aún puede acceder y explorar el Guía Gravity de este producto",
       "concluido_titulo": "Completado",
       "concluido_desc": "Finalizó todo el Guía Gravity de este ítem",
       "nao_concluido_titulo": "Pendiente",
-      "nao_concluido_desc": "El Guía Gravity aún no fue finalizado"
+      "nao_concluido_desc": "El Guía Gravity aún no fue finalizado",
+      "legenda_titulo": "Leyenda de estado del Guía Gravity",
+      "contrato_abrev": "Contratado",
+      "concluido_abrev": "Completado"
     },
     "academy": {
       "subtitulo": "Guía Gravity — rutas visuales por producto para Login, Configurador, Hub y los módulos de su organización."
@@ -75,6 +78,7 @@
     },
     "progresso": {
       "produtos_contratados": "Progreso en productos contratados",
+      "todos_guias": "Progreso en todas las guías",
       "concluidos": "completados"
     },
     "capitulos": {
@@ -91,6 +95,7 @@
       "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
       "nivel_xp_faltam": "Nivel {{nivel}} · {{xp}} XP para subir",
       "produtos_onboarding_concluido": "Productos con Guía Gravity completado",
+      "contratados_concluidos": "{{feitos}}/{{total}} contratados completados",
       "manuais_lidos": "Manuales leídos",
       "o_que_falta": "Lo que falta",
       "iniciar": "Iniciar",

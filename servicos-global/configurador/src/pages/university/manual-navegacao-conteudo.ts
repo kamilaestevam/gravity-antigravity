@@ -253,13 +253,14 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       tituloSumario: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
       paragrafos: [
         'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub — desde que o workspace atual tenha **mais de um produto** habilitado para você.',
-        'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca *_Buscar produto…_*. O produto aberto fica marcado com ✓.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'Trocar aqui **mantém o workspace** selecionado e abre o outro produto no mesmo contexto. Para escolher um produto pela primeira vez na sessão, você também pode usar o **Hub**.',
+      calloutAposParagrafo: {
+        indice: 0,
+        callout: {
+          tipo: 'dica',
+          texto: 'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca *_Buscar produto…_*. O produto aberto fica marcado com ✓.',
+        },
       },
-      calloutAposPassos: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Onde clicar para trocar de produto',
@@ -268,6 +269,10 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           ],
           imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_NOME_PRODUTO,
           imagemAbaixoTexto: true,
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto: 'Trocar aqui **mantém o workspace** selecionado e abre o outro produto no mesmo contexto. Para escolher um produto pela primeira vez na sessão, você também pode usar o **Hub**.',
+          },
         },
         {
           titulo: 'Lista de Produtos Gravity',

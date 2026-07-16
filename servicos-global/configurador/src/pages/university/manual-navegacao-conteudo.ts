@@ -218,6 +218,7 @@ export const ITENS_MENU_USUARIO_MANUAL: ItemMenuUsuarioManual[] = [
     slug: 'tema',
     titulo: 'Alternar tema',
     resumo: 'Troca a interface entre **modo claro** e **modo escuro** com um clique.',
+    emBreve: true,
     detalhe: 'A preferência vale para toda a sessão e se mantém nas próximas vezes que você entrar.',
   },
   {

@@ -290,11 +290,6 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       paragrafos: [
         'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces** — filiais ou unidades em que você opera dentro da organização.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'No rodapé do painel: **+ Criar workspace** e *_Gerenciar workspace_* levam ao Configurador para cadastrar ou editar filiais.',
-      },
-      calloutAposPassos: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Onde clicar para trocar de workspace',
@@ -309,13 +304,18 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           paragrafos: [
             'O painel lista os **workspaces** disponíveis para você. No modo **único** (padrão), ao escolher outro workspace a tela **recarrega** no novo contexto. No modo **múltiplo** (ex.: **Pedido**), use as caixas de seleção e os atalhos *_Selecionar tudo_* / *_Desmarcar tudo_*. Com mais de quatro itens, use *_Buscar workspace…_* no topo.',
           ],
-          callout: {
-            tipo: 'destaque',
-            texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
-          },
-          calloutAoLadoTexto: true,
           imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_WORKSPACE_ABERTO,
           imagemAbaixoTexto: true,
+          calloutAposImagem: [
+            {
+              tipo: 'destaque',
+              texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
+            },
+            {
+              tipo: 'dica',
+              texto: 'No rodapé do painel: **+ Criar workspace** e *_Gerenciar workspace_* levam ao Configurador para cadastrar ou editar filiais.',
+            },
+          ],
         },
       ]),
     },

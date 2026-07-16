@@ -34,7 +34,7 @@ import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manu
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
-import { GuiaAcademyNavigationProvider, AcademyLinkGuia, idAncoraTituloGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
+import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -64,24 +64,6 @@ function extrairTitulosSumarioAula(blocos: BlocoConteudo[]): { id: string; texto
   const h1s: { id: string; texto: string; nivel: number; indiceBloco: number }[] = []
 
   blocos.forEach((bloco, indiceBloco) => {
-    if (bloco.tipo === 'topicos_imagem_lateral') {
-      try {
-        const topicos = JSON.parse(String(bloco.dados.payload ?? '[]')) as { titulo?: string }[]
-        topicos.forEach((topico) => {
-          const texto = topico.titulo?.trim()
-          if (!texto) return
-          headings.push({
-            id: idAncoraTituloGuia(texto),
-            texto,
-            nivel: 2,
-            indiceBloco,
-          })
-        })
-      } catch {
-        /* payload inválido */
-      }
-      return
-    }
     if (bloco.tipo !== 'heading') return
     const nivel = Number(bloco.dados.nivel ?? 1)
     const texto = String(bloco.dados.text ?? '').trim()

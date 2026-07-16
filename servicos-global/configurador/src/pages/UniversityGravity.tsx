@@ -1221,6 +1221,27 @@ function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
   )
 }
 
+function LegendaStatusNavAcademy() {
+  const { t } = useTranslation()
+  return (
+    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
+          <Package size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.contrato_abrev')}
+      </span>
+      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
+          <CheckCircle size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.concluido_abrev')}
+      </span>
+    </div>
+  )
+}
+
 function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
   const anelPulsante = etapa.atual ? ' uni-jornada-node--current' : ''
   return (

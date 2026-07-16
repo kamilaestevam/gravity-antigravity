@@ -449,6 +449,10 @@ export function blocosDeSecaoConfiguradorAcademy(
     }
     if (secao.topicosImagemLateral?.length) {
       blocos.push({
+        tipo: 'heading',
+        dados: { text: 'Tipos de menus', nivel: 2 },
+      })
+      blocos.push({
         tipo: 'topicos_imagem_lateral',
         dados: { payload: JSON.stringify(secao.topicosImagemLateral) },
       })

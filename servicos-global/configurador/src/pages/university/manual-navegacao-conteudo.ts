@@ -8,6 +8,8 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
  */
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO =
   '/university/screenshots/navegacao-menu-superior-visao-geral.png'
+export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_HUB =
+  '/university/screenshots/navegacao-menu-superior-icone-hub.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR =
   '/university/screenshots/navegacao-menu-superior-icone-localizar.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY =
@@ -73,6 +75,7 @@ export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_OPCAO_MENU =
 /** Checklist para o dono — nomes dos arquivos PNG esperados em `public/university/screenshots/`. */
 export const NAVEGACAO_PRINTS_CHECKLIST = [
   'navegacao-menu-superior-visao-geral.png',
+  'navegacao-menu-superior-icone-hub.png',
   'navegacao-intro-exemplo-menu-lateral.png',
   'navegacao-menu-superior-icone-localizar.png',
   'navegacao-menu-superior-icone-university.png',
@@ -117,6 +120,8 @@ export interface IconeMenuSuperiorManual {
   resumo: string
   detalhe?: string
   dica?: string
+  /** Miniatura à direita — `public/university/screenshots/`. */
+  imagem?: string
 }
 
 /** SSOT — textos dos 8 atalhos do menu superior à direita (infográfico §03). */
@@ -127,6 +132,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Hub',
     resumo: 'Volta à tela principal da plataforma a partir de qualquer módulo aberto.',
     detalhe: 'No Hub você escolhe produtos, acessa a Store e retoma o centro da operação. O botão some quando você já está no Hub.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_HUB,
   },
   {
     ordem: 2,
@@ -134,6 +140,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Localizar',
     resumo: 'Busca e filtra o conteúdo da tela atual — listas, registros e campos visíveis.',
     detalhe: 'Clique na lupa, digite o termo e use Esc ou × para fechar sem sair da página.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
   },
   {
     ordem: 3,
@@ -141,6 +148,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Gravity University',
     resumo: 'Atalho para manuais, trilhas de onboarding e documentação por produto.',
     detalhe: 'Este manual está em Manuais → Navegação dentro da University.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY,
   },
   {
     ordem: 4,
@@ -148,6 +156,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Notificações',
     resumo: 'Quadro de avisos, alertas e pendências da organização nos produtos contratados.',
     detalhe: 'O ponto laranja no sininho indica itens não lidos ou novas mensagens.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_NOTIFICACOES,
   },
   {
     ordem: 5,
@@ -156,6 +165,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     resumo: 'Liga ou desliga as dicas que aparecem ao passar o mouse na interface.',
     detalhe: 'Ícone preenchido em azul = dicas ativas; contorno cinza = desativadas.',
     dica: 'Controla os tooltips globalmente — vale para Hub, produtos, Store e Configurador.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_DICAS,
   },
   {
     ordem: 6,
@@ -163,6 +173,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Idioma',
     resumo: 'Troca a interface entre português, inglês e espanhol com um clique.',
     detalhe: 'A sigla no botão (ex.: BR) mostra o idioma ativo na sessão.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_IDIOMA,
   },
   {
     ordem: 7,
@@ -170,6 +181,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Atalho ao Configurador',
     resumo: 'Abre a gestão da organização: workspaces, usuários, assinaturas e financeiro.',
     detalhe: 'Caminho direto para configurar a conta sem passar pelo menu do usuário.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_CONFIGURADOR,
   },
   {
     ordem: 8,
@@ -177,6 +189,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Menu via usuário',
     resumo: 'Perfil, tema claro/escuro, Gravity Store, Configurador e encerrar sessão.',
     detalhe: 'Masters e admins veem também Painel Admin e Trocar organização, quando habilitado.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_USUARIO,
   },
 ]
 
@@ -202,13 +215,11 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Menu superior',
       texto: 'Faixa fixa no topo, presente em **todas as telas autenticadas**.',
       imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO,
-      larguraMaxima: 480,
     },
     {
       titulo: 'Menu lateral',
       texto: 'Coluna à esquerda: para **Produtos Gravity** e no **Configurador**.',
       imagem: SCREENSHOT_NAVEGACAO_INTRO_MENU_LATERAL,
-      larguraMaxima: 480,
     },
   ],
   fluxos: [

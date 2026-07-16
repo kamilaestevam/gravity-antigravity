@@ -9,6 +9,8 @@ import { DOC_SMART_READ_SECAO } from './manual-smart-read-conteudo'
 
 const FLUXOS = DOC_SMART_READ_SECAO.fluxos ?? []
 
+const TITULO_ENTENDENDO_SMART_DOCS = 'Entendendo o Smart Docs'
+
 const OPCOES_SMART_READ = {
   fluxoComoManualCompleto: true,
 } as const
@@ -35,68 +37,58 @@ function aulaSmartRead(
 }
 
 export const SMART_READ_AULA_SLUGS = [
-  'smart-read-visao-geral',
-  'smart-read-acesso',
-  'smart-read-tipos-visualizacao',
+  'smart-read-entendendo',
   'smart-read-visao-insight',
   'smart-read-visao-lista',
   'smart-read-nova-leitura',
   'smart-read-configuracoes',
   'smart-read-historico',
+  'smart-read-requisitos-tecnicos',
 ] as const
-
-/** Durações de leitura — regra §10 MANUAL-GRAVITY-ONBOARDING.md */
-export const SMART_READ_DURACOES = ['1m', '2m', '2m', '2m', '4m', '4m', '2m', '2m'] as const
 
 export const AULAS_SMART_READ: AulaDemo[] = [
   aulaSmartRead(
     SMART_READ_AULA_SLUGS[0],
-    DOC_SMART_READ_SECAO.titulo,
-    SMART_READ_DURACOES[0],
-    [],
+    TITULO_ENTENDENDO_SMART_DOCS,
+    '20m',
+    [0, 1],
     { incluirIntroSecao: true },
   ),
   aulaSmartRead(
     SMART_READ_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Como acessar o produto',
-    SMART_READ_DURACOES[1],
-    [0],
-  ),
-  aulaSmartRead(
-    SMART_READ_AULA_SLUGS[2],
-    FLUXOS[1]?.tituloSumario ?? 'Tipos de visualização',
-    SMART_READ_DURACOES[2],
-    [1],
-  ),
-  aulaSmartRead(
-    SMART_READ_AULA_SLUGS[3],
     FLUXOS[2]?.tituloSumario ?? 'Visão Insight',
-    SMART_READ_DURACOES[3],
+    '20m',
     [2],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[4],
+    SMART_READ_AULA_SLUGS[2],
     FLUXOS[3]?.tituloSumario ?? 'Visão Lista',
-    SMART_READ_DURACOES[4],
+    '38m',
     [3],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[5],
+    SMART_READ_AULA_SLUGS[3],
     FLUXOS[4]?.tituloSumario ?? 'Nova Leitura',
-    SMART_READ_DURACOES[5],
+    '28m',
     [4],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[6],
+    SMART_READ_AULA_SLUGS[4],
     FLUXOS[5]?.tituloSumario ?? 'Configurações',
-    SMART_READ_DURACOES[6],
+    '14m',
     [5],
   ),
   aulaSmartRead(
-    SMART_READ_AULA_SLUGS[7],
+    SMART_READ_AULA_SLUGS[5],
     FLUXOS[6]?.tituloSumario ?? 'Histórico',
-    SMART_READ_DURACOES[7],
+    '10m',
     [6],
+  ),
+  aulaSmartRead(
+    SMART_READ_AULA_SLUGS[6],
+    FLUXOS[7]?.tituloSumario ?? 'Requisitos técnicos',
+    '8m',
+    [7],
   ),
 ]
 

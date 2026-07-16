@@ -41,6 +41,7 @@ import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
+import { STATE_NAVEGACAO_CAMADA_GUIA } from './university/guia-academy-link'
 import {
   universityManuaisDocsVisiveis,
 } from './university/university-gravity-publicacao'
@@ -2781,8 +2782,8 @@ export function UniversityGravity() {
                 aulasConcluidas={aulasConcluidas}
                 capituloAtivo={capituloAtivo}
                 onSelecionarCapitulo={setCapituloAtivo}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
                 dataInicioJornada={dataInicioJornada}
-                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
               />
             ) : (
               <JornadaModulo
@@ -2790,7 +2791,7 @@ export function UniversityGravity() {
                 trilha={trilhaAtiva}
                 aulasConcluidas={aulasConcluidas}
                 dataInicioJornada={dataInicioJornada}
-                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
               />
             )}
             </>

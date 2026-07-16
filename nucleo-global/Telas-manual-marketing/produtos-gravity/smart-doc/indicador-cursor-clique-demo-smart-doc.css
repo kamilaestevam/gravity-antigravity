@@ -1,0 +1,30 @@
+.sds-cursor-clique-demo {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+  transform: translate(-42%, -28%);
+  filter: drop-shadow(0 6px 14px rgba(2, 6, 23, 0.55));
+  transition: transform 0.12s ease-out;
+}
+
+.sds-cursor-clique-demo--clicando {
+  transform: translate(-42%, -28%) scale(0.9);
+}
+
+.sds-cursor-clique-demo__sombra {
+  position: absolute;
+  left: 8px;
+  top: 18px;
+  width: 18px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(2, 6, 23, 0.45);
+  filter: blur(2px);
+}
+
+.sds-card-analise-demo__alvo--pulso {
+  outline: 2px solid rgba(129, 140, 248, 0.85);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22);
+  border-radius: 8px;
+}

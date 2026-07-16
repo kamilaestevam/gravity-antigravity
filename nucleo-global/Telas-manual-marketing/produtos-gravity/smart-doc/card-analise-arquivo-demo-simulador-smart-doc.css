@@ -1,0 +1,214 @@
+.sds-card-analise-demo {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  --sds-nl-superficie-fundo: linear-gradient(180deg, rgba(129, 140, 248, 0.1), rgba(129, 140, 248, 0.03));
+  --sds-nl-superficie-borda: rgba(129, 140, 248, 0.25);
+  --sds-nl-destaque: #6366f1;
+  --sds-nl-destaque-hover: #4f46e5;
+  --sds-nl-destaque-ring: #a5b4fc;
+  --sds-nl-verde-progresso: #34d399;
+  --sds-nl-verde-progresso-escuro: #059669;
+  --sds-nl-text-primary: #f1f5f9;
+  --sds-nl-text-secondary: #cbd5e1;
+  --sds-nl-text-muted: #64748b;
+}
+
+/* ── Passos narrativos 01 · 02 · 03 ── */
+.sds-card-analise-demo__passos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sds-card-analise-demo__passo {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.35);
+  opacity: 0.55;
+  transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sds-card-analise-demo__passo--ativo {
+  opacity: 1;
+  border-color: rgba(129, 140, 248, 0.45);
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.14), rgba(129, 140, 248, 0.05));
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12);
+}
+
+.sds-card-analise-demo__passo--feito {
+  opacity: 0.82;
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.sds-card-analise-demo__passo-num {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.sds-card-analise-demo__passo--ativo .sds-card-analise-demo__passo-num {
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  border-color: rgba(165, 180, 252, 0.45);
+}
+
+.sds-card-analise-demo__passo--feito .sds-card-analise-demo__passo-num {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.32);
+}
+
+.sds-card-analise-demo__passo-textos {
+  min-width: 0;
+}
+
+.sds-card-analise-demo__passo-rotulo {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #c7d2fe;
+  margin-bottom: 6px;
+}
+
+.sds-card-analise-demo__passo-textos p strong {
+  font-size: inherit;
+  font-weight: 600;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  color: #e2e8f0;
+}
+
+.sds-card-analise-demo__passo-textos p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+/* ── Cena: só sidebar + card do arquivo ── */
+.sds-card-analise-demo__shell {
+  position: relative;
+  background: #0f172a;
+  overflow: hidden;
+}
+
+.sds-card-analise-demo__shell--focado {
+  min-height: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.sds-card-analise-demo__cena-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sds-card-analise-demo__cena {
+  padding: 16px 18px 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.sds-card-analise-demo__painel-lateral {
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--sds-nl-superficie-fundo);
+  border: 1px solid var(--sds-nl-superficie-borda);
+}
+
+.sds-card-analise-demo__card--identificado {
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.2);
+}
+
+.sds-card-analise-demo__cena--separado .sds-card-analise-demo__lista--separada {
+  border-top-color: rgba(52, 211, 153, 0.28);
+}
+
+.sds-card-analise-demo__cena--separado .sds-nl-card-documentos li {
+  border-radius: 8px;
+  padding: 4px 6px;
+  background: rgba(52, 211, 153, 0.06);
+  border: 1px solid rgba(52, 211, 153, 0.16);
+}
+
+.sds-card-analise-demo__cena--visualizar .sds-nl-card-btn-icone[data-sds-demo-alvo^='visualizar-doc'] {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.sds-card-analise-demo__camada-cursor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.sds-card-analise-demo__prev {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgba(3, 5, 12, 0.78);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.sds-card-analise-demo__prev .sds-nl-prev-painel {
+  max-height: 92%;
+  width: min(100%, 520px);
+}
+
+.sds-card-analise-demo--somente-visualizacao {
+  user-select: none;
+}
+
+.sds-card-analise-demo--somente-visualizacao button {
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .sds-card-analise-demo__passos {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.sim-smart-read-card-analise-demo .sds-card-analise-demo__passos {
+  gap: 12px;
+}

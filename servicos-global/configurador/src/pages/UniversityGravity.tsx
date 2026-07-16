@@ -32,6 +32,11 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { useJornadaGuiaGravity } from '../hooks/use-jornada-guia-gravity'
+import { useAssinaturasJornadaGuiaGravity } from '../hooks/use-assinaturas-jornada-guia-gravity'
+import { useRankingGuiaGravity } from '../hooks/use-ranking-guia-gravity'
+import { GuiaGravityDadosProvider, useGuiaGravityDados } from '../contexts/guia-gravity-dados-context'
+import { produtoCompradoNaOrganizacao } from '../../shared/guia-gravity/produtos-jornada-guia-gravity.js'
+import { slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-manuais-guia-gravity.js'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
@@ -191,11 +196,6 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   }],
 }
 
-// Produtos que esta organização contratou (WIP: virá do backend)
-const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
-  'bem-vindo', 'login', 'configurador', 'pedido', 'processo', 'smart-read',
-]
-
 // Visão geral agrupada (sem produto selecionado)
 const GRUPOS_TRILHAS = [
   { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.navegacao[0], TRILHAS_POR_PRODUTO.configurador[0]] },
@@ -231,7 +231,8 @@ function IconeProdutoOficial({ slug, size = 16, cor = '#818cf8' }: {
 }
 
 function produtoCompradoOrganizacao(slug: ProdutoSlug): boolean {
-  return (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
+  const { slugsAssinaturaAtiva } = useGuiaGravityDados()
+  return produtoCompradoNaOrganizacao(slug, slugsAssinaturaAtiva)
 }
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
@@ -1013,13 +1014,14 @@ function DocLoginManual() {
 }
 
 function calcularRitmoGlobalContratados(
+  produtosContratados: string[],
   aulasConcluidas: Set<string>,
   dataInicioPersistida?: Date | null,
 ): {
   ritmo: MetricasRitmoJornada
   mapaDuracao: Map<string, number>
 } {
-  const produtos = PRODUTOS_CONTRATADOS as string[]
+  const produtos = produtosContratados
   const mapaDuracao = montarMapaDuracaoProdutos(produtos, TRILHAS_POR_PRODUTO)
   const minutosTotais = calcularMinutosTotaisProdutos(produtos, TRILHAS_POR_PRODUTO)
   const minutosConcluidos = calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao)
@@ -1046,14 +1048,6 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
 // XP/GP/ranking derivados dos pesos PO (`pesos-academy-guia-gravity.ts`) — WIP: virá do banco via API.
 /** Segmento reservado: /academy/login/jornada abre a trilha do módulo (não a aula). */
 const FASE_RESERVA_JORNADA = 'jornada'
-
-// Colegas fictícios para o ranking do módulo (WIP: virá do banco via API).
-const JORNADA_RANKING_DEMO: { nome: string; xp: number }[] = [
-  { nome: 'Marina Alves', xp: 82 },
-  { nome: 'Diego Ramos', xp: 65 },
-  { nome: 'Bruno Costa', xp: 44 },
-  { nome: 'Ana Paula', xp: 30 },
-]
 
 interface JornadaEtapa {
   fase: Fase
@@ -1185,8 +1179,10 @@ function produtoGuiaConcluido(slug: ProdutoSlug, aulasConcluidas: Set<string>): 
     : false
 }
 
-function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
-  const modulos = PRODUTOS_CONTRATADOS.map(slug => {
+function calcularMetricasOnboarding(produtosContratados: string[], aulasConcluidas: Set<string>) {
+  const modulos = produtosContratados
+    .filter((slug): slug is keyof typeof TRILHAS_POR_PRODUTO => slug in TRILHAS_POR_PRODUTO)
+    .map(slug => {
     const trilha = TRILHAS_POR_PRODUTO[slug][0]
     const progresso = calcularProgressoProduto(slug, aulasConcluidas)
     return { slug, trilha, ...progresso }
@@ -1368,8 +1364,21 @@ function JornadaCardBox({ titulo, children }: { titulo: string; children: React.
 
 function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
   const { t } = useTranslation()
-  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const { ranking, rankingCarregando } = useGuiaGravityDados()
+  const linhas = ranking.length > 0
+    ? ranking.map(l => ({
+      nome: l.usuario_atual ? t('university.jornada.voce') : l.nome_usuario,
+      xp: l.xp_total,
+      isYou: l.usuario_atual,
+    }))
+    : [{ nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+  if (rankingCarregando && ranking.length === 0) {
+    return (
+      <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', padding: '8px 4px' }}>
+        {t('university.jornada.ranking_carregando', 'Carregando ranking…')}
+      </div>
+    )
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {linhas.map((p, i) => {
@@ -1494,13 +1503,25 @@ function calcularNivelOnboarding(xpTotal: number, t: (key: string) => string) {
   }
 }
 
-/** WIP demo — virá do banco via API. */
-const MANUAIS_LIDOS_DEMO = { lidos: 0, total: 8 }
+/** Manuais lidos — contagem real via API (GuiaGravityManualLido). */
 
 function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
   const { t } = useTranslation()
-  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const { ranking, rankingCarregando } = useGuiaGravityDados()
+  const linhas = ranking.length > 0
+    ? ranking.map(l => ({
+      nome: l.usuario_atual ? t('university.jornada.voce') : l.nome_usuario,
+      xp: l.xp_total,
+      isYou: l.usuario_atual,
+    }))
+    : [{ nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+  if (rankingCarregando && ranking.length === 0) {
+    return (
+      <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', padding: '8px 4px' }}>
+        {t('university.jornada.ranking_carregando', 'Carregando ranking…')}
+      </div>
+    )
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {linhas.map((p, i) => {
@@ -1618,19 +1639,22 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
   )
 }
 
-function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfensiva, dataInicioJornada, onAbrirModulo, nomeUsuario }: {
+function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfensiva, dataInicioJornada, onAbrirModulo, nomeUsuario, manuaisLidos, manuaisTotal }: {
   aulasConcluidas: Set<string>
   mapaCertificados: MapaCertificadosGuia
   diasOfensiva: number
   dataInicioJornada: Date | null
   onAbrirModulo: (slug: keyof typeof TRILHAS_POR_PRODUTO) => void
   nomeUsuario: string
+  manuaisLidos: number
+  manuaisTotal: number
 }) {
   const { t } = useTranslation()
-  const metricas = calcularMetricasOnboarding(aulasConcluidas)
+  const { produtosContratados } = useGuiaGravityDados()
+  const metricas = calcularMetricasOnboarding(produtosContratados, aulasConcluidas)
   const { modulos, xpTotal, concluidas, emAndamento, gp } = metricas
   const { xpParaSubir, nivel, titulo } = calcularNivelOnboarding(xpTotal, t)
-  const { ritmo: ritmoGlobal } = calcularRitmoGlobalContratados(aulasConcluidas, dataInicioJornada)
+  const { ritmo: ritmoGlobal } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
 
   const [certificadoAberto, setCertificadoAberto] = useState<CertificadoEmitidoGuia | null>(null)
 
@@ -1648,8 +1672,12 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
   }, [aulasConcluidas])
 
   const [produtosFiltrados, setProdutosFiltrados] = useState<Set<string>>(
-    () => new Set(PRODUTOS_CONTRATADOS as string[]),
+    () => new Set(produtosContratados),
   )
+
+  useEffect(() => {
+    setProdutosFiltrados(new Set(produtosContratados))
+  }, [produtosContratados])
 
   const alternarFiltroProduto = (slug: string) => {
     setProdutosFiltrados(prev => {
@@ -1688,13 +1716,13 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
 
   const pctAnel = (() => {
     const minutos = minutosConcluidosModulo(moduloAtual.trilha.fases, aulasConcluidas)
-    const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas, dataInicioJornada)
+    const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
     const dataInicio = obterDataInicioJornadaGuia(
       calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
       dataInicioJornada,
     )
     return calcularRitmoModuloSequencial({
-      produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+      produtosOrdenados: produtosContratados,
       trilhasPorProduto: TRILHAS_POR_PRODUTO,
       slugModulo: moduloAtual.slug,
       minutosConcluidosModulo: minutos,
@@ -1810,7 +1838,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
             </div>
             <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
             <div className="uni-dashboard-produtos-contratados__tags">
-              {PRODUTOS_CONTRATADOS.map(slug => {
+              {produtosContratados.map(slug => {
                 const prog = modulos.find(m => m.slug === slug)
                 const pct = prog?.pct ?? 0
                 const concluido = pct >= 100
@@ -1831,7 +1859,9 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
                       produto: t(`university.produto.${slug.replaceAll('-', '_')}`),
                     })}
                   >
-                    <IconeProdutoOficial slug={slug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    {slug in ICON_MAP ? (
+                      <IconeProdutoOficial slug={slug as ProdutoSlug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    ) : null}
                     <span>{t(`university.produto.${slug.replaceAll('-', '_')}`)}</span>
                     {selecionado && concluido && <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />}
                     {selecionado && !concluido && pct > 0 && (
@@ -1849,12 +1879,12 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
                 {t('university.dashboard.manuais_lidos')}
               </div>
               <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: UNI_COR, fontSize: '.88rem' }}>
-                {MANUAIS_LIDOS_DEMO.lidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{MANUAIS_LIDOS_DEMO.total}</span>
+                {manuaisLidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{manuaisTotal}</span>
               </div>
             </div>
             <BarraProgressoComRitmo
-              pctReal={MANUAIS_LIDOS_DEMO.total > 0
-                ? Math.round((MANUAIS_LIDOS_DEMO.lidos / MANUAIS_LIDOS_DEMO.total) * 100)
+              pctReal={manuaisTotal > 0
+                ? Math.round((manuaisLidos / manuaisTotal) * 100)
                 : 0}
               ritmo={ritmoGlobal}
               altura={8}
@@ -1963,6 +1993,7 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
   indiceAtualGlobal?: number
   mapaXpProduto?: Map<string, number>
 }) {
+  const { produtosContratados } = useGuiaGravityDados()
   const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, obterTodasFasesProduto(produtoSlug, trilha))
   const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, {
     offsetNumero,
@@ -1975,13 +2006,13 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
   const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
   const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
   const minutosModuloConcluidos = minutosConcluidosModulo(trilha.fases, aulasConcluidas)
-  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas, dataInicioJornada)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
   const dataInicio = obterDataInicioJornadaGuia(
     calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
     dataInicioJornada,
   )
   const ritmoModulo = calcularRitmoModuloSequencial({
-    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    produtosOrdenados: produtosContratados,
     trilhasPorProduto: TRILHAS_POR_PRODUTO,
     slugModulo: produtoSlug,
     minutosConcluidosModulo: minutosModuloConcluidos,
@@ -2050,6 +2081,7 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   dataInicioJornada?: Date | null
 }) {
   const { t } = useTranslation()
+  const { produtosContratados } = useGuiaGravityDados()
   const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
   let feitasTotal = 0
   let aulasTotal = 0
@@ -2064,13 +2096,13 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
   const todasFasesProduto = trilhas.flatMap(tr => tr.fases)
   const minutosProdutoConcluidos = minutosConcluidosModulo(todasFasesProduto, aulasConcluidas)
-  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas, dataInicioJornada)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
   const dataInicio = obterDataInicioJornadaGuia(
     calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
     dataInicioJornada,
   )
   const ritmoProduto = calcularRitmoModuloSequencial({
-    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    produtosOrdenados: produtosContratados,
     trilhasPorProduto: TRILHAS_POR_PRODUTO,
     slugModulo: produtoSlug,
     minutosConcluidosModulo: minutosProdutoConcluidos,
@@ -2208,8 +2240,44 @@ export function UniversityGravity() {
     mapaCertificados,
     dataInicioJornada,
     diasOfensiva,
+    dados: dadosJornada,
     marcarAulaConcluida,
+    marcarManualLido,
   } = useJornadaGuiaGravity()
+
+  const {
+    produtosContratados,
+    slugsAssinaturaAtiva,
+  } = useAssinaturasJornadaGuiaGravity()
+
+  const { ranking, carregando: rankingCarregando, recarregar: recarregarRanking } = useRankingGuiaGravity()
+
+  const guiaGravityDados = useMemo(
+    () => ({
+      produtosContratados,
+      slugsAssinaturaAtiva,
+      ranking,
+      rankingCarregando,
+    }),
+    [produtosContratados, slugsAssinaturaAtiva, ranking, rankingCarregando],
+  )
+
+  const manuaisLidos = dadosJornada?.manuais_lidos.length ?? 0
+  const manuaisTotal = dadosJornada?.manuais_total ?? 8
+
+  useEffect(() => {
+    if (secao !== 'docs' || !docsProdutoSlug) return
+    if (!slugManualGuiaGravityValido(docsProdutoSlug)) return
+    const jaLido = dadosJornada?.manuais_lidos.some(m => m.slug_manual_guia_gravity === docsProdutoSlug)
+    if (jaLido) return
+    void marcarManualLido(docsProdutoSlug).catch(err => {
+      console.warn('[UniversityGravity] falha ao marcar manual lido', err)
+    })
+  }, [secao, docsProdutoSlug, dadosJornada?.manuais_lidos, marcarManualLido])
+
+  useEffect(() => {
+    void recarregarRanking()
+  }, [aulasConcluidas, recarregarRanking])
 
   const marcarConcluida = useCallback(async (slug: string) => {
     if (!produtoSlug) return
@@ -2220,12 +2288,13 @@ export function UniversityGravity() {
     }
   }, [marcarAulaConcluida, produtoSlug])
 
-  // Progresso geral nos produtos contratados (derivado do progresso real + demo estático)
-  const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => {
+  const progressoContratados = produtosContratados
+    .filter((slug): slug is keyof typeof TRILHAS_POR_PRODUTO => slug in TRILHAS_POR_PRODUTO)
+    .map(slug => {
     const trilhas = TRILHAS_POR_PRODUTO[slug]
     const trilha = trilhas?.[0]
     const agregado = trilhas?.length
-      ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
+      ? calcularProgressoProduto(slug, aulasConcluidas)
       : { pct: 0 }
     return {
       slug,
@@ -2234,7 +2303,9 @@ export function UniversityGravity() {
     }
   })
   const concluidos = progressoContratados.filter(p => p.prog >= 100).length
-  const pctGeral = Math.round((concluidos / progressoContratados.length) * 100)
+  const pctGeral = progressoContratados.length > 0
+    ? Math.round((concluidos / progressoContratados.length) * 100)
+    : 0
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -2395,6 +2466,7 @@ export function UniversityGravity() {
     : t('university.nav.academy')
 
   return (
+    <GuiaGravityDadosProvider value={guiaGravityDados}>
     <div className={`ws-shell uni-gravity-shell${secao === 'academy' && faseAulaSlug ? ' uni-academy-player' : ''}`}>
       <MenuLateralGlobal
         tenantName={nomeOrganizacao}
@@ -2641,6 +2713,8 @@ export function UniversityGravity() {
               diasOfensiva={diasOfensiva}
               dataInicioJornada={dataInicioJornada}
               nomeUsuario={userName}
+              manuaisLidos={manuaisLidos}
+              manuaisTotal={manuaisTotal}
               onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
             />
           )}
@@ -2802,6 +2876,7 @@ export function UniversityGravity() {
 
       <ToastContainer />
     </div>
+    </GuiaGravityDadosProvider>
   )
 }
 

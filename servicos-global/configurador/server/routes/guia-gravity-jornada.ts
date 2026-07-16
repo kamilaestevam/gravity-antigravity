@@ -8,6 +8,7 @@ import {
   concluirAulaGuiaGravityBodySchema,
   concluirAulaGuiaGravityResponseSchema,
   guiaGravityJornadaResponseSchema,
+  guiaGravityRankingResponseSchema,
   verificarCertificadoGuiaGravityResponseSchema,
 } from '../../shared/guia-gravity/guia-gravity-jornada-schema.js'
 import { AppError } from '../lib/appError.js'
@@ -47,6 +48,48 @@ guiaGravityJornadaRouter.get('/jornada', async (req: Request, res: Response, nex
     next(err)
   }
 })
+
+/**
+ * GET /api/v1/guia-gravity/ranking
+ */
+guiaGravityJornadaRouter.get('/ranking', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id_organizacao, id_usuario } = req.auth!
+    const limiteRaw = req.query.limite
+    const limite =
+      typeof limiteRaw === 'string' && limiteRaw.trim() !== '' ? Number.parseInt(limiteRaw, 10) : undefined
+
+    const payload = await guiaGravityJornadaServico.obterRankingOrganizacao({
+      idOrganizacao: id_organizacao,
+      idUsuario: id_usuario,
+      limite: Number.isFinite(limite) ? limite : undefined,
+    })
+    res.json(guiaGravityRankingResponseSchema.parse(payload))
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/v1/guia-gravity/manuais/:slug_manual_guia_gravity/marcar-lido
+ */
+guiaGravityJornadaRouter.post(
+  '/manuais/:slug_manual_guia_gravity/marcar-lido',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id_organizacao, id_usuario } = req.auth!
+
+      const payload = await guiaGravityJornadaServico.marcarManualLido({
+        idOrganizacao: id_organizacao,
+        idUsuario: id_usuario,
+        slugManual: req.params.slug_manual_guia_gravity,
+      })
+      res.json(guiaGravityJornadaResponseSchema.parse(payload))
+    } catch (err) {
+      next(err)
+    }
+  },
+)
 
 /**
  * POST /api/v1/guia-gravity/aulas/:slug_aula_guia_gravity/concluir

@@ -621,6 +621,16 @@ exports.Prisma.GuiaGravityCertificadoEmitidoScalarFieldEnum = {
   data_atualizacao_guia_gravity_certificado_emitido: 'data_atualizacao_guia_gravity_certificado_emitido'
 };
 
+exports.Prisma.GuiaGravityManualLidoScalarFieldEnum = {
+  id_guia_gravity_manual_lido: 'id_guia_gravity_manual_lido',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  slug_manual_guia_gravity: 'slug_manual_guia_gravity',
+  data_leitura_manual_guia_gravity: 'data_leitura_manual_guia_gravity',
+  data_criacao_guia_gravity_manual_lido: 'data_criacao_guia_gravity_manual_lido',
+  data_atualizacao_guia_gravity_manual_lido: 'data_atualizacao_guia_gravity_manual_lido'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -785,7 +795,8 @@ exports.Prisma.ModelName = {
   AuditLogAdmin: 'AuditLogAdmin',
   GuiaGravityJornadaUsuario: 'GuiaGravityJornadaUsuario',
   GuiaGravityAulaConclusao: 'GuiaGravityAulaConclusao',
-  GuiaGravityCertificadoEmitido: 'GuiaGravityCertificadoEmitido'
+  GuiaGravityCertificadoEmitido: 'GuiaGravityCertificadoEmitido',
+  GuiaGravityManualLido: 'GuiaGravityManualLido'
 };
 
 /**

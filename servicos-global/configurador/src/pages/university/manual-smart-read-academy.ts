@@ -43,7 +43,6 @@ export const SMART_READ_AULA_SLUGS = [
   'smart-read-nova-leitura',
   'smart-read-configuracoes',
   'smart-read-historico',
-  'smart-read-requisitos-tecnicos',
 ] as const
 
 export const AULAS_SMART_READ: AulaDemo[] = [
@@ -95,12 +94,6 @@ export const AULAS_SMART_READ: AulaDemo[] = [
     FLUXOS[6]?.tituloSumario ?? 'Histórico',
     '10m',
     [6],
-  ),
-  aulaSmartRead(
-    SMART_READ_AULA_SLUGS[8],
-    FLUXOS[7]?.tituloSumario ?? 'Requisitos técnicos',
-    '8m',
-    [7],
   ),
 ]
 

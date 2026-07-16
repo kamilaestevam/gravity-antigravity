@@ -87,7 +87,7 @@
       "subtitulo": "Scroll the journey or use the pills to jump to each block — all chapters are listed below."
     },
     "dashboard": {
-      "titulo": "Gravity Guide",
+      "titulo": "My Journey",
       "subtitulo": "Overview of your progress, products, metrics and rewards",
       "modulos_titulo": "Contracted modules",
       "etapas_progresso": "{{feitas}}/{{total}} steps",
@@ -100,6 +100,10 @@
       "manuais_lidos": "Manuals read",
       "o_que_falta": "What's left",
       "iniciar": "Start",
+      "ver_evolucao_produto": "View Gravity Guide progress — {{produto}}",
+      "filtro_produtos_dica": "Click tags to filter one or more products in the progress bar",
+      "filtro_produto_ativar": "Include {{produto}} in progress",
+      "filtro_produto_desativar": "Exclude {{produto}} from progress",
       "nivel_ofensiva": "Level & streak",
       "nivel_rotulo": "Level {{nivel}} · {{titulo}}",
       "ofensiva_dias": "{{dias}}-day streak",

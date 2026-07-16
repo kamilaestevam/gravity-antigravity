@@ -87,7 +87,7 @@
       "subtitulo": "Role a jornada ou use as pílulas para ir direto a cada bloco — todos os capítulos ficam listados abaixo."
     },
     "dashboard": {
-      "titulo": "Guia Gravity",
+      "titulo": "Minha jornada",
       "subtitulo": "Visão geral do que você já fez, produtos, métricas e recompensas",
       "modulos_titulo": "Módulos contratados",
       "etapas_progresso": "{{feitas}}/{{total}} etapas",
@@ -100,6 +100,10 @@
       "manuais_lidos": "Manuais lidos",
       "o_que_falta": "O que falta",
       "iniciar": "Iniciar",
+      "ver_evolucao_produto": "Ver evolução do Guia Gravity — {{produto}}",
+      "filtro_produtos_dica": "Clique nas tags para filtrar um ou mais produtos no progresso",
+      "filtro_produto_ativar": "Incluir {{produto}} no progresso",
+      "filtro_produto_desativar": "Excluir {{produto}} do progresso",
       "nivel_ofensiva": "Nível & ofensiva",
       "nivel_rotulo": "Nível {{nivel}} · {{titulo}}",
       "ofensiva_dias": "{{dias}} dias de ofensiva",

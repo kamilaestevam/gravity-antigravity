@@ -3626,3 +3626,94 @@ body.light-theme .uni-academy-player .mlg-sidebar {
   margin-left: 0;
   width: 100%;
 }
+
+/* ── University: tags de produtos contratados no dashboard ── */
+.uni-dashboard-progresso-card {
+  background: var(--bg-base, #1e293b);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 15px;
+  padding: 18px 20px;
+}
+
+.uni-dashboard-progresso-manuais {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.uni-dashboard-produtos-contratados {
+  min-height: 88px;
+}
+
+.uni-dashboard-produtos-contratados__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 40px;
+  align-content: flex-start;
+}
+
+.uni-dashboard-filtro-dica {
+  margin: 8px 0 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--ws-muted, #64748b);
+  line-height: 1.35;
+}
+
+.uni-dashboard-tag-contratado {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  background: rgba(129, 140, 248, 0.1);
+  color: var(--ws-text, #f1f5f9);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.uni-dashboard-tag-contratado.is-desabilitado {
+  opacity: 0.42;
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--ws-muted, #94a3b8);
+}
+
+.uni-dashboard-tag-contratado.is-desabilitado:hover {
+  opacity: 0.62;
+  border-color: rgba(129, 140, 248, 0.24);
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.uni-dashboard-tag-contratado:hover {
+  background: rgba(129, 140, 248, 0.16);
+  border-color: rgba(129, 140, 248, 0.42);
+}
+
+.uni-dashboard-tag-contratado.is-concluido {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.uni-dashboard-tag-contratado.is-concluido:hover {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.45);
+}
+
+.uni-dashboard-tag-contratado.is-andamento {
+  border-color: rgba(129, 140, 248, 0.38);
+  background: rgba(129, 140, 248, 0.14);
+}
+
+.uni-dashboard-tag-contratado__pct {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--ws-muted, #94a3b8);
+}

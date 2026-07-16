@@ -51,6 +51,11 @@ import { SMART_READ_TRILHA } from './university/manual-smart-read-academy'
 import { ADMIN_TRILHA } from './university/manual-admin-academy'
 import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
 import {
+  montarMapaXpAulas,
+  obterXpMaxProduto,
+  obterXpMaxTrilha,
+} from './university/pesos-academy-guia-gravity'
+import {
   DOC_LOGIN_METADADOS,
   DOC_LOGIN_SECOES,
   DOC_LOGIN_SUBTITULO,
@@ -193,6 +198,15 @@ const ICON_MAP = {
 } as const
 
 type ProdutoSlug = keyof typeof ICON_MAP
+
+function IconeProdutoOficial({ slug, size = 16, cor = '#818cf8' }: {
+  slug: ProdutoSlug
+  size?: number
+  cor?: string
+}) {
+  const IconComp = ICON_MAP[slug]
+  return <IconComp weight="duotone" size={size} color={cor} />
+}
 
 function produtoCompradoOrganizacao(slug: ProdutoSlug): boolean {
   return (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
@@ -991,8 +1005,7 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
 
 // ── Jornada do Módulo (Academy · detalhe gamificado) ─────────────────────────
 // Traduz o protótipo "Jornada do Módulo" para o design system do University.
-// XP/GP/ranking são derivados do progresso demo (WIP: virá do banco via API).
-const JORNADA_XP_TOTAL = 100
+// XP/GP/ranking derivados dos pesos PO (`pesos-academy-guia-gravity.ts`) — WIP: virá do banco via API.
 /** Segmento reservado: /academy/login/jornada abre a trilha do módulo (não a aula). */
 const FASE_RESERVA_JORNADA = 'jornada'
 
@@ -1051,15 +1064,6 @@ function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
   return s
 }
 
-/** Distribui `total` XP entre `n` etapas; o resto sobra na última. */
-function xpPorEtapa(total: number, n: number): number[] {
-  if (n <= 0) return []
-  const base = Math.floor(total / n)
-  const xps = Array.from({ length: n }, () => base)
-  xps[n - 1] += total - base * n
-  return xps
-}
-
 function iniciaisNome(nome: string): string {
   return nome.split(' ').map(parte => parte[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
 }
@@ -1077,12 +1081,13 @@ function calcularIndiceAtualGlobal(trilhas: Trilha[], aulasConcluidas: Set<strin
 }
 
 function calcularEtapasJornada(
+  produtoSlug: string,
   fases: Fase[],
   aulasConcluidas: Set<string>,
-  opts?: { offsetNumero?: number; indiceAtualGlobal?: number },
+  opts?: { offsetNumero?: number; indiceAtualGlobal?: number; mapaXp?: Map<string, number> },
 ): JornadaEtapa[] {
   const offset = opts?.offsetNumero ?? 0
-  const xps = xpPorEtapa(JORNADA_XP_TOTAL, fases.length)
+  const mapaXp = opts?.mapaXp ?? montarMapaXpAulas(produtoSlug, fases)
   const feitas = fases.map(fase => faseEstaConcluida(fase, aulasConcluidas))
   const idxAtualLocal = feitas.findIndex(feita => !feita)
   return fases.map((fase, i) => {
@@ -1091,10 +1096,11 @@ function calcularEtapasJornada(
       ? indiceGlobal === opts.indiceAtualGlobal
       : i === idxAtualLocal
     const feita = feitas[i]
+    const xpMax = fase.slug ? (mapaXp.get(fase.slug) ?? 0) : 0
     return {
       fase,
       numero: indiceGlobal + 1,
-      xp: xps[i],
+      xp: xpMax,
       feita,
       atual,
       bloqueada: !feita && !atual,
@@ -1103,29 +1109,46 @@ function calcularEtapasJornada(
   })
 }
 
-function calcularProgressoModulo(trilha: Trilha, aulasConcluidas: Set<string>) {
-  const etapas = calcularEtapasJornada(trilha.fases, aulasConcluidas)
+function obterTodasFasesProduto(produtoSlug: string, trilha?: Trilha): Fase[] {
+  const trilhas = TRILHAS_POR_PRODUTO[produtoSlug as keyof typeof TRILHAS_POR_PRODUTO]
+  if (trilhas?.length) return trilhas.flatMap(t => t.fases)
+  return trilha?.fases ?? []
+}
+
+function calcularProgressoModulo(
+  produtoSlug: string,
+  trilha: Trilha,
+  aulasConcluidas: Set<string>,
+  mapaXpProduto?: Map<string, number>,
+) {
+  const todasFases = obterTodasFasesProduto(produtoSlug, trilha)
+  const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, todasFases)
+  const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, { mapaXp })
   const feitas = etapas.filter(e => e.feita).length
   const total = etapas.length
   const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
-  const pct = total > 0 ? Math.round((feitas / total) * 100) : trilha.prog
-  return { feitas, total, xp, pct }
+  const xpMax = obterXpMaxTrilha(trilha.fases, mapaXp)
+  const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : (total > 0 ? trilha.prog : 0)
+  return { feitas, total, xp, xpMax, pct }
 }
 
 function calcularProgressoProduto(slug: keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas: Set<string>) {
   const trilhas = TRILHAS_POR_PRODUTO[slug]
-  if (!trilhas?.length) return { feitas: 0, total: 0, xp: 0, pct: 0 }
+  if (!trilhas?.length) return { feitas: 0, total: 0, xp: 0, xpMax: 0, pct: 0 }
+  const todasFases = trilhas.flatMap(trilha => trilha.fases)
+  const mapaXp = montarMapaXpAulas(slug, todasFases)
   let feitas = 0
   let total = 0
   let xp = 0
   for (const trilha of trilhas) {
-    const p = calcularProgressoModulo(trilha, aulasConcluidas)
+    const p = calcularProgressoModulo(slug, trilha, aulasConcluidas, mapaXp)
     feitas += p.feitas
     total += p.total
     xp += p.xp
   }
-  const pct = total > 0 ? Math.round((feitas / total) * 100) : 0
-  return { feitas, total, xp, pct }
+  const xpMax = obterXpMaxProduto(mapaXp)
+  const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : 0
+  return { feitas, total, xp, xpMax, pct }
 }
 
 function produtoGuiaConcluido(slug: ProdutoSlug, aulasConcluidas: Set<string>): boolean {
@@ -1350,7 +1373,7 @@ function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
   )
 }
 
-function JornadaSidebar({ xp, gp, feitas, total, xpMeta = JORNADA_XP_TOTAL, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
+function JornadaSidebar({ xp, gp, feitas, total, xpMeta, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
   xp: number; gp: number; feitas: number; total: number; xpMeta?: number; rankingTituloKey?: string
 }) {
   const { t } = useTranslation()
@@ -1561,8 +1584,36 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
   const { modulos, xpTotal, concluidas, emAndamento, certificados, gp } = metricas
   const { xpParaSubir, nivel } = calcularNivelOnboarding(xpTotal)
 
+  const [produtosFiltrados, setProdutosFiltrados] = useState<Set<string>>(
+    () => new Set(PRODUTOS_CONTRATADOS as string[]),
+  )
+
+  const alternarFiltroProduto = (slug: string) => {
+    setProdutosFiltrados(prev => {
+      const next = new Set(prev)
+      if (next.has(slug)) {
+        if (next.size <= 1) return prev
+        next.delete(slug)
+      } else {
+        next.add(slug)
+      }
+      return next
+    })
+  }
+
+  const modulosVisiveis = modulos.filter(m => produtosFiltrados.has(m.slug))
+  const concluidasVisiveis = modulosVisiveis.filter(m => m.pct >= 100).length
+  const pctVisivel = modulosVisiveis.length > 0
+    ? Math.round((concluidasVisiveis / modulosVisiveis.length) * 100)
+    : 0
+
   const moduloAtual = modulos.find(m => m.pct > 0 && m.pct < 100) ?? modulos.find(m => m.pct < 100) ?? modulos[0]
-  const etapasAtual = calcularEtapasJornada(moduloAtual.trilha.fases, aulasConcluidas)
+  const etapasAtual = calcularEtapasJornada(
+    moduloAtual.slug,
+    moduloAtual.trilha.fases,
+    aulasConcluidas,
+    { mapaXp: montarMapaXpAulas(moduloAtual.slug, obterTodasFasesProduto(moduloAtual.slug, moduloAtual.trilha)) },
+  )
   const idxEtapaAtual = etapasAtual.findIndex(e => e.atual)
   const etapaAtual = idxEtapaAtual >= 0 ? etapasAtual[idxEtapaAtual] : etapasAtual.find(e => !e.feita)
   const faltam = modulos.filter(m => m.pct < 100)
@@ -1643,21 +1694,59 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
           ))}
         </div>
 
-        {/* Barras segmentadas */}
-        <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
-              <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>
-                {t('university.dashboard.produtos_onboarding_concluido')}
-              </div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#818cf8', fontSize: '.88rem' }}>
-                {concluidas}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{modulos.length}</span>
-              </div>
+        {/* Progresso geral — mesma barra contínua da visão por produto; tag abre evolução do produto */}
+        <div className="uni-dashboard-progresso-card">
+          <div className="uni-dashboard-produtos-contratados">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
+                {t('university.progresso.produtos_contratados')}
+              </span>
+              <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctVisivel >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
+                {concluidasVisiveis} / {modulosVisiveis.length} {t('university.progresso.concluidos')}
+              </span>
             </div>
-            <BarraSegmentada total={modulos.length} preenchidos={concluidas} cor="#818cf8" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <BarraProgresso pct={pctVisivel} altura={8} />
+              <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
+                {pctVisivel}%
+              </span>
+            </div>
+            <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
+            <div className="uni-dashboard-produtos-contratados__tags">
+              {PRODUTOS_CONTRATADOS.map(slug => {
+                const prog = modulos.find(m => m.slug === slug)
+                const pct = prog?.pct ?? 0
+                const concluido = pct >= 100
+                const selecionado = produtosFiltrados.has(slug)
+                return (
+                  <button
+                    key={slug}
+                    type="button"
+                    className={[
+                      'uni-dashboard-tag-contratado',
+                      selecionado ? 'is-selecionado' : 'is-desabilitado',
+                      selecionado && concluido ? 'is-concluido' : '',
+                      selecionado && pct > 0 && !concluido ? 'is-andamento' : '',
+                    ].filter(Boolean).join(' ')}
+                    onClick={() => alternarFiltroProduto(slug)}
+                    aria-pressed={selecionado}
+                    title={t(selecionado ? 'university.dashboard.filtro_produto_desativar' : 'university.dashboard.filtro_produto_ativar', {
+                      produto: t(`university.produto.${slug.replaceAll('-', '_')}`),
+                    })}
+                  >
+                    <IconeProdutoOficial slug={slug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    <span>{t(`university.produto.${slug.replaceAll('-', '_')}`)}</span>
+                    {selecionado && concluido && <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />}
+                    {selecionado && !concluido && pct > 0 && (
+                      <span className="uni-dashboard-tag-contratado__pct">{pct}%</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           {universityManuaisDocsVisiveis() ? (
-          <div>
+          <div className="uni-dashboard-progresso-manuais">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
               <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>
                 {t('university.dashboard.manuais_lidos')}
@@ -1718,17 +1807,19 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
   )
 }
 
-function SeletorCapitulosAcademy({ trilhas, ativo, onSelecionar, aulasConcluidas }: {
+function SeletorCapitulosAcademy({ produtoSlug, trilhas, ativo, onSelecionar, aulasConcluidas }: {
+  produtoSlug: string
   trilhas: Trilha[]
   ativo: number
   onSelecionar: (idx: number) => void
   aulasConcluidas: Set<string>
 }) {
   if (trilhas.length <= 1) return null
+  const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
   return (
     <div className="uni-academy-capitulos">
       {trilhas.map((tr, i) => {
-        const prog = calcularProgressoModulo(tr, aulasConcluidas)
+        const prog = calcularProgressoModulo(produtoSlug, tr, aulasConcluidas, mapaXp)
         return (
           <button
             key={tr.slug ?? tr.nome}
@@ -1749,7 +1840,8 @@ function SeletorCapitulosAcademy({ trilhas, ativo, onSelecionar, aulasConcluidas
   )
 }
 
-function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal }: {
+function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal, mapaXpProduto }: {
+  produtoSlug: string
   trilha: Trilha
   aulasConcluidas: Set<string>
   onAbrirFase: (slug: string) => void
@@ -1758,15 +1850,19 @@ function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = t
   offsetNumero?: number
   /** Índice global (0-based) da etapa em andamento na jornada multi-capítulo. */
   indiceAtualGlobal?: number
+  mapaXpProduto?: Map<string, number>
 }) {
-  const etapas = calcularEtapasJornada(trilha.fases, aulasConcluidas, {
+  const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, obterTodasFasesProduto(produtoSlug, trilha))
+  const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, {
     offsetNumero,
     indiceAtualGlobal,
+    mapaXp,
   })
   const feitas = etapas.filter(e => e.feita).length
   const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
   const gp = xp * 2
-  const pct = Math.round((xp / JORNADA_XP_TOTAL) * 100)
+  const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
+  const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
 
   return (
     <div>
@@ -1781,7 +1877,7 @@ function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = t
               {trilha.nome}
             </div>
           </div>
-          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{JORNADA_XP_TOTAL} XP</div>
+          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{xpMeta} XP</div>
         </div>
         <BarraProgresso pct={pct} altura={8} />
       </div>
@@ -1804,13 +1900,14 @@ function JornadaModulo({ trilha, aulasConcluidas, onAbrirFase, exibirSidebar = t
             </div>
           ))}
         </div>
-        {exibirSidebar && <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} />}
+        {exibirSidebar && <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} xpMeta={xpMeta} />}
       </div>
     </div>
   )
 }
 
-function JornadaMultiCapitulos({ trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo }: {
+function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo }: {
+  produtoSlug: string
   trilhas: Trilha[]
   aulasConcluidas: Set<string>
   onAbrirFase: (slug: string) => void
@@ -1818,16 +1915,17 @@ function JornadaMultiCapitulos({ trilhas, aulasConcluidas, onAbrirFase, capitulo
   onSelecionarCapitulo: (idx: number) => void
 }) {
   const { t } = useTranslation()
+  const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
   let feitasTotal = 0
   let aulasTotal = 0
   let xpTotal = 0
   for (const trilha of trilhas) {
-    const p = calcularProgressoModulo(trilha, aulasConcluidas)
+    const p = calcularProgressoModulo(produtoSlug, trilha, aulasConcluidas, mapaXp)
     feitasTotal += p.feitas
     aulasTotal += p.total
     xpTotal += p.xp
   }
-  const xpMeta = trilhas.length * JORNADA_XP_TOTAL
+  const xpMeta = obterXpMaxProduto(mapaXp)
   const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
 
   const irParaCapitulo = useCallback((idx: number) => {
@@ -1844,6 +1942,7 @@ function JornadaMultiCapitulos({ trilhas, aulasConcluidas, onAbrirFase, capitulo
         <div className="uni-academy-capitulos__titulo">{t('university.capitulos.titulo')}</div>
         <p className="uni-academy-capitulos__sub">{t('university.capitulos.subtitulo')}</p>
         <SeletorCapitulosAcademy
+          produtoSlug={produtoSlug}
           trilhas={trilhas}
           ativo={capituloAtivo}
           onSelecionar={irParaCapitulo}
@@ -1862,12 +1961,14 @@ function JornadaMultiCapitulos({ trilhas, aulasConcluidas, onAbrirFase, capitulo
               className={`uni-academy-capitulo-secao${i === capituloAtivo ? ' is-ativo' : ''}`}
             >
               <JornadaModulo
+                produtoSlug={produtoSlug}
                 trilha={trilha}
                 aulasConcluidas={aulasConcluidas}
                 onAbrirFase={onAbrirFase}
                 exibirSidebar={false}
                 offsetNumero={offsetNumero}
                 indiceAtualGlobal={indiceAtualGlobal}
+                mapaXpProduto={mapaXp}
               />
             </section>
             )
@@ -2096,9 +2197,8 @@ export function UniversityGravity() {
       to: '/university-gravity/academy',
       label: t('university.nav.academy'),
       icon: <Books weight="duotone" size={18} />,
-      ...badgeEmBreve,
       children: [
-        { to: '/university-gravity/academy',              label: t('university.nav.visao_geral'),    icon: <SquaresFour weight="duotone" size={16} /> },
+        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} /> },
         { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy /> },
         { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
         { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
@@ -2119,7 +2219,6 @@ export function UniversityGravity() {
     },
     ...(universityManuaisDocsVisiveis() ? [navItemManuais] : []),
     { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
-    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
   ]
 
   const tituloSecao = secao === 'docs'
@@ -2391,6 +2490,7 @@ export function UniversityGravity() {
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
             trilhasAtivas.length > 1 ? (
               <JornadaMultiCapitulos
+                produtoSlug={produtoSlug}
                 trilhas={trilhasAtivas}
                 aulasConcluidas={aulasConcluidas}
                 capituloAtivo={capituloAtivo}
@@ -2399,6 +2499,7 @@ export function UniversityGravity() {
               />
             ) : (
                 <JornadaModulo
+                produtoSlug={produtoSlug}
                 trilha={trilhaAtiva}
                   aulasConcluidas={aulasConcluidas}
                   onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}

@@ -229,11 +229,6 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       paragrafos: [
         'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas — Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'É o principal ponto de retorno ao **Hub**, de acesso à **conta**, troca de **idioma** e demais atalhos transversais da plataforma.',
-      },
-      calloutAposPassos: true,
       mostrarInfograficoIconesMenuSuperior: true,
       passosVisuais: [],
     },
@@ -244,11 +239,6 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       paragrafos: [
         'Todos os **Produtos Gravity** — Pedido, Smart Read, BID Frete, BID Câmbio e demais — possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'Enquanto você está no **Hub** ou na **Gravity Store**, a tela usa **apenas o menu superior** — **não há menu lateral**.',
-      },
-      calloutAposPassos: true,
       figurasAposParagrafo: [
         {
           indice: 0,

@@ -1,24 +1,12 @@
 /**
- * Certificados do Guia Gravity — emissão demo (sessionStorage; futuro: API).
- *
- * Tipos oficiais:
- * 1. Módulo básico — todos os guias fundacionais (sidebar «Todos os produtos»)
- * 2. Pedido, Bid Frete, Smart Docs — um certificado por produto
+ * Certificados do Guia Gravity — tipos, adaptadores API e utilitários de conclusão.
  */
 
-export const CHAVE_CERTIFICADOS_GUIA = 'university_certificados_guia_v2'
+import type { GuiaGravityJornadaResponse } from '../../../shared/guia-gravity/guia-gravity-jornada-schema.js'
+import { tipoCertificadoPrismaParaFront } from '../../../shared/guia-gravity/certificado-guia-gravity.js'
+import { SLUGS_MODULO_BASICO_GUIA as SLUGS_MODULO_BASICO_SHARED } from '../../../shared/guia-gravity/slugs-aula-por-produto.js'
 
-/** Guia fundacional — imagem 2 (sidebar Todos os produtos Gravity). */
-export const SLUGS_MODULO_BASICO_GUIA = [
-  'bem-vindo',
-  'login',
-  'navegacao',
-  'admin',
-  'configurador',
-  'gabi',
-  'hub',
-  'store',
-] as const
+export const SLUGS_MODULO_BASICO_GUIA = SLUGS_MODULO_BASICO_SHARED
 
 export const TIPOS_CERTIFICADO_GUIA = [
   'modulo-basico',
@@ -38,46 +26,48 @@ export interface CertificadoEmitidoGuia {
 
 export type MapaCertificadosGuia = Partial<Record<TipoCertificadoGuia, CertificadoEmitidoGuia>>
 
-function hashSlug(slug: string): number {
-  let h = 0
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0
-  return h
+/**
+ * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
+ */
+const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
+  'acessar-workspaces': [
+    'gerenciando-workspaces',
+    'configurando-workspaces',
+    'criar-workspace',
+    'editar-workspace',
+    'ativar-workspace',
+    'excluir-workspace',
+  ],
+  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
+  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
+  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
 }
 
-export function gerarNumeroCertificadoGuia(tipo: TipoCertificadoGuia): string {
-  const base = 800000 + (hashSlug(tipo) % 100000)
-  return `GU-${base}`
-}
-
-export function gerarCodigoVerificacaoGuia(tipo: TipoCertificadoGuia, emitidoEm: string): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const seed = hashSlug(`${tipo}:${emitidoEm}`)
-  const blocos = [0, 1, 2].map(b => {
-    let s = ''
-    for (let i = 0; i < 3; i++) {
-      const idx = (seed + b * 17 + i * 13) % chars.length
-      s += chars[idx]
-    }
-    return s
-  })
-  return `GRV ${blocos[0]} ${blocos[1]} ${blocos[2]}`
-}
-
-export function carregarCertificadosGuia(): MapaCertificadosGuia {
-  if (typeof sessionStorage === 'undefined') return {}
-  try {
-    const raw = sessionStorage.getItem(CHAVE_CERTIFICADOS_GUIA)
-    if (!raw) return {}
-    const parsed = JSON.parse(raw) as MapaCertificadosGuia
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
+/** Promove slugs legados → atuais para desbloqueio linear. */
+export function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
+  const s = new Set(slugs)
+  for (const [atual, legados] of Object.entries(SLUGS_LEGADOS_AULA_CONCLUIDA)) {
+    if (s.has(atual)) continue
+    const legadoOk = legados?.some(slug => s.has(slug)) ?? false
+    if (legadoOk) s.add(atual)
   }
+  return s
 }
 
-export function salvarCertificadosGuia(mapa: MapaCertificadosGuia): void {
-  if (typeof sessionStorage === 'undefined') return
-  sessionStorage.setItem(CHAVE_CERTIFICADOS_GUIA, JSON.stringify(mapa))
+export function certificadosApiParaMapaGuia(
+  certificados: GuiaGravityJornadaResponse['certificados'],
+): MapaCertificadosGuia {
+  const mapa: MapaCertificadosGuia = {}
+  for (const cert of certificados) {
+    const tipo = tipoCertificadoPrismaParaFront(cert.tipo_certificado_guia_gravity)
+    mapa[tipo] = {
+      tipo_certificado: tipo,
+      emitido_em: cert.data_emissao_certificado_guia_gravity,
+      numero: cert.numero_certificado_guia_gravity,
+      codigo_verificacao: cert.codigo_verificacao_certificado_guia_gravity,
+    }
+  }
+  return mapa
 }
 
 export function formatarDataCertificadoGuia(iso: string, locale: string): string {
@@ -110,26 +100,6 @@ export function avaliarTiposCertificadoElegiveis(opts: {
   }
 
   return elegiveis
-}
-
-export function sincronizarCertificadosGuia(
-  tiposElegiveis: TipoCertificadoGuia[],
-): MapaCertificadosGuia {
-  const mapa = carregarCertificadosGuia()
-  let alterou = false
-  for (const tipo of tiposElegiveis) {
-    if (mapa[tipo]) continue
-    const emitidoEm = new Date().toISOString()
-    mapa[tipo] = {
-      tipo_certificado: tipo,
-      emitido_em: emitidoEm,
-      numero: gerarNumeroCertificadoGuia(tipo),
-      codigo_verificacao: gerarCodigoVerificacaoGuia(tipo, emitidoEm),
-    }
-    alterou = true
-  }
-  if (alterou) salvarCertificadosGuia(mapa)
-  return mapa
 }
 
 export function listarCertificadosOrdenados(mapa: MapaCertificadosGuia): CertificadoEmitidoGuia[] {

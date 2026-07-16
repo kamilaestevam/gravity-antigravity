@@ -108,6 +108,9 @@ model Organizacao {
   faturas_organizacao            ProdutoGravityFatura[]
   fatura_itens_organizacao       ProdutoGravityFaturaItem[]
   fatura_documentos_organizacao  ProdutoGravityFaturaDocumento[]
+  jornadas_guia_gravity          GuiaGravityJornadaUsuario[]
+  aulas_conclusao_guia_gravity   GuiaGravityAulaConclusao[]
+  certificados_guia_gravity      GuiaGravityCertificadoEmitido[]
 
   @@index([status_organizacao], map: "status_organizacao_idx")
   @@index([subdominio_organizacao], map: "subdominio_organizacao_idx")
@@ -157,6 +160,9 @@ model Usuario {
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
   testes_favoritos  TesteFavoritoUsuario[]
+  jornadas_guia_gravity          GuiaGravityJornadaUsuario[]
+  aulas_conclusao_guia_gravity   GuiaGravityAulaConclusao[]
+  certificados_guia_gravity      GuiaGravityCertificadoEmitido[]
 
   // Email único por organização
   @@unique([id_organizacao, email_usuario], map: "usuario_id_organizacao_email_usuario_key")
@@ -1099,4 +1105,79 @@ model AuditLogAdmin {
   @@index([acao_audit_log_admin, data_criacao_audit_log_admin], map: "ala_acao_data_idx")
   @@index([data_criacao_audit_log_admin], map: "ala_data_idx")
   @@map("audit_log_admin")
+}
+
+// ---------------------------------------------------------------------------
+// GUIA GRAVITY — jornada, conclusões de aula e certificados (University)
+// Substitui sessionStorage no Configurador (gravity-configurador.public).
+// Aprovado Coordenador 2026-07-16.
+// ---------------------------------------------------------------------------
+
+enum TipoCertificadoGuiaGravity {
+  MODULO_BASICO
+  PEDIDO
+  BID_FRETE
+  SMART_READ
+}
+
+model GuiaGravityJornadaUsuario {
+  id_guia_gravity_jornada_usuario               String    @id @default(cuid())
+  id_organizacao                               String
+  id_usuario                                   String
+  data_inicio_jornada_guia_gravity             DateTime
+  dias_ofensiva_guia_gravity                   Int       @default(0)
+  data_ultima_atividade_jornada_guia_gravity   DateTime?
+  data_criacao_guia_gravity_jornada_usuario     DateTime  @default(now())
+  data_atualizacao_guia_gravity_jornada_usuario DateTime  @updatedAt
+
+  organizacao Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "ggju_id_organizacao_fkey")
+  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "ggju_id_usuario_fkey")
+
+  @@unique([id_organizacao, id_usuario], map: "ggju_org_usuario_key")
+  @@index([id_organizacao], map: "ggju_org_idx")
+  @@index([id_organizacao, id_usuario], map: "ggju_org_usuario_idx")
+  @@map("guia_gravity_jornada_usuario")
+}
+
+model GuiaGravityAulaConclusao {
+  id_guia_gravity_aula_conclusao               String   @id @default(cuid())
+  id_organizacao                               String
+  id_usuario                                   String
+  slug_aula_guia_gravity                       String
+  slug_produto_guia_gravity                    String
+  xp_conquistado_aula_guia_gravity             Decimal  @db.Decimal(10, 2)
+  data_conclusao_aula_guia_gravity             DateTime @default(now())
+  data_criacao_guia_gravity_aula_conclusao     DateTime @default(now())
+  data_atualizacao_guia_gravity_aula_conclusao DateTime @updatedAt
+
+  organizacao Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "ggac_id_organizacao_fkey")
+  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "ggac_id_usuario_fkey")
+
+  @@unique([id_organizacao, id_usuario, slug_aula_guia_gravity], map: "ggac_org_usuario_aula_key")
+  @@index([id_organizacao], map: "ggac_org_idx")
+  @@index([id_organizacao, id_usuario], map: "ggac_org_usuario_idx")
+  @@index([id_organizacao, slug_produto_guia_gravity], map: "ggac_org_produto_idx")
+  @@map("guia_gravity_aula_conclusao")
+}
+
+model GuiaGravityCertificadoEmitido {
+  id_guia_gravity_certificado_emitido               String                     @id @default(cuid())
+  id_organizacao                                   String
+  id_usuario                                       String
+  tipo_certificado_guia_gravity                    TipoCertificadoGuiaGravity
+  numero_certificado_guia_gravity                  String
+  codigo_verificacao_certificado_guia_gravity      String                     @unique(map: "ggce_codigo_verificacao_key")
+  data_emissao_certificado_guia_gravity            DateTime
+  xp_modulo_certificado_guia_gravity               Int
+  nivel_certificado_guia_gravity                   Int
+  data_criacao_guia_gravity_certificado_emitido     DateTime                   @default(now())
+  data_atualizacao_guia_gravity_certificado_emitido DateTime                   @updatedAt
+
+  organizacao Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "ggce_id_organizacao_fkey")
+  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "ggce_id_usuario_fkey")
+
+  @@unique([id_organizacao, id_usuario, tipo_certificado_guia_gravity], map: "ggce_org_usuario_tipo_key")
+  @@index([id_organizacao], map: "ggce_org_idx")
+  @@index([id_organizacao, id_usuario], map: "ggce_org_usuario_idx")
+  @@map("guia_gravity_certificado_emitido")
 }

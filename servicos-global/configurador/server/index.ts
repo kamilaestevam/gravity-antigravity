@@ -90,6 +90,7 @@ import { meRouter } from './routes/me.js'
 import { taxasMoedaRouter } from './routes/taxas-moeda.js'
 import { previsaoTaxaFuturaMoedaRouter } from './routes/previsao-taxa-futura-moeda.js'
 import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
+import { guiaGravityJornadaRouter } from './routes/guia-gravity-jornada.js'
 import { apiObservability } from '../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import { prisma } from './lib/prisma.js'
@@ -234,6 +235,7 @@ app.use(configuradorAuditPlugin)
 
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/me', meRouter)
+app.use('/api/v1/guia-gravity', guiaGravityJornadaRouter)
 app.use('/api/v1/hub', hubRouter)
 app.use('/api/v1/organizacoes', organizacoesRouter)
 app.use('/api/v1/faturas-produto-gravity', billingRouter)

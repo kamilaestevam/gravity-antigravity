@@ -19,23 +19,54 @@ export function isCampoEditadoLeitura(
   return camposEditados.has(montarChaveCampoEditadoLeitura(idArquivoLocal, indiceDocumento, chave))
 }
 
-/** Grava valor em dados[caminho] (ex.: "exporter.name"). Caminhos com array ([]) não são persistidos. */
+const PARTE_CAMINHO = /^([^[]+)(?:\[(\d+)\])?$/
+
+/** Grava valor em dados[caminho] (ex.: "exporter.name", "items[0].weights.net"). */
 export function definirValorPorCaminho(
   raiz: Record<string, unknown>,
   caminho: string,
   valor: string,
 ): boolean {
-  if (caminho.includes('[')) return false
   const partes = caminho.split('.')
-  let alvo: Record<string, unknown> = raiz
-  for (let i = 0; i < partes.length - 1; i++) {
-    const parte = partes[i]
-    const atual = alvo[parte]
-    if (typeof atual !== 'object' || atual === null || Array.isArray(atual)) {
-      alvo[parte] = {}
-    }
-    alvo = alvo[parte] as Record<string, unknown>
+  if (partes.length === 0 || partes.some((parte) => !PARTE_CAMINHO.test(parte))) {
+    return false
   }
-  alvo[partes[partes.length - 1]] = valor
-  return true
+
+  let atual: Record<string, unknown> = raiz
+
+  for (let i = 0; i < partes.length; i++) {
+    const parte = partes[i]
+    const match = PARTE_CAMINHO.exec(parte)
+    if (!match) return false
+
+    const [, chave, indiceStr] = match
+    const ultimo = i === partes.length - 1
+
+    if (indiceStr !== undefined) {
+      const indice = Number(indiceStr)
+      if (!Array.isArray(atual[chave])) atual[chave] = []
+      const arr = atual[chave] as unknown[]
+      if (ultimo) {
+        arr[indice] = valor
+        return true
+      }
+      if (arr[indice] === null || typeof arr[indice] !== 'object' || Array.isArray(arr[indice])) {
+        arr[indice] = {}
+      }
+      atual = arr[indice] as Record<string, unknown>
+      continue
+    }
+
+    if (ultimo) {
+      atual[chave] = valor
+      return true
+    }
+
+    if (atual[chave] === null || typeof atual[chave] !== 'object' || Array.isArray(atual[chave])) {
+      atual[chave] = {}
+    }
+    atual = atual[chave] as Record<string, unknown>
+  }
+
+  return false
 }

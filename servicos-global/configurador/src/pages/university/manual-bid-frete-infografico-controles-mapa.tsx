@@ -243,7 +243,6 @@ export function ManualInfograficoBidFreteControlesMapa() {
         border: '1px solid rgba(148,163,184,.18)',
         borderRadius: 14,
         padding: '18px 18px 16px',
-        marginTop: 20,
         boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
       }}
     >

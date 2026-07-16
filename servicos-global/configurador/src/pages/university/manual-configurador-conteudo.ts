@@ -47,6 +47,10 @@ export interface DocPassoVisual {
   ocultarTituloPasso?: boolean
   /** Guia — realce visual exclusivo no bloco `rotuloPasso` + parágrafos (seção crítica). */
   destaqueRotuloPassoGuia?: boolean
+  /** Academy — linha lateral contínua do rótulo do passo até o callout final (subtítulos mantêm barra própria). */
+  trilhaLateralContinuaAcademy?: boolean
+  /** Academy — mantém `rotuloPasso` sem borda lateral indigo (ex.: Indicadores da grade). */
+  omitirBordaLateralRotuloAcademy?: boolean
   /** Academy: mantém o passo no corpo, mas omite do menu lateral da aula. */
   ocultarNoSumario?: boolean
   /** Badge «Em breve» no topo do conteúdo do passo (fora do acordeão de subtópicos). */
@@ -199,6 +203,8 @@ export interface DocPassoVisual {
     mostrarCardsKanbanCabecalhoPedido?: boolean
     /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
     layoutCardInsightGradePedido?: boolean
+    /** Manual BID Frete § Insights — card UX10 à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradeBidFrete?: boolean
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
@@ -240,6 +246,8 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual BID Frete § Lista — infográfico dos 4 pilares de customização da Lista. */
+  mostrarInfograficoBidFreteListaCustomizacao?: boolean
   /** Manual Pedido §08 Configurações — nativas + personalizadas e prefs por usuário. */
   mostrarInfograficoPedidoConfiguracoesColunasAdaptacao?: boolean
   /** Manual Pedido §08 Configurações — rotina de status de sistema + etapas do workspace. */
@@ -248,6 +256,10 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
   mostrarCatalogoColunasPedidoLista?: boolean
+  /** Manual BID Frete § Lista — accordion «Colunas da Lista» com regras de edição inline. */
+  mostrarCatalogoColunasBidFreteLista?: boolean
+  /** Índice do parágrafo após o qual inserir o catálogo BID Frete (padrão: 0). */
+  catalogoColunasBidFreteAposParagrafo?: number
   /** Manual Pedido §06 Dashboard — accordion de sugestões do modal Explorar sugestões. */
   mostrarCatalogoDashboardSugestoesPedido?: boolean
   /** Índice da galeria (0-based) após a qual inserir o catálogo; omitido = antes do callout final. */
@@ -434,6 +446,8 @@ export interface DocGaleriaComparacaoTela {
   alturaMaxima?: number
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
   cardInsightGradePedido?: number
+  /** Manual BID Frete § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradeBidFrete`). */
+  cardInsightGradeBidFrete?: number
   /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
   preencherCelulaGrade?: boolean
 }
@@ -443,6 +457,7 @@ export interface DocSubsecaoAposGaleriaTabela {
   rotuloPasso: string
   paragrafos: string[]
   mostrarInfograficoPedidoControlesMapa?: boolean
+  mostrarInfograficoBidFreteControlesMapa?: boolean
   galeriaTelas?: DocGaleriaTela[]
 }
 
@@ -472,6 +487,8 @@ export interface DocGaleriaTela {
   pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
   /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
   simuladorBidFretePainelInsights?: boolean
+  /** Manual BID Frete § Lista — simulador React com demo automática de arrastar colunas. */
+  simuladorBidFreteListaArrastarColunas?: boolean
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Chips numerados do infográfico do mapa Pedido (ex.: ['01'] = selecionar pin). */
@@ -492,6 +509,8 @@ export interface DocFiguraAposParagrafo {
   legenda?: string
   /** Recortes estreitos (menu lateral etc.) — evita esticar na coluna de texto. */
   larguraMaxima?: number
+  /** Callout(s) (dica, aviso, etc.) logo abaixo desta figura. */
+  calloutApos?: DocCalloutManual | DocCalloutManual[]
 }
 
 export interface DocOrigemDados {

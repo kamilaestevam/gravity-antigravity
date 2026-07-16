@@ -48,7 +48,7 @@ import {
   rotuloPassoNoCapitulo,
   encontrarPassoPorNum,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX, classePassoCorpoAcademy } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -71,8 +71,14 @@ import {
   CardBlocoInsightPedido,
   ManualInfograficoPedidoInsights,
 } from './manual-pedido-infografico-insights'
-import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
+import {
+  blocoInsightBidFretePorNum,
+  CardBlocoInsightBidFrete,
+  ManualInfograficoBidFreteInsights,
+} from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualInfograficoBidFreteListaCustomizacao } from './manual-bid-frete-infografico-lista-customizacao'
+import { ManualBidFreteSimuladorListaArrastarColunas } from './manual-bid-frete-simulador-lista-arrastar-colunas'
 import { ManualInfograficoPedidoConfiguracoesColunasAdaptacao } from './manual-pedido-infografico-configuracoes-colunas-adaptacao'
 import { ManualInfograficoPedidoConfiguracoesStatusAdaptacao } from './manual-pedido-infografico-configuracoes-status-adaptacao'
 import {
@@ -123,6 +129,7 @@ import {
 import { ManualPedidoSimuladorFiltrosMapa } from './manual-pedido-simulador-filtros-mapa'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
+import { ManualBidFreteTabelaCatalogoColunasLista } from './manual-bid-frete-tabela-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
@@ -2099,7 +2106,77 @@ function ManualGaleriaTelaFigurasCompostas({
   )
 }
 
-function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
+function ManualGaleriaSubcapituloAcademy({
+  rotulo,
+  paragrafo,
+  rotuloSubsecao = false,
+}: {
+  rotulo?: string
+  paragrafo?: string
+  /** Subfiltro dentro do passo (ex.: «Tipo de Operação») — paridade Smart Docs `rotuloPasso` na galeria. */
+  rotuloSubsecao?: boolean
+}) {
+  const temRotulo = Boolean(rotulo?.trim())
+  const temParagrafo = Boolean(paragrafo?.trim())
+  if (!temRotulo && !temParagrafo) return null
+  if (!temRotulo && temParagrafo) {
+    return (
+      <div style={{ marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX }}>
+        <ManualParagrafo texto={paragrafo!} marginBottom={0} />
+      </div>
+    )
+  }
+  if (rotuloSubsecao) {
+    return (
+      <>
+        {temRotulo ? (
+          <div className="uni-player-aula__passo-corpo uni-player-aula__passo-corpo--rotulo-subsecao">
+            <div
+              className="uni-player-aula__passo-rotulo-linha"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+            >
+              <p style={{ ...MANUAL_ESTILO_PASSO_ROTULO, margin: 0 }}>{rotulo!.trim()}</p>
+            </div>
+          </div>
+        ) : null}
+        {temParagrafo ? (
+          <ManualParagrafo texto={paragrafo!} marginBottom={0} />
+        ) : null}
+      </>
+    )
+  }
+  return (
+    <div
+      className="uni-player-aula__passo-corpo"
+      style={{
+        width: '100%',
+        minWidth: 0,
+        boxSizing: 'border-box',
+        marginBottom: MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX,
+      }}
+    >
+      {temRotulo ? (
+        <div
+          className="uni-player-aula__passo-rotulo-linha"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+        >
+          <p style={{ ...MANUAL_ESTILO_PASSO_ROTULO, margin: 0 }}>{rotulo!.trim()}</p>
+        </div>
+      ) : null}
+      {temParagrafo ? (
+        <ManualParagrafo texto={paragrafo!} marginBottom={0} />
+      ) : null}
+    </div>
+  )
+}
+
+function ManualGaleriaTelaCelula({
+  tela,
+  passoAcademyGuia = false,
+}: {
+  tela: DocGaleriaTela
+  passoAcademyGuia?: boolean
+}) {
   const pilaresCustomizacao = tela.pilaresCustomizacao
   const pilaresMapaBidFrete = tela.pilaresMapaBidFrete
   const pilaresPainelCotacaoBidFrete = tela.pilaresPainelCotacaoBidFrete
@@ -2125,9 +2202,11 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
         legendaPrincipal={tela.legenda}
       />
     )
-    : tela.imagem
-      ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
-      : null
+    : tela.simuladorBidFreteListaArrastarColunas
+      ? <ManualBidFreteSimuladorListaArrastarColunas />
+      : tela.imagem
+        ? <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        : null
 
   const restoAposParagrafo = (
     <>
@@ -2136,7 +2215,7 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
           <ManualTooltipKpiCard tooltip={tela.tooltipKpi} />
         </div>
       ) : null}
-      {!temPilares && tela.legendaAlinhamento !== 'left' ? (
+      {!passoAcademyGuia && !temPilares && tela.legendaAlinhamento !== 'left' ? (
         <ManualGaleriaTelaLegendaStep
           legenda={tela.legenda}
           alinhamento={tela.legendaAlinhamento ?? 'center'}
@@ -2153,6 +2232,35 @@ function ManualGaleriaTelaCelula({ tela }: { tela: DocGaleriaTela }) {
       ) : null}
     </>
   )
+
+  if (passoAcademyGuia) {
+    if (tela.imagensCompostas?.length) {
+      const rotuloGaleria = tela.legenda?.trim()
+      return (
+        <>
+          {rotuloGaleria || tela.paragrafoAntes ? (
+            <ManualGaleriaSubcapituloAcademy
+              rotulo={rotuloGaleria}
+              paragrafo={tela.paragrafoAntes}
+              rotuloSubsecao={Boolean(rotuloGaleria)}
+            />
+          ) : null}
+          {restoAposParagrafo}
+        </>
+      )
+    }
+    const rotuloSubcapitulo = tela.legenda?.trim() ? tela.legenda : undefined
+    return (
+      <>
+        <ManualGaleriaSubcapituloAcademy
+          rotulo={rotuloSubcapitulo}
+          paragrafo={tela.paragrafoAntes}
+          rotuloSubsecao={Boolean(rotuloSubcapitulo)}
+        />
+        {restoAposParagrafo}
+      </>
+    )
+  }
 
   if (!temPilares) {
     const legendaEsquerda = tela.legendaAlinhamento === 'left' ? (
@@ -2225,9 +2333,11 @@ function ManualGaleriaTelaImagemCelula({ tela }: { tela: DocGaleriaTela }) {
 export function ManualGaleriaTelasBloco({
   telas,
   fraseAposIndice,
+  passoAcademyGuia = false,
 }: {
   telas: DocGaleriaTela[]
   fraseAposIndice?: { indice: number; texto: string }
+  passoAcademyGuia?: boolean
 }) {
   if (telas.length === 0) return null
 
@@ -2266,7 +2376,7 @@ export function ManualGaleriaTelasBloco({
     }}>
       {items.map((tela) => (
         <div key={tela.legenda}>
-          <ManualGaleriaTelaCelula tela={tela} />
+          <ManualGaleriaTelaCelula tela={tela} passoAcademyGuia={passoAcademyGuia} />
         </div>
       ))}
     </div>
@@ -2859,6 +2969,9 @@ function ManualBlocoPassoVisual({
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso || passo.estiloTituloWizard === true || emAcordeaoSubtopico
   const ocultarTituloPasso = passo.ocultarTituloPasso || ocultarTituloPassoProp
   const passoAcademyIsolado = ocultarRotuloPasso && ocultarTituloPasso
+  const trilhaLateralContinuaAcademy = Boolean(
+    passoAcademyIsolado && passo.trilhaLateralContinuaAcademy,
+  )
   const omitirFigurasNoTexto = cenarioParte === 'texto'
   const textoCenariosAlinhados = emGradeCenarios && cenarioParte === 'texto'
   /** §4.02 — intro acima dos cards; parágrafo[0] não repete abaixo do infográfico. */
@@ -2966,6 +3079,7 @@ function ManualBlocoPassoVisual({
               layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
               layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
               layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
+              layoutCardInsightGradeBidFrete={galeria.layoutCardInsightGradeBidFrete}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
               mostrarChipsBidFreteModalTransporte={galeria.mostrarChipsBidFreteModalTransporte}
@@ -3036,8 +3150,8 @@ function ManualBlocoPassoVisual({
       className={
         passoCorpoAcademySubtitulo
           ? (passo.destaqueRotuloPassoGuia
-            ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--destaque'
-            : 'uni-player-aula__passo-corpo')
+            ? `${classePassoCorpoAcademy(passo)} uni-player-aula__passo-corpo--destaque`
+            : classePassoCorpoAcademy(passo))
           : undefined
       }
       style={passoAcademyIsolado ? {
@@ -3241,11 +3355,22 @@ function ManualBlocoPassoVisual({
                   alt={fig.legenda ?? passo.titulo}
                   larguraMaxima={fig.larguraMaxima}
                 />
+                {(Array.isArray(fig.calloutApos) ? fig.calloutApos : fig.calloutApos ? [fig.calloutApos] : []).map((callout, idx) => (
+                  <ManualCalloutBloco
+                    key={idx}
+                    callout={callout}
+                    marginTop={idx === 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 8}
+                  />
+                ))}
               </div>
             ))}
           {passo.mostrarCatalogoColunasPedidoLista
           && (passo.catalogoColunasPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoTabelaCatalogoColunasLista />
+          ) : null}
+          {passo.mostrarCatalogoColunasBidFreteLista
+          && (passo.catalogoColunasBidFreteAposParagrafo ?? 0) === i ? (
+            <ManualBidFreteTabelaCatalogoColunasLista />
           ) : null}
           {passo.mostrarCatalogoHistoricoPedido
           && (passo.catalogoHistoricoPedidoAposParagrafo ?? 0) === i ? (
@@ -3302,6 +3427,7 @@ function ManualBlocoPassoVisual({
                   layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
                   layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
                   layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
+              layoutCardInsightGradeBidFrete={galeria.layoutCardInsightGradeBidFrete}
                   calloutApos={galeria.calloutApos}
                   emAcordeaoSubtopico={emAcordeaoSubtopico}
                 />
@@ -3565,6 +3691,8 @@ function ManualBlocoPassoVisual({
 
   const infograficoListaCustomizacao = passo.mostrarInfograficoSmartDocsListaCustomizacao
     ? <ManualInfograficoSmartDocsListaCustomizacao />
+    : passo.mostrarInfograficoBidFreteListaCustomizacao
+      ? <ManualInfograficoBidFreteListaCustomizacao />
     : passo.mostrarInfograficoPedidoListaCustomizacao
       ? <ManualInfograficoPedidoListaCustomizacao />
       : passo.mostrarInfograficoBidFreteMapa
@@ -3608,76 +3736,128 @@ function ManualBlocoPassoVisual({
     : MANUAL_ESPACO_ENTRE_PASSOS_PX
 
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
-    <div style={{ marginTop: passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
-      {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
-        <div
-          key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
-          style={{ marginTop: indiceGaleria === 0 ? 0 : espacoEntreItensGaleriaPassoPx }}
-        >
-          <ManualGaleriaTelaCelula tela={tela} />
-        </div>
-      ))}
-    </div>
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-galeria">
+        {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
+          <div
+            key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
+            className="uni-player-aula__passo-galeria-item"
+          >
+            <ManualGaleriaTelaCelula tela={tela} passoAcademyGuia={passoAcademyIsolado} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+        {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
+          <div
+            key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
+            style={{ marginTop: indiceGaleria === 0 ? 0 : espacoEntreItensGaleriaPassoPx }}
+          >
+            <ManualGaleriaTelaCelula tela={tela} passoAcademyGuia={passoAcademyIsolado} />
+          </div>
+        ))}
+      </div>
+    )
   ) : null
 
-  const subsecaoAposGaleriaTabela = passo.subsecaoAposGaleriaTabela ? (
-    <div
-      style={{ marginTop: passo.galeriaTelasAposTabela?.length
-        ? espacoEntreItensGaleriaPassoPx
-        : (passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
-    >
-      {passoAcademyIsolado ? (
-        <div
-          className="uni-player-aula__passo-corpo"
-          style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
-        >
+  const subsecaoAposGaleria = passo.subsecaoAposGaleriaTabela
+
+  const subsecaoCabecalhoAposGaleriaTabela = subsecaoAposGaleria ? (
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-subsecao-cabecalho">
+        <div className="uni-player-aula__passo-corpo uni-player-aula__passo-corpo--rotulo-subsecao">
           <div
             className="uni-player-aula__passo-rotulo-linha"
             style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
           >
             <p style={{ ...MANUAL_ESTILO_PASSO_ROTULO, margin: 0 }}>
-              {passo.subsecaoAposGaleriaTabela.rotuloPasso}
+              {subsecaoAposGaleria.rotuloPasso}
             </p>
           </div>
-          {passo.subsecaoAposGaleriaTabela.paragrafos.map((p, i, arr) => (
-            <ManualParagrafo
-              key={p}
-              texto={p}
-              marginBottom={i < arr.length - 1 ? espacoParagrafoPx : 0}
-            />
-          ))}
         </div>
-      ) : (
-        <>
-          <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX + 4 }}>
-            {passo.subsecaoAposGaleriaTabela.rotuloPasso}
-          </p>
-          {passo.subsecaoAposGaleriaTabela.paragrafos.map((p, i, arr) => (
-            <ManualParagrafo
-              key={p}
-              texto={p}
-              marginBottom={i < arr.length - 1 ? espacoParagrafoPx : 0}
-            />
-          ))}
-        </>
-      )}
-      {passo.subsecaoAposGaleriaTabela.mostrarInfograficoPedidoControlesMapa ? (
-        <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
-          <ManualInfograficoPedidoControlesMapa />
-        </div>
-      ) : null}
-      {passo.subsecaoAposGaleriaTabela.galeriaTelas?.length ? (
-        <div style={{ marginTop: espacoEntreItensGaleriaPassoPx }}>
-          {passo.subsecaoAposGaleriaTabela.galeriaTelas.map((tela, indiceGaleria) => (
-            <div
-              key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
-              style={{ marginTop: indiceGaleria === 0 ? 0 : espacoEntreItensGaleriaPassoPx }}
-            >
-              <ManualGaleriaTelaCelula tela={tela} />
-            </div>
-          ))}
-        </div>
-      ) : null}
+        {subsecaoAposGaleria.paragrafos.map((p, i, arr) => (
+          <ManualParagrafo
+            key={p}
+            texto={p}
+            marginBottom={i < arr.length - 1 ? espacoParagrafoPx : 0}
+          />
+        ))}
+      </div>
+    ) : (
+      <>
+        <p style={{ ...MANUAL_ESTILO_PASSO_TITULO, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX + 4 }}>
+          {subsecaoAposGaleria.rotuloPasso}
+        </p>
+        {subsecaoAposGaleria.paragrafos.map((p, i, arr) => (
+          <ManualParagrafo
+            key={p}
+            texto={p}
+            marginBottom={i < arr.length - 1 ? espacoParagrafoPx : 0}
+          />
+        ))}
+      </>
+    )
+  ) : null
+
+  const subsecaoInfograficoAposGaleriaTabela = subsecaoAposGaleria?.mostrarInfograficoPedidoControlesMapa ? (
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-galeria uni-player-aula__passo-galeria--secao-visual">
+        <ManualInfograficoPedidoControlesMapa />
+      </div>
+    ) : (
+      <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+        <ManualInfograficoPedidoControlesMapa />
+      </div>
+    )
+  ) : subsecaoAposGaleria?.mostrarInfograficoBidFreteControlesMapa ? (
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-galeria uni-player-aula__passo-galeria--secao-visual">
+        <ManualInfograficoBidFreteControlesMapa />
+      </div>
+    ) : (
+      <div style={{ marginTop: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+        <ManualInfograficoBidFreteControlesMapa />
+      </div>
+    )
+  ) : null
+
+  const subsecaoGaleriaAposGaleriaTabela = subsecaoAposGaleria?.galeriaTelas?.length ? (
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-galeria">
+        {subsecaoAposGaleria.galeriaTelas.map((tela, indiceGaleria) => (
+          <div
+            key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
+            className="uni-player-aula__passo-galeria-item"
+          >
+            <ManualGaleriaTelaCelula tela={tela} passoAcademyGuia={passoAcademyIsolado} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div style={{ marginTop: espacoEntreItensGaleriaPassoPx }}>
+        {subsecaoAposGaleria.galeriaTelas.map((tela, indiceGaleria) => (
+          <div
+            key={tela.imagem ?? `${tela.legenda}-${indiceGaleria}`}
+            style={{ marginTop: indiceGaleria === 0 ? 0 : espacoEntreItensGaleriaPassoPx }}
+          >
+            <ManualGaleriaTelaCelula tela={tela} passoAcademyGuia={passoAcademyIsolado} />
+          </div>
+        ))}
+      </div>
+    )
+  ) : null
+
+  const subsecaoAposGaleriaTabela = subsecaoAposGaleria && !trilhaLateralContinuaAcademy ? (
+    <div
+      className={passoAcademyIsolado ? 'uni-player-aula__passo-subsecao-apos-galeria' : undefined}
+      style={{ marginTop: passo.galeriaTelasAposTabela?.length
+        ? espacoEntreItensGaleriaPassoPx
+        : (passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
+    >
+      {subsecaoCabecalhoAposGaleriaTabela}
+      {subsecaoInfograficoAposGaleriaTabela}
+      {subsecaoGaleriaAposGaleriaTabela}
     </div>
   ) : null
 
@@ -3688,7 +3868,13 @@ function ManualBlocoPassoVisual({
   ) : null
 
   const calloutAposGaleriaTabela = passo.calloutAposGaleriaTabela ? (
-    <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={24} />
+    passoAcademyIsolado ? (
+      <div className="uni-player-aula__passo-callouts">
+        <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={0} />
+      </div>
+    ) : (
+      <ManualCalloutBloco callout={passo.calloutAposGaleriaTabela} marginTop={24} />
+    )
   ) : null
 
   const calloutAposTabelaColunasPadrao = passo.calloutAposTabelaColunasPadrao ? (
@@ -3696,7 +3882,7 @@ function ManualBlocoPassoVisual({
   ) : null
 
   const blocoListaCustomizacao = (infograficoListaCustomizacao || infograficoCatalogoColunasPedido || tabelaCatalogoColunasPedido || infograficoListaAlertas || tabelaAlertasPedidoLista || passo.mostrarTabelaColunasPadraoLista
-    || tabelaCatalogoColunasSmartRead || calloutAposTabelaColunasPadrao || galeriaAposTabela || subsecaoAposGaleriaTabela || paragrafoAposGaleriaTabela || calloutAposGaleriaTabela
+    || tabelaCatalogoColunasSmartRead || calloutAposTabelaColunasPadrao || (!trilhaLateralContinuaAcademy && galeriaAposTabela) || (!trilhaLateralContinuaAcademy && subsecaoAposGaleriaTabela) || paragrafoAposGaleriaTabela || (!trilhaLateralContinuaAcademy && calloutAposGaleriaTabela)
     || passo.simuladorPedidoFiltrosMapa) ? (
     <>
       {infograficoListaCustomizacao}
@@ -3707,10 +3893,10 @@ function ManualBlocoPassoVisual({
       {gradeColunas}
       {tabelaCatalogoColunasSmartRead}
       {calloutAposTabelaColunasPadrao}
-      {galeriaAposTabela}
-      {subsecaoAposGaleriaTabela}
+      {trilhaLateralContinuaAcademy ? null : galeriaAposTabela}
+      {trilhaLateralContinuaAcademy ? null : subsecaoAposGaleriaTabela}
       {paragrafoAposGaleriaTabela}
-      {calloutAposGaleriaTabela}
+      {trilhaLateralContinuaAcademy ? null : calloutAposGaleriaTabela}
       {passo.simuladorPedidoFiltrosMapa ? (
         <div style={{ marginTop: espacoEntreItensGaleriaPassoPx }}>
           <ManualPedidoSimuladorFiltrosMapa />
@@ -3726,6 +3912,18 @@ function ManualBlocoPassoVisual({
       {passo.mostrarInfograficoPedidoMapa
         ? <ManualInfograficoPedidoMapa />
         : infograficoBidFreteSecaoVisualAcademy}
+    </div>
+  ) : null
+
+  const blocoTrilhaContinuaAcademy = trilhaLateralContinuaAcademy ? (
+    <div className="uni-player-aula__passo-faixa-trilha">
+      {blocoTexto}
+      {blocoInfograficoSecaoVisualAcademy}
+      {galeriaAposTabela}
+      {subsecaoCabecalhoAposGaleriaTabela}
+      {subsecaoInfograficoAposGaleriaTabela}
+      {subsecaoGaleriaAposGaleriaTabela}
+      {calloutAposGaleriaTabela}
     </div>
   ) : null
 
@@ -3894,7 +4092,7 @@ function ManualBlocoPassoVisual({
           return (
           <React.Fragment key={chave}>
             {blocoRotuloGaleria}
-            <div className={rotuloGaleriaNoPassoCorpo ? 'uni-player-aula__passo-galeria' : undefined}>
+            <div className={passoAcademyIsolado || rotuloGaleriaNoPassoCorpo ? 'uni-player-aula__passo-galeria' : undefined}>
             <ManualGaleriaComparacaoIntro
             telas={galeria.telas}
             colunas={galeria.colunas ?? 1}
@@ -3909,6 +4107,7 @@ function ManualBlocoPassoVisual({
             margemSuperiorPx={ehPrimeiraAposTexto ? MANUAL_ESPACO_FRASE_IMAGEM_PX : undefined}
             espacoSuperiorEtapa={idxGaleria > 0 && ehSubsecaoComTitulo}
             emAcordeaoSubtopico={emAcordeaoSubtopico}
+            passoAcademyGuia={passoAcademyIsolado}
           />
             </div>
           </React.Fragment>
@@ -4090,16 +4289,16 @@ function ManualBlocoPassoVisual({
         className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
         style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
-        {passoAcademyIsolado ? blocoTexto : null}
-        {blocoInfograficoSecaoVisualAcademy}
-        {passoAcademyIsolado ? null : blocoTexto}
-        {blocoListaCustomizacao ? (
-          passoAcademyIsolado ? (
-            <div className="uni-player-aula__passo-galeria">{blocoListaCustomizacao}</div>
-          ) : (
-            blocoListaCustomizacao
-          )
-        ) : null}
+        {trilhaLateralContinuaAcademy ? (
+          blocoTrilhaContinuaAcademy
+        ) : (
+          <>
+            {passoAcademyIsolado ? blocoTexto : null}
+            {blocoInfograficoSecaoVisualAcademy}
+            {passoAcademyIsolado ? null : blocoTexto}
+            {blocoListaCustomizacao}
+          </>
+        )}
         {rodapeDicaImagem}
       </div>
     )
@@ -4655,6 +4854,7 @@ export function ManualGaleriaComparacaoIntro({
   mostrarIndicadoresMoverDashboardPedido,
   mostrarCardsKanbanCabecalhoPedido,
   layoutCardInsightGradePedido,
+  layoutCardInsightGradeBidFrete,
   espacoSuperiorEtapa = false,
   espacoInferiorAposEtapaPx,
   margemSuperiorPx,
@@ -4731,6 +4931,8 @@ export function ManualGaleriaComparacaoIntro({
   mostrarCardsKanbanCabecalhoPedido?: boolean
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita por widget da grade. */
   layoutCardInsightGradePedido?: boolean
+  /** Manual BID Frete § Insights — card UX10 à esquerda + print à direita por widget da grade. */
+  layoutCardInsightGradeBidFrete?: boolean
   espacoSuperiorEtapa?: boolean
   espacoInferiorAposEtapaPx?: number
   /** Sobrescreve margin-top do bloco (ex.: frase → imagem após `paragrafosAposImagem`). */
@@ -4933,11 +5135,15 @@ export function ManualGaleriaComparacaoIntro({
   const subtituloEtapa = textoIntro?.trim() || undefined
   const subtituloNoCabecalhoEtapa = Boolean(tituloEtapa && subtituloEtapa)
 
-  const margemInferiorGaleriaPx = espacoInferiorAposEtapaPx ?? MANUAL_ESPACO_ENTRE_PASSOS_PX
+  const margemInferiorGaleriaPx = passoAcademyGuia
+    ? (espacoInferiorAposEtapaPx ?? 0)
+    : (espacoInferiorAposEtapaPx ?? MANUAL_ESPACO_ENTRE_PASSOS_PX)
   const margemSuperiorGaleriaPx = margemSuperiorPx ?? (
-    textoAcimaEstiloCorpo
-      ? (espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx)
-      : MANUAL_ESPACO_ENTRE_PASSOS_PX
+    passoAcademyGuia
+      ? 0
+      : textoAcimaEstiloCorpo
+        ? (espacoSuperiorEtapa ? 0 : espacoAcimaGaleriaPx)
+        : MANUAL_ESPACO_ENTRE_PASSOS_PX
   )
 
   return (
@@ -5246,6 +5452,38 @@ export function ManualGaleriaComparacaoIntro({
               >
                 <div style={{ minWidth: 0 }}>
                   {bloco ? <CardBlocoInsightPedido bloco={bloco} compacto={false} /> : null}
+                </div>
+                <div style={{ minWidth: 0, display: 'flex', justifyContent: 'flex-end' }}>
+                  <ManualFiguraScreenshot
+                    src={tela.imagem}
+                    alt={bloco?.rotulo ?? tela.legenda}
+                    ampliarInferiorDireito={ampliarInferiorDireito}
+                    larguraMaxima={tela.larguraMaxima}
+                    alturaMaxima={tela.alturaMaxima}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : layoutCardInsightGradeBidFrete ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+          {telas.map((tela) => {
+            const bloco = tela.cardInsightGradeBidFrete != null
+              ? blocoInsightBidFretePorNum(tela.cardInsightGradeBidFrete)
+              : undefined
+            return (
+              <div
+                key={tela.imagem}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 360px) minmax(0, 1fr)',
+                  gap: 20,
+                  alignItems: 'start',
+                }}
+              >
+                <div style={{ minWidth: 0 }}>
+                  {bloco ? <CardBlocoInsightBidFrete bloco={bloco} compacto={false} /> : null}
                 </div>
                 <div style={{ minWidth: 0, display: 'flex', justifyContent: 'flex-end' }}>
                   <ManualFiguraScreenshot

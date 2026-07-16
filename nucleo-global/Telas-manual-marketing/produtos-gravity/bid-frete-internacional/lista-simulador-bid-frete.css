@@ -1,0 +1,278 @@
+/* Lista simulador BID Frete — paridade visual com lista-bid-frete-internacional.tsx */
+.bfs-lista {
+  --bfs-bg: #1e293b;
+  --bfs-bg-alt: #0f172a;
+  --bfs-border: rgba(129, 140, 248, 0.12);
+  --bfs-accent: #818cf8;
+  --bfs-text: #f1f5f9;
+  --bfs-muted: #94a3b8;
+  --bfs-radius: 8px;
+  --color-primary: #6366f1;
+  --gtv-link: #6366f1;
+  --gtv-muted: #94a3b8;
+  --gtv-border: rgba(129, 140, 248, 0.12);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+  flex: 1;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--bfs-text);
+}
+
+.bfs-lista .lp-stats-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.bfs-lista .lp-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.bfs-lista-chrome {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--bfs-bg);
+  border: 1px solid var(--bfs-border);
+  border-radius: var(--bfs-radius);
+  overflow: hidden;
+}
+
+.bfs-lista-faixa {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--bfs-border);
+}
+
+.bfs-lista-paineis {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  background: rgba(139, 92, 246, 0.08);
+  gap: 0.375rem;
+}
+
+.bfs-lista-paineis-label {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--bfs-muted);
+}
+
+.bfs-lista-painel-tab {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--bfs-muted);
+  background: transparent;
+  cursor: default;
+}
+
+.bfs-lista-painel-tab--ativo {
+  color: #c7d2fe;
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(129, 140, 248, 0.35);
+}
+
+.bfs-lista-painel-mais {
+  color: #a5b4fc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.bfs-lista-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-top: 1px solid var(--bfs-border);
+  overflow-x: auto;
+}
+
+.bfs-lista-status-label {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--bfs-muted);
+}
+
+.bfs-lista-status-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bfs-lista-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.bfs-lista-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bfs-lista-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--bfs-border);
+}
+
+.bfs-lista-toolbar-esq {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.bfs-lista-toolbar-dir {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.bfs-lista-tabela-wrap {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.bfs-lista-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.6875rem;
+}
+
+.bfs-lista-tabela thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+  padding: 0.42rem 0.5rem;
+  text-align: left;
+  font-size: calc(0.5625rem - 1.5px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.bfs-lista-tabela tbody td {
+  border-bottom: 1px solid rgba(51, 65, 85, 0.65);
+  padding: 0.38rem 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.bfs-lista-tabela tbody tr:hover td {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.bfs-lista-th-check,
+.bfs-lista-td-check {
+  width: 32px;
+  text-align: center;
+}
+
+.bfs-lista-th--arrastando {
+  opacity: 0.42;
+}
+
+.bfs-lista-th--drop-before::before,
+.bfs-lista-th--drop-after::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #818cf8;
+  border-radius: 1px;
+}
+
+.bfs-lista-th--drop-before::before {
+  left: 0;
+}
+
+.bfs-lista-th--drop-after::after {
+  right: 0;
+}
+
+.bfs-lista-link-cotacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--gtv-link);
+  font-weight: 600;
+}
+
+.bfs-lista-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.bfs-lista--demo-arrastar {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.bfs-lista-demo-arrastar-camada {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.bfs-lista .pds-cursor-arrastar-lista {
+  position: absolute;
+  z-index: 4;
+}
+
+.bfs-lista .pds-th-fantasma-arrastar-lista {
+  position: absolute;
+  z-index: 3;
+}
+
+@media (max-width: 900px) {
+  .bfs-lista .lp-cards {
+    grid-template-columns: 1fr;
+  }
+}

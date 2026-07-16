@@ -3241,8 +3241,80 @@ body.light-theme .cw-xml-viewer {
   flex-direction: column;
   gap: 12px;
   margin: 0;
+  padding: 0;
+}
+
+/* Borda lateral indigo — só subtítulos (`rotuloPasso`), não passos com H2 no sumário. */
+.uni-player-aula__passo-corpo--rotulo {
   padding: 0 0 0 18px;
   border-left: 3px solid rgba(99, 102, 241, 0.45);
+}
+
+/* Sub-seção da galeria — borda lateral só na linha do rótulo (paridade «| FILTROS DA CONFERÊNCIA»). */
+.uni-player-aula__passo-corpo--rotulo-subsecao {
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0 0 0 18px;
+  border-left: 3px solid rgba(99, 102, 241, 0.45);
+}
+
+/* Academy — trilha roxa contínua (ex.: Filtros do Mapa: infográfico → subfiltros → DICA). */
+.uni-player-aula__passo-faixa-trilha {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.uni-player-aula__passo-faixa-trilha::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(99, 102, 241, 0.45);
+  pointer-events: none;
+}
+
+.uni-player-aula__passo-faixa-trilha > .uni-player-aula__passo-corpo--rotulo {
+  border-left: none;
+  padding-left: 0;
+}
+
+.uni-player-aula__passo-faixa-trilha > .uni-player-aula__passo-galeria--secao-visual,
+.uni-player-aula__passo-faixa-trilha > .uni-player-aula__passo-galeria,
+.uni-player-aula__passo-faixa-trilha > .uni-player-aula__passo-callouts {
+  margin-top: 0;
+}
+
+.uni-player-aula__passo-faixa-trilha > div {
+  margin-top: 0;
+}
+
+.uni-player-aula__passo-subsecao-cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  width: 100%;
+}
+
+.uni-player-aula__passo-subsecao-apos-galeria {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
+  width: 100%;
+}
+
+.uni-player-aula__passo-subsecao-apos-galeria > .uni-player-aula__passo-subsecao-cabecalho {
+  gap: 12px;
 }
 
 /* Guia — seção crítica (`destaqueRotuloPassoGuia`): brilho indigo, só onde o conteúdo marcar. */
@@ -3339,9 +3411,20 @@ body.light-theme .cw-xml-viewer {
 }
 
 .uni-player-aula__passo-galeria {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
   margin: 0;
   width: 100%;
+}
+
+/* Última etapa da galeria → callout de fechamento */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-callouts {
+  margin-top: 32px;
+}
+
+.uni-player-aula__passo-galeria > .uni-player-aula__passo-galeria-item + .uni-player-aula__passo-galeria-item {
+  margin-top: 0;
 }
 
 .uni-player-aula__passo-galeria-item {
@@ -3727,4 +3810,45 @@ body.light-theme .uni-academy-player .mlg-sidebar {
   font-size: 0.65rem;
   font-weight: 800;
   color: var(--ws-muted, #94a3b8);
+}
+
+/* Manual — faixa explicativa acima de telas animadas */
+.manual-faixa-demonstracao-animada {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(30, 41, 59, 0.35) 100%);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.88);
+  text-align: left;
+}
+
+.manual-faixa-demonstracao-animada__icone {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #a5b4fc;
+}
+
+.manual-faixa-demonstracao-animada__texto {
+  min-width: 0;
+}
+
+/* BID Frete · Lista — demo automática arrastar colunas (passo Customizar 03) */
+.sim-bid-frete-lista-arrastar-bloco {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sim-bid-frete-lista-arrastar-demo {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.24);
+  background: #0b1220;
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.42);
 }

@@ -22,6 +22,8 @@ export interface AulaDemo {
   manualSecao?: number
   /** Capítulo do manual Configurador (`/docs/configurador/{capitulo}`). */
   manualCapitulo?: string
+  /** Academy — oculta o rótulo da aula no painel lateral (módulo sem camada própria no sumário). */
+  ocultarCabecalhoNavSumario?: boolean
 }
 
 /** Slugs das aulas do Guia Login (Academy). Manual docs mantém seções 1:1. */

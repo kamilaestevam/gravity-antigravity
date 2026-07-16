@@ -48,6 +48,35 @@ export const MANUAL_PASSO_GUIA_RECUO_TEXTO_PX = 18
 /** Guia Gravity — espessura da linha vertical do passo. */
 export const MANUAL_PASSO_GUIA_BORDA_PX = 3
 
+type PassoBordaLateralGuia = {
+  rotuloPasso?: string
+  rotuloPassoAposGaleriaComparacao?: boolean
+  estiloTituloWizard?: boolean
+  omitirBordaLateralRotuloAcademy?: boolean
+}
+
+/** SSOT — passo usa borda lateral indigo (rótulo ou «Passo NN», nunca H2 wizard). */
+export function passoUsaBordaLateralGuia(
+  passo: PassoBordaLateralGuia,
+  opts?: { forcarRotulo?: boolean; exibirRotuloNumerado?: boolean },
+): boolean {
+  if (passo.omitirBordaLateralRotuloAcademy) return false
+  if (opts?.forcarRotulo) return true
+  if (passo.rotuloPasso?.trim() && !passo.rotuloPassoAposGaleriaComparacao) return true
+  if (opts?.exibirRotuloNumerado && !passo.estiloTituloWizard) return true
+  return false
+}
+
+/** Classe CSS do corpo do passo na Academy — `--rotulo` só quando `passoUsaBordaLateralGuia`. */
+export function classePassoCorpoAcademy(
+  passo: PassoBordaLateralGuia,
+  forcarRotulo = false,
+): string {
+  return passoUsaBordaLateralGuia(passo, { forcarRotulo })
+    ? 'uni-player-aula__passo-corpo uni-player-aula__passo-corpo--rotulo'
+    : 'uni-player-aula__passo-corpo'
+}
+
 /**
  * Guia Gravity — título de bloco dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado

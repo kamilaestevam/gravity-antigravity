@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Certificate, X } from '@phosphor-icons/react'
 import {
-  carregarCertificadosGuia,
   chaveI18nCertificadoGuia,
   listarCertificadosOrdenados,
   SLUGS_MODULO_BASICO_GUIA,

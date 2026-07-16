@@ -9,8 +9,6 @@ import {
   somarDuracaoFases,
 } from './duracao-academy-guia-gravity'
 
-export const CHAVE_DATA_INICIO_JORNADA_GUIA = 'university_jornada_inicio_v1'
-
 export interface FaseComDuracao {
   slug?: string
   duracao: string
@@ -46,13 +44,17 @@ function diasEntre(inicio: Date, fim: Date): number {
 }
 
 /**
- * Demo: persiste data de início; se já há progresso e não há data, retrocede para coerência visual.
+ * Data de início da jornada — fonte: API (`jornada.data_inicio_jornada_guia_gravity`).
+ * Fallback local apenas quando a API ainda não carregou.
  */
-export function obterDataInicioJornadaGuia(minutosConcluidos = 0): Date {
-  if (typeof sessionStorage === 'undefined') return inicioDoDia(new Date())
-  const armazenada = sessionStorage.getItem(CHAVE_DATA_INICIO_JORNADA_GUIA)
-  if (armazenada) {
-    const parsed = new Date(armazenada)
+export function obterDataInicioJornadaGuia(
+  minutosConcluidos = 0,
+  dataInicioPersistida?: Date | string | null,
+): Date {
+  if (dataInicioPersistida) {
+    const parsed = dataInicioPersistida instanceof Date
+      ? dataInicioPersistida
+      : new Date(dataInicioPersistida)
     if (!Number.isNaN(parsed.getTime())) return inicioDoDia(parsed)
   }
   const diasEstimados = minutosConcluidos > 0
@@ -60,7 +62,6 @@ export function obterDataInicioJornadaGuia(minutosConcluidos = 0): Date {
     : 0
   const inicio = inicioDoDia(new Date())
   if (diasEstimados > 0) inicio.setDate(inicio.getDate() - diasEstimados)
-  sessionStorage.setItem(CHAVE_DATA_INICIO_JORNADA_GUIA, inicio.toISOString())
   return inicio
 }
 

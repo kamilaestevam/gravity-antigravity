@@ -88,6 +88,12 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(MATRIZ_VALIDACAO_INVOICE).toHaveLength(35)
   })
 
+  it('cada regra da matriz SSOT tem base_normativa preenchida', () => {
+    for (const regra of MATRIZ_VALIDACAO_INVOICE) {
+      expect(regra.base_normativa.trim().length, regra.id).toBeGreaterThan(0)
+    }
+  })
+
   it('extrai resultado legível de detalhe com prefixo', () => {
     expect(normalizarResultadoChecklist('Número: ISA-002034', 'verde')).toBe('ISA-002034')
     expect(normalizarResultadoChecklist(null, 'pendente')).toBe('—')

@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { ITENS_MENU_USUARIO_MANUAL, type ItemMenuUsuarioSlug } from './manual-navegacao-conteudo'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
-import { MANUAL_TITULO_INFOGRAFICO_ESTILO } from './manual-tipografia'
+import { MANUAL_TITULO_INFOGRAFICO_ESTILO, MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -113,7 +113,7 @@ export function ManualInfograficoItensMenuUsuario() {
         Demais opções do menu do usuário
       </p>
       <p style={{
-        margin: '0 0 14px', fontSize: '.78rem', lineHeight: 1.55, color: CORPO_70,
+        margin: `0 0 ${MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX}px`, fontSize: '.78rem', lineHeight: 1.55, color: CORPO_70,
       }}>
         <ManualInfograficoRichText texto="Além do **Configurador**, o painel aberto pelo **avatar** no canto superior direito reúne estes atalhos de sessão e preferências." />
       </p>

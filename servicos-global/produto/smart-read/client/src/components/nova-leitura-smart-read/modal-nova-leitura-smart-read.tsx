@@ -84,6 +84,7 @@ import { abrirArquivoLeituraNovaAbaSmartRead } from '../../shared/abrir-arquivo-
 import {
   definirValorPorCaminho,
   montarChaveCampoEditadoLeitura,
+  sincronizarValorLegadoPorCaminho,
 } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
@@ -923,6 +924,7 @@ export function ModalNovaLeituraSmartRead({
           }
           const ok = definirValorPorCaminho(extracao.dados, chave, valor)
           if (!ok) return item
+          sincronizarValorLegadoPorCaminho(extracao.dados, chave, valor)
           salvo = true
           return { ...item, leitura }
         }),

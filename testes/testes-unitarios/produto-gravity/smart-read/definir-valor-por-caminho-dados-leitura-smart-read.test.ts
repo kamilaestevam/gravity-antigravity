@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { definirValorPorCaminho } from '../../../../servicos-global/produto/smart-read/client/src/shared/definir-valor-por-caminho-dados-leitura-smart-read.ts'
+import {
+  definirValorPorCaminho,
+  lerValorPorCaminho,
+  sincronizarValorLegadoPorCaminho,
+} from '../../../../servicos-global/produto/smart-read/client/src/shared/definir-valor-por-caminho-dados-leitura-smart-read.ts'
 
 describe('Smart Read — definirValorPorCaminho', () => {
   it('grava caminho simples com ponto', () => {
@@ -42,5 +46,34 @@ describe('Smart Read — definirValorPorCaminho', () => {
     const dados: Record<string, unknown> = {}
     expect(definirValorPorCaminho(dados, '', 'x')).toBe(false)
     expect(definirValorPorCaminho(dados, 'items[].ncm', '1234')).toBe(false)
+  })
+
+  it('lê valor indexado em items', () => {
+    const dados: Record<string, unknown> = {
+      items: [{ weights: { gross: '9.8' } }],
+    }
+    expect(lerValorPorCaminho(dados, 'items[0].weights.gross')).toBe('9.8')
+  })
+
+  it('espelha edição no snapshot legado sections.fields', () => {
+    const dados: Record<string, unknown> = {
+      sections: [
+        {
+          title: 'Item 1',
+          fields: [
+            { key: 'items[0].weights.gross', label: 'Gross', value: '' },
+            { key: 'items[0].volume.dimensions', label: 'Dimensions', value: '' },
+          ],
+        },
+      ],
+      items: [{ weights: { gross: '' }, volume: { dimensions: '' } }],
+    }
+
+    expect(definirValorPorCaminho(dados, 'items[0].weights.gross', '12.5')).toBe(true)
+    sincronizarValorLegadoPorCaminho(dados, 'items[0].weights.gross', '12.5')
+
+    const fields = ((dados.sections as Record<string, unknown>[])[0].fields as Record<string, unknown>[])
+    expect(fields[0].value).toBe('12.5')
+    expect(lerValorPorCaminho(dados, 'items[0].weights.gross')).toBe('12.5')
   })
 })

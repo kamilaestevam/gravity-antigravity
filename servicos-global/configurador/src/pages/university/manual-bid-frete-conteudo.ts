@@ -706,10 +706,32 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           tituloCurto: 'Filtro das colunas',
           rotuloPasso: 'Filtro das colunas',
           paragrafos: [
-            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
             'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Modal** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Salve o conjunto no **painel** ativo (veja **Painéis** acima) e reutilize depois.',
+          ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 2,
+              textoAcimaEstiloCorpo: true,
+              telas: [
+                {
+                  legenda: '01 · Ícone de funil no cabeçalho',
+                  imagem: S('lista_filtro_1'),
+                  paragrafoAntes: '**Ícone de funil** no cabeçalho da coluna',
+                },
+                {
+                  legenda: '02 · Popover: ordenar e filtrar',
+                  imagem: S('lista_filtro_2'),
+                  paragrafoAntes: 'Popover: **ordenar** e **filtrar**',
+                },
+                {
+                  legenda: '03 · Combinação de filtros',
+                  imagem: S('lista_filtro_4'),
+                  paragrafoAntes: '**Combinação** de filtros + *_Limpar todos_*',
+                },
+              ],
+            },
           ],
           callout: {
             tipo: 'dica',

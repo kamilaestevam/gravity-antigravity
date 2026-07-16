@@ -30,9 +30,46 @@
 .bfs-lista .lp-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.625rem;
   flex: 1;
   min-width: 0;
+}
+
+/* KPI cards compactos — paridade lista BID em produção no player Academy */
+.bfs-lista .cg-card {
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.bfs-lista .cg-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.bfs-lista .cg-card__header {
+  gap: 0.35rem;
+}
+
+.bfs-lista .cg-card__label {
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+}
+
+.bfs-lista .cg-card__body {
+  padding-top: 0.3rem;
+  gap: 0.15rem;
+}
+
+.bfs-lista .cg-card__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.bfs-lista .cg-card__subtext {
+  font-size: 0.5625rem;
+  line-height: 1.25;
 }
 
 .bfs-lista-chrome {
@@ -152,7 +189,7 @@
 .bfs-lista-toolbar-esq {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   min-width: 0;
   flex: 1;
 }
@@ -160,8 +197,58 @@
 .bfs-lista-toolbar-dir {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   flex-shrink: 0;
+}
+
+.bfs-lista-btn-novo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.65rem;
+  padding: 0 0.55rem;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-primary, #6366f1);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: default;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.bfs-lista-btn-novo__caret {
+  margin-left: 1px;
+  opacity: 0.92;
+}
+
+.bfs-lista .gtv-btn.bfs-lista-toolbar-btn,
+.bfs-lista .gtv-export-wrapper .gtv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  gap: 0.3rem;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.bfs-lista .gtv-btn.bfs-lista-toolbar-btn svg,
+.bfs-lista .gtv-export-wrapper .gtv-btn svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+.bfs-lista .gtv-btn.bfs-lista-toolbar-btn > span {
+  line-height: 1;
 }
 
 .bfs-lista-tabela-wrap {
@@ -192,6 +279,65 @@
   white-space: nowrap;
 }
 
+.bfs-lista-th-col {
+  position: relative;
+  transition: opacity 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bfs-lista-th-col-label {
+  display: inline-block;
+}
+
+.bfs-lista-th--arrastando {
+  opacity: 0.22;
+  color: transparent;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(129, 140, 248, 0.06),
+      rgba(129, 140, 248, 0.06) 4px,
+      transparent 4px,
+      transparent 8px
+    ),
+    #0f172a;
+  outline: 1.5px dashed rgba(129, 140, 248, 0.55);
+  outline-offset: -2px;
+}
+
+.bfs-lista-th--drop-alvo {
+  background: rgba(99, 102, 241, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.35);
+}
+
+.bfs-lista-th--drop-before::before,
+.bfs-lista-th--drop-after::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  background: linear-gradient(180deg, #a5b4fc 0%, #6366f1 100%);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.45),
+    0 0 12px rgba(99, 102, 241, 0.75);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.bfs-lista-th--drop-before::before {
+  left: -1px;
+}
+
+.bfs-lista-th--drop-after::after {
+  right: -1px;
+}
+
+.bfs-lista-td--coluna-arrastando {
+  opacity: 0.28;
+  background: rgba(15, 23, 42, 0.65);
+}
+
 .bfs-lista-tabela tbody td {
   border-bottom: 1px solid rgba(51, 65, 85, 0.65);
   padding: 0.38rem 0.5rem;
@@ -209,27 +355,8 @@
   text-align: center;
 }
 
-.bfs-lista-th--arrastando {
-  opacity: 0.42;
-}
-
-.bfs-lista-th--drop-before::before,
-.bfs-lista-th--drop-after::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  width: 2px;
-  background: #818cf8;
-  border-radius: 1px;
-}
-
-.bfs-lista-th--drop-before::before {
-  left: 0;
-}
-
-.bfs-lista-th--drop-after::after {
-  right: 0;
+.bfs-lista-th--arrastando .bfs-lista-th-col-label {
+  visibility: hidden;
 }
 
 .bfs-lista-link-cotacao {
@@ -263,12 +390,79 @@
 
 .bfs-lista .pds-cursor-arrastar-lista {
   position: absolute;
+  z-index: 5;
+}
+
+.bfs-th-fantasma-arrastar-lista {
+  position: absolute;
   z-index: 4;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 72px;
+  max-width: min(240px, calc(100% - 24px));
+  padding: 0.38rem 0.62rem;
+  border-radius: 7px;
+  border: 1.5px solid rgba(165, 180, 252, 0.85);
+  background: linear-gradient(180deg, rgba(51, 65, 85, 0.96) 0%, rgba(30, 41, 59, 0.98) 100%);
+  color: #f8fafc;
+  font-size: calc(0.5625rem - 1.5px);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow:
+    0 14px 32px rgba(2, 6, 23, 0.55),
+    0 0 0 1px rgba(99, 102, 241, 0.35),
+    0 0 18px rgba(99, 102, 241, 0.28);
+  opacity: 0.94;
+  transform: translateY(-3px) rotate(-0.6deg) scale(1.03);
+  animation: bfs-fantasma-arrastar-pulso 1.1s ease-in-out infinite alternate;
+}
+
+.bfs-th-fantasma-arrastar-lista__handle {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  line-height: 1;
+  color: #a5b4fc;
+  opacity: 0.9;
+}
+
+.bfs-th-fantasma-arrastar-lista__rotulo {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes bfs-fantasma-arrastar-pulso {
+  from {
+    box-shadow:
+      0 12px 28px rgba(2, 6, 23, 0.5),
+      0 0 0 1px rgba(99, 102, 241, 0.3),
+      0 0 14px rgba(99, 102, 241, 0.22);
+    transform: translateY(-2px) rotate(-0.6deg) scale(1.02);
+  }
+  to {
+    box-shadow:
+      0 18px 38px rgba(2, 6, 23, 0.62),
+      0 0 0 1px rgba(129, 140, 248, 0.5),
+      0 0 22px rgba(99, 102, 241, 0.42);
+    transform: translateY(-5px) rotate(-0.6deg) scale(1.04);
+  }
 }
 
 .bfs-lista .pds-th-fantasma-arrastar-lista {
-  position: absolute;
-  z-index: 3;
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bfs-th-fantasma-arrastar-lista {
+    animation: none;
+    transform: translateY(-3px) scale(1.02);
+  }
 }
 
 @media (max-width: 900px) {

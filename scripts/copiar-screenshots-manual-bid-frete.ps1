@@ -76,6 +76,10 @@ $aliasesManual = @{
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-1.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_2.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-2.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_3.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-3.png'
+  'tela_bid_frete_lista_filtro_1.png' = 'bid-frete-int-lista-filtro-1.png'
+  'tela_bid_frete_lista_filtro_2.png' = 'bid-frete-int-lista-filtro-2.png'
+  'tela_bid_frete_lista_filtro_3.png' = 'bid-frete-int-lista-filtro-3.png'
+  'tela_bid_frete_lista_filtro_4.png' = 'bid-frete-int-lista-filtro-4.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {
   $caminhoDrive = Join-Path $origem $nomeDrive

@@ -932,13 +932,13 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
   }
 })
 
-// --- DELETE /:id — Excluir rascunho ---
+// --- DELETE /:id — Excluir cotação (exceto aprovada) ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO') {
-      throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
+    if (existing.status_cotacao_bid_frete_internacional === 'APROVADA') {
+      throw new AppError('So e possivel excluir cotacoes que nao estejam aprovadas', 400, 'INVALID_STATUS')
     }
 
     await (req.prisma as any).cotacaoBidFreteInternacional.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })

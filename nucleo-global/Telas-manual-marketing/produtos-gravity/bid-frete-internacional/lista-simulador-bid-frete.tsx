@@ -3,16 +3,14 @@ import {
   Anchor,
   AirplaneTilt,
   ArrowSquareOut,
-  Columns,
+  CaretDown,
   CurrencyDollar,
-  DownloadSimple,
-  MagnifyingGlass,
   Package,
   Plus,
   Truck,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoCompletoExportar } from '../../../Tabelas/tabela-virtual-global/src/BotaoCompletoExportar'
 import {
   RenderBadgeOperacao,
   RenderBadgeStatus,
@@ -34,9 +32,10 @@ import {
   reordenarColunasListaSimuladorBidFrete,
   type LadoDropColuna,
 } from './reordenar-colunas-lista-simulador-bid-frete'
-import { IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido } from '../pedido/indicador-cabecalho-fantasma-arrastar-lista-simulador-pedido'
+import { IndicadorCabecalhoFantasmaArrastarListaSimuladorBidFrete } from './indicador-cabecalho-fantasma-arrastar-lista-simulador-bid-frete'
 import { IndicadorCursorArrastarListaSimuladorPedido } from '../pedido/indicador-cursor-arrastar-lista-simulador-pedido'
 import '../pedido/indicador-cursor-arrastar-lista-simulador-pedido.css'
+import '../../../Layout/card-global/src/card.css'
 import '../../../Tabelas/tabela-virtual-global/src/tabela-virtual.css'
 import '../../../Tabelas/tabela-virtual-global/src/botao-completo-exportar.css'
 import './lista-simulador-bid-frete.css'
@@ -59,6 +58,21 @@ const STATUS_ABAS_DEMO = [
   { id: 'FALTA_INFORMACAO', label: 'Falta de informação' },
   { id: 'EXPIRADA', label: 'Expirada' },
 ] as const
+
+const EXPORTAR_OPCOES_DEMO = [
+  { label: 'CSV', onClick: () => undefined },
+  { label: 'XLSX', onClick: () => undefined },
+] as const
+
+function IconeColunasToolbar() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="10" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="17" y="3" width="4" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
 
 function IconeModal({ modal }: { modal: string }) {
   if (modal === 'AEREO') return <AirplaneTilt size={13} weight="duotone" aria-hidden />
@@ -125,6 +139,7 @@ export function ListaSimuladorBidFrete({
   const [cursorArrastar, setCursorArrastar] = useState<EstadoCursorArrastarLista>(
     CURSOR_ARRASTAR_LISTA_INICIAL,
   )
+  const [fantasmaLarguraColuna, setFantasmaLarguraColuna] = useState<number | null>(null)
 
   const colunasVisiveis = useMemo(
     () => colunas.filter((coluna) => coluna.visivel),
@@ -158,9 +173,31 @@ export function ListaSimuladorBidFrete({
     })
   }, [aplicarReordenacaoColuna, modoDemonstracaoArrastarColunas])
 
+  useEffect(() => {
+    if (!dragColunaId || !cursorArrastar.arrastando) {
+      setFantasmaLarguraColuna(null)
+      return
+    }
+
+    const cabecalho = shellDemonstracaoRef.current?.querySelector<HTMLElement>(
+      `[data-coluna-th-demo-id="${dragColunaId}"]`,
+    )
+    if (cabecalho == null) return
+
+    const medir = () => {
+      const rect = cabecalho.getBoundingClientRect()
+      if (rect.width > 0) setFantasmaLarguraColuna(rect.width)
+    }
+
+    medir()
+    const frameId = window.requestAnimationFrame(medir)
+    return () => window.cancelAnimationFrame(frameId)
+  }, [dragColunaId, cursorArrastar.arrastando, colunasVisiveis])
+
   const classeDropColuna = useCallback((colunaId: string) => {
     if (dragOverColunaId !== colunaId || !dragColunaId) return ''
-    return ladoDropColuna === 'before' ? 'bfs-lista-th--drop-before' : 'bfs-lista-th--drop-after'
+    const lado = ladoDropColuna === 'before' ? 'bfs-lista-th--drop-before' : 'bfs-lista-th--drop-after'
+    return `bfs-lista-th--drop-alvo ${lado}`
   }, [dragColunaId, dragOverColunaId, ladoDropColuna])
 
   return (
@@ -177,20 +214,20 @@ export function ListaSimuladorBidFrete({
         <div className="lp-cards">
           <CardBasicoGlobal
             titulo="Total de Cotações"
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--bfs-accent)' }} />}
+            icone={<Package weight="duotone" size={14} style={{ color: 'var(--bfs-accent)' }} />}
             valor="62"
             subtexto="Total acumulado"
           />
           <CardBasicoGlobal
             titulo="Valor Total de Frete"
-            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            icone={<CurrencyDollar weight="duotone" size={14} style={{ color: '#34d399' }} />}
             valor="USD 16.450,00"
             variante="sucesso"
             subtexto="Valor acumulado das propostas recebidas"
           />
           <CardBasicoGlobal
             titulo="Propostas Recebidas"
-            icone={<Package weight="duotone" size={16} style={{ color: '#f8fafc' }} />}
+            icone={<Package weight="duotone" size={14} style={{ color: '#f8fafc' }} />}
             valor="20"
             subtexto="Quantidade total de respostas dos fornecedores"
           />
@@ -243,28 +280,18 @@ export function ListaSimuladorBidFrete({
 
         <div className="bfs-lista-toolbar gtv-toolbar">
           <div className="bfs-lista-toolbar-esq gtv-toolbar-esquerda">
-            <div className="gtv-busca-wrapper">
-              <span className="gtv-busca-icone"><MagnifyingGlass size={14} aria-hidden /></span>
-              <input
-                type="search"
-                className="gtv-busca-input"
-                placeholder="Buscar"
-                readOnly={modoDemonstracaoArrastarColunas}
-              />
-            </div>
-            <BotaoGlobal variante="primario" tamanho="pequeno" icone={<Plus size={14} weight="bold" />}>
-              Novo
-            </BotaoGlobal>
+            <button type="button" className="bfs-lista-btn-novo" aria-label="Novo">
+              <Plus size={12} weight="bold" aria-hidden />
+              <span>Novo</span>
+              <CaretDown size={11} weight="bold" aria-hidden className="bfs-lista-btn-novo__caret" />
+            </button>
           </div>
           <div className="bfs-lista-toolbar-dir gtv-toolbar-direita">
-            <button type="button" className="gtv-btn" aria-label="Colunas">
-              <Columns size={14} weight="duotone" aria-hidden />
-              Colunas
+            <button type="button" className="gtv-btn bfs-lista-toolbar-btn" aria-label="Colunas">
+              <IconeColunasToolbar />
+              <span>Colunas</span>
             </button>
-            <button type="button" className="gtv-btn" aria-label="Exportar">
-              <DownloadSimple size={14} weight="duotone" aria-hidden />
-              Exportar
-            </button>
+            <BotaoCompletoExportar acoes={[...EXPORTAR_OPCOES_DEMO]} />
           </div>
         </div>
 
@@ -282,11 +309,12 @@ export function ListaSimuladorBidFrete({
                       key={coluna.id}
                       data-coluna-th-demo-id={modoDemonstracaoArrastarColunas ? coluna.id : undefined}
                       className={[
+                        'bfs-lista-th-col',
                         arrastando ? 'bfs-lista-th--arrastando' : '',
                         classeDropColuna(coluna.id),
                       ].filter(Boolean).join(' ') || undefined}
                     >
-                      {coluna.label}
+                      <span className="bfs-lista-th-col-label">{coluna.label}</span>
                     </th>
                   )
                 })}
@@ -299,7 +327,12 @@ export function ListaSimuladorBidFrete({
                     <input type="checkbox" className="gtv-checkbox" readOnly aria-hidden />
                   </td>
                   {colunasVisiveis.map((coluna) => (
-                    <td key={`${linha.id}-${coluna.id}`}>
+                    <td
+                      key={`${linha.id}-${coluna.id}`}
+                      className={dragColunaId === coluna.id && cursorArrastar.arrastando
+                        ? 'bfs-lista-td--coluna-arrastando'
+                        : undefined}
+                    >
                       {renderCelulaLista(coluna.id, linha)}
                     </td>
                   ))}
@@ -314,10 +347,11 @@ export function ListaSimuladorBidFrete({
         <div className="bfs-lista-demo-arrastar-camada" aria-hidden>
           <IndicadorCursorArrastarListaSimuladorPedido estado={cursorArrastar} />
           {dragColunaId && cursorArrastar.arrastando ? (
-            <IndicadorCabecalhoFantasmaArrastarListaSimuladorPedido
+            <IndicadorCabecalhoFantasmaArrastarListaSimuladorBidFrete
               rotulo={colunas.find((coluna) => coluna.id === dragColunaId)?.label ?? ''}
               x={cursorArrastar.x}
               y={cursorArrastar.y}
+              largura={fantasmaLarguraColuna ?? undefined}
             />
           ) : null}
         </div>

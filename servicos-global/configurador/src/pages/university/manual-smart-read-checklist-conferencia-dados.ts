@@ -66,6 +66,68 @@ export type GrupoChecklistManual = {
   colunas: LinhaChecklistManual[]
 }
 
+export type DocumentoChecklistManual = {
+  id: string
+  tipoDocumento: string
+  rotuloAba: string
+  secoes: GrupoChecklistManual[]
+  totalRegras: number
+  totalSecoes: number
+}
+
+/** Rótulo curto das abas de tipo de documento (paridade UX do modal Checklist). */
+export const ROTULO_ABA_TIPO_DOCUMENTO_CHECKLIST: Record<string, string> = {
+  'Commercial Invoice': 'Invoice',
+  'Packing List': 'Packing List',
+  'Air Waybill (AWB)': 'AWB',
+  'Bill of Lading (BL)': 'BL',
+  'Certificado de Origem': 'Certificado de Origem',
+  'Certificado Fitossanitário': 'Certificado Fitossanitário',
+  'Pedido de Compra (PO)': 'Pedido de Compra',
+  'Pedido de Venda (SO)': 'Pedido de Venda',
+}
+
+export const ORDEM_TIPOS_DOCUMENTO_CHECKLIST = [
+  'Commercial Invoice',
+  'Packing List',
+  'Air Waybill (AWB)',
+  'Bill of Lading (BL)',
+  'Certificado de Origem',
+  'Certificado Fitossanitário',
+  'Pedido de Compra (PO)',
+  'Pedido de Venda (SO)',
+] as const
+
+export function agruparGruposChecklistPorDocumento(
+  grupos: GrupoChecklistManual[],
+): DocumentoChecklistManual[] {
+  const porTipo = new Map<string, GrupoChecklistManual[]>()
+  for (const grupo of grupos) {
+    const lista = porTipo.get(grupo.tipoDocumento) ?? []
+    lista.push(grupo)
+    porTipo.set(grupo.tipoDocumento, lista)
+  }
+  return ORDEM_TIPOS_DOCUMENTO_CHECKLIST
+    .filter((tipo) => (porTipo.get(tipo)?.length ?? 0) > 0)
+    .map((tipo) => {
+      const secoes = porTipo.get(tipo)!
+      const totalRegras = secoes.reduce((acc, secao) => acc + secao.colunas.length, 0)
+      return {
+        id: tipo
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, ''),
+        tipoDocumento: tipo,
+        rotuloAba: ROTULO_ABA_TIPO_DOCUMENTO_CHECKLIST[tipo] ?? tipo,
+        secoes,
+        totalRegras,
+        totalSecoes: secoes.length,
+      }
+    })
+}
+
 const ROTULO_MOTOR: Record<string, string> = {
   codigo: 'Código determinístico',
   api: 'API cadastral (Receita/CNPJ)',
@@ -113,6 +175,10 @@ function mapearRegra(
   }
 }
 
+function rotuloSecaoChecklistManual(rotulo: string): string {
+  return rotulo.replace(/^\d+\s*—\s*/, '')
+}
+
 function montarGruposPorSecao<T extends RegraGenerica>({
   prefixoId,
   tipoDocumento,
@@ -133,7 +199,7 @@ function montarGruposPorSecao<T extends RegraGenerica>({
     })
     return {
       id: `${prefixoId}-${secao}`,
-      titulo: rotulosSecao[secao] ?? secao,
+      titulo: rotuloSecaoChecklistManual(rotulosSecao[secao] ?? secao),
       tipoDocumento,
       colunas: regras.map((regra, i) => mapearRegra(regra, i + 1, tipoDocumento)),
     }

@@ -42,7 +42,7 @@ export function ManualInfograficoSmartDocsChecklistConferencia({
           lineHeight: 1.35,
           letterSpacing: '-.01em',
         }}>
-          {TOTAL_REGRAS_CHECKLIST_SMART_READ} regras em {TOTAL_TIPOS_DOCUMENTO_CHECKLIST_SMART_READ} tipos de documento · {TOTAL_SECOES_CHECKLIST_SMART_READ} seções no accordion
+          {TOTAL_REGRAS_CHECKLIST_SMART_READ} regras em {TOTAL_TIPOS_DOCUMENTO_CHECKLIST_SMART_READ} documentos · {TOTAL_SECOES_CHECKLIST_SMART_READ} subsessões
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export function ManualInfograficoSmartDocsChecklistConferencia({
           padding: '6px 10px',
         }}>
           <Sparkle size={12} weight="fill" />
-          Seções recolhidas: expanda abaixo
+          Selecione o documento e expanda a subsessão abaixo
         </span>
       </div>
 

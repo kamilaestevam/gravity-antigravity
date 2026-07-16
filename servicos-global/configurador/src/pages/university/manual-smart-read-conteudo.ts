@@ -149,6 +149,8 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_4 =
   '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-4.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONSULTOR_INTELIGENTE =
   '/university/screenshots/smart-docs-nova-leitura-passo-3-consultor-inteligente.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ALTERADO_ERRO_METRICA =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-alterado-erro-metrica.png'
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -938,6 +940,22 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             { indice: 0, imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITAR },
             { indice: 0, imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONFERENCIA_SESSAO_EDITADO },
           ],
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ALTERADO_ERRO_METRICA,
+                  paragrafoAntes:
+                    'Exemplo do local que consta o resultado dos campos **alterados**.',
+                },
+              ],
+            },
+          ],
         },
         {
           titulo: 'Comparar arquivo',
@@ -946,12 +964,11 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ocultarNoSumario: true,
           etapaWizard: 3,
           paragrafos: [
-            'O **Comparar arquivo** cruza campo a campo a leitura atual com um **segundo PDF**. Útil quando o exportador envia versão revisada ou quando você quer validar divergências antes de concluir.',
-            'Abra pelo botão **Comparar arquivo** na barra da aba **Conferência de Campos**. À esquerda fica o documento atual (editável); à direita, envie o arquivo comparado. Após o processamento, a tabela marca **iguais**, **divergentes**, campos **só em um documento** e **vazios em ambos**.',
+            'O **Comparar arquivo** cruza campo a campo a leitura atual com um **segundo documento**. Útil ao enviar versão revisada ou quando você quer validar divergências antes de concluir.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
-              indice: 1,
+              indice: 0,
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               ampliarInferiorDireito: true,
@@ -964,7 +981,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMPARAR_ARQUIVO_2,
-                  paragrafoAntes: 'Envie o **segundo PDF** no painel direito para iniciar a comparação.',
+                  paragrafoAntes: 'Envie o **segundo documento** no painel direito para iniciar a comparação.',
                 },
                 {
                   legenda: '',

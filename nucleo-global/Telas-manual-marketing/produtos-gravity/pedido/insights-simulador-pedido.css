@@ -14,23 +14,37 @@
 }
 
 .pds-insights-kpis .cg-card {
-  min-height: 72px;
+  min-height: 80px;
 }
 
 .pds-insights-kpis .cg-card__value {
-  font-size: 1.25rem;
+  font-size: 1.625rem;
+}
+
+.pds-insights-kpis .cg-card__subtext {
+  font-size: 0.625rem;
+}
+
+.pds-insights-kpis .cg-card--has-tooltip {
+  cursor: default;
+}
+
+.pds-insights-kpis .cg-card__label {
+  font-size: calc(0.75rem - 2px);
 }
 
 .pds-insights-globe-row {
-  --pds-insights-linha-altura: 300px;
+  --pds-insights-linha-altura: 360px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 200px minmax(180px, 0.72fr);
+  grid-template-columns: minmax(0, 1.85fr) minmax(200px, 0.85fr);
   gap: 8px;
   align-items: stretch;
+  position: relative;
+  z-index: 5;
+  overflow: visible;
 }
 
 .pds-insights-globe-row > .pds-mapa-globo,
-.pds-insights-globe-row > .pds-rankings-hud,
 .pds-insights-globe-row__coluna-direita {
   min-height: var(--pds-insights-linha-altura);
   max-height: var(--pds-insights-linha-altura);
@@ -59,11 +73,21 @@
 
 .pds-insights-card__titulo {
   margin: 0 0 8px;
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem - 2px);
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #e2e8f0;
+}
+
+.pds-insights :is(
+  .pds-insights-card__titulo,
+  .pds-funil-painel__titulo,
+  .pds-alertas-painel__titulo,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo
+) {
+  font-size: calc(0.6875rem - 2px);
 }
 
 .pds-insights-ranking-lista {
@@ -306,34 +330,19 @@
   color: #64748b;
 }
 
-/* Tooltips — paridade Smart Doc / Pedido real */
+/* Tooltips KPI — paridade CardBasicoGlobal / Lista Pedido */
 .pds-insights-kpis {
   overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .pds-insights-kpi-card.cg-card {
   z-index: 1;
 }
 
-.pds-insights-kpi-card.cg-card--has-tooltip:hover,
-.pds-insights-kpi-card.cg-card--tooltip-aberto {
+.pds-insights-kpis .cg-card--has-tooltip:hover {
   z-index: 40;
-}
-
-.pds-insights-kpi-card.cg-card--tooltip-aberto {
-  z-index: 60;
-}
-
-.pds-insights-kpis .cg-card--has-tooltip:hover .cg-card__tooltip,
-.pds-insights-kpis .cg-card--tooltip-aberto .cg-card__tooltip--fixo {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-
-.pds-insights-kpis .cg-card__tooltip {
-  min-width: 200px;
-  max-width: 240px;
 }
 
 .pds-insights-card--com-tooltip {

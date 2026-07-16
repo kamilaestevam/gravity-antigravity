@@ -37,9 +37,17 @@ export type PayloadContinuarPrefillCotacaoBidFreteSmartRead = {
   iniciar_no_passo_fornecedores: boolean
 }
 
+export type OpcoesContinuarPrefillCotacaoBidFreteSmartRead = {
+  /** Com várias cotações: abre em nova aba e mantém o wizard para as restantes. */
+  manter_wizard_aberto?: boolean
+}
+
 type Props = {
   leitura: LeituraParaConversaoCotacaoBidFrete
-  onContinuar: (payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead) => void
+  onContinuar: (
+    payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead,
+    opcoes?: OpcoesContinuarPrefillCotacaoBidFreteSmartRead,
+  ) => void
   continuando?: boolean
 }
 
@@ -142,14 +150,28 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
       })
       return
     }
-    onContinuar({
-      prefill: estadoAtivo.prefill,
-      detalhe_mapeamento: estadoAtivo.conversao.detalhe_mapeamento,
-      campos_faltantes: estadoAtivo.meta.campos_faltantes,
-      passo_inicial_tipo: estadoAtivo.meta.passo_inicial_tipo,
-      iniciar_no_passo_fornecedores: estadoAtivo.meta.iniciar_no_passo_fornecedores,
-    })
-  }, [addNotification, estadoAtivo, onContinuar])
+    const restamOutras = estadosGrupos.length > 1
+    onContinuar(
+      {
+        prefill: estadoAtivo.prefill,
+        detalhe_mapeamento: estadoAtivo.conversao.detalhe_mapeamento,
+        campos_faltantes: estadoAtivo.meta.campos_faltantes,
+        passo_inicial_tipo: estadoAtivo.meta.passo_inicial_tipo,
+        iniciar_no_passo_fornecedores: estadoAtivo.meta.iniciar_no_passo_fornecedores,
+      },
+      { manter_wizard_aberto: restamOutras },
+    )
+    if (restamOutras) {
+      setEstadosGrupos((atual) => atual.filter((_, i) => i !== indiceGrupoAtivo))
+      setIndiceGrupoAtivo(0)
+      setTentouContinuarIncompleto(false)
+      addNotification({
+        type: 'success',
+        title: 'Cotação aberta em nova aba',
+        message: `Restam ${estadosGrupos.length - 1} cotação(ões) para revisar aqui.`,
+      })
+    }
+  }, [addNotification, estadoAtivo, estadosGrupos.length, indiceGrupoAtivo, onContinuar])
 
   if (fase === 'match') {
     return (
@@ -176,8 +198,9 @@ export function PainelRevisaoPrefillCotacaoBidFreteSmartRead({
         <div>
           <h3 className="sr-prefill-bid-revisao-titulo">Dados para nova cotação de frete</h3>
           <p className="sr-prefill-bid-revisao-subtitulo">
-            Ajuste os campos com os mesmos controles do BID Frete. Portos/aeroportos sugeridos a
-            partir do país do exportador/importador aparecem como <strong>SUGERIDO</strong>.
+            {totalGrupos > 1
+              ? `São ${totalGrupos} cotações: complete os obrigatórios em cada aba e use Continuar — cada uma abre uma Nova Cotação no BID (as restantes ficam aqui).`
+              : 'Ajuste os campos com os mesmos controles do BID Frete. Portos/aeroportos sugeridos aparecem como SUGERIDO.'}
           </p>
         </div>
       </div>

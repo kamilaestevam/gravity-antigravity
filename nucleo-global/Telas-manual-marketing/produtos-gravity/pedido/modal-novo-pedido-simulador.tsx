@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Info, Lock, Package, Plus, Tag, Trash, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
@@ -40,6 +40,8 @@ type PapelCadastro = PapelFornecedorSimuladorNovoPedido | null
 type Props = {
   aberto: boolean
   onFechar: () => void
+  onPassoChange?: (passo: number) => void
+  onCadastroRapidoChange?: (aberto: boolean) => void
   onSalvo: (
     form: FormNovoPedidoSimulador,
     itens: ItemNovoPedidoSimulador[],
@@ -73,7 +75,7 @@ const ESTILO_INPUT_TOTAL_ITEM: CSSProperties = {
   background: 'var(--bg-elevated, #334155)',
 }
 
-export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
+export function ModalNovoPedidoSimulador({ aberto, onFechar, onPassoChange, onCadastroRapidoChange, onSalvo }: Props) {
   const [passo, setPasso] = useState(1)
   const [form, setForm] = useState<FormNovoPedidoSimulador>(formNovoPedidoSimuladorVazio)
   const [itens, setItens] = useState<ItemNovoPedidoSimulador[]>([criarItemVazioNovoPedidoSimulador()])
@@ -90,6 +92,16 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
     [requisitos],
   )
   const podeAvancar = passo === 1 ? podeAvancarPasso1NovoPedidoSimulador(form) : true
+
+  useEffect(() => {
+    if (!aberto) {
+      onPassoChange?.(1)
+      onCadastroRapidoChange?.(false)
+      return
+    }
+    onPassoChange?.(passo)
+    onCadastroRapidoChange?.(cadastroPapel !== null)
+  }, [aberto, passo, cadastroPapel, onPassoChange, onCadastroRapidoChange])
 
   const opcoesImportador = useMemo(
     () => opcoesFornecedorSimulador(fornecedores, 'importador', form.tipo_operacao_pedido),
@@ -190,10 +202,11 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
         tamanho="2xl"
         altura="620px"
         carregando={salvando}
-        classNameDialog="pds-mnp-dialog"
+        classNameDialog="pds-mnp-dialog mpp-dialog"
+        dataTutorialAlvoBotaoAvancar={passo === 1 ? 'pedido-novo-proximo' : 'pedido-novo-salvar'}
       >
         {passo === 1 ? (
-          <div className="pds-mnp-form">
+          <div className="pds-mnp-form" data-sds-tutorial-alvo="pedido-novo-dados-campos">
             <p className="pds-mnp-secao">Dados do Pedido</p>
             <div className="pds-mnp-grid">
               <div className={`pds-mnp-campo pds-mnp-grid--full`}>
@@ -245,7 +258,12 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
                       <span className="pds-mnp-label">
                         Exportador <span style={{ color: '#f87171' }}>*</span>
                       </span>
-                      <button type="button" className="pds-mnp-link-nova" onClick={() => setCadastroPapel('exportador')}>
+                      <button
+                        type="button"
+                        className="pds-mnp-link-nova"
+                        data-sds-tutorial-alvo="pedido-novo-cadastro-rapido"
+                        onClick={() => setCadastroPapel('exportador')}
+                      >
                         + Nova
                       </button>
                     </div>
@@ -294,7 +312,7 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
                 </>
               )}
 
-              <div className="pds-mnp-campo">
+              <div className="pds-mnp-campo pds-mnp-campo--fabricante">
                 <div className="pds-mnp-label-row">
                   <span className="pds-mnp-label">Fabricante</span>
                   <button type="button" className="pds-mnp-link-nova" onClick={() => setCadastroPapel('fabricante')}>
@@ -310,6 +328,11 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
                 />
               </div>
 
+              <div
+                className="pds-mnp-secao-comercial"
+                data-sds-tutorial-alvo="pedido-novo-dados-comercial"
+                style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: 'subgrid' }}
+              >
               <div className="pds-mnp-campo">
                 <SelectGlobal
                   label="Incoterm"
@@ -408,19 +431,23 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
                   }}
                 />
               </div>
+              </div>
             </div>
 
+            <div data-sds-tutorial-alvo="pedido-novo-requisitos">
             <BannerRequisitosGlobal
               requisitos={requisitos}
               titulo="Para avançar, ainda falta:"
             />
+            </div>
           </div>
         ) : (
-          <div className="pds-mnp-form">
+          <div className="pds-mnp-form" data-sds-tutorial-alvo="pedido-novo-itens-grade">
             <div className="pds-mnp-itens-header">
               <p className="pds-mnp-secao" style={{ margin: 0 }}>
                 Itens ({itens.length})
               </p>
+              <span data-sds-tutorial-alvo="pedido-novo-itens-adicionar">
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
@@ -429,6 +456,7 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
               >
                 Adicionar item
               </BotaoGlobal>
+              </span>
             </div>
 
             {itens.map((item, index) => {
@@ -515,7 +543,10 @@ export function ModalNovoPedidoSimulador({ aberto, onFechar, onSalvo }: Props) {
                         textAlign="left"
                       />
                     </div>
-                    <div className="pds-mnp-campo">
+                    <div
+                      className="pds-mnp-campo"
+                      {...(index === 0 ? { 'data-sds-tutorial-alvo': 'pedido-novo-itens-total' } : {})}
+                    >
                       <label className="pds-mnp-label" htmlFor={`tot-${index}`}>Valor Total dos Itens</label>
                       <CampoDecimalGlobal
                         id={`tot-${index}`}

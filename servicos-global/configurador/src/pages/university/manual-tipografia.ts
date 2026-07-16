@@ -82,9 +82,10 @@ export function classePassoCorpoAcademy(
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
  * (tela, cards, etapa temática), não uma sequência operacional numerada.
  * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
- * — a borda não envolve galeria/screenshot; estes ficam em `.uni-player-aula__passo-galeria` abaixo.
- * A borda lateral vale só no bloco de **Passo NN** ou **título** (`rotuloPasso`); instruções
- * operacionais (ex.: «Escolha 7 dias…» em `paragrafoAntes` sem `**NN.**`) ficam em texto simples, sem borda.
+ * — screenshot/galeria abaixo em `.uni-player-aula__passo-galeria`, alinhados à esquerda do passo.
+ * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
+ * operacionais seguintes na mesma seção (ex.: etapas de «Novo token») ficam em texto simples, sem borda.
+ * Passos com H2 no sumário (`estiloTituloWizard`, ex.: «Análise») **não** usam borda.
  *
  * Abas principais (ex.: **Cards**, **Tabela**) são **H2 de fluxo** no corpo — não usam `rotuloPasso`.
  *

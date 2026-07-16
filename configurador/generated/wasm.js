@@ -584,6 +584,53 @@ exports.Prisma.AuditLogAdminScalarFieldEnum = {
   data_criacao_audit_log_admin: 'data_criacao_audit_log_admin'
 };
 
+exports.Prisma.GuiaGravityJornadaUsuarioScalarFieldEnum = {
+  id_guia_gravity_jornada_usuario: 'id_guia_gravity_jornada_usuario',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  data_inicio_jornada_guia_gravity: 'data_inicio_jornada_guia_gravity',
+  dias_ofensiva_guia_gravity: 'dias_ofensiva_guia_gravity',
+  data_ultima_atividade_jornada_guia_gravity: 'data_ultima_atividade_jornada_guia_gravity',
+  data_criacao_guia_gravity_jornada_usuario: 'data_criacao_guia_gravity_jornada_usuario',
+  data_atualizacao_guia_gravity_jornada_usuario: 'data_atualizacao_guia_gravity_jornada_usuario'
+};
+
+exports.Prisma.GuiaGravityAulaConclusaoScalarFieldEnum = {
+  id_guia_gravity_aula_conclusao: 'id_guia_gravity_aula_conclusao',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  slug_aula_guia_gravity: 'slug_aula_guia_gravity',
+  slug_produto_guia_gravity: 'slug_produto_guia_gravity',
+  xp_conquistado_aula_guia_gravity: 'xp_conquistado_aula_guia_gravity',
+  data_conclusao_aula_guia_gravity: 'data_conclusao_aula_guia_gravity',
+  data_criacao_guia_gravity_aula_conclusao: 'data_criacao_guia_gravity_aula_conclusao',
+  data_atualizacao_guia_gravity_aula_conclusao: 'data_atualizacao_guia_gravity_aula_conclusao'
+};
+
+exports.Prisma.GuiaGravityCertificadoEmitidoScalarFieldEnum = {
+  id_guia_gravity_certificado_emitido: 'id_guia_gravity_certificado_emitido',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  tipo_certificado_guia_gravity: 'tipo_certificado_guia_gravity',
+  numero_certificado_guia_gravity: 'numero_certificado_guia_gravity',
+  codigo_verificacao_certificado_guia_gravity: 'codigo_verificacao_certificado_guia_gravity',
+  data_emissao_certificado_guia_gravity: 'data_emissao_certificado_guia_gravity',
+  xp_modulo_certificado_guia_gravity: 'xp_modulo_certificado_guia_gravity',
+  nivel_certificado_guia_gravity: 'nivel_certificado_guia_gravity',
+  data_criacao_guia_gravity_certificado_emitido: 'data_criacao_guia_gravity_certificado_emitido',
+  data_atualizacao_guia_gravity_certificado_emitido: 'data_atualizacao_guia_gravity_certificado_emitido'
+};
+
+exports.Prisma.GuiaGravityManualLidoScalarFieldEnum = {
+  id_guia_gravity_manual_lido: 'id_guia_gravity_manual_lido',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  slug_manual_guia_gravity: 'slug_manual_guia_gravity',
+  data_leitura_manual_guia_gravity: 'data_leitura_manual_guia_gravity',
+  data_criacao_guia_gravity_manual_lido: 'data_criacao_guia_gravity_manual_lido',
+  data_atualizacao_guia_gravity_manual_lido: 'data_atualizacao_guia_gravity_manual_lido'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -708,6 +755,13 @@ exports.TipoDocumentoFaturaProdutoGravity = exports.$Enums.TipoDocumentoFaturaPr
   OUTRO: 'OUTRO'
 };
 
+exports.TipoCertificadoGuiaGravity = exports.$Enums.TipoCertificadoGuiaGravity = {
+  MODULO_BASICO: 'MODULO_BASICO',
+  PEDIDO: 'PEDIDO',
+  BID_FRETE: 'BID_FRETE',
+  SMART_READ: 'SMART_READ'
+};
+
 exports.Prisma.ModelName = {
   Organizacao: 'Organizacao',
   Usuario: 'Usuario',
@@ -738,7 +792,11 @@ exports.Prisma.ModelName = {
   LLMMetricas: 'LLMMetricas',
   GabiLimiteMonetarioGlobal: 'GabiLimiteMonetarioGlobal',
   GabiAlertaEmitidoGlobal: 'GabiAlertaEmitidoGlobal',
-  AuditLogAdmin: 'AuditLogAdmin'
+  AuditLogAdmin: 'AuditLogAdmin',
+  GuiaGravityJornadaUsuario: 'GuiaGravityJornadaUsuario',
+  GuiaGravityAulaConclusao: 'GuiaGravityAulaConclusao',
+  GuiaGravityCertificadoEmitido: 'GuiaGravityCertificadoEmitido',
+  GuiaGravityManualLido: 'GuiaGravityManualLido'
 };
 
 /**

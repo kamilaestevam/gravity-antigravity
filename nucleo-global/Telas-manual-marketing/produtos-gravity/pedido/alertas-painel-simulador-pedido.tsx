@@ -47,7 +47,7 @@ export function AlertasPainelSimuladorPedido({ alertas }: Props) {
   const alertaTooltip = useTooltipFixoInsightsSimulador<AlertaPedidoSimulador>()
 
   return (
-    <section className="pds-alertas-painel pds-insights-card pds-insights-card--com-tooltip" aria-label="Alertas">
+    <section className="pds-alertas-painel pds-insights-card pds-insights-card--com-tooltip" aria-label="Alertas" data-sds-tutorial-alvo="pedido-insights-alertas">
       <div className="pds-alertas-painel__header">
         <div className="pds-alertas-painel__titulo-wrap">
           <span className="pds-alertas-painel__icone" aria-hidden>
@@ -67,7 +67,10 @@ export function AlertasPainelSimuladorPedido({ alertas }: Props) {
       </div>
 
       <div className="sr-insights-tt-host" ref={alertaTooltip.containerRef}>
-        <div className="pds-alertas-painel__grid">
+        <div
+          className="pds-alertas-painel__grid"
+          data-sds-tutorial-alvo="pedido-insights-alertas-observacoes"
+        >
           {alertas.map((alerta) => {
             const estilo = resolverEstiloAlerta(alerta.cor)
             return (

@@ -1,9 +1,8 @@
 /**
  * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
- * Publicação em produção controlada por `university-gravity-publicacao.ts`
- * (decisão PO MASTER Daniel — Guia Gravity já atende usuários; manual fora de prod).
- * Ver documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md
+ * Manuais (`/docs/*`) controlados por `universityManuaisDocsVisiveis()` em
+ * `university-gravity-publicacao.ts`. Academy sempre acessível (autenticado).
  *
  * Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
  * com título "Gravity University" + opções e dropdown de organizações, e as
@@ -32,10 +31,17 @@ import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type Eco
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { useJornadaGuiaGravity } from '../hooks/use-jornada-guia-gravity'
+import { useAssinaturasJornadaGuiaGravity } from '../hooks/use-assinaturas-jornada-guia-gravity'
+import { useRankingGuiaGravity } from '../hooks/use-ranking-guia-gravity'
+import { GuiaGravityDadosProvider, useGuiaGravityDados } from '../contexts/guia-gravity-dados-context'
+import { produtoCompradoNaOrganizacao, PRODUTOS_GUIA_PLATAFORMA } from '../../shared/guia-gravity/produtos-jornada-guia-gravity.js'
+import { slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-manuais-guia-gravity.js'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
+import { STATE_NAVEGACAO_CAMADA_GUIA } from './university/guia-academy-link'
 import {
   universityManuaisDocsVisiveis,
 } from './university/university-gravity-publicacao'
@@ -55,6 +61,31 @@ import {
   obterXpMaxProduto,
   obterXpMaxTrilha,
 } from './university/pesos-academy-guia-gravity'
+import { calcularNivelGuiaGravity } from './university/niveis-guia-gravity'
+import { DashboardInfoNiveisGuiaGravity } from './university/dashboard-info-niveis-guia-gravity'
+import { DashboardInfoRitmoGuiaGravity } from './university/dashboard-info-ritmo-guia-gravity'
+import { PainelCertificadosGuiaGravity } from './university/painel-certificados-guia-gravity'
+import { GravityPartnerEmBreve } from './university/gravity-partner-em-breve'
+import {
+  contarCertificadosObtidos,
+  resolverNomeCertificadoGuiaGravity,
+  SLUGS_MODULO_BASICO_GUIA,
+  TIPOS_CERTIFICADO_GUIA,
+  type CertificadoEmitidoGuia,
+  type MapaCertificadosGuia,
+  aulaGuiaEstaConcluida,
+} from './university/certificado-guia-gravity'
+import { BarraProgressoComRitmo } from './university/barra-progresso-com-ritmo'
+import {
+  calcularMinutosConcluidosJornada,
+  calcularMinutosTotaisProdutos,
+  calcularRitmoJornada,
+  calcularRitmoModuloSequencial,
+  minutosConcluidosModulo,
+  montarMapaDuracaoProdutos,
+  obterDataInicioJornadaGuia,
+  type MetricasRitmoJornada,
+} from './university/ritmo-jornada-guia-gravity'
 import {
   DOC_LOGIN_METADADOS,
   DOC_LOGIN_SECOES,
@@ -63,7 +94,7 @@ import {
   type DocPassoVisual,
   type DocSecao,
 } from './university/manual-login-conteudo'
-import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
+import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug, type DocFluxo, type DocSecao as DocSecaoConfigurador } from './university/manual-configurador-conteudo'
 import {
   DocConfiguradorManual,
@@ -106,6 +137,7 @@ import { DOC_API_COCKPIT_SUBTITULO } from './university/manual-api-cockpit-conte
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import { ManualPainelRequisitosCadastro } from './university/manual-login-painel-requisitos'
 import './configurador/workspace.css'
+import { QuicklyTourMinhaJornada } from './university/quickly-tour-minha-jornada'
 
 const UNI_COR = '#818cf8'
 
@@ -133,7 +165,7 @@ interface Trilha {
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   'bem-vindo': [{ ...BEM_VINDO_TRILHA, prog: 0 }],
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '19m', prog: 0,
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '8m', prog: 0,
     fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
   admin: [{ ...ADMIN_TRILHA, prog: 0 }],
@@ -157,24 +189,23 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   processo: [{
-    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '2h30', prog: 0,
+    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '18m', prog: 0,
     fases: [
-      { nome: 'Criando um Processo', duracao: '25m', concluida: false },
-      { nome: 'Dados Técnicos', duracao: '25m', concluida: false },
-      { nome: 'Vinculando Pedidos', duracao: '25m', concluida: false },
-      { nome: 'Containers e Taxas', duracao: '25m', concluida: false },
-      { nome: 'Workflow e Status', duracao: '25m', concluida: false },
-      { nome: 'Relatórios', duracao: '25m', concluida: false },
+      { nome: 'Criando um Processo', duracao: '3m', concluida: false },
+      { nome: 'Dados Técnicos', duracao: '3m', concluida: false },
+      { nome: 'Vinculando Pedidos', duracao: '3m', concluida: false },
+      { nome: 'Containers e Taxas', duracao: '3m', concluida: false },
+      { nome: 'Workflow e Status', duracao: '3m', concluida: false },
+      { nome: 'Relatórios', duracao: '3m', concluida: false },
     ],
   }],
 }
 
-// Produtos que esta organização contratou (WIP: virá do backend)
-const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
-  'bem-vindo', 'login', 'configurador', 'pedido', 'processo', 'smart-read',
-]
+const SLUGS_PLATAFORMA_GUIA = new Set<string>(PRODUTOS_GUIA_PLATAFORMA)
 
-// Visão geral agrupada (sem produto selecionado)
+function slugPertenceModuloBasicoPlataforma(slug: string): boolean {
+  return SLUGS_PLATAFORMA_GUIA.has(slug)
+}
 const GRUPOS_TRILHAS = [
   { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.navegacao[0], TRILHAS_POR_PRODUTO.configurador[0]] },
   { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
@@ -209,7 +240,8 @@ function IconeProdutoOficial({ slug, size = 16, cor = '#818cf8' }: {
 }
 
 function produtoCompradoOrganizacao(slug: ProdutoSlug): boolean {
-  return (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
+  const { slugsAssinaturaAtiva } = useGuiaGravityDados()
+  return produtoCompradoNaOrganizacao(slug, slugsAssinaturaAtiva)
 }
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
@@ -990,6 +1022,23 @@ function DocLoginManual() {
   )
 }
 
+function calcularRitmoGlobalContratados(
+  produtosContratados: string[],
+  aulasConcluidas: Set<string>,
+  dataInicioPersistida?: Date | null,
+): {
+  ritmo: MetricasRitmoJornada
+  mapaDuracao: Map<string, number>
+} {
+  const produtos = produtosContratados
+  const mapaDuracao = montarMapaDuracaoProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosTotais = calcularMinutosTotaisProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosConcluidos = calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao)
+  const dataInicio = obterDataInicioJornadaGuia(minutosConcluidos, dataInicioPersistida)
+  const ritmo = calcularRitmoJornada({ minutosTotais, minutosConcluidos, dataInicio })
+  return { ritmo, mapaDuracao }
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?: string; altura?: number }) {
   return (
@@ -1009,14 +1058,6 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
 /** Segmento reservado: /academy/login/jornada abre a trilha do módulo (não a aula). */
 const FASE_RESERVA_JORNADA = 'jornada'
 
-// Colegas fictícios para o ranking do módulo (WIP: virá do banco via API).
-const JORNADA_RANKING_DEMO: { nome: string; xp: number }[] = [
-  { nome: 'Marina Alves', xp: 82 },
-  { nome: 'Diego Ramos', xp: 65 },
-  { nome: 'Bruno Costa', xp: 44 },
-  { nome: 'Ana Paula', xp: 30 },
-]
-
 interface JornadaEtapa {
   fase: Fase
   numero: number
@@ -1027,41 +1068,9 @@ interface JornadaEtapa {
   clicavel: boolean
 }
 
-/**
- * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
- * Valores: slugs antigos que contam como conclusão do slug atual.
- */
-const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
-  'acessar-workspaces': [
-    'gerenciando-workspaces',
-    'configurando-workspaces',
-    'criar-workspace',
-    'editar-workspace',
-    'ativar-workspace',
-    'excluir-workspace',
-  ],
-  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
-  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
-  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
-}
-
 function faseEstaConcluida(fase: Fase, concluidas: Set<string>): boolean {
   if (!fase.slug) return fase.concluida
-  if (concluidas.has(fase.slug)) return true
-  const legados = SLUGS_LEGADOS_AULA_CONCLUIDA[fase.slug]
-  if (!legados?.length) return false
-  return legados.some(slug => concluidas.has(slug))
-}
-
-/** Promove slugs legados → atuais para persistência e desbloqueio linear. */
-function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
-  const s = new Set(slugs)
-  for (const [atual, legados] of Object.entries(SLUGS_LEGADOS_AULA_CONCLUIDA)) {
-    if (s.has(atual)) continue
-    const legadoOk = legados.some(slug => s.has(slug))
-    if (legadoOk) s.add(atual)
-  }
-  return s
+  return aulaGuiaEstaConcluida(fase.slug, concluidas)
 }
 
 function iniciaisNome(nome: string): string {
@@ -1158,8 +1167,10 @@ function produtoGuiaConcluido(slug: ProdutoSlug, aulasConcluidas: Set<string>): 
     : false
 }
 
-function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
-  const modulos = PRODUTOS_CONTRATADOS.map(slug => {
+function calcularMetricasOnboarding(produtosContratados: string[], aulasConcluidas: Set<string>) {
+  const modulos = produtosContratados
+    .filter((slug): slug is keyof typeof TRILHAS_POR_PRODUTO => slug in TRILHAS_POR_PRODUTO)
+    .map(slug => {
     const trilha = TRILHAS_POR_PRODUTO[slug][0]
     const progresso = calcularProgressoProduto(slug, aulasConcluidas)
     return { slug, trilha, ...progresso }
@@ -1208,27 +1219,6 @@ function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
         </span>
       </TooltipGlobal>
     </span>
-  )
-}
-
-function LegendaStatusNavAcademy() {
-  const { t } = useTranslation()
-  return (
-    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
-      <span className="uni-nav-legenda-status__item">
-        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
-          <Package size={9} weight="fill" />
-        </span>
-        {t('university.nav_status.contrato_abrev')}
-      </span>
-      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
-      <span className="uni-nav-legenda-status__item">
-        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
-          <CheckCircle size={9} weight="fill" />
-        </span>
-        {t('university.nav_status.concluido_abrev')}
-      </span>
-    </div>
   )
 }
 
@@ -1341,8 +1331,21 @@ function JornadaCardBox({ titulo, children }: { titulo: string; children: React.
 
 function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
   const { t } = useTranslation()
-  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const { ranking, rankingCarregando } = useGuiaGravityDados()
+  const linhas = ranking.length > 0
+    ? ranking.map(l => ({
+      nome: l.usuario_atual ? t('university.jornada.voce') : l.nome_usuario,
+      xp: l.xp_total,
+      isYou: l.usuario_atual,
+    }))
+    : [{ nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+  if (rankingCarregando && ranking.length === 0) {
+    return (
+      <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', padding: '8px 4px' }}>
+        {t('university.jornada.ranking_carregando', 'Carregando ranking…')}
+      </div>
+    )
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {linhas.map((p, i) => {
@@ -1373,11 +1376,12 @@ function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
   )
 }
 
-function JornadaSidebar({ xp, gp, feitas, total, xpMeta, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
-  xp: number; gp: number; feitas: number; total: number; xpMeta?: number; rankingTituloKey?: string
+function JornadaSidebar({ xp, gp, feitas, total, xpMeta, ritmo, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
+  xp: number; gp: number; feitas: number; total: number; xpMeta?: number; ritmo?: MetricasRitmoJornada | null
+  rankingTituloKey?: string
 }) {
   const { t } = useTranslation()
-  const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
+  const pctXp = xpMeta && xpMeta > 0 ? Math.min(100, Math.round((xp / xpMeta) * 100)) : 0
   const badgeAtiva = feitas >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -1387,7 +1391,13 @@ function JornadaSidebar({ xp, gp, feitas, total, xpMeta, rankingTituloKey = 'uni
         </div>
         {xpMeta > 0 && (
           <>
-            <div style={{ marginTop: 10 }}><BarraProgresso pct={Math.min(pct, 100)} altura={6} /></div>
+            <div style={{ marginTop: 10 }}>
+              <BarraProgressoComRitmo
+                pctReal={ritmo?.pctRealMinutos ?? pctXp}
+                ritmo={ritmo ?? null}
+                altura={6}
+              />
+            </div>
         <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
           {t('university.jornada.tarefas_concluidas', { feitas, total })}
         </div>
@@ -1452,26 +1462,33 @@ function siglaModuloOnboarding(slug: keyof typeof TRILHAS_POR_PRODUTO): string {
   return slug.slice(0, 2).toUpperCase()
 }
 
-function calcularNivelOnboarding(xpTotal: number) {
-  const nivel = Math.max(1, Math.floor(xpTotal / 75) + 1)
-  const xpMetaNivel = nivel * 75
-  const xpParaSubir = Math.max(0, xpMetaNivel - xpTotal)
-  const titulos = ['Iniciante', 'Aprendiz', 'Praticante', 'Explorador', 'Especialista'] as const
-  const titulo = titulos[Math.min(nivel - 1, titulos.length - 1)]
-  return { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel: Math.min(100, Math.round((xpTotal / xpMetaNivel) * 100)) }
+function calcularNivelOnboarding(xpTotal: number, t: (key: string) => string) {
+  const resultado = calcularNivelGuiaGravity(xpTotal)
+  return {
+    ...resultado,
+    titulo: t(resultado.chaveTitulo),
+  }
 }
 
-/** WIP demo — virá do banco via API. */
-const MANUAIS_LIDOS_DEMO = { lidos: 0, total: 8 }
-const OFENSIVA_DIAS_DEMO = 0
-
-/** Chave sessionStorage — bump para resetar progresso local entre demos. */
-const CHAVE_AULAS_CONCLUIDAS = 'university_academy_concluidas_v1'
+/** Manuais lidos — contagem real via API (GuiaGravityManualLido). */
 
 function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
   const { t } = useTranslation()
-  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
-    .sort((a, b) => b.xp - a.xp)
+  const { ranking, rankingCarregando } = useGuiaGravityDados()
+  const linhas = ranking.length > 0
+    ? ranking.map(l => ({
+      nome: l.usuario_atual ? t('university.jornada.voce') : l.nome_usuario,
+      xp: l.xp_total,
+      isYou: l.usuario_atual,
+    }))
+    : [{ nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+  if (rankingCarregando && ranking.length === 0) {
+    return (
+      <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', padding: '8px 4px' }}>
+        {t('university.jornada.ranking_carregando', 'Carregando ranking…')}
+      </div>
+    )
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {linhas.map((p, i) => {
@@ -1507,39 +1524,54 @@ function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
   )
 }
 
-function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp: number; feitas: number }) {
+function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
+  xpTotal: number; gp: number; feitas: number; ritmo: MetricasRitmoJornada; diasOfensiva: number
+}) {
   const { t } = useTranslation()
-  const { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel } = calcularNivelOnboarding(xpTotal)
+  const { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel } = calcularNivelOnboarding(xpTotal, t)
   const badgeObtida = feitas >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(251,191,36,.12), rgba(30,41,59,.6))',
-        border: '1px solid rgba(251,191,36,.28)', borderRadius: 15, padding: 16,
-      }}>
-        <div style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: 'var(--ws-muted,#94a3b8)',
-          fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
-        }}>{t('university.dashboard.nivel_ofensiva')}</div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: 'var(--ws-text,#f1f5f9)' }}>
+      <div className="uni-dashboard-nivel-card" data-uni-quickly-tour-alvo="qt-jornada-nivel">
+        <div className="uni-dashboard-nivel-cabecalho">
+          <div className="uni-dashboard-nivel-cabecalho__rotulo">{t('university.dashboard.nivel_ofensiva')}</div>
+          <DashboardInfoNiveisGuiaGravity xpTotal={xpTotal} xpParaSubir={xpParaSubir} />
+        </div>
+        <div className="uni-dashboard-nivel-titulo">
           {t('university.dashboard.nivel_rotulo', { nivel, titulo })}
         </div>
-        <div style={{ height: 8, borderRadius: 9999, background: 'rgba(148,163,184,.18)', overflow: 'hidden', margin: '10px 0 6px' }}>
-          <div style={{ height: '100%', width: `${pctNivel}%`, borderRadius: 9999, background: '#818cf8' }} />
+        <div className="uni-dashboard-nivel-barra">
+          <BarraProgresso pct={pctNivel} altura={8} />
         </div>
-        <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
+        <div className="uni-dashboard-nivel-xp">
           {xpTotal} / {xpMetaNivel} XP
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 14 }}>
+        <div className="uni-dashboard-nivel-ritmo-resumo">
+          <div className="uni-dashboard-ritmo-cabecalho uni-dashboard-ritmo-cabecalho--padrao">
+            <div className="uni-dashboard-ritmo-cabecalho__titulo">
+              <span className="uni-dashboard-ritmo-rotulo">{t('university.dashboard.ritmo.jornada_rotulo')}</span>
+              <DashboardInfoRitmoGuiaGravity ritmo={ritmo} />
+            </div>
+          </div>
+          <div className="uni-dashboard-barra-ritmo-bloco">
+            <BarraProgressoComRitmo
+              pctReal={ritmo.pctRealMinutos}
+              ritmo={ritmo}
+              altura={8}
+            />
+          </div>
+        </div>
+        <div className="uni-dashboard-nivel-ofensiva">
           <div className="uni-dashboard-ofensiva-icone" aria-hidden>
             <span style={{ fontSize: 14 }}>🔥</span>
           </div>
-          <div style={{ fontSize: '.82rem', color: '#fbbf24', fontWeight: 700 }}>
-            {t('university.dashboard.ofensiva_dias', { dias: OFENSIVA_DIAS_DEMO })}
+          <div className="uni-dashboard-nivel-ofensiva__texto">
+            {t('university.dashboard.ofensiva_dias', { dias: diasOfensiva })}
           </div>
         </div>
       </div>
 
+      <div data-uni-quickly-tour-alvo="qt-jornada-recompensas">
       <JornadaCardBox titulo={t('university.jornada.recompensas')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
@@ -1567,26 +1599,89 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp:
           </div>
         </div>
       </JornadaCardBox>
+      </div>
 
+      <div data-uni-quickly-tour-alvo="qt-jornada-ranking">
       <JornadaCardBox titulo={t('university.jornada.ranking_geral')}>
         <RankingGeralDashboard xpUsuario={xpTotal} />
       </JornadaCardBox>
+      </div>
     </div>
   )
 }
 
-function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
+function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfensiva, dataInicioJornada, onAbrirModulo, nomeUsuario, manuaisLidos, manuaisTotal }: {
   aulasConcluidas: Set<string>
+  mapaCertificados: MapaCertificadosGuia
+  diasOfensiva: number
+  dataInicioJornada: Date | null
   onAbrirModulo: (slug: keyof typeof TRILHAS_POR_PRODUTO) => void
+  nomeUsuario: string
+  manuaisLidos: number
+  manuaisTotal: number
 }) {
   const { t } = useTranslation()
-  const metricas = calcularMetricasOnboarding(aulasConcluidas)
-  const { modulos, xpTotal, concluidas, emAndamento, certificados, gp } = metricas
-  const { xpParaSubir, nivel } = calcularNivelOnboarding(xpTotal)
+  const { produtosContratados } = useGuiaGravityDados()
+  const metricas = calcularMetricasOnboarding(produtosContratados, aulasConcluidas)
+  const { modulos, xpTotal, concluidas, emAndamento, gp } = metricas
+  const { xpParaSubir, nivel, titulo } = calcularNivelOnboarding(xpTotal, t)
+  const { ritmo: ritmoGlobal } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
+
+  const [certificadoAberto, setCertificadoAberto] = useState<CertificadoEmitidoGuia | null>(null)
+
+  const certificadosObtidos = contarCertificadosObtidos(mapaCertificados)
+
+  const xpPorSlug = useMemo(() => {
+    const slugs = [...SLUGS_MODULO_BASICO_GUIA, 'pedido', 'bid-frete', 'smart-read'] as const
+    const mapa: Record<string, number> = {}
+    for (const slug of slugs) {
+      if (slug in TRILHAS_POR_PRODUTO) {
+        mapa[slug] = calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).xp
+      }
+    }
+    return mapa
+  }, [aulasConcluidas])
 
   const [produtosFiltrados, setProdutosFiltrados] = useState<Set<string>>(
-    () => new Set(PRODUTOS_CONTRATADOS as string[]),
+    () => new Set(produtosContratados),
   )
+
+  useEffect(() => {
+    setProdutosFiltrados(new Set(produtosContratados))
+  }, [produtosContratados])
+
+  const produtosPlataforma = useMemo(
+    () => produtosContratados.filter(slug => slugPertenceModuloBasicoPlataforma(slug)),
+    [produtosContratados],
+  )
+  const produtosGravityContratados = useMemo(
+    () => produtosContratados.filter(slug => !slugPertenceModuloBasicoPlataforma(slug)),
+    [produtosContratados],
+  )
+
+  const alternarFiltroModuloBasico = () => {
+    setProdutosFiltrados(prev => {
+      const todosSelecionados = produtosPlataforma.every(s => prev.has(s))
+      const next = new Set(prev)
+      if (todosSelecionados) {
+        produtosPlataforma.forEach(s => next.delete(s))
+        if (next.size === 0) {
+          const fallback = produtosGravityContratados[0] ?? produtosPlataforma[0]
+          if (fallback) next.add(fallback)
+        }
+      } else {
+        produtosPlataforma.forEach(s => next.add(s))
+      }
+      return next
+    })
+  }
+
+  const modulosPlataforma = modulos.filter(m => slugPertenceModuloBasicoPlataforma(m.slug))
+  const pctModuloBasico = modulosPlataforma.length
+    ? Math.round(modulosPlataforma.reduce((soma, m) => soma + m.pct, 0) / modulosPlataforma.length)
+    : 0
+  const concluidoModuloBasico = modulosPlataforma.length > 0 && modulosPlataforma.every(m => m.pct >= 100)
+  const selecionadoModuloBasico = produtosPlataforma.length > 0 && produtosPlataforma.every(s => produtosFiltrados.has(s))
 
   const alternarFiltroProduto = (slug: string) => {
     setProdutosFiltrados(prev => {
@@ -1603,9 +1698,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
 
   const modulosVisiveis = modulos.filter(m => produtosFiltrados.has(m.slug))
   const concluidasVisiveis = modulosVisiveis.filter(m => m.pct >= 100).length
-  const pctVisivel = modulosVisiveis.length > 0
-    ? Math.round((concluidasVisiveis / modulosVisiveis.length) * 100)
-    : 0
+  const pctVisivel = ritmoGlobal.pctRealMinutos
 
   const moduloAtual = modulos.find(m => m.pct > 0 && m.pct < 100) ?? modulos.find(m => m.pct < 100) ?? modulos[0]
   const etapasAtual = calcularEtapasJornada(
@@ -1622,16 +1715,31 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
     { k: 'university.jornada.pontos', v: xpTotal.toLocaleString('pt-BR') },
     { k: 'university.jornada.concluidas', v: String(concluidas) },
     { k: 'university.jornada.em_andamento', v: String(emAndamento) },
-    { k: 'university.jornada.certificados', v: String(certificados) },
+    { k: 'university.jornada.certificados', v: String(certificadosObtidos) },
   ]
 
-  const pctAnel = moduloAtual.total > 0 ? Math.round((moduloAtual.feitas / moduloAtual.total) * 100) : 0
+  const pctAnel = (() => {
+    const minutos = minutosConcluidosModulo(moduloAtual.trilha.fases, aulasConcluidas)
+    const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
+    const dataInicio = obterDataInicioJornadaGuia(
+      calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+      dataInicioJornada,
+    )
+    return calcularRitmoModuloSequencial({
+      produtosOrdenados: produtosContratados,
+      trilhasPorProduto: TRILHAS_POR_PRODUTO,
+      slugModulo: moduloAtual.slug,
+      minutosConcluidosModulo: minutos,
+      dataInicio,
+      fasesEscopo: moduloAtual.trilha.fases,
+    }).pctRealMinutos
+  })()
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.62fr) minmax(220px, 1fr)', gap: 20, alignItems: 'start' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {/* Hero — continue de onde parou */}
-        <div style={{
+        <div data-uni-quickly-tour-alvo="qt-jornada-hero" style={{
           background: 'linear-gradient(135deg, rgba(129,140,248,.14), rgba(30,41,59,.8))',
           border: '1px solid rgba(129,140,248,.28)', borderRadius: 18, padding: 22,
         }}>
@@ -1671,6 +1779,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 18, flexWrap: 'wrap' }}>
             <button
               type="button"
+              data-uni-quickly-tour-alvo="qt-jornada-hero-botao"
               onClick={() => onAbrirModulo(moduloAtual.slug)}
               style={{
                 border: 'none', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -1685,7 +1794,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
         </div>
 
         {/* KPIs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div data-uni-quickly-tour-alvo="qt-jornada-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           {kpis.map(kpi => (
             <div key={kpi.k} style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 13, padding: '13px 14px' }}>
               <div style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>{t(kpi.k)}</div>
@@ -1694,26 +1803,72 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
           ))}
         </div>
 
+        {/* Certificados */}
+        <div data-uni-quickly-tour-alvo="qt-jornada-certificados" className="uni-dashboard-certificados-card">
+          <div className="uni-dashboard-certificados-card__cabecalho">
+            <span className="uni-dashboard-certificados-card__titulo">{t('university.certificado.secao_titulo')}</span>
+            <span className="uni-dashboard-certificados-card__contagem">
+              {t('university.certificado.contagem', { obtidos: certificadosObtidos, total: TIPOS_CERTIFICADO_GUIA.length })}
+            </span>
+          </div>
+          <PainelCertificadosGuiaGravity
+            nomeUsuario={nomeUsuario}
+            xpTotal={xpTotal}
+            nivel={nivel}
+            tituloNivel={titulo}
+            xpPorSlug={xpPorSlug}
+            mapaCertificados={mapaCertificados}
+            certificadoAberto={certificadoAberto}
+            onAbrirCertificado={setCertificadoAberto}
+            onFecharCertificado={() => setCertificadoAberto(null)}
+          />
+        </div>
+
         {/* Progresso geral — mesma barra contínua da visão por produto; tag abre evolução do produto */}
-        <div className="uni-dashboard-progresso-card">
+        <div data-uni-quickly-tour-alvo="qt-jornada-progresso" className="uni-dashboard-progresso-card">
           <div className="uni-dashboard-produtos-contratados">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
-                {t('university.progresso.produtos_contratados')}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
+                  {t('university.progresso.produtos_contratados')}
+                </span>
+                <DashboardInfoRitmoGuiaGravity ritmo={ritmoGlobal} />
+              </div>
               <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctVisivel >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
                 {concluidasVisiveis} / {modulosVisiveis.length} {t('university.progresso.concluidos')}
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <BarraProgresso pct={pctVisivel} altura={8} />
-              <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
-                {pctVisivel}%
-              </span>
+            <div className="uni-dashboard-barra-ritmo-bloco">
+              <BarraProgressoComRitmo pctReal={pctVisivel} ritmo={ritmoGlobal} altura={8} />
             </div>
             <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
             <div className="uni-dashboard-produtos-contratados__tags">
-              {PRODUTOS_CONTRATADOS.map(slug => {
+              {produtosPlataforma.length > 0 && (
+                <button
+                  type="button"
+                  className={[
+                    'uni-dashboard-tag-contratado',
+                    selecionadoModuloBasico ? 'is-selecionado' : 'is-desabilitado',
+                    selecionadoModuloBasico && concluidoModuloBasico ? 'is-concluido' : '',
+                    selecionadoModuloBasico && pctModuloBasico > 0 && !concluidoModuloBasico ? 'is-andamento' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={alternarFiltroModuloBasico}
+                  aria-pressed={selecionadoModuloBasico}
+                  title={t(selecionadoModuloBasico ? 'university.dashboard.filtro_produto_desativar' : 'university.dashboard.filtro_produto_ativar', {
+                    produto: t('university.nav.modulo_basico'),
+                  })}
+                >
+                  <GraduationCap weight="duotone" size={15} color={selecionadoModuloBasico ? (concluidoModuloBasico ? '#34d399' : '#818cf8') : '#64748b'} />
+                  <span>{t('university.nav.modulo_basico')}</span>
+                  {selecionadoModuloBasico && concluidoModuloBasico && (
+                    <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />
+                  )}
+                  {selecionadoModuloBasico && !concluidoModuloBasico && pctModuloBasico > 0 && (
+                    <span className="uni-dashboard-tag-contratado__pct">{pctModuloBasico}%</span>
+                  )}
+                </button>
+              )}
+              {produtosGravityContratados.map(slug => {
                 const prog = modulos.find(m => m.slug === slug)
                 const pct = prog?.pct ?? 0
                 const concluido = pct >= 100
@@ -1734,7 +1889,9 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
                       produto: t(`university.produto.${slug.replaceAll('-', '_')}`),
                     })}
                   >
-                    <IconeProdutoOficial slug={slug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    {slug in ICON_MAP ? (
+                      <IconeProdutoOficial slug={slug as ProdutoSlug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    ) : null}
                     <span>{t(`university.produto.${slug.replaceAll('-', '_')}`)}</span>
                     {selecionado && concluido && <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />}
                     {selecionado && !concluido && pct > 0 && (
@@ -1752,16 +1909,23 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
                 {t('university.dashboard.manuais_lidos')}
               </div>
               <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: UNI_COR, fontSize: '.88rem' }}>
-                {MANUAIS_LIDOS_DEMO.lidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{MANUAIS_LIDOS_DEMO.total}</span>
+                {manuaisLidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{manuaisTotal}</span>
               </div>
             </div>
-            <BarraSegmentada total={MANUAIS_LIDOS_DEMO.total} preenchidos={MANUAIS_LIDOS_DEMO.lidos} cor={UNI_COR} />
+            <BarraProgressoComRitmo
+              pctReal={manuaisTotal > 0
+                ? Math.round((manuaisLidos / manuaisTotal) * 100)
+                : 0}
+              ritmo={ritmoGlobal}
+              altura={8}
+              ocultarLegenda
+            />
           </div>
           ) : null}
         </div>
 
         {/* O que falta */}
-        <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
+        <div data-uni-quickly-tour-alvo="qt-jornada-faltam" style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
           <div style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: 'var(--ws-muted,#94a3b8)',
             fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
@@ -1802,7 +1966,13 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
         </div>
       </div>
 
-      <RailDashboardOnboarding xpTotal={xpTotal} gp={gp} feitas={modulos.reduce((s, m) => s + m.feitas, 0)} />
+      <RailDashboardOnboarding
+        xpTotal={xpTotal}
+        gp={gp}
+        feitas={modulos.reduce((s, m) => s + m.feitas, 0)}
+        ritmo={ritmoGlobal}
+        diasOfensiva={diasOfensiva}
+      />
     </div>
   )
 }
@@ -1840,18 +2010,20 @@ function SeletorCapitulosAcademy({ produtoSlug, trilhas, ativo, onSelecionar, au
   )
 }
 
-function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal, mapaXpProduto }: {
+function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal, mapaXpProduto, dataInicioJornada = null }: {
   produtoSlug: string
   trilha: Trilha
   aulasConcluidas: Set<string>
   onAbrirFase: (slug: string) => void
   exibirSidebar?: boolean
+  dataInicioJornada?: Date | null
   /** Deslocamento para numeração contínua entre capítulos (Configurador). */
   offsetNumero?: number
   /** Índice global (0-based) da etapa em andamento na jornada multi-capítulo. */
   indiceAtualGlobal?: number
   mapaXpProduto?: Map<string, number>
 }) {
+  const { produtosContratados } = useGuiaGravityDados()
   const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, obterTodasFasesProduto(produtoSlug, trilha))
   const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, {
     offsetNumero,
@@ -1863,6 +2035,20 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
   const gp = xp * 2
   const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
   const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
+  const minutosModuloConcluidos = minutosConcluidosModulo(trilha.fases, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+    dataInicioJornada,
+  )
+  const ritmoModulo = calcularRitmoModuloSequencial({
+    produtosOrdenados: produtosContratados,
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosModuloConcluidos,
+    dataInicio,
+    fasesEscopo: trilha.fases,
+  })
 
   return (
     <div>
@@ -1879,7 +2065,7 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
           </div>
           <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{xpMeta} XP</div>
         </div>
-        <BarraProgresso pct={pct} altura={8} />
+        <BarraProgressoComRitmo pctReal={ritmoModulo.pctRealMinutos} ritmo={ritmoModulo} altura={8} />
       </div>
 
       {/* Caminho (+ sidebar opcional) */}
@@ -1900,21 +2086,32 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
             </div>
           ))}
         </div>
-        {exibirSidebar && <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} xpMeta={xpMeta} />}
+        {exibirSidebar && (
+          <JornadaSidebar
+            xp={xp}
+            gp={gp}
+            feitas={feitas}
+            total={etapas.length}
+            xpMeta={xpMeta}
+            ritmo={ritmoModulo}
+          />
+        )}
       </div>
     </div>
   )
 }
 
-function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo }: {
+function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo, dataInicioJornada = null }: {
   produtoSlug: string
   trilhas: Trilha[]
   aulasConcluidas: Set<string>
   onAbrirFase: (slug: string) => void
   capituloAtivo: number
   onSelecionarCapitulo: (idx: number) => void
+  dataInicioJornada?: Date | null
 }) {
   const { t } = useTranslation()
+  const { produtosContratados } = useGuiaGravityDados()
   const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
   let feitasTotal = 0
   let aulasTotal = 0
@@ -1927,6 +2124,20 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   }
   const xpMeta = obterXpMaxProduto(mapaXp)
   const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
+  const todasFasesProduto = trilhas.flatMap(tr => tr.fases)
+  const minutosProdutoConcluidos = minutosConcluidosModulo(todasFasesProduto, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+    dataInicioJornada,
+  )
+  const ritmoProduto = calcularRitmoModuloSequencial({
+    produtosOrdenados: produtosContratados,
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosProdutoConcluidos,
+    dataInicio,
+  })
 
   const irParaCapitulo = useCallback((idx: number) => {
     onSelecionarCapitulo(idx)
@@ -1969,12 +2180,20 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
                 offsetNumero={offsetNumero}
                 indiceAtualGlobal={indiceAtualGlobal}
                 mapaXpProduto={mapaXp}
+                dataInicioJornada={dataInicioJornada}
               />
             </section>
             )
           })}
         </div>
-        <JornadaSidebar xp={xpTotal} gp={xpTotal * 2} feitas={feitasTotal} total={aulasTotal} xpMeta={xpMeta} />
+        <JornadaSidebar
+          xp={xpTotal}
+          gp={xpTotal * 2}
+          feitas={feitasTotal}
+          total={aulasTotal}
+          xpMeta={xpMeta}
+          ritmo={ritmoProduto}
+        />
       </div>
     </div>
   )
@@ -1996,6 +2215,10 @@ export function UniversityGravity() {
   } = useShellStore()
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
   const isLight = currentTheme === 'light'
+  const [alvoTourMenu, setAlvoTourMenu] = useState<string | null>(null)
+  const handleAlvoTourChange = useCallback((idAlvo: string | null) => {
+    setAlvoTourMenu(idAlvo)
+  }, [])
 
   useMeSync()
 
@@ -2046,31 +2269,67 @@ export function UniversityGravity() {
 
   const trilhaAtiva = trilhasAtivas?.[capituloAtivo] ?? null
 
-  // Controle local de aulas concluídas (WIP: virá do banco via API)
-  const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
-    const salvo = sessionStorage.getItem(CHAVE_AULAS_CONCLUIDAS)
-    const bruto = salvo ? (JSON.parse(salvo) as string[]) : []
-    const norm = normalizarSlugsConclusaoAcademy(bruto)
-    const normArr = [...norm]
-    if (normArr.length !== bruto.length || normArr.some(s => !bruto.includes(s))) {
-      sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify(normArr))
-    }
-    return norm
-  })
-  const marcarConcluida = useCallback((slug: string) => {
-    setAulasConcluidas(prev => {
-      const novo = normalizarSlugsConclusaoAcademy([...prev, slug])
-      sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify([...novo]))
-      return novo
-    })
-  }, [])
+  const {
+    aulasConcluidas,
+    mapaCertificados,
+    dataInicioJornada,
+    diasOfensiva,
+    dados: dadosJornada,
+    marcarAulaConcluida,
+    marcarManualLido,
+  } = useJornadaGuiaGravity()
 
-  // Progresso geral nos produtos contratados (derivado do progresso real + demo estático)
-  const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => {
+  const {
+    produtosContratados,
+    slugsAssinaturaAtiva,
+  } = useAssinaturasJornadaGuiaGravity()
+
+  const { ranking, carregando: rankingCarregando, recarregar: recarregarRanking } = useRankingGuiaGravity()
+
+  const guiaGravityDados = useMemo(
+    () => ({
+      produtosContratados,
+      slugsAssinaturaAtiva,
+      ranking,
+      rankingCarregando,
+    }),
+    [produtosContratados, slugsAssinaturaAtiva, ranking, rankingCarregando],
+  )
+
+  const manuaisLidos = dadosJornada?.manuais_lidos.length ?? 0
+  const manuaisTotal = dadosJornada?.manuais_total ?? 8
+
+  useEffect(() => {
+    if (secao !== 'docs' || !docsProdutoSlug) return
+    if (!slugManualGuiaGravityValido(docsProdutoSlug)) return
+    const jaLido = dadosJornada?.manuais_lidos.some(m => m.slug_manual_guia_gravity === docsProdutoSlug)
+    if (jaLido) return
+    void marcarManualLido(docsProdutoSlug).catch(err => {
+      console.warn('[UniversityGravity] falha ao marcar manual lido', err)
+    })
+  }, [secao, docsProdutoSlug, dadosJornada?.manuais_lidos, marcarManualLido])
+
+  useEffect(() => {
+    void recarregarRanking()
+  }, [aulasConcluidas, recarregarRanking])
+
+  const marcarConcluida = useCallback(async (slug: string): Promise<boolean> => {
+    if (!produtoSlug) return false
+    try {
+      return await marcarAulaConcluida(slug, produtoSlug)
+    } catch (err) {
+      console.warn('[UniversityGravity] falha ao concluir aula via API', err)
+      return false
+    }
+  }, [marcarAulaConcluida, produtoSlug])
+
+  const progressoContratados = produtosContratados
+    .filter((slug): slug is keyof typeof TRILHAS_POR_PRODUTO => slug in TRILHAS_POR_PRODUTO)
+    .map(slug => {
     const trilhas = TRILHAS_POR_PRODUTO[slug]
     const trilha = trilhas?.[0]
     const agregado = trilhas?.length
-      ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
+      ? calcularProgressoProduto(slug, aulasConcluidas)
       : { pct: 0 }
     return {
       slug,
@@ -2079,10 +2338,17 @@ export function UniversityGravity() {
     }
   })
   const concluidos = progressoContratados.filter(p => p.prog >= 100).length
-  const pctGeral = Math.round((concluidos / progressoContratados.length) * 100)
+  const pctGeral = progressoContratados.length > 0
+    ? Math.round((concluidos / progressoContratados.length) * 100)
+    : 0
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
+  const nomeCertificado = resolverNomeCertificadoGuiaGravity({
+    nomeUsuario: currentUser.name,
+    nomeCompletoClerk: user?.fullName,
+    nomeCurtoClerk: user?.firstName,
+  })
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@usegravity.com.br'
 
@@ -2198,9 +2464,9 @@ export function UniversityGravity() {
       label: t('university.nav.academy'),
       icon: <Books weight="duotone" size={18} />,
       children: [
-        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} /> },
-        { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy /> },
-        { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-minha-jornada' },
+        { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy />, dataTutorialAlvo: 'qt-menu-legenda-status' },
+        { label: t('university.nav.modulo_basico'), sectionSubtitle: t('university.nav.modulo_basico_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <GraduationCap weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-modulo-basico' },
         { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
         { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: statusNavAcademy('login') },
         { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: statusNavAcademy('navegacao') },
@@ -2209,16 +2475,16 @@ export function UniversityGravity() {
         { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: statusNavAcademy('gabi') },
         { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: statusNavAcademy('hub') },
         { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: statusNavAcademy('store') },
-        { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read') },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete') },
+        { label: t('university.nav.modulo_por_produto_gravity'), sectionSubtitle: t('university.nav.modulo_por_produto_gravity_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <PuzzlePiece weight="duotone" size={16} /> },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido'),       dataTutorialAlvo: 'qt-menu-pedido' },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read'),   dataTutorialAlvo: 'qt-menu-smart-read' },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete'),    dataTutorialAlvo: 'qt-menu-bid-frete' },
         { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: statusNavAcademy('bid-cambio'),   ...badgeEmBreve },
         { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: statusNavAcademy('processo'),     ...badgeEmBreve },
       ],
     },
     ...(universityManuaisDocsVisiveis() ? [navItemManuais] : []),
-    { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
+    { to: '/university-gravity/builders', label: t('university.nav.builders'), icon: <PuzzlePiece weight="duotone" size={18} />, active: secao === 'builders', className: secao === 'builders' ? 'mlg-submenu-item' : undefined, ...badgeEmBreve },
   ]
 
   const tituloSecao = secao === 'docs'
@@ -2240,6 +2506,7 @@ export function UniversityGravity() {
     : t('university.nav.academy')
 
   return (
+    <GuiaGravityDadosProvider value={guiaGravityDados}>
     <div className={`ws-shell uni-gravity-shell${secao === 'academy' && faseAulaSlug ? ' uni-academy-player' : ''}`}>
       <MenuLateralGlobal
         tenantName={nomeOrganizacao}
@@ -2248,6 +2515,8 @@ export function UniversityGravity() {
         moduleName={t('university.modulo_nome')}
         moduleColor={UNI_COR}
         defaultCollapsed={false}
+        defaultExpandAllSubmenus
+        alvoTourAtivo={alvoTourMenu}
         workspaces={isGravityAdmin ? orgWorkspaceItems : undefined}
         onSwitchWorkspace={isGravityAdmin ? handleTrocarOrganizacao : undefined}
         dropdownSearchPlaceholder={isGravityAdmin ? t('university.busca.organizacao') : undefined}
@@ -2342,7 +2611,7 @@ export function UniversityGravity() {
         {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
         {secao === 'academy' && faseAulaSlug && produtoSlug && (() => {
           const aula = getAulaDemo(produtoSlug, faseAulaSlug)
-          const todasAulas = getAulasCapituloDemo(produtoSlug, faseAulaSlug)
+          const todasAulas = getAulasDemo(produtoSlug)
           if (!aula) return (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
               Aula não encontrada.
@@ -2482,29 +2751,50 @@ export function UniversityGravity() {
           {secao === 'academy' && exibirDashboardGeral && (
             <PainelDashboardOnboarding
               aulasConcluidas={aulasConcluidas}
+              mapaCertificados={mapaCertificados}
+              diasOfensiva={diasOfensiva}
+              dataInicioJornada={dataInicioJornada}
+              nomeUsuario={nomeCertificado}
+              manuaisLidos={manuaisLidos}
+              manuaisTotal={manuaisTotal}
               onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
             />
           )}
 
+          <QuicklyTourMinhaJornada
+            habilitado={secao === 'academy' && exibirDashboardGeral}
+            onAlvoTourChange={handleAlvoTourChange}
+          />
+
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
-            trilhasAtivas.length > 1 ? (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <UniBotaoVoltarPadrao
+                  label={t('university.aula.voltar_onboarding')}
+                  onClick={() => navigate('/university-gravity/academy')}
+                />
+              </div>
+              {trilhasAtivas.length > 1 ? (
               <JornadaMultiCapitulos
                 produtoSlug={produtoSlug}
                 trilhas={trilhasAtivas}
                 aulasConcluidas={aulasConcluidas}
                 capituloAtivo={capituloAtivo}
                 onSelecionarCapitulo={setCapituloAtivo}
-                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
+                dataInicioJornada={dataInicioJornada}
               />
             ) : (
-                <JornadaModulo
+              <JornadaModulo
                 produtoSlug={produtoSlug}
                 trilha={trilhaAtiva}
-                  aulasConcluidas={aulasConcluidas}
-                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
-                />
-            )
+                aulasConcluidas={aulasConcluidas}
+                dataInicioJornada={dataInicioJornada}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { state: STATE_NAVEGACAO_CAMADA_GUIA })}
+              />
+            )}
+            </>
           )}
 
           {/* ══ VIEW: visão geral agrupada ══ */}
@@ -2624,16 +2914,7 @@ export function UniversityGravity() {
             </div>
           )}
 
-          {secao === 'builders' && (
-            <div style={{
-              textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
-              border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,
-            }}>
-              <div style={{ fontSize: 48, opacity: .2 }}>🧩</div>
-              <p style={{ marginTop: 10, fontWeight: 600 }}>{t('university.vazio.em_breve', { secao: tituloSecao })}</p>
-              <p style={{ fontSize: '.82rem', marginTop: 4 }}>{t('university.builders.descricao')}</p>
-            </div>
-          )}
+          {secao === 'builders' && <GravityPartnerEmBreve />}
 
         </div>
         )}
@@ -2641,6 +2922,7 @@ export function UniversityGravity() {
 
       <ToastContainer />
     </div>
+    </GuiaGravityDadosProvider>
   )
 }
 

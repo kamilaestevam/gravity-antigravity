@@ -16,8 +16,6 @@ import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
 import { SsoCallbackPage } from './pages/SsoCallbackPage'
 import { RecuperarSenhaRedefinirPage } from './pages/RecuperarSenhaRedefinirPage'
-import { universityGravityPublicada } from './pages/university/university-gravity-publicacao'
-
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
 const E2ENotificacoesHarness = import.meta.env.DEV
   ? React.lazy(() => import('./pages/E2ENotificacoesHarness').then(m => ({ default: m.E2ENotificacoesHarness })))
@@ -148,12 +146,6 @@ const ProductLoading = () => (
     <GravityLoader texto="Carregando" tamanho="lg" />
   </div>
 )
-
-/** Gate produção — SSOT `university-gravity-publicacao.ts` (decisão PO MASTER Daniel). */
-function UniversityGravityGate() {
-  if (!universityGravityPublicada()) return <Navigate to="/hub" replace />
-  return <UniversityGravity />
-}
 
 /** Resposta pública BID Frete (link do e-mail/WhatsApp) — sem ProtectedRoute. */
 function BidFreteInternacionalPublicoRoute() {
@@ -413,7 +405,7 @@ export default function App() {
         {/* Área autenticada */}
         <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
-        <Route path="/university-gravity/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><UniversityGravityGate /></React.Suspense></ProtectedRoute>} />
+        <Route path="/university-gravity/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><UniversityGravity /></React.Suspense></ProtectedRoute>} />
         {/* TODO(preview-temp, 2026-07-11): rota só para conferência visual manual — remover após validar. */}
         <Route path="/__preview-jornada-temp" element={<React.Suspense fallback={<ProductLoading />}><PreviewJornadaTemp /></React.Suspense>} />
 

@@ -103,6 +103,16 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   modoGlobal = false,
   onReorderItem,
   labels,
+  dataTutorialAlvoBoard,
+  dataTutorialAlvoPorCardId,
+  dataTutorialAlvoMoverMenuCardId,
+  dataTutorialAlvoMoverMenu,
+  onMoverMenuOpenChange,
+  dataTutorialAlvoMoverOpcoes,
+  dataTutorialAlvoSortColunaKey,
+  dataTutorialAlvoSort,
+  onSortPopoverOpenChange,
+  dataTutorialAlvoSortOpcoes,
 }: KanbanGlobalProps<T>) {
 
   const resolvedLabels: Required<KanbanLabels> = { ...DEFAULT_LABELS, ...labels }
@@ -305,11 +315,23 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       onMoverItemInternal: handleMoverItemInternal,
       onCardClick: onCardClick as KanbanContextValue['onCardClick'],
       labels:      resolvedLabels,
+      dataTutorialAlvoPorCardId,
+      dataTutorialAlvoMoverMenuCardId,
+      dataTutorialAlvoMoverMenu,
+      onMoverMenuOpenChange,
+      dataTutorialAlvoMoverOpcoes,
+      dataTutorialAlvoSortColunaKey,
+      dataTutorialAlvoSort,
+      onSortPopoverOpenChange,
+      dataTutorialAlvoSortOpcoes,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [colunasRender, renderCard, isReadOnly, onMoverItem, emptyLabel,
      activeId, movingId, feedbackMap, testIdPrefix, modoGlobal, colunaFooterSlot,
-     handleMoverItemInternal, onCardClick, resolvedLabels],
+     handleMoverItemInternal, onCardClick, resolvedLabels,
+     dataTutorialAlvoPorCardId, dataTutorialAlvoMoverMenuCardId, dataTutorialAlvoMoverMenu,
+     onMoverMenuOpenChange, dataTutorialAlvoMoverOpcoes, dataTutorialAlvoSortColunaKey, dataTutorialAlvoSort,
+     onSortPopoverOpenChange, dataTutorialAlvoSortOpcoes],
   )
 
   return (
@@ -324,7 +346,11 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
           <div className="kg-toolbar-slot">{toolbarSlot}</div>
         )}
 
-        <div className="kg-grid" data-testid={`${testIdPrefix}-board`}>
+        <div
+          className="kg-grid"
+          data-testid={`${testIdPrefix}-board`}
+          {...(dataTutorialAlvoBoard ? { 'data-sds-tutorial-alvo': dataTutorialAlvoBoard } : {})}
+        >
           {colunasRender.map(col => (
             <KanbanColuna
               key={col.key}

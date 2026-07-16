@@ -111,14 +111,14 @@ const CAPITULOS_CONFIGURADOR_DEF: CapituloConfiguradorDef[] = [
       {
         slug: 'criando-a-organizacao',
         titulo: 'O que é Organização?',
-        duracao: '20m',
+        duracao: '1m',
         manualCapitulo: 'organizacao',
         curadoria: { incluirOrigemDados: true, fluxoIndices: [0], incluirImagemSecao: false },
       },
       {
         slug: 'acessar-workspaces',
         titulo: 'Entenda o que são Workspaces no Gravity',
-        duracao: '35m',
+        duracao: '4m',
         manualCapitulo: 'workspaces',
         curadoria: {
           // Intro + todos os fluxos (acessar, criar, editar, ativar/suspender, excluir)
@@ -137,7 +137,7 @@ const CAPITULOS_CONFIGURADOR_DEF: CapituloConfiguradorDef[] = [
       {
         slug: 'administrando-usuarios',
         titulo: 'Administrando usuários',
-        duracao: '37m',
+        duracao: '4m',
         manualCapitulo: 'usuarios',
         curadoria: { fluxoIndices: [1, 0, 2, 3, 4, 5] },
       },
@@ -152,14 +152,14 @@ const CAPITULOS_CONFIGURADOR_DEF: CapituloConfiguradorDef[] = [
       {
         slug: 'cadastrando-fornecedores',
         titulo: 'Cadastrando fornecedores',
-        duracao: '25m',
+        duracao: '3m',
         manualCapitulo: 'fornecedores',
         curadoria: { fluxoIndices: [0, 1], maxPassosPorFluxo: 2 },
       },
       {
         slug: 'exportador-e-importador',
         titulo: 'Exportador e importador',
-        duracao: '25m',
+        duracao: '3m',
         manualCapitulo: 'fornecedores',
         curadoria: {
           fluxoIndices: [2, 3],
@@ -179,14 +179,14 @@ const CAPITULOS_CONFIGURADOR_DEF: CapituloConfiguradorDef[] = [
       {
         slug: 'gerenciando-assinaturas',
         titulo: 'Gerenciando assinaturas',
-        duracao: '25m',
+        duracao: '3m',
         manualCapitulo: 'assinaturas',
         curadoria: { fluxoIndices: [0, 1, 2, 3, 4], incluirImagemSecao: true },
       },
       {
         slug: 'financeiro-da-conta',
         titulo: 'Financeiro da conta',
-        duracao: '20m',
+        duracao: '3m',
         manualCapitulo: 'financeiro',
         curadoria: { fluxoIndices: [0, 1, 2], incluirImagemSecao: true },
       },
@@ -201,20 +201,20 @@ const CAPITULOS_CONFIGURADOR_DEF: CapituloConfiguradorDef[] = [
       {
         slug: 'api-cockpit-integracoes',
         titulo: 'API Cockpit e integrações',
-        duracao: '45m',
+        duracao: '5m',
         manualCapitulo: 'api-cockpit',
       },
       {
         slug: 'taxas-e-moeda',
         titulo: 'Taxas e moeda',
-        duracao: '15m',
+        duracao: '3m',
         manualCapitulo: 'taxas-moeda',
         curadoria: { fluxoIndices: [0, 1], maxPassosPorFluxo: 3 },
       },
       {
         slug: 'historico-e-auditoria',
         titulo: 'Histórico e auditoria',
-        duracao: '20m',
+        duracao: '3m',
         manualCapitulo: 'historico',
         curadoria: { fluxoIndices: [0, 1, 2], maxPassosPorFluxo: 4 },
       },

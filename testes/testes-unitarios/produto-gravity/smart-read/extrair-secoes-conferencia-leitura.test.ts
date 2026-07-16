@@ -86,6 +86,20 @@ describe('Smart Read — extrair seções conferência', () => {
     const stats = calcularEstatisticasConferencia(secoes)
     expect(stats.total).toBeGreaterThan(0)
     expect(stats.preenchidos + stats.vazios).toBe(stats.total)
+    expect(stats.preenchidosAlterados).toBe(0)
+  })
+
+  it('conta preenchidos alterados quando campo está no índice de edição', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      porto_embarque: 'Shanghai',
+      exportador: 'Foo',
+    })
+    const stats = calcularEstatisticasConferencia(secoes, {
+      idArquivoLocal: 'arq-local',
+      indiceDocumento: 0,
+      camposEditados: new Set(['arq-local:0:porto_embarque']),
+    })
+    expect(stats.preenchidosAlterados).toBe(1)
   })
 
   it('interpreta lista fields com section do legado', () => {

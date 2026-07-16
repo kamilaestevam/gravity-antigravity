@@ -17,9 +17,9 @@ export const SEQUENCIA_DEMO_ARRASTAR_COLUNAS_LISTA: PassoAnimacaoArrastarColunaL
   { tipo: 'espera', duracaoMs: 1400 },
   {
     tipo: 'mover',
-    origemId: 'numero_pedido',
-    destinoId: 'id_workspace',
-    lado: 'before',
+    origemId: 'id_workspace',
+    destinoId: 'nome_exportador',
+    lado: 'after',
     duracaoMs: 1500,
     soltarEm: 0.82,
   },

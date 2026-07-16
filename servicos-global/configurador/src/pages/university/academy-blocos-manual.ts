@@ -198,6 +198,31 @@ function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
   )
 }
 
+/** Espelha o corpo renderizado por `introFluxo` em `ManualSecaoFluxo` (modo `intro`). */
+function fluxoTemConteudoIntroAcademy(fluxo: DocFluxo): boolean {
+  if ((fluxo.paragrafos?.length ?? 0) > 0) return true
+  if (fluxo.callout && !fluxo.calloutAposPassos) return true
+  if ((fluxo.figurasAposInfografico?.length ?? 0) > 0) return true
+  if (fluxo.mostrarInfograficoPermissoesUsuario && fluxo.infograficoPermissoesUsuarioAposPasso == null) {
+    return true
+  }
+  if (fluxo.mostrarInfograficoIconesMenuSuperior && !fluxo.infograficoIconesMenuSuperiorAposPassos) {
+    return true
+  }
+  const flagsInfograficoIntro: Array<keyof DocFluxo> = [
+    'mostrarInfograficoPapeisFornecedor',
+    'mostrarInfograficoMenuLateral',
+    'mostrarInfograficoTiposUsuario',
+    'mostrarInfograficoSmartDocsInsights',
+    'mostrarInfograficoPedidoInsights',
+    'mostrarInfograficoBidFreteInsights',
+    'mostrarInfograficoBidFretePainelCotacao',
+    'mostrarInfograficoApiCockpitWebhookVsApi',
+    'mostrarInfograficoApiCockpitConsumo',
+  ]
+  return flagsInfograficoIntro.some((flag) => Boolean(fluxo[flag]))
+}
+
 /** Academy: paridade Pedido Gravity — H1 + tópico intro (H2) + subtópicos como H2 no menu. */
 function blocosDeFluxoAcademySubtopicosComoTitulos(
   fluxo: DocFluxo,
@@ -210,14 +235,16 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
   if (tituloIntro) {
     blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })
   }
-  blocos.push({
-    tipo: 'fluxo_manual',
-    dados: {
-      payload: JSON.stringify(fluxo),
-      numeroSecaoFluxo,
-      modo: 'intro',
-    },
-  })
+  if (fluxoTemConteudoIntroAcademy(fluxo)) {
+    blocos.push({
+      tipo: 'fluxo_manual',
+      dados: {
+        payload: JSON.stringify(fluxo),
+        numeroSecaoFluxo,
+        modo: 'intro',
+      },
+    })
+  }
 
   for (const passo of fluxo.passosVisuais ?? []) {
     // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
@@ -227,7 +254,9 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
       dados: {
         text: tituloPasso,
         nivel: 2,
-        ...(passo.rotuloPasso?.trim() ? { ocultarNoCorpo: true } : {}),
+        // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
+        ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
+        ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
         ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
       },
     })
@@ -276,6 +305,7 @@ const INFOGRAFICOS_SECAO: Array<{
   { flag: 'mostrarInfograficoApiCockpitIntegracao', id: 'api-cockpit-integracao', skipSeAposParagrafo: true },
   { flag: 'mostrarInfograficoHubTelas', id: 'hub-telas' },
   { flag: 'mostrarInfograficoPedidoVisaoGeral', id: 'pedido-visao-geral' },
+  { flag: 'mostrarInfograficoSmartDocsOQueE', id: 'smart-docs-o-que-e' },
   { flag: 'mostrarInfograficoSmartDocsDocumentos', id: 'smart-docs-documentos' },
   { flag: 'mostrarInfograficoAdminTelas', id: 'admin-telas' },
 ]
@@ -323,14 +353,21 @@ function blocosInfograficosFluxo(fluxo: DocFluxo, momento: 'antes_passos' | 'apo
   return blocos
 }
 
+function tituloFluxoCuradoAcademy(fluxo: DocFluxo, indiceFluxo: number, curadoria: CuradoriaSecaoAcademy): string {
+  return curadoria.titulosFluxoAcademy?.[indiceFluxo] ?? tituloFluxoAcademy(fluxo)
+}
+
 function blocosDeFluxo(
   fluxo: DocFluxo,
   maxPassos?: number,
-  opcoes?: { omitirTitulo?: boolean },
+  opcoes?: { omitirTitulo?: boolean; tituloFluxo?: string },
 ): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
   if (!opcoes?.omitirTitulo) {
-    blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+    blocos.push({
+      tipo: 'heading',
+      dados: { text: opcoes?.tituloFluxo ?? tituloFluxoAcademy(fluxo), nivel: 2 },
+    })
   }
   for (let i = 0; i < (fluxo.paragrafos ?? []).length; i++) {
     blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(fluxo.paragrafos![i]) } })
@@ -387,6 +424,10 @@ export interface CuradoriaSecaoAcademy {
   incluirIntroSecao?: boolean
   /** Screenshot da seção no topo da intro. Default true. */
   incluirImagemSecao?: boolean
+  /** Título H1 da intro na Academy (sem alterar o manual /docs). */
+  tituloIntroAcademy?: string
+  /** Títulos de fluxo na Academy por índice do fluxo no manual. */
+  titulosFluxoAcademy?: Partial<Record<number, string>>
   /** Infográficos da seção quando a intro está omitida (ex.: aula 2 do capítulo). */
   infograficosSecao?: IdInfograficoAcademy[]
   /** Renderiza cada fluxo com `ManualSecaoFluxo` (infográficos, acordeões, galerias do manual). */
@@ -412,13 +453,12 @@ export function blocosDeSecaoConfiguradorAcademy(
   const incluirIntro = curadoria.incluirIntroSecao !== false
 
   if (incluirIntro) {
-    blocos.push({ tipo: 'heading', dados: { text: secao.titulo, nivel: 1 } })
+    blocos.push({
+      tipo: 'heading',
+      dados: { text: curadoria.tituloIntroAcademy ?? secao.titulo, nivel: 1 },
+    })
     if (secao.tituloTopico?.trim()) {
       blocos.push({ tipo: 'heading', dados: { text: secao.tituloTopico.trim(), nivel: 2 } })
-    }
-    if (secao.layoutTextoImagemLateral) {
-      const imagemAposTitulo = blocoImagemSecao(secao, curadoria)
-      if (imagemAposTitulo) blocos.push(imagemAposTitulo)
     }
     for (let i = 0; i < secao.paragrafos.length; i++) {
       blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(secao.paragrafos[i]) } })
@@ -432,6 +472,10 @@ export function blocosDeSecaoConfiguradorAcademy(
       ) {
         blocos.push(blocoInfografico('api-cockpit-integracao'))
       }
+    }
+    if (secao.layoutTextoImagemLateral) {
+      const imagemAposTitulo = blocoImagemSecao(secao, curadoria)
+      if (imagemAposTitulo) blocos.push(imagemAposTitulo)
     }
     if (secao.topicosImagemLateral?.length) {
       blocos.push({
@@ -468,7 +512,10 @@ export function blocosDeSecaoConfiguradorAcademy(
         continue
       }
       if (!omitirTitulo) {
-        blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+        blocos.push({
+          tipo: 'heading',
+          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: 2 },
+        })
       }
       blocos.push({
         tipo: 'fluxo_manual',
@@ -476,7 +523,10 @@ export function blocosDeSecaoConfiguradorAcademy(
       })
       continue
     }
-    blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, { omitirTitulo }))
+    blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, {
+      omitirTitulo,
+      tituloFluxo: tituloFluxoCuradoAcademy(fluxo, idx, curadoria),
+    }))
   }
   return blocos
 }

@@ -961,5 +961,5 @@ export const CHAVES_COLUNAS_BUILTIN_SIMULADOR_PEDIDO: string[] = [
 ]
 
 export function criarEstadoColunasListaSimuladorPedido(): ColunaListaSimuladorPedido[] {
-  return COLUNAS_LISTA_SIMULADOR_PEDIDO.map((c) => ({ ...c }))
+  return COLUNAS_LISTA_SIMULADOR_PEDIDO.map((c) => ({ ...c, visivel: true }))
 }

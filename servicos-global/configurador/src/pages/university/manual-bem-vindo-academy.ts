@@ -189,19 +189,19 @@ export const AULAS_BEM_VINDO: AulaDemo[] = [
   {
     slug: BEM_VINDO_AULA_SLUG,
     titulo: 'Boas-vindas',
-    duracao: '2m',
+    duracao: '1m',
     blocos: BLOCOS_BOAS_VINDAS,
   },
   {
     slug: 'o-que-e-o-gravity',
     titulo: 'O que é o Gravity',
-    duracao: '5m',
+    duracao: '1m',
     blocos: BLOCOS_O_QUE_E_O_GRAVITY,
   },
   {
     slug: 'o-guia-gravity',
     titulo: 'O Guia Gravity',
-    duracao: '8m',
+    duracao: '1m',
     blocos: BLOCOS_O_GUIA_GRAVITY,
   },
 ]

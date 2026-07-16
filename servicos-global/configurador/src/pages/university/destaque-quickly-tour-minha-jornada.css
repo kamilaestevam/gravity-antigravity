@@ -1,0 +1,32 @@
+/* Destaque de alvo — Quickly Tour (Minha jornada) */
+
+[data-uni-quickly-tour-alvo].uni-quickly-tour-alvo--destacado {
+  position: relative;
+  z-index: 12 !important;
+  outline: none !important;
+  border-radius: 10px;
+}
+
+[data-uni-quickly-tour-alvo].uni-quickly-tour-alvo--destacado::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid rgba(129, 140, 248, 0.88);
+  box-shadow:
+    0 0 0 4px rgba(129, 140, 248, 0.18),
+    0 0 22px rgba(129, 140, 248, 0.22);
+  pointer-events: none;
+  z-index: 80;
+}
+
+.mlg-nav-item.uni-quickly-tour-alvo--destacado::after,
+.mlg-submenu-item.uni-quickly-tour-alvo--destacado::after,
+.mlg-nav-section-label.uni-quickly-tour-alvo--destacado::after {
+  inset: -2px;
+}
+
+.mlg-nav-item.uni-quickly-tour-alvo--destacado,
+.mlg-submenu-item.uni-quickly-tour-alvo--destacado {
+  position: relative;
+}

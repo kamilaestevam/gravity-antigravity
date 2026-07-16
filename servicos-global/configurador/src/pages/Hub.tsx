@@ -4,7 +4,6 @@ import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
-import { universityGravityPublicada } from './university/university-gravity-publicacao'
 import {
   Gear,
   Sparkle,
@@ -381,17 +380,15 @@ export function Hub() {
             <MagnifyingGlass weight="bold" size={16} />
           </button>
 
-          {universityGravityPublicada() ? (
-            <button
-              className="hb-topbar-btn"
-              type="button"
-              title={t('university.modulo_nome', 'Gravity University')}
-              aria-label={t('university.modulo_nome', 'Gravity University')}
-              onClick={() => navigate('/university-gravity')}
-            >
-              <GraduationCap size={16} weight="duotone" />
-            </button>
-          ) : null}
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={16} weight="duotone" />
+          </button>
 
           <div className="hb-notif-wrap">
             <Notificacoes />

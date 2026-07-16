@@ -76,6 +76,8 @@ export interface ModalPassoPassoProps {
   classNameDialog?: string
   classNameCabecalho?: string
   classNameStepperEnvoltorio?: string
+  /** data-sds-tutorial-alvo no botão Próximo/Salvar do footer padrão (demo Gabi) */
+  dataTutorialAlvoBotaoAvancar?: string
   children: React.ReactNode
 }
 
@@ -153,6 +155,7 @@ export function ModalPassoPassoGlobal({
   classNameDialog,
   classNameCabecalho,
   classNameStepperEnvoltorio,
+  dataTutorialAlvoBotaoAvancar,
   children,
 }: ModalPassoPassoProps) {
   const dialogRef = useFocusTrap(aberto)
@@ -545,16 +548,23 @@ export function ModalPassoPassoGlobal({
               <span style={s.footerIndicador}>
                 {passoIndex + 1} / {passos.length}
               </span>
-              <BotaoGlobal
-                variante="primario"
-                tamanho="padrao"
-                disabled={!podeAvancar || carregando}
-                carregando={carregando}
-                iconeDireita={isUltimoPasso ? <Check size={14} /> : <ArrowRight size={14} />}
-                onClick={onProximo}
+              <span
+                {...(dataTutorialAlvoBotaoAvancar
+                  ? { 'data-sds-tutorial-alvo': dataTutorialAlvoBotaoAvancar }
+                  : {})}
+                style={{ display: 'inline-flex' }}
               >
-                {carregando && textoCarregando ? textoCarregando : isUltimoPasso ? labelBotaoFinal : labelProximo}
-              </BotaoGlobal>
+                <BotaoGlobal
+                  variante="primario"
+                  tamanho="padrao"
+                  disabled={!podeAvancar || carregando}
+                  carregando={carregando}
+                  iconeDireita={isUltimoPasso ? <Check size={14} /> : <ArrowRight size={14} />}
+                  onClick={onProximo}
+                >
+                  {carregando && textoCarregando ? textoCarregando : isUltimoPasso ? labelBotaoFinal : labelProximo}
+                </BotaoGlobal>
+              </span>
             </div>
           </div>
           ) : null}

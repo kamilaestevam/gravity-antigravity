@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { escolherLeituraEfetivaRetomarSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-leitura-efetiva-retomar-smart-read.ts'
+import { escolherLeituraRetomarComConferenciaSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-leitura-retomar-com-conferencia-smart-read.ts'
 import { escolherProgressoSalvoLeituraSmartRead } from '../../../../servicos-global/produto/smart-read/shared/escolher-progresso-salvo-leitura-smart-read.ts'
 import {
   normalizarPassoRegistroProgressoLeituraSmartRead,
   resolverPassoRetomarLeituraSmartRead,
 } from '../../../../servicos-global/produto/smart-read/shared/resolver-passo-retomar-leitura-smart-read.ts'
 import { estadoProgressoReduzidoUrgenteSmartRead } from '../../../../servicos-global/produto/smart-read/shared/estado-progresso-reduzido-urgente-smart-read.ts'
-import { estadoProgressoKeepaliveSmartRead } from '../../../../servicos-global/produto/smart-read/shared/estado-progresso-reduzido-urgente-smart-read.ts'
 import {
   extrairDadosSessaoProgressoLeitura,
   montarRespostaProgressoLeitura,
@@ -224,34 +224,6 @@ describe('progresso-leitura-smart-read', () => {
     expect(reduzido.leitura.id_leitura).toBe('abc12345')
   })
 
-  it('estado keepalive mantem metadados dos arquivos sem extracao', () => {
-    const keepalive = estadoProgressoKeepaliveSmartRead({
-      passo: 2,
-      nome: 'Leitura X',
-      leitura: {
-        id_leitura: 'abc12345',
-        nome_leitura: 'Leitura X',
-        status_leitura: 'PROCESSING',
-        total_arquivos: 1,
-        arquivos_processados: 0,
-        arquivos: [
-          {
-            id_arquivo: 'a1',
-            nome_arquivo: 'f.pdf',
-            status_arquivo: 'PROCESSING',
-            resultado_extracao: [{ tipo_documento: 'INVOICE', dados: { n: 1 } }],
-          },
-        ],
-      },
-    })
-    expect(keepalive.leitura.arquivos).toHaveLength(1)
-    expect(keepalive.leitura.arquivos[0]).toMatchObject({
-      id_arquivo: 'a1',
-      nome_arquivo: 'f.pdf',
-      resultado_extracao: null,
-    })
-  })
-
   it('prefere progresso salvo quando API retorna leitura sem arquivos', () => {
     const api = {
       ...leituraMinima,
@@ -271,5 +243,71 @@ describe('progresso-leitura-smart-read', () => {
     const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
     expect(escolhida?.arquivos).toHaveLength(1)
     expect(escolhida?.arquivos[0]).toMatchObject({ id_arquivo: 'arq-salvo' })
+  })
+
+  it('keepalive sem arquivos preserva conferência e aplica tempo do corpo', () => {
+    const api = {
+      ...leituraMinima,
+      tempo_processo_total_ms: 5_000,
+      arquivos: [
+        {
+          id_arquivo: 'arq-api',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [
+            {
+              tipo_documento: 'BL',
+              dados_original: { porto: 'Shenzhen' },
+              dados: { porto: 'Shanghai' },
+            },
+          ],
+        },
+      ],
+    }
+    const salva = {
+      ...leituraMinima,
+      tempo_processo_total_ms: 99_000,
+      arquivos: [],
+    }
+    const escolhida = escolherLeituraRetomarComConferenciaSmartRead(api, salva)
+    expect(escolhida?.tempo_processo_total_ms).toBe(99_000)
+    expect(escolhida?.arquivos[0]?.resultado_extracao?.[0]?.dados).toMatchObject({ porto: 'Shanghai' })
+  })
+
+  it('preserva conferência e tempo ao retomar via escolherLeituraEfetivaRetomarSmartRead', () => {
+    const api = {
+      ...leituraMinima,
+      tempo_processo_total_ms: 5_000,
+      arquivos: [
+        {
+          id_arquivo: 'arq-api',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [{ tipo_documento: 'BL', dados: { porto: 'Shenzhen' } }],
+        },
+      ],
+    }
+    const salva = {
+      ...leituraMinima,
+      tempo_processo_total_ms: 88_000,
+      arquivos: [
+        {
+          id_arquivo: 'arq-api',
+          nome_arquivo: 'BL.pdf',
+          status_arquivo: 'COMPLETED' as const,
+          resultado_extracao: [
+            {
+              tipo_documento: 'BL',
+              dados_original: { porto: 'Shenzhen' },
+              dados: { porto: 'Shanghai' },
+            },
+          ],
+        },
+      ],
+    }
+    const escolhida = escolherLeituraEfetivaRetomarSmartRead(api, salva)
+    expect(escolhida?.tempo_processo_total_ms).toBe(88_000)
+    expect(escolhida?.arquivos[0]?.resultado_extracao?.[0]?.dados).toMatchObject({ porto: 'Shanghai' })
+    expect(escolhida?.arquivos[0]?.resultado_extracao?.[0]?.dados_original).toBeDefined()
   })
 })

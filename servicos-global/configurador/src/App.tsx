@@ -16,7 +16,6 @@ import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
 import { SsoCallbackPage } from './pages/SsoCallbackPage'
 import { RecuperarSenhaRedefinirPage } from './pages/RecuperarSenhaRedefinirPage'
-
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
 const E2ENotificacoesHarness = import.meta.env.DEV
   ? React.lazy(() => import('./pages/E2ENotificacoesHarness').then(m => ({ default: m.E2ENotificacoesHarness })))

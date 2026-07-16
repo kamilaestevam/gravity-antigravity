@@ -3,6 +3,7 @@
 > **Versão:** 1.0
 > **Data:** 27/06/2026
 > **Status:** Rascunho — aguardando aprovação do dono e revisão do Coordenador (modelagem de banco)
+> **Publicação produção (2026-07-15):** módulo **fora de prod** por decisão PO MASTER (Daniel) — ver [PUBLICACAO-PRODUCAO.md](./PUBLICACAO-PRODUCAO.md). Guia Gravity permanece o canal oficial de help.
 > **Product Owner:** Daniel Mendes
 > **Natureza:** **Serviço de plataforma** (não é produto vendável) — vive em `servicos-global/servicos-plataforma/`, junto da GABI e do API Cockpit.
 > **Slug de código (canônico):** `university-gravity` (marca em UI: **Gravity University**)

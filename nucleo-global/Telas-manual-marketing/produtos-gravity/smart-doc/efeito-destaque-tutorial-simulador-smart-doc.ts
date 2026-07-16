@@ -13,24 +13,31 @@ export function useEfeitoDestaqueTutorialSimulador(
 ) {
   useEffect(() => {
     const raiz = refRaiz.current
-    if (!raiz) return
 
-    raiz.querySelectorAll(`.${CLASSE_ALVO_DESTACADO}`).forEach((el) => {
-      el.classList.remove(CLASSE_ALVO_DESTACADO)
-    })
+    function limparDestaques() {
+      document.querySelectorAll(`.${CLASSE_ALVO_DESTACADO}`).forEach((el) => {
+        el.classList.remove(CLASSE_ALVO_DESTACADO)
+      })
+      raiz?.classList.remove(CLASSE_DESTAQUE_ATIVO)
+      document.body.classList.remove(CLASSE_DESTAQUE_ATIVO)
+    }
+
+    limparDestaques()
 
     if (!idAlvoDestacado) {
-      raiz.classList.remove(CLASSE_DESTAQUE_ATIVO)
       return
     }
 
-    raiz.classList.add(CLASSE_DESTAQUE_ATIVO)
-    raiz.querySelectorAll(`[data-sds-tutorial-alvo="${idAlvoDestacado}"]`).forEach((el) => {
+    raiz?.classList.add(CLASSE_DESTAQUE_ATIVO)
+    document.body.classList.add(CLASSE_DESTAQUE_ATIVO)
+
+    const seletor = `[data-sds-tutorial-alvo="${idAlvoDestacado}"]`
+    document.querySelectorAll(seletor).forEach((el) => {
       el.classList.add(CLASSE_ALVO_DESTACADO)
     })
 
     return () => {
-      raiz.classList.remove(CLASSE_DESTAQUE_ATIVO)
+      limparDestaques()
     }
   }, [idAlvoDestacado, refRaiz])
 }

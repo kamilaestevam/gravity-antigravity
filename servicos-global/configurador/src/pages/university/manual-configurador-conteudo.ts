@@ -36,7 +36,7 @@ export interface DocPassoVisual {
   imagemAbaixoTexto?: boolean
   /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
   ocultarRotuloPasso?: boolean
-  /** Substitui «Passo NN» por subtítulo do fluxo (ex.: «Cards do token»). Ver `manual-tipografia` — layout subtítulo Guia. */
+  /** Substitui «Passo NN» por título do bloco (ex.: «Cards do token»). Ver `manual-tipografia` — layout título Guia. */
   rotuloPasso?: string
   /** Academy: `rotuloPasso` + parágrafos após a galeria de prints (transição para o próximo subtópico). */
   rotuloPassoAposGaleriaComparacao?: boolean
@@ -47,6 +47,8 @@ export interface DocPassoVisual {
   tagSecaoImportante?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
+  /** Guia — realce visual exclusivo no bloco `rotuloPasso` + parágrafos (seção crítica). */
+  destaqueRotuloPassoGuia?: boolean
   /** Academy: mantém o passo no corpo, mas omite do menu lateral da aula. */
   ocultarNoSumario?: boolean
   /** Badge «Em breve» no topo do conteúdo do passo (fora do acordeão de subtópicos). */
@@ -211,8 +213,8 @@ export interface DocPassoVisual {
     NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number],
     'indice'
   >[]
-  /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
-  calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Com `imagemAbaixoTexto`, callout(s) logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
+  calloutAposImagem?: DocCalloutManual | DocCalloutManual[]
   /** Com `imagemAbaixoTexto`, legenda roxa logo abaixo do screenshot principal. */
   legendaAposImagem?: string
   legendaAposImagemAlinhamento?: 'left' | 'center'
@@ -522,6 +524,8 @@ export interface DocGaleriaTela {
   pilaresControlesMapaPedido?: Array<'vista' | 'zoom' | 'restaurar' | 'trilhos' | 'rotacao'>
   /** Chips numerados do infográfico de filtros do mapa Pedido (ex.: ['01'] = operação). */
   pilaresFiltrosMapaPedido?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
+  /** Manual Pedido § Lista — simulador React com demo automática de arrastar colunas. */
+  simuladorPedidoListaArrastarColunas?: boolean
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }

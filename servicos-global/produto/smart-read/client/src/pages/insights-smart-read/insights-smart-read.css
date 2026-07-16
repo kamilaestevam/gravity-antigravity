@@ -210,6 +210,14 @@
   overflow: hidden;
 }
 
+.sr-insights-funil__bar-wrap--interativo {
+  cursor: default;
+}
+
+.sr-insights-donut-wrap.sr-insights-tt-host {
+  cursor: default;
+}
+
 .sr-insights-funil__bar {
   height: 100%;
   border-radius: 4px;
@@ -1051,6 +1059,11 @@
   backdrop-filter: blur(8px);
   pointer-events: none;
   animation: sr-insights-tooltip-in 0.12s ease-out;
+}
+
+.sr-insights-tt--portal {
+  position: fixed;
+  z-index: 10050;
 }
 
 .sr-insights-tt--abaixo {

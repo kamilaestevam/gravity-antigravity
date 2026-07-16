@@ -51,7 +51,7 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 | `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload + vínculo workspace → `202` |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado — **snapshot (workspace)** → **legado** (se vinculada) → **progresso** (`catch`, `id_usuario` + workspace); grava snapshot após legado se elegível |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard por **usuário** (`404` se ausente) |
-| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão (usuário); inclui `tempo_analise_segundos` congelado ao fim da análise — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão (usuário); inclui `tempo_processo_total_ms` acumulado do wizard — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
 | `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |
 
 **Schemas Zod (bilateral — REGRA 07/09):**

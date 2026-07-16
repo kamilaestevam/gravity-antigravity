@@ -26,7 +26,7 @@ const CARDS: CardPainel[] = [
   {
     num: '01',
     rotulo: 'Como planilhas no Excel',
-    descricao: 'Várias **abas** no mesmo arquivo — troque entre elas sem perder o layout de cada uma.',
+    descricao: 'Várias **abas** no mesmo arquivo. Troque entre elas sem perder o layout de cada uma.',
     icone: Layout,
     cor: '#818cf8',
     borda: 'rgba(129,140,248,.35)',
@@ -35,7 +35,7 @@ const CARDS: CardPainel[] = [
   {
     num: '02',
     rotulo: 'Layout próprio',
-    descricao: 'Guarda **colunas**, **ordem**, **filtros**, **larguras** e **busca** — um recorte completo da lista.',
+    descricao: 'Guarda **colunas**, **ordem**, **filtros**, **larguras** e **busca**: um recorte completo da lista.',
     icone: Table,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -44,7 +44,7 @@ const CARDS: CardPainel[] = [
   {
     num: '03',
     rotulo: 'Novo painel',
-    descricao: 'Ao criar (**+**), nasce uma **nova aba** com o estado atual da tabela — pronta para você ajustar ao recorte desejado.',
+    descricao: 'Ao criar (**+**), nasce uma **nova aba** com o estado atual da tabela, pronta para você ajustar ao recorte desejado.',
     icone: Plus,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
@@ -53,7 +53,7 @@ const CARDS: CardPainel[] = [
   {
     num: '04',
     rotulo: 'Filtros por painel',
-    descricao: 'Em cada aba, aplique filtros e colunas diferentes — o painel **Padrão** vem com o produto; os demais são seus.',
+    descricao: 'Em cada aba, aplique filtros e colunas diferentes. O painel **Padrão** vem com o produto; os demais são seus.',
     icone: Funnel,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -217,7 +217,7 @@ function FaixaAbasExemplo() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        Monte quantas abas precisar — como planilhas no Excel, cada uma com filtros e colunas para o fluxo do seu time.
+        Monte quantas abas precisar, como planilhas no Excel, cada uma com filtros e colunas para o fluxo do seu time.
       </p>
     </div>
   )
@@ -263,7 +263,7 @@ export function ManualInfograficoSmartDocsListaPaineis() {
           lineHeight: 1.35,
           letterSpacing: '-.01em',
         }}>
-          Como o Excel — várias planilhas no mesmo arquivo
+          Como o Excel: várias planilhas no mesmo arquivo
         </p>
         <p style={{
           margin: '8px 0 0',

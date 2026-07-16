@@ -8,6 +8,7 @@ import {
   prepararDadosConferenciaLeitura,
   valorCampoExtracaoLegadoPreenchido,
 } from '../../../shared/mesclar-dados-extracao-legado-smart-read'
+import { isCampoEditadoLeitura } from './definir-valor-por-caminho-dados-leitura-smart-read'
 
 export type CampoConferenciaLeitura = {
   chave: string
@@ -27,6 +28,7 @@ export type EstatisticasConferenciaLeitura = {
   preenchidos: number
   vazios: number
   percentual: number
+  preenchidosAlterados: number
 }
 
 type CampoLegado = {
@@ -278,16 +280,40 @@ export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> |
   )
 }
 
-export function calcularEstatisticasConferencia(secoes: SecaoConferenciaLeitura[]): EstatisticasConferenciaLeitura {
+export type ContextoEstatisticasConferenciaLeitura = {
+  idArquivoLocal?: string
+  indiceDocumento?: number
+  camposEditados?: ReadonlySet<string>
+}
+
+export function calcularEstatisticasConferencia(
+  secoes: SecaoConferenciaLeitura[],
+  contexto?: ContextoEstatisticasConferenciaLeitura,
+): EstatisticasConferenciaLeitura {
   let total = 0
   let preenchidos = 0
+  let preenchidosAlterados = 0
   for (const secao of secoes) {
     for (const campo of secao.campos) {
       total++
       if (campo.preenchido) preenchidos++
+      if (
+        campo.preenchido &&
+        contexto?.camposEditados &&
+        contexto.idArquivoLocal != null &&
+        contexto.indiceDocumento != null &&
+        isCampoEditadoLeitura(
+          contexto.camposEditados,
+          contexto.idArquivoLocal,
+          contexto.indiceDocumento,
+          campo.chave,
+        )
+      ) {
+        preenchidosAlterados++
+      }
     }
   }
   const vazios = total - preenchidos
   const percentual = total > 0 ? Math.round((preenchidos / total) * 100) : 0
-  return { total, preenchidos, vazios, percentual }
+  return { total, preenchidos, vazios, percentual, preenchidosAlterados }
 }

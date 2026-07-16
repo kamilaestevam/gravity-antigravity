@@ -353,14 +353,21 @@ function blocosInfograficosFluxo(fluxo: DocFluxo, momento: 'antes_passos' | 'apo
   return blocos
 }
 
+function tituloFluxoCuradoAcademy(fluxo: DocFluxo, indiceFluxo: number, curadoria: CuradoriaSecaoAcademy): string {
+  return curadoria.titulosFluxoAcademy?.[indiceFluxo] ?? tituloFluxoAcademy(fluxo)
+}
+
 function blocosDeFluxo(
   fluxo: DocFluxo,
   maxPassos?: number,
-  opcoes?: { omitirTitulo?: boolean },
+  opcoes?: { omitirTitulo?: boolean; tituloFluxo?: string },
 ): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
   if (!opcoes?.omitirTitulo) {
-    blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+    blocos.push({
+      tipo: 'heading',
+      dados: { text: opcoes?.tituloFluxo ?? tituloFluxoAcademy(fluxo), nivel: 2 },
+    })
   }
   for (let i = 0; i < (fluxo.paragrafos ?? []).length; i++) {
     blocos.push({ tipo: 'texto', dados: { text: limparTextoManual(fluxo.paragrafos![i]) } })
@@ -417,6 +424,10 @@ export interface CuradoriaSecaoAcademy {
   incluirIntroSecao?: boolean
   /** Screenshot da seção no topo da intro. Default true. */
   incluirImagemSecao?: boolean
+  /** Título H1 da intro na Academy (sem alterar o manual /docs). */
+  tituloIntroAcademy?: string
+  /** Títulos de fluxo na Academy por índice do fluxo no manual. */
+  titulosFluxoAcademy?: Partial<Record<number, string>>
   /** Infográficos da seção quando a intro está omitida (ex.: aula 2 do capítulo). */
   infograficosSecao?: IdInfograficoAcademy[]
   /** Renderiza cada fluxo com `ManualSecaoFluxo` (infográficos, acordeões, galerias do manual). */
@@ -442,7 +453,10 @@ export function blocosDeSecaoConfiguradorAcademy(
   const incluirIntro = curadoria.incluirIntroSecao !== false
 
   if (incluirIntro) {
-    blocos.push({ tipo: 'heading', dados: { text: secao.titulo, nivel: 1 } })
+    blocos.push({
+      tipo: 'heading',
+      dados: { text: curadoria.tituloIntroAcademy ?? secao.titulo, nivel: 1 },
+    })
     if (secao.tituloTopico?.trim()) {
       blocos.push({ tipo: 'heading', dados: { text: secao.tituloTopico.trim(), nivel: 2 } })
     }
@@ -498,7 +512,10 @@ export function blocosDeSecaoConfiguradorAcademy(
         continue
       }
       if (!omitirTitulo) {
-        blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 2 } })
+        blocos.push({
+          tipo: 'heading',
+          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: 2 },
+        })
       }
       blocos.push({
         tipo: 'fluxo_manual',
@@ -506,7 +523,10 @@ export function blocosDeSecaoConfiguradorAcademy(
       })
       continue
     }
-    blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, { omitirTitulo }))
+    blocos.push(...blocosDeFluxo(fluxo, curadoria.maxPassosPorFluxo, {
+      omitirTitulo,
+      tituloFluxo: tituloFluxoCuradoAcademy(fluxo, idx, curadoria),
+    }))
   }
   return blocos
 }

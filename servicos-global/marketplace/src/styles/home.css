@@ -2,6 +2,8 @@
    GRAVITY — PREMIUM MARKETPLACE HOME STYLES (STRIPE & MONDAY)
    ============================================================ */
 
+@import '../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/simulador-marketing-tipografia.css';
+
 /* ---- Hero Section & Glows ---- */
 .hero {
   padding: 9rem 0 7rem;
@@ -627,24 +629,39 @@
   opacity: 1 !important;
 }
 
-/* Limpa a sobreposição da placa para exibir a imagem de tela perfeitamente nítida */
+.stack-layer.active:has(.interactive-simulator-shell) {
+  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.82));
+}
+
+/* Limpa a sobreposição da placa para exibir a tela perfeitamente nítida */
 .stack-layer.active .slab-top {
   border-color: rgba(var(--layer-color-rgb), 0.95);
-  box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.1), /* Borda fina interna branca para nitidez */
-    0 25px 60px rgba(0, 0, 0, 0.9),      /* Sombra projetada escura profunda */
-    0 0 50px rgba(var(--layer-color-rgb), 0.35); /* Glow externo na cor do produto */
-  border-radius: 16px;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.9),
+    0 0 50px rgba(var(--layer-color-rgb), 0.35);
+  border-radius: 14px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   overflow: hidden;
   isolation: isolate;
 }
 
-/* Smart Read / Pedido: tooltips do simulador não podem ser cortados pela placa */
+/* Simulador vivo: fundo sólido, sem glass blur — nitidez tipo Apple Retina */
+.stack-layer.active .slab-top:has(.interactive-simulator-shell) {
+  background: #090b14;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(var(--layer-color-rgb), 0.82);
+  border-radius: 14px;
+  box-shadow:
+    0 28px 56px -12px rgba(0, 0, 0, 0.88),
+    0 0 36px rgba(var(--layer-color-rgb), 0.22);
+}
+
+/* Smart Read / Pedido: tooltips em portal — placa pode clipar cantos sem cortar popovers */
 .stack-layer-smart-read.active .slab-top,
 .stack-layer-pedido.active .slab-top {
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* Moldura do simulador interativo (Smart Read, BID Frete, Pedido) */
@@ -653,20 +670,28 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: visible;
-  border-radius: 24px;
-  border: 18px solid #000;
-  box-shadow:
-    inset 0 0 30px rgba(0, 0, 0, 0.8),
-    0 0 0 2px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  border-radius: 14px;
+  border: none;
+  box-shadow: none;
   background: #090b14;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.interactive-simulator-shell .sds-root,
+.interactive-simulator-shell .pds-root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .interactive-simulator-close {
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 2600;
+  top: 10px;
+  right: 10px;
+  z-index: 2700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -681,7 +706,7 @@
   box-shadow:
     0 6px 20px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  transform: translate(50%, -50%);
+  transform: none;
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
 }
 
@@ -689,13 +714,13 @@
   background: rgba(248, 113, 113, 0.22);
   border-color: rgba(248, 113, 113, 0.65);
   color: #fff;
-  transform: translate(50%, -50%) scale(1.04);
+  transform: scale(1.04);
 }
 
 .stack-layer.active .slab-image-bg {
   opacity: 1;
   filter: saturate(1.15);
-  border-radius: 15px;
+  border-radius: 14px;
 }
 
 .stack-layer.active .slab-image-bg::after {

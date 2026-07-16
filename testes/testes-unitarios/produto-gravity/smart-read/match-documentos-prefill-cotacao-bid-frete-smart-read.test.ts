@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  excluirGrupoMatchPrefill,
   filtrarLeituraPorDocumentosMatchPrefill,
   listarDocumentosMatchPrefillCotacaoBidFrete,
   sugerirGruposMatchPrefillCotacaoBidFrete,
@@ -54,6 +55,16 @@ describe('match documentos prefill BID Frete', () => {
     const filtrada = filtrarLeituraPorDocumentosMatchPrefill(leitura, [docs[2]!.id_documento])
     expect(filtrada.arquivos[0]?.resultado_extracao).toHaveLength(1)
     expect(filtrada.arquivos[0]?.resultado_extracao?.[0]?.tipo_documento).toBe('INVOICE')
+  })
+
+  it('exclui cotacao e move documentos para a restante', () => {
+    const docs = listarDocumentosMatchPrefillCotacaoBidFrete(leitura)
+    const grupos = sugerirGruposMatchPrefillCotacaoBidFrete(docs)
+    expect(grupos.length).toBeGreaterThan(1)
+    const apos = excluirGrupoMatchPrefill(grupos, grupos[0]!.id_grupo)
+    expect(apos).toHaveLength(grupos.length - 1)
+    const totalDocs = apos.reduce((n, g) => n + g.ids_documentos.length, 0)
+    expect(totalDocs).toBe(docs.length)
   })
 })
 

@@ -76,16 +76,21 @@ export function classePassoCorpoAcademy(
 }
 
 /**
- * Guia Gravity — subtítulo dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
+ * Guia Gravity — título de bloco dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
  * (tela, cards, etapa temática), não uma sequência operacional numerada.
  * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
- * + screenshot/galeria abaixo, alinhados à esquerda do passo.
+ * — screenshot/galeria abaixo em `.uni-player-aula__passo-galeria`, alinhados à esquerda do passo.
  * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
  * operacionais seguintes na mesma seção (ex.: etapas de «Novo token») ficam em texto simples, sem borda.
  * Passos com H2 no sumário (`estiloTituloWizard`, ex.: «Análise») **não** usam borda.
  *
- * Sequência texto + screenshot no mesmo subtítulo (`figurasAposParagrafo`):
+ * Abas principais (ex.: **Cards**, **Tabela**) são **H2 de fluxo** no corpo — não usam `rotuloPasso`.
+ *
+ * Seção crítica no Guia: `destaqueRotuloPassoGuia` no passo visual aplica
+ * `.uni-player-aula__passo-corpo--destaque` (brilho indigo) — usar só onde o conteúdo marcar.
+ *
+ * Sequência texto + screenshot no mesmo título (`figurasAposParagrafo`):
  * - texto → screenshot na mesma etapa: 12px (`MANUAL_ESPACO_PARAGRAFO_PX`)
  * - fim da screenshot → próxima instrução: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
  */
@@ -104,6 +109,14 @@ export const MANUAL_PASSO_GUIA_MARGEM_ESQUERDA_CALLOUT_PX =
 export const MANUAL_MARKUP_NEGRITO_BOTAO = '**'
 /** Frase literal da UI (link, checkbox, placeholder, modal) — itálico semi-negrito no render */
 export const MANUAL_MARKUP_ITALICO_LITERAL_UI = '*_'
+
+/** Guia PlayerAula — menu lateral de tópicos (paridade com `.uni-player-aula__article`). */
+export const MANUAL_GUIA_NAV_LARGURA_PX = 280
+export const MANUAL_GUIA_NAV_PADDING_TOP_PX = 32
+export const MANUAL_GUIA_NAV_PADDING_HORIZONTAL_PX = 24
+export const MANUAL_GUIA_NAV_GAP_ITENS_PX = MANUAL_ESPACO_PARAGRAFO_PX
+export const MANUAL_GUIA_NAV_VOLTAR_MARGEM_INFERIOR_PX = MANUAL_ESPACO_PARAGRAFO_PX
+export const MANUAL_GUIA_NAV_CABECALHO_AULA_PADDING_INFERIOR_PX = MANUAL_ESPACO_PARAGRAFO_PX
 
 /** Parágrafos dentro de subtópico em acordeão — respiro extra para leitura confortável. */
 export const MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX = 16

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React from 'react'
 import {
   Bell,
   ChartBar,
@@ -13,6 +13,12 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
+import {
+  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+  MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
+  MANUAL_ESPACO_GRADE_GALERIA_PX,
+  MANUAL_TITULO_INFOGRAFICO_ESTILO,
+} from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -129,10 +135,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
   },
 ]
 
-const BLOCOS_UX10_LINHA1 = BLOCOS_UX10.slice(0, 6)
-const BLOCOS_UX10_LINHA2 = BLOCOS_UX10.slice(6)
-
-const GRID_UX10_COLUNAS = 'repeat(6, minmax(0, 1fr))'
+const GRID_UX10_COLUNAS = 'repeat(3, minmax(0, 1fr))'
 
 function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
   const Icone = bloco.icone
@@ -140,21 +143,22 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
     <div
       style={{
         borderRadius: 12,
-        padding: '12px 14px',
+        padding: '14px 14px 13px',
         background: bloco.fundo,
         border: `1px solid ${bloco.borda}`,
         boxSizing: 'border-box',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        gap: 10,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div
           style={{
             flexShrink: 0,
-            width: 32,
-            height: 32,
+            width: 34,
+            height: 34,
             borderRadius: 9,
             display: 'flex',
             alignItems: 'center',
@@ -163,40 +167,23 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
             border: `1px solid ${bloco.borda}`,
           }}
         >
-          <Icone size={17} weight="duotone" color={bloco.cor} />
+          <Icone size={18} weight="duotone" color={bloco.cor} />
         </div>
-        <div style={{ minWidth: 0 }}>
-          <p style={{ margin: 0, fontWeight: 800, fontSize: '.76rem', color: '#e2e8f0', lineHeight: 1.35 }}>
-            <span style={{ color: '#818cf8', marginRight: 6, fontSize: '.68rem' }}>
-              {String(bloco.num).padStart(2, '0')}
-            </span>
-            {bloco.rotulo}
-          </p>
-          <p style={{ margin: '6px 0 0', fontSize: '.72rem', lineHeight: 1.5, color: CORPO_70 }}>
-            <ManualInfograficoRichText texto={bloco.descricao} />
-          </p>
-        </div>
+        <p style={{ margin: 0, fontWeight: 800, fontSize: '.78rem', color: '#e2e8f0', lineHeight: 1.35 }}>
+          <span style={{ color: '#818cf8', marginRight: 6, fontSize: '.7rem' }}>
+            {String(bloco.num).padStart(2, '0')}
+          </span>
+          {bloco.rotulo}
+        </p>
       </div>
+      <p style={{ margin: 0, fontSize: '.73rem', lineHeight: 1.45, color: CORPO_70, flex: 1 }}>
+        <ManualInfograficoRichText texto={bloco.descricao} />
+      </p>
     </div>
   )
 }
 
 export function ManualInfograficoBidFreteInsights() {
-  const linha1Ref = useRef<HTMLDivElement>(null)
-  const [alturaLinha1Px, setAlturaLinha1Px] = useState<number | undefined>()
-
-  useLayoutEffect(() => {
-    const el = linha1Ref.current
-    if (!el) return undefined
-
-    const atualizar = () => setAlturaLinha1Px(el.offsetHeight)
-    atualizar()
-
-    const observer = new ResizeObserver(atualizar)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
   return (
     <div
       style={{
@@ -204,55 +191,37 @@ export function ManualInfograficoBidFreteInsights() {
           'linear-gradient(165deg, rgba(96,165,250,.06) 0%, rgba(148,163,184,.04) 48%, rgba(129,140,248,.05) 100%)',
         border: '1px solid rgba(148,163,184,.16)',
         borderRadius: 14,
-        padding: '18px 18px 16px',
-        marginTop: 20,
+        padding: '16px 18px 18px',
       }}
     >
-      <p
-        style={{
-          fontSize: '.68rem',
-          fontWeight: 700,
-          letterSpacing: '.08em',
-          textTransform: 'uppercase',
-          color: '#94a3b8',
-          margin: '0 0 6px',
-        }}
-      >
+      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Mapa de métricas
       </p>
-      <p style={{ margin: '0 0 6px', fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
+      <p style={{ margin: 0, fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
         Visão detalhada dos indicadores da tela Insights
       </p>
-      <p style={{ margin: '0 0 16px', fontSize: '.72rem', lineHeight: 1.5, color: CORPO_70 }}>
+      <p
+        style={{
+          margin: `${MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX}px 0 0`,
+          fontSize: '.72rem',
+          lineHeight: 1.5,
+          color: CORPO_70,
+        }}
+      >
         <ManualInfograficoRichText texto="Consulte cada indicador abaixo e avance nos subtópicos para **tooltips**, **mapa** e **Controle de Exibição do Mapa**." />
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div
-          ref={linha1Ref}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: GRID_UX10_COLUNAS,
-            gap: 10,
-            alignItems: 'stretch',
-          }}
-        >
-          {BLOCOS_UX10_LINHA1.map(bloco => (
-            <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
-          ))}
-        </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: GRID_UX10_COLUNAS,
-            gap: 10,
-            alignItems: 'stretch',
-            minHeight: alturaLinha1Px,
-          }}
-        >
-          {BLOCOS_UX10_LINHA2.map(bloco => (
-            <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
-          ))}
-        </div>
+      <div
+        style={{
+          marginTop: MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+          display: 'grid',
+          gridTemplateColumns: GRID_UX10_COLUNAS,
+          gap: MANUAL_ESPACO_GRADE_GALERIA_PX,
+          alignItems: 'stretch',
+        }}
+      >
+        {BLOCOS_UX10.map(bloco => (
+          <CardBlocoInsightBidFrete key={bloco.num} bloco={bloco} />
+        ))}
       </div>
     </div>
   )

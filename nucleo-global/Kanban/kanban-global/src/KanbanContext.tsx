@@ -34,6 +34,15 @@ export interface KanbanContextValue {
   onCardClick?: (item: KanbanItem) => void
   /** Labels resolvidos (defaults pt-BR + overrides passados pelo consumidor) */
   labels: Required<KanbanLabels>
+  dataTutorialAlvoPorCardId?: Record<string, string>
+  dataTutorialAlvoMoverMenuCardId?: string
+  dataTutorialAlvoMoverMenu?: string
+  dataTutorialAlvoMoverOpcoes?: string
+  onMoverMenuOpenChange?: (itemId: string, aberto: boolean) => void
+  dataTutorialAlvoSortColunaKey?: string
+  dataTutorialAlvoSort?: string
+  dataTutorialAlvoSortOpcoes?: string
+  onSortPopoverOpenChange?: (colunaKey: string, aberto: boolean) => void
 }
 
 export const KanbanContext = createContext<KanbanContextValue | null>(null)

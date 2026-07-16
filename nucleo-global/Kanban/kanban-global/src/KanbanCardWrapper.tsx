@@ -27,6 +27,11 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     onMoverItemInternal,
     onCardClick,
     labels,
+    dataTutorialAlvoPorCardId,
+    dataTutorialAlvoMoverMenuCardId,
+    dataTutorialAlvoMoverMenu,
+    onMoverMenuOpenChange,
+    dataTutorialAlvoMoverOpcoes,
   } = useKanban()
 
   const isReadOnlyEfetivo = isReadOnly || (
@@ -70,6 +75,11 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     return () => document.removeEventListener('mousedown', handle)
   }, [showMenu])
 
+  useEffect(() => {
+    if (!onMoverMenuOpenChange || item.id !== dataTutorialAlvoMoverMenuCardId) return
+    onMoverMenuOpenChange(item.id, showMenu)
+  }, [showMenu, onMoverMenuOpenChange, item.id, dataTutorialAlvoMoverMenuCardId])
+
   // Colunas disponíveis como destino (exclui a atual)
   const colunasDestino = colunas.filter(c => c.key !== colunaKey)
 
@@ -88,6 +98,8 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     feedback === 'erro'    ? 'kg-feedback-erro'    : '',
   ].filter(Boolean).join(' ')
 
+  const alvoTutorialCard = dataTutorialAlvoPorCardId?.[item.id]
+
   return (
     <div
       ref={setNodeRef}
@@ -95,6 +107,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
       style={style}
       data-testid={`${testIdPrefix}-card`}
       data-card-id={item.id}
+      {...(alvoTutorialCard ? { 'data-sds-tutorial-alvo': alvoTutorialCard } : {})}
       {...attributes}
       {...(isReadOnlyEfetivo ? {} : listeners)}
       role="listitem"
@@ -128,12 +141,21 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
               e.stopPropagation()
               setShowMenu(p => !p)
             }}
+            {...(item.id === dataTutorialAlvoMoverMenuCardId && dataTutorialAlvoMoverMenu
+              ? { 'data-sds-tutorial-alvo': dataTutorialAlvoMoverMenu }
+              : {})}
           >
             <DotsThreeVertical size={14} weight="bold" />
           </button>
 
           {showMenu && (
-            <div className="kg-mover-menu" role="menu">
+            <div
+              className="kg-mover-menu"
+              role="menu"
+              {...(item.id === dataTutorialAlvoMoverMenuCardId && dataTutorialAlvoMoverOpcoes
+                ? { 'data-sds-tutorial-alvo': dataTutorialAlvoMoverOpcoes }
+                : {})}
+            >
               <div className="kg-mover-menu-label">{labels.moveCardMenuLabel}</div>
               {colunasDestino.map(col => (
                 <button

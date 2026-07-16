@@ -118,7 +118,15 @@ const PRODUTOS_MANUAL: ProdutoManualDef[] = [
     produtoSlug: 'bid-frete',
     docsPath: '/university-gravity/docs/bid-frete',
     secao: DOC_BID_FRETE_SECAO,
-    aulas: curadoriaSequencial(BID_FRETE_AULA_SLUGS),
+    aulas: [
+      { slug: BID_FRETE_AULA_SLUGS[0], incluirIntroSecao: true, fluxoIndices: [0] },
+      { slug: BID_FRETE_AULA_SLUGS[1], fluxoIndices: [1] },
+      { slug: BID_FRETE_AULA_SLUGS[2], fluxoIndices: [2] },
+      { slug: BID_FRETE_AULA_SLUGS[3], fluxoIndices: [3] },
+      { slug: BID_FRETE_AULA_SLUGS[4], fluxoIndices: [4] },
+      { slug: BID_FRETE_AULA_SLUGS[5], fluxoIndices: [5] },
+      { slug: BID_FRETE_AULA_SLUGS[6], fluxoIndices: [8] },
+    ],
   },
   {
     produtoSlug: 'navegacao',

@@ -197,22 +197,6 @@ const passosSpec = [
     ],
   },
   {
-    titulo: 'Cards — detalhes ao remover',
-    tituloCurto: 'Detalhes do card',
-    paragrafos: [
-      'Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período** — útil para saber o que deixa de ser exibido.',
-    ],
-    galerias: [
-      galeriaTelas(
-        [
-          { slug: 'cards-ativos-disponiveis-remover-informacao', paragrafoAntes: 'Abra **Ver detalhes** antes de remover' },
-          { slug: 'cards-ativos-disponiveis-remover-informacao-detalhes', paragrafoAntes: 'Resumo do card: campo, agregação e origem' },
-        ],
-        2,
-      ),
-    ],
-  },
-  {
     titulo: 'Cards — reativar após remover',
     tituloCurto: 'Reativar card',
     paragrafos: [
@@ -239,12 +223,19 @@ const passosSpec = [
       galeriaTelas(
         [
           { slug: 'tabela-linhas-pagina', paragrafoAntes: '**01.** **Linhas por página** padrão' },
-          { slug: 'tabela-linhas-pagina-1', paragrafoAntes: '**02.** Selecione a quantidade (ex.: 25, 50, 100)' },
-          { slug: 'tabela-pedidos-em-atraso-vermelho', paragrafoAntes: '**03.** **Destacar pedidos atrasados em vermelho**' },
+          { slug: 'tabela-pedidos-em-atraso-vermelho', paragrafoAntes: '**02.** **Pedidos atrasados destaque**' },
         ],
-        3,
+        2,
       ),
     ],
+  },
+  {
+    titulo: 'Colunas',
+    tituloCurto: 'Colunas',
+    paragrafos: [
+      'Em **Colunas**, configure **casas decimais**, **formato de data** e **colunas personalizadas** exibidas na **Lista** — crie, reordene, oculte ou exclua campos do workspace.',
+    ],
+    galerias: [],
   },
   {
     titulo: 'Colunas — casas decimais',
@@ -258,7 +249,6 @@ const passosSpec = [
         colunas: 1,
         textoAcimaEstiloCorpo: true,
         telas: [
-          tela('colunas-casas-decimais', 'Visão das colunas numéricas e grupos **Pedido** / **Personalizadas**'),
           tela('colunas-casas-decimais-editar-1', '**01.** Ajuste casas decimais de uma coluna'),
           tela('colunas-casas-decimais-editar-2', '**02.** Use **−** e **+** ou digite o valor'),
           tela('colunas-casas-decimais-editar-3', '**03.** Itens **herdam** casas do pedido pai quando aplicável'),
@@ -279,155 +269,177 @@ const passosSpec = [
         [
           { slug: 'colunas-formato-data', paragrafoAntes: '**01.** Abra **Colunas › Formato de Data**' },
           { slug: 'colunas-formato-data-fluxo-1', paragrafoAntes: '**02.** Selecione o **formato** (ex.: DD/MM/AAAA)' },
-          { slug: 'colunas-formato-data-fluxo-2', paragrafoAntes: '**03.** Preview do formato escolhido' },
-          { slug: 'colunas-formato-data-fluxo-3', paragrafoAntes: '**04.** **Salvar** preferências' },
+          { slug: 'colunas-formato-data-fluxo-2', paragrafoAntes: '**03.** **Salvar** preferências' },
+          { slug: 'colunas-formato-data-fluxo-3', paragrafoAntes: '**04.** Formato aplicado na **Lista**' },
         ],
         2,
       ),
     ],
   },
   {
-    titulo: 'Colunas personalizadas — visão geral',
-    tituloCurto: 'Personalizadas',
-    paragrafos: [
-      '**Personalizadas** lista colunas criadas pelo workspace. **Arraste** para reordenar, **olho** para ocultar, **+ Criar Coluna** para novos tipos (**Texto**, **Numérico**, **Data**, **Percentual**, **Lista**, **Checkbox**, **Tipo Documento**, **Fórmula**).',
-    ],
-    galerias: [
-      galeriaTelas([{ slug: 'colunas-personalizadas', paragrafoAntes: 'Lista de colunas customizadas do workspace' }], 1),
-    ],
+    titulo: 'Colunas personalizadas',
+    tituloCurto: 'Colunas personalizadas',
+    destaqueRotuloPassoGuia: true,
+    mostrarInfograficoPedidoConfiguracoesColunasAdaptacao: true,
+    paragrafos: [],
+    galerias: [],
   },
   {
-    titulo: 'Criar coluna — Texto',
-    tituloCurto: 'Coluna Texto',
-    paragrafos: ['Fluxo para coluna **Texto** — nome e visibilidade na lista.'],
+    titulo: 'Nova coluna personalizada tipo Texto',
+    tituloCurto: 'Nova coluna personalizada tipo Texto',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Texto** — **+ Criar Coluna**, informe o **nome**, escolha **Texto** no modal e salve para exibir na **Lista**.',
+    ],
     galerias: [
       galeriaTelas(
         [
           { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
-          { slug: 'colunas-personalizadas-criar-coluna-2', paragrafoAntes: '**02.** Escolha tipo **Texto**' },
-          { slug: 'colunas-personalizadas-criar-coluna-texto', paragrafoAntes: '**03.** Modal de criação' },
-          { slug: 'colunas-personalizadas-criar-coluna-texto-1', paragrafoAntes: '**04.** Informe o **nome**' },
-          { slug: 'colunas-personalizadas-criar-coluna-texto-na-tela', paragrafoAntes: '**05.** Coluna visível na **Lista** após salvar' },
+          { slug: 'colunas-personalizadas-criar-coluna-texto', paragrafoAntes: '**02.** Modal tipo **Texto**' },
+          { slug: 'colunas-personalizadas-criar-coluna-texto-1', paragrafoAntes: '**03.** Informe o **nome**' },
+          { slug: 'colunas-personalizadas-criar-coluna-texto-na-tela', paragrafoAntes: '**04.** Coluna visível na **Lista** após salvar' },
         ],
         1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Numérico',
-    tituloCurto: 'Coluna Numérico',
-    paragrafos: ['Coluna **Numérico** para valores quantitativos customizados.'],
+    titulo: 'Nova coluna personalizada tipo Numérico',
+    tituloCurto: 'Nova coluna personalizada tipo Numérico',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Numérico** — **+ Criar Coluna**, escolha **Numérico** no modal e configure **nome** e opções.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-numero-1', paragrafoAntes: '**01.** Tipo **Numérico**' },
-          { slug: 'colunas-personalizadas-criar-coluna-numero-2', paragrafoAntes: '**02.** Nome e opções' },
-          { slug: 'colunas-personalizadas-criar-coluna-numero-3', paragrafoAntes: '**03.** **Salvar** coluna' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-numero-1', paragrafoAntes: '**02.** Modal tipo **Numérico**' },
+          { slug: 'colunas-personalizadas-criar-coluna-numero-2', paragrafoAntes: '**03.** Nome e opções' },
+          { slug: 'colunas-personalizadas-criar-coluna-numero-3', paragrafoAntes: '**04.** **Salvar** coluna' },
         ],
-        3,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Data',
-    tituloCurto: 'Coluna Data',
-    paragrafos: ['Coluna **Data** para campos de calendário customizados.'],
+    titulo: 'Nova coluna personalizada tipo Data',
+    tituloCurto: 'Nova coluna personalizada tipo Data',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Data** — **+ Criar Coluna**, escolha **Data** no modal e configure **nome** e formato.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-data-1', paragrafoAntes: '**01.** Tipo **Data**' },
-          { slug: 'colunas-personalizadas-criar-coluna-data-2', paragrafoAntes: '**02.** Configure nome e formato' },
-          { slug: 'colunas-personalizadas-criar-coluna-data-3', paragrafoAntes: '**03.** Coluna criada' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-data-1', paragrafoAntes: '**02.** Modal tipo **Data**' },
+          { slug: 'colunas-personalizadas-criar-coluna-data-2', paragrafoAntes: '**03.** Configure nome e formato' },
+          { slug: 'colunas-personalizadas-criar-coluna-data-3', paragrafoAntes: '**04.** Coluna criada' },
         ],
-        3,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Percentual',
-    tituloCurto: 'Coluna Percentual',
-    paragrafos: ['Coluna **Percentual %** para indicadores em percentual.'],
+    titulo: 'Nova coluna personalizada tipo Percentual',
+    tituloCurto: 'Nova coluna personalizada tipo Percentual',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Percentual** — **+ Criar Coluna**, escolha **Percentual** no modal e defina o **nome**.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-percentual-1', paragrafoAntes: '**01.** Tipo **Percentual**' },
-          { slug: 'colunas-personalizadas-criar-coluna-percentual-2', paragrafoAntes: '**02.** Nome da coluna' },
-          { slug: 'colunas-personalizadas-criar-coluna-percentual-3', paragrafoAntes: '**03.** **Salvar**' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-percentual-1', paragrafoAntes: '**02.** Modal tipo **Percentual**' },
+          { slug: 'colunas-personalizadas-criar-coluna-percentual-2', paragrafoAntes: '**03.** Nome da coluna' },
+          { slug: 'colunas-personalizadas-criar-coluna-percentual-3', paragrafoAntes: '**04.** **Salvar**' },
         ],
-        3,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Lista (Select)',
-    tituloCurto: 'Coluna Lista',
-    paragrafos: ['Coluna **Select/Lista** — defina opções fixas para seleção na tabela.'],
+    titulo: 'Nova coluna personalizada tipo Lista',
+    tituloCurto: 'Nova coluna personalizada tipo Lista',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Lista** (Select) — **+ Criar Coluna**, escolha **Select/Lista** no modal e cadastre as **opções**.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-lista-1', paragrafoAntes: '**01.** Tipo **Select/Lista**' },
-          { slug: 'colunas-personalizadas-criar-coluna-lista-2', paragrafoAntes: '**02.** Cadastre **opções**' },
-          { slug: 'colunas-personalizadas-criar-coluna-lista-3', paragrafoAntes: '**03.** Revise opções' },
-          { slug: 'colunas-personalizadas-criar-coluna-lista-4', paragrafoAntes: '**04.** **Salvar** coluna' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-lista-1', paragrafoAntes: '**02.** Modal tipo **Select/Lista**' },
+          { slug: 'colunas-personalizadas-criar-coluna-lista-2', paragrafoAntes: '**03.** Cadastre **opções**' },
+          { slug: 'colunas-personalizadas-criar-coluna-lista-3', paragrafoAntes: '**04.** Revise opções' },
+          { slug: 'colunas-personalizadas-criar-coluna-lista-4', paragrafoAntes: '**05.** **Salvar** coluna' },
         ],
-        2,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Checkbox',
-    tituloCurto: 'Coluna Checkbox',
-    paragrafos: ['Coluna **Checkbox** para flags booleanas na lista.'],
+    titulo: 'Nova coluna personalizada tipo Checkbox',
+    tituloCurto: 'Nova coluna personalizada tipo Checkbox',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Checkbox** — **+ Criar Coluna**, escolha **Checkbox** no modal e defina o **nome**.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-checkbox-1', paragrafoAntes: '**01.** Tipo **Checkbox**' },
-          { slug: 'colunas-personalizadas-criar-coluna-checkbox-2', paragrafoAntes: '**02.** Nome da coluna' },
-          { slug: 'colunas-personalizadas-criar-coluna-checkbox-3', paragrafoAntes: '**03.** **Salvar**' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-checkbox-1', paragrafoAntes: '**02.** Modal tipo **Checkbox**' },
+          { slug: 'colunas-personalizadas-criar-coluna-checkbox-2', paragrafoAntes: '**03.** Nome da coluna' },
+          { slug: 'colunas-personalizadas-criar-coluna-checkbox-3', paragrafoAntes: '**04.** **Salvar**' },
         ],
-        3,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Tipo Documento',
-    tituloCurto: 'Tipo Documento',
-    paragrafos: ['Coluna **Tipo Documento** para classificar anexos ou documentos vinculados.'],
+    titulo: 'Nova coluna personalizada tipo Tipo Documento',
+    tituloCurto: 'Nova coluna personalizada tipo Tipo Documento',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Tipo Documento** — **+ Criar Coluna**, escolha o tipo no modal e configure as opções.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-1', paragrafoAntes: '**01.** Tipo **Tipo Documento**' },
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-2', paragrafoAntes: '**02.** Configure opções' },
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-3', paragrafoAntes: '**03.** **Salvar**' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-1', paragrafoAntes: '**02.** Modal tipo **Tipo Documento**' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-2', paragrafoAntes: '**03.** Configure opções' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-documento-3', paragrafoAntes: '**04.** **Salvar**' },
         ],
-        3,
+        1,
       ),
     ],
   },
   {
-    titulo: 'Criar coluna — Fórmula',
-    tituloCurto: 'Coluna Fórmula',
-    paragrafos: ['Coluna **Fórmula** calcula valores a partir de outros campos — uma fórmula por tenant no backend.'],
+    titulo: 'Nova coluna personalizada tipo Fórmula',
+    tituloCurto: 'Nova coluna personalizada tipo Fórmula',
+    paragrafos: [
+      'Nova coluna personalizada tipo **Fórmula** — **+ Criar Coluna**, escolha **Fórmula** no modal e monte a expressão calculada.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-1', paragrafoAntes: '**01.** Tipo **Fórmula**' },
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-2', paragrafoAntes: '**02.** Editor de expressão' },
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-3', paragrafoAntes: '**03.** Valide a fórmula' },
-          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-4', paragrafoAntes: '**04.** **Salvar** coluna calculada' },
+          { slug: 'colunas-personalizadas-criar-coluna-1', paragrafoAntes: '**01.** **+ Criar Coluna**' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-1', paragrafoAntes: '**02.** Modal tipo **Fórmula**' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-2', paragrafoAntes: '**03.** Editor de expressão' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-3', paragrafoAntes: '**04.** Valide a fórmula' },
+          { slug: 'colunas-personalizadas-criar-coluna-tipo-formula-4', paragrafoAntes: '**05.** **Salvar** coluna calculada' },
         ],
-        2,
+        1,
       ),
     ],
   },
   {
     titulo: 'Editar coluna personalizada',
-    tituloCurto: 'Editar coluna',
-    paragrafos: ['Clique no **lápis** para editar nome, tipo ou opções de uma coluna existente.'],
+    tituloCurto: 'Editar coluna personalizada',
+    paragrafos: [
+      '**Editar coluna personalizada** — clique no **lápis** para alterar **nome**, **tipo** ou **opções** da coluna e **Salvar**.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-editar-coluna-1', paragrafoAntes: '**01.** **Editar** coluna' },
+          { slug: 'colunas-personalizadas-editar-coluna-1', paragrafoAntes: '**01.** **Editar** coluna personalizada' },
           { slug: 'colunas-personalizadas-editar-coluna-3', paragrafoAntes: '**02.** Alterações e **Salvar**' },
         ],
         2,
@@ -436,31 +448,35 @@ const passosSpec = [
   },
   {
     titulo: 'Ocultar coluna personalizada',
-    tituloCurto: 'Ocultar coluna',
-    paragrafos: ['**Olho** oculta a coluna na **Lista** sem excluir — dados permanecem no banco.'],
+    tituloCurto: 'Ocultar coluna personalizada',
+    paragrafos: [
+      '**Ocultar coluna personalizada** — o **olho** remove a coluna da **Lista** sem apagar dados; **Salvar ordem** para aplicar.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-ocultar-coluna-1', paragrafoAntes: '**01.** **Ocultar** coluna' },
-          { slug: 'colunas-personalizadas-ocultar-coluna-2', paragrafoAntes: '**02.** Coluna oculta na lista' },
-          { slug: 'colunas-personalizadas-ocultar-coluna-4', paragrafoAntes: '**03.** **Exibir** novamente' },
-          { slug: 'colunas-personalizadas-ocultar-coluna-5', paragrafoAntes: '**04.** Coluna visível de volta' },
+          { slug: 'colunas-personalizadas-ocultar-coluna-1', paragrafoAntes: '**01.** **Ocultar** coluna personalizada' },
+          { slug: 'colunas-personalizadas-ocultar-coluna-4', paragrafoAntes: '**02.** **Salvar ordem** após ocultar' },
+          { slug: 'colunas-personalizadas-ocultar-coluna-2', paragrafoAntes: '**03.** Coluna oculta na **Lista**' },
+          { slug: 'colunas-personalizadas-ocultar-coluna-5', paragrafoAntes: '**04.** **Exibir** novamente e **Salvar ordem**' },
         ],
         2,
       ),
     ],
   },
   {
-    titulo: 'Excluir coluna personalizada',
-    tituloCurto: 'Excluir coluna',
-    paragrafos: ['**Excluir** remove a coluna customizada do workspace — operação irreversível; confirme no modal.'],
+    titulo: 'Excluir colunas personalizadas',
+    tituloCurto: 'Excluir colunas personalizadas',
+    paragrafos: [
+      '**Excluir colunas personalizadas** — o **ícone de lixeira** remove a coluna do **workspace**; confirme no modal — operação irreversível.',
+    ],
     galerias: [
       galeriaTelas(
         [
-          { slug: 'colunas-personalizadas-excluir-coluna-1', paragrafoAntes: '**01.** **Excluir** coluna' },
-          { slug: 'colunas-personalizadas-excluir-coluna-2', paragrafoAntes: '**02.** Confirme a exclusão' },
-          { slug: 'colunas-personalizadas-excluir-coluna-3', paragrafoAntes: '**03.** Coluna removida da lista' },
-          { slug: 'colunas-personalizadas-excluir-coluna-4', paragrafoAntes: '**04.** Estado final após salvar' },
+          { slug: 'colunas-personalizadas-excluir-coluna-1', paragrafoAntes: '**01.** **Excluir** coluna personalizada' },
+          { slug: 'colunas-personalizadas-excluir-coluna-3', paragrafoAntes: '**02.** Confirme no modal' },
+          { slug: 'colunas-personalizadas-excluir-coluna-4', paragrafoAntes: '**03.** Coluna excluída com sucesso' },
+          { slug: 'colunas-personalizadas-excluir-coluna-2', paragrafoAntes: '**04.** Coluna removida da **Lista**' },
         ],
         2,
       ),
@@ -470,15 +486,26 @@ const passosSpec = [
     titulo: 'Campos calculados',
     tituloCurto: 'Campos calculados',
     paragrafos: [
-      '**Campos Calculados** concentra fórmulas de saldo e métricas derivadas aplicadas aos pedidos do workspace.',
+      '**Campos Calculados** é específico para a coluna **Saldo do Pedido** — cada workspace pode ter uma regra própria para calcular o saldo; aqui você customiza a fórmula.',
     ],
     galerias: [
-      galeriaTelas([{ slug: 'colunas-campos-calculados', paragrafoAntes: 'Configure fórmulas e campos derivados' }], 1),
+      galeriaTelas(
+        [{ slug: 'colunas-campos-calculados', paragrafoAntes: '**01.** Customizar fórmula do **Saldo do Pedido**' }],
+        1,
+      ),
     ],
   },
   {
+    titulo: 'Kanban',
+    tituloCurto: 'Kanban',
+    paragrafos: [
+      'Em **Kanban**, configure **colunas** de status no board, campos do **card** e abas do **modal** ao abrir um pedido na visão Kanban.',
+    ],
+    galerias: [],
+  },
+  {
     titulo: 'Kanban — colunas',
-    tituloCurto: 'Kanban colunas',
+    tituloCurto: 'Colunas de status',
     paragrafos: [
       'Em **Kanban › Colunas**, escolha quais **status** aparecem como colunas no board — **olho** para ocultar, **+** para trazer status disponíveis.',
     ],
@@ -497,7 +524,7 @@ const passosSpec = [
   },
   {
     titulo: 'Kanban — card',
-    tituloCurto: 'Kanban card',
+    tituloCurto: 'Card do Kanban',
     paragrafos: [
       '**Kanban › Card** define campos visíveis em cada cartão: número, parceiro, data crítica, valor, incoterm e demais — **arraste** para reordenar.',
     ],
@@ -515,7 +542,7 @@ const passosSpec = [
   },
   {
     titulo: 'Kanban — modal',
-    tituloCurto: 'Kanban modal',
+    tituloCurto: 'Modal do Kanban',
     paragrafos: [
       '**Kanban › Modal** configura as abas **Pedido**, **Quantidades**, **Datas** e **Lembrete** ao clicar um cartão — adicione, remova ou reordene campos por aba.',
     ],
@@ -532,11 +559,11 @@ const passosSpec = [
     ],
   },
   {
-    titulo: 'Status do pedido',
+    titulo: 'Status',
     tituloCurto: 'Status',
-    paragrafos: [
-      '**Status** lista todos os status do workspace. **Arraste** para reordenar (reflete no Kanban). Status de **sistema** são fixos — sem editar ou excluir.',
-    ],
+    destaqueRotuloPassoGuia: true,
+    mostrarInfograficoPedidoConfiguracoesStatusAdaptacao: true,
+    paragrafos: [],
     galerias: [
       galeriaTelas(
         [

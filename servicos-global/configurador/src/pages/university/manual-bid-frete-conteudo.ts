@@ -98,6 +98,10 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Mapa',
           tituloCurto: 'Mapa',
+          rotuloPasso: 'Mapa',
+          paragrafos: [
+            'No mapa da aba **Insights**, selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir o **Painel da Cotação**.',
+          ],
           mostrarInfograficoBidFreteMapa: true,
           galeriaTelasAposTabela: [
             {
@@ -112,6 +116,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Refinar mapa: filtros',
           tituloCurto: 'Filtros do Mapa',
+          rotuloPasso: 'Filtros do Mapa',
           paragrafos: [
             'Combine filtros no painel **Refinar mapa** e recalcule pins e rotas em tempo real. O hub mantém apenas cotações relevantes.',
           ],
@@ -127,9 +132,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                     {
                       imagem: S('insight_menu_mapa_botoes_operacoes'),
                     },
+                  ],
+                },
+                {
+                  paragrafoAntes: 'O mapa destaca as rotas selecionadas em tempo real',
+                  figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_operacoes_resultado'),
-                      paragrafoAntes: 'O mapa destaca as rotas selecionadas em tempo real',
                     },
                   ],
                 },
@@ -150,9 +159,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                     {
                       imagem: S('insight_menu_mapa_botoes_modal'),
                     },
+                  ],
+                },
+                {
+                  paragrafoAntes: 'O mapa atualiza as operações visíveis na hora',
+                  figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_modal_resultado'),
-                      paragrafoAntes: 'O mapa atualiza as operações visíveis na hora',
                     },
                   ],
                 },
@@ -168,9 +181,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                     {
                       imagem: S('insight_menu_mapa_botoes_origem'),
                     },
+                  ],
+                },
+                {
+                  paragrafoAntes: 'O mapa destaca os trechos correspondentes',
+                  figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_origem_resultado'),
-                      paragrafoAntes: 'O mapa destaca os trechos correspondentes',
                     },
                   ],
                 },
@@ -183,7 +200,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 'Selecione o **Destino** desejado. O mapa cruza essa escolha com **Tipo de Operação**, **Modal** e **Origem** e refina as rotas visíveis.',
               imagensCompostas: [
                 {
-                  centralizar: false,
                   figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_destino_resultado'),
@@ -199,7 +215,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 'Marque as etapas em **Status** para afunilar a busca. O mapa exibe só cotações compatíveis com os critérios escolhidos.',
               imagensCompostas: [
                 {
-                  centralizar: false,
                   figuras: [
                     {
                       imagem: S('insight_menu_mapa_botoes_status'),
@@ -218,13 +233,14 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Tooltips dos KPIs',
           tituloCurto: 'Tooltips KPIs',
+          rotuloPasso: 'Tooltips KPIs',
           paragrafos: [
             'Passe o mouse sobre os indicadores da aba **Insights** para visualizar o resumo de volume, modais e cotações. Clique no **link** presente no tooltip para acessar os detalhes completos da operação imediatamente.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
-              colunas: 2,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
@@ -264,6 +280,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Controle de Exibição do Mapa',
           tituloCurto: 'Controle de Exibição do Mapa',
+          rotuloPasso: 'Controle de Exibição do Mapa',
           paragrafos: [
             'Alterne os controles do mapa entre as visões expandida e compacta. Na versão reduzida, cada atalho abre o filtro correspondente, liberando espaço visual para a sua análise.',
           ],
@@ -284,6 +301,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Controles do mapa',
           tituloCurto: 'Controles',
+          rotuloPasso: 'Controles',
           paragrafos: [
             'Gerencie a visualização do mapa por meio da barra de ferramentas. Alterne entre os modos globo e plano, aplique zoom, restaure a câmera, pause a rotação do globo e configure a exibição das rotas.',
           ],

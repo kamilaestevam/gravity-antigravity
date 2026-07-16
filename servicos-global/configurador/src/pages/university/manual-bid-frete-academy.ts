@@ -9,6 +9,8 @@ import { DOC_BID_FRETE_SECAO } from './manual-bid-frete-conteudo'
 
 const FLUXOS = DOC_BID_FRETE_SECAO.fluxos ?? []
 
+const TITULO_ENTENDENDO_BID_FRETE = 'Entendendo o BID Frete Internacional'
+
 const OPCOES_BID_FRETE = {
   incluirImagemSecao: false,
   fluxoComoManualCompleto: true,
@@ -36,58 +38,58 @@ function aulaBidFrete(
 }
 
 export const BID_FRETE_AULA_SLUGS = [
-  'bid-frete-visao-geral',
-  'bid-frete-acesso',
+  'bid-frete-entendendo',
   'bid-frete-insights',
+  'bid-frete-lista',
+  'bid-frete-tipos-cotacao',
   'bid-frete-nova-cotacao',
   'bid-frete-painel-cotacao',
-  'bid-frete-lista',
   'bid-frete-configuracoes',
 ] as const
 
 export const AULAS_BID_FRETE: AulaDemo[] = [
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[0],
-    DOC_BID_FRETE_SECAO.titulo,
-    '8m',
-    [],
+    TITULO_ENTENDENDO_BID_FRETE,
+    '14m',
+    [0],
     { incluirIntroSecao: true },
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Como acessar o produto',
-    '6m',
-    [0],
-  ),
-  aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[2],
     FLUXOS[1]?.tituloSumario ?? 'Insights',
     '28m',
     [1],
   ),
   aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[3],
-    FLUXOS[2]?.tituloSumario ?? 'Nova cotação',
-    '32m',
+    BID_FRETE_AULA_SLUGS[2],
+    FLUXOS[2]?.tituloSumario ?? 'Lista',
+    '16m',
     [2],
   ),
   aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[4],
-    FLUXOS[3]?.tituloSumario ?? 'Painel da Cotação',
-    '12m',
+    BID_FRETE_AULA_SLUGS[3],
+    FLUXOS[3]?.tituloSumario ?? 'Tipos de cotação',
+    '8m',
     [3],
   ),
   aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[5],
-    FLUXOS[4]?.tituloSumario ?? 'Lista',
-    '16m',
+    BID_FRETE_AULA_SLUGS[4],
+    FLUXOS[4]?.tituloSumario ?? 'Nova cotação',
+    '32m',
     [4],
   ),
   aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[6],
-    FLUXOS[5]?.tituloSumario ?? 'Configurações',
-    '14m',
+    BID_FRETE_AULA_SLUGS[5],
+    FLUXOS[5]?.tituloSumario ?? 'Painel da cotação',
+    '12m',
     [5],
+  ),
+  aulaBidFrete(
+    BID_FRETE_AULA_SLUGS[6],
+    FLUXOS[8]?.tituloSumario ?? 'Configurações',
+    '14m',
+    [8],
   ),
 ]
 

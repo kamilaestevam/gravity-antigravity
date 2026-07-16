@@ -3,6 +3,7 @@
  * Normaliza resultado_extracao.dados em seções/campos com labels DDD (map legado).
  */
 
+import { lerValorPorCaminho } from './definir-valor-por-caminho-dados-leitura-smart-read'
 import { mapearRotuloCampoLegadoConferencia, ordenarSecoesConferencia } from './mapear-rotulo-campo-legado-conferencia-smart-read'
 import {
   prepararDadosConferenciaLeitura,
@@ -198,10 +199,22 @@ function resolverValorCampoLegado(item: CampoLegado): unknown {
   )
 }
 
+function resolverValorCampoConferencia(
+  item: CampoLegado,
+  chave: string,
+  dadosRaiz?: Record<string, unknown>,
+): unknown {
+  const legado = resolverValorCampoLegado(item)
+  if (!dadosRaiz || !/\[\d+\]/.test(chave)) return legado
+  const aoVivo = lerValorPorCaminho(dadosRaiz, chave)
+  return aoVivo !== undefined ? aoVivo : legado
+}
+
 function processarListaCampos(
   mapa: Map<string, CampoConferenciaLeitura[]>,
   campos: CampoLegado[],
   secaoPadrao?: string,
+  dadosRaiz?: Record<string, unknown>,
 ) {
   for (const item of campos) {
     const chave = String(item.key ?? item.name ?? item.field ?? item.label ?? 'campo')
@@ -213,11 +226,19 @@ function processarListaCampos(
       item.groupName ??
       secaoPadrao ??
       mapearRotuloCampoLegadoConferencia(chave).secao_tela
-    adicionarCampo(mapa, secao, criarCampo(chave, rotulo, resolverValorCampoLegado(item)))
+    adicionarCampo(
+      mapa,
+      secao,
+      criarCampo(chave, rotulo, resolverValorCampoConferencia(item, chave, dadosRaiz)),
+    )
   }
 }
 
-function processarSecoesLegado(mapa: Map<string, CampoConferenciaLeitura[]>, secoes: unknown[]) {
+function processarSecoesLegado(
+  mapa: Map<string, CampoConferenciaLeitura[]>,
+  secoes: unknown[],
+  dadosRaiz?: Record<string, unknown>,
+) {
   secoes.forEach((bruto, indice) => {
     if (!bruto || typeof bruto !== 'object') return
     const sec = bruto as Record<string, unknown>
@@ -229,7 +250,7 @@ function processarSecoesLegado(mapa: Map<string, CampoConferenciaLeitura[]>, sec
 
     const camposBrutos = sec.fields ?? sec.campos ?? sec.items
     if (Array.isArray(camposBrutos)) {
-      processarListaCampos(mapa, camposBrutos as CampoLegado[], titulo)
+      processarListaCampos(mapa, camposBrutos as CampoLegado[], titulo, dadosRaiz)
       return
     }
 
@@ -251,12 +272,12 @@ export function extrairSecoesConferenciaLeitura(dados: Record<string, unknown> |
     dadosPreparados.categories ??
     dadosPreparados.fieldGroups
   if (Array.isArray(secoesLegado)) {
-    processarSecoesLegado(mapa, secoesLegado)
+    processarSecoesLegado(mapa, secoesLegado, dadosPreparados)
   }
 
   const listaCampos = dadosPreparados.fields ?? dadosPreparados.campos
   if (Array.isArray(listaCampos)) {
-    processarListaCampos(mapa, listaCampos as CampoLegado[])
+    processarListaCampos(mapa, listaCampos as CampoLegado[], undefined, dadosPreparados)
   }
 
   if (mapa.size === 0) {

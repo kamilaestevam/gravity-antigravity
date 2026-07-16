@@ -32,6 +32,7 @@
 2. **MANUAL-GRAVITY-ONBOARDING.md §10** — duração de leitura (Academy): heurística, tetos, SSOT `*_DURACOES`
 3. Skill do produto alvo (ex: `skills/produtos-gravity/pedido/SKILL.md`) — entender o produto
 4. `servicos-global/configurador/src/pages/university/conteudo-demo.ts` — ver o que já existe
+5. `documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md` — **manual fora de prod** (decisão PO MASTER); dev local continua editável
 
 ---
 

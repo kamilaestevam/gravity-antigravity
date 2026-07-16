@@ -47,48 +47,51 @@ export const PEDIDO_AULA_SLUGS = [
   'pedido-historico',
 ] as const
 
+/** Durações de leitura (PlayerAula) — regra §10 MANUAL-GRAVITY-ONBOARDING.md */
+export const PEDIDO_DURACOES = ['2m', '2m', '3m', '3m', '3m', '2m', '2m'] as const
+
 export const AULAS_PEDIDO: AulaDemo[] = [
   aulaPedido(
     PEDIDO_AULA_SLUGS[0],
     TITULO_PEDIDO_GRAVITY,
-    '24m',
+    PEDIDO_DURACOES[0],
     [0, 1],
     { incluirIntroSecao: true },
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[1],
     FLUXOS[2]?.tituloSumario ?? 'Visão Insights',
-    '22m',
+    PEDIDO_DURACOES[1],
     [2],
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[2],
     FLUXOS[3]?.tituloSumario ?? 'Visão Lista',
-    '48m',
+    PEDIDO_DURACOES[2],
     [3],
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[3],
     FLUXOS[4]?.tituloSumario ?? 'Visão Dashboard',
-    '26m',
+    PEDIDO_DURACOES[3],
     [4],
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[4],
     FLUXOS[5]?.tituloSumario ?? 'Visão Kanban',
-    '16m',
+    PEDIDO_DURACOES[4],
     [5],
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[5],
     FLUXOS[6]?.tituloSumario ?? 'Configurações',
-    '16m',
+    PEDIDO_DURACOES[5],
     [6],
   ),
   aulaPedido(
     PEDIDO_AULA_SLUGS[6],
     FLUXOS[7]?.tituloSumario ?? 'Histórico',
-    '12m',
+    PEDIDO_DURACOES[6],
     [7],
   ),
 ]

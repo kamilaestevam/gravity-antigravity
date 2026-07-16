@@ -3027,10 +3027,10 @@ body.light-theme .cw-xml-viewer {
 }
 
 .uni-player-aula__nav {
-  width: 280px;
+  width: 360px;
   flex-shrink: 0;
   overflow-y: auto;
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 1rem 1rem 1rem 1.25rem;
   box-sizing: border-box;
   border-right: 1px solid rgba(26, 30, 46, 0.85);
 }
@@ -3162,8 +3162,8 @@ body.light-theme .cw-xml-viewer {
   z-index: 1;
   width: 100%;
   max-width: 980px;
-  margin: 0 auto;
-  padding: 2rem 3.5rem 4rem;
+  margin: 0;
+  padding: 2rem 2.5rem 4rem 1.5rem;
   box-sizing: border-box;
   flex: 1;
   color: var(--ws-text, #f1f5f9);
@@ -3185,6 +3185,11 @@ body.light-theme .cw-xml-viewer {
   box-sizing: border-box;
 }
 
+/* Passo Academy após passo anterior (H2 fantasma do sumário entre os dois). */
+.uni-ritmo-r3 > .uni-player-aula__bloco--visual + .uni-player-aula__bloco--subtitulo + .uni-player-aula__bloco--visual {
+  margin-top: 32px;
+}
+
 .uni-player-aula__ritmo p,
 .uni-player-aula__ritmo h1,
 .uni-player-aula__ritmo h2,
@@ -3195,6 +3200,53 @@ body.light-theme .cw-xml-viewer {
 .uni-player-aula__ritmo h2,
 .uni-player-aula__ritmo h3 {
   scroll-margin-top: 1.25rem;
+}
+
+/* Etapa do wizard Nova Leitura — pill «Passo N» ao lado do H2 (Anexar, Análise…). */
+.uni-player-aula__titulo-etapa-wizard {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.uni-player-aula__tag-passo-wizard {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c7d2fe;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(129, 140, 248, 0.32);
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1.2;
+}
+
+/* Badge numérico inline no parágrafo «O que é?». */
+.uni-player-aula__etapa-wizard-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.uni-player-aula__etapa-wizard-numero {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+  background: #818cf8;
+  color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
 }
 
 /* Título: vão título→linha 24px via ::after — não depende de padding no h1. */
@@ -3240,8 +3292,18 @@ body.light-theme .cw-xml-viewer {
   margin-top: 32px;
 }
 
+/* Parágrafo + galeria dentro do corpo do passo (Academy): 32px entre etapas (12px gap do corpo + 20px). */
+.uni-player-aula__passo-corpo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
+  margin-top: 20px;
+}
+
 .uni-player-aula__passo-etapa > .uni-player-aula__figura {
   margin: 0;
+}
+
+/* Galeria dentro da etapa — ritmo só pelo gap 12px da etapa (sem margin-top duplicado). */
+.uni-player-aula__passo-etapa > .uni-player-aula__passo-galeria {
+  margin-top: 0;
 }
 
 .uni-player-aula__passo-corpo {
@@ -3249,6 +3311,11 @@ body.light-theme .cw-xml-viewer {
   flex-direction: column;
   gap: 12px;
   margin: 0;
+  padding: 0;
+}
+
+/* Borda lateral indigo — só subtítulos (`rotuloPasso`), não passos com H2 no sumário. */
+.uni-player-aula__passo-corpo--rotulo {
   padding: 0 0 0 18px;
   border-left: 3px solid rgba(99, 102, 241, 0.45);
 }
@@ -3327,9 +3394,9 @@ body.light-theme .cw-xml-viewer {
   margin-top: 32px;
 }
 
-/* Texto do passo → infográfico UX10 / galeria de seção: 32px (Guia — screenshot ↔ infográfico). */
+/* Texto do passo → galeria de prints: 12px (sub-seção no mesmo passo). */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria {
-  margin-top: 32px;
+  margin-top: 12px;
 }
 
 .uni-player-aula__passo-corpo > * {
@@ -3347,9 +3414,25 @@ body.light-theme .cw-xml-viewer {
 }
 
 .uni-player-aula__passo-galeria {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
   margin: 0;
   width: 100%;
+}
+
+/* Infográfico UX10 → etapas da galeria (passo a passo após mapa de seção) */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-galeria {
+  margin-top: 32px;
+}
+
+/* Última etapa da galeria → callout de fechamento */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-callouts {
+  margin-top: 32px;
+}
+
+.uni-player-aula__passo-galeria > .uni-player-aula__passo-galeria-item + .uni-player-aula__passo-galeria-item {
+  margin-top: 0;
 }
 
 .uni-player-aula__passo-galeria-item {
@@ -5035,6 +5118,7 @@ body.light-theme .uni-gravity-partner__hero {
 
 body.light-theme .uni-gravity-partner__card {
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+>>>>>>> origin/master
 }
 
 /* Manual — faixa explicativa acima de telas animadas */
@@ -5063,19 +5147,57 @@ body.light-theme .uni-gravity-partner__card {
   min-width: 0;
 }
 
-/* Pedido · Lista — demo automática arrastar colunas (passo Customizar 03) */
+.sim-smart-read-lista-arrastar-bloco,
 .sim-pedido-lista-arrastar-bloco {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
+/* Smart Docs · Lista — demo automática arrastar colunas (passo Customizar 03) */
+.sim-smart-read-lista-arrastar-demo,
 .sim-pedido-lista-arrastar-demo {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(99, 102, 241, 0.24);
   background: #0b1220;
   box-shadow: 0 18px 48px rgba(2, 6, 23, 0.42);
+}
+
+.sim-smart-read-card-analise-bloco {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+}
+
+.sim-smart-read-card-analise-bloco .manual-faixa-demonstracao-animada {
+  margin: 0;
+}
+
+/* Smart Docs · Nova Leitura passo Análise — demo automática card sidebar */
+.sim-smart-read-card-analise-demo {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.24);
+  background: #0b1220;
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.42);
+}
+
+.sim-smart-read-card-analise-demo .sds-card-analise-demo {
+  width: 100%;
+  min-width: 0;
+  gap: 18px;
+}
+
+.sim-smart-read-card-analise-demo .sds-card-analise-demo__shell--focado {
+  border: none;
+  border-radius: 8px;
 }
 
 body.light-theme .uni-gravity-partner__rodape {

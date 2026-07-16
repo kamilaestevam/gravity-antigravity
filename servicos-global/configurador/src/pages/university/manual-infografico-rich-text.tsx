@@ -17,6 +17,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoSalvar } from '@nucleo/botoes-salvar-global'
 
 /** Pin importação do mapa Insights Pedido — paridade `bfd-map-pin__dot` laranja. */
 export function ManualInfograficoPinMapaPedidoInline() {
@@ -303,6 +304,27 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
   )
 }
 
+/** Botão **Salvar** das Configurações — paridade `@nucleo/botoes-salvar-global` › `BotaoSalvar`. */
+export function ManualInfograficoBotaoSalvarConfiguracoesInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Salvar"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -8,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+        pointerEvents: 'none',
+      }}
+    >
+      <BotaoSalvar dirty rotulo="Salvar" />
+    </span>
+  )
+}
+
 export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   if (slug === 'novo-bid-frete') {
     return <ManualInfograficoBotaoNovoBidFreteInline />
@@ -312,6 +334,9 @@ export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   }
   if (slug === 'abrir-pedido-lista-pedido') {
     return <ManualInfograficoBotaoAbrirPedidoListaPedidoInline />
+  }
+  if (slug === 'salvar-configuracoes') {
+    return <ManualInfograficoBotaoSalvarConfiguracoesInline />
   }
   return <>{`{{botao:${slug}}}`}</>
 }

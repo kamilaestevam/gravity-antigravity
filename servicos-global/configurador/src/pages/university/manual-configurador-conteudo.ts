@@ -43,6 +43,8 @@ export interface DocPassoVisual {
   paragrafosAposGaleriaComparacao?: string[]
   /** Chip âmbar «Em construção» ao lado do `rotuloPasso` (Academy + Guia). */
   tagEmConstrucao?: boolean
+  /** Chip roxo «Seção essencial» ao lado do `rotuloPasso` (Academy + Guia). */
+  tagSecaoImportante?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
   /** Guia — realce visual exclusivo no bloco `rotuloPasso` + parágrafos (seção crítica). */
@@ -199,6 +201,8 @@ export interface DocPassoVisual {
     mostrarCardsKanbanCabecalhoPedido?: boolean
     /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
     layoutCardInsightGradePedido?: boolean
+    /** Manual Smart Docs § Insights — card numerado à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradeSmartDocs?: boolean
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
@@ -234,16 +238,32 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Smart Docs § Nova Leitura — mapa das abas e do comparativo do passo Conferência. */
+  mostrarInfograficoSmartDocsConferencia?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Conferência (padrão: 0). */
+  infograficoSmartDocsConferenciaAposParagrafo?: number
+  /** Manual Smart Docs § Nova Leitura — infográfico + accordion do Checklist de Conferência. */
+  mostrarInfograficoSmartDocsChecklistConferencia?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Checklist (padrão: 0). */
+  infograficoSmartDocsChecklistConferenciaAposParagrafo?: number
+  /** Manual Smart Docs § Nova Leitura — regra acerto × erro ao editar campo na Conferência. */
+  mostrarInfograficoSmartDocsEditarCamposMetrica?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico de métrica (padrão: 1). */
+  infograficoSmartDocsEditarCamposMetricaAposParagrafo?: number
+  /** Manual Smart Docs § Lista — mapa do status de fluxo do wizard (coluna Status). */
+  mostrarInfograficoSmartDocsStatusFluxo?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Status (padrão: 1). */
+  infograficoSmartDocsStatusFluxoAposParagrafo?: number
   /** Manual Smart Docs §05.10 — swimlane Lista Leitura → integração API Cockpit. */
   mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
-  /** Manual Pedido §08 Configurações — nativas + personalizadas e prefs por usuário. */
-  mostrarInfograficoPedidoConfiguracoesColunasAdaptacao?: boolean
-  /** Manual Pedido §08 Configurações — rotina de status de sistema + etapas do workspace. */
-  mostrarInfograficoPedidoConfiguracoesStatusAdaptacao?: boolean
+  /** Manual Pedido §08 Configurações — mapa dos 8 tipos de coluna personalizada. */
+  mostrarInfograficoPedidoConfigColunasPersonalizadas?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico de tipos (padrão: 0). */
+  infograficoPedidoConfigColunasPersonalizadasAposParagrafo?: number
   /** Manual Pedido §05 — mapa UX 10 do catálogo nativo (>100 colunas por grupo). */
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
@@ -365,6 +385,11 @@ export interface DocPassoVisual {
   rotuloSecao?: string
   /** `num` do passo pai — abre cadeia de acordeões ao navegar pelo sumário. */
   numPai?: number
+  /** Cards numerados UX 10 (formato `**rótulo**: descrição`) após parágrafo `listaAposParagrafo` (padrão: 0). */
+  lista?: string[]
+  listaAposParagrafo?: number
+  listaEmLinha?: boolean
+  listaColunas?: number
 }
 
 export type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'passosFilhos'> & {
@@ -415,7 +440,8 @@ export type DocChipEdicaoMassaExemploId =
 
 export interface DocGaleriaComparacaoTela {
   legenda: string
-  imagem: string
+  /** Omitido quando a célula usa simulador animado em vez de screenshot. */
+  imagem?: string
   paragrafoAntes?: string
   /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
   legendaApos?: string
@@ -428,14 +454,24 @@ export interface DocGaleriaComparacaoTela {
   chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
   /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
   calloutAntes?: DocCalloutManual
+  /** Dica/aviso abaixo do print (ritmo: `MANUAL_ESPACO_IMAGEM_FRASE_PX` → callout). */
+  calloutDepois?: DocCalloutManual
   /** Largura máxima do print (coluna estreita — ex.: preview de e-mail). */
   larguraMaxima?: number
   /** Altura máxima do print (miniatura vertical — ex.: preview de e-mail longo). */
   alturaMaxima?: number
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
   cardInsightGradePedido?: number
+  /** Manual Smart Docs § Insights — card numerado à esquerda + print à direita (número do bloco em `cardInsightGradeSmartDocs`). */
+  cardInsightGradeSmartDocs?: number
   /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
   preencherCelulaGrade?: boolean
+  /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
+  simuladorSmartReadListaArrastarColunas?: boolean
+  /** Manual Smart Docs · Nova Leitura passo Análise — demo automática do card na sidebar. */
+  simuladorSmartReadCardAnaliseArquivo?: boolean
+  /** Frase com ícone de vídeo acima de simuladores/telas animadas do manual. */
+  fraseDemonstracaoAnimada?: string
 }
 
 /** Bloco com rótulo, intro e galeria após a galeria principal do passo. */
@@ -472,6 +508,12 @@ export interface DocGaleriaTela {
   pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
   /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
   simuladorBidFretePainelInsights?: boolean
+  /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
+  simuladorSmartReadListaArrastarColunas?: boolean
+  /** Manual Smart Docs · Nova Leitura passo Análise — demo automática do card na sidebar. */
+  simuladorSmartReadCardAnaliseArquivo?: boolean
+  /** Frase com ícone de vídeo acima de simuladores/telas animadas do manual. */
+  fraseDemonstracaoAnimada?: string
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
   /** Chips numerados do infográfico do mapa Pedido (ex.: ['01'] = selecionar pin). */
@@ -592,6 +634,8 @@ export interface DocSecao {
   mostrarInfograficoTiposUsuario?: boolean
   mostrarInfograficoFornecedoresComex?: boolean
   mostrarInfograficoHubTelas?: boolean
+  /** Manual Smart Docs §01 — mapa conceitual do produto (leitura, gestão, riscos). */
+  mostrarInfograficoSmartDocsOQueE?: boolean
   /** Manual Smart Docs §01 — cards dos tipos de documento lidos pela IA. */
   mostrarInfograficoSmartDocsDocumentos?: boolean
   /** Manual Pedido §01 — mapa visual do ciclo do PO antes do embarque. */
@@ -1234,7 +1278,12 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
     ) {
       function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
         passos.forEach((passo) => {
-          if (passo.ocultarNoSumario) return
+          if (passo.ocultarNoSumario) {
+            if (passo.passosFilhos?.length) {
+              adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)
+            }
+            return
+          }
           itens.push({
             rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
             titulo: passo.tituloCurto ?? passo.titulo,

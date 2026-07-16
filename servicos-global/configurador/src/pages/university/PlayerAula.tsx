@@ -30,11 +30,10 @@ import { AcademyBlocoCenariosGrade, type PayloadCenariosGradeAcademy } from './a
 import { AcademyBlocoFluxoManual } from './academy-bloco-fluxo-manual'
 import type { DocPassoVisual } from './manual-login-conteudo'
 import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-conteudo'
-import { ManualGaleriaComparacaoIntro, ManualTopicosImagemLateral } from './manual-configurador-ui'
+import { ManualGaleriaComparacaoIntro, ManualTagPassoWizard, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
-import { aulaGuiaEstaConcluida } from './certificado-guia-gravity'
-import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia } from './guia-academy-link'
+import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia, voltarNoGuiaAcademy } from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -96,20 +95,38 @@ function classificarBlocoGuia(bloco: BlocoConteudo): ClassificacaoBlocoGuia {
   return 'normal'
 }
 
+/** Ignora H2 `ocultarNoCorpo` (âncora fantasma do sumário) ao medir ritmo entre passos visíveis. */
+function blocoAnteriorEfetivoGuia(blocos: BlocoConteudo[], indice: number): BlocoConteudo | null {
+  for (let i = indice - 1; i >= 0; i--) {
+    const candidato = blocos[i]!
+    if (candidato.tipo === 'heading' && candidato.dados.ocultarNoCorpo) continue
+    return candidato
+  }
+  return null
+}
+
 function calcularEspacoSuperiorBlocoGuia(
   bloco: BlocoConteudo,
-  _indice: number,
-  blocoAnterior: BlocoConteudo | null,
+  indice: number,
+  blocos: BlocoConteudo[],
 ): number {
+  const blocoAnterior = indice > 0 ? blocos[indice - 1]! : null
+  const anteriorEfetivo = blocoAnteriorEfetivoGuia(blocos, indice)
+
   if (bloco.tipo === 'heading' && bloco.dados.ocultarNoCorpo) {
-    // H2 só no menu: mantém 32px após o passo anterior; o corpo do próximo passo não empilha +18px.
-    if (
-      blocoAnterior?.tipo === 'fluxo_manual'
-      && String(blocoAnterior.dados.modo ?? 'completo') === 'passo'
-    ) {
-      return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-    }
+    // H2 só no sumário: sem faixa vazia entre sub-passos do mesmo fluxo (ex.: Card → Excluir em Anexar).
     return 0
+  }
+
+  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Riscos → Fornecedor).
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+    && anteriorEfetivo?.tipo === 'fluxo_manual'
+    && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+    && blocoAnterior !== anteriorEfetivo
+  ) {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
@@ -151,16 +168,6 @@ function calcularEspacoSuperiorBlocoGuia(
     return MANUAL_ESPACO_PARAGRAFO_PX
   }
 
-  // Intro do fluxo → primeiro H2 subtópico (ex.: Mapa de métricas → Mapa): 32px
-  if (
-    bloco.tipo === 'heading'
-    && Number(bloco.dados.nivel ?? 1) === 2
-    && blocoAnterior?.tipo === 'fluxo_manual'
-    && String(blocoAnterior.dados.modo ?? 'completo') === 'intro'
-  ) {
-    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-  }
-
   // H2 subtópico → corpo do passo (1º parágrafo ou infográfico na Academy)
   if (
     bloco.tipo === 'fluxo_manual'
@@ -168,7 +175,15 @@ function calcularEspacoSuperiorBlocoGuia(
     && Number(blocoAnterior.dados.nivel ?? 1) === 2
     && String(bloco.dados.modo ?? 'completo') === 'passo'
   ) {
-    if (blocoAnterior.dados.ocultarNoCorpo) return 0
+    if (blocoAnterior.dados.ocultarNoCorpo) {
+      if (
+        anteriorEfetivo?.tipo === 'fluxo_manual'
+        && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+      ) {
+        return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+      }
+      return MANUAL_ESPACO_PARAGRAFO_PX
+    }
     return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
   }
 
@@ -183,7 +198,18 @@ function calcularEspacoSuperiorBlocoGuia(
     return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
-  // Passo com `rotuloPasso` (sem H2) → próximo passo ou passo anterior
+  // Passo Academy após outro passo (H2 fantasma do sumário ou adjacente) — 32px
+  if (
+    bloco.tipo === 'fluxo_manual'
+    && String(bloco.dados.modo ?? 'completo') === 'passo'
+    && anteriorEfetivo?.tipo === 'fluxo_manual'
+    && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
+    && blocoAnterior?.tipo !== 'fluxo_manual'
+  ) {
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+  }
+
+  // Passo com `rotuloPasso` (sem H2) → passo anterior adjacente
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -238,7 +264,7 @@ function calcularEspacoSuperiorBlocoGuia(
 function estiloBlocoGuia(
   bloco: BlocoConteudo,
   indice: number,
-  blocoAnterior: BlocoConteudo | null,
+  blocos: BlocoConteudo[],
 ): React.CSSProperties {
   // marginTop no wrapper: o ritmo é flex column (não colapsa). CSS não deve forçar margin-top nos blocos.
   return {
@@ -246,7 +272,7 @@ function estiloBlocoGuia(
     marginRight: 0,
     marginBottom: 0,
     paddingTop: 0,
-    marginTop: calcularEspacoSuperiorBlocoGuia(bloco, indice, blocoAnterior),
+    marginTop: calcularEspacoSuperiorBlocoGuia(bloco, indice, blocos),
   }
 }
 
@@ -544,11 +570,12 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         1: { ...base, fontSize: '1.65rem', fontWeight: 800, lineHeight: 1.2, margin: 0 },
         /** Título de fluxo/seção (não passo): roxo, mesmo tamanho do H3 — ex.: «Acessar organização». */
         2: { ...base, fontSize: '1rem', fontWeight: 700, color: ACCENT, margin: 0 },
-        3: { ...base, fontSize: '1rem',    fontWeight: 700, color: ACCENT, margin: 0 },
+        3: { ...base, fontSize: '1rem', fontWeight: 700, color: ACCENT, margin: 0 },
       }
       const texto = String(bloco.dados.text)
       const idAncora = bloco.dados.idAncora ? String(bloco.dados.idAncora) : undefined
       const ocultarNoCorpo = Boolean(bloco.dados.ocultarNoCorpo)
+      const etapaWizard = bloco.dados.etapaWizard != null ? Number(bloco.dados.etapaWizard) : undefined
       const estiloOculto: React.CSSProperties = {
         position: 'absolute',
         width: 1,
@@ -560,33 +587,31 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         whiteSpace: 'nowrap',
         border: 0,
       }
-      // H1 da aula — título principal com linha roxa (`.uni-player-aula__titulo-guia`).
+      // Título H1: padding-bottom + border (padrão da tela correta) — spacer separado falhava visualmente.
       if (nivel <= 1) {
-        if (ocultarNoCorpo) {
-          return (
-            <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={estiloOculto} aria-hidden>
-              {texto}
-            </h1>
-          )
-        }
         return (
           <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={styles[1]}>
             {texto}
           </h1>
         )
       }
-      if (ocultarNoCorpo) {
-        return idAncora ? (
-          <span
-            id={idAncora}
-            style={estiloOculto}
-            aria-hidden="true"
-          />
-        ) : null
-      }
       return (
-        <Tag id={idAncora} style={styles[nivel] ?? styles[1]}>
-          {texto}
+        <Tag
+          id={idAncora}
+          className={etapaWizard != null && Number.isFinite(etapaWizard) && !ocultarNoCorpo
+            ? 'uni-player-aula__titulo-etapa-wizard'
+            : undefined}
+          style={ocultarNoCorpo ? estiloOculto : (styles[nivel] ?? styles[1])}
+          aria-hidden={ocultarNoCorpo || undefined}
+        >
+          {etapaWizard != null && Number.isFinite(etapaWizard) && !ocultarNoCorpo ? (
+            <>
+              <ManualTagPassoWizard numero={etapaWizard} />
+              <span>{texto}</span>
+            </>
+          ) : (
+            texto
+          )}
         </Tag>
       )
     }
@@ -1004,7 +1029,7 @@ interface PlayerAulaProps {
   aula: AulaDemo
   todasAulas: AulaDemo[]
   concluidas: Set<string>
-  onMarcarConcluida: (slug: string) => Promise<boolean>
+  onMarcarConcluida: (slug: string) => void
 }
 
 export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas, onMarcarConcluida }: PlayerAulaProps) {
@@ -1012,12 +1037,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   const location = useLocation()
   const { t } = useTranslation()
   const retornoGuia = lerRetornoGuiaAcademy(location.state)
-  const [salvandoConclusao, setSalvandoConclusao] = useState(false)
 
   const idxAtual = todasAulas.findIndex(a => a.slug === faseSlug)
   const anterior = idxAtual > 0 ? todasAulas[idxAtual - 1] : null
-  const proxima  = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
-  const jaConcluida = aulaGuiaEstaConcluida(faseSlug, concluidas)
+  const proxima = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
+  const jaConcluida = concluidas.has(faseSlug)
 
   const idPorIndiceBloco = useMemo(() => {
     const mapa = new Map<number, string>()
@@ -1032,6 +1056,8 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     const filtrados = todos.filter(
       (item) => !(item.nivel <= 1 && item.texto.trim().toLocaleLowerCase('pt-BR') === tituloAula),
     )
+    // Aula com um único tópico (ex.: Boas-vindas): mantém o item mesmo se repetir o título.
+    if (filtrados.length === 0 && todos.length > 0) return todos.slice(0, 1)
     return filtrados
   }, [aula.blocos, aula.titulo])
 
@@ -1139,147 +1165,157 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   }
 
   const voltarGuia = () => {
-    if (retornoGuia) {
-      navigate(`${retornoGuia.pathname}${retornoGuia.hash}`, {
-        state: { restaurarScrollGuia: retornoGuia.scrollY },
-      })
-      return
-    }
-    if (window.history.length > 1) {
-      navigate(-1)
-      return
-    }
-    navigate(`/university-gravity/academy/${produtoSlug}`)
-  }
-
-  const handleConcluirAula = async () => {
-    if (salvandoConclusao) return
-    setSalvandoConclusao(true)
-    try {
-      const ok = await onMarcarConcluida(faseSlug)
-      if (ok && proxima && !jaConcluida) navParaFase(proxima.slug)
-    } finally {
-      setSalvandoConclusao(false)
-    }
+    voltarNoGuiaAcademy(navigate, produtoSlug, retornoGuia)
   }
 
   return (
     <GuiaAcademyNavigationProvider produtoSlug={produtoSlug}>
-    <div className="uni-player-aula">
+      <div className="uni-player-aula">
 
-      {/* ── Painel esquerdo: tópicos/passos da aula atual ── */}
-      <nav className="uni-player-aula__nav">
-        <UniBotaoVoltarPadrao
-          label={t('university.aula.voltar')}
-          onClick={voltarGuia}
-        />
+        {/* ── Painel esquerdo: tópicos/passos da aula atual ── */}
+        <nav className="uni-player-aula__nav">
+          <UniBotaoVoltarPadrao
+            label={t('university.aula.voltar')}
+            onClick={voltarGuia}
+          />
 
-        <div className="uni-player-aula__nav-sumario">
-          {titulosSumario.length > 0 ? (
-            titulosSumario.map((titulo, idx) => {
-              const ativo = idSecaoAtiva === titulo.id || titulosSumario.length === 1
-              return (
-                <button
-                  key={titulo.id}
-                  type="button"
-                  data-sumario-id={titulo.id}
-                  onClick={() => irParaTitulo(titulo.id)}
-                  title={titulo.texto}
-                  aria-current={ativo ? 'location' : undefined}
-                  className={`uni-player-aula__nav-item${ativo ? ' uni-player-aula__nav-item--ativo' : ''}`}
-                >
-                  <span className="uni-player-aula__nav-numero">
-                    {idx + 1}
-                  </span>
-                  <span className="uni-player-aula__nav-item-texto">
-                    {titulo.texto}
-                  </span>
-                </button>
-              )
-            })
-          ) : null}
-        </div>
-      </nav>
-
-      {/* ── Área de conteúdo ── */}
-      <div className="uni-player-aula__content">
-        <div className="uni-player-aula__article">
-
-          {/* Breadcrumb + blocos — ritmo centralizado em `calcularEspacoSuperiorBlocoGuia`. */}
-          <div className="uni-player-aula__ritmo uni-ritmo-r3">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED }}>
-              <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate('/university-gravity/academy')}>
-                {t('university.nav.academy')}
-              </span>
-              <span style={{ color: '#cbd5e1' }}>/</span>
-              <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}>
-                {t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)}
-              </span>
-            </div>
-            {aula.blocos.map((bloco, idx) => {
-              const idAncora = idPorIndiceBloco.get(idx)
-              const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
-                ? { ...bloco, dados: { ...bloco.dados, idAncora } }
-                : bloco
-              return (
-                <div
-                  key={idx}
-                  className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}`}
-                  style={estiloBlocoGuia(bloco, idx, idx > 0 ? aula.blocos[idx - 1]! : null)}
-                >
-                  <BlocoRenderer bloco={blocoComAncora} />
+          <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {!(titulosSumario.length === 1
+              && titulosSumario[0]!.texto.trim().toLocaleLowerCase('pt-BR') === aula.titulo.trim().toLocaleLowerCase('pt-BR')) && (
+                <div style={{
+                  padding: '10px 10px 6px',
+                  fontSize: '.72rem',
+                  fontWeight: 700,
+                  letterSpacing: '.04em',
+                  textTransform: 'uppercase',
+                  color: CONTENT_MUTED,
+                }}>
+                  {aula.titulo}
                 </div>
-              )
-            })}
+              )}
+
+            {titulosSumario.length > 0 ? (
+              titulosSumario.map((titulo, idx) => {
+                const ativo = idSecaoAtiva === titulo.id || titulosSumario.length === 1
+                return (
+                  <button
+                    key={titulo.id}
+                    type="button"
+                    data-sumario-id={titulo.id}
+                    onClick={() => irParaTitulo(titulo.id)}
+                    title={titulo.texto}
+                    aria-current={ativo ? 'location' : undefined}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 10px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left',
+                      background: ativo ? 'rgba(129,140,248,.14)' : 'transparent',
+                      color: ativo ? UNI_COR : CONTENT_MUTED,
+                      fontWeight: ativo ? 700 : 500, fontSize: '.82rem', width: '100%',
+                      borderLeft: ativo ? `3px solid ${UNI_COR}` : '3px solid transparent',
+                      boxShadow: ativo ? `0 0 0 1px rgba(129,140,248,.25)` : 'none',
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    <span style={{
+                      width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                      display: 'grid', placeItems: 'center', fontSize: '.65rem', fontWeight: 800,
+                      background: ativo ? UNI_COR : 'transparent',
+                      border: ativo ? 'none' : '1.5px solid rgba(148,163,184,.35)',
+                      color: ativo ? '#0f172a' : 'var(--ws-muted,#94a3b8)',
+                      boxShadow: ativo ? `0 0 0 3px ${UNI_COR}40` : 'none',
+                    }}>
+                      {idx + 1}
+                    </span>
+                    <span style={{ flex: 1, lineHeight: 1.3, color: ativo ? undefined : CONTENT_TEXT }}>
+                      {titulo.texto}
+                    </span>
+                  </button>
+                )
+              })
+            ) : null}
           </div>
+        </nav>
 
-          {/* ── Navegação de rodapé ── */}
-          <div
-            className="uni-player-aula__rodape-nav"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginTop: 24,
-              paddingTop: 24,
-              borderTop: '1px solid rgba(148,163,184,.12)', gap: 12,
-            }}
-          >
-            {/* Anterior */}
-            <button
-              type="button"
-              className="uni-player-aula__footer-btn"
-              onClick={() => (anterior ? navParaFase(anterior.slug) : voltarGuia())}
-            >
-              <ArrowLeft size={15} />
-              <span style={{ flex: 1, textAlign: 'left' }}>
-                {anterior ? anterior.titulo : t('university.aula.voltar')}
-              </span>
-            </button>
+        {/* ── Área de conteúdo ── */}
+        <div className="uni-player-aula__content">
+          <div className="uni-player-aula__article">
 
-            {/* Marcar concluída */}
-            <button
-              type="button"
-              className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
-              disabled={salvandoConclusao}
-              onClick={() => { void handleConcluirAula() }}
-            >
-              <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
-              {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
-            </button>
+            {/* Breadcrumb + blocos — ritmo centralizado em `calcularEspacoSuperiorBlocoGuia`. */}
+            <div className="uni-player-aula__ritmo uni-ritmo-r3">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED }}>
+                <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate('/university-gravity/academy')}>
+                  {t('university.nav.academy')}
+                </span>
+                <span style={{ color: '#cbd5e1' }}>/</span>
+                <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}>
+                  {t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)}
+                </span>
+                <span style={{ color: '#cbd5e1' }}>/</span>
+                <span style={{ color: CONTENT_MUTED }}>{aula.titulo}</span>
+              </div>
+              {aula.blocos.map((bloco, idx) => {
+                const idAncora = idPorIndiceBloco.get(idx)
+                const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
+                  ? { ...bloco, dados: { ...bloco.dados, idAncora } }
+                  : bloco
+                return (
+                  <div
+                    key={idx}
+                    className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}`}
+                    style={estiloBlocoGuia(bloco, idx, aula.blocos)}
+                  >
+                    <BlocoRenderer bloco={blocoComAncora} />
+                  </div>
+                )
+              })}
+            </div>
 
-            {/* Próxima */}
-            <button
-              type="button"
-              className="uni-player-aula__footer-btn uni-player-aula__footer-btn--next"
-              onClick={() => proxima && navParaFase(proxima.slug)}
-              disabled={!proxima}
+            {/* ── Navegação de rodapé ── */}
+            <div
+              className="uni-player-aula__rodape-nav"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginTop: 24,
+                paddingTop: 24,
+                borderTop: '1px solid rgba(148,163,184,.12)', gap: 12,
+              }}
             >
-              <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>
-              <ArrowRight size={15} />
-            </button>
+              {/* Anterior */}
+              <button
+                type="button"
+                className="uni-player-aula__footer-btn"
+                onClick={() => anterior && navParaFase(anterior.slug)}
+                disabled={!anterior}
+              >
+                <ArrowLeft size={15} />
+                <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
+              </button>
+
+              {/* Marcar concluída */}
+              <button
+                type="button"
+                className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
+                onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
+              >
+                <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
+                {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
+              </button>
+
+              {/* Próxima */}
+              <button
+                type="button"
+                className="uni-player-aula__footer-btn uni-player-aula__footer-btn--next"
+                onClick={() => proxima && navParaFase(proxima.slug)}
+                disabled={!proxima}
+              >
+                <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>
+                <ArrowRight size={15} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </GuiaAcademyNavigationProvider>
   )
 }

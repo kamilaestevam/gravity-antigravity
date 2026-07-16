@@ -270,7 +270,6 @@ export function ManualInfograficoSmartDocsListaPaineis() {
           fontSize: '.74rem',
           lineHeight: 1.5,
           color: CORPO_70,
-          whiteSpace: 'nowrap',
         }}>
           Cada painel é uma <strong style={{ color: '#cbd5e1' }}>aba</strong> com layout próprio sobre a mesma lista de leituras.
         </p>
@@ -278,7 +277,7 @@ export function ManualInfograficoSmartDocsListaPaineis() {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
         gap: 12,
         marginBottom: 14,
       }}>

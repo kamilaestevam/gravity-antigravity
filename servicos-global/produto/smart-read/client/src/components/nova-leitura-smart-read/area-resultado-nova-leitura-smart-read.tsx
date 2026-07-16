@@ -24,7 +24,7 @@ import {
   calcularEstatisticasConferencia,
   extrairSecoesConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
-import { compararCamposEdicaoLeituraSmartRead } from '../../../shared/comparar-campos-edicao-leitura-smart-read'
+import { compararCamposEdicaoLeituraSmartRead } from '../../shared/comparar-campos-edicao-leitura-smart-read'
 import { executarDownloadExportacaoLeituraSmartRead } from '../../shared/executar-download-exportacao-leitura-smart-read'
 
 type Props = {

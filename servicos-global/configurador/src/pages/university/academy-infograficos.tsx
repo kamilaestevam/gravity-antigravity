@@ -32,6 +32,7 @@ import { ManualInfograficoItensMenuUsuario } from './manual-navegacao-menu-usuar
 import { ManualInfograficoFuncionalidadesLista } from './manual-navegacao-funcionalidades-listas-infografico'
 import { ManualInfograficoPedidoVisaoGeral } from './manual-pedido-infografico-visao-geral'
 import { ManualInfograficoSmartDocsDocumentos } from './manual-smart-read-infografico-documentos'
+import { ManualInfograficoSmartDocsOQueE } from './manual-smart-read-infografico-o-que-e'
 import { ManualInfograficoAdminTelas } from './manual-admin-infografico-telas'
 
 export type IdInfograficoAcademy =
@@ -56,6 +57,7 @@ export type IdInfograficoAcademy =
   | 'itens-menu-usuario'
   | 'funcionalidades-listas'
   | 'pedido-visao-geral'
+  | 'smart-docs-o-que-e'
   | 'smart-docs-documentos'
   | 'admin-telas'
 
@@ -102,6 +104,7 @@ const REGISTRO_INFOGRAFICOS_ACADEMY: Record<IdInfograficoAcademy, React.Componen
   'itens-menu-usuario': ManualInfograficoItensMenuUsuario,
   'funcionalidades-listas': ManualInfograficoFuncionalidadesLista,
   'pedido-visao-geral': ManualInfograficoPedidoVisaoGeral,
+  'smart-docs-o-que-e': ManualInfograficoSmartDocsOQueE,
   'smart-docs-documentos': ManualInfograficoSmartDocsDocumentos,
   'admin-telas': ManualInfograficoAdminTelas,
 }

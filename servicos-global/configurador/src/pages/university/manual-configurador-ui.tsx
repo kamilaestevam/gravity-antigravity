@@ -75,6 +75,7 @@ import {
 } from './manual-pedido-infografico-insights'
 import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualInfograficoPedidoConfigColunasPersonalizadas } from './manual-pedido-infografico-config-colunas-personalizadas'
 import {
   ManualInfograficoBidFreteMapa,
   ManualPilaresMapaBidFreteChips,
@@ -1550,7 +1551,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '240'
+const MANUAL_SCREENSHOT_CACHE_KEY = '244'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -2452,6 +2453,29 @@ function ManualTagEmBreve({ compact = false }: { compact?: boolean }) {
   )
 }
 
+export function ManualTagSecaoImportante({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      aria-label="Seção essencial"
+      style={{
+        fontSize: compact ? '.58rem' : '.62rem',
+        fontWeight: 800,
+        letterSpacing: '.06em',
+        textTransform: 'uppercase',
+        color: '#c4b5fd',
+        background: 'rgba(139,92,246,.12)',
+        border: '1px solid rgba(167,139,250,.35)',
+        borderRadius: MANUAL_RAIO_CHIP,
+        padding: compact ? '2px 8px' : '3px 10px',
+        flexShrink: 0,
+        lineHeight: 1.2,
+      }}
+    >
+      Seção essencial
+    </span>
+  )
+}
+
 function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_PX }: { marginBottom?: number }) {
   const c = CALLOUT_STYLE.lembrete
   return (
@@ -3099,7 +3123,12 @@ function ManualBlocoPassoVisual({
     passo.rotuloPasso?.trim()
     && !passo.estiloTituloWizard
     && !passo.rotuloPassoAposGaleriaComparacao
-    && (passoAcademyIsolado || ocultarTituloPassoProp),
+    && (passoAcademyIsolado || ocultarTituloPassoProp || passo.ocultarTituloPasso),
+  )
+  const passoCorpoComRotuloNomeado = Boolean(
+    passoAcademyIsolado
+    || (ocultarTituloPassoProp && passo.rotuloPasso?.trim())
+    || (passo.ocultarTituloPasso && passo.rotuloPasso?.trim()),
   )
   const omitirFigurasNoTexto = cenarioParte === 'texto'
   const textoCenariosAlinhados = emGradeCenarios && cenarioParte === 'texto'
@@ -3163,7 +3192,7 @@ function ManualBlocoPassoVisual({
   const blocoTexto = (
     <div
       className={
-        passoAcademyIsolado || (ocultarTituloPassoProp && passo.rotuloPasso?.trim())
+        passoCorpoComRotuloNomeado
           ? classePassoCorpoAcademy(passo, exibirRotuloPassoNoCorpo)
           : undefined
       }
@@ -3201,6 +3230,9 @@ function ManualBlocoPassoVisual({
           </p>
           {passo.tagEmConstrucao ? (
             <span className="ws-badge ws-badge-warning">Em construção</span>
+          ) : null}
+          {passo.tagSecaoImportante ? (
+            <ManualTagSecaoImportante />
           ) : null}
           {passo.tagEmBreve ? (
             <span className="ws-badge ws-badge-warning">Em breve</span>
@@ -3396,6 +3428,23 @@ function ManualBlocoPassoVisual({
             ))
             : null}
           {!calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
+          {passo.mostrarInfograficoPedidoConfigColunasPersonalizadas
+          && (passo.infograficoPedidoConfigColunasPersonalizadasAposParagrafo ?? 0) === i ? (
+            passoAcademyIsolado ? (
+              <div className="uni-player-aula__passo-galeria uni-player-aula__passo-galeria--secao-visual">
+                <ManualInfograficoPedidoConfigColunasPersonalizadas margemSuperiorPx={0} />
+              </div>
+            ) : (
+              <div style={{
+                marginTop: emAcordeaoSubtopico
+                  ? MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX
+                  : MANUAL_ESPACO_PARAGRAFO_PX,
+                marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+              }}>
+                <ManualInfograficoPedidoConfigColunasPersonalizadas margemSuperiorPx={0} />
+              </div>
+            )
+          ) : null}
           {passo.mostrarCatalogoColunasPedidoLista
           && (passo.catalogoColunasPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoTabelaCatalogoColunasLista />

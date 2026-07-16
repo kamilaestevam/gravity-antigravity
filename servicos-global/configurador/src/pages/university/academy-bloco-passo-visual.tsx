@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom'
 import { Eye, EyeSlash, Lightbulb, Warning } from '@phosphor-icons/react'
 import type { DocPassoVisual } from './manual-configurador-conteudo'
 import { ManualFiguraScreenshot } from './manual-figura-screenshot'
-import { ManualGaleriaComparacaoIntro, ManualGaleriaTelasBloco, chaveTelasGaleriaComparacao } from './manual-configurador-ui'
+import { ManualGaleriaComparacaoIntro, ManualGaleriaTelasBloco, ManualTagSecaoImportante, chaveTelasGaleriaComparacao } from './manual-configurador-ui'
 import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tabela'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { AcademyLinkGuia } from './guia-academy-link'
 import {
   ManualInfograficoIconeControleMapaPedidoInline,
   ManualInfograficoPinMapaPedidoInline,
+  ManualInfograficoRichText,
   isIconeControleMapaPedido,
 } from './manual-infografico-rich-text'
 import {
@@ -146,6 +147,9 @@ function AcademyPassoRotuloLinha({ passo }: { passo: DocPassoVisual }) {
       {passo.tagEmConstrucao ? (
         <span className="ws-badge ws-badge-warning">Em construção</span>
       ) : null}
+      {passo.tagSecaoImportante ? (
+        <ManualTagSecaoImportante />
+      ) : null}
       {passo.tagEmBreve ? (
         <span className="ws-badge ws-badge-warning">Em breve</span>
       ) : null}
@@ -239,7 +243,7 @@ function CalloutPasso({ callout }: { callout: { tipo: string; texto: string } })
           letterSpacing: '.06em', textTransform: 'uppercase',
         }}>{c.label}</p>
         <p style={{ ...ESTILO_CORPO, fontSize: '.82rem', margin: 0 }}>
-          <AcademyTextoRich texto={callout.texto} />
+          <ManualInfograficoRichText texto={callout.texto} />
         </p>
       </div>
     </div>
@@ -490,19 +494,9 @@ export function AcademyBlocoPassoVisual({
           {temParagrafos ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }}>
               {passo.paragrafos!.map((p, i) => (
-                <React.Fragment key={i}>
-                  <p style={{ ...ESTILO_CORPO, margin: 0 }}>
-                    <AcademyTextoRich texto={p} />
-                  </p>
-                  {galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria, idxGaleria) => (
-                    <AcademyGaleriaComparacaoPasso
-                      key={`galeria-par-${i}-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
-                      galeria={galeria}
-                      idxGaleria={idxGaleria}
-                      indiceParagrafo={i}
-                    />
-                  ))}
-                </React.Fragment>
+                <p key={i} style={{ ...ESTILO_CORPO, margin: 0 }}>
+                  <AcademyTextoRich texto={p} />
+                </p>
               ))}
             </div>
           ) : null}
@@ -515,16 +509,25 @@ export function AcademyBlocoPassoVisual({
           )}
         </div>
       ) : null}
-      {(passo.paragrafos?.length ?? 0) === 0
-        ? galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria, idxGaleria) => (
+      {(passo.paragrafos?.length ?? 0) > 0
+        ? passo.paragrafos!.flatMap((_, i) =>
+            galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria, idxGaleria) => (
+              <AcademyGaleriaComparacaoPasso
+                key={`galeria-par-${i}-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
+                galeria={galeria}
+                idxGaleria={idxGaleria}
+                indiceParagrafo={i}
+              />
+            ))
+          )
+        : galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria, idxGaleria) => (
           <AcademyGaleriaComparacaoPasso
             key={`galeria-sem-par-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
             galeria={galeria}
             idxGaleria={idxGaleria}
             semParagrafo
           />
-        ))
-        : null}
+        ))}
       {passo.imagem ? (
         <ManualFiguraScreenshot
           src={passo.imagem}

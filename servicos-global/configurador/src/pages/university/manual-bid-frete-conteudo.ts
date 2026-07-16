@@ -98,14 +98,16 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Mapa',
           tituloCurto: 'Mapa',
+          rotuloPasso: 'Mapa',
+          paragrafos: [
+            'No mapa da aba **Insights**, selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir o **Painel da Cotação**.',
+          ],
           mostrarInfograficoBidFreteMapa: true,
           galeriaTelasAposTabela: [
             {
               legenda: 'Selecionar rota no mapa',
               pilaresMapaBidFrete: ['01'],
               imagem: S('insight_mapa_seta'),
-              paragrafoAntes:
-                'Selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para destacar o trecho e abrir o **Painel da Cotação**.',
             },
           ],
         },

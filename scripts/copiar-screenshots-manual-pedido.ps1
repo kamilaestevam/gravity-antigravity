@@ -1,4 +1,4 @@
-﻿# Copia prints do Drive para public/university/screenshots/pedido-*.png
+# Copia prints do Drive para public/university/screenshots/pedido-*.png
 # Fonte: ...\7. Produtos Gravity\1. Pedido (fallback: 6. Produtos Gravity)
 
 $ErrorActionPreference = 'Stop'

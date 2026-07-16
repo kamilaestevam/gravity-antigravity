@@ -43,6 +43,8 @@ export interface DocPassoVisual {
   paragrafosAposGaleriaComparacao?: string[]
   /** Chip âmbar «Em construção» ao lado do `rotuloPasso` (Academy + Guia). */
   tagEmConstrucao?: boolean
+  /** Chip roxo «Seção essencial» ao lado do `rotuloPasso` (Academy + Guia). */
+  tagSecaoImportante?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
   /** Academy: mantém o passo no corpo, mas omite do menu lateral da aula. */
@@ -256,6 +258,10 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual Pedido §08 Configurações — mapa dos 8 tipos de coluna personalizada. */
+  mostrarInfograficoPedidoConfigColunasPersonalizadas?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico de tipos (padrão: 0). */
+  infograficoPedidoConfigColunasPersonalizadasAposParagrafo?: number
   /** Manual Pedido §05 — mapa UX 10 do catálogo nativo (>100 colunas por grupo). */
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */

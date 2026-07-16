@@ -909,6 +909,7 @@ export function ModalNovaLeituraSmartRead({
     (chave: string, valor: string) => {
       const selecao = conferenciaSelecao
       if (!selecao) return
+      let salvo = false
       setArquivos((prev) =>
         prev.map((item) => {
           if (item.id_arquivo_local !== selecao.idArquivoLocal || !item.leitura) return item
@@ -916,15 +917,17 @@ export function ModalNovaLeituraSmartRead({
           const arquivoApi =
             leitura.arquivos.find((a) => a.id_arquivo === item.id_arquivo) ?? leitura.arquivos[0]
           const extracao = arquivoApi?.resultado_extracao?.[selecao.indiceDocumento]
-          if (extracao?.dados) {
-            if (!extracao.dados_original) {
-              extracao.dados_original = structuredClone(extracao.dados)
-            }
-            definirValorPorCaminho(extracao.dados, chave, valor)
+          if (!extracao?.dados) return item
+          if (!extracao.dados_original) {
+            extracao.dados_original = structuredClone(extracao.dados)
           }
+          const ok = definirValorPorCaminho(extracao.dados, chave, valor)
+          if (!ok) return item
+          salvo = true
           return { ...item, leitura }
         }),
       )
+      if (!salvo) return
       setCamposEditados((prev) => {
         const next = new Set(prev)
         next.add(montarChaveCampoEditadoLeitura(selecao.idArquivoLocal, selecao.indiceDocumento, chave))

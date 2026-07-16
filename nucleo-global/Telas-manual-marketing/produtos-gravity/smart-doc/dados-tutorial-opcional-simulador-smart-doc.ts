@@ -218,7 +218,7 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
     ],
     avancar: {
       acao: 'Passo 4 de 4',
-      titulo: 'Baixar pacote DATI',
+      titulo: 'Baixar pacote docs',
       descricao: 'Clique Baixar em cada arquivo — o ZIP segue o padrão {arquivo}-dati.zip',
       idAlvo: 'nl-baixar-dati',
     },

@@ -150,14 +150,14 @@ function calcularEspacoSuperiorBlocoGuia(
     return MANUAL_ESPACO_PARAGRAFO_PX
   }
 
-  // Intro vazia do fluxo → primeiro H2 subtópico (linha roxa → subtítulo: 18px)
+  // Intro do fluxo → primeiro H2 subtópico (ex.: Mapa de métricas → Mapa): 32px
   if (
     bloco.tipo === 'heading'
     && Number(bloco.dados.nivel ?? 1) === 2
     && blocoAnterior?.tipo === 'fluxo_manual'
     && String(blocoAnterior.dados.modo ?? 'completo') === 'intro'
   ) {
-    return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   // H2 subtópico → corpo do passo (1º parágrafo ou infográfico na Academy)
@@ -574,8 +574,17 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
           </h1>
         )
       }
+      if (ocultarNoCorpo) {
+        return idAncora ? (
+          <span
+            id={idAncora}
+            style={estiloOculto}
+            aria-hidden="true"
+          />
+        ) : null
+      }
       return (
-        <Tag id={idAncora} style={ocultarNoCorpo ? estiloOculto : (styles[nivel] ?? styles[1])} aria-hidden={ocultarNoCorpo || undefined}>
+        <Tag id={idAncora} style={styles[nivel] ?? styles[1]}>
           {texto}
         </Tag>
       )

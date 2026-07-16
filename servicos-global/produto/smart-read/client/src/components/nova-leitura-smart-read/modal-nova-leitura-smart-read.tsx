@@ -84,6 +84,7 @@ import { abrirArquivoLeituraNovaAbaSmartRead } from '../../shared/abrir-arquivo-
 import {
   definirValorPorCaminho,
   montarChaveCampoEditadoLeitura,
+  sincronizarValorLegadoPorCaminho,
 } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
@@ -286,7 +287,10 @@ export function ModalNovaLeituraSmartRead({
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
   const pollingEmVooRef = useRef<Map<string, Promise<void>>>(new Map())
   const progressoUploadGravadoRef = useRef<Set<string>>(new Set())
-  const prefillContinuarRef = useRef<PayloadContinuarPrefillCotacaoBidFreteSmartRead | null>(null)
+  const prefillContinuarRef = useRef<{
+    payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead
+    manterWizard: boolean
+  } | null>(null)
 
   useEffect(() => {
     ativo.current = true
@@ -906,6 +910,7 @@ export function ModalNovaLeituraSmartRead({
     (chave: string, valor: string) => {
       const selecao = conferenciaSelecao
       if (!selecao) return
+      let salvo = false
       setArquivos((prev) =>
         prev.map((item) => {
           if (item.id_arquivo_local !== selecao.idArquivoLocal || !item.leitura) return item
@@ -913,15 +918,18 @@ export function ModalNovaLeituraSmartRead({
           const arquivoApi =
             leitura.arquivos.find((a) => a.id_arquivo === item.id_arquivo) ?? leitura.arquivos[0]
           const extracao = arquivoApi?.resultado_extracao?.[selecao.indiceDocumento]
-          if (extracao?.dados) {
-            if (!extracao.dados_original) {
-              extracao.dados_original = structuredClone(extracao.dados)
-            }
-            definirValorPorCaminho(extracao.dados, chave, valor)
+          if (!extracao?.dados) return item
+          if (!extracao.dados_original) {
+            extracao.dados_original = structuredClone(extracao.dados)
           }
+          const ok = definirValorPorCaminho(extracao.dados, chave, valor)
+          if (!ok) return item
+          sincronizarValorLegadoPorCaminho(extracao.dados, chave, valor)
+          salvo = true
           return { ...item, leitura }
         }),
       )
+      if (!salvo) return
       setCamposEditados((prev) => {
         const next = new Set(prev)
         next.add(montarChaveCampoEditadoLeitura(selecao.idArquivoLocal, selecao.indiceDocumento, chave))
@@ -1175,7 +1183,8 @@ export function ModalNovaLeituraSmartRead({
       if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
         try {
           setRedirecionandoCotacao(true)
-          const payload = prefillContinuarRef.current ?? await (async () => {
+          const pacoteRef = prefillContinuarRef.current
+          const payload = pacoteRef?.payload ?? await (async () => {
             const { converterLeituraParaCotacaoBidFreteInternacional } = await import(
               '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
             )
@@ -1188,6 +1197,7 @@ export function ModalNovaLeituraSmartRead({
               iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
             }
           })()
+          const manterWizard = pacoteRef?.manterWizard === true
           salvarPrefillCotacaoBidFreteSmartRead(
             montarPacotePrefillCotacaoBidFreteSmartRead({
               idLeitura: idLeituraAtual,
@@ -1199,12 +1209,18 @@ export function ModalNovaLeituraSmartRead({
             }),
           )
           prefillContinuarRef.current = null
-          onConcluido?.()
-          await handleFechar()
-          window.location.href = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
+          const url = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
             idLeituraAtual,
             idBidOrigem,
           )
+          if (manterWizard) {
+            window.open(url, '_blank', 'noopener,noreferrer')
+            setRedirecionandoCotacao(false)
+            return
+          }
+          onConcluido?.()
+          await handleFechar()
+          window.location.href = url
           return
         } catch (erro) {
           setRedirecionandoCotacao(false)
@@ -1451,8 +1467,11 @@ export function ModalNovaLeituraSmartRead({
           <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
             <PainelRevisaoPrefillCotacaoBidFreteSmartRead
               leitura={leituraConsolidada}
-              onContinuar={(payload) => {
-                prefillContinuarRef.current = payload
+              onContinuar={(payload, opcoes) => {
+                prefillContinuarRef.current = {
+                  payload,
+                  manterWizard: opcoes?.manter_wizard_aberto === true,
+                }
                 void handleContinuarPasso()
               }}
               continuando={redirecionandoCotacao}

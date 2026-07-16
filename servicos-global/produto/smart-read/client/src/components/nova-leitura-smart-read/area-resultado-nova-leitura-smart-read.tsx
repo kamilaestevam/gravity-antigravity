@@ -110,7 +110,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
         nomeArquivoZip: nomeZip,
       })
     } catch (erro) {
-      const mensagem = erro instanceof Error ? erro.message : 'Falha ao baixar pacote DATI'
+      const mensagem = erro instanceof Error ? erro.message : 'Falha ao baixar pacote docs'
       setErroDownload(mensagem)
     } finally {
       setBaixando(false)
@@ -228,7 +228,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                     </div>
                     {renderBotaoDownload(
                       [item],
-                      'Baixar pacote DATI',
+                      'Baixar pacote docs',
                       'primario',
                       `${sanitizarNomeArquivo(item.arquivo.name)}-dati.zip`,
                     )}

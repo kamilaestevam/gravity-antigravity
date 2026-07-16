@@ -119,6 +119,32 @@ describe('Smart Read — extrair seções conferência', () => {
     expect(item1?.campos.find((c) => c.rotulo === 'NCM')?.valor).toBe('8413.9100')
   })
 
+  it('prioriza valor ao vivo em items quando section legado está vazia', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      sections: [
+        {
+          title: 'Item 1',
+          fields: [
+            { key: 'items[0].weights.gross', label: 'Gross', value: '' },
+            { key: 'items[0].volume.dimensions', label: 'Dimensions', value: '' },
+            { key: 'items[0].weights.unit', label: 'Unit', value: 'PCS' },
+          ],
+        },
+      ],
+      items: [
+        {
+          weights: { gross: '15.2', unit: 'PCS' },
+          volume: { dimensions: '10x20x30' },
+        },
+      ],
+    })
+
+    const item1 = secoes.find((s) => s.titulo === 'Item 1')
+    expect(item1?.campos.find((c) => c.chave === 'items[0].weights.gross')?.valor).toBe('15.2')
+    expect(item1?.campos.find((c) => c.chave === 'items[0].volume.dimensions')?.valor).toBe('10x20x30')
+    expect(item1?.campos.find((c) => c.chave === 'items[0].weights.unit')?.valor).toBe('PCS')
+  })
+
   it('exibe NCM a partir de hsCode quando ncm ausente', () => {
     const secoes = extrairSecoesConferenciaLeitura({
       items: [{ partNumber: '3100N025201DK19', hsCode: '8413.9100' }],

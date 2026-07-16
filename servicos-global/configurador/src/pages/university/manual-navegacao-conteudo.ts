@@ -4,7 +4,7 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 /**
  * SSOT dos screenshots: `public/university/screenshots/`
- * Arquivos abaixo ainda não existem — preencher `imagem` nos passos quando o dono enviar os prints.
+ * Menu superior — prints em `3. Navegação` (Drive) mapeados abaixo.
  */
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO =
   '/university/screenshots/navegacao-menu-superior-visao-geral.png'

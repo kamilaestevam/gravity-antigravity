@@ -1,9 +1,8 @@
 /**
  * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
- * Publicação em produção controlada por `university-gravity-publicacao.ts`
- * (decisão PO MASTER Daniel — Guia Gravity já atende usuários; manual fora de prod).
- * Ver documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md
+ * Manuais (`/docs/*`) controlados por `universityManuaisDocsVisiveis()` em
+ * `university-gravity-publicacao.ts`. Academy sempre acessível (autenticado).
  *
  * Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
  * com título "Gravity University" + opções e dropdown de organizações, e as

@@ -105,6 +105,7 @@ export const SCREENSHOT_PEDIDO_CONFIG_STATUS_NOVO_4 = '/university/screenshots/p
 export const SCREENSHOT_PEDIDO_CONFIG_TABELA_LINHAS_PAGINA = '/university/screenshots/pedido-configuracoes-tabela-linhas-pagina.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TABELA_LINHAS_PAGINA_1 = '/university/screenshots/pedido-configuracoes-tabela-linhas-pagina-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TABELA_PEDIDOS_EM_ATRASO_VERMELHO = '/university/screenshots/pedido-configuracoes-tabela-pedidos-em-atraso-vermelho.png'
+export const SCREENSHOT_PEDIDO_CONFIG_ACESSO = '/university/screenshots/pedido-configuracoes-acesso.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TELA_PRINCIPAL = '/university/screenshots/pedido-configuracoes-tela-principal.png'
 
 function renumerarPassosConfig(passos: PassoSemNumero[]): DocPassoVisual[] {
@@ -113,10 +114,10 @@ function renumerarPassosConfig(passos: PassoSemNumero[]): DocPassoVisual[] {
 
 export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPassosConfig([
     {
-      titulo: "Visão geral",
-      tituloCurto: "Visão geral",
+      titulo: "O que é",
+      tituloCurto: "O que é",
       paragrafos: [
-        "No menu lateral, **Configurações** reúne as preferências do produto no workspace: **Cards**, **Tabela**, **Colunas**, **Kanban**, **Status**, **Numeração** e **Templates PDF** — cada aba afeta a visualização ou regras do Pedido para todos os usuários do workspace (salvo cards e colunas da lista, que são por usuário).",
+        "No menu lateral, **Configurações** reúne as preferências do produto no workspace: **Cards**, **Tabela**, **Colunas**, **Kanban**, **Status**, **Numeração** e **Templates PDF**. Cada aba afeta a visualização ou regras do Pedido para todos os usuários do workspace (salvo cards e colunas da lista, que são por usuário).",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -127,7 +128,28 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_TELA_PRINCIPAL,
-              paragrafoAntes: "Abra **Configurações** no menu lateral do Pedido",
+              paragrafoAntes: "Visão geral das abas de **Configurações**",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Como acessar",
+      tituloCurto: "Como acessar",
+      paragrafos: [
+        "Pelo menu lateral do Pedido, **Configurações** abre as preferências do workspace.",
+      ],
+      galeriaComparacaoAposParagrafo: [
+        {
+          indice: 0,
+          colunas: 1,
+          textoAcimaEstiloCorpo: true,
+          telas: [
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_ACESSO,
+              paragrafoAntes: "No menu lateral, clique em **Configurações**",
             },
           ],
         },

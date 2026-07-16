@@ -1,9 +1,13 @@
 ﻿# Copia prints do Drive para public/university/screenshots/pedido-*.png
-# Fonte: ...\6. Produtos Gravity\1. Pedido
+# Fonte: ...\7. Produtos Gravity\1. Pedido (fallback: 6. Produtos Gravity)
 
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido',
+  "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido",
+  "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido",
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido',
   'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido',
   "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido",
   "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido"
@@ -34,6 +38,7 @@ $mapa = @{
   'tela_pedido_visao_lista_gerar_documento_2' = 'pedido-lista-gerar-documento-2.png'
   'tela_pedido_configuracoes_criar_coluna' = 'pedido-configuracoes-criar-coluna.png'
   'tela_pedido_configuracoes_seta' = 'pedido-configuracoes-seta.png'
+  'tela_pedido_configuracoes_acesso' = 'pedido-configuracoes-acesso.png'
   'tela_pedido_configuracoes_criar_coluna_modal' = 'pedido-configuracoes-criar-coluna-modal.png'
   'tela_pedido_lista_edicao_selecionar_salvo' = 'pedido-lista-edicao-selecionar-salvo.png'
   'tela_pedido_lista_edicao_selecionar_salvar' = 'pedido-lista-edicao-selecionar-salvar.png'

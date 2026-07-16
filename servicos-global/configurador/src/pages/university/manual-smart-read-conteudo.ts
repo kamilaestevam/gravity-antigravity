@@ -1208,9 +1208,6 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       prefixoPassosVisuais: 'Configurações',
       ancoraPassosPrefix: 'configuracoes',
       mostrarMapaSubtopicosPassos: true,
-      paragrafos: [
-        'No menu lateral, **Configurações** reúne as preferências do Smart Docs no workspace — entre elas, a criação de **colunas customizadas** (**texto**, **número**, **data**, **fórmula** e outros tipos) para personalizar a **Lista** além das colunas nativas e do catálogo.',
-      ],
       passosVisuais: PASSOS_MANUAL_SMART_READ_CONFIGURACOES,
     },
     {

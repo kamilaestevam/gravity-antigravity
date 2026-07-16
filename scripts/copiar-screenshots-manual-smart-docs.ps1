@@ -1,15 +1,17 @@
 # Copia prints do Drive para public/university/screenshots/smart-docs-*.png
-# Fonte: ...\6. Produtos Gravity\2. Smart Docs
+# Fonte: ...\7. Produtos Gravity\2. Smart Docs (fallback: 6. Produtos Gravity)
 
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\2. Smart Docs',
+  "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\2. Smart Docs",
+  "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\2. Smart Docs",
   'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs',
   "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
   "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
-  'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs',
-  "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs",
-  "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs"
+  'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\2. Smart Docs',
+  'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\2. Smart Docs'
 )
 
 $origem = $candidatosOrigem | Where-Object { Test-Path $_ } | Select-Object -First 1
@@ -100,6 +102,13 @@ $mapa = @{
   'tela_smart_docs_passo_4_tela' = 'smart-docs-nova-leitura-passo-4.png'
   'tela_smart_docs_tela_nova_leitura_passo_4_alterado_erro_metroca' = 'smart-docs-nova-leitura-passo-4-alterado-erro-metrica.png'
   'tela_smart_docs_status' = 'smart-docs-status.png'
+  'tela_smart_read_configuracoes_seta' = 'smart-docs-configuracoes-seta.png'
+  'tela_smart_docs_configuracoes' = 'smart-docs-configuracoes-tela-principal.png'
+  'tela_smart_docs_configuracoes_acesso' = 'smart-docs-configuracoes-acesso.png'
+  'tela_smart_read_configuracoes_tela_principal' = 'smart-docs-configuracoes-tela-principal.png'
+  'tela_smart_read_configuracoes_colunas_personalizadas' = 'smart-docs-configuracoes-colunas-personalizadas.png'
+  'tela_smart_read_configuracoes_criar_coluna_1' = 'smart-docs-configuracoes-criar-coluna-1.png'
+  'tela_smart_read_configuracoes_criar_coluna_2' = 'smart-docs-configuracoes-criar-coluna-2.png'
 }
 
 $copiados = 0

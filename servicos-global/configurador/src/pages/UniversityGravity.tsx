@@ -55,6 +55,30 @@ import {
   obterXpMaxProduto,
   obterXpMaxTrilha,
 } from './university/pesos-academy-guia-gravity'
+import { calcularNivelGuiaGravity } from './university/niveis-guia-gravity'
+import { DashboardInfoNiveisGuiaGravity } from './university/dashboard-info-niveis-guia-gravity'
+import { DashboardInfoRitmoGuiaGravity } from './university/dashboard-info-ritmo-guia-gravity'
+import { PainelCertificadosGuiaGravity } from './university/painel-certificados-guia-gravity'
+import {
+  avaliarTiposCertificadoElegiveis,
+  carregarCertificadosGuia,
+  contarCertificadosObtidos,
+  sincronizarCertificadosGuia,
+  SLUGS_MODULO_BASICO_GUIA,
+  TIPOS_CERTIFICADO_GUIA,
+  type CertificadoEmitidoGuia,
+} from './university/certificado-guia-gravity'
+import { BarraProgressoComRitmo } from './university/barra-progresso-com-ritmo'
+import {
+  calcularMinutosConcluidosJornada,
+  calcularMinutosTotaisProdutos,
+  calcularRitmoJornada,
+  calcularRitmoModuloSequencial,
+  minutosConcluidosModulo,
+  montarMapaDuracaoProdutos,
+  obterDataInicioJornadaGuia,
+  type MetricasRitmoJornada,
+} from './university/ritmo-jornada-guia-gravity'
 import {
   DOC_LOGIN_METADADOS,
   DOC_LOGIN_SECOES,
@@ -133,7 +157,7 @@ interface Trilha {
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   'bem-vindo': [{ ...BEM_VINDO_TRILHA, prog: 0 }],
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '19m', prog: 0,
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '8m', prog: 0,
     fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
   admin: [{ ...ADMIN_TRILHA, prog: 0 }],
@@ -157,14 +181,14 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   processo: [{
-    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '2h30', prog: 0,
+    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '18m', prog: 0,
     fases: [
-      { nome: 'Criando um Processo', duracao: '25m', concluida: false },
-      { nome: 'Dados Técnicos', duracao: '25m', concluida: false },
-      { nome: 'Vinculando Pedidos', duracao: '25m', concluida: false },
-      { nome: 'Containers e Taxas', duracao: '25m', concluida: false },
-      { nome: 'Workflow e Status', duracao: '25m', concluida: false },
-      { nome: 'Relatórios', duracao: '25m', concluida: false },
+      { nome: 'Criando um Processo', duracao: '3m', concluida: false },
+      { nome: 'Dados Técnicos', duracao: '3m', concluida: false },
+      { nome: 'Vinculando Pedidos', duracao: '3m', concluida: false },
+      { nome: 'Containers e Taxas', duracao: '3m', concluida: false },
+      { nome: 'Workflow e Status', duracao: '3m', concluida: false },
+      { nome: 'Relatórios', duracao: '3m', concluida: false },
     ],
   }],
 }
@@ -990,6 +1014,19 @@ function DocLoginManual() {
   )
 }
 
+function calcularRitmoGlobalContratados(aulasConcluidas: Set<string>): {
+  ritmo: MetricasRitmoJornada
+  mapaDuracao: Map<string, number>
+} {
+  const produtos = PRODUTOS_CONTRATADOS as string[]
+  const mapaDuracao = montarMapaDuracaoProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosTotais = calcularMinutosTotaisProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosConcluidos = calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao)
+  const dataInicio = obterDataInicioJornadaGuia(minutosConcluidos)
+  const ritmo = calcularRitmoJornada({ minutosTotais, minutosConcluidos, dataInicio })
+  return { ritmo, mapaDuracao }
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?: string; altura?: number }) {
   return (
@@ -1373,11 +1410,12 @@ function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
   )
 }
 
-function JornadaSidebar({ xp, gp, feitas, total, xpMeta, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
-  xp: number; gp: number; feitas: number; total: number; xpMeta?: number; rankingTituloKey?: string
+function JornadaSidebar({ xp, gp, feitas, total, xpMeta, ritmo, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
+  xp: number; gp: number; feitas: number; total: number; xpMeta?: number; ritmo?: MetricasRitmoJornada | null
+  rankingTituloKey?: string
 }) {
   const { t } = useTranslation()
-  const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
+  const pctXp = xpMeta && xpMeta > 0 ? Math.min(100, Math.round((xp / xpMeta) * 100)) : 0
   const badgeAtiva = feitas >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -1387,7 +1425,13 @@ function JornadaSidebar({ xp, gp, feitas, total, xpMeta, rankingTituloKey = 'uni
         </div>
         {xpMeta > 0 && (
           <>
-            <div style={{ marginTop: 10 }}><BarraProgresso pct={Math.min(pct, 100)} altura={6} /></div>
+            <div style={{ marginTop: 10 }}>
+              <BarraProgressoComRitmo
+                pctReal={ritmo?.pctRealMinutos ?? pctXp}
+                ritmo={ritmo ?? null}
+                altura={6}
+              />
+            </div>
         <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
           {t('university.jornada.tarefas_concluidas', { feitas, total })}
         </div>
@@ -1452,13 +1496,12 @@ function siglaModuloOnboarding(slug: keyof typeof TRILHAS_POR_PRODUTO): string {
   return slug.slice(0, 2).toUpperCase()
 }
 
-function calcularNivelOnboarding(xpTotal: number) {
-  const nivel = Math.max(1, Math.floor(xpTotal / 75) + 1)
-  const xpMetaNivel = nivel * 75
-  const xpParaSubir = Math.max(0, xpMetaNivel - xpTotal)
-  const titulos = ['Iniciante', 'Aprendiz', 'Praticante', 'Explorador', 'Especialista'] as const
-  const titulo = titulos[Math.min(nivel - 1, titulos.length - 1)]
-  return { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel: Math.min(100, Math.round((xpTotal / xpMetaNivel) * 100)) }
+function calcularNivelOnboarding(xpTotal: number, t: (key: string) => string) {
+  const resultado = calcularNivelGuiaGravity(xpTotal)
+  return {
+    ...resultado,
+    titulo: t(resultado.chaveTitulo),
+  }
 }
 
 /** WIP demo — virá do banco via API. */
@@ -1507,34 +1550,48 @@ function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
   )
 }
 
-function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp: number; feitas: number }) {
+function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo }: {
+  xpTotal: number; gp: number; feitas: number; ritmo: MetricasRitmoJornada
+}) {
   const { t } = useTranslation()
-  const { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel } = calcularNivelOnboarding(xpTotal)
+  const { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel } = calcularNivelOnboarding(xpTotal, t)
   const badgeObtida = feitas >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(251,191,36,.12), rgba(30,41,59,.6))',
-        border: '1px solid rgba(251,191,36,.28)', borderRadius: 15, padding: 16,
-      }}>
-        <div style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: 'var(--ws-muted,#94a3b8)',
-          fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
-        }}>{t('university.dashboard.nivel_ofensiva')}</div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.1rem', color: 'var(--ws-text,#f1f5f9)' }}>
+      <div className="uni-dashboard-nivel-card">
+        <div className="uni-dashboard-nivel-cabecalho">
+          <div className="uni-dashboard-nivel-cabecalho__rotulo">{t('university.dashboard.nivel_ofensiva')}</div>
+          <DashboardInfoNiveisGuiaGravity xpTotal={xpTotal} xpParaSubir={xpParaSubir} />
+        </div>
+        <div className="uni-dashboard-nivel-titulo">
           {t('university.dashboard.nivel_rotulo', { nivel, titulo })}
         </div>
-        <div style={{ height: 8, borderRadius: 9999, background: 'rgba(148,163,184,.18)', overflow: 'hidden', margin: '10px 0 6px' }}>
-          <div style={{ height: '100%', width: `${pctNivel}%`, borderRadius: 9999, background: '#818cf8' }} />
+        <div className="uni-dashboard-nivel-barra">
+          <BarraProgresso pct={pctNivel} altura={8} />
         </div>
-        <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
+        <div className="uni-dashboard-nivel-xp">
           {xpTotal} / {xpMetaNivel} XP
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 14 }}>
+        <div className="uni-dashboard-nivel-ritmo-resumo">
+          <div className="uni-dashboard-ritmo-cabecalho uni-dashboard-ritmo-cabecalho--padrao">
+            <div className="uni-dashboard-ritmo-cabecalho__titulo">
+              <span className="uni-dashboard-ritmo-rotulo">{t('university.dashboard.ritmo.jornada_rotulo')}</span>
+              <DashboardInfoRitmoGuiaGravity ritmo={ritmo} />
+            </div>
+          </div>
+          <div className="uni-dashboard-barra-ritmo-bloco">
+            <BarraProgressoComRitmo
+              pctReal={ritmo.pctRealMinutos}
+              ritmo={ritmo}
+              altura={8}
+            />
+          </div>
+        </div>
+        <div className="uni-dashboard-nivel-ofensiva">
           <div className="uni-dashboard-ofensiva-icone" aria-hidden>
             <span style={{ fontSize: 14 }}>🔥</span>
           </div>
-          <div style={{ fontSize: '.82rem', color: '#fbbf24', fontWeight: 700 }}>
+          <div className="uni-dashboard-nivel-ofensiva__texto">
             {t('university.dashboard.ofensiva_dias', { dias: OFENSIVA_DIAS_DEMO })}
           </div>
         </div>
@@ -1575,14 +1632,42 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas }: { xpTotal: number; gp:
   )
 }
 
-function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
+function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo, nomeUsuario }: {
   aulasConcluidas: Set<string>
   onAbrirModulo: (slug: keyof typeof TRILHAS_POR_PRODUTO) => void
+  nomeUsuario: string
 }) {
   const { t } = useTranslation()
   const metricas = calcularMetricasOnboarding(aulasConcluidas)
-  const { modulos, xpTotal, concluidas, emAndamento, certificados, gp } = metricas
-  const { xpParaSubir, nivel } = calcularNivelOnboarding(xpTotal)
+  const { modulos, xpTotal, concluidas, emAndamento, gp } = metricas
+  const { xpParaSubir, nivel, titulo } = calcularNivelOnboarding(xpTotal, t)
+  const { ritmo: ritmoGlobal } = calcularRitmoGlobalContratados(aulasConcluidas)
+
+  const produtoConcluido100 = useCallback((slug: string) => {
+    if (!(slug in TRILHAS_POR_PRODUTO)) return false
+    return calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100
+  }, [aulasConcluidas])
+
+  const [mapaCertificados, setMapaCertificados] = useState(() => carregarCertificadosGuia())
+  const [certificadoAberto, setCertificadoAberto] = useState<CertificadoEmitidoGuia | null>(null)
+
+  useEffect(() => {
+    const elegiveis = avaliarTiposCertificadoElegiveis({ produtoConcluido100 })
+    setMapaCertificados(sincronizarCertificadosGuia(elegiveis))
+  }, [produtoConcluido100, aulasConcluidas])
+
+  const certificadosObtidos = contarCertificadosObtidos(mapaCertificados)
+
+  const xpPorSlug = useMemo(() => {
+    const slugs = [...SLUGS_MODULO_BASICO_GUIA, 'pedido', 'bid-frete', 'smart-read'] as const
+    const mapa: Record<string, number> = {}
+    for (const slug of slugs) {
+      if (slug in TRILHAS_POR_PRODUTO) {
+        mapa[slug] = calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).xp
+      }
+    }
+    return mapa
+  }, [aulasConcluidas])
 
   const [produtosFiltrados, setProdutosFiltrados] = useState<Set<string>>(
     () => new Set(PRODUTOS_CONTRATADOS as string[]),
@@ -1603,9 +1688,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
 
   const modulosVisiveis = modulos.filter(m => produtosFiltrados.has(m.slug))
   const concluidasVisiveis = modulosVisiveis.filter(m => m.pct >= 100).length
-  const pctVisivel = modulosVisiveis.length > 0
-    ? Math.round((concluidasVisiveis / modulosVisiveis.length) * 100)
-    : 0
+  const pctVisivel = ritmoGlobal.pctRealMinutos
 
   const moduloAtual = modulos.find(m => m.pct > 0 && m.pct < 100) ?? modulos.find(m => m.pct < 100) ?? modulos[0]
   const etapasAtual = calcularEtapasJornada(
@@ -1622,10 +1705,24 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
     { k: 'university.jornada.pontos', v: xpTotal.toLocaleString('pt-BR') },
     { k: 'university.jornada.concluidas', v: String(concluidas) },
     { k: 'university.jornada.em_andamento', v: String(emAndamento) },
-    { k: 'university.jornada.certificados', v: String(certificados) },
+    { k: 'university.jornada.certificados', v: String(certificadosObtidos) },
   ]
 
-  const pctAnel = moduloAtual.total > 0 ? Math.round((moduloAtual.feitas / moduloAtual.total) * 100) : 0
+  const pctAnel = (() => {
+    const minutos = minutosConcluidosModulo(moduloAtual.trilha.fases, aulasConcluidas)
+    const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+    const dataInicio = obterDataInicioJornadaGuia(
+      calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+    )
+    return calcularRitmoModuloSequencial({
+      produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+      trilhasPorProduto: TRILHAS_POR_PRODUTO,
+      slugModulo: moduloAtual.slug,
+      minutosConcluidosModulo: minutos,
+      dataInicio,
+      fasesEscopo: moduloAtual.trilha.fases,
+    }).pctRealMinutos
+  })()
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.62fr) minmax(220px, 1fr)', gap: 20, alignItems: 'start' }}>
@@ -1694,22 +1791,43 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
           ))}
         </div>
 
+        {/* Certificados */}
+        <div className="uni-dashboard-certificados-card">
+          <div className="uni-dashboard-certificados-card__cabecalho">
+            <span className="uni-dashboard-certificados-card__titulo">{t('university.certificado.secao_titulo')}</span>
+            <span className="uni-dashboard-certificados-card__contagem">
+              {t('university.certificado.contagem', { obtidos: certificadosObtidos, total: TIPOS_CERTIFICADO_GUIA.length })}
+            </span>
+          </div>
+          <PainelCertificadosGuiaGravity
+            nomeUsuario={nomeUsuario}
+            xpTotal={xpTotal}
+            nivel={nivel}
+            tituloNivel={titulo}
+            xpPorSlug={xpPorSlug}
+            mapaCertificados={mapaCertificados}
+            certificadoAberto={certificadoAberto}
+            onAbrirCertificado={setCertificadoAberto}
+            onFecharCertificado={() => setCertificadoAberto(null)}
+          />
+        </div>
+
         {/* Progresso geral — mesma barra contínua da visão por produto; tag abre evolução do produto */}
         <div className="uni-dashboard-progresso-card">
           <div className="uni-dashboard-produtos-contratados">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
-                {t('university.progresso.produtos_contratados')}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
+                  {t('university.progresso.produtos_contratados')}
+                </span>
+                <DashboardInfoRitmoGuiaGravity ritmo={ritmoGlobal} />
+              </div>
               <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctVisivel >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
                 {concluidasVisiveis} / {modulosVisiveis.length} {t('university.progresso.concluidos')}
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <BarraProgresso pct={pctVisivel} altura={8} />
-              <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
-                {pctVisivel}%
-              </span>
+            <div className="uni-dashboard-barra-ritmo-bloco">
+              <BarraProgressoComRitmo pctReal={pctVisivel} ritmo={ritmoGlobal} altura={8} />
             </div>
             <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
             <div className="uni-dashboard-produtos-contratados__tags">
@@ -1755,7 +1873,14 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
                 {MANUAIS_LIDOS_DEMO.lidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{MANUAIS_LIDOS_DEMO.total}</span>
               </div>
             </div>
-            <BarraSegmentada total={MANUAIS_LIDOS_DEMO.total} preenchidos={MANUAIS_LIDOS_DEMO.lidos} cor={UNI_COR} />
+            <BarraProgressoComRitmo
+              pctReal={MANUAIS_LIDOS_DEMO.total > 0
+                ? Math.round((MANUAIS_LIDOS_DEMO.lidos / MANUAIS_LIDOS_DEMO.total) * 100)
+                : 0}
+              ritmo={ritmoGlobal}
+              altura={8}
+              ocultarLegenda
+            />
           </div>
           ) : null}
         </div>
@@ -1802,7 +1927,12 @@ function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo }: {
         </div>
       </div>
 
-      <RailDashboardOnboarding xpTotal={xpTotal} gp={gp} feitas={modulos.reduce((s, m) => s + m.feitas, 0)} />
+      <RailDashboardOnboarding
+        xpTotal={xpTotal}
+        gp={gp}
+        feitas={modulos.reduce((s, m) => s + m.feitas, 0)}
+        ritmo={ritmoGlobal}
+      />
     </div>
   )
 }
@@ -1863,6 +1993,19 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
   const gp = xp * 2
   const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
   const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
+  const minutosModuloConcluidos = minutosConcluidosModulo(trilha.fases, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+  )
+  const ritmoModulo = calcularRitmoModuloSequencial({
+    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosModuloConcluidos,
+    dataInicio,
+    fasesEscopo: trilha.fases,
+  })
 
   return (
     <div>
@@ -1879,7 +2022,7 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
           </div>
           <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{xpMeta} XP</div>
         </div>
-        <BarraProgresso pct={pct} altura={8} />
+        <BarraProgressoComRitmo pctReal={ritmoModulo.pctRealMinutos} ritmo={ritmoModulo} altura={8} />
       </div>
 
       {/* Caminho (+ sidebar opcional) */}
@@ -1900,7 +2043,16 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
             </div>
           ))}
         </div>
-        {exibirSidebar && <JornadaSidebar xp={xp} gp={gp} feitas={feitas} total={etapas.length} xpMeta={xpMeta} />}
+        {exibirSidebar && (
+          <JornadaSidebar
+            xp={xp}
+            gp={gp}
+            feitas={feitas}
+            total={etapas.length}
+            xpMeta={xpMeta}
+            ritmo={ritmoModulo}
+          />
+        )}
       </div>
     </div>
   )
@@ -1927,6 +2079,19 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   }
   const xpMeta = obterXpMaxProduto(mapaXp)
   const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
+  const todasFasesProduto = trilhas.flatMap(tr => tr.fases)
+  const minutosProdutoConcluidos = minutosConcluidosModulo(todasFasesProduto, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+  )
+  const ritmoProduto = calcularRitmoModuloSequencial({
+    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosProdutoConcluidos,
+    dataInicio,
+  })
 
   const irParaCapitulo = useCallback((idx: number) => {
     onSelecionarCapitulo(idx)
@@ -1974,7 +2139,14 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
             )
           })}
         </div>
-        <JornadaSidebar xp={xpTotal} gp={xpTotal * 2} feitas={feitasTotal} total={aulasTotal} xpMeta={xpMeta} />
+        <JornadaSidebar
+          xp={xpTotal}
+          gp={xpTotal * 2}
+          feitas={feitasTotal}
+          total={aulasTotal}
+          xpMeta={xpMeta}
+          ritmo={ritmoProduto}
+        />
       </div>
     </div>
   )
@@ -2482,6 +2654,7 @@ export function UniversityGravity() {
           {secao === 'academy' && exibirDashboardGeral && (
             <PainelDashboardOnboarding
               aulasConcluidas={aulasConcluidas}
+              nomeUsuario={userName}
               onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
             />
           )}

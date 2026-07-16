@@ -1148,13 +1148,6 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
         />
 
         <div className="uni-player-aula__nav-sumario">
-          {!(titulosSumario.length === 1
-            && titulosSumario[0]!.texto.trim().toLocaleLowerCase('pt-BR') === aula.titulo.trim().toLocaleLowerCase('pt-BR')) && (
-            <div className="uni-player-aula__nav-cabecalho-aula">
-              {aula.titulo}
-            </div>
-          )}
-
           {titulosSumario.length > 0 ? (
             titulosSumario.map((titulo, idx) => {
               const ativo = idSecaoAtiva === titulo.id || titulosSumario.length === 1

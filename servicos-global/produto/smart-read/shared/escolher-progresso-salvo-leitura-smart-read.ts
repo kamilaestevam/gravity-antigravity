@@ -4,10 +4,8 @@
  */
 
 import type { AnaliseRiscosCacheProgressoLeitura } from './analise-riscos-cache-progresso-smart-read.js'
-import {
-  mesclarLeiturasRetomarSmartRead,
-  type LeituraRetomarSmartRead,
-} from './escolher-leitura-efetiva-retomar-smart-read.js'
+import { type LeituraRetomarSmartRead } from './escolher-leitura-efetiva-retomar-smart-read.js'
+import { escolherLeituraRetomarComConferenciaSmartRead } from './escolher-leitura-retomar-com-conferencia-smart-read.js'
 
 export type ProgressoSalvoLeituraSmartRead = {
   passo: number
@@ -18,7 +16,7 @@ export type ProgressoSalvoLeituraSmartRead = {
 
 function mesclarProgressoSalvo<T extends ProgressoSalvoLeituraSmartRead>(a: T, b: T): T {
   const passo = Math.max(a.passo, b.passo)
-  const leitura = mesclarLeiturasRetomarSmartRead(
+  const leitura = escolherLeituraRetomarComConferenciaSmartRead(
     a.leitura as LeituraRetomarSmartRead & T['leitura'],
     b.leitura as LeituraRetomarSmartRead & T['leitura'],
   ) as T['leitura']

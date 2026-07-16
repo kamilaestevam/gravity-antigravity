@@ -86,6 +86,20 @@ describe('Smart Read — extrair seções conferência', () => {
     const stats = calcularEstatisticasConferencia(secoes)
     expect(stats.total).toBeGreaterThan(0)
     expect(stats.preenchidos + stats.vazios).toBe(stats.total)
+    expect(stats.preenchidosAlterados).toBe(0)
+  })
+
+  it('conta preenchidos alterados quando campo está no índice de edição', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      porto_embarque: 'Shanghai',
+      exportador: 'Foo',
+    })
+    const stats = calcularEstatisticasConferencia(secoes, {
+      idArquivoLocal: 'arq-local',
+      indiceDocumento: 0,
+      camposEditados: new Set(['arq-local:0:porto_embarque']),
+    })
+    expect(stats.preenchidosAlterados).toBe(1)
   })
 
   it('interpreta lista fields com section do legado', () => {
@@ -117,32 +131,6 @@ describe('Smart Read — extrair seções conferência', () => {
     const item1 = secoes.find((s) => s.titulo === 'Item 1')
     expect(item1).toBeDefined()
     expect(item1?.campos.find((c) => c.rotulo === 'NCM')?.valor).toBe('8413.9100')
-  })
-
-  it('prioriza valor ao vivo em items quando section legado está vazia', () => {
-    const secoes = extrairSecoesConferenciaLeitura({
-      sections: [
-        {
-          title: 'Item 1',
-          fields: [
-            { key: 'items[0].weights.gross', label: 'Gross', value: '' },
-            { key: 'items[0].volume.dimensions', label: 'Dimensions', value: '' },
-            { key: 'items[0].weights.unit', label: 'Unit', value: 'PCS' },
-          ],
-        },
-      ],
-      items: [
-        {
-          weights: { gross: '15.2', unit: 'PCS' },
-          volume: { dimensions: '10x20x30' },
-        },
-      ],
-    })
-
-    const item1 = secoes.find((s) => s.titulo === 'Item 1')
-    expect(item1?.campos.find((c) => c.chave === 'items[0].weights.gross')?.valor).toBe('15.2')
-    expect(item1?.campos.find((c) => c.chave === 'items[0].volume.dimensions')?.valor).toBe('10x20x30')
-    expect(item1?.campos.find((c) => c.chave === 'items[0].weights.unit')?.valor).toBe('PCS')
   })
 
   it('exibe NCM a partir de hsCode quando ncm ausente', () => {

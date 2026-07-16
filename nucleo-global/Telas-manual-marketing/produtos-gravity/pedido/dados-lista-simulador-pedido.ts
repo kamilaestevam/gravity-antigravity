@@ -180,7 +180,172 @@ function linha(
   }
 }
 
-export const LISTA_PEDIDO_POR_EMPRESA_SIMULADOR: Record<string, LinhaListaPedidoSimulador[]> = {
+function contextoDeLinhaLista(linha: LinhaListaPedidoSimulador): ContextoLinhaLista {
+  return {
+    id: linha.id,
+    numeroPedido: linha.numeroPedido,
+    tipoOperacao: linha.tipoOperacao,
+    status: linha.status,
+    workspace: linha.workspace,
+    exportador: linha.exportador,
+    vincularExportador: linha.vincularExportador,
+    incoterm: linha.incoterm,
+    alertaIncoterm: linha.alertaIncoterm,
+    portoOrigem: linha.portoOrigem,
+    valorFob: linha.valorFob,
+    moeda: linha.moeda,
+    dataAbertura: linha.dataAbertura,
+    qtdItens: linha.itens,
+  }
+}
+
+/** Materializa itens sob demanda (pedidos gerados em volume não carregam 7k+ itens na montagem). */
+export function materializarItensLinhaListaSimulador(linha: LinhaListaPedidoSimulador): LinhaListaPedidoSimulador {
+  if (linha.detalhesItens.length > 0 || linha.itens <= 0) return linha
+  const ctx = contextoDeLinhaLista(linha)
+  const numerosCons = linha.numeroPedido.startsWith('PO-CONS')
+    ? Array.from({ length: linha.itens }, () => '1080936')
+    : undefined
+  const detalhesItens = gerarItensLista(
+    linha.id,
+    linha.itens,
+    linha.tipoOperacao,
+    linha.status,
+    linha.alertaIncoterm || linha.numeroPedido.startsWith('PO-CONS'),
+    numerosCons,
+    ctx,
+  )
+  return { ...linha, detalhesItens }
+}
+
+const PEDIDOS_ALVO_POR_EMPRESA = 100
+const ITENS_MINIMOS_POR_PEDIDO_GERADO = 14
+const ITENS_MAXIMOS_POR_PEDIDO_GERADO = 16
+
+const STATUS_ROTACAO: StatusListaPedidoSimulador[] = [
+  'RASCUNHO',
+  'ABERTO',
+  'EM ANDAMENTO',
+  'TRANSFERIDO',
+  'CONSOLIDADO',
+]
+
+const INCOTERMS_ROTACAO = ['FOB', 'CIF', 'EXW', 'CFR', 'DAP', 'DDP', 'FCA', 'FAS'] as const
+const MOEDAS_ROTACAO = ['USD', 'EUR', 'GBP', 'BRL'] as const
+
+const NOMES_EXPORTADOR = [
+  'Asia Pacific Ltd',
+  'Shenzhen Components',
+  'EuroParts GmbH',
+  'London Metals',
+  'Midwest Foods US',
+  'Hamburg Logistics',
+  'Paris Luxury SA',
+  'Café Santos Export',
+  'Nordic Steel AB',
+  'Taiwan Semicon',
+] as const
+
+const PORTOS_IMPORTACAO = ['SHENZHEN', 'HAMBURG', 'ROTTERDAM', 'LONDON', 'YOKOHAMA', 'BUSAN', 'LE HAVRE'] as const
+const PORTOS_EXPORTACAO = ['SANTOS', 'PARANAGUÁ', 'ITAJAÍ', 'RIO GRANDE'] as const
+
+const PERFIL_TIPO_POR_EMPRESA: Record<string, LinhaListaPedidoSimulador['tipoOperacao']> = {
+  'filial-sc-importador': 'IMPORTAÇÃO',
+  'matriz-sp-importador': 'IMPORTAÇÃO',
+  'filial-pr-exportador': 'EXPORTAÇÃO',
+  'importador-ltda': 'IMPORTAÇÃO',
+  'exportador-ltda': 'EXPORTAÇÃO',
+}
+
+function escolher<T>(lista: readonly T[], indice: number): T {
+  return lista[indice % lista.length]!
+}
+
+function tipoOperacaoGerada(idEmpresa: string, indice: number): LinhaListaPedidoSimulador['tipoOperacao'] {
+  const perfil = PERFIL_TIPO_POR_EMPRESA[idEmpresa] ?? 'IMPORTAÇÃO'
+  return indice % 5 === 0 ? (perfil === 'IMPORTAÇÃO' ? 'EXPORTAÇÃO' : 'IMPORTAÇÃO') : perfil
+}
+
+function formatarDataPedidoGerado(indice: number): string {
+  const dia = String(Math.max(1, 28 - (indice % 27))).padStart(2, '0')
+  const mes = String(Math.max(1, 7 - Math.floor(indice / 40) % 6)).padStart(2, '0')
+  return `${dia}/${mes}/2026`
+}
+
+function numeroPedidoGerado(
+  idEmpresa: string,
+  tipo: LinhaListaPedidoSimulador['tipoOperacao'],
+  indice: number,
+): string {
+  const base = 12000 - indice
+  if (tipo === 'EXPORTAÇÃO') {
+    if (idEmpresa === 'filial-pr-exportador') return `PO-EX-${base}`
+    if (idEmpresa === 'exportador-ltda') return `PO-SX-${base}`
+    return `PO-EX-${base}`
+  }
+  return `PO-${base}`
+}
+
+function linhaGerada(idEmpresa: string, indice: number): LinhaListaPedidoSimulador {
+  const tipo = tipoOperacaoGerada(idEmpresa, indice)
+  const status = escolher(STATUS_ROTACAO, indice)
+  const vincular = indice % 11 === 0
+  const exportador = vincular ? 'Vincular Exportador' : escolher(NOMES_EXPORTADOR, indice)
+  const incoterm = escolher(INCOTERMS_ROTACAO, indice)
+  const alerta = indice % 13 === 0
+  const porto = tipo === 'IMPORTAÇÃO'
+    ? escolher(PORTOS_IMPORTACAO, indice)
+    : escolher(PORTOS_EXPORTACAO, indice)
+  const moeda = escolher(MOEDAS_ROTACAO, indice)
+  const valor = vincular ? 0 : 8000 + (hashSimples(`${idEmpresa}-${indice}`) * 97) % 240000
+  const itens = ITENS_MINIMOS_POR_PEDIDO_GERADO + (indice % (ITENS_MAXIMOS_POR_PEDIDO_GERADO - ITENS_MINIMOS_POR_PEDIDO_GERADO + 1))
+  const id = `gen-${idEmpresa}-${indice}`
+  const numero = numeroPedidoGerado(idEmpresa, tipo, indice)
+  const workspace = WORKSPACE_POR_EMPRESA[idEmpresa] ?? idEmpresa
+  const ctx: ContextoLinhaLista = {
+    id,
+    numeroPedido: numero,
+    tipoOperacao: tipo,
+    status,
+    workspace,
+    exportador,
+    vincularExportador: vincular,
+    incoterm,
+    alertaIncoterm: alerta,
+    portoOrigem: vincular ? '—' : porto,
+    valorFob: valor,
+    moeda,
+    dataAbertura: formatarDataPedidoGerado(indice),
+    qtdItens: itens,
+  }
+  return {
+    id,
+    numeroPedido: numero,
+    tipoOperacao: tipo,
+    status,
+    idEmpresa,
+    workspace,
+    exportador,
+    vincularExportador: vincular,
+    incoterm,
+    alertaIncoterm: alerta,
+    portoOrigem: ctx.portoOrigem,
+    valorFob: valor,
+    moeda,
+    dataAbertura: ctx.dataAbertura,
+    itens,
+    detalhesItens: [],
+    campos: popularCamposPedidoListaSimulador(ctx),
+  }
+}
+
+function completarPedidosEmpresa(idEmpresa: string, sementes: LinhaListaPedidoSimulador[]): LinhaListaPedidoSimulador[] {
+  const faltam = Math.max(0, PEDIDOS_ALVO_POR_EMPRESA - sementes.length)
+  const gerados = Array.from({ length: faltam }, (_, i) => linhaGerada(idEmpresa, sementes.length + i + 1))
+  return [...sementes, ...gerados]
+}
+
+const LISTA_PEDIDO_SEEDS_POR_EMPRESA: Record<string, LinhaListaPedidoSimulador[]> = {
   'filial-sc-importador': [
     linha('sc-1', 'filial-sc-importador', 'PO-9821', 'IMPORTAÇÃO', 'RASCUNHO', 'Asia Pacific Ltd', false, 'CIF', false, 'SHENZHEN', 45600, 'USD', '06/07/2026', 4),
     linha('sc-2', 'filial-sc-importador', 'PO-9818', 'IMPORTAÇÃO', 'ABERTO', 'Shenzhen Components', false, 'FOB', false, 'SHENZHEN', 28400, 'USD', '05/07/2026', 3),
@@ -225,6 +390,14 @@ export const LISTA_PEDIDO_POR_EMPRESA_SIMULADOR: Record<string, LinhaListaPedido
     linha('ex-5', 'exportador-ltda', 'PO-SX-178', 'EXPORTAÇÃO', 'EM ANDAMENTO', 'Felixstowe Importers', false, 'CFR', false, 'SANTOS', 43200, 'GBP', '29/06/2026', 3),
   ],
 }
+
+export const LISTA_PEDIDO_POR_EMPRESA_SIMULADOR: Record<string, LinhaListaPedidoSimulador[]> =
+  Object.fromEntries(
+    Object.entries(LISTA_PEDIDO_SEEDS_POR_EMPRESA).map(([idEmpresa, sementes]) => [
+      idEmpresa,
+      completarPedidosEmpresa(idEmpresa, sementes),
+    ]),
+  )
 
 export function listarPedidosEmpresasSimulador(empresas: PerfilEmpresaSimulador[]): LinhaListaPedidoSimulador[] {
   const ids = empresas.map((e) => e.id)

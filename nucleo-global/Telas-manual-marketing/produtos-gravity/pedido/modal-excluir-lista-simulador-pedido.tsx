@@ -59,6 +59,9 @@ export function ModalExcluirListaSimuladorPedido({ aberto, selecao, onFechar, on
       descricao={descricao}
       aoConfirmar={onConfirmar}
       aoCancelar={onFechar}
+      dataTutorialAlvoResumo="pedido-excluir-resumo"
+      dataTutorialAlvoAviso="pedido-excluir-aviso"
+      dataTutorialAlvoConfirmar="pedido-excluir-confirmar"
     />
   )
 }

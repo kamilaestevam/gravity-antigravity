@@ -30,6 +30,64 @@
     "academy": {
       "subtitulo": "Guia Gravity — trilhas visuais por produto para Login, Configurador, Hub e os módulos da sua organização."
     },
+    "quickly_tour": {
+      "nome": "Quickly Tour",
+      "etiqueta": "Guia da Minha jornada",
+      "aria_painel": "Quickly Tour — orientação da tela Minha jornada",
+      "abrir_aria": "Abrir Quickly Tour",
+      "fechar_aria": "Fechar Quickly Tour",
+      "fechar": "Fechar tour",
+      "nao_mostrar_novamente": "Não mostrar novamente",
+      "explorar_aqui": "Explore aqui",
+      "siga_em_frente": "Siga em frente",
+      "entendi_explorar": "Entendi — explorar sozinho",
+      "etapa": "Etapa {{atual}} de {{total}}",
+      "telas": {
+        "panorama": {
+          "titulo": "Panorama da jornada",
+          "resumo": "Visão geral do que você já fez, do que falta e por onde retomar.",
+          "explorar": {
+            "hero": { "titulo": "1. Cartão Continue de onde parou", "descricao": "Módulo em andamento, etapa atual e anel com etapas concluídas" },
+            "continuar": { "titulo": "2. Botão Continuar jornada", "descricao": "Abre direto a trilha do módulo que você estava fazendo" },
+            "kpis": { "titulo": "3. Resumo em números", "descricao": "Pontos, concluídas, em andamento e certificados — leitura rápida do progresso" },
+            "certificados": { "titulo": "4. Meus certificados", "descricao": "Módulo básico e produtos (Pedido, Smart Docs, BID Frete) — conclua 100% para desbloquear" },
+            "progresso": { "titulo": "5. Progresso nos produtos contratados", "descricao": "Barra contínua e tags filtráveis — clique nas tags para focar produtos no gráfico" },
+            "faltam": { "titulo": "6. O que falta", "descricao": "Módulos pendentes com atalho Iniciar ou Continuar" }
+          },
+          "avancar": { "acao": "Próxima área", "titulo": "Nível e recompensas", "descricao": "Passe o mouse aqui e veja a coluna direita — XP, ritmo, ofensiva, badges e ranking" }
+        },
+        "gamificacao": {
+          "titulo": "Gamificação",
+          "resumo": "Nível, ritmo de estudo, recompensas e comparação com colegas.",
+          "explorar": {
+            "nivel": { "titulo": "1. Nível, ritmo e ofensiva", "descricao": "Barra de XP, meta do nível, ritmo da jornada e dias seguidos de atividade" },
+            "recompensas": { "titulo": "2. Recompensas", "descricao": "Badges e Gravity Points desbloqueados ao concluir etapas" },
+            "ranking": { "titulo": "3. Ranking geral", "descricao": "Sua posição e XP comparado aos colegas da organização" }
+          },
+          "avancar": { "acao": "Menu lateral", "titulo": "Minha jornada no menu", "descricao": "Clique em Siga em frente para ver como navegar pelos guias no menu" }
+        },
+        "menu_basico": {
+          "titulo": "Menu — fundação",
+          "resumo": "Onde ficam Minha jornada e o Módulo básico que todo usuário faz uma vez.",
+          "explorar": {
+            "jornada": { "titulo": "1. Minha jornada", "descricao": "Sempre volta a este painel central de progresso e métricas" },
+            "modulo": { "titulo": "2. Módulo básico", "descricao": "Bem-vindo, Login, Navegação, Configurador, Gabi, Hub e Store — guias fundacionais" },
+            "status": { "titulo": "3. Legenda de status", "descricao": "Contratado, concluído e em aberto — ícones à direita de cada item do menu" }
+          },
+          "avancar": { "acao": "Produtos", "titulo": "Trilhas por produto", "descricao": "Avance para conhecer Pedido, Smart Docs e BID Frete no menu" }
+        },
+        "produtos": {
+          "titulo": "Menu — produtos",
+          "resumo": "Cada produto contratado tem sua própria trilha de onboarding.",
+          "explorar": {
+            "pedido": { "titulo": "1. Pedido", "descricao": "Lista, kanban, configurações e fluxos operacionais do módulo" },
+            "smart_read": { "titulo": "2. Smart Docs", "descricao": "Leitura de documentos, lista e configurações do produto" },
+            "bid_frete": { "titulo": "3. BID Frete Internacional", "descricao": "Cotações, fornecedores e operação de frete internacional" }
+          },
+          "avancar": { "acao": "Concluir", "titulo": "Pronto para explorar", "descricao": "Feche o tour e comece pelo módulo que preferir — ou reabra pelo botão Quickly Tour" }
+        }
+      }
+    },
     "badge": {
       "em_breve": "Em Breve",
       "restrito": "Restrito",

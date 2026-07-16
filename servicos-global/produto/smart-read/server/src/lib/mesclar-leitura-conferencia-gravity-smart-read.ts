@@ -61,6 +61,10 @@ export function mesclarLeituraComConferenciaGravity(
       id_leitura: base.id_leitura || conferencia.id_leitura,
       nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
       status_leitura: conferencia.status_leitura ?? base.status_leitura,
+      tempo_processo_total_ms:
+        conferencia.tempo_processo_total_ms != null && conferencia.tempo_processo_total_ms > 0
+          ? conferencia.tempo_processo_total_ms
+          : base.tempo_processo_total_ms ?? null,
       total_arquivos: Math.max(base.total_arquivos, conferencia.total_arquivos, conferencia.arquivos.length),
       arquivos_processados: Math.max(
         base.arquivos_processados,
@@ -76,6 +80,10 @@ export function mesclarLeituraComConferenciaGravity(
     ...base,
     nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
     status_leitura: conferencia.status_leitura ?? base.status_leitura,
+    tempo_processo_total_ms:
+      conferencia.tempo_processo_total_ms != null && conferencia.tempo_processo_total_ms > 0
+        ? conferencia.tempo_processo_total_ms
+        : base.tempo_processo_total_ms ?? null,
     arquivos: base.arquivos.map((arquivoBase) => {
       const arquivoConferencia = arquivosConferencia.get(arquivoBase.id_arquivo)
       if (!arquivoConferencia?.resultado_extracao?.length) {

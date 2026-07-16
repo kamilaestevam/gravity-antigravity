@@ -22,7 +22,33 @@ describe('Smart Read — comparar campos edição (fonte única acerto/erro)', (
     expect(resultado.corretos).toBe(3)
     expect(resultado.errados).toBe(1)
     expect(resultado.taxa_acerto).toBeCloseTo(0.75)
-    expect(resultado.campos.find((c) => c.caminho_campo === 'porto_embarque')?.editado).toBe(true)
+    expect(resultado.campos.find((c) => c.caminho_campo === 'porto_embarque')?.classificacao).toBe(
+      'correcao_real',
+    )
+  })
+
+  it('trata ITJ → Itajaí em porto como ajuste de forma, não erro da IA', () => {
+    const original = { shipment: { port_of_destination: 'ITJ' } }
+    const final = { shipment: { port_of_destination: 'Itajaí' } }
+
+    const resultado = compararCamposEdicaoLeitura(original, final)
+
+    expect(resultado.errados).toBe(0)
+    expect(resultado.ajustes_forma).toBe(1)
+    expect(resultado.corretos).toBe(1)
+    expect(resultado.campos[0]?.classificacao).toBe('ajuste_forma')
+    expect(resultado.campos[0]?.editado).toBe(true)
+  })
+
+  it('ignora diferença só de acento e caixa como erro', () => {
+    const original = { exporter: { name: 'São Paulo' } }
+    const final = { exporter: { name: 'sao paulo' } }
+
+    const resultado = compararCamposEdicaoLeitura(original, final)
+
+    expect(resultado.errados).toBe(0)
+    expect(resultado.ajustes_forma).toBe(0)
+    expect(resultado.corretos).toBe(1)
   })
 
   it('ignora metadados como accuracy e score', () => {

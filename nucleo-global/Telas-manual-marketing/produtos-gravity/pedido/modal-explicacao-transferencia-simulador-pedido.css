@@ -1,0 +1,206 @@
+.pds-transf-explicacao-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.pds-transf-explicacao-modal {
+  width: min(520px, 100%);
+  max-height: min(88vh, 720px);
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(8, 12, 24, 0.98) 100%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.pds-transf-explicacao-modal__header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.pds-transf-explicacao-modal__icone-cabecalho {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  color: #a5b4fc;
+  flex-shrink: 0;
+}
+
+.pds-transf-explicacao-modal__meta {
+  margin: 0 0 4px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+
+.pds-transf-explicacao-modal__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.25;
+}
+
+.pds-transf-explicacao-modal__subtitulo {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.pds-transf-explicacao-modal__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pds-transf-explicacao-card {
+  border: 1px solid;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.pds-transf-explicacao-card--aberto {
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.pds-transf-explicacao-card__cabecalho {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.pds-transf-explicacao-card__icone {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.pds-transf-explicacao-card__textos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pds-transf-explicacao-card__meta {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pds-transf-explicacao-card__numero {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pds-transf-explicacao-card__corpo {
+  padding: 12px 12px 14px;
+  border-top: 1px solid;
+  background: linear-gradient(180deg, rgba(8, 12, 24, 0.22) 0%, rgba(8, 12, 24, 0.08) 100%);
+}
+
+.pds-transf-explicacao-secao-titulo {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.pds-transf-explicacao-paragrafo {
+  margin: 0 0 14px;
+  font-size: 0.74rem;
+  line-height: 1.58;
+  color: rgba(241, 245, 249, 0.88);
+}
+
+.pds-transf-explicacao-paragrafo strong {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.pds-transf-explicacao-paragrafo--sem-margem {
+  margin-bottom: 0;
+}
+
+.pds-transf-explicacao-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pds-transf-explicacao-lista li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: rgba(203, 213, 225, 0.92);
+}
+
+.pds-transf-explicacao-lista li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.pds-transf-explicacao-modal__dica {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  background: rgba(99, 102, 241, 0.08);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #c7d2fe;
+}
+
+.pds-transf-explicacao-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(51, 65, 85, 0.45);
+}

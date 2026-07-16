@@ -53,6 +53,10 @@ export function KanbanColuna({
     testIdPrefix,
     colunaFooterSlot,
     labels,
+    dataTutorialAlvoSortColunaKey,
+    dataTutorialAlvoSort,
+    onSortPopoverOpenChange,
+    dataTutorialAlvoSortOpcoes,
   } = useKanban()
 
   // isReadOnly desta coluna = global OU específico desta coluna
@@ -78,6 +82,11 @@ export function KanbanColuna({
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
   }, [showSort])
+
+  useEffect(() => {
+    if (!onSortPopoverOpenChange || coluna.key !== dataTutorialAlvoSortColunaKey) return
+    onSortPopoverOpenChange(coluna.key, showSort)
+  }, [showSort, onSortPopoverOpenChange, coluna.key, dataTutorialAlvoSortColunaKey])
 
   const isDraggingAny = activeId !== null
 
@@ -109,6 +118,7 @@ export function KanbanColuna({
       data-column-key={coluna.key}
       role="region"
       aria-label={coluna.label}
+      {...(coluna.dataTutorialAlvo ? { 'data-sds-tutorial-alvo': coluna.dataTutorialAlvo } : {})}
     >
       {/* ── Cabeçalho — gradiente + borda colorida por coluna ────────────── */}
       <div
@@ -147,6 +157,9 @@ export function KanbanColuna({
               title={`${labels.sortButtonTitle} ${coluna.label}`}
               onClick={() => setShowSort(p => !p)}
               aria-label={`${labels.sortButtonTitle} ${coluna.label}`}
+              {...(coluna.key === dataTutorialAlvoSortColunaKey && dataTutorialAlvoSort
+                ? { 'data-sds-tutorial-alvo': dataTutorialAlvoSort }
+                : {})}
             >
               <SortDescending size={16} />
             </button>
@@ -166,7 +179,13 @@ export function KanbanColuna({
 
           {/* Popover de ordenação */}
           {showSort && (
-            <div className="kg-sort-popover" role="menu">
+            <div
+              className="kg-sort-popover"
+              role="menu"
+              {...(coluna.key === dataTutorialAlvoSortColunaKey && dataTutorialAlvoSortOpcoes
+                ? { 'data-sds-tutorial-alvo': dataTutorialAlvoSortOpcoes }
+                : {})}
+            >
               <div className="kg-sort-popover-header">
                 <span className="kg-sort-popover-title">{labels.sortPopoverTitle}</span>
                 <button

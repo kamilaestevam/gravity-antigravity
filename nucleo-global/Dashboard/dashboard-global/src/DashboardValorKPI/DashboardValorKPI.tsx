@@ -42,7 +42,7 @@ export function DashboardValorKPI({
 
   return (
     <div style={styles.wrap}>
-      <span style={styles.value}>{formatValueByUnit(value, fieldType)}</span>
+      <span className="db-kpi-value" style={styles.value}>{formatValueByUnit(value, fieldType)}</span>
 
       {hasDelta && (
         <div style={styles.deltaWrap}>

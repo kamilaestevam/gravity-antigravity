@@ -136,6 +136,7 @@ import { DOC_API_COCKPIT_SUBTITULO } from './university/manual-api-cockpit-conte
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import { ManualPainelRequisitosCadastro } from './university/manual-login-painel-requisitos'
 import './configurador/workspace.css'
+import { QuicklyTourMinhaJornada } from './university/quickly-tour-minha-jornada'
 
 const UNI_COR = '#818cf8'
 
@@ -1530,7 +1531,7 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
   const badgeObtida = feitas >= 1
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div className="uni-dashboard-nivel-card">
+      <div className="uni-dashboard-nivel-card" data-uni-quickly-tour-alvo="qt-jornada-nivel">
         <div className="uni-dashboard-nivel-cabecalho">
           <div className="uni-dashboard-nivel-cabecalho__rotulo">{t('university.dashboard.nivel_ofensiva')}</div>
           <DashboardInfoNiveisGuiaGravity xpTotal={xpTotal} xpParaSubir={xpParaSubir} />
@@ -1569,6 +1570,7 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
         </div>
       </div>
 
+      <div data-uni-quickly-tour-alvo="qt-jornada-recompensas">
       <JornadaCardBox titulo={t('university.jornada.recompensas')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
@@ -1596,10 +1598,13 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
           </div>
         </div>
       </JornadaCardBox>
+      </div>
 
+      <div data-uni-quickly-tour-alvo="qt-jornada-ranking">
       <JornadaCardBox titulo={t('university.jornada.ranking_geral')}>
         <RankingGeralDashboard xpUsuario={xpTotal} />
       </JornadaCardBox>
+      </div>
     </div>
   )
 }
@@ -1733,7 +1738,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.62fr) minmax(220px, 1fr)', gap: 20, alignItems: 'start' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {/* Hero — continue de onde parou */}
-        <div style={{
+        <div data-uni-quickly-tour-alvo="qt-jornada-hero" style={{
           background: 'linear-gradient(135deg, rgba(129,140,248,.14), rgba(30,41,59,.8))',
           border: '1px solid rgba(129,140,248,.28)', borderRadius: 18, padding: 22,
         }}>
@@ -1773,6 +1778,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 18, flexWrap: 'wrap' }}>
             <button
               type="button"
+              data-uni-quickly-tour-alvo="qt-jornada-hero-botao"
               onClick={() => onAbrirModulo(moduloAtual.slug)}
               style={{
                 border: 'none', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -1787,7 +1793,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
         </div>
 
         {/* KPIs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div data-uni-quickly-tour-alvo="qt-jornada-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           {kpis.map(kpi => (
             <div key={kpi.k} style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 13, padding: '13px 14px' }}>
               <div style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>{t(kpi.k)}</div>
@@ -1797,7 +1803,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
         </div>
 
         {/* Certificados */}
-        <div className="uni-dashboard-certificados-card">
+        <div data-uni-quickly-tour-alvo="qt-jornada-certificados" className="uni-dashboard-certificados-card">
           <div className="uni-dashboard-certificados-card__cabecalho">
             <span className="uni-dashboard-certificados-card__titulo">{t('university.certificado.secao_titulo')}</span>
             <span className="uni-dashboard-certificados-card__contagem">
@@ -1818,7 +1824,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
         </div>
 
         {/* Progresso geral — mesma barra contínua da visão por produto; tag abre evolução do produto */}
-        <div className="uni-dashboard-progresso-card">
+        <div data-uni-quickly-tour-alvo="qt-jornada-progresso" className="uni-dashboard-progresso-card">
           <div className="uni-dashboard-produtos-contratados">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1918,7 +1924,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
         </div>
 
         {/* O que falta */}
-        <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
+        <div data-uni-quickly-tour-alvo="qt-jornada-faltam" style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
           <div style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: 'var(--ws-muted,#94a3b8)',
             fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
@@ -2208,6 +2214,10 @@ export function UniversityGravity() {
   } = useShellStore()
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
   const isLight = currentTheme === 'light'
+  const [alvoTourMenu, setAlvoTourMenu] = useState<string | null>(null)
+  const handleAlvoTourChange = useCallback((idAlvo: string | null) => {
+    setAlvoTourMenu(idAlvo)
+  }, [])
 
   useMeSync()
 
@@ -2453,8 +2463,9 @@ export function UniversityGravity() {
       label: t('university.nav.academy'),
       icon: <Books weight="duotone" size={18} />,
       children: [
-        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} /> },
-        { label: t('university.nav.modulo_basico'), sectionSubtitle: t('university.nav.modulo_basico_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <GraduationCap weight="duotone" size={16} /> },
+        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-minha-jornada' },
+        { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy />, dataTutorialAlvo: 'qt-menu-legenda-status' },
+        { label: t('university.nav.modulo_basico'), sectionSubtitle: t('university.nav.modulo_basico_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <GraduationCap weight="duotone" size={16} />, dataTutorialAlvo: 'qt-menu-modulo-basico' },
         { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
         { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: statusNavAcademy('login') },
         { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: statusNavAcademy('navegacao') },
@@ -2464,9 +2475,9 @@ export function UniversityGravity() {
         { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: statusNavAcademy('hub') },
         { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: statusNavAcademy('store') },
         { label: t('university.nav.modulo_por_produto_gravity'), sectionSubtitle: t('university.nav.modulo_por_produto_gravity_subtitulo'), sectionDivider: true, sectionDividerTitulo: 'texto', icon: <PuzzlePiece weight="duotone" size={16} /> },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read') },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete') },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido'),       dataTutorialAlvo: 'qt-menu-pedido' },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read'),   dataTutorialAlvo: 'qt-menu-smart-read' },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete'),    dataTutorialAlvo: 'qt-menu-bid-frete' },
         { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: statusNavAcademy('bid-cambio'),   ...badgeEmBreve },
         { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: statusNavAcademy('processo'),     ...badgeEmBreve },
       ],
@@ -2504,6 +2515,7 @@ export function UniversityGravity() {
         moduleColor={UNI_COR}
         defaultCollapsed={false}
         defaultExpandAllSubmenus
+        alvoTourAtivo={alvoTourMenu}
         workspaces={isGravityAdmin ? orgWorkspaceItems : undefined}
         onSwitchWorkspace={isGravityAdmin ? handleTrocarOrganizacao : undefined}
         dropdownSearchPlaceholder={isGravityAdmin ? t('university.busca.organizacao') : undefined}
@@ -2747,6 +2759,11 @@ export function UniversityGravity() {
               onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
             />
           )}
+
+          <QuicklyTourMinhaJornada
+            habilitado={secao === 'academy' && exibirDashboardGeral}
+            onAlvoTourChange={handleAlvoTourChange}
+          />
 
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (

@@ -1,0 +1,410 @@
+/**
+ * Tipografia dos simuladores no site Gravity (demo marketing).
+ * SSOT: Plus Jakarta Sans · títulos 13px · corpo 12px · line-height 1.45
+ */
+.interactive-simulator-shell {
+  --sim-font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --sim-font-size: 12px;
+  --sim-font-size-titulo: 13px;
+  --sim-line-height: 1.45;
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.interactive-simulator-shell :is(.sds-root, .pds-root) {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+}
+
+/* Corpo: 12px — neutraliza rem herdados dos CSS legados do simulador */
+.interactive-simulator-shell :is(.sds-root, .pds-root) :where(*) {
+  font-family: inherit;
+  line-height: inherit;
+  font-size: var(--sim-font-size) !important;
+}
+
+/* Títulos: 13px */
+.interactive-simulator-shell :is(.sds-root, .pds-root) :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .sds-mtg-page-title,
+  .sds-page-title,
+  .sds-page-title__text,
+  .mlg-logo-name,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo,
+  [class*='__titulo']:not([class*='subtitulo']):not([class*='__subtitulo'])
+) {
+  font-size: var(--sim-font-size-titulo) !important;
+}
+
+.interactive-simulator-shell :is(.sds-root, .pds-root) svg text {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size) !important;
+}
+
+/* BID Frete e demais simuladores sem .sds-root */
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) {
+  font-family: var(--sim-font-family);
+  font-size: var(--sim-font-size);
+  line-height: var(--sim-line-height);
+}
+
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) :where(*) {
+  font-family: inherit;
+  line-height: inherit;
+  font-size: var(--sim-font-size) !important;
+}
+
+.interactive-simulator-shell > :not(.sds-root):not(.pds-root) :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6
+) {
+  font-size: var(--sim-font-size-titulo) !important;
+}
+
+/* Lista Pedido — faixa PAINÉIS / STATUS (paridade Pedidos.css · abaixo do corpo 12px) */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-paineis-strip :where(*:not(.pds-lista-paineis-label)),
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-status-bar :where(*:not(.pds-lista-status-label)) {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-paineis-label,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-status-label {
+  font-size: 8px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+}
+
+/* Lista Pedido — células 10,5px (microtexto de tabela) */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela td,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela .pds-lista-celula,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela .pds-lista-celula-conteudo,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-numero,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-exportador,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-vincular,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-workspace,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-vazio,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-footer {
+  font-size: 10.5px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-th-col-label {
+  font-size: 9px !important;
+}
+
+/* Nº Pedido / Nº Item — +0,5px */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'],
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-numero,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-item-id,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-badge-novo-pedido,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='numero_pedido'] .pds-lista-badge-item-transferido {
+  font-size: 11px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='numero_pedido'] .pds-lista-th-col-label {
+  font-size: 9.5px !important;
+}
+
+/* Tipo de Operação + Status — pills +0,5px */
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='tipo_operacao'] span[style*='border-radius'],
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela [data-pds-coluna-id='status'] span[style*='border-radius'] {
+  font-size: calc(0.5625rem - 1px) !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='tipo_operacao'] .pds-lista-th-col-label,
+.interactive-simulator-shell .pds-root .pds-lista .pds-lista-tabela th[data-pds-coluna-id='status'] .pds-lista-th-col-label {
+  font-size: 9.5px !important;
+}
+
+/* Lista Pedido — título da página (padrão solo: todas as abas) */
+.interactive-simulator-shell .pds-root .pds-mtg-page-title--solo {
+  font-size: calc(var(--sim-font-size-titulo) + 2.5px) !important;
+  transform: translateY(1px);
+}
+
+/* Insights Pedido — títulos −2px */
+.interactive-simulator-shell .pds-root .pds-insights .cg-card__label {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-insights-kpis .cg-card__value {
+  font-size: 26px !important;
+}
+
+/* Dashboard Pedido — valores dos cards KPI (neutraliza regra global 12px) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .db-kpi-value {
+  font-size: 32px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.03em !important;
+  font-weight: 700 !important;
+}
+
+/* Dashboard Pedido — KPIs do topo (Rascunho / Aberto / Em andamento / Consolidado) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_total_pedidos'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_pedidos_abertos'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_saldo_total'] .db-kpi-value,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  [data-widget-id='kpi_valor_total'] .db-kpi-value {
+  font-size: 40px !important;
+}
+
+/* Dashboard Pedido — KPIs do topo: cards compactos (metade da altura original) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) > div {
+  padding: 6px 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) > div > div:first-child {
+  padding-bottom: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_total_pedidos'],
+    [data-widget-id='kpi_pedidos_abertos'],
+    [data-widget-id='kpi_saldo_total'],
+    [data-widget-id='kpi_valor_total']
+  ) .db-kpi-value {
+  font-size: 34px !important;
+}
+
+/* Dashboard Pedido — faixa PAINÉIS (paridade PedidosListaPainelBar + Pedidos.css) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-paineis-lista-strip__label {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab--rotulo,
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab__nome {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab-add {
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-painel-tab-form input {
+  font-size: 10px !important;
+}
+
+/* Dashboard Pedido — toolbar (calendário, filtro, +, Widgets) */
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .pedido-dashboard-toolbar.gtv-toolbar {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-dashboard-simulador .pedido-dashboard-widgets-seletor__btn.gtv-btn {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-insights-kpis .cg-card__subtext {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-insights :is(
+  .pds-insights-card__titulo,
+  .pds-funil-painel__titulo,
+  .pds-alertas-painel__titulo,
+  .pds-grafico-barras-mes__titulo,
+  .pds-grafico-donut-operacao__titulo
+) {
+  font-size: 11px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-mapa-globo__expandir-btn {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Pedido — painel Refinar mapa (Insights) */
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__titulo {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__resumo,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contadores,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contadores-prefixo,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__contador-chip,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__toolbar-btn,
+.interactive-simulator-shell .pds-root .pds-map-refinar-panel__limpar,
+.interactive-simulator-shell .pds-root .pds-map-refinar-secao__title h3,
+.interactive-simulator-shell .pds-root .pds-map-refinar-operacao-card__label,
+.interactive-simulator-shell .pds-root .pds-map-refinar-lista__texto,
+.interactive-simulator-shell .pds-root .pds-map-refinar-status-item__label,
+.interactive-simulator-shell .pds-root .pds-map-refinar-secao__pill {
+  font-size: 9px !important;
+}
+
+/* Lista Pedido — toolbar compacta (Novo, Transferir) */
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-novo-wrap .gb-btn--pequeno,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-btn-transferir.gb-btn--pequeno {
+  font-size: 10px !important;
+}
+
+/* Lista Pedido — Filtro, Colunas e Exportar (fonte igual + altura menor) */
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip-label,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip-valor,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-btn,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-export-wrapper > .gtv-btn {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .pds-lista-filtros-consolidados .fc-chip,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-btn,
+.interactive-simulator-shell .pds-root .pds-lista-toolbar .gtv-export-wrapper > .gtv-btn {
+  height: 24px !important;
+  min-height: 24px !important;
+}
+
+/* Lista Pedido — campo Buscar (toolbar) */
+.interactive-simulator-shell .pds-root .pds-lista .gtv-busca-input.pds-lista-busca-input {
+  font-size: calc(0.6875rem - 0.5px) !important;
+  height: 1.5rem !important;
+  min-height: 1.5rem !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista .gtv-busca-input.pds-lista-busca-input::placeholder {
+  font-size: calc(0.6875rem - 0.5px) !important;
+}
+
+/* Pedido — abas Insights / Lista / Dashboard / Kanban */
+.interactive-simulator-shell .pds-root .srt-tab,
+.interactive-simulator-shell .pds-root .srt-tab span {
+  font-size: 10px !important;
+  line-height: 1.15 !important;
+}
+
+.interactive-simulator-shell .pds-root .srt-tab {
+  min-height: 20px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+.interactive-simulator-shell .pds-root .srt-tab svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .pds-lista-filtros-consolidados .fc-limpar-todos {
+  font-size: 9.5px !important;
+}
+
+/* Pedido — menu lateral compacto (MenuLateralGlobal) */
+.interactive-simulator-shell .pds-root .mlg-sidebar {
+  width: 188px !important;
+  min-width: 188px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-sidebar.collapsed {
+  width: 72px !important;
+  min-width: 72px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-logo-name {
+  font-size: 13px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-logo-gravity {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-tenant-name {
+  font-size: 12px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-tenant-plan {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-nav-item {
+  font-size: 12px !important;
+}
+
+/* Dropdown workspaces — densidade compacta */
+.interactive-simulator-shell .pds-root .mlg-ws-search__input {
+  font-size: 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-toolbar__btn {
+  font-size: 9px !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-name {
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-plan {
+  font-size: 9px !important;
+  line-height: 1.15 !important;
+}
+
+.interactive-simulator-shell .pds-root .mlg-ws-item-avatar {
+  font-size: 9px !important;
+}
+
+/* Pedido — modal Nova Coluna (portaled em document.body, fora do .pds-root) */
+.mg-dialog:has(.mnc-corpo) {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mg-dialog:has(.mnc-corpo) :is(
+  .mnc-corpo,
+  .mnc-input,
+  .mnc-input::placeholder,
+  .mnc-select,
+  .mnc-tipo-btn,
+  .mnc-tipo-btn__label,
+  .mnc-label-secao,
+  .mnc-hint,
+  .sg-campo,
+  .sg-valor-selecionado,
+  .sg-placeholder
+) {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+.mg-dialog:has(.mnc-corpo) .mnc-corpo .mnc-input,
+.mg-dialog:has(.mnc-corpo) .mnc-corpo .mnc-input::placeholder {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}

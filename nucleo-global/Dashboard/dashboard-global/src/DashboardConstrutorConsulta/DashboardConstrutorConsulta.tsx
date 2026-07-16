@@ -49,6 +49,8 @@ export interface QueryBuilderProps {
     chart_type: ChartType
     query_spec: WidgetQuerySpec
   }
+  /** data-sds-tutorial-alvo no botão Salvar do footer (demo Gabi) */
+  dataTutorialAlvoBotaoAvancar?: string
 }
 
 // ── Passos ────────────────────────────────────────────────────────────────────
@@ -169,7 +171,7 @@ function Step1Fields({ fields, selected, onToggle }: Step1Props) {
           </span>
 
           <CampoGeralGlobal>
-            <div className="dq-input-wrap dq-input-wrap--icone">
+            <div className="dq-input-wrap dq-input-wrap--icone" data-sds-tutorial-alvo="pedido-dashboard-construtor-busca">
               <MagnifyingGlass size={14} className="dq-input-wrap__icone" aria-hidden />
               <input
                 type="text"
@@ -286,6 +288,7 @@ function Step2Config({
             {t('nucleo.dashboard.construtor.secao_configuracao', { defaultValue: 'Configuração' })}
           </span>
           <div className="dq-form__stack">
+        <div data-sds-tutorial-alvo="pedido-dashboard-construtor-titulo">
         <CampoGeralGlobal
           label={t('nucleo.dashboard.construtor.titulo_widget')}
           htmlFor="qb-title"
@@ -302,7 +305,9 @@ function Step2Config({
             autoComplete="off"
           />
         </CampoGeralGlobal>
+        </div>
 
+        <div data-sds-tutorial-alvo="pedido-dashboard-construtor-operacao">
         {collapsed ? (
           <div className="dq-form__grupo">
             <span className="dq-form__label">{t('nucleo.dashboard.construtor.operacao_todos')}</span>
@@ -347,7 +352,9 @@ function Step2Config({
             </div>
           </div>
         )}
+        </div>
 
+        <div data-sds-tutorial-alvo="pedido-dashboard-construtor-periodo">
         <CampoGeralGlobal label={t('nucleo.dashboard.construtor.periodo')}>
           <PeriodoCampoFormulario
             value={period}
@@ -355,6 +362,7 @@ function Step2Config({
             onChange={onPeriod}
           />
         </CampoGeralGlobal>
+        </div>
           </div>
         </div>
       </div>
@@ -388,7 +396,7 @@ function Step3Visualization({ chartType, selectedFields, onSelect }: Step3Props)
 
       <div className="dq-construtor__corpo">
         <div className="dq-secao dq-secao--visualizar">
-          <div className="dq-chart__grid">
+          <div className="dq-chart__grid" data-sds-tutorial-alvo="pedido-dashboard-construtor-tipos-grafico">
         {CHART_OPTIONS.map(opt => {
           const { available, reason } = isChartTypeAvailable(opt, selectedFields, t)
           const isSelected = chartType === opt.type
@@ -438,6 +446,7 @@ export function DashboardConstrutorConsulta({
   periodOptions,
   periodoInicial = '30d',
   initialWidget,
+  dataTutorialAlvoBotaoAvancar,
 }: QueryBuilderProps) {
   const { t } = useTranslation()
   const PASSOS = useMemo(() => buildPassos(t), [t])
@@ -526,13 +535,16 @@ export function DashboardConstrutorConsulta({
       onFechar={onCancel}
       tamanho="md"
       altura="600px"
+      dataTutorialAlvoBotaoAvancar={dataTutorialAlvoBotaoAvancar}
     >
       {step === 1 && (
+        <div data-sds-tutorial-alvo="pedido-dashboard-construtor-campos">
         <Step1Fields
           fields={availableFields}
           selected={selectedKeys}
           onToggle={toggleField}
         />
+        </div>
       )}
       {step === 2 && (
         <Step2Config

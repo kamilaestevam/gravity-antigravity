@@ -172,6 +172,7 @@ import { ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit } from './ma
 import { ManualSmartReadTabelaCatalogoColunasLista } from './manual-smart-read-tabela-colunas-lista'
 import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 import { ManualInfograficoIconesMenuSuperior } from './manual-navegacao-icones-menu'
+import { ManualInfograficoItensMenuUsuario } from './manual-navegacao-menu-usuario-infografico'
 import { ManualInfograficoMapaNavegacaoGravity } from './manual-navegacao-mapa-gravity'
 import { DOC_API_COCKPIT_SECAO } from './manual-api-cockpit-conteudo'
 
@@ -4491,6 +4492,11 @@ export function ManualSecaoFluxo({
       {fluxo.mostrarInfograficoIconesMenuSuperior && fluxo.infograficoIconesMenuSuperiorAposPassos && (
         <div style={{ marginTop: 20, marginBottom: 4 }}>
           <ManualInfograficoIconesMenuSuperior />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoItensMenuUsuario && fluxo.infograficoItensMenuUsuarioAposPassos && (
+        <div style={{ marginTop: 20, marginBottom: 4 }}>
+          <ManualInfograficoItensMenuUsuario />
         </div>
       )}
       {fluxo.mostrarInfograficoHubTelas && fluxo.infograficoHubTelasAposPassos && (

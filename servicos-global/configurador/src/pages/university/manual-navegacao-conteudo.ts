@@ -193,6 +193,50 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
   },
 ]
 
+export type ItemMenuUsuarioSlug = 'store' | 'tema' | 'novidades' | 'sair'
+
+export interface ItemMenuUsuarioManual {
+  ordem: number
+  slug: ItemMenuUsuarioSlug
+  titulo: string
+  resumo: string
+  detalhe?: string
+  emBreve?: boolean
+}
+
+/** SSOT — demais opções do menu do avatar (infográfico Configuração §03). */
+export const ITENS_MENU_USUARIO_MANUAL: ItemMenuUsuarioManual[] = [
+  {
+    ordem: 1,
+    slug: 'store',
+    titulo: 'Ir para Gravity Store',
+    resumo: 'Abre a vitrine para conhecer, contratar ou ampliar produtos Gravity da organização.',
+    detalhe: 'Atalho rápido sem passar pelo Hub — útil para gestores que já sabem qual módulo precisam.',
+  },
+  {
+    ordem: 2,
+    slug: 'tema',
+    titulo: 'Alternar tema',
+    resumo: 'Troca a interface entre **modo claro** e **modo escuro** com um clique.',
+    detalhe: 'A preferência vale para toda a sessão e se mantém nas próximas vezes que você entrar.',
+  },
+  {
+    ordem: 3,
+    slug: 'novidades',
+    titulo: 'Novidades',
+    resumo: 'Canal de releases, melhorias e comunicados da plataforma Gravity.',
+    emBreve: true,
+    detalhe: 'Quando disponível, reunirá o que mudou nos produtos e no Configurador.',
+  },
+  {
+    ordem: 4,
+    slug: 'sair',
+    titulo: 'Sair do Sistema',
+    resumo: 'Encerra a sessão com segurança e retorna à tela de login.',
+    detalhe: 'Use sempre que terminar o trabalho em um dispositivo compartilhado.',
+  },
+]
+
 export const DOC_NAVEGACAO_SUBTITULO =
   'Menu superior, menu lateral e Gravity University'
 
@@ -330,6 +374,8 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
         texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba** — só mudam o item destacado e o conteúdo à direita.',
       },
       calloutAposPassos: true,
+      mostrarInfograficoItensMenuUsuario: true,
+      infograficoItensMenuUsuarioAposPassos: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Caminho 1 — ícone no menu superior',

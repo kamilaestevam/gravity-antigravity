@@ -526,6 +526,10 @@ export interface DocFluxo {
   mostrarInfograficoIconesMenuSuperior?: boolean
   /** Com `mostrarInfograficoIconesMenuSuperior`, renderiza o infográfico após os passos visuais. */
   infograficoIconesMenuSuperiorAposPassos?: boolean
+  /** Manual Navegação §03 — demais opções do menu do avatar (Store, tema, sair…). */
+  mostrarInfograficoItensMenuUsuario?: boolean
+  /** Com `mostrarInfograficoItensMenuUsuario`, renderiza o infográfico após os passos visuais. */
+  infograficoItensMenuUsuarioAposPassos?: boolean
   /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
   mostrarInfograficoTiposUsuario?: boolean
   /** Manual Histórico §04 — catálogo completo de eventos (tabelas). */

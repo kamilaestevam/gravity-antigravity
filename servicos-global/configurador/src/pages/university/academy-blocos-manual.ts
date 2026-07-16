@@ -194,6 +194,7 @@ function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
     fluxo.mostrarCatalogoHistoricoCompleto
     || (fluxo.callout && fluxo.calloutAposPassos)
     || (fluxo.mostrarInfograficoIconesMenuSuperior && fluxo.infograficoIconesMenuSuperiorAposPassos)
+    || (fluxo.mostrarInfograficoItensMenuUsuario && fluxo.infograficoItensMenuUsuarioAposPassos)
     || (fluxo.mostrarInfograficoHubTelas && fluxo.infograficoHubTelasAposPassos)
   )
 }
@@ -284,13 +285,25 @@ const INFOGRAFICOS_FLUXO: Array<{
   flag: keyof DocFluxo
   id: IdInfograficoAcademy
   aposPassos?: boolean
+  flagAposPassos?: keyof DocFluxo
 }> = [
   { flag: 'mostrarInfograficoTiposUsuario', id: 'tipos-usuario' },
   { flag: 'mostrarInfograficoPapeisFornecedor', id: 'papeis-fornecedor' },
   { flag: 'mostrarInfograficoPermissoesUsuario', id: 'permissoes-usuario' },
   { flag: 'mostrarInfograficoApiCockpitWebhookVsApi', id: 'api-cockpit-webhook-vs-api' },
   { flag: 'mostrarInfograficoApiCockpitConsumo', id: 'api-cockpit-consumo' },
-  { flag: 'mostrarInfograficoIconesMenuSuperior', id: 'icones-menu-superior', aposPassos: true },
+  {
+    flag: 'mostrarInfograficoIconesMenuSuperior',
+    id: 'icones-menu-superior',
+    aposPassos: true,
+    flagAposPassos: 'infograficoIconesMenuSuperiorAposPassos',
+  },
+  {
+    flag: 'mostrarInfograficoItensMenuUsuario',
+    id: 'itens-menu-usuario',
+    aposPassos: true,
+    flagAposPassos: 'infograficoItensMenuUsuarioAposPassos',
+  },
 ]
 
 function blocosInfograficosSecao(
@@ -312,10 +325,10 @@ function blocosInfograficosSecao(
 
 function blocosInfograficosFluxo(fluxo: DocFluxo, momento: 'antes_passos' | 'apos_passos'): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
-  for (const { flag, id, aposPassos: suportaAposPassos } of INFOGRAFICOS_FLUXO) {
+  for (const { flag, id, aposPassos: suportaAposPassos, flagAposPassos } of INFOGRAFICOS_FLUXO) {
     if (!fluxo[flag]) continue
     if (flag === 'mostrarInfograficoPermissoesUsuario' && fluxo.infograficoPermissoesUsuarioAposPasso != null) continue
-    const depoisDosPassos = Boolean(suportaAposPassos && fluxo.infograficoIconesMenuSuperiorAposPassos)
+    const depoisDosPassos = Boolean(suportaAposPassos && flagAposPassos && fluxo[flagAposPassos])
     if (momento === 'antes_passos' && depoisDosPassos) continue
     if (momento === 'apos_passos' && !depoisDosPassos) continue
     blocos.push(blocoInfografico(id))

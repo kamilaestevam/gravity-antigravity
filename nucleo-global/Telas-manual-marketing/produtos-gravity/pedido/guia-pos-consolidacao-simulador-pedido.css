@@ -1,0 +1,118 @@
+/* Guia pós-consolidação — paridade com pds-transf-guia */
+.pds-cons-guia {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 11000;
+  width: min(380px, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+.pds-cons-guia__cabecalho {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  background: #0f172a;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.pds-cons-guia__meta {
+  margin: 0 0 8px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.pds-cons-guia__progresso {
+  display: flex;
+  gap: 6px;
+}
+
+.pds-cons-guia__progresso span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.pds-cons-guia__progresso-item--ativo {
+  background: linear-gradient(90deg, #6366f1, #a78bfa) !important;
+}
+
+.pds-cons-guia__card {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  background: #0b1120;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.pds-cons-guia__card--final {
+  border-color: rgba(167, 139, 250, 0.5);
+  background: #0c0a1a;
+}
+
+.pds-cons-guia__secao {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.pds-cons-guia__intro {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: rgba(241, 245, 249, 0.9);
+}
+
+.pds-cons-guia__intro strong {
+  color: #e2e8f0;
+}
+
+.pds-cons-guia__legenda {
+  margin: 0 0 10px;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.pds-cons-guia__legenda-consolidado {
+  color: #a5b4fc;
+  font-weight: 700;
+}
+
+.pds-cons-guia__lista-origem {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pds-cons-guia__lista-origem li {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.pds-cons-guia__lista-origem li::before {
+  content: '− ';
+  color: #f87171;
+  font-weight: 700;
+}

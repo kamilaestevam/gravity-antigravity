@@ -161,7 +161,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
             <FileText size={22} weight="duotone" />
             <div>
               <h2>Resultado das leituras</h2>
-              <p>Baixe o pacote ZIP gerado pelo legado DATI (demonstração na landing).</p>
+              <p>Baixe o pacote ZIP exportado pelo Smart Docs (demonstração na landing).</p>
             </div>
           </header>
 
@@ -212,7 +212,7 @@ export function ResultadoSimuladorSmartDoc({ arquivos, tempoSegundos, rotuloLeit
                       className="sds-nl-btn sds-nl-btn--prim sds-nl-btn--sm"
                       disabled={baixando}
                       onClick={() => baixarIndividual(arq)}
-                      {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'nl-baixar-dati' } : {})}
+                      {...(indice === 0 ? { 'data-sds-tutorial-alvo': 'nl-baixar-docs' } : {})}
                     >
                       <DownloadSimple size={14} />
                       Baixar pacote docs

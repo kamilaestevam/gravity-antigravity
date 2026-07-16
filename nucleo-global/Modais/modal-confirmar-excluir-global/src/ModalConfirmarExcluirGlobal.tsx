@@ -13,6 +13,9 @@ export function ModalConfirmarExcluirGlobal({
   nomeItem,
   aoConfirmar,
   aoCancelar,
+  dataTutorialAlvoResumo,
+  dataTutorialAlvoAviso,
+  dataTutorialAlvoConfirmar,
 }: SelecaoExcluirProps) {
   const { t } = useTranslation()
   const [confirmando, setConfirmando] = useState(false)
@@ -89,10 +92,12 @@ export function ModalConfirmarExcluirGlobal({
         </div>
 
         <div className="mce__body">
-          <div className="mce__aviso" id="mce-aviso">
+          <div className="mce__aviso" id="mce-aviso" {...(dataTutorialAlvoResumo ? { 'data-sds-tutorial-alvo': dataTutorialAlvoResumo } : {})}>
             <Warning size={20} weight="fill" className="mce__aviso-icone" aria-hidden="true" />
             <p className="mce__aviso-texto">
-              <strong>{t('comum.modal_excluir_aviso', 'Esta ação é irreversível.')}</strong>{' '}
+              <strong {...(dataTutorialAlvoAviso ? { 'data-sds-tutorial-alvo': dataTutorialAlvoAviso } : {})}>
+                {t('comum.modal_excluir_aviso', 'Esta ação é irreversível.')}
+              </strong>{' '}
               {descricao}
             </p>
           </div>
@@ -121,6 +126,7 @@ export function ModalConfirmarExcluirGlobal({
           >
             {t('comum.cancelar', 'Cancelar')}
           </BotaoGlobal>
+          <span {...(dataTutorialAlvoConfirmar ? { 'data-sds-tutorial-alvo': dataTutorialAlvoConfirmar, style: { display: 'inline-flex' } } : {})}>
           <BotaoGlobal
             variante="perigo"
             onClick={handleConfirmar}
@@ -136,6 +142,7 @@ export function ModalConfirmarExcluirGlobal({
                 ? t('comum.modal_excluir_falhou', 'Falhou')
                 : t('comum.excluir', 'Excluir')}
           </BotaoGlobal>
+          </span>
         </div>
       </div>
     </div>,

@@ -24,6 +24,7 @@ type Props = {
   onAbrirNovoItemManual: () => void
   onCriarPainel: (nome: string) => void
   onDemoAcao: (titulo: string, descricao: string) => void
+  onMenuAbertoChange?: (aberto: boolean) => void
 }
 
 export function MenuNovoListaSimuladorPedido({
@@ -31,6 +32,7 @@ export function MenuNovoListaSimuladorPedido({
   onAbrirNovoItemManual,
   onCriarPainel,
   onDemoAcao,
+  onMenuAbertoChange,
 }: Props) {
   const [aberto, setAberto] = useState(false)
   const [submenu, setSubmenu] = useState<SubmenuNovo>(null)
@@ -54,6 +56,10 @@ export function MenuNovoListaSimuladorPedido({
     document.addEventListener('pointerdown', handler)
     return () => document.removeEventListener('pointerdown', handler)
   }, [aberto, fechar])
+
+  useEffect(() => {
+    onMenuAbertoChange?.(aberto)
+  }, [aberto, onMenuAbertoChange])
 
   const opcoesPedido = [
     {
@@ -91,11 +97,12 @@ export function MenuNovoListaSimuladorPedido({
       id: 'manual',
       icone: <PencilSimple size={14} weight="duotone" aria-hidden />,
       titulo: 'Manual',
-      descricao: 'Preencher formulário',
+      descricao: 'Preencher formulário passo a passo',
       acao: () => {
         fechar()
         onAbrirNovoPedidoManual()
       },
+      tutorialAlvo: 'pedido-menu-novo-manual' as const,
     },
   ] as const
 
@@ -144,8 +151,9 @@ export function MenuNovoListaSimuladorPedido({
   ] as const
 
   return (
-    <div className="pds-novo-wrap" ref={wrapRef}>
+    <div className="pds-novo-wrap pds-lista-btn-novo" ref={wrapRef} data-sds-tutorial-alvo="pedido-lista-novo">
       <BotaoGlobal
+        className="pds-lista-btn-novo-trigger"
         variante="primario"
         tamanho="pequeno"
         icone={<Plus size={14} weight="bold" />}
@@ -160,9 +168,10 @@ export function MenuNovoListaSimuladorPedido({
       </BotaoGlobal>
 
       {aberto && (
-        <div className="pds-novo-dropdown" role="menu">
+        <div className="pds-novo-dropdown" role="menu" data-sds-tutorial-alvo="pedido-menu-novo-dropdown">
           <div
             className={`pds-novo-dropdown-item ${submenu === 'pedido' ? 'pds-novo-dropdown-item--ativo' : ''}`}
+            data-sds-tutorial-alvo="pedido-menu-novo-pedido"
             onMouseEnter={() => setSubmenu('pedido')}
             onMouseLeave={() => setSubmenu((s) => (s === 'pedido' ? null : s))}
           >
@@ -178,7 +187,15 @@ export function MenuNovoListaSimuladorPedido({
             {submenu === 'pedido' && (
               <div className="pds-novo-dropdown-submenu" role="menu">
                 {opcoesPedido.map((op) => (
-                  <button key={op.id} type="button" className="pds-novo-dropdown-opcao" onClick={op.acao}>
+                  <button
+                    key={op.id}
+                    type="button"
+                    className="pds-novo-dropdown-opcao"
+                    onClick={op.acao}
+                    {...('tutorialAlvo' in op && op.tutorialAlvo
+                      ? { 'data-sds-tutorial-alvo': op.tutorialAlvo }
+                      : {})}
+                  >
                     <span className={`pds-novo-dropdown-opcao-icone ${'smart' in op && op.smart ? 'pds-novo-dropdown-opcao-icone--smart' : ''}`}>
                       {op.icone}
                     </span>
@@ -194,6 +211,7 @@ export function MenuNovoListaSimuladorPedido({
 
           <div
             className={`pds-novo-dropdown-item ${submenu === 'item' ? 'pds-novo-dropdown-item--ativo' : ''}`}
+            data-sds-tutorial-alvo="pedido-menu-novo-item"
             onMouseEnter={() => setSubmenu('item')}
             onMouseLeave={() => setSubmenu((s) => (s === 'item' ? null : s))}
           >
@@ -244,6 +262,7 @@ export function MenuNovoListaSimuladorPedido({
 
           <div
             className={`pds-novo-dropdown-item ${submenu === 'painel' ? 'pds-novo-dropdown-item--ativo' : ''}`}
+            data-sds-tutorial-alvo="pedido-menu-novo-painel"
             onMouseEnter={() => setSubmenu('painel')}
             onMouseLeave={() => setSubmenu((s) => (s === 'painel' ? null : s))}
           >

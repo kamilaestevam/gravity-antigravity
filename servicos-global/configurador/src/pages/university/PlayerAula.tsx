@@ -559,8 +559,15 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         whiteSpace: 'nowrap',
         border: 0,
       }
-      // Título H1: padding-bottom + border (padrão da tela correta) — spacer separado falhava visualmente.
+      // Título H1: oculto quando já aparece no breadcrumb (sem título no padrão duplicado).
       if (nivel <= 1) {
+        if (ocultarNoCorpo) {
+          return (
+            <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={estiloOculto} aria-hidden>
+              {texto}
+            </h1>
+          )
+        }
         return (
           <h1 id={idAncora} className="uni-player-aula__titulo-guia" style={styles[1]}>
             {texto}
@@ -1193,9 +1200,23 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
             </div>
             {aula.blocos.map((bloco, idx) => {
               const idAncora = idPorIndiceBloco.get(idx)
-              const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
+              let blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
                 ? { ...bloco, dados: { ...bloco.dados, idAncora } }
                 : bloco
+              if (blocoComAncora.tipo === 'heading' && Number(blocoComAncora.dados.nivel ?? 1) <= 1) {
+                const textoTitulo = String(blocoComAncora.dados.text ?? '').trim()
+                const tituloAula = aula.titulo.trim()
+                if (
+                  textoTitulo &&
+                  tituloAula &&
+                  textoTitulo.localeCompare(tituloAula, 'pt-BR', { sensitivity: 'accent' }) === 0
+                ) {
+                  blocoComAncora = {
+                    ...blocoComAncora,
+                    dados: { ...blocoComAncora.dados, ocultarNoCorpo: true },
+                  }
+                }
+              }
               return (
                 <div
                   key={idx}

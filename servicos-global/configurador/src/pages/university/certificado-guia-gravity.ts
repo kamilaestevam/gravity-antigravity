@@ -79,11 +79,27 @@ export function formatarDataCertificadoGuia(iso: string, locale: string): string
 export function chaveI18nCertificadoGuia(tipo: TipoCertificadoGuia): string {
   const mapa: Record<TipoCertificadoGuia, string> = {
     'modulo-basico': 'university.certificado.tipo_modulo_basico',
-    pedido: 'university.certificado.tipo_pedido',
-    'bid-frete': 'university.certificado.tipo_bid_frete',
-    'smart-read': 'university.certificado.tipo_smart_read',
+    pedido: 'university.produto.pedido',
+    'bid-frete': 'university.produto.bid_frete',
+    'smart-read': 'university.produto.smart_read',
   }
   return mapa[tipo]
+}
+
+/** Nome completo no certificado — prioriza Clerk fullName, depois nome do /me. */
+export function resolverNomeCertificadoGuiaGravity(opts: {
+  nomeUsuario?: string | null
+  nomeCompletoClerk?: string | null
+  nomeCurtoClerk?: string | null
+}): string {
+  const candidatos = [
+    opts.nomeCompletoClerk?.trim(),
+    opts.nomeUsuario?.trim(),
+    opts.nomeCurtoClerk?.trim(),
+  ].filter((n): n is string => Boolean(n))
+
+  const comMaisPalavras = candidatos.find(n => n.split(/\s+/).filter(Boolean).length >= 2)
+  return comMaisPalavras ?? candidatos[0] ?? 'Usuário'
 }
 
 export function avaliarTiposCertificadoElegiveis(opts: {

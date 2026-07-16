@@ -11,7 +11,9 @@ import {
   xpModuloCertificado,
   type TipoCertificadoGuiaGravity,
 } from '../../shared/guia-gravity/certificado-guia-gravity.js'
+import { TOTAL_MANUAIS_GUIA_GRAVITY, slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-manuais-guia-gravity.js'
 import { calcularNivelGuiaGravity } from '../../shared/guia-gravity/niveis-guia-gravity.js'
+import { calcularDiasOfensivaGuiaGravity } from '../../shared/guia-gravity/ofensiva-guia-gravity.js'
 import { obterXpAula } from '../../shared/guia-gravity/pesos-academy-guia-gravity.js'
 import {
   calcularRitmoGuiaGravity,
@@ -19,7 +21,10 @@ import {
   calcularXpPorProduto,
   calcularXpTotalConclusoes,
 } from '../../shared/guia-gravity/progresso-guia-gravity.js'
-import type { GuiaGravityJornadaResponse } from '../../shared/guia-gravity/guia-gravity-jornada-schema.js'
+import type {
+  GuiaGravityJornadaResponse,
+  GuiaGravityRankingResponse,
+} from '../../shared/guia-gravity/guia-gravity-jornada-schema.js'
 
 function inicioDoDia(data: Date): Date {
   const d = new Date(data)
@@ -119,6 +124,10 @@ function montarRespostaJornada(opts: {
     xp_modulo_certificado_guia_gravity: number
     nivel_certificado_guia_gravity: number
   }>
+  manuaisLidos: Array<{
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity: Date
+  }>
 }): GuiaGravityJornadaResponse {
   const xpTotal = calcularXpTotalConclusoes(
     opts.conclusoes.map(c => ({
@@ -156,6 +165,11 @@ function montarRespostaJornada(opts: {
       xp_modulo_certificado_guia_gravity: c.xp_modulo_certificado_guia_gravity,
       nivel_certificado_guia_gravity: c.nivel_certificado_guia_gravity,
     })),
+    manuais_lidos: opts.manuaisLidos.map(m => ({
+      slug_manual_guia_gravity: m.slug_manual_guia_gravity,
+      data_leitura_manual_guia_gravity: m.data_leitura_manual_guia_gravity.toISOString(),
+    })),
+    manuais_total: TOTAL_MANUAIS_GUIA_GRAVITY,
     xp_total: xpTotal,
     nivel,
     ritmo: {
@@ -169,7 +183,7 @@ function montarRespostaJornada(opts: {
 
 async function carregarEstadoCompleto(idOrganizacao: string, idUsuario: string) {
   const jornada = await garantirJornada(idOrganizacao, idUsuario)
-  const [conclusoes, certificados] = await Promise.all([
+  const [conclusoes, certificados, manuaisLidos] = await Promise.all([
     prisma.guiaGravityAulaConclusao.findMany({
       where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
       orderBy: { data_conclusao_aula_guia_gravity: 'asc' },
@@ -178,14 +192,48 @@ async function carregarEstadoCompleto(idOrganizacao: string, idUsuario: string) 
       where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
       orderBy: { data_emissao_certificado_guia_gravity: 'asc' },
     }),
+    prisma.guiaGravityManualLido.findMany({
+      where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
+      orderBy: { data_leitura_manual_guia_gravity: 'asc' },
+    }),
   ])
-  return { jornada, conclusoes, certificados }
+  return { jornada, conclusoes, certificados, manuaisLidos }
+}
+
+async function atualizarOfensivaAposAtividade(opts: {
+  idOrganizacao: string
+  idUsuario: string
+  dataUltimaAtividadeAnterior: Date | null
+  diasOfensivaAnterior: number
+  agora: Date
+}) {
+  const diasOfensiva = calcularDiasOfensivaGuiaGravity({
+    diasOfensivaAtual: opts.diasOfensivaAnterior,
+    dataUltimaAtividade: opts.dataUltimaAtividadeAnterior,
+    agora: opts.agora,
+  })
+
+  return prisma.guiaGravityJornadaUsuario.update({
+    where: {
+      id_organizacao_id_usuario: {
+        id_organizacao: opts.idOrganizacao,
+        id_usuario: opts.idUsuario,
+      },
+    },
+    data: {
+      dias_ofensiva_guia_gravity: diasOfensiva,
+      data_ultima_atividade_jornada_guia_gravity: opts.agora,
+    },
+  })
 }
 
 export const guiaGravityJornadaServico = {
   async obterJornada(idOrganizacao: string, idUsuario: string): Promise<GuiaGravityJornadaResponse> {
-    const { jornada, conclusoes, certificados } = await carregarEstadoCompleto(idOrganizacao, idUsuario)
-    return montarRespostaJornada({ jornada, conclusoes, certificados })
+    const { jornada, conclusoes, certificados, manuaisLidos } = await carregarEstadoCompleto(
+      idOrganizacao,
+      idUsuario,
+    )
+    return montarRespostaJornada({ jornada, conclusoes, certificados, manuaisLidos })
   },
 
   async concluirAula(opts: {
@@ -199,9 +247,9 @@ export const guiaGravityJornadaServico = {
       throw new AppError('Aula não reconhecida no catálogo Guia Gravity', 404, 'AULA_GUIA_NAO_ENCONTRADA')
     }
 
-    await garantirJornada(opts.idOrganizacao, opts.idUsuario)
-
+    const jornadaAntes = await garantirJornada(opts.idOrganizacao, opts.idUsuario)
     const agora = new Date()
+
     await prisma.guiaGravityAulaConclusao.upsert({
       where: {
         id_organizacao_id_usuario_slug_aula_guia_gravity: {
@@ -223,22 +271,15 @@ export const guiaGravityJornadaServico = {
       },
     })
 
-    await prisma.guiaGravityJornadaUsuario.update({
-      where: {
-        id_organizacao_id_usuario: {
-          id_organizacao: opts.idOrganizacao,
-          id_usuario: opts.idUsuario,
-        },
-      },
-      data: {
-        data_ultima_atividade_jornada_guia_gravity: agora,
-      },
+    const jornada = await atualizarOfensivaAposAtividade({
+      idOrganizacao: opts.idOrganizacao,
+      idUsuario: opts.idUsuario,
+      dataUltimaAtividadeAnterior: jornadaAntes.data_ultima_atividade_jornada_guia_gravity,
+      diasOfensivaAnterior: jornadaAntes.dias_ofensiva_guia_gravity,
+      agora,
     })
 
-    const { jornada, conclusoes } = await carregarEstadoCompleto(
-      opts.idOrganizacao,
-      opts.idUsuario,
-    )
+    const { conclusoes, manuaisLidos } = await carregarEstadoCompleto(opts.idOrganizacao, opts.idUsuario)
 
     const aulasConcluidas = new Set(conclusoes.map(c => c.slug_aula_guia_gravity))
     const xpTotal = calcularXpTotalConclusoes(
@@ -274,7 +315,100 @@ export const guiaGravityJornadaServico = {
       jornada,
       conclusoes,
       certificados: certificadosAtualizados,
+      manuaisLidos,
     })
+  },
+
+  async marcarManualLido(opts: {
+    idOrganizacao: string
+    idUsuario: string
+    slugManual: string
+  }): Promise<GuiaGravityJornadaResponse> {
+    if (!slugManualGuiaGravityValido(opts.slugManual)) {
+      throw new AppError('Manual não reconhecido no catálogo Guia Gravity', 404, 'MANUAL_GUIA_NAO_ENCONTRADO')
+    }
+
+    const agora = new Date()
+    await prisma.guiaGravityManualLido.upsert({
+      where: {
+        id_organizacao_id_usuario_slug_manual_guia_gravity: {
+          id_organizacao: opts.idOrganizacao,
+          id_usuario: opts.idUsuario,
+          slug_manual_guia_gravity: opts.slugManual,
+        },
+      },
+      create: {
+        id_organizacao: opts.idOrganizacao,
+        id_usuario: opts.idUsuario,
+        slug_manual_guia_gravity: opts.slugManual,
+        data_leitura_manual_guia_gravity: agora,
+      },
+      update: {},
+    })
+
+    return guiaGravityJornadaServico.obterJornada(opts.idOrganizacao, opts.idUsuario)
+  },
+
+  async obterRankingOrganizacao(opts: {
+    idOrganizacao: string
+    idUsuario: string
+    limite?: number
+  }): Promise<GuiaGravityRankingResponse> {
+    const limite = Math.min(50, Math.max(1, opts.limite ?? 10))
+
+    const agregados = await prisma.guiaGravityAulaConclusao.groupBy({
+      by: ['id_usuario'],
+      where: { id_organizacao: opts.idOrganizacao },
+      _sum: { xp_conquistado_aula_guia_gravity: true },
+      orderBy: { _sum: { xp_conquistado_aula_guia_gravity: 'desc' } },
+      take: limite,
+    })
+
+    const idsUsuarios = agregados.map(a => a.id_usuario)
+    const usuarios = idsUsuarios.length
+      ? await prisma.usuario.findMany({
+          where: {
+            id_organizacao: opts.idOrganizacao,
+            id_usuario: { in: idsUsuarios },
+            status_usuario: 'ATIVO',
+          },
+          select: { id_usuario: true, nome_usuario: true },
+        })
+      : []
+
+    const nomePorId = new Map(usuarios.map(u => [u.id_usuario, u.nome_usuario]))
+
+    const ranking = agregados.map((linha, idx) => ({
+      id_usuario: linha.id_usuario,
+      nome_usuario: nomePorId.get(linha.id_usuario) ?? 'Usuário',
+      xp_total: Math.round(Number(linha._sum.xp_conquistado_aula_guia_gravity ?? 0)),
+      posicao: idx + 1,
+      usuario_atual: linha.id_usuario === opts.idUsuario,
+    }))
+
+    const usuarioNoRanking = ranking.some(r => r.usuario_atual)
+    if (!usuarioNoRanking) {
+      const conclusoesUsuario = await prisma.guiaGravityAulaConclusao.findMany({
+        where: { id_organizacao: opts.idOrganizacao, id_usuario: opts.idUsuario },
+        select: { xp_conquistado_aula_guia_gravity: true },
+      })
+      const xpUsuario = Math.round(
+        conclusoesUsuario.reduce((s, c) => s + Number(c.xp_conquistado_aula_guia_gravity), 0),
+      )
+      const usuario = await prisma.usuario.findUnique({
+        where: { id_usuario: opts.idUsuario },
+        select: { nome_usuario: true },
+      })
+      ranking.push({
+        id_usuario: opts.idUsuario,
+        nome_usuario: usuario?.nome_usuario ?? 'Usuário',
+        xp_total: xpUsuario,
+        posicao: ranking.length + 1,
+        usuario_atual: true,
+      })
+    }
+
+    return { ranking }
   },
 
   async verificarCertificado(codigoBruto: string) {

@@ -178,6 +178,11 @@ export type GuiaGravityAulaConclusao = $Result.DefaultSelection<Prisma.$GuiaGrav
  * 
  */
 export type GuiaGravityCertificadoEmitido = $Result.DefaultSelection<Prisma.$GuiaGravityCertificadoEmitidoPayload>
+/**
+ * Model GuiaGravityManualLido
+ * 
+ */
+export type GuiaGravityManualLido = $Result.DefaultSelection<Prisma.$GuiaGravityManualLidoPayload>
 
 /**
  * Enums
@@ -836,6 +841,16 @@ export class PrismaClient<
     * ```
     */
   get guiaGravityCertificadoEmitido(): Prisma.GuiaGravityCertificadoEmitidoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.guiaGravityManualLido`: Exposes CRUD operations for the **GuiaGravityManualLido** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GuiaGravityManualLidos
+    * const guiaGravityManualLidos = await prisma.guiaGravityManualLido.findMany()
+    * ```
+    */
+  get guiaGravityManualLido(): Prisma.GuiaGravityManualLidoDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1309,7 +1324,8 @@ export namespace Prisma {
     AuditLogAdmin: 'AuditLogAdmin',
     GuiaGravityJornadaUsuario: 'GuiaGravityJornadaUsuario',
     GuiaGravityAulaConclusao: 'GuiaGravityAulaConclusao',
-    GuiaGravityCertificadoEmitido: 'GuiaGravityCertificadoEmitido'
+    GuiaGravityCertificadoEmitido: 'GuiaGravityCertificadoEmitido',
+    GuiaGravityManualLido: 'GuiaGravityManualLido'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1325,7 +1341,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "taxaMoedaSyncAgendamento" | "teste" | "testeAgendamento" | "testePlano" | "testeFavoritoUsuario" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin" | "guiaGravityJornadaUsuario" | "guiaGravityAulaConclusao" | "guiaGravityCertificadoEmitido"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "taxaMoedaSyncAgendamento" | "teste" | "testeAgendamento" | "testePlano" | "testeFavoritoUsuario" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin" | "guiaGravityJornadaUsuario" | "guiaGravityAulaConclusao" | "guiaGravityCertificadoEmitido" | "guiaGravityManualLido"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3639,6 +3655,76 @@ export namespace Prisma {
           }
         }
       }
+      GuiaGravityManualLido: {
+        payload: Prisma.$GuiaGravityManualLidoPayload<ExtArgs>
+        fields: Prisma.GuiaGravityManualLidoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GuiaGravityManualLidoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GuiaGravityManualLidoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          findFirst: {
+            args: Prisma.GuiaGravityManualLidoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GuiaGravityManualLidoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          findMany: {
+            args: Prisma.GuiaGravityManualLidoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>[]
+          }
+          create: {
+            args: Prisma.GuiaGravityManualLidoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          createMany: {
+            args: Prisma.GuiaGravityManualLidoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GuiaGravityManualLidoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>[]
+          }
+          delete: {
+            args: Prisma.GuiaGravityManualLidoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          update: {
+            args: Prisma.GuiaGravityManualLidoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          deleteMany: {
+            args: Prisma.GuiaGravityManualLidoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GuiaGravityManualLidoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GuiaGravityManualLidoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GuiaGravityManualLidoPayload>
+          }
+          aggregate: {
+            args: Prisma.GuiaGravityManualLidoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGuiaGravityManualLido>
+          }
+          groupBy: {
+            args: Prisma.GuiaGravityManualLidoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GuiaGravityManualLidoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GuiaGravityManualLidoCountArgs<ExtArgs>
+            result: $Utils.Optional<GuiaGravityManualLidoCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3812,6 +3898,7 @@ export namespace Prisma {
     jornadas_guia_gravity: number
     aulas_conclusao_guia_gravity: number
     certificados_guia_gravity: number
+    manuais_lidos_guia_gravity: number
   }
 
   export type OrganizacaoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3827,6 +3914,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | OrganizacaoCountOutputTypeCountJornadas_guia_gravityArgs
     aulas_conclusao_guia_gravity?: boolean | OrganizacaoCountOutputTypeCountAulas_conclusao_guia_gravityArgs
     certificados_guia_gravity?: boolean | OrganizacaoCountOutputTypeCountCertificados_guia_gravityArgs
+    manuais_lidos_guia_gravity?: boolean | OrganizacaoCountOutputTypeCountManuais_lidos_guia_gravityArgs
   }
 
   // Custom InputTypes
@@ -3924,6 +4012,13 @@ export namespace Prisma {
     where?: GuiaGravityCertificadoEmitidoWhereInput
   }
 
+  /**
+   * OrganizacaoCountOutputType without action
+   */
+  export type OrganizacaoCountOutputTypeCountManuais_lidos_guia_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuiaGravityManualLidoWhereInput
+  }
+
 
   /**
    * Count Type UsuarioCountOutputType
@@ -3936,6 +4031,7 @@ export namespace Prisma {
     jornadas_guia_gravity: number
     aulas_conclusao_guia_gravity: number
     certificados_guia_gravity: number
+    manuais_lidos_guia_gravity: number
   }
 
   export type UsuarioCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3945,6 +4041,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | UsuarioCountOutputTypeCountJornadas_guia_gravityArgs
     aulas_conclusao_guia_gravity?: boolean | UsuarioCountOutputTypeCountAulas_conclusao_guia_gravityArgs
     certificados_guia_gravity?: boolean | UsuarioCountOutputTypeCountCertificados_guia_gravityArgs
+    manuais_lidos_guia_gravity?: boolean | UsuarioCountOutputTypeCountManuais_lidos_guia_gravityArgs
   }
 
   // Custom InputTypes
@@ -3998,6 +4095,13 @@ export namespace Prisma {
    */
   export type UsuarioCountOutputTypeCountCertificados_guia_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: GuiaGravityCertificadoEmitidoWhereInput
+  }
+
+  /**
+   * UsuarioCountOutputType without action
+   */
+  export type UsuarioCountOutputTypeCountManuais_lidos_guia_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuiaGravityManualLidoWhereInput
   }
 
 
@@ -4440,6 +4544,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | Organizacao$jornadas_guia_gravityArgs<ExtArgs>
     aulas_conclusao_guia_gravity?: boolean | Organizacao$aulas_conclusao_guia_gravityArgs<ExtArgs>
     certificados_guia_gravity?: boolean | Organizacao$certificados_guia_gravityArgs<ExtArgs>
+    manuais_lidos_guia_gravity?: boolean | Organizacao$manuais_lidos_guia_gravityArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizacao"]>
 
@@ -4490,6 +4595,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | Organizacao$jornadas_guia_gravityArgs<ExtArgs>
     aulas_conclusao_guia_gravity?: boolean | Organizacao$aulas_conclusao_guia_gravityArgs<ExtArgs>
     certificados_guia_gravity?: boolean | Organizacao$certificados_guia_gravityArgs<ExtArgs>
+    manuais_lidos_guia_gravity?: boolean | Organizacao$manuais_lidos_guia_gravityArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizacaoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4509,6 +4615,7 @@ export namespace Prisma {
       jornadas_guia_gravity: Prisma.$GuiaGravityJornadaUsuarioPayload<ExtArgs>[]
       aulas_conclusao_guia_gravity: Prisma.$GuiaGravityAulaConclusaoPayload<ExtArgs>[]
       certificados_guia_gravity: Prisma.$GuiaGravityCertificadoEmitidoPayload<ExtArgs>[]
+      manuais_lidos_guia_gravity: Prisma.$GuiaGravityManualLidoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_organizacao: string
@@ -4901,6 +5008,7 @@ export namespace Prisma {
     jornadas_guia_gravity<T extends Organizacao$jornadas_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$jornadas_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityJornadaUsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     aulas_conclusao_guia_gravity<T extends Organizacao$aulas_conclusao_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$aulas_conclusao_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityAulaConclusaoPayload<ExtArgs>, T, "findMany"> | Null>
     certificados_guia_gravity<T extends Organizacao$certificados_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$certificados_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityCertificadoEmitidoPayload<ExtArgs>, T, "findMany"> | Null>
+    manuais_lidos_guia_gravity<T extends Organizacao$manuais_lidos_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$manuais_lidos_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5498,6 +5606,26 @@ export namespace Prisma {
   }
 
   /**
+   * Organizacao.manuais_lidos_guia_gravity
+   */
+  export type Organizacao$manuais_lidos_guia_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    where?: GuiaGravityManualLidoWhereInput
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GuiaGravityManualLidoScalarFieldEnum | GuiaGravityManualLidoScalarFieldEnum[]
+  }
+
+  /**
    * Organizacao without action
    */
   export type OrganizacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5732,6 +5860,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | Usuario$jornadas_guia_gravityArgs<ExtArgs>
     aulas_conclusao_guia_gravity?: boolean | Usuario$aulas_conclusao_guia_gravityArgs<ExtArgs>
     certificados_guia_gravity?: boolean | Usuario$certificados_guia_gravityArgs<ExtArgs>
+    manuais_lidos_guia_gravity?: boolean | Usuario$manuais_lidos_guia_gravityArgs<ExtArgs>
     _count?: boolean | UsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuario"]>
 
@@ -5774,6 +5903,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: boolean | Usuario$jornadas_guia_gravityArgs<ExtArgs>
     aulas_conclusao_guia_gravity?: boolean | Usuario$aulas_conclusao_guia_gravityArgs<ExtArgs>
     certificados_guia_gravity?: boolean | Usuario$certificados_guia_gravityArgs<ExtArgs>
+    manuais_lidos_guia_gravity?: boolean | Usuario$manuais_lidos_guia_gravityArgs<ExtArgs>
     _count?: boolean | UsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5792,6 +5922,7 @@ export namespace Prisma {
       jornadas_guia_gravity: Prisma.$GuiaGravityJornadaUsuarioPayload<ExtArgs>[]
       aulas_conclusao_guia_gravity: Prisma.$GuiaGravityAulaConclusaoPayload<ExtArgs>[]
       certificados_guia_gravity: Prisma.$GuiaGravityCertificadoEmitidoPayload<ExtArgs>[]
+      manuais_lidos_guia_gravity: Prisma.$GuiaGravityManualLidoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_usuario: string
@@ -6177,6 +6308,7 @@ export namespace Prisma {
     jornadas_guia_gravity<T extends Usuario$jornadas_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$jornadas_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityJornadaUsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     aulas_conclusao_guia_gravity<T extends Usuario$aulas_conclusao_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$aulas_conclusao_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityAulaConclusaoPayload<ExtArgs>, T, "findMany"> | Null>
     certificados_guia_gravity<T extends Usuario$certificados_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$certificados_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityCertificadoEmitidoPayload<ExtArgs>, T, "findMany"> | Null>
+    manuais_lidos_guia_gravity<T extends Usuario$manuais_lidos_guia_gravityArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$manuais_lidos_guia_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6667,6 +6799,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: GuiaGravityCertificadoEmitidoScalarFieldEnum | GuiaGravityCertificadoEmitidoScalarFieldEnum[]
+  }
+
+  /**
+   * Usuario.manuais_lidos_guia_gravity
+   */
+  export type Usuario$manuais_lidos_guia_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    where?: GuiaGravityManualLidoWhereInput
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GuiaGravityManualLidoScalarFieldEnum | GuiaGravityManualLidoScalarFieldEnum[]
   }
 
   /**
@@ -38687,6 +38839,969 @@ export namespace Prisma {
 
 
   /**
+   * Model GuiaGravityManualLido
+   */
+
+  export type AggregateGuiaGravityManualLido = {
+    _count: GuiaGravityManualLidoCountAggregateOutputType | null
+    _min: GuiaGravityManualLidoMinAggregateOutputType | null
+    _max: GuiaGravityManualLidoMaxAggregateOutputType | null
+  }
+
+  export type GuiaGravityManualLidoMinAggregateOutputType = {
+    id_guia_gravity_manual_lido: string | null
+    id_organizacao: string | null
+    id_usuario: string | null
+    slug_manual_guia_gravity: string | null
+    data_leitura_manual_guia_gravity: Date | null
+    data_criacao_guia_gravity_manual_lido: Date | null
+    data_atualizacao_guia_gravity_manual_lido: Date | null
+  }
+
+  export type GuiaGravityManualLidoMaxAggregateOutputType = {
+    id_guia_gravity_manual_lido: string | null
+    id_organizacao: string | null
+    id_usuario: string | null
+    slug_manual_guia_gravity: string | null
+    data_leitura_manual_guia_gravity: Date | null
+    data_criacao_guia_gravity_manual_lido: Date | null
+    data_atualizacao_guia_gravity_manual_lido: Date | null
+  }
+
+  export type GuiaGravityManualLidoCountAggregateOutputType = {
+    id_guia_gravity_manual_lido: number
+    id_organizacao: number
+    id_usuario: number
+    slug_manual_guia_gravity: number
+    data_leitura_manual_guia_gravity: number
+    data_criacao_guia_gravity_manual_lido: number
+    data_atualizacao_guia_gravity_manual_lido: number
+    _all: number
+  }
+
+
+  export type GuiaGravityManualLidoMinAggregateInputType = {
+    id_guia_gravity_manual_lido?: true
+    id_organizacao?: true
+    id_usuario?: true
+    slug_manual_guia_gravity?: true
+    data_leitura_manual_guia_gravity?: true
+    data_criacao_guia_gravity_manual_lido?: true
+    data_atualizacao_guia_gravity_manual_lido?: true
+  }
+
+  export type GuiaGravityManualLidoMaxAggregateInputType = {
+    id_guia_gravity_manual_lido?: true
+    id_organizacao?: true
+    id_usuario?: true
+    slug_manual_guia_gravity?: true
+    data_leitura_manual_guia_gravity?: true
+    data_criacao_guia_gravity_manual_lido?: true
+    data_atualizacao_guia_gravity_manual_lido?: true
+  }
+
+  export type GuiaGravityManualLidoCountAggregateInputType = {
+    id_guia_gravity_manual_lido?: true
+    id_organizacao?: true
+    id_usuario?: true
+    slug_manual_guia_gravity?: true
+    data_leitura_manual_guia_gravity?: true
+    data_criacao_guia_gravity_manual_lido?: true
+    data_atualizacao_guia_gravity_manual_lido?: true
+    _all?: true
+  }
+
+  export type GuiaGravityManualLidoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuiaGravityManualLido to aggregate.
+     */
+    where?: GuiaGravityManualLidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuiaGravityManualLidos to fetch.
+     */
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuiaGravityManualLidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuiaGravityManualLidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GuiaGravityManualLidos
+    **/
+    _count?: true | GuiaGravityManualLidoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GuiaGravityManualLidoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GuiaGravityManualLidoMaxAggregateInputType
+  }
+
+  export type GetGuiaGravityManualLidoAggregateType<T extends GuiaGravityManualLidoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGuiaGravityManualLido]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGuiaGravityManualLido[P]>
+      : GetScalarType<T[P], AggregateGuiaGravityManualLido[P]>
+  }
+
+
+
+
+  export type GuiaGravityManualLidoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GuiaGravityManualLidoWhereInput
+    orderBy?: GuiaGravityManualLidoOrderByWithAggregationInput | GuiaGravityManualLidoOrderByWithAggregationInput[]
+    by: GuiaGravityManualLidoScalarFieldEnum[] | GuiaGravityManualLidoScalarFieldEnum
+    having?: GuiaGravityManualLidoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GuiaGravityManualLidoCountAggregateInputType | true
+    _min?: GuiaGravityManualLidoMinAggregateInputType
+    _max?: GuiaGravityManualLidoMaxAggregateInputType
+  }
+
+  export type GuiaGravityManualLidoGroupByOutputType = {
+    id_guia_gravity_manual_lido: string
+    id_organizacao: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity: Date
+    data_criacao_guia_gravity_manual_lido: Date
+    data_atualizacao_guia_gravity_manual_lido: Date
+    _count: GuiaGravityManualLidoCountAggregateOutputType | null
+    _min: GuiaGravityManualLidoMinAggregateOutputType | null
+    _max: GuiaGravityManualLidoMaxAggregateOutputType | null
+  }
+
+  type GetGuiaGravityManualLidoGroupByPayload<T extends GuiaGravityManualLidoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GuiaGravityManualLidoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GuiaGravityManualLidoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GuiaGravityManualLidoGroupByOutputType[P]>
+            : GetScalarType<T[P], GuiaGravityManualLidoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GuiaGravityManualLidoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_guia_gravity_manual_lido?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    slug_manual_guia_gravity?: boolean
+    data_leitura_manual_guia_gravity?: boolean
+    data_criacao_guia_gravity_manual_lido?: boolean
+    data_atualizacao_guia_gravity_manual_lido?: boolean
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["guiaGravityManualLido"]>
+
+  export type GuiaGravityManualLidoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_guia_gravity_manual_lido?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    slug_manual_guia_gravity?: boolean
+    data_leitura_manual_guia_gravity?: boolean
+    data_criacao_guia_gravity_manual_lido?: boolean
+    data_atualizacao_guia_gravity_manual_lido?: boolean
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["guiaGravityManualLido"]>
+
+  export type GuiaGravityManualLidoSelectScalar = {
+    id_guia_gravity_manual_lido?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    slug_manual_guia_gravity?: boolean
+    data_leitura_manual_guia_gravity?: boolean
+    data_criacao_guia_gravity_manual_lido?: boolean
+    data_atualizacao_guia_gravity_manual_lido?: boolean
+  }
+
+  export type GuiaGravityManualLidoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }
+  export type GuiaGravityManualLidoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organizacao?: boolean | OrganizacaoDefaultArgs<ExtArgs>
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }
+
+  export type $GuiaGravityManualLidoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GuiaGravityManualLido"
+    objects: {
+      organizacao: Prisma.$OrganizacaoPayload<ExtArgs>
+      usuario: Prisma.$UsuarioPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id_guia_gravity_manual_lido: string
+      id_organizacao: string
+      id_usuario: string
+      slug_manual_guia_gravity: string
+      data_leitura_manual_guia_gravity: Date
+      data_criacao_guia_gravity_manual_lido: Date
+      data_atualizacao_guia_gravity_manual_lido: Date
+    }, ExtArgs["result"]["guiaGravityManualLido"]>
+    composites: {}
+  }
+
+  type GuiaGravityManualLidoGetPayload<S extends boolean | null | undefined | GuiaGravityManualLidoDefaultArgs> = $Result.GetResult<Prisma.$GuiaGravityManualLidoPayload, S>
+
+  type GuiaGravityManualLidoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GuiaGravityManualLidoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GuiaGravityManualLidoCountAggregateInputType | true
+    }
+
+  export interface GuiaGravityManualLidoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GuiaGravityManualLido'], meta: { name: 'GuiaGravityManualLido' } }
+    /**
+     * Find zero or one GuiaGravityManualLido that matches the filter.
+     * @param {GuiaGravityManualLidoFindUniqueArgs} args - Arguments to find a GuiaGravityManualLido
+     * @example
+     * // Get one GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GuiaGravityManualLidoFindUniqueArgs>(args: SelectSubset<T, GuiaGravityManualLidoFindUniqueArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GuiaGravityManualLido that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GuiaGravityManualLidoFindUniqueOrThrowArgs} args - Arguments to find a GuiaGravityManualLido
+     * @example
+     * // Get one GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GuiaGravityManualLidoFindUniqueOrThrowArgs>(args: SelectSubset<T, GuiaGravityManualLidoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GuiaGravityManualLido that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoFindFirstArgs} args - Arguments to find a GuiaGravityManualLido
+     * @example
+     * // Get one GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GuiaGravityManualLidoFindFirstArgs>(args?: SelectSubset<T, GuiaGravityManualLidoFindFirstArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GuiaGravityManualLido that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoFindFirstOrThrowArgs} args - Arguments to find a GuiaGravityManualLido
+     * @example
+     * // Get one GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GuiaGravityManualLidoFindFirstOrThrowArgs>(args?: SelectSubset<T, GuiaGravityManualLidoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GuiaGravityManualLidos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GuiaGravityManualLidos
+     * const guiaGravityManualLidos = await prisma.guiaGravityManualLido.findMany()
+     * 
+     * // Get first 10 GuiaGravityManualLidos
+     * const guiaGravityManualLidos = await prisma.guiaGravityManualLido.findMany({ take: 10 })
+     * 
+     * // Only select the `id_guia_gravity_manual_lido`
+     * const guiaGravityManualLidoWithId_guia_gravity_manual_lidoOnly = await prisma.guiaGravityManualLido.findMany({ select: { id_guia_gravity_manual_lido: true } })
+     * 
+     */
+    findMany<T extends GuiaGravityManualLidoFindManyArgs>(args?: SelectSubset<T, GuiaGravityManualLidoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GuiaGravityManualLido.
+     * @param {GuiaGravityManualLidoCreateArgs} args - Arguments to create a GuiaGravityManualLido.
+     * @example
+     * // Create one GuiaGravityManualLido
+     * const GuiaGravityManualLido = await prisma.guiaGravityManualLido.create({
+     *   data: {
+     *     // ... data to create a GuiaGravityManualLido
+     *   }
+     * })
+     * 
+     */
+    create<T extends GuiaGravityManualLidoCreateArgs>(args: SelectSubset<T, GuiaGravityManualLidoCreateArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GuiaGravityManualLidos.
+     * @param {GuiaGravityManualLidoCreateManyArgs} args - Arguments to create many GuiaGravityManualLidos.
+     * @example
+     * // Create many GuiaGravityManualLidos
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GuiaGravityManualLidoCreateManyArgs>(args?: SelectSubset<T, GuiaGravityManualLidoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GuiaGravityManualLidos and returns the data saved in the database.
+     * @param {GuiaGravityManualLidoCreateManyAndReturnArgs} args - Arguments to create many GuiaGravityManualLidos.
+     * @example
+     * // Create many GuiaGravityManualLidos
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GuiaGravityManualLidos and only return the `id_guia_gravity_manual_lido`
+     * const guiaGravityManualLidoWithId_guia_gravity_manual_lidoOnly = await prisma.guiaGravityManualLido.createManyAndReturn({ 
+     *   select: { id_guia_gravity_manual_lido: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GuiaGravityManualLidoCreateManyAndReturnArgs>(args?: SelectSubset<T, GuiaGravityManualLidoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GuiaGravityManualLido.
+     * @param {GuiaGravityManualLidoDeleteArgs} args - Arguments to delete one GuiaGravityManualLido.
+     * @example
+     * // Delete one GuiaGravityManualLido
+     * const GuiaGravityManualLido = await prisma.guiaGravityManualLido.delete({
+     *   where: {
+     *     // ... filter to delete one GuiaGravityManualLido
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GuiaGravityManualLidoDeleteArgs>(args: SelectSubset<T, GuiaGravityManualLidoDeleteArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GuiaGravityManualLido.
+     * @param {GuiaGravityManualLidoUpdateArgs} args - Arguments to update one GuiaGravityManualLido.
+     * @example
+     * // Update one GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GuiaGravityManualLidoUpdateArgs>(args: SelectSubset<T, GuiaGravityManualLidoUpdateArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GuiaGravityManualLidos.
+     * @param {GuiaGravityManualLidoDeleteManyArgs} args - Arguments to filter GuiaGravityManualLidos to delete.
+     * @example
+     * // Delete a few GuiaGravityManualLidos
+     * const { count } = await prisma.guiaGravityManualLido.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GuiaGravityManualLidoDeleteManyArgs>(args?: SelectSubset<T, GuiaGravityManualLidoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GuiaGravityManualLidos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GuiaGravityManualLidos
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GuiaGravityManualLidoUpdateManyArgs>(args: SelectSubset<T, GuiaGravityManualLidoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GuiaGravityManualLido.
+     * @param {GuiaGravityManualLidoUpsertArgs} args - Arguments to update or create a GuiaGravityManualLido.
+     * @example
+     * // Update or create a GuiaGravityManualLido
+     * const guiaGravityManualLido = await prisma.guiaGravityManualLido.upsert({
+     *   create: {
+     *     // ... data to create a GuiaGravityManualLido
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GuiaGravityManualLido we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GuiaGravityManualLidoUpsertArgs>(args: SelectSubset<T, GuiaGravityManualLidoUpsertArgs<ExtArgs>>): Prisma__GuiaGravityManualLidoClient<$Result.GetResult<Prisma.$GuiaGravityManualLidoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GuiaGravityManualLidos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoCountArgs} args - Arguments to filter GuiaGravityManualLidos to count.
+     * @example
+     * // Count the number of GuiaGravityManualLidos
+     * const count = await prisma.guiaGravityManualLido.count({
+     *   where: {
+     *     // ... the filter for the GuiaGravityManualLidos we want to count
+     *   }
+     * })
+    **/
+    count<T extends GuiaGravityManualLidoCountArgs>(
+      args?: Subset<T, GuiaGravityManualLidoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GuiaGravityManualLidoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GuiaGravityManualLido.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GuiaGravityManualLidoAggregateArgs>(args: Subset<T, GuiaGravityManualLidoAggregateArgs>): Prisma.PrismaPromise<GetGuiaGravityManualLidoAggregateType<T>>
+
+    /**
+     * Group by GuiaGravityManualLido.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GuiaGravityManualLidoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GuiaGravityManualLidoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GuiaGravityManualLidoGroupByArgs['orderBy'] }
+        : { orderBy?: GuiaGravityManualLidoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GuiaGravityManualLidoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGuiaGravityManualLidoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GuiaGravityManualLido model
+   */
+  readonly fields: GuiaGravityManualLidoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GuiaGravityManualLido.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GuiaGravityManualLidoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organizacao<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    usuario<T extends UsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioDefaultArgs<ExtArgs>>): Prisma__UsuarioClient<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GuiaGravityManualLido model
+   */ 
+  interface GuiaGravityManualLidoFieldRefs {
+    readonly id_guia_gravity_manual_lido: FieldRef<"GuiaGravityManualLido", 'String'>
+    readonly id_organizacao: FieldRef<"GuiaGravityManualLido", 'String'>
+    readonly id_usuario: FieldRef<"GuiaGravityManualLido", 'String'>
+    readonly slug_manual_guia_gravity: FieldRef<"GuiaGravityManualLido", 'String'>
+    readonly data_leitura_manual_guia_gravity: FieldRef<"GuiaGravityManualLido", 'DateTime'>
+    readonly data_criacao_guia_gravity_manual_lido: FieldRef<"GuiaGravityManualLido", 'DateTime'>
+    readonly data_atualizacao_guia_gravity_manual_lido: FieldRef<"GuiaGravityManualLido", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GuiaGravityManualLido findUnique
+   */
+  export type GuiaGravityManualLidoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter, which GuiaGravityManualLido to fetch.
+     */
+    where: GuiaGravityManualLidoWhereUniqueInput
+  }
+
+  /**
+   * GuiaGravityManualLido findUniqueOrThrow
+   */
+  export type GuiaGravityManualLidoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter, which GuiaGravityManualLido to fetch.
+     */
+    where: GuiaGravityManualLidoWhereUniqueInput
+  }
+
+  /**
+   * GuiaGravityManualLido findFirst
+   */
+  export type GuiaGravityManualLidoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter, which GuiaGravityManualLido to fetch.
+     */
+    where?: GuiaGravityManualLidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuiaGravityManualLidos to fetch.
+     */
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuiaGravityManualLidos.
+     */
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuiaGravityManualLidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuiaGravityManualLidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuiaGravityManualLidos.
+     */
+    distinct?: GuiaGravityManualLidoScalarFieldEnum | GuiaGravityManualLidoScalarFieldEnum[]
+  }
+
+  /**
+   * GuiaGravityManualLido findFirstOrThrow
+   */
+  export type GuiaGravityManualLidoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter, which GuiaGravityManualLido to fetch.
+     */
+    where?: GuiaGravityManualLidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuiaGravityManualLidos to fetch.
+     */
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GuiaGravityManualLidos.
+     */
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuiaGravityManualLidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuiaGravityManualLidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GuiaGravityManualLidos.
+     */
+    distinct?: GuiaGravityManualLidoScalarFieldEnum | GuiaGravityManualLidoScalarFieldEnum[]
+  }
+
+  /**
+   * GuiaGravityManualLido findMany
+   */
+  export type GuiaGravityManualLidoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter, which GuiaGravityManualLidos to fetch.
+     */
+    where?: GuiaGravityManualLidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GuiaGravityManualLidos to fetch.
+     */
+    orderBy?: GuiaGravityManualLidoOrderByWithRelationInput | GuiaGravityManualLidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GuiaGravityManualLidos.
+     */
+    cursor?: GuiaGravityManualLidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GuiaGravityManualLidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GuiaGravityManualLidos.
+     */
+    skip?: number
+    distinct?: GuiaGravityManualLidoScalarFieldEnum | GuiaGravityManualLidoScalarFieldEnum[]
+  }
+
+  /**
+   * GuiaGravityManualLido create
+   */
+  export type GuiaGravityManualLidoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GuiaGravityManualLido.
+     */
+    data: XOR<GuiaGravityManualLidoCreateInput, GuiaGravityManualLidoUncheckedCreateInput>
+  }
+
+  /**
+   * GuiaGravityManualLido createMany
+   */
+  export type GuiaGravityManualLidoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GuiaGravityManualLidos.
+     */
+    data: GuiaGravityManualLidoCreateManyInput | GuiaGravityManualLidoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GuiaGravityManualLido createManyAndReturn
+   */
+  export type GuiaGravityManualLidoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GuiaGravityManualLidos.
+     */
+    data: GuiaGravityManualLidoCreateManyInput | GuiaGravityManualLidoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GuiaGravityManualLido update
+   */
+  export type GuiaGravityManualLidoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GuiaGravityManualLido.
+     */
+    data: XOR<GuiaGravityManualLidoUpdateInput, GuiaGravityManualLidoUncheckedUpdateInput>
+    /**
+     * Choose, which GuiaGravityManualLido to update.
+     */
+    where: GuiaGravityManualLidoWhereUniqueInput
+  }
+
+  /**
+   * GuiaGravityManualLido updateMany
+   */
+  export type GuiaGravityManualLidoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GuiaGravityManualLidos.
+     */
+    data: XOR<GuiaGravityManualLidoUpdateManyMutationInput, GuiaGravityManualLidoUncheckedUpdateManyInput>
+    /**
+     * Filter which GuiaGravityManualLidos to update
+     */
+    where?: GuiaGravityManualLidoWhereInput
+  }
+
+  /**
+   * GuiaGravityManualLido upsert
+   */
+  export type GuiaGravityManualLidoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GuiaGravityManualLido to update in case it exists.
+     */
+    where: GuiaGravityManualLidoWhereUniqueInput
+    /**
+     * In case the GuiaGravityManualLido found by the `where` argument doesn't exist, create a new GuiaGravityManualLido with this data.
+     */
+    create: XOR<GuiaGravityManualLidoCreateInput, GuiaGravityManualLidoUncheckedCreateInput>
+    /**
+     * In case the GuiaGravityManualLido was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GuiaGravityManualLidoUpdateInput, GuiaGravityManualLidoUncheckedUpdateInput>
+  }
+
+  /**
+   * GuiaGravityManualLido delete
+   */
+  export type GuiaGravityManualLidoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+    /**
+     * Filter which GuiaGravityManualLido to delete.
+     */
+    where: GuiaGravityManualLidoWhereUniqueInput
+  }
+
+  /**
+   * GuiaGravityManualLido deleteMany
+   */
+  export type GuiaGravityManualLidoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GuiaGravityManualLidos to delete
+     */
+    where?: GuiaGravityManualLidoWhereInput
+  }
+
+  /**
+   * GuiaGravityManualLido without action
+   */
+  export type GuiaGravityManualLidoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GuiaGravityManualLido
+     */
+    select?: GuiaGravityManualLidoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GuiaGravityManualLidoInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -39298,6 +40413,19 @@ export namespace Prisma {
   export type GuiaGravityCertificadoEmitidoScalarFieldEnum = (typeof GuiaGravityCertificadoEmitidoScalarFieldEnum)[keyof typeof GuiaGravityCertificadoEmitidoScalarFieldEnum]
 
 
+  export const GuiaGravityManualLidoScalarFieldEnum: {
+    id_guia_gravity_manual_lido: 'id_guia_gravity_manual_lido',
+    id_organizacao: 'id_organizacao',
+    id_usuario: 'id_usuario',
+    slug_manual_guia_gravity: 'slug_manual_guia_gravity',
+    data_leitura_manual_guia_gravity: 'data_leitura_manual_guia_gravity',
+    data_criacao_guia_gravity_manual_lido: 'data_criacao_guia_gravity_manual_lido',
+    data_atualizacao_guia_gravity_manual_lido: 'data_atualizacao_guia_gravity_manual_lido'
+  };
+
+  export type GuiaGravityManualLidoScalarFieldEnum = (typeof GuiaGravityManualLidoScalarFieldEnum)[keyof typeof GuiaGravityManualLidoScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -39664,6 +40792,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioListRelationFilter
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoListRelationFilter
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoListRelationFilter
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoListRelationFilter
   }
 
   export type OrganizacaoOrderByWithRelationInput = {
@@ -39693,6 +40822,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioOrderByRelationAggregateInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoOrderByRelationAggregateInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoOrderByRelationAggregateInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoOrderByRelationAggregateInput
   }
 
   export type OrganizacaoWhereUniqueInput = Prisma.AtLeast<{
@@ -39725,6 +40855,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioListRelationFilter
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoListRelationFilter
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoListRelationFilter
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoListRelationFilter
   }, "id_organizacao" | "subdominio_organizacao" | "clerk_organizacao_id" | "suid_empresa_organizacao">
 
   export type OrganizacaoOrderByWithAggregationInput = {
@@ -39790,6 +40921,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioListRelationFilter
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoListRelationFilter
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoListRelationFilter
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoListRelationFilter
   }
 
   export type UsuarioOrderByWithRelationInput = {
@@ -39812,6 +40944,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioOrderByRelationAggregateInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoOrderByRelationAggregateInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoOrderByRelationAggregateInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoOrderByRelationAggregateInput
   }
 
   export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
@@ -39838,6 +40971,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioListRelationFilter
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoListRelationFilter
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoListRelationFilter
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoListRelationFilter
   }, "id_usuario" | "id_clerk_usuario" | "id_organizacao_email_usuario">
 
   export type UsuarioOrderByWithAggregationInput = {
@@ -42756,6 +43890,75 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: DateTimeWithAggregatesFilter<"GuiaGravityCertificadoEmitido"> | Date | string
   }
 
+  export type GuiaGravityManualLidoWhereInput = {
+    AND?: GuiaGravityManualLidoWhereInput | GuiaGravityManualLidoWhereInput[]
+    OR?: GuiaGravityManualLidoWhereInput[]
+    NOT?: GuiaGravityManualLidoWhereInput | GuiaGravityManualLidoWhereInput[]
+    id_guia_gravity_manual_lido?: StringFilter<"GuiaGravityManualLido"> | string
+    id_organizacao?: StringFilter<"GuiaGravityManualLido"> | string
+    id_usuario?: StringFilter<"GuiaGravityManualLido"> | string
+    slug_manual_guia_gravity?: StringFilter<"GuiaGravityManualLido"> | string
+    data_leitura_manual_guia_gravity?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
+    usuario?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
+  }
+
+  export type GuiaGravityManualLidoOrderByWithRelationInput = {
+    id_guia_gravity_manual_lido?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    slug_manual_guia_gravity?: SortOrder
+    data_leitura_manual_guia_gravity?: SortOrder
+    data_criacao_guia_gravity_manual_lido?: SortOrder
+    data_atualizacao_guia_gravity_manual_lido?: SortOrder
+    organizacao?: OrganizacaoOrderByWithRelationInput
+    usuario?: UsuarioOrderByWithRelationInput
+  }
+
+  export type GuiaGravityManualLidoWhereUniqueInput = Prisma.AtLeast<{
+    id_guia_gravity_manual_lido?: string
+    id_organizacao_id_usuario_slug_manual_guia_gravity?: GuiaGravityManualLidoId_organizacaoId_usuarioSlug_manual_guia_gravityCompoundUniqueInput
+    AND?: GuiaGravityManualLidoWhereInput | GuiaGravityManualLidoWhereInput[]
+    OR?: GuiaGravityManualLidoWhereInput[]
+    NOT?: GuiaGravityManualLidoWhereInput | GuiaGravityManualLidoWhereInput[]
+    id_organizacao?: StringFilter<"GuiaGravityManualLido"> | string
+    id_usuario?: StringFilter<"GuiaGravityManualLido"> | string
+    slug_manual_guia_gravity?: StringFilter<"GuiaGravityManualLido"> | string
+    data_leitura_manual_guia_gravity?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    organizacao?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
+    usuario?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
+  }, "id_guia_gravity_manual_lido" | "id_organizacao_id_usuario_slug_manual_guia_gravity">
+
+  export type GuiaGravityManualLidoOrderByWithAggregationInput = {
+    id_guia_gravity_manual_lido?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    slug_manual_guia_gravity?: SortOrder
+    data_leitura_manual_guia_gravity?: SortOrder
+    data_criacao_guia_gravity_manual_lido?: SortOrder
+    data_atualizacao_guia_gravity_manual_lido?: SortOrder
+    _count?: GuiaGravityManualLidoCountOrderByAggregateInput
+    _max?: GuiaGravityManualLidoMaxOrderByAggregateInput
+    _min?: GuiaGravityManualLidoMinOrderByAggregateInput
+  }
+
+  export type GuiaGravityManualLidoScalarWhereWithAggregatesInput = {
+    AND?: GuiaGravityManualLidoScalarWhereWithAggregatesInput | GuiaGravityManualLidoScalarWhereWithAggregatesInput[]
+    OR?: GuiaGravityManualLidoScalarWhereWithAggregatesInput[]
+    NOT?: GuiaGravityManualLidoScalarWhereWithAggregatesInput | GuiaGravityManualLidoScalarWhereWithAggregatesInput[]
+    id_guia_gravity_manual_lido?: StringWithAggregatesFilter<"GuiaGravityManualLido"> | string
+    id_organizacao?: StringWithAggregatesFilter<"GuiaGravityManualLido"> | string
+    id_usuario?: StringWithAggregatesFilter<"GuiaGravityManualLido"> | string
+    slug_manual_guia_gravity?: StringWithAggregatesFilter<"GuiaGravityManualLido"> | string
+    data_leitura_manual_guia_gravity?: DateTimeWithAggregatesFilter<"GuiaGravityManualLido"> | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeWithAggregatesFilter<"GuiaGravityManualLido"> | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeWithAggregatesFilter<"GuiaGravityManualLido"> | Date | string
+  }
+
   export type OrganizacaoCreateInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -42783,6 +43986,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateInput = {
@@ -42812,6 +44016,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUpdateInput = {
@@ -42841,6 +44046,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateInput = {
@@ -42870,6 +44076,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateManyInput = {
@@ -42941,6 +44148,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateInput = {
@@ -42961,6 +44169,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUpdateInput = {
@@ -42981,6 +44190,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateInput = {
@@ -43001,6 +44211,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioCreateManyInput = {
@@ -46336,6 +47547,74 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GuiaGravityManualLidoCreateInput = {
+    id_guia_gravity_manual_lido?: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+    organizacao: OrganizacaoCreateNestedOneWithoutManuais_lidos_guia_gravityInput
+    usuario: UsuarioCreateNestedOneWithoutManuais_lidos_guia_gravityInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedCreateInput = {
+    id_guia_gravity_manual_lido?: string
+    id_organizacao: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+  }
+
+  export type GuiaGravityManualLidoUpdateInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    organizacao?: OrganizacaoUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput
+    usuario?: UsuarioUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuiaGravityManualLidoCreateManyInput = {
+    id_guia_gravity_manual_lido?: string
+    id_organizacao: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+  }
+
+  export type GuiaGravityManualLidoUpdateManyMutationInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateManyInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -46461,6 +47740,12 @@ export namespace Prisma {
     none?: GuiaGravityCertificadoEmitidoWhereInput
   }
 
+  export type GuiaGravityManualLidoListRelationFilter = {
+    every?: GuiaGravityManualLidoWhereInput
+    some?: GuiaGravityManualLidoWhereInput
+    none?: GuiaGravityManualLidoWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -46511,6 +47796,10 @@ export namespace Prisma {
   }
 
   export type GuiaGravityCertificadoEmitidoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GuiaGravityManualLidoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -48904,6 +50193,42 @@ export namespace Prisma {
     _max?: NestedEnumTipoCertificadoGuiaGravityFilter<$PrismaModel>
   }
 
+  export type GuiaGravityManualLidoId_organizacaoId_usuarioSlug_manual_guia_gravityCompoundUniqueInput = {
+    id_organizacao: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+  }
+
+  export type GuiaGravityManualLidoCountOrderByAggregateInput = {
+    id_guia_gravity_manual_lido?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    slug_manual_guia_gravity?: SortOrder
+    data_leitura_manual_guia_gravity?: SortOrder
+    data_criacao_guia_gravity_manual_lido?: SortOrder
+    data_atualizacao_guia_gravity_manual_lido?: SortOrder
+  }
+
+  export type GuiaGravityManualLidoMaxOrderByAggregateInput = {
+    id_guia_gravity_manual_lido?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    slug_manual_guia_gravity?: SortOrder
+    data_leitura_manual_guia_gravity?: SortOrder
+    data_criacao_guia_gravity_manual_lido?: SortOrder
+    data_atualizacao_guia_gravity_manual_lido?: SortOrder
+  }
+
+  export type GuiaGravityManualLidoMinOrderByAggregateInput = {
+    id_guia_gravity_manual_lido?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    slug_manual_guia_gravity?: SortOrder
+    data_leitura_manual_guia_gravity?: SortOrder
+    data_criacao_guia_gravity_manual_lido?: SortOrder
+    data_atualizacao_guia_gravity_manual_lido?: SortOrder
+  }
+
   export type UsuarioCreateNestedManyWithoutTenantInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -48988,6 +50313,13 @@ export namespace Prisma {
     connect?: GuiaGravityCertificadoEmitidoWhereUniqueInput | GuiaGravityCertificadoEmitidoWhereUniqueInput[]
   }
 
+  export type GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput> | GuiaGravityManualLidoCreateWithoutOrganizacaoInput[] | GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput | GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput[]
+    createMany?: GuiaGravityManualLidoCreateManyOrganizacaoInputEnvelope
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+  }
+
   export type UsuarioUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -49070,6 +50402,13 @@ export namespace Prisma {
     connectOrCreate?: GuiaGravityCertificadoEmitidoCreateOrConnectWithoutOrganizacaoInput | GuiaGravityCertificadoEmitidoCreateOrConnectWithoutOrganizacaoInput[]
     createMany?: GuiaGravityCertificadoEmitidoCreateManyOrganizacaoInputEnvelope
     connect?: GuiaGravityCertificadoEmitidoWhereUniqueInput | GuiaGravityCertificadoEmitidoWhereUniqueInput[]
+  }
+
+  export type GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput> | GuiaGravityManualLidoCreateWithoutOrganizacaoInput[] | GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput | GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput[]
+    createMany?: GuiaGravityManualLidoCreateManyOrganizacaoInputEnvelope
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -49260,6 +50599,20 @@ export namespace Prisma {
     deleteMany?: GuiaGravityCertificadoEmitidoScalarWhereInput | GuiaGravityCertificadoEmitidoScalarWhereInput[]
   }
 
+  export type GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput> | GuiaGravityManualLidoCreateWithoutOrganizacaoInput[] | GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput | GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput[]
+    upsert?: GuiaGravityManualLidoUpsertWithWhereUniqueWithoutOrganizacaoInput | GuiaGravityManualLidoUpsertWithWhereUniqueWithoutOrganizacaoInput[]
+    createMany?: GuiaGravityManualLidoCreateManyOrganizacaoInputEnvelope
+    set?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    disconnect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    delete?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    update?: GuiaGravityManualLidoUpdateWithWhereUniqueWithoutOrganizacaoInput | GuiaGravityManualLidoUpdateWithWhereUniqueWithoutOrganizacaoInput[]
+    updateMany?: GuiaGravityManualLidoUpdateManyWithWhereWithoutOrganizacaoInput | GuiaGravityManualLidoUpdateManyWithWhereWithoutOrganizacaoInput[]
+    deleteMany?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
+  }
+
   export type UsuarioUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UsuarioCreateWithoutTenantInput, UsuarioUncheckedCreateWithoutTenantInput> | UsuarioCreateWithoutTenantInput[] | UsuarioUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UsuarioCreateOrConnectWithoutTenantInput | UsuarioCreateOrConnectWithoutTenantInput[]
@@ -49428,6 +50781,20 @@ export namespace Prisma {
     deleteMany?: GuiaGravityCertificadoEmitidoScalarWhereInput | GuiaGravityCertificadoEmitidoScalarWhereInput[]
   }
 
+  export type GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput> | GuiaGravityManualLidoCreateWithoutOrganizacaoInput[] | GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput | GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput[]
+    upsert?: GuiaGravityManualLidoUpsertWithWhereUniqueWithoutOrganizacaoInput | GuiaGravityManualLidoUpsertWithWhereUniqueWithoutOrganizacaoInput[]
+    createMany?: GuiaGravityManualLidoCreateManyOrganizacaoInputEnvelope
+    set?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    disconnect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    delete?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    update?: GuiaGravityManualLidoUpdateWithWhereUniqueWithoutOrganizacaoInput | GuiaGravityManualLidoUpdateWithWhereUniqueWithoutOrganizacaoInput[]
+    updateMany?: GuiaGravityManualLidoUpdateManyWithWhereWithoutOrganizacaoInput | GuiaGravityManualLidoUpdateManyWithWhereWithoutOrganizacaoInput[]
+    deleteMany?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
+  }
+
   export type OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput = {
     create?: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
     connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput
@@ -49482,6 +50849,13 @@ export namespace Prisma {
     connect?: GuiaGravityCertificadoEmitidoWhereUniqueInput | GuiaGravityCertificadoEmitidoWhereUniqueInput[]
   }
 
+  export type GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput> | GuiaGravityManualLidoCreateWithoutUsuarioInput[] | GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput | GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput[]
+    createMany?: GuiaGravityManualLidoCreateManyUsuarioInputEnvelope
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+  }
+
   export type UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<UsuarioPermissaoCreateWithoutUserInput, UsuarioPermissaoUncheckedCreateWithoutUserInput> | UsuarioPermissaoCreateWithoutUserInput[] | UsuarioPermissaoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UsuarioPermissaoCreateOrConnectWithoutUserInput | UsuarioPermissaoCreateOrConnectWithoutUserInput[]
@@ -49522,6 +50896,13 @@ export namespace Prisma {
     connectOrCreate?: GuiaGravityCertificadoEmitidoCreateOrConnectWithoutUsuarioInput | GuiaGravityCertificadoEmitidoCreateOrConnectWithoutUsuarioInput[]
     createMany?: GuiaGravityCertificadoEmitidoCreateManyUsuarioInputEnvelope
     connect?: GuiaGravityCertificadoEmitidoWhereUniqueInput | GuiaGravityCertificadoEmitidoWhereUniqueInput[]
+  }
+
+  export type GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput> | GuiaGravityManualLidoCreateWithoutUsuarioInput[] | GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput | GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput[]
+    createMany?: GuiaGravityManualLidoCreateManyUsuarioInputEnvelope
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
   }
 
   export type EnumUsuarioTipoFieldUpdateOperationsInput = {
@@ -49634,6 +51015,20 @@ export namespace Prisma {
     deleteMany?: GuiaGravityCertificadoEmitidoScalarWhereInput | GuiaGravityCertificadoEmitidoScalarWhereInput[]
   }
 
+  export type GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput> | GuiaGravityManualLidoCreateWithoutUsuarioInput[] | GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput | GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput[]
+    upsert?: GuiaGravityManualLidoUpsertWithWhereUniqueWithoutUsuarioInput | GuiaGravityManualLidoUpsertWithWhereUniqueWithoutUsuarioInput[]
+    createMany?: GuiaGravityManualLidoCreateManyUsuarioInputEnvelope
+    set?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    disconnect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    delete?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    update?: GuiaGravityManualLidoUpdateWithWhereUniqueWithoutUsuarioInput | GuiaGravityManualLidoUpdateWithWhereUniqueWithoutUsuarioInput[]
+    updateMany?: GuiaGravityManualLidoUpdateManyWithWhereWithoutUsuarioInput | GuiaGravityManualLidoUpdateManyWithWhereWithoutUsuarioInput[]
+    deleteMany?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
+  }
+
   export type UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<UsuarioPermissaoCreateWithoutUserInput, UsuarioPermissaoUncheckedCreateWithoutUserInput> | UsuarioPermissaoCreateWithoutUserInput[] | UsuarioPermissaoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UsuarioPermissaoCreateOrConnectWithoutUserInput | UsuarioPermissaoCreateOrConnectWithoutUserInput[]
@@ -49716,6 +51111,20 @@ export namespace Prisma {
     update?: GuiaGravityCertificadoEmitidoUpdateWithWhereUniqueWithoutUsuarioInput | GuiaGravityCertificadoEmitidoUpdateWithWhereUniqueWithoutUsuarioInput[]
     updateMany?: GuiaGravityCertificadoEmitidoUpdateManyWithWhereWithoutUsuarioInput | GuiaGravityCertificadoEmitidoUpdateManyWithWhereWithoutUsuarioInput[]
     deleteMany?: GuiaGravityCertificadoEmitidoScalarWhereInput | GuiaGravityCertificadoEmitidoScalarWhereInput[]
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput = {
+    create?: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput> | GuiaGravityManualLidoCreateWithoutUsuarioInput[] | GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput | GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput[]
+    upsert?: GuiaGravityManualLidoUpsertWithWhereUniqueWithoutUsuarioInput | GuiaGravityManualLidoUpsertWithWhereUniqueWithoutUsuarioInput[]
+    createMany?: GuiaGravityManualLidoCreateManyUsuarioInputEnvelope
+    set?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    disconnect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    delete?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    connect?: GuiaGravityManualLidoWhereUniqueInput | GuiaGravityManualLidoWhereUniqueInput[]
+    update?: GuiaGravityManualLidoUpdateWithWhereUniqueWithoutUsuarioInput | GuiaGravityManualLidoUpdateWithWhereUniqueWithoutUsuarioInput[]
+    updateMany?: GuiaGravityManualLidoUpdateManyWithWhereWithoutUsuarioInput | GuiaGravityManualLidoUpdateManyWithWhereWithoutUsuarioInput[]
+    deleteMany?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
   }
 
   export type OrganizacaoCreateNestedOneWithoutSubscriptions_organizacaoInput = {
@@ -50696,6 +52105,34 @@ export namespace Prisma {
     update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutCertificados_guia_gravityInput, UsuarioUpdateWithoutCertificados_guia_gravityInput>, UsuarioUncheckedUpdateWithoutCertificados_guia_gravityInput>
   }
 
+  export type OrganizacaoCreateNestedOneWithoutManuais_lidos_guia_gravityInput = {
+    create?: XOR<OrganizacaoCreateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutManuais_lidos_guia_gravityInput
+    connect?: OrganizacaoWhereUniqueInput
+  }
+
+  export type UsuarioCreateNestedOneWithoutManuais_lidos_guia_gravityInput = {
+    create?: XOR<UsuarioCreateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutManuais_lidos_guia_gravityInput
+    connect?: UsuarioWhereUniqueInput
+  }
+
+  export type OrganizacaoUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutManuais_lidos_guia_gravityInput
+    upsert?: OrganizacaoUpsertWithoutManuais_lidos_guia_gravityInput
+    connect?: OrganizacaoWhereUniqueInput
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutManuais_lidos_guia_gravityInput, OrganizacaoUpdateWithoutManuais_lidos_guia_gravityInput>, OrganizacaoUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+  }
+
+  export type UsuarioUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput = {
+    create?: XOR<UsuarioCreateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutManuais_lidos_guia_gravityInput
+    upsert?: UsuarioUpsertWithoutManuais_lidos_guia_gravityInput
+    connect?: UsuarioWhereUniqueInput
+    update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutManuais_lidos_guia_gravityInput, UsuarioUpdateWithoutManuais_lidos_guia_gravityInput>, UsuarioUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -51250,6 +52687,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutTenantInput = {
@@ -51269,6 +52707,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutTenantInput = {
@@ -51663,6 +53102,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type GuiaGravityManualLidoCreateWithoutOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+    usuario: UsuarioCreateNestedOneWithoutManuais_lidos_guia_gravityInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+  }
+
+  export type GuiaGravityManualLidoCreateOrConnectWithoutOrganizacaoInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    create: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput>
+  }
+
+  export type GuiaGravityManualLidoCreateManyOrganizacaoInputEnvelope = {
+    data: GuiaGravityManualLidoCreateManyOrganizacaoInput | GuiaGravityManualLidoCreateManyOrganizacaoInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UsuarioUpsertWithWhereUniqueWithoutTenantInput = {
     where: UsuarioWhereUniqueInput
     update: XOR<UsuarioUpdateWithoutTenantInput, UsuarioUncheckedUpdateWithoutTenantInput>
@@ -52047,6 +53514,35 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: DateTimeFilter<"GuiaGravityCertificadoEmitido"> | Date | string
   }
 
+  export type GuiaGravityManualLidoUpsertWithWhereUniqueWithoutOrganizacaoInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    update: XOR<GuiaGravityManualLidoUpdateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedUpdateWithoutOrganizacaoInput>
+    create: XOR<GuiaGravityManualLidoCreateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedCreateWithoutOrganizacaoInput>
+  }
+
+  export type GuiaGravityManualLidoUpdateWithWhereUniqueWithoutOrganizacaoInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    data: XOR<GuiaGravityManualLidoUpdateWithoutOrganizacaoInput, GuiaGravityManualLidoUncheckedUpdateWithoutOrganizacaoInput>
+  }
+
+  export type GuiaGravityManualLidoUpdateManyWithWhereWithoutOrganizacaoInput = {
+    where: GuiaGravityManualLidoScalarWhereInput
+    data: XOR<GuiaGravityManualLidoUpdateManyMutationInput, GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoInput>
+  }
+
+  export type GuiaGravityManualLidoScalarWhereInput = {
+    AND?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
+    OR?: GuiaGravityManualLidoScalarWhereInput[]
+    NOT?: GuiaGravityManualLidoScalarWhereInput | GuiaGravityManualLidoScalarWhereInput[]
+    id_guia_gravity_manual_lido?: StringFilter<"GuiaGravityManualLido"> | string
+    id_organizacao?: StringFilter<"GuiaGravityManualLido"> | string
+    id_usuario?: StringFilter<"GuiaGravityManualLido"> | string
+    slug_manual_guia_gravity?: StringFilter<"GuiaGravityManualLido"> | string
+    data_leitura_manual_guia_gravity?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFilter<"GuiaGravityManualLido"> | Date | string
+  }
+
   export type OrganizacaoCreateWithoutUsers_organizacaoInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -52073,6 +53569,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput = {
@@ -52101,6 +53598,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput = {
@@ -52343,6 +53841,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type GuiaGravityManualLidoCreateWithoutUsuarioInput = {
+    id_guia_gravity_manual_lido?: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+    organizacao: OrganizacaoCreateNestedOneWithoutManuais_lidos_guia_gravityInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput = {
+    id_guia_gravity_manual_lido?: string
+    id_organizacao: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+  }
+
+  export type GuiaGravityManualLidoCreateOrConnectWithoutUsuarioInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    create: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput>
+  }
+
+  export type GuiaGravityManualLidoCreateManyUsuarioInputEnvelope = {
+    data: GuiaGravityManualLidoCreateManyUsuarioInput | GuiaGravityManualLidoCreateManyUsuarioInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizacaoUpsertWithoutUsers_organizacaoInput = {
     update: XOR<OrganizacaoUpdateWithoutUsers_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
     create: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
@@ -52380,6 +53906,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput = {
@@ -52408,6 +53935,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type WorkspaceUpsertWithoutPreferred_by_usersInput = {
@@ -52583,6 +54111,22 @@ export namespace Prisma {
     data: XOR<GuiaGravityCertificadoEmitidoUpdateManyMutationInput, GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioInput>
   }
 
+  export type GuiaGravityManualLidoUpsertWithWhereUniqueWithoutUsuarioInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    update: XOR<GuiaGravityManualLidoUpdateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedUpdateWithoutUsuarioInput>
+    create: XOR<GuiaGravityManualLidoCreateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedCreateWithoutUsuarioInput>
+  }
+
+  export type GuiaGravityManualLidoUpdateWithWhereUniqueWithoutUsuarioInput = {
+    where: GuiaGravityManualLidoWhereUniqueInput
+    data: XOR<GuiaGravityManualLidoUpdateWithoutUsuarioInput, GuiaGravityManualLidoUncheckedUpdateWithoutUsuarioInput>
+  }
+
+  export type GuiaGravityManualLidoUpdateManyWithWhereWithoutUsuarioInput = {
+    where: GuiaGravityManualLidoScalarWhereInput
+    data: XOR<GuiaGravityManualLidoUpdateManyMutationInput, GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioInput>
+  }
+
   export type OrganizacaoCreateWithoutSubscriptions_organizacaoInput = {
     id_organizacao?: string
     nome_organizacao: string
@@ -52609,6 +54153,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput = {
@@ -52637,6 +54182,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutSubscriptions_organizacaoInput = {
@@ -52758,6 +54304,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput = {
@@ -52786,6 +54333,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type ProdutoGravityUpsertWithoutAssinaturas_produto_gravityInput = {
@@ -52897,6 +54445,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput = {
@@ -52925,6 +54474,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutUser_permissions_organizacaoInput = {
@@ -52949,6 +54499,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutUser_permissionsInput = {
@@ -52968,6 +54519,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutUser_permissionsInput = {
@@ -53012,6 +54564,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput = {
@@ -53040,6 +54593,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioUpsertWithoutUser_permissionsInput = {
@@ -53070,6 +54624,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutUser_permissionsInput = {
@@ -53089,6 +54644,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type OrganizacaoCreateWithoutCompanies_organizacaoInput = {
@@ -53117,6 +54673,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput = {
@@ -53145,6 +54702,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutCompanies_organizacaoInput = {
@@ -53227,6 +54785,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutPreferred_companyInput = {
@@ -53246,6 +54805,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutPreferred_companyInput = {
@@ -53295,6 +54855,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput = {
@@ -53323,6 +54884,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioWorkspaceUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -53390,6 +54952,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutMembershipsInput = {
@@ -53409,6 +54972,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutMembershipsInput = {
@@ -53485,6 +55049,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutMembershipsInput = {
@@ -53504,6 +55069,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type WorkspaceUpsertWithoutMembershipsInput = {
@@ -53579,6 +55145,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput = {
@@ -53607,6 +55174,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProduct_configs_organizacaoInput = {
@@ -53651,6 +55219,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput = {
@@ -53679,6 +55248,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateWithoutProdutoGravityWorkspaceInput = {
@@ -53707,6 +55277,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
@@ -53735,6 +55306,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput = {
@@ -53897,6 +55469,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
@@ -53925,6 +55498,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type WorkspaceUpsertWithoutCompany_productsInput = {
@@ -54861,6 +56435,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutTestes_favoritosInput = {
@@ -54880,6 +56455,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutTestes_favoritosInput = {
@@ -54915,6 +56491,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutTestes_favoritosInput = {
@@ -54934,6 +56511,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type ProdutoGravityFaturaItemCreateWithoutFaturaInput = {
@@ -55036,6 +56614,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutFaturas_organizacaoInput = {
@@ -55064,6 +56643,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutFaturas_organizacaoInput = {
@@ -55140,6 +56720,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutFaturas_organizacaoInput = {
@@ -55168,6 +56749,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type ProdutoGravityFaturaCreateWithoutItens_fatura_produto_gravityInput = {
@@ -55310,6 +56892,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutFatura_itens_organizacaoInput = {
@@ -55338,6 +56921,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutFatura_itens_organizacaoInput = {
@@ -55508,6 +57092,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutFatura_itens_organizacaoInput = {
@@ -55536,6 +57121,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type ProdutoGravityFaturaCreateWithoutDocumentos_fatura_produto_gravityInput = {
@@ -55601,6 +57187,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutFatura_documentos_organizacaoInput = {
@@ -55629,6 +57216,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutFatura_documentos_organizacaoInput = {
@@ -55716,6 +57304,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutFatura_documentos_organizacaoInput = {
@@ -55744,6 +57333,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoCreateWithoutJornadas_guia_gravityInput = {
@@ -55772,6 +57362,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutJornadas_guia_gravityInput = {
@@ -55800,6 +57391,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutJornadas_guia_gravityInput = {
@@ -55824,6 +57416,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutJornadas_guia_gravityInput = {
@@ -55843,6 +57436,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutJornadas_guia_gravityInput = {
@@ -55887,6 +57481,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutJornadas_guia_gravityInput = {
@@ -55915,6 +57510,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioUpsertWithoutJornadas_guia_gravityInput = {
@@ -55945,6 +57541,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutJornadas_guia_gravityInput = {
@@ -55964,6 +57561,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type OrganizacaoCreateWithoutAulas_conclusao_guia_gravityInput = {
@@ -55992,6 +57590,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutAulas_conclusao_guia_gravityInput = {
@@ -56020,6 +57619,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutAulas_conclusao_guia_gravityInput = {
@@ -56044,6 +57644,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutAulas_conclusao_guia_gravityInput = {
@@ -56063,6 +57664,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutAulas_conclusao_guia_gravityInput = {
@@ -56107,6 +57709,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutAulas_conclusao_guia_gravityInput = {
@@ -56135,6 +57738,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioUpsertWithoutAulas_conclusao_guia_gravityInput = {
@@ -56165,6 +57769,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutAulas_conclusao_guia_gravityInput = {
@@ -56184,6 +57789,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type OrganizacaoCreateWithoutCertificados_guia_gravityInput = {
@@ -56212,6 +57818,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutCertificados_guia_gravityInput = {
@@ -56240,6 +57847,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutOrganizacaoInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutCertificados_guia_gravityInput = {
@@ -56264,6 +57872,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutCertificados_guia_gravityInput = {
@@ -56283,6 +57892,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutCertificados_guia_gravityInput = {
@@ -56327,6 +57937,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutCertificados_guia_gravityInput = {
@@ -56355,6 +57966,7 @@ export namespace Prisma {
     fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
   }
 
   export type UsuarioUpsertWithoutCertificados_guia_gravityInput = {
@@ -56385,6 +57997,7 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutCertificados_guia_gravityInput = {
@@ -56404,6 +58017,235 @@ export namespace Prisma {
     testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
+  }
+
+  export type OrganizacaoCreateWithoutManuais_lidos_guia_gravityInput = {
+    id_organizacao?: string
+    nome_organizacao: string
+    subdominio_organizacao: string
+    status_organizacao?: $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: string | null
+    suid_empresa_organizacao?: string | null
+    cnpj_organizacao?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
+    tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
+    faturas_organizacao?: ProdutoGravityFaturaCreateNestedManyWithoutOrganizacaoInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoCreateNestedManyWithoutOrganizacaoInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutOrganizacaoInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutOrganizacaoInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutOrganizacaoInput
+  }
+
+  export type OrganizacaoUncheckedCreateWithoutManuais_lidos_guia_gravityInput = {
+    id_organizacao?: string
+    nome_organizacao: string
+    subdominio_organizacao: string
+    status_organizacao?: $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: string | null
+    suid_empresa_organizacao?: string | null
+    cnpj_organizacao?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
+    tipo_organizacao?: string | null
+    hospeda_colaboradores_gravity?: boolean
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    faturas_organizacao?: ProdutoGravityFaturaUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedCreateNestedManyWithoutOrganizacaoInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutOrganizacaoInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutOrganizacaoInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutOrganizacaoInput
+  }
+
+  export type OrganizacaoCreateOrConnectWithoutManuais_lidos_guia_gravityInput = {
+    where: OrganizacaoWhereUniqueInput
+    create: XOR<OrganizacaoCreateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+  }
+
+  export type UsuarioCreateWithoutManuais_lidos_guia_gravityInput = {
+    id_usuario?: string
+    id_clerk_usuario: string
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
+    status_usuario?: $Enums.StatusUsuario
+    acesso_workspaces_futuros?: boolean
+    data_criacao_usuario?: Date | string
+    data_atualizacao_usuario?: Date | string
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
+    memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioCreateNestedManyWithoutUsuarioInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoCreateNestedManyWithoutUsuarioInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoCreateNestedManyWithoutUsuarioInput
+  }
+
+  export type UsuarioUncheckedCreateWithoutManuais_lidos_guia_gravityInput = {
+    id_usuario?: string
+    id_organizacao: string
+    id_clerk_usuario: string
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
+    status_usuario?: $Enums.StatusUsuario
+    id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
+    data_criacao_usuario?: Date | string
+    data_atualizacao_usuario?: Date | string
+    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
+    memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedCreateNestedManyWithoutUsuarioInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedCreateNestedManyWithoutUsuarioInput
+  }
+
+  export type UsuarioCreateOrConnectWithoutManuais_lidos_guia_gravityInput = {
+    where: UsuarioWhereUniqueInput
+    create: XOR<UsuarioCreateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+  }
+
+  export type OrganizacaoUpsertWithoutManuais_lidos_guia_gravityInput = {
+    update: XOR<OrganizacaoUpdateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+    create: XOR<OrganizacaoCreateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    where?: OrganizacaoWhereInput
+  }
+
+  export type OrganizacaoUpdateToOneWithWhereWithoutManuais_lidos_guia_gravityInput = {
+    where?: OrganizacaoWhereInput
+    data: XOR<OrganizacaoUpdateWithoutManuais_lidos_guia_gravityInput, OrganizacaoUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+  }
+
+  export type OrganizacaoUpdateWithoutManuais_lidos_guia_gravityInput = {
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    nome_organizacao?: StringFieldUpdateOperationsInput | string
+    subdominio_organizacao?: StringFieldUpdateOperationsInput | string
+    status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
+    faturas_organizacao?: ProdutoGravityFaturaUpdateManyWithoutOrganizacaoNestedInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUpdateManyWithoutOrganizacaoNestedInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutOrganizacaoNestedInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutOrganizacaoNestedInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutOrganizacaoNestedInput
+  }
+
+  export type OrganizacaoUncheckedUpdateWithoutManuais_lidos_guia_gravityInput = {
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    nome_organizacao?: StringFieldUpdateOperationsInput | string
+    subdominio_organizacao?: StringFieldUpdateOperationsInput | string
+    status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    hospeda_colaboradores_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
+    ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    faturas_organizacao?: ProdutoGravityFaturaUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_itens_organizacao?: ProdutoGravityFaturaItemUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    fatura_documentos_organizacao?: ProdutoGravityFaturaDocumentoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutOrganizacaoNestedInput
+  }
+
+  export type UsuarioUpsertWithoutManuais_lidos_guia_gravityInput = {
+    update: XOR<UsuarioUpdateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+    create: XOR<UsuarioCreateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedCreateWithoutManuais_lidos_guia_gravityInput>
+    where?: UsuarioWhereInput
+  }
+
+  export type UsuarioUpdateToOneWithWhereWithoutManuais_lidos_guia_gravityInput = {
+    where?: UsuarioWhereInput
+    data: XOR<UsuarioUpdateWithoutManuais_lidos_guia_gravityInput, UsuarioUncheckedUpdateWithoutManuais_lidos_guia_gravityInput>
+  }
+
+  export type UsuarioUpdateWithoutManuais_lidos_guia_gravityInput = {
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    email_usuario?: StringFieldUpdateOperationsInput | string
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    status_usuario?: EnumStatusUsuarioFieldUpdateOperationsInput | $Enums.StatusUsuario
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
+    memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+  }
+
+  export type UsuarioUncheckedUpdateWithoutManuais_lidos_guia_gravityInput = {
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    email_usuario?: StringFieldUpdateOperationsInput | string
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    status_usuario?: EnumStatusUsuarioFieldUpdateOperationsInput | $Enums.StatusUsuario
+    id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
+    jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
+    aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
+    certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -56550,6 +58392,15 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: Date | string
   }
 
+  export type GuiaGravityManualLidoCreateManyOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: string
+    id_usuario: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
+  }
+
   export type UsuarioUpdateWithoutTenantInput = {
     id_usuario?: StringFieldUpdateOperationsInput | string
     id_clerk_usuario?: StringFieldUpdateOperationsInput | string
@@ -56567,6 +58418,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutTenantInput = {
@@ -56586,6 +58438,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateManyWithoutTenantInput = {
@@ -57004,6 +58857,33 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GuiaGravityManualLidoUpdateWithoutOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuario?: UsuarioUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateWithoutOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateManyWithoutOrganizacaoInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UsuarioPermissaoCreateManyUserInput = {
     id_usuario_permissao?: string
     id_organizacao: string
@@ -57069,6 +58949,15 @@ export namespace Prisma {
     nivel_certificado_guia_gravity: number
     data_criacao_guia_gravity_certificado_emitido?: Date | string
     data_atualizacao_guia_gravity_certificado_emitido?: Date | string
+  }
+
+  export type GuiaGravityManualLidoCreateManyUsuarioInput = {
+    id_guia_gravity_manual_lido?: string
+    id_organizacao: string
+    slug_manual_guia_gravity: string
+    data_leitura_manual_guia_gravity?: Date | string
+    data_criacao_guia_gravity_manual_lido?: Date | string
+    data_atualizacao_guia_gravity_manual_lido?: Date | string
   }
 
   export type UsuarioPermissaoUpdateWithoutUserInput = {
@@ -57272,6 +59161,33 @@ export namespace Prisma {
     data_atualizacao_guia_gravity_certificado_emitido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GuiaGravityManualLidoUpdateWithoutUsuarioInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    organizacao?: OrganizacaoUpdateOneRequiredWithoutManuais_lidos_guia_gravityNestedInput
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateWithoutUsuarioInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioInput = {
+    id_guia_gravity_manual_lido?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    slug_manual_guia_gravity?: StringFieldUpdateOperationsInput | string
+    data_leitura_manual_guia_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_guia_gravity_manual_lido?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UsuarioWorkspaceCreateManyCompanyInput = {
     id_usuario_workspace?: string
     id_organizacao: string
@@ -57378,6 +59294,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutPreferred_companyInput = {
@@ -57397,6 +59314,7 @@ export namespace Prisma {
     jornadas_guia_gravity?: GuiaGravityJornadaUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
     aulas_conclusao_guia_gravity?: GuiaGravityAulaConclusaoUncheckedUpdateManyWithoutUsuarioNestedInput
     certificados_guia_gravity?: GuiaGravityCertificadoEmitidoUncheckedUpdateManyWithoutUsuarioNestedInput
+    manuais_lidos_guia_gravity?: GuiaGravityManualLidoUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateManyWithoutPreferred_companyInput = {
@@ -58013,6 +59931,10 @@ export namespace Prisma {
      * @deprecated Use GuiaGravityCertificadoEmitidoDefaultArgs instead
      */
     export type GuiaGravityCertificadoEmitidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GuiaGravityCertificadoEmitidoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GuiaGravityManualLidoDefaultArgs instead
+     */
+    export type GuiaGravityManualLidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GuiaGravityManualLidoDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

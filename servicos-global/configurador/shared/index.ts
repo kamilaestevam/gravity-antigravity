@@ -53,12 +53,28 @@ export {
 } from './permissoes-canonicas.js'
 export {
   guiaGravityJornadaResponseSchema,
+  guiaGravityRankingResponseSchema,
   concluirAulaGuiaGravityBodySchema,
   concluirAulaGuiaGravityResponseSchema,
   verificarCertificadoGuiaGravityResponseSchema,
   type GuiaGravityJornadaResponse,
+  type GuiaGravityRankingResponse,
   type VerificarCertificadoGuiaGravityResponse,
 } from './guia-gravity/guia-gravity-jornada-schema.js'
+export {
+  TOTAL_MANUAIS_GUIA_GRAVITY,
+  SLUGS_MANUAL_GUIA_GRAVITY,
+  slugManualGuiaGravityValido,
+  type SlugManualGuiaGravity,
+} from './guia-gravity/catalogo-manuais-guia-gravity.js'
+export { calcularDiasOfensivaGuiaGravity } from './guia-gravity/ofensiva-guia-gravity.js'
+export {
+  PRODUTOS_GUIA_PLATAFORMA,
+  assinaturaAtivaParaJornada,
+  montarProdutosJornadaContratados,
+  produtoCompradoNaOrganizacao,
+  type ProdutoGuiaPlataforma,
+} from './guia-gravity/produtos-jornada-guia-gravity.js'
 export {
   tipoCertificadoFrontParaPrisma,
   tipoCertificadoPrismaParaFront,

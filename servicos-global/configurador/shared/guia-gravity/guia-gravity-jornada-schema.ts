@@ -31,14 +31,35 @@ export const guiaGravityRitmoSchema = z.object({
   dias_decorridos: z.number(),
 })
 
+export const guiaGravityManualLidoSchema = z.object({
+  slug_manual_guia_gravity: z.string(),
+  data_leitura_manual_guia_gravity: z.string().datetime(),
+})
+
 export const guiaGravityJornadaResponseSchema = z.object({
   jornada: guiaGravityJornadaSchema,
   aulas_concluidas: z.array(guiaGravityAulaConclusaoSchema),
   certificados: z.array(guiaGravityCertificadoSchema),
+  manuais_lidos: z.array(guiaGravityManualLidoSchema),
+  manuais_total: z.number().int(),
   xp_total: z.number(),
   nivel: z.number().int(),
   ritmo: guiaGravityRitmoSchema,
 })
+
+export const guiaGravityRankingLinhaSchema = z.object({
+  id_usuario: z.string(),
+  nome_usuario: z.string(),
+  xp_total: z.number(),
+  posicao: z.number().int(),
+  usuario_atual: z.boolean(),
+})
+
+export const guiaGravityRankingResponseSchema = z.object({
+  ranking: z.array(guiaGravityRankingLinhaSchema),
+})
+
+export type GuiaGravityRankingResponse = z.infer<typeof guiaGravityRankingResponseSchema>
 
 export type GuiaGravityJornadaResponse = z.infer<typeof guiaGravityJornadaResponseSchema>
 

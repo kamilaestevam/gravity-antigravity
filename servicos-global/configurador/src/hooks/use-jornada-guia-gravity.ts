@@ -20,6 +20,7 @@ export interface EstadoJornadaGuiaGravity {
   diasOfensiva: number
   recarregar: () => Promise<void>
   marcarAulaConcluida: (slugAula: string, slugProduto: string) => Promise<void>
+  marcarManualLido: (slugManual: string) => Promise<void>
 }
 
 function aplicarRespostaJornada(data: GuiaGravityJornadaResponse): Pick<
@@ -101,6 +102,27 @@ export function useJornadaGuiaGravity(): EstadoJornadaGuiaGravity {
     setDiasOfensiva(aplicado.diasOfensiva)
   }, [getToken])
 
+  const marcarManualLido = useCallback(async (slugManual: string) => {
+    const token = await getToken()
+    if (!token) throw new Error('Sessão expirada')
+    const res = await fetch(
+      `/api/v1/guia-gravity/manuais/${encodeURIComponent(slugManual)}/marcar-lido`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    )
+    if (!res.ok) throw new Error(`Falha ao marcar manual (${res.status})`)
+    const raw = await res.json()
+    const parsed = guiaGravityJornadaResponseSchema.parse(raw)
+    const aplicado = aplicarRespostaJornada(parsed)
+    setDados(aplicado.dados)
+    setAulasConcluidas(aplicado.aulasConcluidas)
+    setMapaCertificados(aplicado.mapaCertificados)
+    setDataInicioJornada(aplicado.dataInicioJornada)
+    setDiasOfensiva(aplicado.diasOfensiva)
+  }, [getToken])
+
   return {
     carregando,
     erro,
@@ -111,5 +133,6 @@ export function useJornadaGuiaGravity(): EstadoJornadaGuiaGravity {
     diasOfensiva,
     recarregar,
     marcarAulaConcluida,
+    marcarManualLido,
   }
 }

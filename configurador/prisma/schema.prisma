@@ -111,6 +111,7 @@ model Organizacao {
   jornadas_guia_gravity          GuiaGravityJornadaUsuario[]
   aulas_conclusao_guia_gravity   GuiaGravityAulaConclusao[]
   certificados_guia_gravity      GuiaGravityCertificadoEmitido[]
+  manuais_lidos_guia_gravity     GuiaGravityManualLido[]
 
   @@index([status_organizacao], map: "status_organizacao_idx")
   @@index([subdominio_organizacao], map: "subdominio_organizacao_idx")
@@ -163,6 +164,7 @@ model Usuario {
   jornadas_guia_gravity          GuiaGravityJornadaUsuario[]
   aulas_conclusao_guia_gravity   GuiaGravityAulaConclusao[]
   certificados_guia_gravity      GuiaGravityCertificadoEmitido[]
+  manuais_lidos_guia_gravity     GuiaGravityManualLido[]
 
   // Email único por organização
   @@unique([id_organizacao, email_usuario], map: "usuario_id_organizacao_email_usuario_key")
@@ -1180,4 +1182,22 @@ model GuiaGravityCertificadoEmitido {
   @@index([id_organizacao], map: "ggce_org_idx")
   @@index([id_organizacao, id_usuario], map: "ggce_org_usuario_idx")
   @@map("guia_gravity_certificado_emitido")
+}
+
+model GuiaGravityManualLido {
+  id_guia_gravity_manual_lido               String   @id @default(cuid())
+  id_organizacao                           String
+  id_usuario                               String
+  slug_manual_guia_gravity                 String
+  data_leitura_manual_guia_gravity         DateTime @default(now())
+  data_criacao_guia_gravity_manual_lido     DateTime @default(now())
+  data_atualizacao_guia_gravity_manual_lido DateTime @updatedAt
+
+  organizacao Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "ggml_id_organizacao_fkey")
+  usuario     Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "ggml_id_usuario_fkey")
+
+  @@unique([id_organizacao, id_usuario, slug_manual_guia_gravity], map: "ggml_org_usuario_manual_key")
+  @@index([id_organizacao], map: "ggml_org_idx")
+  @@index([id_organizacao, id_usuario], map: "ggml_org_usuario_idx")
+  @@map("guia_gravity_manual_lido")
 }

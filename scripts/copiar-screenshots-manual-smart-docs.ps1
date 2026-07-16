@@ -97,6 +97,9 @@ $mapa = @{
   'tela_smart_docs_tela_nova_leitura_passo_3_comunicacao_fornecedor_3' = 'smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-3.png'
   'tela_smart_docs_tela_nova_leitura_passo_3_comunicacao_fornecedor_4' = 'smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-4.png'
   'tela_smart_docs_tela_nova_leitura_passo_3_conferencia_consolutor_inteligente' = 'smart-docs-nova-leitura-passo-3-consultor-inteligente.png'
+  'tela_smart_docs_passo_4_tela' = 'smart-docs-nova-leitura-passo-4.png'
+  'tela_smart_docs_tela_nova_leitura_passo_4_alterado_erro_metroca' = 'smart-docs-nova-leitura-passo-4-alterado-erro-metrica.png'
+  'tela_smart_docs_status' = 'smart-docs-status.png'
 }
 
 $copiados = 0

@@ -177,6 +177,7 @@ import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read
 import { ManualInfograficoSmartDocsConferencia } from './manual-smart-read-infografico-conferencia'
 import { ManualInfograficoSmartDocsChecklistConferencia } from './manual-smart-read-infografico-checklist-conferencia'
 import { ManualInfograficoSmartDocsEditarCamposMetrica } from './manual-smart-read-infografico-editar-campos-metrica'
+import { ManualInfograficoSmartDocsStatusFluxo } from './manual-smart-read-infografico-status-fluxo'
 import { ManualSmartReadTabelaChecklistConferencia } from './manual-smart-read-tabela-checklist-conferencia'
 import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
 import { ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit'
@@ -1549,7 +1550,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '233'
+const MANUAL_SCREENSHOT_CACHE_KEY = '235'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3382,11 +3383,9 @@ function ManualBlocoPassoVisual({
           && (passo.indicadorCursorVisualizacaoAposParagrafo ?? 1) === i ? (
             <ManualIndicadorCursorVisualizacao />
           ) : null}
-          {!calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
-          {omitirFigurasNoTexto
-          || (cotacaoAvulsaFormasIntroAntesCards && i === 0)
-            ? null
-            : figurasAposParagrafoPasso(passo, i).map((fig) => (
+          {!calloutAntesParagrafoCaminhosImportacao && !omitirFigurasNoTexto
+          && !(cotacaoAvulsaFormasIntroAntesCards && i === 0)
+            ? figurasAposParagrafoPasso(passo, i).map((fig) => (
               <div key={fig.imagem} style={{ margin: `${MANUAL_ESPACO_PARAGRAFO_PX}px 0 ${MANUAL_ESPACO_ENTRE_PASSOS_PX}px` }}>
                 <ManualFiguraScreenshot
                   src={fig.imagem}
@@ -3394,7 +3393,9 @@ function ManualBlocoPassoVisual({
                   larguraMaxima={fig.larguraMaxima}
                 />
               </div>
-            ))}
+            ))
+            : null}
+          {!calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
           {passo.mostrarCatalogoColunasPedidoLista
           && (passo.catalogoColunasPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoTabelaCatalogoColunasLista />
@@ -3559,6 +3560,21 @@ function ManualBlocoPassoVisual({
                 marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
               }}>
                 <ManualInfograficoSmartDocsEditarCamposMetrica margemSuperiorPx={0} />
+              </div>
+            )
+          ) : null}
+          {passo.mostrarInfograficoSmartDocsStatusFluxo
+          && (passo.infograficoSmartDocsStatusFluxoAposParagrafo ?? 1) === i ? (
+            passoAcademyIsolado ? (
+              <ManualInfograficoSmartDocsStatusFluxo margemSuperiorPx={0} />
+            ) : (
+              <div style={{
+                marginTop: emAcordeaoSubtopico
+                  ? MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX
+                  : MANUAL_ESPACO_PARAGRAFO_PX,
+                marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+              }}>
+                <ManualInfograficoSmartDocsStatusFluxo margemSuperiorPx={0} />
               </div>
             )
           ) : null}

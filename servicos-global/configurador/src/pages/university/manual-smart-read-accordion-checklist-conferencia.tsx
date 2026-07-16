@@ -367,19 +367,6 @@ export function ManualSmartReadAccordionChecklistConferencia({ marginTop = 20 }:
           })}
         </div>
       )}
-
-      <p style={{
-        margin: 0,
-        padding: '12px 18px 14px',
-        borderTop: '1px solid rgba(148,163,184,.08)',
-        fontSize: '.68rem',
-        lineHeight: 1.5,
-        color: CORPO_70,
-      }}>
-        Matriz alimentada pelo SSOT do produto — mesmas regras exibidas no modal **Checklist** da Conferência.
-        Expanda o **documento** (Invoice, Packing List, BL…) e depois a **subsessão** para ver todas as regras.
-        Status no padrão aviação: **CONFORME**, **ATENÇÃO**, **FALHA**, **PENDENTE** e **N/A**.
-      </p>
     </div>
   )
 }

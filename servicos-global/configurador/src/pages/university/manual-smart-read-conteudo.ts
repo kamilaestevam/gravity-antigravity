@@ -24,11 +24,15 @@ const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API
  * - tela_smart_docs_tela_lista_paineis_novo_nome_validado → smart-docs-lista-paineis-novo-nome-validado.png
  * - tela_smart_docs_tela_insight_tooltip_1 → smart-docs-insights-tooltip-1.png (Evolução diária — tooltip)
  * - tela_smart_docs_tela_insight_tooltip_2 → smart-docs-insights-tooltip-2.png (Campos corretos × errados — tooltip)
+ * - tela_smart_docs_status → smart-docs-status.png
+ * - tela_smart_docs_passo_4_tela → smart-docs-nova-leitura-passo-4.png
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_MENU_LATERAL = '/university/screenshots/smart-docs-acesso-menu-lateral.png'
 const SCREENSHOT_SMART_DOCS_LISTA = '/university/screenshots/smart-docs-lista.png'
+const SCREENSHOT_SMART_DOCS_LISTA_VISAO_GERAL = '/university/screenshots/smart-docs-lista-visao-geral.png'
+const SCREENSHOT_SMART_DOCS_STATUS = '/university/screenshots/smart-docs-status.png'
 const SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR =
   '/university/screenshots/smart-docs-lista-colunas-customizar.png'
 const SCREENSHOT_SMART_DOCS_LISTA_COLUNAS_CUSTOMIZAR_ARRASTAR =
@@ -149,6 +153,8 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_COMUNICACAO_FORNECEDOR_4 =
   '/university/screenshots/smart-docs-nova-leitura-passo-3-comunicacao-fornecedor-4.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONSULTOR_INTELIGENTE =
   '/university/screenshots/smart-docs-nova-leitura-passo-3-consultor-inteligente.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4 =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ALTERADO_ERRO_METRICA =
   '/university/screenshots/smart-docs-nova-leitura-passo-4-alterado-erro-metrica.png'
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
@@ -696,6 +702,31 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ],
         },
         {
+          titulo: 'Status do Smart Docs',
+          tituloCurto: 'Status',
+          paragrafos: [
+            'Cada leitura exibe uma **pill de Status** na coluna homônima da **Lista** — ela indica em qual **etapa do wizard** você parou (Anexar → Análise → Conferência → Resultado), distinto do processamento interno da IA.',
+            'O fluxo **começa** em **Anexar arquivo** ao clicar **+ Novo** e **termina** em **Resultado das leituras** quando você conclui o passo 4. Cada transição tem um **gatilho** (botão do wizard ou evento de erro).',
+          ],
+          mostrarInfograficoSmartDocsStatusFluxo: true,
+          infograficoSmartDocsStatusFluxoAposParagrafo: 1,
+          figurasAposParagrafo: [
+            {
+              indice: 1,
+              imagem: SCREENSHOT_SMART_DOCS_STATUS,
+              legenda: 'Pills de Status na coluna da Lista',
+            },
+          ],
+          calloutAposParagrafo: {
+            indice: 1,
+            callout: {
+              tipo: 'dica',
+              texto:
+                'Se a extração falhar no legado, a pill exibe **Falhou** (em geral no passo 2). Os status **Em integração** e **Integração confirmada** estão reservados para quando a leitura for enviada via **API Cockpit**.',
+            },
+          },
+        },
+        {
           titulo: 'Anexar',
           tituloCurto: 'Anexar',
           etapaWizard: 1,
@@ -1152,11 +1183,22 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           estiloTituloWizard: true,
           paragrafos: [
             'No **Resultado**, a leitura concluída fica disponível na **Lista** e alimenta as métricas de **Insights**.',
+            'O painel resume **performance de acertos**, **tempo total** da leitura e os documentos extraídos — use **Baixar pacote docs**, **Baixar selecionados** ou **Baixar todos** para exportar.',
           ],
-          callout: {
-            tipo: 'lembrete',
-            texto: 'Seção em construção: aguardando prints da etapa **Resultado**.',
-          },
+          galeriaComparacaoAposParagrafo: [
+            {
+              indice: 0,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4,
+                },
+              ],
+            },
+          ],
         },
       ]),
     },

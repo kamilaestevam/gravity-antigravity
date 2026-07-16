@@ -246,6 +246,10 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsEditarCamposMetrica?: boolean
   /** Índice do parágrafo após o qual inserir o infográfico de métrica (padrão: 1). */
   infograficoSmartDocsEditarCamposMetricaAposParagrafo?: number
+  /** Manual Smart Docs § Lista — mapa do status de fluxo do wizard (coluna Status). */
+  mostrarInfograficoSmartDocsStatusFluxo?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico Status (padrão: 1). */
+  infograficoSmartDocsStatusFluxoAposParagrafo?: number
   /** Manual Smart Docs §05.10 — swimlane Lista Leitura → integração API Cockpit. */
   mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit?: boolean
   /** Manual Pedido §05 — tabela das colunas padrão da Lista. */

@@ -2982,6 +2982,18 @@ body.light-theme .cw-xml-viewer {
 }
 
 /* Sidebar opaco no Academy — transparente deixava o Ampliar/conteúdo vazar por baixo. */
+.uni-gravity-shell .mlg-sidebar {
+  width: 320px;
+  min-width: 320px;
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.14) 0%, #141c2e 130px);
+  border-right: 1px solid rgba(129, 140, 248, 0.22);
+}
+
+.uni-gravity-shell .mlg-sidebar.collapsed {
+  width: 72px;
+  min-width: 72px;
+}
+
 .uni-academy-player .mlg-sidebar {
   background: linear-gradient(180deg, rgba(129, 140, 248, 0.06) 0%, var(--ws-surface, #1e293b) 120px);
   border-right-color: rgba(26, 30, 46, 0.85);
@@ -3341,6 +3353,11 @@ body.light-theme .uni-player-aula,
 body.light-theme .uni-player-aula__nav,
 body.light-theme .uni-player-aula__content {
   background: transparent;
+}
+
+body.light-theme .uni-gravity-shell .mlg-sidebar {
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.1) 0%, var(--ws-surface, #ffffff) 130px);
+  border-right-color: rgba(129, 140, 248, 0.2);
 }
 
 body.light-theme .uni-academy-player .mlg-sidebar {

@@ -2141,7 +2141,7 @@ export function UniversityGravity() {
     : t('university.nav.academy')
 
   return (
-    <div className={`ws-shell${secao === 'academy' && faseAulaSlug ? ' uni-academy-player' : ''}`}>
+    <div className={`ws-shell uni-gravity-shell${secao === 'academy' && faseAulaSlug ? ' uni-academy-player' : ''}`}>
       <MenuLateralGlobal
         tenantName={nomeOrganizacao}
         tenantPlan={isGravityAdmin ? 'Super Admin' : (currentUser?.nomeWorkspacePreferido ?? nomeOrganizacao)}

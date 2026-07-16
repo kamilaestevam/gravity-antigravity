@@ -4,6 +4,7 @@
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\3. BID Frete Int',
   'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int',
   'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int',
   "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\3. BID Frete Int",
@@ -15,7 +16,27 @@ $candidatosOrigem = @(
 
 $origem = $candidatosOrigem | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $origem) {
-  Write-Error "Pasta do Drive nao encontrada. Crie '6. Produtos Gravity\3. BID Frete Int' no Drive."
+  $raizesBusca = @(
+    "$env:USERPROFILE\OneDrive",
+    "$env:USERPROFILE\OneDrive - Personal",
+    "$env:USERPROFILE\OneDrive - DMM Ltda",
+    "$env:USERPROFILE\Google Drive",
+    "$env:USERPROFILE\My Drive",
+    'G:\Meu Drive',
+    'G:\'
+  ) | Where-Object { Test-Path $_ }
+  foreach ($raiz in $raizesBusca) {
+    $achado = Get-ChildItem -Path $raiz -Recurse -Depth 10 -Directory -Filter '3. BID Frete Int' -ErrorAction SilentlyContinue |
+      Select-Object -First 1
+    if ($achado) {
+      $origem = $achado.FullName
+      Write-Host "Origem descoberta: $origem"
+      break
+    }
+  }
+}
+if (-not $origem) {
+  Write-Error "Pasta do Drive nao encontrada. Sincronize '6. Produtos Gravity\3. BID Frete Int' (ou marque os PNGs como disponiveis offline no OneDrive) e rode de novo."
 }
 
 $destino = Join-Path $PSScriptRoot '..\servicos-global\configurador\public\university\screenshots'

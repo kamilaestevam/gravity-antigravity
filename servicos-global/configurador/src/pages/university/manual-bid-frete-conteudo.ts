@@ -764,12 +764,17 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme** — ação irreversível',
                 },
               ],
+              calloutApos: {
+                tipo: 'dica',
+                texto:
+                  'Após **aprovar** uma cotação, ela **não pode ser excluída** permanentemente — aparece como **bloqueada** no preview do modal.',
+              },
             },
           ],
           callout: {
             tipo: 'dica',
             texto:
-              'Apenas cotações com status **Aprovada** não podem ser excluídas permanentemente — aparecem como **bloqueadas** no preview. Para **BIDs agrupados**, todas as cotações filhas precisam ser excluíveis. Para **várias linhas**, marque pelo **checkbox** à esquerda e use **Excluir**.',
+              'Para **BIDs agrupados**, todas as cotações filhas precisam ser excluíveis. Para **várias linhas**, marque pelo **checkbox** à esquerda e use **Excluir**.',
           },
         },
         {
@@ -785,14 +790,9 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              colunas: 3,
+              colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
-                {
-                  legenda: '',
-                  imagem: S('exportar_'),
-                  paragrafoAntes: '**Abra** o menu **Exportar** na barra',
-                },
                 {
                   legenda: '',
                   imagem: S('exportar_1'),
@@ -802,6 +802,11 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   legenda: '',
                   imagem: S('exportar_2'),
                   paragrafoAntes: '**Download** imediato na sua máquina',
+                },
+                {
+                  legenda: '',
+                  imagem: S('exportar_'),
+                  paragrafoAntes: '**Abra** o arquivo',
                 },
               ],
             },

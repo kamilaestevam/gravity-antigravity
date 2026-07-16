@@ -445,6 +445,8 @@ export function AcademyBlocoPassoVisual({
                         telas={galeria.telas}
                         ampliarInferiorDireito={galeria.ampliarInferiorDireito}
                         colunas={galeria.colunas}
+                        textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+                        passoAcademyGuia
                       />
                     </div>
                   ))}
@@ -471,6 +473,8 @@ export function AcademyBlocoPassoVisual({
               telas={galeria.telas}
               ampliarInferiorDireito={galeria.ampliarInferiorDireito}
               colunas={galeria.colunas}
+              textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+              passoAcademyGuia
             />
           </div>
         ))

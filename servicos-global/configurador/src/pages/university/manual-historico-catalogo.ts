@@ -10,7 +10,7 @@ export interface HistoricoCatalogoColuna {
 export interface HistoricoCatalogoSecao {
   titulo: string
   colunas: HistoricoCatalogoColuna[]
-  linhas: Record<string, string>[]
+  linhas: Array<Record<string, string> & { emBreve?: boolean }>
   notaRodape?: string
 }
 
@@ -189,12 +189,12 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
     linhas: [
       { traducao: 'Smart Read', telas: 'Menu lateral do Smart Read › Histórico' },
       { traducao: 'BID Frete Internacional', telas: 'Menu lateral do BID Frete › Histórico' },
-      { traducao: 'BID Câmbio', telas: 'Menu lateral do BID Câmbio › Histórico' },
-      { traducao: 'Processo', telas: 'Menu lateral do Processo › Histórico' },
-      { traducao: 'LPCO', telas: 'Menu lateral do LPCO › Histórico' },
-      { traducao: 'NF Importação', telas: 'Menu lateral da NF Importação › Histórico' },
-      { traducao: 'Financeiro COMEX', telas: 'Menu lateral do Financeiro COMEX › Histórico' },
-      { traducao: 'Simula Custo', telas: 'Menu lateral do Simula Custo › Histórico' },
+      { traducao: 'BID Câmbio', telas: 'Menu lateral do BID Câmbio › Histórico', emBreve: true },
+      { traducao: 'Processo', telas: 'Menu lateral do Processo › Histórico', emBreve: true },
+      { traducao: 'LPCO', telas: 'Menu lateral do LPCO › Histórico', emBreve: true },
+      { traducao: 'NF Importação', telas: 'Menu lateral da NF Importação › Histórico', emBreve: true },
+      { traducao: 'Financeiro COMEX', telas: 'Menu lateral do Financeiro COMEX › Histórico', emBreve: true },
+      { traducao: 'Simula Custo', telas: 'Menu lateral do Simula Custo › Histórico', emBreve: true },
     ],
     notaRodape: 'Nesses produtos o padrão é o mesmo: **Criou**, **Atualizou** ou **Excluiu** quando há gravação no servidor. Abra o Histórico pelo menu lateral de cada módulo.',
   },

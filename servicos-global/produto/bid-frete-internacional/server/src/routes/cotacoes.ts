@@ -91,6 +91,12 @@ const CriarCotacaoSchemaBase = z.object({
   zipcode_destino_cotacao_bid_frete_internacional: z.string().optional(),
   valor_meta_cotacao_bid_frete_internacional: z.number().positive().optional(),
   moeda_meta_cotacao_bid_frete_internacional: z.string().default('USD'),
+  tipo_valor_frete_cotacao_bid_frete_internacional: z.enum(['TOTAL', 'FAIXA_PESO']).default('TOTAL'),
+  faixas_valor_frete_kgs_cotacao_bid_frete_internacional: z.array(z.object({
+    ordem_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().int().positive(),
+    limite_inferior_kg_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.number().finite(),
+    unidade_faixa_valor_frete_kgs_cotacao_bid_frete_internacional: z.enum(['KG', 'M3']),
+  })).min(1).optional(),
   visibilidade_cotacao_bid_frete_internacional: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime(),
@@ -321,10 +327,26 @@ function assertRefinamentosCotacaoPatch(
   )
 }
 
+function refinamentoFaixasValorFreteCotacao(
+  data: DadosCotacaoBase,
+  ctx: z.RefinementCtx,
+) {
+  if (data.modal_cotacao_bid_frete_internacional !== 'AEREO') return
+  if (data.tipo_valor_frete_cotacao_bid_frete_internacional !== 'FAIXA_PESO') return
+  if (!data.faixas_valor_frete_kgs_cotacao_bid_frete_internacional?.length) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Informe ao menos uma faixa de peso',
+      path: ['faixas_valor_frete_kgs_cotacao_bid_frete_internacional'],
+    })
+  }
+}
+
 const CriarCotacaoSchema = CriarCotacaoSchemaBase
   .superRefine(refinamentoCargaPerigosa)
   .superRefine(refinamentoRota)
   .superRefine(refinamentoOpcoesPortoAeroporto)
+  .superRefine(refinamentoFaixasValorFreteCotacao)
 
 const FiltrosCotacaoSchema = z.object({
   status: z.string().optional(),

@@ -1,9 +1,31 @@
-﻿/**
+/**
  * analise-riscos-leitura-smart-read.ts — SSOT V1 determinístico + contratos API (V2/V3).
  */
 
 import { z } from 'zod'
 import type { MotorValidacaoInvoice, SecaoMatrizInvoice, StatusMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
+import type {
+  MotorValidacaoPackingList,
+  SecaoMatrizPackingList,
+} from './matriz-validacao-packing-list-smart-read.js'
+import type { MotorValidacaoAwb, SecaoMatrizAwb } from './matriz-validacao-awb-smart-read.js'
+import type { MotorValidacaoBl, SecaoMatrizBl } from './matriz-validacao-bl-smart-read.js'
+import type {
+  MotorValidacaoCertificadoOrigem,
+  SecaoMatrizCertificadoOrigem,
+} from './matriz-validacao-certificado-origem-smart-read.js'
+import type {
+  MotorValidacaoPedidoCompra,
+  SecaoMatrizPedidoCompra,
+} from './matriz-validacao-pedido-compra-smart-read.js'
+import type {
+  MotorValidacaoPedidoVenda,
+  SecaoMatrizPedidoVenda,
+} from './matriz-validacao-pedido-venda-smart-read.js'
+import type {
+  MotorValidacaoCertificadoFitossanitario,
+  SecaoMatrizCertificadoFitossanitario,
+} from './matriz-validacao-certificado-fitossanitario-smart-read.js'
 import {
   ehRiscoClassificacaoFiscal,
   formatarAnaliseDivergenciaLinha,
@@ -50,10 +72,10 @@ export type RiscoAduaneiroLeitura = {
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
-  /** Matriz consolidada de invoice — seção 1–8 */
-  secao_matriz?: SecaoMatrizInvoice
+  /** Matriz consolidada — seções da invoice (S1–S9), packing list (P1–P9), AWB (AW1–AW9), BL (BL1–BL9), CO (CO1–CO9), CF (CF1–CF9), PC (PC1–PC9) ou PV (PV1–PV9) */
+  secao_matriz?: SecaoMatrizInvoice | SecaoMatrizPackingList | SecaoMatrizAwb | SecaoMatrizBl | SecaoMatrizCertificadoOrigem | SecaoMatrizCertificadoFitossanitario | SecaoMatrizPedidoCompra | SecaoMatrizPedidoVenda
   id_regra_matriz?: string
-  motor_validacao?: MotorValidacaoInvoice
+  motor_validacao?: MotorValidacaoInvoice | MotorValidacaoPackingList | MotorValidacaoAwb | MotorValidacaoBl | MotorValidacaoCertificadoOrigem | MotorValidacaoCertificadoFitossanitario | MotorValidacaoPedidoCompra | MotorValidacaoPedidoVenda
   status_matriz?: StatusMatrizInvoice
 }
 
@@ -112,13 +134,6 @@ export const DocumentoAnaliseRiscoSchema = z.object({
   dados: z.record(z.string(), z.unknown()),
 })
 
-export const AnaliseRiscosLeituraRequestSchema = z.object({
-  documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
-  pergunta: z.string().trim().min(1).optional(),
-  incluir_llm: z.boolean().optional().default(true),
-  id_leitura_legado: z.string().min(8).optional(),
-})
-
 export const CitacaoNormativaRiscoSchema = z.object({
   tipo: z.enum(['ncm_oficial', 'kb_gravity', 'instrucao_normativa', 'portal_unico']),
   referencia: z.string().min(1),
@@ -152,10 +167,61 @@ export const RiscoAduaneiroLeituraSchema = z.object({
       'bancario',
       'pesos_embalagens',
       'legitimidade',
+      'identificacao_vinculos',
+      'partes_envolvidas',
+      'transporte_cct',
+      'volumes_embalagens',
+      'pesos_consistencias',
+      'itens_rastreabilidade',
+      'catalogo_duimp',
+      'regulatorio_anuencias',
+      'legitimidade_risco',
+      'identificacao_formato',
+      'partes_consignacao',
+      'voo_rota_prazos',
+      'carga_volumes',
+      'pesos_taxavel',
+      'frete_valores',
+      'dados_cct_aereo',
+      'regulatorio_carga_especial',
+      'identificacao_vias',
+      'navio_rota_mercante',
+      'carga_conteineres_volumes',
+      'pesos_medidas',
+      'frete_valores_afrmm',
+      'dados_ce_mercante',
+      'regulatorio_clausulas_carga',
+      'natureza_acordo',
+      'identificacao_validade',
+      'mercadoria_ncm',
+      'criterio_origem',
+      'emissao_formalidades',
+      'processo_lpco',
+      'regime_acordo',
+      'partes_comprador_vendedor',
+      'termos_comerciais_logisticos',
+      'itens_linha',
+      'valores_financeiros',
+      'sinais_regulatorios',
+      'cambio_financeiro',
+      'aprovacoes_controle',
+      'partes_vendedor_comprador',
+      'dados_bancarios_cambio',
+      'aceite_contrato',
+      'aplicabilidade_tipo',
+      'emissor_legitimidade',
+      'identificacao_datas',
+      'descricao_envio',
+      'origem_tratamento',
+      'embalagem_conteudo',
+      'processo_mapa_lpco',
+      'regras_praga_produto',
     ])
     .optional(),
   id_regra_matriz: z.string().optional(),
-  motor_validacao: z.enum(['codigo', 'api', 'llm', 'rag']).optional(),
+  motor_validacao: z
+    .enum(['codigo', 'api', 'llm', 'rag', 'cross_doc', 'codigo_rag', 'cross_doc_rag', 'api_llm', 'lpco'])
+    .optional(),
   status_matriz: z.enum(['verde', 'amarelo', 'vermelho']).optional(),
 })
 
@@ -211,6 +277,16 @@ export const AnaliseRiscosLeituraResponseSchema = z.object({
   aviso: z.string().nullable().optional(),
   uso_llm_chamada: UsoLlmChamadaLeituraSmartReadSchema.nullable().optional(),
   uso_llm_leitura: ResumoUsoLlmLeituraSmartReadSchema.nullable().optional(),
+})
+
+export const AnaliseRiscosLeituraRequestSchema = z.object({
+  documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
+  pergunta: z.string().trim().min(1).optional(),
+  incluir_llm: z.boolean().optional().default(true),
+  somente_llm: z.boolean().optional(),
+  contexto_v1_referencia: AnaliseRiscosLeituraResponseSchema.shape.contexto_v1.optional(),
+  resumo_base_sem_llm: AnaliseRiscosLeituraResponseSchema.shape.resumo.optional(),
+  id_leitura_legado: z.string().min(8).optional(),
 })
 
 export type DocumentoAnaliseRisco = z.infer<typeof DocumentoAnaliseRiscoSchema>
@@ -778,4 +854,25 @@ export function mesclarRiscosAnaliseLeitura(
 function chaveEvidenciaRisco(risco: RiscoAduaneiroLeitura): string {
   const ev = risco.evidencias[0]
   return `${ev?.documento ?? ''}|${ev?.campo ?? ''}`.toLowerCase()
+}
+
+/** Une fase rápida (API/código) com fase LLM no cliente. */
+export function mesclarRespostaAnaliseRiscosLeitura(
+  base: AnaliseRiscosLeituraResponse,
+  llm: AnaliseRiscosLeituraResponse,
+): AnaliseRiscosLeituraResponse {
+  const riscosLlm = llm.resumo.riscos.filter((r) => r.origem === 'llm')
+  const resumo = mesclarRiscosAnaliseLeitura(base.resumo.riscos, riscosLlm)
+  return {
+    ...llm,
+    resumo,
+    contexto_v1:
+      llm.contexto_v1.regras.length >= base.contexto_v1.regras.length
+        ? llm.contexto_v1
+        : base.contexto_v1,
+    llm_ativo: llm.llm_ativo,
+    aviso: llm.aviso ?? base.aviso ?? null,
+    uso_llm_chamada: llm.uso_llm_chamada ?? base.uso_llm_chamada ?? null,
+    uso_llm_leitura: llm.uso_llm_leitura ?? base.uso_llm_leitura ?? null,
+  }
 }

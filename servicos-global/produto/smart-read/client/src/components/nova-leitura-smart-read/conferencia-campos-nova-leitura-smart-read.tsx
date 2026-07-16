@@ -8,7 +8,6 @@ import {
   Anchor,
   Buildings,
   CaretDown,
-  Check,
   CheckCircle,
   Circle,
   CurrencyDollar,
@@ -26,6 +25,7 @@ import {
   X,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   contarDocumentosArquivoLocal,
@@ -159,8 +159,11 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   )
 
   const chaveMarcacaoCampos = `${arquivo.id_arquivo_local}:${indiceDocumento}`
-  const { estaMarcado: campoEstaConferido, alternarMarcado: alternarCampoConferido } =
-    usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
+  const {
+    estaMarcado: campoEstaConferido,
+    alternarMarcado: alternarCampoConferido,
+    alternarMarcadosLote: alternarCamposConferidosLote,
+  } = usarCamposMarcacaoConferencia(chaveMarcacaoCampos)
 
   const { resumoConferencia, todosItensConferidos, alternarTodaConferencia } =
     useConferenciaUsuarioDocumentoSmartRead(arquivo, indiceDocumento, idLeituraLegado)
@@ -461,7 +464,6 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                     onChange={alternarTodaConferencia}
                     aria-label={`Selecionar toda conferência — ${resumoConferencia.total} itens`}
                   />
-                  <Check size={12} weight={todosItensConferidos ? 'bold' : 'regular'} aria-hidden />
                   <span>Selecionar toda conferência ({resumoConferencia.total})</span>
                 </label>
               )}
@@ -492,6 +494,14 @@ export function ConferenciaCamposNovaLeituraSmartRead({
               : 0
             const completa = preenchidosSecao === secao.campos.length
             const colapsada = secoesColapsadas.has(secao.id)
+            const chavesSecao = [
+              ...(secao.id === idSecaoAssinado && campoAssinado
+                ? [chaveCampoConferenciaUsuario('isSigned')]
+                : []),
+              ...secao.campos.map((c) => chaveCampoConferenciaUsuario(c.chave)),
+            ]
+            const secaoConferida =
+              chavesSecao.length > 0 && chavesSecao.every((chave) => campoEstaConferido(chave))
 
             return (
               <section
@@ -499,22 +509,24 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                 id={secao.id}
                 className={`dt-secao${colapsada ? ' dt-secao--colapsada' : ''}`}
               >
-                <button
-                  type="button"
-                  className="dt-secao-header"
-                  onClick={() => toggleSecao(secao.id)}
-                  aria-expanded={!colapsada}
-                  aria-controls={`${secao.id}-grid`}
-                >
-                  <div className="dt-secao-title">
-                    <CaretDown
-                      weight="bold"
-                      size={14}
-                      className={`dt-caret${colapsada ? ' dt-caret--colapsado' : ''}`}
-                    />
-                    <span className="dt-secao-icon">{iconeSecao(secao.titulo)}</span>
-                    <h2>{secao.titulo}</h2>
-                  </div>
+                <div className="dt-secao-header sr-conf-secao-cabecalho">
+                  <button
+                    type="button"
+                    className="sr-conf-secao-toggle"
+                    onClick={() => toggleSecao(secao.id)}
+                    aria-expanded={!colapsada}
+                    aria-controls={`${secao.id}-grid`}
+                  >
+                    <div className="dt-secao-title">
+                      <CaretDown
+                        weight="bold"
+                        size={14}
+                        className={`dt-caret${colapsada ? ' dt-caret--colapsado' : ''}`}
+                      />
+                      <span className="dt-secao-icon">{iconeSecao(secao.titulo)}</span>
+                      <h2>{secao.titulo}</h2>
+                    </div>
+                  </button>
                   <div className="dt-secao-completude">
                     <div className="dt-secao-progress">
                       <div
@@ -528,8 +540,24 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                     <span className="dt-secao-pill">
                       {preenchidosSecao}/{secao.campos.length}
                     </span>
+                    <TooltipGlobal
+                      titulo={secaoConferida ? 'Seção conferida' : 'Conferir seção'}
+                      descricao={
+                        secaoConferida
+                          ? 'Clique para desmarcar todos os campos desta seção'
+                          : 'Marca todos os campos desta seção como conferidos'
+                      }
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-conf-chk-checkbox sr-conf-secao-checkbox"
+                        checked={secaoConferida}
+                        onChange={() => alternarCamposConferidosLote(chavesSecao, !secaoConferida)}
+                        aria-label={`Conferir todos os campos da seção ${secao.titulo}`}
+                      />
+                    </TooltipGlobal>
                   </div>
-                </button>
+                </div>
 
                 {!colapsada && (
                   <div id={`${secao.id}-grid`} className="dt-grid">

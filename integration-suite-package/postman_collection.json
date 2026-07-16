@@ -1,0 +1,48 @@
+{
+  "info": {
+    "name": "Gravity SAP Integration — Pedido v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8016/api/v1/cockpit" },
+    { "key": "accessToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "OAuth Token",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/oauth/token",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"grant_type\": \"client_credentials\",\n  \"client_id\": \"{{clientId}}\",\n  \"client_secret\": \"{{clientSecret}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "List Orders",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": "{{baseUrl}}/v1/orders?updatedSince=2026-01-01T00:00:00.000Z&limit=10"
+      }
+    },
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Idempotency-Key", "value": "{{$guid}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/v1/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo_operacao_pedido\": \"importacao\",\n  \"numero_pedido\": \"PO-TEST-001\",\n  \"externalRef\": \"4500009999\",\n  \"suid_importador\": \"suid-org\",\n  \"suid_exportador\": \"suid-parceiro\"\n}"
+        }
+      }
+    }
+  ]
+}

@@ -21,6 +21,8 @@ const baseTransacao = (
   id_leitura: id,
   nome_leitura: nome,
   status_leitura: 'COMPLETED',
+  status_fluxo_leitura: 'RESULTADO_LEITURAS',
+  passo_atual_leitura: 4,
   total_arquivos: 2,
   media_acertos: null,
   data_envio: dataEnvio,

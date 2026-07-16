@@ -598,10 +598,10 @@
 }
 
 .sr-conf-chk-resultado {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-primary, #e2e8f0);
   word-break: break-word;
 }
 

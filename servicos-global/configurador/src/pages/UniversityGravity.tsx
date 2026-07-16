@@ -1,23 +1,28 @@
 /**
  * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
- * ⚠️ PROTÓTIPO / WIP. Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
+ * Publicação em produção controlada por `university-gravity-publicacao.ts`
+ * (decisão PO MASTER Daniel — Guia Gravity já atende usuários; manual fora de prod).
+ * Ver documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md
+ *
+ * Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
  * com título "Gravity University" + opções e dropdown de organizações, e as
  * mesmas ações de topo (Hub, busca/localizar, dica, notificações, localizador,
  * idioma, usuário). Textos via i18n (namespace `university`). Implementação real em
  * documentos-tecnicos/produtos-gravity/university-gravity/ (PRD + MODELO-DADOS + SPECS).
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import {
   Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info,
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
-  Compass, CaretDown,
+  Compass, CaretDown, HandWaving,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -30,9 +35,83 @@ import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
-import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
-import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
-import { DocConfiguradorManual, iconeConfiguradorManual, MANUAL_ESTILO_ACORDEON_SECAO, useManualSumarioScroll } from './university/manual-configurador-ui'
+import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
+import {
+  universityManuaisDocsVisiveis,
+} from './university/university-gravity-publicacao'
+import { LOGIN_FASES_TRILHA } from './university/manual-login-academy'
+import { BEM_VINDO_TRILHA } from './university/manual-bem-vindo-academy'
+import { GABI_TRILHA } from './university/manual-gabi-academy'
+import { HUB_TRILHA } from './university/manual-hub-academy'
+import { STORE_TRILHA } from './university/manual-store-academy'
+import { NAVEGACAO_TRILHA } from './university/manual-navegacao-academy'
+import { BID_FRETE_TRILHA } from './university/manual-bid-frete-academy'
+import { PEDIDO_TRILHA } from './university/manual-pedido-academy'
+import { SMART_READ_TRILHA } from './university/manual-smart-read-academy'
+import { ADMIN_TRILHA } from './university/manual-admin-academy'
+import { CONFIGURADOR_TRILHAS } from './university/manual-configurador-academy'
+import {
+  montarMapaXpAulas,
+  obterXpMaxProduto,
+  obterXpMaxTrilha,
+} from './university/pesos-academy-guia-gravity'
+import { calcularNivelGuiaGravity } from './university/niveis-guia-gravity'
+import { DashboardInfoNiveisGuiaGravity } from './university/dashboard-info-niveis-guia-gravity'
+import { DashboardInfoRitmoGuiaGravity } from './university/dashboard-info-ritmo-guia-gravity'
+import { PainelCertificadosGuiaGravity } from './university/painel-certificados-guia-gravity'
+import {
+  avaliarTiposCertificadoElegiveis,
+  carregarCertificadosGuia,
+  contarCertificadosObtidos,
+  sincronizarCertificadosGuia,
+  SLUGS_MODULO_BASICO_GUIA,
+  TIPOS_CERTIFICADO_GUIA,
+  type CertificadoEmitidoGuia,
+} from './university/certificado-guia-gravity'
+import { BarraProgressoComRitmo } from './university/barra-progresso-com-ritmo'
+import {
+  calcularMinutosConcluidosJornada,
+  calcularMinutosTotaisProdutos,
+  calcularRitmoJornada,
+  calcularRitmoModuloSequencial,
+  minutosConcluidosModulo,
+  montarMapaDuracaoProdutos,
+  obterDataInicioJornadaGuia,
+  type MetricasRitmoJornada,
+} from './university/ritmo-jornada-guia-gravity'
+import {
+  DOC_LOGIN_METADADOS,
+  DOC_LOGIN_SECOES,
+  DOC_LOGIN_SUBTITULO,
+  montarEntradasSumarioLogin,
+  type DocPassoVisual,
+  type DocSecao,
+} from './university/manual-login-conteudo'
+import { getAulaDemo, getAulasCapituloDemo } from './university/conteudo-demo'
+import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug, type DocFluxo, type DocSecao as DocSecaoConfigurador } from './university/manual-configurador-conteudo'
+import {
+  DocConfiguradorManual,
+  iconeConfiguradorManual,
+  MANUAL_ESTILO_ACORDEON_SECAO,
+  useManualSumarioScroll,
+  ManualSumarioBloco,
+  ManualLeituraContext,
+  ManualBotaoMarcarLido,
+} from './university/manual-configurador-ui'
+import {
+  ancoraPassosLogin,
+  calcularEstadoCapitulo,
+  calcularEstadoLeitura,
+  carregarLidosManual,
+  contarLidosManual,
+  idPassoManual,
+  idSecaoManual,
+  idsPassosFluxo,
+  montarFluxoPorSecaoLogin,
+  montarIdsRastreaveisLeituraLogin,
+  percentualLeituraManual,
+  salvarLidosManual,
+} from './university/manual-leitura-progresso'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
 import { DOC_STORE_SUBTITULO } from './university/manual-store-conteudo'
@@ -42,23 +121,29 @@ import { DocNavegacaoManual } from './university/manual-navegacao-ui'
 import { DocHubManual } from './university/manual-hub-ui'
 import { DocStoreManual } from './university/manual-store-ui'
 import { DocSmartReadManual } from './university/manual-smart-read-ui'
+import { DocAdminManual } from './university/manual-admin-ui'
+import { DOC_ADMIN_SUBTITULO } from './university/manual-admin-conteudo'
 import { DocPedidoManual } from './university/manual-pedido-ui'
 import { DocBidFreteManual } from './university/manual-bid-frete-ui'
 import { DocApiCockpitManual } from './university/manual-api-cockpit-ui'
 import { DOC_API_COCKPIT_SUBTITULO } from './university/manual-api-cockpit-conteudo'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
+import { ManualPainelRequisitosCadastro } from './university/manual-login-painel-requisitos'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 interface Fase {
-  slug: string
+  /** Slug da aula; ausente em trilhas ainda sem conteúdo publicado (WIP). */
+  slug?: string
   nome: string
   duracao: string
   concluida: boolean
 }
 interface Trilha {
+  /** Identificador do capítulo (onboarding fatiado por capítulo). */
+  slug?: string
   tag: string
   emoji: string
   nome: string
@@ -70,71 +155,22 @@ interface Trilha {
 
 // ── Catálogo WIP: virá do banco via API ───────────────────────────────────
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
+  'bem-vindo': [{ ...BEM_VINDO_TRILHA, prog: 0 }],
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '30m', prog: 100,
-    fases: [
-      { slug: 'o-que-e-o-gravity',       nome: 'O que é o Gravity',     duracao: '10m', concluida: true },
-      { slug: 'criando-sua-conta',        nome: 'Criando sua conta',     duracao: '10m', concluida: true },
-      { slug: 'configurando-seu-perfil',  nome: 'Configurando seu perfil', duracao: '10m', concluida: true },
-    ],
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '8m', prog: 0,
+    fases: LOGIN_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
   }],
-  admin: [{
-    tag: '#f43f5e', emoji: '🛡️', nome: 'Painel Administrativo', modulos: 3, duracao: '1h', prog: 0,
-    fases: [
-      { nome: 'Visão geral do Admin', duracao: '20m', concluida: false },
-      { nome: 'Impersonação de usuário', duracao: '20m', concluida: false },
-      { nome: 'Monitor de APIs e deploys', duracao: '20m', concluida: false },
-    ],
-  }],
-  configurador: [{
-    tag: '#60a5fa', emoji: '🧭', nome: 'Conhecendo o Gravity', modulos: 3, duracao: '1h', prog: 100,
-    fases: [
-      { nome: 'Criando a Organização', duracao: '20m', concluida: true },
-      { nome: 'Configurando Workspaces', duracao: '20m', concluida: true },
-      { nome: 'Convidando usuários', duracao: '20m', concluida: true },
-    ],
-  }],
-  hub: [{
-    tag: '#a78bfa', emoji: '🏠', nome: 'Hub e Navegação', modulos: 2, duracao: '30m', prog: 0,
-    fases: [
-      { nome: 'Navegando pelo Hub', duracao: '15m', concluida: false },
-      { nome: 'Trocando de Workspace', duracao: '15m', concluida: false },
-    ],
-  }],
-  store: [{
-    tag: '#10b981', emoji: '🛒', nome: 'Gravity Store', modulos: 2, duracao: '45m', prog: 0,
-    fases: [
-      { nome: 'Explorando o Marketplace', duracao: '25m', concluida: false },
-      { nome: 'Contratando um produto', duracao: '20m', concluida: false },
-    ],
-  }],
-  pedido: [{
-    tag: '#f59e0b', emoji: '📦', nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 62,
-    fases: [
-      { nome: 'Lista de Pedidos', duracao: '25m', concluida: true },
-      { nome: 'Criando um Pedido', duracao: '20m', concluida: true },
-      { nome: 'Edição em Massa', duracao: '25m', concluida: true },
-      { nome: 'Colunas e Filtros', duracao: '25m', concluida: false },
-      { nome: 'Relatórios e Exportação', duracao: '25m', concluida: false },
-    ],
-  }],
-  'smart-read': [{
-    tag: '#c084fc', emoji: '📄', nome: 'Onboarding Smart Docs', modulos: 4, duracao: '1h30', prog: 0,
-    fases: [
-      { nome: 'Anexando documentos', duracao: '25m', concluida: false },
-      { nome: 'Leitura inteligente', duracao: '25m', concluida: false },
-      { nome: 'Análise de Riscos', duracao: '25m', concluida: false },
-      { nome: 'Exportando Insights', duracao: '15m', concluida: false },
-    ],
-  }],
+  admin: [{ ...ADMIN_TRILHA, prog: 0 }],
+  configurador: CONFIGURADOR_TRILHAS.map(tr => ({ ...tr, prog: 0 })),
+  gabi: [{ ...GABI_TRILHA, prog: 0 }],
+  hub: [{ ...HUB_TRILHA, prog: 0 }],
+  store: [{ ...STORE_TRILHA, prog: 0 }],
+  navegacao: [{ ...NAVEGACAO_TRILHA, prog: 0 }],
+  pedido: [{ ...PEDIDO_TRILHA, prog: 0 }],
+  'smart-read': [{ ...SMART_READ_TRILHA, prog: 0 }],
   'bid-frete': [{
-    tag: '#60a5fa', emoji: '✈️', nome: 'BID Frete Internacional', modulos: 4, duracao: '1h30', prog: 0,
-    fases: [
-      { nome: 'Nova Cotação', duracao: '25m', concluida: false },
-      { nome: 'Comparando Fretes', duracao: '25m', concluida: false },
-      { nome: 'Aprovação e Follow-up', duracao: '25m', concluida: false },
-      { nome: 'Relatórios de Frete', duracao: '15m', concluida: false },
-    ],
+    ...BID_FRETE_TRILHA,
+    prog: 0,
   }],
   'bid-cambio': [{
     tag: '#facc15', emoji: '💱', nome: 'BID Câmbio', modulos: 3, duracao: '1h', prog: 0,
@@ -145,31 +181,32 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
     ],
   }],
   processo: [{
-    tag: '#facc15', emoji: '🔀', nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0,
+    tag: '#facc15', emoji: '🔀', nome: 'Guia Processo', modulos: 6, duracao: '18m', prog: 0,
     fases: [
-      { nome: 'Criando um Processo', duracao: '25m', concluida: false },
-      { nome: 'Dados Técnicos', duracao: '25m', concluida: false },
-      { nome: 'Vinculando Pedidos', duracao: '25m', concluida: false },
-      { nome: 'Containers e Taxas', duracao: '25m', concluida: false },
-      { nome: 'Workflow e Status', duracao: '25m', concluida: false },
-      { nome: 'Relatórios', duracao: '25m', concluida: false },
+      { nome: 'Criando um Processo', duracao: '3m', concluida: false },
+      { nome: 'Dados Técnicos', duracao: '3m', concluida: false },
+      { nome: 'Vinculando Pedidos', duracao: '3m', concluida: false },
+      { nome: 'Containers e Taxas', duracao: '3m', concluida: false },
+      { nome: 'Workflow e Status', duracao: '3m', concluida: false },
+      { nome: 'Relatórios', duracao: '3m', concluida: false },
     ],
   }],
 }
 
 // Produtos que esta organização contratou (WIP: virá do backend)
 const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
-  'login', 'configurador', 'pedido', 'processo', 'smart-read',
+  'bem-vindo', 'login', 'configurador', 'pedido', 'processo', 'smart-read',
 ]
 
 // Visão geral agrupada (sem produto selecionado)
 const GRUPOS_TRILHAS = [
-  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.configurador[0]] },
+  { tituloKey: 'university.grupo.comece_aqui',  trilhas: [TRILHAS_POR_PRODUTO['bem-vindo'][0], TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.navegacao[0], TRILHAS_POR_PRODUTO.configurador[0]] },
   { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
   { tituloKey: 'university.grupo.explorar',      trilhas: [TRILHAS_POR_PRODUTO['bid-frete'][0], TRILHAS_POR_PRODUTO['bid-cambio'][0], TRILHAS_POR_PRODUTO.store[0]] },
 ]
 
 const ICON_MAP = {
+  'bem-vindo':  HandWaving,
   login:        SignIn,
   navegacao:    Compass,
   admin:        ShieldStar,
@@ -186,453 +223,18 @@ const ICON_MAP = {
 
 type ProdutoSlug = keyof typeof ICON_MAP
 
-// ── Manual de Login: dados enterprise ────────────────────────────────────
-interface DocPassoVisual {
-  num: number
-  titulo: string
-  paragrafos: string[]
-  imagem?: string
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
-  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }[]
-  painelRequisitosCadastro?: boolean
-  galeriaTelas?: { legenda: string; imagem: string }[]
-  linkCapitulo?: { texto: string; href: string }
-  /** Screenshot em largura total abaixo do texto (evita buraco lateral quando há vários callouts). */
-  imagemAbaixoTexto?: boolean
+function IconeProdutoOficial({ slug, size = 16, cor = '#818cf8' }: {
+  slug: ProdutoSlug
+  size?: number
+  cor?: string
+}) {
+  const IconComp = ICON_MAP[slug]
+  return <IconComp weight="duotone" size={size} color={cor} />
 }
 
-interface DocSecao {
-  num: number
-  titulo: string
-  paragrafos: string[]
-  imagem?: string
-  layoutTextoImagemLateral?: boolean
-  listaEmLinha?: boolean
-  lista?: string[]
-  passosVisuais?: DocPassoVisual[]
-  cardsBilaterais?: { esquerdo: { label: string; titulo: string; itens: string[] }; direito: { label: string; titulo: string; itens: string[] } }
-  timeline?: { passo: number; titulo: string; desc: string }[]
-  callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+function produtoCompradoOrganizacao(slug: ProdutoSlug): boolean {
+  return (PRODUTOS_CONTRATADOS as readonly string[]).includes(slug)
 }
-
-const DOC_LOGIN_SUBTITULO =
-  'Login, cadastro, recuperação de senha e convites'
-
-const DOC_LOGIN_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
-  { rotulo: 'Versão', valor: '1.0' },
-  { rotulo: 'Atualizado em', valor: 'junho 2026' },
-  { rotulo: 'Produto', valor: 'Configurador' },
-  { rotulo: 'URL de acesso', valor: 'https://usegravity.com.br/login', href: true },
-  { rotulo: 'Rota base', valor: '/login' },
-]
-
-const DOC_LOGIN_SECOES: DocSecao[] = [
-  {
-    num: 1,
-    titulo: 'A tela de acesso',
-    imagem: '/university/screenshots/login-tela-completa.png',
-    layoutTextoImagemLateral: true,
-    listaEmLinha: true,
-    paragrafos: [
-      'Esta é a primeira tela que você vê ao acessar a plataforma **Gravity**. No lado esquerdo, a identidade da plataforma: Logo e proposta de valor.',
-      'No lado direito, o **formulário de acesso**. Você pode entrar com sua conta **Google** clicando em "Continuar com Google", ou digitar diretamente seu **e-mail** e **senha**. Ao clicar em "Entrar", o sistema valida suas credenciais e te direciona automaticamente para o lugar certo.',
-    ],
-    lista: [
-      'Botão "Continuar com Google": Acesso rápido sem precisar digitar e-mail e senha',
-      'Campo E-mail: Informe o e-mail com o qual você se cadastrou',
-      'Campo Senha: Sua senha da plataforma, clique no ícone de olho {{icone:olho}} para revelar',
-      'Botão "Entrar": Inicia a validação e te leva para o hub ou onboarding',
-      'Link "Esqueceu a senha?": Recuperação por e-mail em dois passos',
-      'Link "Registre-se": Cria uma nova conta na plataforma',
-    ],
-  },
-  {
-    num: 2,
-    titulo: 'Fluxo 1: Criar sua conta',
-    paragrafos: [
-      'Se você ainda não tem conta na Gravity, o cadastro leva poucos minutos em duas etapas: Dados pessoais e confirmação por e-mail.',
-      'Depois de validar o código, você segue para o onboarding e cria sua organização e workspace.',
-    ],
-    passosVisuais: [
-      {
-        num: 1,
-        titulo: 'Abrir o cadastro',
-        imagem: '/university/screenshots/login-fluxo1-passo-01-registre-se.png',
-        paragrafos: [
-          'Na tela de login, clique em "Registre-se" (ou alterne para a aba Cadastro). O formulário de criação de conta é exibido no mesmo painel direito.',
-        ],
-      },
-      {
-        num: 2,
-        titulo: 'Preencher os dados',
-        imagem: '/university/screenshots/login-fluxo1-passo-02-formulario-vazio.png',
-        paragrafos: [
-          'Informe nome, sobrenome, e-mail e senha. Marque o aceite dos Termos de Uso. A barra abaixo da senha mostra a força conforme você digita.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Para voltar ao menu principal (tela de login), clique em "Voltar para o login" abaixo do botão Continuar.',
-        },
-      },
-      {
-        num: 3,
-        titulo: 'Corrigir pendências do formulário',
-        imagem: '/university/screenshots/login-fluxo1-passo-03-validacao-erros.png',
-        painelRequisitosCadastro: true,
-        paragrafos: [
-          'O formulário exibe um checklist em tempo real abaixo da senha. Cada exigência obrigatória muda de vermelho (pendente) para verde (atendida) conforme você digita.',
-          'O botão "Continuar" só é habilitado quando os sete itens abaixo estiverem verdes: Incluindo confirmação de senha e aceite dos Termos de Uso.',
-        ],
-      },
-      {
-        num: 4,
-        titulo: 'Enviar o formulário',
-        imagem: '/university/screenshots/login-fluxo1-passo-03-formulario-preenchido.png',
-        paragrafos: [
-          'Com todos os campos válidos, clique em "Continuar". O sistema cria a conta e envia um código de verificação para o e-mail informado.',
-        ],
-      },
-      {
-        num: 5,
-        titulo: 'Receber o código',
-        imagem: '/university/screenshots/login-fluxo1-passo-04-verificacao-email.png',
-        paragrafos: [
-          'Abra o e-mail da Gravity e copie o código de 6 dígitos. Confira se o endereço exibido na tela de verificação corresponde ao e-mail que você cadastrou.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Não chegou? Confira spam/lixo eletrônico, aba Promoções, filtros do antivírus ou bloqueio do remetente notifications@usegravity.com.br: E se o e-mail foi digitado corretamente. Só então use "Reenviar código" na tela de verificação.',
-        },
-      },
-      {
-        num: 6,
-        titulo: 'Digitar o código',
-        imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
-        paragrafos: [
-          'Na tela de verificação, preencha os seis campos numéricos: O foco avança automaticamente. Você também pode colar o código completo de uma vez.',
-        ],
-      },
-      {
-        num: 7,
-        titulo: 'Concluir o cadastro',
-        imagem: '/university/screenshots/login-fluxo1-passo-06-codigo-preenchido.png',
-        paragrafos: [
-          'Clique em "Verificar". Com o código correto, sua sessão é ativada e você é direcionado ao onboarding (/trial) para configurar a organização.',
-        ],
-        callouts: [
-          {
-            tipo: 'aviso',
-            texto: 'Se aparecer um aviso vermelho abaixo do código (ex.: "Incorrect code"), o dígito informado provavelmente está errado ou expirou. Confira o e-mail; se o código estiver certo e o erro continuar, clique em "Reenviar código" e repita o processo.',
-          },
-          {
-            tipo: 'dica',
-            texto: 'Se o código expirar, use "Reenviar código" na tela de verificação: Um novo código é enviado ao mesmo e-mail.',
-          },
-        ],
-      },
-      {
-        num: 8,
-        titulo: 'Onboarding e destino no Hub',
-        paragrafos: [
-          'Pronto, você já está no Gravity. Em um minuto, digite o nome da empresa que está contratando, o CNPJ, e já está na tela {{link:/university-gravity/docs/hub|HUB}}.',
-        ],
-        galeriaTelas: [
-          { legenda: '1 · Nome da organização', imagem: '/university/screenshots/onboarding-nome-preenchido.png' },
-          { legenda: '2 · CNPJ da empresa', imagem: '/university/screenshots/onboarding-cnpj-preenchido.png' },
-          { legenda: '3 · Hub: Destino final', imagem: '/university/screenshots/onboarding-hub-sem-produto.png' },
-        ],
-      },
-    ],
-  },
-  {
-    num: 3,
-    titulo: 'Fluxo 2: Entrar com e-mail e senha',
-    paragrafos: [
-      'Para quem já tem conta: Acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA pedem um código extra antes de concluir.',
-    ],
-    passosVisuais: [
-      {
-        num: 1,
-        titulo: 'Informar e-mail e senha',
-        imagem: '/university/screenshots/login-fluxo2-passo-01-tela-completa.png',
-        paragrafos: [
-          'Abra https://usegravity.com.br/login no navegador.',
-          'Na tela "Acessar a plataforma", preencha o campo E-mail com o endereço cadastrado na Gravity e o campo Senha logo abaixo. O ícone de olho {{icone:olho}} à direita da senha revela ou oculta o que você digitou antes de enviar.',
-        ],
-        callouts: [
-          {
-            tipo: 'dica',
-            texto: 'Prefere não digitar senha? Use "Continuar com Google" no topo do painel.',
-          },
-          {
-            tipo: 'dica',
-            texto: 'Ainda não tem conta? Clique em "Registre-se" no rodapé do formulário.',
-          },
-          {
-            tipo: 'dica',
-            texto: 'Esqueceu a senha? Use o link "Esqueceu a senha?" abaixo do botão Entrar: O fluxo completo está na seção 4 deste manual.',
-          },
-        ],
-      },
-      {
-        num: 2,
-        titulo: 'Clicar em Entrar',
-        imagem: '/university/screenshots/login-tela-completa.png',
-        paragrafos: [
-          'Com os dois campos preenchidos, clique em "Entrar". Enquanto valida, o botão exibe carregamento. Se e-mail ou senha estiverem incorretos, um banner vermelho no topo do formulário explica o problema: Sem liberar o acesso.',
-        ],
-        callouts: [
-          {
-            tipo: 'aviso',
-            texto: 'Após muitas tentativas erradas, o Clerk pode exigir CAPTCHA ou bloquear temporariamente o acesso. Aguarde alguns minutos antes de tentar de novo.',
-          },
-          {
-            tipo: 'seguranca',
-            texto: 'O login da Gravity é processado pelo Clerk, plataforma especializada em autenticação (certificação SOC 2). Sua senha nunca fica em texto puro: o Clerk aplica hash bcrypt e verifica se ela já apareceu em vazamentos conhecidos (Have I Been Pwned). A conexão é feita por HTTPS e a sessão usa tokens de curta duração com renovação automática. O Clerk confirma quem você é; permissões e dados da sua organização ficam nos sistemas da Gravity.',
-          },
-        ],
-      },
-      {
-        num: 3,
-        titulo: 'Verificação em duas etapas (opcional)',
-        imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
-        paragrafos: [
-          'Este passo não é obrigatório: Só aparece se a sua conta ou organização tiver 2FA (autenticação em duas etapas) ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
-          'Quando o 2FA está ligado, a tela pede um código de seis dígitos (e-mail ou autenticador). Preencha os campos ou cole o código inteiro para concluir a sessão.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Não recebeu o código por e-mail? Verifique spam, Promoções, filtros do antivírus ou bloqueio de notifications@usegravity.com.br antes de solicitar reenvio.',
-        },
-      },
-      {
-        num: 4,
-        titulo: 'Próxima tela: O Hub',
-        imagem: '/university/screenshots/hub-inicial-sem-produto-contratado.png',
-        paragrafos: [
-          'Pronto, você já está no Gravity. Com login concluído e organização ativa, a próxima tela é o {{link:/university-gravity/docs/hub|HUB}}: Daqui você escolhe produtos e workspaces.',
-        ],
-      },
-    ],
-  },
-  {
-    num: 4,
-    titulo: 'Fluxo 3: Recuperar senha',
-    paragrafos: [
-      'Esqueceu a senha? Em poucos passos você solicita um código por e-mail e define uma nova senha: Sem precisar falar com o suporte.',
-    ],
-    passosVisuais: [
-      {
-        num: 1,
-        titulo: 'Abrir a recuperação',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-01-seta-link.png',
-        paragrafos: [
-          'Na tela de login, clique em "Esqueceu a senha?" abaixo do botão Entrar. Você é levado para a página de recuperação.',
-        ],
-      },
-      {
-        num: 2,
-        titulo: 'Informar o e-mail',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-02-preencher-email.png',
-        paragrafos: [
-          'Digite o e-mail com o qual você se cadastrou na Gravity e clique em "Enviar código". O sistema envia um código de 6 dígitos para essa caixa de entrada.',
-        ],
-      },
-      {
-        num: 3,
-        titulo: 'Confirmação de envio',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-03-confirmacao-envio.png',
-        paragrafos: [
-          'A tela confirma que o e-mail foi disparado. Abra a caixa de entrada do endereço informado e procure a mensagem da Gravity.',
-        ],
-      },
-      {
-        num: 4,
-        titulo: 'Receber o código',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-04-email-codigo.png',
-        paragrafos: [
-          'No e-mail da Gravity, copie o código de 6 dígitos. Confira se o destinatário é o mesmo e-mail que você digitou na etapa anterior.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Não chegou? Confira spam, Promoções, filtros do antivírus ou bloqueio de notifications@usegravity.com.br: E se o e-mail foi digitado corretamente.',
-        },
-      },
-      {
-        num: 5,
-        titulo: 'Ir para a redefinição',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-05-tenho-codigo.png',
-        paragrafos: [
-          'De volta à tela de recuperação, clique em "Tenho o código" para abrir o formulário de redefinição com o e-mail já preenchido.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Se você fechou a aba, acesse https://usegravity.com.br/recuperar-senha/redefinir com o mesmo e-mail: Ou volte ao passo 2 e solicite um novo código.',
-        },
-      },
-      {
-        num: 6,
-        titulo: 'Informar o código',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-06-validar-codigo.png',
-        paragrafos: [
-          'Na tela "Redefinir senha", preencha os seis campos do código recebido por e-mail. Você também pode colar o código completo de uma vez.',
-        ],
-        callout: {
-          tipo: 'aviso',
-          texto: 'Se aparecer um aviso vermelho (ex.: Código incorreto ou expirado), confira o e-mail e solicite "Reenviar código" antes de tentar de novo.',
-        },
-      },
-      {
-        num: 7,
-        titulo: 'Definir a nova senha',
-        imagem: '/university/screenshots/login-esqueci-senha-passo-07-trocar-senha.png',
-        paragrafos: [
-          'Informe a nova senha e a confirmação. A barra abaixo do campo mostra a força: As mesmas regras do cadastro se aplicam.',
-          'Clique em "Redefinir senha". Com sucesso, sua sessão é ativada e você vai para o {{link:/university-gravity/docs/hub|HUB}}.',
-        ],
-      },
-    ],
-  },
-  {
-    num: 5,
-    titulo: 'Fluxo 4: Convite de outro usuário',
-    paragrafos: [
-      'Apenas usuários **Master** podem convidar outras pessoas para a organização: Como **Master**, **Standard** ou **Fornecedor**. O convite é feito pelo **Configurador**; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
-    ],
-    passosVisuais: [
-      {
-        num: 1,
-        titulo: 'Abrir o Configurador',
-        imagem: '/university/screenshots/login-convite-passo-01-acesso-atalho.png',
-        paragrafos: [
-          'No menu superior, clique no ícone do usuário e escolha **Configurador**. Você também pode acessar pelo atalho na barra lateral.',
-        ],
-      },
-      {
-        num: 2,
-        titulo: 'Acessar Usuários',
-        imagem: '/university/screenshots/login-convite-passo-02-lista-usuarios.png',
-        paragrafos: [
-          'No menu lateral do **Configurador**, abra **Usuários** para ver a lista de pessoas da organização.',
-        ],
-      },
-      {
-        num: 3,
-        titulo: 'Iniciar o convite',
-        imagem: '/university/screenshots/login-convite-passo-03-botao-convidar.png',
-        paragrafos: [
-          'Na lista de usuários da organização, clique em "Convidar usuário". O modal de convite abre no centro da tela.',
-        ],
-      },
-      {
-        num: 4,
-        titulo: 'Dados básicos',
-        imagem: '/university/screenshots/login-convite-passo-04-formulario-vazio.png',
-        paragrafos: [
-          'Informe o e-mail do convidado e escolha o tipo de usuário (**Master**, **Standard** ou **Fornecedor**).',
-        ],
-      },
-      {
-        num: 5,
-        titulo: 'Tipo de usuário',
-        imagem: '/university/screenshots/login-convite-passo-05-nome-email-tipo.png',
-        paragrafos: [
-          '**Master** tem acesso total na organização. **Standard** e **Fornecedor** dependem das permissões e workspaces que você marcar nos próximos passos.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'O e-mail do convite é o login do convidado. Confira se não há erro de digitação antes de enviar.',
-        },
-      },
-      {
-        num: 6,
-        titulo: 'Permissões',
-        imagem: '/university/screenshots/login-convite-passo-06-permissoes.png',
-        paragrafos: [
-          'Marque as {{link:/university-gravity/docs/configurador/usuarios#doc-sec-5|permissões}} que o convidado terá em cada área do **Configurador**. Só libere o que essa pessoa realmente precisa usar.',
-        ],
-      },
-      {
-        num: 7,
-        titulo: 'Workspaces',
-        imagem: '/university/screenshots/login-convite-passo-07-workspaces.png',
-        paragrafos: [
-          'Selecione os **workspaces** aos quais o convidado terá acesso. Pode ser filial, outra empresa do grupo ou cliente de despachante e agente. **Master** já acessa todos automaticamente.',
-        ],
-      },
-      {
-        num: 8,
-        titulo: 'Status na lista',
-        imagem: '/university/screenshots/login-convite-passo-08-lista-status.png',
-        paragrafos: [
-          'Depois de enviar o convite, o convidado aparece na lista com badge Convidado (amarelo) até concluir o cadastro pelo e-mail.',
-          'Quando o fluxo termina, o badge muda para Ativo (verde) e a pessoa já pode entrar na plataforma.',
-        ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Cada link de convite é de uso único. Se expirar ou for perdido, cancele ou reenvie o convite pela mesma lista de usuários.',
-        },
-      },
-      {
-        num: 9,
-        titulo: 'O que o convidado faz',
-        imagem: '/university/screenshots/login-fluxo1-passo-02-formulario-vazio.png',
-        paragrafos: [
-          'O convidado abre o e-mail e clica no link. Nome e e-mail já vêm preenchidos; ele define a senha, aceita os termos e verifica o código de 6 dígitos (mesmo fluxo da seção 02, Fluxo 1).',
-          'Com o cadastro concluído, passa a acessar o Gravity com base nas permissões e workspaces marcados, entrando pelo {{link:/university-gravity/docs/hub|HUB}}.',
-        ],
-        callout: {
-          tipo: 'aviso',
-          texto: 'Se o convidado já estiver logado com outra conta no navegador, o sistema encerra essa sessão antes de processar o convite. Isso evita vincular o ticket à conta errada.',
-        },
-      },
-    ],
-  },
-  {
-    num: 6,
-    titulo: 'Entrar com Google',
-    paragrafos: [
-      'Além de e-mail e senha, você pode usar o botão "Continuar com Google" na tela de login ou de cadastro.',
-    ],
-    passosVisuais: [
-      {
-        num: 1,
-        titulo: 'O que é',
-        imagem: '/university/screenshots/login-fluxo2-passo-01-tela-completa.png',
-        paragrafos: [
-          '"Continuar com Google" é um atalho de login: Você autoriza o Google a confirmar sua identidade para o Gravity. O e-mail da conta Google passa a ser o seu login na plataforma.',
-          'O botão fica no topo do painel direito, antes dos campos de e-mail e senha.',
-        ],
-      },
-      {
-        num: 2,
-        titulo: 'Como funciona',
-        paragrafos: [
-          'Ao clicar, o navegador abre a tela do Google para você escolher a conta e autorizar o acesso.',
-          'Depois da autorização, o Google devolve você ao Gravity em uma página intermediária de retorno. Em condições normais, isso leva poucos segundos e você segue para o Hub (se já tem organização) ou para o onboarding (conta nova).',
-        ],
-      },
-      {
-        num: 3,
-        titulo: 'Se der problema na tela de retorno',
-        imagem: '/university/screenshots/login-google-problema-sso-callback.png',
-        paragrafos: [
-          'Às vezes, após autorizar no Google, o navegador para em uma tela escura na URL usegravity.com.br/login/sso-callback e não avança para o Hub. Isso já aconteceu com usuários reais.',
-        ],
-        callouts: [
-          {
-            tipo: 'exemplo',
-            texto: 'Exemplo real: Alguém tentou entrar pelo Hub com conta Google e perguntou "não posso entrar com uma Google account?". Ao autorizar, a tela ficou escura em /login/sso-callback sem redirecionar.',
-          },
-          {
-            tipo: 'aviso',
-            texto: 'O que fazer: Feche a aba travada e abra https://usegravity.com.br/login em aba anônima. Confira se o e-mail Google corresponde ao convite ou cadastro. Se persistir, use login com e-mail e senha ou avise o suporte informando o e-mail usado.',
-          },
-        ],
-      },
-    ],
-  },
-]
 
 // ── Componente Manual Login ─────────────────────────────────────────────────
 const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; cor: string }> = {
@@ -642,7 +244,7 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
   seguranca:{ bg: 'rgba(239,68,68,.07)',   borda: 'rgba(239,68,68,.3)',   label: '🔒 Segurança', cor: '#f87171' },
 }
 
-/** Manual descritivo: tokens SSOT: ONBOARDING-DOCUMENTO.md §9 */
+/** Manual descritivo: tokens SSOT: MANUAL-GRAVITY-ONBOARDING.md §9 */
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -875,16 +477,16 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
         </span>
       </figure>
 
-      {telaCheia && (
+      {telaCheia && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label={alt}
           onClick={fechar}
           style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
+            position: 'fixed', inset: 0, zIndex: 200000,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '24px', background: 'rgba(2,6,23,.92)', backdropFilter: 'blur(4px)',
+            padding: '24px', background: '#020617',
           }}
         >
           <button
@@ -908,105 +510,13 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
               maxWidth: 'min(96vw, 1920px)', maxHeight: '92vh',
               width: 'auto', height: 'auto', objectFit: 'contain',
               borderRadius: 10, boxShadow: '0 24px 80px rgba(0,0,0,.55)',
+              background: '#0b0f1a',
             }}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </>
-  )
-}
-
-function ManualPainelRequisitosCadastro() {
-  const grupos: { rotulo: string; itens: string[] }[] = [
-    {
-      rotulo: 'Composição da senha',
-      itens: [
-        'No mínimo 8 caracteres',
-        'Pelo menos 1 letra maiúscula',
-        'Pelo menos 1 letra minúscula',
-        'Pelo menos 1 número',
-        'Pelo menos 1 caractere especial',
-      ],
-    },
-    {
-      rotulo: 'Confirmação e aceite legal',
-      itens: [
-        'A confirmação de senha confere',
-        'Aceite dos Termos de Uso e Política de Privacidade',
-      ],
-    },
-  ]
-
-  return (
-    <div style={{
-      marginTop: 14,
-      borderRadius: 12,
-      border: '1px solid rgba(99,102,241,.22)',
-      background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(15,23,42,.35) 48%)',
-      overflow: 'hidden',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.04)',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-        padding: '10px 14px', borderBottom: '1px solid rgba(148,163,184,.12)',
-        background: 'rgba(99,102,241,.06)',
-      }}>
-        <span style={{
-          fontSize: '.65rem', fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase',
-          color: '#a5b4fc',
-        }}>
-          Exigências obrigatórias
-        </span>
-        <span style={{
-          fontSize: '.62rem', fontWeight: 700, color: '#818cf8',
-          background: 'rgba(99,102,241,.14)', border: '1px solid rgba(99,102,241,.25)',
-          borderRadius: 999, padding: '2px 8px',
-        }}>
-          7 itens
-        </span>
-      </div>
-
-      <div style={{ padding: '12px 14px 10px' }}>
-        {grupos.map((grupo, gi) => (
-          <div key={grupo.rotulo} style={{ marginTop: gi === 0 ? 0 : 12 }}>
-            <p style={{
-              fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-              color: MANUAL_TIPO.meta, margin: '0 0 8px', paddingBottom: 6,
-              borderBottom: '1px solid rgba(148,163,184,.1)',
-            }}>
-              {grupo.rotulo}
-            </p>
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {grupo.itens.map((item) => (
-                <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, position: 'relative' }}>
-                  <span style={{
-                    width: 18, height: 18, borderRadius: 999, flexShrink: 0, marginTop: 1,
-                    display: 'grid', placeItems: 'center',
-                    background: 'rgba(239,68,68,.12)', border: '1px solid rgba(248,113,113,.45)',
-                    color: '#f87171',
-                  }}>
-                    <WarningCircle size={11} weight="fill" />
-                  </span>
-                  <span style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, lineHeight: 1.45 }}>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 12, paddingTop: 10,
-          borderTop: '1px dashed rgba(148,163,184,.15)',
-        }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#4ade80' }}>
-            <CheckCircle size={13} weight="fill" /> Atendido: item verde no formulário
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#f87171' }}>
-            <WarningCircle size={13} weight="fill" /> Pendente: item vermelho até corrigir
-          </span>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -1029,7 +539,7 @@ function ManualCalloutBloco({ callout, marginTop = 12 }: {
   )
 }
 
-function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+function ManualBlocoPassoVisual({ passo, ancoraPassoId }: { passo: DocPassoVisual; ancoraPassoId?: string }) {
   const calloutLista = passo.callouts ?? (passo.callout ? [passo.callout] : [])
   const empilharImagem =
     passo.imagemAbaixoTexto ??
@@ -1080,7 +590,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
   if (passo.galeriaTelas?.length) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={blocoBase}>
         {colunaTexto}
         <div style={{
           display: 'grid',
@@ -1104,7 +614,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 
   if (empilharImagem && passo.imagem) {
     return (
-      <div style={blocoBase}>
+      <div id={ancoraPassoId} style={blocoBase}>
         {colunaTexto}
         <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
           <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
@@ -1114,7 +624,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
   }
 
   return (
-    <div style={{
+    <div id={ancoraPassoId} style={{
       ...blocoBase,
       display: 'grid',
       gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
@@ -1128,14 +638,94 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 }
 
 function DocLoginManual() {
+  const location = useLocation()
+  const manualSlug = 'login'
+  const fluxoPorSecao = useMemo(() => montarFluxoPorSecaoLogin(DOC_LOGIN_SECOES), [])
+  const idsRastreaveis = useMemo(() => montarIdsRastreaveisLeituraLogin(DOC_LOGIN_SECOES), [])
+  const [lidos, setLidos] = useState<Set<string>>(() => carregarLidosManual(manualSlug))
+  useEffect(() => {
+    setLidos(carregarLidosManual(manualSlug))
+  }, [])
+  const persistirLidos = useCallback((next: Set<string>) => {
+    setLidos(next)
+    salvarLidosManual(manualSlug, next)
+  }, [])
+  const toggleCapitulo = useCallback((secaoNum: number) => {
+    const fluxo = fluxoPorSecao.get(secaoNum)
+    const filhos = fluxo ? idsPassosFluxo(fluxo) : []
+    const next = new Set(lidos)
+    if (filhos.length > 0) {
+      const estado = calcularEstadoLeitura(lidos, filhos)
+      if (estado === 'lido') filhos.forEach(id => next.delete(id))
+      else filhos.forEach(id => next.add(id))
+    } else {
+      const id = idSecaoManual(secaoNum)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+    }
+    persistirLidos(next)
+  }, [fluxoPorSecao, lidos, persistirLidos])
+  const togglePasso = useCallback((id: string) => {
+    const next = new Set(lidos)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    persistirLidos(next)
+  }, [lidos, persistirLidos])
+  const leituraCtx = useMemo(() => ({
+    ativo: true,
+    fluxoPorSecao,
+    isLido: (id: string) => lidos.has(id),
+    estadoCapitulo: (secaoNum: number) => {
+      const fluxo = fluxoPorSecao.get(secaoNum)
+      return calcularEstadoCapitulo(lidos, secaoNum, fluxo)
+    },
+    toggleCapitulo,
+    togglePasso,
+    totalRastreaveis: idsRastreaveis.length,
+    totalLidos: contarLidosManual(lidos, idsRastreaveis),
+    percentual: percentualLeituraManual(lidos, idsRastreaveis),
+  }), [fluxoPorSecao, lidos, toggleCapitulo, togglePasso, idsRastreaveis])
+
+  const entradasSumario = useMemo(() => montarEntradasSumarioLogin(), [])
+  const totalCapitulosSumario = entradasSumario.length
+  const totalSubcapitulosSumario = entradasSumario.reduce(
+    (acc, e) => acc + (e.subitens?.length ?? 0),
+    0,
+  )
   const todosNums = DOC_LOGIN_SECOES.map(s => s.num)
   const [abertos, setAbertos] = useState<number[]>([])
+  const [gruposSumarioAbertos, setGruposSumarioAbertos] = useState<Record<number, boolean>>({})
   const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
   const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
-  const scrollTo = useManualSumarioScroll(abertos, setAbertos)
+  const toggleGrupoSumario = useCallback((secaoNum: number) => {
+    setGruposSumarioAbertos(prev => ({ ...prev, [secaoNum]: !prev[secaoNum] }))
+  }, [])
+  const expandirGrupoSumario = useCallback((secaoNum: number) => {
+    setGruposSumarioAbertos(prev => (prev[secaoNum] ? prev : { ...prev, [secaoNum]: true }))
+  }, [])
+  const secaoScroll = useMemo((): DocSecaoConfigurador => ({
+    num: 1,
+    titulo: 'Login',
+    paragrafos: [],
+    fluxos: DOC_LOGIN_SECOES
+      .filter(s => (s.passosVisuais?.length ?? 0) > 0)
+      .map((s): DocFluxo => ({
+        titulo: s.titulo,
+        paragrafos: [],
+        passosVisuais: s.passosVisuais as DocFluxo['passosVisuais'],
+        ancoraPassosPrefix: ancoraPassosLogin(s.num),
+      })),
+  }), [])
+  const { scrollToSecao, scrollToItem } = useManualSumarioScroll(abertos, setAbertos, undefined, undefined, secaoScroll)
+
+  useEffect(() => {
+    const m = /^#doc-sec-(\d+)$/.exec(location.hash)
+    if (m) scrollToSecao(Number(m[1]))
+  }, [location.hash, scrollToSecao])
 
   return (
+    <ManualLeituraContext.Provider value={leituraCtx}>
     <div style={{ maxWidth: '100%', color: 'var(--ws-text,#f1f5f9)' }}>
       {/* Badge */}
       <span style={{
@@ -1184,55 +774,23 @@ function DocLoginManual() {
         ))}
       </div>
 
-      {/* Sumário */}
-      <div style={{
-        background: 'rgba(148,163,184,.05)', border: '1px solid rgba(148,163,184,.12)',
-        borderRadius: 14, padding: '20px 26px', marginBottom: 16,
-      }}>
-        <p style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.12em', color: 'var(--ws-muted,#64748b)', textTransform: 'uppercase', marginBottom: 14 }}>
-          Sumário
-        </p>
-        <ol style={{ margin: 0, padding: 0, listStyle: 'none', columns: 2, gap: 24, fontSize: '.85rem' }}>
-          {DOC_LOGIN_SECOES.map(s => (
-            <li key={s.num} style={{ marginBottom: 7, display: 'flex', alignItems: 'baseline', gap: 12 }}>
-              <span style={{ ...MANUAL_ESTILO_SECAO_NUMERO, minWidth: 22 }}>{s.num}.</span>
-              <button onClick={() => scrollTo(s.num)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818cf8', padding: 0, textAlign: 'left', lineHeight: 1.4 }}>
-                {s.titulo}
-              </button>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Expandir / recolher todas */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-        <button
-          type="button"
-          onClick={toggleTodos}
-          title={todosAbertos ? 'Recolher todas as seções' : 'Expandir todas as seções'}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600, padding: '4px 2px',
-          }}
-        >
-          <CaretDown
-            weight="bold"
-            size={12}
-            style={{
-              transform: todosAbertos ? 'rotate(180deg)' : 'none',
-              transition: 'transform .2s',
-            }}
-          />
-          {todosAbertos ? 'Recolher todas' : 'Expandir todas'}
-        </button>
-      </div>
+      <ManualSumarioBloco
+        entradas={entradasSumario}
+        totalCapitulos={totalCapitulosSumario}
+        totalSubcapitulos={totalSubcapitulosSumario}
+        gruposAbertos={gruposSumarioAbertos}
+        onToggleGrupo={toggleGrupoSumario}
+        onExpandirGrupo={expandirGrupoSumario}
+        scrollToItem={scrollToItem}
+        todosAbertos={todosAbertos}
+        toggleTodos={toggleTodos}
+      />
 
       {/* Seções */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {DOC_LOGIN_SECOES.map(s => {
           const aberto = abertos.includes(s.num)
+          const estadoCap = leituraCtx.estadoCapitulo(s.num)
           return (
             <div key={s.num} id={`doc-sec-${s.num}`} style={{
               ...MANUAL_ESTILO_ACORDEON_SECAO,
@@ -1240,19 +798,61 @@ function DocLoginManual() {
               borderRadius: 12, overflow: 'hidden', transition: 'border-color .2s',
             }}>
               {/* Header da seção */}
-              <button onClick={() => toggle(s.num)} style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 16,
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
                 background: aberto ? 'rgba(99,102,241,.07)' : 'rgba(148,163,184,.03)',
-                border: 'none', cursor: 'pointer', padding: '16px 22px',
-                color: 'var(--ws-text,#f1f5f9)', textAlign: 'left', transition: 'background .15s',
+                padding: '16px 22px',
+                color: 'var(--ws-text,#f1f5f9)',
+                transition: 'background .15s',
               }}>
+                <button
+                  type="button"
+                  onClick={() => toggle(s.num)}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: 'inherit',
+                    textAlign: 'left',
+                  }}
+                >
                 <span style={MANUAL_ESTILO_SECAO_NUMERO}>{String(s.num).padStart(2, '0')}</span>
-                <span style={{ fontWeight: 700, fontSize: '1rem', flex: 1, minWidth: 0 }}>{s.titulo}</span>
                 <span style={{
-                  color: '#818cf8', flexShrink: 0,
-                  transform: aberto ? 'rotate(180deg)' : 'none', transition: 'transform .25s', fontSize: '.9rem',
-                }}>▾</span>
+                    fontWeight: 700, fontSize: '1rem', flex: 1, minWidth: 0,
+                    opacity: estadoCap === 'lido' ? 0.65 : 1,
+                  }}>{s.titulo}</span>
               </button>
+                <ManualBotaoMarcarLido
+                  estado={estadoCap}
+                  onToggle={() => toggleCapitulo(s.num)}
+                  rotulo={s.titulo}
+                />
+                <button
+                  type="button"
+                  onClick={() => toggle(s.num)}
+                  aria-label={aberto ? `Recolher ${s.titulo}` : `Expandir ${s.titulo}`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#818cf8',
+                    flexShrink: 0,
+                    transform: aberto ? 'rotate(180deg)' : 'none',
+                    transition: 'transform .25s',
+                    fontSize: '.9rem',
+                    padding: 0,
+                  }}
+                >▾</button>
+              </div>
 
               {/* Corpo da seção */}
               {aberto && (
@@ -1290,7 +890,11 @@ function DocLoginManual() {
                         />
                       ))}
                       {s.passosVisuais.map(passo => (
-                        <ManualBlocoPassoVisual key={passo.num} passo={passo} />
+                        <ManualBlocoPassoVisual
+                          key={passo.num}
+                          passo={passo}
+                          ancoraPassoId={idPassoManual(ancoraPassosLogin(s.num), passo.num)}
+                        />
                       ))}
                     </>
                   ) : (
@@ -1312,11 +916,10 @@ function DocLoginManual() {
                     <div style={{
                       display: 'grid',
                       gridTemplateColumns: s.listaEmLinha
-                        ? `repeat(${s.lista.length}, minmax(0, 1fr))`
+                        ? 'repeat(3, minmax(0, 1fr))'
                         : 'repeat(auto-fill, minmax(260px, 1fr))',
                       gap: s.listaEmLinha ? 8 : 10,
                       marginTop: 20,
-                      overflowX: s.listaEmLinha ? 'auto' : undefined,
                     }}>
                       {s.lista.map((item, i) => {
                         const [label, ...rest] = item.replace(/^[-–]\s*/, '').split(':')
@@ -1407,7 +1010,21 @@ function DocLoginManual() {
         })}
       </div>
     </div>
+    </ManualLeituraContext.Provider>
   )
+}
+
+function calcularRitmoGlobalContratados(aulasConcluidas: Set<string>): {
+  ritmo: MetricasRitmoJornada
+  mapaDuracao: Map<string, number>
+} {
+  const produtos = PRODUTOS_CONTRATADOS as string[]
+  const mapaDuracao = montarMapaDuracaoProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosTotais = calcularMinutosTotaisProdutos(produtos, TRILHAS_POR_PRODUTO)
+  const minutosConcluidos = calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao)
+  const dataInicio = obterDataInicioJornadaGuia(minutosConcluidos)
+  const ritmo = calcularRitmoJornada({ minutosTotais, minutosConcluidos, dataInicio })
+  return { ritmo, mapaDuracao }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1416,9 +1033,1121 @@ function BarraProgresso({ pct, cor = UNI_COR, altura = 7 }: { pct: number; cor?:
     <div style={{ height: altura, borderRadius: 9, background: 'rgba(148,163,184,.12)', overflow: 'hidden', flex: 1 }}>
       <span style={{
         display: 'block', height: '100%', width: `${Math.min(100, pct)}%`,
-        background: pct >= 100 ? 'linear-gradient(90deg,#34d399,#10b981)' : `linear-gradient(90deg,${cor},#a78bfa)`,
+        background: pct >= 100 ? 'linear-gradient(90deg,#818cf8,#a78bfa)' : `linear-gradient(90deg,${cor},#a78bfa)`,
         transition: 'width .4s ease',
       }} />
+    </div>
+  )
+}
+
+// ── Jornada do Módulo (Academy · detalhe gamificado) ─────────────────────────
+// Traduz o protótipo "Jornada do Módulo" para o design system do University.
+// XP/GP/ranking derivados dos pesos PO (`pesos-academy-guia-gravity.ts`) — WIP: virá do banco via API.
+/** Segmento reservado: /academy/login/jornada abre a trilha do módulo (não a aula). */
+const FASE_RESERVA_JORNADA = 'jornada'
+
+// Colegas fictícios para o ranking do módulo (WIP: virá do banco via API).
+const JORNADA_RANKING_DEMO: { nome: string; xp: number }[] = [
+  { nome: 'Marina Alves', xp: 82 },
+  { nome: 'Diego Ramos', xp: 65 },
+  { nome: 'Bruno Costa', xp: 44 },
+  { nome: 'Ana Paula', xp: 30 },
+]
+
+interface JornadaEtapa {
+  fase: Fase
+  numero: number
+  xp: number
+  feita: boolean
+  atual: boolean
+  bloqueada: boolean
+  clicavel: boolean
+}
+
+/**
+ * Slugs renomeados/unificados na curadoria — progresso legado continua válido.
+ * Valores: slugs antigos que contam como conclusão do slug atual.
+ */
+const SLUGS_LEGADOS_AULA_CONCLUIDA: Partial<Record<string, readonly string[]>> = {
+  'acessar-workspaces': [
+    'gerenciando-workspaces',
+    'configurando-workspaces',
+    'criar-workspace',
+    'editar-workspace',
+    'ativar-workspace',
+    'excluir-workspace',
+  ],
+  'administrando-usuarios': ['convidando-usuarios', 'gerenciando-usuarios', 'organize-usuarios-na-plataforma'],
+  'gerenciando-assinaturas': ['assinaturas-e-financeiro', 'gerenciando-assinaturas'],
+  'financeiro-da-conta': ['assinaturas-e-financeiro', 'financeiro-da-conta'],
+}
+
+function faseEstaConcluida(fase: Fase, concluidas: Set<string>): boolean {
+  if (!fase.slug) return fase.concluida
+  if (concluidas.has(fase.slug)) return true
+  const legados = SLUGS_LEGADOS_AULA_CONCLUIDA[fase.slug]
+  if (!legados?.length) return false
+  return legados.some(slug => concluidas.has(slug))
+}
+
+/** Promove slugs legados → atuais para persistência e desbloqueio linear. */
+function normalizarSlugsConclusaoAcademy(slugs: Iterable<string>): Set<string> {
+  const s = new Set(slugs)
+  for (const [atual, legados] of Object.entries(SLUGS_LEGADOS_AULA_CONCLUIDA)) {
+    if (s.has(atual)) continue
+    const legadoOk = legados.some(slug => s.has(slug))
+    if (legadoOk) s.add(atual)
+  }
+  return s
+}
+
+function iniciaisNome(nome: string): string {
+  return nome.split(' ').map(parte => parte[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+}
+
+function calcularIndiceAtualGlobal(trilhas: Trilha[], aulasConcluidas: Set<string>): number {
+  let idx = 0
+  for (const trilha of trilhas) {
+    for (const fase of trilha.fases) {
+      const feita = faseEstaConcluida(fase, aulasConcluidas)
+      if (!feita) return idx
+      idx += 1
+    }
+  }
+  return idx
+}
+
+function calcularEtapasJornada(
+  produtoSlug: string,
+  fases: Fase[],
+  aulasConcluidas: Set<string>,
+  opts?: { offsetNumero?: number; indiceAtualGlobal?: number; mapaXp?: Map<string, number> },
+): JornadaEtapa[] {
+  const offset = opts?.offsetNumero ?? 0
+  const mapaXp = opts?.mapaXp ?? montarMapaXpAulas(produtoSlug, fases)
+  const feitas = fases.map(fase => faseEstaConcluida(fase, aulasConcluidas))
+  const idxAtualLocal = feitas.findIndex(feita => !feita)
+  return fases.map((fase, i) => {
+    const indiceGlobal = offset + i
+    const atual = opts?.indiceAtualGlobal !== undefined
+      ? indiceGlobal === opts.indiceAtualGlobal
+      : i === idxAtualLocal
+    const feita = feitas[i]
+    const xpMax = fase.slug ? (mapaXp.get(fase.slug) ?? 0) : 0
+    return {
+      fase,
+      numero: indiceGlobal + 1,
+      xp: xpMax,
+      feita,
+      atual,
+      bloqueada: !feita && !atual,
+      clicavel: Boolean(fase.slug) && (feita || atual),
+    }
+  })
+}
+
+function obterTodasFasesProduto(produtoSlug: string, trilha?: Trilha): Fase[] {
+  const trilhas = TRILHAS_POR_PRODUTO[produtoSlug as keyof typeof TRILHAS_POR_PRODUTO]
+  if (trilhas?.length) return trilhas.flatMap(t => t.fases)
+  return trilha?.fases ?? []
+}
+
+function calcularProgressoModulo(
+  produtoSlug: string,
+  trilha: Trilha,
+  aulasConcluidas: Set<string>,
+  mapaXpProduto?: Map<string, number>,
+) {
+  const todasFases = obterTodasFasesProduto(produtoSlug, trilha)
+  const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, todasFases)
+  const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, { mapaXp })
+  const feitas = etapas.filter(e => e.feita).length
+  const total = etapas.length
+  const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
+  const xpMax = obterXpMaxTrilha(trilha.fases, mapaXp)
+  const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : (total > 0 ? trilha.prog : 0)
+  return { feitas, total, xp, xpMax, pct }
+}
+
+function calcularProgressoProduto(slug: keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas: Set<string>) {
+  const trilhas = TRILHAS_POR_PRODUTO[slug]
+  if (!trilhas?.length) return { feitas: 0, total: 0, xp: 0, xpMax: 0, pct: 0 }
+  const todasFases = trilhas.flatMap(trilha => trilha.fases)
+  const mapaXp = montarMapaXpAulas(slug, todasFases)
+  let feitas = 0
+  let total = 0
+  let xp = 0
+  for (const trilha of trilhas) {
+    const p = calcularProgressoModulo(slug, trilha, aulasConcluidas, mapaXp)
+    feitas += p.feitas
+    total += p.total
+    xp += p.xp
+  }
+  const xpMax = obterXpMaxProduto(mapaXp)
+  const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : 0
+  return { feitas, total, xp, xpMax, pct }
+}
+
+function produtoGuiaConcluido(slug: ProdutoSlug, aulasConcluidas: Set<string>): boolean {
+  const trilhas = TRILHAS_POR_PRODUTO[slug as keyof typeof TRILHAS_POR_PRODUTO]
+  return trilhas
+    ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100
+    : false
+}
+
+function calcularMetricasOnboarding(aulasConcluidas: Set<string>) {
+  const modulos = PRODUTOS_CONTRATADOS.map(slug => {
+    const trilha = TRILHAS_POR_PRODUTO[slug][0]
+    const progresso = calcularProgressoProduto(slug, aulasConcluidas)
+    return { slug, trilha, ...progresso }
+  })
+  const xpTotal = modulos.reduce((soma, m) => soma + m.xp, 0)
+  const concluidas = modulos.filter(m => m.pct >= 100).length
+  const emAndamento = modulos.filter(m => m.pct > 0 && m.pct < 100).length
+  return { modulos, xpTotal, concluidas, emAndamento, certificados: concluidas, gp: xpTotal * 2 }
+}
+
+function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
+  slug: ProdutoSlug
+  aulasConcluidas: Set<string>
+  compacto?: boolean
+}) {
+  const { t } = useTranslation()
+  const comprado = produtoCompradoOrganizacao(slug)
+  const concluido = produtoGuiaConcluido(slug, aulasConcluidas)
+
+  const tituloContrato = comprado
+    ? 'university.nav_status.comprado_titulo'
+    : 'university.nav_status.nao_comprado_titulo'
+  const descContrato = comprado
+    ? 'university.nav_status.comprado_desc'
+    : 'university.nav_status.nao_comprado_desc'
+
+  return (
+    <span className={`uni-nav-status-icons${compacto ? ' uni-nav-status-icons--compacto' : ''}`}>
+      <TooltipGlobal titulo={t(tituloContrato)} descricao={t(descContrato)}>
+        <span
+          className={`uni-nav-status-pill uni-nav-status-pill--contrato${comprado ? ' is-on' : ''}`}
+          aria-label={t(tituloContrato)}
+        >
+          <Package size={compacto ? 10 : 11} weight={comprado ? 'fill' : 'regular'} />
+        </span>
+      </TooltipGlobal>
+      <TooltipGlobal
+        titulo={t(concluido ? 'university.nav_status.concluido_titulo' : 'university.nav_status.nao_concluido_titulo')}
+        descricao={t(concluido ? 'university.nav_status.concluido_desc' : 'university.nav_status.nao_concluido_desc')}
+      >
+        <span
+          className={`uni-nav-status-pill uni-nav-status-pill--concluido${concluido ? ' is-on' : ''}`}
+          aria-label={t(concluido ? 'university.nav_status.concluido_titulo' : 'university.nav_status.nao_concluido_titulo')}
+        >
+          <CheckCircle size={compacto ? 10 : 11} weight={concluido ? 'fill' : 'regular'} />
+        </span>
+      </TooltipGlobal>
+    </span>
+  )
+}
+
+function LegendaStatusNavAcademy() {
+  const { t } = useTranslation()
+  return (
+    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
+          <Package size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.contrato_abrev')}
+      </span>
+      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
+          <CheckCircle size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.concluido_abrev')}
+      </span>
+    </div>
+  )
+}
+
+function JornadaNode({ etapa }: { etapa: JornadaEtapa }) {
+  const anelPulsante = etapa.atual ? ' uni-jornada-node--current' : ''
+  return (
+    <div
+      className={`uni-jornada-node${anelPulsante}`}
+      style={{
+        flexShrink: 0, width: 28, height: 28, borderRadius: '50%', zIndex: 1,
+        display: 'grid', placeItems: 'center',
+        background: etapa.feita ? 'rgba(129,140,248,.45)' : 'var(--bg-base,#1e293b)',
+        border: `2px solid ${etapa.feita || etapa.atual ? (etapa.feita ? 'rgba(129,140,248,.65)' : UNI_COR) : 'rgba(148,163,184,.22)'}`,
+      }}
+    >
+      {etapa.feita
+        ? <CheckFat weight="fill" size={12} style={{ color: '#c7d2fe' }} />
+        : <span style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.72rem',
+            color: etapa.atual ? UNI_COR : 'var(--ws-muted,#94a3b8)',
+          }}>{etapa.numero}</span>}
+    </div>
+  )
+}
+
+function EtapaStatusTag({ etapa }: { etapa: JornadaEtapa }) {
+  const { t } = useTranslation()
+  const { atual, feita, bloqueada } = etapa
+  const destaqueConcluido = feita && !atual
+
+  if (atual) {
+    return (
+      <span className="uni-jornada-etapa-tag uni-jornada-etapa-tag--current">
+        <Clock size={12} weight="fill" />
+        {t('university.jornada.em_andamento')}
+      </span>
+    )
+  }
+  if (destaqueConcluido) {
+    return (
+      <span className="uni-jornada-etapa-tag uni-jornada-etapa-tag--done">
+        <CheckCircle size={12} weight="fill" />
+        {t('university.jornada.etapa_concluida')}
+      </span>
+    )
+  }
+  if (bloqueada) {
+    return (
+      <span className="uni-jornada-etapa-tag uni-jornada-etapa-tag--blocked">
+        <Lock size={12} weight="fill" />
+        {t('university.jornada.etapa_bloqueada')}
+      </span>
+    )
+  }
+  return null
+}
+
+function JornadaEtapaCard({ etapa, onAbrir }: {
+  etapa: JornadaEtapa
+  onAbrir: (slug: string) => void
+}) {
+  const { fase, atual, feita, bloqueada, clicavel, xp } = etapa
+  const destaqueConcluido = feita && !atual
+  const abrir = () => { if (clicavel && fase.slug) onAbrir(fase.slug) }
+  return (
+    <div
+      role={clicavel ? 'button' : undefined}
+      tabIndex={clicavel ? 0 : undefined}
+      onClick={abrir}
+      onKeyDown={(e) => { if (clicavel && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir() } }}
+      className={`uni-jornada-etapa${atual ? ' uni-jornada-etapa--current' : ''}${destaqueConcluido ? ' uni-jornada-etapa--done' : ''}`}
+      style={{
+        flex: 1, borderRadius: 14, padding: '14px 18px',
+        cursor: clicavel ? 'pointer' : 'default',
+        background: destaqueConcluido ? 'rgba(129,140,248,.08)' : 'var(--bg-base,#1e293b)',
+        border: `1px solid ${destaqueConcluido || atual ? UNI_COR : 'rgba(148,163,184,.12)'}`,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+        <div>
+          <div style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '.95rem', marginBottom: 4,
+            color: bloqueada ? 'var(--ws-muted,#94a3b8)' : 'var(--ws-text,#f1f5f9)',
+          }}>{fase.nome}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
+            <Clock size={12} />{fase.duracao}
+          </div>
+        </div>
+        <div style={{
+          flexShrink: 0, background: 'rgba(129,140,248,.12)', color: UNI_COR,
+          fontSize: '.72rem', fontWeight: 700, padding: '4px 9px', borderRadius: 9999,
+        }}>{xp} XP</div>
+      </div>
+      <EtapaStatusTag etapa={etapa} />
+    </div>
+  )
+}
+
+function JornadaCardBox({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 14, padding: 16 }}>
+      <div style={{
+        fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: 'var(--ws-muted,#94a3b8)',
+        fontSize: '.68rem', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 10,
+      }}>{titulo}</div>
+      {children}
+    </div>
+  )
+}
+
+function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
+  const { t } = useTranslation()
+  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+    .sort((a, b) => b.xp - a.xp)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {linhas.map((p, i) => {
+        const isYou = 'isYou' in p && p.isYou
+        return (
+          <div key={`${p.nome}-${i}`} style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', borderRadius: 8,
+            background: isYou ? 'rgba(129,140,248,.1)' : 'transparent',
+          }}>
+            <div style={{
+              width: 18, textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800, fontSize: '.72rem', color: i === 0 ? '#fbbf24' : 'var(--ws-muted,#94a3b8)',
+            }}>{i + 1}</div>
+            <div style={{
+              width: 24, height: 24, borderRadius: '50%', display: 'grid', placeItems: 'center',
+              fontSize: '.6rem', fontWeight: 700, color: '#f8fafc',
+              background: isYou ? UNI_COR : 'rgba(148,163,184,.25)',
+            }}>{iniciaisNome(p.nome)}</div>
+            <div style={{
+              flex: 1, fontSize: '.82rem', fontWeight: 600,
+              color: isYou ? UNI_COR : 'var(--ws-text,#f1f5f9)',
+            }}>{p.nome}</div>
+            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function JornadaSidebar({ xp, gp, feitas, total, xpMeta, ritmo, rankingTituloKey = 'university.jornada.ranking_modulo' }: {
+  xp: number; gp: number; feitas: number; total: number; xpMeta?: number; ritmo?: MetricasRitmoJornada | null
+  rankingTituloKey?: string
+}) {
+  const { t } = useTranslation()
+  const pctXp = xpMeta && xpMeta > 0 ? Math.min(100, Math.round((xp / xpMeta) * 100)) : 0
+  const badgeAtiva = feitas >= 1
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <JornadaCardBox titulo={t('university.jornada.seu_progresso')}>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.6rem', color: 'var(--ws-text,#f1f5f9)' }}>
+          {xp}<span style={{ fontSize: '.9rem', color: 'var(--ws-muted,#94a3b8)', fontWeight: 600 }}> XP</span>
+        </div>
+        {xpMeta > 0 && (
+          <>
+            <div style={{ marginTop: 10 }}>
+              <BarraProgressoComRitmo
+                pctReal={ritmo?.pctRealMinutos ?? pctXp}
+                ritmo={ritmo ?? null}
+                altura={6}
+              />
+            </div>
+        <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', marginTop: 8 }}>
+          {t('university.jornada.tarefas_concluidas', { feitas, total })}
+        </div>
+          </>
+        )}
+      </JornadaCardBox>
+
+      <JornadaCardBox titulo={t('university.jornada.recompensas')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7,
+              background: badgeAtiva ? UNI_COR : 'rgba(148,163,184,.18)',
+              display: 'grid', placeItems: 'center', color: '#0b1220',
+            }}><Sparkle weight="fill" size={14} /></div>
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
+              {t('university.jornada.badge_iniciante')}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: '50%',
+              background: 'rgba(167,139,250,.22)', border: '1.5px solid #a78bfa',
+            }} />
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
+              {gp} {t('university.jornada.gravity_points')}
+            </div>
+          </div>
+        </div>
+      </JornadaCardBox>
+
+      <JornadaCardBox titulo={t(rankingTituloKey)}>
+        <JornadaRanking xpUsuario={xp} />
+      </JornadaCardBox>
+    </div>
+  )
+}
+
+function BarraSegmentada({ total, preenchidos, cor }: { total: number; preenchidos: number; cor: string }) {
+  return (
+    <div style={{ display: 'flex', gap: 6 }}>
+      {Array.from({ length: total }, (_, i) => (
+        <div
+          key={i}
+          style={{
+            flex: 1, height: 12, borderRadius: 5,
+            background: i < preenchidos ? cor : 'rgba(148,163,184,.18)',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function siglaModuloOnboarding(slug: keyof typeof TRILHAS_POR_PRODUTO): string {
+  if (slug === 'bem-vindo') return 'BV'
+  if (slug === 'pedido') return 'P'
+  if (slug === 'processo') return 'Pr'
+  if (slug === 'smart-read') return 'S'
+  if (slug === 'login') return 'L'
+  if (slug === 'configurador') return 'C'
+  return slug.slice(0, 2).toUpperCase()
+}
+
+function calcularNivelOnboarding(xpTotal: number, t: (key: string) => string) {
+  const resultado = calcularNivelGuiaGravity(xpTotal)
+  return {
+    ...resultado,
+    titulo: t(resultado.chaveTitulo),
+  }
+}
+
+/** WIP demo — virá do banco via API. */
+const MANUAIS_LIDOS_DEMO = { lidos: 0, total: 8 }
+const OFENSIVA_DIAS_DEMO = 0
+
+/** Chave sessionStorage — bump para resetar progresso local entre demos. */
+const CHAVE_AULAS_CONCLUIDAS = 'university_academy_concluidas_v1'
+
+function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
+  const { t } = useTranslation()
+  const linhas = [...JORNADA_RANKING_DEMO, { nome: t('university.jornada.voce'), xp: xpUsuario, isYou: true }]
+    .sort((a, b) => b.xp - a.xp)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {linhas.map((p, i) => {
+        const isYou = 'isYou' in p && p.isYou
+        return (
+          <div
+            key={`${p.nome}-${i}`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '7px 8px', margin: '0 -4px', borderRadius: 9,
+              background: isYou ? 'rgba(129,140,248,.12)' : 'transparent',
+              border: isYou ? '1px solid rgba(129,140,248,.4)' : '1px solid transparent',
+            }}
+          >
+            <div style={{
+              width: 16, textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontWeight: 800, fontSize: '.75rem',
+              color: i === 0 ? '#fbbf24' : i === 1 ? 'var(--ws-muted,#94a3b8)' : i === 2 ? '#d97706' : 'var(--ws-muted,#64748b)',
+            }}>{i + 1}</div>
+            <div style={{
+              width: 24, height: 24, borderRadius: '50%', display: 'grid', placeItems: 'center',
+              fontSize: '.6rem', fontWeight: 700, color: '#f8fafc',
+              background: isYou ? '#818cf8' : 'rgba(148,163,184,.25)',
+            }}>{iniciaisNome(p.nome)}</div>
+            <div style={{
+              flex: 1, fontSize: '.82rem', fontWeight: 600,
+              color: isYou ? '#818cf8' : 'var(--ws-text,#f1f5f9)',
+            }}>{p.nome}</div>
+            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo }: {
+  xpTotal: number; gp: number; feitas: number; ritmo: MetricasRitmoJornada
+}) {
+  const { t } = useTranslation()
+  const { nivel, xpMetaNivel, xpParaSubir, titulo, pctNivel } = calcularNivelOnboarding(xpTotal, t)
+  const badgeObtida = feitas >= 1
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="uni-dashboard-nivel-card">
+        <div className="uni-dashboard-nivel-cabecalho">
+          <div className="uni-dashboard-nivel-cabecalho__rotulo">{t('university.dashboard.nivel_ofensiva')}</div>
+          <DashboardInfoNiveisGuiaGravity xpTotal={xpTotal} xpParaSubir={xpParaSubir} />
+        </div>
+        <div className="uni-dashboard-nivel-titulo">
+          {t('university.dashboard.nivel_rotulo', { nivel, titulo })}
+        </div>
+        <div className="uni-dashboard-nivel-barra">
+          <BarraProgresso pct={pctNivel} altura={8} />
+        </div>
+        <div className="uni-dashboard-nivel-xp">
+          {xpTotal} / {xpMetaNivel} XP
+        </div>
+        <div className="uni-dashboard-nivel-ritmo-resumo">
+          <div className="uni-dashboard-ritmo-cabecalho uni-dashboard-ritmo-cabecalho--padrao">
+            <div className="uni-dashboard-ritmo-cabecalho__titulo">
+              <span className="uni-dashboard-ritmo-rotulo">{t('university.dashboard.ritmo.jornada_rotulo')}</span>
+              <DashboardInfoRitmoGuiaGravity ritmo={ritmo} />
+            </div>
+          </div>
+          <div className="uni-dashboard-barra-ritmo-bloco">
+            <BarraProgressoComRitmo
+              pctReal={ritmo.pctRealMinutos}
+              ritmo={ritmo}
+              altura={8}
+            />
+          </div>
+        </div>
+        <div className="uni-dashboard-nivel-ofensiva">
+          <div className="uni-dashboard-ofensiva-icone" aria-hidden>
+            <span style={{ fontSize: 14 }}>🔥</span>
+          </div>
+          <div className="uni-dashboard-nivel-ofensiva__texto">
+            {t('university.dashboard.ofensiva_dias', { dias: OFENSIVA_DIAS_DEMO })}
+          </div>
+        </div>
+      </div>
+
+      <JornadaCardBox titulo={t('university.jornada.recompensas')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: 9,
+              background: badgeObtida ? 'linear-gradient(135deg, #818cf8, #a78bfa)' : 'rgba(148,163,184,.18)',
+            }} />
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600, flex: 1 }}>
+              {t('university.jornada.badge_iniciante')}
+            </div>
+            {badgeObtida && (
+              <div style={{ fontSize: '.66rem', fontWeight: 700, color: '#818cf8' }}>
+                {t('university.dashboard.badge_obtido')}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: 'rgba(167,139,250,.22)', border: '1.5px solid #a78bfa',
+            }} />
+            <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
+              {gp} {t('university.jornada.gravity_points')}
+            </div>
+          </div>
+        </div>
+      </JornadaCardBox>
+
+      <JornadaCardBox titulo={t('university.jornada.ranking_geral')}>
+        <RankingGeralDashboard xpUsuario={xpTotal} />
+      </JornadaCardBox>
+    </div>
+  )
+}
+
+function PainelDashboardOnboarding({ aulasConcluidas, onAbrirModulo, nomeUsuario }: {
+  aulasConcluidas: Set<string>
+  onAbrirModulo: (slug: keyof typeof TRILHAS_POR_PRODUTO) => void
+  nomeUsuario: string
+}) {
+  const { t } = useTranslation()
+  const metricas = calcularMetricasOnboarding(aulasConcluidas)
+  const { modulos, xpTotal, concluidas, emAndamento, gp } = metricas
+  const { xpParaSubir, nivel, titulo } = calcularNivelOnboarding(xpTotal, t)
+  const { ritmo: ritmoGlobal } = calcularRitmoGlobalContratados(aulasConcluidas)
+
+  const produtoConcluido100 = useCallback((slug: string) => {
+    if (!(slug in TRILHAS_POR_PRODUTO)) return false
+    return calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).pct >= 100
+  }, [aulasConcluidas])
+
+  const [mapaCertificados, setMapaCertificados] = useState(() => carregarCertificadosGuia())
+  const [certificadoAberto, setCertificadoAberto] = useState<CertificadoEmitidoGuia | null>(null)
+
+  useEffect(() => {
+    const elegiveis = avaliarTiposCertificadoElegiveis({ produtoConcluido100 })
+    setMapaCertificados(sincronizarCertificadosGuia(elegiveis))
+  }, [produtoConcluido100, aulasConcluidas])
+
+  const certificadosObtidos = contarCertificadosObtidos(mapaCertificados)
+
+  const xpPorSlug = useMemo(() => {
+    const slugs = [...SLUGS_MODULO_BASICO_GUIA, 'pedido', 'bid-frete', 'smart-read'] as const
+    const mapa: Record<string, number> = {}
+    for (const slug of slugs) {
+      if (slug in TRILHAS_POR_PRODUTO) {
+        mapa[slug] = calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas).xp
+      }
+    }
+    return mapa
+  }, [aulasConcluidas])
+
+  const [produtosFiltrados, setProdutosFiltrados] = useState<Set<string>>(
+    () => new Set(PRODUTOS_CONTRATADOS as string[]),
+  )
+
+  const alternarFiltroProduto = (slug: string) => {
+    setProdutosFiltrados(prev => {
+      const next = new Set(prev)
+      if (next.has(slug)) {
+        if (next.size <= 1) return prev
+        next.delete(slug)
+      } else {
+        next.add(slug)
+      }
+      return next
+    })
+  }
+
+  const modulosVisiveis = modulos.filter(m => produtosFiltrados.has(m.slug))
+  const concluidasVisiveis = modulosVisiveis.filter(m => m.pct >= 100).length
+  const pctVisivel = ritmoGlobal.pctRealMinutos
+
+  const moduloAtual = modulos.find(m => m.pct > 0 && m.pct < 100) ?? modulos.find(m => m.pct < 100) ?? modulos[0]
+  const etapasAtual = calcularEtapasJornada(
+    moduloAtual.slug,
+    moduloAtual.trilha.fases,
+    aulasConcluidas,
+    { mapaXp: montarMapaXpAulas(moduloAtual.slug, obterTodasFasesProduto(moduloAtual.slug, moduloAtual.trilha)) },
+  )
+  const idxEtapaAtual = etapasAtual.findIndex(e => e.atual)
+  const etapaAtual = idxEtapaAtual >= 0 ? etapasAtual[idxEtapaAtual] : etapasAtual.find(e => !e.feita)
+  const faltam = modulos.filter(m => m.pct < 100)
+
+  const kpis = [
+    { k: 'university.jornada.pontos', v: xpTotal.toLocaleString('pt-BR') },
+    { k: 'university.jornada.concluidas', v: String(concluidas) },
+    { k: 'university.jornada.em_andamento', v: String(emAndamento) },
+    { k: 'university.jornada.certificados', v: String(certificadosObtidos) },
+  ]
+
+  const pctAnel = (() => {
+    const minutos = minutosConcluidosModulo(moduloAtual.trilha.fases, aulasConcluidas)
+    const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+    const dataInicio = obterDataInicioJornadaGuia(
+      calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+    )
+    return calcularRitmoModuloSequencial({
+      produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+      trilhasPorProduto: TRILHAS_POR_PRODUTO,
+      slugModulo: moduloAtual.slug,
+      minutosConcluidosModulo: minutos,
+      dataInicio,
+      fasesEscopo: moduloAtual.trilha.fases,
+    }).pctRealMinutos
+  })()
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.62fr) minmax(220px, 1fr)', gap: 20, alignItems: 'start' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Hero — continue de onde parou */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(129,140,248,.14), rgba(30,41,59,.8))',
+          border: '1px solid rgba(129,140,248,.28)', borderRadius: 18, padding: 22,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: '#818cf8',
+                fontSize: '.66rem', letterSpacing: '.1em', textTransform: 'uppercase',
+              }}>{t('university.dashboard.continuar_titulo')}</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.3rem', color: 'var(--ws-text,#f1f5f9)', margin: '7px 0 3px' }}>
+                {moduloAtual.trilha.nome}
+              </div>
+              <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.84rem' }}>
+                {etapaAtual
+                  ? t('university.dashboard.etapa_atual', {
+                    atual: etapaAtual.numero,
+                    total: moduloAtual.total,
+                    nome: etapaAtual.fase.nome,
+                  })
+                  : t('university.dashboard.etapas_progresso', { feitas: moduloAtual.feitas, total: moduloAtual.total })}
+              </div>
+            </div>
+            <div
+              style={{
+                position: 'relative', width: 80, height: 80, flexShrink: 0, borderRadius: '50%',
+                background: `conic-gradient(#818cf8 0 ${pctAnel}%, rgba(148,163,184,.18) ${pctAnel}% 100%)`,
+              }}
+              aria-hidden
+            >
+              <div style={{
+                position: 'absolute', inset: 9, borderRadius: '50%', background: 'var(--bg-base,#1e293b)',
+                display: 'grid', placeItems: 'center',
+                fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.95rem', color: 'var(--ws-text,#f1f5f9)',
+              }}>{moduloAtual.feitas}/{moduloAtual.total}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 18, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => onAbrirModulo(moduloAtual.slug)}
+              style={{
+                border: 'none', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontWeight: 700, fontSize: '.84rem', color: '#0b1220', background: '#818cf8',
+                padding: '10px 20px', borderRadius: 10,
+              }}
+            >{t('university.dashboard.continuar_jornada')}</button>
+            <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem' }}>
+              {t('university.dashboard.nivel_xp_faltam', { nivel, xp: xpParaSubir })}
+            </div>
+          </div>
+        </div>
+
+        {/* KPIs */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          {kpis.map(kpi => (
+            <div key={kpi.k} style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 13, padding: '13px 14px' }}>
+              <div style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>{t(kpi.k)}</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1.5rem', fontWeight: 800, marginTop: 5, color: 'var(--ws-text,#f1f5f9)' }}>{kpi.v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Certificados */}
+        <div className="uni-dashboard-certificados-card">
+          <div className="uni-dashboard-certificados-card__cabecalho">
+            <span className="uni-dashboard-certificados-card__titulo">{t('university.certificado.secao_titulo')}</span>
+            <span className="uni-dashboard-certificados-card__contagem">
+              {t('university.certificado.contagem', { obtidos: certificadosObtidos, total: TIPOS_CERTIFICADO_GUIA.length })}
+            </span>
+          </div>
+          <PainelCertificadosGuiaGravity
+            nomeUsuario={nomeUsuario}
+            xpTotal={xpTotal}
+            nivel={nivel}
+            tituloNivel={titulo}
+            xpPorSlug={xpPorSlug}
+            mapaCertificados={mapaCertificados}
+            certificadoAberto={certificadoAberto}
+            onAbrirCertificado={setCertificadoAberto}
+            onFecharCertificado={() => setCertificadoAberto(null)}
+          />
+        </div>
+
+        {/* Progresso geral — mesma barra contínua da visão por produto; tag abre evolução do produto */}
+        <div className="uni-dashboard-progresso-card">
+          <div className="uni-dashboard-produtos-contratados">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
+                  {t('university.progresso.produtos_contratados')}
+                </span>
+                <DashboardInfoRitmoGuiaGravity ritmo={ritmoGlobal} />
+              </div>
+              <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctVisivel >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
+                {concluidasVisiveis} / {modulosVisiveis.length} {t('university.progresso.concluidos')}
+              </span>
+            </div>
+            <div className="uni-dashboard-barra-ritmo-bloco">
+              <BarraProgressoComRitmo pctReal={pctVisivel} ritmo={ritmoGlobal} altura={8} />
+            </div>
+            <p className="uni-dashboard-filtro-dica">{t('university.dashboard.filtro_produtos_dica')}</p>
+            <div className="uni-dashboard-produtos-contratados__tags">
+              {PRODUTOS_CONTRATADOS.map(slug => {
+                const prog = modulos.find(m => m.slug === slug)
+                const pct = prog?.pct ?? 0
+                const concluido = pct >= 100
+                const selecionado = produtosFiltrados.has(slug)
+                return (
+                  <button
+                    key={slug}
+                    type="button"
+                    className={[
+                      'uni-dashboard-tag-contratado',
+                      selecionado ? 'is-selecionado' : 'is-desabilitado',
+                      selecionado && concluido ? 'is-concluido' : '',
+                      selecionado && pct > 0 && !concluido ? 'is-andamento' : '',
+                    ].filter(Boolean).join(' ')}
+                    onClick={() => alternarFiltroProduto(slug)}
+                    aria-pressed={selecionado}
+                    title={t(selecionado ? 'university.dashboard.filtro_produto_desativar' : 'university.dashboard.filtro_produto_ativar', {
+                      produto: t(`university.produto.${slug.replaceAll('-', '_')}`),
+                    })}
+                  >
+                    <IconeProdutoOficial slug={slug} size={15} cor={selecionado ? (concluido ? '#34d399' : '#818cf8') : '#64748b'} />
+                    <span>{t(`university.produto.${slug.replaceAll('-', '_')}`)}</span>
+                    {selecionado && concluido && <CheckCircle size={12} weight="fill" color="#34d399" aria-hidden />}
+                    {selecionado && !concluido && pct > 0 && (
+                      <span className="uni-dashboard-tag-contratado__pct">{pct}%</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          {universityManuaisDocsVisiveis() ? (
+          <div className="uni-dashboard-progresso-manuais">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 9 }}>
+              <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>
+                {t('university.dashboard.manuais_lidos')}
+              </div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, color: UNI_COR, fontSize: '.88rem' }}>
+                {MANUAIS_LIDOS_DEMO.lidos}<span style={{ color: 'var(--ws-muted,#64748b)', fontWeight: 600 }}>/{MANUAIS_LIDOS_DEMO.total}</span>
+              </div>
+            </div>
+            <BarraProgressoComRitmo
+              pctReal={MANUAIS_LIDOS_DEMO.total > 0
+                ? Math.round((MANUAIS_LIDOS_DEMO.lidos / MANUAIS_LIDOS_DEMO.total) * 100)
+                : 0}
+              ritmo={ritmoGlobal}
+              altura={8}
+              ocultarLegenda
+            />
+          </div>
+          ) : null}
+        </div>
+
+        {/* O que falta */}
+        <div style={{ background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)', borderRadius: 15, padding: '18px 20px' }}>
+          <div style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, color: 'var(--ws-muted,#94a3b8)',
+            fontSize: '.68rem', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 12,
+          }}>{t('university.dashboard.o_que_falta')}</div>
+          {faltam.map(({ slug, trilha, feitas, total, pct }, idx) => (
+            <div
+              key={slug}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 13, padding: '10px 0',
+                borderTop: idx > 0 ? '1px solid rgba(148,163,184,.1)' : undefined,
+              }}
+            >
+              <div style={{
+                width: 34, height: 34, flexShrink: 0, borderRadius: 10,
+                background: trilha.tag, display: 'grid', placeItems: 'center',
+                color: '#0b1220', fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '.8rem',
+              }}>{siglaModuloOnboarding(slug)}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: 'var(--ws-text,#f1f5f9)', fontSize: '.86rem' }}>{trilha.nome}</div>
+                <div style={{ color: 'var(--ws-muted,#94a3b8)', fontSize: '.72rem', marginTop: 1 }}>
+                  {t('university.dashboard.etapas_progresso', { feitas, total })}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onAbrirModulo(slug)}
+                style={{
+                  border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.72rem',
+                  padding: '6px 13px', borderRadius: 8,
+                  background: pct > 0 ? '#818cf8' : UNI_COR,
+                  color: pct > 0 ? '#0b1220' : '#0b1220',
+                }}
+              >
+                {pct > 0 ? t('university.acao.continuar') : t('university.dashboard.iniciar')}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <RailDashboardOnboarding
+        xpTotal={xpTotal}
+        gp={gp}
+        feitas={modulos.reduce((s, m) => s + m.feitas, 0)}
+        ritmo={ritmoGlobal}
+      />
+    </div>
+  )
+}
+
+function SeletorCapitulosAcademy({ produtoSlug, trilhas, ativo, onSelecionar, aulasConcluidas }: {
+  produtoSlug: string
+  trilhas: Trilha[]
+  ativo: number
+  onSelecionar: (idx: number) => void
+  aulasConcluidas: Set<string>
+}) {
+  if (trilhas.length <= 1) return null
+  const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
+  return (
+    <div className="uni-academy-capitulos">
+      {trilhas.map((tr, i) => {
+        const prog = calcularProgressoModulo(produtoSlug, tr, aulasConcluidas, mapaXp)
+        return (
+          <button
+            key={tr.slug ?? tr.nome}
+            type="button"
+            className={`uni-academy-capitulos__item${i === ativo ? ' is-ativo' : ''}${prog.pct >= 100 ? ' is-concluido' : ''}`}
+            onClick={() => onSelecionar(i)}
+          >
+            <span aria-hidden>{tr.emoji}</span>
+            {tr.nome}
+            <span className="uni-academy-capitulos__badge">
+              {prog.feitas}/{prog.total}
+              {prog.pct >= 100 && <CheckFat weight="fill" size={10} />}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exibirSidebar = true, offsetNumero = 0, indiceAtualGlobal, mapaXpProduto }: {
+  produtoSlug: string
+  trilha: Trilha
+  aulasConcluidas: Set<string>
+  onAbrirFase: (slug: string) => void
+  exibirSidebar?: boolean
+  /** Deslocamento para numeração contínua entre capítulos (Configurador). */
+  offsetNumero?: number
+  /** Índice global (0-based) da etapa em andamento na jornada multi-capítulo. */
+  indiceAtualGlobal?: number
+  mapaXpProduto?: Map<string, number>
+}) {
+  const mapaXp = mapaXpProduto ?? montarMapaXpAulas(produtoSlug, obterTodasFasesProduto(produtoSlug, trilha))
+  const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, {
+    offsetNumero,
+    indiceAtualGlobal,
+    mapaXp,
+  })
+  const feitas = etapas.filter(e => e.feita).length
+  const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
+  const gp = xp * 2
+  const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
+  const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
+  const minutosModuloConcluidos = minutosConcluidosModulo(trilha.fases, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+  )
+  const ritmoModulo = calcularRitmoModuloSequencial({
+    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosModuloConcluidos,
+    dataInicio,
+    fasesEscopo: trilha.fases,
+  })
+
+  return (
+    <div>
+      {/* Título + progresso do módulo */}
+      <div style={{ marginBottom: 22 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 11, display: 'grid', placeItems: 'center', background: `${trilha.tag}22`, fontSize: 20 }}>
+              {trilha.emoji}
+            </div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: 'var(--ws-text,#f1f5f9)' }}>
+              {trilha.nome}
+            </div>
+          </div>
+          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{xpMeta} XP</div>
+        </div>
+        <BarraProgressoComRitmo pctReal={ritmoModulo.pctRealMinutos} ritmo={ritmoModulo} altura={8} />
+      </div>
+
+      {/* Caminho (+ sidebar opcional) */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: exibirSidebar ? 'minmax(0, 1.5fr) minmax(240px, 1fr)' : 'minmax(0, 1fr)',
+        gap: 24,
+      }}>
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            position: 'absolute', left: 13, top: 48, bottom: 48, width: 2,
+            background: 'linear-gradient(180deg, ' + UNI_COR + ', rgba(148,163,184,.15))',
+          }} />
+          {etapas.map(etapa => (
+            <div key={etapa.fase.slug ?? `${trilha.slug}-${etapa.numero}`} style={{ position: 'relative', display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
+              <JornadaNode etapa={etapa} />
+              <JornadaEtapaCard etapa={etapa} onAbrir={onAbrirFase} />
+            </div>
+          ))}
+        </div>
+        {exibirSidebar && (
+          <JornadaSidebar
+            xp={xp}
+            gp={gp}
+            feitas={feitas}
+            total={etapas.length}
+            xpMeta={xpMeta}
+            ritmo={ritmoModulo}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirFase, capituloAtivo, onSelecionarCapitulo }: {
+  produtoSlug: string
+  trilhas: Trilha[]
+  aulasConcluidas: Set<string>
+  onAbrirFase: (slug: string) => void
+  capituloAtivo: number
+  onSelecionarCapitulo: (idx: number) => void
+}) {
+  const { t } = useTranslation()
+  const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
+  let feitasTotal = 0
+  let aulasTotal = 0
+  let xpTotal = 0
+  for (const trilha of trilhas) {
+    const p = calcularProgressoModulo(produtoSlug, trilha, aulasConcluidas, mapaXp)
+    feitasTotal += p.feitas
+    aulasTotal += p.total
+    xpTotal += p.xp
+  }
+  const xpMeta = obterXpMaxProduto(mapaXp)
+  const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
+  const todasFasesProduto = trilhas.flatMap(tr => tr.fases)
+  const minutosProdutoConcluidos = minutosConcluidosModulo(todasFasesProduto, aulasConcluidas)
+  const { mapaDuracao } = calcularRitmoGlobalContratados(aulasConcluidas)
+  const dataInicio = obterDataInicioJornadaGuia(
+    calcularMinutosConcluidosJornada(aulasConcluidas, mapaDuracao),
+  )
+  const ritmoProduto = calcularRitmoModuloSequencial({
+    produtosOrdenados: PRODUTOS_CONTRATADOS as string[],
+    trilhasPorProduto: TRILHAS_POR_PRODUTO,
+    slugModulo: produtoSlug,
+    minutosConcluidosModulo: minutosProdutoConcluidos,
+    dataInicio,
+  })
+
+  const irParaCapitulo = useCallback((idx: number) => {
+    onSelecionarCapitulo(idx)
+    const slug = trilhas[idx]?.slug
+    if (slug) {
+      document.getElementById(`uni-cap-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [onSelecionarCapitulo, trilhas])
+
+  return (
+    <div>
+      <div className="uni-academy-capitulos-wrap">
+        <div className="uni-academy-capitulos__titulo">{t('university.capitulos.titulo')}</div>
+        <p className="uni-academy-capitulos__sub">{t('university.capitulos.subtitulo')}</p>
+        <SeletorCapitulosAcademy
+          produtoSlug={produtoSlug}
+          trilhas={trilhas}
+          ativo={capituloAtivo}
+          onSelecionar={irParaCapitulo}
+          aulasConcluidas={aulasConcluidas}
+        />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(240px, 1fr)', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {trilhas.map((trilha, i) => {
+            const offsetNumero = trilhas.slice(0, i).reduce((soma, tr) => soma + tr.fases.length, 0)
+            return (
+            <section
+              key={trilha.slug ?? trilha.nome}
+              id={trilha.slug ? `uni-cap-${trilha.slug}` : undefined}
+              className={`uni-academy-capitulo-secao${i === capituloAtivo ? ' is-ativo' : ''}`}
+            >
+              <JornadaModulo
+                produtoSlug={produtoSlug}
+                trilha={trilha}
+                aulasConcluidas={aulasConcluidas}
+                onAbrirFase={onAbrirFase}
+                exibirSidebar={false}
+                offsetNumero={offsetNumero}
+                indiceAtualGlobal={indiceAtualGlobal}
+                mapaXpProduto={mapaXp}
+              />
+            </section>
+            )
+          })}
+        </div>
+        <JornadaSidebar
+          xp={xpTotal}
+          gp={xpTotal * 2}
+          feitas={feitasTotal}
+          total={aulasTotal}
+          xpMeta={xpMeta}
+          ritmo={ritmoProduto}
+        />
+      </div>
     </div>
   )
 }
@@ -1427,6 +2156,8 @@ export function UniversityGravity() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
+  const origemAcademy = searchParams.get('origem')
   const { user } = useUser()
   const { signOut } = useClerk()
   const { getToken } = useAuth()
@@ -1440,6 +2171,12 @@ export function UniversityGravity() {
 
   useMeSync()
 
+  useEffect(() => {
+    if (!universityManuaisDocsVisiveis() && pathname.includes('/docs')) {
+      navigate('/university-gravity/academy', { replace: true })
+    }
+  }, [pathname, navigate])
+
   const secao = pathname.includes('/docs') ? 'docs'
     : pathname.includes('/builders') ? 'builders'
     : pathname.includes('/minha-jornada') ? 'jornada'
@@ -1451,7 +2188,12 @@ export function UniversityGravity() {
   const partesAcademy = academyPathSuffix.split('/').filter(Boolean)
   const produtoSlugBruto = (partesAcademy[0] ?? null) as ProdutoSlug | null
   const produtoSlug = produtoSlugBruto && produtoSlugBruto in ICON_MAP ? produtoSlugBruto : null
-  const faseSlug = produtoSlug ? (partesAcademy[1] ?? null) : null
+  const faseSlugBruto = produtoSlug ? (partesAcademy[1] ?? null) : null
+  const faseReservaJornada = faseSlugBruto === FASE_RESERVA_JORNADA
+  const faseAulaSlug = faseSlugBruto && !faseReservaJornada ? faseSlugBruto : null
+
+  const exibirDashboardGeral = secao === 'academy' && !faseSlugBruto && !produtoSlug
+  const exibirJornadaModulo = Boolean(secao === 'academy' && produtoSlug && !faseSlugBruto)
 
   const docsPathPartes = secao === 'docs'
     ? pathname.replace('/university-gravity/docs', '').split('/').filter(Boolean)
@@ -1467,41 +2209,47 @@ export function UniversityGravity() {
     ? CONFIGURADOR_MANUAL_ITENS.find(i => i.pathSeg === docsConfiguradorPagina) ?? null
     : null
 
-  const manualDocPublicado = secao === 'docs' && (
-    docsProdutoSlug === 'login' ||
-    docsProdutoSlug === 'navegacao' ||
-    docsProdutoSlug === 'hub' ||
-    docsProdutoSlug === 'store' ||
-    docsProdutoSlug === 'smart-read' ||
-    docsProdutoSlug === 'pedido' ||
-    docsProdutoSlug === 'api-cockpit' ||
-    (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
-  )
-
-  const trilhasAtivas: Trilha[] | null = (produtoSlug && !faseSlug)
+  const trilhasAtivas: Trilha[] | null = exibirJornadaModulo && produtoSlug
     ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null)
     : null
 
+  const [capituloAtivo, setCapituloAtivo] = useState(0)
+  useEffect(() => { setCapituloAtivo(0) }, [produtoSlug])
+
+  const trilhaAtiva = trilhasAtivas?.[capituloAtivo] ?? null
+
   // Controle local de aulas concluídas (WIP: virá do banco via API)
   const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
-    const salvo = sessionStorage.getItem('university_concluidas')
-    return salvo ? new Set(JSON.parse(salvo)) : new Set(['o-que-e-o-gravity', 'criando-sua-conta', 'configurando-seu-perfil'])
+    const salvo = sessionStorage.getItem(CHAVE_AULAS_CONCLUIDAS)
+    const bruto = salvo ? (JSON.parse(salvo) as string[]) : []
+    const norm = normalizarSlugsConclusaoAcademy(bruto)
+    const normArr = [...norm]
+    if (normArr.length !== bruto.length || normArr.some(s => !bruto.includes(s))) {
+      sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify(normArr))
+    }
+    return norm
   })
   const marcarConcluida = useCallback((slug: string) => {
     setAulasConcluidas(prev => {
-      const novo = new Set(prev)
-      novo.add(slug)
-      sessionStorage.setItem('university_concluidas', JSON.stringify([...novo]))
+      const novo = normalizarSlugsConclusaoAcademy([...prev, slug])
+      sessionStorage.setItem(CHAVE_AULAS_CONCLUIDAS, JSON.stringify([...novo]))
       return novo
     })
   }, [])
 
-  // Progresso geral nos produtos contratados
-  const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => ({
-    slug,
-    prog: TRILHAS_POR_PRODUTO[slug]?.[0]?.prog ?? 0,
-    emoji: TRILHAS_POR_PRODUTO[slug]?.[0]?.emoji ?? '📦',
-  }))
+  // Progresso geral nos produtos contratados (derivado do progresso real + demo estático)
+  const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => {
+    const trilhas = TRILHAS_POR_PRODUTO[slug]
+    const trilha = trilhas?.[0]
+    const agregado = trilhas?.length
+      ? calcularProgressoProduto(slug as keyof typeof TRILHAS_POR_PRODUTO, aulasConcluidas)
+      : { pct: 0 }
+    return {
+      slug,
+      prog: agregado.pct,
+      emoji: trilha?.emoji ?? '📦',
+    }
+  })
   const concluidos = progressoContratados.filter(p => p.prog >= 100).length
   const pctGeral = Math.round((concluidos / progressoContratados.length) * 100)
 
@@ -1562,40 +2310,20 @@ export function UniversityGravity() {
 
   const produtoIconAcademy = (slug: ProdutoSlug, size = 16) => {
     const IconComp = ICON_MAP[slug]
-    const prog = TRILHAS_POR_PRODUTO[slug]?.[0]?.prog ?? 0
-    return prog >= 100
-      ? <CheckCircle weight="fill" size={size} style={{ color: '#34d399' }} />
-      : <IconComp weight="duotone" size={size} />
+    return <IconComp weight="duotone" size={size} />
   }
+
+  const statusNavAcademy = (slug: ProdutoSlug) => (
+    <IconesStatusNavAcademy slug={slug} aulasConcluidas={aulasConcluidas} />
+  )
 
   const badgeEmBreve = { badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const }
   const badgeAdminOnboarding = {
     badge: t('university.badge.restrito'),
-    badgeSecundario: t('university.badge.em_breve'),
     badgeVariant: 'muted' as const,
   }
 
-  const navItems = [
-    {
-      to: '/university-gravity/academy',
-      label: t('university.nav.academy'),
-      icon: <Books weight="duotone" size={18} />,
-      ...badgeEmBreve,
-      children: [
-        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        ...badgeEmBreve },
-        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        ...badgeAdminOnboarding },
-        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), ...badgeEmBreve },
-        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         ...badgeEmBreve },
-        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          ...badgeEmBreve },
-        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        ...badgeEmBreve },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       ...badgeEmBreve },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   ...badgeEmBreve },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    ...badgeEmBreve },
-        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   ...badgeEmBreve },
-        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     ...badgeEmBreve },
-      ],
-    },
-    {
+  const navItemManuais = {
       to: '/university-gravity/docs',
       label: t('university.nav.docs'),
       icon: <FileText weight="duotone" size={18} />,
@@ -1632,11 +2360,37 @@ export function UniversityGravity() {
             { to: '/university-gravity/docs/bid-cambio', label: t('university.produto.bid_cambio'), icon: produtoIconManual('bid-cambio'), ...badgeEmBreve },
           ],
         },
-        { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIconManual('processo') },
+        { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIconManual('processo'),     ...badgeEmBreve },
+      ],
+    }
+
+  const navItems = [
+    {
+      to: '/university-gravity/academy',
+      label: t('university.nav.academy'),
+      icon: <Books weight="duotone" size={18} />,
+      children: [
+        { to: '/university-gravity/academy',              label: t('university.nav.minha_jornada'),    icon: <Path weight="duotone" size={16} /> },
+        { label: ' ', icon: <></>, disabled: true, trailing: <LegendaStatusNavAcademy /> },
+        { label: t('university.nav.modulos_plataforma'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy/bem-vindo',    label: t('university.produto.bem_vindo'),    icon: produtoIconAcademy('bem-vindo'),    trailing: statusNavAcademy('bem-vindo') },
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login'),        trailing: statusNavAcademy('login') },
+        { to: '/university-gravity/academy/navegacao',   label: t('university.produto.navegacao'),   icon: produtoIconAcademy('navegacao'),   trailing: statusNavAcademy('navegacao') },
+        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'),        trailing: statusNavAcademy('admin'),        ...badgeAdminOnboarding },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador'), trailing: statusNavAcademy('configurador') },
+        { to: '/university-gravity/academy/gabi',         label: t('university.produto.gabi'),         icon: produtoIconAcademy('gabi'),         trailing: statusNavAcademy('gabi') },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub'),          trailing: statusNavAcademy('hub') },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store'),        trailing: statusNavAcademy('store') },
+        { label: t('university.nav.produtos_gravity'), sectionDivider: true, icon: <></> },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido'),       trailing: statusNavAcademy('pedido') },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read'),   trailing: statusNavAcademy('smart-read') },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete'),    trailing: statusNavAcademy('bid-frete') },
+        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio'),   trailing: statusNavAcademy('bid-cambio'),   ...badgeEmBreve },
+        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo'),     trailing: statusNavAcademy('processo'),     ...badgeEmBreve },
       ],
     },
+    ...(universityManuaisDocsVisiveis() ? [navItemManuais] : []),
     { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
-    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
   ]
 
   const tituloSecao = secao === 'docs'
@@ -1649,6 +2403,8 @@ export function UniversityGravity() {
           produto: t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`),
         })
         : t('university.nav.docs'))
+    : exibirDashboardGeral
+    ? t('university.dashboard.titulo')
     : produtoSlug
     ? t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)
     : secao === 'jornada' ? t('university.nav.minha_jornada')
@@ -1656,7 +2412,7 @@ export function UniversityGravity() {
     : t('university.nav.academy')
 
   return (
-    <div className="ws-shell">
+    <div className={`ws-shell uni-gravity-shell${secao === 'academy' && faseAulaSlug ? ' uni-academy-player' : ''}`}>
       <MenuLateralGlobal
         tenantName={nomeOrganizacao}
         tenantPlan={isGravityAdmin ? 'Super Admin' : (currentUser?.nomeWorkspacePreferido ?? nomeOrganizacao)}
@@ -1756,9 +2512,9 @@ export function UniversityGravity() {
         </div>
 
         {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
-        {secao === 'academy' && faseSlug && produtoSlug && (() => {
-          const aula = getAulaDemo(produtoSlug, faseSlug)
-          const todasAulas = getAulasDemo(produtoSlug)
+        {secao === 'academy' && faseAulaSlug && produtoSlug && (() => {
+          const aula = getAulaDemo(produtoSlug, faseAulaSlug)
+          const todasAulas = getAulasCapituloDemo(produtoSlug, faseAulaSlug)
           if (!aula) return (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
               Aula não encontrada.
@@ -1768,7 +2524,7 @@ export function UniversityGravity() {
             <div style={{ flex: 1, overflow: 'hidden' }}>
               <PlayerAula
                 produtoSlug={produtoSlug}
-                faseSlug={faseSlug}
+                faseSlug={faseAulaSlug}
                 aula={aula}
                 todasAulas={todasAulas}
                 concluidas={aulasConcluidas}
@@ -1779,8 +2535,17 @@ export function UniversityGravity() {
         })()}
 
         {/* ══ Resto das views (overview, jornada, docs, builders) ══ */}
-        {!(secao === 'academy' && faseSlug) && (
+        {!(secao === 'academy' && faseAulaSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }} data-manual-scroll-root>
+
+          {secao === 'docs' && origemAcademy && (
+            <div className="uni-docs-voltar-academy">
+              <UniBotaoVoltarPadrao
+                label={t('university.aula.voltar_onboarding')}
+                onClick={() => navigate(origemAcademy)}
+              />
+            </div>
+          )}
 
           {/* ── Cabeçalho (padrão MenuTopoGlobal: Insights) ── */}
           <div style={UNI_ESTILO_PAGE_HEADER}>
@@ -1798,6 +2563,8 @@ export function UniversityGravity() {
                   ? <ShoppingBag weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'smart-read'
                   ? <MagnifyingGlass weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'admin'
+                  ? <ShieldStar weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'api-cockpit'
                   ? iconeConfiguradorManual('api-cockpit', 22)
                 : secao === 'docs' && docsConfiguradorPagina
@@ -1806,7 +2573,10 @@ export function UniversityGravity() {
             </span>
             <div style={UNI_ESTILO_PAGE_TITLES}>
               <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
-              {secao === 'academy' && !produtoSlug && (
+              {exibirDashboardGeral && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{t('university.dashboard.subtitulo')}</span>
+              )}
+              {secao === 'academy' && !produtoSlug && !exibirDashboardGeral && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{t('university.academy.subtitulo')}</span>
               )}
               {secao === 'docs' && docsProdutoSlug === 'login' && (
@@ -1824,6 +2594,9 @@ export function UniversityGravity() {
               {secao === 'docs' && docsProdutoSlug === 'smart-read' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_SMART_READ_SUBTITULO}</span>
               )}
+              {secao === 'docs' && docsProdutoSlug === 'admin' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_ADMIN_SUBTITULO}</span>
+              )}
               {secao === 'docs' && docsProdutoSlug === 'pedido' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_PEDIDO_SUBTITULO}</span>
               )}
@@ -1836,29 +2609,8 @@ export function UniversityGravity() {
             </div>
           </div>
 
-          {/* ── Banner (oculto em manuais publicados) ── */}
-          {!manualDocPublicado && (
-          <div style={{
-            display: 'flex', gap: 12, alignItems: 'flex-start',
-            background: 'linear-gradient(135deg, rgba(167,139,250,.12), rgba(129,140,248,.05))',
-            border: '1px solid rgba(167,139,250,.28)', borderRadius: 14, padding: '14px 16px', marginBottom: 24,
-          }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg,#a78bfa,#818cf8)', color: '#0b1220' }}>
-              <Sparkle weight="fill" size={18} />
-            </div>
-            <div>
-              <div style={{ fontSize: '.62rem', fontWeight: 800, letterSpacing: '.08em', color: '#a78bfa', textTransform: 'uppercase' }}>
-                {t('university.banner.em_construcao')}
-              </div>
-              <p style={{ fontSize: '.86rem', marginTop: 4, lineHeight: 1.55, color: 'var(--ws-text,#f1f5f9)' }}>
-                {t('university.banner.descricao')}
-              </p>
-            </div>
-          </div>
-          )}
-
-          {/* ══ BARRA 3: Progresso nos produtos contratados (sempre visível no academy) ══ */}
-          {secao === 'academy' && (
+          {/* ══ BARRA 3: Progresso nos produtos contratados (módulo específico) ══ */}
+          {secao === 'academy' && !exibirDashboardGeral && (
             <div style={{
               background: 'var(--bg-base,#1e293b)',
               border: '1px solid rgba(148,163,184,.12)',
@@ -1868,7 +2620,7 @@ export function UniversityGravity() {
                 <span style={{ fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ws-muted,#94a3b8)' }}>
                   {t('university.progresso.produtos_contratados')}
                 </span>
-                <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctGeral >= 100 ? '#34d399' : 'var(--ws-text,#f1f5f9)' }}>
+                <span style={{ fontSize: '.78rem', fontWeight: 700, color: pctGeral >= 100 ? '#818cf8' : 'var(--ws-text,#f1f5f9)' }}>
                   {concluidos} / {progressoContratados.length} {t('university.progresso.concluidos')}
                 </span>
               </div>
@@ -1876,7 +2628,6 @@ export function UniversityGravity() {
                 <BarraProgresso pct={pctGeral} altura={8} />
                 <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>{pctGeral}%</span>
               </div>
-              {/* Pills de produto */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {progressoContratados.map(p => (
                   <button
@@ -1885,8 +2636,8 @@ export function UniversityGravity() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
                       padding: '4px 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontSize: '.72rem', fontWeight: 700,
-                      background: p.prog >= 100 ? 'rgba(52,211,153,.15)' : p.prog > 0 ? 'rgba(129,140,248,.15)' : 'rgba(148,163,184,.08)',
-                      color: p.prog >= 100 ? '#34d399' : p.prog > 0 ? UNI_COR : 'var(--ws-muted,#94a3b8)',
+                      background: p.prog >= 100 ? 'rgba(129,140,248,.15)' : p.prog > 0 ? 'rgba(129,140,248,.15)' : 'rgba(148,163,184,.08)',
+                      color: p.prog >= 100 ? '#818cf8' : p.prog > 0 ? UNI_COR : 'var(--ws-muted,#94a3b8)',
                     }}
                   >
                     <span>{p.emoji}</span>
@@ -1899,115 +2650,38 @@ export function UniversityGravity() {
             </div>
           )}
 
-          {/* ══ VIEW: produto específico ══ */}
-          {secao === 'academy' && trilhasAtivas && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {trilhasAtivas.map(tr => {
-                const fasesFeitas = tr.fases.filter(f => f.concluida).length
-                const pctModulo = Math.round((fasesFeitas / tr.fases.length) * 100)
+          {/* ══ VIEW: dashboard geral de onboarding (entrada Login / Academy) ══ */}
+          {secao === 'academy' && exibirDashboardGeral && (
+            <PainelDashboardOnboarding
+              aulasConcluidas={aulasConcluidas}
+              nomeUsuario={userName}
+              onAbrirModulo={(slug) => navigate(`/university-gravity/academy/${slug}`)}
+            />
+          )}
 
-                return (
-                  <div key={tr.nome}>
-                    {/* ── CARD: header do módulo ── */}
-                    <div style={{
-                      background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)',
-                      borderRadius: 14, padding: '18px 20px',
-                    }}>
-                      {/* Título + tempo total */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 11, display: 'grid', placeItems: 'center', background: `${tr.tag}22`, fontSize: 22 }}>
-                            {tr.emoji}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '1rem', fontWeight: 700 }}>{tr.nome}</div>
-                            <div style={{ fontSize: '.75rem', color: 'var(--ws-muted,#94a3b8)', marginTop: 2 }}>
-                              {t('university.trilha.modulos', { count: tr.modulos })}
-                            </div>
-                          </div>
-                        </div>
-                        {/* Tempo total */}
-                        <div style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          background: 'rgba(148,163,184,.08)', borderRadius: 9999, padding: '5px 12px',
-                          fontSize: '.75rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', flexShrink: 0,
-                        }}>
-                          <Clock weight="duotone" size={14} style={{ color: UNI_COR }} />
-                          {t('university.trilha.total')} {tr.duracao}
-                        </div>
-                      </div>
-
-                      {/* ── BARRA 2: conclusão do módulo ── */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                        <BarraProgresso pct={pctModulo} />
-                        <span style={{ fontSize: '.75rem', fontWeight: 700, color: pctModulo >= 100 ? '#34d399' : 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
-                          {pctModulo >= 100 ? t('university.acao.concluida') : `${pctModulo}%`}
-                        </span>
-                      </div>
-
-                      {/* ── BARRA 1: fases individuais ── */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                        {tr.fases.map((fase, idx) => (
-                          <div
-                            key={fase.nome}
-                            onClick={() => navigate(`/university-gravity/academy/${produtoSlug}/${fase.slug}`)}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-                              borderTop: idx > 0 ? '1px solid rgba(148,163,184,.07)' : 'none',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {/* Indicador */}
-                            <div style={{
-                              width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                              display: 'grid', placeItems: 'center',
-                              background: fase.concluida ? 'rgba(52,211,153,.15)' : 'rgba(148,163,184,.08)',
-                              border: fase.concluida ? '1.5px solid rgba(52,211,153,.4)' : '1.5px solid rgba(148,163,184,.15)',
-                            }}>
-                              {fase.concluida
-                                ? <CheckCircle weight="fill" size={14} style={{ color: '#34d399' }} />
-                                : <span style={{ fontSize: '.6rem', fontWeight: 800, color: 'var(--ws-muted,#94a3b8)' }}>{idx + 1}</span>
-                              }
-                            </div>
-                            {/* Nome */}
-                            <span style={{
-                              flex: 1, fontSize: '.86rem', fontWeight: 600,
-                              color: 'var(--ws-text,#f1f5f9)',
-                            }}>
-                              {fase.nome}
-                            </span>
-                            {/* Tempo individual */}
-                            <span style={{
-                              display: 'flex', alignItems: 'center', gap: 4,
-                              fontSize: '.72rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)', flexShrink: 0,
-                            }}>
-                              <Clock size={12} />
-                              {fase.duracao}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* CTA */}
-                      <div style={{ marginTop: 16 }}>
-                        <button style={{
-                          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '9px 18px',
-                          borderRadius: 9999,
-                          background: pctModulo >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
-                          color: pctModulo >= 100 ? '#34d399' : '#0b1220',
-                        }}>
-                          {pctModulo >= 100 ? t('university.acao.concluida') : pctModulo > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+          {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
+          {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
+            trilhasAtivas.length > 1 ? (
+              <JornadaMultiCapitulos
+                produtoSlug={produtoSlug}
+                trilhas={trilhasAtivas}
+                aulasConcluidas={aulasConcluidas}
+                capituloAtivo={capituloAtivo}
+                onSelecionarCapitulo={setCapituloAtivo}
+                onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+              />
+            ) : (
+                <JornadaModulo
+                produtoSlug={produtoSlug}
+                trilha={trilhaAtiva}
+                  aulasConcluidas={aulasConcluidas}
+                  onAbrirFase={(slug) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)}
+                />
+            )
           )}
 
           {/* ══ VIEW: visão geral agrupada ══ */}
-          {secao === 'academy' && !trilhasAtivas && (
+          {secao === 'academy' && !trilhasAtivas && !exibirDashboardGeral && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
               {GRUPOS_TRILHAS.map(grupo => (
                 <div key={grupo.tituloKey}>
@@ -2032,8 +2706,8 @@ export function UniversityGravity() {
                         <button style={{
                           border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '8px 14px',
                           borderRadius: 9999,
-                          background: tr.prog >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
-                          color: tr.prog >= 100 ? '#34d399' : '#0b1220',
+                          background: tr.prog >= 100 ? 'rgba(129,140,248,.15)' : UNI_COR,
+                          color: tr.prog >= 100 ? '#818cf8' : '#0b1220',
                         }}>
                           {tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
                         </button>
@@ -2096,6 +2770,10 @@ export function UniversityGravity() {
             <DocSmartReadManual />
           )}
 
+          {secao === 'docs' && docsProdutoSlug === 'admin' && (
+            <DocAdminManual />
+          )}
+
           {secao === 'docs' && docsProdutoSlug === 'pedido' && (
             <DocPedidoManual />
           )}
@@ -2108,7 +2786,7 @@ export function UniversityGravity() {
             <DocApiCockpitManual />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'bid-frete' && docsProdutoSlug !== 'api-cockpit' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'store' && docsProdutoSlug !== 'smart-read' && docsProdutoSlug !== 'admin' && docsProdutoSlug !== 'pedido' && docsProdutoSlug !== 'bid-frete' && docsProdutoSlug !== 'api-cockpit' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,
@@ -2138,3 +2816,6 @@ export function UniversityGravity() {
     </div>
   )
 }
+
+// TODO(preview-temp, 2026-07-11): export só para conferência visual manual — remover após validar.
+export { JornadaModulo, TRILHAS_POR_PRODUTO as __TRILHAS_PREVIEW_TEMP }

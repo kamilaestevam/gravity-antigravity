@@ -1,0 +1,9 @@
+services:
+  mock-webhook-receiver:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./mock-webhook-receiver:/app
+    command: node server.js
+    ports:
+      - "9090:9090"

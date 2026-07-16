@@ -28,6 +28,9 @@ const COR_MUTED = '#64748b'
 const COR_BORDA = '#e2e8f0'
 const COR_FUNDO = '#f8fafc'
 const COR_CARD_ESCURO = '#0f172a'
+
+/** Rótulo do botão no e-mail ao ganhador (link para a página de confirmação). */
+export const ROTULO_BOTAO_ACEITE_EMAIL_APROVACAO_PROPOSTA_BID_FRETE_INTERNACIONAL = 'Ir para confirmação'
 const COR_CARD_BORDA = '#334155'
 const COR_CARD_TEXTO = '#f8fafc'
 const COR_CARD_MUTED = '#94a3b8'
@@ -58,10 +61,26 @@ export interface ParametrosEmailAprovacaoPropostaBidFreteInternacional {
   moedaGanhador?: string
   linkAceite?: string
   empresaPagadoraTaxaFechamentoPlataformaGravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity | null
+  /** Mensagem opcional do comprador — incluída no e-mail do ganhador. */
+  comentariosAprovacaoCotacao?: string | null
 }
 
 function formatarValidadeProposta(data: string | Date): string {
   return formatarDataEmailDisparoBidFrete(data) ?? '—'
+}
+
+function montarBlocoComentariosAprovacaoEmail(params: ParametrosEmailAprovacaoPropostaBidFreteInternacional): {
+  linhaTabelaHtml: string
+  linhasTextoPlano: string[]
+} {
+  const texto = params.comentariosAprovacaoCotacao?.trim()
+  if (!params.ehGanhador || !texto) {
+    return { linhaTabelaHtml: '', linhasTextoPlano: [] }
+  }
+  return {
+    linhaTabelaHtml: linhaTabelaHtml('Observações', texto),
+    linhasTextoPlano: ['Observações', texto],
+  }
 }
 
 function linhasResumoCotacao(params: ParametrosEmailAprovacaoPropostaBidFreteInternacional): Array<[string, string]> {
@@ -240,6 +259,7 @@ export function montarTextoPlanoEmailAprovacaoProposta(
   const dataAprovacao = formatarDataEmailDisparoBidFrete(params.dataAprovacao) ?? '—'
   const { cardTextoPlano } = montarBlocoCardColocacaoEmail(params)
   const linhasCotacao = linhasResumoCotacao(params)
+  const { linhasTextoPlano: linhasObservacoes } = montarBlocoComentariosAprovacaoEmail(params)
   const linhas: string[] = [
     'Gravity — BID Frete Internacional',
     '',
@@ -271,11 +291,12 @@ export function montarTextoPlanoEmailAprovacaoProposta(
     `Aprovada por: ${params.nomeAprovador}`,
     `Data da aprovação: ${dataAprovacao}`,
     '',
-    '─── Seu resultado (texto — caso a imagem não carregue) ───',
+    '─── Seu resultado ───',
     ...cardTextoPlano,
     '',
     '─── Resumo da cotação ───',
     ...linhasCotacao.map(([r, v]) => `${r}: ${v}`),
+    ...(linhasObservacoes.length > 0 ? ['', ...linhasObservacoes] : []),
   )
 
   if (params.ehGanhador && params.linkAceite) {
@@ -285,10 +306,10 @@ export function montarTextoPlanoEmailAprovacaoProposta(
     )
     linhas.push(
       '',
-      avisoTextoPlano,
-      '',
-      'Recebi e estou de acordo — confirme pelo link:',
+      ROTULO_BOTAO_ACEITE_EMAIL_APROVACAO_PROPOSTA_BID_FRETE_INTERNACIONAL + ':',
       params.linkAceite,
+      '',
+      avisoTextoPlano,
       '',
       `Após a confirmação, o status da sua proposta será atualizado para "Aprovação recebida".`,
       `Este link é válido por ${DIAS_VALIDADE_TOKEN_ACEITE_APROVACAO_BID_FRETE_INTERNACIONAL} dias.`,
@@ -306,9 +327,10 @@ export function montarHtmlEmailAprovacaoProposta(
 ): string {
   const dataAprovacao = formatarDataEmailDisparoBidFrete(params.dataAprovacao) ?? '—'
   const assunto = montarAssuntoEmailAprovacaoProposta(params)
-  const { imgHtml, cardHtmlFallback } = montarBlocoCardColocacaoEmail(params)
+  const { cardTextoPlano, cardHtmlFallback } = montarBlocoCardColocacaoEmail(params)
   const linhasCotacao = linhasResumoCotacao(params)
-  const tabelaLinhas = linhasCotacao.map(([r, v]) => linhaTabelaHtml(r, v)).join('')
+  const { linhaTabelaHtml: linhaObservacoesHtml } = montarBlocoComentariosAprovacaoEmail(params)
+  const tabelaLinhas = linhasCotacao.map(([r, v]) => linhaTabelaHtml(r, v)).join('') + linhaObservacoesHtml
 
   let introHtml = ''
   if (params.ehGanhador) {
@@ -345,7 +367,7 @@ export function montarHtmlEmailAprovacaoProposta(
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 auto 20px;">
                 <tr>
                   <td style="border-radius:8px;background:${COR_INDIGO};">
-                    <a href="${link}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">Recebi e estou de acordo</a>
+                    <a href="${link}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">${ROTULO_BOTAO_ACEITE_EMAIL_APROVACAO_PROPOSTA_BID_FRETE_INTERNACIONAL}</a>
                   </td>
                 </tr>
               </table>
@@ -380,15 +402,14 @@ export function montarHtmlEmailAprovacaoProposta(
               <p style="margin:0 0 8px;font-size:16px;color:${COR_TEXTO};">Olá, <strong>${escapeHtmlTextoEmailBidFrete(params.nomeFornecedor.trim())}</strong>,</p>
               ${introHtml}
               ${metaHtml}
-              ${imgHtml}
-              <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:${COR_MUTED};text-transform:uppercase;letter-spacing:0.06em;">Seu resultado (texto — caso a imagem não carregue)</p>
+              <p style="margin:0 0 8px;font-size:12px;font-weight:600;color:${COR_MUTED};text-transform:uppercase;letter-spacing:0.06em;">Seu resultado</p>
               ${cardHtmlFallback}
               <p style="margin:24px 0 8px;font-size:13px;font-weight:600;color:${COR_MUTED};">Resumo da cotação</p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:24px;border:1px solid ${COR_BORDA};border-radius:8px;overflow:hidden;">
                 ${tabelaLinhas}
               </table>
-              ${avisoTaxaHtml}
               ${ctaHtml}
+              ${avisoTaxaHtml}
             </td>
           </tr>
           <tr>

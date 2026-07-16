@@ -288,6 +288,21 @@ export type LogRequisicaoApi = $Result.DefaultSelection<Prisma.$LogRequisicaoApi
  * 
  */
 export type ApiIntegracaoErp = $Result.DefaultSelection<Prisma.$ApiIntegracaoErpPayload>
+/**
+ * Model CredencialOAuthApi
+ * 
+ */
+export type CredencialOAuthApi = $Result.DefaultSelection<Prisma.$CredencialOAuthApiPayload>
+/**
+ * Model RegistroIdempotenciaApi
+ * 
+ */
+export type RegistroIdempotenciaApi = $Result.DefaultSelection<Prisma.$RegistroIdempotenciaApiPayload>
+/**
+ * Model WebhookEventoEnfileirado
+ * 
+ */
+export type WebhookEventoEnfileirado = $Result.DefaultSelection<Prisma.$WebhookEventoEnfileiradoPayload>
 
 /**
  * Enums
@@ -433,6 +448,23 @@ export const ProtocoloApiIntegracaoErp: {
 
 export type ProtocoloApiIntegracaoErp = (typeof ProtocoloApiIntegracaoErp)[keyof typeof ProtocoloApiIntegracaoErp]
 
+
+export const AmbienteIntegracaoApi: {
+  SANDBOX: 'SANDBOX',
+  PRODUCAO: 'PRODUCAO'
+};
+
+export type AmbienteIntegracaoApi = (typeof AmbienteIntegracaoApi)[keyof typeof AmbienteIntegracaoApi]
+
+
+export const StatusWebhookEventoEnfileirado: {
+  PENDENTE: 'PENDENTE',
+  ENTREGUE: 'ENTREGUE',
+  FALHA_PERMANENTE: 'FALHA_PERMANENTE'
+};
+
+export type StatusWebhookEventoEnfileirado = (typeof StatusWebhookEventoEnfileirado)[keyof typeof StatusWebhookEventoEnfileirado]
+
 }
 
 export type EmailThreadAtiva = $Enums.EmailThreadAtiva
@@ -490,6 +522,14 @@ export const ValidadeApiToken: typeof $Enums.ValidadeApiToken
 export type ProtocoloApiIntegracaoErp = $Enums.ProtocoloApiIntegracaoErp
 
 export const ProtocoloApiIntegracaoErp: typeof $Enums.ProtocoloApiIntegracaoErp
+
+export type AmbienteIntegracaoApi = $Enums.AmbienteIntegracaoApi
+
+export const AmbienteIntegracaoApi: typeof $Enums.AmbienteIntegracaoApi
+
+export type StatusWebhookEventoEnfileirado = $Enums.StatusWebhookEventoEnfileirado
+
+export const StatusWebhookEventoEnfileirado: typeof $Enums.StatusWebhookEventoEnfileirado
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1163,6 +1203,36 @@ export class PrismaClient<
     * ```
     */
   get apiIntegracaoErp(): Prisma.ApiIntegracaoErpDelegate<ExtArgs>;
+
+  /**
+   * `prisma.credencialOAuthApi`: Exposes CRUD operations for the **CredencialOAuthApi** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CredencialOAuthApis
+    * const credencialOAuthApis = await prisma.credencialOAuthApi.findMany()
+    * ```
+    */
+  get credencialOAuthApi(): Prisma.CredencialOAuthApiDelegate<ExtArgs>;
+
+  /**
+   * `prisma.registroIdempotenciaApi`: Exposes CRUD operations for the **RegistroIdempotenciaApi** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RegistroIdempotenciaApis
+    * const registroIdempotenciaApis = await prisma.registroIdempotenciaApi.findMany()
+    * ```
+    */
+  get registroIdempotenciaApi(): Prisma.RegistroIdempotenciaApiDelegate<ExtArgs>;
+
+  /**
+   * `prisma.webhookEventoEnfileirado`: Exposes CRUD operations for the **WebhookEventoEnfileirado** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebhookEventoEnfileirados
+    * const webhookEventoEnfileirados = await prisma.webhookEventoEnfileirado.findMany()
+    * ```
+    */
+  get webhookEventoEnfileirado(): Prisma.WebhookEventoEnfileiradoDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1658,7 +1728,10 @@ export namespace Prisma {
     WebhookConfiguracao: 'WebhookConfiguracao',
     WebhookLog: 'WebhookLog',
     LogRequisicaoApi: 'LogRequisicaoApi',
-    ApiIntegracaoErp: 'ApiIntegracaoErp'
+    ApiIntegracaoErp: 'ApiIntegracaoErp',
+    CredencialOAuthApi: 'CredencialOAuthApi',
+    RegistroIdempotenciaApi: 'RegistroIdempotenciaApi',
+    WebhookEventoEnfileirado: 'WebhookEventoEnfileirado'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1674,7 +1747,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiKbChunk" | "gabiAlertaEmitido" | "gabiMemoriaUsuario" | "gabiDiagnosticoErro" | "gabiChamado" | "gabiToolExecucao" | "gabiConfirmacaoAcao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "gabiLimiteMonetario" | "gabiKbChunk" | "gabiAlertaEmitido" | "gabiMemoriaUsuario" | "gabiDiagnosticoErro" | "gabiChamado" | "gabiToolExecucao" | "gabiConfirmacaoAcao" | "workspacePreferenciaUsuario" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao" | "apiToken" | "webhookConfiguracao" | "webhookLog" | "logRequisicaoApi" | "apiIntegracaoErp" | "credencialOAuthApi" | "registroIdempotenciaApi" | "webhookEventoEnfileirado"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5509,6 +5582,216 @@ export namespace Prisma {
           count: {
             args: Prisma.ApiIntegracaoErpCountArgs<ExtArgs>
             result: $Utils.Optional<ApiIntegracaoErpCountAggregateOutputType> | number
+          }
+        }
+      }
+      CredencialOAuthApi: {
+        payload: Prisma.$CredencialOAuthApiPayload<ExtArgs>
+        fields: Prisma.CredencialOAuthApiFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CredencialOAuthApiFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CredencialOAuthApiFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          findFirst: {
+            args: Prisma.CredencialOAuthApiFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CredencialOAuthApiFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          findMany: {
+            args: Prisma.CredencialOAuthApiFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>[]
+          }
+          create: {
+            args: Prisma.CredencialOAuthApiCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          createMany: {
+            args: Prisma.CredencialOAuthApiCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CredencialOAuthApiCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>[]
+          }
+          delete: {
+            args: Prisma.CredencialOAuthApiDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          update: {
+            args: Prisma.CredencialOAuthApiUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          deleteMany: {
+            args: Prisma.CredencialOAuthApiDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CredencialOAuthApiUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CredencialOAuthApiUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredencialOAuthApiPayload>
+          }
+          aggregate: {
+            args: Prisma.CredencialOAuthApiAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCredencialOAuthApi>
+          }
+          groupBy: {
+            args: Prisma.CredencialOAuthApiGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CredencialOAuthApiGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CredencialOAuthApiCountArgs<ExtArgs>
+            result: $Utils.Optional<CredencialOAuthApiCountAggregateOutputType> | number
+          }
+        }
+      }
+      RegistroIdempotenciaApi: {
+        payload: Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>
+        fields: Prisma.RegistroIdempotenciaApiFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RegistroIdempotenciaApiFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RegistroIdempotenciaApiFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          findFirst: {
+            args: Prisma.RegistroIdempotenciaApiFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RegistroIdempotenciaApiFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          findMany: {
+            args: Prisma.RegistroIdempotenciaApiFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>[]
+          }
+          create: {
+            args: Prisma.RegistroIdempotenciaApiCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          createMany: {
+            args: Prisma.RegistroIdempotenciaApiCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.RegistroIdempotenciaApiCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>[]
+          }
+          delete: {
+            args: Prisma.RegistroIdempotenciaApiDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          update: {
+            args: Prisma.RegistroIdempotenciaApiUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          deleteMany: {
+            args: Prisma.RegistroIdempotenciaApiDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RegistroIdempotenciaApiUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.RegistroIdempotenciaApiUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroIdempotenciaApiPayload>
+          }
+          aggregate: {
+            args: Prisma.RegistroIdempotenciaApiAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegistroIdempotenciaApi>
+          }
+          groupBy: {
+            args: Prisma.RegistroIdempotenciaApiGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegistroIdempotenciaApiGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.RegistroIdempotenciaApiCountArgs<ExtArgs>
+            result: $Utils.Optional<RegistroIdempotenciaApiCountAggregateOutputType> | number
+          }
+        }
+      }
+      WebhookEventoEnfileirado: {
+        payload: Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>
+        fields: Prisma.WebhookEventoEnfileiradoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookEventoEnfileiradoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookEventoEnfileiradoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookEventoEnfileiradoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookEventoEnfileiradoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookEventoEnfileiradoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookEventoEnfileiradoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookEventoEnfileiradoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookEventoEnfileiradoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookEventoEnfileiradoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          update: {
+            args: Prisma.WebhookEventoEnfileiradoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookEventoEnfileiradoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookEventoEnfileiradoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.WebhookEventoEnfileiradoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookEventoEnfileiradoPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookEventoEnfileiradoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhookEventoEnfileirado>
+          }
+          groupBy: {
+            args: Prisma.WebhookEventoEnfileiradoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookEventoEnfileiradoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookEventoEnfileiradoCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookEventoEnfileiradoCountAggregateOutputType> | number
           }
         }
       }
@@ -60953,6 +61236,2892 @@ export namespace Prisma {
 
 
   /**
+   * Model CredencialOAuthApi
+   */
+
+  export type AggregateCredencialOAuthApi = {
+    _count: CredencialOAuthApiCountAggregateOutputType | null
+    _min: CredencialOAuthApiMinAggregateOutputType | null
+    _max: CredencialOAuthApiMaxAggregateOutputType | null
+  }
+
+  export type CredencialOAuthApiMinAggregateOutputType = {
+    id_credencial_oauth_api: string | null
+    id_organizacao: string | null
+    id_usuario: string | null
+    client_id_credencial_oauth_api: string | null
+    hash_client_secret_credencial_oauth_api: string | null
+    ambiente_credencial_oauth_api: $Enums.AmbienteIntegracaoApi | null
+    escopo_credencial_oauth_api: $Enums.EscopoApiToken | null
+    revogado_credencial_oauth_api: boolean | null
+    data_revogacao_credencial_oauth_api: Date | null
+    data_criacao_credencial_oauth_api: Date | null
+    data_atualizacao_credencial_oauth_api: Date | null
+  }
+
+  export type CredencialOAuthApiMaxAggregateOutputType = {
+    id_credencial_oauth_api: string | null
+    id_organizacao: string | null
+    id_usuario: string | null
+    client_id_credencial_oauth_api: string | null
+    hash_client_secret_credencial_oauth_api: string | null
+    ambiente_credencial_oauth_api: $Enums.AmbienteIntegracaoApi | null
+    escopo_credencial_oauth_api: $Enums.EscopoApiToken | null
+    revogado_credencial_oauth_api: boolean | null
+    data_revogacao_credencial_oauth_api: Date | null
+    data_criacao_credencial_oauth_api: Date | null
+    data_atualizacao_credencial_oauth_api: Date | null
+  }
+
+  export type CredencialOAuthApiCountAggregateOutputType = {
+    id_credencial_oauth_api: number
+    id_organizacao: number
+    id_usuario: number
+    client_id_credencial_oauth_api: number
+    hash_client_secret_credencial_oauth_api: number
+    ambiente_credencial_oauth_api: number
+    escopo_credencial_oauth_api: number
+    revogado_credencial_oauth_api: number
+    data_revogacao_credencial_oauth_api: number
+    data_criacao_credencial_oauth_api: number
+    data_atualizacao_credencial_oauth_api: number
+    _all: number
+  }
+
+
+  export type CredencialOAuthApiMinAggregateInputType = {
+    id_credencial_oauth_api?: true
+    id_organizacao?: true
+    id_usuario?: true
+    client_id_credencial_oauth_api?: true
+    hash_client_secret_credencial_oauth_api?: true
+    ambiente_credencial_oauth_api?: true
+    escopo_credencial_oauth_api?: true
+    revogado_credencial_oauth_api?: true
+    data_revogacao_credencial_oauth_api?: true
+    data_criacao_credencial_oauth_api?: true
+    data_atualizacao_credencial_oauth_api?: true
+  }
+
+  export type CredencialOAuthApiMaxAggregateInputType = {
+    id_credencial_oauth_api?: true
+    id_organizacao?: true
+    id_usuario?: true
+    client_id_credencial_oauth_api?: true
+    hash_client_secret_credencial_oauth_api?: true
+    ambiente_credencial_oauth_api?: true
+    escopo_credencial_oauth_api?: true
+    revogado_credencial_oauth_api?: true
+    data_revogacao_credencial_oauth_api?: true
+    data_criacao_credencial_oauth_api?: true
+    data_atualizacao_credencial_oauth_api?: true
+  }
+
+  export type CredencialOAuthApiCountAggregateInputType = {
+    id_credencial_oauth_api?: true
+    id_organizacao?: true
+    id_usuario?: true
+    client_id_credencial_oauth_api?: true
+    hash_client_secret_credencial_oauth_api?: true
+    ambiente_credencial_oauth_api?: true
+    escopo_credencial_oauth_api?: true
+    revogado_credencial_oauth_api?: true
+    data_revogacao_credencial_oauth_api?: true
+    data_criacao_credencial_oauth_api?: true
+    data_atualizacao_credencial_oauth_api?: true
+    _all?: true
+  }
+
+  export type CredencialOAuthApiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CredencialOAuthApi to aggregate.
+     */
+    where?: CredencialOAuthApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CredencialOAuthApis to fetch.
+     */
+    orderBy?: CredencialOAuthApiOrderByWithRelationInput | CredencialOAuthApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CredencialOAuthApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CredencialOAuthApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CredencialOAuthApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CredencialOAuthApis
+    **/
+    _count?: true | CredencialOAuthApiCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CredencialOAuthApiMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CredencialOAuthApiMaxAggregateInputType
+  }
+
+  export type GetCredencialOAuthApiAggregateType<T extends CredencialOAuthApiAggregateArgs> = {
+        [P in keyof T & keyof AggregateCredencialOAuthApi]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCredencialOAuthApi[P]>
+      : GetScalarType<T[P], AggregateCredencialOAuthApi[P]>
+  }
+
+
+
+
+  export type CredencialOAuthApiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CredencialOAuthApiWhereInput
+    orderBy?: CredencialOAuthApiOrderByWithAggregationInput | CredencialOAuthApiOrderByWithAggregationInput[]
+    by: CredencialOAuthApiScalarFieldEnum[] | CredencialOAuthApiScalarFieldEnum
+    having?: CredencialOAuthApiScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CredencialOAuthApiCountAggregateInputType | true
+    _min?: CredencialOAuthApiMinAggregateInputType
+    _max?: CredencialOAuthApiMaxAggregateInputType
+  }
+
+  export type CredencialOAuthApiGroupByOutputType = {
+    id_credencial_oauth_api: string
+    id_organizacao: string
+    id_usuario: string | null
+    client_id_credencial_oauth_api: string
+    hash_client_secret_credencial_oauth_api: string
+    ambiente_credencial_oauth_api: $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api: $Enums.EscopoApiToken
+    revogado_credencial_oauth_api: boolean
+    data_revogacao_credencial_oauth_api: Date | null
+    data_criacao_credencial_oauth_api: Date
+    data_atualizacao_credencial_oauth_api: Date
+    _count: CredencialOAuthApiCountAggregateOutputType | null
+    _min: CredencialOAuthApiMinAggregateOutputType | null
+    _max: CredencialOAuthApiMaxAggregateOutputType | null
+  }
+
+  type GetCredencialOAuthApiGroupByPayload<T extends CredencialOAuthApiGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CredencialOAuthApiGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CredencialOAuthApiGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CredencialOAuthApiGroupByOutputType[P]>
+            : GetScalarType<T[P], CredencialOAuthApiGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CredencialOAuthApiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_credencial_oauth_api?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    client_id_credencial_oauth_api?: boolean
+    hash_client_secret_credencial_oauth_api?: boolean
+    ambiente_credencial_oauth_api?: boolean
+    escopo_credencial_oauth_api?: boolean
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: boolean
+    data_criacao_credencial_oauth_api?: boolean
+    data_atualizacao_credencial_oauth_api?: boolean
+  }, ExtArgs["result"]["credencialOAuthApi"]>
+
+  export type CredencialOAuthApiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_credencial_oauth_api?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    client_id_credencial_oauth_api?: boolean
+    hash_client_secret_credencial_oauth_api?: boolean
+    ambiente_credencial_oauth_api?: boolean
+    escopo_credencial_oauth_api?: boolean
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: boolean
+    data_criacao_credencial_oauth_api?: boolean
+    data_atualizacao_credencial_oauth_api?: boolean
+  }, ExtArgs["result"]["credencialOAuthApi"]>
+
+  export type CredencialOAuthApiSelectScalar = {
+    id_credencial_oauth_api?: boolean
+    id_organizacao?: boolean
+    id_usuario?: boolean
+    client_id_credencial_oauth_api?: boolean
+    hash_client_secret_credencial_oauth_api?: boolean
+    ambiente_credencial_oauth_api?: boolean
+    escopo_credencial_oauth_api?: boolean
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: boolean
+    data_criacao_credencial_oauth_api?: boolean
+    data_atualizacao_credencial_oauth_api?: boolean
+  }
+
+
+  export type $CredencialOAuthApiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CredencialOAuthApi"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_credencial_oauth_api: string
+      id_organizacao: string
+      id_usuario: string | null
+      client_id_credencial_oauth_api: string
+      hash_client_secret_credencial_oauth_api: string
+      ambiente_credencial_oauth_api: $Enums.AmbienteIntegracaoApi
+      escopo_credencial_oauth_api: $Enums.EscopoApiToken
+      revogado_credencial_oauth_api: boolean
+      data_revogacao_credencial_oauth_api: Date | null
+      data_criacao_credencial_oauth_api: Date
+      data_atualizacao_credencial_oauth_api: Date
+    }, ExtArgs["result"]["credencialOAuthApi"]>
+    composites: {}
+  }
+
+  type CredencialOAuthApiGetPayload<S extends boolean | null | undefined | CredencialOAuthApiDefaultArgs> = $Result.GetResult<Prisma.$CredencialOAuthApiPayload, S>
+
+  type CredencialOAuthApiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CredencialOAuthApiFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CredencialOAuthApiCountAggregateInputType | true
+    }
+
+  export interface CredencialOAuthApiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CredencialOAuthApi'], meta: { name: 'CredencialOAuthApi' } }
+    /**
+     * Find zero or one CredencialOAuthApi that matches the filter.
+     * @param {CredencialOAuthApiFindUniqueArgs} args - Arguments to find a CredencialOAuthApi
+     * @example
+     * // Get one CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CredencialOAuthApiFindUniqueArgs>(args: SelectSubset<T, CredencialOAuthApiFindUniqueArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CredencialOAuthApi that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CredencialOAuthApiFindUniqueOrThrowArgs} args - Arguments to find a CredencialOAuthApi
+     * @example
+     * // Get one CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CredencialOAuthApiFindUniqueOrThrowArgs>(args: SelectSubset<T, CredencialOAuthApiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CredencialOAuthApi that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiFindFirstArgs} args - Arguments to find a CredencialOAuthApi
+     * @example
+     * // Get one CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CredencialOAuthApiFindFirstArgs>(args?: SelectSubset<T, CredencialOAuthApiFindFirstArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CredencialOAuthApi that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiFindFirstOrThrowArgs} args - Arguments to find a CredencialOAuthApi
+     * @example
+     * // Get one CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CredencialOAuthApiFindFirstOrThrowArgs>(args?: SelectSubset<T, CredencialOAuthApiFindFirstOrThrowArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CredencialOAuthApis that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CredencialOAuthApis
+     * const credencialOAuthApis = await prisma.credencialOAuthApi.findMany()
+     * 
+     * // Get first 10 CredencialOAuthApis
+     * const credencialOAuthApis = await prisma.credencialOAuthApi.findMany({ take: 10 })
+     * 
+     * // Only select the `id_credencial_oauth_api`
+     * const credencialOAuthApiWithId_credencial_oauth_apiOnly = await prisma.credencialOAuthApi.findMany({ select: { id_credencial_oauth_api: true } })
+     * 
+     */
+    findMany<T extends CredencialOAuthApiFindManyArgs>(args?: SelectSubset<T, CredencialOAuthApiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CredencialOAuthApi.
+     * @param {CredencialOAuthApiCreateArgs} args - Arguments to create a CredencialOAuthApi.
+     * @example
+     * // Create one CredencialOAuthApi
+     * const CredencialOAuthApi = await prisma.credencialOAuthApi.create({
+     *   data: {
+     *     // ... data to create a CredencialOAuthApi
+     *   }
+     * })
+     * 
+     */
+    create<T extends CredencialOAuthApiCreateArgs>(args: SelectSubset<T, CredencialOAuthApiCreateArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CredencialOAuthApis.
+     * @param {CredencialOAuthApiCreateManyArgs} args - Arguments to create many CredencialOAuthApis.
+     * @example
+     * // Create many CredencialOAuthApis
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CredencialOAuthApiCreateManyArgs>(args?: SelectSubset<T, CredencialOAuthApiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CredencialOAuthApis and returns the data saved in the database.
+     * @param {CredencialOAuthApiCreateManyAndReturnArgs} args - Arguments to create many CredencialOAuthApis.
+     * @example
+     * // Create many CredencialOAuthApis
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CredencialOAuthApis and only return the `id_credencial_oauth_api`
+     * const credencialOAuthApiWithId_credencial_oauth_apiOnly = await prisma.credencialOAuthApi.createManyAndReturn({ 
+     *   select: { id_credencial_oauth_api: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CredencialOAuthApiCreateManyAndReturnArgs>(args?: SelectSubset<T, CredencialOAuthApiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CredencialOAuthApi.
+     * @param {CredencialOAuthApiDeleteArgs} args - Arguments to delete one CredencialOAuthApi.
+     * @example
+     * // Delete one CredencialOAuthApi
+     * const CredencialOAuthApi = await prisma.credencialOAuthApi.delete({
+     *   where: {
+     *     // ... filter to delete one CredencialOAuthApi
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CredencialOAuthApiDeleteArgs>(args: SelectSubset<T, CredencialOAuthApiDeleteArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CredencialOAuthApi.
+     * @param {CredencialOAuthApiUpdateArgs} args - Arguments to update one CredencialOAuthApi.
+     * @example
+     * // Update one CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CredencialOAuthApiUpdateArgs>(args: SelectSubset<T, CredencialOAuthApiUpdateArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CredencialOAuthApis.
+     * @param {CredencialOAuthApiDeleteManyArgs} args - Arguments to filter CredencialOAuthApis to delete.
+     * @example
+     * // Delete a few CredencialOAuthApis
+     * const { count } = await prisma.credencialOAuthApi.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CredencialOAuthApiDeleteManyArgs>(args?: SelectSubset<T, CredencialOAuthApiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CredencialOAuthApis.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CredencialOAuthApis
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CredencialOAuthApiUpdateManyArgs>(args: SelectSubset<T, CredencialOAuthApiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CredencialOAuthApi.
+     * @param {CredencialOAuthApiUpsertArgs} args - Arguments to update or create a CredencialOAuthApi.
+     * @example
+     * // Update or create a CredencialOAuthApi
+     * const credencialOAuthApi = await prisma.credencialOAuthApi.upsert({
+     *   create: {
+     *     // ... data to create a CredencialOAuthApi
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CredencialOAuthApi we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CredencialOAuthApiUpsertArgs>(args: SelectSubset<T, CredencialOAuthApiUpsertArgs<ExtArgs>>): Prisma__CredencialOAuthApiClient<$Result.GetResult<Prisma.$CredencialOAuthApiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CredencialOAuthApis.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiCountArgs} args - Arguments to filter CredencialOAuthApis to count.
+     * @example
+     * // Count the number of CredencialOAuthApis
+     * const count = await prisma.credencialOAuthApi.count({
+     *   where: {
+     *     // ... the filter for the CredencialOAuthApis we want to count
+     *   }
+     * })
+    **/
+    count<T extends CredencialOAuthApiCountArgs>(
+      args?: Subset<T, CredencialOAuthApiCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CredencialOAuthApiCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CredencialOAuthApi.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CredencialOAuthApiAggregateArgs>(args: Subset<T, CredencialOAuthApiAggregateArgs>): Prisma.PrismaPromise<GetCredencialOAuthApiAggregateType<T>>
+
+    /**
+     * Group by CredencialOAuthApi.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredencialOAuthApiGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CredencialOAuthApiGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CredencialOAuthApiGroupByArgs['orderBy'] }
+        : { orderBy?: CredencialOAuthApiGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CredencialOAuthApiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCredencialOAuthApiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CredencialOAuthApi model
+   */
+  readonly fields: CredencialOAuthApiFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CredencialOAuthApi.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CredencialOAuthApiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CredencialOAuthApi model
+   */ 
+  interface CredencialOAuthApiFieldRefs {
+    readonly id_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'String'>
+    readonly id_organizacao: FieldRef<"CredencialOAuthApi", 'String'>
+    readonly id_usuario: FieldRef<"CredencialOAuthApi", 'String'>
+    readonly client_id_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'String'>
+    readonly hash_client_secret_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'String'>
+    readonly ambiente_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'AmbienteIntegracaoApi'>
+    readonly escopo_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'EscopoApiToken'>
+    readonly revogado_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'Boolean'>
+    readonly data_revogacao_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'DateTime'>
+    readonly data_criacao_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'DateTime'>
+    readonly data_atualizacao_credencial_oauth_api: FieldRef<"CredencialOAuthApi", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CredencialOAuthApi findUnique
+   */
+  export type CredencialOAuthApiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter, which CredencialOAuthApi to fetch.
+     */
+    where: CredencialOAuthApiWhereUniqueInput
+  }
+
+  /**
+   * CredencialOAuthApi findUniqueOrThrow
+   */
+  export type CredencialOAuthApiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter, which CredencialOAuthApi to fetch.
+     */
+    where: CredencialOAuthApiWhereUniqueInput
+  }
+
+  /**
+   * CredencialOAuthApi findFirst
+   */
+  export type CredencialOAuthApiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter, which CredencialOAuthApi to fetch.
+     */
+    where?: CredencialOAuthApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CredencialOAuthApis to fetch.
+     */
+    orderBy?: CredencialOAuthApiOrderByWithRelationInput | CredencialOAuthApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CredencialOAuthApis.
+     */
+    cursor?: CredencialOAuthApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CredencialOAuthApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CredencialOAuthApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CredencialOAuthApis.
+     */
+    distinct?: CredencialOAuthApiScalarFieldEnum | CredencialOAuthApiScalarFieldEnum[]
+  }
+
+  /**
+   * CredencialOAuthApi findFirstOrThrow
+   */
+  export type CredencialOAuthApiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter, which CredencialOAuthApi to fetch.
+     */
+    where?: CredencialOAuthApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CredencialOAuthApis to fetch.
+     */
+    orderBy?: CredencialOAuthApiOrderByWithRelationInput | CredencialOAuthApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CredencialOAuthApis.
+     */
+    cursor?: CredencialOAuthApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CredencialOAuthApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CredencialOAuthApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CredencialOAuthApis.
+     */
+    distinct?: CredencialOAuthApiScalarFieldEnum | CredencialOAuthApiScalarFieldEnum[]
+  }
+
+  /**
+   * CredencialOAuthApi findMany
+   */
+  export type CredencialOAuthApiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter, which CredencialOAuthApis to fetch.
+     */
+    where?: CredencialOAuthApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CredencialOAuthApis to fetch.
+     */
+    orderBy?: CredencialOAuthApiOrderByWithRelationInput | CredencialOAuthApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CredencialOAuthApis.
+     */
+    cursor?: CredencialOAuthApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CredencialOAuthApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CredencialOAuthApis.
+     */
+    skip?: number
+    distinct?: CredencialOAuthApiScalarFieldEnum | CredencialOAuthApiScalarFieldEnum[]
+  }
+
+  /**
+   * CredencialOAuthApi create
+   */
+  export type CredencialOAuthApiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * The data needed to create a CredencialOAuthApi.
+     */
+    data: XOR<CredencialOAuthApiCreateInput, CredencialOAuthApiUncheckedCreateInput>
+  }
+
+  /**
+   * CredencialOAuthApi createMany
+   */
+  export type CredencialOAuthApiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CredencialOAuthApis.
+     */
+    data: CredencialOAuthApiCreateManyInput | CredencialOAuthApiCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CredencialOAuthApi createManyAndReturn
+   */
+  export type CredencialOAuthApiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CredencialOAuthApis.
+     */
+    data: CredencialOAuthApiCreateManyInput | CredencialOAuthApiCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CredencialOAuthApi update
+   */
+  export type CredencialOAuthApiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * The data needed to update a CredencialOAuthApi.
+     */
+    data: XOR<CredencialOAuthApiUpdateInput, CredencialOAuthApiUncheckedUpdateInput>
+    /**
+     * Choose, which CredencialOAuthApi to update.
+     */
+    where: CredencialOAuthApiWhereUniqueInput
+  }
+
+  /**
+   * CredencialOAuthApi updateMany
+   */
+  export type CredencialOAuthApiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CredencialOAuthApis.
+     */
+    data: XOR<CredencialOAuthApiUpdateManyMutationInput, CredencialOAuthApiUncheckedUpdateManyInput>
+    /**
+     * Filter which CredencialOAuthApis to update
+     */
+    where?: CredencialOAuthApiWhereInput
+  }
+
+  /**
+   * CredencialOAuthApi upsert
+   */
+  export type CredencialOAuthApiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * The filter to search for the CredencialOAuthApi to update in case it exists.
+     */
+    where: CredencialOAuthApiWhereUniqueInput
+    /**
+     * In case the CredencialOAuthApi found by the `where` argument doesn't exist, create a new CredencialOAuthApi with this data.
+     */
+    create: XOR<CredencialOAuthApiCreateInput, CredencialOAuthApiUncheckedCreateInput>
+    /**
+     * In case the CredencialOAuthApi was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CredencialOAuthApiUpdateInput, CredencialOAuthApiUncheckedUpdateInput>
+  }
+
+  /**
+   * CredencialOAuthApi delete
+   */
+  export type CredencialOAuthApiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+    /**
+     * Filter which CredencialOAuthApi to delete.
+     */
+    where: CredencialOAuthApiWhereUniqueInput
+  }
+
+  /**
+   * CredencialOAuthApi deleteMany
+   */
+  export type CredencialOAuthApiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CredencialOAuthApis to delete
+     */
+    where?: CredencialOAuthApiWhereInput
+  }
+
+  /**
+   * CredencialOAuthApi without action
+   */
+  export type CredencialOAuthApiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CredencialOAuthApi
+     */
+    select?: CredencialOAuthApiSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RegistroIdempotenciaApi
+   */
+
+  export type AggregateRegistroIdempotenciaApi = {
+    _count: RegistroIdempotenciaApiCountAggregateOutputType | null
+    _avg: RegistroIdempotenciaApiAvgAggregateOutputType | null
+    _sum: RegistroIdempotenciaApiSumAggregateOutputType | null
+    _min: RegistroIdempotenciaApiMinAggregateOutputType | null
+    _max: RegistroIdempotenciaApiMaxAggregateOutputType | null
+  }
+
+  export type RegistroIdempotenciaApiAvgAggregateOutputType = {
+    codigo_resposta_http_idempotencia_api: number | null
+  }
+
+  export type RegistroIdempotenciaApiSumAggregateOutputType = {
+    codigo_resposta_http_idempotencia_api: number | null
+  }
+
+  export type RegistroIdempotenciaApiMinAggregateOutputType = {
+    id_registro_idempotencia_api: string | null
+    id_organizacao: string | null
+    chave_idempotencia_api: string | null
+    hash_corpo_requisicao_api: string | null
+    codigo_resposta_http_idempotencia_api: number | null
+    data_expiracao_idempotencia_api: Date | null
+    data_criacao_idempotencia_api: Date | null
+  }
+
+  export type RegistroIdempotenciaApiMaxAggregateOutputType = {
+    id_registro_idempotencia_api: string | null
+    id_organizacao: string | null
+    chave_idempotencia_api: string | null
+    hash_corpo_requisicao_api: string | null
+    codigo_resposta_http_idempotencia_api: number | null
+    data_expiracao_idempotencia_api: Date | null
+    data_criacao_idempotencia_api: Date | null
+  }
+
+  export type RegistroIdempotenciaApiCountAggregateOutputType = {
+    id_registro_idempotencia_api: number
+    id_organizacao: number
+    chave_idempotencia_api: number
+    hash_corpo_requisicao_api: number
+    codigo_resposta_http_idempotencia_api: number
+    corpo_resposta_idempotencia_api: number
+    data_expiracao_idempotencia_api: number
+    data_criacao_idempotencia_api: number
+    _all: number
+  }
+
+
+  export type RegistroIdempotenciaApiAvgAggregateInputType = {
+    codigo_resposta_http_idempotencia_api?: true
+  }
+
+  export type RegistroIdempotenciaApiSumAggregateInputType = {
+    codigo_resposta_http_idempotencia_api?: true
+  }
+
+  export type RegistroIdempotenciaApiMinAggregateInputType = {
+    id_registro_idempotencia_api?: true
+    id_organizacao?: true
+    chave_idempotencia_api?: true
+    hash_corpo_requisicao_api?: true
+    codigo_resposta_http_idempotencia_api?: true
+    data_expiracao_idempotencia_api?: true
+    data_criacao_idempotencia_api?: true
+  }
+
+  export type RegistroIdempotenciaApiMaxAggregateInputType = {
+    id_registro_idempotencia_api?: true
+    id_organizacao?: true
+    chave_idempotencia_api?: true
+    hash_corpo_requisicao_api?: true
+    codigo_resposta_http_idempotencia_api?: true
+    data_expiracao_idempotencia_api?: true
+    data_criacao_idempotencia_api?: true
+  }
+
+  export type RegistroIdempotenciaApiCountAggregateInputType = {
+    id_registro_idempotencia_api?: true
+    id_organizacao?: true
+    chave_idempotencia_api?: true
+    hash_corpo_requisicao_api?: true
+    codigo_resposta_http_idempotencia_api?: true
+    corpo_resposta_idempotencia_api?: true
+    data_expiracao_idempotencia_api?: true
+    data_criacao_idempotencia_api?: true
+    _all?: true
+  }
+
+  export type RegistroIdempotenciaApiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RegistroIdempotenciaApi to aggregate.
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegistroIdempotenciaApis to fetch.
+     */
+    orderBy?: RegistroIdempotenciaApiOrderByWithRelationInput | RegistroIdempotenciaApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RegistroIdempotenciaApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegistroIdempotenciaApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegistroIdempotenciaApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RegistroIdempotenciaApis
+    **/
+    _count?: true | RegistroIdempotenciaApiCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: RegistroIdempotenciaApiAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: RegistroIdempotenciaApiSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RegistroIdempotenciaApiMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RegistroIdempotenciaApiMaxAggregateInputType
+  }
+
+  export type GetRegistroIdempotenciaApiAggregateType<T extends RegistroIdempotenciaApiAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegistroIdempotenciaApi]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRegistroIdempotenciaApi[P]>
+      : GetScalarType<T[P], AggregateRegistroIdempotenciaApi[P]>
+  }
+
+
+
+
+  export type RegistroIdempotenciaApiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegistroIdempotenciaApiWhereInput
+    orderBy?: RegistroIdempotenciaApiOrderByWithAggregationInput | RegistroIdempotenciaApiOrderByWithAggregationInput[]
+    by: RegistroIdempotenciaApiScalarFieldEnum[] | RegistroIdempotenciaApiScalarFieldEnum
+    having?: RegistroIdempotenciaApiScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RegistroIdempotenciaApiCountAggregateInputType | true
+    _avg?: RegistroIdempotenciaApiAvgAggregateInputType
+    _sum?: RegistroIdempotenciaApiSumAggregateInputType
+    _min?: RegistroIdempotenciaApiMinAggregateInputType
+    _max?: RegistroIdempotenciaApiMaxAggregateInputType
+  }
+
+  export type RegistroIdempotenciaApiGroupByOutputType = {
+    id_registro_idempotencia_api: string
+    id_organizacao: string
+    chave_idempotencia_api: string
+    hash_corpo_requisicao_api: string
+    codigo_resposta_http_idempotencia_api: number
+    corpo_resposta_idempotencia_api: JsonValue
+    data_expiracao_idempotencia_api: Date
+    data_criacao_idempotencia_api: Date
+    _count: RegistroIdempotenciaApiCountAggregateOutputType | null
+    _avg: RegistroIdempotenciaApiAvgAggregateOutputType | null
+    _sum: RegistroIdempotenciaApiSumAggregateOutputType | null
+    _min: RegistroIdempotenciaApiMinAggregateOutputType | null
+    _max: RegistroIdempotenciaApiMaxAggregateOutputType | null
+  }
+
+  type GetRegistroIdempotenciaApiGroupByPayload<T extends RegistroIdempotenciaApiGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RegistroIdempotenciaApiGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RegistroIdempotenciaApiGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RegistroIdempotenciaApiGroupByOutputType[P]>
+            : GetScalarType<T[P], RegistroIdempotenciaApiGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RegistroIdempotenciaApiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_registro_idempotencia_api?: boolean
+    id_organizacao?: boolean
+    chave_idempotencia_api?: boolean
+    hash_corpo_requisicao_api?: boolean
+    codigo_resposta_http_idempotencia_api?: boolean
+    corpo_resposta_idempotencia_api?: boolean
+    data_expiracao_idempotencia_api?: boolean
+    data_criacao_idempotencia_api?: boolean
+  }, ExtArgs["result"]["registroIdempotenciaApi"]>
+
+  export type RegistroIdempotenciaApiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_registro_idempotencia_api?: boolean
+    id_organizacao?: boolean
+    chave_idempotencia_api?: boolean
+    hash_corpo_requisicao_api?: boolean
+    codigo_resposta_http_idempotencia_api?: boolean
+    corpo_resposta_idempotencia_api?: boolean
+    data_expiracao_idempotencia_api?: boolean
+    data_criacao_idempotencia_api?: boolean
+  }, ExtArgs["result"]["registroIdempotenciaApi"]>
+
+  export type RegistroIdempotenciaApiSelectScalar = {
+    id_registro_idempotencia_api?: boolean
+    id_organizacao?: boolean
+    chave_idempotencia_api?: boolean
+    hash_corpo_requisicao_api?: boolean
+    codigo_resposta_http_idempotencia_api?: boolean
+    corpo_resposta_idempotencia_api?: boolean
+    data_expiracao_idempotencia_api?: boolean
+    data_criacao_idempotencia_api?: boolean
+  }
+
+
+  export type $RegistroIdempotenciaApiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegistroIdempotenciaApi"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_registro_idempotencia_api: string
+      id_organizacao: string
+      chave_idempotencia_api: string
+      hash_corpo_requisicao_api: string
+      codigo_resposta_http_idempotencia_api: number
+      corpo_resposta_idempotencia_api: Prisma.JsonValue
+      data_expiracao_idempotencia_api: Date
+      data_criacao_idempotencia_api: Date
+    }, ExtArgs["result"]["registroIdempotenciaApi"]>
+    composites: {}
+  }
+
+  type RegistroIdempotenciaApiGetPayload<S extends boolean | null | undefined | RegistroIdempotenciaApiDefaultArgs> = $Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload, S>
+
+  type RegistroIdempotenciaApiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<RegistroIdempotenciaApiFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: RegistroIdempotenciaApiCountAggregateInputType | true
+    }
+
+  export interface RegistroIdempotenciaApiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegistroIdempotenciaApi'], meta: { name: 'RegistroIdempotenciaApi' } }
+    /**
+     * Find zero or one RegistroIdempotenciaApi that matches the filter.
+     * @param {RegistroIdempotenciaApiFindUniqueArgs} args - Arguments to find a RegistroIdempotenciaApi
+     * @example
+     * // Get one RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RegistroIdempotenciaApiFindUniqueArgs>(args: SelectSubset<T, RegistroIdempotenciaApiFindUniqueArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one RegistroIdempotenciaApi that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {RegistroIdempotenciaApiFindUniqueOrThrowArgs} args - Arguments to find a RegistroIdempotenciaApi
+     * @example
+     * // Get one RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RegistroIdempotenciaApiFindUniqueOrThrowArgs>(args: SelectSubset<T, RegistroIdempotenciaApiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first RegistroIdempotenciaApi that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiFindFirstArgs} args - Arguments to find a RegistroIdempotenciaApi
+     * @example
+     * // Get one RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RegistroIdempotenciaApiFindFirstArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiFindFirstArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first RegistroIdempotenciaApi that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiFindFirstOrThrowArgs} args - Arguments to find a RegistroIdempotenciaApi
+     * @example
+     * // Get one RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RegistroIdempotenciaApiFindFirstOrThrowArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more RegistroIdempotenciaApis that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RegistroIdempotenciaApis
+     * const registroIdempotenciaApis = await prisma.registroIdempotenciaApi.findMany()
+     * 
+     * // Get first 10 RegistroIdempotenciaApis
+     * const registroIdempotenciaApis = await prisma.registroIdempotenciaApi.findMany({ take: 10 })
+     * 
+     * // Only select the `id_registro_idempotencia_api`
+     * const registroIdempotenciaApiWithId_registro_idempotencia_apiOnly = await prisma.registroIdempotenciaApi.findMany({ select: { id_registro_idempotencia_api: true } })
+     * 
+     */
+    findMany<T extends RegistroIdempotenciaApiFindManyArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a RegistroIdempotenciaApi.
+     * @param {RegistroIdempotenciaApiCreateArgs} args - Arguments to create a RegistroIdempotenciaApi.
+     * @example
+     * // Create one RegistroIdempotenciaApi
+     * const RegistroIdempotenciaApi = await prisma.registroIdempotenciaApi.create({
+     *   data: {
+     *     // ... data to create a RegistroIdempotenciaApi
+     *   }
+     * })
+     * 
+     */
+    create<T extends RegistroIdempotenciaApiCreateArgs>(args: SelectSubset<T, RegistroIdempotenciaApiCreateArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many RegistroIdempotenciaApis.
+     * @param {RegistroIdempotenciaApiCreateManyArgs} args - Arguments to create many RegistroIdempotenciaApis.
+     * @example
+     * // Create many RegistroIdempotenciaApis
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RegistroIdempotenciaApiCreateManyArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RegistroIdempotenciaApis and returns the data saved in the database.
+     * @param {RegistroIdempotenciaApiCreateManyAndReturnArgs} args - Arguments to create many RegistroIdempotenciaApis.
+     * @example
+     * // Create many RegistroIdempotenciaApis
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RegistroIdempotenciaApis and only return the `id_registro_idempotencia_api`
+     * const registroIdempotenciaApiWithId_registro_idempotencia_apiOnly = await prisma.registroIdempotenciaApi.createManyAndReturn({ 
+     *   select: { id_registro_idempotencia_api: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RegistroIdempotenciaApiCreateManyAndReturnArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a RegistroIdempotenciaApi.
+     * @param {RegistroIdempotenciaApiDeleteArgs} args - Arguments to delete one RegistroIdempotenciaApi.
+     * @example
+     * // Delete one RegistroIdempotenciaApi
+     * const RegistroIdempotenciaApi = await prisma.registroIdempotenciaApi.delete({
+     *   where: {
+     *     // ... filter to delete one RegistroIdempotenciaApi
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RegistroIdempotenciaApiDeleteArgs>(args: SelectSubset<T, RegistroIdempotenciaApiDeleteArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one RegistroIdempotenciaApi.
+     * @param {RegistroIdempotenciaApiUpdateArgs} args - Arguments to update one RegistroIdempotenciaApi.
+     * @example
+     * // Update one RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RegistroIdempotenciaApiUpdateArgs>(args: SelectSubset<T, RegistroIdempotenciaApiUpdateArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more RegistroIdempotenciaApis.
+     * @param {RegistroIdempotenciaApiDeleteManyArgs} args - Arguments to filter RegistroIdempotenciaApis to delete.
+     * @example
+     * // Delete a few RegistroIdempotenciaApis
+     * const { count } = await prisma.registroIdempotenciaApi.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RegistroIdempotenciaApiDeleteManyArgs>(args?: SelectSubset<T, RegistroIdempotenciaApiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RegistroIdempotenciaApis.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RegistroIdempotenciaApis
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RegistroIdempotenciaApiUpdateManyArgs>(args: SelectSubset<T, RegistroIdempotenciaApiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one RegistroIdempotenciaApi.
+     * @param {RegistroIdempotenciaApiUpsertArgs} args - Arguments to update or create a RegistroIdempotenciaApi.
+     * @example
+     * // Update or create a RegistroIdempotenciaApi
+     * const registroIdempotenciaApi = await prisma.registroIdempotenciaApi.upsert({
+     *   create: {
+     *     // ... data to create a RegistroIdempotenciaApi
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RegistroIdempotenciaApi we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RegistroIdempotenciaApiUpsertArgs>(args: SelectSubset<T, RegistroIdempotenciaApiUpsertArgs<ExtArgs>>): Prisma__RegistroIdempotenciaApiClient<$Result.GetResult<Prisma.$RegistroIdempotenciaApiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of RegistroIdempotenciaApis.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiCountArgs} args - Arguments to filter RegistroIdempotenciaApis to count.
+     * @example
+     * // Count the number of RegistroIdempotenciaApis
+     * const count = await prisma.registroIdempotenciaApi.count({
+     *   where: {
+     *     // ... the filter for the RegistroIdempotenciaApis we want to count
+     *   }
+     * })
+    **/
+    count<T extends RegistroIdempotenciaApiCountArgs>(
+      args?: Subset<T, RegistroIdempotenciaApiCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RegistroIdempotenciaApiCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RegistroIdempotenciaApi.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RegistroIdempotenciaApiAggregateArgs>(args: Subset<T, RegistroIdempotenciaApiAggregateArgs>): Prisma.PrismaPromise<GetRegistroIdempotenciaApiAggregateType<T>>
+
+    /**
+     * Group by RegistroIdempotenciaApi.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegistroIdempotenciaApiGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RegistroIdempotenciaApiGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RegistroIdempotenciaApiGroupByArgs['orderBy'] }
+        : { orderBy?: RegistroIdempotenciaApiGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RegistroIdempotenciaApiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegistroIdempotenciaApiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RegistroIdempotenciaApi model
+   */
+  readonly fields: RegistroIdempotenciaApiFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RegistroIdempotenciaApi.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RegistroIdempotenciaApiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RegistroIdempotenciaApi model
+   */ 
+  interface RegistroIdempotenciaApiFieldRefs {
+    readonly id_registro_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'String'>
+    readonly id_organizacao: FieldRef<"RegistroIdempotenciaApi", 'String'>
+    readonly chave_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'String'>
+    readonly hash_corpo_requisicao_api: FieldRef<"RegistroIdempotenciaApi", 'String'>
+    readonly codigo_resposta_http_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'Int'>
+    readonly corpo_resposta_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'Json'>
+    readonly data_expiracao_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'DateTime'>
+    readonly data_criacao_idempotencia_api: FieldRef<"RegistroIdempotenciaApi", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RegistroIdempotenciaApi findUnique
+   */
+  export type RegistroIdempotenciaApiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter, which RegistroIdempotenciaApi to fetch.
+     */
+    where: RegistroIdempotenciaApiWhereUniqueInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi findUniqueOrThrow
+   */
+  export type RegistroIdempotenciaApiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter, which RegistroIdempotenciaApi to fetch.
+     */
+    where: RegistroIdempotenciaApiWhereUniqueInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi findFirst
+   */
+  export type RegistroIdempotenciaApiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter, which RegistroIdempotenciaApi to fetch.
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegistroIdempotenciaApis to fetch.
+     */
+    orderBy?: RegistroIdempotenciaApiOrderByWithRelationInput | RegistroIdempotenciaApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RegistroIdempotenciaApis.
+     */
+    cursor?: RegistroIdempotenciaApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegistroIdempotenciaApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegistroIdempotenciaApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RegistroIdempotenciaApis.
+     */
+    distinct?: RegistroIdempotenciaApiScalarFieldEnum | RegistroIdempotenciaApiScalarFieldEnum[]
+  }
+
+  /**
+   * RegistroIdempotenciaApi findFirstOrThrow
+   */
+  export type RegistroIdempotenciaApiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter, which RegistroIdempotenciaApi to fetch.
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegistroIdempotenciaApis to fetch.
+     */
+    orderBy?: RegistroIdempotenciaApiOrderByWithRelationInput | RegistroIdempotenciaApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RegistroIdempotenciaApis.
+     */
+    cursor?: RegistroIdempotenciaApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegistroIdempotenciaApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegistroIdempotenciaApis.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RegistroIdempotenciaApis.
+     */
+    distinct?: RegistroIdempotenciaApiScalarFieldEnum | RegistroIdempotenciaApiScalarFieldEnum[]
+  }
+
+  /**
+   * RegistroIdempotenciaApi findMany
+   */
+  export type RegistroIdempotenciaApiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter, which RegistroIdempotenciaApis to fetch.
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegistroIdempotenciaApis to fetch.
+     */
+    orderBy?: RegistroIdempotenciaApiOrderByWithRelationInput | RegistroIdempotenciaApiOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RegistroIdempotenciaApis.
+     */
+    cursor?: RegistroIdempotenciaApiWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegistroIdempotenciaApis from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegistroIdempotenciaApis.
+     */
+    skip?: number
+    distinct?: RegistroIdempotenciaApiScalarFieldEnum | RegistroIdempotenciaApiScalarFieldEnum[]
+  }
+
+  /**
+   * RegistroIdempotenciaApi create
+   */
+  export type RegistroIdempotenciaApiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * The data needed to create a RegistroIdempotenciaApi.
+     */
+    data: XOR<RegistroIdempotenciaApiCreateInput, RegistroIdempotenciaApiUncheckedCreateInput>
+  }
+
+  /**
+   * RegistroIdempotenciaApi createMany
+   */
+  export type RegistroIdempotenciaApiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RegistroIdempotenciaApis.
+     */
+    data: RegistroIdempotenciaApiCreateManyInput | RegistroIdempotenciaApiCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RegistroIdempotenciaApi createManyAndReturn
+   */
+  export type RegistroIdempotenciaApiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many RegistroIdempotenciaApis.
+     */
+    data: RegistroIdempotenciaApiCreateManyInput | RegistroIdempotenciaApiCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RegistroIdempotenciaApi update
+   */
+  export type RegistroIdempotenciaApiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * The data needed to update a RegistroIdempotenciaApi.
+     */
+    data: XOR<RegistroIdempotenciaApiUpdateInput, RegistroIdempotenciaApiUncheckedUpdateInput>
+    /**
+     * Choose, which RegistroIdempotenciaApi to update.
+     */
+    where: RegistroIdempotenciaApiWhereUniqueInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi updateMany
+   */
+  export type RegistroIdempotenciaApiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RegistroIdempotenciaApis.
+     */
+    data: XOR<RegistroIdempotenciaApiUpdateManyMutationInput, RegistroIdempotenciaApiUncheckedUpdateManyInput>
+    /**
+     * Filter which RegistroIdempotenciaApis to update
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi upsert
+   */
+  export type RegistroIdempotenciaApiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * The filter to search for the RegistroIdempotenciaApi to update in case it exists.
+     */
+    where: RegistroIdempotenciaApiWhereUniqueInput
+    /**
+     * In case the RegistroIdempotenciaApi found by the `where` argument doesn't exist, create a new RegistroIdempotenciaApi with this data.
+     */
+    create: XOR<RegistroIdempotenciaApiCreateInput, RegistroIdempotenciaApiUncheckedCreateInput>
+    /**
+     * In case the RegistroIdempotenciaApi was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RegistroIdempotenciaApiUpdateInput, RegistroIdempotenciaApiUncheckedUpdateInput>
+  }
+
+  /**
+   * RegistroIdempotenciaApi delete
+   */
+  export type RegistroIdempotenciaApiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+    /**
+     * Filter which RegistroIdempotenciaApi to delete.
+     */
+    where: RegistroIdempotenciaApiWhereUniqueInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi deleteMany
+   */
+  export type RegistroIdempotenciaApiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RegistroIdempotenciaApis to delete
+     */
+    where?: RegistroIdempotenciaApiWhereInput
+  }
+
+  /**
+   * RegistroIdempotenciaApi without action
+   */
+  export type RegistroIdempotenciaApiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegistroIdempotenciaApi
+     */
+    select?: RegistroIdempotenciaApiSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WebhookEventoEnfileirado
+   */
+
+  export type AggregateWebhookEventoEnfileirado = {
+    _count: WebhookEventoEnfileiradoCountAggregateOutputType | null
+    _avg: WebhookEventoEnfileiradoAvgAggregateOutputType | null
+    _sum: WebhookEventoEnfileiradoSumAggregateOutputType | null
+    _min: WebhookEventoEnfileiradoMinAggregateOutputType | null
+    _max: WebhookEventoEnfileiradoMaxAggregateOutputType | null
+  }
+
+  export type WebhookEventoEnfileiradoAvgAggregateOutputType = {
+    quantidade_tentativas_webhook_evento_enfileirado: number | null
+  }
+
+  export type WebhookEventoEnfileiradoSumAggregateOutputType = {
+    quantidade_tentativas_webhook_evento_enfileirado: number | null
+  }
+
+  export type WebhookEventoEnfileiradoMinAggregateOutputType = {
+    id_webhook_evento_enfileirado: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_evento_webhook_enfileirado: string | null
+    tipo_evento_webhook_enfileirado: string | null
+    status_webhook_evento_enfileirado: $Enums.StatusWebhookEventoEnfileirado | null
+    quantidade_tentativas_webhook_evento_enfileirado: number | null
+    proxima_tentativa_webhook_evento_enfileirado: Date | null
+    ultimo_erro_webhook_evento_enfileirado: string | null
+    data_criacao_webhook_evento_enfileirado: Date | null
+    data_atualizacao_webhook_evento_enfileirado: Date | null
+  }
+
+  export type WebhookEventoEnfileiradoMaxAggregateOutputType = {
+    id_webhook_evento_enfileirado: string | null
+    id_organizacao: string | null
+    id_produto_gravity: string | null
+    id_evento_webhook_enfileirado: string | null
+    tipo_evento_webhook_enfileirado: string | null
+    status_webhook_evento_enfileirado: $Enums.StatusWebhookEventoEnfileirado | null
+    quantidade_tentativas_webhook_evento_enfileirado: number | null
+    proxima_tentativa_webhook_evento_enfileirado: Date | null
+    ultimo_erro_webhook_evento_enfileirado: string | null
+    data_criacao_webhook_evento_enfileirado: Date | null
+    data_atualizacao_webhook_evento_enfileirado: Date | null
+  }
+
+  export type WebhookEventoEnfileiradoCountAggregateOutputType = {
+    id_webhook_evento_enfileirado: number
+    id_organizacao: number
+    id_produto_gravity: number
+    id_evento_webhook_enfileirado: number
+    tipo_evento_webhook_enfileirado: number
+    payload_evento_webhook_enfileirado: number
+    status_webhook_evento_enfileirado: number
+    quantidade_tentativas_webhook_evento_enfileirado: number
+    proxima_tentativa_webhook_evento_enfileirado: number
+    ultimo_erro_webhook_evento_enfileirado: number
+    data_criacao_webhook_evento_enfileirado: number
+    data_atualizacao_webhook_evento_enfileirado: number
+    _all: number
+  }
+
+
+  export type WebhookEventoEnfileiradoAvgAggregateInputType = {
+    quantidade_tentativas_webhook_evento_enfileirado?: true
+  }
+
+  export type WebhookEventoEnfileiradoSumAggregateInputType = {
+    quantidade_tentativas_webhook_evento_enfileirado?: true
+  }
+
+  export type WebhookEventoEnfileiradoMinAggregateInputType = {
+    id_webhook_evento_enfileirado?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_evento_webhook_enfileirado?: true
+    tipo_evento_webhook_enfileirado?: true
+    status_webhook_evento_enfileirado?: true
+    quantidade_tentativas_webhook_evento_enfileirado?: true
+    proxima_tentativa_webhook_evento_enfileirado?: true
+    ultimo_erro_webhook_evento_enfileirado?: true
+    data_criacao_webhook_evento_enfileirado?: true
+    data_atualizacao_webhook_evento_enfileirado?: true
+  }
+
+  export type WebhookEventoEnfileiradoMaxAggregateInputType = {
+    id_webhook_evento_enfileirado?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_evento_webhook_enfileirado?: true
+    tipo_evento_webhook_enfileirado?: true
+    status_webhook_evento_enfileirado?: true
+    quantidade_tentativas_webhook_evento_enfileirado?: true
+    proxima_tentativa_webhook_evento_enfileirado?: true
+    ultimo_erro_webhook_evento_enfileirado?: true
+    data_criacao_webhook_evento_enfileirado?: true
+    data_atualizacao_webhook_evento_enfileirado?: true
+  }
+
+  export type WebhookEventoEnfileiradoCountAggregateInputType = {
+    id_webhook_evento_enfileirado?: true
+    id_organizacao?: true
+    id_produto_gravity?: true
+    id_evento_webhook_enfileirado?: true
+    tipo_evento_webhook_enfileirado?: true
+    payload_evento_webhook_enfileirado?: true
+    status_webhook_evento_enfileirado?: true
+    quantidade_tentativas_webhook_evento_enfileirado?: true
+    proxima_tentativa_webhook_evento_enfileirado?: true
+    ultimo_erro_webhook_evento_enfileirado?: true
+    data_criacao_webhook_evento_enfileirado?: true
+    data_atualizacao_webhook_evento_enfileirado?: true
+    _all?: true
+  }
+
+  export type WebhookEventoEnfileiradoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookEventoEnfileirado to aggregate.
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEventoEnfileirados to fetch.
+     */
+    orderBy?: WebhookEventoEnfileiradoOrderByWithRelationInput | WebhookEventoEnfileiradoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookEventoEnfileiradoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEventoEnfileirados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEventoEnfileirados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebhookEventoEnfileirados
+    **/
+    _count?: true | WebhookEventoEnfileiradoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WebhookEventoEnfileiradoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebhookEventoEnfileiradoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookEventoEnfileiradoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookEventoEnfileiradoMaxAggregateInputType
+  }
+
+  export type GetWebhookEventoEnfileiradoAggregateType<T extends WebhookEventoEnfileiradoAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhookEventoEnfileirado]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhookEventoEnfileirado[P]>
+      : GetScalarType<T[P], AggregateWebhookEventoEnfileirado[P]>
+  }
+
+
+
+
+  export type WebhookEventoEnfileiradoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookEventoEnfileiradoWhereInput
+    orderBy?: WebhookEventoEnfileiradoOrderByWithAggregationInput | WebhookEventoEnfileiradoOrderByWithAggregationInput[]
+    by: WebhookEventoEnfileiradoScalarFieldEnum[] | WebhookEventoEnfileiradoScalarFieldEnum
+    having?: WebhookEventoEnfileiradoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookEventoEnfileiradoCountAggregateInputType | true
+    _avg?: WebhookEventoEnfileiradoAvgAggregateInputType
+    _sum?: WebhookEventoEnfileiradoSumAggregateInputType
+    _min?: WebhookEventoEnfileiradoMinAggregateInputType
+    _max?: WebhookEventoEnfileiradoMaxAggregateInputType
+  }
+
+  export type WebhookEventoEnfileiradoGroupByOutputType = {
+    id_webhook_evento_enfileirado: string
+    id_organizacao: string
+    id_produto_gravity: string | null
+    id_evento_webhook_enfileirado: string
+    tipo_evento_webhook_enfileirado: string
+    payload_evento_webhook_enfileirado: JsonValue
+    status_webhook_evento_enfileirado: $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado: number
+    proxima_tentativa_webhook_evento_enfileirado: Date
+    ultimo_erro_webhook_evento_enfileirado: string | null
+    data_criacao_webhook_evento_enfileirado: Date
+    data_atualizacao_webhook_evento_enfileirado: Date
+    _count: WebhookEventoEnfileiradoCountAggregateOutputType | null
+    _avg: WebhookEventoEnfileiradoAvgAggregateOutputType | null
+    _sum: WebhookEventoEnfileiradoSumAggregateOutputType | null
+    _min: WebhookEventoEnfileiradoMinAggregateOutputType | null
+    _max: WebhookEventoEnfileiradoMaxAggregateOutputType | null
+  }
+
+  type GetWebhookEventoEnfileiradoGroupByPayload<T extends WebhookEventoEnfileiradoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookEventoEnfileiradoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookEventoEnfileiradoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookEventoEnfileiradoGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookEventoEnfileiradoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookEventoEnfileiradoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_evento_enfileirado?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_evento_webhook_enfileirado?: boolean
+    tipo_evento_webhook_enfileirado?: boolean
+    payload_evento_webhook_enfileirado?: boolean
+    status_webhook_evento_enfileirado?: boolean
+    quantidade_tentativas_webhook_evento_enfileirado?: boolean
+    proxima_tentativa_webhook_evento_enfileirado?: boolean
+    ultimo_erro_webhook_evento_enfileirado?: boolean
+    data_criacao_webhook_evento_enfileirado?: boolean
+    data_atualizacao_webhook_evento_enfileirado?: boolean
+  }, ExtArgs["result"]["webhookEventoEnfileirado"]>
+
+  export type WebhookEventoEnfileiradoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_webhook_evento_enfileirado?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_evento_webhook_enfileirado?: boolean
+    tipo_evento_webhook_enfileirado?: boolean
+    payload_evento_webhook_enfileirado?: boolean
+    status_webhook_evento_enfileirado?: boolean
+    quantidade_tentativas_webhook_evento_enfileirado?: boolean
+    proxima_tentativa_webhook_evento_enfileirado?: boolean
+    ultimo_erro_webhook_evento_enfileirado?: boolean
+    data_criacao_webhook_evento_enfileirado?: boolean
+    data_atualizacao_webhook_evento_enfileirado?: boolean
+  }, ExtArgs["result"]["webhookEventoEnfileirado"]>
+
+  export type WebhookEventoEnfileiradoSelectScalar = {
+    id_webhook_evento_enfileirado?: boolean
+    id_organizacao?: boolean
+    id_produto_gravity?: boolean
+    id_evento_webhook_enfileirado?: boolean
+    tipo_evento_webhook_enfileirado?: boolean
+    payload_evento_webhook_enfileirado?: boolean
+    status_webhook_evento_enfileirado?: boolean
+    quantidade_tentativas_webhook_evento_enfileirado?: boolean
+    proxima_tentativa_webhook_evento_enfileirado?: boolean
+    ultimo_erro_webhook_evento_enfileirado?: boolean
+    data_criacao_webhook_evento_enfileirado?: boolean
+    data_atualizacao_webhook_evento_enfileirado?: boolean
+  }
+
+
+  export type $WebhookEventoEnfileiradoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebhookEventoEnfileirado"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_webhook_evento_enfileirado: string
+      id_organizacao: string
+      id_produto_gravity: string | null
+      id_evento_webhook_enfileirado: string
+      tipo_evento_webhook_enfileirado: string
+      payload_evento_webhook_enfileirado: Prisma.JsonValue
+      status_webhook_evento_enfileirado: $Enums.StatusWebhookEventoEnfileirado
+      quantidade_tentativas_webhook_evento_enfileirado: number
+      proxima_tentativa_webhook_evento_enfileirado: Date
+      ultimo_erro_webhook_evento_enfileirado: string | null
+      data_criacao_webhook_evento_enfileirado: Date
+      data_atualizacao_webhook_evento_enfileirado: Date
+    }, ExtArgs["result"]["webhookEventoEnfileirado"]>
+    composites: {}
+  }
+
+  type WebhookEventoEnfileiradoGetPayload<S extends boolean | null | undefined | WebhookEventoEnfileiradoDefaultArgs> = $Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload, S>
+
+  type WebhookEventoEnfileiradoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<WebhookEventoEnfileiradoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: WebhookEventoEnfileiradoCountAggregateInputType | true
+    }
+
+  export interface WebhookEventoEnfileiradoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebhookEventoEnfileirado'], meta: { name: 'WebhookEventoEnfileirado' } }
+    /**
+     * Find zero or one WebhookEventoEnfileirado that matches the filter.
+     * @param {WebhookEventoEnfileiradoFindUniqueArgs} args - Arguments to find a WebhookEventoEnfileirado
+     * @example
+     * // Get one WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookEventoEnfileiradoFindUniqueArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoFindUniqueArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one WebhookEventoEnfileirado that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {WebhookEventoEnfileiradoFindUniqueOrThrowArgs} args - Arguments to find a WebhookEventoEnfileirado
+     * @example
+     * // Get one WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookEventoEnfileiradoFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first WebhookEventoEnfileirado that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoFindFirstArgs} args - Arguments to find a WebhookEventoEnfileirado
+     * @example
+     * // Get one WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookEventoEnfileiradoFindFirstArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoFindFirstArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first WebhookEventoEnfileirado that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoFindFirstOrThrowArgs} args - Arguments to find a WebhookEventoEnfileirado
+     * @example
+     * // Get one WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookEventoEnfileiradoFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more WebhookEventoEnfileirados that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebhookEventoEnfileirados
+     * const webhookEventoEnfileirados = await prisma.webhookEventoEnfileirado.findMany()
+     * 
+     * // Get first 10 WebhookEventoEnfileirados
+     * const webhookEventoEnfileirados = await prisma.webhookEventoEnfileirado.findMany({ take: 10 })
+     * 
+     * // Only select the `id_webhook_evento_enfileirado`
+     * const webhookEventoEnfileiradoWithId_webhook_evento_enfileiradoOnly = await prisma.webhookEventoEnfileirado.findMany({ select: { id_webhook_evento_enfileirado: true } })
+     * 
+     */
+    findMany<T extends WebhookEventoEnfileiradoFindManyArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a WebhookEventoEnfileirado.
+     * @param {WebhookEventoEnfileiradoCreateArgs} args - Arguments to create a WebhookEventoEnfileirado.
+     * @example
+     * // Create one WebhookEventoEnfileirado
+     * const WebhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.create({
+     *   data: {
+     *     // ... data to create a WebhookEventoEnfileirado
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookEventoEnfileiradoCreateArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoCreateArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many WebhookEventoEnfileirados.
+     * @param {WebhookEventoEnfileiradoCreateManyArgs} args - Arguments to create many WebhookEventoEnfileirados.
+     * @example
+     * // Create many WebhookEventoEnfileirados
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookEventoEnfileiradoCreateManyArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WebhookEventoEnfileirados and returns the data saved in the database.
+     * @param {WebhookEventoEnfileiradoCreateManyAndReturnArgs} args - Arguments to create many WebhookEventoEnfileirados.
+     * @example
+     * // Create many WebhookEventoEnfileirados
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WebhookEventoEnfileirados and only return the `id_webhook_evento_enfileirado`
+     * const webhookEventoEnfileiradoWithId_webhook_evento_enfileiradoOnly = await prisma.webhookEventoEnfileirado.createManyAndReturn({ 
+     *   select: { id_webhook_evento_enfileirado: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookEventoEnfileiradoCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a WebhookEventoEnfileirado.
+     * @param {WebhookEventoEnfileiradoDeleteArgs} args - Arguments to delete one WebhookEventoEnfileirado.
+     * @example
+     * // Delete one WebhookEventoEnfileirado
+     * const WebhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.delete({
+     *   where: {
+     *     // ... filter to delete one WebhookEventoEnfileirado
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookEventoEnfileiradoDeleteArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoDeleteArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one WebhookEventoEnfileirado.
+     * @param {WebhookEventoEnfileiradoUpdateArgs} args - Arguments to update one WebhookEventoEnfileirado.
+     * @example
+     * // Update one WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookEventoEnfileiradoUpdateArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoUpdateArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more WebhookEventoEnfileirados.
+     * @param {WebhookEventoEnfileiradoDeleteManyArgs} args - Arguments to filter WebhookEventoEnfileirados to delete.
+     * @example
+     * // Delete a few WebhookEventoEnfileirados
+     * const { count } = await prisma.webhookEventoEnfileirado.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookEventoEnfileiradoDeleteManyArgs>(args?: SelectSubset<T, WebhookEventoEnfileiradoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebhookEventoEnfileirados.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebhookEventoEnfileirados
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookEventoEnfileiradoUpdateManyArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one WebhookEventoEnfileirado.
+     * @param {WebhookEventoEnfileiradoUpsertArgs} args - Arguments to update or create a WebhookEventoEnfileirado.
+     * @example
+     * // Update or create a WebhookEventoEnfileirado
+     * const webhookEventoEnfileirado = await prisma.webhookEventoEnfileirado.upsert({
+     *   create: {
+     *     // ... data to create a WebhookEventoEnfileirado
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebhookEventoEnfileirado we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookEventoEnfileiradoUpsertArgs>(args: SelectSubset<T, WebhookEventoEnfileiradoUpsertArgs<ExtArgs>>): Prisma__WebhookEventoEnfileiradoClient<$Result.GetResult<Prisma.$WebhookEventoEnfileiradoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of WebhookEventoEnfileirados.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoCountArgs} args - Arguments to filter WebhookEventoEnfileirados to count.
+     * @example
+     * // Count the number of WebhookEventoEnfileirados
+     * const count = await prisma.webhookEventoEnfileirado.count({
+     *   where: {
+     *     // ... the filter for the WebhookEventoEnfileirados we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookEventoEnfileiradoCountArgs>(
+      args?: Subset<T, WebhookEventoEnfileiradoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookEventoEnfileiradoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebhookEventoEnfileirado.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookEventoEnfileiradoAggregateArgs>(args: Subset<T, WebhookEventoEnfileiradoAggregateArgs>): Prisma.PrismaPromise<GetWebhookEventoEnfileiradoAggregateType<T>>
+
+    /**
+     * Group by WebhookEventoEnfileirado.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookEventoEnfileiradoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookEventoEnfileiradoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookEventoEnfileiradoGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookEventoEnfileiradoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookEventoEnfileiradoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookEventoEnfileiradoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebhookEventoEnfileirado model
+   */
+  readonly fields: WebhookEventoEnfileiradoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebhookEventoEnfileirado.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookEventoEnfileiradoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebhookEventoEnfileirado model
+   */ 
+  interface WebhookEventoEnfileiradoFieldRefs {
+    readonly id_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly id_organizacao: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly id_produto_gravity: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly id_evento_webhook_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly tipo_evento_webhook_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly payload_evento_webhook_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'Json'>
+    readonly status_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'StatusWebhookEventoEnfileirado'>
+    readonly quantidade_tentativas_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'Int'>
+    readonly proxima_tentativa_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'DateTime'>
+    readonly ultimo_erro_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'String'>
+    readonly data_criacao_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'DateTime'>
+    readonly data_atualizacao_webhook_evento_enfileirado: FieldRef<"WebhookEventoEnfileirado", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebhookEventoEnfileirado findUnique
+   */
+  export type WebhookEventoEnfileiradoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookEventoEnfileirado to fetch.
+     */
+    where: WebhookEventoEnfileiradoWhereUniqueInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado findUniqueOrThrow
+   */
+  export type WebhookEventoEnfileiradoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookEventoEnfileirado to fetch.
+     */
+    where: WebhookEventoEnfileiradoWhereUniqueInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado findFirst
+   */
+  export type WebhookEventoEnfileiradoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookEventoEnfileirado to fetch.
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEventoEnfileirados to fetch.
+     */
+    orderBy?: WebhookEventoEnfileiradoOrderByWithRelationInput | WebhookEventoEnfileiradoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookEventoEnfileirados.
+     */
+    cursor?: WebhookEventoEnfileiradoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEventoEnfileirados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEventoEnfileirados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookEventoEnfileirados.
+     */
+    distinct?: WebhookEventoEnfileiradoScalarFieldEnum | WebhookEventoEnfileiradoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEventoEnfileirado findFirstOrThrow
+   */
+  export type WebhookEventoEnfileiradoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookEventoEnfileirado to fetch.
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEventoEnfileirados to fetch.
+     */
+    orderBy?: WebhookEventoEnfileiradoOrderByWithRelationInput | WebhookEventoEnfileiradoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebhookEventoEnfileirados.
+     */
+    cursor?: WebhookEventoEnfileiradoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEventoEnfileirados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEventoEnfileirados.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebhookEventoEnfileirados.
+     */
+    distinct?: WebhookEventoEnfileiradoScalarFieldEnum | WebhookEventoEnfileiradoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEventoEnfileirado findMany
+   */
+  export type WebhookEventoEnfileiradoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter, which WebhookEventoEnfileirados to fetch.
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebhookEventoEnfileirados to fetch.
+     */
+    orderBy?: WebhookEventoEnfileiradoOrderByWithRelationInput | WebhookEventoEnfileiradoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebhookEventoEnfileirados.
+     */
+    cursor?: WebhookEventoEnfileiradoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebhookEventoEnfileirados from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebhookEventoEnfileirados.
+     */
+    skip?: number
+    distinct?: WebhookEventoEnfileiradoScalarFieldEnum | WebhookEventoEnfileiradoScalarFieldEnum[]
+  }
+
+  /**
+   * WebhookEventoEnfileirado create
+   */
+  export type WebhookEventoEnfileiradoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a WebhookEventoEnfileirado.
+     */
+    data: XOR<WebhookEventoEnfileiradoCreateInput, WebhookEventoEnfileiradoUncheckedCreateInput>
+  }
+
+  /**
+   * WebhookEventoEnfileirado createMany
+   */
+  export type WebhookEventoEnfileiradoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebhookEventoEnfileirados.
+     */
+    data: WebhookEventoEnfileiradoCreateManyInput | WebhookEventoEnfileiradoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookEventoEnfileirado createManyAndReturn
+   */
+  export type WebhookEventoEnfileiradoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many WebhookEventoEnfileirados.
+     */
+    data: WebhookEventoEnfileiradoCreateManyInput | WebhookEventoEnfileiradoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WebhookEventoEnfileirado update
+   */
+  export type WebhookEventoEnfileiradoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a WebhookEventoEnfileirado.
+     */
+    data: XOR<WebhookEventoEnfileiradoUpdateInput, WebhookEventoEnfileiradoUncheckedUpdateInput>
+    /**
+     * Choose, which WebhookEventoEnfileirado to update.
+     */
+    where: WebhookEventoEnfileiradoWhereUniqueInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado updateMany
+   */
+  export type WebhookEventoEnfileiradoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebhookEventoEnfileirados.
+     */
+    data: XOR<WebhookEventoEnfileiradoUpdateManyMutationInput, WebhookEventoEnfileiradoUncheckedUpdateManyInput>
+    /**
+     * Filter which WebhookEventoEnfileirados to update
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado upsert
+   */
+  export type WebhookEventoEnfileiradoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the WebhookEventoEnfileirado to update in case it exists.
+     */
+    where: WebhookEventoEnfileiradoWhereUniqueInput
+    /**
+     * In case the WebhookEventoEnfileirado found by the `where` argument doesn't exist, create a new WebhookEventoEnfileirado with this data.
+     */
+    create: XOR<WebhookEventoEnfileiradoCreateInput, WebhookEventoEnfileiradoUncheckedCreateInput>
+    /**
+     * In case the WebhookEventoEnfileirado was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookEventoEnfileiradoUpdateInput, WebhookEventoEnfileiradoUncheckedUpdateInput>
+  }
+
+  /**
+   * WebhookEventoEnfileirado delete
+   */
+  export type WebhookEventoEnfileiradoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+    /**
+     * Filter which WebhookEventoEnfileirado to delete.
+     */
+    where: WebhookEventoEnfileiradoWhereUniqueInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado deleteMany
+   */
+  export type WebhookEventoEnfileiradoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebhookEventoEnfileirados to delete
+     */
+    where?: WebhookEventoEnfileiradoWhereInput
+  }
+
+  /**
+   * WebhookEventoEnfileirado without action
+   */
+  export type WebhookEventoEnfileiradoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebhookEventoEnfileirado
+     */
+    select?: WebhookEventoEnfileiradoSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -61963,6 +65132,55 @@ export namespace Prisma {
   export type ApiIntegracaoErpScalarFieldEnum = (typeof ApiIntegracaoErpScalarFieldEnum)[keyof typeof ApiIntegracaoErpScalarFieldEnum]
 
 
+  export const CredencialOAuthApiScalarFieldEnum: {
+    id_credencial_oauth_api: 'id_credencial_oauth_api',
+    id_organizacao: 'id_organizacao',
+    id_usuario: 'id_usuario',
+    client_id_credencial_oauth_api: 'client_id_credencial_oauth_api',
+    hash_client_secret_credencial_oauth_api: 'hash_client_secret_credencial_oauth_api',
+    ambiente_credencial_oauth_api: 'ambiente_credencial_oauth_api',
+    escopo_credencial_oauth_api: 'escopo_credencial_oauth_api',
+    revogado_credencial_oauth_api: 'revogado_credencial_oauth_api',
+    data_revogacao_credencial_oauth_api: 'data_revogacao_credencial_oauth_api',
+    data_criacao_credencial_oauth_api: 'data_criacao_credencial_oauth_api',
+    data_atualizacao_credencial_oauth_api: 'data_atualizacao_credencial_oauth_api'
+  };
+
+  export type CredencialOAuthApiScalarFieldEnum = (typeof CredencialOAuthApiScalarFieldEnum)[keyof typeof CredencialOAuthApiScalarFieldEnum]
+
+
+  export const RegistroIdempotenciaApiScalarFieldEnum: {
+    id_registro_idempotencia_api: 'id_registro_idempotencia_api',
+    id_organizacao: 'id_organizacao',
+    chave_idempotencia_api: 'chave_idempotencia_api',
+    hash_corpo_requisicao_api: 'hash_corpo_requisicao_api',
+    codigo_resposta_http_idempotencia_api: 'codigo_resposta_http_idempotencia_api',
+    corpo_resposta_idempotencia_api: 'corpo_resposta_idempotencia_api',
+    data_expiracao_idempotencia_api: 'data_expiracao_idempotencia_api',
+    data_criacao_idempotencia_api: 'data_criacao_idempotencia_api'
+  };
+
+  export type RegistroIdempotenciaApiScalarFieldEnum = (typeof RegistroIdempotenciaApiScalarFieldEnum)[keyof typeof RegistroIdempotenciaApiScalarFieldEnum]
+
+
+  export const WebhookEventoEnfileiradoScalarFieldEnum: {
+    id_webhook_evento_enfileirado: 'id_webhook_evento_enfileirado',
+    id_organizacao: 'id_organizacao',
+    id_produto_gravity: 'id_produto_gravity',
+    id_evento_webhook_enfileirado: 'id_evento_webhook_enfileirado',
+    tipo_evento_webhook_enfileirado: 'tipo_evento_webhook_enfileirado',
+    payload_evento_webhook_enfileirado: 'payload_evento_webhook_enfileirado',
+    status_webhook_evento_enfileirado: 'status_webhook_evento_enfileirado',
+    quantidade_tentativas_webhook_evento_enfileirado: 'quantidade_tentativas_webhook_evento_enfileirado',
+    proxima_tentativa_webhook_evento_enfileirado: 'proxima_tentativa_webhook_evento_enfileirado',
+    ultimo_erro_webhook_evento_enfileirado: 'ultimo_erro_webhook_evento_enfileirado',
+    data_criacao_webhook_evento_enfileirado: 'data_criacao_webhook_evento_enfileirado',
+    data_atualizacao_webhook_evento_enfileirado: 'data_atualizacao_webhook_evento_enfileirado'
+  };
+
+  export type WebhookEventoEnfileiradoScalarFieldEnum = (typeof WebhookEventoEnfileiradoScalarFieldEnum)[keyof typeof WebhookEventoEnfileiradoScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -62293,6 +65511,34 @@ export namespace Prisma {
    * Reference to a field of type 'ProtocoloApiIntegracaoErp[]'
    */
   export type ListEnumProtocoloApiIntegracaoErpFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProtocoloApiIntegracaoErp[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AmbienteIntegracaoApi'
+   */
+  export type EnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AmbienteIntegracaoApi'>
+    
+
+
+  /**
+   * Reference to a field of type 'AmbienteIntegracaoApi[]'
+   */
+  export type ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AmbienteIntegracaoApi[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'StatusWebhookEventoEnfileirado'
+   */
+  export type EnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusWebhookEventoEnfileirado'>
+    
+
+
+  /**
+   * Reference to a field of type 'StatusWebhookEventoEnfileirado[]'
+   */
+  export type ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusWebhookEventoEnfileirado[]'>
     
   /**
    * Deep Input Types
@@ -67253,6 +70499,247 @@ export namespace Prisma {
     protocolo_api_integracao_erp?: EnumProtocoloApiIntegracaoErpWithAggregatesFilter<"ApiIntegracaoErp"> | $Enums.ProtocoloApiIntegracaoErp
     data_criacao_api_integracao_erp?: DateTimeWithAggregatesFilter<"ApiIntegracaoErp"> | Date | string
     data_atualizacao_api_integracao_erp?: DateTimeWithAggregatesFilter<"ApiIntegracaoErp"> | Date | string
+  }
+
+  export type CredencialOAuthApiWhereInput = {
+    AND?: CredencialOAuthApiWhereInput | CredencialOAuthApiWhereInput[]
+    OR?: CredencialOAuthApiWhereInput[]
+    NOT?: CredencialOAuthApiWhereInput | CredencialOAuthApiWhereInput[]
+    id_credencial_oauth_api?: StringFilter<"CredencialOAuthApi"> | string
+    id_organizacao?: StringFilter<"CredencialOAuthApi"> | string
+    id_usuario?: StringNullableFilter<"CredencialOAuthApi"> | string | null
+    client_id_credencial_oauth_api?: StringFilter<"CredencialOAuthApi"> | string
+    hash_client_secret_credencial_oauth_api?: StringFilter<"CredencialOAuthApi"> | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFilter<"CredencialOAuthApi"> | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFilter<"CredencialOAuthApi"> | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFilter<"CredencialOAuthApi"> | boolean
+    data_revogacao_credencial_oauth_api?: DateTimeNullableFilter<"CredencialOAuthApi"> | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFilter<"CredencialOAuthApi"> | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFilter<"CredencialOAuthApi"> | Date | string
+  }
+
+  export type CredencialOAuthApiOrderByWithRelationInput = {
+    id_credencial_oauth_api?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    client_id_credencial_oauth_api?: SortOrder
+    hash_client_secret_credencial_oauth_api?: SortOrder
+    ambiente_credencial_oauth_api?: SortOrder
+    escopo_credencial_oauth_api?: SortOrder
+    revogado_credencial_oauth_api?: SortOrder
+    data_revogacao_credencial_oauth_api?: SortOrderInput | SortOrder
+    data_criacao_credencial_oauth_api?: SortOrder
+    data_atualizacao_credencial_oauth_api?: SortOrder
+  }
+
+  export type CredencialOAuthApiWhereUniqueInput = Prisma.AtLeast<{
+    id_credencial_oauth_api?: string
+    client_id_credencial_oauth_api?: string
+    AND?: CredencialOAuthApiWhereInput | CredencialOAuthApiWhereInput[]
+    OR?: CredencialOAuthApiWhereInput[]
+    NOT?: CredencialOAuthApiWhereInput | CredencialOAuthApiWhereInput[]
+    id_organizacao?: StringFilter<"CredencialOAuthApi"> | string
+    id_usuario?: StringNullableFilter<"CredencialOAuthApi"> | string | null
+    hash_client_secret_credencial_oauth_api?: StringFilter<"CredencialOAuthApi"> | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFilter<"CredencialOAuthApi"> | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFilter<"CredencialOAuthApi"> | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFilter<"CredencialOAuthApi"> | boolean
+    data_revogacao_credencial_oauth_api?: DateTimeNullableFilter<"CredencialOAuthApi"> | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFilter<"CredencialOAuthApi"> | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFilter<"CredencialOAuthApi"> | Date | string
+  }, "id_credencial_oauth_api" | "client_id_credencial_oauth_api">
+
+  export type CredencialOAuthApiOrderByWithAggregationInput = {
+    id_credencial_oauth_api?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    client_id_credencial_oauth_api?: SortOrder
+    hash_client_secret_credencial_oauth_api?: SortOrder
+    ambiente_credencial_oauth_api?: SortOrder
+    escopo_credencial_oauth_api?: SortOrder
+    revogado_credencial_oauth_api?: SortOrder
+    data_revogacao_credencial_oauth_api?: SortOrderInput | SortOrder
+    data_criacao_credencial_oauth_api?: SortOrder
+    data_atualizacao_credencial_oauth_api?: SortOrder
+    _count?: CredencialOAuthApiCountOrderByAggregateInput
+    _max?: CredencialOAuthApiMaxOrderByAggregateInput
+    _min?: CredencialOAuthApiMinOrderByAggregateInput
+  }
+
+  export type CredencialOAuthApiScalarWhereWithAggregatesInput = {
+    AND?: CredencialOAuthApiScalarWhereWithAggregatesInput | CredencialOAuthApiScalarWhereWithAggregatesInput[]
+    OR?: CredencialOAuthApiScalarWhereWithAggregatesInput[]
+    NOT?: CredencialOAuthApiScalarWhereWithAggregatesInput | CredencialOAuthApiScalarWhereWithAggregatesInput[]
+    id_credencial_oauth_api?: StringWithAggregatesFilter<"CredencialOAuthApi"> | string
+    id_organizacao?: StringWithAggregatesFilter<"CredencialOAuthApi"> | string
+    id_usuario?: StringNullableWithAggregatesFilter<"CredencialOAuthApi"> | string | null
+    client_id_credencial_oauth_api?: StringWithAggregatesFilter<"CredencialOAuthApi"> | string
+    hash_client_secret_credencial_oauth_api?: StringWithAggregatesFilter<"CredencialOAuthApi"> | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiWithAggregatesFilter<"CredencialOAuthApi"> | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenWithAggregatesFilter<"CredencialOAuthApi"> | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolWithAggregatesFilter<"CredencialOAuthApi"> | boolean
+    data_revogacao_credencial_oauth_api?: DateTimeNullableWithAggregatesFilter<"CredencialOAuthApi"> | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeWithAggregatesFilter<"CredencialOAuthApi"> | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeWithAggregatesFilter<"CredencialOAuthApi"> | Date | string
+  }
+
+  export type RegistroIdempotenciaApiWhereInput = {
+    AND?: RegistroIdempotenciaApiWhereInput | RegistroIdempotenciaApiWhereInput[]
+    OR?: RegistroIdempotenciaApiWhereInput[]
+    NOT?: RegistroIdempotenciaApiWhereInput | RegistroIdempotenciaApiWhereInput[]
+    id_registro_idempotencia_api?: StringFilter<"RegistroIdempotenciaApi"> | string
+    id_organizacao?: StringFilter<"RegistroIdempotenciaApi"> | string
+    chave_idempotencia_api?: StringFilter<"RegistroIdempotenciaApi"> | string
+    hash_corpo_requisicao_api?: StringFilter<"RegistroIdempotenciaApi"> | string
+    codigo_resposta_http_idempotencia_api?: IntFilter<"RegistroIdempotenciaApi"> | number
+    corpo_resposta_idempotencia_api?: JsonFilter<"RegistroIdempotenciaApi">
+    data_expiracao_idempotencia_api?: DateTimeFilter<"RegistroIdempotenciaApi"> | Date | string
+    data_criacao_idempotencia_api?: DateTimeFilter<"RegistroIdempotenciaApi"> | Date | string
+  }
+
+  export type RegistroIdempotenciaApiOrderByWithRelationInput = {
+    id_registro_idempotencia_api?: SortOrder
+    id_organizacao?: SortOrder
+    chave_idempotencia_api?: SortOrder
+    hash_corpo_requisicao_api?: SortOrder
+    codigo_resposta_http_idempotencia_api?: SortOrder
+    corpo_resposta_idempotencia_api?: SortOrder
+    data_expiracao_idempotencia_api?: SortOrder
+    data_criacao_idempotencia_api?: SortOrder
+  }
+
+  export type RegistroIdempotenciaApiWhereUniqueInput = Prisma.AtLeast<{
+    id_registro_idempotencia_api?: string
+    id_organizacao_chave_idempotencia_api?: RegistroIdempotenciaApiId_organizacaoChave_idempotencia_apiCompoundUniqueInput
+    AND?: RegistroIdempotenciaApiWhereInput | RegistroIdempotenciaApiWhereInput[]
+    OR?: RegistroIdempotenciaApiWhereInput[]
+    NOT?: RegistroIdempotenciaApiWhereInput | RegistroIdempotenciaApiWhereInput[]
+    id_organizacao?: StringFilter<"RegistroIdempotenciaApi"> | string
+    chave_idempotencia_api?: StringFilter<"RegistroIdempotenciaApi"> | string
+    hash_corpo_requisicao_api?: StringFilter<"RegistroIdempotenciaApi"> | string
+    codigo_resposta_http_idempotencia_api?: IntFilter<"RegistroIdempotenciaApi"> | number
+    corpo_resposta_idempotencia_api?: JsonFilter<"RegistroIdempotenciaApi">
+    data_expiracao_idempotencia_api?: DateTimeFilter<"RegistroIdempotenciaApi"> | Date | string
+    data_criacao_idempotencia_api?: DateTimeFilter<"RegistroIdempotenciaApi"> | Date | string
+  }, "id_registro_idempotencia_api" | "id_organizacao_chave_idempotencia_api">
+
+  export type RegistroIdempotenciaApiOrderByWithAggregationInput = {
+    id_registro_idempotencia_api?: SortOrder
+    id_organizacao?: SortOrder
+    chave_idempotencia_api?: SortOrder
+    hash_corpo_requisicao_api?: SortOrder
+    codigo_resposta_http_idempotencia_api?: SortOrder
+    corpo_resposta_idempotencia_api?: SortOrder
+    data_expiracao_idempotencia_api?: SortOrder
+    data_criacao_idempotencia_api?: SortOrder
+    _count?: RegistroIdempotenciaApiCountOrderByAggregateInput
+    _avg?: RegistroIdempotenciaApiAvgOrderByAggregateInput
+    _max?: RegistroIdempotenciaApiMaxOrderByAggregateInput
+    _min?: RegistroIdempotenciaApiMinOrderByAggregateInput
+    _sum?: RegistroIdempotenciaApiSumOrderByAggregateInput
+  }
+
+  export type RegistroIdempotenciaApiScalarWhereWithAggregatesInput = {
+    AND?: RegistroIdempotenciaApiScalarWhereWithAggregatesInput | RegistroIdempotenciaApiScalarWhereWithAggregatesInput[]
+    OR?: RegistroIdempotenciaApiScalarWhereWithAggregatesInput[]
+    NOT?: RegistroIdempotenciaApiScalarWhereWithAggregatesInput | RegistroIdempotenciaApiScalarWhereWithAggregatesInput[]
+    id_registro_idempotencia_api?: StringWithAggregatesFilter<"RegistroIdempotenciaApi"> | string
+    id_organizacao?: StringWithAggregatesFilter<"RegistroIdempotenciaApi"> | string
+    chave_idempotencia_api?: StringWithAggregatesFilter<"RegistroIdempotenciaApi"> | string
+    hash_corpo_requisicao_api?: StringWithAggregatesFilter<"RegistroIdempotenciaApi"> | string
+    codigo_resposta_http_idempotencia_api?: IntWithAggregatesFilter<"RegistroIdempotenciaApi"> | number
+    corpo_resposta_idempotencia_api?: JsonWithAggregatesFilter<"RegistroIdempotenciaApi">
+    data_expiracao_idempotencia_api?: DateTimeWithAggregatesFilter<"RegistroIdempotenciaApi"> | Date | string
+    data_criacao_idempotencia_api?: DateTimeWithAggregatesFilter<"RegistroIdempotenciaApi"> | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoWhereInput = {
+    AND?: WebhookEventoEnfileiradoWhereInput | WebhookEventoEnfileiradoWhereInput[]
+    OR?: WebhookEventoEnfileiradoWhereInput[]
+    NOT?: WebhookEventoEnfileiradoWhereInput | WebhookEventoEnfileiradoWhereInput[]
+    id_webhook_evento_enfileirado?: StringFilter<"WebhookEventoEnfileirado"> | string
+    id_organizacao?: StringFilter<"WebhookEventoEnfileirado"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookEventoEnfileirado"> | string | null
+    id_evento_webhook_enfileirado?: StringFilter<"WebhookEventoEnfileirado"> | string
+    tipo_evento_webhook_enfileirado?: StringFilter<"WebhookEventoEnfileirado"> | string
+    payload_evento_webhook_enfileirado?: JsonFilter<"WebhookEventoEnfileirado">
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFilter<"WebhookEventoEnfileirado"> | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFilter<"WebhookEventoEnfileirado"> | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: StringNullableFilter<"WebhookEventoEnfileirado"> | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoOrderByWithRelationInput = {
+    id_webhook_evento_enfileirado?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_evento_webhook_enfileirado?: SortOrder
+    tipo_evento_webhook_enfileirado?: SortOrder
+    payload_evento_webhook_enfileirado?: SortOrder
+    status_webhook_evento_enfileirado?: SortOrder
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+    proxima_tentativa_webhook_evento_enfileirado?: SortOrder
+    ultimo_erro_webhook_evento_enfileirado?: SortOrderInput | SortOrder
+    data_criacao_webhook_evento_enfileirado?: SortOrder
+    data_atualizacao_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type WebhookEventoEnfileiradoWhereUniqueInput = Prisma.AtLeast<{
+    id_webhook_evento_enfileirado?: string
+    id_evento_webhook_enfileirado?: string
+    AND?: WebhookEventoEnfileiradoWhereInput | WebhookEventoEnfileiradoWhereInput[]
+    OR?: WebhookEventoEnfileiradoWhereInput[]
+    NOT?: WebhookEventoEnfileiradoWhereInput | WebhookEventoEnfileiradoWhereInput[]
+    id_organizacao?: StringFilter<"WebhookEventoEnfileirado"> | string
+    id_produto_gravity?: StringNullableFilter<"WebhookEventoEnfileirado"> | string | null
+    tipo_evento_webhook_enfileirado?: StringFilter<"WebhookEventoEnfileirado"> | string
+    payload_evento_webhook_enfileirado?: JsonFilter<"WebhookEventoEnfileirado">
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFilter<"WebhookEventoEnfileirado"> | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFilter<"WebhookEventoEnfileirado"> | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: StringNullableFilter<"WebhookEventoEnfileirado"> | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFilter<"WebhookEventoEnfileirado"> | Date | string
+  }, "id_webhook_evento_enfileirado" | "id_evento_webhook_enfileirado">
+
+  export type WebhookEventoEnfileiradoOrderByWithAggregationInput = {
+    id_webhook_evento_enfileirado?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
+    id_evento_webhook_enfileirado?: SortOrder
+    tipo_evento_webhook_enfileirado?: SortOrder
+    payload_evento_webhook_enfileirado?: SortOrder
+    status_webhook_evento_enfileirado?: SortOrder
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+    proxima_tentativa_webhook_evento_enfileirado?: SortOrder
+    ultimo_erro_webhook_evento_enfileirado?: SortOrderInput | SortOrder
+    data_criacao_webhook_evento_enfileirado?: SortOrder
+    data_atualizacao_webhook_evento_enfileirado?: SortOrder
+    _count?: WebhookEventoEnfileiradoCountOrderByAggregateInput
+    _avg?: WebhookEventoEnfileiradoAvgOrderByAggregateInput
+    _max?: WebhookEventoEnfileiradoMaxOrderByAggregateInput
+    _min?: WebhookEventoEnfileiradoMinOrderByAggregateInput
+    _sum?: WebhookEventoEnfileiradoSumOrderByAggregateInput
+  }
+
+  export type WebhookEventoEnfileiradoScalarWhereWithAggregatesInput = {
+    AND?: WebhookEventoEnfileiradoScalarWhereWithAggregatesInput | WebhookEventoEnfileiradoScalarWhereWithAggregatesInput[]
+    OR?: WebhookEventoEnfileiradoScalarWhereWithAggregatesInput[]
+    NOT?: WebhookEventoEnfileiradoScalarWhereWithAggregatesInput | WebhookEventoEnfileiradoScalarWhereWithAggregatesInput[]
+    id_webhook_evento_enfileirado?: StringWithAggregatesFilter<"WebhookEventoEnfileirado"> | string
+    id_organizacao?: StringWithAggregatesFilter<"WebhookEventoEnfileirado"> | string
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"WebhookEventoEnfileirado"> | string | null
+    id_evento_webhook_enfileirado?: StringWithAggregatesFilter<"WebhookEventoEnfileirado"> | string
+    tipo_evento_webhook_enfileirado?: StringWithAggregatesFilter<"WebhookEventoEnfileirado"> | string
+    payload_evento_webhook_enfileirado?: JsonWithAggregatesFilter<"WebhookEventoEnfileirado">
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoWithAggregatesFilter<"WebhookEventoEnfileirado"> | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntWithAggregatesFilter<"WebhookEventoEnfileirado"> | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeWithAggregatesFilter<"WebhookEventoEnfileirado"> | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: StringNullableWithAggregatesFilter<"WebhookEventoEnfileirado"> | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeWithAggregatesFilter<"WebhookEventoEnfileirado"> | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeWithAggregatesFilter<"WebhookEventoEnfileirado"> | Date | string
   }
 
   export type AtividadeDadosCreateInput = {
@@ -73073,6 +76560,286 @@ export namespace Prisma {
     data_atualizacao_api_integracao_erp?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CredencialOAuthApiCreateInput = {
+    id_credencial_oauth_api?: string
+    id_organizacao: string
+    id_usuario?: string | null
+    client_id_credencial_oauth_api: string
+    hash_client_secret_credencial_oauth_api: string
+    ambiente_credencial_oauth_api?: $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: Date | string | null
+    data_criacao_credencial_oauth_api?: Date | string
+    data_atualizacao_credencial_oauth_api?: Date | string
+  }
+
+  export type CredencialOAuthApiUncheckedCreateInput = {
+    id_credencial_oauth_api?: string
+    id_organizacao: string
+    id_usuario?: string | null
+    client_id_credencial_oauth_api: string
+    hash_client_secret_credencial_oauth_api: string
+    ambiente_credencial_oauth_api?: $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: Date | string | null
+    data_criacao_credencial_oauth_api?: Date | string
+    data_atualizacao_credencial_oauth_api?: Date | string
+  }
+
+  export type CredencialOAuthApiUpdateInput = {
+    id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    client_id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    hash_client_secret_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFieldUpdateOperationsInput | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_credencial_oauth_api?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CredencialOAuthApiUncheckedUpdateInput = {
+    id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    client_id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    hash_client_secret_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFieldUpdateOperationsInput | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_credencial_oauth_api?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CredencialOAuthApiCreateManyInput = {
+    id_credencial_oauth_api?: string
+    id_organizacao: string
+    id_usuario?: string | null
+    client_id_credencial_oauth_api: string
+    hash_client_secret_credencial_oauth_api: string
+    ambiente_credencial_oauth_api?: $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: boolean
+    data_revogacao_credencial_oauth_api?: Date | string | null
+    data_criacao_credencial_oauth_api?: Date | string
+    data_atualizacao_credencial_oauth_api?: Date | string
+  }
+
+  export type CredencialOAuthApiUpdateManyMutationInput = {
+    id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    client_id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    hash_client_secret_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFieldUpdateOperationsInput | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_credencial_oauth_api?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CredencialOAuthApiUncheckedUpdateManyInput = {
+    id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    client_id_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    hash_client_secret_credencial_oauth_api?: StringFieldUpdateOperationsInput | string
+    ambiente_credencial_oauth_api?: EnumAmbienteIntegracaoApiFieldUpdateOperationsInput | $Enums.AmbienteIntegracaoApi
+    escopo_credencial_oauth_api?: EnumEscopoApiTokenFieldUpdateOperationsInput | $Enums.EscopoApiToken
+    revogado_credencial_oauth_api?: BoolFieldUpdateOperationsInput | boolean
+    data_revogacao_credencial_oauth_api?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_credencial_oauth_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegistroIdempotenciaApiCreateInput = {
+    id_registro_idempotencia_api?: string
+    id_organizacao: string
+    chave_idempotencia_api: string
+    hash_corpo_requisicao_api: string
+    codigo_resposta_http_idempotencia_api: number
+    corpo_resposta_idempotencia_api: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api: Date | string
+    data_criacao_idempotencia_api?: Date | string
+  }
+
+  export type RegistroIdempotenciaApiUncheckedCreateInput = {
+    id_registro_idempotencia_api?: string
+    id_organizacao: string
+    chave_idempotencia_api: string
+    hash_corpo_requisicao_api: string
+    codigo_resposta_http_idempotencia_api: number
+    corpo_resposta_idempotencia_api: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api: Date | string
+    data_criacao_idempotencia_api?: Date | string
+  }
+
+  export type RegistroIdempotenciaApiUpdateInput = {
+    id_registro_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    chave_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    hash_corpo_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_idempotencia_api?: IntFieldUpdateOperationsInput | number
+    corpo_resposta_idempotencia_api?: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegistroIdempotenciaApiUncheckedUpdateInput = {
+    id_registro_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    chave_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    hash_corpo_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_idempotencia_api?: IntFieldUpdateOperationsInput | number
+    corpo_resposta_idempotencia_api?: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegistroIdempotenciaApiCreateManyInput = {
+    id_registro_idempotencia_api?: string
+    id_organizacao: string
+    chave_idempotencia_api: string
+    hash_corpo_requisicao_api: string
+    codigo_resposta_http_idempotencia_api: number
+    corpo_resposta_idempotencia_api: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api: Date | string
+    data_criacao_idempotencia_api?: Date | string
+  }
+
+  export type RegistroIdempotenciaApiUpdateManyMutationInput = {
+    id_registro_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    chave_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    hash_corpo_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_idempotencia_api?: IntFieldUpdateOperationsInput | number
+    corpo_resposta_idempotencia_api?: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegistroIdempotenciaApiUncheckedUpdateManyInput = {
+    id_registro_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    chave_idempotencia_api?: StringFieldUpdateOperationsInput | string
+    hash_corpo_requisicao_api?: StringFieldUpdateOperationsInput | string
+    codigo_resposta_http_idempotencia_api?: IntFieldUpdateOperationsInput | number
+    corpo_resposta_idempotencia_api?: JsonNullValueInput | InputJsonValue
+    data_expiracao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_idempotencia_api?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoCreateInput = {
+    id_webhook_evento_enfileirado?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_evento_webhook_enfileirado: string
+    tipo_evento_webhook_enfileirado: string
+    payload_evento_webhook_enfileirado: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: number
+    proxima_tentativa_webhook_evento_enfileirado?: Date | string
+    ultimo_erro_webhook_evento_enfileirado?: string | null
+    data_criacao_webhook_evento_enfileirado?: Date | string
+    data_atualizacao_webhook_evento_enfileirado?: Date | string
+  }
+
+  export type WebhookEventoEnfileiradoUncheckedCreateInput = {
+    id_webhook_evento_enfileirado?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_evento_webhook_enfileirado: string
+    tipo_evento_webhook_enfileirado: string
+    payload_evento_webhook_enfileirado: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: number
+    proxima_tentativa_webhook_evento_enfileirado?: Date | string
+    ultimo_erro_webhook_evento_enfileirado?: string | null
+    data_criacao_webhook_evento_enfileirado?: Date | string
+    data_atualizacao_webhook_evento_enfileirado?: Date | string
+  }
+
+  export type WebhookEventoEnfileiradoUpdateInput = {
+    id_webhook_evento_enfileirado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    tipo_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    payload_evento_webhook_enfileirado?: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFieldUpdateOperationsInput | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoUncheckedUpdateInput = {
+    id_webhook_evento_enfileirado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    tipo_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    payload_evento_webhook_enfileirado?: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFieldUpdateOperationsInput | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoCreateManyInput = {
+    id_webhook_evento_enfileirado?: string
+    id_organizacao: string
+    id_produto_gravity?: string | null
+    id_evento_webhook_enfileirado: string
+    tipo_evento_webhook_enfileirado: string
+    payload_evento_webhook_enfileirado: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: number
+    proxima_tentativa_webhook_evento_enfileirado?: Date | string
+    ultimo_erro_webhook_evento_enfileirado?: string | null
+    data_criacao_webhook_evento_enfileirado?: Date | string
+    data_atualizacao_webhook_evento_enfileirado?: Date | string
+  }
+
+  export type WebhookEventoEnfileiradoUpdateManyMutationInput = {
+    id_webhook_evento_enfileirado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    tipo_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    payload_evento_webhook_enfileirado?: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFieldUpdateOperationsInput | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebhookEventoEnfileiradoUncheckedUpdateManyInput = {
+    id_webhook_evento_enfileirado?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    tipo_evento_webhook_enfileirado?: StringFieldUpdateOperationsInput | string
+    payload_evento_webhook_enfileirado?: JsonNullValueInput | InputJsonValue
+    status_webhook_evento_enfileirado?: EnumStatusWebhookEventoEnfileiradoFieldUpdateOperationsInput | $Enums.StatusWebhookEventoEnfileirado
+    quantidade_tentativas_webhook_evento_enfileirado?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimo_erro_webhook_evento_enfileirado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_webhook_evento_enfileirado?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -76618,6 +80385,177 @@ export namespace Prisma {
     _max?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
   }
 
+  export type EnumAmbienteIntegracaoApiFilter<$PrismaModel = never> = {
+    equals?: $Enums.AmbienteIntegracaoApi | EnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    in?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    not?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel> | $Enums.AmbienteIntegracaoApi
+  }
+
+  export type CredencialOAuthApiCountOrderByAggregateInput = {
+    id_credencial_oauth_api?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    client_id_credencial_oauth_api?: SortOrder
+    hash_client_secret_credencial_oauth_api?: SortOrder
+    ambiente_credencial_oauth_api?: SortOrder
+    escopo_credencial_oauth_api?: SortOrder
+    revogado_credencial_oauth_api?: SortOrder
+    data_revogacao_credencial_oauth_api?: SortOrder
+    data_criacao_credencial_oauth_api?: SortOrder
+    data_atualizacao_credencial_oauth_api?: SortOrder
+  }
+
+  export type CredencialOAuthApiMaxOrderByAggregateInput = {
+    id_credencial_oauth_api?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    client_id_credencial_oauth_api?: SortOrder
+    hash_client_secret_credencial_oauth_api?: SortOrder
+    ambiente_credencial_oauth_api?: SortOrder
+    escopo_credencial_oauth_api?: SortOrder
+    revogado_credencial_oauth_api?: SortOrder
+    data_revogacao_credencial_oauth_api?: SortOrder
+    data_criacao_credencial_oauth_api?: SortOrder
+    data_atualizacao_credencial_oauth_api?: SortOrder
+  }
+
+  export type CredencialOAuthApiMinOrderByAggregateInput = {
+    id_credencial_oauth_api?: SortOrder
+    id_organizacao?: SortOrder
+    id_usuario?: SortOrder
+    client_id_credencial_oauth_api?: SortOrder
+    hash_client_secret_credencial_oauth_api?: SortOrder
+    ambiente_credencial_oauth_api?: SortOrder
+    escopo_credencial_oauth_api?: SortOrder
+    revogado_credencial_oauth_api?: SortOrder
+    data_revogacao_credencial_oauth_api?: SortOrder
+    data_criacao_credencial_oauth_api?: SortOrder
+    data_atualizacao_credencial_oauth_api?: SortOrder
+  }
+
+  export type EnumAmbienteIntegracaoApiWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AmbienteIntegracaoApi | EnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    in?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    not?: NestedEnumAmbienteIntegracaoApiWithAggregatesFilter<$PrismaModel> | $Enums.AmbienteIntegracaoApi
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel>
+    _max?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel>
+  }
+
+  export type RegistroIdempotenciaApiId_organizacaoChave_idempotencia_apiCompoundUniqueInput = {
+    id_organizacao: string
+    chave_idempotencia_api: string
+  }
+
+  export type RegistroIdempotenciaApiCountOrderByAggregateInput = {
+    id_registro_idempotencia_api?: SortOrder
+    id_organizacao?: SortOrder
+    chave_idempotencia_api?: SortOrder
+    hash_corpo_requisicao_api?: SortOrder
+    codigo_resposta_http_idempotencia_api?: SortOrder
+    corpo_resposta_idempotencia_api?: SortOrder
+    data_expiracao_idempotencia_api?: SortOrder
+    data_criacao_idempotencia_api?: SortOrder
+  }
+
+  export type RegistroIdempotenciaApiAvgOrderByAggregateInput = {
+    codigo_resposta_http_idempotencia_api?: SortOrder
+  }
+
+  export type RegistroIdempotenciaApiMaxOrderByAggregateInput = {
+    id_registro_idempotencia_api?: SortOrder
+    id_organizacao?: SortOrder
+    chave_idempotencia_api?: SortOrder
+    hash_corpo_requisicao_api?: SortOrder
+    codigo_resposta_http_idempotencia_api?: SortOrder
+    data_expiracao_idempotencia_api?: SortOrder
+    data_criacao_idempotencia_api?: SortOrder
+  }
+
+  export type RegistroIdempotenciaApiMinOrderByAggregateInput = {
+    id_registro_idempotencia_api?: SortOrder
+    id_organizacao?: SortOrder
+    chave_idempotencia_api?: SortOrder
+    hash_corpo_requisicao_api?: SortOrder
+    codigo_resposta_http_idempotencia_api?: SortOrder
+    data_expiracao_idempotencia_api?: SortOrder
+    data_criacao_idempotencia_api?: SortOrder
+  }
+
+  export type RegistroIdempotenciaApiSumOrderByAggregateInput = {
+    codigo_resposta_http_idempotencia_api?: SortOrder
+  }
+
+  export type EnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusWebhookEventoEnfileirado | EnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel> | $Enums.StatusWebhookEventoEnfileirado
+  }
+
+  export type WebhookEventoEnfileiradoCountOrderByAggregateInput = {
+    id_webhook_evento_enfileirado?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_evento_webhook_enfileirado?: SortOrder
+    tipo_evento_webhook_enfileirado?: SortOrder
+    payload_evento_webhook_enfileirado?: SortOrder
+    status_webhook_evento_enfileirado?: SortOrder
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+    proxima_tentativa_webhook_evento_enfileirado?: SortOrder
+    ultimo_erro_webhook_evento_enfileirado?: SortOrder
+    data_criacao_webhook_evento_enfileirado?: SortOrder
+    data_atualizacao_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type WebhookEventoEnfileiradoAvgOrderByAggregateInput = {
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type WebhookEventoEnfileiradoMaxOrderByAggregateInput = {
+    id_webhook_evento_enfileirado?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_evento_webhook_enfileirado?: SortOrder
+    tipo_evento_webhook_enfileirado?: SortOrder
+    status_webhook_evento_enfileirado?: SortOrder
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+    proxima_tentativa_webhook_evento_enfileirado?: SortOrder
+    ultimo_erro_webhook_evento_enfileirado?: SortOrder
+    data_criacao_webhook_evento_enfileirado?: SortOrder
+    data_atualizacao_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type WebhookEventoEnfileiradoMinOrderByAggregateInput = {
+    id_webhook_evento_enfileirado?: SortOrder
+    id_organizacao?: SortOrder
+    id_produto_gravity?: SortOrder
+    id_evento_webhook_enfileirado?: SortOrder
+    tipo_evento_webhook_enfileirado?: SortOrder
+    status_webhook_evento_enfileirado?: SortOrder
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+    proxima_tentativa_webhook_evento_enfileirado?: SortOrder
+    ultimo_erro_webhook_evento_enfileirado?: SortOrder
+    data_criacao_webhook_evento_enfileirado?: SortOrder
+    data_atualizacao_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type WebhookEventoEnfileiradoSumOrderByAggregateInput = {
+    quantidade_tentativas_webhook_evento_enfileirado?: SortOrder
+  }
+
+  export type EnumStatusWebhookEventoEnfileiradoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusWebhookEventoEnfileirado | EnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusWebhookEventoEnfileiradoWithAggregatesFilter<$PrismaModel> | $Enums.StatusWebhookEventoEnfileirado
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel>
+    _max?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel>
+  }
+
   export type UsuariosAtividadesCreateNestedManyWithoutAtividade_atividades_participantesInput = {
     create?: XOR<UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput, UsuariosAtividadesUncheckedCreateWithoutAtividade_atividades_participantesInput> | UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput[] | UsuariosAtividadesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
     connectOrCreate?: UsuariosAtividadesCreateOrConnectWithoutAtividade_atividades_participantesInput | UsuariosAtividadesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
@@ -77485,6 +81423,14 @@ export namespace Prisma {
     set?: $Enums.ProtocoloApiIntegracaoErp
   }
 
+  export type EnumAmbienteIntegracaoApiFieldUpdateOperationsInput = {
+    set?: $Enums.AmbienteIntegracaoApi
+  }
+
+  export type EnumStatusWebhookEventoEnfileiradoFieldUpdateOperationsInput = {
+    set?: $Enums.StatusWebhookEventoEnfileirado
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -78059,6 +82005,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
     _max?: NestedEnumProtocoloApiIntegracaoErpFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel = never> = {
+    equals?: $Enums.AmbienteIntegracaoApi | EnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    in?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    not?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel> | $Enums.AmbienteIntegracaoApi
+  }
+
+  export type NestedEnumAmbienteIntegracaoApiWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AmbienteIntegracaoApi | EnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    in?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AmbienteIntegracaoApi[] | ListEnumAmbienteIntegracaoApiFieldRefInput<$PrismaModel>
+    not?: NestedEnumAmbienteIntegracaoApiWithAggregatesFilter<$PrismaModel> | $Enums.AmbienteIntegracaoApi
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel>
+    _max?: NestedEnumAmbienteIntegracaoApiFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusWebhookEventoEnfileirado | EnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel> | $Enums.StatusWebhookEventoEnfileirado
+  }
+
+  export type NestedEnumStatusWebhookEventoEnfileiradoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusWebhookEventoEnfileirado | EnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusWebhookEventoEnfileirado[] | ListEnumStatusWebhookEventoEnfileiradoFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusWebhookEventoEnfileiradoWithAggregatesFilter<$PrismaModel> | $Enums.StatusWebhookEventoEnfileirado
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel>
+    _max?: NestedEnumStatusWebhookEventoEnfileiradoFilter<$PrismaModel>
   }
 
   export type UsuariosAtividadesCreateWithoutAtividade_atividades_participantesInput = {
@@ -80808,6 +84788,18 @@ export namespace Prisma {
      * @deprecated Use ApiIntegracaoErpDefaultArgs instead
      */
     export type ApiIntegracaoErpArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ApiIntegracaoErpDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CredencialOAuthApiDefaultArgs instead
+     */
+    export type CredencialOAuthApiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CredencialOAuthApiDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use RegistroIdempotenciaApiDefaultArgs instead
+     */
+    export type RegistroIdempotenciaApiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegistroIdempotenciaApiDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use WebhookEventoEnfileiradoDefaultArgs instead
+     */
+    export type WebhookEventoEnfileiradoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WebhookEventoEnfileiradoDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

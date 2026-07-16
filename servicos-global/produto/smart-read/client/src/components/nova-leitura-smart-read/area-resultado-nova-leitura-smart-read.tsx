@@ -228,7 +228,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                     </div>
                     {renderBotaoDownload(
                       [item],
-                      'Baixar pacote DATI',
+                      'Baixar pacote docs',
                       'primario',
                       `${sanitizarNomeArquivo(item.arquivo.name)}-dati.zip`,
                     )}

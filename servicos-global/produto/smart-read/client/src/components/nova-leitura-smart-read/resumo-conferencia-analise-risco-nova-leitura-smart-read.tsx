@@ -2,7 +2,7 @@
  * ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead — conferência usuária, Gravity e riscos
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CaretRight, ClipboardText, ShieldWarning, UserCheck } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
@@ -14,16 +14,72 @@ import type {
   ResumoRiscosAduaneirosLeitura,
   RiscoAduaneiroLeitura,
 } from '../../../../shared/analise-riscos-leitura-smart-read'
-import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import {
+  aplicarFalhasMatrizAoResumoRiscos,
+  contarChecklistPorStatus,
+  montarChecklistMatrizInvoice,
+  montarResumoGeralChecklistInvoices,
+} from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import {
+  combinarResumoGeralComPackingLists,
+  montarChecklistMatrizPackingList,
+  montarResumoChecklistPackingLists,
+  percentualConformeChecklistPackingList,
+} from '../../../../shared/montar-checklist-matriz-packing-list-smart-read'
+import {
+  combinarResumoGeralComAwbs,
+  ehTipoAwbChecklist,
+  montarChecklistMatrizAwb,
+  montarResumoChecklistAwbs,
+  percentualConformeChecklistAwb,
+} from '../../../../shared/montar-checklist-matriz-awb-smart-read'
+import {
+  combinarResumoGeralComBls,
+  complementarRiscosAgregadoresBlNoResumo,
+  ehTipoBlChecklist,
+  montarChecklistMatrizBl,
+  montarResumoChecklistBls,
+  percentualConformeChecklistBl,
+} from '../../../../shared/montar-checklist-matriz-bl-smart-read'
+import {
+  combinarResumoGeralComCertificadosOrigem,
+  ehTipoCertificadoOrigemChecklist,
+  montarChecklistMatrizCertificadoOrigem,
+  montarResumoChecklistCertificadosOrigem,
+  percentualConformeChecklistCertificadoOrigem,
+} from '../../../../shared/montar-checklist-matriz-certificado-origem-smart-read'
+import {
+  combinarResumoGeralComCertificadosFitossanitario,
+  ehTipoCertificadoFitossanitarioChecklist,
+  montarChecklistMatrizCertificadoFitossanitario,
+  montarResumoChecklistCertificadosFitossanitario,
+  percentualConformeChecklistCertificadoFitossanitario,
+} from '../../../../shared/montar-checklist-matriz-certificado-fitossanitario-smart-read'
+import {
+  combinarResumoGeralComPedidosCompra,
+  ehTipoPedidoCompraChecklist,
+  montarChecklistMatrizPedidoCompra,
+  montarResumoChecklistPedidosCompra,
+  percentualConformeChecklistPedidoCompra,
+} from '../../../../shared/montar-checklist-matriz-pedido-compra-smart-read'
+import {
+  combinarResumoGeralComPedidosVenda,
+  ehTipoPedidoVendaChecklist,
+  montarChecklistMatrizPedidoVenda,
+  montarResumoChecklistPedidosVenda,
+  percentualConformeChecklistPedidoVenda,
+} from '../../../../shared/montar-checklist-matriz-pedido-venda-smart-read'
+import {
+  dispararAnaliseRiscosBackgroundSmartRead,
   montarChaveAnaliseRiscosSessaoSmartRead,
+  obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead,
   obterRequisicaoAnaliseRiscosEmVooSmartRead,
 } from '../../shared/disparar-analise-riscos-background-smart-read'
 import { obterCacheAnaliseRiscosSessaoSmartRead } from '../../shared/cache-analise-riscos-sessao-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ModalChecklistConferenciaNovaLeituraSmartRead } from './modal-checklist-conferencia-nova-leitura-smart-read'
 
-type AbaConferencia = 'campos' | 'qa' | 'riscos'
+type AbaConferencia = 'campos' | 'qa' | 'riscos' | 'comunicacao'
 
 type Props = {
   arquivo: ArquivoLocalNovaLeitura
@@ -106,10 +162,114 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     return `${arquivo.arquivo.name} · ${tipoNorm}`
   }, [arquivo, indiceDocumento])
 
+  const documentoAtualEhPackingList = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual?.tipo_documento.toUpperCase().includes('PACKING'))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhAwb = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoAwbChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhBl = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoBlChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCo = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoOrigemChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhCf = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoCertificadoFitossanitarioChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPc = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoCompraChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
+  const documentoAtualEhPv = useMemo(() => {
+    const documentos = extrairDocumentosArquivoLocal(arquivo)
+    const documentoAtual = documentos[indiceDocumento]
+    return Boolean(documentoAtual && ehTipoPedidoVendaChecklist(documentoAtual.tipo_documento))
+  }, [arquivo, indiceDocumento])
+
   const chaveAnaliseRiscos = useMemo(
     () => montarChaveAnaliseRiscosSessaoSmartRead(idLeituraLegado, [arquivo]),
     [arquivo, idLeituraLegado],
   )
+
+  // Redispara a análise quando não há cache (ex.: leitura retomada ou falha anterior)
+  // e força re-render quando a resposta chega — sem isso o checklist fica pendente para sempre.
+  const [versaoAnalise, setVersaoAnalise] = useState(0)
+  const [analiseEncerrada, setAnaliseEncerrada] = useState(false)
+  const [avisoAnalise, setAvisoAnalise] = useState<string | null>(null)
+  const tentativasAnaliseRef = useRef(0)
+  const chaveAnaliseTentadaRef = useRef<string | null>(null)
+
+  const emCacheRiscos = useMemo(
+    () => obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos),
+    [chaveAnaliseRiscos, versaoAnalise],
+  )
+
+  useEffect(() => {
+    tentativasAnaliseRef.current = 0
+    setAnaliseEncerrada(false)
+    setAvisoAnalise(null)
+    chaveAnaliseTentadaRef.current = null
+  }, [chaveAnaliseRiscos])
+
+  useEffect(() => {
+    // Cache parcial (fase rápida, sem LLM) NÃO encerra a análise — o disparo abaixo
+    // retoma a fase IA (somente_llm) ou anexa à requisição em voo; sem isso a
+    // prévia local fica com spinner eterno e nunca recebe o resultado definitivo.
+    if (emCacheRiscos?.llm_ativo) {
+      setAnaliseEncerrada(true)
+      setAvisoAnalise(emCacheRiscos.aviso ?? null)
+      return
+    }
+    if (analiseEncerrada) return
+
+    const disparar = () => {
+      dispararAnaliseRiscosBackgroundSmartRead({
+        arquivos: [arquivo],
+        idLeituraLegado,
+        onInicio: () => setVersaoAnalise((v) => v + 1),
+        onConcluido: (resposta) => {
+          setAnaliseEncerrada(true)
+          setAvisoAnalise(resposta.aviso ?? null)
+          setVersaoAnalise((v) => v + 1)
+        },
+        onParcial: () => setVersaoAnalise((v) => v + 1),
+        onErro: () => {
+          if (tentativasAnaliseRef.current < 2) {
+            tentativasAnaliseRef.current += 1
+            chaveAnaliseTentadaRef.current = null
+            window.setTimeout(disparar, 1_500)
+          } else {
+            setAnaliseEncerrada(true)
+            setAvisoAnalise('Análise interrompida — tempo limite ou falha de rede. Regras de código já avaliadas.')
+          }
+          setVersaoAnalise((v) => v + 1)
+        },
+      })
+    }
+
+    if (chaveAnaliseTentadaRef.current === chaveAnaliseRiscos) return
+    chaveAnaliseTentadaRef.current = chaveAnaliseRiscos
+    tentativasAnaliseRef.current = 1
+    disparar()
+  }, [analiseEncerrada, arquivo, chaveAnaliseRiscos, emCacheRiscos, idLeituraLegado])
 
   const resumoRiscos = useMemo(() => {
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos)
@@ -126,12 +286,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     }
 
     return executarAuditoriaV1AnaliseRiscosLeitura(documentosRiscoAtivos).resumo
-  }, [chaveAnaliseRiscos, documentosRiscoAtivos, rotuloDocumentoAtual])
-
-  const emCacheRiscos = useMemo(
-    () => obterCacheAnaliseRiscosSessaoSmartRead(chaveAnaliseRiscos),
-    [chaveAnaliseRiscos],
-  )
+  }, [chaveAnaliseRiscos, documentosRiscoAtivos, rotuloDocumentoAtual, versaoAnalise])
 
   const auditoriaV1Arquivo = useMemo(
     () =>
@@ -142,43 +297,259 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
   )
 
   const parametrosChecklist = useMemo(() => {
-    const riscosEfetivos =
+    const regrasEfetivas = emCacheRiscos?.contexto_v1.regras ?? auditoriaV1Arquivo?.contexto.regras ?? []
+    const riscosBrutos =
       emCacheRiscos && emCacheRiscos.resumo.total > 0
         ? emCacheRiscos.resumo.riscos
         : (auditoriaV1Arquivo?.resumo.riscos ?? [])
-    const regrasEfetivas = emCacheRiscos?.contexto_v1.regras ?? auditoriaV1Arquivo?.contexto.regras ?? []
+    const resumoRiscosEfetivo = aplicarFalhasMatrizAoResumoRiscos(
+      regrasEfetivas,
+      {
+        riscos: riscosBrutos,
+        total: riscosBrutos.length,
+        criticos: riscosBrutos.filter((r) => r.severidade === 'critico').length,
+        atencao: riscosBrutos.filter((r) => r.severidade === 'atencao').length,
+        informativos: riscosBrutos.filter((r) => r.severidade === 'informativo').length,
+      },
+      (riscosComMotor) => {
+        const carregandoAnalise = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+        const v1Ok = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
+        const pipelineOk =
+          v1Ok || Boolean(emCacheRiscos) || (analiseEncerrada && !carregandoAnalise)
+        return complementarRiscosAgregadoresBlNoResumo(
+          {
+            regras: regrasEfetivas,
+            riscos: riscosComMotor,
+            pipelineConcluido: pipelineOk,
+            llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
+            carregando: carregandoAnalise,
+            documentos: documentosRisco,
+          },
+          riscosComMotor,
+        )
+      },
+    )
     const carregando = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+    const v1Disponivel = Boolean(auditoriaV1Arquivo?.contexto.regras.length)
+    const pipelineConcluido =
+      v1Disponivel || Boolean(emCacheRiscos) || (analiseEncerrada && !carregando)
+    const enriquecimento_ia_em_andamento = carregando && !emCacheRiscos?.llm_ativo
+    const fase_enriquecimento_analise = obterFaseEnriquecimentoAnaliseRiscosEmVooSmartRead(
+      chaveAnaliseRiscos,
+    )
+    const analiseServidorIndisponivel = analiseEncerrada && !carregando && !emCacheRiscos?.llm_ativo
 
     return {
       regras: regrasEfetivas,
-      riscos: riscosEfetivos,
-      pipelineConcluido: Boolean(emCacheRiscos),
+      riscos: resumoRiscosEfetivo.riscos,
+      pipelineConcluido,
       llmHabilitado: emCacheRiscos?.llm_ativo ?? false,
       carregando,
+      analise_servidor_indisponivel: analiseServidorIndisponivel,
+      enriquecimento_ia_em_andamento,
+      fase_enriquecimento_analise,
+      cnpj_oficial: emCacheRiscos?.contexto_v1.cnpj_oficial ?? null,
       documentos: documentosRisco,
     }
-  }, [auditoriaV1Arquivo, chaveAnaliseRiscos, documentosRisco, emCacheRiscos])
+  }, [
+    analiseEncerrada,
+    auditoriaV1Arquivo,
+    chaveAnaliseRiscos,
+    documentosRisco,
+    emCacheRiscos,
+    versaoAnalise,
+  ])
 
-  const resumoGeralChecklist = useMemo(
+  const subdocumentosSidebar = useMemo(
     () =>
-      documentosRisco.length === 0
-        ? null
-        : montarResumoGeralChecklistInvoices(parametrosChecklist),
-    [documentosRisco.length, parametrosChecklist],
+      extrairDocumentosArquivoLocal(arquivo).map((doc) => ({
+        indice: doc.indice,
+        tipo_documento: doc.tipo_documento,
+      })),
+    [arquivo],
   )
 
-  const contagemChecklist = resumoGeralChecklist?.contagem_global ?? {
-    verde: 0,
-    amarelo: 0,
-    vermelho: 0,
-    pendente: 0,
-    na: 0,
-    total: 0,
-  }
+  const resumoGeralChecklist = useMemo(() => {
+    if (documentosRisco.length === 0) return null
+    const resumoInvoices = montarResumoGeralChecklistInvoices(parametrosChecklist)
+    const resumosPackingList = montarResumoChecklistPackingLists({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosAwb = montarResumoChecklistAwbs({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosBl = montarResumoChecklistBls({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosCo = montarResumoChecklistCertificadosOrigem({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosCf = montarResumoChecklistCertificadosFitossanitario({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPc = montarResumoChecklistPedidosCompra({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    const resumosPv = montarResumoChecklistPedidosVenda({
+      ...parametrosChecklist,
+      documentos: documentosRisco,
+    })
+    return combinarResumoGeralComPedidosVenda(
+      combinarResumoGeralComPedidosCompra(
+        combinarResumoGeralComCertificadosFitossanitario(
+          combinarResumoGeralComCertificadosOrigem(
+            combinarResumoGeralComBls(
+              combinarResumoGeralComAwbs(
+                combinarResumoGeralComPackingLists(resumoInvoices, resumosPackingList),
+                resumosAwb,
+              ),
+              resumosBl,
+            ),
+            resumosCo,
+          ),
+          resumosCf,
+        ),
+        resumosPc,
+      ),
+      resumosPv,
+    )
+  }, [documentosRisco, parametrosChecklist])
 
-  const percentualChecklistVerde = resumoGeralChecklist?.percentual_global ?? 0
+  const resumoChecklistDocumentoAtual = useMemo(() => {
+    if (!rotuloDocumentoAtual || documentosRisco.length === 0) return null
+    const porInvoice = resumoGeralChecklist?.por_invoice.find(
+      (inv) => inv.rotulo === rotuloDocumentoAtual,
+    )
+    if (porInvoice) {
+      return {
+        contagem: porInvoice.contagem,
+        percentual: porInvoice.percentual_conforme,
+      }
+    }
+    if (documentoAtualEhPackingList) {
+      const itensPl = montarChecklistMatrizPackingList({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPl = contarChecklistPorStatus(itensPl)
+      return { contagem: contagemPl, percentual: percentualConformeChecklistPackingList(contagemPl) }
+    }
+    if (documentoAtualEhAwb) {
+      const itensAwb = montarChecklistMatrizAwb({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemAwb = contarChecklistPorStatus(itensAwb)
+      return { contagem: contagemAwb, percentual: percentualConformeChecklistAwb(contagemAwb) }
+    }
+    if (documentoAtualEhBl) {
+      const itensBl = montarChecklistMatrizBl({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemBl = contarChecklistPorStatus(itensBl)
+      return { contagem: contagemBl, percentual: percentualConformeChecklistBl(contagemBl) }
+    }
+    if (documentoAtualEhCo) {
+      const itensCo = montarChecklistMatrizCertificadoOrigem({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCo = contarChecklistPorStatus(itensCo)
+      return {
+        contagem: contagemCo,
+        percentual: percentualConformeChecklistCertificadoOrigem(contagemCo),
+      }
+    }
+    if (documentoAtualEhCf) {
+      const itensCf = montarChecklistMatrizCertificadoFitossanitario({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemCf = contarChecklistPorStatus(itensCf)
+      return {
+        contagem: contagemCf,
+        percentual: percentualConformeChecklistCertificadoFitossanitario(contagemCf),
+      }
+    }
+    if (documentoAtualEhPc) {
+      const itensPc = montarChecklistMatrizPedidoCompra({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPc = contarChecklistPorStatus(itensPc)
+      return {
+        contagem: contagemPc,
+        percentual: percentualConformeChecklistPedidoCompra(contagemPc),
+      }
+    }
+    if (documentoAtualEhPv) {
+      const itensPv = montarChecklistMatrizPedidoVenda({
+        ...parametrosChecklist,
+        rotulo_documento: rotuloDocumentoAtual,
+      })
+      const contagemPv = contarChecklistPorStatus(itensPv)
+      return {
+        contagem: contagemPv,
+        percentual: percentualConformeChecklistPedidoVenda(contagemPv),
+      }
+    }
+    const itens = montarChecklistMatrizInvoice({
+      ...parametrosChecklist,
+      rotulo_documento: rotuloDocumentoAtual,
+    })
+    const contagem = contarChecklistPorStatus(itens)
+    const percentual =
+      contagem.total === 0
+        ? 0
+        : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
+    return { contagem, percentual }
+  }, [
+    documentoAtualEhAwb,
+    documentoAtualEhBl,
+    documentoAtualEhCo,
+    documentoAtualEhCf,
+    documentoAtualEhPc,
+    documentoAtualEhPv,
+    documentoAtualEhPackingList,
+    documentosRisco.length,
+    parametrosChecklist,
+    resumoGeralChecklist?.por_invoice,
+    rotuloDocumentoAtual,
+  ])
 
-  const carregandoRiscos = Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos))
+  const contagemChecklist = resumoChecklistDocumentoAtual?.contagem ??
+    resumoGeralChecklist?.contagem_global ?? {
+      verde: 0,
+      amarelo: 0,
+      vermelho: 0,
+      pendente: 0,
+      na: 0,
+      total: 0,
+    }
+
+  const percentualChecklistVerde =
+    resumoChecklistDocumentoAtual?.percentual ?? resumoGeralChecklist?.percentual_global ?? 0
+
+  const carregandoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    !parametrosChecklist.pipelineConcluido
+
+  const enriquecendoRiscos =
+    Boolean(obterRequisicaoAnaliseRiscosEmVooSmartRead(chaveAnaliseRiscos)) &&
+    parametrosChecklist.pipelineConcluido
+
+  const analiseEmAndamento =
+    parametrosChecklist.carregando ||
+    Boolean(parametrosChecklist.enriquecimento_ia_em_andamento) ||
+    carregandoRiscos ||
+    enriquecendoRiscos
 
   const percentualSemCriticos =
     resumoRiscos.total === 0
@@ -202,11 +573,6 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         `${resumoConferencia.marcadosRiscos}/${resumoConferencia.totalRiscos} risco${resumoConferencia.totalRiscos === 1 ? '' : 's'}`,
       )
     }
-    if (resumoConferencia.totalChecklist > 0) {
-      partes.push(
-        `${resumoConferencia.marcadosChecklist}/${resumoConferencia.totalChecklist} matriz`,
-      )
-    }
     return `${resumoConferencia.marcados}/${resumoConferencia.total} conferidos por você (${partes.join(' · ')})`
   }, [resumoConferencia])
 
@@ -214,7 +580,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
     <>
     <section
       className="sr-conf-resumo-triplo"
-      aria-label="Resumo de conferência usuário, conferência Gravity e análise de risco"
+      aria-label="Resumo de conferência usuário, conformidade Gravity e análise de risco"
     >
       <div
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--conferencia${usuarioAtivo ? ' sr-conf-resumo-bloco--conferencia-ativo' : ''}`}
@@ -225,7 +591,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           </span>
           <TooltipGlobal
             titulo="Conferência usuário"
-            descricao="Campos, riscos e regras Gravity que você marcou como revisados neste documento"
+            descricao="Campos e riscos que você marcou como revisados neste documento"
           >
             <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
               Conferência usuário
@@ -235,7 +601,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
         <div className="sr-conf-resumo-linha-barra">
           <div
-            className="sr-conf-progresso-barra"
+            className={`sr-conf-progresso-barra${analiseEmAndamento ? ' sr-conf-progresso-barra--em-analise' : ''}`}
             role="progressbar"
             aria-valuenow={resumoConferencia.percentual}
             aria-valuemin={0}
@@ -246,6 +612,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
               className="sr-conf-progresso-barra-fill sr-conf-progresso-barra-fill--conferencia"
               style={{ width: `${resumoConferencia.percentual}%` }}
             />
+            {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
           </div>
           <span className="sr-conf-progresso-pct sr-conf-progresso-pct--conferencia">
             {resumoConferencia.percentual}%
@@ -260,16 +627,16 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         className={`sr-conf-resumo-bloco sr-conf-resumo-bloco--checklist${modalChecklistAberto ? ' sr-conf-resumo-bloco--checklist-ativo' : ''}`}
         onClick={() => setModalChecklistAberto(true)}
         aria-haspopup="dialog"
-        aria-label="Abrir conferência Gravity — checklist matriz completo"
+        aria-label="Abrir conformidade Gravity — checklist matriz completo"
       >
         <div className="sr-conf-resumo-riscos-topo">
           <TooltipGlobal
-            titulo="Conferência Gravity"
-            descricao="Resultado total da Gravity sobre todas as regras da matriz — clique para ver o detalhe"
+            titulo="Conformidade Gravity"
+            descricao="Percentual de conformidade da matriz Gravity — clique para ver o detalhe"
           >
             <span className="sr-conf-resumo-rotulo sr-conf-resumo-rotulo--com-icone">
               <ClipboardText size={12} weight="duotone" aria-hidden />
-              Conferência Gravity
+              Conformidade Gravity
             </span>
           </TooltipGlobal>
           <CaretRight size={12} weight="bold" className="sr-conf-resumo-seta" aria-hidden />
@@ -277,7 +644,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
 
         <div className="sr-conf-resumo-linha-barra">
           <span className="sr-conf-resumo-checklist-pct">{percentualChecklistVerde}%</span>
-          <span className="sr-conf-resumo-checklist-conforme">conforme na matriz</span>
+          <span className="sr-conf-resumo-checklist-conforme">de conformidade</span>
         </div>
 
         <BarraStatusChecklistSmartRead
@@ -288,6 +655,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
           na={contagemChecklist.na}
           total={contagemChecklist.total}
           classe="sr-conf-resumo-checklist-barra"
+          emAnalise={analiseEmAndamento}
         />
 
         <p className="sr-conf-resumo-legenda">
@@ -325,6 +693,8 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         <p className="sr-conf-resumo-riscos-subtitulo">
           {carregandoRiscos && resumoRiscos.total === 0
             ? 'Analisando documentos…'
+            : enriquecendoRiscos && resumoRiscos.total === 0
+              ? 'Enriquecendo com IA…'
             : resumoRiscos.total === 0
               ? 'Nenhum problema detectado'
               : `${percentualSemCriticos}% sem críticos abertos`}
@@ -333,7 +703,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
         {resumoRiscos.total > 0 && (
           <>
             <div
-              className="sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta"
+              className={`sr-conf-riscos-seg-bar sr-conf-riscos-seg-bar--compacta${analiseEmAndamento ? ' sr-conf-riscos-seg-bar--em-analise' : ''}`}
               role="img"
               aria-label={`Distribuição: ${legendaSegmentos ?? ''}`}
             >
@@ -355,6 +725,7 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
                   style={{ width: `${(resumoRiscos.informativos / resumoRiscos.total) * 100}%` }}
                 />
               )}
+              {analiseEmAndamento ? <span className="sr-barra-overlay-em-analise" aria-hidden /> : null}
             </div>
             {legendaSegmentos && (
               <p className="sr-conf-resumo-legenda">
@@ -370,8 +741,10 @@ export function ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead({
       aberto={modalChecklistAberto}
       onFechar={() => setModalChecklistAberto(false)}
       documentos={documentosRisco}
+      nomeArquivo={arquivo.arquivo.name}
+      subdocumentosSidebar={subdocumentosSidebar}
       parametrosChecklist={parametrosChecklist}
-      chaveMarcacaoChecklist={chaveAnaliseRiscos}
+      avisoAnalise={emCacheRiscos?.aviso ?? avisoAnalise}
       rotuloDocumentoInicial={rotuloDocumentoAtual}
       indiceDocumentoInicial={indiceDocumento}
       onVerRisco={(riscoId) => {

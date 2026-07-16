@@ -2,18 +2,46 @@ import React from 'react'
 import {
   Anchor,
   ArrowCounterClockwise,
+  ArrowRight,
+  ArrowSquareOut,
   CaretDown,
   Eye,
   EyeSlash,
   Globe,
   MapTrifold,
   Minus,
+  Package,
   Pause,
   Play,
   Plus,
   type Icon,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+
+/** Pin importação do mapa Insights Pedido — paridade `bfd-map-pin__dot` laranja. */
+export function ManualInfograficoPinMapaPedidoInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Pin do mapa"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'text-bottom',
+        marginLeft: 3,
+        marginRight: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 18,
+        height: 18,
+        borderRadius: '50%',
+        backgroundColor: '#f59e0b',
+        boxShadow: '0 0 8px rgba(245, 158, 11, 0.6)',
+      }}
+    >
+      <Package size={11} weight="bold" color="#000000" aria-hidden />
+    </span>
+  )
+}
 
 /** Pin marítimo do mapa Insights — paridade `bfd-map-pin__dot`. */
 export function ManualInfograficoPinMapaBidFreteInline() {
@@ -89,6 +117,34 @@ export function ManualIconeGloboMapaBidFreteInlineCompact() {
   )
 }
 
+const ICONES_CONTROLE_MAPA_PEDIDO: Record<string, { icone: Icon; ariaLabel: string; trilhosOcultos?: boolean }> = {
+  'globo-mapa-pedido': { icone: Globe, ariaLabel: 'Controle Globo do mapa' },
+  'mapa-plano-pedido': { icone: MapTrifold, ariaLabel: 'Controle Mapa plano' },
+  'zoom-in-pedido': { icone: Plus, ariaLabel: 'Controle Zoom in' },
+  'zoom-out-pedido': { icone: Minus, ariaLabel: 'Controle Zoom out' },
+  'restaurar-mapa-pedido': { icone: ArrowCounterClockwise, ariaLabel: 'Controle Restaurar mapa' },
+  'ocultar-trilhos-pedido': { icone: Eye, ariaLabel: 'Controle Ocultar trilhos' },
+  'exibir-trilhos-pedido': { icone: EyeSlash, ariaLabel: 'Controle Exibir trilhos', trilhosOcultos: true },
+  'pausar-globo-pedido': { icone: Pause, ariaLabel: 'Controle Pausar rotação do globo' },
+  'iniciar-globo-pedido': { icone: Play, ariaLabel: 'Controle Iniciar rotação do globo' },
+}
+
+export function isIconeControleMapaPedido(slug: string): slug is keyof typeof ICONES_CONTROLE_MAPA_PEDIDO {
+  return slug in ICONES_CONTROLE_MAPA_PEDIDO
+}
+
+export function ManualInfograficoIconeControleMapaPedidoInline({ slug }: { slug: string }) {
+  const config = ICONES_CONTROLE_MAPA_PEDIDO[slug]
+  if (!config) return null
+  return (
+    <ManualIconeControleMapaBidFreteInlineCompact
+      icone={config.icone}
+      ariaLabel={config.ariaLabel}
+      rotasOcultas={config.trilhosOcultos}
+    />
+  )
+}
+
 const ICONES_CONTROLE_MAPA_BID_FRETE: Record<string, { icone: Icon; ariaLabel: string; rotasOcultas?: boolean }> = {
   'globo-mapa-bid-frete': { icone: Globe, ariaLabel: 'Controle Globo do mapa' },
   'mapa-plano-bid-frete': { icone: MapTrifold, ariaLabel: 'Controle Mapa plano' },
@@ -121,22 +177,113 @@ function ManualInfograficoIconeInline({ slug }: { slug: string }) {
   if (slug === 'pin-mapa-bid-frete') {
     return <ManualInfograficoPinMapaBidFreteInline />
   }
+  if (slug === 'pin-mapa-pedido') {
+    return <ManualInfograficoPinMapaPedidoInline />
+  }
+  if (slug === 'abrir-cotacao-lista-bid-frete') {
+    return <ManualInfograficoIconeAbrirCotacaoListaBidFreteInline />
+  }
+  if (isIconeControleMapaPedido(slug)) {
+    return <ManualInfograficoIconeControleMapaPedidoInline slug={slug} />
+  }
   if (isIconeControleMapaBidFrete(slug)) {
     return <ManualInfograficoIconeControleMapaBidFreteInline slug={slug} />
   }
   return <>{`{{icone:${slug}}}`}</>
 }
 
-/** Botão + Novo do BID Frete — paridade `BotaoGlobal` + dropdown Insights/Lista. */
+/** Botão «Abrir PO-xxx» no modal do mapa — paridade `bfd-pedido-card-btn-abrir`. */
+export function ManualInfograficoBotaoAbrirPedidoListaPedidoInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Abrir pedido na Lista"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -6,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+      }}
+    >
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="pequeno"
+        icone={<ArrowRight size={12} weight="bold" />}
+        tabIndex={-1}
+        aria-hidden
+        style={{ pointerEvents: 'none', cursor: 'default', whiteSpace: 'nowrap' }}
+      >
+        Abrir PO-12345
+      </BotaoGlobal>
+    </span>
+  )
+}
+
+/** Botão primário «Ir para cotação» — paridade modal de confirmação pós-wizard. */
+export function ManualInfograficoBotaoIrParaCotacaoBidFreteInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Ir para cotação"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -10,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+      }}
+    >
+      <BotaoGlobal
+        variante="primario"
+        tamanho="pequeno"
+        tabIndex={-1}
+        aria-hidden
+        style={{ pointerEvents: 'none', cursor: 'default', whiteSpace: 'nowrap' }}
+      >
+        Ir para cotação
+      </BotaoGlobal>
+    </span>
+  )
+}
+
+/** Ícone «Abrir cotação» na coluna Nº da cotação — paridade `bf-lista-numero-cotacao-abrir`. */
+export function ManualInfograficoIconeAbrirCotacaoListaBidFreteInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Abrir cotação na Lista"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'text-bottom',
+        margin: '0 3px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        color: '#60a5fa',
+      }}
+    >
+      <ArrowSquareOut size={14} weight="bold" aria-hidden />
+    </span>
+  )
+}
+
+/** Botão + Nova do BID Frete — paridade `BotaoGlobal` + dropdown Insights/Lista. */
 export function ManualInfograficoBotaoNovoBidFreteInline() {
   return (
     <span
       role="img"
-      aria-label="Botão Novo"
+      aria-label="Botão Nova"
       style={{
         display: 'inline-flex',
         verticalAlign: 'middle',
-        margin: '0 3px',
+        marginLeft: 3,
+        /* scale(0.8) mantém a caixa de layout larga — margem negativa aproxima o "." */
+        marginRight: -14,
         transform: 'scale(0.8)',
         transformOrigin: 'left center',
       }}
@@ -149,7 +296,7 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
         aria-hidden
         style={{ pointerEvents: 'none', cursor: 'default' }}
       >
-        Novo{' '}
+        Nova{' '}
         <CaretDown size={12} weight="bold" style={{ marginLeft: 2 }} />
       </BotaoGlobal>
     </span>
@@ -159,6 +306,12 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
 export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   if (slug === 'novo-bid-frete') {
     return <ManualInfograficoBotaoNovoBidFreteInline />
+  }
+  if (slug === 'ir-para-cotacao-bid-frete') {
+    return <ManualInfograficoBotaoIrParaCotacaoBidFreteInline />
+  }
+  if (slug === 'abrir-pedido-lista-pedido') {
+    return <ManualInfograficoBotaoAbrirPedidoListaPedidoInline />
   }
   return <>{`{{botao:${slug}}}`}</>
 }

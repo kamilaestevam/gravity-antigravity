@@ -11,6 +11,9 @@ function transacaoBase(parcial: Partial<TransacaoLeitura> & Pick<TransacaoLeitur
     id_leitura: parcial.id_leitura,
     nome_leitura: parcial.nome_leitura ?? 'Leitura teste',
     status_leitura: parcial.status_leitura ?? 'COMPLETED',
+    status_fluxo_leitura: parcial.status_fluxo_leitura ?? 'RESULTADO_LEITURAS',
+    passo_atual_leitura:
+      'passo_atual_leitura' in parcial ? parcial.passo_atual_leitura ?? null : 4,
     total_arquivos: parcial.total_arquivos ?? 1,
     media_acertos: 'media_acertos' in parcial ? parcial.media_acertos ?? null : 0.9,
     data_envio: parcial.data_envio ?? '2026-06-23T12:00:00.000Z',
@@ -110,5 +113,28 @@ describe('mesclarTransacaoNaLista', () => {
 
     expect(mesclada.saving_total_minutos).toBeGreaterThan(0)
     expect(mesclada.saving_total_brl).toBeGreaterThan(0)
+  })
+
+  it('preserva passo 3 e status Conferência ao mesclar snapshot COMPLETED sem passo', () => {
+    const progresso = transacaoBase({
+      id_leitura: 'abc',
+      nome_leitura: 'Leitura 763',
+      passo_atual_leitura: 3,
+      status_fluxo_leitura: 'CONFERENCIA',
+      total_campos_extraidos: 10,
+    })
+    const snapshot = transacaoBase({
+      id_leitura: 'abc',
+      passo_atual_leitura: null,
+      status_fluxo_leitura: 'RESULTADO_LEITURAS',
+      total_campos_extraidos: 69,
+      total_documentos: 2,
+    })
+
+    const mesclada = mesclarTransacaoNaLista(progresso, snapshot)
+
+    expect(mesclada.passo_atual_leitura).toBe(3)
+    expect(mesclada.status_fluxo_leitura).toBe('CONFERENCIA')
+    expect(mesclada.total_campos_extraidos).toBe(69)
   })
 })

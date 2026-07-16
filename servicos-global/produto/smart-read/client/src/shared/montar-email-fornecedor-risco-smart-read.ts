@@ -7,6 +7,10 @@ import {
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from './marca-smart-docs'
+import {
+  formatarLinhaCampoEditadoComunicacao,
+  type CampoEditadoComunicacaoSmartRead,
+} from './listar-campos-editados-comunicacao-smart-read'
 
 export type IdiomaEmailFornecedorRisco = 'pt' | 'en' | 'es'
 
@@ -105,7 +109,7 @@ function esperadoPorCampo(
     : idioma === 'es'
       ? 'dato completo y legible según exigencias del despacho aduanero brasileño'
       : 'dado completo e legível conforme exigências do despacho aduaneiro brasileiro'
-  }
+}
 
 export function formatarLinhaLegislacaoEmailRisco(
   risco: RiscoAduaneiroLeitura,
@@ -150,12 +154,15 @@ export function montarEmailFornecedorRiscoSmartRead(
 export function montarEmailFornecedorRiscosSmartRead(
   riscosEntrada: RiscoAduaneiroLeitura[],
   idioma: IdiomaEmailFornecedorRisco,
+  camposEditados: CampoEditadoComunicacaoSmartRead[] = [],
 ): { assunto: string; corpo: string } {
   const riscos = riscosEntrada.map(aplicarCorrecaoSugeridaPadraoRisco)
   const t = ROTULOS[idioma]
-  const n = riscos.length
+  const nRiscos = riscos.length
+  const nCampos = camposEditados.length
+  const nTotal = nRiscos + nCampos
 
-  if (n === 0) {
+  if (nTotal === 0) {
     return { assunto: t.assunto, corpo: t.saudacao }
   }
 
@@ -163,24 +170,39 @@ export function montarEmailFornecedorRiscosSmartRead(
   const linhasCorrecao = riscos
     .map((r) => r.correcao_sugerida?.trim())
     .filter((c): c is string => Boolean(c))
-    .map((c) => `  → ${c}`)
+    .map((c) => `  -> ${c}`)
 
   const referencias = [...new Set(riscos.map((r) => referenciaRisco(r, idioma)))]
+  const linhasCampos = camposEditados.map(
+    (campo) => `• ${formatarLinhaCampoEditadoComunicacao(campo)}`,
+  )
 
   const assunto =
-    n === 1
+    nTotal === 1 && nRiscos === 1
       ? `${t.assunto} — ${riscos[0].titulo}`
-      : t.assuntoMultiplo.replace('{n}', String(n))
+      : nTotal === 1 && nCampos === 1
+        ? `${t.assunto} — ${camposEditados[0].rotulo}`
+        : t.assuntoMultiplo.replace('{n}', String(nTotal))
 
   const corpo = [
     t.saudacao,
     '',
-    n === 1 ? t.corpo : t.corpoMultiplo.replace('{n}', String(n)),
+    nTotal === 1 ? t.corpo : t.corpoMultiplo.replace('{n}', String(nTotal)),
     '',
-    ...linhasLegislacao,
-    ...(linhasCorrecao.length > 0 ? ['', ...(idioma === 'en' ? ['Suggested action:'] : idioma === 'es' ? ['Acción sugerida:'] : ['Ação sugerida:']), ...linhasCorrecao] : []),
-    '',
-    ...referencias,
+    ...(nRiscos > 0 ? [...linhasLegislacao] : []),
+    ...(nCampos > 0 ? [...linhasCampos] : []),
+    ...(linhasCorrecao.length > 0
+      ? [
+          '',
+          ...(idioma === 'en'
+            ? ['Suggested action:']
+            : idioma === 'es'
+              ? ['Acción sugerida:']
+              : ['Ação sugerida:']),
+          ...linhasCorrecao,
+        ]
+      : []),
+    ...(referencias.length > 0 ? ['', ...referencias] : []),
     '',
     t.baseLegal,
     '',
@@ -194,12 +216,25 @@ export function montarMensagemNotificacaoRiscoSmartRead(risco: RiscoAduaneiroLei
   return montarMensagemNotificacaoRiscosSmartRead([risco])
 }
 
-export function montarMensagemNotificacaoRiscosSmartRead(riscos: RiscoAduaneiroLeitura[]): string {
-  const linhas = riscos.map((risco) => {
+export function montarMensagemNotificacaoRiscosSmartRead(
+  riscos: RiscoAduaneiroLeitura[],
+  camposEditados: CampoEditadoComunicacaoSmartRead[] = [],
+): string {
+  const linhasRiscos = riscos.map((risco) => {
     const r = aplicarCorrecaoSugeridaPadraoRisco(risco)
     const evidencia = r.evidencias[0]
-    const onde = evidencia ? [evidencia.documento, evidencia.campo].filter(Boolean).join(' · ') : NOME_PRODUTO_EXIBICAO
+    const onde = evidencia
+      ? [evidencia.documento, evidencia.campo].filter(Boolean).join(' · ')
+      : NOME_PRODUTO_EXIBICAO
     return [`[${r.severidade}] ${r.titulo}`, onde, r.correcao_sugerida ?? r.analise].join(' — ')
   })
-  return [`[${NOME_PRODUTO_EXIBICAO}] ${riscos.length} risco(s) na conferência`, ...linhas].join('\n')
+  const linhasCampos = camposEditados.map(
+    (campo) => `[editado] ${formatarLinhaCampoEditadoComunicacao(campo)}`,
+  )
+  const total = riscos.length + camposEditados.length
+  return [
+    `[${NOME_PRODUTO_EXIBICAO}] ${total} item(ns) na comunicação`,
+    ...linhasRiscos,
+    ...linhasCampos,
+  ].join('\n')
 }

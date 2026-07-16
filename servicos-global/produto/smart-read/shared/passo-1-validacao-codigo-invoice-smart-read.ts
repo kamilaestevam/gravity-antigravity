@@ -4,6 +4,13 @@
 
 import type { SecaoMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
 import { severidadeParaStatusMatriz } from './matriz-validacao-invoice-smart-read.js'
+import { executarPasso1ValidacaoCodigoPackingList } from './passo-1-validacao-codigo-packing-list-smart-read.js'
+import { executarPasso1ValidacaoCodigoAwb } from './passo-1-validacao-codigo-awb-smart-read.js'
+import { executarPasso1ValidacaoCodigoBl } from './passo-1-validacao-codigo-bl-smart-read.js'
+import { executarPasso1ValidacaoCodigoCertificadoOrigem } from './passo-1-validacao-codigo-certificado-origem-smart-read.js'
+import { executarPasso1ValidacaoCodigoPedidoCompra } from './passo-1-validacao-codigo-pedido-compra-smart-read.js'
+import { executarPasso1ValidacaoCodigoPedidoVenda } from './passo-1-validacao-codigo-pedido-venda-smart-read.js'
+import { executarPasso1ValidacaoCodigoCertificadoFitossanitario } from './passo-1-validacao-codigo-certificado-fitossanitario-smart-read.js'
 import {
   formatarAnaliseDivergenciaLinha,
   formatarAnaliseDivergenciaSoma,
@@ -146,10 +153,15 @@ function extrairItens(dados: Record<string, unknown>) {
         valorTextoComparacaoCampo(r.itemTotalPriceWithCurrency ?? r.totalPrice ?? r.total),
       ),
       unidade: valorTextoComparacaoCampo(r.unit ?? r.uom ?? r.unitOfMeasure),
+      moeda: valorTextoComparacaoCampo(r.itemCurrency ?? r.currency)?.toUpperCase() ?? null,
       ncm: valorTextoComparacaoCampo(r.ncm ?? r.NCM),
       descricao: extrairDescricaoItemLinha(r),
     }
   })
+}
+
+function formatarValorRegra(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2)
 }
 
 function montarResumo(riscos: RiscoAduaneiroLeitura[]): ResumoRiscosAduaneirosLeitura {
@@ -429,6 +441,10 @@ export function executarPasso1ValidacaoCodigoInvoice(
     const itens = extrairItens(doc.dados)
     let somaLinhas = 0
     let linhasComTotal = 0
+    let linhasVerificaveisMultiplicacao = 0
+    let linhasDivergentesMultiplicacao = 0
+    let ncmPresentes = 0
+    let ncmInvalidos = 0
 
     for (const item of itens) {
       // S4-01 Part number
@@ -449,6 +465,10 @@ export function executarPasso1ValidacaoCodigoInvoice(
 
       // S4-03/04 NCM
       const sitNcm = classificarSituacaoCodigoFiscal(item.ncm)
+      if (sitNcm !== 'ausente') {
+        ncmPresentes += 1
+        if (sitNcm !== 'completo') ncmInvalidos += 1
+      }
       if (sitNcm === 'ausente') {
         riscos.push(
           criarRiscoCodigo({
@@ -496,9 +516,11 @@ export function executarPasso1ValidacaoCodigoInvoice(
 
       // S5-03 Multiplicação linha
       if (item.qty != null && item.precoUnit != null && item.totalLinha != null) {
+        linhasVerificaveisMultiplicacao += 1
         const esperado = item.qty * item.precoUnit
         const linhaOk = valoresProximos(esperado, item.totalLinha, Math.max(0.1, esperado * 0.01))
         if (!linhaOk) {
+          linhasDivergentesMultiplicacao += 1
           riscos.push(
             criarRiscoCodigo({
               id_regra: 'S5-03',
@@ -541,6 +563,13 @@ export function executarPasso1ValidacaoCodigoInvoice(
     )
     if (linhasComTotal > 0 && subtotal != null) {
       const somaOk = valoresProximos(somaLinhas, subtotal, Math.max(0.1, subtotal * 0.01))
+      regras.push({
+        id: `S5-04-${doc.rotulo}`,
+        passou: somaOk,
+        detalhe: somaOk
+          ? `Σ linhas ${formatarValorRegra(somaLinhas)} = subtotal ${formatarValorRegra(subtotal)}`
+          : `Σ linhas ${formatarValorRegra(somaLinhas)} ≠ subtotal ${formatarValorRegra(subtotal)}`,
+      })
       if (!somaOk) {
         riscos.push(
           criarRiscoCodigo({
@@ -563,6 +592,13 @@ export function executarPasso1ValidacaoCodigoInvoice(
       }
     } else if (linhasComTotal > 0 && totalDoc != null) {
       const somaOk = valoresProximos(somaLinhas, totalDoc, Math.max(0.1, totalDoc * 0.01))
+      regras.push({
+        id: `S5-04-${doc.rotulo}`,
+        passou: somaOk,
+        detalhe: somaOk
+          ? `Σ linhas ${formatarValorRegra(somaLinhas)} = total ${formatarValorRegra(totalDoc)}`
+          : `Σ linhas ${formatarValorRegra(somaLinhas)} ≠ total ${formatarValorRegra(totalDoc)}`,
+      })
       if (!somaOk) {
         riscos.push(
           criarRiscoCodigo({
@@ -617,6 +653,153 @@ export function executarPasso1ValidacaoCodigoInvoice(
         )
       }
     }
+
+    // Registro no checklist para as demais regras de código — status deixa de ficar pendente
+    // quando o motor validou e não encontrou problema (regra sem registro = pendente na UI).
+
+    // S4-01 Part Number
+    const linhasComPn = itens.filter((i) => i.partNumber).length
+    regras.push({
+      id: `S4-01-${doc.rotulo}`,
+      passou: itens.length === 0 || linhasComPn === itens.length,
+      detalhe:
+        itens.length === 0
+          ? 'N/A — sem linhas de item extraídas'
+          : `${linhasComPn}/${itens.length} linha(s) com Part Number`,
+    })
+
+    // S4-04 NCM declarado (estrutura) — ausência total é tratada pela S4-03 (pré-classificação)
+    regras.push({
+      id: `S4-04-${doc.rotulo}`,
+      passou: ncmInvalidos === 0,
+      detalhe:
+        itens.length === 0
+          ? 'N/A — sem linhas de item extraídas'
+          : ncmPresentes === 0
+            ? 'N/A — NCM não declarado nas linhas (pré-classificação em S4-03)'
+            : ncmInvalidos === 0
+              ? `${ncmPresentes} NCM(s) com estrutura válida`
+              : `${ncmInvalidos} NCM(s) fora do padrão de 8 dígitos`,
+    })
+
+    // S4-05 Unidades de medida
+    const linhasComQtd = itens.filter((i) => i.qty != null)
+    const linhasSemUnidade = linhasComQtd.filter((i) => !i.unidade).length
+    regras.push({
+      id: `S4-05-${doc.rotulo}`,
+      passou: linhasSemUnidade === 0,
+      detalhe:
+        linhasComQtd.length === 0
+          ? 'N/A — sem quantidades extraídas nas linhas'
+          : linhasSemUnidade === 0
+            ? `${linhasComQtd.length} linha(s) com quantidade e unidade comercial`
+            : `${linhasSemUnidade} linha(s) com quantidade sem unidade comercial`,
+    })
+
+    // S5-02 Unicidade cambial — moeda das linhas = moeda dos totais
+    const moedasOperacao = new Set(itens.map((i) => i.moeda).filter((m): m is string => !!m))
+    if (moeda) moedasOperacao.add(moeda)
+    const unicidadeOk = moedasOperacao.size <= 1
+    regras.push({
+      id: `S5-02-${doc.rotulo}`,
+      passou: unicidadeOk,
+      detalhe:
+        moedasOperacao.size === 0
+          ? 'N/A — moeda não extraída'
+          : unicidadeOk
+            ? `Moeda única na operação: ${[...moedasOperacao][0]}`
+            : `Moedas divergentes: ${[...moedasOperacao].join(', ')}`,
+    })
+    if (!unicidadeOk) {
+      riscos.push(
+        criarRiscoCodigo({
+          id_regra: 'S5-02',
+          secao: 'financeiro',
+          severidade: 'atencao',
+          categoria: 'matematico',
+          titulo: 'Mais de uma moeda na mesma invoice',
+          motivo: `Foram lidas moedas distintas no documento: ${[...moedasOperacao].join(', ')}.`,
+          analise: 'O fechamento de câmbio exige uma única moeda entre linhas e totais da invoice.',
+          evidencias: [{ documento: doc.rotulo, campo: 'currency.type', valor: [...moedasOperacao].join(', ') }],
+        }),
+      )
+    }
+
+    // S5-03 Multiplicação de linha (resumo)
+    regras.push({
+      id: `S5-03-${doc.rotulo}`,
+      passou: linhasDivergentesMultiplicacao === 0,
+      detalhe:
+        linhasVerificaveisMultiplicacao === 0
+          ? 'N/A — linhas sem quantidade × preço × total para verificar'
+          : linhasDivergentesMultiplicacao === 0
+            ? `${linhasVerificaveisMultiplicacao} linha(s) verificadas — quantidade × preço confere`
+            : `${linhasDivergentesMultiplicacao} linha(s) com total divergente`,
+    })
+
+    // S5-04 sem base de comparação
+    if (linhasComTotal === 0 || (subtotal == null && totalDoc == null)) {
+      regras.push({
+        id: `S5-04-${doc.rotulo}`,
+        passou: true,
+        detalhe:
+          linhasComTotal === 0
+            ? 'N/A — linhas sem total extraído para somar'
+            : 'N/A — subtotal/total do documento não extraído para comparar',
+      })
+    }
+
+    // S5-06 Rateios finais
+    const temValorGlobal = [frete, seguro, desconto, acrescimos].some((v) => v != null && v !== 0)
+    regras.push({
+      id: `S5-06-${doc.rotulo}`,
+      passou: true,
+      detalhe: temValorGlobal
+        ? `Frete ${formatarValorRegra(frete ?? 0)} · seguro ${formatarValorRegra(seguro ?? 0)} · desconto ${formatarValorRegra(desconto ?? 0)} — rateio proporcional entre linhas`
+        : 'N/A — sem frete, seguro ou desconto global para ratear',
+    })
+
+    // S6-02 SWIFT / IBAN (formato)
+    const swiftOk = !swift || REGEX_SWIFT.test(swift.replace(/\s/g, '').toUpperCase())
+    const ibanOk = !iban || REGEX_IBAN.test(iban.replace(/\s/g, '').toUpperCase())
+    regras.push({
+      id: `S6-02-${doc.rotulo}`,
+      passou: swiftOk && ibanOk,
+      detalhe:
+        !swift && !iban
+          ? 'N/A — SWIFT/IBAN não extraído do documento'
+          : [
+              swift ? `SWIFT ${swift}${swiftOk ? ' válido' : ' inválido'}` : null,
+              iban ? `IBAN ${iban}${ibanOk ? ' válido' : ' inválido'}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · '),
+    })
+
+    // S7-01 Peso bruto ≥ líquido
+    regras.push({
+      id: `S7-01-${doc.rotulo}`,
+      passou: pesoBruto == null || pesoLiquido == null || pesoBruto >= pesoLiquido,
+      detalhe:
+        pesoBruto == null || pesoLiquido == null
+          ? 'N/A — pesos bruto/líquido não extraídos'
+          : pesoBruto >= pesoLiquido
+            ? `Bruto ${formatarValorRegra(pesoBruto)} ≥ líquido ${formatarValorRegra(pesoLiquido)}`
+            : `Bruto ${formatarValorRegra(pesoBruto)} < líquido ${formatarValorRegra(pesoLiquido)}`,
+    })
+
+    // S7-02 Consistência de volumes
+    const totalVolumes = parseNumero(
+      valorCampo(doc.mapa, ['packages.count', 'packages.total', 'document.packageCount']),
+    )
+    regras.push({
+      id: `S7-02-${doc.rotulo}`,
+      passou: true,
+      detalhe:
+        totalVolumes == null
+          ? 'N/A — contagem de volumes não extraída'
+          : `${formatarValorRegra(totalVolumes)} volume(s) declarados no documento`,
+    })
   }
 
   // Cruzamento entre documentos da leitura
@@ -691,9 +874,49 @@ export function executarPasso1ValidacaoCodigoInvoice(
   }
 }
 
-/** Alias de compatibilidade — delega ao Passo 1 (motor Código). */
+/** Alias de compatibilidade — Passo 1 (motor Código) da invoice + matrizes do packing list, AWB, BL, CO, CF, PC e PV. */
 export function executarAuditoriaV1AnaliseRiscosLeitura(
   documentosEntrada: DocumentoAnaliseRisco[],
 ): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
-  return executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
+  const invoice = executarPasso1ValidacaoCodigoInvoice(documentosEntrada)
+  const packing = executarPasso1ValidacaoCodigoPackingList(documentosEntrada)
+  const awb = executarPasso1ValidacaoCodigoAwb(documentosEntrada)
+  const bl = executarPasso1ValidacaoCodigoBl(documentosEntrada)
+  const co = executarPasso1ValidacaoCodigoCertificadoOrigem(documentosEntrada)
+  const cf = executarPasso1ValidacaoCodigoCertificadoFitossanitario(documentosEntrada)
+  const pc = executarPasso1ValidacaoCodigoPedidoCompra(documentosEntrada)
+  const pv = executarPasso1ValidacaoCodigoPedidoVenda(documentosEntrada)
+  const semPacking = packing.contexto.regras.length === 0 && packing.resumo.total === 0
+  const semAwb = awb.contexto.regras.length === 0 && awb.resumo.total === 0
+  const semBl = bl.contexto.regras.length === 0 && bl.resumo.total === 0
+  const semCo = co.contexto.regras.length === 0 && co.resumo.total === 0
+  const semCf = cf.contexto.regras.length === 0 && cf.resumo.total === 0
+  const semPc = pc.contexto.regras.length === 0 && pc.resumo.total === 0
+  const semPv = pv.contexto.regras.length === 0 && pv.resumo.total === 0
+  if (semPacking && semAwb && semBl && semCo && semCf && semPc && semPv) return invoice
+  return {
+    resumo: montarResumo([
+      ...invoice.resumo.riscos,
+      ...packing.resumo.riscos,
+      ...awb.resumo.riscos,
+      ...bl.resumo.riscos,
+      ...co.resumo.riscos,
+      ...cf.resumo.riscos,
+      ...pc.resumo.riscos,
+      ...pv.resumo.riscos,
+    ]),
+    contexto: {
+      ...invoice.contexto,
+      regras: [
+        ...invoice.contexto.regras,
+        ...packing.contexto.regras,
+        ...awb.contexto.regras,
+        ...bl.contexto.regras,
+        ...co.contexto.regras,
+        ...cf.contexto.regras,
+        ...pc.contexto.regras,
+        ...pv.contexto.regras,
+      ],
+    },
+  }
 }

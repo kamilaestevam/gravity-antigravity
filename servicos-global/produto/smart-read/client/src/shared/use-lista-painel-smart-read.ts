@@ -73,7 +73,7 @@ function normalizarColunasVisiveis(colunas: string[]): string[] {
 
   const legadoCincoColunas = new Set([
     'nome_leitura',
-    'status_leitura',
+    'status_fluxo_leitura',
     'total_arquivos',
     'media_acertos',
     'data_envio',

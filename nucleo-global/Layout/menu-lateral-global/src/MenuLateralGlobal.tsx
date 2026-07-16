@@ -40,6 +40,8 @@ export interface NavItem {
   badgeVariant?: 'accent' | 'muted'
   /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
   sectionDivider?: boolean
+  /** Ícones/indicadores à direita do item (ex.: status na Gravity University) */
+  trailing?: React.ReactNode
   /** Se true, o link abre em nova aba (target="_blank" + rel noopener). Use para links cross-aplicação (ex: produto -> Configurador). */
   external?: boolean
   /** data-sds-tutorial-alvo no item de navegação (demo marketing) */
@@ -379,10 +381,15 @@ export function MenuLateralGlobal({
       return pathnameDemo === to
     }
     const isActive = checkActive(item.to || '')
+    const trailingNode = !isCollapsed && item.trailing ? (
+      <div className="mlg-nav-trailing">{item.trailing}</div>
+    ) : null
+
     const navLink = item.disabled ? (
       <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}>
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
+        {trailingNode}
       </div>
     ) : modoDemonstracao ? (
       <button
@@ -407,6 +414,7 @@ export function MenuLateralGlobal({
       >
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
+        {trailingNode}
       </a>
     )
 

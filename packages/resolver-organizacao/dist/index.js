@@ -104,6 +104,7 @@ var AppError = class _AppError extends Error {
 var CUID_REGEX = /^[a-z][a-z0-9]{22,24}$/;
 var UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 var SCHEMA_NAME_REGEX = /^tenant_([a-z][a-z0-9]{22,24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+var SCHEMA_NAME_ORGANIZACAO_SMOKE_REGEX = /^organizacao_[a-z][a-z0-9_]{2,48}$/;
 function isValidOrganizacaoId(id) {
   return CUID_REGEX.test(id) || UUID_REGEX.test(id);
 }
@@ -125,7 +126,7 @@ function buildSchemaName(idOrganizacao) {
   return name;
 }
 function isValidSchemaName(nomeSchema) {
-  return typeof nomeSchema === "string" && SCHEMA_NAME_REGEX.test(nomeSchema);
+  return typeof nomeSchema === "string" && (SCHEMA_NAME_REGEX.test(nomeSchema) || SCHEMA_NAME_ORGANIZACAO_SMOKE_REGEX.test(nomeSchema));
 }
 
 // src/configurador-client.ts

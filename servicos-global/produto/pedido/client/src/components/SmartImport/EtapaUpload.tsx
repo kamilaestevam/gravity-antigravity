@@ -1,6 +1,6 @@
 /**
  * EtapaUpload.tsx — Etapa 1 do Smart Import
- * Drag-and-drop para selecionar arquivo (xlsx/xls/csv/xml/txt/json)
+ * Drag-and-drop para selecionar arquivo (xlsx/xls/csv/xml/txt/json — sem PDF)
  */
 
 import React, { useRef, useState, useMemo } from 'react'
@@ -10,7 +10,6 @@ import {
   FileXls,
   FileCsv,
   FileCode,
-  FilePdf,
   File,
   Warning,
 } from '@phosphor-icons/react'
@@ -46,7 +45,7 @@ interface EtapaUploadProps {
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const EXTENSOES_ACEITAS = ['xlsx', 'xls', 'csv', 'xml', 'txt', 'json', 'pdf']
+const EXTENSOES_ACEITAS = ['xlsx', 'xls', 'csv', 'xml', 'txt', 'json']
 const ACCEPT_STR = EXTENSOES_ACEITAS.map(e => `.${e}`).join(',')
 const TAMANHO_MAX_MB = 10
 const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
@@ -64,7 +63,6 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
     { ext: 'csv',  label: 'CSV',    descricao: t('pedido.importar.fmt_csv'),   icone: <FileCsv  size={28} weight="duotone" style={{ color: '#60a5fa' }} /> },
     { ext: 'xml',  label: 'XML',    descricao: t('pedido.importar.fmt_xml'),   icone: <FileCode size={28} weight="duotone" style={{ color: '#f59e0b' }} /> },
     { ext: 'json', label: 'JSON',   descricao: t('pedido.importar.fmt_json'),  icone: <FileCode size={28} weight="duotone" style={{ color: '#fb923c' }} /> },
-    { ext: 'pdf',  label: 'PDF',    descricao: t('pedido.importar.fmt_pdf'),   icone: <FilePdf  size={28} weight="duotone" style={{ color: '#f87171' }} /> },
     { ext: 'txt',  label: 'TXT',    descricao: t('pedido.importar.fmt_txt'),   icone: <File     size={28} weight="duotone" style={{ color: '#94a3b8' }} /> },
   ], [t])
 
@@ -191,11 +189,29 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
           ))}
         </div>
 
-        {/* Aviso PDF */}
-        <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textAlign: 'center', margin: 0, lineHeight: 1.4 }}>
-          {t('pedido.importar.aviso_pdf')}<br />
-          {t('pedido.importar.aviso_pdf_2')}
-        </p>
+        <div
+          className="smart-import__tag-em-breve"
+          role="note"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            marginTop: '0.25rem',
+            padding: '0.4rem 0.9rem',
+            borderRadius: '999px',
+            border: '1px solid rgba(148, 163, 184, 0.35)',
+            background: 'rgba(15, 23, 42, 0.72)',
+          }}
+        >
+          <span style={{ fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#fbbf24' }}>
+            {t('pedido.importar.tag_em_breve_badge')}
+          </span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)' }}>
+            {t('pedido.importar.tag_em_breve_texto')}
+          </span>
+        </div>
 
         <input
           ref={inputRef}

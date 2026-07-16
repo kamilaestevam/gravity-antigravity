@@ -9,13 +9,14 @@ import type {
   PropostaBidFreteInternacional,
   StatusCotacao,
 } from './types'
-import { FLUXO_ETAPAS_RESUMIDAS, indiceFluxoPorStatus } from './infograficos-fluxo-cotacao-bid-frete-internacional'
+import { FLUXO_ETAPAS_RESUMIDAS } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 
 export interface MarcosFluxoCotacaoMs {
   rascunho: number
   enviada: number | null
   emCotacao: number | null
   aguardando: number | null
+  fornecedorConcordou: number | null
   aprovada: number | null
 }
 
@@ -99,7 +100,14 @@ export function extrairMarcosFluxoCotacao(
 ): MarcosFluxoCotacaoMs {
   const rascunho = parseMs(cotacao.data_criacao_cotacao_bid_frete_internacional)
   if (rascunho == null) {
-    return { rascunho: Date.now(), enviada: null, emCotacao: null, aguardando: null, aprovada: null }
+    return {
+      rascunho: Date.now(),
+      enviada: null,
+      emCotacao: null,
+      aguardando: null,
+      fornecedorConcordou: null,
+      aprovada: null,
+    }
   }
 
   const enviosMs = disparos
@@ -126,7 +134,14 @@ export function extrairMarcosFluxoCotacao(
     aprovada = parseMs(cotacao.data_atualizacao_cotacao_bid_frete_internacional)
   }
 
-  return { rascunho, enviada, emCotacao, aguardando, aprovada }
+  const propostaGanhadora = propostas.find(
+    (p) => p.status_proposta_bid_frete_internacional === 'APROVACAO_RECEBIDA',
+  ) ?? propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+  const fornecedorConcordou = parseMs(
+    propostaGanhadora?.data_aceite_aprovacao_proposta_bid_frete_internacional,
+  )
+
+  return { rascunho, enviada, emCotacao, aguardando, fornecedorConcordou, aprovada }
 }
 
 function deltaHoras(inicio: number | null, fim: number | null): number | null {
@@ -176,6 +191,7 @@ function preverCadeiaMarcos(
   let enviada = marcos.enviada
   let emCotacao = marcos.emCotacao
   let aguardando = marcos.aguardando
+  let fornecedorConcordou = marcos.fornecedorConcordou
   let aprovada = marcos.aprovada
 
   if (enviada == null) {
@@ -192,8 +208,11 @@ function preverCadeiaMarcos(
   if (aprovada == null) {
     aprovada = somarHoras(aguardando, medias.aguardandoParaAprovada)
   }
+  if (fornecedorConcordou == null) {
+    fornecedorConcordou = somarHoras(aguardando, medias.aguardandoParaAprovada * 0.55)
+  }
 
-  return { ...marcos, enviada, emCotacao, aguardando, aprovada }
+  return { ...marcos, enviada, emCotacao, aguardando, fornecedorConcordou, aprovada }
 }
 
 const CHAVES_MARCO: (keyof MarcosFluxoCotacaoMs)[] = [
@@ -201,6 +220,7 @@ const CHAVES_MARCO: (keyof MarcosFluxoCotacaoMs)[] = [
   'enviada',
   'emCotacao',
   'aguardando',
+  'fornecedorConcordou',
   'aprovada',
 ]
 

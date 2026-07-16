@@ -83,6 +83,13 @@ import { calcularValorTotalItemPedido } from '../services/valorTotalItemPedido.j
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
 import { randomUUID } from 'node:crypto'
+import {
+  aplicarEnvelopeIntegracaoPedido,
+  aplicarEnvelopeListaPedidos,
+  ehRequisicaoApiExterna,
+  normalizarBodyIntegracaoPedido,
+} from '../../../pedido/shared/envelope-integracao-pedido.js'
+import { publicarEventoPedidoIntegracao } from '../../../pedido/server/src/events/publicar-evento-pedido.js'
 
 export const pedidosRouter = Router()
 
@@ -124,6 +131,9 @@ const criarPedidoObjectSchema = z.object({
   referencia_importador_pedido:     z.string().optional().nullable(),
   referencia_exportador_pedido:     z.string().optional().nullable(),
   referencia_fabricante_pedido:     z.string().optional().nullable(),
+  referencia_externa_erp_pedido:    z.string().optional().nullable(),
+  /** Alias CPI/SAP — mapeado para referencia_externa_erp_pedido no boundary */
+  externalRef:                      z.string().optional().nullable(),
   incoterm_pedido:                  z.string().optional().nullable(),
   moeda_pedido:                     z.string().default('USD'),
   // valor_total_pedido e quantidade_total_pedido REMOVIDOS do contrato — são
@@ -1131,6 +1141,35 @@ async function tagTransferencias(
   })
 }
 
+function responderPedidoIntegracao(
+  req: Request,
+  res: Response,
+  pedido: PedidoRaw | null | undefined,
+  status = 200,
+): void {
+  const mapped = mapPedido(pedido)
+  if (ehRequisicaoApiExterna(req.headers)) {
+    res.status(status).json(aplicarEnvelopeIntegracaoPedido(mapped as Record<string, unknown>))
+    return
+  }
+  res.status(status).json(mapped)
+}
+
+function responderListaPedidosIntegracao(
+  req: Request,
+  res: Response,
+  payload: { data: PedidoRaw[]; nextCursor?: string | null; hasMore?: boolean },
+): void {
+  if (ehRequisicaoApiExterna(req.headers)) {
+    res.json({
+      ...payload,
+      data: aplicarEnvelopeListaPedidos(payload.data as Array<Record<string, unknown>>),
+    })
+    return
+  }
+  res.json(payload)
+}
+
 // ── GET / — Listar pedidos ────────────────────────────────────────────────────
 // Suporta dois modos de paginação:
 //   - Cursor: ?cursor=<base64>&sort=data_emissao_pedido&dir=desc&limit=50
@@ -1151,7 +1190,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // que criava filtro impossivel (id_workspace = id_organizacao nunca bate).
       const idWorkspace = req.headers['x-id-workspace'] as string | undefined
 
-      const { status, tipo_operacao, busca, cursor, page, limit, sort, dir, ids_workspaces } = req.query
+      const { status, tipo_operacao, busca, cursor, page, limit, sort, dir, ids_workspaces, data_atualizacao_desde, updatedSince } = req.query
 
       // Filtro multi-workspace (query param vence sobre header). Header continua
       // single para o Portão 3. Quando ids_workspaces vem com >= 1 valor, ele
@@ -1183,6 +1222,16 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]
       }
       if (tipo_operacao) where.tipo_operacao_pedido = tipo_operacao
+
+      const filtroAtualizacaoDesde = (data_atualizacao_desde ?? updatedSince) as string | undefined
+      if (filtroAtualizacaoDesde) {
+        const desde = new Date(filtroAtualizacaoDesde)
+        if (Number.isNaN(desde.getTime())) {
+          return res.status(400).json({ error: { message: 'data_atualizacao_desde / updatedSince invalido' } })
+        }
+        where.data_atualizacao_pedido = { gte: desde }
+      }
+
       if (busca) {
         // Busca ampla: campos fixos + nomes das partes + colunas do usuário
         // (nome e conteúdo). Em AND para não colidir com o OR do keyset abaixo.
@@ -1256,13 +1305,15 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         const mapped = registrosComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
         const mappedEnriquecido = await enriquecerNomesPartesListaPedidos(mapped)
         const comTransferencias = await tagTransferencias(db, mappedEnriquecido, idOrganizacao)
-        return res.json({ data: comTransferencias, nextCursor: cursor_proximo, hasMore: tem_mais })
+        return responderListaPedidosIntegracao(req, res, { data: comTransferencias, nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
       // ── Offset pagination (backward compat) ──
       const pageNum = Number(page ?? 1)
       const limitNum = Number(limit ?? 20)
       const skip = (pageNum - 1) * limitNum
+      const sortFieldOffset = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_atualizacao_pedido') as CursorSortField
+      const sortDirOffset = dir === 'asc' ? 'asc' : 'desc'
 
       // Contagem de itens: SQL raw para evitar bug do Prisma 5.22 com filtro relation
       // aninhado (`{ pedido_item: where }` retornava 539 em vez dos ~57k reais).
@@ -1311,13 +1362,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
             itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
             snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
           },
-          // Ordenação padrão da lista: mais recém-criado primeiro. Garante que
-          // o pedido que o usuário acabou de criar aparece no topo, mesmo
-          // quando a data_emissao_pedido bate empate com pedidos antigos
-          // (ex: vários pedidos com data_emissao = hoje).
+          // Respeita sort/dir do cliente (mesmo contrato do branch cursor).
           orderBy: [
-            { data_criacao_pedido: 'desc' },
-            { id_pedido: 'desc' },
+            { [sortFieldOffset]: sortDirOffset },
+            { id_pedido: sortDirOffset },
           ],
           skip,
           take: limitNum,
@@ -1550,7 +1598,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       // Sem isso, o frontend recarrega o detail/snapshot e perde tudo.
       const [pedidoComCol] = await injetarColunasPedidoEItens(db, [pedido], tenant_id)
 
-      res.json(mapPedido(pedidoComCol))
+      responderPedidoIntegracao(req, res, pedidoComCol)
     })
   } catch (err) {
     next(err)
@@ -1599,7 +1647,8 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
 // ── POST / — Criar pedido com itens ───────────────────────────────────────────
 
 pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = criarPedidoSchema.safeParse(req.body)
+  const bodyNormalizado = normalizarBodyIntegracaoPedido(req.body as Record<string, unknown>)
+  const result = criarPedidoSchema.safeParse(bodyNormalizado)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
   }
@@ -1611,6 +1660,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     suid_fabricante,
     suid_ope,
     confirmar_numero_duplicado,
+    externalRef: _externalRefOmitido,
     ...pedidoData
   } = result.data
 
@@ -1940,7 +1990,16 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
         },
       })
 
-      res.status(201).json(mapPedido(novoPedido))
+      responderPedidoIntegracao(req, res, novoPedido, 201)
+      const mappedCriado = mapPedido(novoPedido) as Record<string, unknown>
+      const pedidoEventoCriado = ehRequisicaoApiExterna(req.headers)
+        ? aplicarEnvelopeIntegracaoPedido(mappedCriado)
+        : mappedCriado
+      void publicarEventoPedidoIntegracao({
+        id_organizacao: ctxTenant.idOrganizacao,
+        tipo_evento: 'pedido.criado',
+        pedido: pedidoEventoCriado as Record<string, unknown>,
+      })
     })
   } catch (err) {
     next(err)
@@ -1950,7 +2009,8 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 // ── PUT /:id — Atualizar pedido ───────────────────────────────────────────────
 
 pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  const result = atualizarPedidoSchema.safeParse(req.body)
+  const bodyNormalizado = normalizarBodyIntegracaoPedido(req.body as Record<string, unknown>)
+  const result = atualizarPedidoSchema.safeParse(bodyNormalizado)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
   }
@@ -1994,6 +2054,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       delete dataLimpa.peso_liquido_total_pedido
       delete dataLimpa.peso_bruto_total_pedido
       delete dataLimpa.cubagem_total_pedido
+      delete dataLimpa.externalRef
 
       const updated = await db.pedido.update({
         where: { id_pedido: req.params.id },
@@ -2001,7 +2062,15 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
-      res.json(mapPedido(updated))
+      responderPedidoIntegracao(req, res, updated)
+      if (ehRequisicaoApiExterna(req.headers)) {
+        const mappedAtualizado = mapPedido(updated) as Record<string, unknown>
+        void publicarEventoPedidoIntegracao({
+          id_organizacao: tenant_id,
+          tipo_evento: 'pedido.atualizado',
+          pedido: aplicarEnvelopeIntegracaoPedido(mappedAtualizado) as Record<string, unknown>,
+        })
+      }
     })
   } catch (err) {
     next(err)

@@ -406,6 +406,18 @@ export function enriquecerColunaComRegraTooltip<T>(
       ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
       : montarTooltipPills(t, key, optsMontar)
 
+  // descricao_item: célula já monta TooltipGlobal com o texto truncado; sem pills no hover.
+  if (key === 'descricao_item') {
+    return {
+      ...col,
+      tooltipTitulo: titulo,
+      ...(tituloItem ? { tooltipTituloItem: tituloItem } : {}),
+      tooltipDescricao: tooltipDescricaoCabecalho,
+      tooltipInline: true,
+      tooltipInterativo: false,
+    }
+  }
+
   // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
   if (
     CHAVES_TOOLTIP_INLINE_LISTA.has(key)

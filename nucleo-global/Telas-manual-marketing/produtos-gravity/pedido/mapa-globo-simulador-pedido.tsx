@@ -24,6 +24,7 @@ import {
   projectGlobePoint,
 } from './geo-terra-globo-simulador-pedido'
 import {
+  type MapaPedidoEmpresaSimulador,
   type PinMapaSimuladorPedido,
 } from './dados-mapa-globo-simulador-pedido'
 import {
@@ -67,14 +68,16 @@ function desenharSetaDirecionalRota(
 type PinProjetado = PinMapaSimuladorPedido & { px: number; py: number; opacity: number }
 
 type Props = {
-  empresasSelecionadas: PerfilEmpresaSimulador[]
+  empresasSelecionadas?: PerfilEmpresaSimulador[]
+  mapaEscopoOverride?: MapaPedidoEmpresaSimulador
 }
 
-export function MapaGloboSimuladorPedido({ empresasSelecionadas }: Props) {
-  const contextoRefinar = useMemo(
-    () => prepararContextoRefinarMapaSimuladorPedido(empresasSelecionadas),
-    [empresasSelecionadas],
-  )
+export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopoOverride }: Props) {
+  const contextoRefinar = useMemo(() => {
+    const base = prepararContextoRefinarMapaSimuladorPedido(empresasSelecionadas)
+    if (!mapaEscopoOverride) return base
+    return { ...base, mapaBase: mapaEscopoOverride }
+  }, [empresasSelecionadas, mapaEscopoOverride])
 
   const [filtrosRefinar, setFiltrosRefinar] = useState<FiltrosRefinarMapaSimuladorPedido | null>(null)
 

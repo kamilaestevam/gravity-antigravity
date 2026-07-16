@@ -10,6 +10,13 @@ import {
   type ComposicaoPorMoedaPropostaBidFreteInternacional,
   type LinhaTaxaPropostaBidFreteInternacional,
 } from './taxas-linha-proposta-bid-frete-internacional'
+import type { TipoValorFreteBidFreteInternacional } from '../../../shared/tipo-valor-frete-bid-frete-internacional'
+import {
+  formatarTarifaUnitariaFaixaFreteBaseResumo,
+  linhasFaixaValorFretePropostaComTarifa,
+  rotuloFaixaFreteBaseResumo,
+  type LinhaFaixaValorFretePropostaFormBidFreteInternacional,
+} from './faixas-valor-frete-proposta-bid-frete-internacional'
 import { TextoTruncadoComTooltip } from './texto-truncado-com-tooltip-bid-frete-internacional'
 import {
   converterValorMoedaParaBrlEstimado,
@@ -163,6 +170,58 @@ function CelulaTaxasProposta({
   )
 }
 
+function CelulaFreteBaseFaixas({
+  moedaFrete,
+  linhas,
+  rotuloSemTaxas,
+  taxasConversaoBrl,
+  rotuloEstimadoBrl,
+}: {
+  moedaFrete: string
+  linhas: LinhaFaixaValorFretePropostaFormBidFreteInternacional[]
+  rotuloSemTaxas: string
+  taxasConversaoBrl?: Record<string, number>
+  rotuloEstimadoBrl?: string
+}) {
+  const itens = linhasFaixaValorFretePropostaComTarifa(linhas)
+
+  if (itens.length === 0) {
+    return <span className="brc-tabela-resumo-vazio">{rotuloSemTaxas}</span>
+  }
+
+  return (
+    <div className="brc-tabela-resumo-coluna brc-tabela-resumo-coluna--faixas">
+      <ul className="brc-tabela-resumo-faixas-lista">
+        {itens.map((linha) => {
+          const nome = rotuloFaixaFreteBaseResumo(linha)
+          const tarifa = formatarTarifaUnitariaFaixaFreteBaseResumo(moedaFrete, linha)
+          const valorNumerico = parseValorLinhaTaxa(linha.tarifa_faixa_valor_frete_proposta)
+          const moeda = moedaFrete.trim() || 'USD'
+          return (
+            <li
+              key={linha.id_linha_faixa_valor_frete_proposta}
+              className="brc-tabela-resumo-faixa-linha"
+            >
+              <span className="brc-tabela-resumo-faixa-tag">
+                <span className="brc-tabela-resumo-faixa-tag-peso">{nome}</span>
+                <span className="brc-tabela-resumo-faixa-tag-valor">{tarifa}</span>
+              </span>
+              {taxasConversaoBrl ? (
+                <EstimadoBrlItem
+                  valor={valorNumerico}
+                  moeda={moeda}
+                  taxasConversaoBrl={taxasConversaoBrl}
+                  rotuloEstimadoBrl={rotuloEstimadoBrl}
+                />
+              ) : null}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 function CelulaFreteBase({
   moedaFrete,
   valorFrete,
@@ -258,6 +317,8 @@ export function TabelaResumoPropostaBidFreteInternacional({
   composicao,
   rotulos,
   taxasConversaoBrl,
+  tipoValorFrete = 'TOTAL',
+  linhasFaixa = [],
 }: {
   moedaFrete: string
   valorFrete: string
@@ -266,31 +327,54 @@ export function TabelaResumoPropostaBidFreteInternacional({
   composicao: ComposicaoPorMoedaPropostaBidFreteInternacional[]
   rotulos: RotulosTabelaResumoPropostaBidFreteInternacional
   taxasConversaoBrl?: Record<string, number>
+  tipoValorFrete?: TipoValorFreteBidFreteInternacional
+  linhasFaixa?: LinhaFaixaValorFretePropostaFormBidFreteInternacional[]
 }) {
   const moedaPrioritaria = moedaFrete.trim()
   const rotuloEstimadoBrl = rotulos.rotuloEstimadoBrl
+  const exibirFaixasFreteBase = tipoValorFrete === 'FAIXA_PESO'
+  const ocultarValorTotal = exibirFaixasFreteBase
 
   return (
     <div className="brc-tabela-resumo-wrapper">
-      <table className="brc-tabela-resumo" aria-label={rotulos.acessibilidade}>
+      <table
+        className={[
+          'brc-tabela-resumo',
+          exibirFaixasFreteBase ? 'brc-tabela-resumo--faixas-frete' : '',
+          ocultarValorTotal ? 'brc-tabela-resumo--sem-valor-total' : '',
+        ].filter(Boolean).join(' ')}
+        aria-label={rotulos.acessibilidade}
+      >
         <thead>
           <tr>
             <th scope="col">{rotulos.colunaFreteBase}</th>
             <th scope="col">{rotulos.colunaTaxasOrigem}</th>
             <th scope="col">{rotulos.colunaTaxasDestino}</th>
-            <th scope="col">{rotulos.colunaValorTotal}</th>
+            {!ocultarValorTotal ? (
+              <th scope="col">{rotulos.colunaValorTotal}</th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
           <tr>
             <td data-label={rotulos.colunaFreteBase}>
-              <CelulaFreteBase
-                moedaFrete={moedaFrete}
-                valorFrete={valorFrete}
-                rotuloSemTaxas={rotulos.semTaxas}
-                taxasConversaoBrl={taxasConversaoBrl}
-                rotuloEstimadoBrl={rotuloEstimadoBrl}
-              />
+              {exibirFaixasFreteBase ? (
+                <CelulaFreteBaseFaixas
+                  moedaFrete={moedaFrete}
+                  linhas={linhasFaixa}
+                  rotuloSemTaxas={rotulos.semTaxas}
+                  taxasConversaoBrl={taxasConversaoBrl}
+                  rotuloEstimadoBrl={rotuloEstimadoBrl}
+                />
+              ) : (
+                <CelulaFreteBase
+                  moedaFrete={moedaFrete}
+                  valorFrete={valorFrete}
+                  rotuloSemTaxas={rotulos.semTaxas}
+                  taxasConversaoBrl={taxasConversaoBrl}
+                  rotuloEstimadoBrl={rotuloEstimadoBrl}
+                />
+              )}
             </td>
             <td data-label={rotulos.colunaTaxasOrigem}>
               <CelulaTaxasProposta
@@ -312,14 +396,16 @@ export function TabelaResumoPropostaBidFreteInternacional({
                 rotuloEstimadoBrl={rotuloEstimadoBrl}
               />
             </td>
-            <td data-label={rotulos.colunaValorTotal}>
-              <CelulaValorTotal
-                composicao={composicao}
-                rotuloSemTaxas={rotulos.semTaxas}
-                taxasConversaoBrl={taxasConversaoBrl}
-                rotuloEstimadoBrl={rotuloEstimadoBrl}
-              />
-            </td>
+            {!ocultarValorTotal ? (
+              <td data-label={rotulos.colunaValorTotal}>
+                <CelulaValorTotal
+                  composicao={composicao}
+                  rotuloSemTaxas={rotulos.semTaxas}
+                  taxasConversaoBrl={taxasConversaoBrl}
+                  rotuloEstimadoBrl={rotuloEstimadoBrl}
+                />
+              </td>
+            ) : null}
           </tr>
         </tbody>
       </table>

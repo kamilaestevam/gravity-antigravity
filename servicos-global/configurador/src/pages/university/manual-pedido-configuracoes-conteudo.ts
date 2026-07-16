@@ -16,8 +16,6 @@ export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_OCULTAR_SETA = '/
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_ATIVAR_FLUXO_1 = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-ativar-fluxo-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_ATIVAR_FLUXO_2 = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-ativar-fluxo-2.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_ATIVAR_FLUXO_3 = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-ativar-fluxo-3.png'
-export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_INFORMACAO = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-informacao.png'
-export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_INFORMACAO_DETALHES = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-informacao-detalhes.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_LISTA_CARD_LISTA = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-lista-card-lista.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_LISTA_SALVAR = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-lista-salvar.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_LISTA_SALVAR_CONFIRMACAO_1 = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-lista-salvar-confirmacao-1.png'
@@ -26,7 +24,6 @@ export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_LISTA_SAL
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_LISTA_SETA = '/university/screenshots/pedido-configuracoes-cards-ativos-disponiveis-remover-lista-seta.png'
 export const SCREENSHOT_PEDIDO_CONFIG_CARDS_PERIODO_COMPARACAO = '/university/screenshots/pedido-configuracoes-cards-periodo-comparacao.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CAMPOS_CALCULADOS = '/university/screenshots/pedido-configuracoes-colunas-campos-calculados.png'
-export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS = '/university/screenshots/pedido-configuracoes-colunas-casas-decimais.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS_EDITAR_1 = '/university/screenshots/pedido-configuracoes-colunas-casas-decimais-editar-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS_EDITAR_2 = '/university/screenshots/pedido-configuracoes-colunas-casas-decimais-editar-2.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS_EDITAR_3 = '/university/screenshots/pedido-configuracoes-colunas-casas-decimais-editar-3.png'
@@ -36,9 +33,7 @@ export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA = '/university/screen
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA_FLUXO_1 = '/university/screenshots/pedido-configuracoes-colunas-formato-data-fluxo-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA_FLUXO_2 = '/university/screenshots/pedido-configuracoes-colunas-formato-data-fluxo-2.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA_FLUXO_3 = '/university/screenshots/pedido-configuracoes-colunas-formato-data-fluxo-3.png'
-export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS = '/university/screenshots/pedido-configuracoes-colunas-personalizadas.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1 = '/university/screenshots/pedido-configuracoes-colunas-personalizadas-criar-coluna-1.png'
-export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_2 = '/university/screenshots/pedido-configuracoes-colunas-personalizadas-criar-coluna-2.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_1 = '/university/screenshots/pedido-configuracoes-colunas-personalizadas-criar-coluna-checkbox-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_2 = '/university/screenshots/pedido-configuracoes-colunas-personalizadas-criar-coluna-checkbox-2.png'
 export const SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_3 = '/university/screenshots/pedido-configuracoes-colunas-personalizadas-criar-coluna-checkbox-3.png'
@@ -103,20 +98,72 @@ export const SCREENSHOT_PEDIDO_CONFIG_STATUS_NOVO_2 = '/university/screenshots/p
 export const SCREENSHOT_PEDIDO_CONFIG_STATUS_NOVO_3 = '/university/screenshots/pedido-configuracoes-status-novo-3.png'
 export const SCREENSHOT_PEDIDO_CONFIG_STATUS_NOVO_4 = '/university/screenshots/pedido-configuracoes-status-novo-4.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TABELA_LINHAS_PAGINA = '/university/screenshots/pedido-configuracoes-tabela-linhas-pagina.png'
-export const SCREENSHOT_PEDIDO_CONFIG_TABELA_LINHAS_PAGINA_1 = '/university/screenshots/pedido-configuracoes-tabela-linhas-pagina-1.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TABELA_PEDIDOS_EM_ATRASO_VERMELHO = '/university/screenshots/pedido-configuracoes-tabela-pedidos-em-atraso-vermelho.png'
 export const SCREENSHOT_PEDIDO_CONFIG_TELA_PRINCIPAL = '/university/screenshots/pedido-configuracoes-tela-principal.png'
 
+/** Abas principais de Configurações — H2 visível no corpo (não `rotuloPasso`). */
+const TITULOS_ABA_PEDIDO_CONFIGURACOES = new Set([
+  'cards',
+  'tabela',
+  'colunas',
+  'kanban',
+  'status',
+  'numeração',
+])
+
+/** Passos visíveis no corpo, omitidos do menu lateral / sumário do Guia. */
+const PASSOS_OCULTOS_SUMARIO_PEDIDO_CONFIGURACOES = new Set([
+  'adicionar card',
+  'detalhes ao adicionar',
+  'ocultar card',
+  'remover card',
+  'reativar card',
+  'nova coluna personalizada tipo texto',
+  'nova coluna personalizada tipo numérico',
+  'nova coluna personalizada tipo data',
+  'nova coluna personalizada tipo percentual',
+  'nova coluna personalizada tipo lista',
+  'nova coluna personalizada tipo checkbox',
+  'nova coluna personalizada tipo tipo documento',
+  'nova coluna personalizada tipo fórmula',
+  'editar coluna personalizada',
+  'ocultar coluna personalizada',
+  'excluir colunas personalizadas',
+  'colunas de status',
+  'card do kanban',
+  'modal do kanban',
+])
+
 function renumerarPassosConfig(passos: PassoSemNumero[]): DocPassoVisual[] {
-  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
+  return passos.map((passo, i) => {
+    const tituloCurto = passo.tituloCurto?.trim()
+    const tituloCurtoNorm = tituloCurto?.toLocaleLowerCase('pt-BR') ?? ''
+    const ehTituloAba = TITULOS_ABA_PEDIDO_CONFIGURACOES.has(tituloCurtoNorm)
+    const usarRotuloPassoGuia = Boolean(
+      tituloCurto
+      && !passo.rotuloPasso
+      && tituloCurtoNorm !== 'o que é'
+      && !ehTituloAba,
+    )
+    return {
+      ...passo,
+      num: i + 1,
+      ...(PASSOS_OCULTOS_SUMARIO_PEDIDO_CONFIGURACOES.has(tituloCurtoNorm)
+        ? { ocultarNoSumario: true }
+        : {}),
+      ...(usarRotuloPassoGuia
+        ? { rotuloPasso: tituloCurto, ocultarTituloPasso: true }
+        : {}),
+    }
+  })
 }
 
 export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPassosConfig([
     {
-      titulo: "Visão geral",
-      tituloCurto: "Visão geral",
+      titulo: 'O que é',
+      tituloCurto: 'O que é',
       paragrafos: [
-        "No menu lateral, **Configurações** reúne as preferências do produto no workspace: **Cards**, **Tabela**, **Colunas**, **Kanban**, **Status**, **Numeração** e **Templates PDF** — cada aba afeta a visualização ou regras do Pedido para todos os usuários do workspace (salvo cards e colunas da lista, que são por usuário).",
+        'No menu lateral, **Configurações** reúne as preferências do produto no workspace: **Cards**, **Tabela**, **Colunas**, **Kanban**, **Status**, **Numeração** e **Templates PDF**. Cada aba afeta a visualização ou regras do Pedido para todos os usuários do workspace (salvo cards e colunas da lista, que são por usuário).',
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -134,8 +181,8 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Cards — período de comparação",
-      tituloCurto: "Período cards",
+      titulo: 'Cards',
+      tituloCurto: 'Cards',
       paragrafos: [
         "Em **Cards**, o **período de comparação** define o recorte usado nos indicadores de tendência dos cards ativos no topo da **Lista** e **Insights**.",
       ],
@@ -169,7 +216,6 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_ADICIONAR,
-              paragrafoAntes: "**01.** Clique em **+** no card desejado",
             },
           ],
         },
@@ -284,32 +330,6 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Cards — detalhes ao remover",
-      tituloCurto: "Detalhes do card",
-      paragrafos: [
-        "Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período** — útil para saber o que deixa de ser exibido.",
-      ],
-      galeriaComparacaoAposParagrafo: [
-        {
-          indice: 0,
-          colunas: 2,
-          textoAcimaEstiloCorpo: true,
-          telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_INFORMACAO,
-              paragrafoAntes: "Abra **Ver detalhes** antes de remover",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_INFORMACAO_DETALHES,
-              paragrafoAntes: "Resumo do card: campo, agregação e origem",
-            },
-          ],
-        },
-      ],
-    },
-    {
       titulo: "Cards — reativar após remover",
       tituloCurto: "Reativar card",
       paragrafos: [
@@ -349,7 +369,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 3,
+          colunas: 2,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
@@ -359,16 +379,18 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             },
             {
               legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_TABELA_LINHAS_PAGINA_1,
-              paragrafoAntes: "**02.** Selecione a quantidade (ex.: 25, 50, 100)",
-            },
-            {
-              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_TABELA_PEDIDOS_EM_ATRASO_VERMELHO,
-              paragrafoAntes: "**03.** **Destacar pedidos atrasados em vermelho**",
+              paragrafoAntes: "**02.** **Pedidos atrasados destaque**",
             },
           ],
         },
+      ],
+    },
+    {
+      titulo: "Colunas",
+      tituloCurto: "Colunas",
+      paragrafos: [
+        "Em **Colunas**, configure **casas decimais**, **formato de data** e **colunas personalizadas** exibidas na **Lista** — crie, reordene, oculte ou exclua campos do workspace.",
       ],
     },
     {
@@ -383,11 +405,6 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
           colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS,
-              paragrafoAntes: "Visão das colunas numéricas e grupos **Pedido** / **Personalizadas**",
-            },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS_EDITAR_1,
@@ -442,43 +459,29 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA_FLUXO_2,
-              paragrafoAntes: "**03.** Preview do formato escolhido",
+              paragrafoAntes: "**03.** **Salvar** preferências",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_FORMATO_DATA_FLUXO_3,
-              paragrafoAntes: "**04.** **Salvar** preferências",
+              paragrafoAntes: "**04.** Formato aplicado na **Lista**",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Colunas personalizadas — visão geral",
-      tituloCurto: "Personalizadas",
-      paragrafos: [
-        "**Personalizadas** lista colunas criadas pelo workspace. **Arraste** para reordenar, **olho** para ocultar, **+ Criar Coluna** para novos tipos (**Texto**, **Numérico**, **Data**, **Percentual**, **Lista**, **Checkbox**, **Tipo Documento**, **Fórmula**).",
-      ],
-      galeriaComparacaoAposParagrafo: [
-        {
-          indice: 0,
-          colunas: 1,
-          textoAcimaEstiloCorpo: true,
-          telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS,
-              paragrafoAntes: "Lista de colunas customizadas do workspace",
-            },
-          ],
-        },
-      ],
+      titulo: "Colunas personalizadas",
+      tituloCurto: "Colunas personalizadas",
+      destaqueRotuloPassoGuia: true,
+      mostrarInfograficoPedidoConfiguracoesColunasAdaptacao: true,
+      paragrafos: [],
     },
     {
-      titulo: "Criar coluna — Texto",
-      tituloCurto: "Coluna Texto",
+      titulo: "Nova coluna personalizada tipo Texto",
+      tituloCurto: "Nova coluna personalizada tipo Texto",
       paragrafos: [
-        "Fluxo para coluna **Texto** — nome e visibilidade na lista.",
+        "Nova coluna personalizada tipo **Texto** — **+ Criar Coluna**, informe o **nome**, escolha **Texto** no modal e salve para exibir na **Lista**.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -493,151 +496,53 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             },
             {
               legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_2,
-              paragrafoAntes: "**02.** Escolha tipo **Texto**",
-            },
-            {
-              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TEXTO,
-              paragrafoAntes: "**03.** Modal de criação",
+              paragrafoAntes: "**02.** Modal tipo **Texto**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TEXTO_1,
-              paragrafoAntes: "**04.** Informe o **nome**",
+              paragrafoAntes: "**03.** Informe o **nome**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TEXTO_NA_TELA,
-              paragrafoAntes: "**05.** Coluna visível na **Lista** após salvar",
+              paragrafoAntes: "**04.** Coluna visível na **Lista** após salvar",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Criar coluna — Numérico",
-      tituloCurto: "Coluna Numérico",
+      titulo: "Nova coluna personalizada tipo Numérico",
+      tituloCurto: "Nova coluna personalizada tipo Numérico",
       paragrafos: [
-        "Coluna **Numérico** para valores quantitativos customizados.",
+        "Nova coluna personalizada tipo **Numérico** — **+ Criar Coluna**, escolha **Numérico** no modal e configure **nome** e opções.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 3,
+          colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
               legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_NUMERO_1,
-              paragrafoAntes: "**01.** Tipo **Numérico**",
+              paragrafoAntes: "**02.** Modal tipo **Numérico**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_NUMERO_2,
-              paragrafoAntes: "**02.** Nome e opções",
+              paragrafoAntes: "**03.** Nome e opções",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_NUMERO_3,
-              paragrafoAntes: "**03.** **Salvar** coluna",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      titulo: "Criar coluna — Data",
-      tituloCurto: "Coluna Data",
-      paragrafos: [
-        "Coluna **Data** para campos de calendário customizados.",
-      ],
-      galeriaComparacaoAposParagrafo: [
-        {
-          indice: 0,
-          colunas: 3,
-          textoAcimaEstiloCorpo: true,
-          telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_1,
-              paragrafoAntes: "**01.** Tipo **Data**",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_2,
-              paragrafoAntes: "**02.** Configure nome e formato",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_3,
-              paragrafoAntes: "**03.** Coluna criada",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      titulo: "Criar coluna — Percentual",
-      tituloCurto: "Coluna Percentual",
-      paragrafos: [
-        "Coluna **Percentual %** para indicadores em percentual.",
-      ],
-      galeriaComparacaoAposParagrafo: [
-        {
-          indice: 0,
-          colunas: 3,
-          textoAcimaEstiloCorpo: true,
-          telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_1,
-              paragrafoAntes: "**01.** Tipo **Percentual**",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_2,
-              paragrafoAntes: "**02.** Nome da coluna",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_3,
-              paragrafoAntes: "**03.** **Salvar**",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      titulo: "Criar coluna — Lista (Select)",
-      tituloCurto: "Coluna Lista",
-      paragrafos: [
-        "Coluna **Select/Lista** — defina opções fixas para seleção na tabela.",
-      ],
-      galeriaComparacaoAposParagrafo: [
-        {
-          indice: 0,
-          colunas: 2,
-          textoAcimaEstiloCorpo: true,
-          telas: [
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_1,
-              paragrafoAntes: "**01.** Tipo **Select/Lista**",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_2,
-              paragrafoAntes: "**02.** Cadastre **opções**",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_3,
-              paragrafoAntes: "**03.** Revise opções",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_4,
               paragrafoAntes: "**04.** **Salvar** coluna",
             },
           ],
@@ -645,98 +550,226 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Criar coluna — Checkbox",
-      tituloCurto: "Coluna Checkbox",
+      titulo: "Nova coluna personalizada tipo Data",
+      tituloCurto: "Nova coluna personalizada tipo Data",
       paragrafos: [
-        "Coluna **Checkbox** para flags booleanas na lista.",
+        "Nova coluna personalizada tipo **Data** — **+ Criar Coluna**, escolha **Data** no modal e configure **nome** e formato.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 3,
+          colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
               legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_1,
+              paragrafoAntes: "**02.** Modal tipo **Data**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_2,
+              paragrafoAntes: "**03.** Configure nome e formato",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_DATA_3,
+              paragrafoAntes: "**04.** Coluna criada",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Nova coluna personalizada tipo Percentual",
+      tituloCurto: "Nova coluna personalizada tipo Percentual",
+      paragrafos: [
+        "Nova coluna personalizada tipo **Percentual** — **+ Criar Coluna**, escolha **Percentual** no modal e defina o **nome**.",
+      ],
+      galeriaComparacaoAposParagrafo: [
+        {
+          indice: 0,
+          colunas: 1,
+          textoAcimaEstiloCorpo: true,
+          telas: [
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_1,
+              paragrafoAntes: "**02.** Modal tipo **Percentual**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_2,
+              paragrafoAntes: "**03.** Nome da coluna",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_PERCENTUAL_3,
+              paragrafoAntes: "**04.** **Salvar**",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Nova coluna personalizada tipo Lista",
+      tituloCurto: "Nova coluna personalizada tipo Lista",
+      paragrafos: [
+        "Nova coluna personalizada tipo **Lista** (Select) — **+ Criar Coluna**, escolha **Select/Lista** no modal e cadastre as **opções**.",
+      ],
+      galeriaComparacaoAposParagrafo: [
+        {
+          indice: 0,
+          colunas: 1,
+          textoAcimaEstiloCorpo: true,
+          telas: [
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_1,
+              paragrafoAntes: "**02.** Modal tipo **Select/Lista**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_2,
+              paragrafoAntes: "**03.** Cadastre **opções**",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_3,
+              paragrafoAntes: "**04.** Revise opções",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_LISTA_4,
+              paragrafoAntes: "**05.** **Salvar** coluna",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "Nova coluna personalizada tipo Checkbox",
+      tituloCurto: "Nova coluna personalizada tipo Checkbox",
+      paragrafos: [
+        "Nova coluna personalizada tipo **Checkbox** — **+ Criar Coluna**, escolha **Checkbox** no modal e defina o **nome**.",
+      ],
+      galeriaComparacaoAposParagrafo: [
+        {
+          indice: 0,
+          colunas: 1,
+          textoAcimaEstiloCorpo: true,
+          telas: [
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_1,
-              paragrafoAntes: "**01.** Tipo **Checkbox**",
+              paragrafoAntes: "**02.** Modal tipo **Checkbox**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_2,
-              paragrafoAntes: "**02.** Nome da coluna",
+              paragrafoAntes: "**03.** Nome da coluna",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_CHECKBOX_3,
-              paragrafoAntes: "**03.** **Salvar**",
+              paragrafoAntes: "**04.** **Salvar**",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Criar coluna — Tipo Documento",
-      tituloCurto: "Tipo Documento",
+      titulo: "Nova coluna personalizada tipo Tipo Documento",
+      tituloCurto: "Nova coluna personalizada tipo Tipo Documento",
       paragrafos: [
-        "Coluna **Tipo Documento** para classificar anexos ou documentos vinculados.",
+        "Nova coluna personalizada tipo **Tipo Documento** — **+ Criar Coluna**, escolha o tipo no modal e configure as opções.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 3,
+          colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
               legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_DOCUMENTO_1,
-              paragrafoAntes: "**01.** Tipo **Tipo Documento**",
+              paragrafoAntes: "**02.** Modal tipo **Tipo Documento**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_DOCUMENTO_2,
-              paragrafoAntes: "**02.** Configure opções",
+              paragrafoAntes: "**03.** Configure opções",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_DOCUMENTO_3,
-              paragrafoAntes: "**03.** **Salvar**",
+              paragrafoAntes: "**04.** **Salvar**",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Criar coluna — Fórmula",
-      tituloCurto: "Coluna Fórmula",
+      titulo: "Nova coluna personalizada tipo Fórmula",
+      tituloCurto: "Nova coluna personalizada tipo Fórmula",
       paragrafos: [
-        "Coluna **Fórmula** calcula valores a partir de outros campos — uma fórmula por tenant no backend.",
+        "Nova coluna personalizada tipo **Fórmula** — **+ Criar Coluna**, escolha **Fórmula** no modal e monte a expressão calculada.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,
-          colunas: 2,
+          colunas: 1,
           textoAcimaEstiloCorpo: true,
           telas: [
             {
               legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_1,
+              paragrafoAntes: "**01.** **+ Criar Coluna**",
+            },
+            {
+              legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_FORMULA_1,
-              paragrafoAntes: "**01.** Tipo **Fórmula**",
+              paragrafoAntes: "**02.** Modal tipo **Fórmula**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_FORMULA_2,
-              paragrafoAntes: "**02.** Editor de expressão",
+              paragrafoAntes: "**03.** Editor de expressão",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_FORMULA_3,
-              paragrafoAntes: "**03.** Valide a fórmula",
+              paragrafoAntes: "**04.** Valide a fórmula",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_CRIAR_COLUNA_TIPO_FORMULA_4,
-              paragrafoAntes: "**04.** **Salvar** coluna calculada",
+              paragrafoAntes: "**05.** **Salvar** coluna calculada",
             },
           ],
         },
@@ -744,9 +777,9 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
     },
     {
       titulo: "Editar coluna personalizada",
-      tituloCurto: "Editar coluna",
+      tituloCurto: "Editar coluna personalizada",
       paragrafos: [
-        "Clique no **lápis** para editar nome, tipo ou opções de uma coluna existente.",
+        "**Editar coluna personalizada** — clique no **lápis** para alterar **nome**, **tipo** ou **opções** da coluna e **Salvar**.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -757,7 +790,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EDITAR_COLUNA_1,
-              paragrafoAntes: "**01.** **Editar** coluna",
+              paragrafoAntes: "**01.** **Editar** coluna personalizada",
             },
             {
               legenda: '',
@@ -770,9 +803,9 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
     },
     {
       titulo: "Ocultar coluna personalizada",
-      tituloCurto: "Ocultar coluna",
+      tituloCurto: "Ocultar coluna personalizada",
       paragrafos: [
-        "**Olho** oculta a coluna na **Lista** sem excluir — dados permanecem no banco.",
+        "**Ocultar coluna personalizada** — o **olho** remove a coluna da **Lista** sem apagar dados; **Salvar ordem** para aplicar.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -783,32 +816,32 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_OCULTAR_COLUNA_1,
-              paragrafoAntes: "**01.** **Ocultar** coluna",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_OCULTAR_COLUNA_2,
-              paragrafoAntes: "**02.** Coluna oculta na lista",
+              paragrafoAntes: "**01.** **Ocultar** coluna personalizada",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_OCULTAR_COLUNA_4,
-              paragrafoAntes: "**03.** **Exibir** novamente",
+              paragrafoAntes: "**02.** **Salvar ordem** após ocultar",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_OCULTAR_COLUNA_2,
+              paragrafoAntes: "**03.** Coluna oculta na **Lista**",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_OCULTAR_COLUNA_5,
-              paragrafoAntes: "**04.** Coluna visível de volta",
+              paragrafoAntes: "**04.** **Exibir** novamente e **Salvar ordem**",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Excluir coluna personalizada",
-      tituloCurto: "Excluir coluna",
+      titulo: "Excluir colunas personalizadas",
+      tituloCurto: "Excluir colunas personalizadas",
       paragrafos: [
-        "**Excluir** remove a coluna customizada do workspace — operação irreversível; confirme no modal.",
+        "**Excluir colunas personalizadas** — o **ícone de lixeira** remove a coluna do **workspace**; confirme no modal — operação irreversível.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -819,22 +852,22 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EXCLUIR_COLUNA_1,
-              paragrafoAntes: "**01.** **Excluir** coluna",
-            },
-            {
-              legenda: '',
-              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EXCLUIR_COLUNA_2,
-              paragrafoAntes: "**02.** Confirme a exclusão",
+              paragrafoAntes: "**01.** **Excluir** coluna personalizada",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EXCLUIR_COLUNA_3,
-              paragrafoAntes: "**03.** Coluna removida da lista",
+              paragrafoAntes: "**02.** Confirme no modal",
             },
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EXCLUIR_COLUNA_4,
-              paragrafoAntes: "**04.** Estado final após salvar",
+              paragrafoAntes: "**03.** Coluna excluída com sucesso",
+            },
+            {
+              legenda: '',
+              imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_PERSONALIZADAS_EXCLUIR_COLUNA_2,
+              paragrafoAntes: "**04.** Coluna removida da **Lista**",
             },
           ],
         },
@@ -844,7 +877,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       titulo: "Campos calculados",
       tituloCurto: "Campos calculados",
       paragrafos: [
-        "**Campos Calculados** concentra fórmulas de saldo e métricas derivadas aplicadas aos pedidos do workspace.",
+        "**Campos Calculados** é específico para a coluna **Saldo do Pedido** — cada workspace pode ter uma regra própria para calcular o saldo; aqui você customiza a fórmula.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -855,15 +888,22 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CAMPOS_CALCULADOS,
-              paragrafoAntes: "Configure fórmulas e campos derivados",
+              paragrafoAntes: "**01.** Customizar fórmula do **Saldo do Pedido**",
             },
           ],
         },
       ],
     },
     {
+      titulo: "Kanban",
+      tituloCurto: "Kanban",
+      paragrafos: [
+        "Em **Kanban**, configure **colunas** de status no board, campos do **card** e abas do **modal** ao abrir um pedido na visão Kanban.",
+      ],
+    },
+    {
       titulo: "Kanban — colunas",
-      tituloCurto: "Kanban colunas",
+      tituloCurto: "Colunas de status",
       paragrafos: [
         "Em **Kanban › Colunas**, escolha quais **status** aparecem como colunas no board — **olho** para ocultar, **+** para trazer status disponíveis.",
       ],
@@ -904,7 +944,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
     },
     {
       titulo: "Kanban — card",
-      tituloCurto: "Kanban card",
+      tituloCurto: "Card do Kanban",
       paragrafos: [
         "**Kanban › Card** define campos visíveis em cada cartão: número, parceiro, data crítica, valor, incoterm e demais — **arraste** para reordenar.",
       ],
@@ -940,7 +980,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
     },
     {
       titulo: "Kanban — modal",
-      tituloCurto: "Kanban modal",
+      tituloCurto: "Modal do Kanban",
       paragrafos: [
         "**Kanban › Modal** configura as abas **Pedido**, **Quantidades**, **Datas** e **Lembrete** ao clicar um cartão — adicione, remova ou reordene campos por aba.",
       ],
@@ -975,11 +1015,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Status do pedido",
+      titulo: "Status",
       tituloCurto: "Status",
-      paragrafos: [
-        "**Status** lista todos os status do workspace. **Arraste** para reordenar (reflete no Kanban). Status de **sistema** são fixos — sem editar ou excluir.",
-      ],
+      destaqueRotuloPassoGuia: true,
+      mostrarInfograficoPedidoConfiguracoesStatusAdaptacao: true,
+      paragrafos: [],
       galeriaComparacaoAposParagrafo: [
         {
           indice: 0,

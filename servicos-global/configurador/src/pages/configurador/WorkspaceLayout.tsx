@@ -77,7 +77,7 @@ export function WorkspaceLayout() {
   useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.idOrganizacao })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
-  const gabiHeaders = useGabiRequestHeaders()
+  const { headersContexto, contextoPronto } = useGabiRequestHeaders()
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -330,9 +330,9 @@ export function WorkspaceLayout() {
       />
 
       {/* ── Gabi IA Floating Panel ── */}
-      {isGabiOpen && gabiHeaders && (
+      {isGabiOpen && contextoPronto && (
         <div className="ws-gabi-panel">
-          <GabiChat onClose={() => setIsGabiOpen(false)} headers={gabiHeaders} />
+          <GabiChat onClose={() => setIsGabiOpen(false)} headers={headersContexto} />
         </div>
       )}
       

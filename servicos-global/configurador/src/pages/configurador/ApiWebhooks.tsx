@@ -18,6 +18,7 @@ import {
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { ApiCockpitTabs } from './ApiCockpitTabs'
 import { ApiCockpitKpiCards } from './ApiCockpitKpiCards'
+import { BotaoGuiaIntegracaoSapGravity } from '../../components/ModalGuiaIntegracaoSapGravity'
 
 // ─── Schemas Zod (Mandamento 06/09) ──────────────────────────────────────
 
@@ -367,13 +368,16 @@ export function ApiWebhooks() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
           <ApiCockpitTabs />
-          <BotaoGlobal
-            variante="primario"
-            onClick={abrirModalCriar}
-            icone={<Plus size={16} />}
-          >
-            Novo Webhook
-          </BotaoGlobal>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <BotaoGuiaIntegracaoSapGravity foco="webhook" mostrarRotulo />
+            <BotaoGlobal
+              variante="primario"
+              onClick={abrirModalCriar}
+              icone={<Plus size={16} />}
+            >
+              Novo Webhook
+            </BotaoGlobal>
+          </div>
         </div>
 
         <TabelaGlobal

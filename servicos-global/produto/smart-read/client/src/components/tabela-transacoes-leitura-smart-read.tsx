@@ -44,6 +44,8 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
+import { resolverPassoRetomarDaListaSmartRead } from '../../../shared/resolver-passo-retomar-da-lista-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import {
   useListaPainelSmartRead,
   type AplicarConfigListaPainelCallbacks,
@@ -73,7 +75,7 @@ type Props = {
 
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
   if (col.tipo === 'numero') return 'numero'
-  if (col.key === 'status_leitura') return 'enum'
+  if (col.key === 'status_fluxo_leitura') return 'enum'
   return 'texto'
 }
 
@@ -121,17 +123,25 @@ export function TabelaTransacoesLeituraSmartRead({
   const [modalNovaLeituraAberto, setModalNovaLeituraAberto] = useState(false)
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
+  const [passoRetomarLista, setPassoRetomarLista] = useState<number | null>(null)
+  const [hintRetomarLista, setHintRetomarLista] = useState<HintRetomarLeituraListaSmartRead | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const origemPedido = searchParams.get('origem') === 'pedido'
+  const origemProduto = searchParams.get('origem')
+  const origemPedido = origemProduto === 'pedido'
+  const origemBidFrete = origemProduto === 'bid-frete-internacional'
+  const idBidOrigem = searchParams.get('id_bid')
 
   useEffect(() => {
-    if (searchParams.get('origem') === 'pedido' && searchParams.get('acao') === 'nova-leitura') {
-      setModalNovaLeituraAberto(true)
-      const next = new URLSearchParams(searchParams)
-      next.delete('acao')
-      setSearchParams(next, { replace: true })
-    }
+    const origem = searchParams.get('origem')
+    const abreNovaLeitura =
+      searchParams.get('acao') === 'nova-leitura'
+      && (origem === 'pedido' || origem === 'bid-frete-internacional')
+    if (!abreNovaLeitura) return
+    setModalNovaLeituraAberto(true)
+    const next = new URLSearchParams(searchParams)
+    next.delete('acao')
+    setSearchParams(next, { replace: true })
   }, [searchParams, setSearchParams])
 
   const handleExpandidosMudar = useCallback((count: number) => {
@@ -219,19 +229,61 @@ export function TabelaTransacoesLeituraSmartRead({
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
-  const abrirLeituraExistente = useCallback((idLeitura: string) => {
-    setArquivosNovaLeitura([])
-    setIdLeituraExistente(idLeitura)
-    setModalNovaLeituraAberto(true)
-  }, [])
+  const montarHintRetomarLista = useCallback(
+    (item: TransacaoLeitura): HintRetomarLeituraListaSmartRead => ({
+      nome_arquivo: item.nome_arquivo,
+      nome_leitura: item.nome_leitura,
+      total_arquivos: item.total_arquivos,
+      status_leitura: item.status_leitura,
+      status_fluxo_leitura: item.status_fluxo_leitura,
+      passo_retomar: resolverPassoRetomarDaListaSmartRead(item),
+    }),
+    [],
+  )
+
+  const abrirLeituraExistente = useCallback(
+    (
+      idLeitura: string,
+      passoAtual: number | null = null,
+      hint: HintRetomarLeituraListaSmartRead | null = null,
+    ) => {
+      setArquivosNovaLeitura([])
+      setIdLeituraExistente(idLeitura)
+      setPassoRetomarLista(passoAtual)
+      setHintRetomarLista(hint)
+      setModalNovaLeituraAberto(true)
+    },
+    [],
+  )
+
+  const abrirLeituraDaTransacao = useCallback(
+    (item: TransacaoLeitura) => {
+      const hint = montarHintRetomarLista(item)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
+    },
+    [abrirLeituraExistente, montarHintRetomarLista],
+  )
+
+  const abrirLeituraDoDocumento = useCallback(
+    (item: DocumentoLeituraLista) => {
+      const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
+      if (!pai) {
+        abrirLeituraExistente(item.id_leitura, 2, null)
+        return
+      }
+      const hint = montarHintRetomarLista(pai)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
+    },
+    [abrirLeituraExistente, montarHintRetomarLista, transacoes],
+  )
 
   const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead((item) => abrirLeituraExistente(item.id_leitura)),
-    [abrirLeituraExistente],
+    () => criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
+    [abrirLeituraDaTransacao],
   )
   const mapaColunasFilho = useMemo(
-    () => criarMapaColunasDocumentoLeitura((item) => abrirLeituraExistente(item.id_leitura)),
-    [abrirLeituraExistente],
+    () => criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
+    [abrirLeituraDoDocumento],
   )
 
   const transacoesFiltradas = useMemo(
@@ -560,11 +612,17 @@ export function TabelaTransacoesLeituraSmartRead({
         aberto={modalNovaLeituraAberto}
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
+        passoRetomarLista={passoRetomarLista}
+        hintRetomarLista={hintRetomarLista}
         origemPedido={origemPedido}
+        origemBidFrete={origemBidFrete}
+        idBidOrigem={idBidOrigem}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])
           setIdLeituraExistente(null)
+          setPassoRetomarLista(null)
+          setHintRetomarLista(null)
           void onRecarregar()
         }}
         onConcluido={() => void onRecarregar()}

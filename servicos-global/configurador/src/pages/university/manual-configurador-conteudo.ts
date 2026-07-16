@@ -36,9 +36,20 @@ export interface DocPassoVisual {
   imagemAbaixoTexto?: boolean
   /** Oculta «Passo NN» — use em cenários/estados da tela (não sequência operacional). */
   ocultarRotuloPasso?: boolean
+  /** Substitui «Passo NN» por título do bloco (ex.: «Cards do token»). Ver `manual-tipografia` — layout título Guia. */
+  rotuloPasso?: string
+  /** Academy: `rotuloPasso` + parágrafos após a galeria de prints (transição para o próximo subtópico). */
+  rotuloPassoAposGaleriaComparacao?: boolean
+  paragrafosAposGaleriaComparacao?: string[]
+  /** Chip âmbar «Em construção» ao lado do `rotuloPasso` (Academy + Guia). */
+  tagEmConstrucao?: boolean
   /** Oculta o título do bloco (ex.: screenshot complementar abaixo de uma Dica). */
   ocultarTituloPasso?: boolean
-  /** Badge âmbar «Em desenvolvimento» no topo do conteúdo do passo. */
+  /** Guia — realce visual exclusivo no bloco `rotuloPasso` + parágrafos (seção crítica). */
+  destaqueRotuloPassoGuia?: boolean
+  /** Academy: mantém o passo no corpo, mas omite do menu lateral da aula. */
+  ocultarNoSumario?: boolean
+  /** Badge «Em breve» no topo do conteúdo do passo (fora do acordeão de subtópicos). */
   badgeEmDesenvolvimento?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Dica/lembrete logo após o parágrafo de índice `indice` (0 = primeiro). */
@@ -60,10 +71,18 @@ export interface DocPassoVisual {
     ampliarInferiorDireito?: boolean
     /** Colunas da grade (padrão: até 2). */
     colunas?: number
+    /** CSS `grid-template-columns` customizado (ex.: coluna estreita + coluna flex). */
+    colunasGradeTemplate?: string
+    /** Estica cada célula da grade à mesma altura (ex.: miniaturas de e-mail 1/3 × 2/3). */
+    gradeTelasMesmaAltura?: boolean
     /** Texto acima de cada print no estilo parágrafo do manual (em vez do card UX10). */
     textoAcimaEstiloCorpo?: boolean
+    /** Sobrescreve frase → print e margem entre cenários (px). */
+    espacoTextoFiguraPx?: number
     /** Cabeçalho de passo (chip + legenda roxa) acima da grade — paridade com `galeriaTelasAposTabela`. */
     legendaPasso?: string
+    /** Subtítulo roxo maiúsculo acima da grade (ex.: «PIN» entre controles do mapa e prints de pin). */
+    rotuloPasso?: string
     /** Chips numerados do infográfico de importação (ex.: ['01'] = planilha). */
     pilaresImportarFormas?: Array<'01' | '02' | '03' | '04'>
     /** Título de etapa acima da grade (ex.: Etapa 2 — Mapeamento). */
@@ -77,6 +96,8 @@ export interface DocPassoVisual {
       imagem?: string
       paragrafoAntesPrint?: string
       printsApos?: { imagem: string; paragrafoAntesPrint?: string }[]
+      /** Manual BID Frete §7.01 — chip 01 + visão (mapa), 2 (tooltip) ou 3 (lista). */
+      chipAcessoPainelCotacao?: 'mapa' | 'tooltip' | 'lista'
     }[]
     /** Parágrafos à direita do primeiro print (grade 4 col — ocupa 3 colunas). */
     textoAoLado?: string[]
@@ -96,6 +117,14 @@ export interface DocPassoVisual {
     chipBidFreteModalTransporte?: 'maritimo' | 'aereo' | 'rodoviario'
     /** Manual BID Frete §4.02.01 — chip 01 + lápis da forma Manual no título da etapa. */
     chipBidFreteFormaManual?: boolean
+    /** Manual BID Frete §6.03.01 — chip BID (Stack) no título da etapa. */
+    chipBidFreteBid?: boolean
+    /** Manual BID Frete §7.04 — ícone de token não utilizado no título da etapa. */
+    chipBidFreteTokenNaoUtilizado?: boolean
+    /** Manual BID Frete §7.04 — ícone de token utilizado ou prazo vencido no título da etapa. */
+    chipBidFreteTokenUtilizado?: boolean
+    /** Ritmo extra após o bloco da etapa (antes da próxima etapa com título). */
+    espacoInferiorAposEtapaPx?: number
     /** Manual BID Frete § Nova cotação — chips FCL / LCL / Aéreo-LCL-Rodo acima da grade. */
     mostrarChipsBidFreteTipoCarga?: boolean
     /** Manual BID Frete § Nova cotação — badge do tipo de carga no título da etapa. */
@@ -104,12 +133,16 @@ export interface DocPassoVisual {
     infograficoTransferirResultadoEsperado?: 'novo' | 'existente' | 'reducao'
     /** Manual BID Frete § Nova cotação — mapa UX 10 do resultado esperado na Lista. */
     infograficoBidFreteNovaCotacaoResultadoEsperado?: boolean
+    /** Manual BID Frete §6.03.01 — mapa UX 10: BID como pacote de cotações existentes. */
+    infograficoBidFreteBidPacoteCotacoes?: boolean
     /** Manual BID Frete §4.02.01 — cards dos campos do passo Modal e Operação (após o print). */
     infograficoBidFreteModalOperacaoCampos?: boolean
     /** Manual BID Frete §4.02.01 — print(s) após infográfico «Campos deste passo», antes das DICAS. */
     telasAposInfograficoBidFreteModalOperacaoCampos?: DocGaleriaComparacaoTela[]
     /** Manual BID Frete §4.02.01 — parágrafo entre infográfico e print anotado (ritmo §9.1.1). */
     textoAposInfograficoBidFreteModalOperacaoCampos?: string
+    /** Manual BID Frete §4.02.01 — réplica interativa do passo Modal e Operação (após DICAS). */
+    simuladorBidFreteModalOperacao?: boolean
     /** Manual BID Frete §4.02.01 — cards dos campos do passo Origem e Destino (após o print). */
     infograficoBidFreteOrigemDestinoCampos?: boolean
     /** Manual BID Frete §4.02.01 — print(s) após infográfico Origem e Destino, antes das DICAS. */
@@ -126,6 +159,8 @@ export interface DocPassoVisual {
     calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
     /** Manual BID Frete §4.02.01 — DICAS após prints destino. */
     calloutAposSecaoDestinoOrigemDestinoBidFrete?: DocCalloutManual | DocCalloutManual[]
+    /** Manual BID Frete §4.02.01 — réplica interativa do passo Origem e Destino (após DICAS destino). */
+    simuladorBidFreteOrigemDestino?: boolean
     /** Manual Pedido § Consolidar — infográfico das regras do passo 2 (DE/PARA). */
     infograficoConsolidarPasso2Regras?: boolean
     /** Manual Pedido § Consolidar — resultado esperado após confirmar. */
@@ -162,13 +197,23 @@ export interface DocPassoVisual {
     mostrarIndicadoresMoverDashboardPedido?: boolean
     /** Manual Pedido §07 Kanban — cards do cabeçalho da coluna (status, contagem, ordenar). */
     mostrarCardsKanbanCabecalhoPedido?: boolean
+    /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradePedido?: boolean
   }[]
   /** Com `imagemAbaixoTexto`, renderiza os cards de tooltip KPI abaixo do screenshot. */
   tooltipsKpiAposImagem?: boolean
   /** Com `imagemAbaixoTexto`, parágrafos entre o screenshot e tooltips/galeria. */
   paragrafosAposImagem?: string[]
-  /** Com `imagemAbaixoTexto`, callout logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
-  calloutAposImagem?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
+  /** Com `imagemAbaixoTexto`, grade (chip + título + prints) após o screenshot principal. */
+  galeriaComparacaoAposImagem?: Omit<
+    NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number],
+    'indice'
+  >[]
+  /** Com `imagemAbaixoTexto`, callout(s) logo abaixo do screenshot (antes de `paragrafosAposImagem`). */
+  calloutAposImagem?: DocCalloutManual | DocCalloutManual[]
+  /** Com `imagemAbaixoTexto`, legenda roxa logo abaixo do screenshot principal. */
+  legendaAposImagem?: string
+  legendaAposImagemAlinhamento?: 'left' | 'center'
   /** Com `imagemAbaixoTexto`, callout à direita do texto (antes do screenshot). */
   calloutAoLadoTexto?: boolean
   /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
@@ -195,6 +240,10 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual Pedido §08 Configurações — nativas + personalizadas e prefs por usuário. */
+  mostrarInfograficoPedidoConfiguracoesColunasAdaptacao?: boolean
+  /** Manual Pedido §08 Configurações — rotina de status de sistema + etapas do workspace. */
+  mostrarInfograficoPedidoConfiguracoesStatusAdaptacao?: boolean
   /** Manual Pedido §05 — mapa UX 10 do catálogo nativo (>100 colunas por grupo). */
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
@@ -227,16 +276,38 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFretePainelCotacao?: boolean
   /** Manual BID Frete §03 — infográfico dos cinco acordeões do painel Refinar mapa. */
   mostrarInfograficoBidFreteFiltrosMapa?: boolean
+  /** Manual BID Frete §7.02 — infográfico das seis abas do Painel da Cotação. */
+  mostrarInfograficoBidFreteAbasPainelCotacao?: boolean
   /** Manual BID Frete § Nova cotação manual — mapa comum + ramos modal/carga. */
   mostrarInfograficoBidFreteNovaCotacaoFluxo?: boolean
   /** Manual BID Frete §4.02 Cotação avulsa — mapa das quatro formas de criar. */
   mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
+  /** Manual BID Frete §6.02 — comparação cotação avulsa (única) × BID (pacote). */
+  mostrarInfograficoBidFreteCotacaoAvulsaVsBid?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico avulsa × BID (padrão: 0). */
+  bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */
   bidFreteCotacaoAvulsaFormasInfograficoAposParagrafo?: number
   /** Manual BID Frete § Controles do mapa — barra de ícones (layout distinto dos pilares). */
   mostrarInfograficoBidFreteControlesMapa?: boolean
+  /** Manual Pedido § Insights — infográfico da seleção de local no mapa global. */
+  mostrarInfograficoPedidoMapa?: boolean
+  /** Manual Pedido § Insights — infográfico das três abas do painel Rankings Globais. */
+  mostrarInfograficoPedidoRankingsMapa?: boolean
+  /** Manual Pedido § Controles do mapa — barra de ícones (globo, zoom, trilhos, rotação). */
+  mostrarInfograficoPedidoControlesMapa?: boolean
+  /** Manual Pedido § Insights — infográfico dos seis acordeões do painel Refinar mapa. */
+  mostrarInfograficoPedidoFiltrosMapa?: boolean
+  /** Manual Pedido § Insights — demo interativa mapa + Refinar mapa + Guia ao vivo. */
+  simuladorPedidoFiltrosMapa?: boolean
   /** Índice do parágrafo após o qual inserir o mapa Nova cotação (padrão: 1). */
   bidFreteNovaCotacaoInfograficoAposParagrafo?: number
+  /** Manual BID Frete §4.01 — fluxo + legenda de escopo após a galeria do parágrafo (em vez de antes). */
+  bidFreteNovaCotacaoEscopoAposGaleriaParagrafo?: number
+  /** Manual BID Frete §4.01 — frase introdutória antes do infográfico dos cinco passos (após galeria). */
+  textoAntesInfograficoBidFreteNovaCotacaoFluxo?: string
+  /** Manual BID Frete §4.01 — frase introdutória antes da legenda de ícones de escopo (após galeria). */
+  textoAntesLegendaEscopoIconesBidFrete?: string
   /** Manual BID Frete § Nova cotação — barra de escopo Operação · Modal · Carga. */
   barraEscopoBidFrete?: ManualBidFreteEscopoConfig
   /** Índice do parágrafo após o qual inserir a barra de escopo (padrão: mesmo do infográfico). */
@@ -276,6 +347,8 @@ export interface DocPassoVisual {
   indicadorCursorVisualizacaoAposParagrafo?: number
   /** Screenshots e textos após a tabela de colunas padrão (ou após `colunasTabela`). */
   galeriaTelasAposTabela?: DocGaleriaTela[]
+  /** Subseção após `galeriaTelasAposTabela` e antes do simulador (ex.: Controle de exibição dentro de Refinar mapa). */
+  subsecaoAposGaleriaTabela?: DocSubsecaoAposGaleriaTabela
   /** Callout após tabela + galeria (ex.: resumo da customização completa). */
   calloutAposGaleriaTabela?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca' | 'destaque' | 'lembrete'; texto: string }
   /** Parágrafo em texto corrido após tabela + galeria (sem caixa de callout). */
@@ -323,6 +396,8 @@ export interface DocGaleriaTelaLinhaFiguras {
   legendaApos?: string
   /** Parágrafo logo abaixo desta linha (mesmo estilo do corpo do manual). */
   paragrafoApos?: string
+  /** Parágrafo logo acima das figuras desta linha (largura total). */
+  paragrafoAntes?: string
 }
 
 export type DocCalloutManual = {
@@ -342,12 +417,33 @@ export interface DocGaleriaComparacaoTela {
   legenda: string
   imagem: string
   paragrafoAntes?: string
+  /** Legenda roxa abaixo do print (ex.: Insights / Ranking no painel de cotação). */
+  legendaApos?: string
+  legendaAposAlinhamento?: 'left' | 'center'
+  /** Parágrafo abaixo da legenda roxa (`legendaApos`), sem screenshot adicional. */
+  paragrafoDepois?: string
   /** Manual Pedido § Consolidar — badge do tipo de campo (ex.: Igual, Divergente). */
   chipConsolidarExemplo?: DocChipConsolidarExemploId
   /** Manual Pedido § Edição em massa — badge ilustrativo (nível, tipo, filtro). */
   chipEdicaoMassaExemplo?: DocChipEdicaoMassaExemploId
   /** Dica/aviso acima do print (em vez de `paragrafoAntes` descritivo). */
   calloutAntes?: DocCalloutManual
+  /** Largura máxima do print (coluna estreita — ex.: preview de e-mail). */
+  larguraMaxima?: number
+  /** Altura máxima do print (miniatura vertical — ex.: preview de e-mail longo). */
+  alturaMaxima?: number
+  /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
+  cardInsightGradePedido?: number
+  /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
+  preencherCelulaGrade?: boolean
+}
+
+/** Bloco com rótulo, intro e galeria após a galeria principal do passo. */
+export interface DocSubsecaoAposGaleriaTabela {
+  rotuloPasso: string
+  paragrafos: string[]
+  mostrarInfograficoPedidoControlesMapa?: boolean
+  galeriaTelas?: DocGaleriaTela[]
 }
 
 export interface DocGaleriaTela {
@@ -372,8 +468,20 @@ export interface DocGaleriaTela {
   pilaresPainelCotacaoBidFrete?: Array<'01' | '02' | '03'>
   /** Chips numerados do infográfico de filtros do mapa BID Frete (ex.: ['01'] = operação). */
   pilaresFiltrosMapaBidFrete?: Array<'01' | '02' | '03' | '04' | '05'>
+  /** Chips numerados do infográfico das abas do Painel da Cotação (ex.: ['01'] = Visão geral). */
+  pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
+  /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
+  simuladorBidFretePainelInsights?: boolean
   /** Chips do infográfico de controles do mapa BID Frete (ex.: ['vista'] = globo/plano). */
   pilaresControlesMapaBidFrete?: Array<'vista' | 'zoom' | 'restaurar' | 'linhas' | 'rotacao'>
+  /** Chips numerados do infográfico do mapa Pedido (ex.: ['01'] = selecionar pin). */
+  pilaresMapaPedido?: Array<'01' | '02' | '03' | '04'>
+  /** Chips numerados do infográfico Rankings Globais Pedido (ex.: ['01'] = origens). */
+  pilaresRankingsMapaPedido?: Array<'01' | '02' | '03'>
+  /** Chips do infográfico de controles do mapa Pedido (ex.: ['vista'] = globo/plano). */
+  pilaresControlesMapaPedido?: Array<'vista' | 'zoom' | 'restaurar' | 'trilhos' | 'rotacao'>
+  /** Chips numerados do infográfico de filtros do mapa Pedido (ex.: ['01'] = operação). */
+  pilaresFiltrosMapaPedido?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
   /** Alinhamento da legenda do passo (padrão: `center`; com chips usa `left` ao lado). */
   legendaAlinhamento?: 'left' | 'center'
 }
@@ -403,7 +511,7 @@ export interface DocWizardEtapa {
 
 export interface DocFluxo {
   titulo: string
-  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver ONBOARDING-DOCUMENTO.md §9.6. Se omitido, usa `titulo`. */
+  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver MANUAL-GRAVITY-ONBOARDING.md §9.6. Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean
@@ -426,6 +534,15 @@ export interface DocFluxo {
   mostrarInfograficoPedidoInsights?: boolean
   /** Manual BID Frete §03 — mapa UX 10 da tela Insights. */
   mostrarInfograficoBidFreteInsights?: boolean
+  /** Manual BID Frete §07 — três etapas do Painel da Cotação (após parágrafo introdutório do capítulo). */
+  mostrarInfograficoBidFretePainelCotacao?: boolean
+  /** Print(s) logo após o infográfico do fluxo, antes dos passos visuais. */
+  figurasAposInfografico?: {
+    imagem: string
+    legenda?: string
+    larguraMaxima?: number
+    paragrafoAntes?: string
+  }[]
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -445,6 +562,8 @@ export interface DocFluxo {
   ancoraPassosPrefix?: string
   /** Mapa clicável de subtópicos antes dos passos (requer `prefixoPassosVisuais`). */
   mostrarMapaSubtopicosPassos?: boolean
+  /** Academy — H2 do bloco introdutório (paridade `tituloTopico` da seção; ex.: «Mapa de métricas»). */
+  tituloTopicoAcademy?: string
   /** Mini-stepper das etapas do wizard (ex.: Anexar · Análise · Conferência · Resultado). */
   wizardEtapas?: DocWizardEtapa[]
   passosVisuais: DocPassoVisual[]
@@ -1080,6 +1199,8 @@ export interface DocItemSumarioManual {
   rotuloExibicao?: string
   /** Número do capítulo (itens principais do sumário — compat. testes). */
   num?: number
+  /** Exibe tag «Em breve» no sumário. */
+  emBreve?: boolean
 }
 
 export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[] {
@@ -1105,6 +1226,7 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
     ) {
       function adicionarPassosSumario(passos: DocPassoVisual[], subitemNivel: number) {
         passos.forEach((passo) => {
+          if (passo.ocultarNoSumario) return
           itens.push({
             rotulo: rotuloPassoNoCapitulo(secaoNum, passo),
             titulo: passo.tituloCurto ?? passo.titulo,
@@ -1112,6 +1234,7 @@ export function montarItensSumarioManual(secao: DocSecao): DocItemSumarioManual[
             elementoScroll: `manual-passo-${fluxo.ancoraPassosPrefix}-${passo.num}`,
             subitem: true,
             subitemNivel,
+            emBreve: passo.badgeEmDesenvolvimento || undefined,
           })
           if (passo.passosFilhos?.length) {
             adicionarPassosSumario(passo.passosFilhos, subitemNivel + 1)
@@ -1717,8 +1840,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-fornecedores-tela-principal.png',
     mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      '**Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
-      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: O papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
+      'A tela **Fornecedores** cadastra terceiros COMEX da organização: **despachantes** aduaneiros, **agentes de carga**, armadores, companhias aéreas, **transportadoras rodoviárias** nacionais, **transportadoras rodoviárias** internacionais, seguradoras internacionais, corretoras de câmbio e bancos.',
+      'Aqui também os **exportadores (na importação)** e os **importadores (na exportação)** são cadastrados. O infográfico abaixo explica a diferença: o papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
     ],
     lista: [
       '**Exportador na importação**: Vendedor no exterior quando você importa',
@@ -2493,7 +2616,9 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ],
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Entender as colunas',
+            titulo: 'Entendendo as colunas',
+            rotuloPasso: 'Entendendo as colunas',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-tabela.png',
             imagemAbaixoTexto: true,
             paragrafos: ['Cada linha é um evento gravado automaticamente. As cinco colunas resumem o que aconteceu:'],
@@ -2501,6 +2626,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Filtrar e localizar',
+            rotuloPasso: 'Filtrar e localizar',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-filtros.png',
             paragrafos: [
               'Use os filtros no cabeçalho de cada coluna para restringir por período, **Ação**, **Local** ou **Usuário**.',
@@ -2509,6 +2636,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Exportar registros',
+            rotuloPasso: 'Exportar registros',
+            ocultarTituloPasso: true,
             imagem: '/university/screenshots/configurador-historico-exportar.png',
             paragrafos: [
               'No menu de exportação, baixe os registros **visíveis na página** em Excel, CSV, TXT, XML, PDF ou JSON.',
@@ -2518,20 +2647,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               texto: 'A exportação reflete o recorte atual (filtros + página).',
             },
           },
-          {
-            titulo: 'Navegar entre páginas',
-            paragrafos: [
-              'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela.',
-            ],
-          },
         ]),
       },
       {
         titulo: 'O que o histórico registra',
         tituloSumario: 'O que o histórico registra',
         paragrafos: [
-          'Nesta tela do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo).',
-          'Abaixo, a tabela com todos os eventos que o histórico registra na plataforma.',
+          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma — módulo, ação e contexto de cada evento auditável.',
+          'Na tela **Histórico** do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo). No catálogo abaixo, expanda cada seção para ver o detalhe.',
         ],
         calloutAposParagrafo: {
           indice: 1,

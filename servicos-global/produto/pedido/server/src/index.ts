@@ -180,11 +180,43 @@ const _resolverOrg = resolverOrganizacao({
 // Caminho JWT recebe urlBanco + prismaInterno via middleware; caminho S2S
 // (sem JWT, resolveOrganizacaoById) precisa anexar ambos manualmente.
 const _urlBancoPedido = process.env.DATABASE_URL
+
+const SMOKE_HEADER_SCHEMA_PEDIDO = 'x-gravity-smoke-schema-pedido'
+
+function resolverNomeSchemaSmokeS2s(idOrganizacao: string, req: Request): string | null {
+  const header = req.headers[SMOKE_HEADER_SCHEMA_PEDIDO]
+  if (typeof header === 'string' && header.trim() && idOrganizacao.startsWith('csmoketest')) {
+    return header.trim()
+  }
+  const smokeSchema = process.env.SMOKE_SCHEMA_ORGANIZACAO?.trim()
+  const smokeId = process.env.SMOKE_ID_ORGANIZACAO?.trim()
+  if (smokeSchema && smokeId && idOrganizacao === smokeId) {
+    return smokeSchema
+  }
+  return null
+}
+
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   const idOrg = req.headers['x-id-organizacao'] as string | undefined
   const hasJwt = !!req.headers['authorization']
   if (!hasJwt && idOrg) {
     try {
+      const nomeSchemaSmoke = resolverNomeSchemaSmokeS2s(idOrg, req)
+      if (nomeSchemaSmoke) {
+        req.organizacao = {
+          idOrganizacao: idOrg,
+          nomeSchema: nomeSchemaSmoke,
+          idWorkspace: (req.headers['x-id-workspace'] as string | undefined) ?? idOrg,
+          idUsuario: 'smoke-integracao-sap',
+          tiposUsuario: [],
+          idCorrelacao: (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID(),
+          urlBanco: _urlBancoPedido,
+          prismaInterno: _prismaPedido,
+        }
+        ;(req as Record<string, unknown>).externalApi = true
+        return next()
+      }
+
       req.organizacao = {
         ...(await resolveOrganizacaoById(idOrg)),
         urlBanco: _urlBancoPedido,

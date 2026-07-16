@@ -33,7 +33,7 @@ export default defineConfig({
     sourcemap: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react', 'react-i18next', 'i18next'],
+    include: ['react', 'react-dom', 'react-router-dom', '@phosphor-icons/react', 'react-i18next', 'i18next', 'exceljs', 'xlsx'],
   },
 })
 

@@ -30,6 +30,7 @@ import { comparativoRouter } from './routes/comparativo.js'
 import { visaoFornecedorBidFreteInternacionalRouter } from './routes/visao-fornecedor-bid-frete-internacional.js'
 import { visaoFornecedorBidFreteInternacionalPublicoRouter } from './routes/visao-fornecedor-bid-frete-internacional-publico.js'
 import { aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter } from './routes/aceite-aprovacao-proposta-bid-frete-internacional-publico.js'
+import { contratoPlataformaBidFreteInternacionalPublicoRouter } from './routes/contrato-plataforma-bid-frete-internacional-publico.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
@@ -130,6 +131,11 @@ app.use(
   rateLimitPresets.public(),
   aceiteAprovacaoPropostaBidFreteInternacionalPublicoRouter,
 )
+app.use(
+  '/api/v1/bid-frete-internacional/contrato-plataforma-bid-frete-internacional/publico',
+  rateLimitPresets.public(),
+  contratoPlataformaBidFreteInternacionalPublicoRouter,
+)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)
@@ -151,11 +157,15 @@ app.use(createProductAuditPlugin({
     const id_organizacao = req.headers['x-id-organizacao'] as string | undefined
     const actor_id  = req.headers['x-id-usuario']   as string | undefined
     if (!id_organizacao || !actor_id) return null
+    const nomeHeader =
+      (req.headers['x-user-name'] as string | undefined)?.trim()
+      || (req.headers['x-nome-usuario'] as string | undefined)?.trim()
+      || actor_id
     return {
       id_organizacao,
       id_ator_historico_log: actor_id,
-      nome_ator_historico_log: actor_id,
-      tipo_ator_historico_log: 'USUARIO'
+      nome_ator_historico_log: nomeHeader,
+      tipo_ator_historico_log: 'USUARIO',
     }
   },
 }))

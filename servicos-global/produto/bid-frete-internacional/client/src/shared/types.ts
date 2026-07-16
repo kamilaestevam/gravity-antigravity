@@ -237,6 +237,8 @@ export interface Cotacao {
   nome_usuario_solicitante_bid_frete_internacional?: string | null
   valor_meta_cotacao_bid_frete_internacional: number | null
   moeda_meta_cotacao_bid_frete_internacional: string | null
+  tipo_valor_frete_cotacao_bid_frete_internacional?: 'TOTAL' | 'FAIXA_PESO' | null
+  faixas_valor_frete_kgs_cotacao_bid_frete_internacional?: unknown
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
   fornecedor_pode_alterar_proposta_cotacao_bid_frete_internacional: boolean
   empresa_pagadora_taxa_fechamento_plataforma_gravity?: EmpresaPagadoraTaxaFechamentoPlataformaGravity
@@ -351,6 +353,8 @@ export interface PropostaBidFreteInternacional {
   fornecedor?: Fornecedor
   id_disparo_cotacao_bid_frete_internacional: string
   moeda_proposta_bid_frete_internacional: string
+  tipo_valor_frete_proposta_bid_frete_internacional?: 'TOTAL' | 'FAIXA_PESO' | null
+  faixas_valor_frete_kgs_proposta_bid_frete_internacional?: unknown
   valor_frete_proposta_bid_frete_internacional: number
   taxas_origem_proposta_bid_frete_internacional: number
   taxas_destino_proposta_bid_frete_internacional: number

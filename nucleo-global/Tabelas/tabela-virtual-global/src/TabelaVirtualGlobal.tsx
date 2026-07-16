@@ -385,7 +385,8 @@ function wrapTooltipRegraCelula(
   tituloOverride?: string,
 ): React.ReactNode {
   // tooltipInline na coluna pai — só pula wrap na linha do pedido; filho usa fallback do núcleo.
-  if (col.tooltipInline === true && !isFilho) return conteudo
+  // descricao_item: célula já traz TooltipGlobal com o texto; não re-embrulhar na linha item.
+  if (col.tooltipInline === true && (!isFilho || String(col.key) === 'descricao_item')) return conteudo
   if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {

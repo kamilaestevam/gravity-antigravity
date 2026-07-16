@@ -424,7 +424,7 @@ export function prepararLinhasFiltradasConfirmacao(
       CODIGO_ERRO_LIMITE_LINHAS,
     )
   }
-  return filtradas
+  return filtradas.sort((a, b) => a.linha_arquivo - b.linha_arquivo)
 }
 
 // Defaults alinhados com PedidoCasasDecimais (schema Prisma)
@@ -1184,15 +1184,20 @@ export class SmartImportService {
         }
       }
 
-      // Ordem dos pedidos na lista = ordem de 1a aparicao na planilha (sort data_emissao DESC).
-      for (const [pedidoId, primeiraLinha] of ordemPlanilhaPorIdPedido) {
+      // Ordem dos pedidos na lista = ordem de 1a aparicao na planilha (topo → base).
+      // Regra: novos pedidos na primeira linha — timestamps sinteticos (DESC) + sobrescreve recalc.
+      const anchorOrdemLista = Date.now()
+      const entradasOrdemPlanilha = [...ordemPlanilhaPorIdPedido.entries()].sort((a, b) => a[1] - b[1])
+      for (const [pedidoId, primeiraLinha] of entradasOrdemPlanilha) {
         const spOrdem = `sp_ordem_${pedidoId.replace(/[^a-zA-Z0-9_]/g, '_')}`
         await executarSavepointSql(this.db, `SAVEPOINT ${spOrdem}`)
         try {
+          const tsOrdem = new Date(anchorOrdemLista - primeiraLinha * 60_000)
           await (this.db as Record<string, any>)['pedido'].update({
             where: { id_pedido: pedidoId },
             data: {
-              data_emissao_pedido: dataEmissaoPorOrdemPlanilha(primeiraLinha, anchorImportacaoMs),
+              data_emissao_pedido: tsOrdem,
+              data_atualizacao_pedido: tsOrdem,
             },
           })
           await executarSavepointSql(this.db, `RELEASE SAVEPOINT ${spOrdem}`)
@@ -1204,12 +1209,18 @@ export class SmartImportService {
       }
     }
 
+    const idsCriadosOrdenados = [...criados].sort((a, b) => {
+      const la = ordemPlanilhaPorIdPedido.get(a) ?? Number.MAX_SAFE_INTEGER
+      const lb = ordemPlanilhaPorIdPedido.get(b) ?? Number.MAX_SAFE_INTEGER
+      return la - lb
+    })
+
     return {
       criados:    criados.length,
       atualizados: atualizados.length,
       pulados:    pulados.length,
       erros,
-      ids_criados: criados,
+      ids_criados: idsCriadosOrdenados,
     }
   }
 
@@ -1781,6 +1792,9 @@ export class SmartImportService {
       : 'importacao'
 
     const dataEmissaoPlanilha = normalizarData(dados['data_emissao_pedido'])
+    const timestampOrdemPlanilha = ordemPlanilha
+      ? new Date(dataEmissaoPorOrdemPlanilha(ordemPlanilha.primeiraLinhaPlanilha, ordemPlanilha.anchorImportacaoMs))
+      : null
 
     // ── Campos obrigatórios (sempre incluídos) ──────────────────────────────
     const result: Record<string, unknown> = {
@@ -1791,9 +1805,15 @@ export class SmartImportService {
       tipo_operacao_pedido:             tipoOperacao,
       status_pedido:                    'rascunho',
       moeda_pedido:                     extrairCodigoDropdown(dados['moeda_pedido'] ?? 'USD'),
-      data_emissao_pedido:              ordemPlanilha
-        ? dataEmissaoPorOrdemPlanilha(ordemPlanilha.primeiraLinhaPlanilha, ordemPlanilha.anchorImportacaoMs)
+      data_emissao_pedido:              timestampOrdemPlanilha
+        ? timestampOrdemPlanilha.toISOString()
         : (dataEmissaoPlanilha ?? new Date().toISOString()),
+      ...(timestampOrdemPlanilha
+        ? {
+            data_criacao_pedido: timestampOrdemPlanilha,
+            data_atualizacao_pedido: timestampOrdemPlanilha,
+          }
+        : {}),
       casas_decimais_valor_pedido:      casas.valor,
       casas_decimais_quantidade_pedido: casas.quantidade,
       casas_decimais_peso_pedido:       casas.peso ?? 3,

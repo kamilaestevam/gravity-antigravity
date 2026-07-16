@@ -24,25 +24,35 @@ export function ChecklistLinhaRiscoNovaLeituraSmartRead({
   documentos,
   parametrosChecklist,
 }: Props) {
-  const secoes = useMemo(() => {
+  const grupos = useMemo(() => {
     const invoices = listarInvoicesChecklist(documentos)
-    const itensRisco = invoices.flatMap((inv) =>
-      montarChecklistMatrizInvoice({
-        ...parametrosChecklist,
-        rotulo_documento: inv.rotulo,
-      }).filter((item) => item.risco_id === risco.id),
-    )
-    return agruparChecklistPorSecao(itensRisco)
+    return invoices
+      .map((inv) => ({
+        rotulo: inv.rotulo,
+        secoes: agruparChecklistPorSecao(
+          montarChecklistMatrizInvoice({
+            ...parametrosChecklist,
+            rotulo_documento: inv.rotulo,
+          }).filter((item) => item.risco_id === risco.id),
+        ),
+      }))
+      .filter((grupo) => grupo.secoes.length > 0)
   }, [documentos, parametrosChecklist, risco.id])
 
-  if (secoes.length === 0) return null
+  if (grupos.length === 0) return null
 
   return (
-    <ChecklistConferenciaCorpoSmartRead
-      secoes={secoes}
-      todasSecoesAbertas
-      idPrefixo={`sr-risco-chk-linha-${risco.id}`}
-      classeCorpo="sr-risco-inline-checklist-corpo"
-    />
+    <>
+      {grupos.map((grupo) => (
+        <ChecklistConferenciaCorpoSmartRead
+          key={grupo.rotulo}
+          secoes={grupo.secoes}
+          todasSecoesAbertas
+          rotuloInvoice={grupo.rotulo}
+          idPrefixo={`sr-risco-chk-linha-${risco.id}`}
+          classeCorpo="sr-risco-inline-checklist-corpo"
+        />
+      ))}
+    </>
   )
 }

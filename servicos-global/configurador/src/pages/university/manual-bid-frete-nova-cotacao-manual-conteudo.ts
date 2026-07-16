@@ -3,6 +3,7 @@
  */
 import type { DocPassoVisual } from './manual-configurador-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
+import { MANUAL_ESPACO_FRASE_IMAGEM_PX } from './manual-tipografia'
 
 type GaleriaNovaCotacao = NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number]
 
@@ -20,7 +21,7 @@ function grade(
 
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR: GaleriaNovaCotacao[] = [
   grade({
-    tituloEtapa: 'Abrir nova cotação',
+    espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
     iconesEscopoBidFrete: { preset: 'universal' },
     cenariosAcesso: [
       {
@@ -299,17 +300,28 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO: GaleriaNovaCotacao[] = [
 
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
   grade({
-    infograficoBidFreteNovaCotacaoResultadoEsperado: true,
-    telas: [],
+    colunas: 1,
+    telas: [
+      fig(
+        'confirmacao_modal',
+        'Após o último passo será exibido a mensagem de confirmação e envio dos emails.',
+      ),
+    ],
   }),
   grade({
     tituloEtapa: 'Conferir na Lista após o envio',
     textoIntro:
       'Ao concluir o wizard, confira o aviso de **cotação gerada**, a nova linha na **Lista** e o status **solicitação enviada** aos fornecedores.',
-    colunas: 3,
+    colunas: 1,
+    telas: [fig('confirmacao_lista', '')],
+  }),
+  grade({
+    colunas: 1,
     telas: [
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao', '**72.** **Processo de cotação** na Lista'),
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao', '**73.** Status **solicitação enviada** aos fornecedores'),
+      fig(
+        'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao',
+        'Acesse o **Painel da Cotação** clicando em {{botao:ir-para-cotacao-bid-frete}} no modal de confirmação ou no ícone {{icone:abrir-cotacao-lista-bid-frete}} da cotação na **Lista**.',
+      ),
     ],
   }),
 ]
@@ -338,118 +350,50 @@ export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM: GaleriaNovaCota
 export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNovaCotacao = grade({
   tituloEtapa: 'Modal e Operação',
   textoIntro:
-    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado detalhadamente.',
+    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado via simulador de cotação a seguir.',
   chipBidFreteFormaManual: true,
-  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
   colunas: 1,
   telas: [fig('cotacao_avulsa', '')],
-  infograficoBidFreteModalOperacaoCampos: true,
-  textoAposInfograficoBidFreteModalOperacaoCampos:
-    'A imagem a seguir ilustra como a tela se comporta e valida os dados logo após você concluir as suas escolhas de preenchimento.',
-  telasAposInfograficoBidFreteModalOperacaoCampos: [fig('manual_modal_operaca', '')],
-  calloutApos: [
-    {
-      tipo: 'dica',
-      texto:
-        'Ao selecionar o transporte **Rodoviário**, a plataforma solicitará a escolha entre as modalidades **FTL** e **LTL**. A opção **Aéreo**, por sua vez, não apresenta ramificações na tela.',
-    },
-  ],
+  simuladorBidFreteModalOperacao: true,
 })
 
-/** §4.02.01 — 3º tópico: origem e destino (após Modal e Operação). */
-export const GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO: GaleriaNovaCotacao = grade({
-  tituloEtapa: 'Origem e Destino',
-  textoIntro: 'Tela para seleção e configuração da origem e destino',
-  chipBidFreteFormaManual: true,
-  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
-  colunas: 1,
-  telas: [fig('manual_origem_destino', '')],
-  infograficoBidFreteOrigemDestinoCampos: true,
-  textoAposInfograficoBidFreteOrigemDestinoCampos:
-    'Acompanhe nas imagens a seguir como configurar o local de origem. O exemplo ilustra uma operação marítima para demonstrar a lógica padrão de busca e seleção.',
-  telasAposInfograficoBidFreteOrigemDestinoCampos: [
-    fig('manual_origem_porto_origem', '**11.** Campo **porto/aeroporto e local de origem**'),
-    fig('manual_origem_porto_origem_pais', '**12.** Seleção de **país**'),
-    fig('manual_origem_porto_origem_preferencias', '**13.** **Portos preferenciais**'),
-    fig('manual_origem_porto_origem_dados_pais_cidade_estado', '**14.** Dados de **país, cidade e estado**'),
-  ],
-  calloutEntreTelasAposInfograficoBidFreteOrigemDestinoCampos: [
-    {
-      tipo: 'dica',
-      texto:
-        'Acelere o preenchimento do formulário buscando o local desejado pelo **nome exato ou pelas iniciais**.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'Pesquise diretamente pelo **nome do país** para listar todos os portos ou aeroportos associados a ele.',
-    },
-  ],
-  calloutApos: [
-    {
-      tipo: 'dica',
-      texto:
-        'Caso precise cotar a **coleta na origem**, como em operações **EXW** na importação, marque a opção *_Exibir campos: País de origem, Estado ou Província de origem, Cidade de origem_*.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'Clique em *_Selecione portos próximos que você aceita na proposta, além do porto de preferência acima._*',
-    },
-  ],
-  textoSecaoDestinoAposCalloutOrigemDestinoBidFrete:
-    'Acompanhe nas imagens a seguir como configurar o local de destino. O exemplo ilustra uma operação marítima para demonstrar a mesma lógica de busca e seleção.',
-  telasSecaoDestinoAposCalloutOrigemDestinoBidFrete: [
-    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_seta', '**15.** Campo **porto/aeroporto e local de destino**'),
-    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_selecao', '**16.** Seleção de **país**'),
-    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_porto_destino_portos_preferenciais_seta', '**17.** **Portos preferenciais**'),
-    fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_maritimo_local_destino_campos', '**18.** Dados de **país, cidade e estado**'),
-  ],
-  calloutEntreTelasSecaoDestinoAposCalloutOrigemDestinoBidFrete: [
-    {
-      tipo: 'dica',
-      texto:
-        'Acelere o preenchimento do formulário buscando o local desejado pelo **nome exato ou pelas iniciais**.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'Pesquise diretamente pelo **nome do país** para listar todos os portos ou aeroportos associados a ele.',
-    },
-  ],
-  calloutAposSecaoDestinoOrigemDestinoBidFrete: [
-    {
-      tipo: 'dica',
-      texto:
-        'Caso precise cotar a **entrega no destino**, marque a opção *_Exibir campos: Cidade de Destino, Estado ou Província de Destino e País de Destino_*.',
-    },
-    {
-      tipo: 'dica',
-      texto:
-        'Marque *_Autorizar cotações em outros portos próximos ao destino preferencial_* para aceitar portos alternativos na proposta.',
-    },
-  ],
-})
-
-/** §4.02.01 — passo 09 (três ramos por modal), após Modal e Operação. */
-export const GALERIAS_BID_FRETE_NOVA_COTACAO_MODAL_SELECIONADO: GaleriaNovaCotacao[] = [
-  grade({
-    tituloEtapa: 'Passo 09 — Modal selecionado (três ramos)',
-    telas: [
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_maritimo', '**09a.** **Marítimo** selecionado'),
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_aereo', '**09b.** **Aéreo** selecionado'),
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_01_modal_selecionado_rodoviario', '**09c.** **Rodoviário** selecionado'),
-      fig('lista_cotacao_nova_cotacao_avulsa_manual_passo_02_MODAL', '**10.** Passo 2 — visão geral do modal **Locais**'),
-    ],
-  }),
-]
-
-/** §4.02.01 — wizard manual: início, Modal e Operação, origem/destino e resultado. */
+/** §4.02.01 — wizard manual: início, Modal e Operação e resultado. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM,
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP,
-  GALERIA_BID_FRETE_NOVA_COTACAO_ORIGEM_DESTINO,
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+]
+
+const FLUXO_BID_MANUAL_CABECALHO = {
+  tituloEtapa: 'Iniciando o fluxo manual',
+  textoIntro:
+    'Para acessar a tela principal, clique primeiro no botão **+ Novo**, direcione para o menu **BID** e finalize clicando na opção **Manual**.',
+  chipBidFreteBid: true,
+  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
+  colunas: 1,
+}
+
+/** §6.03.01 — acesso pelo menu (+ Novo → BID → Manual). */
+export const GALERIA_BID_FRETE_BID_MANUAL_INICIO: GaleriaNovaCotacao = grade({
+  ...FLUXO_BID_MANUAL_CABECALHO,
+  telas: [fig('cotacao_bid_1', '')],
+  espacoInferiorAposEtapaPx: 56,
+})
+
+export const GALERIAS_BID_FRETE_BID_MANUAL: GaleriaNovaCotacao[] = [
+  GALERIA_BID_FRETE_BID_MANUAL_INICIO,
+  grade({
+    tituloEtapa: 'Modal do BID',
+    textoIntro:
+      'O modal de **Novo BID** lista as cotações já existentes no workspace. Basta **marcar as que entram no pacote** — não é preciso criar novas cotações antes de montar o **BID**.',
+    chipBidFreteBid: true,
+    colunas: 1,
+    telas: [
+      fig('cotacao_bid_modal', ''),
+      fig('cotacao_bid_modal_selec', 'Selecione as **cotações existentes** que compõem o pacote e avance para criar o **BID**.'),
+    ],
+    infograficoBidFreteBidPacoteCotacoes: true,
+  }),
 ]
 
 /** §4.02.01.x — ramo Marítimo (locais + FCL + LCL), após wizard comum. */

@@ -217,9 +217,12 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
   }
 }
 
+let contextUserName = ''
+
 export function setApiContext(ctx: { idOrganizacao: string; userId: string; userName?: string }): void {
   injectTenantGetter(() => ctx.idOrganizacao)
   injectUserGetter(() => ctx.userId)
+  if (ctx.userName) contextUserName = ctx.userName
 }
 
 const headers = () => {
@@ -242,6 +245,12 @@ const headers = () => {
   customHeaders['x-id-organizacao'] = orgId
   customHeaders['x-id-usuario'] = userId
   if (idWorkspace) customHeaders['x-id-workspace'] = idWorkspace
+
+  const userName = contextUserName || useShellStore.getState().currentUser.name?.trim() || ''
+  if (userName) {
+    customHeaders['x-nome-usuario'] = userName
+    customHeaders['x-user-name'] = userName
+  }
 
   return customHeaders
 }
@@ -612,12 +621,9 @@ function parseHistoricoTermometroCotacao(
 ): Cotacao['historico_aprovado'] {
   try {
     return parseHistoricoTermometroListaFromServer(raw, campo)
-  } catch {
-    throw new BidFreteApiError(
-      `Campo ${campo} inválido na resposta GET cotação`,
-      500,
-      'INVALID_RESPONSE',
-    )
+  } catch (erro) {
+    console.warn(`[bid-frete] Ignorando ${campo} inválido no GET cotação:`, erro)
+    return undefined
   }
 }
 
@@ -1285,11 +1291,19 @@ export async function rankingCotacoesBidFreteInternacional(
   return (data.ranking ?? []).map(mapPropostaRankingBidFreteInternacionalFromServer)
 }
 
-export async function aprovarResposta(cotacaoId: string, responseId: string): Promise<Cotacao> {
+export async function aprovarResposta(
+  cotacaoId: string,
+  responseId: string,
+  comentariosAprovacao?: string | null,
+): Promise<Cotacao> {
+  const comentarios = comentariosAprovacao?.trim().slice(0, 2000) || undefined
   const res = await fetch(`${API_BASE}/bid-frete-internacional/comparativo/${cotacaoId}/aprovar`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify({ id_proposta_bid_frete_internacional: responseId }),
+    body: JSON.stringify({
+      id_proposta_bid_frete_internacional: responseId,
+      ...(comentarios ? { comentarios_aprovacao_cotacao_bid_frete_internacional: comentarios } : {}),
+    }),
   })
   const data = await handleResponse<{ cotacao: unknown }>(res)
   if (data.cotacao == null) {
@@ -1598,6 +1612,9 @@ const aceiteAprovacaoPublicoResponseSchema = z.object({
   pode_confirmar: z.boolean(),
   token_expirado: z.boolean(),
   ja_confirmado: z.boolean(),
+  empresa_pagadora_taxa_fechamento_plataforma_gravity: z.enum(['FORNECEDOR', 'CONTRATANTE_GRAVITY']),
+  hash_contrato_fechamento_plataforma_bid_frete_internacional: z.string(),
+  versao_contrato_fechamento_plataforma_bid_frete_internacional: z.string(),
 })
 
 const confirmarAceiteAprovacaoResponseSchema = z.object({
@@ -1619,10 +1636,18 @@ export async function getAceiteAprovacaoPropostaBidFreteInternacionalPublico(
 
 export async function confirmarAceiteAprovacaoPropostaBidFreteInternacionalPublico(
   token_aceite_aprovacao_proposta_bid_frete_internacional: string,
+  body: {
+    aceite_contrato_li_e_aceito: true
+    hash_contrato_fechamento_plataforma_bid_frete_internacional: string
+  },
 ): Promise<z.infer<typeof confirmarAceiteAprovacaoResponseSchema>> {
   const res = await fetch(
     `${ACEITE_APROVACAO_PUBLICO_BASE}/${token_aceite_aprovacao_proposta_bid_frete_internacional}/confirmar`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' } },
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
   )
   const raw = await handleResponse<unknown>(res)
   return confirmarAceiteAprovacaoResponseSchema.parse(raw)

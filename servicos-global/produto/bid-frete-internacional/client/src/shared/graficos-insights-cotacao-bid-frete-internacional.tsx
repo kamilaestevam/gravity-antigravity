@@ -642,6 +642,8 @@ export function GraficoAreaTermometro({
   moeda = 'USD',
   mediaFallback = null,
   modoDemonstracao = false,
+  /** Card largo (manual empilhado): viewBox acompanha a largura do container (sem distorcer texto). */
+  preencherLarguraPlot = false,
 }: {
   serie: PontoSerieHistoricoTermometro[]
   moeda?: string
@@ -649,20 +651,37 @@ export function GraficoAreaTermometro({
   mediaFallback?: number | null
   /** Preview/mock: barras iguais à Melhor proposta (SparkBarrasComparativo). */
   modoDemonstracao?: boolean
+  preencherLarguraPlot?: boolean
 }) {
   const uid = useId().replace(/:/g, '')
   const wrapRef = useRef<HTMLDivElement>(null)
   const [indiceAtivo, setIndiceAtivo] = useState<number | null>(null)
+  const [larguraPlotPx, setLarguraPlotPx] = useState(TERMOMETRO_VIEW.W)
 
   const seriePlot = useMemo(
     () => normalizarSerieTermometroParaPlot(serie, mediaFallback),
     [serie, mediaFallback],
   )
 
-  const { W, H } = TERMOMETRO_VIEW
+  const plotW = preencherLarguraPlot ? larguraPlotPx : TERMOMETRO_VIEW.W
+  const plotH = preencherLarguraPlot ? TERMOMETRO_GRAFICO_ALTURA_PX : TERMOMETRO_VIEW.H
   const pad = TERMOMETRO_PAD
-  const innerW = W - pad.left - pad.right
-  const innerH = H - pad.top - pad.bottom
+  const innerW = plotW - pad.left - pad.right
+  const innerH = plotH - pad.top - pad.bottom
+
+  useLayoutEffect(() => {
+    if (!preencherLarguraPlot) return
+    const el = wrapRef.current
+    if (!el) return
+    const syncLarguraPlot = () => {
+      const largura = Math.round(el.getBoundingClientRect().width)
+      if (largura > 0) setLarguraPlotPx(Math.max(largura, TERMOMETRO_VIEW.W))
+    }
+    syncLarguraPlot()
+    const observer = new ResizeObserver(syncLarguraPlot)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [preencherLarguraPlot, seriePlot.length])
 
   const coords = useMemo(() => {
     const pontosValidos = seriePlot.filter((p) => Number.isFinite(Number(p.valor)) && Number(p.valor) > 0)
@@ -705,11 +724,11 @@ export function GraficoAreaTermometro({
   const indicePorPosicaoX = useCallback(
     (ratioX: number) => {
       if (seriePlot.length === 0) return null
-      const plotRatio = (ratioX - pad.left / W) / (innerW / W)
+      const plotRatio = (ratioX - pad.left / plotW) / (innerW / plotW)
       const clamped = Math.max(0, Math.min(1, plotRatio))
       return Math.round(clamped * (seriePlot.length - 1))
     },
-    [seriePlot.length, pad.left, innerW, W],
+    [seriePlot.length, pad.left, innerW, plotW],
   )
 
   const atualizarPorEvento = useCallback(
@@ -784,7 +803,7 @@ export function GraficoAreaTermometro({
           </div>
         )}
         <svg
-          viewBox={`0 0 ${W} ${H}`}
+          viewBox={`0 0 ${plotW} ${plotH}`}
           className="dc-smart-termometro-chart"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden
@@ -796,7 +815,7 @@ export function GraficoAreaTermometro({
             gradientUnits="userSpaceOnUse"
             x1={pad.left}
             y1={pad.top}
-            x2={W - pad.right}
+            x2={plotW - pad.right}
             y2={pad.top + innerH}
           >
             <stop offset="0%" stopColor="rgba(99, 102, 241, 0.5)" />
@@ -823,7 +842,7 @@ export function GraficoAreaTermometro({
               <line
                 x1={pad.left}
                 y1={y}
-                x2={W - pad.right}
+                x2={plotW - pad.right}
                 y2={y}
                 stroke="rgba(148, 163, 184, 0.18)"
                 strokeDasharray={t === 1 ? undefined : '4,5'}
@@ -880,7 +899,7 @@ export function GraficoAreaTermometro({
               />
               <text
                 x={c.x}
-                y={H - 8}
+                y={plotH - 8}
                 textAnchor="middle"
                 fill={ativo ? '#f1f5f9' : '#94a3b8'}
                 fontSize="10"

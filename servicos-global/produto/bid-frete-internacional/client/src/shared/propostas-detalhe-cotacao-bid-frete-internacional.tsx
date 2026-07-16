@@ -695,6 +695,7 @@ function CardProposta({
           proposta={proposta}
           colapsavel={propostasTodas.length >= 2}
           expandidoInicial={propostasTodas.length < 2}
+          rotuloFornecedorModal={nome}
         />
         <RodapeObservacoesLocaisProposta
           proposta={proposta}

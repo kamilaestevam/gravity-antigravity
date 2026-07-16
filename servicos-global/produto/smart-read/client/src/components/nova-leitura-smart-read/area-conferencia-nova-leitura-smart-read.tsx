@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
-import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
+import { ClipboardText, EnvelopeSimple, ShieldWarning, Sparkle } from '@phosphor-icons/react'
 import type { IconProps } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
@@ -11,6 +11,7 @@ import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-le
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
+import { ComunicacaoFornecedorNovaLeituraSmartRead } from './comunicacao-fornecedor-nova-leitura-smart-read'
 import { ResumoConferenciaAnaliseRiscoNovaLeituraSmartRead } from './resumo-conferencia-analise-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
@@ -20,7 +21,7 @@ export type SelecaoDocumentoConferencia = {
   indiceDocumento: number
 }
 
-type AbaConferencia = 'campos' | 'qa' | 'riscos'
+type AbaConferencia = 'campos' | 'qa' | 'riscos' | 'comunicacao'
 
 const ABAS_CONFERENCIA: {
   id: AbaConferencia
@@ -30,6 +31,7 @@ const ABAS_CONFERENCIA: {
   { id: 'campos', rotulo: 'Conferência de Campos', Icone: ClipboardText },
   { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
   { id: 'riscos', rotulo: 'Análise de Riscos', Icone: ShieldWarning },
+  { id: 'comunicacao', rotulo: 'Comunicação com Fornecedor', Icone: EnvelopeSimple },
 ]
 
 type Props = {
@@ -39,6 +41,8 @@ type Props = {
   onCompararArquivo?: () => void
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   idLeituraLegado?: string | null
+  camposEditados?: ReadonlySet<string>
+  onEditarCampo?: (chave: string, valor: string) => void
   onTokensAtualizados?: (
     resumo: ResumoUsoLlmLeituraSmartRead | null | undefined,
     chamada?: UsoLlmChamadaLeituraSmartRead | null,
@@ -54,6 +58,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onCompararArquivo,
   onVerEvidencia,
   idLeituraLegado = null,
+  camposEditados = new Set(),
+  onEditarCampo,
   onTokensAtualizados,
   onIaInicio,
   onIaFim,
@@ -151,6 +157,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
               ocultarComparar
               campoFoco={campoFocoConferencia}
               onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
+              camposEditados={camposEditados}
+              onEditarCampo={onEditarCampo}
             />
           ) : null}
         </>
@@ -194,6 +202,19 @@ export function AreaConferenciaNovaLeituraSmartRead({
             onTokensAtualizados={onTokensAtualizados}
             onIaInicio={onIaInicio}
             onIaFim={onIaFim}
+          />
+        </div>
+      )}
+
+      {aba === 'comunicacao' && arquivosCompletos.length > 0 && (
+        <div className="sr-conf-tab-panel">
+          <ComunicacaoFornecedorNovaLeituraSmartRead
+            arquivos={arquivosCompletos}
+            arquivoConferencia={arquivoAtual ?? null}
+            indiceDocumentoConferencia={indiceDocumento}
+            tituloContextoDocumento={tituloContextoDocumento}
+            idLeituraLegado={idLeituraLegado}
+            camposEditados={camposEditados}
           />
         </div>
       )}

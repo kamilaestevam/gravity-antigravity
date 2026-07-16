@@ -81,15 +81,30 @@ export async function executarPasso2ApiCnpjInvoice(
         passou: false,
         detalhe: `CNPJ inválido: ${cnpj}`,
       })
+      riscos.push({
+        id: `risco-p2-cnpj-invalido-${rotulo}`,
+        origem: 'v1',
+        severidade: 'critico',
+        categoria: 'cnpj',
+        titulo: 'CNPJ — status RFB',
+        motivo: `CNPJ inválido: ${cnpj}`,
+        analise: 'Não foi possível consultar a Receita — o CNPJ extraído não passa na validação',
+        evidencias: [{ documento: rotulo, campo: 'importer.cnpj', valor: cnpj }],
+        secao_matriz: 'cadastral',
+        id_regra_matriz: 'S2-02',
+        motor_validacao: 'api',
+        status_matriz: severidadeParaStatusMatriz('critico'),
+      })
       continue
     }
 
     const oficial = await consultarCnpjReceitaSmartRead(cnpj)
     if (!oficial) {
+      // Falha nossa (serviço de consulta fora do ar) — avisa no checklist, sem gerar risco.
       regras.push({
         id: `S2-02-${rotulo}`,
         passou: false,
-        detalhe: `Consulta RFB indisponível — ${cnpj}`,
+        detalhe: `Aviso — não conseguimos consultar a Receita Federal agora. Reprocesse a leitura para tentar de novo — ${cnpj}`,
       })
       continue
     }

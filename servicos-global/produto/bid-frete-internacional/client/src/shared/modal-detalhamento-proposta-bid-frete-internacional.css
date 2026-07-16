@@ -1,0 +1,133 @@
+/**
+ * Modal — detalhamento completo da proposta (aba Propostas / modo combate).
+ */
+
+.bf-detalhamento-proposta-modal-header {
+  padding-right: 3.5rem;
+}
+
+.bf-detalhamento-proposta-modal-header-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.bf-detalhamento-proposta-modal-titulo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bf-detalhamento-proposta-modal-icone {
+  flex-shrink: 0;
+  color: var(--ws-accent, var(--color-primary, #818cf8));
+}
+
+.mg-dialog:has(.bf-detalhamento-proposta-corpo) > .mg-body.modal-body {
+  padding-top: 0;
+}
+
+.bf-detalhamento-proposta-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 1.25rem;
+}
+
+.bf-detalhamento-proposta-resumo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .bf-detalhamento-proposta-resumo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bf-detalhamento-proposta-fornecedor,
+.bf-detalhamento-proposta-total {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  min-width: 0;
+}
+
+.bf-detalhamento-proposta-fornecedor {
+  color: #a5b4fc;
+}
+
+.bf-detalhamento-proposta-fornecedor-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bf-detalhamento-proposta-fornecedor-rotulo,
+.bf-detalhamento-proposta-total-rotulo {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bf-detalhamento-proposta-fornecedor-texto strong {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #f1f5f9;
+  word-break: break-word;
+}
+
+.bf-detalhamento-proposta-total {
+  justify-content: space-between;
+}
+
+.bf-detalhamento-proposta-total-valor {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #e0e7ff;
+  white-space: nowrap;
+}
+
+.dc-prop-tabela-resumo-corpo--modal.brc-total--geral {
+  margin: 0;
+  padding: 1rem 1.05rem 0.85rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(129, 140, 248, 0.22);
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-tabela-resumo-wrapper {
+  margin: 0 -0.15rem;
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-tabela-resumo {
+  min-width: 42rem;
+  font-size: 0.875rem;
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-tabela-resumo th {
+  padding: 0.7rem 0.75rem;
+  font-size: 0.6875rem;
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-tabela-resumo td {
+  padding: 0.75rem;
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-total-legenda {
+  font-size: 0.75rem;
+}
+
+.dc-prop-tabela-resumo-corpo--modal .brc-total-legenda--secundaria {
+  font-size: 0.6875rem;
+}

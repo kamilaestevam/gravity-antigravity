@@ -1,5 +1,4 @@
-import type { DocGaleriaTela, DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
-import { FLUXO_ACESSO_GRAVITY_STORE } from './manual-hub-conteudo'
+import type { DocFluxo, DocGaleriaTela, DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -21,16 +20,49 @@ const SCREENSHOT_STORE_PRODUTOS_NAO_CONTRATADOS = '/university/screenshots/store
 const SCREENSHOT_STORE_PRODUTOS_ASSINADOS = '/university/screenshots/store-produtos-assinados.png'
 const SCREENSHOT_STORE_ASSINAR_SETA = '/university/screenshots/store-assinar-produto-seta.png'
 const SCREENSHOT_STORE_ASSINAR_ASSINADO = '/university/screenshots/store-assinar-produto-assinado.png'
+const SCREENSHOT_STORE_ACESSO_ATALHO = '/university/screenshots/store-acesso-atalho.png'
+const SCREENSHOT_HUB_ACESSO_STORE_123 = '/university/screenshots/hub-acesso-gravity-store-numeros-1-2-3.png'
+
+function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
+  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
+}
+
+const FLUXO_ACESSO_GRAVITY_STORE_GUIA: DocFluxo = {
+  titulo: 'Como acessar a Gravity Store',
+  tituloSumario: 'Como acessar a Gravity Store',
+  passosVisuais: renumerarPassos([
+    {
+      rotuloPasso: 'Caminhos para Gravity Store via Hub',
+      ocultarTituloPasso: true,
+      titulo: 'Caminhos para Gravity Store via Hub',
+      paragrafos: [
+        'A Gravity Store é o catálogo de produtos Gravity. No Hub existem **três caminhos** principais até ela.',
+        '1. **Botão “Ir para Gravity Store”**: aparece **apenas no primeiro acesso** ou enquanto a organização **não tiver nenhum Produto Gravity contratado**, como indicado pelo **1** na imagem.',
+        '2. **Link “Gravity Store” (2 na imagem)** no cabeçalho de **Seus Produtos Gravity**. Este atalho fica **disponível de forma permanente**.',
+        '3. **Painel Gravity Store** na faixa inferior (card em carrossel; ver seção **Vitrine Store**), **3** na imagem.',
+        '4. **Menu do usuário**: de **qualquer tela** da plataforma, clique no **ícone do usuário** (canto superior direito) e escolha *_Ir para Gravity Store_*.',
+      ],
+      figurasAposParagrafo: [
+        {
+          indice: 3,
+          imagem: SCREENSHOT_HUB_ACESSO_STORE_123,
+          legenda: 'Caminhos 1, 2 e 3 na tela do Hub',
+        },
+        {
+          indice: 4,
+          imagem: SCREENSHOT_STORE_ACESSO_ATALHO,
+          legenda: 'Menu do usuário — Ir para Gravity Store',
+        },
+      ],
+    },
+  ]),
+}
 
 const STORE_GALERIA_LINHAS_CATALOGO: DocGaleriaTela[] = [
   { legenda: 'Ativos', imagem: SCREENSHOT_STORE_ATIVOS_LINHA },
   { legenda: 'Em breve', imagem: SCREENSHOT_STORE_EM_BREVE_LINHA },
   { legenda: 'Todos', imagem: SCREENSHOT_STORE_TODOS_LINHA },
 ]
-
-function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
-  return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
-}
 
 export const DOC_STORE_SUBTITULO =
   'Catálogo, contratação, filtros e status dos produtos'
@@ -45,8 +77,9 @@ export const DOC_STORE_METADADOS: { rotulo: string; valor: string; href?: boolea
 export const DOC_STORE_SECAO: DocSecao = {
   num: 1,
   titulo: 'Gravity Store',
+  tituloTopico: 'O que é Gravity Store',
   paragrafos: [
-    'A **Gravity Store** é o catálogo onde a organização **contrata Produtos Gravity** (Pedido, Smart Docs e BID Frete). Após a assinatura, o produto aparece no ' + LINK_MANUAL_HUB + ' e pode ser habilitado por workspace.',
+    'A **Gravity Store** é o local para **contratar Produtos Gravity** (Pedido, Smart Docs e BID Frete). Após a assinatura, o produto aparece no ' + LINK_MANUAL_HUB + ' e pode ser habilitado por workspace.',
   ],
   imagem: SCREENSHOT_STORE_PRIMEIRO_ACESSO,
   layoutTextoImagemLateral: true,
@@ -58,11 +91,7 @@ export const DOC_STORE_SECAO: DocSecao = {
     },
   },
   fluxos: [
-    {
-      ...FLUXO_ACESSO_GRAVITY_STORE,
-      titulo: 'Como acessar a Gravity Store',
-      tituloSumario: 'Como acessar a Gravity Store',
-    },
+    FLUXO_ACESSO_GRAVITY_STORE_GUIA,
     {
       titulo: 'Buscar e filtrar',
       tituloSumario: 'Buscar e filtrar',
@@ -71,6 +100,8 @@ export const DOC_STORE_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
+          rotuloPasso: 'Menu segmentado',
+          ocultarTituloPasso: true,
           titulo: 'Menu segmentado',
           imagem: SCREENSHOT_STORE_MENU_SEGMENTADO,
           imagemAbaixoTexto: true,
@@ -80,12 +111,12 @@ export const DOC_STORE_SECAO: DocSecao = {
           ],
         },
         {
+          rotuloPasso: 'Cards do catálogo',
+          ocultarTituloPasso: true,
           titulo: 'Cards do catálogo',
           imagem: SCREENSHOT_STORE_CARDS,
           imagemAbaixoTexto: true,
-          paragrafos: [
-            'Cada card traz nome, resumo, tags e status. Produtos disponíveis exibem **Assinar**; contratados mostram confirmação visual de vínculo ativo.',
-          ],
+          paragrafos: [],
         },
       ]),
     },
@@ -97,7 +128,9 @@ export const DOC_STORE_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Três visões em linha',
+          rotuloPasso: 'Visões',
+          ocultarTituloPasso: true,
+          titulo: 'Visões',
           galeriaTelas: STORE_GALERIA_LINHAS_CATALOGO,
           paragrafos: [
             '**Ativos** reúne o que já está contratado. **Em breve** antecipa lançamentos sem botão de compra. **Todos** mostra o catálogo completo após busca e categoria.',
@@ -109,7 +142,6 @@ export const DOC_STORE_SECAO: DocSecao = {
       titulo: 'Status dos produtos',
       tituloSumario: 'Status dos produtos',
       modoCenarios: true,
-      cenariosLadoALado: true,
       paragrafos: [
         'O mesmo catálogo muda de apresentação conforme o vínculo da organização com cada Produto Gravity.',
       ],

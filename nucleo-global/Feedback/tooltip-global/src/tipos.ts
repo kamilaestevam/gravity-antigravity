@@ -18,4 +18,6 @@ export interface TooltipProps {
   alinhamentoHorizontal?: 'centro' | 'inicio' | 'fim'
   /** Cursor proibido no gatilho (células bloqueadas por regra de negócio) */
   cursorBloqueado?: boolean
+  /** Oculta o ⓘ auxiliar do hover quando o gatilho já exibe ícone próprio */
+  silenciarIconeAuxiliar?: boolean
 }

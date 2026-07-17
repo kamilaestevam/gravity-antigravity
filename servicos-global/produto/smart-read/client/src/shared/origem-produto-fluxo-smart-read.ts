@@ -1,5 +1,7 @@
 /**
- * Persiste origem do produto na sessão do Smart Docs (sobrevive retomar sem query string).
+ * Origem do fluxo no Smart Docs (Pedido / BID Frete).
+ * Critério: apenas a query `origem` da URL — sem isso o Smart Docs puro não mostra telas de cotação.
+ * SessionStorage só espelha enquanto a URL trouxer a origem (evita “grudar” na lista).
  */
 const CHAVE = 'smart-read:origem-produto-fluxo'
 
@@ -25,6 +27,10 @@ export function limparOrigemProdutoFluxoSmartRead(): void {
   sessionStorage.removeItem(CHAVE)
 }
 
+/**
+ * Sem `origem` na URL → limpa sessão e retorna null (fluxo Smart Docs intocado).
+ * Com `origem` válida → persiste espelho e retorna (fluxo Pedido/BID Frete).
+ */
 export function resolverOrigemProdutoFluxoSmartRead(
   origemUrl: string | null | undefined,
 ): OrigemProdutoFluxoSmartRead | null {
@@ -32,5 +38,6 @@ export function resolverOrigemProdutoFluxoSmartRead(
     salvarOrigemProdutoFluxoSmartRead(origemUrl)
     return origemUrl
   }
-  return lerOrigemProdutoFluxoSmartRead()
+  limparOrigemProdutoFluxoSmartRead()
+  return null
 }

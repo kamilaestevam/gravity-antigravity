@@ -91,7 +91,8 @@ export const PacotePrefillCotacaoBidFreteSmartReadSchema = z.object({
   detalhe_mapeamento: DetalheMapeamentoSmartReadCotacaoBidFreteSchema,
   passo_inicial_tipo: passoInicialPrefillSmartReadEnum.optional(),
   iniciar_no_passo_fornecedores: z.boolean(),
-  criado_em: z.string().datetime(),
+  /** ISO-8601; aceita string para não perder handoff se o runtime variar no datetime() estrito. */
+  criado_em: z.string().min(1),
 })
 export type PassoInicialPrefillSmartReadCotacaoBidFrete = z.infer<typeof passoInicialPrefillSmartReadEnum>
 export type PacotePrefillCotacaoBidFreteSmartRead = z.infer<

@@ -14,7 +14,7 @@ import {
 import { TOTAL_MANUAIS_GUIA_GRAVITY, slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-manuais-guia-gravity.js'
 import { calcularNivelGuiaGravity } from '../../shared/guia-gravity/niveis-guia-gravity.js'
 import { calcularDiasOfensivaGuiaGravity } from '../../shared/guia-gravity/ofensiva-guia-gravity.js'
-import { obterXpAula } from '../../shared/guia-gravity/pesos-academy-guia-gravity.js'
+import { obterXpAula, arredondarXpGuiaGravity } from '../../shared/guia-gravity/pesos-academy-guia-gravity.js'
 import {
   calcularRitmoGuiaGravity,
   calcularXpMaximoCatalogo,
@@ -381,7 +381,7 @@ export const guiaGravityJornadaServico = {
     const ranking = agregados.map((linha, idx) => ({
       id_usuario: linha.id_usuario,
       nome_usuario: nomePorId.get(linha.id_usuario) ?? 'Usuário',
-      xp_total: Math.round(Number(linha._sum.xp_conquistado_aula_guia_gravity ?? 0)),
+      xp_total: arredondarXpGuiaGravity(Number(linha._sum.xp_conquistado_aula_guia_gravity ?? 0)),
       posicao: idx + 1,
       usuario_atual: linha.id_usuario === opts.idUsuario,
     }))
@@ -392,7 +392,7 @@ export const guiaGravityJornadaServico = {
         where: { id_organizacao: opts.idOrganizacao, id_usuario: opts.idUsuario },
         select: { xp_conquistado_aula_guia_gravity: true },
       })
-      const xpUsuario = Math.round(
+      const xpUsuario = arredondarXpGuiaGravity(
         conclusoesUsuario.reduce((s, c) => s + Number(c.xp_conquistado_aula_guia_gravity), 0),
       )
       const usuario = await prisma.usuario.findUnique({

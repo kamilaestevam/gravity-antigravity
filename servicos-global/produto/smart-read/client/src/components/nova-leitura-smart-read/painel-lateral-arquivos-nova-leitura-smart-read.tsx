@@ -15,6 +15,7 @@ type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   enviando: boolean
   podeContinuar: boolean
+  salvandoPasso?: boolean
   tokensSessao?: number
   tokensMesOrganizacao?: number
   iaAtiva?: boolean
@@ -39,6 +40,7 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
   arquivos,
   enviando,
   podeContinuar,
+  salvandoPasso = false,
   onConfirmarNome,
   onRemoverArquivo,
   onAlternarExpandido,
@@ -132,6 +134,7 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
                 variante="primario"
                 tamanho="padrao"
                 disabled={!podeContinuar}
+                carregando={salvandoPasso}
                 onClick={onContinuar}
               >
                 Continuar

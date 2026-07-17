@@ -10,13 +10,13 @@ export interface HistoricoCatalogoColuna {
 export interface HistoricoCatalogoSecao {
   titulo: string
   colunas: HistoricoCatalogoColuna[]
-  linhas: Record<string, string>[]
+  linhas: Array<Record<string, string> & { emBreve?: boolean }>
   notaRodape?: string
 }
 
 export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
   {
-    titulo: '1. Configurador — registros dedicados',
+    titulo: '1. Configurador: registros dedicados',
     colunas: [
       { chave: 'num', rotulo: '#', largura: '4%' },
       { chave: 'traducao', rotulo: 'O que aparece na coluna Ação', largura: '28%', destaque: true },
@@ -40,7 +40,7 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
     notaRodape: 'Convites aparecem no Histórico do Configurador mesmo sem produto vinculado.',
   },
   {
-    titulo: '2. Usuários — permissões, patentes e convites',
+    titulo: '2. Usuários: permissões, patentes e convites',
     colunas: [
       { chave: 'num', rotulo: '#', largura: '4%' },
       { chave: 'traducao', rotulo: 'O que aparece na coluna Ação', largura: '30%', destaque: true },
@@ -65,9 +65,9 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
       { chave: 'gatilho', rotulo: 'Origem técnica', largura: '46%' },
     ],
     linhas: [
-      { num: '19', traducao: 'Entrou na plataforma', configurador: 'Sim', gatilho: 'Webhook Clerk — sessão iniciada' },
-      { num: '20', traducao: 'Saiu da plataforma', configurador: 'Sim', gatilho: 'Webhook Clerk — sessão encerrada' },
-      { num: '21', traducao: 'Sessão revogada (logout forçado)', configurador: 'Sim', gatilho: 'Webhook Clerk — sessão revogada' },
+      { num: '19', traducao: 'Entrou na plataforma', configurador: 'Sim', gatilho: 'Webhook Clerk: sessão iniciada' },
+      { num: '20', traducao: 'Saiu da plataforma', configurador: 'Sim', gatilho: 'Webhook Clerk: sessão encerrada' },
+      { num: '21', traducao: 'Sessão revogada (logout forçado)', configurador: 'Sim', gatilho: 'Webhook Clerk: sessão revogada' },
       { num: '22', traducao: 'Falha no login', configurador: 'Sim', gatilho: 'Token inválido ou ausente' },
     ],
   },
@@ -97,11 +97,11 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
       { chave: 'detalhe', rotulo: 'Coluna Detalhes (padrão)', largura: '66%' },
     ],
     linhas: [
-      { traducao: 'Criou', detalhe: 'Criou [tipo do registro] — ex.: assinatura, fornecedor, fatura' },
-      { traducao: 'Atualizou', detalhe: 'Atualizou [tipo do registro] — ex.: editou usuário, suspendeu assinatura' },
+      { traducao: 'Criou', detalhe: 'Criou [tipo do registro]: ex.: assinatura, fornecedor, fatura' },
+      { traducao: 'Atualizou', detalhe: 'Atualizou [tipo do registro]: ex.: editou usuário, suspendeu assinatura' },
       { traducao: 'Excluiu', detalhe: 'Excluiu [tipo do registro]' },
     ],
-    notaRodape: 'O sistema grava sozinho quando alguém salva, edita ou exclui em telas do Configurador (Usuários, Assinaturas, Fornecedores, Financeiro, etc.). Algumas ações geram dois registros — um específico e um automático.',
+    notaRodape: 'O sistema grava sozinho quando alguém salva, edita ou exclui em telas do Configurador (Usuários, Assinaturas, Fornecedores, Financeiro, etc.). Algumas ações geram dois registros: um específico e um automático.',
   },
   {
     titulo: '5.1 Telas cobertas pelo registro automático',
@@ -121,17 +121,17 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
     ],
   },
   {
-    titulo: '6. Produtos prontos — o que entra no histórico',
+    titulo: '6. Produtos prontos: o que entra no histórico',
     colunas: [
       { chave: 'traducao', rotulo: 'Situação', largura: '34%', destaque: true },
       { chave: 'operacao', rotulo: 'Explicação', largura: '66%' },
     ],
     linhas: [
       { traducao: 'Registra', operacao: 'Alterações que **salvam no servidor**: criar, editar e excluir registros (pedido, leitura, cotação, etc.)' },
-      { traducao: 'Registra', operacao: 'Operações especiais do produto — duplicar, transferir, aprovar cotação, disparar BID… quando o backend grava log dedicado' },
+      { traducao: 'Registra', operacao: 'Operações especiais do produto: duplicar, transferir, aprovar cotação, disparar BID… quando o backend grava log dedicado' },
       { traducao: 'Não registra', operacao: 'Só **abrir** telas, filtrar, ordenar, visualizar lista ou dashboard sem salvar nada' },
       { traducao: 'Não registra', operacao: 'Preferências de coluna, painéis pessoais da lista e ajustes só no navegador' },
-      { traducao: 'Não registra', operacao: 'Tentativas que **falharam** antes de gravar (erro de validação, sem permissão) — podem aparecer como Falha quando o sistema audita o bloqueio' },
+      { traducao: 'Não registra', operacao: 'Tentativas que **falharam** antes de gravar (erro de validação, sem permissão): podem aparecer como Falha quando o sistema audita o bloqueio' },
     ],
     notaRodape: 'O histórico é trilha de **mudança de dados**, não gravação de tela. Veja o detalhe por produto nas tabelas abaixo.',
   },
@@ -189,12 +189,12 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
     linhas: [
       { traducao: 'Smart Read', telas: 'Menu lateral do Smart Read › Histórico' },
       { traducao: 'BID Frete Internacional', telas: 'Menu lateral do BID Frete › Histórico' },
-      { traducao: 'BID Câmbio', telas: 'Menu lateral do BID Câmbio › Histórico' },
-      { traducao: 'Processo', telas: 'Menu lateral do Processo › Histórico' },
-      { traducao: 'LPCO', telas: 'Menu lateral do LPCO › Histórico' },
-      { traducao: 'NF Importação', telas: 'Menu lateral da NF Importação › Histórico' },
-      { traducao: 'Financeiro COMEX', telas: 'Menu lateral do Financeiro COMEX › Histórico' },
-      { traducao: 'Simula Custo', telas: 'Menu lateral do Simula Custo › Histórico' },
+      { traducao: 'BID Câmbio', telas: 'Menu lateral do BID Câmbio › Histórico', emBreve: true },
+      { traducao: 'Processo', telas: 'Menu lateral do Processo › Histórico', emBreve: true },
+      { traducao: 'LPCO', telas: 'Menu lateral do LPCO › Histórico', emBreve: true },
+      { traducao: 'NF Importação', telas: 'Menu lateral da NF Importação › Histórico', emBreve: true },
+      { traducao: 'Financeiro COMEX', telas: 'Menu lateral do Financeiro COMEX › Histórico', emBreve: true },
+      { traducao: 'Simula Custo', telas: 'Menu lateral do Simula Custo › Histórico', emBreve: true },
     ],
     notaRodape: 'Nesses produtos o padrão é o mesmo: **Criou**, **Atualizou** ou **Excluiu** quando há gravação no servidor. Abra o Histórico pelo menu lateral de cada módulo.',
   },
@@ -237,10 +237,10 @@ export const HISTORICO_CATALOGO_SECOES: HistoricoCatalogoSecao[] = [
     ],
     linhas: [
       { traducao: 'Data/Hora', tela: 'Momento em que o evento foi registrado' },
-      { traducao: 'Ação', tela: 'Verbo do que aconteceu — ex.: Convidou, Atualizou, Excluiu' },
-      { traducao: 'Local', tela: 'Tela ou módulo — ex.: Configurador | Usuários' },
+      { traducao: 'Ação', tela: 'Verbo do que aconteceu: ex.: Convidou, Atualizou, Excluiu' },
+      { traducao: 'Local', tela: 'Tela ou módulo: ex.: Configurador | Usuários' },
       { traducao: 'Usuário', tela: 'Quem fez (nome e e-mail, quando for pessoa)' },
-      { traducao: 'Detalhes', tela: 'Resumo do que mudou — permissão, convite, diff, etc.' },
+      { traducao: 'Detalhes', tela: 'Resumo do que mudou: permissão, convite, diff, etc.' },
     ],
     notaRodape: 'Os cards do topo (Total, Últimos 7 dias, Status) consideram só os **25 registros da página atual**.',
   },

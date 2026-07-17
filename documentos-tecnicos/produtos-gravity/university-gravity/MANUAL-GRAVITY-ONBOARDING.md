@@ -3,6 +3,8 @@
 > Documento de referência obrigatório para a skill `manual-gravity-onboarding`.
 > Define o catálogo de blocos, tom editorial, template de aula e processo de geração de conteúdo.
 >
+> **Implementação jornada / XP / trilhas:** [GUIA-GRAVITY-JORNADA-TECNICO.md](./GUIA-GRAVITY-JORNADA-TECNICO.md)
+>
 > **Escopo:** University (`/university-gravity/docs`, `/academy`) — **não** é o onboarding de produto (`/trial`, org/workspace).
 
 ---
@@ -43,12 +45,12 @@ O conteúdo do onboarding deve ser **profissional, variado e escalonável**. Cad
 { tipo: 'heading', dados: { text: 'Estrutura da tela', nivel: 2 } }
 ```
 
-**Visual:**
-- H1: fundo com cor de destaque do produto (`#1e293b` elevado + borda inferior accent), fonte 1.65rem, bold 800
-- H2: fonte 1.2rem, bold 700, sem fundo, margem superior generosa
-- H3: fonte 1rem, cor accent, bold 700
+**Visual (Guia / PlayerAula — padrão vigente):**
+- H1: fonte 1.65rem, bold 800, cor texto; linha roxa sob o título (`.uni-player-aula__titulo-guia`)
+- H2 / H3 (títulos de fluxo ou bloco temático, **não** passo): fonte **1rem**, bold 700, cor accent `#a78bfa` (roxo)
+- Rótulo **PASSO NN** + título do passo: ver §9.1 (índigo 12px / texto 0.92rem) — não usar o estilo H2/H3
 
-**Regra:** H1 apenas no início da aula. H2 a cada novo bloco temático.
+**Regra:** H1 apenas no início da aula. H2 a cada novo bloco temático (ex.: «Acessar organização»).
 
 ---
 
@@ -347,6 +349,7 @@ assets/
 | Produto | Slug | Fases planejadas |
 |---------|------|-----------------|
 | Login | `login` | o-que-e-o-gravity · criando-sua-conta · configurando-seu-perfil |
+| Navegação | `navegacao` | **menus-plataforma** · **funcionalidades-listas** (2 aulas Academy; ver [GUIA-GRAVITY-JORNADA-TECNICO.md](./GUIA-GRAVITY-JORNADA-TECNICO.md)) |
 | Configurador | `configurador` | criando-organizacao · configurando-workspaces · convidando-usuarios |
 | HUB | `hub` | navegando-pelo-hub · trocando-workspace |
 | Pedido | `pedido` | lista-de-pedidos · criando-um-pedido · edicao-em-massa · colunas-e-filtros · relatorios |
@@ -390,11 +393,14 @@ Além das aulas em blocos (`PlayerAula`), o Configurador expõe manuais descriti
 |----------|---------|-----|------------|
 | Rótulo **PASSO NN** | `12px` | `#818cf8` (índigo) | `text-transform: uppercase`, `letter-spacing: .08em` |
 | Título do passo | `0.92rem` (~15px) | `var(--ws-text, #f1f5f9)` 100% | Peso 700 |
+| Título de fluxo / H2–H3 Guia (não passo) | `1rem` | `#a78bfa` (accent) | Peso 700 — ex.: «Acessar organização» (`PlayerAula` heading nivel 2/3) |
 | **Corpo** (parágrafos, callouts, legendas, timeline) | `0.9rem` (~14px) | `color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)` | `text-align: justify` · `MANUAL_CORPO_70` |
-| Títulos de seção / cards | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
+| Títulos de seção / cards (manual descritivo) | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
 | Metadados (versão, data, rota) | `.78rem` | `--ws-muted` | Não é corpo narrativo |
 
 **Regra:** todo texto explicativo do manual usa `ManualParagrafo` / `ManualTextoRich` com `MANUAL_CORPO_70` e **`text-align: justify`**. Títulos e rótulos permanecem alinhados à esquerda (100% de opacidade).
+
+**Regra — sem hífen/travessão no texto do aluno:** no corpo narrativo da Academy/Guia (parágrafos, títulos, legendas visíveis), **não** usar `—`, `–` nem hífen longo como pausa. Prefira ponto, vírgula ou dois-pontos (ex.: `da organização. Cada unidade…`).
 
 #### 9.1.1 Ritmo vertical — espaço entre parágrafos
 
@@ -623,4 +629,48 @@ Arredondar para **inteiro** em passos de **1 minuto** (`2m`, `3m`, …). Aplicar
 - [ ] Tempo reflete **leitura**, não execução hands-on?
 - [ ] Atualizei `*_DURACOES` **e** `TRILHAS_POR_PRODUTO.*.duracao` (soma)?
 - [ ] Total do módulo ficou coerente (< ~45 min para módulos estilo Login)?
+
+---
+
+## 11. Curadoria Academy — intro vs. cabeçalho H1
+
+> Detalhe técnico e mapa de arquivos: [GUIA-GRAVITY-JORNADA-TECNICO.md](./GUIA-GRAVITY-JORNADA-TECNICO.md).
+
+| Opção (`manual-*-academy.ts`) | Efeito |
+|-------------------------------|--------|
+| `incluirIntroSecao: true` | H1 + parágrafos/tópicos intro da **seção** do manual + fluxos curados (ex.: **Menus da plataforma**) |
+| `cabecalhoH1: true` (sem intro) | Só H1 `.uni-player-aula__titulo-guia` + fluxos; remove H2 duplicado se título = nome da aula (ex.: **Funcionalidades das listas**) |
+| `tituloIntroAcademy` | Sobrescreve título H1 sem alterar `/docs` |
+| `titulosFluxoAcademy` | Renomeia entradas do sumário lateral por índice de fluxo |
+| `fluxoIndices` | Subconjunto de fluxos do manual (paridade conteúdo, curadoria jornada) |
+
+**Implementação:** `blocosDeSecaoConfiguradorAcademy()` em `academy-blocos-manual.ts`; pós-processamento `cabecalhoH1` em `manual-navegacao-academy.ts` e `manual-hub-academy.ts`.
+
+---
+
+## 12. XP e Gravity Points (Guia Gravity)
+
+> SSOT completo: [GUIA-GRAVITY-JORNADA-TECNICO.md §3](./GUIA-GRAVITY-JORNADA-TECNICO.md#3-xp-e-gravity-points-gp).
+
+| Regra | Detalhe |
+|-------|---------|
+| 1 peso PO | 10 XP exibidos (`PESO_GUAI_XP_MULTIPLICADOR`) |
+| Por aula | `pesoParaXp` arredonda para 2 casas |
+| Soma na UI | **Sempre** `somarXpGuiaGravity` + exibição `formatarXpGuiaGravity` |
+| GP | `calcularGpGuiaGravity(xp)` (= XP × 2 arredondado) |
+| Rateio igual | Última aula do módulo absorve centavos (`aplicarXpRateadoPeso`) |
+| Pedido / Smart Docs | Pesos por slug em `PESO_AULA_GUAI` (sem rateio) |
+
+**Proibido:** somar XP com `reduce` cru ou multiplicar GP com `xp * 2` sem arredondar na UI da jornada.
+
+---
+
+## 13. Badges no menu lateral (Academy)
+
+| Item | Badges | SSOT |
+|------|--------|------|
+| Admin (Academy + Manuais) | **Restrito** / **Em Breve** | `UniversityGravity.tsx` → `badgeAdminOnboarding` |
+| BID Câmbio, Processo, Builders | **Em Breve** | `badgeEmBreve` |
+
+Componente: `MenuLateralGlobal` — props `badge`, `badgeSecundario`, `badgeVariant` (`nucleo-global/Layout/menu-lateral-global`).
 

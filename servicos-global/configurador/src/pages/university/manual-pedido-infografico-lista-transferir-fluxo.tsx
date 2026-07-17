@@ -36,7 +36,7 @@ const RAMOS: RamoTransferir[] = [
     num: 'A',
     rotulo: 'Novo pedido',
     descricao:
-      'Abre um **PO novo** no workspace — a quantidade transferida vira linha no pedido recém-criado. Ideal quando a entrega real virou um pedido separado.',
+      'Abre um **PO novo** no workspace: a quantidade transferida vira linha no pedido recém-criado. Ideal quando a entrega real virou um pedido separado.',
     icone: Plus,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -47,7 +47,7 @@ const RAMOS: RamoTransferir[] = [
     num: 'B',
     rotulo: 'Pedido existente',
     descricao:
-      'Move a quantidade para um **pedido que já existe** — busque pelo número ou selecione na lista do modal. O saldo do item de origem diminui; o destino aumenta.',
+      'Move a quantidade para um **pedido que já existe**: busque pelo número ou selecione na lista do modal. O saldo do item de origem diminui; o destino aumenta.',
     icone: Package,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
@@ -58,7 +58,7 @@ const RAMOS: RamoTransferir[] = [
     num: 'C',
     rotulo: 'Redução simples',
     descricao:
-      '**Reduz o saldo** do item selecionado sem criar pedido nem mover para outro PO — quando a entrega real foi menor que a prevista e o excedente deve sair do saldo aberto.',
+      '**Reduz o saldo** do item selecionado sem criar pedido nem mover para outro PO: quando a entrega real foi menor que a prevista e o excedente deve sair do saldo aberto.',
     icone: MinusCircle,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.32)',
@@ -152,7 +152,7 @@ export function ManualInfograficoPedidoListaTransferirFluxo() {
   return (
     <div
       role="group"
-      aria-label="Mapa mental do fluxo Transferir — três tipos com passos em comum"
+      aria-label="Mapa mental do fluxo Transferir: três tipos com passos em comum"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(52,211,153,.05) 100%)',
         border: '1px solid rgba(148,163,184,.18)',
@@ -195,7 +195,7 @@ export function ManualInfograficoPedidoListaTransferirFluxo() {
             color: '#f1f5f9',
             lineHeight: 1.35,
           }}>
-            Mesmo modal, três caminhos — telas parecidas
+            Mesmo modal, três caminhos: telas parecidas
           </p>
           <p style={{
             margin: '8px 0 0',
@@ -204,7 +204,7 @@ export function ManualInfograficoPedidoListaTransferirFluxo() {
             color: CORPO_70,
           }}>
             Todos começam igual na <strong style={{ color: '#cbd5e1' }}>Lista</strong>. Depois do tipo escolhido,
-            o assistente repete a lógica <strong style={{ color: '#cbd5e1' }}>quantidade → destino → revisão → confirmar</strong> —
+            o assistente repete a lógica <strong style={{ color: '#cbd5e1' }}>quantidade → destino → revisão → confirmar</strong>: 
             só muda o destino final.
           </p>
         </div>

@@ -1,4 +1,10 @@
-﻿/** Manual Login — SSOT compartilhado entre docs (/docs/login) e academy (/academy/login). */
+/** Manual Login — SSOT compartilhado entre docs (/docs/login) e Guia Gravity (/academy/login). */
+
+import type {
+  DocEntradaSumarioManual,
+  DocItemSumarioManual,
+} from './manual-configurador-conteudo'
+import { ancoraPassosLogin, idPassoManual } from './manual-leitura-progresso'
 
 export interface DocPassoVisual {
   num: number
@@ -60,7 +66,7 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 2,
-    titulo: 'Fluxo 1: Criar sua conta',
+    titulo: 'Criar sua conta',
     paragrafos: [
       'Se você ainda não tem conta na Gravity, o cadastro leva poucos minutos em duas etapas: Dados pessoais e confirmação por e-mail.',
       'Depois de validar o código, você segue para o onboarding e cria sua organização e workspace.',
@@ -158,9 +164,9 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 3,
-    titulo: 'Fluxo 2: Entrar com e-mail e senha',
+    titulo: 'Entrar com e-mail e senha',
     paragrafos: [
-      'Para quem já tem conta: Acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA pedem um código extra antes de concluir.',
+      'Para quem já tem conta: Acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA (autenticação em dois fatores) pedem um código extra antes de concluir.',
     ],
     passosVisuais: [
       {
@@ -196,7 +202,7 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
         callouts: [
           {
             tipo: 'aviso',
-            texto: 'Após muitas tentativas erradas, o Clerk pode exigir CAPTCHA ou bloquear temporariamente o acesso. Aguarde alguns minutos antes de tentar de novo.',
+            texto: 'Após muitas tentativas erradas, a plataforma pode exigir CAPTCHA ou bloquear temporariamente o acesso. Aguarde alguns minutos antes de tentar de novo.',
           },
           {
             tipo: 'seguranca',
@@ -229,7 +235,7 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 4,
-    titulo: 'Fluxo 3: Recuperar senha',
+    titulo: 'Recuperar senha',
     paragrafos: [
       'Esqueceu a senha? Em poucos passos você solicita um código por e-mail e define uma nova senha: Sem precisar falar com o suporte.',
     ],
@@ -307,9 +313,9 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 5,
-    titulo: 'Fluxo 4: Convite de outro usuário',
+    titulo: 'Convite de outro usuário',
     paragrafos: [
-      'Apenas usuários **Master** podem convidar outras pessoas para a organização: Como **Master**, **Standard** ou **Fornecedor**. O convite é feito pelo **Configurador**; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
+      'Apenas usuários **Master** podem convidar outras pessoas para a organização. O convite é feito pelo **Configurador**; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
     ],
     passosVisuais: [
       {
@@ -390,7 +396,7 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'O que o convidado faz',
         imagem: '/university/screenshots/login-fluxo1-passo-02-formulario-vazio.png',
         paragrafos: [
-          'O convidado abre o e-mail e clica no link. Nome e e-mail já vêm preenchidos; ele define a senha, aceita os termos e verifica o código de 6 dígitos (mesmo fluxo da seção 02, Fluxo 1).',
+          'O convidado abre o e-mail e clica no link. Nome e e-mail já vêm preenchidos; ele define a senha, aceita os termos e verifica o código de 6 dígitos (mesmo fluxo da seção 02, Criar sua conta).',
           'Com o cadastro concluído, passa a acessar o Gravity com base nas permissões e workspaces marcados, entrando pelo {{link:/university-gravity/docs/hub|HUB}}.',
         ],
         callout: {
@@ -445,3 +451,23 @@ export const DOC_LOGIN_SECOES: DocSecao[] = [
     ],
   },
 ]
+
+/** Sumário hierárquico do manual Login (capítulos = seções; subcapítulos = passos visuais). */
+export function montarEntradasSumarioLogin(): DocEntradaSumarioManual[] {
+  return DOC_LOGIN_SECOES.map((s): DocEntradaSumarioManual => ({
+    capitulo: {
+      rotulo: String(s.num),
+      titulo: s.titulo,
+      secaoAcordeao: s.num,
+      num: s.num,
+    },
+    subitens: s.passosVisuais?.map((p): DocItemSumarioManual => ({
+      rotulo: `${s.num}.${String(p.num).padStart(2, '0')}`,
+      titulo: p.titulo,
+      secaoAcordeao: s.num,
+      elementoScroll: idPassoManual(ancoraPassosLogin(s.num), p.num),
+      subitem: true,
+      subitemNivel: 1,
+    })),
+  }))
+}

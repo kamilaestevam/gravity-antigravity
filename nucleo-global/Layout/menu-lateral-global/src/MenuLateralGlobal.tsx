@@ -40,10 +40,20 @@ export interface NavItem {
   badgeVariant?: 'accent' | 'muted'
   /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
   sectionDivider?: boolean
+  /** Texto auxiliar abaixo do título de seção (ex.: «Para todos os produtos Gravity») */
+  sectionSubtitle?: string
+  /** `padrao` = rótulo em caixa alta (ex.: Produtos Gravity); `texto` = título normal (ex.: Módulo Básico) */
+  sectionDividerTitulo?: 'padrao' | 'texto'
   /** Ícones/indicadores à direita do item (ex.: status na Gravity University) */
   trailing?: React.ReactNode
   /** Se true, o link abre em nova aba (target="_blank" + rel noopener). Use para links cross-aplicação (ex: produto -> Configurador). */
   external?: boolean
+  /** Classe extra no `<a>` / item (ex.: `mlg-submenu-item` para densidade igual aos filhos do Guia Gravity). */
+  className?: string
+  /** Sobrescreve detecção automática de item ativo (ex.: secao atual da Gravity University). */
+  active?: boolean
+  /** Alvo do Quickly Tour / tutorial interativo (`data-uni-quickly-tour-alvo`). */
+  dataTutorialAlvo?: string
 }
 
 export interface MenuLateralGlobalProps {
@@ -99,6 +109,25 @@ export interface MenuLateralGlobalProps {
   defaultCollapsed?: boolean
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  /** Se true, grupos com children iniciam expandidos (ex.: Gravity University). */
+  defaultExpandAllSubmenus?: boolean
+  /** Alvo ativo do tutorial — expande sidebar e submenu pai automaticamente. */
+  alvoTourAtivo?: string | null
+}
+
+function encontrarLabelPaiDoAlvoTutorial(
+  items: NavItem[],
+  idAlvo: string,
+  paiAtual: string | null = null,
+): string | null {
+  for (const item of items) {
+    if (item.dataTutorialAlvo === idAlvo) return paiAtual
+    if (item.children?.length) {
+      const encontrado = encontrarLabelPaiDoAlvoTutorial(item.children, idAlvo, item.label)
+      if (encontrado !== null) return encontrado
+    }
+  }
+  return null
 }
 
 function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
@@ -127,6 +156,11 @@ function navItemMatchesPath(itemTo: string | undefined, pathname: string, search
   if (pathname === itemTo) return true
   if (pathname.startsWith(`${itemTo}/`)) return true
   return false
+}
+
+function navItemOuDescendenteNaRota(item: NavItem, pathname: string, search: string): boolean {
+  if (navItemMatchesPath(item.to, pathname, search)) return true
+  return item.children?.some(child => navItemOuDescendenteNaRota(child, pathname, search)) ?? false
 }
 
 export function MenuLateralGlobal({
@@ -161,6 +195,8 @@ export function MenuLateralGlobal({
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse,
+  defaultExpandAllSubmenus = false,
+  alvoTourAtivo = null,
 }: MenuLateralGlobalProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -231,6 +267,17 @@ export function MenuLateralGlobal({
     ws.plan ? `${ws.name} · ${ws.plan}` : ws.name
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
+  const alvoTourMenuAtivo = Boolean(alvoTourAtivo?.startsWith('qt-menu-'))
+  const effectiveCollapsed = alvoTourMenuAtivo ? false : isCollapsed
+
+  useEffect(() => {
+    if (!alvoTourMenuAtivo || !alvoTourAtivo) return
+    const labelPai = encontrarLabelPaiDoAlvoTutorial(navItems, alvoTourAtivo)
+    if (!labelPai) return
+    setExpandedItems(prev => (
+      prev[labelPai] === true ? prev : { ...prev, [labelPai]: true }
+    ))
+  }, [alvoTourAtivo, alvoTourMenuAtivo, navItems])
 
   const logoIconNode = (
     <div className="mlg-logo-icon" style={{ color: moduleColor }}>
@@ -301,14 +348,40 @@ export function MenuLateralGlobal({
   const renderNavItem = (item: NavItem, isSubmenu = false) => {
     // ── Divisor de seção ──
     if (item.sectionDivider) {
-      if (isCollapsed) return <div key={item.label} className="mlg-nav-spacer" />
-      return <p key={item.label} className="mlg-nav-label mlg-nav-section-label">{item.label}</p>
+      if (effectiveCollapsed) return <div key={item.label} className="mlg-nav-spacer" />
+      const tituloTexto = item.sectionDividerTitulo === 'texto'
+      const exibirIcone = React.isValidElement(item.icon)
+      return (
+        <div
+          key={item.label}
+          className="mlg-nav-section-wrap"
+          {...(item.dataTutorialAlvo ? { 'data-uni-quickly-tour-alvo': item.dataTutorialAlvo } : {})}
+        >
+          <div className="mlg-nav-section-heading">
+            {exibirIcone ? (
+              <div className="mlg-nav-icon mlg-nav-section-icon" aria-hidden>
+                {item.icon}
+              </div>
+            ) : null}
+            <div className="mlg-nav-section-text">
+              {item.label.trim() ? (
+                <p className={`mlg-nav-label ${tituloTexto ? 'mlg-nav-section-title-texto' : 'mlg-nav-section-label'}`}>
+                  {item.label}
+                </p>
+              ) : null}
+              {item.sectionSubtitle ? (
+                <p className="mlg-nav-section-subtitle">{item.sectionSubtitle}</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )
     }
 
     const hasChildren = item.children && item.children.length > 0
     const initiallyExpanded = hasChildren && (
-      navItemMatchesPath(item.to, location.pathname, location.search) ||
-      item.children?.some(child => navItemMatchesPath(child.to, location.pathname, location.search))
+      defaultExpandAllSubmenus ||
+      navItemOuDescendenteNaRota(item, location.pathname, location.search)
     )
     const isExpanded = expandedItems[item.label] !== undefined ? expandedItems[item.label] : initiallyExpanded
     
@@ -322,7 +395,7 @@ export function MenuLateralGlobal({
             onClick={() => toggleSubmenu(item.label, isExpanded as boolean)}
           >
             <div className="mlg-nav-icon">{item.icon}</div>
-            {!isCollapsed && (
+            {!effectiveCollapsed && (
               <>
                 {renderNavLabelWithBadges(item)}
                 <CaretDown className={`mlg-nav-chevron ${isExpanded ? 'open' : ''}`} size={14} weight="bold" />
@@ -330,7 +403,7 @@ export function MenuLateralGlobal({
             )}
           </button>
           
-          {!isCollapsed && (
+          {!effectiveCollapsed && (
             <div className={`mlg-submenu ${isExpanded ? 'open' : ''}`}>
               {item.children?.map(child => (
                 <React.Fragment key={child.to ?? child.label}>
@@ -343,7 +416,7 @@ export function MenuLateralGlobal({
       )
     }
 
-    const textContent = !isCollapsed ? renderNavLabelWithBadges(item) : null
+    const textContent = !effectiveCollapsed ? renderNavLabelWithBadges(item) : null
 
     // Item normal (link) — navegação nativa via <a href> força reload completo (F5).
     // Evita race conditions de SPA entre Clerk/Zustand/API ao trocar de tela.
@@ -361,13 +434,16 @@ export function MenuLateralGlobal({
       }
       return location.pathname === to
     }
-    const isActive = checkActive(item.to || '')
-    const trailingNode = !isCollapsed && item.trailing ? (
+    const isActive = item.active !== undefined ? item.active : checkActive(item.to || '')
+    const trailingNode = !effectiveCollapsed && item.trailing ? (
       <div className="mlg-nav-trailing">{item.trailing}</div>
     ) : null
 
     const navLink = item.disabled ? (
-      <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}>
+      <div
+        className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}
+        {...(item.dataTutorialAlvo ? { 'data-uni-quickly-tour-alvo': item.dataTutorialAlvo } : {})}
+      >
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
         {trailingNode}
@@ -378,7 +454,8 @@ export function MenuLateralGlobal({
         href={item.to || '#'}
         target={item.external ? '_blank' : undefined}
         rel={item.external ? 'noopener noreferrer' : undefined}
-        className={`mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
+        className={`mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${item.className ?? ''} ${isActive ? 'active' : ''}`}
+        {...(item.dataTutorialAlvo ? { 'data-uni-quickly-tour-alvo': item.dataTutorialAlvo } : {})}
       >
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
@@ -386,7 +463,7 @@ export function MenuLateralGlobal({
       </a>
     )
 
-    if (isCollapsed && !isSubmenu) {
+    if (effectiveCollapsed && !isSubmenu) {
       return (
         <TooltipGlobal key={item.label} descricao={item.label}>
           {navLink}
@@ -399,11 +476,11 @@ export function MenuLateralGlobal({
 
   return (
     <aside 
-      className={`mlg-sidebar ${isCollapsed ? 'collapsed' : ''}`}
+      className={`mlg-sidebar ${effectiveCollapsed ? 'collapsed' : ''}`}
       style={cssVars}
     >
       {/* ── Toggle — flutua na borda direita ── */}
-      <TooltipGlobal descricao={isCollapsed ? 'Expandir menu' : 'Recolher menu'}>
+      <TooltipGlobal descricao={effectiveCollapsed ? 'Expandir menu' : 'Recolher menu'}>
         <button 
           className="mlg-toggle-btn" 
           onClick={toggleCollapse}

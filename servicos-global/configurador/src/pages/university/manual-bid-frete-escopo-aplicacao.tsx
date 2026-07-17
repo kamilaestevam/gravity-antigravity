@@ -57,7 +57,7 @@ const ICONES_OPERACAO: IconeEscopoDef<ManualBidFreteEscopoOperacaoId>[] = [
     tooltipTitulo: 'Importação',
     tooltipAtivo: 'Este tópico vale para cotações de entrada no país',
     tooltipInativo: 'Não se aplica a importação neste tópico',
-    legenda: 'Operação de entrada — mercadoria chegando ao país',
+    legenda: 'Operação de entrada: mercadoria chegando ao país',
   },
   {
     id: 'exportacao',
@@ -69,7 +69,7 @@ const ICONES_OPERACAO: IconeEscopoDef<ManualBidFreteEscopoOperacaoId>[] = [
     tooltipTitulo: 'Exportação',
     tooltipAtivo: 'Este tópico vale para cotações de saída do país',
     tooltipInativo: 'Não se aplica a exportação neste tópico',
-    legenda: 'Operação de saída — mercadoria saindo do país',
+    legenda: 'Operação de saída: mercadoria saindo do país',
   },
 ]
 
@@ -84,7 +84,7 @@ const ICONES_MODAL: IconeEscopoDef<ManualBidFreteEscopoModalId>[] = [
     tooltipTitulo: 'Marítimo',
     tooltipAtivo: 'Conteúdo válido quando o modal marítimo está selecionado',
     tooltipInativo: 'Não se aplica ao modal marítimo neste tópico',
-    legenda: 'Frete por navio — portos, FCL e LCL',
+    legenda: 'Frete por navio: portos, FCL e LCL',
   },
   {
     id: 'aereo',
@@ -96,7 +96,7 @@ const ICONES_MODAL: IconeEscopoDef<ManualBidFreteEscopoModalId>[] = [
     tooltipTitulo: 'Aéreo',
     tooltipAtivo: 'Conteúdo válido quando o modal aéreo está selecionado',
     tooltipInativo: 'Não se aplica ao modal aéreo neste tópico',
-    legenda: 'Frete aéreo — aeroportos e volumes',
+    legenda: 'Frete aéreo: aeroportos e volumes',
   },
   {
     id: 'rodoviario',
@@ -108,7 +108,7 @@ const ICONES_MODAL: IconeEscopoDef<ManualBidFreteEscopoModalId>[] = [
     tooltipTitulo: 'Rodoviário',
     tooltipAtivo: 'Conteúdo válido quando o modal rodoviário está selecionado',
     tooltipInativo: 'Não se aplica ao modal rodoviário neste tópico',
-    legenda: 'Frete terrestre — trechos door-to-door e volumes',
+    legenda: 'Frete terrestre: trechos door-to-door e volumes',
   },
 ]
 
@@ -166,7 +166,7 @@ function ManualBidFreteEscopoIcone<T extends string>({
     >
       <button
         type="button"
-        aria-label={`${icone.rotulo}${ativo ? '' : ' — fora do escopo'}`}
+        aria-label={`${icone.rotulo}${ativo ? '' : ': fora do escopo'}`}
         aria-pressed={ativo}
         style={{
           width: 26,

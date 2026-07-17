@@ -79,39 +79,39 @@ export type ModalFreteOrigemDestino = 'MARITIMO' | 'AEREO' | 'RODOVIARIO' | ''
 
 /** Amostra estática do catálogo real (portos) — só para o manual. */
 const PORTOS_CATALOGO: SelectOpcao[] = [
-  { valor: 'BRSSZ', rotulo: 'Santos (BRSSZ) — Brasil' },
-  { valor: 'BRPNG', rotulo: 'Paranaguá (BRPNG) — Brasil' },
-  { valor: 'BRITJ', rotulo: 'Itajaí (BRITJ) — Brasil' },
-  { valor: 'BRRIG', rotulo: 'Rio Grande (BRRIG) — Brasil' },
-  { valor: 'BRSUA', rotulo: 'Suape (BRSUA) — Brasil' },
-  { valor: 'CNSHA', rotulo: 'Xangai (CNSHA) — China' },
-  { valor: 'CNNGB', rotulo: 'Ningbo (CNNGB) — China' },
-  { valor: 'CNSZX', rotulo: 'Shenzhen (CNSZX) — China' },
-  { valor: 'SGSIN', rotulo: 'Singapura (SGSIN) — Singapura' },
-  { valor: 'KRPUS', rotulo: 'Busan (KRPUS) — Coreia do Sul' },
-  { valor: 'NLRTM', rotulo: 'Roterdã (NLRTM) — Países Baixos' },
-  { valor: 'DEHAM', rotulo: 'Hamburgo (DEHAM) — Alemanha' },
-  { valor: 'USNYC', rotulo: 'Nova York (USNYC) — Estados Unidos' },
-  { valor: 'USLAX', rotulo: 'Los Angeles (USLAX) — Estados Unidos' },
+  { valor: 'BRSSZ', rotulo: 'Santos (BRSSZ): Brasil' },
+  { valor: 'BRPNG', rotulo: 'Paranaguá (BRPNG): Brasil' },
+  { valor: 'BRITJ', rotulo: 'Itajaí (BRITJ): Brasil' },
+  { valor: 'BRRIG', rotulo: 'Rio Grande (BRRIG): Brasil' },
+  { valor: 'BRSUA', rotulo: 'Suape (BRSUA): Brasil' },
+  { valor: 'CNSHA', rotulo: 'Xangai (CNSHA): China' },
+  { valor: 'CNNGB', rotulo: 'Ningbo (CNNGB): China' },
+  { valor: 'CNSZX', rotulo: 'Shenzhen (CNSZX): China' },
+  { valor: 'SGSIN', rotulo: 'Singapura (SGSIN): Singapura' },
+  { valor: 'KRPUS', rotulo: 'Busan (KRPUS): Coreia do Sul' },
+  { valor: 'NLRTM', rotulo: 'Roterdã (NLRTM): Países Baixos' },
+  { valor: 'DEHAM', rotulo: 'Hamburgo (DEHAM): Alemanha' },
+  { valor: 'USNYC', rotulo: 'Nova York (USNYC): Estados Unidos' },
+  { valor: 'USLAX', rotulo: 'Los Angeles (USLAX): Estados Unidos' },
 ]
 
 /** Amostra estática do catálogo real (aeroportos IATA) — só para o manual. */
 const AEROPORTOS_CATALOGO: SelectOpcao[] = [
-  { valor: 'GRU', rotulo: 'Guarulhos (GRU) — Brasil' },
-  { valor: 'VCP', rotulo: 'Viracopos (VCP) — Brasil' },
-  { valor: 'GIG', rotulo: 'Galeão (GIG) — Brasil' },
-  { valor: 'CNF', rotulo: 'Confins (CNF) — Brasil' },
-  { valor: 'CWB', rotulo: 'Afonso Pena (CWB) — Brasil' },
-  { valor: 'PVG', rotulo: 'Pudong (PVG) — China' },
-  { valor: 'PEK', rotulo: 'Pequim Capital (PEK) — China' },
-  { valor: 'HKG', rotulo: 'Hong Kong (HKG) — Hong Kong' },
-  { valor: 'SIN', rotulo: 'Changi (SIN) — Singapura' },
-  { valor: 'ICN', rotulo: 'Incheon (ICN) — Coreia do Sul' },
-  { valor: 'AMS', rotulo: 'Schiphol (AMS) — Países Baixos' },
-  { valor: 'FRA', rotulo: 'Frankfurt (FRA) — Alemanha' },
-  { valor: 'JFK', rotulo: 'John F. Kennedy (JFK) — Estados Unidos' },
-  { valor: 'LAX', rotulo: 'Los Angeles (LAX) — Estados Unidos' },
-  { valor: 'MIA', rotulo: 'Miami (MIA) — Estados Unidos' },
+  { valor: 'GRU', rotulo: 'Guarulhos (GRU): Brasil' },
+  { valor: 'VCP', rotulo: 'Viracopos (VCP): Brasil' },
+  { valor: 'GIG', rotulo: 'Galeão (GIG): Brasil' },
+  { valor: 'CNF', rotulo: 'Confins (CNF): Brasil' },
+  { valor: 'CWB', rotulo: 'Afonso Pena (CWB): Brasil' },
+  { valor: 'PVG', rotulo: 'Pudong (PVG): China' },
+  { valor: 'PEK', rotulo: 'Pequim Capital (PEK): China' },
+  { valor: 'HKG', rotulo: 'Hong Kong (HKG): Hong Kong' },
+  { valor: 'SIN', rotulo: 'Changi (SIN): Singapura' },
+  { valor: 'ICN', rotulo: 'Incheon (ICN): Coreia do Sul' },
+  { valor: 'AMS', rotulo: 'Schiphol (AMS): Países Baixos' },
+  { valor: 'FRA', rotulo: 'Frankfurt (FRA): Alemanha' },
+  { valor: 'JFK', rotulo: 'John F. Kennedy (JFK): Estados Unidos' },
+  { valor: 'LAX', rotulo: 'Los Angeles (LAX): Estados Unidos' },
+  { valor: 'MIA', rotulo: 'Miami (MIA): Estados Unidos' },
 ]
 
 function catalogoLocalPorModal(modal: ModalFreteOrigemDestino): SelectOpcao[] {
@@ -199,7 +199,7 @@ function rotuloLocalCompleto(codigo: string | null, modal: ModalFreteOrigemDesti
 function rotuloLocalCurto(codigo: string | null, modal: ModalFreteOrigemDestino = ''): string | null {
   const completo = rotuloLocalCompleto(codigo, modal)
   if (!completo) return null
-  return completo.split(' — ')[0]
+  return completo.split(': ')[0]
 }
 
 /** Texto de origem/destino para o passo Resumo do wizard. */

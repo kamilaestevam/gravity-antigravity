@@ -31,7 +31,9 @@ import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-
 import {
   COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
   criarColunasListaLeituraSmartRead,
+  criarColunasPersonalizadasListaSmartRead,
   criarMapaColunasDocumentoLeitura,
+  criarMapaFilhoColunasPersonalizadasSmartRead,
   formatarValorExportColunaLeituraSmartRead,
 } from '../shared/colunas-lista-leitura-smart-read'
 import {
@@ -44,16 +46,21 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
+import { resolverPassoRetomarDaListaSmartRead } from '../../../shared/resolver-passo-retomar-da-lista-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import {
   useListaPainelSmartRead,
   type AplicarConfigListaPainelCallbacks,
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import {
+  PREFIXO_COLUNA_PERSONALIZADA_SMART_READ,
+  chaveColunaPersonalizadaSmartRead,
+  usePreferenciasVisualizacaoSmartRead,
+} from '../shared/use-preferencias-visualizacao-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
-
-const ITENS_POR_PAGINA = 50
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -122,10 +129,13 @@ export function TabelaTransacoesLeituraSmartRead({
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [passoRetomarLista, setPassoRetomarLista] = useState<number | null>(null)
+  const [hintRetomarLista, setHintRetomarLista] = useState<HintRetomarLeituraListaSmartRead | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const origemProduto = searchParams.get('origem')
   const origemPedido = origemProduto === 'pedido'
+  const origemBidFrete = origemProduto === 'bid-frete-internacional'
+  const idBidOrigem = searchParams.get('id_bid')
 
   useEffect(() => {
     const origem = searchParams.get('origem')
@@ -224,34 +234,106 @@ export function TabelaTransacoesLeituraSmartRead({
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
-  const abrirLeituraExistente = useCallback((idLeitura: string, passoAtual: number | null = null) => {
-    setArquivosNovaLeitura([])
-    setIdLeituraExistente(idLeitura)
-    setPassoRetomarLista(passoAtual)
-    setModalNovaLeituraAberto(true)
-  }, [])
+  const montarHintRetomarLista = useCallback(
+    (item: TransacaoLeitura): HintRetomarLeituraListaSmartRead => ({
+      nome_arquivo: item.nome_arquivo,
+      nome_leitura: item.nome_leitura,
+      total_arquivos: item.total_arquivos,
+      status_leitura: item.status_leitura,
+      status_fluxo_leitura: item.status_fluxo_leitura,
+      passo_retomar: resolverPassoRetomarDaListaSmartRead(item),
+    }),
+    [],
+  )
+
+  const abrirLeituraExistente = useCallback(
+    (
+      idLeitura: string,
+      passoAtual: number | null = null,
+      hint: HintRetomarLeituraListaSmartRead | null = null,
+    ) => {
+      setArquivosNovaLeitura([])
+      setIdLeituraExistente(idLeitura)
+      setPassoRetomarLista(passoAtual)
+      setHintRetomarLista(hint)
+      setModalNovaLeituraAberto(true)
+    },
+    [],
+  )
 
   const abrirLeituraDaTransacao = useCallback(
-    (item: TransacaoLeitura) => abrirLeituraExistente(item.id_leitura, item.passo_atual_leitura),
-    [abrirLeituraExistente],
+    (item: TransacaoLeitura) => {
+      const hint = montarHintRetomarLista(item)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
+    },
+    [abrirLeituraExistente, montarHintRetomarLista],
   )
 
   const abrirLeituraDoDocumento = useCallback(
     (item: DocumentoLeituraLista) => {
       const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
-      abrirLeituraExistente(item.id_leitura, pai?.passo_atual_leitura ?? null)
+      if (!pai) {
+        abrirLeituraExistente(item.id_leitura, 2, null)
+        return
+      }
+      const hint = montarHintRetomarLista(pai)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
     },
-    [abrirLeituraExistente, transacoes],
+    [abrirLeituraExistente, montarHintRetomarLista, transacoes],
   )
 
+  // Configurações › Tabelas (linhas/densidade) e › Colunas (personalizadas)
+  const { prefs: visualizacao } = usePreferenciasVisualizacaoSmartRead()
+  const colunasPersonalizadas = visualizacao.colunas_personalizadas
+
   const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
-    [abrirLeituraDaTransacao],
+    () => [
+      ...criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
+      ...criarColunasPersonalizadasListaSmartRead(colunasPersonalizadas),
+    ],
+    [abrirLeituraDaTransacao, colunasPersonalizadas],
   )
   const mapaColunasFilho = useMemo(
-    () => criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
-    [abrirLeituraDoDocumento],
+    () => ({
+      ...criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
+      ...criarMapaFilhoColunasPersonalizadasSmartRead(colunasPersonalizadas),
+    }),
+    [abrirLeituraDoDocumento, colunasPersonalizadas],
   )
+
+  const colunasPadrao = useMemo(
+    () => [
+      ...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
+      ...colunasPersonalizadas.filter((c) => c.visible).map(chaveColunaPersonalizadaSmartRead),
+    ],
+    [colunasPersonalizadas],
+  )
+
+  // Painel com colunas persistidas: injeta colunas personalizadas novas e
+  // remove as excluídas/ocultadas na Configurações (padrão Pedido —
+  // colunas_manuais_conhecidas evita re-exibir o que o usuário ocultou na tabela).
+  useEffect(() => {
+    const chavesVisiveis = colunasPersonalizadas
+      .filter((c) => c.visible)
+      .map(chaveColunaPersonalizadaSmartRead)
+    const ativas = new Set(chavesVisiveis)
+
+    setPreferencias((prev) => {
+      if (!prev?.colunas_visiveis?.length) return prev
+      const salvas = new Set(prev.colunas_visiveis)
+      const conhecidas = new Set(prev.colunas_manuais_conhecidas ?? [])
+      const novas = chavesVisiveis.filter((k) => !salvas.has(k) && !conhecidas.has(k))
+      const filtradas = prev.colunas_visiveis.filter(
+        (k) => !k.startsWith(PREFIXO_COLUNA_PERSONALIZADA_SMART_READ) || ativas.has(k),
+      )
+      if (novas.length === 0 && filtradas.length === prev.colunas_visiveis.length) return prev
+      return {
+        ...prev,
+        colunas_visiveis: [...filtradas, ...novas],
+        colunas_manuais_conhecidas: Array.from(new Set([...conhecidas, ...chavesVisiveis])),
+      }
+    })
+  }, [colunasPersonalizadas])
 
   const transacoesFiltradas = useMemo(
     () => filtrarTransacoesListaSmartRead(transacoes, filtrosAtivosLista),
@@ -327,13 +409,13 @@ export function TabelaTransacoesLeituraSmartRead({
     () => montarAcoesExportacaoListaSmartRead({
       colunas,
       preferencias,
-      colunasPadrao: [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ],
+      colunasPadrao,
       dados: transacoesFiltradas,
       formatValorExport: formatarValorExportColunaLeituraSmartRead,
       nomeArquivo: 'smart-read-leituras',
       titulo: `Lista ${tituloPainel} — ${NOME_PRODUTO_EXIBICAO}`,
     }),
-    [colunas, preferencias, transacoesFiltradas, tituloPainel],
+    [colunas, colunasPadrao, preferencias, transacoesFiltradas, tituloPainel],
   )
 
   const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
@@ -488,7 +570,9 @@ export function TabelaTransacoesLeituraSmartRead({
     : undefined
 
   return (
-    <section className="sr-painel sr-painel--tabela">
+    <section
+      className={`sr-painel sr-painel--tabela${visualizacao.densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}
+    >
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
@@ -543,7 +627,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
-        itensPorPagina={ITENS_POR_PAGINA}
+        itensPorPagina={visualizacao.linhas_pagina}
         totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
@@ -557,7 +641,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filtrosAtivosKeys={filtrosAtivosKeys}
         preferencias={preferencias}
         onSalvarPreferencias={handleSalvarPreferencias}
-        colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
+        colunasPadrao={colunasPadrao}
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
         ariaLabel={`Lista de ${tituloPainel} ${NOME_PRODUTO_EXIBICAO}`}
@@ -580,12 +664,16 @@ export function TabelaTransacoesLeituraSmartRead({
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
         passoRetomarLista={passoRetomarLista}
+        hintRetomarLista={hintRetomarLista}
         origemPedido={origemPedido}
+        origemBidFrete={origemBidFrete}
+        idBidOrigem={idBidOrigem}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])
           setIdLeituraExistente(null)
           setPassoRetomarLista(null)
+          setHintRetomarLista(null)
           void onRecarregar()
         }}
         onConcluido={() => void onRecarregar()}

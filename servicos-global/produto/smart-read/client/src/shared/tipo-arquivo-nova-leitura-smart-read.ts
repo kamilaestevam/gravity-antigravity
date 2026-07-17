@@ -4,6 +4,7 @@
 
 import type { Leitura, StatusLeitura } from './schemas'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import { passoInicialLeituraSmartRead as passoInicialLeituraSmartReadShared } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
@@ -86,6 +87,53 @@ export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNova
 }
 
 /**
+ * Retomar leitura: usa `arquivos` da API quando existem; senão placeholders a partir de
+ * `total_arquivos` (lista/legado podem expor contagem sem detalhe de arquivo ainda).
+ */
+export function criarArquivosLocaisRetomarDeLeitura(
+  leitura: Leitura,
+  hint?: HintRetomarLeituraListaSmartRead | null,
+): ArquivoLocalNovaLeitura[] {
+  const total = Math.max(leitura.total_arquivos ?? 0, hint?.total_arquivos ?? 0)
+  const leituraEfetiva =
+    total > (leitura.total_arquivos ?? 0) ? { ...leitura, total_arquivos: total } : leitura
+
+  if (leituraEfetiva.arquivos.length > 0) {
+    return criarArquivosLocaisDeLeitura(leituraEfetiva)
+  }
+
+  // Leitura em andamento sem detalhe de arquivos (legado/lista podem vir com total 0):
+  // um placeholder permite o polling retomar em vez de tela vazia "Arquivos enviados 0".
+  const emAndamento =
+    leituraEfetiva.status_leitura === 'PROCESSING' || leituraEfetiva.status_leitura === 'PENDING'
+  const totalEfetivo = total > 0 ? total : emAndamento ? 1 : 0
+  if (totalEfetivo <= 0) return []
+
+  const nomeLista =
+    corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
+  const nomeDaLeitura =
+    corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+    leituraEfetiva.nome_leitura?.trim() ??
+    null
+  const nomeBase = nomeLista || nomeDaLeitura || 'documento'
+  const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)
+
+  return Array.from({ length: totalEfetivo }, (_, indice) => {
+    const nomeArquivo = totalEfetivo === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File([], nomeArquivo),
+      status_arquivo_local: statusLocal,
+      id_leitura: leituraEfetiva.id_leitura,
+      id_arquivo: null,
+      leitura: leituraEfetiva,
+      mensagem_erro: leituraEfetiva.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
+      expandido: true,
+    }
+  })
+}
+
+/**
  * Consolida a leitura editada a partir dos arquivos locais. As edições de
  * Conferência ficam espalhadas em cada `item.leitura`, então reunimos o arquivo
  * resolvido de cada item numa única Leitura — pronta para persistir/restaurar.
@@ -97,6 +145,56 @@ export function consolidarLeituraDeArquivosLocais(itens: ArquivoLocalNovaLeitura
     .map((item) => resolverArquivoApiLeitura(item))
     .filter((arquivo): arquivo is Leitura['arquivos'][number] => arquivo !== null)
   return { ...base, arquivos: arquivos.length > 0 ? arquivos : base.arquivos }
+}
+
+function statusArquivoApiDeLocal(
+  status: StatusArquivoLocalNovaLeitura,
+): Leitura['arquivos'][number]['status_arquivo'] {
+  if (status === 'completo') return 'COMPLETED'
+  if (status === 'erro') return 'FAILED'
+  return 'PROCESSING'
+}
+
+/**
+ * Leitura mínima para persistir passo 2 com análise em andamento (antes de todos completos).
+ */
+export function montarLeituraMinimaProcessamentoDeArquivosLocais(
+  idLeitura: string,
+  nomeLeitura: string,
+  itens: ArquivoLocalNovaLeitura[],
+): Leitura | null {
+  const consolidada = consolidarLeituraDeArquivosLocais(itens)
+  if (consolidada && consolidada.arquivos.length > 0) {
+    return {
+      ...consolidada,
+      id_leitura: idLeitura,
+      nome_leitura: nomeLeitura,
+      status_leitura: consolidada.status_leitura ?? 'PROCESSING',
+    }
+  }
+
+  const enviados = itens.filter((item) => item.id_leitura && item.id_arquivo)
+  if (enviados.length === 0) return null
+
+  const arquivosApi = enviados.map((item) => {
+    const resolvido = resolverArquivoApiLeitura(item)
+    if (resolvido) return resolvido
+    return {
+      id_arquivo: item.id_arquivo!,
+      nome_arquivo: item.arquivo.name,
+      status_arquivo: statusArquivoApiDeLocal(item.status_arquivo_local),
+      resultado_extracao: null,
+    }
+  })
+
+  return {
+    id_leitura: idLeitura,
+    nome_leitura: nomeLeitura,
+    status_leitura: 'PROCESSING',
+    total_arquivos: itens.length,
+    arquivos_processados: itens.filter((item) => item.status_arquivo_local === 'completo').length,
+    arquivos: arquivosApi,
+  }
 }
 
 export function resolverArquivoApiLeitura(

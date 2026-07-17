@@ -7,17 +7,18 @@
  * SVG, funil por status, donut por tipo de operação.
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { usePainelInsightsAtivo } from '../components/pedidos-visualizacao-context'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   MagnifyingGlass,
   DownloadSimple,
   UploadSimple,
-  CurrencyCircleDollar,
   TrendUp,
   TrendDown,
   Timer,
@@ -30,10 +31,13 @@ import {
   ArrowCounterClockwise,
   Play,
   Pause,
+  Eye,
+  EyeSlash,
   Globe,
   MapTrifold,
+  ArrowsOut,
+  X,
   List,
-  MapPin,
   Clock,
   CheckCircle,
   ChatText,
@@ -47,8 +51,30 @@ import {
 } from '@phosphor-icons/react'
 
 import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/useVisaoGeralPedido'
-import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
+import type { VisaoGeralAlertaTipo, VisaoGeralMensal, VisaoGeralModal, VisaoGeralFunil, VisaoGeralIncoterm, VisaoGeralMoeda } from '../shared/useVisaoGeralPedido'
+import {
+  TooltipGraficoInsightsPedido,
+  formatarPercentualTooltipGraficoPedido,
+  useHoverTooltipGraficoPedido,
+} from '../shared/insights-grafico-tooltip-pedido'
+import '../shared/insights-grafico-tooltip-pedido.css'
 import type { Pedido } from '../shared/types'
+import {
+  buildVisaoGeralMapa,
+  type TipoOperacaoMapa,
+  type VisaoGeralMapPin,
+  type VisaoGeralPedidoCardDetalhe,
+  type VisaoGeralRotaDetalhe,
+  type VisaoGeralResumoVencimentos,
+  type VisaoGeralVencimentoCambio,
+} from '../shared/visaoGeralMapaPedido'
+import {
+  filtrarPedidosMapaInsights,
+  filtrosMapaInsightsPedidoIniciais,
+  type FiltrosMapaInsightsPedido,
+} from '../shared/filtrar-dados-mapa-insights-pedido'
+import { PainelRefinarMapaPedido } from '../shared/componentes/PainelRefinarMapaPedido'
+import '../../../../bid-frete-internacional/client/src/shared/bid-frete-visao-geral-mapa.css'
 import {
   DASHBOARD_TOP_KPI_STATUS_MAPA,
   type DashboardTopKpiWidgetId,
@@ -57,12 +83,7 @@ import {
   calcularTopKpiCardsVisaoGeral,
   useMapaRotulosStatusPedido,
 } from '../shared/visaoGeralTopKpi'
-import type {
-  VisaoGeralMapPin,
-  VisaoGeralRotaDetalhe,
-  VisaoGeralResumoVencimentos,
-  VisaoGeralVencimentoCambio,
-} from '../shared/visaoGeralMapaPedido'
+import { InsightsKpiTooltipPedido } from '../shared/insights-kpi-tooltip-pedido'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -71,6 +92,56 @@ const fmtMoeda = (v: number) =>
 
 const fmtMoedaSafe = (v: number) =>
   Number.isFinite(v) && v > 0 ? fmtMoeda(v) : '—'
+
+type StatFluxoCambioPin = {
+  chaveRotulo: 'total_a_receber' | 'total_a_pagar'
+  valor: number
+  moeda: string
+  corValor: string
+}
+
+function resolverStatFluxoCambioPin(pin: VisaoGeralMapPin): StatFluxoCambioPin | null {
+  if (pin.tipoOperacao === 'importacao' && pin.totalAPagar > 0) {
+    return {
+      chaveRotulo: 'total_a_pagar',
+      valor: pin.totalAPagar,
+      moeda: pin.moedaCambio,
+      corValor: '#f59e0b',
+    }
+  }
+  if (pin.tipoOperacao === 'exportacao' && pin.totalAReceber > 0) {
+    return {
+      chaveRotulo: 'total_a_receber',
+      valor: pin.totalAReceber,
+      moeda: pin.moedaCambio,
+      corValor: '#34d399',
+    }
+  }
+  return null
+}
+
+function resolverStatFluxoCambioDetalhe(
+  detalhe: { totalAReceber: number; totalAPagar: number; moedaCambio: string },
+  tipoOperacao: TipoOperacaoMapa | undefined,
+): StatFluxoCambioPin | null {
+  if (tipoOperacao === 'importacao' && detalhe.totalAPagar > 0) {
+    return {
+      chaveRotulo: 'total_a_pagar',
+      valor: detalhe.totalAPagar,
+      moeda: detalhe.moedaCambio,
+      corValor: '#f59e0b',
+    }
+  }
+  if (tipoOperacao === 'exportacao' && detalhe.totalAReceber > 0) {
+    return {
+      chaveRotulo: 'total_a_receber',
+      valor: detalhe.totalAReceber,
+      moeda: detalhe.moedaCambio,
+      corValor: '#34d399',
+    }
+  }
+  return null
+}
 
 const fmtDataPt = (iso: string) => {
   const [y, m, d] = iso.split('-')
@@ -135,14 +206,18 @@ function MiniTimelineVencimentos({
   onExpand?: () => void
 }) {
   const { t } = useTranslation()
+  const timelineTooltip = useHoverTooltipGraficoPedido<import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento>()
   if (timeline.length === 0) return null
   const max = Math.max(1, ...timeline.flatMap(item => [item.receber, item.pagar]))
   const slotW = 14
   const svgW = Math.max(timeline.length * slotW, 42)
+  const rotuloPagar = t('pedido.visao_geral.grafico_tooltip.vencimentos_pagar')
+  const rotuloReceber = t('pedido.visao_geral.grafico_tooltip.vencimentos_receber')
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className="bfd-route-mini-timeline bfd-route-mini-timeline--clickable"
       aria-label={t('pedido.visao_geral.mapa.expandir_grafico_vencimentos')}
       onClick={e => {
@@ -150,41 +225,63 @@ function MiniTimelineVencimentos({
         e.stopPropagation()
         onExpand?.()
       }}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onExpand?.()
+        }
+      }}
     >
-      <svg width="100%" height="100%" viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="xMidYMid meet">
-        <line x1="0" y1="22" x2={svgW} y2="22" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-        {timeline.map((mes, idx) => {
-          const hRec = mes.receber > 0 ? Math.max(4, (mes.receber / max) * 18) : 0
-          const hPag = mes.pagar > 0 ? Math.max(4, (mes.pagar / max) * 18) : 0
-          const x = idx * slotW + 2
-          return (
-            <g key={mes.chave}>
-              {hPag > 0 && (
-                <rect x={x} y={22 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.92} />
-              )}
-              {hRec > 0 && (
-                <rect x={x + 5} y={22 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.92} />
-              )}
-            </g>
-          )
-        })}
-      </svg>
-    </button>
-  )
-}
-
-function MiniArcoCambio({ color }: { color: string }) {
-  const pathD = 'M 2,14 Q 36,2 70,14'
-  return (
-    <div className="bfd-route-mini-arco" aria-hidden="true">
-      <svg width="72" height="24" viewBox="0 0 72 24" style={{ overflow: 'visible' }}>
-        <path d={pathD} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="3,3" />
-        <path d={pathD} fill="none" stroke={color} strokeWidth="1.2" strokeDasharray="14, 120" opacity="0.85">
-          <animate attributeName="stroke-dashoffset" values="134;0" dur="5s" repeatCount="indefinite" />
-        </path>
-      </svg>
-      <div className="bfd-route-mini-arco__icon">
-        <CurrencyCircleDollar size={12} weight="duotone" color="#fbbf24" />
+      <div className="sr-insights-tt-host bfd-route-mini-timeline__host" ref={timelineTooltip.containerRef}>
+        <svg width="100%" height="100%" viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="xMidYMid meet">
+          <line x1="0" y1="22" x2={svgW} y2="22" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+          {timeline.map((mes, idx) => {
+            const hRec = mes.receber > 0 ? Math.max(4, (mes.receber / max) * 18) : 0
+            const hPag = mes.pagar > 0 ? Math.max(4, (mes.pagar / max) * 18) : 0
+            const x = idx * slotW + 2
+            return (
+              <g key={mes.chave}>
+                <rect
+                  x={idx * slotW}
+                  y={0}
+                  width={slotW}
+                  height={40}
+                  fill="transparent"
+                  className="bfd-chart-hit"
+                  onMouseEnter={(e) => {
+                    e.stopPropagation()
+                    timelineTooltip.aoEntrar(e, mes)
+                  }}
+                  onMouseLeave={timelineTooltip.aoSair}
+                />
+                {hPag > 0 && (
+                  <rect x={x} y={22 - hPag} width={4} height={hPag} rx={1} fill="#f59e0b" opacity={0.92} />
+                )}
+                {hRec > 0 && (
+                  <rect x={x + 5} y={22 - hRec} width={4} height={hRec} rx={1} fill="#34d399" opacity={0.92} />
+                )}
+              </g>
+            )
+          })}
+        </svg>
+        {timelineTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={timelineTooltip.estado.ancora}
+            containerRef={timelineTooltip.containerRef}
+            preferirAcima
+            conteudo={{
+              titulo: timelineTooltip.estado.dados.label,
+              linhas: [
+                ...(timelineTooltip.estado.dados.pagar > 0
+                  ? [{ cor: '#f59e0b', rotulo: rotuloPagar, valor: fmtMoedaSafe(timelineTooltip.estado.dados.pagar) }]
+                  : []),
+                ...(timelineTooltip.estado.dados.receber > 0
+                  ? [{ cor: '#34d399', rotulo: rotuloReceber, valor: fmtMoedaSafe(timelineTooltip.estado.dados.receber) }]
+                  : []),
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -314,6 +411,7 @@ function PainelTimelineExpandido({
   onVoltar: () => void
 }) {
   const { t } = useTranslation()
+  const timelineTooltip = useHoverTooltipGraficoPedido<import('../shared/visaoGeralMapaPedido').VisaoGeralTimelineVencimento>()
   const isExportacao = route.tipoOperacao === 'exportacao'
   const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
   const timeline = route.timelineVencimentos
@@ -321,6 +419,8 @@ function PainelTimelineExpandido({
   const slotW = 72
   const chartH = 160
   const svgW = Math.max(timeline.length * slotW, 320)
+  const rotuloPagar = t('pedido.visao_geral.grafico_tooltip.vencimentos_pagar')
+  const rotuloReceber = t('pedido.visao_geral.grafico_tooltip.vencimentos_receber')
 
   return (
     <div className="bfd-timeline-expandido">
@@ -342,7 +442,7 @@ function PainelTimelineExpandido({
         </span>
       </div>
 
-      <div className="bfd-timeline-expandido__chart-wrap">
+      <div className="sr-insights-tt-host bfd-timeline-expandido__chart-wrap" ref={timelineTooltip.containerRef}>
         <svg
           className="bfd-timeline-expandido__chart"
           viewBox={`0 0 ${svgW} ${chartH + 48}`}
@@ -355,6 +455,16 @@ function PainelTimelineExpandido({
             const hRec = mes.receber > 0 ? Math.max(8, (mes.receber / max) * (chartH - 24)) : 0
             return (
               <g key={mes.chave}>
+                <rect
+                  x={idx * slotW + 12}
+                  y={0}
+                  width={slotW}
+                  height={chartH + 48}
+                  fill="transparent"
+                  className="bfd-chart-hit"
+                  onMouseEnter={(e) => timelineTooltip.aoEntrar(e, mes)}
+                  onMouseLeave={timelineTooltip.aoSair}
+                />
                 {hPag > 0 && (
                   <>
                     <rect x={x} y={chartH - hPag} width={14} height={hPag} rx={3} fill="#f59e0b" opacity={0.92} />
@@ -378,6 +488,23 @@ function PainelTimelineExpandido({
             )
           })}
         </svg>
+        {timelineTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={timelineTooltip.estado.ancora}
+            containerRef={timelineTooltip.containerRef}
+            conteudo={{
+              titulo: timelineTooltip.estado.dados.label,
+              linhas: [
+                ...(timelineTooltip.estado.dados.pagar > 0
+                  ? [{ cor: '#f59e0b', rotulo: rotuloPagar, valor: fmtMoedaSafe(timelineTooltip.estado.dados.pagar) }]
+                  : []),
+                ...(timelineTooltip.estado.dados.receber > 0
+                  ? [{ cor: '#34d399', rotulo: rotuloReceber, valor: fmtMoedaSafe(timelineTooltip.estado.dados.receber) }]
+                  : []),
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -490,8 +617,9 @@ function desenharSetaDirecionalRota(
 // ─── Gráfico de Barras Mensal (SVG) ─────────────────────────────────────────
 
 function GraficoBarrasMensal() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { mensal } = useVisaoGeralPedido()
+  const mesTooltip = useHoverTooltipGraficoPedido<VisaoGeralMensal>()
   const W = 520
   const H = 280
   const pad = { top: 35, right: 20, bottom: 40, left: 40 }
@@ -505,8 +633,10 @@ function GraficoBarrasMensal() {
 
   // Y-axis grid ticks (from 0 = top/max to 1 = bottom/zero)
   const gridTicks = [0, 0.25, 0.5, 0.75, 1]
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
 
   return (
+    <div className="sr-insights-tt-host bfd-chart-wrap" ref={mesTooltip.containerRef}>
     <svg viewBox={`0 0 ${W} ${H}`} className="bfd-chart-svg" style={{ overflow: 'visible' }}>
       <defs>
         {/* Vibrant blue gradient (Aprovadas) */}
@@ -597,33 +727,42 @@ function GraficoBarrasMensal() {
 
         return (
           <g key={i} className="bfd-chart-bar-group" filter="url(#col-shadow)">
-            {/* Top Segment: Mint/Emerald Gradient Capsule */}
             <rect
-              x={x}
-              y={yTopSeg}
-              width={w}
-              height={hTopDraw}
-              rx={6}
-              ry={6}
-              fill="url(#grad-aprov)"
+              x={pad.left + i * barW}
+              y={pad.top}
+              width={barW}
+              height={innerH}
+              fill="transparent"
+              className="bfd-chart-hit"
+              onMouseEnter={(e) => mesTooltip.aoEntrar(e, d)}
+              onMouseLeave={mesTooltip.aoSair}
             />
-            
-            {/* Middle Segment: Blue Gradient Rect */}
-            <rect
-              x={x}
-              y={yMidSeg}
-              width={w}
-              height={hMidDraw}
-              fill="url(#grad-and)"
-            />
-            
-            {/* Bottom Segment: Rose Red Gradient Rounded Bottom */}
-            <path
-              d={botPath}
-              fill="url(#grad-rec)"
-            />
-            
-            {/* Total value text above the bar */}
+            {d.aprovadas > 0 && (
+              <rect
+                x={x}
+                y={yTopSeg}
+                width={w}
+                height={hTopDraw}
+                rx={6}
+                ry={6}
+                fill="url(#grad-aprov)"
+              />
+            )}
+            {d.andamento > 0 && (
+              <rect
+                x={x}
+                y={yMidSeg}
+                width={w}
+                height={hMidDraw}
+                fill="url(#grad-and)"
+              />
+            )}
+            {d.recusadas > 0 && (
+              <path
+                d={botPath}
+                fill="url(#grad-rec)"
+              />
+            )}
             <text
               x={x + w / 2}
               y={yTop - 10}
@@ -635,8 +774,6 @@ function GraficoBarrasMensal() {
             >
               {total}
             </text>
-            
-            {/* Month label below the bar */}
             <text
               x={x + w / 2}
               y={H - 12}
@@ -652,20 +789,50 @@ function GraficoBarrasMensal() {
         )
       })}
     </svg>
+    {mesTooltip.estado && (() => {
+      const dados = mesTooltip.estado.dados
+      const totalMes = dados.aprovadas + dados.andamento + dados.recusadas
+      return (
+        <TooltipGraficoInsightsPedido
+          ancora={mesTooltip.estado.ancora}
+          containerRef={mesTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: dados.mes,
+            total: totalMes,
+            totalRotulo: rotuloPedidos,
+            barra: [
+              { cor: '#f59e0b', pct: (dados.aprovadas / Math.max(1, totalMes)) * 100 },
+              { cor: '#8b5cf6', pct: (dados.andamento / Math.max(1, totalMes)) * 100 },
+              { cor: '#f87171', pct: (dados.recusadas / Math.max(1, totalMes)) * 100 },
+            ],
+            linhas: [
+              { cor: '#f59e0b', rotulo: t('pedido.visao_geral.barras.aprovadas'), valor: dados.aprovadas },
+              { cor: '#8b5cf6', rotulo: t('pedido.visao_geral.barras.em_andamento'), valor: dados.andamento },
+              { cor: '#f87171', rotulo: t('pedido.visao_geral.barras.recusadas'), valor: dados.recusadas },
+            ],
+          }}
+        />
+      )
+    })()}
+    </div>
   )
 }
 
 // ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
 
 function GraficoDonutModal() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { modal } = useVisaoGeralPedido()
+  const donutTooltip = useHoverTooltipGraficoPedido<VisaoGeralModal>()
   const total = modal.reduce((s, m) => s + m.count, 0)
   const cx = 80
   const cy = 80
   const r = 58
   const stroke = 16
   const circ = 2 * Math.PI * r
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   let offset = 0
   const arcs = modal.map(m => {
@@ -696,20 +863,46 @@ function GraficoDonutModal() {
         <text x={cx} y={cy - 4} textAnchor="middle" fill="#ffffff" fontSize="28" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{total}</text>
         <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.donut.legenda_total')}</text>
       </svg>
-      <div className="bfd-donut__legend">
-        {modal.map(m => (
-          <div key={m.key} className="bfd-donut__legend-row">
-            <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', background: m.cor, display: 'inline-block' }} />
-            </span>
-            <span className="bfd-donut__legend-label">{m.label}</span>
-            <div className="bfd-donut__legend-bar">
-              <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
+      <div className="sr-insights-tt-host bfd-donut__legend-wrap" ref={donutTooltip.containerRef}>
+        <div className="bfd-donut__legend">
+          {modal.map(m => (
+            <div
+              key={m.key}
+              className="bfd-donut__legend-row bfd-donut__legend-row--hover"
+              onMouseEnter={(e) => donutTooltip.aoEntrar(e, m)}
+              onMouseLeave={donutTooltip.aoSair}
+            >
+              <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: m.cor, display: 'inline-block' }} />
+              </span>
+              <span className="bfd-donut__legend-label">{m.label}</span>
+              <div className="bfd-donut__legend-bar">
+                <div className="bfd-donut__legend-bar-fill" style={{ width: `${m.pct}%`, background: m.cor }} />
+              </div>
+              <span className="bfd-donut__legend-count" style={{ color: m.cor }}>{m.count}</span>
+              <span className="bfd-donut__legend-pct">{m.pct}%</span>
             </div>
-            <span className="bfd-donut__legend-count" style={{ color: m.cor }}>{m.count}</span>
-            <span className="bfd-donut__legend-pct">{m.pct}%</span>
-          </div>
-        ))}
+          ))}
+        </div>
+        {donutTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={donutTooltip.estado.ancora}
+            containerRef={donutTooltip.containerRef}
+            formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+            conteudo={{
+              titulo: donutTooltip.estado.dados.label,
+              total: donutTooltip.estado.dados.count,
+              totalRotulo: rotuloPedidos,
+              linhas: [
+                {
+                  cor: donutTooltip.estado.dados.cor,
+                  rotulo: rotuloParticipacao,
+                  valor: formatarPercentualTooltipGraficoPedido(donutTooltip.estado.dados.pct, i18n.language),
+                },
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -718,30 +911,177 @@ function GraficoDonutModal() {
 // ─── Funil ──────────────────────────────────────────────────────────────────
 
 function FunilStatus() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { funil } = useVisaoGeralPedido()
+  const funilTooltip = useHoverTooltipGraficoPedido<VisaoGeralFunil & { pct: number }>()
   const total = funil.reduce((s, f) => s + f.count, 0)
   const maxCount = Math.max(0, ...funil.map(f => f.count))
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   return (
-    <div className="bfd-funil">
-      {funil.map(f => {
-        const pct = total ? Math.round((f.count / total) * 100) : 0
-        const barW = maxCount ? (f.count / maxCount) * 100 : 0
-        return (
-          <div key={f.label} className="bfd-funil__row">
-            <span className="bfd-funil__label">{f.label}</span>
-            <div className="bfd-funil__bar-wrap">
-              <div
-                className="bfd-funil__bar"
-                style={{ width: `${barW}%`, background: f.color }}
-              />
+    <div className="sr-insights-tt-host bfd-funil-wrap" ref={funilTooltip.containerRef}>
+      <div className="bfd-funil">
+        {funil.map(f => {
+          const pct = total ? Math.round((f.count / total) * 100) : 0
+          const barW = maxCount ? (f.count / maxCount) * 100 : 0
+          const item = { ...f, pct }
+          return (
+            <div
+              key={f.label}
+              className="bfd-funil__row bfd-funil__row--hover"
+              onMouseEnter={(e) => funilTooltip.aoEntrar(e, item)}
+              onMouseLeave={funilTooltip.aoSair}
+            >
+              <span className="bfd-funil__label">{f.label}</span>
+              <div className="bfd-funil__bar-wrap">
+                <div
+                  className="bfd-funil__bar"
+                  style={{ width: `${barW}%`, background: f.color }}
+                />
+              </div>
+              <span className="bfd-funil__count">{f.count}</span>
+              <span className="bfd-funil__pct">{pct}%</span>
             </div>
-            <span className="bfd-funil__count">{f.count}</span>
-            <span className="bfd-funil__pct">{pct}%</span>
+          )
+        })}
+      </div>
+      {funilTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={funilTooltip.estado.ancora}
+          containerRef={funilTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: funilTooltip.estado.dados.label,
+            total: funilTooltip.estado.dados.count,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: funilTooltip.estado.dados.color,
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(funilTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Listas com barra (moedas / incoterms) ───────────────────────────────────
+
+function GraficoListaMoedas({ moedas }: { moedas: VisaoGeralMoeda[] }) {
+  const { t, i18n } = useTranslation()
+  const moedaTooltip = useHoverTooltipGraficoPedido<VisaoGeralMoeda>()
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
+
+  return (
+    <div className="sr-insights-tt-host bfd-cambio-wrap" ref={moedaTooltip.containerRef}>
+      <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+        {moedas.length === 0 && (
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.moedas.vazio')}</span>
+        )}
+        {moedas.map(m => (
+          <div
+            key={m.codigo}
+            className="bfd-cambio__row bfd-cambio__row--hover"
+            style={{ padding: '0.68rem 0' }}
+            onMouseEnter={(e) => moedaTooltip.aoEntrar(e, m)}
+            onMouseLeave={moedaTooltip.aoSair}
+          >
+            <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
+            <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{t('pedido.visao_geral.moedas.pedidos_count', { count: m.quantidade })}</span>
+            <span
+              className="bfd-cambio__var"
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.5rem',
+                borderRadius: '6px',
+                color: '#f59e0b',
+                background: 'rgba(245,158,11,0.1)',
+              }}
+            >
+              {m.pct}%
+            </span>
           </div>
-        )
-      })}
+        ))}
+      </div>
+      {moedaTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={moedaTooltip.estado.ancora}
+          containerRef={moedaTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: moedaTooltip.estado.dados.codigo,
+            total: moedaTooltip.estado.dados.quantidade,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: '#f59e0b',
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(moedaTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function GraficoListaIncoterms({ incoterms }: { incoterms: VisaoGeralIncoterm[] }) {
+  const { t, i18n } = useTranslation()
+  const incotermTooltip = useHoverTooltipGraficoPedido<VisaoGeralIncoterm>()
+  const rotuloPedidos = t('pedido.visao_geral.grafico_tooltip.pedidos')
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
+
+  return (
+    <div className="sr-insights-tt-host bfd-incoterms-wrap" ref={incotermTooltip.containerRef}>
+      <div className="bfd-incoterms">
+        {incoterms.length === 0 && (
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.incoterms.vazio')}</span>
+        )}
+        {incoterms.map(inc => (
+          <div
+            key={inc.incoterm}
+            className="bfd-incoterms__row bfd-incoterms__row--hover"
+            onMouseEnter={(e) => incotermTooltip.aoEntrar(e, inc)}
+            onMouseLeave={incotermTooltip.aoSair}
+          >
+            <div className="bfd-incoterms__row-top">
+              <span className="bfd-incoterms__code">{inc.incoterm}</span>
+              <span className="bfd-incoterms__count">
+                {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
+              </span>
+            </div>
+            <div className="bfd-incoterms__bar">
+              <div className="bfd-incoterms__bar-fill" style={{ width: `${inc.pct}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      {incotermTooltip.estado && (
+        <TooltipGraficoInsightsPedido
+          ancora={incotermTooltip.estado.ancora}
+          containerRef={incotermTooltip.containerRef}
+          formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+          conteudo={{
+            titulo: incotermTooltip.estado.dados.incoterm,
+            total: incotermTooltip.estado.dados.count,
+            totalRotulo: rotuloPedidos,
+            linhas: [
+              {
+                cor: '#f59e0b',
+                rotulo: rotuloParticipacao,
+                valor: formatarPercentualTooltipGraficoPedido(incotermTooltip.estado.dados.pct, i18n.language),
+              },
+            ],
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -749,19 +1089,21 @@ function FunilStatus() {
 // ─── Taxa Aprovação (donut) ──────────────────────────────────────────────────
 
 function TaxaAprovacao() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { aprovacao } = useVisaoGeralPedido()
+  const taxaTooltip = useHoverTooltipGraficoPedido<{ rotulo: string; pct: number; cor: string }>()
   const { percentual_em_tempo, percentual_atraso, nao_respondidas } = aprovacao
   const cx = 55
   const cy = 55
   const r = 42
   const stroke = 10
   const circ = 2 * Math.PI * r
+  const rotuloParticipacao = t('pedido.visao_geral.grafico_tooltip.participacao')
 
   const segments = [
-    { pct: percentual_em_tempo, cor: '#f59e0b', label: t('pedido.visao_geral.taxa_aprovacao.em_tempo', { pct: percentual_em_tempo }) },
-    { pct: percentual_atraso, cor: '#fbbf24', label: t('pedido.visao_geral.taxa_aprovacao.atrasadas', { pct: percentual_atraso }) },
-    { pct: nao_respondidas, cor: '#f87171', label: t('pedido.visao_geral.taxa_aprovacao.sem_resposta', { pct: nao_respondidas }) },
+    { pct: percentual_em_tempo, cor: '#f59e0b', rotulo: t('pedido.visao_geral.grafico_tooltip.em_tempo') },
+    { pct: percentual_atraso, cor: '#fbbf24', rotulo: t('pedido.visao_geral.grafico_tooltip.atrasadas') },
+    { pct: nao_respondidas, cor: '#f87171', rotulo: t('pedido.visao_geral.grafico_tooltip.sem_resposta') },
   ]
   let off = 0
 
@@ -789,13 +1131,38 @@ function TaxaAprovacao() {
         <text x={cx} y={cy + 2} textAnchor="middle" fill="#ffffff" fontSize="22" fontWeight="800" style={{ letterSpacing: '0.02em' }}>{percentual_em_tempo}%</text>
         <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="9" fontWeight="600" style={{ letterSpacing: '0.04em' }}>{t('pedido.visao_geral.taxa_aprovacao.em_tempo_short')}</text>
       </svg>
-      <div className="bfd-taxa__legend">
-        {segments.map((s, i) => (
-          <div key={i} className="bfd-taxa__legend-row">
-            <span className="bfd-taxa__dot" style={{ background: s.cor }} />
-            <span>{s.label}</span>
-          </div>
-        ))}
+      <div className="sr-insights-tt-host bfd-taxa__legend-wrap" ref={taxaTooltip.containerRef}>
+        <div className="bfd-taxa__legend">
+          {segments.map((s, i) => (
+            <div
+              key={i}
+              className="bfd-taxa__legend-row bfd-taxa__legend-row--hover"
+              onMouseEnter={(e) => taxaTooltip.aoEntrar(e, s)}
+              onMouseLeave={taxaTooltip.aoSair}
+            >
+              <span className="bfd-taxa__dot" style={{ background: s.cor }} />
+              <span>{t(`pedido.visao_geral.taxa_aprovacao.${i === 0 ? 'em_tempo' : i === 1 ? 'atrasadas' : 'sem_resposta'}`, { pct: s.pct })}</span>
+            </div>
+          ))}
+        </div>
+        {taxaTooltip.estado && (
+          <TooltipGraficoInsightsPedido
+            ancora={taxaTooltip.estado.ancora}
+            containerRef={taxaTooltip.containerRef}
+            formatarPct={(pct) => formatarPercentualTooltipGraficoPedido(pct, i18n.language)}
+            conteudo={{
+              titulo: taxaTooltip.estado.dados.rotulo,
+              total: formatarPercentualTooltipGraficoPedido(taxaTooltip.estado.dados.pct, i18n.language),
+              linhas: [
+                {
+                  cor: taxaTooltip.estado.dados.cor,
+                  rotulo: rotuloParticipacao,
+                  valor: formatarPercentualTooltipGraficoPedido(taxaTooltip.estado.dados.pct, i18n.language),
+                },
+              ],
+            }}
+          />
+        )}
       </div>
     </div>
   )
@@ -1232,38 +1599,74 @@ function projectGlobePoint(
 }
 
 const GLOBE_PIN_VISIVEL_MIN_RZ = -0.12
+const ALTURA_FLIP_TOOLTIP_MAPA = 200
 
 // ─── Visão Geral Global (Globo 3D Interativo Premium) ───────────────────────────
 
 function VisaoGeralMapa() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const painelInsightsAtivo = usePainelInsightsAtivo()
   const painelInsightsAtivoRef = useRef(painelInsightsAtivo)
   useEffect(() => {
     painelInsightsAtivoRef.current = painelInsightsAtivo
   }, [painelInsightsAtivo])
 
-  const { mapa, total } = useVisaoGeralPedido()
-  const { pins, globeRoutes, detalhesPorLocKey, topOrigens, topDestinos, modaisGlobo } = mapa
+  const mapaRotulosStatus = useMapaRotulosStatusPedido()
+  const rotulosStatus = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const [slug, cfg] of Object.entries(mapaRotulosStatus)) {
+      map.set(slug, cfg.label)
+    }
+    return map
+  }, [mapaRotulosStatus])
+  const coresStatus = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const [slug, cfg] of Object.entries(mapaRotulosStatus)) {
+      map.set(slug, cfg.cor)
+    }
+    return map
+  }, [mapaRotulosStatus])
 
-  const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modais'>('origens')
+  const {
+    mapa: mapaBase,
+    pedidos: pedidosBase,
+    fornecedoresPorId,
+    nomesWorkspacePorId,
+  } = useVisaoGeralPedido()
+
+  const [filtrosMapaInsights, setFiltrosMapaInsights] = useState<FiltrosMapaInsightsPedido>(
+    () => filtrosMapaInsightsPedidoIniciais(),
+  )
+  const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+  const [mapaFullscreenAberto, setMapaFullscreenAberto] = useState(false)
+
+  const pedidosFiltrados = useMemo(
+    () => filtrarPedidosMapaInsights(pedidosBase, filtrosMapaInsights, fornecedoresPorId),
+    [pedidosBase, filtrosMapaInsights, fornecedoresPorId],
+  )
+
+  const mapa = useMemo(
+    () => buildVisaoGeralMapa(pedidosFiltrados, nomesWorkspacePorId, fornecedoresPorId),
+    [pedidosFiltrados, nomesWorkspacePorId, fornecedoresPorId],
+  )
+
+  const { pins, globeRoutes, detalhesPorLocKey } = mapa
   const [hoveredPin, setHoveredPin] = useState<number | null>(null)
   const [selectedLocKey, setSelectedLocKey] = useState<string | null>(null)
-  const [modalDrillDown, setModalDrillDown] = useState<
-    | { view: 'vencimentos'; routeIdx: number; tab: 'pagar' | 'receber' }
-    | { view: 'timeline'; routeIdx: number }
-    | null
-  >(null)
 
-  useEffect(() => {
-    setModalDrillDown(null)
-  }, [selectedLocKey])
+  const abrirPedidoDoMapa = (card: VisaoGeralPedidoCardDetalhe) => {
+    setSelectedLocKey(null)
+    navigate('/pedido/pedidos/lista', {
+      state: {
+        openPedidoId: card.id,
+        abrirDrawer: true,
+        numeroPedido: card.numero_pedido,
+      },
+    })
+  }
 
-  const handleModalFecharOuVoltar = () => {
-    if (modalDrillDown !== null) {
-      setModalDrillDown(null)
-      return
-    }
+  const handleModalFechar = () => {
     setSelectedLocKey(null)
   }
 
@@ -1271,6 +1674,17 @@ function VisaoGeralMapa() {
   const globeRoutesRef = useRef(globeRoutes)
   useEffect(() => { pinsRef.current = pins }, [pins])
   useEffect(() => { globeRoutesRef.current = globeRoutes }, [globeRoutes])
+
+  useEffect(() => {
+    setHoveredPin(null)
+    setSelectedLocKey(null)
+  }, [pins, globeRoutes])
+
+  const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(false)
+  const rotasAnimacaoVisiveisRef = useRef(false)
+  useEffect(() => {
+    rotasAnimacaoVisiveisRef.current = rotasAnimacaoVisiveis
+  }, [rotasAnimacaoVisiveis])
   
   const hoveredPinRef = useRef<number | null>(null)
   useEffect(() => {
@@ -1290,6 +1704,51 @@ function VisaoGeralMapa() {
   const panRef = useRef({ x: 0, y: 0 })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mapCanvasWrapperRef = useRef<HTMLDivElement>(null)
+  const [tooltipAncoragem, setTooltipAncoragem] = useState<{
+    x: number
+    y: number
+    abaixo: boolean
+  } | null>(null)
+
+  const pinHoverado =
+    hoveredPin !== null
+      ? projectedPins.find((p) => p.id === hoveredPin && p.opacity > 0.7) ?? null
+      : null
+
+  const atualizarTooltipAncoragem = () => {
+    if (hoveredPin === null) {
+      setTooltipAncoragem(null)
+      return
+    }
+    const pin = projectedPins.find((p) => p.id === hoveredPin)
+    const wrapper = mapCanvasWrapperRef.current
+    if (!pin || !wrapper || pin.opacity <= 0.7) {
+      setTooltipAncoragem(null)
+      return
+    }
+    const rect = wrapper.getBoundingClientRect()
+    setTooltipAncoragem({
+      x: rect.left + pin.px,
+      y: rect.top + pin.py,
+      abaixo: pin.py < ALTURA_FLIP_TOOLTIP_MAPA,
+    })
+  }
+
+  useLayoutEffect(() => {
+    atualizarTooltipAncoragem()
+  }, [hoveredPin, projectedPins])
+
+  useEffect(() => {
+    if (hoveredPin === null) return
+    const aoRolarOuRedimensionar = () => atualizarTooltipAncoragem()
+    window.addEventListener('scroll', aoRolarOuRedimensionar, true)
+    window.addEventListener('resize', aoRolarOuRedimensionar)
+    return () => {
+      window.removeEventListener('scroll', aoRolarOuRedimensionar, true)
+      window.removeEventListener('resize', aoRolarOuRedimensionar)
+    }
+  }, [hoveredPin, projectedPins])
   
   // Dragging and Rotation state refs
   const isDraggingRef = useRef(false)
@@ -1331,6 +1790,20 @@ function VisaoGeralMapa() {
     panRef.current = { x: 0, y: 0 }
     isRotationPausedRef.current = !isAutoRotatingRef.current
   }
+
+  useEffect(() => {
+    if (!mapaFullscreenAberto) return
+    const overflowAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const aoPressionarEscape = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') setMapaFullscreenAberto(false)
+    }
+    window.addEventListener('keydown', aoPressionarEscape)
+    return () => {
+      document.body.style.overflow = overflowAnterior
+      window.removeEventListener('keydown', aoPressionarEscape)
+    }
+  }, [mapaFullscreenAberto])
   
   // Generate 5500 Fibonacci points on the sphere for ultra-high-definition realistic mapping
   const samples = 16000
@@ -1452,6 +1925,7 @@ function VisaoGeralMapa() {
       ctx.stroke()
 
       // Rotas (arco abaulado entre origem e destino)
+      if (rotasAnimacaoVisiveisRef.current) {
       const currentHovered = hoveredPinRef.current
       globeRoutesRef.current.forEach((route, routeIdx) => {
         const fromPin = pinsRef.current.find(p => p.id === route.fromId)
@@ -1533,6 +2007,7 @@ function VisaoGeralMapa() {
           ctx.restore()
         })
       })
+      }
 
       // Pinos (overlay HTML) — projeta e publica
       const offsetX = canvas.offsetLeft || 0
@@ -1732,7 +2207,7 @@ function VisaoGeralMapa() {
       ctx.setLineDash([]) // Reset
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
-      
+      if (rotasAnimacaoVisiveisRef.current) {
       globeRoutesRef.current.forEach((route, routeIdx) => {
         const fromPin = pinsRef.current.find(p => p.id === route.fromId)
         const toPin = pinsRef.current.find(p => p.id === route.toId)
@@ -1898,6 +2373,7 @@ function VisaoGeralMapa() {
           })
         }
       })
+      }
       
       // 6. Project and Slipped-In Map Pins Overlay Coordinates
       const offsetX = canvas.offsetLeft || 0
@@ -1935,7 +2411,7 @@ function VisaoGeralMapa() {
     
     animId = requestAnimationFrame(renderFrame)
     return () => cancelAnimationFrame(animId)
-  }, [activePoints, painelInsightsAtivo])
+  }, [activePoints, painelInsightsAtivo, pins, globeRoutes])
   
   // Drag physics mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -2019,9 +2495,8 @@ function VisaoGeralMapa() {
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   
-  return (
-    <div className="bfd-map-rankings-row">
-      <div className="bfd-card bfd-map-card bfd-card--accent-amber">
+  const mapaCard = (
+      <div className="bfd-card bfd-map-card bfd-map-card--insights-split bfd-card--accent-amber">
       <div className="bfd-map-card__header" style={{ marginBottom: '0.65rem' }}>
         <div>
           <div className="cg-card__header" style={{ marginBottom: '0.4rem' }}>
@@ -2032,11 +2507,52 @@ function VisaoGeralMapa() {
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5, display: 'block', marginLeft: '28px' }}>{t('pedido.visao_geral.mapa.subtitulo')}</span>
         </div>
+        <div className="bfd-map-card__header-actions">
+          <TooltipGlobal
+            descricao={
+              mapaFullscreenAberto
+                ? t('pedido.visao_geral.mapa.fechar_modal', { defaultValue: 'Fechar mapa ampliado' })
+                : t('pedido.visao_geral.mapa.abrir_modal', { defaultValue: 'Abrir mapa em tela cheia' })
+            }
+            posicaoPreferida="esquerda"
+          >
+            <button
+              type="button"
+              className="bfd-map-card__expand-btn"
+              onClick={() => setMapaFullscreenAberto((prev) => !prev)}
+              aria-label={
+                mapaFullscreenAberto
+                  ? t('pedido.visao_geral.mapa.fechar_modal', { defaultValue: 'Fechar mapa ampliado' })
+                  : t('pedido.visao_geral.mapa.abrir_modal', { defaultValue: 'Abrir mapa em tela cheia' })
+              }
+            >
+              {mapaFullscreenAberto ? <X size={16} weight="bold" /> : <ArrowsOut size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
+        </div>
       </div>
       
-      <div className="bfd-map-container bfd-map-container--sem-painel-lateral">
+      <div
+        className={`bfd-map-card__split${
+          painelFiltrosMapaExpandido ? '' : ' bfd-map-card__split--filtros-recolhidos'
+        }`}
+      >
+        <PainelRefinarMapaPedido
+          filtros={filtrosMapaInsights}
+          onFiltrosChange={setFiltrosMapaInsights}
+          pedidos={pedidosBase}
+          fornecedoresPorId={fornecedoresPorId}
+          mapaBase={mapaBase}
+          mapaFiltrado={mapa}
+          totalPedidosFiltrados={pedidosFiltrados.length}
+          rotulosStatus={rotulosStatus}
+          coresStatus={coresStatus}
+          onPainelExpandidoChange={setPainelFiltrosMapaExpandido}
+        />
+        <div className="bfd-map-container bfd-map-container--sem-painel-lateral bfd-map-container--expandido">
         <div 
-          className="bfd-map-canvas-wrapper"
+          ref={mapCanvasWrapperRef}
+          className="bfd-map-canvas-wrapper bfd-map-canvas-wrapper--compacto"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -2046,64 +2562,114 @@ function VisaoGeralMapa() {
           onTouchEnd={handleMouseUpOrLeave}
           style={{ cursor: isDraggingRef.current ? 'grabbing' : 'grab', userSelect: 'none', touchAction: 'none' }}
         >
+          <div className="bfd-map-canvas-clip">
           {/* The high-performance 3D Canvas */}
           <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
           
           {/* Floating Legend */}
-          <div className="bfd-map-legend-floating">
+          <div className="bfd-map-legend-floating bfd-map-legend-floating--compacto">
             <span className="bfd-map-legend__item">
-              <DownloadSimple size={15} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
+              <DownloadSimple size={13} weight="bold" style={{ color: '#f59e0b' }} /> {t('pedido.visao_geral.mapa.legenda_importacao')}
             </span>
             <span className="bfd-map-legend__item">
-              <UploadSimple size={15} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
+              <UploadSimple size={13} weight="bold" style={{ color: '#a78bfa' }} /> {t('pedido.visao_geral.mapa.legenda_exportacao')}
             </span>
           </div>
           
-          {/* Floating Zoom & Control Panel */}
-          <div className="bfd-map-controls">
-            <button
-              onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-              title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
-              className="bfd-map-control-btn"
-            >
-              {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
-            </button>
+          </div>
 
-            <button
-              onClick={handleZoomIn}
-              title={t('pedido.visao_geral.mapa.aumentar_zoom')}
-              className="bfd-map-control-btn"
+          {/* Menu padrão globo/mapa — centro inferior do canvas (paridade BID Frete) */}
+          <div className="bfd-map-controls bfd-map-controls--interno">
+            <TooltipGlobal
+              descricao={
+                vista === 'globo'
+                  ? t('pedido.visao_geral.mapa.ver_mapa', { defaultValue: 'Ver como mapa' })
+                  : t('pedido.visao_geral.mapa.ver_globo', { defaultValue: 'Ver como globo' })
+              }
+              posicaoPreferida="acima"
             >
-              <Plus size={16} weight="bold" />
-            </button>
-            
-            <button 
-              onClick={handleZoomOut} 
-              title={t('pedido.visao_geral.mapa.diminuir_zoom')}
-              className="bfd-map-control-btn"
-            >
-              <Minus size={16} weight="bold" />
-            </button>
-
-            <button 
-              onClick={handleReset} 
-              title={t('pedido.visao_geral.mapa.restaurar_globo')}
-              className="bfd-map-control-btn"
-            >
-              <ArrowCounterClockwise size={16} weight="bold" />
-            </button>
-
-            {vista === 'globo' && (
               <button
-                onClick={toggleRotation}
-                title={isAutoRotating ? t('pedido.visao_geral.mapa.pausar_rotacao') : t('pedido.visao_geral.mapa.iniciar_rotacao')}
+                type="button"
+                onClick={() => setVista((prev) => (prev === 'globo' ? 'mapa' : 'globo'))}
                 className="bfd-map-control-btn"
               >
-                {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
               </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.aumentar_zoom', { defaultValue: 'Aumentar zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomIn} className="bfd-map-control-btn">
+                <Plus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={t('pedido.visao_geral.mapa.diminuir_zoom', { defaultValue: 'Diminuir zoom' })}
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleZoomOut} className="bfd-map-control-btn">
+                <Minus size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                rotasAnimacaoVisiveis
+                  ? t('pedido.visao_geral.mapa.ocultar_trilhos', { defaultValue: 'Ocultar rotas' })
+                  : t('pedido.visao_geral.mapa.exibir_trilhos', { defaultValue: 'Exibir rotas' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setRotasAnimacaoVisiveis((prev) => !prev)
+                }}
+                aria-pressed={!rotasAnimacaoVisiveis}
+                className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+              >
+                {rotasAnimacaoVisiveis ? (
+                  <Eye size={16} weight="bold" />
+                ) : (
+                  <EyeSlash size={16} weight="bold" />
+                )}
+              </button>
+            </TooltipGlobal>
+
+            <TooltipGlobal
+              descricao={
+                vista === 'mapa'
+                  ? t('pedido.visao_geral.mapa.restaurar_mapa', { defaultValue: 'Restaurar mapa' })
+                  : t('pedido.visao_geral.mapa.restaurar_globo', { defaultValue: 'Restaurar globo' })
+              }
+              posicaoPreferida="acima"
+            >
+              <button type="button" onClick={handleReset} className="bfd-map-control-btn">
+                <ArrowCounterClockwise size={16} weight="bold" />
+              </button>
+            </TooltipGlobal>
+
+            {vista === 'globo' && (
+              <TooltipGlobal
+                descricao={
+                  isAutoRotating
+                    ? t('pedido.visao_geral.mapa.pausar_rotacao', { defaultValue: 'Pausar rotação' })
+                    : t('pedido.visao_geral.mapa.iniciar_rotacao', { defaultValue: 'Iniciar rotação' })
+                }
+                posicaoPreferida="acima"
+              >
+                <button type="button" onClick={toggleRotation} className="bfd-map-control-btn">
+                  {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+                </button>
+              </TooltipGlobal>
             )}
           </div>
 
+          <div className="bfd-map-pins-overlay">
           {/* Dynamic HTML Overlay Pins */}
           {projectedPins.map(pin => {
             if (pin.opacity <= 0.05) return null
@@ -2111,6 +2677,7 @@ function VisaoGeralMapa() {
             const isHovered = hoveredPin === pin.id
             const isExportacao = pin.tipoOperacao === 'exportacao'
             const Icon = TIPO_OPERACAO_ICONS[pin.tipoOperacao] ?? iconeTipoOperacaoMapa(pin.tipoOperacao, 12, 'bold')
+            const tooltipAbaixo = pin.py < ALTURA_FLIP_TOOLTIP_MAPA
             
             return (
               <div
@@ -2150,64 +2717,125 @@ function VisaoGeralMapa() {
                   <span className="bfd-map-pin__icon-inner">{Icon}</span>
                 </div>
                 
-                {/* Tooltip */}
+                {/* Ponte invisível pin ↔ tooltip (portal) */}
                 {isHovered && pin.opacity > 0.7 && (
-                  <div className="bfd-map-tooltip">
-                    <div className="bfd-map-tooltip__header">
-                      <span className="bfd-map-tooltip__flag">{pin.flag}</span>
-                      <div className="bfd-map-tooltip__title-wrap">
-                        <span className="bfd-map-tooltip__title">{pin.label}</span>
-                        <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bfd-map-tooltip__body">
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.pedidos_count', { count: pin.pedidosCount })}</span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
-                        <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: pin.contratosCambioCount })}</span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_receber')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#34d399' }}>
-                          {pin.totalAReceber > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAReceber)}` : '—'}
-                        </span>
-                      </div>
-                      <div className="bfd-map-tooltip__stat">
-                        <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
-                        <span className="bfd-map-tooltip__stat-val" style={{ color: '#f59e0b' }}>
-                          {pin.totalAPagar > 0 ? `${pin.moedaCambio} ${fmtMoedaSafe(pin.totalAPagar)}` : '—'}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                        <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
-                          {t('pedido.visao_geral.mapa.parceiro_abreviado')}: <strong>{pin.parceiro}</strong>
-                        </span>
-                      </div>
-                      <div className="bfd-map-tooltip__hint">👉 {t('pedido.visao_geral.mapa.clique_ver_rotas')}</div>
-                    </div>
-                    <div className="bfd-map-tooltip__after" />
-                  </div>
+                  <div
+                    className={[
+                      'bfd-map-pin-hover-bridge',
+                      tooltipAbaixo ? 'bfd-map-pin-hover-bridge--abaixo' : 'bfd-map-pin-hover-bridge--acima',
+                    ].join(' ')}
+                    aria-hidden
+                  />
                 )}
               </div>
             )
           })}
         </div>
 
-        {/* Premium Detail Modal Overlay */}
-        {selectedLocKey !== null && (() => {
+        {/* Tooltip via portal — sempre acima do header/KPIs; flip abaixo quando pin perto do topo */}
+        {pinHoverado && tooltipAncoragem && typeof document !== 'undefined'
+          ? createPortal(
+              <div
+                className={[
+                  'bfd-map-tooltip',
+                  'bfd-map-tooltip--portal',
+                  tooltipAncoragem.abaixo ? 'bfd-map-tooltip--abaixo' : '',
+                ].filter(Boolean).join(' ')}
+                style={{
+                  left: tooltipAncoragem.x,
+                  top: tooltipAncoragem.abaixo
+                    ? tooltipAncoragem.y + 36
+                    : tooltipAncoragem.y - 36,
+                  transform: tooltipAncoragem.abaixo
+                    ? 'translate(-50%, 0)'
+                    : 'translate(-50%, -100%)',
+                }}
+                onMouseEnter={() => {
+                  setHoveredPin(pinHoverado.id)
+                  isRotationPausedRef.current = true
+                }}
+                onMouseLeave={() => {
+                  setHoveredPin(null)
+                  isRotationPausedRef.current = false
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  isRotationPausedRef.current = true
+                  setSelectedLocKey(pinHoverado.locKey)
+                }}
+              >
+                <div className="bfd-map-tooltip__header">
+                  <span className="bfd-map-tooltip__flag">{pinHoverado.flag}</span>
+                  <div className="bfd-map-tooltip__title-wrap">
+                    <span className="bfd-map-tooltip__title">{pinHoverado.label}</span>
+                    <span className="bfd-map-tooltip__subtitle">{pinHoverado.portCode} • {pinHoverado.country}</span>
+                  </div>
+                </div>
+
+                <div className="bfd-map-tooltip__body">
+                  <div className="bfd-map-tooltip__stat">
+                    <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                    <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.pedidos_count', { count: pinHoverado.pedidosCount })}</span>
+                  </div>
+                  <div className="bfd-map-tooltip__stat">
+                    <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.valor_total')}</span>
+                    <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
+                      {pinHoverado.valorTotal > 0 ? `${pinHoverado.moeda} ${fmtMoedaSafe(pinHoverado.valorTotal)}` : '—'}
+                    </span>
+                  </div>
+                  {pinHoverado.pctVolume > 0 && (
+                    <div className="bfd-map-tooltip__stat">
+                      <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.participacao_volume')}</span>
+                      <span className="bfd-map-tooltip__stat-val">
+                        {t('pedido.visao_geral.mapa.participacao_volume_valor', { pct: pinHoverado.pctVolume })}
+                      </span>
+                    </div>
+                  )}
+                  {(() => {
+                    const fluxoCambio = resolverStatFluxoCambioPin(pinHoverado)
+                    if (!fluxoCambio) return null
+                    return (
+                      <div className="bfd-map-tooltip__stat">
+                        <span className="bfd-map-tooltip__stat-label">{t(`pedido.visao_geral.mapa.${fluxoCambio.chaveRotulo}`)}</span>
+                        <span className="bfd-map-tooltip__stat-val" style={{ color: fluxoCambio.corValor }}>
+                          {`${fluxoCambio.moeda} ${fmtMoedaSafe(fluxoCambio.valor)}`}
+                        </span>
+                      </div>
+                    )
+                  })()}
+                  {pinHoverado.contratosCambioCount > 0 && (
+                    <div className="bfd-map-tooltip__stat">
+                      <span className="bfd-map-tooltip__stat-label">{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
+                      <span className="bfd-map-tooltip__stat-val">{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: pinHoverado.contratosCambioCount })}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bfd-map-tooltip__footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <span className="bfd-map-tooltip__supplier" style={{ fontSize: '0.78rem' }}>
+                      {t('pedido.visao_geral.mapa.parceiro_abreviado')}: <strong>{pinHoverado.parceiro}</strong>
+                    </span>
+                  </div>
+                  <div className="bfd-map-tooltip__hint">{t('pedido.visao_geral.mapa.clique_no_icone_pedidos_rotas')}</div>
+                </div>
+                <div className="bfd-map-tooltip__after" />
+              </div>,
+              document.body,
+            )
+          : null}
+
+        {/* Modal via portal — paridade BID Frete; evita corte por overflow/transform do card do mapa */}
+        {selectedLocKey !== null && typeof document !== 'undefined'
+          ? createPortal(
+              (() => {
           const detalhe = detalhesPorLocKey[selectedLocKey]
           if (!detalhe) return null
-          const connections = detalhe.rotas
+          const pinDetalhe = detalhe.pinId != null ? pins.find((p) => p.id === detalhe.pinId) : null
+          const pedidosLocal = detalhe.pedidosCards
           
           return (
-            <div className="bfd-modal-mapa-overlay" onClick={handleModalFecharOuVoltar}>
+            <div className="bfd-modal-mapa-overlay" onClick={handleModalFechar}>
               <div className="bfd-modal-mapa-card" onClick={e => e.stopPropagation()}>
                 <div className="bfd-modal-mapa-header">
                   <div className="bfd-modal-mapa-title-group">
@@ -2217,142 +2845,99 @@ function VisaoGeralMapa() {
                       <span className="bfd-modal-mapa-subtitle">{detalhe.code} • {detalhe.country}</span>
                     </div>
                   </div>
-                  <button type="button" className="bfd-modal-mapa-close-btn" onClick={handleModalFecharOuVoltar}>✕</button>
+                  <button type="button" className="bfd-modal-mapa-close-btn" onClick={handleModalFechar}>✕</button>
                 </div>
 
-                <div
-                  className="bfd-modal-mapa-cambio-resumo"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                    gap: '0.65rem',
-                    padding: '0.85rem 1.25rem',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    background: 'rgba(255,255,255,0.02)',
-                  }}
-                >
+                <div className="bfd-modal-mapa-cambio-resumo">
                   <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.hud.pedidos_count', { count: detalhe.pedidosCount })}</strong>
+                    <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
+                    <strong className="bfd-modal-mapa-cambio-item__valor">{t('pedido.visao_geral.hud.pedidos_count', { count: detalhe.pedidosCount })}</strong>
                   </div>
                   <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.contratos_cambio')}</span>
-                    <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{t('pedido.visao_geral.mapa.contratos_cambio_count', { count: detalhe.contratosCambioCount })}</strong>
-                  </div>
-                  <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_receber')}</span>
-                    <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>
-                      {detalhe.totalAReceber > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAReceber)}` : '—'}
+                    <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.valor_total')}</span>
+                    <strong className="bfd-modal-mapa-cambio-item__valor">
+                      {pinDetalhe && pinDetalhe.valorTotal > 0
+                        ? `${pinDetalhe.moeda} ${fmtMoedaSafe(pinDetalhe.valorTotal)}`
+                        : '—'}
                     </strong>
                   </div>
-                  <div className="bfd-modal-mapa-cambio-item">
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>{t('pedido.visao_geral.mapa.total_a_pagar')}</span>
-                    <strong style={{ color: '#f59e0b', fontSize: '0.88rem' }}>
-                      {detalhe.totalAPagar > 0 ? `${detalhe.moedaCambio} ${fmtMoedaSafe(detalhe.totalAPagar)}` : '—'}
-                    </strong>
-                  </div>
+                  {pinDetalhe && pinDetalhe.pctVolume > 0 && (
+                    <div className="bfd-modal-mapa-cambio-item">
+                      <span className="bfd-modal-mapa-cambio-item__label">{t('pedido.visao_geral.mapa.participacao_volume')}</span>
+                      <strong className="bfd-modal-mapa-cambio-item__valor">
+                        {t('pedido.visao_geral.mapa.participacao_volume_valor', { pct: pinDetalhe.pctVolume })}
+                      </strong>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bfd-modal-mapa-body">
-                  {modalDrillDown?.view === 'vencimentos' && connections[modalDrillDown.routeIdx] ? (
-                    <PainelVencimentosExpandido
-                      route={connections[modalDrillDown.routeIdx]}
-                      tabInicial={modalDrillDown.tab}
-                      onVoltar={() => setModalDrillDown(null)}
-                    />
-                  ) : modalDrillDown?.view === 'timeline' && connections[modalDrillDown.routeIdx] ? (
-                    <PainelTimelineExpandido
-                      route={connections[modalDrillDown.routeIdx]}
-                      onVoltar={() => setModalDrillDown(null)}
-                    />
-                  ) : connections.length === 0 ? (
+                  {pedidosLocal.length === 0 ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
-                      {t('pedido.visao_geral.mapa.sem_rotas')}
+                      {t('pedido.visao_geral.mapa.sem_pedidos')}
                     </div>
                   ) : (
-                    connections.map((route, idx) => {
-                      const isExportacao = route.tipoOperacao === 'exportacao'
+                    pedidosLocal.map((card) => {
+                      const isExportacao = card.tipoOperacao === 'exportacao'
                       const tipoColor = isExportacao ? '#a78bfa' : '#f59e0b'
-                      const tipoIcon = iconeTipoOperacaoMapa(route.tipoOperacao, 14, 'bold')
+                      const tipoIcon = iconeTipoOperacaoMapa(card.tipoOperacao, 14, 'bold')
                       const badgeClass = isExportacao ? 'bfd-route-badge bfd-route-badge--exportacao' : 'bfd-route-badge bfd-route-badge--importacao'
                       const cardClass = isExportacao ? 'bfd-route-card bfd-route-card--exportacao' : 'bfd-route-card bfd-route-card--importacao'
-                      const totalVencimentos =
-                        route.resumoVencimentosPagar.quantidade + route.resumoVencimentosReceber.quantidade
-                      const { origem, destino } = rotuloCabecalhoRota(route, isExportacao)
-                      
-                      return (
-                        <div key={idx} className={cardClass}>
-                          <MiniArcoCambio color={tipoColor} />
 
+                      return (
+                        <div key={card.id} className={cardClass}>
                           <div className="bfd-route-header">
                             <div className="bfd-route-ports">
-                              <span className="bfd-route-port-name" title={origem}>{origem}</span>
+                              <span className="bfd-route-port-flag">{card.origemFlag}</span>
+                              <span className="bfd-route-port-name" title={card.origemLabel}>{card.origemLabel}</span>
                               <span className="bfd-route-arrow-icon">➔</span>
-                              <span className="bfd-route-port-name" title={destino}>{destino}</span>
+                              <span className="bfd-route-port-flag">{card.destinoFlag}</span>
+                              <span className="bfd-route-port-name" title={card.destinoLabel}>{card.destinoLabel}</span>
                             </div>
-                            
                             <span className={badgeClass} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {tipoIcon} {t(`pedido.visao_geral.modal.${route.tipoOperacao}`, { defaultValue: route.tipoOperacao })}
+                              {tipoIcon} {t(`pedido.visao_geral.modal.${card.tipoOperacao}`, { defaultValue: card.tipoOperacao })}
                             </span>
                           </div>
 
-                          <div className="bfd-route-vencimentos">
-                            <MiniTimelineVencimentos
-                              timeline={route.timelineVencimentos}
-                              onExpand={() => setModalDrillDown({ view: 'timeline', routeIdx: idx })}
-                            />
-                            <div className="bfd-route-vencimentos__cols">
-                              <ResumoVencimentosCol
-                                titulo={t('pedido.visao_geral.mapa.vencimentos_pagar')}
-                                resumo={route.resumoVencimentosPagar}
-                                preview={route.vencimentosPagar}
-                                corValor="#f59e0b"
-                              />
-                              <ResumoVencimentosCol
-                                titulo={t('pedido.visao_geral.mapa.vencimentos_receber')}
-                                resumo={route.resumoVencimentosReceber}
-                                preview={route.vencimentosReceber}
-                                corValor="#34d399"
-                              />
-                            </div>
-                          </div>
-
-                          {totalVencimentos > 0 && (
-                            <button
-                              type="button"
-                              className="bfd-route-ver-todos-btn"
-                              onMouseDown={e => e.stopPropagation()}
-                              onClick={e => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setModalDrillDown({
-                                  view: 'vencimentos',
-                                  routeIdx: idx,
-                                  tab: route.resumoVencimentosPagar.quantidade > 0 ? 'pagar' : 'receber',
-                                })
-                              }}
-                            >
-                              {t('pedido.visao_geral.mapa.ver_todos_vencimentos', { count: totalVencimentos })}
-                            </button>
-                          )}
-                          
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.pedidos_ativos')}</span>
-                              <span className="bfd-route-stat-value">{t('pedido.visao_geral.hud.pedidos_count', { count: route.pedidos })}</span>
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.col_status')}</span>
+                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>
+                                {t(`pedido.status.${card.status}`, { defaultValue: card.status })}
+                              </span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.valor_total')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{route.moeda} {fmtMoedaSafe(route.valorTotal)}</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>
+                                {card.valorTotal > 0 ? `${card.moeda} ${fmtMoedaSafe(card.valorTotal)}` : '—'}
+                              </span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.incoterm')}</span>
-                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>{route.incoterm}</span>
+                              <span className="bfd-route-stat-value" style={{ color: tipoColor }}>{card.incoterm}</span>
+                            </div>
+                            <div className="bfd-route-stat-item">
+                              <span className="bfd-route-stat-label">{t('pedido.visao_geral.mapa.col_workspace')}</span>
+                              <span className="bfd-route-stat-value" title={card.nome_workspace}>{card.nome_workspace}</span>
                             </div>
                           </div>
-                          
-                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            <span>{t('pedido.visao_geral.mapa.parceiro_lider')}: <strong>{route.parceiro}</strong></span>
+
+                          <div className="bfd-pedido-card-footer">
+                            <span className="bfd-pedido-card-numero">
+                              <strong>{card.numero_pedido}</strong>
+                            </span>
+                            <button
+                              type="button"
+                              className={`bfd-pedido-card-btn-abrir${isExportacao ? ' bfd-pedido-card-btn-abrir--exportacao' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                abrirPedidoDoMapa(card)
+                              }}
+                            >
+                              <Eye size={12} weight="bold" />
+                              <span>{t('pedido.visao_geral.mapa.abrir_pedido', { numero: card.numero_pedido })}</span>
+                              <ArrowRight size={10} weight="bold" />
+                            </button>
                           </div>
                         </div>
                       )
@@ -2364,166 +2949,54 @@ function VisaoGeralMapa() {
                   <button
                     type="button"
                     className="bfd-modal-mapa-close-action"
-                    onClick={handleModalFecharOuVoltar}
+                    onClick={handleModalFechar}
                   >
-                    {modalDrillDown !== null
-                      ? t('pedido.visao_geral.mapa.voltar_rotas')
-                      : t('comum.fechar')}
+                    {t('comum.fechar')}
                   </button>
                 </div>
               </div>
             </div>
           )
-        })()}
+              })(),
+              document.body,
+            )
+          : null}
       </div>
       </div>
+      </div>
+      </div>
+  )
 
-      <div className="bfd-card bfd-rankings-card bfd-card--accent-amber">
-        <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-          <div className="bfd-map-panel__header">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span className="bfd-map-panel__title">{t('pedido.visao_geral.hud.titulo')}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span className="bfd-map-panel__live-dot" />
-                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('pedido.visao_geral.hud.live_feed')}</span>
+  return (
+    <>
+      {mapaFullscreenAberto ? (
+        <div
+          className="bfd-map-card-placeholder"
+          aria-hidden
+          style={{ minHeight: 'var(--bfd-visao-geral-linha-altura, 540px)' }}
+        />
+      ) : null}
+      {mapaFullscreenAberto && typeof document !== 'undefined'
+        ? createPortal(
+            <div className="bfd-mapa-fullscreen-layer">
+              <div
+                className="bfd-mapa-fullscreen-backdrop"
+                onClick={() => setMapaFullscreenAberto(false)}
+                aria-hidden
+              />
+              <div
+                className="bfd-mapa-fullscreen-host"
+                role="dialog"
+                aria-modal
+                aria-label={t('pedido.visao_geral.mapa.modal_titulo', { defaultValue: 'Mapa global de pedidos' })}
+              >
+                {mapaCard}
               </div>
-            </div>
-            <span className="bfd-map-panel__subtitle">{t('pedido.visao_geral.hud.subtitulo_pedidos', { total })}</span>
-          </div>
-
-          <div className="bfd-map-panel__tabs">
-            <button
-              className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-            >
-              <Globe size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_origens')}
-            </button>
-            <button
-              className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-            >
-              <MapPin size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_destinos')}
-            </button>
-            <button
-              className={`bfd-map-panel__tab tab-modais ${activeTab === 'modais' ? 'is-active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setActiveTab('modais'); }}
-            >
-              <List size={13} weight="bold" /> {t('pedido.visao_geral.hud.tab_modais')}
-            </button>
-          </div>
-
-          <div className="bfd-map-panel__list">
-            {activeTab === 'origens' && (topOrigens.length === 0 ? (
-              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-            ) : topOrigens.map(item => {
-              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-
-              return (
-                <div
-                  key={item.rank}
-                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isRotationPausedRef.current = true
-                    setSelectedLocKey(item.locKey)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__row-info">
-                    <span className="bfd-map-panel__row-city">{item.name}</span>
-                    <span className="bfd-map-panel__row-code">{item.code}</span>
-                  </div>
-                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                </div>
-              )
-            }))}
-
-            {activeTab === 'destinos' && (topDestinos.length === 0 ? (
-              <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>{t('pedido.visao_geral.hud.vazio')}</div>
-            ) : topDestinos.map(item => {
-              const isHighlighted = hoveredPin === item.pinId && item.pinId !== null
-
-              return (
-                <div
-                  key={item.rank}
-                  className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted-dest' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.pinId) {
-                      setHoveredPin(item.pinId)
-                      isRotationPausedRef.current = true
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (item.pinId) {
-                      setHoveredPin(null)
-                      isRotationPausedRef.current = false
-                    }
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isRotationPausedRef.current = true
-                    setSelectedLocKey(item.locKey)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                  <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                  <div className="bfd-map-panel__row-info">
-                    <span className="bfd-map-panel__row-city">{item.name}</span>
-                    <span className="bfd-map-panel__row-code">{item.code}</span>
-                  </div>
-                  <span className="bfd-map-panel__row-bids">{t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}</span>
-                </div>
-              )
-            }))}
-
-            {activeTab === 'modais' && modaisGlobo.map((item, idx) => {
-              const isExportacao = item.key === 'exportacao'
-              return (
-                <div
-                  key={item.key}
-                  className="bfd-map-panel__row has-link"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedLocKey(`modal|${item.key}`)
-                  }}
-                >
-                  <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                  <span className="bfd-map-panel__modal-icon-wrap" style={{ color: isExportacao ? '#a78bfa' : '#f59e0b' }}>
-                    {TIPO_OPERACAO_ICONS[item.key] ?? iconeTipoOperacaoMapa(item.key, 14, 'duotone')}
-                  </span>
-                  <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                    <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                      {t(`pedido.visao_geral.modal.${item.key}`, { defaultValue: item.label })}
-                    </span>
-                    <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                      {t('pedido.visao_geral.hud.pedidos_count', { count: item.count })}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                    <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                      {item.pct}%
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
+            </div>,
+            document.body,
+          )
+        : mapaCard}
+    </>
   )
 }
 
@@ -2631,6 +3104,80 @@ export default function VisaoGeral() {
         .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
         .bfd-kpi__progress-fill { height: 100%; background: #f59e0b; border-radius: 3px; }
 
+        .cg-card__tooltip--portal:has(.bfd-kpi-tooltip-insights) {
+          width: min(380px, 92vw);
+        }
+        .bfd-kpi-tooltip-insights__lista {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          max-height: 220px;
+          overflow-y: auto;
+          margin-top: 0.35rem;
+          padding-right: 0.15rem;
+        }
+        .bfd-kpi-tooltip-insights__head,
+        .bfd-kpi-tooltip-insights__row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 1.15fr);
+          gap: 0.5rem;
+          align-items: center;
+          font-size: 0.72rem;
+          line-height: 1.35;
+        }
+        .bfd-kpi-tooltip-insights__head--duas-colunas,
+        .bfd-kpi-tooltip-insights__row--duas-colunas {
+          grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 1.15fr);
+        }
+        .bfd-kpi-tooltip-insights__head {
+          font-size: 0.68rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #94a3b8;
+          padding-bottom: 0.25rem;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .bfd-kpi-tooltip-insights__valor-cabecalho,
+        .bfd-kpi-tooltip-insights__valor {
+          text-align: right;
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__row span:first-child {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__link {
+          color: #fbbf24;
+          font-weight: 700;
+          text-decoration: none;
+          letter-spacing: 0.02em;
+          font-family: 'DM Mono', ui-monospace, monospace;
+          font-size: 0.7rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-kpi-tooltip-insights__link:hover {
+          color: #fde68a;
+          text-decoration: underline;
+        }
+        .bfd-kpi-tooltip-insights__valor {
+          color: #cbd5e1;
+        }
+        .bfd-kpi-tooltip-insights__row strong {
+          font-weight: 800;
+          color: #ffffff;
+        }
+        .bfd-kpi-tooltip-insights__mais {
+          margin: 0.45rem 0 0;
+          font-size: 0.72rem;
+          color: #94a3b8;
+          text-align: center;
+        }
+
         /* ── Base Cards and Containers ───────────────────────────── */
         .bfd-card {
           background: rgba(255, 255, 255, 0.04);
@@ -2708,7 +3255,7 @@ export default function VisaoGeral() {
           letter-spacing: 0.02em;
           font-weight: 600;
         }
-        .bfd-map-legend-floating {
+        .bfd-map-legend-floating:not(.bfd-map-legend-floating--compacto) {
           position: absolute;
           left: 1.25rem;
           top: 2rem;
@@ -3146,13 +3693,17 @@ export default function VisaoGeral() {
         }
         .bfd-map-controls {
           position: absolute;
-          bottom: -2.5rem;
+          bottom: 0.65rem;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           gap: 0.5rem;
           z-index: 30;
-          transition: left 0.3s ease, transform 0.3s ease;
+          pointer-events: auto;
+        }
+        .bfd-map-controls .tg-trigger {
+          display: inline-flex;
+          flex-shrink: 0;
         }
         .bfd-map-control-btn {
           width: 32px;
@@ -3174,9 +3725,15 @@ export default function VisaoGeral() {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.2);
         }
+        .bfd-map-control-btn--rotas-ocultas {
+          color: #fbbf24;
+          border-color: rgba(251, 191, 36, 0.35);
+          background: rgba(251, 191, 36, 0.12);
+        }
         @media (max-width: 1023px) {
           .bfd-map-controls {
             left: 50%;
+            transform: translateX(-50%);
           }
         }
         .bfd-map-bg {
@@ -3206,6 +3763,24 @@ export default function VisaoGeral() {
         .bfd-map-pin__icon-inner { display: flex; }
         .bfd-map-pin__icon-inner svg { width: 13px; height: 13px; }
 
+        .bfd-map-pin-hover-bridge {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 400px;
+          pointer-events: auto;
+          z-index: 1;
+          background: transparent;
+        }
+        .bfd-map-pin-hover-bridge--acima {
+          bottom: 10px;
+          height: 300px;
+        }
+        .bfd-map-pin-hover-bridge--abaixo {
+          top: 10px;
+          height: 300px;
+        }
+
         /* ── World Map Tooltip ───────────────────────────────────── */
         .bfd-map-tooltip {
           position: absolute; bottom: 36px; left: 50%; transform: translate3d(-50%, 0, 0);
@@ -3213,9 +3788,31 @@ export default function VisaoGeral() {
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 1.1rem;
           box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15);
-          display: flex; flex-direction: column; gap: 0.8rem; pointer-events: none;
+          display: flex; flex-direction: column; gap: 0.8rem; pointer-events: auto;
+          cursor: pointer;
           animation: tooltipFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
+          z-index: 50;
+        }
+        .bfd-map-tooltip--portal {
+          position: fixed;
+          bottom: auto;
+          left: auto;
+          z-index: 100100;
+          margin: 0;
+          animation: none;
+        }
+        .bfd-map-tooltip--abaixo {
+          animation: tooltipFadeDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .bfd-map-tooltip--abaixo .bfd-map-tooltip__after {
+          bottom: auto;
+          top: -6px;
+          transform: translate3d(-50%, 0, 0) rotate(225deg);
+          border-right: none;
+          border-bottom: none;
+          border-left: 1px solid rgba(255, 255, 255, 0.12);
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
         .bfd-map-tooltip__after {
           content: ''; position: absolute; bottom: -6px; left: 50%; transform: translate3d(-50%, 0, 0) rotate(45deg);
@@ -3345,6 +3942,35 @@ export default function VisaoGeral() {
           transform: rotate(90deg);
         }
 
+        .bfd-modal-mapa-cambio-resumo {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.85rem 1.5rem;
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .bfd-modal-mapa-cambio-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          min-width: 0;
+        }
+        .bfd-modal-mapa-cambio-item__label {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          font-weight: 500;
+          line-height: 1.35;
+          letter-spacing: 0.02em;
+        }
+        .bfd-modal-mapa-cambio-item__valor {
+          font-size: 0.88rem;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.35;
+          letter-spacing: 0.02em;
+        }
+
         .bfd-modal-mapa-body {
           flex: 1;
           min-height: 0;
@@ -3360,7 +3986,6 @@ export default function VisaoGeral() {
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
           padding: 1.25rem;
-          padding-right: 5.5rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
@@ -3441,30 +4066,6 @@ export default function VisaoGeral() {
           margin: 0.25rem 0;
           width: 100%;
           height: 30px;
-        }
-
-        .bfd-route-mini-arco {
-          position: absolute;
-          top: 0.55rem;
-          right: 0.65rem;
-          width: 72px;
-          height: 24px;
-          z-index: 2;
-        }
-
-        .bfd-route-mini-arco__icon {
-          position: absolute;
-          left: 50%;
-          top: 55%;
-          transform: translate(-50%, -50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid rgba(251, 191, 36, 0.35);
         }
 
         .bfd-route-vencimentos {
@@ -3812,6 +4413,56 @@ export default function VisaoGeral() {
           color: #ffffff;
         }
 
+        .bfd-pedido-card-footer {
+          font-size: 0.72rem;
+          color: #cbd5e1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          padding-top: 0.5rem;
+          margin-top: 0.25rem;
+          gap: 0.75rem;
+        }
+        .bfd-pedido-card-numero {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .bfd-pedido-card-btn-abrir {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+          background: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.25);
+          color: #f59e0b;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 0.68rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          letter-spacing: 0.02em;
+          box-shadow: 0 0 10px rgba(245, 158, 11, 0.06);
+        }
+        .bfd-pedido-card-btn-abrir:hover {
+          background: rgba(245, 158, 11, 0.25);
+          transform: translateY(-1px) scale(1.02);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+        .bfd-pedido-card-btn-abrir--exportacao {
+          background: rgba(167, 139, 250, 0.12);
+          border-color: rgba(167, 139, 250, 0.25);
+          color: #c084fc;
+          box-shadow: 0 0 10px rgba(167, 139, 250, 0.06);
+        }
+        .bfd-pedido-card-btn-abrir--exportacao:hover {
+          background: rgba(167, 139, 250, 0.25);
+          box-shadow: 0 4px 12px rgba(167, 139, 250, 0.2);
+        }
+
         .bfd-modal-mapa-footer {
           padding: 1rem 1.5rem;
           border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -3836,8 +4487,8 @@ export default function VisaoGeral() {
         }
 
         /* ── Charts Grid ─────────────────────────────────────────── */
-        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; }
-        .bfd-charts-grid .bfd-card { height: 380px; }
+        .bfd-charts-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1.25rem; overflow: visible; }
+        .bfd-charts-grid .bfd-card { height: 380px; overflow: visible; }
         .bfd-chart-svg { width: 100%; max-height: 230px; height: auto; display: block; margin: auto 0; }
         .bfd-chart__legend { display: flex; gap: 1.25rem; margin-top: auto; padding-top: 0.75rem; justify-content: center; }
         .bfd-chart__legend span { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; font-weight: 500; }
@@ -3878,7 +4529,48 @@ export default function VisaoGeral() {
         }
 
         /* ── Insights Grid ───────────────────────────────────────── */
-        .bfd-insights-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+        .bfd-insights-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+          overflow: visible;
+        }
+        .bfd-insights-grid .bfd-card {
+          min-height: 260px;
+          overflow: visible;
+          display: flex;
+          flex-direction: column;
+        }
+        .bfd-insights-grid .bfd-best__saving {
+          flex-wrap: wrap;
+        }
+        .bfd-insights-grid .bfd-taxa {
+          flex: 1;
+          justify-content: center;
+          align-items: center;
+          min-width: 0;
+        }
+        .bfd-insights-grid .bfd-incoterms-wrap,
+        .bfd-insights-grid .bfd-incoterms {
+          min-width: 0;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best {
+          flex: 1;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best__saving {
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin: 0;
+        }
+        .bfd-insights-grid .bfd-card--maior-pedido .bfd-best__meta {
+          text-align: center;
+          max-width: 100%;
+        }
 
         /* ── Melhor cotação ──────────────────────────────────────── */
         .bfd-best { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -3921,13 +4613,43 @@ export default function VisaoGeral() {
         .bfd-funil__pct { font-size: 0.82rem; color: #cbd5e1; min-width: 32px; text-align: right; letter-spacing: 0.02em; font-weight: 500; }
 
         /* ── Top Incoterms ───────────────────────────────────────── */
-        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; }
-        .bfd-incoterms__row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; }
-        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; }
-        .bfd-incoterms__count { font-size: 0.85rem; color: #cbd5e1; letter-spacing: 0.02em; font-weight: 600; }
-
-        /* ── Bottom Grid ─────────────────────────────────────────── */
-        .bfd-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+        .bfd-incoterms { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
+        .bfd-incoterms__row {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding: 0.4rem 0;
+          align-items: stretch;
+        }
+        .bfd-incoterms__row-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          width: 100%;
+          min-width: 0;
+        }
+        .bfd-incoterms__code { font-size: 0.88rem; font-weight: 700; color: #ffffff; letter-spacing: 0.03em; flex-shrink: 0; }
+        .bfd-incoterms__count {
+          font-size: 0.85rem;
+          color: #cbd5e1;
+          letter-spacing: 0.02em;
+          font-weight: 600;
+          text-align: right;
+          white-space: nowrap;
+        }
+        .bfd-incoterms__bar {
+          width: 100%;
+          height: 6px;
+          background: rgba(255, 255, 255, 0.04);
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        .bfd-incoterms__bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #f59e0b, #d97706);
+          border-radius: 3px;
+        }
 
         /* ── Taxa ────────────────────────────────────────────────── */
         .bfd-taxa { display: flex; align-items: center; gap: 1.25rem; }
@@ -3963,13 +4685,16 @@ export default function VisaoGeral() {
           from { opacity: 0; transform: translate3d(-50%, 8px, 0); }
           to { opacity: 1; transform: translate3d(-50%, 0, 0); }
         }
+        @keyframes tooltipFadeDown {
+          from { opacity: 0; transform: translate(-50%, -8px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
 
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 1200px) {
           .bfd-kpi-grid { grid-template-columns: repeat(3, 1fr); }
           .bfd-charts-grid { grid-template-columns: 1fr; }
           .bfd-insights-grid { grid-template-columns: 1fr; }
-          .bfd-bottom-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
           .bfd-kpi-grid { grid-template-columns: repeat(1, 1fr); }
@@ -3979,24 +4704,236 @@ export default function VisaoGeral() {
         .pedido-visao-geral.bfd-dashboard {
           padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
         }
-        .pedido-visao-geral .bfd-map-rankings-row {
-          display: contents;
-        }
         .pedido-visao-geral .bfd-map-card {
-          padding: 1.15rem 1.5rem 3.5rem 1.5rem;
+          padding: 1.15rem 1.35rem 1.35rem;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
           position: relative;
           min-height: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-card__header {
+          flex: 0 0 auto;
+        }
+        .pedido-visao-geral .bfd-map-card__header-actions {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.35rem;
+          flex-shrink: 0;
+        }
+        .pedido-visao-geral .bfd-map-card__expand-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2rem;
+          height: 2rem;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.04);
+          color: #cbd5e1;
+          cursor: pointer;
+          transition: all 0.18s ease;
+        }
+        .pedido-visao-geral .bfd-map-card__expand-btn:hover {
+          color: #fbbf24;
+          border-color: rgba(245, 158, 11, 0.35);
+          background: rgba(245, 158, 11, 0.1);
+        }
+        .bfd-mapa-fullscreen-layer {
+          position: fixed;
+          inset: 0;
+          z-index: 10050;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2.5vh 2.5vw;
+          pointer-events: auto;
+        }
+        .bfd-mapa-fullscreen-backdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(8, 10, 18, 0.82);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          animation: bfdMapaFullscreenBackdropIn 0.28s ease forwards;
+        }
+        @keyframes bfdMapaFullscreenBackdropIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .bfd-mapa-fullscreen-host {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: 96vh;
+          max-height: 96vh;
+          min-height: 0;
+          pointer-events: auto;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-card {
+          height: 100%;
+          max-height: 100%;
+          min-height: 0;
+          overflow: hidden;
+          box-shadow: 0 28px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+          animation: bfdMapaFullscreenCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes bfdMapaFullscreenCardIn {
+          from { opacity: 0; transform: scale(0.985); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-card__split {
+          flex: 1;
+          min-height: 0;
+          height: 100%;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-container {
+          min-height: 0;
+          flex: 1;
+          height: 100%;
+        }
+        .bfd-mapa-fullscreen-host .bfd-map-canvas-wrapper {
+          min-height: 0;
+          height: 100%;
+        }
+        .bfd-map-card-placeholder {
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px dashed rgba(255, 255, 255, 0.06);
+        }
+        .pedido-visao-geral .bfd-map-card__split {
+          display: grid;
+          grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+          gap: 1rem;
+          align-items: stretch;
+          flex: 1;
+          min-height: 0;
+          height: 100%;
           overflow: visible;
+        }
+        .pedido-visao-geral .bfd-map-card__split--filtros-recolhidos {
+          grid-template-columns: 56px minmax(0, 1fr);
+          gap: 0.65rem;
+        }
+        .pedido-visao-geral .bfd-map-card__split > .bfd-map-filtros-shell {
+          height: 100%;
+          max-height: 100%;
+          min-height: 0;
+          align-self: stretch;
+          overflow: visible;
+          display: flex;
+          flex-direction: column;
+        }
+        .pedido-visao-geral .bfd-map-filtros-shell > .tg-trigger {
+          z-index: 35;
+        }
+        .pedido-visao-geral .bfd-map-card__split .bfd-map-filtros-panel {
+          flex: 1;
+          min-height: 0;
+          max-height: none;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-right: 0.75rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__meta {
+          flex-shrink: 0;
+          min-width: 5.5rem;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.28rem;
+          padding: 0.14rem 0.42rem;
+          border-radius: 7px;
+          background: rgba(255, 255, 255, 0.04);
+          font-variant-numeric: tabular-nums;
+          letter-spacing: 0.01em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-label {
+          font-size: 0.56rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill-count {
+          font-size: 0.64rem;
+          font-weight: 800;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--todos {
+          background: rgba(245, 158, 11, 0.14);
+          color: #fbbf24;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__pill--zero {
+          background: rgba(239, 68, 68, 0.12);
+          color: #f87171;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao--restrita .bfd-map-filtro-secao__pill:not(.bfd-map-filtro-secao__pill--zero) {
+          color: #fcd34d;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__item-contagem {
+          flex-shrink: 0;
+          min-width: 1.35rem;
+          padding: 0.1rem 0.34rem;
+          border-radius: 6px;
+          font-size: 0.58rem;
+          font-weight: 800;
+          line-height: 1.2;
+          text-align: center;
+          color: #94a3b8;
+          background: rgba(255, 255, 255, 0.05);
+          font-variant-numeric: tabular-nums;
+          pointer-events: none;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__local-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__status-item.is-active .bfd-map-filtros-panel__item-contagem,
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card.is-active .bfd-map-filtros-panel__item-contagem {
+          color: #fbbf24;
+          background: rgba(245, 158, 11, 0.14);
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card {
+          position: relative;
+          padding-right: 2.35rem;
+          pointer-events: auto;
+          z-index: 1;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__operacao-card .bfd-map-filtros-panel__item-contagem {
+          position: absolute;
+          top: 0.42rem;
+          right: 0.42rem;
+        }
+        .pedido-visao-geral .bfd-map-card__split > .bfd-map-container--expandido {
+          min-height: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-filtros-shell {
+          --bfd-filtro-opcao-selecionada: #f59e0b;
+          --bfd-filtro-opcao-selecionada-fundo: rgba(245, 158, 11, 0.08);
+          --bfd-filtro-opcao-selecionada-fundo-forte: rgba(245, 158, 11, 0.18);
+          --bfd-filtro-opcao-selecionada-borda: #f59e0b;
+          position: relative;
+          z-index: 4;
+          pointer-events: auto;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__progress-fill:not(.bfd-map-filtro-secao__progress-fill--todos) {
+          background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtro-secao__progress-fill--todos {
+          background: #f59e0b !important;
+        }
+        .pedido-visao-geral .bfd-map-filtros-panel__toolbar-btn:disabled {
+          opacity: 0.45;
+          cursor: default;
+          pointer-events: none;
         }
         .pedido-visao-geral .bfd-map-container {
           position: relative;
           flex: 1;
           min-height: 0;
           border-radius: 12px;
-          overflow: visible;
+          overflow: hidden;
           background: transparent;
           display: flex;
           gap: 1.5rem;
@@ -4007,29 +4944,33 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-map-container--sem-painel-lateral .bfd-map-canvas-wrapper {
           flex: 1;
           width: 100%;
-        }
-        .pedido-visao-geral .bfd-rankings-card {
-          padding: 0;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        .pedido-visao-geral .bfd-rankings-card .bfd-map-right-panel {
-          flex: 1;
           min-height: 0;
           height: 100%;
-          border: none;
-          border-radius: 14px;
-          box-shadow: none;
+          overflow: hidden;
+        }
+        .pedido-visao-geral .bfd-map-canvas-wrapper--compacto .bfd-map-legend-floating--compacto {
+          left: 0.65rem;
+          right: auto;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.45rem;
+          padding: 0.55rem 0.7rem;
+        }
+        .pedido-visao-geral .bfd-map-canvas-wrapper--compacto .bfd-map-legend-floating--compacto .bfd-map-legend__item {
+          font-size: 0.72rem;
+          gap: 0.4rem;
+          white-space: nowrap;
         }
         .pedido-visao-geral .bfd-globe-row {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 320px minmax(280px, 0.72fr);
+          grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.72fr);
           gap: 1.25rem;
           margin-bottom: 1.25rem;
           align-items: stretch;
-          --bfd-visao-geral-linha-altura: 400px;
+          --bfd-visao-geral-linha-altura: 540px;
         }
         .pedido-visao-geral .bfd-globe-row__coluna-direita {
           display: flex;
@@ -4039,7 +4980,6 @@ export default function VisaoGeral() {
           overflow: hidden;
         }
         .pedido-visao-geral .bfd-globe-row .bfd-map-card,
-        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
         .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
           min-height: var(--bfd-visao-geral-linha-altura);
           max-height: var(--bfd-visao-geral-linha-altura);
@@ -4071,39 +5011,18 @@ export default function VisaoGeral() {
         .pedido-visao-geral .bfd-globe-row .bfd-funil__bar-wrap {
           height: 12px;
         }
-        .pedido-visao-geral .bfd-globe-row .bfd-rankings-card .bfd-map-right-panel {
-          padding: 1rem;
-          gap: 0.65rem;
-        }
-        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__header {
-          gap: 0.15rem;
-        }
-        .pedido-visao-geral .bfd-globe-row .bfd-map-panel__row {
-          padding: 0.35rem 0.5rem;
-        }
         @media (max-width: 1200px) {
           .pedido-visao-geral .bfd-globe-row {
             grid-template-columns: 1fr;
             --bfd-visao-geral-linha-altura: auto;
           }
-          .pedido-visao-geral .bfd-map-rankings-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.25rem;
-          }
           .pedido-visao-geral .bfd-globe-row .bfd-map-card,
-          .pedido-visao-geral .bfd-globe-row .bfd-rankings-card,
           .pedido-visao-geral .bfd-globe-row .bfd-globe-row__coluna-direita {
             min-height: 0;
             max-height: none;
           }
           .pedido-visao-geral .bfd-map-container {
             min-height: 280px;
-          }
-        }
-        @media (max-width: 1023px) {
-          .pedido-visao-geral .bfd-map-rankings-row {
-            grid-template-columns: 1fr;
           }
         }
 `}</style>
@@ -4136,6 +5055,12 @@ export default function VisaoGeral() {
               tendencia={tendencias[index]}
               subtexto={subtextos[index]}
               variante="padrao"
+              tooltip={(
+                <InsightsKpiTooltipPedido
+                  tituloContagem={card.titulo}
+                  pedidos={pedidos.filter((p) => p.status === card.slug)}
+                />
+              )}
             />
           )
         })}
@@ -4244,7 +5169,7 @@ export default function VisaoGeral() {
           </div>
 
           {/* Funil */}
-          <div className="bfd-card bfd-card--accent-indigo" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
+          <div className="bfd-card bfd-card--accent-indigo bfd-card--com-tooltip" style={{ flex: 1, minHeight: 0, padding: '1rem 1.25rem' }}>
             <div className="cg-card__header" style={{ marginBottom: '0.75rem' }}>
               <div className="cg-card__icon-wrap">
                 <Funnel weight="duotone" size={16} style={{ color: '#818cf8' }} />
@@ -4259,7 +5184,7 @@ export default function VisaoGeral() {
       {/* Charts Row */}
       <div className="bfd-charts-grid">
         {/* Barras mensal */}
-        <div className="bfd-card bfd-card--accent-blue">
+        <div className="bfd-card bfd-card--accent-blue bfd-card--com-tooltip">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <div className="cg-card__header">
               <div className="cg-card__icon-wrap">
@@ -4278,7 +5203,7 @@ export default function VisaoGeral() {
         </div>
 
         {/* Donut tipo de operação */}
-        <div className="bfd-card bfd-card--accent-emerald">
+        <div className="bfd-card bfd-card--accent-emerald bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />
@@ -4289,7 +5214,7 @@ export default function VisaoGeral() {
         </div>
 
         {/* Moedas dos pedidos */}
-        <div className="bfd-card bfd-card--accent-amber" style={{ height: '100%', justifyContent: 'flex-start' }}>
+        <div className="bfd-card bfd-card--accent-amber bfd-card--com-tooltip" style={{ height: '100%', justifyContent: 'flex-start' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
             <div className="cg-card__header">
               <div className="cg-card__icon-wrap">
@@ -4299,37 +5224,14 @@ export default function VisaoGeral() {
             </div>
             <TrendUp size={16} weight="bold" style={{ color: '#cbd5e1' }} />
           </div>
-          <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            {moedas.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.moedas.vazio')}</span>
-            )}
-            {moedas.map(m => (
-              <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.68rem 0' }}>
-                <span className="bfd-cambio__code" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', minWidth: '44px' }}>{m.codigo}</span>
-                <span className="bfd-cambio__val" style={{ fontSize: '0.85rem', color: '#cbd5e1', flex: 1, fontWeight: 600 }}>{t('pedido.visao_geral.moedas.pedidos_count', { count: m.quantidade })}</span>
-                <span
-                  className="bfd-cambio__var"
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '6px',
-                    color: '#f59e0b',
-                    background: 'rgba(245,158,11,0.1)',
-                  }}
-                >
-                  {m.pct}%
-                </span>
-              </div>
-            ))}
-          </div>
+          <GraficoListaMoedas moedas={moedas} />
         </div>
       </div>
 
       {/* Insights Row */}
       <div className="bfd-insights-grid">
         {/* Maior pedido */}
-        <div className="bfd-card bfd-card--accent-amber">
+        <div className="bfd-card bfd-card--accent-amber bfd-card--maior-pedido">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <Trophy weight="duotone" size={16} style={{ color: '#fbbf24' }} />
@@ -4339,7 +5241,7 @@ export default function VisaoGeral() {
           <div className="bfd-best">
             {maiorPedido ? (
               <>
-                <div className="bfd-best__saving" style={{ margin: '0.35rem 0 0.5rem' }}>
+                <div className="bfd-best__saving">
                   <span className="bfd-best__saving-badge">
                     <Trophy size={12} /> {maiorPedido.numero}
                   </span>
@@ -4356,38 +5258,18 @@ export default function VisaoGeral() {
         </div>
 
         {/* Top Incoterms */}
-        <div className="bfd-card bfd-card--accent-purple">
+        <div className="bfd-card bfd-card--accent-purple bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <List weight="duotone" size={16} style={{ color: '#a78bfa' }} />
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>{t('pedido.visao_geral.incoterms.titulo')}</p>
           </div>
-          <div className="bfd-incoterms">
-            {incoterms.length === 0 && (
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>{t('pedido.visao_geral.incoterms.vazio')}</span>
-            )}
-            {incoterms.map(inc => (
-              <div key={inc.incoterm} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span className="bfd-incoterms__code">{inc.incoterm}</span>
-                  <span className="bfd-incoterms__count" style={{ fontWeight: 600, color: '#ffffff', letterSpacing: '0.01em' }}>
-                    {inc.count} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>({inc.pct}%)</span>
-                  </span>
-                </div>
-                <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ width: `${inc.pct}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <GraficoListaIncoterms incoterms={incoterms} />
         </div>
-      </div>
 
-      {/* Bottom Row */}
-      <div className="bfd-bottom-grid">
         {/* Taxa aprovação */}
-        <div className="bfd-card bfd-card--accent-emerald">
+        <div className="bfd-card bfd-card--accent-emerald bfd-card--com-tooltip">
           <div className="cg-card__header" style={{ marginBottom: '1.25rem' }}>
             <div className="cg-card__icon-wrap">
               <ThumbsUp weight="duotone" size={16} style={{ color: '#34d399' }} />

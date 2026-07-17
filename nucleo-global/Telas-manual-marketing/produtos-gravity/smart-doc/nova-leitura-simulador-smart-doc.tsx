@@ -43,6 +43,7 @@ import { ResultadoSimuladorSmartDoc } from './resultado-simulador-smart-doc'
 import {
   resolverIdTelaConferenciaSimulador,
   resolverIdTelaNovaLeituraSimulador,
+  resolverPosicaoPreferencialTutorialNovaLeituraSimulador,
 } from './dados-tutorial-opcional-simulador-smart-doc'
 import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador-smart-doc'
 import { useEfeitoDestaqueTutorialSimulador } from './efeito-destaque-tutorial-simulador-smart-doc'
@@ -297,6 +298,10 @@ export function NovaLeituraSimuladorSmartDoc({
   if (!aberto) return null
 
   function solicitarFechar() {
+    if (despedidaAberta) {
+      fecharSairDemonstracao()
+      return
+    }
     if (!deveExibirDespedidaNovaLeituraSimulador(passo)) {
       onFechar()
       return
@@ -687,15 +692,11 @@ export function NovaLeituraSimuladorSmartDoc({
                 if (e.key === 'Enter' || e.key === ' ') anexarArquivo()
               }}
             >
-              {alvoTutorialDestacado === 'nl-dropzone' && (
-                <span className="sds-nl-dropzone-guia-badge" aria-hidden>
-                  Clique aqui
-                </span>
-              )}
-              <span className="sds-nl-dropzone-demo-chip">Demo · sem upload real</span>
               <CloudArrowUp size={36} weight="duotone" />
               <strong>Clique aqui para simular o anexo</strong>
-              <span>Um PDF de demonstração será carregado automaticamente. Não é necessário selecionar arquivo.</span>
+              <span className="sds-nl-dropzone-box-hint">
+                Um PDF de demonstração será carregado automaticamente. Não é necessário selecionar arquivo.
+              </span>
             </div>
             <section
               className="sds-nl-formatos"
@@ -902,11 +903,23 @@ export function NovaLeituraSimuladorSmartDoc({
           : passo === 3
             ? resolverIdTelaConferenciaSimulador(abaConferencia)
             : resolverIdTelaNovaLeituraSimulador({ passo, previewAberto: false })
-        if (!idTelaTutorial) return null
+        if (!idTelaTutorial || despedidaAberta) return null
+        const posicaoTutorialGabi = resolverPosicaoPreferencialTutorialNovaLeituraSimulador({
+          idTela: idTelaTutorial,
+          passo,
+          totalArquivos: arquivos.length,
+          previewAberto: Boolean(preview),
+        })
         return (
           <TutorialOpcionalSimuladorSmartDoc
             idTela={idTelaTutorial}
             usarAvancarAposAnexo={passo === 1 && arquivos.length > 0}
+            posicaoFixa
+            refAncoraSimulador={refRaizTutorial}
+            posicaoPreferencial={posicaoTutorialGabi}
+            posicaoPreferencialPainelFechado="inferior-direita"
+            classeHost="sds-tutorial--wizard-nl"
+            reservarCabecalhoModal
             onAlvoDestacadoChange={setAlvoTutorialDestacado}
           />
         )

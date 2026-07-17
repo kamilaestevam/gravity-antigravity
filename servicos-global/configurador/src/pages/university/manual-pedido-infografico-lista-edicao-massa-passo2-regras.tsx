@@ -16,7 +16,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
   return (
     <div
       role="group"
-      aria-label="Regras do passo 2 — revisar alterações na edição em massa"
+      aria-label="Regras do passo 2: revisar alterações na edição em massa"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.08) 0%, rgba(148,163,184,.04) 48%, rgba(251,191,36,.05) 100%)',
         border: '1px solid rgba(148,163,184,.16)',
@@ -34,7 +34,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
         color: '#94a3b8',
         margin: '0 0 4px',
       }}>
-        Passo 2 — Revisão
+        Passo 2: Revisão
       </p>
       <p style={{
         margin: '0 0 12px',
@@ -61,7 +61,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Todos</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('Lista **completa** de pedidos/itens no preview — inclusive linhas **sem efeito**.')}
+            {renderizarNegrito('Lista **completa** de pedidos/itens no preview: inclusive linhas **sem efeito**.')}
           </p>
         </div>
         <div style={{
@@ -73,7 +73,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Alterados</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('Só registros onde o **valor muda** de fato — badge **será alterado**.')}
+            {renderizarNegrito('Só registros onde o **valor muda** de fato: badge **será alterado**.')}
           </p>
         </div>
         <div style={{
@@ -85,7 +85,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaPasso2Regras() {
             <p style={{ margin: 0, fontSize: '.76rem', fontWeight: 800, color: '#e2e8f0' }}>Sem efeito</p>
           </div>
           <p style={{ margin: 0, fontSize: '.68rem', lineHeight: 1.5, color: CORPO_70 }}>
-            {renderizarNegrito('Valor novo **igual ao atual** — não grava no banco; badge **sem alteração**.')}
+            {renderizarNegrito('Valor novo **igual ao atual**: não grava no banco; badge **sem alteração**.')}
           </p>
         </div>
       </div>

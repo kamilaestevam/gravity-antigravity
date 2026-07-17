@@ -17,15 +17,15 @@ const SMART_READ_HISTORICO_COLUNAS: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+    detalhes: ['Ordenação decrescente: o mais recente no topo'],
   },
   {
     coluna: 'Ação',
-    descricao: 'O que aconteceu — ex.: **Criou**, **Atualizou**, **Excluiu**.',
+    descricao: 'O que aconteceu: ex.: **Criou**, **Atualizou**, **Excluiu**.',
   },
   {
     coluna: 'Local',
-    descricao: 'Módulo e recurso — ex.: **Smart Docs | Leitura**, **Smart Docs | Lista**.',
+    descricao: 'Módulo e recurso: ex.: **Smart Docs | Leitura**, **Smart Docs | Lista**.',
   },
   {
     coluna: 'Usuário',
@@ -33,7 +33,7 @@ const SMART_READ_HISTORICO_COLUNAS: DocColunaTabela[] = [
   },
   {
     coluna: 'Detalhes',
-    descricao: 'Resumo do que mudou — nome da leitura, status, campos alterados na conferência, etc.',
+    descricao: 'Resumo do que mudou: nome da leitura, status, campos alterados na conferência, etc.',
   },
 ]
 
@@ -66,14 +66,14 @@ export const PASSOS_MANUAL_SMART_READ_HISTORICO: DocPassoVisual[] = renumerarPas
     callout: {
       tipo: 'dica',
       texto:
-        '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do Smart Docs** — leituras, conferência, exclusão e demais mutações do produto.',
+        '**Configurador › Histórico**: convites, permissões e segurança da conta. **Histórico do Smart Docs**: leituras, conferência, exclusão e demais mutações do produto.',
     },
   },
   {
     titulo: 'Entender as colunas',
     tituloCurto: 'Colunas',
     paragrafos: [
-      'Cada linha é um evento gravado quando uma ação **persiste no servidor** — nova leitura, alteração na conferência, exclusão, etc.',
+      'Cada linha é um evento gravado quando uma ação **persiste no servidor**: nova leitura, alteração na conferência, exclusão, etc.',
     ],
     imagem: SCREENSHOT_SMART_DOCS_HISTORICO_TABELA,
     imagemAbaixoTexto: true,

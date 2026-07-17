@@ -93,7 +93,7 @@ export const TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT: Record<string, TelaSequen
     {
       titulo: 'Copiar token em claro',
       imagem: CAPTURAS_TELA_TOKEN_API_COCKPIT.gerarSeta,
-      paragrafo: 'O valor completo aparece **uma única vez** — use **Copiar** antes de fechar.',
+      paragrafo: 'O valor completo aparece **uma única vez**: use **Copiar** antes de fechar.',
     },
     {
       titulo: 'Modal de confirmação',
@@ -108,7 +108,7 @@ export const TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT: Record<string, TelaSequen
     {
       titulo: 'Token na listagem',
       imagem: CAPTURAS_TELA_TOKEN_API_COCKPIT.listagem,
-      paragrafo: 'Na tabela só permanece o **prefixo** — o valor secreto não pode ser recuperado.',
+      paragrafo: 'Na tabela só permanece o **prefixo**: o valor secreto não pode ser recuperado.',
     },
   ],
   pdf: [
@@ -120,7 +120,7 @@ export const TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT: Record<string, TelaSequen
     { titulo: 'Upload multipart', imagem: S.novaLeitura, paragrafo: 'Corpo **multipart** com o PDF e metadados do workspace ligado ao token.' },
   ],
   valida: [
-    { titulo: 'API Cockpit — gateway', imagem: S.telaPrincipal, paragrafo: 'Entrada pelo app **/configurador/api-cockpit** da organização.' },
+    { titulo: 'API Cockpit: gateway', imagem: S.telaPrincipal, paragrafo: 'Entrada pelo app **/configurador/api-cockpit** da organização.' },
     { titulo: 'Tokens ativos', imagem: S.transacoes, paragrafo: 'O token usado no **POST** deve estar ativo nesta aba.' },
   ],
   recebe: [
@@ -128,7 +128,7 @@ export const TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT: Record<string, TelaSequen
     { titulo: 'Documento na fila', imagem: S.anexado, paragrafo: 'O PDF entra no pipeline de leitura do workspace.' },
   ],
   id: [
-    { titulo: 'Resposta da API', imagem: S.transacoes, paragrafo: 'A API retorna JSON com **`id_leitura`** — guarde para **GET** e webhooks.' },
+    { titulo: 'Resposta da API', imagem: S.transacoes, paragrafo: 'A API retorna JSON com **`id_leitura`**: guarde para **GET** e webhooks.' },
   ],
   ia: [
     { titulo: 'Wizard Nova Leitura', imagem: S.novaLeitura4Passos, paragrafo: 'Paridade com o fluxo **Nova Leitura** do produto.' },

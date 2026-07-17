@@ -4,10 +4,12 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 /**
  * SSOT dos screenshots: `public/university/screenshots/`
- * Arquivos abaixo ainda não existem — preencher `imagem` nos passos quando o dono enviar os prints.
+ * Menu superior — prints em `3. Navegação` (Drive) mapeados abaixo.
  */
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO =
   '/university/screenshots/navegacao-menu-superior-visao-geral.png'
+export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_HUB =
+  '/university/screenshots/navegacao-menu-superior-icone-hub.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR =
   '/university/screenshots/navegacao-menu-superior-icone-localizar.png'
 export const SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY =
@@ -70,9 +72,26 @@ export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_USUARIO =
 export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_OPCAO_MENU =
   '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 
+/** Exemplos cross-product — listas GTV em Configurador e Produtos Gravity. */
+export const SCREENSHOT_NAVEGACAO_LISTA_CONFIGURADOR =
+  '/university/screenshots/configurador-usuarios-tela.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_PEDIDO =
+  '/university/screenshots/pedido-lista.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_BID_FRETE =
+  '/university/screenshots/bid-frete-int-lista.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_SMART_DOCS =
+  '/university/screenshots/smart-docs-lista.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_ARRASTAR =
+  '/university/screenshots/pedido-lista-colunas-arrastar.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_FILTROS =
+  '/university/screenshots/pedido-lista-filtro-aplicado-2.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_EXPORTAR =
+  '/university/screenshots/pedido-lista-exportar-seta.png'
+
 /** Checklist para o dono — nomes dos arquivos PNG esperados em `public/university/screenshots/`. */
 export const NAVEGACAO_PRINTS_CHECKLIST = [
   'navegacao-menu-superior-visao-geral.png',
+  'navegacao-menu-superior-icone-hub.png',
   'navegacao-intro-exemplo-menu-lateral.png',
   'navegacao-menu-superior-icone-localizar.png',
   'navegacao-menu-superior-icone-university.png',
@@ -117,6 +136,8 @@ export interface IconeMenuSuperiorManual {
   resumo: string
   detalhe?: string
   dica?: string
+  /** Miniatura à direita — `public/university/screenshots/`. */
+  imagem?: string
 }
 
 /** SSOT — textos dos 8 atalhos do menu superior à direita (infográfico §03). */
@@ -127,13 +148,15 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Hub',
     resumo: 'Volta à tela principal da plataforma a partir de qualquer módulo aberto.',
     detalhe: 'No Hub você escolhe produtos, acessa a Store e retoma o centro da operação. O botão some quando você já está no Hub.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_HUB,
   },
   {
     ordem: 2,
     slug: 'localizar',
     titulo: 'Localizar',
-    resumo: 'Busca e filtra o conteúdo da tela atual — listas, registros e campos visíveis.',
+    resumo: 'Busca e filtra o conteúdo da tela atual: listas, registros e campos visíveis.',
     detalhe: 'Clique na lupa, digite o termo e use Esc ou × para fechar sem sair da página.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
   },
   {
     ordem: 3,
@@ -141,6 +164,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Gravity University',
     resumo: 'Atalho para manuais, trilhas de onboarding e documentação por produto.',
     detalhe: 'Este manual está em Manuais → Navegação dentro da University.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_UNIVERSITY,
   },
   {
     ordem: 4,
@@ -148,6 +172,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Notificações',
     resumo: 'Quadro de avisos, alertas e pendências da organização nos produtos contratados.',
     detalhe: 'O ponto laranja no sininho indica itens não lidos ou novas mensagens.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_NOTIFICACOES,
   },
   {
     ordem: 5,
@@ -155,7 +180,8 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Tooltip',
     resumo: 'Liga ou desliga as dicas que aparecem ao passar o mouse na interface.',
     detalhe: 'Ícone preenchido em azul = dicas ativas; contorno cinza = desativadas.',
-    dica: 'Controla os tooltips globalmente — vale para Hub, produtos, Store e Configurador.',
+    dica: 'Controla os tooltips globalmente: vale para Hub, produtos, Store e Configurador.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_DICAS,
   },
   {
     ordem: 6,
@@ -163,6 +189,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Idioma',
     resumo: 'Troca a interface entre português, inglês e espanhol com um clique.',
     detalhe: 'A sigla no botão (ex.: BR) mostra o idioma ativo na sessão.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_IDIOMA,
   },
   {
     ordem: 7,
@@ -170,6 +197,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Atalho ao Configurador',
     resumo: 'Abre a gestão da organização: workspaces, usuários, assinaturas e financeiro.',
     detalhe: 'Caminho direto para configurar a conta sem passar pelo menu do usuário.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_CONFIGURADOR,
   },
   {
     ordem: 8,
@@ -177,6 +205,143 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Menu via usuário',
     resumo: 'Perfil, tema claro/escuro, Gravity Store, Configurador e encerrar sessão.',
     detalhe: 'Masters e admins veem também Painel Admin e Trocar organização, quando habilitado.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_USUARIO,
+  },
+]
+
+export type ItemMenuUsuarioSlug = 'store' | 'tema' | 'novidades' | 'sair'
+
+export interface ItemMenuUsuarioManual {
+  ordem: number
+  slug: ItemMenuUsuarioSlug
+  titulo: string
+  resumo: string
+  detalhe?: string
+  emBreve?: boolean
+}
+
+/** SSOT — demais opções do menu do avatar (infográfico Configuração §03). */
+export type LocalListaPlataformaSlug = 'configurador' | 'pedido' | 'bid-frete' | 'smart-docs'
+
+export interface LocalListaPlataformaManual {
+  ordem: number
+  slug: LocalListaPlataformaSlug
+  titulo: string
+  resumo: string
+  imagem: string
+}
+
+/** SSOT — módulos onde a lista GTV aparece (infográfico Navegação). */
+export const LOCAIS_LISTA_PLATAFORMA_MANUAL: LocalListaPlataformaManual[] = [
+  {
+    ordem: 1,
+    slug: 'configurador',
+    titulo: 'Configurador',
+    resumo: 'Usuários, Workspaces, Fornecedores, Assinaturas e demais abas de gestão.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_CONFIGURADOR,
+  },
+  {
+    ordem: 2,
+    slug: 'pedido',
+    titulo: 'Pedido',
+    resumo: 'Pedidos e itens do workspace na aba **Lista** do produto.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_PEDIDO,
+  },
+  {
+    ordem: 3,
+    slug: 'bid-frete',
+    titulo: 'BID Frete',
+    resumo: 'Cotações e operação logística em tabela.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_BID_FRETE,
+  },
+  {
+    ordem: 4,
+    slug: 'smart-docs',
+    titulo: 'Smart Docs',
+    resumo: 'Leituras e documentos analisados pela IA.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_SMART_DOCS,
+  },
+]
+
+export type FuncionalidadeListaPlataformaSlug = 'localizar' | 'arrastar' | 'filtros' | 'exportar'
+
+export interface FuncionalidadeListaPlataformaManual {
+  ordem: number
+  slug: FuncionalidadeListaPlataformaSlug
+  titulo: string
+  resumo: string
+  detalhe?: string
+  dica?: string
+  /** Miniatura à direita — Pedido ilustra o gesto comum GTV. */
+  imagem?: string
+}
+
+/** SSOT — gestos comuns em qualquer lista da plataforma (infográfico Navegação). */
+export const FUNCIONALIDADES_LISTA_PLATAFORMA_MANUAL: FuncionalidadeListaPlataformaManual[] = [
+  {
+    ordem: 1,
+    slug: 'localizar',
+    titulo: 'Localizar',
+    resumo: 'No **menu superior**, a lupa **Localizar** busca e filtra **listas, registros e campos visíveis** na tela aberta. Vale no Configurador, nos produtos e na Store.',
+    detalhe: 'Terceiro atalho à direita após **Hub**. Use **Esc** ou **×** para fechar sem sair da página.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
+  },
+  {
+    ordem: 2,
+    slug: 'arrastar',
+    titulo: 'Arrastar colunas',
+    resumo: 'No menu **Colunas**, **arraste** os campos para definir a **ordem** na tabela. O mesmo gesto no Pedido, Smart Docs, BID Frete e Configurador.',
+    detalhe: 'Também dá para **exibir** e **ocultar** colunas no mesmo painel. A preferência fica **salva por usuário**.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_ARRASTAR,
+  },
+  {
+    ordem: 3,
+    slug: 'filtros',
+    titulo: 'Filtros',
+    resumo: 'Ícone de **funil** no cabeçalho de cada coluna: ordenar, filtrar por texto, marcar valores ou intervalo numérico.',
+    detalhe: 'Filtros ativos viram **chips** na barra da tabela. Combine quantos quiser; use *_Limpar todos_* para resetar.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_FILTROS,
+  },
+  {
+    ordem: 4,
+    slug: 'exportar',
+    titulo: 'Exportar',
+    resumo: 'Menu **Exportar** na toolbar: baixa o **recorte atual** (filtros + colunas visíveis + página da lista).',
+    detalhe: 'Formatos típicos: **Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**, conforme o módulo.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_EXPORTAR,
+  },
+]
+
+export const ITENS_MENU_USUARIO_MANUAL: ItemMenuUsuarioManual[] = [
+  {
+    ordem: 1,
+    slug: 'store',
+    titulo: 'Ir para Gravity Store',
+    resumo: 'Abre a vitrine para conhecer, contratar ou ampliar produtos Gravity da organização.',
+    detalhe: 'Atalho rápido sem passar pelo Hub: útil para gestores que já sabem qual módulo precisam.',
+  },
+  {
+    ordem: 2,
+    slug: 'tema',
+    titulo: 'Alternar tema',
+    resumo: 'Troca a interface entre **modo claro** e **modo escuro** com um clique.',
+    emBreve: true,
+    detalhe: 'A preferência vale para toda a sessão e se mantém nas próximas vezes que você entrar.',
+  },
+  {
+    ordem: 3,
+    slug: 'novidades',
+    titulo: 'Novidades',
+    resumo: 'Canal de releases, melhorias e comunicados da plataforma Gravity.',
+    emBreve: true,
+    detalhe: 'Quando disponível, reunirá o que mudou nos produtos e no Configurador.',
+  },
+  {
+    ordem: 4,
+    slug: 'sair',
+    titulo: 'Sair do Sistema',
+    resumo: 'Encerra a sessão com segurança e retorna à tela de login.',
+    detalhe: 'Use sempre que terminar o trabalho em um dispositivo compartilhado.',
   },
 ]
 
@@ -202,13 +367,11 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Menu superior',
       texto: 'Faixa fixa no topo, presente em **todas as telas autenticadas**.',
       imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_VISAO,
-      larguraMaxima: 480,
     },
     {
       titulo: 'Menu lateral',
       texto: 'Coluna à esquerda: para **Produtos Gravity** e no **Configurador**.',
       imagem: SCREENSHOT_NAVEGACAO_INTRO_MENU_LATERAL,
-      larguraMaxima: 480,
     },
   ],
   fluxos: [
@@ -216,28 +379,18 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Menu superior',
       tituloSumario: 'Menu superior',
       paragrafos: [
-        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas — Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
+        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas: Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'É o principal ponto de retorno ao **Hub**, de acesso à **conta**, troca de **idioma** e demais atalhos transversais da plataforma.',
-      },
-      calloutAposPassos: true,
       mostrarInfograficoIconesMenuSuperior: true,
       passosVisuais: [],
     },
     {
-      titulo: 'Menu lateral — Produtos Gravity',
-      tituloSumario: 'Menu lateral — Produtos Gravity',
+      titulo: 'Menu lateral: Produtos Gravity',
+      tituloSumario: 'Menu lateral: Produtos Gravity',
       modoCenarios: true,
       paragrafos: [
-        'Todos os **Produtos Gravity** — Pedido, Smart Read, BID Frete, BID Câmbio e demais — possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
+        'Todos os **Produtos Gravity**: Pedido, Smart Read, BID Frete, BID Câmbio e demais: possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'Enquanto você está no **Hub** ou na **Gravity Store**, a tela usa **apenas o menu superior** — **não há menu lateral**.',
-      },
-      calloutAposPassos: true,
       figurasAposParagrafo: [
         {
           indice: 0,
@@ -248,17 +401,18 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       passosVisuais: [],
     },
     {
-      titulo: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
-      tituloSumario: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
+      titulo: 'Menu lateral: Acesso rápido troca de Produtos Gravity',
+      tituloSumario: 'Menu lateral: Acesso rápido troca de Produtos Gravity',
       paragrafos: [
-        'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub — desde que o workspace atual tenha **mais de um produto** habilitado para você.',
-        'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca *_Buscar produto…_*. O produto aberto fica marcado com ✓.',
+        'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub: desde que o workspace atual tenha **mais de um produto** habilitado para você.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'Trocar aqui **mantém o workspace** selecionado e abre o outro produto no mesmo contexto. Para escolher um produto pela primeira vez na sessão, você também pode usar o **Hub**.',
+      calloutAposParagrafo: {
+        indice: 0,
+        callout: {
+          tipo: 'dica',
+          texto: 'A lista mostra apenas produtos **contratados pela organização**, **habilitados no workspace** e **liberados para o seu usuário**. Com mais de quatro itens, aparece busca *_Buscar produto…_*. O produto aberto fica marcado com ✓.',
+        },
       },
-      calloutAposPassos: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Onde clicar para trocar de produto',
@@ -267,6 +421,10 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           ],
           imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_SETA_NOME_PRODUTO,
           imagemAbaixoTexto: true,
+          calloutAposImagem: {
+            tipo: 'dica',
+            texto: 'Trocar aqui **mantém o workspace** selecionado e abre o outro produto no mesmo contexto. Para escolher um produto pela primeira vez na sessão, você também pode usar o **Hub**.',
+          },
         },
         {
           titulo: 'Lista de Produtos Gravity',
@@ -279,16 +437,11 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Menu lateral — Acesso rápido troca de workspaces',
-      tituloSumario: 'Menu lateral — Acesso rápido troca de workspaces',
+      titulo: 'Menu lateral: Acesso rápido troca de workspaces',
+      tituloSumario: 'Menu lateral: Acesso rápido troca de workspaces',
       paragrafos: [
-        'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces** — filiais ou unidades em que você opera dentro da organização.',
+        'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces**: filiais ou unidades em que você opera dentro da organização.',
       ],
-      callout: {
-        tipo: 'dica',
-        texto: 'No rodapé do painel: **+ Criar workspace** e *_Gerenciar workspace_* levam ao Configurador para cadastrar ou editar filiais.',
-      },
-      calloutAposPassos: true,
       passosVisuais: renumerarPassos([
         {
           titulo: 'Onde clicar para trocar de workspace',
@@ -303,30 +456,37 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           paragrafos: [
             'O painel lista os **workspaces** disponíveis para você. No modo **único** (padrão), ao escolher outro workspace a tela **recarrega** no novo contexto. No modo **múltiplo** (ex.: **Pedido**), use as caixas de seleção e os atalhos *_Selecionar tudo_* / *_Desmarcar tudo_*. Com mais de quatro itens, use *_Buscar workspace…_* no topo.',
           ],
-          callout: {
-            tipo: 'destaque',
-            texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
-          },
-          calloutAoLadoTexto: true,
           imagem: SCREENSHOT_NAVEGACAO_MENU_LATERAL_TROCA_WORKSPACE_ABERTO,
           imagemAbaixoTexto: true,
+          calloutAposImagem: [
+            {
+              tipo: 'destaque',
+              texto: 'No seletor, você pode marcar **um workspace**, **vários** ou **todos de uma vez** (*_Selecionar tudo_*). A partir da confirmação, **listas, dashboards e indicadores** da tela passam a refletir **somente** os workspaces escolhidos.',
+            },
+            {
+              tipo: 'dica',
+              texto: 'No rodapé do painel: **+ Criar workspace** e *_Gerenciar workspace_* levam ao Configurador para cadastrar ou editar filiais.',
+            },
+          ],
         },
       ]),
     },
     {
-      titulo: 'Menu lateral — Configuração',
-      tituloSumario: 'Menu lateral — Configuração',
+      titulo: 'Menu lateral: Configuração',
+      tituloSumario: 'Menu lateral: Configuração',
       paragrafos: [
         'O **Configurador da Plataforma** tem **menu lateral próprio**. Ele organiza a **gestão e configuração da conta**: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro e demais abas.',
       ],
       callout: {
         tipo: 'dica',
-        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba** — só mudam o item destacado e o conteúdo à direita.',
+        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba**: só mudam o item destacado e o conteúdo à direita.',
       },
       calloutAposPassos: true,
+      mostrarInfograficoItensMenuUsuario: true,
+      infograficoItensMenuUsuarioAposPassos: true,
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Caminho 1 — ícone no menu superior',
+          titulo: 'Caminho 1: ícone no menu superior',
           paragrafos: [
             'Em **qualquer tela** autenticada (Hub, produto, Store ou University), clique no **ícone Configurador** (engrenagem) na faixa do **menu superior**, à direita.',
           ],
@@ -334,7 +494,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Caminho 2 — abrir o menu do usuário',
+          titulo: 'Caminho 2: abrir o menu do usuário',
           paragrafos: [
             'Alternativa: clique no **ícone do usuário** no canto superior direito, como indicado pela seta na imagem.',
           ],
@@ -363,7 +523,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Como acessar a Gravity University',
       tituloSumario: 'Como acessar a Gravity University',
       paragrafos: [
-        'A **Gravity University** fica a um clique no **menu superior** — ícone de **chapéu de formatura**, terceiro atalho à direita (após **Hub** e **Localizar**). Vale em **qualquer tela** autenticada: Hub, produtos, Store ou Configurador.',
+        'A **Gravity University** fica a um clique no **menu superior**: ícone de **chapéu de formatura**, terceiro atalho à direita (após **Hub** e **Localizar**). Vale em **qualquer tela** autenticada: Hub, produtos, Store ou Configurador.',
       ],
       passosVisuais: renumerarPassos([
         {
@@ -403,7 +563,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
             {
               indice: 0,
               imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_ONBOARDING,
-              legenda: 'Sidebar — Onboarding',
+              legenda: 'Sidebar: Onboarding',
               larguraMaxima: 240,
             },
           ],
@@ -417,12 +577,21 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
             {
               indice: 0,
               imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS,
-              legenda: 'Sidebar — Manuais',
+              legenda: 'Sidebar: Manuais',
               larguraMaxima: 240,
             },
           ],
         },
       ]),
+    },
+    {
+      titulo: 'Funcionalidades das listas',
+      tituloSumario: 'Funcionalidades das listas',
+      paragrafos: [
+        'A **lista** (tabela virtual compartilhada da plataforma) aparece em **diversos módulos**: **Configurador**, **Pedido**, **BID Frete**, **Smart Docs** e outros. Os dados mudam, mas quatro gestos se repetem em todos: **Localizar**, **arrastar colunas**, **filtros** e **Exportar**.',
+      ],
+      mostrarInfograficoFuncionalidadesLista: true,
+      passosVisuais: [],
     },
   ],
 }

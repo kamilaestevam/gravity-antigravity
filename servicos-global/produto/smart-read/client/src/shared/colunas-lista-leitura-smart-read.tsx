@@ -16,6 +16,10 @@ import {
 } from '../../../shared/status-fluxo-leitura-smart-read'
 import type { DocumentoLeituraLista } from './montar-documentos-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
+import {
+  chaveColunaPersonalizadaSmartRead,
+  type ColunaPersonalizadaSmartRead,
+} from './use-preferencias-visualizacao-smart-read'
 
 /** Colunas da linha pai (leitura) visíveis por padrão — métricas da leitura, não campos extraídos do documento. */
 export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
@@ -47,6 +51,41 @@ const MAPA_FILHO_SOMENTE_LEITURA = { editavel: false as const }
 
 export function ehColunaCatalogoDocumentoSmartRead(key: string): boolean {
   return CHAVES_CATALOGO.has(key)
+}
+
+/**
+ * Colunas personalizadas (Configurações › Colunas). Sem fonte de dados no
+ * legado/Postgres — a célula fica vazia ('—') até o produto ganhar valores
+ * por leitura; o objetivo é a coluna existir de fato na lista (nome, ordem,
+ * visibilidade controlados pela Configurações).
+ */
+export function criarColunasPersonalizadasListaSmartRead(
+  colunasPersonalizadas: ColunaPersonalizadaSmartRead[],
+): GTColuna<TransacaoLeitura>[] {
+  return colunasPersonalizadas.map((col) => ({
+    key: chaveColunaPersonalizadaSmartRead(col),
+    label: col.nome,
+    grupo: 'Personalizadas',
+    oculta: !col.visible,
+    filtravel: false,
+    sortavel: false,
+    editavel: false,
+    render: () => '—',
+    findDisplay: () => '',
+  }))
+}
+
+export function criarMapaFilhoColunasPersonalizadasSmartRead(
+  colunasPersonalizadas: ColunaPersonalizadaSmartRead[],
+): Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> {
+  const mapa: Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> = {}
+  for (const col of colunasPersonalizadas) {
+    mapa[chaveColunaPersonalizadaSmartRead(col)] = {
+      editavel: false,
+      render: () => '—',
+    }
+  }
+  return mapa
 }
 
 function criarColunasCatalogoDocumento(): GTColuna<TransacaoLeitura>[] {

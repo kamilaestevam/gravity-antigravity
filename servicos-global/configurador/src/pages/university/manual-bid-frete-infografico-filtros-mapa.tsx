@@ -9,6 +9,10 @@ import {
   Sparkle,
   type Icon,
 } from '@phosphor-icons/react'
+import {
+  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+  MANUAL_ESPACO_PARAGRAFO_PX,
+} from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -285,20 +289,19 @@ export function ManualInfograficoBidFreteFiltrosMapa() {
       background: 'linear-gradient(165deg, rgba(129,140,248,.09) 0%, rgba(148,163,184,.04) 42%, rgba(251,191,36,.05) 100%)',
       border: '1px solid rgba(148,163,184,.18)',
       borderRadius: 14,
-      padding: '18px 18px 16px',
-      marginTop: 20,
+      padding: '16px 18px 18px',
       boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
-        gap: 14,
-        marginBottom: 16,
+        gap: MANUAL_ESPACO_PARAGRAFO_PX,
+        marginBottom: MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
         flexWrap: 'wrap',
       }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
             <Funnel size={18} weight="duotone" color="#818cf8" />
             <span style={{
               display: 'inline-flex',

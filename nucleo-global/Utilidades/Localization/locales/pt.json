@@ -2,26 +2,91 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": {
-      "academy": "Onboarding",
+      "academy": "Guia Gravity",
       "visao_geral": "Visão geral",
       "minha_jornada": "Minha Jornada",
       "docs": "Manuais",
       "builders": "Gravity Partner",
       "produtos_gravity": "Produtos Gravity",
+      "modulo_basico": "Módulo Básico",
+      "modulo_basico_subtitulo": "Para todos os produtos Gravity",
+      "modulo_por_produto_gravity": "Módulo por Produto Gravity",
+      "modulo_por_produto_gravity_subtitulo": "Trilhas por produto contratado",
       "modulos_plataforma": "Todos os produtos Gravity"
     },
     "nav_status": {
-      "comprado_titulo": "Contratado",
-      "comprado_desc": "Módulo ativo na sua organização",
-      "nao_comprado_titulo": "Não contratado",
-      "nao_comprado_desc": "Você ainda pode acessar e explorar o conteúdo",
+      "comprado_titulo": "Produto Gravity contratado pela empresa",
+      "comprado_desc": "Este produto está ativo no contrato da sua organização",
+      "nao_comprado_titulo": "Produto Gravity não contratado pela empresa",
+      "nao_comprado_desc": "Você ainda pode acessar e explorar o Guia Gravity deste produto",
       "concluido_titulo": "Concluído",
-      "concluido_desc": "Você finalizou todo o onboarding deste item",
+      "concluido_desc": "Você finalizou todo o Guia Gravity deste item",
       "nao_concluido_titulo": "Em aberto",
-      "nao_concluido_desc": "Onboarding ainda não foi finalizado"
+      "nao_concluido_desc": "Guia Gravity ainda não foi finalizado",
+      "legenda_titulo": "Legenda de status do Guia Gravity",
+      "contrato_abrev": "Contratado",
+      "concluido_abrev": "Concluído"
     },
     "academy": {
-      "subtitulo": "Onboarding guiado por produto — trilhas para Login, Configurador, Hub e os módulos contratados na sua organização."
+      "subtitulo": "Guia Gravity — trilhas visuais por produto para Login, Configurador, Hub e os módulos da sua organização."
+    },
+    "quickly_tour": {
+      "nome": "Quickly Tour",
+      "etiqueta": "Guia da Minha jornada",
+      "aria_painel": "Quickly Tour — orientação da tela Minha jornada",
+      "abrir_aria": "Abrir Quickly Tour",
+      "fechar_aria": "Fechar Quickly Tour",
+      "fechar": "Fechar tour",
+      "nao_mostrar_novamente": "Não mostrar novamente",
+      "explorar_aqui": "Explore aqui",
+      "siga_em_frente": "Siga em frente",
+      "entendi_explorar": "Entendi — explorar sozinho",
+      "etapa": "Etapa {{atual}} de {{total}}",
+      "telas": {
+        "panorama": {
+          "titulo": "Panorama da jornada",
+          "resumo": "Visão geral do que você já fez, do que falta e por onde retomar.",
+          "explorar": {
+            "hero": { "titulo": "1. Cartão Continue de onde parou", "descricao": "Módulo em andamento, etapa atual e anel com etapas concluídas" },
+            "continuar": { "titulo": "2. Botão Continuar jornada", "descricao": "Abre direto a trilha do módulo que você estava fazendo" },
+            "kpis": { "titulo": "3. Resumo em números", "descricao": "Pontos, concluídas, em andamento e certificados — leitura rápida do progresso" },
+            "certificados": { "titulo": "4. Meus certificados", "descricao": "Módulo básico e produtos (Pedido, Smart Docs, BID Frete) — conclua 100% para desbloquear" },
+            "progresso": { "titulo": "5. Progresso nos produtos contratados", "descricao": "Barra contínua e tags filtráveis — clique nas tags para focar produtos no gráfico" },
+            "faltam": { "titulo": "6. O que falta", "descricao": "Módulos pendentes com atalho Iniciar ou Continuar" }
+          },
+          "avancar": { "acao": "Próxima área", "titulo": "Nível e recompensas", "descricao": "Passe o mouse aqui e veja a coluna direita — XP, ritmo, ofensiva, badges e ranking" }
+        },
+        "gamificacao": {
+          "titulo": "Gamificação",
+          "resumo": "Nível, ritmo de estudo, recompensas e comparação com colegas.",
+          "explorar": {
+            "nivel": { "titulo": "1. Nível, ritmo e ofensiva", "descricao": "Barra de XP, meta do nível, ritmo da jornada e dias seguidos de atividade" },
+            "recompensas": { "titulo": "2. Recompensas", "descricao": "Badges e Gravity Points desbloqueados ao concluir etapas" },
+            "ranking": { "titulo": "3. Ranking geral", "descricao": "Sua posição e XP comparado aos colegas da organização" }
+          },
+          "avancar": { "acao": "Menu lateral", "titulo": "Minha jornada no menu", "descricao": "Clique em Siga em frente para ver como navegar pelos guias no menu" }
+        },
+        "menu_basico": {
+          "titulo": "Menu — fundação",
+          "resumo": "Onde ficam Minha jornada e o Módulo básico que todo usuário faz uma vez.",
+          "explorar": {
+            "jornada": { "titulo": "1. Minha jornada", "descricao": "Sempre volta a este painel central de progresso e métricas" },
+            "modulo": { "titulo": "2. Módulo básico", "descricao": "Bem-vindo, Login, Navegação, Configurador, Gabi, Hub e Store — guias fundacionais" },
+            "status": { "titulo": "3. Legenda de status", "descricao": "Contratado, concluído e em aberto — ícones à direita de cada item do menu" }
+          },
+          "avancar": { "acao": "Produtos", "titulo": "Trilhas por produto", "descricao": "Avance para conhecer Pedido, Smart Docs e BID Frete no menu" }
+        },
+        "produtos": {
+          "titulo": "Menu — produtos",
+          "resumo": "Cada produto contratado tem sua própria trilha de onboarding.",
+          "explorar": {
+            "pedido": { "titulo": "1. Pedido", "descricao": "Lista, kanban, configurações e fluxos operacionais do módulo" },
+            "smart_read": { "titulo": "2. Smart Docs", "descricao": "Leitura de documentos, lista e configurações do produto" },
+            "bid_frete": { "titulo": "3. BID Frete Internacional", "descricao": "Cotações, fornecedores e operação de frete internacional" }
+          },
+          "avancar": { "acao": "Concluir", "titulo": "Pronto para explorar", "descricao": "Feche o tour e comece pelo módulo que preferir — ou reabra pelo botão Quickly Tour" }
+        }
+      }
     },
     "badge": {
       "em_breve": "Em Breve",
@@ -30,6 +95,7 @@
       "convidar_usuario": "Convidar usuário"
     },
     "produto": {
+      "bem_vindo": "Bem Vindo",
       "login": "Login",
       "navegacao": "Navegação",
       "admin": "Admin",
@@ -49,7 +115,7 @@
     },
     "banner": {
       "em_construcao": "Em construção",
-      "descricao": "Hub único de aprendizado da plataforma — onboarding por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
+      "descricao": "Hub único de aprendizado da plataforma — Guia Gravity por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
     },
     "acao": {
       "continuar": "Continuar",
@@ -58,13 +124,10 @@
     },
     "aula": {
       "voltar": "Voltar",
-      "voltar_onboarding": "Voltar ao onboarding",
+      "voltar_onboarding": "Voltar ao Guia Gravity",
       "marcar_concluida": "Marcar como concluída",
       "inicio": "Início",
-      "fim": "Fim do módulo",
-      "manual_complemento_titulo": "Quer ir além? O manual tem mais detalhes",
-      "manual_complemento_desc": "Esta sessão cobre o essencial do onboarding. No manual você encontra referências de tela, metadados e contexto extra para consolidar o que aprendeu. Já abrimos a seção correspondente.",
-      "manual_complemento_acao": "Abrir seção no manual"
+      "fim": "Fim do módulo"
     },
     "grupo": {
       "comece_aqui": "Comece por aqui",
@@ -78,6 +141,7 @@
     },
     "progresso": {
       "produtos_contratados": "Progresso nos produtos contratados",
+      "todos_guias": "Progresso em todos os guias",
       "concluidos": "concluídos"
     },
     "capitulos": {
@@ -85,7 +149,7 @@
       "subtitulo": "Role a jornada ou use as pílulas para ir direto a cada bloco — todos os capítulos ficam listados abaixo."
     },
     "dashboard": {
-      "titulo": "Seu onboarding",
+      "titulo": "Minha jornada",
       "subtitulo": "Visão geral do que você já fez, produtos, métricas e recompensas",
       "modulos_titulo": "Módulos contratados",
       "etapas_progresso": "{{feitas}}/{{total}} etapas",
@@ -93,14 +157,109 @@
       "continuar_jornada": "Continuar jornada",
       "etapa_atual": "Etapa {{atual}} de {{total}} · {{nome}}",
       "nivel_xp_faltam": "Nível {{nivel}} · {{xp}} XP para subir",
-      "produtos_onboarding_concluido": "Produtos com onboarding concluído",
+      "produtos_onboarding_concluido": "Produtos com Guia Gravity concluído",
+      "contratados_concluidos": "{{feitos}}/{{total}} contratados concluídos",
       "manuais_lidos": "Manuais lidos",
       "o_que_falta": "O que falta",
       "iniciar": "Iniciar",
+      "ver_evolucao_produto": "Ver evolução do Guia Gravity — {{produto}}",
+      "filtro_produtos_dica": "Clique nas tags para filtrar um ou mais produtos no progresso",
+      "filtro_produto_ativar": "Incluir {{produto}} no progresso",
+      "filtro_produto_desativar": "Excluir {{produto}} do progresso",
       "nivel_ofensiva": "Nível & ofensiva",
       "nivel_rotulo": "Nível {{nivel}} · {{titulo}}",
       "ofensiva_dias": "{{dias}} dias de ofensiva",
-      "badge_obtido": "obtido"
+      "badge_obtido": "obtido",
+      "nivel_info": {
+        "titulo": "Níveis, XP e ofensiva",
+        "trigger_rotulo": "Como funciona",
+        "trigger_aria": "Abrir explicação sobre níveis, pontos de experiência e ofensiva",
+        "intro": "Conclua aulas do Guia Gravity para ganhar XP, subir de nível e manter sua ofensiva de estudo",
+        "escala_titulo": "Escala de níveis",
+        "nome_iniciante": "Iniciante",
+        "nome_aprendiz": "Aprendiz",
+        "nome_praticante": "Praticante",
+        "nome_explorador": "Explorador",
+        "nome_especialista": "Especialista",
+        "xp_a_partir": "a partir de {{xp}} XP",
+        "voce_aqui": "Você",
+        "nota_especialista": "A partir do nível {{nivel}} o título permanece Especialista",
+        "barra_rotulo": "Barra de progresso",
+        "barra_valor": "{{atual}}/{{meta}} XP neste nível · faltam {{faltam}} XP para subir",
+        "pontos_rotulo": "De onde vêm os pontos",
+        "pontos_valor": "Cada aula concluída soma XP conforme o peso do módulo (×{{fator}} na pontuação)",
+        "ofensiva_rotulo": "Ofensiva",
+        "ofensiva_valor": "Dias seguidos com atividade no Guia — mantenha o ritmo para aumentar a sequência",
+        "ritmo_rotulo": "Ritmo ideal (barra amarela)",
+        "ritmo_valor": "Plano de {{minutos}} min de leitura por dia útil — a linha amarela mostra onde você deveria estar hoje. Tempos por aula consideram scan de screenshots, não execução do fluxo",
+        "compact_barra_rotulo": "Barra XP",
+        "compact_barra_valor": "{{atual}}/{{meta}} XP · faltam {{faltam}}",
+        "compact_pontos_rotulo": "Pontos",
+        "compact_pontos_valor": "Aulas concluídas × peso do módulo (×{{fator}})",
+        "compact_ofensiva_rotulo": "Ofensiva",
+        "compact_ofensiva_valor": "Dias seguidos com atividade no Guia",
+        "compact_ritmo_rotulo": "Ritmo",
+        "compact_ritmo_valor": "{{minutos}} min/dia útil · linha amarela = meta do dia"
+      },
+      "ritmo": {
+        "jornada_rotulo": "Ritmo da jornada",
+        "progresso": "Progresso da jornada",
+        "ideal": "Ideal hoje: {{pct}}%",
+        "marcador_titulo": "Meta de ritmo para hoje: {{pct}}%",
+        "on_track": "No ritmo",
+        "advanced": "+{{dias}} dias adiantado",
+        "behind": "−{{dias}} dias atrasado",
+        "info": {
+          "titulo": "Como funciona o ritmo",
+          "trigger_aria": "Abrir explicação sobre o ritmo da jornada",
+          "intro": "O ritmo compara o que você já concluiu com um plano linear de estudo desde o início da jornada",
+          "plano_rotulo": "Base do plano",
+          "plano_valor": "{{minutos}} min de leitura por dia útil, contados a partir da data de início da jornada",
+          "barra_roxa_rotulo": "Barra roxa",
+          "barra_roxa_valor": "Minutos de aulas concluídas ÷ total de leitura dos produtos selecionados",
+          "marcador_rotulo": "Linha amarela",
+          "marcador_valor": "Onde você deveria estar hoje nesse plano (dias úteis × {{minutos}} min)",
+          "delta_rotulo": "+/− dias",
+          "delta_valor": "Diferença em dias úteis entre o concluído e o esperado para hoje (÷ {{minutos}} min/dia)",
+          "duracao_rotulo": "Tempos por aula",
+          "duracao_valor": "Estimativa de scan visual dos screenshots do manual — não inclui executar o fluxo na plataforma",
+          "seu_plano_rotulo": "Seu plano agora",
+          "seu_plano_valor": "{{minutos}} min de leitura · ~{{dias}} dias úteis · {{concluidos}} min concluídos · ideal hoje {{ideal}}%",
+          "compact_plano_rotulo": "Plano",
+          "compact_plano_valor": "{{minutos}} min/dia útil desde o início",
+          "compact_real_rotulo": "Roxa",
+          "compact_real_valor": "Minutos concluídos ÷ total de leitura",
+          "compact_ideal_rotulo": "Amarela",
+          "compact_ideal_valor": "Meta do dia (dias × {{minutos}} min)",
+          "compact_delta_rotulo": "+/− dias",
+          "compact_delta_valor": "Diferença ÷ {{minutos}} min por dia útil",
+          "compact_resumo": "{{minutos}} min no plano · ~{{dias}} dias · ideal hoje {{ideal}}%"
+        }
+      }
+    },
+    "certificado": {
+      "secao_titulo": "Meus certificados",
+      "contagem": "{{obtidos}}/{{total}} obtidos",
+      "tipo_modulo_basico": "Módulo Básico",
+      "tipo_pedido": "Pedido",
+      "tipo_bid_frete": "BID Frete Internacional",
+      "tipo_smart_read": "Smart Docs",
+      "tipo": "CERTIFICADO DE CONCLUSÃO",
+      "numero": "Nº {{numero}}",
+      "intro": "Certificamos que",
+      "descricao": "Concluiu com aproveitamento o módulo do programa de capacitação Gravity University, cumprindo todas as etapas e avaliações propostas:",
+      "nivel_rotulo": "NÍVEL ALCANÇADO",
+      "xp_rotulo": "XP CONQUISTADO",
+      "data_rotulo": "CONCLUÍDO EM",
+      "equipe": "Equipe Gravity University",
+      "emissao_oficial": "Emissão oficial · DATI Tecnologia",
+      "verificar_em": "Verifique em university.gravity.com/verificar",
+      "vazio": "Conclua o Módulo Básico ou um produto (Pedido, BID Frete Internacional, Smart Docs) para desbloquear certificados",
+      "ver": "Ver certificado",
+      "abrir": "Abrir certificado — {{modulo}}",
+      "fechar": "Fechar",
+      "modal_titulo": "Certificado de Conclusão",
+      "aria_certificado": "Certificado de Conclusão — {{modulo}}"
     },
     "dica": {
       "titulo": "Dicas e Explicações",
@@ -135,7 +294,19 @@
       "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI."
     },
     "builders": {
-      "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)."
+      "descricao": "Programa de parceiros Gravity — comercial, integração e onboarding.",
+      "badge_em_breve": "Em breve",
+      "titulo_hero": "Em breve, você pode ser um Gravity Partner",
+      "subtitulo_hero": "Um ecossistema para quem leva a plataforma mais longe — junto com a Gravity.",
+      "intro": "Estamos preparando trilhas, benefícios e ferramentas para três perfis de parceiro. Cadastre-se na lista de interesse em breve.",
+      "perfil_comercial_titulo": "Parceiro comercial",
+      "perfil_comercial_descricao": "Revenda, indique e expanda a base de clientes Gravity com material de vendas, comissionamento e suporte dedicado.",
+      "perfil_integrador_titulo": "Integrador",
+      "perfil_integrador_descricao": "Conecte ERPs, APIs e fluxos customizados via API Cockpit — com documentação, sandbox e certificação técnica.",
+      "perfil_onboarding_titulo": "Onboarding",
+      "perfil_onboarding_descricao": "Implante, treine equipes e acelere a adoção dos produtos Gravity nas organizações dos seus clientes.",
+      "perfil_em_breve": "Em breve",
+      "rodape": "Quer ser avisado quando o programa abrir? Fique de olho na Gravity University — em breve liberamos o cadastro de interesse."
     }
   },
   "comum": {
@@ -8368,9 +8539,17 @@
         "subtitulo": "Origens, destinos e volume por localização (arraste para girar)",
         "legenda_importacao": "Importação",
         "legenda_exportacao": "Exportação",
+        "ver_mapa": "Ver como mapa",
+        "ver_globo": "Ver como globo",
         "aumentar_zoom": "Aumentar Zoom",
         "diminuir_zoom": "Diminuir Zoom",
+        "exibir_trilhos": "Exibir trilhos entre locais",
+        "ocultar_trilhos": "Ocultar trilhos entre locais",
         "restaurar_globo": "Restaurar Globo",
+        "restaurar_mapa": "Restaurar mapa",
+        "abrir_modal": "Abrir mapa em tela cheia",
+        "fechar_modal": "Fechar mapa ampliado",
+        "modal_titulo": "Mapa global de pedidos",
         "pausar_rotacao": "Pausar Rotação",
         "iniciar_rotacao": "Iniciar Rotação",
         "pedidos_ativos": "Pedidos",
@@ -8390,17 +8569,70 @@
         "vencidos_count": "{{count}} vencidos",
         "proximos_7_dias_count": "{{count}} nos próximos 7 dias",
         "mais_vencimentos": "+{{count}} mais",
-        "voltar_rotas": "Voltar às rotas",
+        "voltar_rotas": "Voltar aos pedidos",
         "expandir_grafico_vencimentos": "Expandir gráfico de vencimentos",
         "maior_valor": "Maior Valor",
         "participacao_volume": "Participação no Volume",
+        "participacao_volume_valor": "{{pct}}% do volume",
         "valor_total": "Valor Total",
         "incoterm": "Incoterm",
         "parceiro_abreviado": "Parceiro",
         "parceiro_lider": "Parceiro Principal",
-        "clique_ver_rotas": "Clique para ver rotas",
-        "rotas_ativas": "Rotas de Pedidos: {{local}}",
-        "sem_rotas": "Nenhuma rota de pedido para esta localização."
+        "clique_ver_rotas": "Clique para ver os pedidos",
+        "clique_ver_pedidos_rotas": "Clique para ver os pedidos",
+        "clique_no_icone_pedidos_rotas": "Clique no ícone no mapa para ver os pedidos",
+        "rotas_ativas": "Pedidos: {{local}}",
+        "sem_rotas": "Nenhum pedido nesta localização.",
+        "sem_pedidos": "Nenhum pedido nesta localização.",
+        "abrir_pedido": "Abrir {{numero}}",
+        "col_status": "Status",
+        "col_workspace": "Workspace",
+        "refinar": {
+          "titulo": "Refinar mapa",
+          "recolher": "Recolher Refinar mapa",
+          "expandir": "Expandir Refinar mapa",
+          "aria_filtros": "Filtros do mapa",
+          "aria_filtros_compacto": "Filtros do mapa (compacto)",
+          "expandir_todas": "Expandir todas",
+          "recolher_todas": "Recolher todas",
+          "expandir_todas_secoes": "Expandir todas as seções",
+          "recolher_todas_secoes": "Recolher todas as seções",
+          "limpar_filtros": "Limpar filtros",
+          "limpar_selecao": "Limpar seleção",
+          "limpar_tudo": "Limpar tudo",
+          "todos": "Todos",
+          "secao_sem_restricao": "{{titulo}}: todos selecionados ({{total}})",
+          "secao_filtros_ativos": "{{titulo}}: {{ativos}}/{{total}} selecionado(s)",
+          "secao_nenhum_selecionado": "{{titulo}}: nenhum selecionado (0/{{total}})",
+          "resumo_todos": "Exibindo todos · {{pedidos}} pedidos · {{locais}} locais · {{rotas}} rotas",
+          "resumo_filtrado": "{{totalPedidos}}/{{totalPedidosBase}} pedidos · {{pinsAtivos}}/{{pinsBase}} locais · {{rotasAtivas}}/{{rotasBase}} rotas · {{filtros}} filtro(s)",
+          "localizar": "Localizar",
+          "localizar_aria": "Localizar item na lista",
+          "limpar_busca": "Limpar busca",
+          "busca_sem_resultado": "Nenhum item corresponde à busca.",
+          "vazio_origem": "Nenhum país de origem nos pedidos atuais.",
+          "vazio_destino": "Nenhum país de destino nos pedidos atuais.",
+          "vazio_exportador": "Nenhum exportador nos pedidos atuais.",
+          "vazio_importador": "Nenhum importador nos pedidos atuais."
+        },
+        "filtro": {
+          "secao": {
+            "operacao": "Operação",
+            "origem": "Origem (país)",
+            "destino": "Destino (país)",
+            "exportador": "Exportador",
+            "importador": "Importador",
+            "status": "Status do Pedido"
+          },
+          "operacao": {
+            "importacao": {
+              "tooltip": "Pedidos com origem fora do Brasil e destino no Brasil"
+            },
+            "exportacao": {
+              "tooltip": "Pedidos com origem no Brasil e destino no exterior"
+            }
+          }
+        }
       },
       "hud": {
         "titulo": "Rankings Globais de Pedidos",
@@ -8433,7 +8665,15 @@
         "valor_total_subtexto": "Ticket médio R$ {{valor}}",
         "taxa_atraso_titulo": "Taxa de atraso",
         "taxa_atraso_subtexto_one": "{{count}} pedido atrasado",
-        "taxa_atraso_subtexto_other": "{{count}} pedidos atrasados"
+        "taxa_atraso_subtexto_other": "{{count}} pedidos atrasados",
+        "tooltip_volume": "Volume total",
+        "tooltip_volume_multiplas_moedas": "Múltiplas moedas",
+        "tooltip_importacao": "Importação",
+        "tooltip_exportacao": "Exportação",
+        "tooltip_coluna_pedido": "Pedido",
+        "tooltip_coluna_valor": "Valor",
+        "tooltip_mais_pedidos_one": "+{{count}} pedido não exibido",
+        "tooltip_mais_pedidos_other": "+{{count}} pedidos não exibidos"
       },
       "alertas": {
         "titulo": "Alertas",
@@ -8452,6 +8692,15 @@
         "aprovadas": "Aprovadas",
         "em_andamento": "Em andamento",
         "recusadas": "Recusadas"
+      },
+      "grafico_tooltip": {
+        "pedidos": "pedidos",
+        "participacao": "Participação",
+        "em_tempo": "Em tempo",
+        "atrasadas": "Atrasadas",
+        "sem_resposta": "Sem resposta",
+        "vencimentos_pagar": "A pagar",
+        "vencimentos_receber": "A receber"
       },
       "moedas": {
         "titulo": "Moedas dos Pedidos",

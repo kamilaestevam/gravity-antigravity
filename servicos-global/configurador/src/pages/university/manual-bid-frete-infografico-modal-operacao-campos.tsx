@@ -376,7 +376,7 @@ export function ManualInfograficoBidFreteModalOperacaoCampos({
   return (
     <div
       role="group"
-      aria-label="Campos do passo Modal e Operação — Nova cotação manual"
+      aria-label="Campos do passo Modal e Operação: Nova cotação manual"
       style={{
         marginTop: modoGuiaInterativo ? MANUAL_ESPACO_PARAGRAFO_PX : 0,
         background: 'linear-gradient(165deg, rgba(99,102,241,.07) 0%, rgba(148,163,184,.04) 55%, rgba(45,212,191,.04) 100%)',

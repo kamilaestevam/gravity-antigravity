@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { Prisma } from '../generated/client/index.js'
 import { AppError } from '../lib/app-error.js'
 import { persistirSnapshotLeituraSmartRead } from '../lib/snapshot-leitura-smart-read.js'
-import { mesclarLeiturasRetomarSmartRead } from '../../../shared/escolher-leitura-efetiva-retomar-smart-read.js'
+import { escolherLeituraRetomarComConferenciaSmartRead } from '../../../shared/escolher-leitura-retomar-com-conferencia-smart-read.js'
 import {
   EstadoProgressoLeituraSchema,
   extrairDadosSessaoProgressoLeitura,
@@ -98,7 +98,7 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
       ? extrairDadosSessaoProgressoLeitura(existente.dados_sessao_progresso_leitura_smart_read)
       : null
     const leituraCorpo = dadosAnteriores?.leitura
-      ? mesclarLeiturasRetomarSmartRead(corpo.leitura, dadosAnteriores.leitura)
+      ? escolherLeituraRetomarComConferenciaSmartRead(dadosAnteriores.leitura, corpo.leitura)
       : corpo.leitura
     const cacheAnterior = dadosAnteriores?.analise_riscos_cache ?? {}
     const cacheCorpo = corpo.analise_riscos_cache ?? {}

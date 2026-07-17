@@ -34,6 +34,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
     <section
       className="pds-grafico-donut-operacao pds-insights-card pds-insights-card--com-tooltip"
       aria-label="Distribuição por tipo de operação"
+      data-sds-tutorial-alvo="pedido-insights-donut-operacao"
     >
       <div className="pds-grafico-donut-operacao__header">
         <span className="pds-grafico-donut-operacao__icone" aria-hidden>
@@ -65,7 +66,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
             y={cy - 3}
             textAnchor="middle"
             fill="#ffffff"
-            fontSize="22"
+            fontSize="13"
             fontWeight="800"
             style={{ letterSpacing: '0.02em' }}
           >
@@ -76,7 +77,7 @@ export function GraficoDonutOperacaoSimuladorPedido({ dados }: Props) {
             y={cy + 12}
             textAnchor="middle"
             fill="#cbd5e1"
-            fontSize="9"
+            fontSize="13"
             fontWeight="600"
             style={{ letterSpacing: '0.04em' }}
           >

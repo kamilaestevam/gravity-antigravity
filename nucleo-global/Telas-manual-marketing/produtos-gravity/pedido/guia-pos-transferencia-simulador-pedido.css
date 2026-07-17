@@ -1,0 +1,199 @@
+.pds-transf-guia {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 11000;
+  width: min(380px, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+.pds-transf-guia__cabecalho {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  background: #0f172a;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.pds-transf-guia__meta {
+  margin: 0 0 8px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+
+.pds-transf-guia__progresso {
+  display: flex;
+  gap: 6px;
+}
+
+.pds-transf-guia__progresso span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.pds-transf-guia__progresso-item--ativo {
+  background: linear-gradient(90deg, #6366f1, #818cf8) !important;
+}
+
+.pds-transf-guia__card {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  background: #0b1120;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.pds-transf-guia__card--saldos {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: #0a1412;
+}
+
+.pds-transf-guia__secao {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.pds-transf-guia__texto {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: rgba(241, 245, 249, 0.9);
+}
+
+.pds-transf-guia__texto strong {
+  color: #e2e8f0;
+}
+
+.pds-transf-guia__intro {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: rgba(226, 232, 240, 0.95);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.pds-transf-guia__intro strong {
+  color: #e2e8f0;
+}
+
+.pds-transf-guia__legenda {
+  margin: 0 0 10px;
+  font-size: 0.65rem;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.pds-transf-guia__legenda-origem {
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.pds-transf-guia__legenda-destino {
+  font-weight: 700;
+  color: #10b981;
+}
+
+.pds-transf-guia__linha-pedido em {
+  font-style: normal;
+  color: #a5b4fc;
+  font-size: 0.68rem;
+}
+
+.pds-transf-guia__linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.pds-transf-guia__linha-pedido {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: rgba(241, 245, 249, 0.92);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(51, 65, 85, 0.45);
+}
+
+.pds-transf-guia__linha-pedido--origem {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.pds-transf-guia__linha-pedido--destino {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.pds-transf-guia__linha-pedido strong {
+  color: #e2e8f0;
+}
+
+.pds-transf-guia__linha-pedido-icone {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pds-transf-guia__linha-pedido--origem .pds-transf-guia__linha-pedido-icone {
+  color: #f59e0b;
+}
+
+.pds-transf-guia__linha-pedido--destino .pds-transf-guia__linha-pedido-icone {
+  color: #10b981;
+}
+
+.pds-transf-guia__lista {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pds-transf-guia__lista li {
+  position: relative;
+  padding-left: 12px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: rgba(203, 213, 225, 0.92);
+}
+
+.pds-transf-guia__lista li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #818cf8;
+}
+
+.pds-transf-guia__card--saldos .pds-transf-guia__lista li::before {
+  background: #34d399;
+}

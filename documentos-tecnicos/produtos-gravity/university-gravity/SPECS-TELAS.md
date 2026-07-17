@@ -1,7 +1,7 @@
 # SPECS de Telas — Gravity University (MVP)
 
 > **Status:** Especificação de UI do MVP (T-00 a T-07). Segue **exatamente** os padrões do sistema.
-> **Companions:** [PRD.md](PRD.md) · [MODELO-DADOS.md](MODELO-DADOS.md)
+> **Companions:** [PRD.md](PRD.md) · [MODELO-DADOS.md](MODELO-DADOS.md) · [GUIA-GRAVITY-JORNADA-TECNICO.md](GUIA-GRAVITY-JORNADA-TECNICO.md)
 > **Padrões-fonte (SSOT) seguidos aqui:**
 > - `skills/ux/criacao-telas` — `PaginaGlobal` + `CabecalhoGlobal` obrigatórios; UX 10; empty/loading states; toasts via Shell
 > - `skills/ux/design-system` — tema Solid Slate, tokens CSS, botões pill, KPI cards, Phosphor, Plus Jakarta Sans
@@ -32,6 +32,7 @@
   - Configurador / Admin / Core / University: bloco `ws-global-actions` (e `TopbarPaginaGravity` / Hub `SelecionarWorkspace` onde já existia)
   - **Proibido** duplicar só em uma tela — novos layouts devem reutilizar um dos pontos acima.
 - **GABI presente em toda tela** (D-002): painel/atalho de dúvida +, nas telas de jornada, mensagens proativas.
+- **Badges no menu lateral (`MenuLateralGlobal`):** produtos WIP usam `badge: "Em Breve"`; **Admin** usa `badge: "Restrito"` + `badgeSecundario: "Em Breve"` (`UniversityGravity.tsx`). Ver [GUIA-GRAVITY-JORNADA-TECNICO.md §4](./GUIA-GRAVITY-JORNADA-TECNICO.md#4-menu-lateral--badges).
 
 ---
 

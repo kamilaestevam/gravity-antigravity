@@ -1,223 +1,26 @@
-.pds-kanban {
+@import '../../../../servicos-global/produto/pedido/client/src/pages/PedidosKanban.css';
+
+.pds-kanban-simulador.kbp-page {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 14px;
-  overflow-x: auto;
-  background: rgba(0, 0, 0, 0.15);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem 1rem;
+  --pedido-page-pt: 0;
+  --pedido-page-px: 0;
+  --pedido-page-pb: 0;
+}
+
+.pds-kanban-simulador .kg-board {
+  flex: 1;
   min-height: 0;
 }
 
-.pds-kanban-col {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 150px;
-}
-
-.pds-kanban-col__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2px 4px;
-}
-
-.pds-kanban-col__titulo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.pds-kanban-col__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.pds-kanban-col__count {
-  font-size: 9px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1px 5px;
-  border-radius: 3px;
-  color: #94a3b8;
-}
-
-.pds-kanban-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  padding: 8px;
-  cursor: grab;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: left;
-  font-family: inherit;
-  width: 100%;
-}
-
-.pds-kanban-card:hover {
-  border-color: var(--pds-col-cor, #d97706);
-}
-
-.pds-kanban-card__titulo {
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  font-size: 12px;
-}
-
-.pds-kanban-card__meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: #64748b;
-}
-
-.pds-kanban-card__valor {
-  font-family: ui-monospace, monospace;
-  font-weight: 600;
-}
-
-.pds-kanban-drawer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 45%;
-  height: 100%;
-  background: #06070c;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  z-index: 10;
-}
-
-.pds-kanban-drawer__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 8px;
-}
-
-.pds-kanban-drawer__titulo {
-  font-weight: 800;
-  font-size: 12px;
-  color: #fff;
-  margin: 0;
-}
-
-.pds-kanban-drawer__fechar {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  padding: 0;
-}
-
-.pds-kanban-drawer__campo-label {
-  font-size: 9px;
-  color: #64748b;
-  margin: 0 0 2px;
-}
-
-.pds-kanban-drawer__campo-valor {
-  font-weight: 600;
-  color: #cbd5e1;
-  margin: 0;
-}
-
-.pds-kanban-drawer__campo-valor--destaque {
-  font-weight: 700;
-  color: #fbbf24;
-  font-family: ui-monospace, monospace;
-}
-
-.pds-kanban-timeline {
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  padding-top: 10px;
-}
-
-.pds-kanban-timeline__titulo {
-  font-weight: 700;
-  color: #94a3b8;
-  margin: 0 0 8px;
-  font-size: 11px;
-}
-
-.pds-kanban-timeline__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.pds-kanban-timeline__icone {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  flex-shrink: 0;
-}
-
-.pds-kanban-timeline__icone--ok {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.pds-kanban-timeline__icone--pendente {
-  background: rgba(255, 255, 255, 0.02);
-  color: #64748b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.pds-kanban-drawer__acoes {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.pds-kanban-btn-acao {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.pds-kanban-btn-acao--indigo {
-  background: #818cf8;
-  color: #fff;
-}
-
-.pds-kanban-btn-acao--amber {
-  background: #fbbf24;
-  color: #03050c;
-}
-
-.pds-kanban-btn-acao--green {
-  background: #10b981;
-  color: #fff;
+.kbp-card-saldo-barra {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #34d399, #fbbf24);
+  margin-top: 4px;
+  min-width: 20%;
 }

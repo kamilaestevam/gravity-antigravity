@@ -30,8 +30,10 @@
 
 1. `documentos-tecnicos/produtos-gravity/university-gravity/MANUAL-GRAVITY-ONBOARDING.md` — padrão editorial, catálogo de blocos, template, tom
 2. **MANUAL-GRAVITY-ONBOARDING.md §10** — duração de leitura (Academy): heurística, tetos, SSOT `*_DURACOES`
-3. Skill do produto alvo (ex: `skills/produtos-gravity/pedido/SKILL.md`) — entender o produto
+3. `documentos-tecnicos/produtos-gravity/university-gravity/GUIA-GRAVITY-JORNADA-TECNICO.md` — trilhas implementadas, XP/GP, curadoria `cabecalhoH1`, Navegação, badges menu
+4. Skill do produto alvo (ex: `skills/produtos-gravity/pedido/SKILL.md`) — entender o produto
 4. `servicos-global/configurador/src/pages/university/conteudo-demo.ts` — ver o que já existe
+5. `documentos-tecnicos/produtos-gravity/university-gravity/PUBLICACAO-PRODUCAO.md` — **manual fora de prod** (decisão PO MASTER); dev local continua editável
 
 ---
 
@@ -192,11 +194,36 @@ Após "aprovado" ou equivalente do usuário:
 
 Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES`):
 
+### Regra de ritmo vertical — Guia Gravity + manual
+
+O Guia Gravity tem **motor único de espaçamento no `PlayerAula`**. Componentes internos não definem margem externa. Não usar `16px`, `20px`, `1.75rem` ou `margin` ad hoc entre blocos narrativos.
+
+| Onde | Valor | SSOT código |
+|------|-------|-------------|
+| Título H1 → linha decorativa | **24px** | `MANUAL_ESPACO_TITULO_LINHA_GUIA_PX` + `::after` |
+| Linha roxa → 1º parágrafo | **18px** | `MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX` |
+| Parágrafo → parágrafo / blocos padrão | **12px** | `MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX` / `MANUAL_ESPACO_PARAGRAFO_PX` |
+| Intro / parágrafo → primeiro passo | **12px** | `MANUAL_ESPACO_PARAGRAFO_PX` |
+| Fim de um passo (tela) → próximo passo | **32px** | `MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX` |
+| Texto do passo → screenshot / callout | **12px** | CSS `.uni-player-aula__bloco-passo` |
+| Rótulo PASSO → título do passo | **12px** | gap interno `.uni-player-aula__passo-corpo` |
+| Conteúdo → linha do rodapé / linha → botões | **24px** | `.uni-player-aula__rodape-nav` |
+
+**Atalho:** `/modelo-espacamento-guia` — fonte da verdade do ritmo do Guia.
+
+**Implementação obrigatória:**
+- Manual: `ManualParagrafo`, `ManualBlocoPassoVisual`, `manual-configurador-ui.tsx`
+- Guia Gravity: `PlayerAula.tsx` calcula o espaçamento externo com `classificarBlocoGuia()` e `calcularEspacoSuperiorBlocoGuia()` (`marginTop` no wrapper); cada bloco renderizado deve ter **um único root** sem margem externa.
+- Guia Gravity usa `MANUAL_GUIA_CORPO_TIPOGRAFIA` (`lineHeight: 1.8`, `textAlign: left`).
+- ❌ Proibido `Fragment` com múltiplos roots para um bloco da Academy.
+- ❌ Proibido CSS `margin-top: Npx !important` nos wrappers `.uni-player-aula__bloco` (sobrescreve o motor).
+- ❌ Proibido `margin: 1.75rem 0` ou valores soltos em figuras/blocos novos — usar constantes de `manual-tipografia.ts`.
+
 1. **Ler MANUAL-GRAVITY-ONBOARDING.md §9** antes de escrever parágrafos ou passos visuais.
 2. **Sumário (§9.6):** `titulo` e `tituloSumario` em **frase** — só primeira palavra e nomes próprios em maiúscula (padrão Login: `A tela de acesso`, `Fluxo 1: Criar sua conta`). ❌ Title Case (`Seus Produtos Gravity`).
 3. **Corpo:** `0.9rem` + `MANUAL_CORPO_70` (70% de `--ws-text`). Não usar `MANUAL_TIPO.corpo` legado em texto novo.
-4. **Espaço entre parágrafos:** **12px** (`MANUAL_ESPACO_PARAGRAFO_PX`) via `manualMargemParagrafo(i, total)`; **0** no último parágrafo de cada bloco — ver MANUAL-GRAVITY-ONBOARDING.md **§9.1.1** e `manual-tipografia.ts`.
-5. **Alinhamento:** corpo narrativo **justificado** (`MANUAL_ALINHAMENTO_CORPO`) em parágrafos e callouts — ver **§9.1.2**; títulos e rótulos ficam à esquerda.
+4. **Espaço entre parágrafos e blocos narrativos (Guia):** **24 / 18 / 12 / 24** — ver **§ Regra de ritmo vertical** e `/modelo-espacamento-guia`.
+5. **Alinhamento:** corpo narrativo do Guia à **esquerda** (`MANUAL_GUIA_CORPO_TIPOGRAFIA`); manuais descritivos usam `MANUAL_ALINHAMENTO_CORPO` (justify) — ver **§9.1.2**; títulos e rótulos ficam à esquerda.
 6. **Passos:** rótulo `PASSO NN` em `12px` `#818cf8`; título do passo em `0.92rem` 100%; parágrafos via `ManualParagrafo`.
 7. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
 8. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).

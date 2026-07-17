@@ -58,6 +58,7 @@ export function DashboardPainelSugestoes({
               type="button"
               style={s.createCustomBanner}
               data-testid="btn-criar-widget-zero-modal"
+              data-sds-tutorial-alvo="pedido-dashboard-sugestoes-criar-zero"
               onClick={() => { onCreateCustom(); onClose() }}
             >
               <span style={s.createCustomIcon} aria-hidden="true">
@@ -73,7 +74,7 @@ export function DashboardPainelSugestoes({
           <p style={s.hint}>{t('nucleo.dashboard.sugestoes.hint')}</p>
 
           {/* ── Sugestões automáticas ──────────────────────────────────────── */}
-          <div style={s.list}>
+          <div style={s.list} data-sds-tutorial-alvo="pedido-dashboard-sugestoes-lista">
             {suggestions.map(sug => (
               <div key={sug.id} style={s.item}>
                 <div style={s.itemLeft}>
@@ -91,6 +92,7 @@ export function DashboardPainelSugestoes({
                 <button
                   type="button"
                   style={s.addBtn}
+                  data-sds-tutorial-alvo="pedido-dashboard-sugestoes-adicionar"
                   onClick={() => { onAdd(sug.config); onClose() }}
                 >
                   <Plus size={13} /> {t('nucleo.dashboard.sugestoes.adicionar')}
@@ -104,7 +106,7 @@ export function DashboardPainelSugestoes({
             <>
               <div style={s.divider} />
               <p style={s.sectionTitle}>{t('nucleo.dashboard.sugestoes.metricas_derivadas')}</p>
-              <div style={s.list}>
+              <div style={s.list} data-sds-tutorial-alvo="pedido-dashboard-sugestoes-derivadas">
                 {derivedMetrics.map(dm => (
                   <div key={dm.id} style={s.item}>
                     <div style={s.itemLeft}>

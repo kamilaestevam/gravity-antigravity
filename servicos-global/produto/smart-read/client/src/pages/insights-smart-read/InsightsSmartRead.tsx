@@ -18,6 +18,7 @@ import {
 import { calcularMetricasInsightsLeituraSmartRead } from './calcular-metricas-insights-leitura-smart-read'
 import { ProvedorMetodologiaSavingInsightsSmartRead } from './metodologia-saving-insights-smart-read'
 import { useDadosInsightsLeituraSmartRead } from './use-dados-insights-leitura-smart-read'
+import { usePreferenciasVisualizacaoSmartRead } from '../../shared/use-preferencias-visualizacao-smart-read'
 import '../../shared/smart-read-leituras.css'
 import './insights-smart-read.css'
 
@@ -74,6 +75,14 @@ export default function InsightsSmartRead() {
     [leiturasDetalhe, transacoes],
   )
 
+  // Configurações › Visão Geral: gráficos ocultos pelo usuário não são montados
+  const { prefs: visualizacao } = usePreferenciasVisualizacaoSmartRead()
+  const graficoVisivel = useCallback(
+    (id: string) => !visualizacao.graficos_ocultos.includes(id),
+    [visualizacao.graficos_ocultos],
+  )
+  const colLeveVisivel = graficoVisivel('tipos_documento') || graficoVisivel('economia_estimada')
+
   if (carregando && leiturasDetalhe.length === 0 && transacoes.length === 0) {
     return (
       <>
@@ -103,24 +112,36 @@ export default function InsightsSmartRead() {
         <div className="sr-insights-grid">
           <KpiGridInsightsLeituraSmartRead metricas={metricas} carregando={carregando} />
 
-          <PainelGraficoCamposPorDiaInsightsSmartRead
-            className="sr-insights-grid__grafico"
-            metricas={metricas}
-            transacoes={transacoes}
-          />
-          <PainelCamposAcertosInsightsSmartRead
-            className="sr-insights-grid__acertos"
-            metricas={metricas}
-          />
+          {graficoVisivel('evolucao_diaria') && (
+            <PainelGraficoCamposPorDiaInsightsSmartRead
+              className="sr-insights-grid__grafico"
+              metricas={metricas}
+              transacoes={transacoes}
+            />
+          )}
+          {graficoVisivel('campos_acertos') && (
+            <PainelCamposAcertosInsightsSmartRead
+              className="sr-insights-grid__acertos"
+              metricas={metricas}
+            />
+          )}
 
-          <div className="sr-insights-grid__col-leve">
-            <PainelTiposDocumentoInsightsSmartRead metricas={metricas} />
-            <PainelSavingDetalheInsightsSmartRead metricas={metricas} />
-          </div>
-          <PainelRankingsEntidadeInsightsSmartRead
-            className="sr-insights-grid__rankings"
-            metricas={metricas}
-          />
+          {colLeveVisivel && (
+            <div className="sr-insights-grid__col-leve">
+              {graficoVisivel('tipos_documento') && (
+                <PainelTiposDocumentoInsightsSmartRead metricas={metricas} />
+              )}
+              {graficoVisivel('economia_estimada') && (
+                <PainelSavingDetalheInsightsSmartRead metricas={metricas} />
+              )}
+            </div>
+          )}
+          {graficoVisivel('rankings_fornecedor') && (
+            <PainelRankingsEntidadeInsightsSmartRead
+              className="sr-insights-grid__rankings"
+              metricas={metricas}
+            />
+          )}
         </div>
       </div>
 

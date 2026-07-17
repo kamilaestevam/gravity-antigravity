@@ -1,0 +1,247 @@
+/* Paridade visual Nova Cotação — subset para prefill Smart Docs */
+.nc-root {
+  --nc-option-accent: #6366f1;
+  --nc-option-accent-dim: rgba(99, 102, 241, 0.08);
+  --nc-option-accent-border: rgba(99, 102, 241, 0.45);
+  --nc-option-focus-ring: 0 0 0 1px rgba(99, 102, 241, 0.35);
+}
+
+.sr-prefill-bid-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sr-prefill-bid-obrigatorio {
+  margin-left: 4px;
+  color: #f87171;
+  font-weight: 700;
+}
+
+.sr-prefill-bid-legenda-obrigatorio {
+  color: #f87171;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.sr-prefill-bid-secao-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 12px;
+  background: rgba(8, 12, 24, 0.22);
+}
+
+.sr-prefill-bid-secao-titulo {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.sr-prefill-bid-opcoes-compactas .nc-option-btn {
+  padding: 8px 10px;
+}
+
+.sr-prefill-bid-opcoes-compactas .nc-option-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.sr-prefill-bid-opcoes-inline {
+  margin: 0;
+}
+
+.sr-prefill-bid-campo-editavel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sr-prefill-bid-valor-controle .nc-input,
+.sr-prefill-bid-valor-controle .sg-select-trigger {
+  width: 100%;
+  font-size: 0.78rem;
+}
+
+.sr-prefill-bid-textarea {
+  min-height: 52px;
+  resize: vertical;
+}
+
+.sr-prefill-bid-incoterm-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nc-incoterm-btn {
+  min-width: 42px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nc-incoterm-btn--selected {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.15);
+  color: #c7d2fe;
+}
+
+.nc-options-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.nc-options-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .nc-options-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nc-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.nc-option-btn--selected {
+  background: var(--nc-option-accent-dim);
+  border-color: var(--nc-option-accent-border);
+  box-shadow: var(--nc-option-focus-ring);
+}
+
+.nc-option-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nc-option-btn--selected .nc-option-checkbox {
+  border-color: var(--nc-option-accent);
+}
+
+.nc-option-checkmark {
+  color: var(--nc-option-accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.nc-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #334155;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.nc-option-btn--selected .nc-option-icon {
+  background: rgba(99, 102, 241, 0.18);
+  color: var(--nc-option-accent);
+}
+
+.nc-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nc-option-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nc-option-desc {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.nc-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+
+.nc-input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+/* SelectNcmGlobal — mesma busca por código/descrição da Nova Cotação */
+.sr-prefill-bid-campo-ncm {
+  width: 100%;
+  min-width: 0;
+}
+
+.sr-prefill-bid-campo-ncm .cg-label {
+  display: none;
+}
+
+.sr-prefill-bid-campo-ncm .cg-wrapper {
+  width: 100%;
+}
+
+.sr-prefill-bid-campo-ncm input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+
+.sr-prefill-bid-campo-ncm input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.sr-prefill-bid-revisao-status--editado {
+  background: rgba(129, 140, 248, 0.14);
+  color: #a5b4fc;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}

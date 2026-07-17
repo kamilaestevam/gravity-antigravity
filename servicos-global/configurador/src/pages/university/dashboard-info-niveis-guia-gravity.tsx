@@ -8,7 +8,7 @@ import {
   calcularNivelGuiaGravity,
   XP_POR_NIVEL_GUIA_GRAVITY,
 } from './niveis-guia-gravity'
-import { PESO_GUAI_XP_MULTIPLICADOR } from './pesos-academy-guia-gravity'
+import { PESO_GUAI_XP_MULTIPLICADOR, formatarXpGuiaGravity } from './pesos-academy-guia-gravity'
 import { MINUTOS_RITMO_IDEAL_DIA } from './duracao-academy-guia-gravity'
 import { PopoverInfoDashboardGuiaGravity } from './popover-info-dashboard-guia-gravity'
 import {
@@ -23,9 +23,9 @@ interface DashboardInfoNiveisGuiaGravityProps {
 }
 
 export function DashboardInfoNiveisGuiaGravity({ xpTotal, xpParaSubir }: DashboardInfoNiveisGuiaGravityProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { nivel, xpMetaNivel } = calcularNivelGuiaGravity(xpTotal)
-  const fmt = (valor: number) => valor.toLocaleString(i18n.language)
+  const fmt = (valor: number) => formatarXpGuiaGravity(valor)
 
   return (
     <PopoverInfoDashboardGuiaGravity

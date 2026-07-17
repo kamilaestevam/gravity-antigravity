@@ -132,7 +132,11 @@ const PRODUTOS_MANUAL: ProdutoManualDef[] = [
     produtoSlug: 'navegacao',
     docsPath: '/university-gravity/docs/navegacao',
     secao: DOC_NAVEGACAO_SECAO,
-    aulas: curadoriaSequencial(NAVEGACAO_AULA_SLUGS),
+    aulas: [
+      { slug: NAVEGACAO_AULA_SLUGS[0], incluirIntroSecao: true, fluxoIndices: [0, 1, 2, 3, 4] },
+      { slug: NAVEGACAO_AULA_SLUGS[1], fluxoIndices: [5, 6] },
+      { slug: NAVEGACAO_AULA_SLUGS[2], fluxoIndices: [7] },
+    ],
   },
   {
     produtoSlug: 'admin',

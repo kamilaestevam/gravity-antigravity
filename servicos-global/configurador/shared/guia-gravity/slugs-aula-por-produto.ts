@@ -9,9 +9,7 @@ export const SLUGS_AULA_POR_PRODUTO_GUIA: Readonly<Record<string, readonly strin
   'bem-vindo': ['boas-vindas', 'o-que-e-o-gravity', 'o-guia-gravity'],
   login: ['meu-primeiro-acesso', 'entrar-email-senha', 'recuperar-senha'],
   navegacao: [
-    'navegacao-plataforma',
-    'menu-superior',
-    'menu-lateral',
+    'menus-plataforma',
     'acesso-gravity-university',
   ],
   admin: [

@@ -46,10 +46,10 @@ const LINK_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO =
  * - tela_pedido_lista_excluir_setas.png → pedido-lista-excluir-setas.png
  * - tela_pedido_lista_excluir_modal.png → pedido-lista-excluir-modal.png
  * - tela_pedido_lista_excluir_confirmacao.png → pedido-lista-excluir-confirmacao.png
- * - tela_pedido_lista_filtro_seta.png → pedido-lista-filtro-seta.png
- * - tela_pedido_lista_filtro_modal.png → pedido-lista-filtro-modal.png
- * - tela_pedido_lista_filtro_aplicado.png → pedido-lista-filtro-aplicado.png
- * - tela_pedido_lista_filtro_aplicado_2.png → pedido-lista-filtro-aplicado-2.png
+ * - tela_bid_frete_lista_filtro_1.png → pedido-lista-filtro-seta.png
+ * - tela_bid_frete_lista_filtro_2.png → pedido-lista-filtro-modal.png
+ * - tela_bid_frete_lista_filtro_3.png → pedido-lista-filtro-aplicado.png
+ * - tela_bid_frete_lista_filtro_4.png → pedido-lista-filtro-aplicado-2.png
  * - tela_pedido_lista_exportar_seta.png → pedido-lista-exportar-seta.png
  * - tela_pedido_lista_exportar_modal.png → pedido-lista-exportar-modal.png
  * - tela_pedido_lista_exportar_planilha.png → pedido-lista-exportar-planilha.png
@@ -949,7 +949,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               calloutDepois: {
                 tipo: 'dica',
                 texto:
-                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+                  'A plataforma guarda a **preferência por usuário** — o que for **arrastado**, **organizado**, **oculto** ou **exibido** é para **você**.',
               },
             },
             {
@@ -1047,34 +1047,27 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           ],
           galeriaComparacaoAposParagrafo: [
             {
-              indice: 1,
+              indice: 3,
               colunas: 2,
               textoAcimaEstiloCorpo: true,
               telas: [
                 {
-                  legenda: '',
+                  legenda: '01 · Ícone de funil no cabeçalho',
                   imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_SETA,
                   paragrafoAntes: '**Ícone de funil** no cabeçalho da coluna',
                 },
                 {
-                  legenda: '',
+                  legenda: '02 · Popover: ordenar e filtrar',
                   imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_MODAL,
                   paragrafoAntes: 'Popover: **ordenar** e **filtrar**',
                 },
-              ],
-            },
-            {
-              indice: 2,
-              colunas: 2,
-              textoAcimaEstiloCorpo: true,
-              telas: [
                 {
-                  legenda: '',
+                  legenda: '03 · Chip na barra',
                   imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO,
                   paragrafoAntes: 'Chip **`Coluna: valor`** na barra',
                 },
                 {
-                  legenda: '',
+                  legenda: '04 · Combinação de filtros',
                   imagem: SCREENSHOT_PEDIDO_LISTA_FILTROS_APLICADO_2,
                   paragrafoAntes: '**Combinação** de filtros + *_Limpar todos_*',
                 },

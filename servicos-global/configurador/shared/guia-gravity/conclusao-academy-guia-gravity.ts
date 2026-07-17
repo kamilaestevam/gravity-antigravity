@@ -22,13 +22,18 @@ export const SLUGS_LEGADOS_AULA_CONCLUIDA_GUIA: Partial<Record<string, readonly 
     'troca-workspaces',
     'menu-lateral-configuracao',
   ],
+  'menus-plataforma': [
+    'navegacao-plataforma',
+    'menu-superior',
+    'menu-lateral',
+  ],
   'acesso-gravity-university': ['navegacao-gravity-university'],
   'bid-frete-entendendo': ['bid-frete-visao-geral'],
   'bid-frete-tipos-cotacao': ['bid-frete-acesso'],
 }
 
 /** Unificação de várias aulas — exige todos os slugs legados, não apenas um. */
-export const SLUGS_LEGADOS_EXIGEM_TODAS_GUIA: ReadonlySet<string> = new Set(['menu-lateral'])
+export const SLUGS_LEGADOS_EXIGEM_TODAS_GUIA: ReadonlySet<string> = new Set(['menu-lateral', 'menus-plataforma'])
 
 function legadoContaComoConclusao(
   slugAtual: string,

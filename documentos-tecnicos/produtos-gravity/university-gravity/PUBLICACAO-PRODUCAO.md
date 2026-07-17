@@ -17,6 +17,8 @@
 
 O código **não é removido** do git: merge e deploy podem incluir arquivos `manual-*.ts(x)` sem publicar o módulo.
 
+**Documentação técnica da jornada (dev):** [GUIA-GRAVITY-JORNADA-TECNICO.md](./GUIA-GRAVITY-JORNADA-TECNICO.md)
+
 ---
 
 ## SSOT no código

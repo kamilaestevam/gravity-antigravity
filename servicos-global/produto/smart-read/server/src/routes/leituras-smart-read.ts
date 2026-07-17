@@ -18,7 +18,15 @@ import {
   obterLeituraLegado,
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
-import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import {
+  listarTransacoesGravityWorkspaceSmartRead,
+  montarListaTransacoesLeituraSmartRead,
+} from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import { calcularSavingAgregadoTransacoesSmartRead } from '../../../shared/calcular-saving-agregado-transacoes-smart-read.js'
+import {
+  calcularMedianaTempoAnaliseMsSmartRead,
+  resolverDataInicioHistoricoSmartRead,
+} from '../../../shared/agregar-historico-workspace-leitura-smart-read.js'
 import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
 import { tentarRecuperarVinculoLeituraWorkspaceSmartRead } from '../lib/assegurar-vinculo-leitura-workspace-smart-read.js'
 import {
@@ -40,12 +48,14 @@ import {
 import { leituraTemExtracaoUtilRetomarSmartRead } from '../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
+  AgregadoWorkspaceLeituraRespostaSchema,
   CriarLeituraRespostaSchema,
   LeituraSchema,
   ListarTransacoesRespostaSchema,
   MetricaLeituraRespostaSchema,
   OrigemLeituraEnum,
   normalizarLeitura,
+  type AgregadoWorkspaceLeituraResposta,
 } from '../schemas/leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import { CriarPedidoDeLeituraSmartReadRequestSchema } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
@@ -127,6 +137,68 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
         },
       }),
     )
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * Cache in-memory do agregado (TTL curto): absorve o polling do wizard e as
+ * recargas da Lista sem repetir a consulta no Postgres a cada requisição.
+ */
+const TTL_CACHE_AGREGADO_MS = 30_000
+const cacheAgregadoWorkspace = new Map<string, { expiraEm: number; resposta: AgregadoWorkspaceLeituraResposta }>()
+
+function lerCacheAgregadoWorkspace(chave: string): AgregadoWorkspaceLeituraResposta | null {
+  const entrada = cacheAgregadoWorkspace.get(chave)
+  if (!entrada) return null
+  if (Date.now() > entrada.expiraEm) {
+    cacheAgregadoWorkspace.delete(chave)
+    return null
+  }
+  return entrada.resposta
+}
+
+function gravarCacheAgregadoWorkspace(chave: string, resposta: AgregadoWorkspaceLeituraResposta): void {
+  if (cacheAgregadoWorkspace.size > 500) cacheAgregadoWorkspace.clear()
+  cacheAgregadoWorkspace.set(chave, { expiraEm: Date.now() + TTL_CACHE_AGREGADO_MS, resposta })
+}
+
+// Saving acumulado + mediana de análise do workspace, 100% Postgres Gravity.
+// Substitui a paginação da listagem DATI que o client fazia a cada 30s
+// (tempestade que saturava conexões e estrangulava o upload do wizard).
+router.get('/agregado-workspace', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+
+    const chaveCache = `organizacao:${idOrganizacao}:workspace:${idWorkspace}:agregado-leituras`
+    const emCache = lerCacheAgregadoWorkspace(chaveCache)
+    if (emCache) {
+      res.json(emCache)
+      return
+    }
+
+    const transacoes = await listarTransacoesGravityWorkspaceSmartRead(req.prisma, idWorkspace)
+    const agregado = calcularSavingAgregadoTransacoesSmartRead(transacoes)
+
+    const resposta = AgregadoWorkspaceLeituraRespostaSchema.parse({
+      transacoes,
+      total_documentos: agregado.totalDocumentos,
+      saving_total_minutos: agregado.minutos,
+      saving_total_brl: agregado.brl,
+      leituras_com_saving: agregado.leiturasComSaving,
+      data_inicio_historico: resolverDataInicioHistoricoSmartRead(
+        transacoes.map((item) => item.data_envio),
+      ),
+      tempo_mediano_analise_ms: calcularMedianaTempoAnaliseMsSmartRead(
+        transacoes.map((item) => item.tempo_processo_total_ms),
+      ),
+    })
+
+    gravarCacheAgregadoWorkspace(chaveCache, resposta)
+    res.json(resposta)
   } catch (err) {
     next(err)
   }

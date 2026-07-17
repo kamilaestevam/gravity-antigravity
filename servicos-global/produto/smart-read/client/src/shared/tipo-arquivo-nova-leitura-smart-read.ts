@@ -29,6 +29,10 @@ export type ArquivoLocalNovaLeitura = {
   leitura: Leitura | null
   mensagem_erro: string | null
   expandido: boolean
+  /** Progresso REAL de upload (0–100, eventos XHR) — barra «Envio» do passo 2. */
+  progresso_envio?: number | null
+  /** Momento em que a análise DATI começou — base da barra de estimativa. */
+  inicio_analise_ms?: number | null
 }
 
 export const LIMITE_DOCUMENTOS_NOVA_LEITURA = 100
@@ -48,6 +52,8 @@ export function criarArquivoLocalNovaLeitura(arquivo: File): ArquivoLocalNovaLei
     leitura: null,
     mensagem_erro: null,
     expandido: false,
+    progresso_envio: null,
+    inicio_analise_ms: null,
   }
 }
 
@@ -71,19 +77,29 @@ function statusArquivoLocalDeStatusLeitura(status: StatusLeitura): StatusArquivo
  * um File vazio apenas para preservar o nome — os dados extraídos vêm de `leitura`.
  */
 export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
-  return leitura.arquivos.map((arquivo) => ({
-    id_arquivo_local: crypto.randomUUID(),
-    arquivo: new File(
-      [],
-      corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo) ?? arquivo.nome_arquivo ?? 'documento',
-    ),
-    status_arquivo_local: statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo),
-    id_leitura: leitura.id_leitura,
-    id_arquivo: arquivo.id_arquivo,
-    leitura,
-    mensagem_erro: null,
-    expandido: true,
-  }))
+  return leitura.arquivos.map((arquivo) => {
+    const statusLocal = statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo)
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File(
+        [],
+        corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo) ?? arquivo.nome_arquivo ?? 'documento',
+      ),
+      status_arquivo_local: statusLocal,
+      id_leitura: leitura.id_leitura,
+      id_arquivo: arquivo.id_arquivo,
+      leitura,
+      mensagem_erro:
+        arquivo.status_arquivo === 'FAILED'
+          ? arquivo.mensagem_erro ?? leitura.mensagem_erro ?? 'Falha no processamento'
+          : null,
+      expandido: true,
+      // Retomada: o upload já aconteceu em sessão anterior — envio conta como 100%.
+      progresso_envio: 100,
+      // Início real desconhecido na retomada — estimativa conta a partir de agora.
+      inicio_analise_ms: statusLocal === 'analisando' ? Date.now() : null,
+    }
+  })
 }
 
 /**
@@ -127,8 +143,13 @@ export function criarArquivosLocaisRetomarDeLeitura(
       id_leitura: leituraEfetiva.id_leitura,
       id_arquivo: null,
       leitura: leituraEfetiva,
-      mensagem_erro: leituraEfetiva.status_leitura === 'FAILED' ? 'Falha no processamento' : null,
+      mensagem_erro:
+        leituraEfetiva.status_leitura === 'FAILED'
+          ? leituraEfetiva.mensagem_erro ?? 'Falha no processamento'
+          : null,
       expandido: true,
+      progresso_envio: 100,
+      inicio_analise_ms: statusLocal === 'analisando' ? Date.now() : null,
     }
   })
 }
@@ -246,6 +267,8 @@ export function pollAtualizacaoArquivoEquivalente(
   if (statusNovo !== atual.status_arquivo_local) return false
   if (patch.mensagem_erro !== undefined && patch.mensagem_erro !== atual.mensagem_erro) return false
   if (patch.expandido !== undefined && patch.expandido !== atual.expandido) return false
+  if (patch.progresso_envio !== undefined && patch.progresso_envio !== atual.progresso_envio) return false
+  if (patch.inicio_analise_ms !== undefined && patch.inicio_analise_ms !== atual.inicio_analise_ms) return false
   if (!patch.leitura) return true
 
   if (atual.leitura?.status_leitura !== patch.leitura.status_leitura) return false

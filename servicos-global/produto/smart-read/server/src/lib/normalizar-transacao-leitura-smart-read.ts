@@ -216,7 +216,7 @@ export function normalizarTransacaoDeLeitura(
     data_envio: extras?.data_envio ?? null,
     origem_leitura: extras?.origem_leitura ?? 'INTERFACE',
     nome_arquivo: primeiroArquivo?.nome_arquivo ?? null,
-    mensagem_erro: null,
+    mensagem_erro: leitura.mensagem_erro ?? null,
   }
 
   return anexarMetricasTransacao(base, leitura, {

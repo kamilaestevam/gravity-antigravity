@@ -31,6 +31,7 @@ export const ArquivoLeituraLegadoSchema = z.object({
   fileUrl: z.string().optional(),
   processingStatus: z.string().optional(),
   processingTimeMs: z.number().optional(),
+  errorMessage: z.string().nullable().optional(),
   processingResult: z.array(ResultadoProcessamentoLegadoSchema).optional(),
   // Resultado corrigido pelo usuario no legado — tem precedencia quando existe
   // (mesma regra do frontend de referencia: finalProcessingResult ?? processingResult).
@@ -47,6 +48,7 @@ export const LeituraLegadoSchema = z.object({
   completedAt: z.string().nullable().optional(),
   source: z.string().optional(),
   origin: z.string().optional(),
+  errorMessage: z.string().nullable().optional(),
   files: z.array(ArquivoLeituraLegadoSchema).optional(),
 })
 export type LeituraLegado = z.infer<typeof LeituraLegadoSchema>
@@ -71,6 +73,8 @@ export const ArquivoLeituraSchema = z.object({
   status_arquivo: StatusLeituraEnum,
   tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
   resultado_extracao: z.array(ItemResultadoExtracaoLeituraSchema).nullable(),
+  /** Motivo real da falha reportado pelo DATI (errorMessage) — null quando sem erro. */
+  mensagem_erro: z.string().nullable().optional(),
 })
 
 export const LeituraSchema = z.object({
@@ -81,6 +85,8 @@ export const LeituraSchema = z.object({
   arquivos_processados: z.number(),
   arquivos: z.array(ArquivoLeituraSchema),
   tempo_processo_total_ms: z.number().int().min(0).nullable().optional(),
+  /** Motivo real da falha reportado pelo DATI — o polling do wizard exibe traduzido. */
+  mensagem_erro: z.string().nullable().optional(),
 })
 export type Leitura = z.infer<typeof LeituraSchema>
 
@@ -138,6 +144,23 @@ export const MetricaLeituraRespostaSchema = z.object({
   valor: z.number(),
 })
 export type MetricaLeituraResposta = z.infer<typeof MetricaLeituraRespostaSchema>
+
+/**
+ * Agregado do workspace calculado 100% no Postgres Gravity (snapshot + progresso) —
+ * substitui a paginação da listagem DATI que o client fazia a cada 30s.
+ */
+export const AgregadoWorkspaceLeituraRespostaSchema = z.object({
+  transacoes: z.array(TransacaoLeituraSchema),
+  total_documentos: z.number().int().min(0),
+  saving_total_minutos: z.number().min(0).nullable(),
+  saving_total_brl: z.number().min(0).nullable(),
+  leituras_com_saving: z.number().int().min(0),
+  /** Menor data_envio espelhada — rótulo «Histórico desde DD/MM/AAAA» na UI. */
+  data_inicio_historico: z.string().nullable(),
+  /** Mediana de tempo_processo_total_ms — calibra a barra de estimativa do passo 2. */
+  tempo_mediano_analise_ms: z.number().int().min(0).nullable(),
+})
+export type AgregadoWorkspaceLeituraResposta = z.infer<typeof AgregadoWorkspaceLeituraRespostaSchema>
 
 function mapearStatus(status: string | undefined): StatusLeitura {
   const normalizado = (status ?? '').toLowerCase()
@@ -240,6 +263,11 @@ export function parearResultadoExtracaoLegado(arquivo: {
   })
 }
 
+function textoErroLegado(valor: string | null | undefined): string | null {
+  const texto = valor?.trim()
+  return texto ? texto : null
+}
+
 export function normalizarLeitura(legado: LeituraLegado): Leitura {
   const arquivos = legado.files ?? []
   const statusArquivos = arquivos.map((arquivo) => mapearStatus(arquivo.processingStatus))
@@ -253,6 +281,9 @@ export function normalizarLeitura(legado: LeituraLegado): Leitura {
       statusLeitura = 'FAILED'
     }
   }
+  const mensagemErroArquivoFalho =
+    arquivos.find((arquivo, indice) => statusArquivos[indice] === 'FAILED' && textoErroLegado(arquivo.errorMessage))
+      ?.errorMessage ?? null
   return {
     id_leitura: legado._id,
     nome_leitura: legado.name ?? null,
@@ -265,6 +296,8 @@ export function normalizarLeitura(legado: LeituraLegado): Leitura {
       status_arquivo: mapearStatus(arquivo.processingStatus),
       tempo_extracao_ia_ms: resolverTempoExtracaoArquivoLegadoMs(arquivo),
       resultado_extracao: parearResultadoExtracaoLegado(arquivo),
+      mensagem_erro: textoErroLegado(arquivo.errorMessage),
     })),
+    mensagem_erro: textoErroLegado(legado.errorMessage) ?? textoErroLegado(mensagemErroArquivoFalho),
   }
 }

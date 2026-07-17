@@ -715,7 +715,13 @@ export function ModalNovaLeituraSmartRead({
         prev.map((item) => {
           if (item.id_arquivo_local !== id) return item
           if (pollAtualizacaoArquivoEquivalente(item, patch)) return item
-          return { ...item, ...patch }
+          const proximo = { ...item, ...patch }
+          // Carimba o início da análise na transição para 'analisando' (inclui
+          // retomada via polling) — base da barra de estimativa do passo 2.
+          if (proximo.status_arquivo_local === 'analisando' && proximo.inicio_analise_ms == null) {
+            proximo.inicio_analise_ms = Date.now()
+          }
+          return proximo
         }),
 
       )
@@ -937,10 +943,20 @@ export function ModalNovaLeituraSmartRead({
         if (leitura.status_leitura === 'FAILED') {
           contadorIaRef.current.marcarIaInativa()
 
+          // Motivo real do DATI (contrato mensagem_erro) — o classificador do card
+          // traduz para linguagem humana; o texto bruto fica no console p/ suporte.
+          const mensagemReal = leitura.mensagem_erro?.trim()
+          if (mensagemReal) {
+            console.warn('[smart-read][polling] leitura FAILED no DATI', {
+              idLeitura,
+              mensagem_erro: mensagemReal,
+            })
+          }
+
           atualizarArquivo(idArquivoLocal, {
             status_arquivo_local: 'erro',
             leitura,
-            mensagem_erro: 'Falha no processamento',
+            mensagem_erro: mensagemReal || 'Falha no processamento',
           })
 
           return
@@ -997,7 +1013,10 @@ export function ModalNovaLeituraSmartRead({
     controladorEnvioRef.current = controlador
 
     for (const item of arquivos) {
-      atualizarArquivo(item.id_arquivo_local, { status_arquivo_local: 'enviando' })
+      atualizarArquivo(item.id_arquivo_local, {
+        status_arquivo_local: 'enviando',
+        progresso_envio: 0,
+      })
     }
 
     // POSTs em SÉRIE, polling em paralelo: o upload real via DATI leva 30-90s e
@@ -1011,12 +1030,22 @@ export function ModalNovaLeituraSmartRead({
 
       try {
 
-        const criada = await smartReadApi.enviarLeitura(item.arquivo, { signal: controlador.signal })
+        const criada = await smartReadApi.enviarLeitura(item.arquivo, {
+          signal: controlador.signal,
+          // Barra «Envio dos arquivos» do passo 2 — progresso real byte a byte.
+          aoProgredirEnvio: (fracao) => {
+            atualizarArquivo(item.id_arquivo_local, {
+              progresso_envio: Math.round(fracao * 100),
+            })
+          },
+        })
 
         atualizarArquivo(item.id_arquivo_local, {
           status_arquivo_local: 'analisando',
           id_leitura: criada.id_leitura,
           id_arquivo: criada.id_arquivo,
+          progresso_envio: 100,
+          inicio_analise_ms: Date.now(),
         })
 
         registrarArquivoSessaoLeituraSmartRead(criada.id_leitura, item.arquivo, criada.id_arquivo)

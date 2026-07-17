@@ -14,6 +14,7 @@ import {
   type ListaPainel,
 } from '../../../shared/listaPainelApiSchema'
 import {
+  AgregadoWorkspaceLeituraRespostaSchema,
   CriarLeituraRespostaSchema,
   EstadoProgressoLeituraSchema,
   LeituraSchema,
@@ -21,6 +22,7 @@ import {
   MetricaLeituraRespostaSchema,
   CriarExportacaoLeituraRespostaSchema,
   StatusExportacaoLeituraRespostaSchema,
+  type AgregadoWorkspaceLeituraResposta,
   type CriarExportacaoLeituraResposta,
   type CriarLeituraResposta,
   type EstadoProgressoLeitura,
@@ -171,6 +173,84 @@ async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: Requ
   return schema.parse(await resposta.json())
 }
 
+/**
+ * POST multipart via XHR — fetch não expõe progresso de upload, e a barra
+ * «Envio do arquivo» do passo 2 precisa do progresso REAL byte a byte.
+ * Semântica de erro espelha o fetch: falha de rede rejeita com TypeError
+ * (mantém o retry de rede de enviarLeitura) e timeout/abort com DOMException.
+ */
+function enviarFormularioComProgresso<T>(
+  schema: z.ZodType<T>,
+  endpoint: string,
+  formulario: FormData,
+  headers: Record<string, string>,
+  opcoes: {
+    signal?: AbortSignal
+    timeoutMs: number
+    aoProgredirEnvio?: (fracao: number) => void
+  },
+): Promise<T> {
+  return new Promise<T>((resolver, rejeitar) => {
+    if (opcoes.signal?.aborted) {
+      rejeitar(new DOMException('Envio abortado', 'AbortError'))
+      return
+    }
+
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', endpoint)
+    for (const [chave, valor] of Object.entries(headers)) {
+      if (valor) xhr.setRequestHeader(chave, valor)
+    }
+    xhr.timeout = opcoes.timeoutMs
+    xhr.responseType = 'text'
+
+    const aoAbortarSinal = () => xhr.abort()
+    opcoes.signal?.addEventListener('abort', aoAbortarSinal, { once: true })
+    const limpar = () => opcoes.signal?.removeEventListener('abort', aoAbortarSinal)
+
+    if (opcoes.aoProgredirEnvio) {
+      xhr.upload.onprogress = (evento) => {
+        if (evento.lengthComputable && evento.total > 0) {
+          opcoes.aoProgredirEnvio?.(Math.min(1, evento.loaded / evento.total))
+        }
+      }
+    }
+
+    xhr.onload = () => {
+      limpar()
+      let corpo: unknown = null
+      try {
+        corpo = xhr.responseText ? JSON.parse(xhr.responseText) : null
+      } catch {
+        corpo = null
+      }
+      if (xhr.status < 200 || xhr.status >= 300) {
+        rejeitar(new Error(extrairMensagemErroCorpo(corpo) ?? `HTTP ${xhr.status}`))
+        return
+      }
+      try {
+        resolver(schema.parse(corpo))
+      } catch (erro) {
+        rejeitar(erro)
+      }
+    }
+    xhr.onerror = () => {
+      limpar()
+      rejeitar(new TypeError('Falha de rede ao enviar o arquivo'))
+    }
+    xhr.ontimeout = () => {
+      limpar()
+      rejeitar(new DOMException('Tempo limite ao enviar o arquivo', 'TimeoutError'))
+    }
+    xhr.onabort = () => {
+      limpar()
+      rejeitar(new DOMException('Envio abortado', 'AbortError'))
+    }
+
+    xhr.send(formulario)
+  })
+}
+
 export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse, QaLeituraRequest, QaLeituraResponse }
 
 export const smartReadApi = {
@@ -196,22 +276,38 @@ export const smartReadApi = {
     )
   },
 
-  async enviarLeitura(arquivo: File, opcoes?: { signal?: AbortSignal }): Promise<CriarLeituraResposta> {
+  /** Saving acumulado + mediana de análise do workspace — 1 chamada, 100% Postgres Gravity. */
+  obterAgregadoWorkspaceLeituras(): Promise<AgregadoWorkspaceLeituraResposta> {
+    return requisitar(
+      AgregadoWorkspaceLeituraRespostaSchema,
+      '/api/v1/smart-read/leituras/agregado-workspace',
+      { signal: AbortSignal.timeout(30_000) },
+    )
+  },
+
+  async enviarLeitura(
+    arquivo: File,
+    opcoes?: { signal?: AbortSignal; aoProgredirEnvio?: (fracao: number) => void },
+  ): Promise<CriarLeituraResposta> {
     const formulario = new FormData()
     formulario.append('arquivo', arquivo)
     const sinalChamador = opcoes?.signal
-    const tentar = () =>
-      requisitar(CriarLeituraRespostaSchema, '/api/v1/smart-read/leituras', {
-        method: 'POST',
-        body: formulario,
-        // Upload real via DATI leva ~90s para 5MB; 5min cobre arquivos grandes.
-        // Sem timeout o card fica preso em "Enviando arquivo..." para sempre.
-        // O sinal do chamador permite abortar ao fechar o wizard — um POST
-        // abandonado seguraria o proxy de dev e entalaria o próximo envio.
-        signal: sinalChamador
-          ? AbortSignal.any([sinalChamador, AbortSignal.timeout(300_000)])
-          : AbortSignal.timeout(300_000),
-      })
+    // Upload real via DATI leva ~90s para 5MB; 5min cobre arquivos grandes.
+    // Sem timeout o card fica preso em "Enviando arquivo..." para sempre.
+    // O sinal do chamador permite abortar ao fechar o wizard — um POST
+    // abandonado seguraria o proxy de dev e entalaria o próximo envio.
+    const tentar = async () =>
+      enviarFormularioComProgresso(
+        CriarLeituraRespostaSchema,
+        '/api/v1/smart-read/leituras',
+        formulario,
+        await cabecalhosAutenticados(),
+        {
+          signal: sinalChamador,
+          timeoutMs: 300_000,
+          aoProgredirEnvio: opcoes?.aoProgredirEnvio,
+        },
+      )
     try {
       return await tentar()
     } catch (erro) {

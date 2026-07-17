@@ -173,6 +173,30 @@ async function listarViaProgressoGravity(
   }
 }
 
+/**
+ * Transações do workspace exclusivamente via Gravity DB (snapshot + progresso) —
+ * zero chamadas ao legado DATI. Alimenta GET /leituras/agregado-workspace
+ * (saving acumulado, mediana de análise) sem a paginação da listagem legada.
+ */
+export async function listarTransacoesGravityWorkspaceSmartRead(
+  prisma: PrismaClient | undefined,
+  idWorkspace: string,
+): Promise<TransacaoLeitura[]> {
+  if (!idWorkspace) return []
+
+  const viaProgresso = await listarViaProgressoGravity(prisma, idWorkspace)
+  const viaSnapshot = await listarViaSnapshotGravity(prisma, idWorkspace)
+
+  const mapa = new Map<string, TransacaoLeitura>()
+  for (const item of [...viaSnapshot, ...viaProgresso]) {
+    inserirTransacaoNoMapa(mapa, item)
+  }
+
+  return [...mapa.values()]
+    .filter((item) => !transacaoLeituraEhOrfaSmartRead(item))
+    .sort((a, b) => (b.data_envio ?? '').localeCompare(a.data_envio ?? ''))
+}
+
 export async function montarListaTransacoesLeituraSmartRead(
   params: ParametrosListaLeituras,
 ): Promise<{ transacoes: TransacaoLeitura[]; total: number }> {

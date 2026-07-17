@@ -47,7 +47,8 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `GET` | `/api/v1/smart-read/leituras` | Lista paginada por **workspace** (`pagina`, `limite`, `termo_busca`) |
-| `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» (workspace) |
+| `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» — **client usa `paginacao.total` da própria listagem** (TASK-000424: rota mantida por compat, chamada dupla ao DATI eliminada) |
+| `GET` | `/api/v1/smart-read/leituras/agregado-workspace` | **Saving acumulado + mediana de análise, 100% Postgres Gravity** (snapshot + progresso, zero DATI); cache in-memory 30s (`organizacao:<id>:workspace:<id>:agregado-leituras`); retorna `transacoes`, `total_documentos`, `saving_total_*`, `data_inicio_historico`, `tempo_mediano_analise_ms` (TASK-000424) |
 | `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload + vínculo workspace → `202` |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado — **snapshot (workspace)** → **legado** (se vinculada) → **progresso** (`catch`, `id_usuario` + workspace); grava snapshot após legado se elegível |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard por **usuário** (`404` se ausente) |
@@ -174,6 +175,8 @@ Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
 ### Rate limit do BFF (porta 8033)
 
 > **SSOT completo:** [REQUISITOS-TECNICOS.md](./REQUISITOS-TECNICOS.md) — teto **100 req/min** por `x-id-organizacao`, chamadas no mount da Lista (**4 HTTP**), polling saving (**30 s**), distinção **requisição vs. documento** e erro **429** na UI.
+
+> **TASK-000424 — fim da tempestade de listagem:** o saving acumulado deixou de paginar a listagem DATI no client (N páginas × recarga 30s, sem guarda de sobreposição) e passou a **1 chamada** a `GET /leituras/agregado-workspace` com guarda anti-sobreposição no hook (`use-saving-acumulado-workspace-smart-read.ts`). Histórico = espelho Postgres; leituras pré-espelho entram via **backfill único** (`server/src/scripts/backfill-snapshot-leitura-smart-read.ts`, rodar quando a listagem DATI estabilizar). Até lá a UI exibe «Histórico do workspace · desde DD/MM/AAAA».
 
 ---
 

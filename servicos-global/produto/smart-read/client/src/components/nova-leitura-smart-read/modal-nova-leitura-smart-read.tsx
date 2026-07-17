@@ -1229,6 +1229,15 @@ export function ModalNovaLeituraSmartRead({
     if (passo >= 4) {
 
       if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
+        // Sem payload do painel = clique no Continuar da lateral (pular match/revisão) — bloqueado.
+        if (!prefillContinuarRef.current) {
+          addNotification({
+            type: 'warning',
+            title: 'Revise a cotação',
+            message: 'Use Revisar cotação e complete os campos antes de abrir a Nova Cotação no BID.',
+          })
+          return
+        }
         try {
           setRedirecionandoCotacao(true)
           const pacoteRef = prefillContinuarRef.current
@@ -1347,7 +1356,8 @@ export function ModalNovaLeituraSmartRead({
     !salvandoPasso &&
     (passo === 2 ? processamentoFinalizado :
     passo === 3 ? arquivos.some((a) => a.status_arquivo_local === 'completo') :
-    passo === 4 ? true :
+    // BID Frete: avanço só via Revisar cotação / Continuar do painel (não pular o match).
+    passo === 4 ? !origemBidFrete :
     false)
 
 
@@ -1523,19 +1533,21 @@ export function ModalNovaLeituraSmartRead({
         )}
 
         {passo === 4 && origemBidFrete && leituraConsolidada ? (
-          <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
-            <PainelRevisaoPrefillCotacaoBidFreteSmartRead
-              leitura={leituraConsolidada}
-              onContinuar={(payload, opcoes) => {
-                prefillContinuarRef.current = {
-                  payload,
-                  manterWizard: opcoes?.manter_wizard_aberto === true,
-                }
-                void handleContinuarPasso()
-              }}
-              continuando={redirecionandoCotacao}
-            />
-          </Suspense>
+          <div className="sr-prefill-bid-passo4-coluna">
+            <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
+              <PainelRevisaoPrefillCotacaoBidFreteSmartRead
+                leitura={leituraConsolidada}
+                onContinuar={(payload, opcoes) => {
+                  prefillContinuarRef.current = {
+                    payload,
+                    manterWizard: opcoes?.manter_wizard_aberto === true,
+                  }
+                  void handleContinuarPasso()
+                }}
+                continuando={redirecionandoCotacao}
+              />
+            </Suspense>
+          </div>
         ) : passo === 4 ? (
           hidratandoRetomar || recuperandoExtracaoRetomar ? (
             <p className="sr-conf-vazio">Carregando leitura…</p>

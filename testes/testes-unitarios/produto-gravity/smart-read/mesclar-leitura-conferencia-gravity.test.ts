@@ -77,6 +77,46 @@ describe('Smart Read — mesclar leitura com conferência Gravity', () => {
     expect(item?.dados).toEqual({ exportador: 'Foo Ltda', numero: '200' })
   })
 
+  it('placeholder de vínculo não rebaixa status COMPLETED do legado (regressão 16/07)', () => {
+    // Cenário real: POST /leituras grava progresso placeholder (PROCESSING, zero
+    // arquivos) via registrarVinculoLeituraUsuarioSmartRead; o DATI conclui o OCR
+    // e o GET mescla o progresso. O merge não pode rebaixar o status nem apagar nome.
+    const base = leituraBase({ numero_documento: 'PHI0021643' })
+    const placeholder: Leitura = {
+      id_leitura: 'leitura-1',
+      nome_leitura: null,
+      status_leitura: 'PROCESSING',
+      total_arquivos: 0,
+      arquivos_processados: 0,
+      arquivos: [],
+    }
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, placeholder)
+
+    expect(mesclada.status_leitura).toBe('COMPLETED')
+    expect(mesclada.nome_leitura).toBe('Teste')
+    expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({
+      numero_documento: 'PHI0021643',
+    })
+  })
+
+  it('progresso sem extração mas com nome mescla nome sem rebaixar status', () => {
+    const base = leituraBase({ numero: '1' })
+    const conferencia: Leitura = {
+      id_leitura: 'leitura-1',
+      nome_leitura: 'Nome escolhido pelo usuário',
+      status_leitura: 'PROCESSING',
+      total_arquivos: 0,
+      arquivos_processados: 0,
+      arquivos: [],
+    }
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, conferencia)
+
+    expect(mesclada.nome_leitura).toBe('Nome escolhido pelo usuário')
+    expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({ numero: '1' })
+  })
+
   it('preserva dados_original já gravado no snapshot', () => {
     const base = leituraBase({ exportador: 'Antigo' })
     const conferencia: Leitura = {

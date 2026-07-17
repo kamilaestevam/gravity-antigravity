@@ -93,7 +93,7 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     ],
   },
   {
-    titulo: 'Cards — adicionar',
+    titulo: 'Cards: adicionar',
     tituloCurto: 'Adicionar card',
     paragrafos: [
       'Na lista **Disponíveis**, clique em **+** para incluir um card em **Ativos**.',
@@ -118,38 +118,38 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     },
   },
   {
-    titulo: 'Cards — detalhes ao adicionar',
+    titulo: 'Cards: detalhes ao adicionar',
     tituloCurto: 'Detalhes ao adicionar',
     paragrafos: [
-      'Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem** — útil para entender o indicador.',
+      'Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem**: útil para entender o indicador.',
     ],
   },
   {
-    titulo: 'Cards — ocultar e exibir',
+    titulo: 'Cards: ocultar e exibir',
     tituloCurto: 'Ocultar card',
     paragrafos: [
-      'Use o ícone de **olho** para **ocultar** um card ativo sem removê-lo da lista — ele permanece em **Ativos** (oculto no preview) e pode ser **exibido** de novo.',
+      'Use o ícone de **olho** para **ocultar** um card ativo sem removê-lo da lista: ele permanece em **Ativos** (oculto no preview) e pode ser **exibido** de novo.',
     ],
   },
   {
-    titulo: 'Cards — remover da lista',
+    titulo: 'Cards: remover da lista',
     tituloCurto: 'Remover card',
     paragrafos: [
       '**Remover** tira o card de **Ativos**. O card volta para **Disponíveis** e deixa de aparecer no topo da **Lista** e **Insights**.',
     ],
   },
   {
-    titulo: 'Cards — detalhes ao remover',
+    titulo: 'Cards: detalhes ao remover',
     tituloCurto: 'Detalhes do card',
     paragrafos: [
-      'Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período** — útil para saber o que deixa de ser exibido.',
+      'Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período**: útil para saber o que deixa de ser exibido.',
     ],
   },
   {
-    titulo: 'Cards — reativar após remover',
+    titulo: 'Cards: reativar após remover',
     tituloCurto: 'Reativar card',
     paragrafos: [
-      'Depois de remover, o card fica em **Disponíveis** — use **+** para **reativá-lo** em **Ativos**.',
+      'Depois de remover, o card fica em **Disponíveis**: use **+** para **reativá-lo** em **Ativos**.',
     ],
   },
   {
@@ -167,7 +167,7 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     ],
   },
   {
-    titulo: 'Colunas personalizadas — visão geral',
+    titulo: 'Colunas personalizadas: visão geral',
     tituloCurto: 'Colunas',
     paragrafos: [
       'Em **Colunas › Personalizadas**, crie campos próprios (**texto**, **número**, **data**, **fórmula**, **lista**, **checkbox**, **tipo documento**). **Arraste** para reordenar, **olho** para ocultar e **+ Criar Coluna** para novos tipos.',
@@ -178,56 +178,56 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     },
   },
   {
-    titulo: 'Criar coluna — Texto',
+    titulo: 'Criar coluna: Texto',
     tituloCurto: 'Coluna Texto',
     paragrafos: [
-      'Fluxo para coluna **Texto** — escolha o tipo, informe o **nome** e **Salvar**.',
+      'Fluxo para coluna **Texto**: escolha o tipo, informe o **nome** e **Salvar**.',
     ],
   },
   {
-    titulo: 'Criar coluna — Numérico',
+    titulo: 'Criar coluna: Numérico',
     tituloCurto: 'Coluna Numérico',
     paragrafos: [
       'Coluna **Numérico** para valores quantitativos customizados na **Lista**.',
     ],
   },
   {
-    titulo: 'Criar coluna — Data',
+    titulo: 'Criar coluna: Data',
     tituloCurto: 'Coluna Data',
     paragrafos: [
       'Coluna **Data** para campos de calendário na tabela de leituras.',
     ],
   },
   {
-    titulo: 'Criar coluna — Percentual',
+    titulo: 'Criar coluna: Percentual',
     tituloCurto: 'Coluna Percentual',
     paragrafos: [
       'Coluna **Percentual** para taxas e proporções exibidas na **Lista**.',
     ],
   },
   {
-    titulo: 'Criar coluna — Lista (Select)',
+    titulo: 'Criar coluna: Lista (Select)',
     tituloCurto: 'Coluna Lista',
     paragrafos: [
       'Coluna **Lista** com opções fixas para seleção na **Lista**.',
     ],
   },
   {
-    titulo: 'Criar coluna — Checkbox',
+    titulo: 'Criar coluna: Checkbox',
     tituloCurto: 'Coluna Checkbox',
     paragrafos: [
       'Coluna **Checkbox** para flags booleanas (sim/não) na tabela.',
     ],
   },
   {
-    titulo: 'Criar coluna — Tipo Documento',
+    titulo: 'Criar coluna: Tipo Documento',
     tituloCurto: 'Tipo Documento',
     paragrafos: [
       'Coluna **Tipo Documento** vinculada ao tipo de arquivo da leitura.',
     ],
   },
   {
-    titulo: 'Criar coluna — Fórmula',
+    titulo: 'Criar coluna: Fórmula',
     tituloCurto: 'Coluna Fórmula',
     paragrafos: [
       'Coluna **Fórmula** calculada a partir de outras colunas da leitura.',
@@ -251,7 +251,7 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     titulo: 'Excluir coluna personalizada',
     tituloCurto: 'Excluir coluna',
     paragrafos: [
-      '**Excluir** remove a coluna personalizada do workspace — a ação é definitiva após confirmar.',
+      '**Excluir** remove a coluna personalizada do workspace: a ação é definitiva após confirmar.',
     ],
   },
 ])

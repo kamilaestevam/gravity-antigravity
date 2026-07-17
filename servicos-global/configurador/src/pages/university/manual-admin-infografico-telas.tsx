@@ -59,7 +59,7 @@ export function ManualInfograficoAdminTelas() {
       padding: '16px 18px 18px',
     }}>
       <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
-        Mapa mental — áreas do Painel Admin
+        Mapa mental: áreas do Painel Admin
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {GRUPOS.map((grupo) => (

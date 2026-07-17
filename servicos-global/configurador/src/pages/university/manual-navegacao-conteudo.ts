@@ -154,7 +154,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     ordem: 2,
     slug: 'localizar',
     titulo: 'Localizar',
-    resumo: 'Busca e filtra o conteúdo da tela atual — listas, registros e campos visíveis.',
+    resumo: 'Busca e filtra o conteúdo da tela atual: listas, registros e campos visíveis.',
     detalhe: 'Clique na lupa, digite o termo e use Esc ou × para fechar sem sair da página.',
     imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
   },
@@ -180,7 +180,7 @@ export const ICONES_MENU_SUPERIOR_MANUAL: IconeMenuSuperiorManual[] = [
     titulo: 'Tooltip',
     resumo: 'Liga ou desliga as dicas que aparecem ao passar o mouse na interface.',
     detalhe: 'Ícone preenchido em azul = dicas ativas; contorno cinza = desativadas.',
-    dica: 'Controla os tooltips globalmente — vale para Hub, produtos, Store e Configurador.',
+    dica: 'Controla os tooltips globalmente: vale para Hub, produtos, Store e Configurador.',
     imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_DICAS,
   },
   {
@@ -318,7 +318,7 @@ export const ITENS_MENU_USUARIO_MANUAL: ItemMenuUsuarioManual[] = [
     slug: 'store',
     titulo: 'Ir para Gravity Store',
     resumo: 'Abre a vitrine para conhecer, contratar ou ampliar produtos Gravity da organização.',
-    detalhe: 'Atalho rápido sem passar pelo Hub — útil para gestores que já sabem qual módulo precisam.',
+    detalhe: 'Atalho rápido sem passar pelo Hub: útil para gestores que já sabem qual módulo precisam.',
   },
   {
     ordem: 2,
@@ -379,17 +379,17 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Menu superior',
       tituloSumario: 'Menu superior',
       paragrafos: [
-        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas — Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
+        'Assim que você **acessa a plataforma pelo Hub** (tela principal após o login), o **menu superior** passa a acompanhar **todas** as telas autenticadas: Hub, produtos, Gravity Store, Configurador e Gravity University. **Não importa** qual módulo você abra: a faixa do topo é sempre a mesma, com os **mesmos ícones e na mesma ordem**.',
       ],
       mostrarInfograficoIconesMenuSuperior: true,
       passosVisuais: [],
     },
     {
-      titulo: 'Menu lateral — Produtos Gravity',
-      tituloSumario: 'Menu lateral — Produtos Gravity',
+      titulo: 'Menu lateral: Produtos Gravity',
+      tituloSumario: 'Menu lateral: Produtos Gravity',
       modoCenarios: true,
       paragrafos: [
-        'Todos os **Produtos Gravity** — Pedido, Smart Read, BID Frete, BID Câmbio e demais — possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
+        'Todos os **Produtos Gravity**: Pedido, Smart Read, BID Frete, BID Câmbio e demais: possuem **menu lateral** para o usuário navegar entre **produtos**, entre **workspaces**, além de acessar **configuração** e **histórico**.',
       ],
       figurasAposParagrafo: [
         {
@@ -401,10 +401,10 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       passosVisuais: [],
     },
     {
-      titulo: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
-      tituloSumario: 'Menu lateral — Acesso rápido troca de Produtos Gravity',
+      titulo: 'Menu lateral: Acesso rápido troca de Produtos Gravity',
+      tituloSumario: 'Menu lateral: Acesso rápido troca de Produtos Gravity',
       paragrafos: [
-        'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub — desde que o workspace atual tenha **mais de um produto** habilitado para você.',
+        'No **topo do menu lateral** (logo do produto + seta), o **seletor de produtos** permite trocar de **Produto Gravity** sem voltar ao Hub: desde que o workspace atual tenha **mais de um produto** habilitado para você.',
       ],
       calloutAposParagrafo: {
         indice: 0,
@@ -437,10 +437,10 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Menu lateral — Acesso rápido troca de workspaces',
-      tituloSumario: 'Menu lateral — Acesso rápido troca de workspaces',
+      titulo: 'Menu lateral: Acesso rápido troca de workspaces',
+      tituloSumario: 'Menu lateral: Acesso rápido troca de workspaces',
       paragrafos: [
-        'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces** — filiais ou unidades em que você opera dentro da organização.',
+        'Logo **abaixo do logo do produto**, o botão com o **nome do workspace** abre o **seletor de workspaces**: filiais ou unidades em que você opera dentro da organização.',
       ],
       passosVisuais: renumerarPassos([
         {
@@ -472,21 +472,21 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Menu lateral — Configuração',
-      tituloSumario: 'Menu lateral — Configuração',
+      titulo: 'Menu lateral: Configuração',
+      tituloSumario: 'Menu lateral: Configuração',
       paragrafos: [
         'O **Configurador da Plataforma** tem **menu lateral próprio**. Ele organiza a **gestão e configuração da conta**: Organização, Workspaces, Usuários, Fornecedores, Assinaturas, Financeiro e demais abas.',
       ],
       callout: {
         tipo: 'dica',
-        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba** — só mudam o item destacado e o conteúdo à direita.',
+        texto: 'O menu lateral do Configurador **permanece fixo** ao trocar de **aba**: só mudam o item destacado e o conteúdo à direita.',
       },
       calloutAposPassos: true,
       mostrarInfograficoItensMenuUsuario: true,
       infograficoItensMenuUsuarioAposPassos: true,
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Caminho 1 — ícone no menu superior',
+          titulo: 'Caminho 1: ícone no menu superior',
           paragrafos: [
             'Em **qualquer tela** autenticada (Hub, produto, Store ou University), clique no **ícone Configurador** (engrenagem) na faixa do **menu superior**, à direita.',
           ],
@@ -494,7 +494,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Caminho 2 — abrir o menu do usuário',
+          titulo: 'Caminho 2: abrir o menu do usuário',
           paragrafos: [
             'Alternativa: clique no **ícone do usuário** no canto superior direito, como indicado pela seta na imagem.',
           ],
@@ -523,7 +523,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Como acessar a Gravity University',
       tituloSumario: 'Como acessar a Gravity University',
       paragrafos: [
-        'A **Gravity University** fica a um clique no **menu superior** — ícone de **chapéu de formatura**, terceiro atalho à direita (após **Hub** e **Localizar**). Vale em **qualquer tela** autenticada: Hub, produtos, Store ou Configurador.',
+        'A **Gravity University** fica a um clique no **menu superior**: ícone de **chapéu de formatura**, terceiro atalho à direita (após **Hub** e **Localizar**). Vale em **qualquer tela** autenticada: Hub, produtos, Store ou Configurador.',
       ],
       passosVisuais: renumerarPassos([
         {
@@ -563,7 +563,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
             {
               indice: 0,
               imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_ONBOARDING,
-              legenda: 'Sidebar — Onboarding',
+              legenda: 'Sidebar: Onboarding',
               larguraMaxima: 240,
             },
           ],
@@ -577,7 +577,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
             {
               indice: 0,
               imagem: SCREENSHOT_NAVEGACAO_UNIVERSITY_MANUAIS,
-              legenda: 'Sidebar — Manuais',
+              legenda: 'Sidebar: Manuais',
               larguraMaxima: 240,
             },
           ],

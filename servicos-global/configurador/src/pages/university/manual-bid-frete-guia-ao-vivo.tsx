@@ -486,7 +486,7 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
   return (
     <aside
       className="sim-guia-sticky-col"
-      aria-label="Guia interativo — campos selecionados"
+      aria-label="Guia interativo: campos selecionados"
     >
       <div className="sim-guia-sticky-col__cabecalho">
         <div style={{

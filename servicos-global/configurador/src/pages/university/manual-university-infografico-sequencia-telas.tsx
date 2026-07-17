@@ -181,7 +181,7 @@ function ModalSequenciaTelas({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Sequência de telas — ${tela.titulo}`}
+      aria-label={`Sequência de telas: ${tela.titulo}`}
       onClick={onFechar}
       style={{
         position: 'fixed',
@@ -334,7 +334,7 @@ export function ManualInfograficoMiniaturaSequenciaTelas({
           }
         }}
         aria-label={`${rotulo}: abrir sequência de ${telas.length} telas`}
-        title={`Ampliar — ${telas.length} telas`}
+        title={`Ampliar: ${telas.length} telas`}
         style={{
           margin: 0,
           width: MINI_LARGURA,

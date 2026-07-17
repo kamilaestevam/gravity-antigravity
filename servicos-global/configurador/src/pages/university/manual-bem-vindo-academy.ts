@@ -91,7 +91,7 @@ const BLOCOS_O_GUIA_GRAVITY: BlocoConteudo[] = [
   {
     tipo: 'texto',
     dados: {
-      text: 'Antes de entrar nos detalhes, veja o quadro completo: **onboarding**, **consulta** e **manual** no mesmo lugar — e a **GABI AI** fora, mas ao lado.',
+      text: 'Antes de entrar nos detalhes, veja o quadro completo: **onboarding**, **consulta** e **manual** no mesmo lugar: e a **GABI AI** fora, mas ao lado.',
     },
   },
   { tipo: 'infografico', dados: { id: 'guia-gravity' } },

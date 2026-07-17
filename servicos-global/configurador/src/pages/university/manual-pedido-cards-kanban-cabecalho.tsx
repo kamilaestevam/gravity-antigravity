@@ -22,8 +22,8 @@ const CARDS: CardKanbanCabecalho[] = [
     borda: 'rgba(148,163,184,.28)',
     fundo: 'rgba(148,163,184,.08)',
     linhas: [
-      'Cada coluna é reflexo **1:1** do status configurado no workspace — rótulo, **ícone** e **cor** vêm de **GET /api/v1/pedidos/config/status**.',
-      'Ex.: **Rascunho**, **Aberto**, **Aprovado** — subtítulo da tela: **Pedidos organizados por status**.',
+      'Cada coluna é reflexo **1:1** do status configurado no workspace: rótulo, **ícone** e **cor** vêm de **GET /api/v1/pedidos/config/status**.',
+      'Ex.: **Rascunho**, **Aberto**, **Aprovado**: subtítulo da tela: **Pedidos organizados por status**.',
     ],
   },
   {
@@ -34,7 +34,7 @@ const CARDS: CardKanbanCabecalho[] = [
     borda: 'rgba(129,140,248,.28)',
     fundo: 'rgba(129,140,248,.08)',
     linhas: [
-      'Badge numérico no cabeçalho — quantidade de **cartões** na coluna naquele status.',
+      'Badge numérico no cabeçalho: quantidade de **cartões** na coluna naquele status.',
       'Com *_Localizar pedido…_* ativo, a contagem (e o total **X pedidos** na barra) recalculam só com os pedidos que passam no filtro por número, parceiro, incoterm ou status.',
     ],
   },
@@ -46,7 +46,7 @@ const CARDS: CardKanbanCabecalho[] = [
     borda: 'rgba(251,191,36,.28)',
     fundo: 'rgba(251,191,36,.08)',
     linhas: [
-      'Botão com tooltip **Ordenar coluna** + nome do status — abre o popover **Ordenar lista**.',
+      'Botão com tooltip **Ordenar coluna** + nome do status: abre o popover **Ordenar lista**.',
       'Opções exatas: **Mais recente primeiro**, **Mais antigo primeiro** ou **Ordem alfabética**. Oculto em colunas **somente leitura**.',
     ],
   },

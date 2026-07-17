@@ -34,7 +34,7 @@ const TIPOS_COLUNA: TipoColunaPersonalizada[] = [
   },
   {
     rotulo: 'Número',
-    descricao: 'Valores quantitativos — quantidades, totais ou métricas operacionais.',
+    descricao: 'Valores quantitativos: quantidades, totais ou métricas operacionais.',
     icone: Calculator,
     cor: '#6ee7b7',
     borda: 'rgba(110,231,183,.32)',
@@ -50,7 +50,7 @@ const TIPOS_COLUNA: TipoColunaPersonalizada[] = [
   },
   {
     rotulo: 'Percentual',
-    descricao: 'Indicadores em % — margem, participação ou progresso.',
+    descricao: 'Indicadores em %: margem, participação ou progresso.',
     icone: Percent,
     cor: '#f9a8d4',
     borda: 'rgba(249,168,212,.32)',
@@ -66,7 +66,7 @@ const TIPOS_COLUNA: TipoColunaPersonalizada[] = [
   },
   {
     rotulo: 'Checkbox',
-    descricao: 'Flags sim/não — conferido, urgente ou etapa concluída.',
+    descricao: 'Flags sim/não: conferido, urgente ou etapa concluída.',
     icone: CheckSquare,
     cor: '#86efac',
     borda: 'rgba(134,239,172,.32)',
@@ -189,7 +189,7 @@ export function ManualInfograficoPedidoConfigColunasPersonalizadas({
           lineHeight: 1.5,
           color: CORPO_70,
         }}>
-          Cada tipo vira uma coluna nova na <strong style={{ color: '#cbd5e1' }}>Lista</strong> — combine os que sua operação precisa acompanhar em cada pedido.
+          Cada tipo vira uma coluna nova na <strong style={{ color: '#cbd5e1' }}>Lista</strong>: combine os que sua operação precisa acompanhar em cada pedido.
         </p>
       </div>
 

@@ -12,7 +12,7 @@ function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
 }
 
 export const DOC_ADMIN_SUBTITULO =
-  'Painel interno da equipe Gravity — organizações, usuários, deploy e saúde da plataforma'
+  'Painel interno da equipe Gravity: organizações, usuários, deploy e saúde da plataforma'
 
 export const DOC_ADMIN_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.0' },
@@ -27,7 +27,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
   titulo: 'Painel Administrativo Gravity',
   paragrafos: [
     'O **Painel Admin** é a interface **exclusiva da equipe Gravity** para operar a plataforma como um todo. Não é o **Configurador** (área do cliente): aqui você enxerga **todas as organizações**, usuários globais, financeiro consolidado, deploys, saúde dos serviços e trilhas de auditoria.',
-    'O acesso exige **`gravity_admin = true`** (ou patente interna equivalente validada em `/api/v1/me` pelo backend — **nunca** via metadados do Clerk).',
+    'O acesso exige **`gravity_admin = true`** (ou patente interna equivalente validada em `/api/v1/me` pelo backend: **nunca** via metadados do Clerk).',
   ],
   lista: [
     'Visão geral: dados cadastrais da organização Gravity HQ',
@@ -53,7 +53,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Menu do usuário — Painel Admin',
+          titulo: 'Menu do usuário: Painel Admin',
           tituloCurto: 'Menu do usuário',
           badgeEmDesenvolvimento: true,
           paragrafos: [
@@ -64,7 +64,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           titulo: 'Rota direta',
           tituloCurto: 'URL direta',
           paragrafos: [
-            'Com sessão Clerk ativa e perfil autorizado, abra **`/admin/visao-geral`**. Sem permissão, o layout redireciona para o **Hub** — falha fechada, sem vazar telas administrativas.',
+            'Com sessão Clerk ativa e perfil autorizado, abra **`/admin/visao-geral`**. Sem permissão, o layout redireciona para o **Hub**: falha fechada, sem vazar telas administrativas.',
           ],
         },
       ]),
@@ -93,7 +93,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           badgeEmDesenvolvimento: true,
           paragrafos: [
             'Lista **todos os tenants**: status (Ativo, Trial, Suspenso, Churn), produtos contratados, quantidade de workspaces e usuários. Ações: ver detalhes, editar cadastro, suspender.',
-            'O modal **Editar organização** aceita `nome_organizacao`, CNPJ, UF, cidade, segmento e status — strings vazias viram `null` no banco.',
+            'O modal **Editar organização** aceita `nome_organizacao`, CNPJ, UF, cidade, segmento e status: strings vazias viram `null` no banco.',
           ],
         },
         {
@@ -101,7 +101,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           tituloCurto: 'Produtos',
           badgeEmDesenvolvimento: true,
           paragrafos: [
-            'Catálogo administrativo dos **produtos Gravity** e configurações de contratação por organização — base para o que aparece no Hub e na Store do cliente.',
+            'Catálogo administrativo dos **produtos Gravity** e configurações de contratação por organização: base para o que aparece no Hub e na Store do cliente.',
           ],
         },
         {
@@ -117,7 +117,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           tituloCurto: 'Financeiro',
           badgeEmDesenvolvimento: true,
           paragrafos: [
-            'Consolidação de **faturas e receita** por organização — visão interna para billing e suporte comercial.',
+            'Consolidação de **faturas e receita** por organização: visão interna para billing e suporte comercial.',
           ],
         },
         {
@@ -156,7 +156,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           titulo: 'Quem pode impersonar',
           tituloCurto: 'Permissão',
           paragrafos: [
-            'A permissão **`admin:usuarios:impersonate`** controla quem pode iniciar sessão como outro usuário. Patentes internas **Super Admin** e fluxos de suporte usam essa capability — validada no backend, não no Clerk.',
+            'A permissão **`admin:usuarios:impersonate`** controla quem pode iniciar sessão como outro usuário. Patentes internas **Super Admin** e fluxos de suporte usam essa capability: validada no backend, não no Clerk.',
           ],
         },
         {
@@ -164,7 +164,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           tituloCurto: 'Trocar org',
           badgeEmDesenvolvimento: true,
           paragrafos: [
-            'Antes de impersonar, admins com **override** podem **trocar a organização ativa** pelo modal **Trocar organização** — útil para navegar no tenant do cliente sem misturar dados.',
+            'Antes de impersonar, admins com **override** podem **trocar a organização ativa** pelo modal **Trocar organização**: útil para navegar no tenant do cliente sem misturar dados.',
           ],
         },
         {
@@ -215,12 +215,12 @@ export const DOC_ADMIN_SECAO: DocSecao = {
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'API Cockpit — Servidores',
+          titulo: 'API Cockpit: Servidores',
           tituloCurto: 'Servidores',
           badgeEmDesenvolvimento: true,
           paragrafos: [
             'Em **`/admin/api-cockpit`**, a aba **Servidores** lista cada microsserviço com status **ONLINE**, **DEGRADADO** ou **OFFLINE**, latência e versão deployada.',
-            'A tela faz **polling a cada 30 segundos** — alinhado à skill de observabilidade mínima da plataforma.',
+            'A tela faz **polling a cada 30 segundos**: alinhado à skill de observabilidade mínima da plataforma.',
           ],
         },
         {
@@ -244,7 +244,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           tituloCurto: 'Registro manual',
           badgeEmDesenvolvimento: true,
           paragrafos: [
-            'Quando um release não passa pelo pipeline automático, registre manualmente com **área**, ambiente, commit e responsável — `deployed_by` vem do admin autenticado.',
+            'Quando um release não passa pelo pipeline automático, registre manualmente com **área**, ambiente, commit e responsável: `deployed_by` vem do admin autenticado.',
           ],
         },
         {
@@ -252,7 +252,7 @@ export const DOC_ADMIN_SECAO: DocSecao = {
           tituloCurto: 'Rollback',
           paragrafos: [
             'Em incidentes, use o histórico para identificar o último deploy estável e acione **rollback** no Railway conforme runbook interno.',
-            'Serviços **OFFLINE** ou latência **> 3×** a média devem gerar investigação imediata — status **Degradado** indica degradação parcial.',
+            'Serviços **OFFLINE** ou latência **> 3×** a média devem gerar investigação imediata: status **Degradado** indica degradação parcial.',
           ],
           callout: {
             tipo: 'dica',

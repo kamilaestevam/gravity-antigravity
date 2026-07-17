@@ -50,7 +50,7 @@ import {
   rotuloPassoNoCapitulo,
   encontrarPassoPorNum,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX, MANUAL_PASSO_GUIA_RECUO_TEXTO_PX, MANUAL_PASSO_GUIA_BORDA_PX, classePassoCorpoAcademy, passoUsaBordaLateralGuia } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ESPACO_PARAGRAFO_ACORDEAO_PX, MANUAL_ESPACO_APOS_CABECALHO_ACORDEAO_PX, MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX, MANUAL_ESPACO_FRASE_IMAGEM_PX, MANUAL_ESPACO_IMAGEM_FRASE_PX, MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX, MANUAL_ACORDEON_CORPO_PADDING_LATERAL_PX, MANUAL_ACORDEON_SECAO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_BORDA_ESQUERDA, MANUAL_ACORDEON_SUBTOPICO_GAP_PX, MANUAL_ACORDEON_SUBTOPICO_MARGEM_TOPO_PX, MANUAL_ACORDEON_SUBTOPICO_PADDING_ESQUERDA_PX, MANUAL_ACORDEON_SUBTOPICO_RECUO_NIVEL_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_ANINHADO_PX, MANUAL_SUMARIO_SUBTOPICO_GAP_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_FILHO_PX, MANUAL_SUMARIO_SUBTOPICO_MARGEM_GRUPO_PX, MANUAL_SUMARIO_SUBTOPICO_RECUO_PX, MANUAL_RAIO_CHIP, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, manualMargemParagrafoAntesCallout, manualMargemCalloutAposParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX, MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX, MANUAL_ESPACO_GRADE_GALERIA_PX, MANUAL_ALTURA_LEGENDA_CHIP_GRADE_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_NIVEL_PX, MANUAL_ALTURA_LEGENDA_CHIP_EDICAO_MASSA_CAMPO_PX, MANUAL_PASSO_GUIA_RECUO_TEXTO_PX, MANUAL_PASSO_GUIA_BORDA_PX, classePassoCorpoAcademy, passoUsaBordaLateralGuia, normalizarTravessaoTextoGuia } from './manual-tipografia'
 import {
   type ManualEstadoLeitura,
   idSecaoManual,
@@ -1287,7 +1287,7 @@ function ManualIconePinMapaBidFreteInline() {
   return (
     <span
       role="img"
-      aria-label="Pin do mapa — terminal no hub de cotações"
+      aria-label="Pin do mapa: terminal no hub de cotações"
       style={{
         display: 'inline-flex',
         verticalAlign: 'text-bottom',
@@ -1337,7 +1337,7 @@ function ManualBotaoInline({ slug }: { slug: string }) {
 }
 
 function ManualTextoRich({ texto }: { texto: string }) {
-  const linhas = texto.split('\n')
+  const linhas = normalizarTravessaoTextoGuia(texto).split('\n')
   return (
     <>
       {linhas.map((linha, i) => (
@@ -1501,7 +1501,7 @@ function ManualIndicadorCursorVisualizacao() {
   return (
     <div
       role="img"
-      aria-label="Cursor bloqueado — somente visualização"
+      aria-label="Cursor bloqueado: somente visualização"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -1516,7 +1516,7 @@ function ManualIndicadorCursorVisualizacao() {
     >
       <Prohibit size={32} weight="fill" color="#ef4444" aria-hidden />
       <span style={{ fontSize: '.78rem', lineHeight: 1.45, color: MANUAL_CORPO_70 }}>
-        Cursor de <strong style={{ color: '#fca5a5', fontWeight: 700 }}>bloqueio</strong> — a Lista é{' '}
+        Cursor de <strong style={{ color: '#fca5a5', fontWeight: 700 }}>bloqueio</strong>: a Lista é{' '}
         <strong style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>somente visualização</strong>
       </span>
     </div>
@@ -2108,7 +2108,7 @@ function ManualGaleriaTelaFigurasCompostas({
           >
             <ManualFiguraScreenshot
               src={linha.figuras[0].imagem}
-              alt={linha.figuras[0].legenda ?? `${legendaPrincipal} — figura 1`}
+              alt={linha.figuras[0].legenda ?? `${legendaPrincipal}: figura 1`}
               larguraTotal
             />
             <div style={{ alignSelf: 'center', minWidth: 0 }}>
@@ -2119,7 +2119,7 @@ function ManualGaleriaTelaFigurasCompostas({
             </div>
             <ManualFiguraScreenshot
               src={linha.figuras[1].imagem}
-              alt={linha.figuras[1].legenda ?? `${legendaPrincipal} — figura 2`}
+              alt={linha.figuras[1].legenda ?? `${legendaPrincipal}: figura 2`}
               larguraTotal
             />
           </div>
@@ -2134,7 +2134,7 @@ function ManualGaleriaTelaFigurasCompostas({
             }}
           >
             {linha.figuras.map((figura, indiceFigura) => {
-              const alt = figura.legenda ?? `${legendaPrincipal} — figura ${indiceFigura + 1}`
+              const alt = figura.legenda ?? `${legendaPrincipal}: figura ${indiceFigura + 1}`
               return (
                 <div key={`fig-${indiceFigura}`}>
                   {figura.paragrafoAntes ? (
@@ -2513,7 +2513,7 @@ function ManualBadgeEmDesenvolvimento({ marginBottom = MANUAL_ESPACO_PARAGRAFO_P
         Em breve
       </p>
       <p style={MANUAL_ESTILO_CALLOUT_CORPO}>
-        Esta seção ainda está em homologação — a documentação pode antecipar telas que mudam antes do release.
+        Esta seção ainda está em homologação: a documentação pode antecipar telas que mudam antes do release.
       </p>
     </div>
   )
@@ -7178,7 +7178,7 @@ export function ManualInfograficoPermissoesUsuario() {
         <div style={{ marginTop: 16 }}>
           <ManualFiguraScreenshot
             src={SCREENSHOT_USUARIOS_PERMISSAO_MODAL}
-            alt="Modal Editar usuário — aba Permissões com colunas Ver e Editar"
+            alt="Modal Editar usuário: aba Permissões com colunas Ver e Editar"
           />
         </div>
         </div>
@@ -7838,7 +7838,7 @@ const COMPARATIVO_ORG_WS: { criterio: string; organizacao: string; workspace: st
   {
     criterio: 'Quantidade',
     organizacao: 'Uma por contrato / conta Gravity',
-    workspace: 'Uma ou várias por organização — o usuário Master decide quantas criar',
+    workspace: 'Uma ou várias por organização: o usuário Master decide quantas criar',
   },
   {
     criterio: 'Como nasce',

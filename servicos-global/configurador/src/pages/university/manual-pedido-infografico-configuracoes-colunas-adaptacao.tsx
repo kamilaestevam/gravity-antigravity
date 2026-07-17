@@ -300,7 +300,7 @@ export function ManualInfograficoPedidoConfiguracoesColunasAdaptacao() {
             corRotulo="#c4b5fd"
             corHero="#ddd6fe"
             hero={renderizarNegrito('**+ Criar Coluna**')}
-            descricao={renderizarNegrito('Defina campos extras do **workspace** — **arraste**, **olho** e **Salvar** na lista abaixo.')}
+            descricao={renderizarNegrito('Defina campos extras do **workspace**: **arraste**, **olho** e **Salvar** na lista abaixo.')}
           />
           <div style={{
             display: 'flex',
@@ -387,7 +387,7 @@ export function ManualInfograficoPedidoConfiguracoesColunasAdaptacao() {
             color: CORPO_70,
           }}>
             {renderizarNegrito(
-              'Colunas **visíveis**, **ordem** e **largura** na **Lista** ficam gravadas no painel ativo de cada **usuário** — ao voltar, a grade abre do seu jeito. Definições de colunas personalizadas são do **workspace**; quem vê cada campo segue a preferência individual na **Lista**.',
+              'Colunas **visíveis**, **ordem** e **largura** na **Lista** ficam gravadas no painel ativo de cada **usuário**: ao voltar, a grade abre do seu jeito. Definições de colunas personalizadas são do **workspace**; quem vê cada campo segue a preferência individual na **Lista**.',
             )}
           </p>
         </div>

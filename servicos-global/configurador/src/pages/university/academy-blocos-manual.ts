@@ -11,6 +11,7 @@ import type {
   DocSecao as DocSecaoConfigurador,
 } from './manual-configurador-conteudo'
 import type { IdInfograficoAcademy } from './academy-infograficos'
+import { normalizarTravessaoTextoGuia } from './manual-tipografia'
 
 export type TipoBlocoAcademy =
   | 'heading' | 'texto' | 'imagem' | 'video' | 'citacao' | 'destaque'
@@ -24,9 +25,11 @@ export interface BlocoConteudoAcademy {
 }
 
 export function limparTextoManual(texto: string): string {
-  return texto
-    // Mantém **negrito** e {{link:…}} para AcademyTextoRich (PlayerAula).
-    .replace(/\{\{icone:[^}]+\}\}/g, '👁')
+  return normalizarTravessaoTextoGuia(
+    texto
+      // Mantém **negrito** e {{link:…}} para AcademyTextoRich (PlayerAula).
+      .replace(/\{\{icone:[^}]+\}\}/g, '👁'),
+  )
 }
 
 const RE_LINK_MARKUP = /^\{\{link:([^|]+)\|([^}]+)\}\}$/

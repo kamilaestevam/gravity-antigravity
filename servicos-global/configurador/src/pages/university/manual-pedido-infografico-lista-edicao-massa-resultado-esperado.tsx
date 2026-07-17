@@ -36,7 +36,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaResultadoEsperado({
         color: '#e2e8f0',
         lineHeight: 1.4,
       }}>
-        Após confirmar — o que muda na Lista
+        Após confirmar: o que muda na Lista
       </p>
 
       <div style={{
@@ -71,7 +71,7 @@ export function ManualInfograficoPedidoListaEdicaoMassaResultadoEsperado({
           }}>
             Se houver falha parcial
           </p>
-          <LinhaMetrica rotulo="Banner" valor="Amarelo — sucessos + erros" />
+          <LinhaMetrica rotulo="Banner" valor="Amarelo: sucessos + erros" />
           <LinhaMetrica rotulo="Detalhe" valor="PO com motivo do erro" />
           <LinhaMetrica rotulo="Demais POs" valor="Gravados normalmente" />
           <LinhaMetrica rotulo="Auditoria" valor="Histórico registra a operação" />

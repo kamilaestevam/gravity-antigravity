@@ -439,7 +439,7 @@ function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
 }
 
 export const DOC_PEDIDO_SUBTITULO =
-  'Gestão de pedidos no COMEX — do PO criado ao embarque, com transferências, consolidação e documentos'
+  'Gestão de pedidos no COMEX: do PO criado ao embarque, com transferências, consolidação e documentos'
 
 export const DOC_PEDIDO_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.0' },
@@ -474,7 +474,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Menu lateral — acesso rápido',
+          titulo: 'Menu lateral: acesso rápido',
           paragrafos: [
             'Já em outro **Produto Gravity** do mesmo workspace, abra o **seletor de produtos** no topo do menu lateral e escolha **Pedido**.',
           ],
@@ -878,7 +878,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           tituloCurto: 'Detalhamento das colunas',
           paragrafos: [
             'O menu **Colunas** oferece **236 campos nativos** (121 na linha mãe do pedido + 115 na linha filha do item). **121** já vêm ligados no painel **Padrão**; o restante você exibe quando precisar.',
-            'Abaixo, o catálogo completo com **formato**, **edição**, **soma** e **espelhamento** — referência antes de customizar a tabela.',
+            'Abaixo, o catálogo completo com **formato**, **edição**, **soma** e **espelhamento**: referência antes de customizar a tabela.',
           ],
           mostrarInfograficoPedidoCatalogoColunasLista: true,
         },
@@ -937,7 +937,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** campos de **pedido** ou **item**; **marque** de volta para **exibir**.',
               calloutDepois: {
                 tipo: 'dica',
-                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+                texto: 'A tabela atualiza na hora: só permanecem visíveis as colunas marcadas.',
               },
             },
             {
@@ -949,7 +949,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               calloutDepois: {
                 tipo: 'dica',
                 texto:
-                  'A plataforma guarda a **preferência por usuário** — o que for **arrastado**, **organizado**, **oculto** ou **exibido** é para **você**.',
+                  'A plataforma guarda a **preferência por usuário**: o que for **arrastado**, **organizado**, **oculto** ou **exibido** é para **você**.',
               },
             },
             {
@@ -990,14 +990,14 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           calloutAposGaleriaTabela: {
             tipo: 'dica',
             texto:
-              'Preferências de coluna, ordem e painel são **por usuário** — cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
+              'Preferências de coluna, ordem e painel são **por usuário**: cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
           },
         },
         {
           titulo: 'Edição na tabela',
           tituloCurto: 'Edição',
           paragrafos: [
-            'A **Lista** é **totalmente editável** — tanto **pedidos** quanto **itens** — respeitando as regras de cada coluna e campo definidas em ' +
+            'A **Lista** é **totalmente editável**: tanto **pedidos** quanto **itens**: respeitando as regras de cada coluna e campo definidas em ' +
               LINK_MANUAL_PEDIDO_LISTA_DETALHAMENTO_COLUNAS +
               '.',
             'Clique na célula editável para alterar o valor **in place**. A gravação ocorre ao confirmar (Enter ou sair do campo).',
@@ -1038,10 +1038,10 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Filtro das colunas',
           tituloCurto: 'Filtro das colunas',
           paragrafos: [
-            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
+            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior: não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
             'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
-            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Incoterm** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
+            'Você pode **combinar** quantos filtros quiser na mesma tela: **Status** + **Incoterm** + **datas**, por exemplo: e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo (veja ' +
               LINK_MANUAL_PEDIDO_LISTA_PAINEIS +
               ') e reutilize depois.',
           ],
@@ -1077,7 +1077,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
+              'Os filtros ficam **salvos no painel ativo**: ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Em andamento + FOB**, **Consolidado + Exportação**).',
           },
         },
         {
@@ -1093,7 +1093,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              '**Workspace** e **Tipo de operação** replicam automaticamente para todos os itens — **não** geram alerta de divergência. **NCM** e **Descrição** podem ter vários valores no mesmo pedido sem alerta âmbar.',
+              '**Workspace** e **Tipo de operação** replicam automaticamente para todos os itens: **não** geram alerta de divergência. **NCM** e **Descrição** podem ter vários valores no mesmo pedido sem alerta âmbar.',
           },
         },
         {
@@ -1122,7 +1122,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EXCLUIR_CONFIRMACAO,
-                  paragrafoAntes: '**Exclusão** concluída — ação irreversível',
+                  paragrafoAntes: '**Exclusão** concluída: ação irreversível',
                 },
               ],
             },
@@ -1130,14 +1130,14 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Para **excluir mais de uma linha**, marque as desejadas pelo **checkbox** à esquerda e use **Excluir** — o modal confirma o que será removido. Você pode excluir **só um pedido**, **vários pedidos**, **só itens** ou **pedidos e itens** na mesma seleção.',
+              'Para **excluir mais de uma linha**, marque as desejadas pelo **checkbox** à esquerda e use **Excluir**: o modal confirma o que será removido. Você pode excluir **só um pedido**, **vários pedidos**, **só itens** ou **pedidos e itens** na mesma seleção.',
           },
         },
         {
           titulo: 'Exportar',
           tituloCurto: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual: respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
             'No modal, escolha um dos **formatos** permitidos abaixo:',
           ],
           mostrarFormatosExportacaoPedidoLista: true,
@@ -1174,7 +1174,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
+              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela: só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
           },
         },
         {
@@ -1188,7 +1188,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           ],
           galeriaComparacaoAposCaminhosImportacao: [
             {
-              tituloEtapa: '**Etapa 1 — Upload (template oficial):**',
+              tituloEtapa: '**Etapa 1: Upload (template oficial):**',
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -1221,7 +1221,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE,
-                  paragrafoAntes: '**05.** **Disponível** — **Baixar template** oficial (.xlsx)',
+                  paragrafoAntes: '**05.** **Disponível**: **Baixar template** oficial (.xlsx)',
                 },
                 {
                   legenda: '',
@@ -1231,7 +1231,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ANALISANDO,
-                  paragrafoAntes: '**07.** **Em breve** — análise de planilha ou PDF do fornecedor',
+                  paragrafoAntes: '**07.** **Em breve**: análise de planilha ou PDF do fornecedor',
                 },
               ],
             },
@@ -1239,7 +1239,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           galeriaComparacaoAposParagrafo: [
             {
               indice: 1,
-              tituloEtapa: '**Etapa 2 — Mapeamento:**',
+              tituloEtapa: '**Etapa 2: Mapeamento:**',
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               infograficoMapeamentoImportarColunas: true,
@@ -1261,7 +1261,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MAPEAMENTO,
                   calloutAntes: {
                     tipo: 'dica',
-                    texto: 'Cada linha liga uma **coluna do arquivo** a um **campo Gravity** — ajuste no dropdown se a IA errar.',
+                    texto: 'Cada linha liga uma **coluna do arquivo** a um **campo Gravity**: ajuste no dropdown se a IA errar.',
                   },
                 },
                 {
@@ -1286,14 +1286,14 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_VER_DOCUMENTO,
                   calloutAntes: {
                     tipo: 'dica',
-                    texto: '**Ver documento** exibe o arquivo original ao lado da tabela — confira o PDF ou a planilha sem sair do modal.',
+                    texto: '**Ver documento** exibe o arquivo original ao lado da tabela: confira o PDF ou a planilha sem sair do modal.',
                   },
                 },
               ],
             },
             {
               indice: 1,
-              tituloEtapa: '**Etapa 3 — Preview:**',
+              tituloEtapa: '**Etapa 3: Preview:**',
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -1320,7 +1320,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   calloutAntes: {
                     tipo: 'dica',
                     texto:
-                      'Pedido **já existente** no workspace? O card exibe aviso de **duplicata** — escolha **Sobrescrever**, **Criar novo** ou **Pular**. A decisão vale para todas as linhas daquele número.',
+                      'Pedido **já existente** no workspace? O card exibe aviso de **duplicata**: escolha **Sobrescrever**, **Criar novo** ou **Pular**. A decisão vale para todas as linhas daquele número.',
                   },
                 },
                 {
@@ -1335,7 +1335,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             },
             {
               indice: 1,
-              tituloEtapa: '**Etapa 4 — Resultado:**',
+              tituloEtapa: '**Etapa 4: Resultado:**',
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               telas: [
@@ -1359,7 +1359,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             callout: {
               tipo: 'lembrete',
               texto:
-                'Prints marcados **Em breve** (upload genérico, PDF, análise IA) ilustram o **caminho da planilha do usuário**, ainda em homologação. O passo a passo abaixo segue o **template oficial** — caminho homologado hoje.',
+                'Prints marcados **Em breve** (upload genérico, PDF, análise IA) ilustram o **caminho da planilha do usuário**, ainda em homologação. O passo a passo abaixo segue o **template oficial**: caminho homologado hoje.',
             },
           },
           callouts: [
@@ -1371,12 +1371,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
             {
               tipo: 'dica',
               texto:
-                'Pedidos importados nascem em **Rascunho** — revise na Lista e altere o status para **Aberto** quando estiver pronto para operação. A **reversão** só afeta rascunhos; pedidos já abertos permanecem intactos.',
+                'Pedidos importados nascem em **Rascunho**: revise na Lista e altere o status para **Aberto** quando estiver pronto para operação. A **reversão** só afeta rascunhos; pedidos já abertos permanecem intactos.',
             },
             {
               tipo: 'lembrete',
               texto:
-                'Arquivos com **mais de 1.000 linhas** ou próximos do limite de **10 MB** podem ser recusados — divida em lotes menores e importe em sequência.',
+                'Arquivos com **mais de 1.000 linhas** ou próximos do limite de **10 MB** podem ser recusados: divida em lotes menores e importe em sequência.',
             },
           ],
         },
@@ -1428,8 +1428,8 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Transferir pedidos e itens',
           tituloCurto: 'Transferir',
           paragrafos: [
-            'A **Lista** permite **transferir quantidade** de um item para **outro item**, **abrir um novo pedido** com o saldo transferido ou **reduzir a quantidade** do item selecionado sem destino — o foco é ajustar saldo quando a operação real diverge do previsto.',
-            'Muitas vezes **exportadores** alteram entregas entre previstas e reais; aqui é o **controle de tudo**. Selecione **um ou mais itens**, clique em **Transferir** e escolha **Novo pedido**, **Pedido existente** ou **Redução simples** — quantidade, revisão e confirmação seguem lógica parecida nos três caminhos.',
+            'A **Lista** permite **transferir quantidade** de um item para **outro item**, **abrir um novo pedido** com o saldo transferido ou **reduzir a quantidade** do item selecionado sem destino: o foco é ajustar saldo quando a operação real diverge do previsto.',
+            'Muitas vezes **exportadores** alteram entregas entre previstas e reais; aqui é o **controle de tudo**. Selecione **um ou mais itens**, clique em **Transferir** e escolha **Novo pedido**, **Pedido existente** ou **Redução simples**: quantidade, revisão e confirmação seguem lógica parecida nos três caminhos.',
           ],
           mostrarInfograficoPedidoListaTransferirFluxo: true,
           transferirInfograficoAposParagrafo: 1,
@@ -1473,12 +1473,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   tipo: 'dica',
                   texto:
-                    'É possível selecionar **vários itens de uma vez** — do **mesmo pedido** ou de **pedidos diferentes** — antes de abrir **Transferir**.',
+                    'É possível selecionar **vários itens de uma vez**: do **mesmo pedido** ou de **pedidos diferentes**: antes de abrir **Transferir**.',
                 },
                 {
                   tipo: 'dica',
                   texto:
-                    'A partir do **passo 05**, cada tipo segue seu próprio assistente — os três caminhos abaixo partem deste mesmo ponto.',
+                    'A partir do **passo 05**, cada tipo segue seu próprio assistente: os três caminhos abaixo partem deste mesmo ponto.',
                 },
               ],
             },
@@ -1612,12 +1612,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_1,
-                  paragrafoAntes: '**14.** **Origem** — confira saldo e qtd. inicial na Lista',
+                  paragrafoAntes: '**14.** **Origem**: confira saldo e qtd. inicial na Lista',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_TRANSFERIR_EXISTENTE_EM_TELA_2,
-                  paragrafoAntes: '**15.** **Destino** — confira saldo após receber a transferência',
+                  paragrafoAntes: '**15.** **Destino**: confira saldo após receber a transferência',
                 },
               ],
             },
@@ -1912,19 +1912,19 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_ALFANUMERICO,
                   chipEdicaoMassaExemplo: 'tipo_texto',
-                  paragrafoAntes: 'Campo **texto** — operação **substituir**',
+                  paragrafoAntes: 'Campo **texto**: operação **substituir**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CAMPO_SELECT,
                   chipEdicaoMassaExemplo: 'tipo_select',
-                  paragrafoAntes: 'Campo **select** — dropdown com opções válidas (Incoterm, moeda, status…)',
+                  paragrafoAntes: 'Campo **select**: dropdown com opções válidas (Incoterm, moeda, status…)',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_ADICIONAR_CAMPO,
                   chipEdicaoMassaExemplo: 'adicionar_campo',
-                  paragrafoAntes: '**+ Adicionar campo** — inclua mais linhas de edição no mesmo lote',
+                  paragrafoAntes: '**+ Adicionar campo**: inclua mais linhas de edição no mesmo lote',
                 },
               ],
               calloutApos: [
@@ -1948,7 +1948,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_PREVIEW,
-                  paragrafoAntes: '**03.** **Preview** em tempo real — DE/PARA por pedido (debounce ~300 ms)',
+                  paragrafoAntes: '**03.** **Preview** em tempo real: DE/PARA por pedido (debounce ~300 ms)',
                 },
               ],
               calloutApos: {
@@ -1965,7 +1965,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_MODAL,
-                  paragrafoAntes: '**04.** Passo 2 — **Revisão** com pills de resumo (pedidos · itens · campos)',
+                  paragrafoAntes: '**04.** Passo 2: **Revisão** com pills de resumo (pedidos · itens · campos)',
                 },
               ],
             },
@@ -1983,25 +1983,25 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_POR_PEDIDO,
                   chipEdicaoMassaExemplo: 'filtro_por_pedido',
-                  paragrafoAntes: 'Filtro por **pedido de origem** — foco no DE/PARA de um PO',
+                  paragrafoAntes: 'Filtro por **pedido de origem**: foco no DE/PARA de um PO',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_TODOS,
                   chipEdicaoMassaExemplo: 'filtro_todos',
-                  paragrafoAntes: 'Filtro **Todos** — visão completa, inclusive linhas **sem efeito**',
+                  paragrafoAntes: 'Filtro **Todos**: visão completa, inclusive linhas **sem efeito**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_ALTERADOS,
                   chipEdicaoMassaExemplo: 'filtro_alterados',
-                  paragrafoAntes: 'Filtro **Alterados** — só registros que **mudam de fato**',
+                  paragrafoAntes: 'Filtro **Alterados**: só registros que **mudam de fato**',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_REVISAO_SEM_EFEITO,
                   chipEdicaoMassaExemplo: 'filtro_sem_efeito',
-                  paragrafoAntes: 'Filtro **Sem efeito** — valor novo **igual ao atual** (não grava)',
+                  paragrafoAntes: 'Filtro **Sem efeito**: valor novo **igual ao atual** (não grava)',
                 },
               ],
             },
@@ -2025,7 +2025,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_LISTA_EDICAO_MASSA_CONCLUIDO_MODAL,
-                  paragrafoAntes: '**06.** Edição **concluída** no modal (passo 3 — Resultado)',
+                  paragrafoAntes: '**06.** Edição **concluída** no modal (passo 3: Resultado)',
                 },
               ],
             },
@@ -2081,7 +2081,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           imagem: SCREENSHOT_PEDIDO_DASHBOARD,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'O **Dashboard** é o painel de **BI personalizado** do Pedido: monte **widgets** (KPIs, gráficos de linha, barras, área e distribuição) a partir dos pedidos do workspace. Cada usuário salva **painéis**, **layout** e **filtros** — sem alterar a visualização dos colegas.',
+            'O **Dashboard** é o painel de **BI personalizado** do Pedido: monte **widgets** (KPIs, gráficos de linha, barras, área e distribuição) a partir dos pedidos do workspace. Cada usuário salva **painéis**, **layout** e **filtros**: sem alterar a visualização dos colegas.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -2108,7 +2108,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               calloutApos: {
                 tipo: 'dica',
                 texto:
-                  'O **período** escolhido no Dashboard pode **sincronizar** com o das abas **Insights** e **Lista** quando você usa os atalhos padrão — widgets individuais podem ter **período próprio** na edição.',
+                  'O **período** escolhido no Dashboard pode **sincronizar** com o das abas **Insights** e **Lista** quando você usa os atalhos padrão: widgets individuais podem ter **período próprio** na edição.',
               },
             },
           ],
@@ -2276,15 +2276,15 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Período, status e demais filtros **ativos** aparecem na **barra**, em **chips** abaixo dela ou na faixa *_Filtros ativos_* — sempre visíveis para você conferir o recorte. Use **Limpar** para resetar sem trocar de painel.',
+              'Período, status e demais filtros **ativos** aparecem na **barra**, em **chips** abaixo dela ou na faixa *_Filtros ativos_*: sempre visíveis para você conferir o recorte. Use **Limpar** para resetar sem trocar de painel.',
           },
         },
         {
           titulo: 'Adicionar widget',
           tituloCurto: 'Adicionar widget',
           paragrafos: [
-            'Clique em **+** na barra do Dashboard. O menu oferece **dois caminhos** — escolha **um** (não é preciso fazer os dois).',
-            '*_Caminho A — Explorar sugestões:_* widgets prontos gerados pelo catálogo do Pedido — basta **Adicionar**. *_Caminho B — Criar do zero:_* wizard em **3 passos** (**Campos** → **Operação** → **Visualizar**), montando campo, operação e formato você mesmo.',
+            'Clique em **+** na barra do Dashboard. O menu oferece **dois caminhos**: escolha **um** (não é preciso fazer os dois).',
+            '*_Caminho A: Explorar sugestões:_* widgets prontos gerados pelo catálogo do Pedido: basta **Adicionar**. *_Caminho B: Criar do zero:_* wizard em **3 passos** (**Campos** → **Operação** → **Visualizar**), montando campo, operação e formato você mesmo.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -2303,7 +2303,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 0,
               colunas: 1,
               textoAcimaEstiloCorpo: true,
-              tituloEtapa: 'Caminho A — Explorar sugestões',
+              tituloEtapa: 'Caminho A: Explorar sugestões',
               textoIntro: 'Atalhos prontos. Ideal para começar rápido.',
               telas: [
                 {
@@ -2335,7 +2335,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
               indice: 0,
               colunas: 1,
               textoAcimaEstiloCorpo: true,
-              tituloEtapa: 'Caminho B — Criar do zero',
+              tituloEtapa: 'Caminho B: Criar do zero',
               textoIntro: 'Wizard **Campos → Operação → Visualizar** (barra de progresso no topo do modal).',
               telas: [
                 {
@@ -2353,7 +2353,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_1,
-                  paragrafoAntes: '**Campos** — marque **1 campo** do catálogo',
+                  paragrafoAntes: '**Campos**: marque **1 campo** do catálogo',
                 },
               ],
             },
@@ -2365,7 +2365,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_SELECAO,
-                  paragrafoAntes: '**Campos** — clique **Próximo**',
+                  paragrafoAntes: '**Campos**: clique **Próximo**',
                 },
               ],
             },
@@ -2377,7 +2377,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_OPERACAO,
-                  paragrafoAntes: '**Operação** — **título**, operação do campo e **período** → **Próximo**',
+                  paragrafoAntes: '**Operação**: **título**, operação do campo e **período** → **Próximo**',
                 },
               ],
             },
@@ -2389,12 +2389,12 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO,
-                  paragrafoAntes: '**Visualizar** — escolha o **formato** (KPI, linha, barras, área…)',
+                  paragrafoAntes: '**Visualizar**: escolha o **formato** (KPI, linha, barras, área…)',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_PEDIDO_DASHBOARD_NOVO_CRIAR_ZERO_MODAL_TIPO_GRAFICO_FEITO,
-                  paragrafoAntes: '**Salvar** — widget criado na grade',
+                  paragrafoAntes: '**Salvar**: widget criado na grade',
                 },
               ],
             },
@@ -2583,7 +2583,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           imagem: SCREENSHOT_PEDIDO_KANBAN_TELA_PRINCIPAL,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'O **Kanban** organiza os pedidos em **colunas por status** — cada coluna reflete um status configurado no workspace.',
+            'O **Kanban** organiza os pedidos em **colunas por status**: cada coluna reflete um status configurado no workspace.',
           ],
           calloutAposParagrafo: {
             indice: 0,
@@ -2615,7 +2615,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Colunas **somente leitura** (ex.: Consolidado) não aceitam cartões — o arraste é bloqueado. Configure status e colunas em *_Configurações › Kanban_*.',
+              'Colunas **somente leitura** (ex.: Consolidado) não aceitam cartões: o arraste é bloqueado. Configure status e colunas em *_Configurações › Kanban_*.',
           },
         },
         {
@@ -2644,7 +2644,7 @@ export const DOC_PEDIDO_SECAO: DocSecao = {
           titulo: 'Mover entre colunas',
           tituloCurto: 'Mover cartão',
           paragrafos: [
-            '**Arraste** um cartão de uma coluna para outra — ao soltar, o **status do pedido** é atualizado na hora (mesmo efeito de alterar status na Lista).',
+            '**Arraste** um cartão de uma coluna para outra: ao soltar, o **status do pedido** é atualizado na hora (mesmo efeito de alterar status na Lista).',
           ],
           galeriaComparacaoAposParagrafo: [
             {

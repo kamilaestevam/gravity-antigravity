@@ -314,8 +314,8 @@ export function ManualBidFreteSimuladorPainelInsights() {
       <FaixaDemoInterativaBidFrete
         mensagem={
           demoAtiva && selecoesGuia.length === 0
-            ? 'Demo interativa — clique nos blocos dos cards; o guia à direita registra cada escolha'
-            : 'Demo interativa — clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips'
+            ? 'Demo interativa: clique nos blocos dos cards; o guia à direita registra cada escolha'
+            : 'Demo interativa: clique nos blocos dos cards; passe o mouse nas células do ranking para ver tooltips'
         }
         visivel={demoAtiva}
         convitePeriodico={demoAtiva && selecoesGuia.length === 0}

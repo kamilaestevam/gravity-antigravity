@@ -34,7 +34,7 @@ const PILARES: PilarCustomizacao[] = [
   {
     num: '02',
     rotulo: 'Exibir coluna nativa',
-    descricao: 'Marque de volta colunas padrão ou do catálogo de documentos — a lista atualiza na hora.',
+    descricao: 'Marque de volta colunas padrão ou do catálogo de documentos: a lista atualiza na hora.',
     icone: Eye,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -52,7 +52,7 @@ const PILARES: PilarCustomizacao[] = [
   {
     num: '04',
     rotulo: 'Criar coluna customizada',
-    descricao: 'Monte campos próprios além do catálogo — o fluxo completo está em **Configurações**.',
+    descricao: 'Monte campos próprios além do catálogo: o fluxo completo está em **Configurações**.',
     icone: PlusCircle,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -188,7 +188,7 @@ export function ManualInfograficoSmartDocsListaCustomizacao({
             color: CORPO_70,
             whiteSpace: 'nowrap',
           }}>
-            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal — nativas, catálogo ou campos próprios.
+            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal: nativas, catálogo ou campos próprios.
           </p>
         </div>
       </div>

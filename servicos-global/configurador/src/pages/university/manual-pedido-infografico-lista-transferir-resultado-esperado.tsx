@@ -265,9 +265,9 @@ function ConteudoReducao() {
 }
 
 const SUBTITULOS: Record<TransferirResultadoVariant, string> = {
-  novo: 'Após confirmar — o que conferir na Lista (origem + novo PO)',
-  existente: 'Após confirmar — o que conferir na Lista (origem + destino)',
-  reducao: 'Após confirmar — o que conferir na Lista (só origem)',
+  novo: 'Após confirmar: o que conferir na Lista (origem + novo PO)',
+  existente: 'Após confirmar: o que conferir na Lista (origem + destino)',
+  reducao: 'Após confirmar: o que conferir na Lista (só origem)',
 }
 
 /** Manual Pedido § Transferir — mapa UX 10 das quatro métricas (inicial, transferida/reduzida, saldos). */
@@ -314,7 +314,7 @@ export function ManualInfograficoPedidoListaTransferirResultadoEsperado({
         lineHeight: 1.45,
         color: CORPO_70,
       }}>
-        Exemplo ilustrativo com {renderizarNegrito(`**${EXEMPLO.qtdOperacao} un.**`)} transferidas/reduzidas — substitua pelos valores do seu PO.
+        Exemplo ilustrativo com {renderizarNegrito(`**${EXEMPLO.qtdOperacao} un.**`)} transferidas/reduzidas: substitua pelos valores do seu PO.
       </p>
       {variant === 'reducao'
         ? <ConteudoReducao />

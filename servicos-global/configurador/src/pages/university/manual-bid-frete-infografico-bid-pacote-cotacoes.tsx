@@ -152,7 +152,7 @@ export function ManualInfograficoBidFreteBidPacoteCotacoes() {
             ))}
           </div>
           <p style={{ margin: '4px 0 0', fontSize: '.58rem', lineHeight: 1.4, color: CORPO_70 }}>
-            <ManualInfograficoRichText texto="Cada linha é uma **cotação avulsa** já criada — rotas independentes." />
+            <ManualInfograficoRichText texto="Cada linha é uma **cotação avulsa** já criada: rotas independentes." />
           </p>
         </div>
 
@@ -260,7 +260,7 @@ export function ManualInfograficoBidFreteBidPacoteCotacoes() {
           }}>
             <UsersThree size={15} weight="duotone" color="#34d399" aria-hidden style={{ flexShrink: 0 }} />
             <p style={{ margin: 0, fontSize: '.6rem', lineHeight: 1.4, color: CORPO_70 }}>
-              <ManualInfograficoRichText texto="Fornecedores recebem **uma negociação** sobre o conjunto — não três cotações separadas." />
+              <ManualInfograficoRichText texto="Fornecedores recebem **uma negociação** sobre o conjunto: não três cotações separadas." />
             </p>
           </div>
         </div>
@@ -272,7 +272,7 @@ export function ManualInfograficoBidFreteBidPacoteCotacoes() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        <ManualInfograficoRichText texto="O **BID** não substitui as cotações — ele as **agrupa**. Você marca as existentes no modal e o sistema cria **uma referência única** para negociar o pacote inteiro." />
+        <ManualInfograficoRichText texto="O **BID** não substitui as cotações: ele as **agrupa**. Você marca as existentes no modal e o sistema cria **uma referência única** para negociar o pacote inteiro." />
       </p>
     </div>
   )

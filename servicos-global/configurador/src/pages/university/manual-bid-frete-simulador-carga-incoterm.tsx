@@ -82,57 +82,57 @@ const INCOTERM_TODOS = [
 
 const INCOTERM_AJUDA: Record<string, { titulo: string; desc: string; responsabilidade: string }> = {
   EXW: {
-    titulo: 'EXW — Ex Works',
+    titulo: 'EXW: Ex Works',
     desc: 'O vendedor disponibiliza a mercadoria no próprio estabelecimento. Coleta, frete e risco ficam com o comprador.',
     responsabilidade: 'Comprador assume quase tudo a partir da origem',
   },
   FCA: {
-    titulo: 'FCA — Free Carrier',
+    titulo: 'FCA: Free Carrier',
     desc: 'O vendedor entrega a mercadoria ao transportador indicado pelo comprador no local combinado.',
     responsabilidade: 'Vendedor até a entrega ao transportador; depois, comprador',
   },
   FAS: {
-    titulo: 'FAS — Free Alongside Ship',
+    titulo: 'FAS: Free Alongside Ship',
     desc: 'O vendedor coloca a mercadoria ao lado do navio no porto de embarque (só marítimo).',
     responsabilidade: 'Vendedor até o costado do navio; embarque e frete com o comprador',
   },
   FOB: {
-    titulo: 'FOB — Free On Board',
+    titulo: 'FOB: Free On Board',
     desc: 'O vendedor embarca a mercadoria no navio no porto de origem (só marítimo).',
     responsabilidade: 'Vendedor até o embarque; frete principal com o comprador',
   },
   CFR: {
-    titulo: 'CFR — Cost and Freight',
+    titulo: 'CFR: Cost and Freight',
     desc: 'O vendedor paga o frete até o porto de destino; o risco passa no embarque.',
     responsabilidade: 'Frete com o vendedor; risco com o comprador após embarque',
   },
   CIF: {
-    titulo: 'CIF — Cost, Insurance and Freight',
+    titulo: 'CIF: Cost, Insurance and Freight',
     desc: 'Como CFR, com seguro mínimo contratado pelo vendedor até o destino.',
     responsabilidade: 'Frete e seguro mínimo com o vendedor; risco após embarque com o comprador',
   },
   CPT: {
-    titulo: 'CPT — Carriage Paid To',
+    titulo: 'CPT: Carriage Paid To',
     desc: 'O vendedor paga o transporte até o local de destino combinado; o risco passa na entrega ao primeiro transportador.',
     responsabilidade: 'Frete com o vendedor; risco antecipado para o comprador',
   },
   CIP: {
-    titulo: 'CIP — Carriage and Insurance Paid To',
+    titulo: 'CIP: Carriage and Insurance Paid To',
     desc: 'Como CPT, com seguro contratado pelo vendedor até o destino.',
     responsabilidade: 'Frete e seguro com o vendedor; risco antecipado para o comprador',
   },
   DAP: {
-    titulo: 'DAP — Delivered at Place',
+    titulo: 'DAP: Delivered at Place',
     desc: 'O vendedor entrega no local de destino, pronto para desembarque; impostos de importação ficam com o comprador.',
     responsabilidade: 'Vendedor até o local; desembaraço de importação com o comprador',
   },
   DPU: {
-    titulo: 'DPU — Delivered at Place Unloaded',
+    titulo: 'DPU: Delivered at Place Unloaded',
     desc: 'O vendedor entrega e descarrega no local de destino combinado.',
     responsabilidade: 'Vendedor até a descarga; impostos de importação com o comprador',
   },
   DDP: {
-    titulo: 'DDP — Delivered Duty Paid',
+    titulo: 'DDP: Delivered Duty Paid',
     desc: 'O vendedor entrega no destino com impostos e desembaraço de importação pagos.',
     responsabilidade: 'Máxima responsabilidade do vendedor até a entrega final',
   },
@@ -156,7 +156,7 @@ const ONU_CATALOGO: Array<{
 }> = [
   {
     id: 'un1203',
-    rotulo: 'UN 1203 — Gasolina',
+    rotulo: 'UN 1203: Gasolina',
     numero_onu: '1203',
     classe: '3',
     divisao: '',
@@ -165,7 +165,7 @@ const ONU_CATALOGO: Array<{
   },
   {
     id: 'un1263',
-    rotulo: 'UN 1263 — Tinta',
+    rotulo: 'UN 1263: Tinta',
     numero_onu: '1263',
     classe: '3',
     divisao: '',
@@ -174,7 +174,7 @@ const ONU_CATALOGO: Array<{
   },
   {
     id: 'un3480',
-    rotulo: 'UN 3480 — Bateria de íon-lítio',
+    rotulo: 'UN 3480: Bateria de íon-lítio',
     numero_onu: '3480',
     classe: '9',
     divisao: '',
@@ -184,11 +184,11 @@ const ONU_CATALOGO: Array<{
 ]
 
 const CONTAINERS_CATALOGO: SelectOpcao[] = [
-  { valor: '20GP', rotulo: '20GP — Dry 20\'' },
-  { valor: '40GP', rotulo: '40GP — Dry 40\'' },
-  { valor: '40HC', rotulo: '40HC — High Cube 40\'' },
-  { valor: '20RF', rotulo: '20RF — Reefer 20\'' },
-  { valor: '40RF', rotulo: '40RF — Reefer 40\'' },
+  { valor: '20GP', rotulo: '20GP: Dry 20\'' },
+  { valor: '40GP', rotulo: '40GP: Dry 40\'' },
+  { valor: '40HC', rotulo: '40HC: High Cube 40\'' },
+  { valor: '20RF', rotulo: '20RF: Reefer 20\'' },
+  { valor: '40RF', rotulo: '40RF: Reefer 40\'' },
 ]
 
 const EMBALAGENS_CATALOGO: SelectOpcao[] = [
@@ -209,10 +209,10 @@ const UNIDADES_CUBAGEM: SelectOpcao[] = [
 ]
 
 const MOEDAS_CATALOGO: SelectOpcao[] = [
-  { valor: 'USD', rotulo: 'USD — Dólar americano' },
-  { valor: 'BRL', rotulo: 'BRL — Real brasileiro' },
-  { valor: 'EUR', rotulo: 'EUR — Euro' },
-  { valor: 'CNY', rotulo: 'CNY — Yuan chinês' },
+  { valor: 'USD', rotulo: 'USD: Dólar americano' },
+  { valor: 'BRL', rotulo: 'BRL: Real brasileiro' },
+  { valor: 'EUR', rotulo: 'EUR: Euro' },
+  { valor: 'CNY', rotulo: 'CNY: Yuan chinês' },
 ]
 
 function novaLinhaContainer(): LinhaContainerFcl {
@@ -750,7 +750,7 @@ export function ConteudoPassoCargaIncotermSimulador({
               Carga perigosa
             </SubsecaoTitle>
             <p className="nc-cargo-subsecao-hint">
-              Marcado no passo 1 — informe a classificação ONU (IMDG / IATA DGR / ADR).
+              Marcado no passo 1: informe a classificação ONU (IMDG / IATA DGR / ADR).
             </p>
             <div className="nc-cargo-perigosa-grid">
               <SimuladorNcField label="Número ONU" obrigatorio icone={<Warning {...ICONE_FIELD} />}>
@@ -831,7 +831,7 @@ export function ConteudoPassoCargaIncotermSimulador({
             <>
               <div className="nc-linhas-container-header">
                 <p className="nc-cargo-subsecao-hint" style={{ margin: 0 }}>
-                  Modalidade <strong>{modalidadeLabel}</strong> — adicione um ou mais tipos de container.
+                  Modalidade <strong>{modalidadeLabel}</strong>: adicione um ou mais tipos de container.
                 </p>
                 <button
                   type="button"
@@ -911,7 +911,7 @@ export function ConteudoPassoCargaIncotermSimulador({
           ) : (
             <>
               <p className="nc-cargo-subsecao-hint">
-                Modalidade <strong>{modalidadeLabel}</strong> — escolha o tipo de volume (caixa, palete, etc.) e a quantidade
+                Modalidade <strong>{modalidadeLabel}</strong>: escolha o tipo de volume (caixa, palete, etc.) e a quantidade
               </p>
               <div className="nc-cargo-subsecao-grid-quantidade nc-cargo-subsecao-grid-quantidade--embalagem">
                 <SimuladorNcField label="Tipo de volume" obrigatorio icone={<Package {...ICONE_FIELD} />}>
@@ -961,7 +961,7 @@ export function ConteudoPassoCargaIncotermSimulador({
             Peso e cubagem
           </SubsecaoTitle>
           <p className="nc-cargo-subsecao-hint">
-            Opcional — informe peso e cubagem para ajudar o fornecedor a cotar com precisão
+            Opcional: informe peso e cubagem para ajudar o fornecedor a cotar com precisão
           </p>
           <div className="nc-cargo-subsecao-grid-peso">
             <SimuladorNcField label="Peso (kg)" icone={<Scales {...ICONE_FIELD} />}>

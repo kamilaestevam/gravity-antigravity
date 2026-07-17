@@ -30,10 +30,10 @@ const GRUPOS: GrupoDocumento[] = [
     fundo: 'rgba(99,102,241,.08)',
     icone: FileText,
     itens: [
-      'Invoice — Commercial Invoice, Fatura',
+      'Invoice: Commercial Invoice, Fatura',
       'Proforma',
       'Purchase Order / Pedido',
-      'Packing List — Lista de Embalagem / Romaneio',
+      'Packing List: Lista de Embalagem / Romaneio',
     ],
   },
   {
@@ -43,8 +43,8 @@ const GRUPOS: GrupoDocumento[] = [
     fundo: 'rgba(56,189,248,.08)',
     icone: Boat,
     itens: [
-      'BL — Bill of Lading / Conhecimento de Embarque',
-      'AWB — Air Waybill / Conhecimento Aéreo',
+      'BL: Bill of Lading / Conhecimento de Embarque',
+      'AWB: Air Waybill / Conhecimento Aéreo',
     ],
   },
   {

@@ -231,3 +231,23 @@ export function manualMargemCalloutAposParagrafo(indiceCallout: number, totalPar
     marginBottom: indiceCallout < totalParagrafos - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0,
   }
 }
+
+/**
+ * MANUAL-GRAVITY-ONBOARDING.md §9.1 — remove travessões do texto visível ao aluno.
+ * Preserva markups `{{…}}` (links, ícones) intactos.
+ */
+export function normalizarTravessaoTextoGuia(texto: string): string {
+  const markups: string[] = []
+  const protegido = texto.replace(/\{\{[^}]+\}\}/g, (m) => {
+    markups.push(m)
+    return `\x00M${markups.length - 1}\x00`
+  })
+
+  const normalizado = protegido
+    .replace(/\s[—–]\s/g, ': ')
+    .replace(/\*\*[—–]\*\*/g, '*(vazio)*')
+    .replace(/(^|[\s(])[—–](?=[\s)])/g, '$1')
+    .replace(/[—–](?=$)/g, '')
+
+  return normalizado.replace(/\x00M(\d+)\x00/g, (_, i) => markups[Number(i)] ?? '')
+}

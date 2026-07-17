@@ -51,7 +51,7 @@ export function ManualPedidoIndicadoresMoverDashboard() {
         />
         <p style={{ margin: 0, fontSize: '.78rem', lineHeight: 1.55, color: CORPO_70 }}>
           Enquanto arrasta, a grade exibe uma área em{' '}
-          <strong style={{ color: '#fca5a5' }}>vermelho</strong> — é a guia do local onde o card vai
+          <strong style={{ color: '#fca5a5' }}>vermelho</strong>: é a guia do local onde o card vai
           ficar ao soltar.
         </p>
       </div>

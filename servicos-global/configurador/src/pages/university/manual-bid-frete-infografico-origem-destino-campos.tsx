@@ -173,7 +173,7 @@ export function ManualInfograficoBidFreteOrigemDestinoCampos() {
   return (
     <div
       role="group"
-      aria-label="Campos do passo Origem e Destino — Nova cotação manual"
+      aria-label="Campos do passo Origem e Destino: Nova cotação manual"
       style={{
         background: 'linear-gradient(165deg, rgba(56,189,248,.07) 0%, rgba(148,163,184,.04) 55%, rgba(129,140,248,.05) 100%)',
         border: '1px solid rgba(56,189,248,.18)',

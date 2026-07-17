@@ -21,7 +21,7 @@ const FORMATOS_EXPORTACAO: FormatoExportacao[] = [
     rotulo: 'CSV',
     extensao: '.csv',
     icone: <FileCsv size={26} weight="duotone" style={{ color: '#60a5fa' }} aria-hidden />,
-    descricao: 'Valores separados por vírgula — abre em Excel ou BI',
+    descricao: 'Valores separados por vírgula: abre em Excel ou BI',
   },
   {
     rotulo: 'TXT',

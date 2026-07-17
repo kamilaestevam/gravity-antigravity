@@ -1091,15 +1091,15 @@ const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+    detalhes: ['Ordenação decrescente: o mais recente no topo'],
   },
   {
     coluna: 'Ação',
-    descricao: 'O que aconteceu — ex.: **Convidou**, **Atualizou**, **Excluiu**.',
+    descricao: 'O que aconteceu: ex.: **Convidou**, **Atualizou**, **Excluiu**.',
   },
   {
     coluna: 'Local',
-    descricao: 'Tela ou módulo — ex.: Configurador | Usuários, Pedido | Lista.',
+    descricao: 'Tela ou módulo: ex.: Configurador | Usuários, Pedido | Lista.',
   },
   {
     coluna: 'Usuário',
@@ -1107,7 +1107,7 @@ const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   },
   {
     coluna: 'Detalhes',
-    descricao: 'Resumo do que mudou — permissão, convite, número do pedido, etc.',
+    descricao: 'Resumo do que mudou: permissão, convite, número do pedido, etc.',
   },
 ]
 
@@ -1482,7 +1482,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-workspaces-acesso-tela.png',
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
-      '**Workspaces** são as unidades operacionais da organização — cada unidade opera com dados, usuários e registros isolados.',
+      '**Workspaces** são as unidades operacionais da organização: cada unidade opera com dados, usuários e registros isolados.',
     ],
     calloutAposParagrafo: {
       indice: 0,
@@ -1693,7 +1693,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               'No menu lateral do Configurador, clique em Usuários. A tela abre com a listagem e os quatro cards de resumo no topo.',
             ],
             paragrafosAposImagem: [
-              'Cada card possui ícone (i) com tooltip explicativo — passe o mouse para ver o significado de cada indicador. Veja abaixo o que cada indicador mostra:',
+              'Cada card possui ícone (i) com tooltip explicativo: passe o mouse para ver o significado de cada indicador. Veja abaixo o que cada indicador mostra:',
             ],
             imagemAbaixoTexto: true,
             tooltipsKpiAposImagem: true,
@@ -1733,7 +1733,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'O que acontece depois do envio',
             ocultarRotuloPasso: true,
             paragrafos: [
-              'Esta sequência mostra o que o **convidado** vê depois que você envia o convite — não é um passo para você repetir, apenas o fluxo que acontece automaticamente.',
+              'Esta sequência mostra o que o **convidado** vê depois que você envia o convite: não é um passo para você repetir, apenas o fluxo que acontece automaticamente.',
             ],
             galeriaTelas: [...USUARIOS_GALERIA_JORNADA_CONVIDADO],
             galeriaFraseAposIndice: { indice: 1, texto: USUARIOS_JORNADA_FRASE_APOS_LINK },
@@ -1806,7 +1806,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              '*_Permissão especial: Pode cotar frete internacional_*: Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -2400,7 +2400,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Cancelar assinatura',
         paragrafos: [
           'Encerre definitivamente o contrato de um produto Gravity. Diferente de **suspender**, o cancelamento é **irreversível**: A assinatura sai de **Produtos Contratados** e o módulo pode voltar a aparecer em **Produtos Disponíveis para Contratação** se a organização quiser reassinar.',
-          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03 — cancelamento em 20/02 só passa a valer em 05/03.',
+          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03: cancelamento em 20/02 só passa a valer em 05/03.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -2411,7 +2411,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Somente usuários **Master** podem cancelar. A operação não pode ser desfeita nesta tela — para voltar a usar o produto, será necessário contratar novamente.',
+              texto: 'Somente usuários **Master** podem cancelar. A operação não pode ser desfeita nesta tela: para voltar a usar o produto, será necessário contratar novamente.',
             },
           },
           {
@@ -2479,7 +2479,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Histórico de faturas',
         paragrafos: [
           'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
-          '**Visão geral da aba Faturas** — A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
+          '**Visão geral da aba Faturas**: A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
         ],
         figurasAposParagrafo: [
           {
@@ -2574,7 +2574,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       {
         indice: 0,
         imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
-        legenda: 'Tela principal — aba Cotação Atual',
+        legenda: 'Tela principal: aba Cotação Atual',
       },
     ],
     lista: [
@@ -2633,13 +2633,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     titulo: 'Histórico',
     paragrafos: [
       `**Histórico** registra alterações sensíveis na organização e nos ${LINK_MANUAL_WORKSPACES}: Convites, mudanças de ${LINK_MANUAL_PERMISSOES}, workspaces, assinaturas e eventos de segurança.`,
-      'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando — sem alterar registros.',
+      'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando: sem alterar registros.',
     ],
     figurasAposParagrafo: [
       {
         indice: 1,
         imagem: '/university/screenshots/configurador-historico-tela-principal.png',
-        legenda: 'Visão geral — cards de resumo e tabela de auditoria',
+        legenda: 'Visão geral: cards de resumo e tabela de auditoria',
       },
     ],
     lista: [
@@ -2676,12 +2676,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               titulo: 'Caminho alternativo: pelo produto',
               imagem: SCREENSHOT_HISTORICO_SETA_PRODUTO,
               paragrafos: [
-                'Sem passar pelo Configurador, cada **produto Gravity** (Pedido, Smart Docs, etc.) traz **Histórico** no menu lateral inferior — como na imagem.',
+                'Sem passar pelo Configurador, cada **produto Gravity** (Pedido, Smart Docs, etc.) traz **Histórico** no menu lateral inferior: como na imagem.',
                 'Esse atalho abre os eventos **daquele módulo**, não o histórico geral da organização.',
               ],
               callout: {
                 tipo: 'dica',
-                texto: '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do produto** — operações do módulo.',
+                texto: '**Configurador › Histórico**: convites, permissões e segurança da conta. **Histórico do produto**: operações do módulo.',
               },
             },
           ],
@@ -2735,14 +2735,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'O que o histórico registra',
         tituloSumario: 'O que o histórico registra',
         paragrafos: [
-          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma — módulo, ação e contexto de cada evento auditável.',
+          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma: módulo, ação e contexto de cada evento auditável.',
           'Na tela **Histórico** do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo). No catálogo abaixo, expanda cada seção para ver o detalhe.',
         ],
         calloutAposParagrafo: {
           indice: 1,
           callout: {
             tipo: 'dica',
-            texto: 'Nos produtos prontos (**Pedido**, **BID Frete**, **Smart Docs**) o histórico **não grava cada clique** — só **alterações que salvam no servidor** e operações especiais (duplicar, transferir, aprovar cotação, etc.).',
+            texto: 'Nos produtos prontos (**Pedido**, **BID Frete**, **Smart Docs**) o histórico **não grava cada clique**: só **alterações que salvam no servidor** e operações especiais (duplicar, transferir, aprovar cotação, etc.).',
           },
         },
         mostrarCatalogoHistoricoCompleto: true,

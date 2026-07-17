@@ -68,6 +68,7 @@ import {
 import {
   carregarBlobArquivoLeituraSmartRead,
   removerBlobArquivoLeituraSmartRead,
+  resolverArquivoOriginalLeituraSmartRead,
   salvarBlobArquivoLeituraSmartRead,
 } from '../../shared/persistencia-blob-arquivo-leitura-smart-read'
 import {
@@ -101,13 +102,18 @@ import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arqui
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
+import type { PayloadContinuarPrefillCotacaoBidFreteSmartRead } from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
+import { buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional } from '../../shared/navegacao-cotacao-bid-frete-smart-read'
+import {
+  montarPacotePrefillCotacaoBidFreteSmartRead,
+  salvarPrefillCotacaoBidFreteSmartRead,
+} from '../../shared/persistencia-prefill-cotacao-bid-frete-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../../shared/hint-retomar-leitura-lista-smart-read.js'
 
 import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
 
 const GabiChat = lazy(() => import('@plataforma/gabi/src/Gabi'))
-<<<<<<< Updated upstream
-=======
 const PainelRevisaoPrefillCotacaoBidFreteSmartRead = lazy(
   () =>
     import('./painel-revisao-prefill-cotacao-bid-frete-smart-read')
@@ -128,8 +134,6 @@ const PainelRevisaoPrefillCotacaoBidFreteSmartRead = lazy(
         }
       }),
 )
->>>>>>> Stashed changes
-
 
 
 const INTERVALO_POLLING_MS = 2000
@@ -166,12 +170,21 @@ type Props = {
   /** Passo vindo da Lista (status_fluxo) — placeholder até hidratar progresso. */
   passoRetomarLista?: number | null
 
+  /** Metadados da linha da Lista (nome/total) para placeholders na retomada. */
+  hintRetomarLista?: HintRetomarLeituraListaSmartRead | null
+
   onFechar: () => void
 
   onConcluido?: () => void
 
   /** Quando true (redirect do Pedido), dispara criação de pedido ao concluir passo 4. */
   origemPedido?: boolean
+
+  /** Quando true (redirect do BID Frete), revisão DE/PARA e abre Nova Cotação no passo Fornecedores. */
+  origemBidFrete?: boolean
+
+  /** BID vinculado quando o fluxo veio de Novo → BID → Smart Docs. */
+  idBidOrigem?: string | null
 
 }
 
@@ -197,13 +210,20 @@ export function ModalNovaLeituraSmartRead({
 
   passoRetomarLista = null,
 
+  hintRetomarLista = null,
+
   onFechar,
 
   onConcluido,
 
   origemPedido = false,
 
+  origemBidFrete = false,
+
+  idBidOrigem = null,
+
 }: Props) {
+  void hintRetomarLista
 
   const addNotification = useShellStore((s) => s.addNotification)
 
@@ -238,6 +258,12 @@ export function ModalNovaLeituraSmartRead({
   const riscosIniciadosRef = useRef<Set<string>>(new Set())
 
   const [enviando, setEnviando] = useState(false)
+  const [redirecionandoCotacao, setRedirecionandoCotacao] = useState(false)
+
+  const leituraConsolidada = useMemo(
+    () => consolidarLeituraDeArquivosLocais(arquivos),
+    [arquivos],
+  )
 
   const extracaoEmAndamento = useMemo(
     () => passo >= 2 && !analiseCompleta && (enviando || algumArquivoEmAnalise(arquivos)),
@@ -278,6 +304,10 @@ export function ModalNovaLeituraSmartRead({
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const salvarProgressoEdicaoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
+  const prefillContinuarRef = useRef<{
+    payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead
+    manterWizard: boolean
+  } | null>(null)
 
   const resolverTempoProcessoTotalMsAtual = useCallback((): number => {
     return tempoPersistidoMsRef.current + (Date.now() - inicioSessaoRef.current)
@@ -1034,6 +1064,58 @@ export function ModalNovaLeituraSmartRead({
 
     if (passo >= 4) {
 
+      if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
+        try {
+          setRedirecionandoCotacao(true)
+          const pacoteRef = prefillContinuarRef.current
+          const payload = pacoteRef?.payload ?? await (async () => {
+            const { converterLeituraParaCotacaoBidFreteInternacional } = await import(
+              '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
+            )
+            const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
+            return {
+              prefill: conversao.prefill,
+              detalhe_mapeamento: conversao.detalhe_mapeamento,
+              campos_faltantes: conversao.campos_faltantes,
+              passo_inicial_tipo: conversao.passo_inicial_tipo,
+              iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
+            }
+          })()
+          const manterWizard = pacoteRef?.manterWizard === true
+          salvarPrefillCotacaoBidFreteSmartRead(
+            montarPacotePrefillCotacaoBidFreteSmartRead({
+              idLeitura: idLeituraAtual,
+              idBid: idBidOrigem,
+              prefill: payload.prefill,
+              detalheMapeamento: payload.detalhe_mapeamento,
+              passoInicialTipo: payload.passo_inicial_tipo,
+              iniciarNoPassoFornecedores: payload.iniciar_no_passo_fornecedores,
+            }),
+          )
+          prefillContinuarRef.current = null
+          const url = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
+            idLeituraAtual,
+            idBidOrigem,
+          )
+          if (manterWizard) {
+            window.open(url, '_blank', 'noopener,noreferrer')
+            setRedirecionandoCotacao(false)
+            return
+          }
+          onConcluido?.()
+          await handleFechar()
+          window.location.href = url
+          return
+        } catch (erro) {
+          setRedirecionandoCotacao(false)
+          addNotification({
+            type: 'error',
+            title: 'Falha ao preparar cotação',
+            message: mensagemDeExcecao(erro, 'Nao foi possivel abrir a nova cotacao a partir da leitura.'),
+          })
+        }
+      }
+
       if (origemPedido && idLeituraAtual) {
         try {
           const resultado = await smartReadApi.criarPedidoDeLeitura(idLeituraAtual)
@@ -1254,12 +1336,30 @@ export function ModalNovaLeituraSmartRead({
           </div>
         )}
 
-        {passo === 4 && (
-          <AreaResultadoNovaLeituraSmartRead
-            arquivos={arquivos}
-            tempoTotalMs={tempoTotalMs || resolverTempoProcessoTotalMsAtual()}
-          />
-        )}
+        {passo === 4 && origemBidFrete && leituraConsolidada ? (
+          <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
+            <PainelRevisaoPrefillCotacaoBidFreteSmartRead
+              leitura={leituraConsolidada}
+              onContinuar={(payload, opcoes) => {
+                prefillContinuarRef.current = {
+                  payload,
+                  manterWizard: opcoes?.manter_wizard_aberto === true,
+                }
+                void handleContinuarPasso()
+              }}
+              continuando={redirecionandoCotacao}
+            />
+          </Suspense>
+        ) : passo === 4 ? (
+          hidratandoRetomar || recuperandoExtracaoRetomar ? (
+            <p className="sr-conf-vazio">Carregando leitura…</p>
+          ) : (
+            <AreaResultadoNovaLeituraSmartRead
+              arquivos={arquivos}
+              tempoTotalMs={tempoTotalMs || resolverTempoProcessoTotalMsAtual()}
+            />
+          )
+        ) : null}
 
       </div>
 

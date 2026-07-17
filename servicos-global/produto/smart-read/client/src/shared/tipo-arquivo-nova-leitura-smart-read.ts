@@ -218,6 +218,40 @@ export function montarLeituraMinimaProcessamentoDeArquivosLocais(
   }
 }
 
+/** Atualiza cada item local com a leitura mais recente da API (ex.: antes de avançar ao passo 3). */
+export function aplicarLeituraApiNosArquivosLocais(
+  itens: ArquivoLocalNovaLeitura[],
+  leitura: Leitura,
+): ArquivoLocalNovaLeitura[] {
+  return itens.map((item) => {
+    const arquivoApi =
+      (item.id_arquivo
+        ? leitura.arquivos.find((arq) => arq.id_arquivo === item.id_arquivo)
+        : null) ??
+      leitura.arquivos.find((arq) => arq.nome_arquivo === item.arquivo.name) ??
+      (leitura.arquivos.length === 1 ? leitura.arquivos[0] : null)
+
+    const statusLocal: StatusArquivoLocalNovaLeitura =
+      leitura.status_leitura === 'COMPLETED'
+        ? 'completo'
+        : leitura.status_leitura === 'FAILED'
+          ? 'erro'
+          : item.status_arquivo_local
+
+    return {
+      ...item,
+      leitura,
+      id_arquivo: arquivoApi?.id_arquivo ?? item.id_arquivo,
+      status_arquivo_local: statusLocal,
+      mensagem_erro:
+        statusLocal === 'erro'
+          ? leitura.mensagem_erro?.trim() || item.mensagem_erro || 'Falha no processamento'
+          : item.mensagem_erro,
+      expandido: statusLocal === 'completo' ? true : item.expandido,
+    }
+  })
+}
+
 export function resolverArquivoApiLeitura(
   item: ArquivoLocalNovaLeitura,
 ): Leitura['arquivos'][number] | null {

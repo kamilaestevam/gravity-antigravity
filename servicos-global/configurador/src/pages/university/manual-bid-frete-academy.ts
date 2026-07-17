@@ -22,13 +22,16 @@ function aulaBidFrete(
   titulo: string,
   duracao: string,
   fluxoIndices: number[],
-  opcoes?: { incluirIntroSecao?: boolean; ocultarCabecalhoNavSumario?: boolean },
+  opcoes?: { incluirIntroSecao?: boolean; ocultarCabecalhoNavSumario?: boolean; cabecalhoH1?: boolean },
 ): AulaDemo {
   const blocos = blocosDeSecaoConfiguradorAcademy(DOC_BID_FRETE_SECAO, {
     ...OPCOES_BID_FRETE,
     incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
     fluxoIndices,
   })
+  if (opcoes?.cabecalhoH1 && !opcoes.incluirIntroSecao) {
+    blocos.unshift({ tipo: 'heading', dados: { text: titulo, nivel: 1 } })
+  }
   return {
     slug,
     titulo,
@@ -72,6 +75,7 @@ export const AULAS_BID_FRETE: AulaDemo[] = [
     'Cotação de frete internacional',
     '52m',
     [4, 5, 6],
+    { cabecalhoH1: true },
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[4],

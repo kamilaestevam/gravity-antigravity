@@ -227,10 +227,11 @@ function fluxoTemConteudoIntroAcademy(fluxo: DocFluxo): boolean {
 function blocosDeFluxoAcademySubtopicosComoTitulos(
   fluxo: DocFluxo,
   numeroSecaoFluxo: number,
+  nivelTituloFluxo = 1,
 ): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
 
-  blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 1 } })
+  blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: nivelTituloFluxo } })
   const tituloIntro = fluxo.tituloTopicoAcademy?.trim()
   if (tituloIntro) {
     blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })
@@ -500,6 +501,7 @@ export function blocosDeSecaoConfiguradorAcademy(
 
   const fluxos = secao.fluxos ?? []
   const indices = curadoria.fluxoIndices ?? fluxos.map((_, i) => i)
+  const nivelTituloFluxo = indices.length > 1 ? 2 : 1
   const tituloTopicoNorm = secao.tituloTopico?.trim().toLocaleLowerCase('pt-BR') ?? ''
   for (const idx of indices) {
     const fluxo = fluxos[idx]
@@ -508,13 +510,13 @@ export function blocosDeSecaoConfiguradorAcademy(
     const omitirTitulo = Boolean(tituloTopicoNorm && tituloFluxoNorm === tituloTopicoNorm)
     if (curadoria.fluxoComoManualCompleto) {
       if (fluxo.mostrarMapaSubtopicosPassos && fluxo.ancoraPassosPrefix) {
-        blocos.push(...blocosDeFluxoAcademySubtopicosComoTitulos(fluxo, idx + 2))
+        blocos.push(...blocosDeFluxoAcademySubtopicosComoTitulos(fluxo, idx + 2, nivelTituloFluxo))
         continue
       }
       if (!omitirTitulo) {
         blocos.push({
           tipo: 'heading',
-          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: 2 },
+          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: nivelTituloFluxo },
         })
       }
       blocos.push({

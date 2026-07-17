@@ -863,7 +863,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Cotação avulsa',
           tituloCurto: 'Cotação avulsa',
           paragrafos: [
-            'A **Cotação avulsa** é uma solicitação **única** — um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
+            'A **Cotação avulsa** é uma solicitação **única**, um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
           ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
@@ -937,7 +937,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'BID',
           tituloCurto: 'BID',
           paragrafos: [
-            'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única** — um frete, uma rota, um pedido isolado aos fornecedores.',
+            'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única**, um frete, uma rota, um pedido isolado aos fornecedores.',
           ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,

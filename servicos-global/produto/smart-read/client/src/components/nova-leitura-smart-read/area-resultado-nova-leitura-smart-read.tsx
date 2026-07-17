@@ -3,7 +3,7 @@
  * Pacote ZIP gerado pelo motor DATI (download-tasks), não no browser.
  */
 
-import { useMemo, useState, type ReactElement, type ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import {
   CheckCircle,
   Clock,
@@ -14,7 +14,7 @@ import {
   TrendUp,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { BlocoPerformanceResultadoComTooltip } from './bloco-performance-resultado-com-tooltip-smart-read'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   extrairDadosArquivoLocal,
@@ -42,31 +42,6 @@ function formatarTempo(totalSegundos: number): string {
 
 function sanitizarNomeArquivo(nome: string): string {
   return nome.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'leitura'
-}
-
-function renderTooltipPerformance(
-  titulo: string,
-  linhas: Array<{ rotulo: string; valor: ReactNode; destaque?: string }>,
-  children: ReactElement,
-) {
-  return (
-    <TooltipGlobal
-      titulo={titulo}
-      interativo
-      descricao={
-        <>
-          {linhas.map((linha) => (
-            <div className="cg-tooltip__row" key={linha.rotulo}>
-              <span>{linha.rotulo}</span>
-              <strong style={linha.destaque ? { color: linha.destaque } : undefined}>{linha.valor}</strong>
-            </div>
-          ))}
-        </>
-      }
-    >
-      {children}
-    </TooltipGlobal>
-  )
 }
 
 function resolverIdLeitura(arquivos: ArquivoLocalNovaLeitura[]): string | null {
@@ -242,13 +217,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Pr
                 </div>
               </div>
               <div className="sr-res-perf-grid sr-res-perf-grid--tres">
-                {renderTooltipPerformance(
-                  'Dados validados',
-                  [
-                    { rotulo: 'Campos conferidos', valor: metricas.validados, destaque: '#22c55e' },
-                    { rotulo: 'Participação', valor: `${metricas.pctValidados}%`, destaque: '#22c55e' },
-                    { rotulo: 'Base comparada', valor: `${metricas.comparados} campos` },
-                  ],
+                <BlocoPerformanceResultadoComTooltip tipo="validados" metricas={metricas}>
                   <div className="sr-res-perf-bloco sr-res-perf-bloco--ok">
                     <span className="sr-res-perf-bloco-quantidade">{metricas.validados}</span>
                     <span className="sr-res-perf-bloco-rotulo">Dados validados</span>
@@ -256,30 +225,18 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Pr
                       {metricas.pctValidados}% · {metricas.validados} de {metricas.comparados}
                     </span>
                     <TrendUp size={16} weight="bold" className="sr-res-perf-bloco-icone" />
-                  </div>,
-                )}
-                {renderTooltipPerformance(
-                  'Ajustes de forma',
-                  [
-                    { rotulo: 'Campos ajustados', valor: metricas.ajustesForma, destaque: '#fbbf24' },
-                    { rotulo: 'Participação', valor: `${metricas.pctAjustes}%`, destaque: '#fbbf24' },
-                    { rotulo: 'Base comparada', valor: `${metricas.comparados} campos` },
-                  ],
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="ajuste" metricas={metricas}>
                   <div className="sr-res-perf-bloco sr-res-perf-bloco--ajuste">
                     <span className="sr-res-perf-bloco-quantidade">{metricas.ajustesForma}</span>
                     <span className="sr-res-perf-bloco-rotulo">Ajustes de forma</span>
                     <span className="sr-res-perf-bloco-detalhe">
                       {metricas.pctAjustes}% · {metricas.ajustesForma} de {metricas.comparados}
                     </span>
-                  </div>,
-                )}
-                {renderTooltipPerformance(
-                  'Corrigidos (IA)',
-                  [
-                    { rotulo: 'Correções reais', valor: metricas.corrigidos, destaque: '#f87171' },
-                    { rotulo: 'Participação', valor: `${metricas.pctCorrigidos}%`, destaque: '#f87171' },
-                    { rotulo: 'Base comparada', valor: `${metricas.comparados} campos` },
-                  ],
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="corrigidos" metricas={metricas}>
                   <div className="sr-res-perf-bloco sr-res-perf-bloco--alt">
                     <span className="sr-res-perf-bloco-quantidade">{metricas.corrigidos}</span>
                     <span className="sr-res-perf-bloco-rotulo">Corrigidos (IA)</span>
@@ -287,8 +244,8 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Pr
                       {metricas.pctCorrigidos}% · {metricas.corrigidos} de {metricas.comparados}
                     </span>
                     <TrendDown size={16} weight="bold" className="sr-res-perf-bloco-icone" />
-                  </div>,
-                )}
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
               </div>
             </div>
           </article>

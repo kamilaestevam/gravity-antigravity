@@ -1091,7 +1091,7 @@ const cotacaoPreviewExclusaoSchema = z.object({
   numero_cotacao_bid_frete_internacional: z.string(),
   status_cotacao_bid_frete_internacional: z.string(),
   total_propostas: z.number(),
-  motivo_bloqueio: z.enum(['COM_PROPOSTAS', 'ENVIADA_FORNECEDOR']).optional(),
+  motivo_bloqueio: z.enum(['APROVADA']).optional(),
 })
 
 const bidPreviewExclusaoSchema = z.object({

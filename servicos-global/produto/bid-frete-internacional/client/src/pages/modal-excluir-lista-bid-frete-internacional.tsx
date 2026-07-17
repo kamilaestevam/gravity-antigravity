@@ -2,9 +2,8 @@
  * modal-excluir-lista-bid-frete-internacional.tsx — Exclusão em lote com preview.
  * Layout e modelo alinhados a ModalPedidosExcluir (Lista de Pedidos).
  *
- * Regra de negócio (dono, 2026-06-11): exclusão definitiva só para itens em
- * RASCUNHO ou nunca enviados a fornecedor e sem propostas. O preview do servidor
- * lista os bloqueados com o motivo — aqui só exibimos e confirmamos.
+ * Regra de negócio (2026-07-16): exclusão definitiva bloqueada apenas para itens
+ * com status APROVADA. O preview do servidor lista os bloqueados — aqui só exibimos e confirmamos.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -42,11 +41,8 @@ interface ItemBloqueadoExibicao {
 }
 
 function rotuloMotivoBloqueio(motivo: string | undefined, t: (k: string, d?: string) => string): string {
-  if (motivo === 'COM_PROPOSTAS') {
-    return t('bidfrete.excluir.motivo_com_propostas', 'Já recebeu propostas')
-  }
-  if (motivo === 'ENVIADA_FORNECEDOR') {
-    return t('bidfrete.excluir.motivo_enviada', 'Já enviada ao fornecedor')
+  if (motivo === 'APROVADA') {
+    return t('bidfrete.excluir.motivo_aprovada', 'Cotação aprovada')
   }
   return t('bidfrete.excluir.motivo_bloqueada', 'Bloqueada')
 }
@@ -263,7 +259,7 @@ export function ModalExcluirListaBidFreteInternacional({
                   <strong>{t('bidfrete.excluir.aviso_irreversivel', 'Esta ação é irreversível.')}</strong>{' '}
                   {t(
                     'bidfrete.excluir.aviso_regra',
-                    'Apenas rascunhos ou itens nunca enviados ao fornecedor podem ser excluídos permanentemente.',
+                    'Apenas cotações aprovadas não podem ser excluídas permanentemente.',
                   )}
                 </p>
               </div>

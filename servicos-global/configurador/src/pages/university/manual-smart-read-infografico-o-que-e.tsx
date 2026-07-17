@@ -384,7 +384,7 @@ export function ManualInfograficoSmartDocsOQueE() {
         </p>
       </div>
 
-      {/* Fluxo — pipeline sequencial */}
+      {/* Fluxo: pipeline sequencial */}
       <section style={{ marginBottom: MANUAL_ESPACO_PARAGRAFO_PX }}>
         <TituloSubtituloGrupo
           titulo="Fluxo de processamento"
@@ -412,7 +412,7 @@ export function ManualInfograficoSmartDocsOQueE() {
         </div>
       </section>
 
-      {/* Pilares — highlights descritivos */}
+      {/* Pilares: highlights descritivos */}
       <section style={{
         marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
         paddingTop: MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX,

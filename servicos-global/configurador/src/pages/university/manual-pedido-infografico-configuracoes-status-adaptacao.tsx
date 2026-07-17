@@ -247,7 +247,7 @@ export function ManualInfograficoPedidoConfiguracoesStatusAdaptacao() {
             corRotulo="#c4b5fd"
             corHero="#ddd6fe"
             hero={renderizarNegrito('**+ Novo Status**')}
-            descricao={renderizarNegrito('**Em Andamento** e **Aprovado** já vêm no catálogo — edite **cor**, **nome** e **ordem** ou crie etapas com **+ Novo Status**.')}
+            descricao={renderizarNegrito('**Em Andamento** e **Aprovado** já vêm no catálogo: edite **cor**, **nome** e **ordem** ou crie etapas com **+ Novo Status**.')}
           />
           <div style={{
             display: 'flex',
@@ -333,7 +333,7 @@ export function ManualInfograficoPedidoConfiguracoesStatusAdaptacao() {
           icone={ArrowsDownUp}
           cor="#a78bfa"
           rotulo="Arraste para reordenar"
-          descricao="**Arraste** e **Salvar** — reflete na **Lista** e no **Kanban**."
+          descricao="**Arraste** e **Salvar**: reflete na **Lista** e no **Kanban**."
         />
       </div>
       </div>

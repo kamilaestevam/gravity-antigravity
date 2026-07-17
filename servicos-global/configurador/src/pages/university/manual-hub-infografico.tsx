@@ -63,7 +63,7 @@ export function ManualInfograficoHubTelas() {
       padding: '16px 18px 18px',
     }}>
       <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
-        Mapa mental — o que você encontra no Hub
+        Mapa mental: o que você encontra no Hub
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -79,7 +79,7 @@ export function ManualInfograficoHubTelas() {
           minWidth: 200,
         }}>
           <SquaresFour size={18} weight="duotone" style={{ marginBottom: 4, color: '#818cf8' }} />
-          <div>Hub — tela principal</div>
+          <div>Hub: tela principal</div>
           <div style={{ fontSize: '.65rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>
             Painel central: produtos, Store e Gabi Insights
           </div>

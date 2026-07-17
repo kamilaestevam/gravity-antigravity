@@ -37,7 +37,7 @@ const USOS = [
   {
     icone: Table,
     titulo: 'Linha a linha',
-    descricao: 'Cada chamada com token vira um registro — método, rota, código HTTP e produto de origem.',
+    descricao: 'Cada chamada com token vira um registro: método, rota, código HTTP e produto de origem.',
     cor: '#818cf8',
     borda: 'rgba(129,140,248,.28)',
     fundo: 'rgba(129,140,248,.08)',
@@ -112,7 +112,7 @@ export function ManualInfograficoApiCockpitConsumo() {
         textAlign: 'center',
       }}>
         Toda requisição autenticada com o <strong style={{ color: '#cbd5e1' }}>token da organização</strong> deixa
-        rastro aqui — é o <strong style={{ color: '#cbd5e1' }}>extrato da integração</strong>, não o conteúdo dos documentos.
+        rastro aqui: é o <strong style={{ color: '#cbd5e1' }}>extrato da integração</strong>, não o conteúdo dos documentos.
       </p>
 
       <div style={{

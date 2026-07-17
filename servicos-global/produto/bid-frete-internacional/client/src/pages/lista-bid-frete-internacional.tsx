@@ -1284,31 +1284,6 @@ export default function Cotacoes() {
         </button>
       </TooltipGlobal>
 
-      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
-        <FiltroChips
-          colunas={colunasCotacaoComUsuario}
-          filtrosAtivos={filtrosAtivosLista}
-          onLimparFiltro={handleLimparFiltroColuna}
-          onLimparTodos={handleLimparTodosFiltrosColuna}
-          onEditarFiltro={onFiltroColuna}
-          thresholdConsolidar={2}
-          prefixo={busca.trim() ? (
-            <span className="fc-chip">
-              <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>
-              <span className="fc-chip-valor">{busca}</span>
-              <button
-                type="button"
-                className="fc-chip-remove"
-                onClick={() => setBusca('')}
-                aria-label={t('bidfrete.lista.remover_busca', { defaultValue: 'Remover busca' })}
-              >
-                <X size={10} weight="bold" />
-              </button>
-            </span>
-          ) : null}
-        />
-      )}
-
     <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <BotaoGlobal
         variante="primario"
@@ -1718,7 +1693,7 @@ export default function Cotacoes() {
           }
           return rotulo
         })()}
-        descricao={t('bidfrete.lista.excluir_desc', { defaultValue: 'Excluir BID ou cotação selecionados (rascunho ou nunca enviados)' })}
+        descricao={t('bidfrete.lista.excluir_desc', { defaultValue: 'Excluir BID ou cotação selecionados (exceto aprovadas)' })}
       >
         <BotaoGlobal
           variante="perigo"
@@ -1729,6 +1704,31 @@ export default function Cotacoes() {
           onClick={() => setModalExcluirAberto(true)}
         />
       </TooltipGlobal>
+
+      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
+        <FiltroChips
+          colunas={colunasCotacaoComUsuario}
+          filtrosAtivos={filtrosAtivosLista}
+          onLimparFiltro={handleLimparFiltroColuna}
+          onLimparTodos={handleLimparTodosFiltrosColuna}
+          onEditarFiltro={onFiltroColuna}
+          thresholdConsolidar={2}
+          prefixo={busca.trim() ? (
+            <span className="fc-chip">
+              <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>
+              <span className="fc-chip-valor">{busca}</span>
+              <button
+                type="button"
+                className="fc-chip-remove"
+                onClick={() => setBusca('')}
+                aria-label={t('bidfrete.lista.remover_busca', { defaultValue: 'Remover busca' })}
+              >
+                <X size={10} weight="bold" />
+              </button>
+            </span>
+          ) : null}
+        />
+      )}
     </div>
   ), [
     novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista,

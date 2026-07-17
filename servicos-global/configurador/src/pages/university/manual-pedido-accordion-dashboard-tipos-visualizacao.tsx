@@ -99,7 +99,7 @@ export function ManualPedidoAccordionDashboardTiposVisualizacao() {
           <ChartPieSlice size={18} weight="duotone" color="#34d399" />
           <div>
             <p style={{ margin: 0, fontSize: '.88rem', fontWeight: 800, color: '#f1f5f9' }}>
-              Referência — formatos de visualização
+              Referência: formatos de visualização
             </p>
             <p style={{ margin: '4px 0 0', fontSize: '.7rem', color: CORPO_70 }}>
               Passo Visualizar do Criar do zero · consulta opcional · {totalVisivel} de {TOTAL_TIPOS_VISUALIZACAO_DASHBOARD_PEDIDO} tipos

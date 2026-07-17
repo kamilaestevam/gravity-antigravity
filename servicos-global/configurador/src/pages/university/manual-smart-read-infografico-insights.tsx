@@ -41,7 +41,7 @@ const BLOCOS: BlocoInsightSmartDocs[] = [
     num: 2,
     rotulo: 'Evolução diária',
     descricao:
-      'Barras por dia — verde = acertos, vermelho = erros editados. Filtros de **7**, **30**, **60** ou **90** dias.',
+      'Barras por dia: verde = acertos, vermelho = erros editados. Filtros de **7**, **30**, **60** ou **90** dias.',
     icone: ChartBar,
     cor: '#3b82f6',
     borda: 'rgba(59,130,246,.28)',

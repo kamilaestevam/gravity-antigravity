@@ -99,7 +99,7 @@ export function ManualPedidoAccordionDashboardSugestoes() {
           <ChartBar size={18} weight="duotone" color="#818cf8" />
           <div>
             <p style={{ margin: 0, fontSize: '.88rem', fontWeight: 800, color: '#f1f5f9' }}>
-              Referência — sugestões do modal
+              Referência: sugestões do modal
             </p>
             <p style={{ margin: '4px 0 0', fontSize: '.7rem', color: CORPO_70 }}>
               Consulta opcional · {totalVisivel} de {TOTAL_SUGESTOES_DASHBOARD_PEDIDO} sugestões · expanda para detalhar

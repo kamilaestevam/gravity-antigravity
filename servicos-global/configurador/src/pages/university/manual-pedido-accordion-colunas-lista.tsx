@@ -96,6 +96,8 @@ type PropsCatalogoAccordion = {
   mostrarEdicaoSimples?: boolean
   /** Texto abaixo do accordion (rodapé). */
   rodape?: string
+  /** Substitui o prefixo Pedido/Item/Leitura nos títulos dos grupos (ex.: Cotação). */
+  prefixoNivelGrupo?: string
 }
 
 export function ManualPedidoAccordionColunasLista({
@@ -110,6 +112,7 @@ export function ManualPedidoAccordionColunasLista({
   mostrarMetadadosEdicaoMassa = false,
   mostrarEdicaoSimples = false,
   rodape,
+  prefixoNivelGrupo,
 }: PropsCatalogoAccordion) {
   const [busca, setBusca] = useState('')
   const [gruposAbertos, setGruposAbertos] = useState<Record<string, boolean>>(() =>
@@ -250,13 +253,13 @@ export function ManualPedidoAccordionColunasLista({
           </p>
         ) : gruposFiltrados.map((grupo) => {
           const aberto = gruposAbertos[grupo.id] ?? abertoPorPadrao
-          const prefixoNivel = grupo.nivel === 'pedido'
+          const prefixoNivel = prefixoNivelGrupo ?? (grupo.nivel === 'pedido'
             ? 'Pedido'
             : grupo.nivel === 'item'
               ? 'Item'
               : grupo.nivel === 'leitura'
                 ? 'Leitura'
-                : 'Documento'
+                : 'Documento')
           return (
             <section
               key={grupo.id}
@@ -367,7 +370,7 @@ export function ManualPedidoAccordionColunasLista({
                                     size={13}
                                     weight="duotone"
                                     color={corIcone}
-                                    aria-label="Coluna fixa — não pode ser ocultada"
+                                    aria-label="Coluna fixa: não pode ser ocultada"
                                   />
                                 )}
                               </span>

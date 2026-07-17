@@ -49,6 +49,10 @@ export interface DocPassoVisual {
   ocultarTituloPasso?: boolean
   /** Guia — realce visual exclusivo no bloco `rotuloPasso` + parágrafos (seção crítica). */
   destaqueRotuloPassoGuia?: boolean
+  /** Academy — linha lateral contínua do rótulo do passo até o callout final (subtítulos mantêm barra própria). */
+  trilhaLateralContinuaAcademy?: boolean
+  /** Academy — mantém `rotuloPasso` sem borda lateral indigo (ex.: Indicadores da grade). */
+  omitirBordaLateralRotuloAcademy?: boolean
   /** Academy: mantém o passo no corpo, mas omite do menu lateral da aula. */
   ocultarNoSumario?: boolean
   /** Badge «Em breve» no topo do conteúdo do passo (fora do acordeão de subtópicos). */
@@ -201,6 +205,10 @@ export interface DocPassoVisual {
     mostrarCardsKanbanCabecalhoPedido?: boolean
     /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
     layoutCardInsightGradePedido?: boolean
+    /** Manual Pedido § Insights — card UX10 à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradePedido?: boolean
+    /** Manual BID Frete § Insights — card UX10 à esquerda + screenshot à direita por widget. */
+    layoutCardInsightGradeBidFrete?: boolean
     /** Manual Smart Docs § Insights — card numerado à esquerda + screenshot à direita por widget. */
     layoutCardInsightGradeSmartDocs?: boolean
   }[]
@@ -260,6 +268,10 @@ export interface DocPassoVisual {
   mostrarTabelaColunasPadraoListaPedido?: boolean
   /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
   mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual Pedido §05 — infográfico dos 4 pilares de customização da Lista. */
+  mostrarInfograficoPedidoListaCustomizacao?: boolean
+  /** Manual BID Frete § Lista — infográfico dos 4 pilares de customização da Lista. */
+  mostrarInfograficoBidFreteListaCustomizacao?: boolean
   /** Manual Pedido §08 Configurações — mapa dos 8 tipos de coluna personalizada. */
   mostrarInfograficoPedidoConfigColunasPersonalizadas?: boolean
   /** Índice do parágrafo após o qual inserir o infográfico de tipos (padrão: 0). */
@@ -268,6 +280,10 @@ export interface DocPassoVisual {
   mostrarInfograficoPedidoCatalogoColunasLista?: boolean
   /** Manual Pedido — accordion «Colunas da Lista» (sem infográfico UX10). */
   mostrarCatalogoColunasPedidoLista?: boolean
+  /** Manual BID Frete § Lista — accordion «Colunas da Lista» com regras de edição inline. */
+  mostrarCatalogoColunasBidFreteLista?: boolean
+  /** Índice do parágrafo após o qual inserir o catálogo BID Frete (padrão: 0). */
+  catalogoColunasBidFreteAposParagrafo?: number
   /** Manual Pedido §06 Dashboard — accordion de sugestões do modal Explorar sugestões. */
   mostrarCatalogoDashboardSugestoesPedido?: boolean
   /** Índice da galeria (0-based) após a qual inserir o catálogo; omitido = antes do callout final. */
@@ -462,6 +478,10 @@ export interface DocGaleriaComparacaoTela {
   alturaMaxima?: number
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
   cardInsightGradePedido?: number
+  /** Manual Pedido § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradePedido`). */
+  cardInsightGradePedido?: number
+  /** Manual BID Frete § Insights — card UX10 à esquerda + print à direita (número do bloco em `cardInsightGradeBidFrete`). */
+  cardInsightGradeBidFrete?: number
   /** Manual Smart Docs § Insights — card numerado à esquerda + print à direita (número do bloco em `cardInsightGradeSmartDocs`). */
   cardInsightGradeSmartDocs?: number
   /** Com `gradeTelasMesmaAltura`: estica o print à altura da célula (`object-fit: cover`). Omitido herda o flag da galeria. */
@@ -479,6 +499,7 @@ export interface DocSubsecaoAposGaleriaTabela {
   rotuloPasso: string
   paragrafos: string[]
   mostrarInfograficoPedidoControlesMapa?: boolean
+  mostrarInfograficoBidFreteControlesMapa?: boolean
   galeriaTelas?: DocGaleriaTela[]
 }
 
@@ -508,6 +529,8 @@ export interface DocGaleriaTela {
   pilaresAbasPainelCotacaoBidFrete?: Array<'01' | '02' | '03' | '04' | '05' | '06'>
   /** Manual BID Frete §7.02 — réplica interativa do card Melhor proposta (Painel de Insights). */
   simuladorBidFretePainelInsights?: boolean
+  /** Manual BID Frete § Lista — simulador React com demo automática de arrastar colunas. */
+  simuladorBidFreteListaArrastarColunas?: boolean
   /** Manual Smart Docs § Lista · Customizar — demo automática de arrastar colunas. */
   simuladorSmartReadListaArrastarColunas?: boolean
   /** Manual Smart Docs · Nova Leitura passo Análise — demo automática do card na sidebar. */
@@ -536,6 +559,8 @@ export interface DocFiguraAposParagrafo {
   legenda?: string
   /** Recortes estreitos (menu lateral etc.) — evita esticar na coluna de texto. */
   larguraMaxima?: number
+  /** Callout(s) (dica, aviso, etc.) logo abaixo desta figura. */
+  calloutApos?: DocCalloutManual | DocCalloutManual[]
 }
 
 export interface DocOrigemDados {
@@ -568,6 +593,12 @@ export interface DocFluxo {
   mostrarInfograficoIconesMenuSuperior?: boolean
   /** Com `mostrarInfograficoIconesMenuSuperior`, renderiza o infográfico após os passos visuais. */
   infograficoIconesMenuSuperiorAposPassos?: boolean
+  /** Manual Navegação §03 — demais opções do menu do avatar (Store, tema, sair…). */
+  mostrarInfograficoItensMenuUsuario?: boolean
+  /** Com `mostrarInfograficoItensMenuUsuario`, renderiza o infográfico após os passos visuais. */
+  infograficoItensMenuUsuarioAposPassos?: boolean
+  /** Manual Navegação — funcionalidades comuns das listas operacionais (GTV). */
+  mostrarInfograficoFuncionalidadesLista?: boolean
   /** Manual Usuários §02 — fluxo de acesso e tipos Master / Standard / Fornecedor. */
   mostrarInfograficoTiposUsuario?: boolean
   /** Manual Histórico §04 — catálogo completo de eventos (tabelas). */
@@ -1060,15 +1091,15 @@ const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+    detalhes: ['Ordenação decrescente: o mais recente no topo'],
   },
   {
     coluna: 'Ação',
-    descricao: 'O que aconteceu — ex.: **Convidou**, **Atualizou**, **Excluiu**.',
+    descricao: 'O que aconteceu: ex.: **Convidou**, **Atualizou**, **Excluiu**.',
   },
   {
     coluna: 'Local',
-    descricao: 'Tela ou módulo — ex.: Configurador | Usuários, Pedido | Lista.',
+    descricao: 'Tela ou módulo: ex.: Configurador | Usuários, Pedido | Lista.',
   },
   {
     coluna: 'Usuário',
@@ -1076,7 +1107,7 @@ const HISTORICO_COLUNAS_AUDITORIA: DocColunaTabela[] = [
   },
   {
     coluna: 'Detalhes',
-    descricao: 'Resumo do que mudou — permissão, convite, número do pedido, etc.',
+    descricao: 'Resumo do que mudou: permissão, convite, número do pedido, etc.',
   },
 ]
 
@@ -1451,7 +1482,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-workspaces-acesso-tela.png',
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
-      '**Workspaces** são as unidades operacionais da organização — cada unidade opera com dados, usuários e registros isolados.',
+      '**Workspaces** são as unidades operacionais da organização: cada unidade opera com dados, usuários e registros isolados.',
     ],
     calloutAposParagrafo: {
       indice: 0,
@@ -1662,7 +1693,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               'No menu lateral do Configurador, clique em Usuários. A tela abre com a listagem e os quatro cards de resumo no topo.',
             ],
             paragrafosAposImagem: [
-              'Cada card possui ícone (i) com tooltip explicativo — passe o mouse para ver o significado de cada indicador. Veja abaixo o que cada indicador mostra:',
+              'Cada card possui ícone (i) com tooltip explicativo: passe o mouse para ver o significado de cada indicador. Veja abaixo o que cada indicador mostra:',
             ],
             imagemAbaixoTexto: true,
             tooltipsKpiAposImagem: true,
@@ -1702,7 +1733,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             titulo: 'O que acontece depois do envio',
             ocultarRotuloPasso: true,
             paragrafos: [
-              'Esta sequência mostra o que o **convidado** vê depois que você envia o convite — não é um passo para você repetir, apenas o fluxo que acontece automaticamente.',
+              'Esta sequência mostra o que o **convidado** vê depois que você envia o convite: não é um passo para você repetir, apenas o fluxo que acontece automaticamente.',
             ],
             galeriaTelas: [...USUARIOS_GALERIA_JORNADA_CONVIDADO],
             galeriaFraseAposIndice: { indice: 1, texto: USUARIOS_JORNADA_FRASE_APOS_LINK },
@@ -1775,7 +1806,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             imagem: SCREENSHOT_USUARIOS_PERMISSAO_COTAR_FRETE,
             imagemAbaixoTexto: true,
             paragrafos: [
-              '*_Permissão especial: Pode cotar frete internacional_* — Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
+              '*_Permissão especial: Pode cotar frete internacional_*: Para habilitar fornecedores como agentes de carga, marque esta opção no produto *_BID Frete Internacional_*. Libera a visão de parceiro: **responder cotações**, **enviar propostas** e *_acessar o painel BID Frete Internacional, Fornecedor_*. Vale para usuários tipo **Fornecedor** com empresa vinculada (ex.: Agente de carga).',
             ],
             callout: {
               tipo: 'aviso',
@@ -2369,7 +2400,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Cancelar assinatura',
         paragrafos: [
           'Encerre definitivamente o contrato de um produto Gravity. Diferente de **suspender**, o cancelamento é **irreversível**: A assinatura sai de **Produtos Contratados** e o módulo pode voltar a aparecer em **Produtos Disponíveis para Contratação** se a organização quiser reassinar.',
-          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03 — cancelamento em 20/02 só passa a valer em 05/03.',
+          'A cobrança da Gravity **não é pró rata**: Ao cancelar, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03: cancelamento em 20/02 só passa a valer em 05/03.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -2380,7 +2411,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Somente usuários **Master** podem cancelar. A operação não pode ser desfeita nesta tela — para voltar a usar o produto, será necessário contratar novamente.',
+              texto: 'Somente usuários **Master** podem cancelar. A operação não pode ser desfeita nesta tela: para voltar a usar o produto, será necessário contratar novamente.',
             },
           },
           {
@@ -2448,7 +2479,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Histórico de faturas',
         paragrafos: [
           'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
-          '**Visão geral da aba Faturas** — A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
+          '**Visão geral da aba Faturas**: A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
         ],
         figurasAposParagrafo: [
           {
@@ -2543,7 +2574,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       {
         indice: 0,
         imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
-        legenda: 'Tela principal — aba Cotação Atual',
+        legenda: 'Tela principal: aba Cotação Atual',
       },
     ],
     lista: [
@@ -2602,13 +2633,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     titulo: 'Histórico',
     paragrafos: [
       `**Histórico** registra alterações sensíveis na organização e nos ${LINK_MANUAL_WORKSPACES}: Convites, mudanças de ${LINK_MANUAL_PERMISSOES}, workspaces, assinaturas e eventos de segurança.`,
-      'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando — sem alterar registros.',
+      'A tela é **somente leitura**: investiga quem fez o quê, em qual módulo e quando: sem alterar registros.',
     ],
     figurasAposParagrafo: [
       {
         indice: 1,
         imagem: '/university/screenshots/configurador-historico-tela-principal.png',
-        legenda: 'Visão geral — cards de resumo e tabela de auditoria',
+        legenda: 'Visão geral: cards de resumo e tabela de auditoria',
       },
     ],
     lista: [
@@ -2645,12 +2676,12 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
               titulo: 'Caminho alternativo: pelo produto',
               imagem: SCREENSHOT_HISTORICO_SETA_PRODUTO,
               paragrafos: [
-                'Sem passar pelo Configurador, cada **produto Gravity** (Pedido, Smart Docs, etc.) traz **Histórico** no menu lateral inferior — como na imagem.',
+                'Sem passar pelo Configurador, cada **produto Gravity** (Pedido, Smart Docs, etc.) traz **Histórico** no menu lateral inferior: como na imagem.',
                 'Esse atalho abre os eventos **daquele módulo**, não o histórico geral da organização.',
               ],
               callout: {
                 tipo: 'dica',
-                texto: '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do produto** — operações do módulo.',
+                texto: '**Configurador › Histórico**: convites, permissões e segurança da conta. **Histórico do produto**: operações do módulo.',
               },
             },
           ],
@@ -2704,14 +2735,14 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'O que o histórico registra',
         tituloSumario: 'O que o histórico registra',
         paragrafos: [
-          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma — módulo, ação e contexto de cada evento auditável.',
+          'Aqui está o **detalhamento completo** de tudo que o Gravity registra como histórico na plataforma: módulo, ação e contexto de cada evento auditável.',
           'Na tela **Histórico** do Configurador aparecem convites, permissões, workspaces, login e segurança da conta. Operações de **Pedido**, **Smart Docs** e outros produtos ficam no **Histórico do produto** (menu lateral de cada módulo). No catálogo abaixo, expanda cada seção para ver o detalhe.',
         ],
         calloutAposParagrafo: {
           indice: 1,
           callout: {
             tipo: 'dica',
-            texto: 'Nos produtos prontos (**Pedido**, **BID Frete**, **Smart Docs**) o histórico **não grava cada clique** — só **alterações que salvam no servidor** e operações especiais (duplicar, transferir, aprovar cotação, etc.).',
+            texto: 'Nos produtos prontos (**Pedido**, **BID Frete**, **Smart Docs**) o histórico **não grava cada clique**: só **alterações que salvam no servidor** e operações especiais (duplicar, transferir, aprovar cotação, etc.).',
           },
         },
         mostrarCatalogoHistoricoCompleto: true,

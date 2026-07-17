@@ -52,6 +52,7 @@ type PassoBordaLateralGuia = {
   rotuloPasso?: string
   rotuloPassoAposGaleriaComparacao?: boolean
   estiloTituloWizard?: boolean
+  omitirBordaLateralRotuloAcademy?: boolean
 }
 
 /** SSOT — passo usa borda lateral indigo (rótulo ou «Passo NN», nunca H2 wizard). */
@@ -59,6 +60,7 @@ export function passoUsaBordaLateralGuia(
   passo: PassoBordaLateralGuia,
   opts?: { forcarRotulo?: boolean; exibirRotuloNumerado?: boolean },
 ): boolean {
+  if (passo.omitirBordaLateralRotuloAcademy) return false
   if (opts?.forcarRotulo) return true
   if (passo.rotuloPasso?.trim() && !passo.rotuloPassoAposGaleriaComparacao) return true
   if (opts?.exibirRotuloNumerado && !passo.estiloTituloWizard) return true
@@ -228,4 +230,24 @@ export function manualMargemCalloutAposParagrafo(indiceCallout: number, totalPar
     marginTop: MANUAL_ESPACO_PARAGRAFO_PX,
     marginBottom: indiceCallout < totalParagrafos - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0,
   }
+}
+
+/**
+ * MANUAL-GRAVITY-ONBOARDING.md §9.1 — remove travessões do texto visível ao aluno.
+ * Preserva markups `{{…}}` (links, ícones) intactos.
+ */
+export function normalizarTravessaoTextoGuia(texto: string): string {
+  const markups: string[] = []
+  const protegido = texto.replace(/\{\{[^}]+\}\}/g, (m) => {
+    markups.push(m)
+    return `\x00M${markups.length - 1}\x00`
+  })
+
+  const normalizado = protegido
+    .replace(/\s[—–]\s/g, ': ')
+    .replace(/\*\*[—–]\*\*/g, '*(vazio)*')
+    .replace(/(^|[\s(])[—–](?=[\s)])/g, '$1')
+    .replace(/[—–](?=$)/g, '')
+
+  return normalizado.replace(/\x00M(\d+)\x00/g, (_, i) => markups[Number(i)] ?? '')
 }

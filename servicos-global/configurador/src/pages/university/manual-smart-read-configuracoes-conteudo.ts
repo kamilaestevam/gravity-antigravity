@@ -81,7 +81,7 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
     ],
   },
   {
-    titulo: 'Cards — adicionar',
+    titulo: 'Cards: adicionar',
     tituloCurto: 'Adicionar card',
     paragrafos: [
       'Na lista **Disponíveis**, clique em **+** para incluir um card em **Ativos**.',
@@ -104,5 +104,86 @@ export const PASSOS_MANUAL_SMART_READ_CONFIGURACOES: DocPassoVisual[] = renumera
       tipo: 'dica',
       texto: 'É obrigatório salvar as modificações clicando em {{botao:salvar-configuracoes}}',
     },
+  },
+  {
+    titulo: 'Tabelas',
+    tituloCurto: 'Tabela',
+    paragrafos: [
+      'Em **Tabelas**, defina **linhas por página** e **densidade** da tabela de leituras na **Lista**.',
+    ],
+  },
+  {
+    titulo: 'Colunas personalizadas: visão geral',
+    tituloCurto: 'Colunas',
+    paragrafos: [
+      'Em **Colunas › Personalizadas**, crie campos próprios (**texto**, **número**, **data**, **percentual**, **lista**, **checkbox**). **Arraste** para reordenar, **olho** para ocultar e **+ Criar Coluna** para novos tipos.',
+    ],
+    callout: {
+      tipo: 'dica',
+      texto: 'Colunas nativas da leitura/documento estão catalogadas em **Lista › Detalhamento das colunas**. Não se confundem com as personalizadas criadas aqui.',
+    },
+  },
+  {
+    titulo: 'Criar coluna: Texto',
+    tituloCurto: 'Coluna Texto',
+    paragrafos: [
+      'Fluxo para coluna **Texto**: escolha o tipo, informe o **nome**, defina **visibilidade** e **obrigatório** quando aplicável, e **Salvar**.',
+    ],
+  },
+  {
+    titulo: 'Criar coluna: Numérico',
+    tituloCurto: 'Coluna Numérico',
+    paragrafos: [
+      'Coluna **Numérico** para valores quantitativos customizados na **Lista**.',
+    ],
+  },
+  {
+    titulo: 'Criar coluna: Data',
+    tituloCurto: 'Coluna Data',
+    paragrafos: [
+      'Coluna **Data** para campos de calendário na tabela de leituras (formato **DD/MM/AAAA** na Lista).',
+    ],
+  },
+  {
+    titulo: 'Criar coluna: Percentual',
+    tituloCurto: 'Coluna Percentual',
+    paragrafos: [
+      'Coluna **Percentual** para taxas e proporções exibidas na **Lista**.',
+    ],
+  },
+  {
+    titulo: 'Criar coluna: Lista (Select)',
+    tituloCurto: 'Coluna Lista',
+    paragrafos: [
+      'Coluna **Lista** com opções fixas para seleção na **Lista**.',
+    ],
+  },
+  {
+    titulo: 'Criar coluna: Checkbox',
+    tituloCurto: 'Coluna Checkbox',
+    paragrafos: [
+      'Coluna **Checkbox** para flags booleanas (sim/não) na tabela.',
+    ],
+  },
+  {
+    titulo: 'Editar coluna personalizada',
+    tituloCurto: 'Editar coluna',
+    paragrafos: [
+      'Use o **lápis** para renomear ou ajustar uma coluna personalizada existente.',
+    ],
+  },
+  {
+    titulo: 'Ocultar coluna personalizada',
+    tituloCurto: 'Ocultar coluna',
+    paragrafos: [
+      'O **olho** oculta a coluna na **Lista** sem excluir a definição do workspace.',
+    ],
+  },
+  {
+    titulo: 'Excluir coluna personalizada',
+    tituloCurto: 'Excluir coluna',
+    paragrafos: [
+      '**Excluir** remove a coluna personalizada do workspace: a ação é definitiva após confirmar.',
+    ],
   },
 ])

@@ -265,3 +265,22 @@
   color: rgba(255, 255, 255, 0.45);
   padding: 0.12rem 0.2rem;
 }
+
+/* ─── Densidade compacta (Configurações › Tabelas) ─────────────────────────────
+   Reduz padding horizontal e tipografia das células. A altura da linha (44px)
+   não muda: o windowing da TabelaVirtualGlobal usa altura fixa por linha. */
+.sr-painel--compacto .gtv-celula {
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+}
+
+.sr-painel--compacto .gtv-th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.6875rem;
+}
+
+.sr-painel--compacto .gtv-celula--check,
+.sr-painel--compacto .gtv-th--check {
+  padding-left: 1rem;
+  padding-right: 0;
+}

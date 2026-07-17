@@ -26,7 +26,7 @@ const FORMAS: FormaCotacaoAvulsa[] = [
   {
     num: '01',
     rotulo: 'Manual',
-    descricao: 'Preencher o **formulário** passo a passo no assistente — **disponível hoje**.',
+    descricao: 'Preencher o **formulário** passo a passo no assistente: **disponível hoje**.',
     icone: PencilSimple,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.35)',
@@ -172,7 +172,7 @@ export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
   return (
     <div
       role="group"
-      aria-label="Formas de criar cotação avulsa — Manual, planilha, API e Smart Docs"
+      aria-label="Formas de criar cotação avulsa: Manual, planilha, API e Smart Docs"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(56,189,248,.05) 100%)',
         border: '1px solid rgba(148,163,184,.18)',
@@ -210,7 +210,7 @@ export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
           <strong style={{ color: '#cbd5e1' }}> Planilha</strong>,{' '}
           <strong style={{ color: '#cbd5e1' }}>API</strong> e{' '}
           <strong style={{ color: '#cbd5e1' }}>Smart Docs</strong> aparecem no menu com badge{' '}
-          <strong style={{ color: '#cbd5e1' }}>Em breve</strong> — use os subtópicos deste capítulo quando
+          <strong style={{ color: '#cbd5e1' }}>Em breve</strong>: use os subtópicos deste capítulo quando
           estiverem disponíveis.
         </p>
       </div>

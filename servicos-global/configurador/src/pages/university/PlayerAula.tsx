@@ -20,6 +20,7 @@ import {
   MANUAL_ESPACO_FRASE_IMAGEM_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
+  normalizarTravessaoTextoGuia,
 } from './manual-tipografia'
 import { AcademyInfografico, AcademyOrigemDados } from './academy-infograficos'
 import { ManualGabiExemplosConversa } from './manual-gabi-exemplo-conversa'
@@ -292,13 +293,14 @@ const LINK_RICH: React.CSSProperties = {
 }
 
 function AcademyTextoRich({ texto }: { texto: string }) {
+  const textoNorm = normalizarTravessaoTextoGuia(texto)
   const partes: React.ReactNode[] = []
   const re = /(\*\*([^*]+)\*\*|\{\{link:([^|]+)\|([^}]+)\}\}|\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|\{\{icone:([a-z0-9-]+)\}\}|https:\/\/[^\s.,;:!?)\]}]+)/g
   let ultimo = 0
   let match: RegExpExecArray | null
   let ki = 0
-  while ((match = re.exec(texto)) !== null) {
-    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+  while ((match = re.exec(textoNorm)) !== null) {
+    if (match.index > ultimo) partes.push(textoNorm.slice(ultimo, match.index))
     if (match[2] !== undefined) {
       partes.push(<strong key={`b-${ki++}`} style={{ fontWeight: 700 }}>{match[2]}</strong>)
     } else if (match[3] !== undefined && match[4] !== undefined) {
@@ -330,7 +332,7 @@ function AcademyTextoRich({ texto }: { texto: string }) {
     }
     ultimo = re.lastIndex
   }
-  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  if (ultimo < textoNorm.length) partes.push(textoNorm.slice(ultimo))
   return <>{partes}</>
 }
 
@@ -1175,7 +1177,8 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           />
 
           <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {!(titulosSumario.length === 1
+            {!aula.ocultarCabecalhoNavSumario
+              && !(titulosSumario.length === 1
               && titulosSumario[0]!.texto.trim().toLocaleLowerCase('pt-BR') === aula.titulo.trim().toLocaleLowerCase('pt-BR')) && (
                 <div style={{
                   padding: '10px 10px 6px',

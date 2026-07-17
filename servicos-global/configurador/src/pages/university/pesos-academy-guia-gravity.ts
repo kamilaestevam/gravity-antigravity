@@ -67,8 +67,53 @@ export function pesoParaXp(peso: number): number {
   return Math.round(peso * PESO_GUAI_XP_MULTIPLICADOR * 100) / 100
 }
 
+/** Arredonda XP para 2 casas — evita 7.1499999999999995 na UI e nas somas. */
+export function arredondarXpGuiaGravity(valor: number): number {
+  return Math.round(valor * 100) / 100
+}
+
+export function somarXpGuiaGravity(valores: Iterable<number>): number {
+  let soma = 0
+  for (const valor of valores) soma += valor
+  return arredondarXpGuiaGravity(soma)
+}
+
+/** Exibição pt-BR com no máximo 2 casas decimais. */
+export function formatarXpGuiaGravity(valor: number): string {
+  return arredondarXpGuiaGravity(valor).toLocaleString('pt-BR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+}
+
+export function calcularGpGuiaGravity(xp: number): number {
+  return arredondarXpGuiaGravity(xp * 2)
+}
+
 interface FaseComSlug {
   slug?: string
+}
+
+/** Rateia peso total entre slugs; última aula absorve centavos restantes. */
+function aplicarXpRateadoPeso(
+  mapa: Map<string, number>,
+  slugs: readonly string[],
+  pesoTotal: number,
+): void {
+  const n = slugs.length
+  if (n === 0) return
+  const xpModulo = pesoParaXp(pesoTotal)
+  if (n === 1) {
+    mapa.set(slugs[0]!, xpModulo)
+    return
+  }
+  const xpUnitario = pesoParaXp(pesoTotal / n)
+  let acumulado = 0
+  for (let i = 0; i < n - 1; i++) {
+    mapa.set(slugs[i]!, xpUnitario)
+    acumulado += xpUnitario
+  }
+  mapa.set(slugs[n - 1]!, arredondarXpGuiaGravity(xpModulo - acumulado))
 }
 
 /** Mapa slug → XP máximo por aula, considerando pesos PO e rateio de módulo. */
@@ -100,21 +145,22 @@ export function montarMapaXpAulas(
   }
 
   if (pesoModulo !== undefined && fasesSemPesoExplicito.length > 0) {
-    const pesoRestante = Math.max(0, pesoModulo - somaExplicita)
-    const pesoPorAula = pesoRestante / fasesSemPesoExplicito.length
     for (const fase of fasesComSlug) {
-      const peso = PESO_AULA_GUAI[fase.slug] ?? pesoPorAula
-      mapa.set(fase.slug, pesoParaXp(peso))
+      const peso = PESO_AULA_GUAI[fase.slug]
+      if (peso !== undefined) mapa.set(fase.slug, pesoParaXp(peso))
     }
+    const pesoRestante = Math.max(0, pesoModulo - somaExplicita)
+    aplicarXpRateadoPeso(
+      mapa,
+      fasesSemPesoExplicito.map(f => f.slug),
+      pesoRestante,
+    )
     return mapa
   }
 
   /** Fallback demo: peso 1 no módulo, rateado entre aulas. */
   const pesoFallback = 1
-  const pesoPorAula = fasesComSlug.length > 0 ? pesoFallback / fasesComSlug.length : 0
-  for (const fase of fasesComSlug) {
-    mapa.set(fase.slug, pesoParaXp(pesoPorAula))
-  }
+  aplicarXpRateadoPeso(mapa, fasesComSlug.map(f => f.slug), pesoFallback)
   return mapa
 }
 
@@ -132,14 +178,11 @@ export function obterXpMaxTrilha(
   trilhaFases: FaseComSlug[],
   mapaXp: Map<string, number>,
 ): number {
-  return trilhaFases.reduce(
-    (soma, fase) => soma + (fase.slug ? (mapaXp.get(fase.slug) ?? 0) : 0),
-    0,
+  return somarXpGuiaGravity(
+    trilhaFases.map(fase => (fase.slug ? (mapaXp.get(fase.slug) ?? 0) : 0)),
   )
 }
 
 export function obterXpMaxProduto(mapaXp: Map<string, number>): number {
-  let soma = 0
-  for (const xp of mapaXp.values()) soma += xp
-  return soma
+  return somarXpGuiaGravity(mapaXp.values())
 }

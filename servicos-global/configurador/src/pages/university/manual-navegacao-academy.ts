@@ -12,7 +12,10 @@ const FLUXOS = DOC_NAVEGACAO_SECAO.fluxos ?? []
 type OpcoesAulaNavegacao = Pick<
   CuradoriaSecaoAcademy,
   'incluirIntroSecao' | 'tituloIntroAcademy' | 'titulosFluxoAcademy'
->
+> & {
+  /** H1 no topo (`.uni-player-aula__titulo-guia`) sem intro completa da seção — paridade Hub aula 2. */
+  cabecalhoH1?: boolean
+}
 
 function aulaNavegacao(
   slug: string,
@@ -21,6 +24,7 @@ function aulaNavegacao(
   fluxoIndices: number[],
   opcoes?: OpcoesAulaNavegacao,
 ): AulaDemo {
+  const tituloCabecalho = opcoes?.tituloIntroAcademy ?? titulo
   const blocos = blocosDeSecaoConfiguradorAcademy(DOC_NAVEGACAO_SECAO, {
     incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
     incluirImagemSecao: false,
@@ -28,6 +32,17 @@ function aulaNavegacao(
     tituloIntroAcademy: opcoes?.tituloIntroAcademy,
     titulosFluxoAcademy: opcoes?.titulosFluxoAcademy,
   })
+  if (opcoes?.cabecalhoH1 && !opcoes.incluirIntroSecao) {
+    blocos.unshift({ tipo: 'heading', dados: { text: tituloCabecalho, nivel: 1 } })
+    const idxDuplicata = blocos.findIndex(
+      (bloco, i) => i > 0
+        && bloco.tipo === 'heading'
+        && Number(bloco.dados.nivel ?? 1) >= 2
+        && String(bloco.dados.text).trim().toLocaleLowerCase('pt-BR')
+          === tituloCabecalho.trim().toLocaleLowerCase('pt-BR'),
+    )
+    if (idxDuplicata > 0) blocos.splice(idxDuplicata, 1)
+  }
   return {
     slug,
     titulo,
@@ -38,32 +53,19 @@ function aulaNavegacao(
 }
 
 export const NAVEGACAO_AULA_SLUGS = [
-  'navegacao-plataforma',
-  'menu-superior',
-  'menu-lateral',
-  'acesso-gravity-university',
+  'menus-plataforma',
+  'funcionalidades-listas',
 ] as const
 
 export const AULAS_NAVEGACAO: AulaDemo[] = [
   aulaNavegacao(
     NAVEGACAO_AULA_SLUGS[0],
-    'Navegação na plataforma',
-    '8m',
-    [],
-    { incluirIntroSecao: true, tituloIntroAcademy: 'Navegação na plataforma' },
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[1],
-    FLUXOS[0]?.tituloSumario ?? 'Menu superior',
-    '10m',
-    [0],
-  ),
-  aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[2],
-    'Menu lateral',
-    '35m',
-    [1, 2, 3, 4],
+    'Menus da plataforma',
+    '53m',
+    [0, 1, 2, 3, 4],
     {
+      incluirIntroSecao: true,
+      tituloIntroAcademy: 'Menus da plataforma',
       titulosFluxoAcademy: {
         1: 'Produtos contratados',
         2: 'Troca de produtos',
@@ -73,14 +75,13 @@ export const AULAS_NAVEGACAO: AulaDemo[] = [
     },
   ),
   aulaNavegacao(
-    NAVEGACAO_AULA_SLUGS[3],
-    'Como acessar a Gravity University',
-    '12m',
-    [5, 6],
+    NAVEGACAO_AULA_SLUGS[1],
+    'Funcionalidades das listas',
+    '20m',
+    [7],
     {
-      titulosFluxoAcademy: {
-        6: 'Navegação na University',
-      },
+      cabecalhoH1: true,
+      tituloIntroAcademy: 'Funcionalidades das listas',
     },
   ),
 ]

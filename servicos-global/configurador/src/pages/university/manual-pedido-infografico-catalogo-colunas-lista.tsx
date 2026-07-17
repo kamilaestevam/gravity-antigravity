@@ -44,7 +44,7 @@ export function ManualInfograficoPedidoCatalogoColunasLista() {
         lineHeight: 1.35,
         letterSpacing: '-.01em',
       }}>
-        {TOTAL_COLUNAS_CATALOGO_PEDIDO} colunas no menu Colunas — {TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO} já vêm ligadas no painel Padrão
+        {TOTAL_COLUNAS_CATALOGO_PEDIDO} colunas no menu Colunas: {TOTAL_COLUNAS_PADRAO_LISTA_PEDIDO} já vêm ligadas no painel Padrão
       </p>
 
       <div style={{
@@ -109,7 +109,7 @@ export function ManualInfograficoPedidoCatalogoColunasLista() {
           padding: '6px 10px',
         }}>
           <Sparkle size={12} weight="fill" />
-          Grupos recolhidos — expanda abaixo
+          Grupos recolhidos: expanda abaixo
         </span>
       </div>
 

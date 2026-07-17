@@ -238,7 +238,7 @@ export function ManualPedidoTabelaAlertasLista() {
         color: CORPO_70,
         borderTop: '1px solid rgba(148,163,184,.1)',
       }}>
-        Campos **NCM** e **Descrição** agregam vários valores no pedido — não exibem alerta âmbar. **Anexos** e **contatos** também ficam fora desta tabela.
+        Campos **NCM** e **Descrição** agregam vários valores no pedido: não exibem alerta âmbar. **Anexos** e **contatos** também ficam fora desta tabela.
       </p>
     </div>
   )

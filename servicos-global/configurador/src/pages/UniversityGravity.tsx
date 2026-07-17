@@ -60,6 +60,10 @@ import {
   montarMapaXpAulas,
   obterXpMaxProduto,
   obterXpMaxTrilha,
+  somarXpGuiaGravity,
+  calcularGpGuiaGravity,
+  formatarXpGuiaGravity,
+  arredondarXpGuiaGravity,
 } from './university/pesos-academy-guia-gravity'
 import { calcularNivelGuiaGravity } from './university/niveis-guia-gravity'
 import { DashboardInfoNiveisGuiaGravity } from './university/dashboard-info-niveis-guia-gravity'
@@ -1135,7 +1139,7 @@ function calcularProgressoModulo(
   const etapas = calcularEtapasJornada(produtoSlug, trilha.fases, aulasConcluidas, { mapaXp })
   const feitas = etapas.filter(e => e.feita).length
   const total = etapas.length
-  const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
+  const xp = somarXpGuiaGravity(etapas.filter(e => e.feita).map(e => e.xp))
   const xpMax = obterXpMaxTrilha(trilha.fases, mapaXp)
   const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : (total > 0 ? trilha.prog : 0)
   return { feitas, total, xp, xpMax, pct }
@@ -1155,6 +1159,7 @@ function calcularProgressoProduto(slug: keyof typeof TRILHAS_POR_PRODUTO, aulasC
     total += p.total
     xp += p.xp
   }
+  xp = arredondarXpGuiaGravity(xp)
   const xpMax = obterXpMaxProduto(mapaXp)
   const pct = xpMax > 0 ? Math.round((xp / xpMax) * 100) : 0
   return { feitas, total, xp, xpMax, pct }
@@ -1175,10 +1180,10 @@ function calcularMetricasOnboarding(produtosContratados: string[], aulasConcluid
     const progresso = calcularProgressoProduto(slug, aulasConcluidas)
     return { slug, trilha, ...progresso }
   })
-  const xpTotal = modulos.reduce((soma, m) => soma + m.xp, 0)
+  const xpTotal = somarXpGuiaGravity(modulos.map(m => m.xp))
   const concluidas = modulos.filter(m => m.pct >= 100).length
   const emAndamento = modulos.filter(m => m.pct > 0 && m.pct < 100).length
-  return { modulos, xpTotal, concluidas, emAndamento, certificados: concluidas, gp: xpTotal * 2 }
+  return { modulos, xpTotal, concluidas, emAndamento, certificados: concluidas, gp: calcularGpGuiaGravity(xpTotal) }
 }
 
 function LegendaStatusNavAcademy() {
@@ -1240,6 +1245,27 @@ function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
         </span>
       </TooltipGlobal>
     </span>
+  )
+}
+
+function LegendaStatusNavAcademy() {
+  const { t } = useTranslation()
+  return (
+    <div className="uni-nav-legenda-status" aria-label={t('university.nav_status.legenda_titulo')}>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--contrato is-on uni-nav-status-pill--mini">
+          <Package size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.contrato_abrev')}
+      </span>
+      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
+      <span className="uni-nav-legenda-status__item">
+        <span className="uni-nav-status-pill uni-nav-status-pill--concluido is-on uni-nav-status-pill--mini">
+          <CheckCircle size={9} weight="fill" />
+        </span>
+        {t('university.nav_status.concluido_abrev')}
+      </span>
+    </div>
   )
 }
 
@@ -1331,7 +1357,7 @@ function JornadaEtapaCard({ etapa, onAbrir }: {
         <div style={{
           flexShrink: 0, background: 'rgba(129,140,248,.12)', color: UNI_COR,
           fontSize: '.72rem', fontWeight: 700, padding: '4px 9px', borderRadius: 9999,
-        }}>{xp} XP</div>
+        }}>{formatarXpGuiaGravity(xp)} XP</div>
       </div>
       <EtapaStatusTag etapa={etapa} />
     </div>
@@ -1389,7 +1415,7 @@ function JornadaRanking({ xpUsuario }: { xpUsuario: number }) {
               flex: 1, fontSize: '.82rem', fontWeight: 600,
               color: isYou ? UNI_COR : 'var(--ws-text,#f1f5f9)',
             }}>{p.nome}</div>
-            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
+            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{formatarXpGuiaGravity(p.xp)} XP</div>
           </div>
         )
       })}
@@ -1408,7 +1434,7 @@ function JornadaSidebar({ xp, gp, feitas, total, xpMeta, ritmo, rankingTituloKey
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <JornadaCardBox titulo={t('university.jornada.seu_progresso')}>
         <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '1.6rem', color: 'var(--ws-text,#f1f5f9)' }}>
-          {xp}<span style={{ fontSize: '.9rem', color: 'var(--ws-muted,#94a3b8)', fontWeight: 600 }}> XP</span>
+          {formatarXpGuiaGravity(xp)}<span style={{ fontSize: '.9rem', color: 'var(--ws-muted,#94a3b8)', fontWeight: 600 }}> XP</span>
         </div>
         {xpMeta > 0 && (
           <>
@@ -1444,7 +1470,7 @@ function JornadaSidebar({ xp, gp, feitas, total, xpMeta, ritmo, rankingTituloKey
               background: 'rgba(167,139,250,.22)', border: '1.5px solid #a78bfa',
             }} />
             <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
-              {gp} {t('university.jornada.gravity_points')}
+              {formatarXpGuiaGravity(gp)} {t('university.jornada.gravity_points')}
             </div>
           </div>
         </div>
@@ -1537,7 +1563,7 @@ function RankingGeralDashboard({ xpUsuario }: { xpUsuario: number }) {
               flex: 1, fontSize: '.82rem', fontWeight: 600,
               color: isYou ? '#818cf8' : 'var(--ws-text,#f1f5f9)',
             }}>{p.nome}</div>
-            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{p.xp} XP</div>
+            <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--ws-muted,#94a3b8)' }}>{formatarXpGuiaGravity(p.xp)} XP</div>
           </div>
         )
       })}
@@ -1565,7 +1591,7 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
           <BarraProgresso pct={pctNivel} altura={8} />
         </div>
         <div className="uni-dashboard-nivel-xp">
-          {xpTotal} / {xpMetaNivel} XP
+          {formatarXpGuiaGravity(xpTotal)} / {formatarXpGuiaGravity(xpMetaNivel)} XP
         </div>
         <div className="uni-dashboard-nivel-ritmo-resumo">
           <div className="uni-dashboard-ritmo-cabecalho uni-dashboard-ritmo-cabecalho--padrao">
@@ -1615,7 +1641,7 @@ function RailDashboardOnboarding({ xpTotal, gp, feitas, ritmo, diasOfensiva }: {
               background: 'rgba(167,139,250,.22)', border: '1.5px solid #a78bfa',
             }} />
             <div style={{ color: 'var(--ws-text,#f1f5f9)', fontSize: '.82rem', fontWeight: 600 }}>
-              {gp} {t('university.jornada.gravity_points')}
+              {formatarXpGuiaGravity(gp)} {t('university.jornada.gravity_points')}
             </div>
           </div>
         </div>
@@ -1733,7 +1759,7 @@ function PainelDashboardOnboarding({ aulasConcluidas, mapaCertificados, diasOfen
   const faltam = modulos.filter(m => m.pct < 100)
 
   const kpis = [
-    { k: 'university.jornada.pontos', v: xpTotal.toLocaleString('pt-BR') },
+    { k: 'university.jornada.pontos', v: formatarXpGuiaGravity(xpTotal) },
     { k: 'university.jornada.concluidas', v: String(concluidas) },
     { k: 'university.jornada.em_andamento', v: String(emAndamento) },
     { k: 'university.jornada.certificados', v: String(certificadosObtidos) },
@@ -2052,8 +2078,8 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
     mapaXp,
   })
   const feitas = etapas.filter(e => e.feita).length
-  const xp = etapas.filter(e => e.feita).reduce((soma, e) => soma + e.xp, 0)
-  const gp = xp * 2
+  const xp = somarXpGuiaGravity(etapas.filter(e => e.feita).map(e => e.xp))
+  const gp = calcularGpGuiaGravity(xp)
   const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
   const pct = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
   const minutosModuloConcluidos = minutosConcluidosModulo(trilha.fases, aulasConcluidas)
@@ -2084,7 +2110,7 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
               {trilha.nome}
             </div>
           </div>
-          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{xp}/{xpMeta} XP</div>
+          <div style={{ color: UNI_COR, fontSize: '.82rem', fontWeight: 700 }}>{formatarXpGuiaGravity(xp)}/{formatarXpGuiaGravity(xpMeta)} XP</div>
         </div>
         <BarraProgressoComRitmo pctReal={ritmoModulo.pctRealMinutos} ritmo={ritmoModulo} altura={8} />
       </div>
@@ -2137,12 +2163,14 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   let feitasTotal = 0
   let aulasTotal = 0
   let xpTotal = 0
+  const xpPorTrilha: number[] = []
   for (const trilha of trilhas) {
     const p = calcularProgressoModulo(produtoSlug, trilha, aulasConcluidas, mapaXp)
     feitasTotal += p.feitas
     aulasTotal += p.total
-    xpTotal += p.xp
+    xpPorTrilha.push(p.xp)
   }
+  xpTotal = somarXpGuiaGravity(xpPorTrilha)
   const xpMeta = obterXpMaxProduto(mapaXp)
   const indiceAtualGlobal = calcularIndiceAtualGlobal(trilhas, aulasConcluidas)
   const todasFasesProduto = trilhas.flatMap(tr => tr.fases)
@@ -2209,7 +2237,7 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
         </div>
         <JornadaSidebar
           xp={xpTotal}
-          gp={xpTotal * 2}
+          gp={calcularGpGuiaGravity(xpTotal)}
           feitas={feitasTotal}
           total={aulasTotal}
           xpMeta={xpMeta}
@@ -2435,6 +2463,7 @@ export function UniversityGravity() {
   const badgeEmBreve = { badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const }
   const badgeAdminOnboarding = {
     badge: t('university.badge.restrito'),
+    badgeSecundario: t('university.badge.em_breve'),
     badgeVariant: 'muted' as const,
   }
 

@@ -67,10 +67,9 @@ import {
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import { useConfiguracaoTabelaSmartRead } from '../shared/use-configuracao-tabela-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
-
-const ITENS_POR_PAGINA = 50
 
 type TransacaoLeituraLista = TransacaoLeitura & {
   _colunas_personalizadas: Record<string, string>
@@ -137,6 +136,7 @@ export function TabelaTransacoesLeituraSmartRead({
   onSegmentoChange,
 }: Props) {
   const { t } = useTranslation()
+  const { linhasPagina, densidade } = useConfiguracaoTabelaSmartRead()
   const addNotification = useShellStore((s) => s.addNotification)
   const tabelaRef = useRef<GTVirtualHandle>(null)
   const painelAplicadoRef = useRef<string | null>(null)
@@ -662,7 +662,7 @@ export function TabelaTransacoesLeituraSmartRead({
     : undefined
 
   return (
-    <section className="sr-painel sr-painel--tabela">
+    <section className={`sr-painel sr-painel--tabela${densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}>
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
@@ -717,7 +717,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
-        itensPorPagina={ITENS_POR_PAGINA}
+        itensPorPagina={linhasPagina}
         totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}

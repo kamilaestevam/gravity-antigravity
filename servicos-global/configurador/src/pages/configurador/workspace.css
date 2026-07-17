@@ -789,6 +789,23 @@ body.light-theme .ws-profile-dropdown {
   display: none !important;
 }
 
+/* Localizar — blocos que contêm o termo buscado */
+.ws-search-match {
+  outline: 2px solid rgba(251, 191, 36, 0.5);
+  outline-offset: 3px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.05);
+}
+
+mark.ws-search-mark {
+  background: rgba(251, 191, 36, 0.38);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 /* ── Sidebar tenant info block ─────────────────────────────────────────── */
 .ws-sidebar__tenant {
   display: flex;
@@ -3016,6 +3033,7 @@ body.light-theme .cw-xml-viewer {
   padding: 1rem 1rem 1rem 1.25rem;
   box-sizing: border-box;
   border-right: 1px solid rgba(26, 30, 46, 0.85);
+  background: var(--ws-surface, #1e293b);
 }
 
 .uni-player-aula__nav-sumario {

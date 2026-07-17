@@ -229,7 +229,7 @@ export function ManualInfograficoGuiaGravity({
           alignItems: 'stretch',
         }}
       >
-        {/* Guia Gravity — tudo junto */}
+        {/* Guia Gravity: tudo junto */}
         <div style={{
           position: 'relative',
           overflow: 'hidden',
@@ -274,7 +274,7 @@ export function ManualInfograficoGuiaGravity({
                 color: '#f8fafc',
                 lineHeight: 1.3,
               }}>
-                Onboarding, consulta e manual — no mesmo espaço
+                Onboarding, consulta e manual: no mesmo espaço
               </p>
               <p style={{
                 margin: 0,
@@ -375,7 +375,7 @@ export function ManualInfograficoGuiaGravity({
           <div style={{ width: 1, flex: 1, minHeight: 24, background: 'linear-gradient(180deg, transparent, rgba(192,132,252,.5), transparent)' }} />
         </div>
 
-        {/* GABI AI — fora, ao lado */}
+        {/* GABI AI: fora, ao lado */}
         <div style={{
           position: 'relative',
           overflow: 'hidden',
@@ -433,7 +433,7 @@ export function ManualInfograficoGuiaGravity({
                 GABI AI
               </p>
               <p style={{ margin: 0, padding: '6px 0 0', fontSize: '.72rem', lineHeight: 1.5, color: CORPO }}>
-                Assistente inteligente da plataforma: responde dúvidas e acelera a operação — <strong style={{ color: '#e9d5ff', fontWeight: 700 }}>fora</strong> do Guia, mas sempre <strong style={{ color: '#e9d5ff', fontWeight: 700 }}>ao lado</strong> quando você precisar.
+                Assistente inteligente da plataforma: responde dúvidas e acelera a operação: <strong style={{ color: '#e9d5ff', fontWeight: 700 }}>fora</strong> do Guia, mas sempre <strong style={{ color: '#e9d5ff', fontWeight: 700 }}>ao lado</strong> quando você precisar.
               </p>
             </div>
             <div style={{

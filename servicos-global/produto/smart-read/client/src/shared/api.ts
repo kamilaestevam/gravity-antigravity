@@ -196,20 +196,26 @@ export const smartReadApi = {
     )
   },
 
-  async enviarLeitura(arquivo: File): Promise<CriarLeituraResposta> {
+  async enviarLeitura(arquivo: File, opcoes?: { signal?: AbortSignal }): Promise<CriarLeituraResposta> {
     const formulario = new FormData()
     formulario.append('arquivo', arquivo)
+    const sinalChamador = opcoes?.signal
     const tentar = () =>
       requisitar(CriarLeituraRespostaSchema, '/api/v1/smart-read/leituras', {
         method: 'POST',
         body: formulario,
         // Upload real via DATI leva ~90s para 5MB; 5min cobre arquivos grandes.
         // Sem timeout o card fica preso em "Enviando arquivo..." para sempre.
-        signal: AbortSignal.timeout(300_000),
+        // O sinal do chamador permite abortar ao fechar o wizard — um POST
+        // abandonado seguraria o proxy de dev e entalaria o próximo envio.
+        signal: sinalChamador
+          ? AbortSignal.any([sinalChamador, AbortSignal.timeout(300_000)])
+          : AbortSignal.timeout(300_000),
       })
     try {
       return await tentar()
     } catch (erro) {
+      if (sinalChamador?.aborted) throw erro
       if (erro instanceof DOMException && (erro.name === 'TimeoutError' || erro.name === 'AbortError')) {
         throw new Error(
           'Tempo limite ao enviar o arquivo. Verifique se o arquivo está acessível (ex.: sincronizado no Google Drive) e tente novamente.',

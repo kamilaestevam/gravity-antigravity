@@ -159,6 +159,32 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
 })
 
 router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  // Se o navegador desistir antes do upload concluir, cancela o DATI e remove a leitura
+  // criada sem arquivo — evita órfãs (inclusive do retry silencioso em falha de rede).
+  const controladorClienteDesistiu = new AbortController()
+  let idLeituraCriado: string | null = null
+  let companyIdLegado: string | null = null
+  let uploadArquivoConcluido = false
+
+  async function limparLeituraOrfaSeNecessario(motivo: string): Promise<void> {
+    if (uploadArquivoConcluido || !idLeituraCriado || !companyIdLegado) return
+    try {
+      await excluirLeituraLegado(companyIdLegado, idLeituraCriado)
+    } catch (erro) {
+      console.warn('[smart-read][upload] falha ao limpar leitura orfa apos desistencia do cliente', {
+        idLeitura: idLeituraCriado,
+        motivo,
+        erro: erro instanceof Error ? erro.message : erro,
+      })
+    }
+  }
+
+  res.on('close', () => {
+    if (res.writableEnded) return
+    controladorClienteDesistiu.abort()
+    void limparLeituraOrfaSeNecessario('cliente_desconectou')
+  })
+
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
     const idUsuario = idUsuarioDaRequisicao(req)
@@ -167,14 +193,20 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
       throw new AppError('Arquivo obrigatorio (campo multipart "arquivo")', 400, 'ARQUIVO_AUSENTE')
     }
 
-    const companyId = await resolverCompanyLegado(idOrganizacao)
-    const idLeitura = await criarLeituraLegado(companyId)
+    companyIdLegado = await resolverCompanyLegado(idOrganizacao)
+    idLeituraCriado = await criarLeituraLegado(companyIdLegado, controladorClienteDesistiu.signal)
     const nomeArquivo = corrigirEncodingNomeArquivoSmartRead(req.file.originalname) ?? req.file.originalname
-    const idArquivo = await enviarArquivoLegado(companyId, idLeitura, {
-      buffer: req.file.buffer,
-      nome: nomeArquivo,
-      mimeType: req.file.mimetype,
-    })
+    const idArquivo = await enviarArquivoLegado(
+      companyIdLegado,
+      idLeituraCriado,
+      {
+        buffer: req.file.buffer,
+        nome: nomeArquivo,
+        mimeType: req.file.mimetype,
+      },
+      controladorClienteDesistiu.signal,
+    )
+    uploadArquivoConcluido = true
 
     if (req.prisma) {
       try {
@@ -183,11 +215,11 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
           idOrganizacao,
           idUsuario,
           idWorkspace,
-          idLeitura,
+          idLeitura: idLeituraCriado,
         })
       } catch (erro) {
         console.error('[smart-read][vinculo] POST criou leitura no legado mas vínculo Postgres falhou — GET heal-on-read', {
-          idLeitura,
+          idLeitura: idLeituraCriado,
           idWorkspace,
           erro,
         })
@@ -195,12 +227,13 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     }
 
     const resposta = CriarLeituraRespostaSchema.parse({
-      id_leitura: idLeitura,
+      id_leitura: idLeituraCriado,
       id_arquivo: idArquivo,
       status_leitura: 'PROCESSING',
     })
     res.status(202).json(resposta)
   } catch (err) {
+    await limparLeituraOrfaSeNecessario('erro_no_upload')
     next(err)
   }
 })

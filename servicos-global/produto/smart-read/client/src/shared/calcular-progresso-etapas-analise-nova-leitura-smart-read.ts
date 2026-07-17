@@ -1,67 +1,129 @@
 /**
- * Progresso simulado do pipeline IA (passo 2) — só atinge 100% quando a análise real termina.
+ * Progresso honesto do pipeline do passo 2 — nada na tela afirma progresso que
+ * não aconteceu:
+ *  1. «Envio dos arquivos»    — REAL: bytes enviados (eventos XHR de upload).
+ *  2. «Análise dos documentos» — ESTIMATIVA rotulada: tempo decorrido ÷ mediana
+ *     histórica do workspace (fallback 30s/arquivo), teto 95% até o DATI concluir.
+ *  3. «Consolidação dos resultados» — REAL: fração de arquivos com análise completa.
+ * Arquivos com erro saem das médias (não são cobrados nem concluem).
  */
+
+import type { StatusArquivoLocalNovaLeitura } from './tipo-arquivo-nova-leitura-smart-read'
 
 export type EtapaAnaliseProgresso = {
   id: number
   rotulo: string
   progresso: number
   status: 'pendente' | 'andamento' | 'completo'
+  /** Barra calibrada por mediana histórica — a UI rotula como estimativa. */
+  estimativa?: boolean
 }
 
-export const PROGRESSO_MAXIMO_AGUARDANDO_ANALISE = 99
-const TEMPO_FASE_RAPIDA_S = 16
+export type ArquivoProgressoEtapasEntrada = {
+  status_arquivo_local: StatusArquivoLocalNovaLeitura
+  progresso_envio?: number | null
+  inicio_analise_ms?: number | null
+}
 
-function progressoLinearEtapa(
-  elapsedSegundos: number,
-  inicioEtapa: number,
-  duracaoEtapa: number,
+/** Custo fixo medido do DATI por arquivo — fallback quando não há histórico. */
+export const TEMPO_ANALISE_PADRAO_ARQUIVO_MS = 30_000
+
+/** Teto da estimativa enquanto o DATI não confirma conclusão. */
+export const PROGRESSO_MAXIMO_ESTIMATIVA_ANALISE = 95
+
+const ROTULO_ENVIO = 'Envio dos arquivos'
+const ROTULO_ANALISE = 'Análise dos documentos'
+const ROTULO_CONSOLIDACAO = 'Consolidação dos resultados'
+
+function progressoEnvioArquivo(arquivo: ArquivoProgressoEtapasEntrada): number {
+  if (arquivo.status_arquivo_local === 'anexado') return 0
+  if (arquivo.status_arquivo_local === 'enviando') {
+    return Math.max(0, Math.min(100, arquivo.progresso_envio ?? 0))
+  }
+  return 100
+}
+
+function progressoAnaliseArquivo(
+  arquivo: ArquivoProgressoEtapasEntrada,
+  agoraMs: number,
+  tempoMedianoAnaliseMs: number | null,
 ): number {
-  if (elapsedSegundos <= inicioEtapa) return 0
-  const linear = Math.round(((elapsedSegundos - inicioEtapa) / duracaoEtapa) * 100)
-  return Math.min(PROGRESSO_MAXIMO_AGUARDANDO_ANALISE, linear)
+  if (arquivo.status_arquivo_local === 'completo') return 100
+  if (arquivo.status_arquivo_local !== 'analisando') return 0
+
+  const tempoEsperadoMs =
+    tempoMedianoAnaliseMs != null && tempoMedianoAnaliseMs > 0
+      ? tempoMedianoAnaliseMs
+      : TEMPO_ANALISE_PADRAO_ARQUIVO_MS
+  const decorridoMs = Math.max(0, agoraMs - (arquivo.inicio_analise_ms ?? agoraMs))
+  return Math.min(
+    PROGRESSO_MAXIMO_ESTIMATIVA_ANALISE,
+    Math.round((decorridoMs / tempoEsperadoMs) * 100),
+  )
 }
 
-function aplicarCreepAposFaseRapida(progresso: number, elapsedSegundos: number): number {
-  if (elapsedSegundos <= TEMPO_FASE_RAPIDA_S) return progresso
-  const extra = elapsedSegundos - TEMPO_FASE_RAPIDA_S
-  const creep = Math.min(PROGRESSO_MAXIMO_AGUARDANDO_ANALISE - progresso, Math.floor(extra / 8))
-  return Math.min(PROGRESSO_MAXIMO_AGUARDANDO_ANALISE, progresso + creep)
+function media(valores: number[]): number {
+  if (valores.length === 0) return 0
+  return Math.round(valores.reduce((acc, valor) => acc + valor, 0) / valores.length)
 }
 
-function statusEtapaEmAndamento(progresso: number): EtapaAnaliseProgresso['status'] {
-  if (progresso <= 0) return 'pendente'
-  return 'andamento'
+function statusDeProgresso(progresso: number): EtapaAnaliseProgresso['status'] {
+  if (progresso >= 100) return 'completo'
+  return progresso > 0 ? 'andamento' : 'pendente'
 }
 
 export function calcularProgressoEtapasAnaliseNovaLeituraSmartRead(
-  elapsedSegundos: number,
+  arquivos: ArquivoProgressoEtapasEntrada[],
+  agoraMs: number,
+  tempoMedianoAnaliseMs: number | null,
   analiseCompleta: boolean,
   processamentoComErro: boolean,
 ): EtapaAnaliseProgresso[] {
   if (processamentoComErro) {
     return [
-      { id: 1, rotulo: 'Primeira análise', progresso: 0, status: 'pendente' },
-      { id: 2, rotulo: 'Segunda análise', progresso: 0, status: 'pendente' },
-      { id: 3, rotulo: 'Terceira análise', progresso: 0, status: 'pendente' },
+      { id: 1, rotulo: ROTULO_ENVIO, progresso: 0, status: 'pendente' },
+      { id: 2, rotulo: ROTULO_ANALISE, progresso: 0, status: 'pendente', estimativa: false },
+      { id: 3, rotulo: ROTULO_CONSOLIDACAO, progresso: 0, status: 'pendente' },
     ]
   }
 
   if (analiseCompleta) {
     return [
-      { id: 1, rotulo: 'Primeira análise', progresso: 100, status: 'completo' },
-      { id: 2, rotulo: 'Segunda análise', progresso: 100, status: 'completo' },
-      { id: 3, rotulo: 'Terceira análise', progresso: 100, status: 'completo' },
+      { id: 1, rotulo: ROTULO_ENVIO, progresso: 100, status: 'completo' },
+      { id: 2, rotulo: ROTULO_ANALISE, progresso: 100, status: 'completo', estimativa: false },
+      { id: 3, rotulo: ROTULO_CONSOLIDACAO, progresso: 100, status: 'completo' },
     ]
   }
 
-  const p1 = aplicarCreepAposFaseRapida(progressoLinearEtapa(elapsedSegundos, 0, 6), elapsedSegundos)
-  const p2 = aplicarCreepAposFaseRapida(progressoLinearEtapa(elapsedSegundos, 4, 8), elapsedSegundos)
-  const p3 = aplicarCreepAposFaseRapida(progressoLinearEtapa(elapsedSegundos, 10, 6), elapsedSegundos)
+  // Arquivos com erro não contam nas médias: não serão cobrados nem concluídos,
+  // e mantê-los travaria as barras abaixo de 100% para sempre.
+  const considerados = arquivos.filter((arquivo) => arquivo.status_arquivo_local !== 'erro')
 
+  const envio = media(considerados.map(progressoEnvioArquivo))
+  const analise = media(
+    considerados.map((arquivo) => progressoAnaliseArquivo(arquivo, agoraMs, tempoMedianoAnaliseMs)),
+  )
+  const completos = considerados.filter((arquivo) => arquivo.status_arquivo_local === 'completo').length
+  const consolidacao =
+    considerados.length > 0 ? Math.round((completos / considerados.length) * 100) : 0
+
+  const statusAnalise = statusDeProgresso(analise)
   return [
-    { id: 1, rotulo: 'Primeira análise', progresso: p1, status: statusEtapaEmAndamento(p1) },
-    { id: 2, rotulo: 'Segunda análise', progresso: p2, status: statusEtapaEmAndamento(p2) },
-    { id: 3, rotulo: 'Terceira análise', progresso: p3, status: statusEtapaEmAndamento(p3) },
+    { id: 1, rotulo: ROTULO_ENVIO, progresso: envio, status: statusDeProgresso(envio) },
+    {
+      id: 2,
+      rotulo: ROTULO_ANALISE,
+      progresso: analise,
+      status: statusAnalise,
+      estimativa: statusAnalise === 'andamento',
+    },
+    {
+      id: 3,
+      rotulo: ROTULO_CONSOLIDACAO,
+      progresso: consolidacao,
+      // Consolidação só fecha quando a análise completa confirma — antes disso,
+      // 100% parcial (todos os N atuais completos) segue como andamento.
+      status: consolidacao >= 100 ? 'andamento' : statusDeProgresso(consolidacao),
+    },
   ]
 }

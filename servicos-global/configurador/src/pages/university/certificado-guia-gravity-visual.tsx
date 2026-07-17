@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import type { CertificadoEmitidoGuia, TipoCertificadoGuia } from './certificado-guia-gravity'
 import { chaveI18nCertificadoGuia, formatarDataCertificadoGuia } from './certificado-guia-gravity'
+import { formatarXpGuiaGravity } from './pesos-academy-guia-gravity'
 
 const ICONES_TIPO_CERTIFICADO: Record<TipoCertificadoGuia, React.ComponentType<{ size?: number; weight?: 'duotone' | 'fill'; color?: string }>> = {
   'modulo-basico': GraduationCap,
@@ -120,7 +121,7 @@ export function CertificadoGuiaGravityVisual({
         </div>
         <div className="uni-certificado__metrica">
           <span className="uni-certificado__metrica-rotulo">{t('university.certificado.xp_rotulo')}</span>
-          <span className="uni-certificado__metrica-valor">{xpModulo} XP</span>
+          <span className="uni-certificado__metrica-valor">{formatarXpGuiaGravity(xpModulo)} XP</span>
         </div>
         <div className="uni-certificado__metrica">
           <span className="uni-certificado__metrica-rotulo">{t('university.certificado.data_rotulo')}</span>

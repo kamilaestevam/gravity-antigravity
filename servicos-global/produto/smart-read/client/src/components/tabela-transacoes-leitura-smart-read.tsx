@@ -12,8 +12,8 @@ import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
+  limparOrigemProdutoFluxoSmartRead,
   resolverOrigemProdutoFluxoSmartRead,
-  salvarOrigemProdutoFluxoSmartRead,
 } from '../shared/origem-produto-fluxo-smart-read'
 import {
   FiltroChips,
@@ -192,9 +192,6 @@ export function TabelaTransacoesLeituraSmartRead({
 
   useEffect(() => {
     const origem = searchParams.get('origem')
-    if (origem === 'pedido' || origem === 'bid-frete-internacional') {
-      salvarOrigemProdutoFluxoSmartRead(origem)
-    }
     const abreNovaLeitura =
       searchParams.get('acao') === 'nova-leitura'
       && (origem === 'pedido' || origem === 'bid-frete-internacional')
@@ -202,6 +199,15 @@ export function TabelaTransacoesLeituraSmartRead({
     setModalNovaLeituraAberto(true)
     const next = new URLSearchParams(searchParams)
     next.delete('acao')
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  const limparOrigemFluxoDaUrl = useCallback(() => {
+    limparOrigemProdutoFluxoSmartRead()
+    if (!searchParams.get('origem') && !searchParams.get('id_bid')) return
+    const next = new URLSearchParams(searchParams)
+    next.delete('origem')
+    next.delete('id_bid')
     setSearchParams(next, { replace: true })
   }, [searchParams, setSearchParams])
 
@@ -774,9 +780,13 @@ export function TabelaTransacoesLeituraSmartRead({
           setIdLeituraExistente(null)
           setPassoRetomarLista(null)
           setHintRetomarLista(null)
+          limparOrigemFluxoDaUrl()
           void onRecarregar()
         }}
-        onConcluido={() => void onRecarregar()}
+        onConcluido={() => {
+          limparOrigemFluxoDaUrl()
+          void onRecarregar()
+        }}
       />
 
       <ModalConfirmarExcluirGlobal

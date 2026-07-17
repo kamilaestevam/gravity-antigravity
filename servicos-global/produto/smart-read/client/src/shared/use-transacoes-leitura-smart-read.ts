@@ -47,22 +47,17 @@ export function useTransacoesLeituraSmartRead(
     setErro(null)
 
     try {
-      const [lista, metrica] = await Promise.all([
-        smartReadApi.listarTransacoes({
-          pagina,
-          limite,
-          termo_busca: termoAplicado || undefined,
-          origem_leitura: origemLeitura,
-        }),
-        segmento === 'envios'
-          ? smartReadApi.obterMetricaLeitura('readings').catch(() => null)
-          : Promise.resolve(null),
-      ])
+      // Métrica de leituras = total da própria listagem — a chamada dedicada a
+      // /metricas/readings refazia a listagem DATI inteira no BFF (carga dobrada).
+      const lista = await smartReadApi.listarTransacoes({
+        pagina,
+        limite,
+        termo_busca: termoAplicado || undefined,
+        origem_leitura: origemLeitura,
+      })
       setTransacoes(lista.transacoes)
       setTotal(lista.paginacao.total)
-      setMetricaLeituras(
-        segmento === 'envios' ? (metrica?.valor ?? lista.paginacao.total) : lista.paginacao.total,
-      )
+      setMetricaLeituras(lista.paginacao.total)
     } catch (exc) {
       setErro(mensagemDeExcecao(exc, 'Falha ao carregar leituras'))
       setTransacoes([])

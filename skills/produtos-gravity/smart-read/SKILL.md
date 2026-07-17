@@ -103,12 +103,13 @@ Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
 |---------|-------|
 | **Layout** | Dashboard métricas (3 cards) + pipeline IA (3 análises + globo) + sidebar com cards/documentos |
 | **Entrada** | **Enviar** no passo 1 ou retomar leitura `PROCESSING` |
-| **Polling** | `GET /api/v1/smart-read/leituras/:id_leitura` até `COMPLETED` / `FAILED` |
+| **Polling** | `GET /api/v1/smart-read/leituras/:id_leitura` até `COMPLETED` / `FAILED`; leitura carrega `mensagem_erro` real do DATI (TASK-000424) |
 | **Tempo** | Cronômetro acumula em `tempo_processo_total_ms`; persistido no progresso da leitura |
-| **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia, z-index acima do wizard) |
+| **Progresso honesto** | Barras: Envio (real, XHR) · Análise (estimativa por mediana, pill «Estimativa») · Consolidação (real). SSOT `calcular-progresso-etapas-analise-nova-leitura-smart-read.ts` (TASK-000424) |
+| **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia); acumulado via `GET /leituras/agregado-workspace` (Postgres, 1 chamada, guarda anti-sobreposição) |
 | **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — só após análise finalizada) |
 | **Documentos** | Chips/lista expandível no card; visualizar por tipo abre nova aba |
-| **SLA testes** | Pipeline client ~16s; EMT valida execução total ≤ 75s |
+| **SLA testes** | Barras refletem tempo real do DATI (~30s/arquivo); EMT valida execução total ≤ 75s |
 
 ### Checklist EMT passo 2 (10 itens)
 
@@ -119,7 +120,7 @@ Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
 5. Tempo de leitura carregando/correto
 6. Recursos reduzidos carregados/corretos
 7. Tempo reduzido acumulado (Documentos + Saving)
-8. Três análises concluídas («Completo»)
+8. Pipeline honesto: Envio/Análise/Consolidação concluídos («Completo»); durante análise, pill «Estimativa» na barra do motor
 9. Globo/pipeline em 100%
 10. Tempo total ≤ 75 segundos
 

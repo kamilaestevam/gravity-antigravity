@@ -14,6 +14,7 @@ import {
   TrendUp,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BlocoPerformanceResultadoComTooltip } from './bloco-performance-resultado-com-tooltip-smart-read'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   extrairDadosArquivoLocal,
@@ -41,6 +42,18 @@ function formatarTempo(totalSegundos: number): string {
 
 function sanitizarNomeArquivo(nome: string): string {
   return nome.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'leitura'
+}
+
+function QuantidadeComPercentual({ quantidade, percentual }: { quantidade: number; percentual: number }) {
+  return (
+    <span className="sr-res-perf-bloco-quantidade">
+      <span className="sr-res-perf-bloco-numero">{quantidade}</span>
+      <span className="sr-res-perf-bloco-sep" aria-hidden>
+        /
+      </span>
+      <span className="sr-res-perf-bloco-pct">{percentual}%</span>
+    </span>
+  )
 }
 
 function resolverIdLeitura(arquivos: ArquivoLocalNovaLeitura[]): string | null {
@@ -175,8 +188,8 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Pr
   return (
     <div className="sr-wizard-principal sr-wizard-principal--resultado">
       <div className="sr-wizard-resultado-layout">
-        <div className="sr-wizard-metricas">
-          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+        <div className="sr-wizard-metricas sr-wizard-metricas--resultado">
+          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie sr-wizard-metrica-card--performance-resultado">
             <header>
               <CheckCircle size={18} weight="duotone" />
               <span>Performance de acertos</span>
@@ -216,29 +229,35 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Pr
                 </div>
               </div>
               <div className="sr-res-perf-grid sr-res-perf-grid--tres">
-                <div className="sr-res-perf-bloco sr-res-perf-bloco--ok">
-                  <span className="sr-res-perf-bloco-quantidade">{metricas.validados}</span>
-                  <span className="sr-res-perf-bloco-rotulo">Dados validados</span>
-                  <span className="sr-res-perf-bloco-detalhe">
-                    {metricas.pctValidados}% · {metricas.validados} de {metricas.comparados}
-                  </span>
-                  <TrendUp size={16} weight="bold" className="sr-res-perf-bloco-icone" />
-                </div>
-                <div className="sr-res-perf-bloco sr-res-perf-bloco--ajuste">
-                  <span className="sr-res-perf-bloco-quantidade">{metricas.ajustesForma}</span>
-                  <span className="sr-res-perf-bloco-rotulo">Ajustes de forma</span>
-                  <span className="sr-res-perf-bloco-detalhe">
-                    {metricas.pctAjustes}% · {metricas.ajustesForma} de {metricas.comparados}
-                  </span>
-                </div>
-                <div className="sr-res-perf-bloco sr-res-perf-bloco--alt">
-                  <span className="sr-res-perf-bloco-quantidade">{metricas.corrigidos}</span>
-                  <span className="sr-res-perf-bloco-rotulo">Corrigidos (IA)</span>
-                  <span className="sr-res-perf-bloco-detalhe">
-                    {metricas.pctCorrigidos}% · {metricas.corrigidos} de {metricas.comparados}
-                  </span>
-                  <TrendDown size={16} weight="bold" className="sr-res-perf-bloco-icone" />
-                </div>
+                <BlocoPerformanceResultadoComTooltip tipo="validados" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--ok">
+                    <QuantidadeComPercentual quantidade={metricas.validados} percentual={metricas.pctValidados} />
+                    <span className="sr-res-perf-bloco-rotulo">Dados validados</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.validados} de {metricas.comparados} campos
+                    </span>
+                    <TrendUp size={16} weight="bold" className="sr-res-perf-bloco-icone" />
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="ajuste" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--ajuste">
+                    <QuantidadeComPercentual quantidade={metricas.ajustesForma} percentual={metricas.pctAjustes} />
+                    <span className="sr-res-perf-bloco-rotulo">Ajustes de forma</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.ajustesForma} de {metricas.comparados} campos
+                    </span>
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="corrigidos" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--alt">
+                    <QuantidadeComPercentual quantidade={metricas.corrigidos} percentual={metricas.pctCorrigidos} />
+                    <span className="sr-res-perf-bloco-rotulo">Corrigidos (IA)</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.corrigidos} de {metricas.comparados} campos
+                    </span>
+                    <TrendDown size={16} weight="bold" className="sr-res-perf-bloco-icone" />
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
               </div>
             </div>
           </article>

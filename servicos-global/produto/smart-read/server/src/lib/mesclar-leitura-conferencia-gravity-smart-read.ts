@@ -93,6 +93,8 @@ export function mesclarLeituraComConferenciaGravity(
       id_leitura: base.id_leitura || conferencia.id_leitura,
       nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
       status_leitura: mesclarStatusLeituraSmartRead(base.status_leitura, conferencia.status_leitura),
+      // Motivo de falha: o legado (base) é a fonte fresca; snapshot só complementa.
+      mensagem_erro: base.mensagem_erro ?? conferencia.mensagem_erro ?? null,
       tempo_processo_total_ms:
         conferencia.tempo_processo_total_ms != null && conferencia.tempo_processo_total_ms > 0
           ? conferencia.tempo_processo_total_ms
@@ -112,6 +114,7 @@ export function mesclarLeituraComConferenciaGravity(
     ...base,
     nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
     status_leitura: mesclarStatusLeituraSmartRead(base.status_leitura, conferencia.status_leitura),
+    mensagem_erro: base.mensagem_erro ?? conferencia.mensagem_erro ?? null,
     tempo_processo_total_ms:
       conferencia.tempo_processo_total_ms != null && conferencia.tempo_processo_total_ms > 0
         ? conferencia.tempo_processo_total_ms

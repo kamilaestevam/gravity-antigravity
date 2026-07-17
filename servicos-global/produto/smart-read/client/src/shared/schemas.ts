@@ -26,6 +26,8 @@ export const ArquivoLeituraSchema = z.object({
   status_arquivo: StatusLeituraEnum,
   tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
   resultado_extracao: z.array(ItemResultadoExtracaoLeituraSchema).nullable(),
+  /** Motivo real da falha reportado pelo DATI (errorMessage) — null quando sem erro. */
+  mensagem_erro: z.string().nullable().optional(),
 })
 export type ArquivoLeitura = z.infer<typeof ArquivoLeituraSchema>
 
@@ -37,6 +39,8 @@ export const LeituraSchema = z.object({
   arquivos_processados: z.number(),
   arquivos: z.array(ArquivoLeituraSchema),
   tempo_processo_total_ms: z.number().int().min(0).nullable().optional(),
+  /** Motivo real da falha reportado pelo DATI — exibido traduzido no wizard. */
+  mensagem_erro: z.string().nullable().optional(),
 })
 export type Leitura = z.infer<typeof LeituraSchema>
 
@@ -100,6 +104,21 @@ export const MetricaLeituraRespostaSchema = z.object({
   valor: z.number(),
 })
 export type MetricaLeituraResposta = z.infer<typeof MetricaLeituraRespostaSchema>
+
+/**
+ * Agregado do workspace calculado 100% no Postgres Gravity (snapshot + progresso) —
+ * espelho bilateral de server/src/schemas/leitura-smart-read.ts.
+ */
+export const AgregadoWorkspaceLeituraRespostaSchema = z.object({
+  transacoes: z.array(TransacaoLeituraSchema),
+  total_documentos: z.number().int().min(0),
+  saving_total_minutos: z.number().min(0).nullable(),
+  saving_total_brl: z.number().min(0).nullable(),
+  leituras_com_saving: z.number().int().min(0),
+  data_inicio_historico: z.string().nullable(),
+  tempo_mediano_analise_ms: z.number().int().min(0).nullable(),
+})
+export type AgregadoWorkspaceLeituraResposta = z.infer<typeof AgregadoWorkspaceLeituraRespostaSchema>
 
 export const StatusTarefaExportacaoLeituraEnum = z.enum([
   'pending',

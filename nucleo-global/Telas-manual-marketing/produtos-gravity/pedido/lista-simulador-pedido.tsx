@@ -1894,7 +1894,7 @@ export function ListaSimuladorPedido({
         modoDemonstracaoArrastarColunas ? 'pds-lista--demo-arrastar' : '',
       ].filter(Boolean).join(' ')}
       role={modoDemonstracaoArrastarColunas ? 'img' : undefined}
-      aria-label={modoDemonstracaoArrastarColunas ? 'Demonstração animada ? arrastar colunas direto na tabela' : undefined}
+      aria-label={modoDemonstracaoArrastarColunas ? 'Demonstraï¿½ï¿½o animada ? arrastar colunas direto na tabela' : undefined}
     >
       <div className="lp-stats-row">
         <div className="lp-cards" data-sds-tutorial-alvo="pedido-lista-cards">

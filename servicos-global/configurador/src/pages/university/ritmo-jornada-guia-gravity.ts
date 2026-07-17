@@ -205,6 +205,63 @@ export function calcularRitmoModuloSequencial(opts: {
   }
 }
 
+/** Posição na linha do tempo (dia 0 = início · dia N = meta de conclusão do plano). */
+export function calcularPosicoesTimelineRitmo(ritmo: MetricasRitmoJornada): {
+  diaPlanoTotal: number
+  diaProgresso: number
+  diaMetaHoje: number
+  pctProgresso: number
+  pctMeta: number
+} {
+  const diaPlanoTotal = Math.max(1, ritmo.diasPlanoTotal)
+  const diaProgresso = Math.min(
+    diaPlanoTotal,
+    Math.round((ritmo.minutosConcluidos / MINUTOS_RITMO_IDEAL_DIA) * 10) / 10,
+  )
+  const diaMetaHoje = Math.min(
+    diaPlanoTotal,
+    Math.round((ritmo.minutosEsperadosHoje / MINUTOS_RITMO_IDEAL_DIA) * 10) / 10,
+  )
+  const pctProgresso = Math.min(100, (diaProgresso / diaPlanoTotal) * 100)
+  const pctMeta = Math.min(100, (diaMetaHoje / diaPlanoTotal) * 100)
+  return { diaPlanoTotal, diaProgresso, diaMetaHoje, pctProgresso, pctMeta }
+}
+
+/** Preview dev — `?demoRitmo=atrasado|adiantado` na URL (somente UI local). */
+export function aplicarDemoRitmoGuiaGravity(
+  ritmo: MetricasRitmoJornada,
+  modo: 'atrasado' | 'adiantado' | null,
+): MetricasRitmoJornada {
+  if (!modo) return ritmo
+
+  const diasPlano = Math.max(ritmo.diasPlanoTotal, 5)
+  const minutosTotais = ritmo.minutosTotais > 0
+    ? ritmo.minutosTotais
+    : diasPlano * MINUTOS_RITMO_IDEAL_DIA
+  const diaMeta = Math.min(diasPlano, 5)
+  const minutosEsperadosHoje = Math.min(minutosTotais, diaMeta * MINUTOS_RITMO_IDEAL_DIA)
+  const diasAtraso = 2
+  const diasAdiantado = 2
+
+  const minutosConcluidos = modo === 'atrasado'
+    ? Math.max(0, minutosEsperadosHoje - diasAtraso * MINUTOS_RITMO_IDEAL_DIA)
+    : Math.min(minutosTotais, minutosEsperadosHoje + diasAdiantado * MINUTOS_RITMO_IDEAL_DIA)
+
+  const deltaDias = modo === 'atrasado' ? -diasAtraso : diasAdiantado
+
+  return {
+    ...ritmo,
+    minutosTotais,
+    minutosConcluidos,
+    minutosEsperadosHoje,
+    diasPlanoTotal: diasPlano,
+    diasDecorridos: diaMeta,
+    pctRealMinutos: Math.min(100, Math.round((minutosConcluidos / minutosTotais) * 100)),
+    pctIdeal: Math.min(100, Math.round((minutosEsperadosHoje / minutosTotais) * 100)),
+    deltaDias,
+  }
+}
+
 export function minutosConcluidosModulo(
   fases: FaseComDuracao[],
   aulasConcluidas: Set<string>,

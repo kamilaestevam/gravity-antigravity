@@ -52,6 +52,14 @@ export function mesclarLeituraComConferenciaGravity(
 ): Leitura {
   if (!conferencia) return base
 
+  // Placeholder de vínculo (registrarVinculoLeituraUsuarioSmartRead no POST):
+  // sem extração e sem nome não há conferência a preservar — mesclar rebaixaria
+  // status_leitura COMPLETED do legado para o PROCESSING congelado do placeholder
+  // e o polling do passo 2 nunca veria a análise concluir (regressão 16/07).
+  if (leituraSemExtracaoUtilRetomarSmartRead(conferencia) && !conferencia.nome_leitura) {
+    return base
+  }
+
   if (
     leituraTemExtracaoUtilRetomarSmartRead(conferencia) &&
     (base.arquivos.length === 0 || leituraSemExtracaoUtilRetomarSmartRead(base))

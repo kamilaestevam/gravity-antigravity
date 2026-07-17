@@ -37,6 +37,7 @@ import {
   leituraTemConferenciaGravity,
   mesclarLeituraComConferenciaGravity,
 } from '../lib/mesclar-leitura-conferencia-gravity-smart-read.js'
+import { leituraTemExtracaoUtilRetomarSmartRead } from '../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
   CriarLeituraRespostaSchema,
@@ -296,7 +297,10 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
             idUsuario,
             idWorkspace,
           )
-          if (doProgresso) {
+          // Só mescla progresso com extração real (conferência do usuário).
+          // O placeholder de vínculo (status PROCESSING, zero arquivos) rebaixava
+          // o COMPLETED do legado e o polling nunca concluía (regressão do #802).
+          if (doProgresso && leituraTemExtracaoUtilRetomarSmartRead(doProgresso)) {
             leitura = mesclarLeituraComConferenciaGravity(leitura, doProgresso)
           }
         }

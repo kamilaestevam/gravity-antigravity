@@ -154,6 +154,7 @@
   flex-wrap: wrap;
   gap: 24px;
   align-items: stretch;
+  margin-top: 48px;
 }
 
 .sr-prefill-bid-match-grupo {

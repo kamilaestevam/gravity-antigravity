@@ -80,8 +80,6 @@ export const NAVEGACAO_AULA_SLUGS = [
 
   'menus-plataforma',
 
-  'acesso-gravity-university',
-
   'funcionalidades-listas',
 
 ] as const
@@ -125,28 +123,6 @@ export const AULAS_NAVEGACAO: AulaDemo[] = [
   aulaNavegacao(
 
     NAVEGACAO_AULA_SLUGS[1],
-
-    'Como acessar a Gravity University',
-
-    '12m',
-
-    [5, 6],
-
-    {
-
-      titulosFluxoAcademy: {
-
-        6: 'Navegação na University',
-
-      },
-
-    },
-
-  ),
-
-  aulaNavegacao(
-
-    NAVEGACAO_AULA_SLUGS[2],
 
     'Funcionalidades das listas',
 

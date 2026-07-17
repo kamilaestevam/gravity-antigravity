@@ -2131,10 +2131,6 @@
   background: #f59e0b;
 }
 
-.sr-res-perf-grid--tres {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .sr-res-perf-bloco--ajuste .sr-res-perf-bloco-quantidade {
   color: #fbbf24;
 }
@@ -2172,6 +2168,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.625rem;
+}
+
+.sr-res-perf-grid.sr-res-perf-grid--tres,
+.sr-wizard-metricas--resultado .sr-res-perf-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .sr-res-perf-bloco {

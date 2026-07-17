@@ -1,6 +1,10 @@
 import React from 'react'
 import { ArrowsLeftRight, FileText, Stack, type Icon } from '@phosphor-icons/react'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
+import {
+  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
+  MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+} from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -51,7 +55,7 @@ function CardComparacao({ coluna }: { coluna: ColunaComparacao }) {
         borderRadius: 12,
         border: `1px solid ${coluna.borda}`,
         background: coluna.fundo,
-        padding: '14px 14px 12px',
+        padding: '14px 14px 14px',
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
@@ -107,12 +111,12 @@ export function ManualInfograficoBidFreteCotacaoAvulsaVsBid() {
         background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(52,211,153,.05) 100%)',
         border: '1px solid rgba(148,163,184,.18)',
         borderRadius: 14,
-        padding: '18px 18px 16px',
+        padding: '20px 18px 18px',
         boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
       }}
     >
       <p style={{
-        margin: '0 0 12px',
+        margin: `0 0 ${MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX}px`,
         fontSize: '.62rem',
         fontWeight: 800,
         letterSpacing: '.1em',
@@ -145,7 +149,7 @@ export function ManualInfograficoBidFreteCotacaoAvulsaVsBid() {
       </div>
 
       <p style={{
-        margin: '14px 0 0',
+        margin: `${MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX}px 0 0`,
         fontSize: '.68rem',
         lineHeight: 1.5,
         color: CORPO_70,

@@ -106,6 +106,29 @@ import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
 
 const GabiChat = lazy(() => import('@plataforma/gabi/src/Gabi'))
+<<<<<<< Updated upstream
+=======
+const PainelRevisaoPrefillCotacaoBidFreteSmartRead = lazy(
+  () =>
+    import('./painel-revisao-prefill-cotacao-bid-frete-smart-read')
+      .then((mod) => ({
+        default: mod.PainelRevisaoPrefillCotacaoBidFreteSmartRead,
+      }))
+      .catch((erro) => {
+        console.error('[smart-read] falha ao carregar painel prefill BID Frete', erro)
+        return {
+          default: function PainelPrefillIndisponivel() {
+            return (
+              <p className="sr-prefill-bid-revisao-aviso" role="alert">
+                Não foi possível carregar a revisão para cotação. Recarregue a página ou abra
+                novamente pelo BID Frete → Smart Docs.
+              </p>
+            )
+          },
+        }
+      }),
+)
+>>>>>>> Stashed changes
 
 
 

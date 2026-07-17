@@ -12,6 +12,10 @@ import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
+  resolverOrigemProdutoFluxoSmartRead,
+  salvarOrigemProdutoFluxoSmartRead,
+} from '../shared/origem-produto-fluxo-smart-read'
+import {
   FiltroChips,
   FiltroPopoverColuna,
   TabelaVirtualGlobal,
@@ -132,13 +136,16 @@ export function TabelaTransacoesLeituraSmartRead({
   const [hintRetomarLista, setHintRetomarLista] = useState<HintRetomarLeituraListaSmartRead | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const origemProduto = searchParams.get('origem')
+  const origemProduto = resolverOrigemProdutoFluxoSmartRead(searchParams.get('origem'))
   const origemPedido = origemProduto === 'pedido'
   const origemBidFrete = origemProduto === 'bid-frete-internacional'
   const idBidOrigem = searchParams.get('id_bid')
 
   useEffect(() => {
     const origem = searchParams.get('origem')
+    if (origem === 'pedido' || origem === 'bid-frete-internacional') {
+      salvarOrigemProdutoFluxoSmartRead(origem)
+    }
     const abreNovaLeitura =
       searchParams.get('acao') === 'nova-leitura'
       && (origem === 'pedido' || origem === 'bid-frete-internacional')

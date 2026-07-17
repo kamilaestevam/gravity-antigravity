@@ -1186,6 +1186,27 @@ function calcularMetricasOnboarding(produtosContratados: string[], aulasConcluid
   return { modulos, xpTotal, concluidas, emAndamento, certificados: concluidas, gp: calcularGpGuiaGravity(xpTotal) }
 }
 
+function LegendaStatusNavAcademy() {
+  const { t } = useTranslation()
+
+  return (
+    <span
+      className="uni-nav-legenda-status"
+      aria-label={t('university.nav_status.legenda_titulo')}
+    >
+      <span className="uni-nav-legenda-status__item">
+        <Package size={10} weight="fill" />
+        {t('university.nav_status.contrato_abrev')}
+      </span>
+      <span className="uni-nav-legenda-status__sep" aria-hidden>·</span>
+      <span className="uni-nav-legenda-status__item">
+        <CheckCircle size={10} weight="fill" />
+        {t('university.nav_status.concluido_abrev')}
+      </span>
+    </span>
+  )
+}
+
 function IconesStatusNavAcademy({ slug, aulasConcluidas, compacto = false }: {
   slug: ProdutoSlug
   aulasConcluidas: Set<string>

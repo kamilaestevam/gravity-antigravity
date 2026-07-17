@@ -1,13 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  CARDS_PADRAO_SMART_READ,
-  PREFERENCIAS_CARDS_PADRAO_SMART_READ,
-  SYNC_EVENT_CARDS_SMART_READ,
-  carregarPreferenciasCardsSmartRead,
-  salvarPreferenciasCardsSmartRead,
-} from '../../../../servicos-global/produto/smart-read/client/src/shared/use-preferencias-cards-smart-read.ts'
+  CARDS_PADRAO_KPI_SMART_READ,
+  normalizarPreferenciasCardsKpi,
+} from '../../../../servicos-global/produto/smart-read/client/src/shared/catalogo-cards-kpi-smart-read.ts'
+import {
+  STORAGE_KEY_CONFIGURACOES_SMART_READ,
+  carregarConfiguracoesSmartRead,
+  salvarConfiguracoesSmartRead,
+  snapshotPadraoConfiguracoesSmartRead,
+} from '../../../../servicos-global/produto/smart-read/client/src/shared/persistencia-configuracoes-smart-read.ts'
 
-const STORAGE_KEY = 'smart-read:config:cards-v1'
 const lsStore: Record<string, string> = {}
 
 beforeEach(() => {
@@ -35,52 +37,35 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('use-preferencias-cards-smart-read', () => {
-  it('carrega padrão quando storage vazio', () => {
-    expect(carregarPreferenciasCardsSmartRead()).toEqual(PREFERENCIAS_CARDS_PADRAO_SMART_READ)
+describe('preferencias cards smart-read via persistencia-configuracoes', () => {
+  it('carrega cards padrao quando storage vazio', () => {
+    const cfg = carregarConfiguracoesSmartRead()
+    expect(cfg.cards.map((c) => c.id)).toEqual(CARDS_PADRAO_KPI_SMART_READ.map((c) => c.id))
+    expect(cfg.cards.every((c) => c.visible)).toBe(true)
   })
 
-  it('persiste ordem, visibilidade e dispara evento para a Lista', () => {
-    salvarPreferenciasCardsSmartRead({
-      periodo: '7d',
-      cards: [
-        { id: 'recursos_reduzidos', visible: true },
-        { id: 'leituras_realizadas', visible: false },
-        { id: 'performance_acertos', visible: true },
-      ],
-    })
+  it('persiste ordem e visibilidade dos cards', () => {
+    const snapshot = snapshotPadraoConfiguracoesSmartRead()
+    snapshot.cards = normalizarPreferenciasCardsKpi([
+      { id: 'documentos', visible: true },
+      { id: 'total_leituras', visible: false },
+      { id: 'concluidas', visible: true },
+    ])
+    salvarConfiguracoesSmartRead(snapshot)
 
     expect(window.dispatchEvent).toHaveBeenCalled()
-    const salvo = carregarPreferenciasCardsSmartRead()
-    expect(salvo.periodo).toBe('7d')
-    expect(salvo.cards.map((c) => c.id)).toEqual([
-      'recursos_reduzidos',
-      'leituras_realizadas',
-      'performance_acertos',
-    ])
-    expect(salvo.cards.find((c) => c.id === 'leituras_realizadas')?.visible).toBe(false)
+    const salvo = carregarConfiguracoesSmartRead()
+    expect(salvo.cards.map((c) => c.id)).toEqual(['documentos', 'total_leituras', 'concluidas'])
+    expect(salvo.cards.find((c) => c.id === 'total_leituras')?.visible).toBe(false)
+    expect(lsStore[STORAGE_KEY_CONFIGURACOES_SMART_READ]).toBeTruthy()
   })
 
-  it('reinsere cards do catálogo ausentes como visíveis', () => {
-    salvarPreferenciasCardsSmartRead({
-      periodo: '30d',
-      cards: [{ id: 'performance_acertos', visible: true }],
-    })
+  it('preserva subset de cards salvo explicitamente', () => {
+    const snapshot = snapshotPadraoConfiguracoesSmartRead()
+    snapshot.cards = normalizarPreferenciasCardsKpi([{ id: 'falhas', visible: true }])
+    salvarConfiguracoesSmartRead(snapshot)
 
-    const salvo = carregarPreferenciasCardsSmartRead()
-    expect(salvo.cards.map((c) => c.id)).toEqual([
-      'performance_acertos',
-      'leituras_realizadas',
-      'recursos_reduzidos',
-    ])
-    expect(salvo.cards.every((c) => c.visible)).toBe(true)
-  })
-
-  it('aceita payload legado em array puro', () => {
-    lsStore[STORAGE_KEY] = JSON.stringify([{ id: 'recursos_reduzidos', visible: true }])
-
-    const salvo = carregarPreferenciasCardsSmartRead()
-    expect(salvo.cards.some((c) => c.id === 'recursos_reduzidos' && c.visible)).toBe(true)
-    expect(salvo.periodo).toBe('30d')
+    const salvo = carregarConfiguracoesSmartRead()
+    expect(salvo.cards).toEqual([{ id: 'falhas', visible: true }])
   })
 })

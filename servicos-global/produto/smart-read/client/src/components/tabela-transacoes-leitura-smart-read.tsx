@@ -31,11 +31,24 @@ import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-
 import {
   COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
   criarColunasListaLeituraSmartRead,
-  criarColunasPersonalizadasListaSmartRead,
   criarMapaColunasDocumentoLeitura,
-  criarMapaFilhoColunasPersonalizadasSmartRead,
   formatarValorExportColunaLeituraSmartRead,
 } from '../shared/colunas-lista-leitura-smart-read'
+import {
+  criarColunasPersonalizadasListaLeituraSmartRead,
+  criarMapaColunasPersonalizadasDocumentoLeitura,
+  ehColunaPersonalizadaListaLeituraSmartRead,
+  mesclarColunasPersonalizadasNasPreferenciasLista,
+  valorColunaPersonalizadaSalvoEhVazio,
+} from '../shared/colunas-personalizadas-lista-smart-read'
+import { useColunasPersonalizadasSmartRead } from '../shared/use-colunas-personalizadas-smart-read'
+import type { TipoColunaSmartRead } from '../components/ModalNovaColunaSmartRead'
+import {
+  enriquecerComColunasPersonalizadas,
+  enriquecerListaComColunasPersonalizadas,
+  salvarValorColunaPersonalizadaLeitura,
+} from '../shared/persistencia-valores-colunas-personalizadas-smart-read'
+import { normalizarDataSomenteDiaLeitura } from '../shared/formatacao-leitura-smart-read'
 import {
   filtrarTransacoesListaSmartRead,
   valoresUnicosColunaTransacao,
@@ -54,13 +67,34 @@ import {
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
-import {
-  PREFIXO_COLUNA_PERSONALIZADA_SMART_READ,
-  chaveColunaPersonalizadaSmartRead,
-  usePreferenciasVisualizacaoSmartRead,
-} from '../shared/use-preferencias-visualizacao-smart-read'
+import { useConfiguracaoTabelaSmartRead } from '../shared/use-configuracao-tabela-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
+
+type TransacaoLeituraLista = TransacaoLeitura & {
+  _colunas_personalizadas: Record<string, string>
+}
+
+type DocumentoLeituraListaEnriquecido = DocumentoLeituraLista & {
+  _colunas_personalizadas: Record<string, string>
+}
+
+function normalizarValorSalvoColunaPersonalizada(
+  valor: unknown,
+  tipo?: TipoColunaSmartRead,
+): string {
+  if (valor == null) return ''
+  if (tipo === 'checkbox') {
+    if (valor === true || valor === 'true') return 'true'
+    if (valor === false || valor === 'false') return 'false'
+  }
+  if (tipo === 'numero' || tipo === 'percentual') {
+    const num = Number(valor)
+    return Number.isFinite(num) ? String(num) : ''
+  }
+  if (tipo === 'data') return normalizarDataSomenteDiaLeitura(valor)
+  return String(valor).trim()
+}
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -81,6 +115,9 @@ type Props = {
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
   if (col.tipo === 'numero') return 'numero'
   if (col.key === 'status_fluxo_leitura') return 'enum'
+  if (typeof col.key === 'string' && ehColunaPersonalizadaListaLeituraSmartRead(col.key)) {
+    return col.tipo === 'numero' ? 'numero' : 'texto'
+  }
   return 'texto'
 }
 
@@ -99,6 +136,7 @@ export function TabelaTransacoesLeituraSmartRead({
   onSegmentoChange,
 }: Props) {
   const { t } = useTranslation()
+  const { linhasPagina, densidade } = useConfiguracaoTabelaSmartRead()
   const addNotification = useShellStore((s) => s.addNotification)
   const tabelaRef = useRef<GTVirtualHandle>(null)
   const painelAplicadoRef = useRef<string | null>(null)
@@ -116,6 +154,17 @@ export function TabelaTransacoesLeituraSmartRead({
     criarPainel,
     trocarPainel,
   } = useListaPainelSmartRead()
+
+  const { colunasAtivas: colunasPersonalizadasAtivas } = useColunasPersonalizadasSmartRead()
+  const filhosPorIdRef = useRef<Map<string, DocumentoLeituraListaEnriquecido>>(new Map())
+
+  const [transacoesLista, setTransacoesLista] = useState<TransacaoLeituraLista[]>(() =>
+    enriquecerListaComColunasPersonalizadas(transacoes),
+  )
+
+  useEffect(() => {
+    setTransacoesLista(enriquecerListaComColunasPersonalizadas(transacoes))
+  }, [transacoes])
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
   const [filtrosAtivosLista, setFiltrosAtivosLista] = useState<FiltrosAtivosMap>({})
@@ -227,6 +276,13 @@ export function TabelaTransacoesLeituraSmartRead({
   }, [painelAtual, carregandoPaineis, aplicarConfigDoPainel, listaPainelCallbacks])
 
   useEffect(() => {
+    if (colunasPersonalizadasAtivas.length === 0) return
+    setPreferencias((prev) =>
+      mesclarColunasPersonalizadasNasPreferenciasLista(colunasPersonalizadasAtivas, prev),
+    )
+  }, [colunasPersonalizadasAtivas, painelAtualId])
+
+  useEffect(() => {
     if (!painelAtualId || carregandoPaineis) return
     persistirPainelAtual(montarEstadoPainel())
   }, [painelAtualId, carregandoPaineis, montarEstadoPainel, persistirPainelAtual, filtrosAtivosLista, termoBusca])
@@ -282,62 +338,103 @@ export function TabelaTransacoesLeituraSmartRead({
     [abrirLeituraExistente, montarHintRetomarLista, transacoes],
   )
 
-  // Configurações › Tabelas (linhas/densidade) e › Colunas (personalizadas)
-  const { prefs: visualizacao } = usePreferenciasVisualizacaoSmartRead()
-  const colunasPersonalizadas = visualizacao.colunas_personalizadas
-
   const colunas = useMemo(
     () => [
       ...criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
-      ...criarColunasPersonalizadasListaSmartRead(colunasPersonalizadas),
+      ...criarColunasPersonalizadasListaLeituraSmartRead(colunasPersonalizadasAtivas),
     ],
-    [abrirLeituraDaTransacao, colunasPersonalizadas],
+    [abrirLeituraDaTransacao, colunasPersonalizadasAtivas],
   )
   const mapaColunasFilho = useMemo(
     () => ({
       ...criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
-      ...criarMapaFilhoColunasPersonalizadasSmartRead(colunasPersonalizadas),
+      ...criarMapaColunasPersonalizadasDocumentoLeitura(colunasPersonalizadasAtivas),
     }),
-    [abrirLeituraDoDocumento, colunasPersonalizadas],
+    [abrirLeituraDoDocumento, colunasPersonalizadasAtivas],
   )
-
-  const colunasPadrao = useMemo(
-    () => [
-      ...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
-      ...colunasPersonalizadas.filter((c) => c.visible).map(chaveColunaPersonalizadaSmartRead),
-    ],
-    [colunasPersonalizadas],
-  )
-
-  // Painel com colunas persistidas: injeta colunas personalizadas novas e
-  // remove as excluídas/ocultadas na Configurações (padrão Pedido —
-  // colunas_manuais_conhecidas evita re-exibir o que o usuário ocultou na tabela).
-  useEffect(() => {
-    const chavesVisiveis = colunasPersonalizadas
-      .filter((c) => c.visible)
-      .map(chaveColunaPersonalizadaSmartRead)
-    const ativas = new Set(chavesVisiveis)
-
-    setPreferencias((prev) => {
-      if (!prev?.colunas_visiveis?.length) return prev
-      const salvas = new Set(prev.colunas_visiveis)
-      const conhecidas = new Set(prev.colunas_manuais_conhecidas ?? [])
-      const novas = chavesVisiveis.filter((k) => !salvas.has(k) && !conhecidas.has(k))
-      const filtradas = prev.colunas_visiveis.filter(
-        (k) => !k.startsWith(PREFIXO_COLUNA_PERSONALIZADA_SMART_READ) || ativas.has(k),
-      )
-      if (novas.length === 0 && filtradas.length === prev.colunas_visiveis.length) return prev
-      return {
-        ...prev,
-        colunas_visiveis: [...filtradas, ...novas],
-        colunas_manuais_conhecidas: Array.from(new Set([...conhecidas, ...chavesVisiveis])),
-      }
-    })
-  }, [colunasPersonalizadas])
 
   const transacoesFiltradas = useMemo(
-    () => filtrarTransacoesListaSmartRead(transacoes, filtrosAtivosLista),
-    [transacoes, filtrosAtivosLista],
+    () => filtrarTransacoesListaSmartRead(transacoesLista, filtrosAtivosLista),
+    [transacoesLista, filtrosAtivosLista],
+  )
+
+  const handleEditarColunaPersonalizada = useCallback(
+    async (id: string, campo: string, valor: unknown): Promise<TransacaoLeituraLista> => {
+      if (!ehColunaPersonalizadaListaLeituraSmartRead(campo)) {
+        throw new Error('Coluna não editável.')
+      }
+      const item = transacoesLista.find((t) => t.id_leitura === id)
+      if (!item) throw new Error('Leitura não encontrada.')
+      const colDef = colunasPersonalizadasAtivas.find((c) => c.id === campo)
+      const valorNormalizado = normalizarValorSalvoColunaPersonalizada(valor, colDef?.tipo)
+      if (colDef?.obrigatorio && valorColunaPersonalizadaSalvoEhVazio(valorNormalizado, colDef.tipo)) {
+        throw new Error(`O campo "${colDef.nome}" é obrigatório.`)
+      }
+      const colunasAtualizadas = salvarValorColunaPersonalizadaLeitura(
+        id,
+        campo,
+        valorNormalizado,
+      )
+      const atualizado: TransacaoLeituraLista = {
+        ...item,
+        _colunas_personalizadas: colunasAtualizadas,
+      }
+      setTransacoesLista((prev) =>
+        prev.map((t) => (t.id_leitura === id ? atualizado : t)),
+      )
+      return atualizado
+    },
+    [transacoesLista, colunasPersonalizadasAtivas],
+  )
+
+  const handleEditarFilhoColunaPersonalizada = useCallback(
+    async (id: string, campo: string, valor: unknown): Promise<DocumentoLeituraListaEnriquecido> => {
+      if (!ehColunaPersonalizadaListaLeituraSmartRead(campo)) {
+        throw new Error('Coluna não editável.')
+      }
+      const filho = filhosPorIdRef.current.get(id)
+      if (!filho) throw new Error('Documento não encontrado.')
+      const colDef = colunasPersonalizadasAtivas.find((c) => c.id === campo)
+      const valorNormalizado = normalizarValorSalvoColunaPersonalizada(valor, colDef?.tipo)
+      if (colDef?.obrigatorio && valorColunaPersonalizadaSalvoEhVazio(valorNormalizado, colDef.tipo)) {
+        throw new Error(`O campo "${colDef.nome}" é obrigatório.`)
+      }
+      const colunasAtualizadas = salvarValorColunaPersonalizadaLeitura(
+        filho.id_leitura,
+        campo,
+        valorNormalizado,
+      )
+      const atualizado: DocumentoLeituraListaEnriquecido = {
+        ...filho,
+        _colunas_personalizadas: colunasAtualizadas,
+      }
+      filhosPorIdRef.current.set(id, atualizado)
+      setTransacoesLista((prev) =>
+        prev.map((t) =>
+          t.id_leitura === filho.id_leitura
+            ? { ...t, _colunas_personalizadas: colunasAtualizadas }
+            : t,
+        ),
+      )
+      return atualizado
+    },
+    [colunasPersonalizadasAtivas],
+  )
+
+  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
+    const detalhe = await smartReadApi.obterLeitura(leitura.id_leitura)
+    const documentos = enriquecerListaComColunasPersonalizadas(
+      montarDocumentosLeituraLista(detalhe),
+    )
+    for (const doc of documentos) {
+      filhosPorIdRef.current.set(doc.id_documento_leitura, doc)
+    }
+    return documentos
+  }, [])
+
+  const chavesColunasPersonalizadasEditaveis = useMemo(
+    () => colunasPersonalizadasAtivas.map((c) => c.id),
+    [colunasPersonalizadasAtivas],
   )
 
   const totalArquivosRodape = useMemo(
@@ -409,19 +506,14 @@ export function TabelaTransacoesLeituraSmartRead({
     () => montarAcoesExportacaoListaSmartRead({
       colunas,
       preferencias,
-      colunasPadrao,
+      colunasPadrao: [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ],
       dados: transacoesFiltradas,
       formatValorExport: formatarValorExportColunaLeituraSmartRead,
       nomeArquivo: 'smart-read-leituras',
       titulo: `Lista ${tituloPainel} — ${NOME_PRODUTO_EXIBICAO}`,
     }),
-    [colunas, colunasPadrao, preferencias, transacoesFiltradas, tituloPainel],
+    [colunas, preferencias, transacoesFiltradas, tituloPainel],
   )
-
-  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
-    const detalhe = await smartReadApi.obterLeitura(leitura.id_leitura)
-    return montarDocumentosLeituraLista(detalhe)
-  }, [])
 
   const handleConfirmarExclusao = useCallback(async () => {
     if (leiturasSelecionadas.length === 0) return
@@ -570,9 +662,7 @@ export function TabelaTransacoesLeituraSmartRead({
     : undefined
 
   return (
-    <section
-      className={`sr-painel sr-painel--tabela${visualizacao.densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}
-    >
+    <section className={`sr-painel sr-painel--tabela${densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}>
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
@@ -627,7 +717,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
-        itensPorPagina={visualizacao.linhas_pagina}
+        itensPorPagina={linhasPagina}
         totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
@@ -639,9 +729,12 @@ export function TabelaTransacoesLeituraSmartRead({
         onBuscar={onBuscar}
         onFiltroColuna={onFiltroColuna}
         filtrosAtivosKeys={filtrosAtivosKeys}
+        onEditar={handleEditarColunaPersonalizada}
+        onEditarFilho={handleEditarFilhoColunaPersonalizada}
+        camposEditaveisFilhos={chavesColunasPersonalizadasEditaveis}
         preferencias={preferencias}
         onSalvarPreferencias={handleSalvarPreferencias}
-        colunasPadrao={colunasPadrao}
+        colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
         ariaLabel={`Lista de ${tituloPainel} ${NOME_PRODUTO_EXIBICAO}`}

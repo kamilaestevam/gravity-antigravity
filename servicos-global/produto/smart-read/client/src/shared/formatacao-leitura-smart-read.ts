@@ -14,6 +14,50 @@ export function formatarDataLeitura(iso: string | null): string {
   return data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+/** Data sem hora (yyyy-mm-dd) — parse local, sem deslocamento UTC (paridade Pedido › formatarData). */
+export function formatarDataSomenteDiaLeitura(valor: string | null | undefined): string {
+  if (!valor?.trim()) return '—'
+  const br = parsearDataSomenteDiaLeituraParaPartes(valor.trim())
+  if (br) {
+    return `${String(br.d).padStart(2, '0')}/${String(br.m).padStart(2, '0')}/${br.y}`
+  }
+  return valor.trim()
+}
+
+function parsearDataSomenteDiaLeituraParaPartes(
+  valor: string,
+): { y: number; m: number; d: number } | null {
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor)
+  if (iso) {
+    const y = Number(iso[1])
+    const m = Number(iso[2])
+    const d = Number(iso[3])
+    if (y >= 1000 && m >= 1 && m <= 12 && d >= 1 && d <= 31) return { y, m, d }
+  }
+  const br = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(valor)
+  if (br) {
+    const d = Number(br[1])
+    const m = Number(br[2])
+    const y = Number(br[3])
+    if (y >= 1000 && m >= 1 && m <= 12 && d >= 1 && d <= 31) return { y, m, d }
+  }
+  return null
+}
+
+/** Normaliza entrada do editor de data para yyyy-mm-dd (local, sem UTC). */
+export function normalizarDataSomenteDiaLeitura(valor: unknown): string {
+  if (valor == null) return ''
+  const bruto = String(valor).trim()
+  if (!bruto) return ''
+  const partes = parsearDataSomenteDiaLeituraParaPartes(bruto)
+  if (partes) {
+    return `${partes.y}-${String(partes.m).padStart(2, '0')}-${String(partes.d).padStart(2, '0')}`
+  }
+  const soData = bruto.substring(0, 10)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(soData)) return soData
+  return bruto
+}
+
 export function formatarPercentualLeitura(valor: number | null): string {
   if (valor == null) return '—'
   const normalizado = valor <= 1 ? valor * 100 : valor

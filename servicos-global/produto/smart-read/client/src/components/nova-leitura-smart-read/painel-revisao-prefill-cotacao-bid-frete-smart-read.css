@@ -1,8 +1,12 @@
+.sr-prefill-bid-match {
+  padding-left: 24px;
+}
+
 .sr-prefill-bid-revisao {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 4px 2px 8px;
+  padding: 4px 2px 8px 24px;
 }
 
 .sr-prefill-bid-revisao-cabecalho {
@@ -203,7 +207,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 36px;
 }
 
 .sr-prefill-bid-match-contagem {

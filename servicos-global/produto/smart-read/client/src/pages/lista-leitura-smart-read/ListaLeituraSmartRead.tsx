@@ -13,6 +13,7 @@ import {
   useTransacoesLeituraSmartRead,
   type SegmentoListaLeitura,
 } from '../../shared/use-transacoes-leitura-smart-read'
+import { usePreferenciasVisualizacaoSmartRead } from '../../shared/use-preferencias-visualizacao-smart-read'
 import '../../shared/smart-read-leituras.css'
 
 const SEGMENTOS: { id: SegmentoListaLeitura; rotulo: string }[] = [
@@ -23,7 +24,8 @@ const SEGMENTOS: { id: SegmentoListaLeitura; rotulo: string }[] = [
 export default function ListaLeituraSmartRead() {
   const { painelAtivo } = useSmartReadVisualizacao()
   const [segmento, setSegmento] = useState<SegmentoListaLeitura>('envios')
-  const dados = useTransacoesLeituraSmartRead(segmento, painelAtivo('lista'))
+  const { prefs: visualizacao } = usePreferenciasVisualizacaoSmartRead()
+  const dados = useTransacoesLeituraSmartRead(segmento, painelAtivo('lista'), visualizacao.linhas_pagina)
   const savingHistorico = useSavingAcumuladoWorkspaceSmartRead(painelAtivo('lista'))
 
   const transacoesFiltradas = useMemo(

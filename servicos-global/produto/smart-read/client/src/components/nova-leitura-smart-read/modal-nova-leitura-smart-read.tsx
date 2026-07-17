@@ -1153,13 +1153,14 @@ export function ModalNovaLeituraSmartRead({
             idBidOrigem,
           )
           if (manterWizard) {
-            window.open(url, '_blank', 'noopener,noreferrer')
+            // Sem noopener: nova aba herda sessionStorage; prefill também vai em localStorage.
+            window.open(url, '_blank')
             setRedirecionandoCotacao(false)
             return
           }
           onConcluido?.()
           await handleFechar()
-          window.location.href = url
+          window.location.assign(url)
           return
         } catch (erro) {
           setRedirecionandoCotacao(false)

@@ -2622,15 +2622,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     fluxoSmartReadRef.current = true
     setFluxoSmartReadAtivo(true)
     setForm((prev) => aplicarPrefillSmartReadFormularioNovaCotacaoBidFrete(prev, pacote))
-    // Passo calculado direto do pacote (não depende do re-render do form).
+    // Smart Docs: abre em Fornecedores para o usuário escolher canais/agentes antes do disparo.
     const modalPacote = pacote.prefill.modal_cotacao_bid_frete_internacional
     if (modalPacote) {
       const seq = sequenciaPassosWizardNovaCotacao(
         modalPacote,
         pacote.prefill.modalidade_cotacao_bid_frete_internacional ?? '',
       )
-      const idxResumo = seq.indexOf('resumo')
-      if (idxResumo >= 0) setStep(idxResumo + 1)
+      const idxFornecedores = seq.indexOf('fornecedores')
+      if (idxFornecedores >= 0) setStep(idxFornecedores + 1)
     }
     setPrefillSmartReadPronto(true)
   }, [origemSmartRead, idLeituraSmartRead, addNotification])
@@ -2642,8 +2642,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       form.modal_cotacao_bid_frete_internacional,
       form.modalidade_cotacao_bid_frete_internacional,
     )
-    const idxResumo = seq.indexOf('resumo')
-    if (idxResumo >= 0) setStep(idxResumo + 1)
+    const idxFornecedores = seq.indexOf('fornecedores')
+    if (idxFornecedores >= 0) setStep(idxFornecedores + 1)
   }, [prefillSmartReadPronto, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
 
   const camposFaltantesSmartRead = useMemo(() => {

@@ -118,7 +118,8 @@ function calcularEspacoSuperiorBlocoGuia(
     return 0
   }
 
-  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Riscos → Fornecedor).
+  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Adicionar card → Visão Geral).
+  // 12px — o rótulo roxo do próximo passo encosta na DICA anterior; 32px duplicava com CSS e abria faixa vazia.
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -126,7 +127,7 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
     && blocoAnterior !== anteriorEfetivo
   ) {
-    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    return MANUAL_ESPACO_PARAGRAFO_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
@@ -176,12 +177,6 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(bloco.dados.modo ?? 'completo') === 'passo'
   ) {
     if (blocoAnterior.dados.ocultarNoCorpo) {
-      if (
-        anteriorEfetivo?.tipo === 'fluxo_manual'
-        && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
-      ) {
-        return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-      }
       return MANUAL_ESPACO_PARAGRAFO_PX
     }
     return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
@@ -1259,10 +1254,13 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
                   ? { ...bloco, dados: { ...bloco.dados, idAncora } }
                   : bloco
+                const classeFantasmaSumario = bloco.tipo === 'heading' && bloco.dados.ocultarNoCorpo
+                  ? ' uni-player-aula__bloco--subtitulo-fantasma'
+                  : ''
                 return (
                   <div
                     key={idx}
-                    className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}`}
+                    className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}${classeFantasmaSumario}`}
                     style={estiloBlocoGuia(bloco, idx, aula.blocos)}
                   >
                     <BlocoRenderer bloco={blocoComAncora} />

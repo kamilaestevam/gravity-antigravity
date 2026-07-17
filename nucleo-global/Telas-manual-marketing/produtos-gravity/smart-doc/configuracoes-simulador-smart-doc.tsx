@@ -6,7 +6,6 @@
 import { useMemo, useRef, useState } from 'react'
 import {
   SquaresFour,
-  ChartPieSlice,
   Table,
   Columns,
   FileText,
@@ -16,8 +15,6 @@ import {
   Gauge,
   ListBullets,
   Files,
-  ChartLine,
-  Ranking,
   Plus,
   Eye,
   EyeSlash,
@@ -29,9 +26,23 @@ import {
 } from '@phosphor-icons/react'
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import {
+  ModalNovaColunaConfigSimuladorSmartDoc,
+  rotuloTipoColunaSmartDocSimulador,
+  type ColunaPersonalizadaSmartDocSimulador,
+  type TipoColunaSmartDocSimulador,
+} from './modal-nova-coluna-config-simulador-smart-doc'
 import './configuracoes-simulador-smart-doc.css'
 
-type CategoriaId = 'card' | 'visao-geral' | 'tabelas' | 'colunas'
+type CategoriaId = 'card' | 'tabelas' | 'colunas'
+
+interface TabelaConfig {
+  linhasPagina: string
+  densidade: string
+}
+
+const TABELA_PADRAO: TabelaConfig = { linhasPagina: '25', densidade: 'confortavel' }
 
 interface CardDef {
   id: string
@@ -65,34 +76,12 @@ interface CardPref {
   visible: boolean
 }
 
-interface ColunaPref {
-  id: string
-  nome: string
-  tipo: string
-  visible: boolean
-}
-
 const PERIODOS = [
   { id: '7d', label: '7 dias' },
   { id: '30d', label: '30 dias' },
   { id: '6m', label: '6 meses' },
   { id: '1a', label: '1 ano' },
   { id: 'tudo', label: 'Tudo' },
-]
-
-interface ItemSimples {
-  id: string
-  nome: string
-  desc: string
-  icone: Icon
-  cor: string
-}
-
-const GRAFICOS: ItemSimples[] = [
-  { id: 'serie_campos', nome: 'Campos por dia', desc: 'Série temporal de campos extraídos', icone: ChartLine, cor: '#a78bfa' },
-  { id: 'ranking', nome: 'Ranking de participantes', desc: 'Top participantes por volume', icone: Ranking, cor: '#34d399' },
-  { id: 'distribuicao_doc', nome: 'Distribuição por tipo de documento', desc: 'Proporção por tipo de documento', icone: ChartPieSlice, cor: '#fbbf24' },
-  { id: 'taxa_conferencia', nome: 'Taxa de conferência', desc: 'Percentual de leituras conferidas', icone: Gauge, cor: '#a78bfa' },
 ]
 
 const LINHAS_OPCOES = ['10', '25', '50', '100']
@@ -103,7 +92,6 @@ const DENSIDADE_OPCOES = [
 
 const SIDEBAR: { id: CategoriaId; label: string; icone: Icon }[] = [
   { id: 'card', label: 'Card', icone: SquaresFour },
-  { id: 'visao-geral', label: 'Visão Geral', icone: ChartPieSlice },
   { id: 'tabelas', label: 'Tabelas', icone: Table },
   { id: 'colunas', label: 'Colunas', icone: Columns },
 ]
@@ -121,21 +109,64 @@ function reordenar<T extends { id: string }>(lista: T[], arrastandoId: string, a
 
 export function ConfiguracoesSimuladorSmartDoc() {
   const [categoria, setCategoria] = useState<CategoriaId>('card')
+  const [toastSalvo, setToastSalvo] = useState<string | null>(null)
   const [periodo, setPeriodo] = useState('30d')
   const [cards, setCards] = useState<CardPref[]>(ATIVOS_PADRAO)
   const [arrastandoCard, setArrastandoCard] = useState<string | null>(null)
-  const [graficosOcultos, setGraficosOcultos] = useState<Set<string>>(new Set())
-  const [linhasPagina, setLinhasPagina] = useState('25')
-  const [densidade, setDensidade] = useState('confortavel')
-  const [colunas, setColunas] = useState<ColunaPref[]>([])
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>(TABELA_PADRAO)
+  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfig>(TABELA_PADRAO)
+  const [pendingColunas, setPendingColunas] = useState<ColunaPersonalizadaSmartDocSimulador[]>([])
+  const [colunasSalvas, setColunasSalvas] = useState<ColunaPersonalizadaSmartDocSimulador[]>([])
   const [arrastandoColuna, setArrastandoColuna] = useState<string | null>(null)
-  const [editandoColunaId, setEditandoColunaId] = useState<string | null>(null)
+  const [criandoColuna, setCriandoColuna] = useState(false)
+  const [editandoColuna, setEditandoColuna] = useState<ColunaPersonalizadaSmartDocSimulador | null>(null)
   const seqColuna = useRef(1)
 
-  function criarColuna() {
+  const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
+
+  const colunasDirty = useMemo(() => {
+    if (pendingColunas.length !== colunasSalvas.length) return true
+    return pendingColunas.some((col, i) => {
+      const orig = colunasSalvas[i]
+      return !orig || orig.id !== col.id || orig.visible !== col.visible || orig.nome !== col.nome || orig.tipo !== col.tipo
+    })
+  }, [pendingColunas, colunasSalvas])
+
+  function notificarSalvo(mensagem: string) {
+    setToastSalvo(mensagem)
+    window.setTimeout(() => setToastSalvo(null), 3200)
+  }
+
+  function salvarTabelaConfig() {
+    setTabelaConfigSalva({ ...tabelaConfig })
+    notificarSalvo('Preferências de tabela salvas.')
+  }
+
+  function restaurarTabelaConfig() {
+    setTabelaConfig({ ...TABELA_PADRAO })
+  }
+
+  function handleColunaCriadaViaModal(dados: { nome: string; tipo: TipoColunaSmartDocSimulador }) {
     const id = `custom-${seqColuna.current++}`
-    setColunas((prev) => [...prev, { id, nome: 'Nova coluna', tipo: 'Personalizada', visible: true }])
-    setEditandoColunaId(id)
+    setPendingColunas((prev) => [...prev, { id, nome: dados.nome, tipo: dados.tipo, visible: true }])
+    setCriandoColuna(false)
+  }
+
+  function handleColunaEditadaSalva(dados: { nome: string; tipo: TipoColunaSmartDocSimulador }) {
+    if (!editandoColuna) return
+    setPendingColunas((prev) =>
+      prev.map((c) => (c.id === editandoColuna.id ? { ...c, nome: dados.nome } : c)),
+    )
+    setEditandoColuna(null)
+  }
+
+  function salvarColunas() {
+    setColunasSalvas([...pendingColunas])
+    notificarSalvo('Colunas personalizadas salvas.')
+  }
+
+  function cancelarOrdemColunas() {
+    setPendingColunas([...colunasSalvas])
   }
 
   const periodoLabel = PERIODOS.find((p) => p.id === periodo)?.label ?? periodo
@@ -353,58 +384,6 @@ export function ConfiguracoesSimuladorSmartDoc() {
             </div>
           )}
 
-          {categoria === 'visao-geral' && (
-            <div className="cfg-cards-wrapper" data-sds-tutorial-alvo="sdoc-config-visao-geral">
-              <section className="cfg-secao">
-                <div className="cfg-secao__header">
-                  <div>
-                    <h2 className="cfg-secao__titulo">Visão Geral</h2>
-                    <p className="cfg-secao__desc">Gráficos exibidos no painel de Insights · olho para ocultar.</p>
-                  </div>
-                </div>
-
-                <ConfiguracaoSecaoGlobal
-                  label="Gráficos"
-                  count={`${GRAFICOS.length - graficosOcultos.size} de ${GRAFICOS.length}`}
-                />
-                <div className="cfg-cards-lista">
-                  {GRAFICOS.map((g) => {
-                    const Icone = g.icone
-                    const visivel = !graficosOcultos.has(g.id)
-                    return (
-                      <div key={g.id} className={`cfg-card-row${!visivel ? ' cfg-card-row--oculto' : ''}`}>
-                        <div className="cfg-card-row__info">
-                          <span className="cfg-card-row__icone" style={{ color: g.cor }}>
-                            <Icone weight="duotone" size={18} />
-                          </span>
-                          <div>
-                            <p className="cfg-card-row__nome">{g.nome}</p>
-                            <p className="cfg-card-row__desc">{g.desc}</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className={`cfg-eye-btn${visivel ? ' cfg-eye-btn--on' : ''}`}
-                          onClick={() =>
-                            setGraficosOcultos((prev) => {
-                              const next = new Set(prev)
-                              if (next.has(g.id)) next.delete(g.id)
-                              else next.add(g.id)
-                              return next
-                            })
-                          }
-                          aria-label={visivel ? 'Ocultar gráfico' : 'Exibir gráfico'}
-                        >
-                          {visivel ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
-            </div>
-          )}
-
           {categoria === 'tabelas' && (
             <div className="cfg-cards-wrapper" data-sds-tutorial-alvo="sdoc-config-tabelas">
               <section className="cfg-secao">
@@ -422,8 +401,8 @@ export function ConfiguracoesSimuladorSmartDoc() {
                       <button
                         key={n}
                         type="button"
-                        className={`cfg-periodo-pill${linhasPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
-                        onClick={() => setLinhasPagina(n)}
+                        className={`cfg-periodo-pill${tabelaConfig.linhasPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                        onClick={() => setTabelaConfig((prev) => ({ ...prev, linhasPagina: n }))}
                       >
                         {n}
                       </button>
@@ -438,13 +417,18 @@ export function ConfiguracoesSimuladorSmartDoc() {
                       <button
                         key={d.id}
                         type="button"
-                        className={`cfg-periodo-pill${densidade === d.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                        onClick={() => setDensidade(d.id)}
+                        className={`cfg-periodo-pill${tabelaConfig.densidade === d.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                        onClick={() => setTabelaConfig((prev) => ({ ...prev, densidade: d.id }))}
                       >
                         {d.label}
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div className="cfg-secao__footer">
+                  <BotaoCancelar dirty={tabelaDirty} rotulo="Restaurar padrão" onClick={restaurarTabelaConfig} />
+                  <BotaoSalvar dirty={tabelaDirty} rotulo="Salvar" onClick={salvarTabelaConfig} />
                 </div>
               </section>
             </div>
@@ -463,16 +447,23 @@ export function ConfiguracoesSimuladorSmartDoc() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <ConfiguracaoSecaoGlobal
                     label="Ativas"
-                    count={colunas.length}
+                    count={pendingColunas.length}
                     hint="Arraste para reordenar · lápis para editar · olho para ocultar"
                   />
-                  <BotaoGlobal variante="primario" onClick={criarColuna}>
+                  <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
                     <Plus size={16} weight="bold" />
                     Criar Coluna
                   </BotaoGlobal>
                 </div>
 
-                {colunas.length === 0 ? (
+                {criandoColuna && (
+                  <ModalNovaColunaConfigSimuladorSmartDoc
+                    onFechar={() => setCriandoColuna(false)}
+                    onSalvo={handleColunaCriadaViaModal}
+                  />
+                )}
+
+                {pendingColunas.length === 0 ? (
                   <div
                     style={{
                       display: 'flex',
@@ -497,84 +488,80 @@ export function ConfiguracoesSimuladorSmartDoc() {
                   </div>
                 ) : (
                   <div className="cfg-kanban-campo-lista">
-                    {colunas.map((col) => {
-                      const editando = editandoColunaId === col.id
-                      return (
-                        <div
-                          key={col.id}
-                          className={`cfg-kanban-campo-row${!col.visible ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}${arrastandoColuna === col.id ? ' cfg-kanban-campo-row--arrastando' : ''}`}
-                          draggable={!editando}
-                          onDragStart={() => setArrastandoColuna(col.id)}
-                          onDragEnter={() => {
-                            if (arrastandoColuna) setColunas((prev) => reordenar(prev, arrastandoColuna, col.id))
-                          }}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDragEnd={() => setArrastandoColuna(null)}
-                        >
-                          <span className="cfg-drag-handle">
-                            <DotsSixVertical size={15} weight="bold" />
-                          </span>
-                          <div className="cfg-kanban-campo-row__info">
-                            {editando ? (
-                              <input
-                                type="text"
-                                className="cfg-coluna-nome-input"
-                                value={col.nome}
-                                autoFocus
-                                maxLength={50}
-                                onChange={(e) =>
-                                  setColunas((prev) =>
-                                    prev.map((c) => (c.id === col.id ? { ...c, nome: e.target.value } : c)),
-                                  )
-                                }
-                                onBlur={() => setEditandoColunaId(null)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === 'Escape') setEditandoColunaId(null)
-                                }}
-                              />
-                            ) : (
-                              <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
-                            )}
-                            <span className="cfg-kanban-campo-row__tipo">{col.tipo}</span>
-                          </div>
-                          <button
-                            type="button"
-                            className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`}
-                            onClick={() => setEditandoColunaId(editando ? null : col.id)}
-                            aria-label={`Renomear coluna ${col.nome}`}
-                          >
-                            <PencilSimple size={14} weight="duotone" />
-                          </button>
-                          <button
-                            type="button"
-                            className="cfg-kanban-campo-btn"
-                            onClick={() =>
-                              setColunas((prev) =>
-                                prev.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)),
-                              )
-                            }
-                            aria-label={col.visible ? `Ocultar coluna ${col.nome}` : `Exibir coluna ${col.nome}`}
-                          >
-                            {col.visible ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
-                          </button>
-                          <button
-                            type="button"
-                            className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove"
-                            onClick={() => setColunas((prev) => prev.filter((c) => c.id !== col.id))}
-                            aria-label={`Excluir coluna ${col.nome}`}
-                          >
-                            <Trash size={14} weight="bold" />
-                          </button>
+                    {pendingColunas.map((col) => (
+                      <div
+                        key={col.id}
+                        className={`cfg-kanban-campo-row${!col.visible ? ' cfg-kanban-campo-row--oculto' : ''}${arrastandoColuna === col.id ? ' cfg-kanban-campo-row--arrastando' : ''}`}
+                        draggable
+                        onDragStart={() => setArrastandoColuna(col.id)}
+                        onDragEnter={() => {
+                          if (arrastandoColuna) setPendingColunas((prev) => reordenar(prev, arrastandoColuna, col.id))
+                        }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDragEnd={() => setArrastandoColuna(null)}
+                      >
+                        <span className="cfg-drag-handle">
+                          <DotsSixVertical size={15} weight="bold" />
+                        </span>
+                        <div className="cfg-kanban-campo-row__info">
+                          <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
+                          <span className="cfg-kanban-campo-row__tipo">{rotuloTipoColunaSmartDocSimulador(col.tipo)}</span>
                         </div>
-                      )
-                    })}
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn"
+                          onClick={() => setEditandoColuna(col)}
+                          aria-label={`Editar coluna ${col.nome}`}
+                        >
+                          <PencilSimple size={14} weight="duotone" />
+                        </button>
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn"
+                          onClick={() =>
+                            setPendingColunas((prev) =>
+                              prev.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)),
+                            )
+                          }
+                          aria-label={col.visible ? `Ocultar coluna ${col.nome}` : `Exibir coluna ${col.nome}`}
+                        >
+                          {col.visible ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
+                        </button>
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove"
+                          onClick={() => setPendingColunas((prev) => prev.filter((c) => c.id !== col.id))}
+                          aria-label={`Excluir coluna ${col.nome}`}
+                        >
+                          <Trash size={14} weight="bold" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
+
+                <div className="cfg-secao__footer" style={{ marginTop: pendingColunas.length > 0 ? '0.75rem' : undefined }}>
+                  <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
+                  <BotaoSalvar dirty={colunasDirty} rotulo="Salvar" onClick={salvarColunas} />
+                </div>
               </section>
+
+              {editandoColuna && (
+                <ModalNovaColunaConfigSimuladorSmartDoc
+                  colunaEdicao={editandoColuna}
+                  onFechar={() => setEditandoColuna(null)}
+                  onSalvo={handleColunaEditadaSalva}
+                />
+              )}
             </div>
           )}
         </main>
       </div>
+      {toastSalvo && (
+        <div className="sds-cfg-toast-salvo" role="status">
+          {toastSalvo}
+        </div>
+      )}
     </div>
   )
 }

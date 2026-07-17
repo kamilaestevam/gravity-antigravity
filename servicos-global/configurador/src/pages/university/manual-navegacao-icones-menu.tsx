@@ -325,7 +325,7 @@ export function ManualInfograficoIconesMenuSuperior() {
       padding: '16px 18px 18px',
     }}>
       <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
-        Ordem fixa — da esquerda para a direita
+        Ordem fixa: da esquerda para a direita
       </p>
 
       <div style={{

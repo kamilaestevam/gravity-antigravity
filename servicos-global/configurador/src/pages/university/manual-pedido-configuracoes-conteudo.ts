@@ -176,7 +176,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Cards — adicionar",
+      titulo: "Cards: adicionar",
       tituloCurto: "Adicionar card",
       ocultarNoSumario: true,
       paragrafos: [
@@ -199,11 +199,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Cards — detalhes ao adicionar",
+      titulo: "Cards: detalhes ao adicionar",
       tituloCurto: "Detalhes ao adicionar",
       ocultarNoSumario: true,
       paragrafos: [
-        "Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem** — útil para entender o indicador.",
+        "Antes de incluir, **Ver detalhes** mostra **campo base**, **agregação** e **origem**: útil para entender o indicador.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -227,11 +227,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Cards — ocultar e exibir",
+      titulo: "Cards: ocultar e exibir",
       tituloCurto: "Ocultar card",
       ocultarNoSumario: true,
       paragrafos: [
-        "Use o ícone de **olho** para **ocultar** um card ativo sem removê-lo da lista — ele permanece em **Disponíveis** e pode ser **exibido** de novo.",
+        "Use o ícone de **olho** para **ocultar** um card ativo sem removê-lo da lista: ele permanece em **Disponíveis** e pode ser **exibido** de novo.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -247,7 +247,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_OCULTADO,
-              paragrafoAntes: "**02.** Card **oculto** — some do topo da tela",
+              paragrafoAntes: "**02.** Card **oculto**: some do topo da tela",
             },
             {
               legenda: '',
@@ -265,11 +265,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Cards — remover da lista",
+      titulo: "Cards: remover da lista",
       tituloCurto: "Remover card",
       ocultarNoSumario: true,
       paragrafos: [
-        "**Remover da lista** tira o card de **Ativos** e de **Disponíveis**. Confirme em **Salvar** — a alteração vale para o seu usuário; o card some do topo da **Lista**.",
+        "**Remover da lista** tira o card de **Ativos** e de **Disponíveis**. Confirme em **Salvar**: a alteração vale para o seu usuário; o card some do topo da **Lista**.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -312,11 +312,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Cards — detalhes ao remover",
+      titulo: "Cards: detalhes ao remover",
       tituloCurto: "Detalhes do card",
       ocultarNoSumario: true,
       paragrafos: [
-        "Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período** — útil para saber o que deixa de ser exibido.",
+        "Antes de remover, **Ver detalhes** mostra **campo base**, **agregação**, **origem** e **período**: útil para saber o que deixa de ser exibido.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -339,11 +339,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Cards — reativar após remover",
+      titulo: "Cards: reativar após remover",
       tituloCurto: "Reativar card",
       ocultarNoSumario: true,
       paragrafos: [
-        "Depois de remover, o card volta para **Disponíveis** — use **+** para **reativá-lo** e **Salvar** para aplicar.",
+        "Depois de remover, o card volta para **Disponíveis**: use **+** para **reativá-lo** e **Salvar** para aplicar.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -359,7 +359,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_CARDS_ATIVOS_DISPONIVEIS_REMOVER_ATIVAR_FLUXO_3,
-              paragrafoAntes: "**02.** **Salvar** — card ativo novamente",
+              paragrafoAntes: "**02.** **Salvar**: card ativo novamente",
             },
           ],
         },
@@ -397,7 +397,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       titulo: "Colunas",
       tituloCurto: "Colunas",
       paragrafos: [
-        "Em **Colunas**, ajuste **casas decimais**, **formato de data** e **colunas personalizadas** da **Lista** — preferências do workspace para exibição de pedidos e itens.",
+        "Em **Colunas**, ajuste **casas decimais**, **formato de data** e **colunas personalizadas** da **Lista**: preferências do workspace para exibição de pedidos e itens.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -408,18 +408,18 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_COLUNAS_CASAS_DECIMAIS,
-              paragrafoAntes: "Abra **Colunas** — **Casas decimais**, **Formato de data** e **Personalizadas**",
+              paragrafoAntes: "Abra **Colunas**: **Casas decimais**, **Formato de data** e **Personalizadas**",
             },
           ],
         },
       ],
     },
     {
-      titulo: "Colunas — casas decimais",
+      titulo: "Colunas: casas decimais",
       tituloCurto: "Casas decimais",
       ocultarNoSumario: true,
       paragrafos: [
-        "**Casas decimais** define quantas casas exibir em colunas numéricas de **pedido** e **item**. Alterar valores existentes pode disparar **migração em background** — confirme o banner quando aparecer.",
+        "**Casas decimais** define quantas casas exibir em colunas numéricas de **pedido** e **item**. Alterar valores existentes pode disparar **migração em background**: confirme o banner quando aparecer.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -462,11 +462,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Colunas — formato de data",
+      titulo: "Colunas: formato de data",
       tituloCurto: "Formato de data",
       ocultarNoSumario: true,
       paragrafos: [
-        "**Formato de Data** padroniza como datas aparecem na **Lista** e demais telas — escolha o padrão do workspace e salve.",
+        "**Formato de Data** padroniza como datas aparecem na **Lista** e demais telas: escolha o padrão do workspace e salve.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -499,12 +499,12 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Colunas personalizadas — visão geral",
+      titulo: "Colunas personalizadas: visão geral",
       tituloCurto: "Personalizadas",
       ocultarNoSumario: true,
       tagSecaoImportante: true,
       paragrafos: [
-        "Esta é uma das seções **mais importantes** de **Configurações**: é pela **criação de novas colunas** que você **personaliza a Lista** do jeito que quiser — **Texto**, **Número**, **Data**, **Percentual**, **Lista**, **Checkbox**, **Tipo Documento** e **Fórmula**.",
+        "Esta é uma das seções **mais importantes** de **Configurações**: é pela **criação de novas colunas** que você **personaliza a Lista** do jeito que quiser: **Texto**, **Número**, **Data**, **Percentual**, **Lista**, **Checkbox**, **Tipo Documento** e **Fórmula**.",
       ],
       mostrarInfograficoPedidoConfigColunasPersonalizadas: true,
       infograficoPedidoConfigColunasPersonalizadasAposParagrafo: 0,
@@ -522,11 +522,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Criar coluna — Texto",
+      titulo: "Criar coluna: Texto",
       tituloCurto: "Coluna Texto- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
-        "Fluxo para coluna **Texto** — nome e visibilidade na lista.",
+        "Fluxo para coluna **Texto**: nome e visibilidade na lista.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -565,7 +565,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Numérico",
+      titulo: "Criar coluna: Numérico",
       tituloCurto: "Coluna Numérico- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
@@ -598,7 +598,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Data",
+      titulo: "Criar coluna: Data",
       tituloCurto: "Coluna Data- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
@@ -631,7 +631,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Percentual",
+      titulo: "Criar coluna: Percentual",
       tituloCurto: "Coluna Percentual- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
@@ -664,11 +664,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Lista (Select)",
+      titulo: "Criar coluna: Lista (Select)",
       tituloCurto: "Coluna Lista- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
-        "Coluna **Select/Lista** — defina opções fixas para seleção na tabela.",
+        "Coluna **Select/Lista**: defina opções fixas para seleção na tabela.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -702,7 +702,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Checkbox",
+      titulo: "Criar coluna: Checkbox",
       tituloCurto: "Coluna Checkbox- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
@@ -735,7 +735,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Tipo Documento",
+      titulo: "Criar coluna: Tipo Documento",
       tituloCurto: "Coluna Tipo Documento- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
@@ -768,11 +768,11 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Criar coluna — Fórmula",
+      titulo: "Criar coluna: Fórmula",
       tituloCurto: "Coluna Fórmula- Personalizada",
       ocultarNoSumario: true,
       paragrafos: [
-        "Coluna **Fórmula** calcula valores a partir de outros campos — uma fórmula por tenant no backend.",
+        "Coluna **Fórmula** calcula valores a partir de outros campos: uma fórmula por tenant no backend.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -838,7 +838,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       tituloCurto: "Ocultar coluna",
       ocultarNoSumario: true,
       paragrafos: [
-        "**Olho** oculta a coluna na **Lista** sem excluir — dados permanecem no banco.",
+        "**Olho** oculta a coluna na **Lista** sem excluir: dados permanecem no banco.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -876,7 +876,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       tituloCurto: "Excluir coluna",
       ocultarNoSumario: true,
       paragrafos: [
-        "**Excluir** remove a coluna customizada do workspace — operação irreversível; confirme no modal.",
+        "**Excluir** remove a coluna customizada do workspace: operação irreversível; confirme no modal.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -935,7 +935,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       titulo: "Kanban",
       tituloCurto: "Kanban",
       paragrafos: [
-        "Em **Kanban › Colunas**, escolha quais **status** aparecem como colunas no board — **olho** para ocultar, **+** para trazer status disponíveis.",
+        "Em **Kanban › Colunas**, escolha quais **status** aparecem como colunas no board: **olho** para ocultar, **+** para trazer status disponíveis.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -974,13 +974,13 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Kanban — card",
+      titulo: "Kanban: card",
       tituloCurto: "Kanban card",
       ocultarNoSumario: true,
       rotuloPasso: "Kanban card",
       ocultarTituloPasso: true,
       paragrafos: [
-        "**Kanban › Card** define campos visíveis em cada cartão: número, parceiro, data crítica, valor, incoterm e demais — **arraste** para reordenar.",
+        "**Kanban › Card** define campos visíveis em cada cartão: número, parceiro, data crítica, valor, incoterm e demais: **arraste** para reordenar.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -1013,13 +1013,13 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       ],
     },
     {
-      titulo: "Kanban — modal",
+      titulo: "Kanban: modal",
       tituloCurto: "Kanban modal",
       ocultarNoSumario: true,
       rotuloPasso: "Kanban modal",
       ocultarTituloPasso: true,
       paragrafos: [
-        "**Kanban › Modal** configura as abas **Pedido**, **Quantidades**, **Datas** e **Lembrete** ao clicar um cartão — adicione, remova ou reordene campos por aba.",
+        "**Kanban › Modal** configura as abas **Pedido**, **Quantidades**, **Datas** e **Lembrete** ao clicar um cartão: adicione, remova ou reordene campos por aba.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -1030,7 +1030,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
             {
               legenda: '',
               imagem: SCREENSHOT_PEDIDO_CONFIG_KANBAN_MODAL_1,
-              paragrafoAntes: "**01.** Aba **Pedido** — campos do modal",
+              paragrafoAntes: "**01.** Aba **Pedido**: campos do modal",
             },
             {
               legenda: '',
@@ -1055,7 +1055,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       titulo: "Status do pedido",
       tituloCurto: "Status",
       paragrafos: [
-        "**Status** lista todos os status do workspace. **Arraste** para reordenar (reflete no Kanban). Status de **sistema** são fixos — sem editar ou excluir.",
+        "**Status** lista todos os status do workspace. **Arraste** para reordenar (reflete no Kanban). Status de **sistema** são fixos: sem editar ou excluir.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -1104,13 +1104,13 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       callout: CALLOUT_SALVAR_CONFIGURACOES,
     },
     {
-      titulo: "Status — novo e reordenar",
+      titulo: "Status: novo e reordenar",
       tituloCurto: "Novo status",
       ocultarNoSumario: true,
       rotuloPasso: "Novo status",
       ocultarTituloPasso: true,
       paragrafos: [
-        "**Novo Status** cria etapas customizadas. **Arraste** a alça para reordenar — a ordem vale para **Lista**, **Kanban** e filtros.",
+        "**Novo Status** cria etapas customizadas. **Arraste** a alça para reordenar: a ordem vale para **Lista**, **Kanban** e filtros.",
       ],
       galeriaComparacaoAposParagrafo: [
         {
@@ -1157,7 +1157,7 @@ export const PASSOS_MANUAL_PEDIDO_CONFIGURACOES: DocPassoVisual[] = renumerarPas
       tituloCurto: "Numeração",
       badgeEmDesenvolvimento: true,
       paragrafos: [
-        "**Numeração** define **prefixo**, **dígitos**, **ano** e **reinício** do número automático de pedidos — preview mostra o formato antes de salvar.",
+        "**Numeração** define **prefixo**, **dígitos**, **ano** e **reinício** do número automático de pedidos: preview mostra o formato antes de salvar.",
       ],
       galeriaComparacaoAposParagrafo: [
         {

@@ -3033,6 +3033,7 @@ body.light-theme .cw-xml-viewer {
   padding: 1rem 1rem 1rem 1.25rem;
   box-sizing: border-box;
   border-right: 1px solid rgba(26, 30, 46, 0.85);
+  background: var(--ws-surface, #1e293b);
 }
 
 .uni-player-aula__nav-sumario {

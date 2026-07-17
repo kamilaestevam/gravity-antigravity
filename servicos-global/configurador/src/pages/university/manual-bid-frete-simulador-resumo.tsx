@@ -97,13 +97,13 @@ function formatarDataBr(iso: string): string {
 function textoVisibilidade(estado: EstadoVisibilidade): string {
   if (estado.tipo_visibilidade === 'ABERTA') {
     return estado.proposta_anonima
-      ? 'Aberta — anônima'
-      : 'Aberta — todos os fornecedores que aceitam cotação aberta'
+      ? 'Aberta: anônima'
+      : 'Aberta: todos os fornecedores que aceitam cotação aberta'
   }
   if (estado.tipo_visibilidade === 'DIRECIONADA') {
     return estado.proposta_anonima
-      ? 'Direcionada — anônima (apenas fornecedores selecionados)'
-      : 'Direcionada — apenas os fornecedores selecionados recebem a cotação'
+      ? 'Direcionada: anônima (apenas fornecedores selecionados)'
+      : 'Direcionada: apenas os fornecedores selecionados recebem a cotação'
   }
   return '—'
 }

@@ -16,7 +16,7 @@ const S = screenshotBidFreteInt
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/academy/bid-frete/bid-frete-configuracoes|Configurações}}'
+  '{{link:/university-gravity/docs/bid-frete#doc-sec-11|Configurações}}'
 
 export const DOC_BID_FRETE_SUBTITULO =
   'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
@@ -153,7 +153,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   legenda: '',
                   imagem: S('insight_tooltip_1_tela'),
                   paragrafoAntes:
-                    '**Painel da Cotação** aberto pelo link do tooltip — ambiente para autorizar a operação.',
+                    '**Painel da Cotação** aberto pelo link do tooltip: ambiente para autorizar a operação.',
                 },
                 {
                   legenda: '',
@@ -165,7 +165,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   legenda: '',
                   imagem: S('insight_tooltip_2_tela'),
                   paragrafoAntes:
-                    '**Painel da Cotação** aberto pelo link do tooltip — analise propostas, status e histórico da cotação.',
+                    '**Painel da Cotação** aberto pelo link do tooltip: analise propostas, status e histórico da cotação.',
                 },
                 {
                   legenda: '',
@@ -621,7 +621,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** campos de **cotação**; **marque** de volta para **exibir**.',
               calloutDepois: {
                 tipo: 'dica',
-                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+                texto: 'A tabela atualiza na hora: só permanecem visíveis as colunas marcadas.',
               },
             },
             {
@@ -633,7 +633,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
               calloutDepois: {
                 tipo: 'dica',
                 texto:
-                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+                  'Feche o menu ou clique fora quando terminar: as alterações ficam no painel ativo.',
               },
             },
             {
@@ -668,7 +668,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           calloutAposGaleriaTabela: {
             tipo: 'dica',
             texto:
-              'Preferências de coluna, ordem e painel são **por usuário** — cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
+              'Preferências de coluna, ordem e painel são **por usuário**: cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
           },
         },
         {
@@ -693,7 +693,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   tipo: 'dica',
                   texto:
-                    'Campos **técnicos** bloqueados: **ID** e **Última atualização** (automática). **Origem** e **Destino** são rótulos derivados — edite **porto/aeroporto** conforme o **Modal** ou endereço/país/zipcode.',
+                    'Campos **técnicos** bloqueados: **ID** e **Última atualização** (automática). **Origem** e **Destino** são rótulos derivados: edite **porto/aeroporto** conforme o **Modal** ou endereço/país/zipcode.',
                 },
               ],
             },
@@ -707,7 +707,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           rotuloPasso: 'Filtro das colunas',
           paragrafos: [
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Modal** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Salve o conjunto no **painel** ativo (veja **Painéis** acima) e reutilize depois.',
+            'Você pode **combinar** quantos filtros quiser na mesma tela: **Status** + **Modal** + **datas**, por exemplo: e o recorte fica cada vez mais específico. Salve o conjunto no **painel** ativo (veja **Painéis** acima) e reutilize depois.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -736,7 +736,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Aguardando resposta + Marítimo**, **Aprovadas + Exportação**).',
+              'Os filtros ficam **salvos no painel ativo**: ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Aguardando resposta + Marítimo**, **Aprovadas + Exportação**).',
           },
         },
         {
@@ -761,13 +761,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   legenda: '02 · Preview no modal',
                   imagem: S('lista_excluir_2'),
-                  paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme** — ação irreversível',
+                  paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme**: ação irreversível',
                 },
               ],
               calloutApos: {
                 tipo: 'dica',
                 texto:
-                  'Após **aprovar** uma cotação, ela **não pode ser excluída** permanentemente — aparece como **bloqueada** no preview do modal.',
+                  'Após **aprovar** uma cotação, ela **não pode ser excluída** permanentemente: aparece como **bloqueada** no preview do modal.',
               },
             },
           ],
@@ -782,7 +782,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           tituloCurto: 'Exportar',
           rotuloPasso: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual: respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
             'No modal, escolha um dos **formatos** permitidos abaixo:',
           ],
           mostrarFormatosExportacaoPedidoLista: true,
@@ -814,7 +814,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
+              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela: só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
           },
         },
       ]),
@@ -860,7 +860,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Cotação avulsa',
           tituloCurto: 'Cotação avulsa',
           paragrafos: [
-            'A **Cotação avulsa** é uma solicitação **única** — um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
+            'A **Cotação avulsa** é uma solicitação **única**: um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
           ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
@@ -934,7 +934,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'BID',
           tituloCurto: 'BID',
           paragrafos: [
-            'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única** — um frete, uma rota, um pedido isolado aos fornecedores.',
+            'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única**: um frete, uma rota, um pedido isolado aos fornecedores.',
           ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
@@ -997,7 +997,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           paragrafoAntes:
             'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
           imagem: S('painel_cotacao_divisao'),
-          legenda: 'Painel da Cotação — menu superior, insights e abas do cockpit',
+          legenda: 'Painel da Cotação: menu superior, insights e abas do cockpit',
         },
       ],
       passosVisuais: renumerarPassos([
@@ -1019,7 +1019,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ancoraPassosPrefix: 'pagamento-taxa-gravity-fechamento',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee, **podendo variar** — consulte **Gravity Store** e **Configurações**) é registrada conforme o **pagador** definido em **Configurações** — **comprador** (**Contratante Gravity**) ou **fornecedor**.',
+        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee, **podendo variar**: consulte **Gravity Store** e **Configurações**) é registrada conforme o **pagador** definido em **Configurações**: **comprador** (**Contratante Gravity**) ou **fornecedor**.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO,
     },

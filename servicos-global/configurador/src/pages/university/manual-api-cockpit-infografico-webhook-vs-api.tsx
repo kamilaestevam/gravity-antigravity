@@ -123,7 +123,7 @@ export function ManualInfograficoApiCockpitWebhookVsApi() {
         margin: 0,
         paddingBottom: MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX,
       }}>
-        O que é webhook — e como difere da API?
+        O que é webhook: e como difere da API?
       </p>
 
       <div style={{
@@ -209,7 +209,7 @@ export function ManualInfograficoApiCockpitWebhookVsApi() {
         São <strong style={{ color: '#cbd5e1' }}>complementares</strong>: o webhook{' '}
         <strong style={{ color: '#cbd5e1' }}>não substitui</strong> o token.
         Depois do aviso, seu time ainda busca os dados completos pela{' '}
-        <strong style={{ color: '#cbd5e1' }}>mesma API</strong> — o webhook só avisa que chegou a hora.
+        <strong style={{ color: '#cbd5e1' }}>mesma API</strong>: o webhook só avisa que chegou a hora.
       </p>
     </div>
   )

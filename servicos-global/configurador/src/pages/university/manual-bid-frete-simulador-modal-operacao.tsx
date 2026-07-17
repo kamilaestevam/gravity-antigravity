@@ -531,8 +531,8 @@ export function ManualBidFreteSimuladorModalOperacao() {
       <FaixaDemoInterativaBidFrete
         mensagem={
           affordancePassoModal === 'tipo_operacao'
-            ? 'Demo interativa — comece escolhendo o tipo de operação'
-            : 'Demo interativa — preencha os campos; o guia à direita registra cada escolha'
+            ? 'Demo interativa: comece escolhendo o tipo de operação'
+            : 'Demo interativa: preencha os campos; o guia à direita registra cada escolha'
         }
         visivel={demoConviteAtiva}
       />

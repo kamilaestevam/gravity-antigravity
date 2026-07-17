@@ -35,7 +35,7 @@ type CardOperacaoPedido = {
 const OPERACOES_PEDIDO: CardOperacaoPedido[] = [
   {
     rotulo: 'Importação',
-    descricao: 'Pedidos de **entrada** — compra no exterior e recebimento no país.',
+    descricao: 'Pedidos de **entrada**: compra no exterior e recebimento no país.',
     icone: ArrowDown,
     cor: '#2dd4bf',
     borda: 'rgba(45,212,191,.38)',
@@ -44,7 +44,7 @@ const OPERACOES_PEDIDO: CardOperacaoPedido[] = [
   },
   {
     rotulo: 'Exportação',
-    descricao: 'Pedidos de **saída** — venda para o exterior a partir do workspace.',
+    descricao: 'Pedidos de **saída**: venda para o exterior a partir do workspace.',
     icone: ArrowUp,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.38)',
@@ -73,7 +73,7 @@ type GrupoPedido = {
 
 const GRUPOS: GrupoPedido[] = [
   {
-    titulo: 'Ciclo do PO — antes do embarque',
+    titulo: 'Ciclo do PO: antes do embarque',
     subtitulo: 'Do rascunho à consolidação, no mesmo workspace',
     fluxo: true,
     colunas: 4,
@@ -447,7 +447,7 @@ export function ManualInfograficoPedidoVisaoGeral() {
           flex: 1,
           minWidth: 200,
         }}>
-          O Pedido integra <strong style={{ color: '#cbd5e1' }}>Processo</strong>, <strong style={{ color: '#cbd5e1' }}>BID Frete</strong> e demais módulos COMEX — este mapa resume o que você opera aqui até o embarque.
+          O Pedido integra <strong style={{ color: '#cbd5e1' }}>Processo</strong>, <strong style={{ color: '#cbd5e1' }}>BID Frete</strong> e demais módulos COMEX: este mapa resume o que você opera aqui até o embarque.
         </p>
         <ClockCounterClockwise size={16} weight="duotone" color="#94a3b8" aria-hidden />
       </div>

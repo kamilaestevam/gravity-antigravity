@@ -143,13 +143,13 @@ export function ManualInfograficoSmartDocsEditarCamposMetrica({
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <CheckCircle size={16} weight="fill" color="#34d399" style={{ flexShrink: 0, marginTop: 2 }} />
               <p style={{ margin: 0, fontSize: '.72rem', lineHeight: 1.45, color: CORPO_70 }}>
-                {renderizarNegrito('**Acerto** — campo **não editado** após a extração.')}
+                {renderizarNegrito('**Acerto**: campo **não editado** após a extração.')}
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <WarningCircle size={16} weight="fill" color="#f87171" style={{ flexShrink: 0, marginTop: 2 }} />
               <p style={{ margin: 0, fontSize: '.72rem', lineHeight: 1.45, color: CORPO_70 }}>
-                {renderizarNegrito('**Erro** — campo **editado** na conferência (selo **Alterado**).')}
+                {renderizarNegrito('**Erro**: campo **editado** na conferência (selo **Alterado**).')}
               </p>
             </div>
           </div>

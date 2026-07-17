@@ -268,7 +268,7 @@ export function ManualPedidoAccordionCatalogoStatusLista() {
         color: CORPO_70,
         borderTop: '1px solid rgba(148,163,184,.1)',
       }}>
-        <strong style={{ color: '#ddd6fe' }}>+ Novo Status</strong> cria etapas extras do workspace (ex.: Aguardando fornecedor) — editáveis com lápis e lixeira enquanto não forem sistema. A ordem salva aqui vale para Lista, Kanban e filtros.
+        <strong style={{ color: '#ddd6fe' }}>+ Novo Status</strong> cria etapas extras do workspace (ex.: Aguardando fornecedor): editáveis com lápis e lixeira enquanto não forem sistema. A ordem salva aqui vale para Lista, Kanban e filtros.
       </p>
     </div>
   )

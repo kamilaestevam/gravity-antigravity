@@ -121,7 +121,7 @@ export function ManualInfograficoOQueEGravity() {
         }
       `}</style>
 
-      {/* Hero — plataforma modular */}
+      {/* Hero: plataforma modular */}
       <div style={{
         position: 'relative',
         overflow: 'hidden',
@@ -193,7 +193,7 @@ export function ManualInfograficoOQueEGravity() {
                 color: CORPO,
                 maxWidth: 440,
               }}>
-                Você contrata só o que precisa hoje e acrescenta produtos depois — sem trocar de ecossistema.
+                Você contrata só o que precisa hoje e acrescenta produtos depois: sem trocar de ecossistema.
               </p>
             </div>
 

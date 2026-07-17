@@ -34,7 +34,7 @@ const PILARES: PilarCustomizacao[] = [
   {
     num: '02',
     rotulo: 'Exibir coluna nativa',
-    descricao: 'Marque de volta colunas do catálogo — a lista atualiza na hora.',
+    descricao: 'Marque de volta colunas do catálogo: a lista atualiza na hora.',
     icone: Eye,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -183,7 +183,7 @@ export function ManualInfograficoBidFreteListaCustomizacao() {
             lineHeight: 1.5,
             color: CORPO_70,
           }}>
-            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal — nativas ou campos próprios.
+            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal: nativas ou campos próprios.
           </p>
         </div>
       </div>

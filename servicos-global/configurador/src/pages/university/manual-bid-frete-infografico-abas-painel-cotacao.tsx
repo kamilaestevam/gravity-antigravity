@@ -53,7 +53,7 @@ const PILARES: PilarAbasPainelCotacao[] = [
     num: '02',
     rotulo: 'Dados gerais',
     descricao:
-      '**Alguns campos da cotação podem ser editados** — **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e identificadores da solicitação.',
+      '**Alguns campos da cotação podem ser editados**: **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e identificadores da solicitação.',
     icone: SlidersHorizontal,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
@@ -73,7 +73,7 @@ const PILARES: PilarAbasPainelCotacao[] = [
     num: '04',
     rotulo: 'Propostas',
     descricao:
-      'Compare **frete total**, **transit time**, **escala/transbordo** e **prazo de pagamento** — aprove a melhor oferta.',
+      'Compare **frete total**, **transit time**, **escala/transbordo** e **prazo de pagamento**: aprove a melhor oferta.',
     icone: Scales,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.32)',
@@ -280,7 +280,7 @@ function RodapeAbasPainelCotacao() {
       </div>
 
       <p style={{ margin: 0 }}>
-        <ManualInfograficoRichText texto="Navegue entre **Visão geral**, **Dados gerais**, **Solicitação**, **Propostas**, **Comentários** e **Documentos** — cada aba detalhada nos passos abaixo." />
+        <ManualInfograficoRichText texto="Navegue entre **Visão geral**, **Dados gerais**, **Solicitação**, **Propostas**, **Comentários** e **Documentos**: cada aba detalhada nos passos abaixo." />
       </p>
     </div>
   )

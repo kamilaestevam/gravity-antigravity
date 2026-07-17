@@ -25,7 +25,7 @@ const CENARIOS: CenarioAlerta[] = [
   {
     num: '01',
     rotulo: 'Pedido colapsado',
-    descricao: 'Alguns alertas aparecem na **linha mãe** antes de expandir — ex.: **Status** divergente ou totais que não agregam por **moeda/unidade** distinta.',
+    descricao: 'Alguns alertas aparecem na **linha mãe** antes de expandir: ex.: **Status** divergente ou totais que não agregam por **moeda/unidade** distinta.',
     icone: Rows,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.35)',
@@ -43,7 +43,7 @@ const CENARIOS: CenarioAlerta[] = [
   {
     num: '03',
     rotulo: 'Homogeneidade',
-    descricao: 'Moedas ou unidades **diferentes entre itens** impedem somar totais no pedido — o alerta indica por que Valor Total, Saldo ou Qtd. ficam vazios.',
+    descricao: 'Moedas ou unidades **diferentes entre itens** impedem somar totais no pedido: o alerta indica por que Valor Total, Saldo ou Qtd. ficam vazios.',
     icone: Scales,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.35)',

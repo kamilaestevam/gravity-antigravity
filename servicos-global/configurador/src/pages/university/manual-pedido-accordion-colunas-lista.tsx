@@ -370,7 +370,7 @@ export function ManualPedidoAccordionColunasLista({
                                     size={13}
                                     weight="duotone"
                                     color={corIcone}
-                                    aria-label="Coluna fixa — não pode ser ocultada"
+                                    aria-label="Coluna fixa: não pode ser ocultada"
                                   />
                                 )}
                               </span>

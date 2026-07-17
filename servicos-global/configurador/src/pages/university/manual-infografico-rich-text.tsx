@@ -283,7 +283,7 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
         display: 'inline-flex',
         verticalAlign: 'middle',
         marginLeft: 3,
-        /* scale(0.8) mantém a caixa de layout larga — margem negativa aproxima o "." */
+        /* scale(0.8) mantém a caixa de layout larga: margem negativa aproxima o "." */
         marginRight: -14,
         transform: 'scale(0.8)',
         transformOrigin: 'left center',

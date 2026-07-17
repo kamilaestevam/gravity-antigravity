@@ -35,7 +35,7 @@ export const CAMPOS_MELHOR_PROPOSTA_PAINEL_INSIGHTS: CampoPainelInsights[] = [
     num: '01',
     rotulo: 'Valor total',
     paragrafoGuia:
-      'Exibe o **menor frete total** entre as propostas recebidas — referência rápida para comparar competitividade.',
+      'Exibe o **menor frete total** entre as propostas recebidas: referência rápida para comparar competitividade.',
     descricaoPontos: ['Menor frete entre as respostas', 'Atualizado a cada nova proposta'],
     icone: CurrencyDollar,
     cor: '#34d399',
@@ -59,7 +59,7 @@ export const CAMPOS_MELHOR_PROPOSTA_PAINEL_INSIGHTS: CampoPainelInsights[] = [
     num: '03',
     rotulo: 'Free Time',
     paragrafoGuia:
-      'Dias de **free time** na melhor oferta — tempo de permanência no terminal sem custo adicional.',
+      'Dias de **free time** na melhor oferta: tempo de permanência no terminal sem custo adicional.',
     descricaoPontos: ['Dias de permanência gratuita', 'Comparativo entre propostas'],
     icone: ChartBar,
     cor: '#a78bfa',
@@ -134,7 +134,7 @@ export const CAMPOS_RANKING_PAINEL_INSIGHTS: CampoPainelInsights[] = [
     num: '09',
     rotulo: 'Transit time',
     paragrafoGuia:
-      'Posição no eixo **Transit time** — quantos dias até a chegada em relação às demais propostas.',
+      'Posição no eixo **Transit time**: quantos dias até a chegada em relação às demais propostas.',
     descricaoPontos: ['Dias de trânsito', 'Badge com colocação (ex.: 2º de 3)'],
     icone: Clock,
     cor: '#60a5fa',
@@ -158,7 +158,7 @@ export const CAMPOS_RANKING_PAINEL_INSIGHTS: CampoPainelInsights[] = [
     num: '11',
     rotulo: 'Prazo pagamento',
     paragrafoGuia:
-      'Eixo **prazo de pagamento** quando informado na proposta; exibe **—** se o fornecedor não preencheu.',
+      'Eixo **prazo de pagamento** quando informado na proposta; exibe *(vazio)* se o fornecedor não preencheu.',
     descricaoPontos: ['Dias para pagamento', 'Opcional conforme resposta do agente'],
     icone: ChartBar,
     cor: '#94a3b8',
@@ -173,7 +173,7 @@ export const CAMPOS_TERMOMETRO_PAINEL_INSIGHTS: CampoPainelInsights[] = [
     num: '12',
     rotulo: 'Termômetro histórico',
     paragrafoGuia:
-      'Compara o **frete base da melhor proposta (Dele)** com a **média de mercado** dos últimos 6 meses nas mesmas condições — curva azul e referência de posicionamento.',
+      'Compara o **frete base da melhor proposta (Dele)** com a **média de mercado** dos últimos 6 meses nas mesmas condições: curva azul e referência de posicionamento.',
     descricaoPontos: [
       'Dele vs mercado (média 6 meses)',
       'Gráfico de evolução mensal',

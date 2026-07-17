@@ -47,7 +47,7 @@ const CAMINHOS: CaminhoImportacao[] = [
     descricao: (
       <>
         Upload de planilha ou invoice do fornecedor (<strong style={{ color: '#cbd5e1' }}>Excel, CSV, PDF, XML, JSON, TXT</strong>)
-        com mapeamento automático por IA — ainda <strong style={{ color: '#cbd5e1' }}>em homologação</strong>.
+        com mapeamento automático por IA: ainda <strong style={{ color: '#cbd5e1' }}>em homologação</strong>.
         Use o template oficial por enquanto.
       </>
     ),
@@ -180,7 +180,7 @@ function ManualSetaFluxoTemplateGravity() {
             textTransform: 'uppercase',
             color: '#6ee7b7',
           }}>
-            Passo a passo — planilha modelo Gravity
+            Passo a passo: planilha modelo Gravity
           </span>
         </div>
         <ArrowDown size={18} weight="bold" color="#34d399" style={{ marginTop: 2 }} />

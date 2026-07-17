@@ -139,14 +139,14 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
     "colunas": [
       {
         "key": "condicao_pagamento",
-        "coluna": "Condição de Pagamento do Pedido/Item — Comercial",
+        "coluna": "Condição de Pagamento do Pedido/Item: Comercial",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "condicao_pagamento_siscomex",
-        "coluna": "Condição de Pagamento do Pedido/Item — Siscomex",
+        "coluna": "Condição de Pagamento do Pedido/Item: Siscomex",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
@@ -170,7 +170,7 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
         "coluna": "Qtd. Cancelada do Pedido",
         "nivel": "Pedido",
         "tipoAlerta": "Unidade comercializada",
-        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes** — totais, saldos e transferências não agregam."
+        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes**: totais, saldos e transferências não agregam."
       },
       {
         "key": "quantidade_volumes_pedido",
@@ -191,21 +191,21 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
         "coluna": "Qtd. Pronta do Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Moeda comercial",
-        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **moedas comerciais diferentes** — o pedido não soma totais até homogeneizar."
+        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **moedas comerciais diferentes**: o pedido não soma totais até homogeneizar."
       },
       {
         "key": "quantidade_transferida_total",
         "coluna": "Qtd. Transferida do Pedido",
         "nivel": "Pedido",
         "tipoAlerta": "Unidade comercializada",
-        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes** — totais, saldos e transferências não agregam."
+        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes**: totais, saldos e transferências não agregam."
       },
       {
         "key": "saldo_itens_do_pedido",
         "coluna": "Saldo do Pedido",
         "nivel": "Pedido",
         "tipoAlerta": "Unidade comercializada",
-        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes** — totais, saldos e transferências não agregam."
+        "acionamento": "Ícone âmbar quando itens usam **unidades comercializadas diferentes**: totais, saldos e transferências não agregam."
       },
       {
         "key": "tipo_volume_pedido",
@@ -246,7 +246,7 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
         "coluna": "Valor Unitário do Item",
         "nivel": "Pedido",
         "tipoAlerta": "Moeda comercial",
-        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes** — o pedido não soma totais até homogeneizar."
+        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes**: o pedido não soma totais até homogeneizar."
       }
     ]
   },
@@ -259,14 +259,14 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
         "coluna": "Contrato de Câmbio",
         "nivel": "Pedido",
         "tipoAlerta": "Moeda comercial",
-        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes** — o pedido não soma totais até homogeneizar."
+        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes**: o pedido não soma totais até homogeneizar."
       },
       {
         "key": "moeda_cambio_pedido",
         "coluna": "Moeda Câmbio",
         "nivel": "Pedido",
         "tipoAlerta": "Moeda comercial",
-        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes** — o pedido não soma totais até homogeneizar."
+        "acionamento": "Ícone âmbar quando itens usam **moedas comerciais diferentes**: o pedido não soma totais até homogeneizar."
       }
     ]
   },
@@ -286,14 +286,14 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
         "coluna": "Peso Bruto Total",
         "nivel": "Pedido e item",
         "tipoAlerta": "Unidade de peso",
-        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **unidades de peso diferentes** — peso total do pedido não agrega."
+        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **unidades de peso diferentes**: peso total do pedido não agrega."
       },
       {
         "key": "peso_liquido_total_pedido",
         "coluna": "Peso Líquido Total",
         "nivel": "Pedido e item",
         "tipoAlerta": "Unidade de peso",
-        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **unidades de peso diferentes** — peso total do pedido não agrega."
+        "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si. Ícone âmbar quando itens usam **unidades de peso diferentes**: peso total do pedido não agrega."
       }
     ]
   },
@@ -519,91 +519,91 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
     "colunas": [
       {
         "key": "data_confirmada_aprovacao_rascunho_invoice",
-        "coluna": "Data Confirmada — Aprovação Draft Invoice",
+        "coluna": "Data Confirmada: Aprovação Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_aprovacao_rascunho_pedido",
-        "coluna": "Data Confirmada — Aprovação Draft Pedido",
+        "coluna": "Data Confirmada: Aprovação Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_aprovacao_rascunho_proforma",
-        "coluna": "Data Confirmada — Aprovação Draft Proforma",
+        "coluna": "Data Confirmada: Aprovação Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_coleta_pedido",
-        "coluna": "Data Confirmada — Coleta",
+        "coluna": "Data Confirmada: Coleta",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_envio_original_invoice",
-        "coluna": "Data Confirmada — Envio Original Invoice",
+        "coluna": "Data Confirmada: Envio Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_envio_original_proforma",
-        "coluna": "Data Confirmada — Envio Original Proforma",
+        "coluna": "Data Confirmada: Envio Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_inspecao_pedido",
-        "coluna": "Data Confirmada — Inspeção",
+        "coluna": "Data Confirmada: Inspeção",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_pedido_pronto",
-        "coluna": "Data Confirmada — Pedido Pronto",
+        "coluna": "Data Confirmada: Pedido Pronto",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_recebimento_rascunho_invoice",
-        "coluna": "Data Confirmada — Recebimento Draft Invoice",
+        "coluna": "Data Confirmada: Recebimento Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_recebimento_rascunho_pedido",
-        "coluna": "Data Confirmada — Recebimento Draft Pedido",
+        "coluna": "Data Confirmada: Recebimento Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_recebimento_rascunho_proforma",
-        "coluna": "Data Confirmada — Recebimento Draft Proforma",
+        "coluna": "Data Confirmada: Recebimento Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_recebimento_original_invoice",
-        "coluna": "Data Confirmada — Recebimento Original Invoice",
+        "coluna": "Data Confirmada: Recebimento Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_confirmada_recebimento_original_proforma",
-        "coluna": "Data Confirmada — Recebimento Original Proforma",
+        "coluna": "Data Confirmada: Recebimento Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
@@ -659,182 +659,182 @@ export const GRUPOS_ALERTAS_COLUNAS_PEDIDO_LISTA: ManualPedidoGrupoAlertasLista[
       },
       {
         "key": "data_meta_aprovacao_rascunho_invoice",
-        "coluna": "Data Meta — Aprovação Draft Invoice",
+        "coluna": "Data Meta: Aprovação Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_aprovacao_rascunho_pedido",
-        "coluna": "Data Meta — Aprovação Draft Pedido",
+        "coluna": "Data Meta: Aprovação Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_aprovacao_rascunho_proforma",
-        "coluna": "Data Meta — Aprovação Draft Proforma",
+        "coluna": "Data Meta: Aprovação Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_coleta_pedido",
-        "coluna": "Data Meta — Coleta",
+        "coluna": "Data Meta: Coleta",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_envio_original_invoice",
-        "coluna": "Data Meta — Envio Original Invoice",
+        "coluna": "Data Meta: Envio Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_envio_original_proforma",
-        "coluna": "Data Meta — Envio Original Proforma",
+        "coluna": "Data Meta: Envio Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_inspecao_pedido",
-        "coluna": "Data Meta — Inspeção",
+        "coluna": "Data Meta: Inspeção",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_pedido_pronto",
-        "coluna": "Data Meta — Pedido Pronto",
+        "coluna": "Data Meta: Pedido Pronto",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_recebimento_rascunho_invoice",
-        "coluna": "Data Meta — Recebimento Draft Invoice",
+        "coluna": "Data Meta: Recebimento Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_recebimento_rascunho_pedido",
-        "coluna": "Data Meta — Recebimento Draft Pedido",
+        "coluna": "Data Meta: Recebimento Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_recebimento_rascunho_proforma",
-        "coluna": "Data Meta — Recebimento Draft Proforma",
+        "coluna": "Data Meta: Recebimento Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_recebimento_original_invoice",
-        "coluna": "Data Meta — Recebimento Original Invoice",
+        "coluna": "Data Meta: Recebimento Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_meta_recebimento_original_proforma",
-        "coluna": "Data Meta — Recebimento Original Proforma",
+        "coluna": "Data Meta: Recebimento Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_aprovacao_rascunho_invoice",
-        "coluna": "Data Prevista — Aprovação Draft Invoice",
+        "coluna": "Data Prevista: Aprovação Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_aprovacao_rascunho_pedido",
-        "coluna": "Data Prevista — Aprovação Draft Pedido",
+        "coluna": "Data Prevista: Aprovação Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_aprovacao_rascunho_proforma",
-        "coluna": "Data Prevista — Aprovação Draft Proforma",
+        "coluna": "Data Prevista: Aprovação Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_coleta_pedido",
-        "coluna": "Data Prevista — Coleta",
+        "coluna": "Data Prevista: Coleta",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_envio_original_invoice",
-        "coluna": "Data Prevista — Envio Original Invoice",
+        "coluna": "Data Prevista: Envio Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_envio_original_proforma",
-        "coluna": "Data Prevista — Envio Original Proforma",
+        "coluna": "Data Prevista: Envio Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_inspecao_pedido",
-        "coluna": "Data Prevista — Inspeção",
+        "coluna": "Data Prevista: Inspeção",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_pedido_pronto",
-        "coluna": "Data Prevista — Pedido Pronto",
+        "coluna": "Data Prevista: Pedido Pronto",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_recebimento_rascunho_invoice",
-        "coluna": "Data Prevista — Recebimento Draft Invoice",
+        "coluna": "Data Prevista: Recebimento Draft Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_recebimento_rascunho_pedido",
-        "coluna": "Data Prevista — Recebimento Draft Pedido",
+        "coluna": "Data Prevista: Recebimento Draft Pedido",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_recebimento_rascunho_proforma",
-        "coluna": "Data Prevista — Recebimento Draft Proforma",
+        "coluna": "Data Prevista: Recebimento Draft Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_recebimento_original_invoice",
-        "coluna": "Data Prevista — Recebimento Original Invoice",
+        "coluna": "Data Prevista: Recebimento Original Invoice",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."
       },
       {
         "key": "data_prevista_recebimento_original_proforma",
-        "coluna": "Data Prevista — Recebimento Original Proforma",
+        "coluna": "Data Prevista: Recebimento Original Proforma",
         "nivel": "Pedido e item",
         "tipoAlerta": "Divergência pedido × itens",
         "acionamento": "Ícone âmbar quando o **pedido** difere de algum **item**, ou quando **itens** têm valores distintos entre si."

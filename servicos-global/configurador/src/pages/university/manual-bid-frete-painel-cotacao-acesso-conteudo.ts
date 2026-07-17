@@ -24,7 +24,7 @@ export const GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO = [
         titulo: 'Via Lista',
         chipAcessoPainelCotacao: 'lista',
         texto:
-          'Na aba **Lista**, clique no ícone {{icone:abrir-cotacao-lista-bid-frete}} na linha da cotação — ou use o botão {{botao:ir-para-cotacao-bid-frete}} após criar uma nova solicitação.',
+          'Na aba **Lista**, clique no ícone {{icone:abrir-cotacao-lista-bid-frete}} na linha da cotação: ou use o botão {{botao:ir-para-cotacao-bid-frete}} após criar uma nova solicitação.',
         imagem: S('lista'),
       },
     ],

@@ -3585,7 +3585,7 @@ function ManualBlocoPassoVisual({
           && (passo.legendaEscopoIconesBidFreteAposParagrafo
             ?? passo.bidFreteNovaCotacaoInfograficoAposParagrafo
             ?? 1) === i ? (
-            <ManualBidFreteInfograficoLegendaEscopoIcones />
+            <ManualBidFreteInfograficoLegendaEscopoIcones semMargemInferior={passoAcademyIsolado} />
           ) : null}
           {passo.mostrarInfograficoSmartDocsConferencia
           && (passo.infograficoSmartDocsConferenciaAposParagrafo ?? 0) === i ? (
@@ -3793,7 +3793,7 @@ function ManualBlocoPassoVisual({
                         alinhamentoAcordeao={emAcordeaoSubtopico}
                       />
                     ) : null}
-                    <ManualBidFreteInfograficoLegendaEscopoIcones />
+                    <ManualBidFreteInfograficoLegendaEscopoIcones semMargemInferior={passoAcademyIsolado} />
                   </>
                 ) : null}
               </>

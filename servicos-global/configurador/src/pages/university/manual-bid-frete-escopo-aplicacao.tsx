@@ -324,7 +324,12 @@ function ManualBidFreteLegendaEscopoLinha<T extends string>({
 }
 
 /** Legenda fixa dos ícones de escopo — exibir uma vez no início do capítulo Nova cotação. */
-export function ManualBidFreteInfograficoLegendaEscopoIcones() {
+export function ManualBidFreteInfograficoLegendaEscopoIcones({
+  semMargemInferior = false,
+}: {
+  /** Academy: ritmo externo vem do PlayerAula (32px) — sem margin-bottom interno. */
+  semMargemInferior?: boolean
+}) {
   return (
     <div
       role="region"
@@ -334,7 +339,7 @@ export function ManualBidFreteInfograficoLegendaEscopoIcones() {
         border: '1px solid rgba(129,140,248,.18)',
         borderRadius: 14,
         padding: '16px 18px 14px',
-        marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX,
+        marginBottom: semMargemInferior ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
         boxShadow: '0 8px 28px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.03)',
       }}
     >

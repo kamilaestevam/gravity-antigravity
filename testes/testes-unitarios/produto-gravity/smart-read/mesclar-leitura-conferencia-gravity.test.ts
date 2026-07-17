@@ -114,7 +114,92 @@ describe('Smart Read — mesclar leitura com conferência Gravity', () => {
     const mesclada = mesclarLeituraComConferenciaGravity(base, conferencia)
 
     expect(mesclada.nome_leitura).toBe('Nome escolhido pelo usuário')
+    expect(mesclada.status_leitura).toBe('COMPLETED')
     expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({ numero: '1' })
+  })
+
+  it('snapshot PROCESSING congelado no PATCH do passo 2 não rebaixa COMPLETED do legado (regressão 16/07 — leitura de 8s durando minutos)', () => {
+    // Cenário real: wizard salva progresso durante a análise; o PATCH persiste
+    // snapshot com motivo 'conferencia_usuario' (pula elegibilidade) carregando
+    // status PROCESSING + extração parcial. Quando o DATI conclui, o GET mescla
+    // o snapshot e o status congelado não pode vencer o COMPLETED fresco.
+    const base: Leitura = {
+      id_leitura: 'leitura-510',
+      nome_leitura: 'Leitura 510',
+      status_leitura: 'COMPLETED',
+      total_arquivos: 2,
+      arquivos_processados: 2,
+      arquivos: [
+        {
+          id_arquivo: 'arq-1',
+          nome_arquivo: 'invoice_ficticio_teste.pdf',
+          status_arquivo: 'COMPLETED',
+          resultado_extracao: [{ tipo_documento: 'Invoice', dados: { numero: 'INV-77' } }],
+        },
+        {
+          id_arquivo: 'arq-2',
+          nome_arquivo: 'packing_list_ficticio.pdf',
+          status_arquivo: 'COMPLETED',
+          resultado_extracao: [{ tipo_documento: 'Packing List', dados: { volumes: '10' } }],
+        },
+      ],
+    }
+    const snapshotCongelado: Leitura = {
+      id_leitura: 'leitura-510',
+      nome_leitura: 'Leitura 510',
+      status_leitura: 'PROCESSING',
+      total_arquivos: 2,
+      arquivos_processados: 1,
+      arquivos: [
+        {
+          id_arquivo: 'arq-2',
+          nome_arquivo: 'packing_list_ficticio.pdf',
+          status_arquivo: 'COMPLETED',
+          resultado_extracao: [{ tipo_documento: 'Packing List', dados: { volumes: '10' } }],
+        },
+      ],
+    }
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, snapshotCongelado)
+
+    expect(mesclada.status_leitura).toBe('COMPLETED')
+    expect(mesclada.arquivos).toHaveLength(2)
+    expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({ numero: 'INV-77' })
+  })
+
+  it('snapshot COMPLETED continua vencendo base PROCESSING (retomar leitura expirada)', () => {
+    const base: Leitura = {
+      id_leitura: 'leitura-1',
+      nome_leitura: null,
+      status_leitura: 'PROCESSING',
+      total_arquivos: 0,
+      arquivos_processados: 0,
+      arquivos: [],
+    }
+    const conferencia = leituraBase({ numero: '1' })
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, conferencia)
+
+    expect(mesclada.status_leitura).toBe('COMPLETED')
+    expect(mesclada.arquivos[0]?.resultado_extracao?.[0]?.dados).toEqual({ numero: '1' })
+  })
+
+  it('snapshot FAILED não é rebaixado nem rebaixa: FAILED do legado prevalece sobre PROCESSING', () => {
+    const base: Leitura = {
+      ...leituraBase({ numero: '1' }),
+      status_leitura: 'FAILED',
+    }
+    const conferencia: Leitura = {
+      id_leitura: 'leitura-1',
+      nome_leitura: 'Com nome',
+      status_leitura: 'PROCESSING',
+      total_arquivos: 0,
+      arquivos_processados: 0,
+      arquivos: [],
+    }
+
+    const mesclada = mesclarLeituraComConferenciaGravity(base, conferencia)
+    expect(mesclada.status_leitura).toBe('FAILED')
   })
 
   it('preserva dados_original já gravado no snapshot', () => {

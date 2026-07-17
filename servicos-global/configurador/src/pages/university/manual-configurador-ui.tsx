@@ -182,9 +182,12 @@ import {
   ManualInfograficoSmartDocsInsights,
 } from './manual-smart-read-infografico-insights'
 import { ManualInfograficoSmartDocsListaCustomizacao } from './manual-smart-read-infografico-lista-customizacao'
+import { ManualInfograficoSmartDocsListaExportarFormatos } from './manual-smart-read-infografico-lista-exportar-formatos'
 import { ManualInfograficoSmartDocsConferencia } from './manual-smart-read-infografico-conferencia'
 import { ManualInfograficoSmartDocsChecklistConferencia } from './manual-smart-read-infografico-checklist-conferencia'
 import { ManualInfograficoSmartDocsEditarCamposMetrica } from './manual-smart-read-infografico-editar-campos-metrica'
+import { ManualInfograficoSmartDocsPerformanceResultado } from './manual-smart-read-infografico-performance-resultado'
+import { ManualInfograficoSmartDocsResultadoIntegracaoAutomatica } from './manual-smart-read-infografico-resultado-integracao-automatica'
 import { ManualInfograficoSmartDocsStatusFluxo } from './manual-smart-read-infografico-status-fluxo'
 import { ManualSmartReadTabelaChecklistConferencia } from './manual-smart-read-tabela-checklist-conferencia'
 import { ManualInfograficoSmartDocsListaPaineis } from './manual-smart-read-infografico-lista-paineis'
@@ -1560,7 +1563,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '250'
+const MANUAL_SCREENSHOT_CACHE_KEY = '280'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3020,14 +3023,18 @@ function telasGaleriaSemParagrafoNoRotulo<T extends { paragrafoAntes?: string }>
   return [{ ...primeira, paragrafoAntes: undefined }, ...telas.slice(1)]
 }
 
-/** Guia coluna única — ritmo entre telas da galeria (`manual-tipografia.ts`). */
+/** Guia coluna única — fim do print → próxima instrução na mesma galeria: 12px (`MANUAL_ESPACO_IMAGEM_FRASE_PX`). */
 function espacoAcimaTelaGaleriaGuiaPx(
   telaAtual: DocGaleriaComparacaoTela,
+  telaAnterior: DocGaleriaComparacaoTela | undefined,
   indiceTela: number,
 ): number {
   if (indiceTela === 0) return 0
   if (telaAtual.paragrafoAntes?.trim() || telaAtual.calloutAntes) {
     return MANUAL_ESPACO_IMAGEM_FRASE_PX
+  }
+  if (telaAnterior?.paragrafoDepois?.trim() || telaAnterior?.calloutDepois) {
+    return MANUAL_ESPACO_FRASE_IMAGEM_PX
   }
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
@@ -3035,19 +3042,19 @@ function espacoAcimaTelaGaleriaGuiaPx(
 function ManualBlocoRotuloGaleriaPasso({
   galeria,
   passo,
-  passoAcademyIsolado,
+  layoutEtapaGuia,
   marginTopPx = 0,
 }: {
   galeria: GaleriaComparacaoPassoBloco
   passo: DocPassoVisual
-  passoAcademyIsolado: boolean
+  layoutEtapaGuia: boolean
   marginTopPx?: number
 }) {
   const rotulo = galeria.rotuloPasso?.trim()
   const textoCorpo = textoCorpoRotuloGaleriaPasso(galeria)
   if (!rotulo) return null
 
-  if (passoAcademyIsolado) {
+  if (layoutEtapaGuia) {
     return (
       <div
         className={classePassoCorpoAcademy(passo, true)}
@@ -3109,10 +3116,20 @@ function ManualGaleriaComparacaoAposImagemAcademy({
   )
 }
 
+function margemSuperiorEtapaGuiaPx(passo: DocPassoVisual, indiceParagrafo: number): number | undefined {
+  if (indiceParagrafo <= 0) return undefined
+  const galeriasAnteriores = galeriaComparacaoAposParagrafoPasso(passo, indiceParagrafo - 1)
+  const anteriorTerminouComGaleria = galeriasAnteriores.some((g) => g.telas.length > 0)
+  return anteriorTerminouComGaleria
+    ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    : MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
+}
+
 function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
   ocultarTituloPasso: ocultarTituloPassoProp = false,
+  layoutGuiaAcademy = false,
   emAcordeaoSubtopico = false,
   emGradeCenarios = false,
   cenarioParte = 'completo',
@@ -3123,6 +3140,7 @@ function ManualBlocoPassoVisual({
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
   ocultarTituloPasso?: boolean
+  layoutGuiaAcademy?: boolean
   emAcordeaoSubtopico?: boolean
   emGradeCenarios?: boolean
   /** Com grade lado a lado + imagens alinhadas: `texto` ou `figuras` em linhas separadas. */
@@ -3134,6 +3152,7 @@ function ManualBlocoPassoVisual({
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso || passo.estiloTituloWizard === true || emAcordeaoSubtopico
   const ocultarTituloPasso = passo.ocultarTituloPasso || ocultarTituloPassoProp
   const passoAcademyIsolado = ocultarRotuloPasso && ocultarTituloPasso
+  const layoutEtapaGuia = passoAcademyIsolado || layoutGuiaAcademy
   const exibirRotuloPassoNoCorpo = Boolean(
     passo.rotuloPasso?.trim()
     && !passo.estiloTituloWizard
@@ -3152,7 +3171,7 @@ function ManualBlocoPassoVisual({
     passo.mostrarInfograficoBidFreteCotacaoAvulsaFormas
     && (passo.paragrafos?.length ?? 0) > 0,
   )
-  const blocoBase: React.CSSProperties = emAcordeaoSubtopico || passoAcademyIsolado
+  const blocoBase: React.CSSProperties = emAcordeaoSubtopico || layoutEtapaGuia
     ? { paddingTop: 0, marginTop: 0 }
     : emGradeCenarios
     ? { paddingTop: 0, marginTop: cenarioParte === 'figuras' ? 0 : 18 }
@@ -3368,7 +3387,7 @@ function ManualBlocoPassoVisual({
             passo.paragrafos?.length ?? 0,
           )
           const margemInferiorCalloutAntesGaleria = galeriasAposParagrafo.length > 0
-            ? (passoAcademyIsolado && galeriasAposParagrafo.some((g) => g.textoAcimaEstiloCorpo)
+            ? (layoutEtapaGuia && galeriasAposParagrafo.some((g) => g.textoAcimaEstiloCorpo)
                 ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
                 : MANUAL_ESPACO_PARAGRAFO_PX)
             : margens.marginBottom
@@ -3384,16 +3403,23 @@ function ManualBlocoPassoVisual({
             />
           )
         })() : null
-        const margemAposParagrafoAcademyGaleria = passoAcademyIsolado && galeriasAposParagrafo.length > 0
+        const margemAposParagrafoAcademyGaleria = layoutEtapaGuia && galeriasAposParagrafo.length > 0
           ? 0
           : null
         const calloutAntesGaleriaNoIndice = passo.calloutAposParagrafo?.indice === i
+        const margemSuperiorEtapa = layoutEtapaGuia
+          ? margemSuperiorEtapaGuiaPx(passo, i)
+          : (i > 0 ? MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX : undefined)
 
         return (
         <div
           key={i}
-          className={passoAcademyIsolado ? 'uni-player-aula__passo-etapa' : undefined}
-          style={!passoAcademyIsolado && i > 0 ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX } : undefined}
+          className={layoutEtapaGuia ? 'uni-player-aula__passo-etapa' : undefined}
+          style={!layoutEtapaGuia && margemSuperiorEtapa !== undefined
+            ? { marginTop: margemSuperiorEtapa }
+            : (layoutEtapaGuia && margemSuperiorEtapa !== undefined
+              ? { marginTop: margemSuperiorEtapa }
+              : undefined)}
         >
           {calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
           {passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
@@ -3475,6 +3501,14 @@ function ManualBlocoPassoVisual({
           {passo.mostrarFormatosExportacaoPedidoLista
           && (passo.formatosExportacaoPedidoAposParagrafo ?? 1) === i ? (
             <ManualPedidoFormatosExportacaoLista />
+          ) : null}
+          {passo.mostrarInfograficoSmartDocsListaExportarFormatos
+          && (passo.infograficoSmartDocsListaExportarFormatosAposParagrafo ?? 1) === i ? (
+            <div style={{ marginBottom: layoutEtapaGuia ? MANUAL_ESPACO_PARAGRAFO_PX : 0 }}>
+              <ManualInfograficoSmartDocsListaExportarFormatos
+                margemSuperiorPx={layoutEtapaGuia ? 0 : undefined}
+              />
+            </div>
           ) : null}
           {passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
           && (passo.caminhosImportacaoPlanilhaAposParagrafo ?? 1) === i ? (
@@ -3659,20 +3693,20 @@ function ManualBlocoPassoVisual({
             return (
               <>
                 {galeriasParagrafo.map((galeria, idxGaleria) => {
-            const margemSuperiorEntreGaleriasAcademyPx = passoAcademyIsolado && idxGaleria > 0
+            const margemSuperiorEntreGaleriasAcademyPx = layoutEtapaGuia && idxGaleria > 0
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
               : 0
             const rotuloGaleriaAposParagrafo = Boolean(
-              passoAcademyIsolado && galeria.rotuloPasso?.trim() && idxGaleria === 0,
+              layoutEtapaGuia && galeria.rotuloPasso?.trim() && idxGaleria === 0,
             )
             const margemSuperiorRotuloGaleriaAcademyPx = rotuloGaleriaAposParagrafo
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
               : margemSuperiorEntreGaleriasAcademyPx
-            const margemSuperiorGaleriaAcademyPx = passoAcademyIsolado && idxGaleria === 0 && !calloutAntesGaleriaNoIndice
+            const margemSuperiorGaleriaAcademyPx = layoutEtapaGuia && idxGaleria === 0 && !calloutAntesGaleriaNoIndice
               ? 0
-              : passoAcademyIsolado && idxGaleria > 0 && !galeria.rotuloPasso?.trim()
+              : layoutEtapaGuia && idxGaleria > 0 && !galeria.rotuloPasso?.trim()
                 ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-                : passoAcademyIsolado
+                : layoutEtapaGuia
                   ? 0
                   : undefined
             return (
@@ -3680,10 +3714,10 @@ function ManualBlocoPassoVisual({
               <ManualBlocoRotuloGaleriaPasso
                 galeria={galeria}
                 passo={passo}
-                passoAcademyIsolado={passoAcademyIsolado}
+                layoutEtapaGuia={layoutEtapaGuia}
                 marginTopPx={margemSuperiorRotuloGaleriaAcademyPx}
               />
-              <div className={passoAcademyIsolado ? 'uni-player-aula__passo-galeria' : undefined}>
+              <div className={layoutEtapaGuia ? 'uni-player-aula__passo-galeria' : undefined}>
               <ManualGaleriaComparacaoIntro
                 telas={telasGaleriaSemParagrafoNoRotulo(galeria, galeria.telas)}
                 ampliarInferiorDireito={galeria.ampliarInferiorDireito}
@@ -3695,7 +3729,7 @@ function ManualBlocoPassoVisual({
                 legendaPasso={galeria.legendaPasso}
                 pilaresImportarFormas={galeria.pilaresImportarFormas}
                 tituloEtapa={galeria.tituloEtapa}
-                textoIntro={passoAcademyIsolado && galeria.rotuloPasso?.trim() ? undefined : galeria.textoIntro}
+                textoIntro={layoutEtapaGuia && galeria.rotuloPasso?.trim() ? undefined : galeria.textoIntro}
                 cenariosAcesso={galeria.cenariosAcesso}
                 textoAoLado={galeria.textoAoLado}
                 infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
@@ -3747,7 +3781,7 @@ function ManualBlocoPassoVisual({
               mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
-              espacoInferiorAposEtapaPx={passoAcademyIsolado ? 0 : galeria.espacoInferiorAposEtapaPx}
+              espacoInferiorAposEtapaPx={layoutEtapaGuia ? 0 : galeria.espacoInferiorAposEtapaPx}
               margemSuperiorPx={margemSuperiorGaleriaAcademyPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
               />
@@ -3759,6 +3793,42 @@ function ManualBlocoPassoVisual({
               {passo.mostrarCatalogoDashboardTiposVisualizacaoPedido
               && passo.catalogoDashboardTiposVisualizacaoAposGaleriaIndice === idxGaleria ? (
                 <ManualPedidoAccordionDashboardTiposVisualizacao />
+              ) : null}
+              {passo.mostrarInfograficoSmartDocsPerformanceResultado
+              && (passo.infograficoSmartDocsPerformanceResultadoAposGaleriaParagrafo ?? 0) === i
+              && (passo.infograficoSmartDocsPerformanceResultadoAposGaleriaIndice ?? 0) === galeria.indice ? (
+                passoAcademyIsolado ? (
+                  <ManualInfograficoSmartDocsPerformanceResultado
+                    margemSuperiorPx={MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX}
+                  />
+                ) : (
+                  <div style={{
+                    marginTop: emAcordeaoSubtopico
+                      ? MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX
+                      : MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+                    marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+                  }}>
+                    <ManualInfograficoSmartDocsPerformanceResultado margemSuperiorPx={0} />
+                  </div>
+                )
+              ) : null}
+              {passo.mostrarInfograficoSmartDocsResultadoIntegracaoAutomatica
+              && (passo.infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaParagrafo ?? 2) === i
+              && (passo.infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaIndice ?? 2) === galeria.indice ? (
+                passoAcademyIsolado ? (
+                  <ManualInfograficoSmartDocsResultadoIntegracaoAutomatica
+                    margemSuperiorPx={MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX}
+                  />
+                ) : (
+                  <div style={{
+                    marginTop: emAcordeaoSubtopico
+                      ? MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX
+                      : MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+                    marginBottom: MANUAL_ESPACO_PARAGRAFO_PX,
+                  }}>
+                    <ManualInfograficoSmartDocsResultadoIntegracaoAutomatica margemSuperiorPx={0} />
+                  </div>
+                )
               ) : null}
             </React.Fragment>
             )
@@ -3969,12 +4039,12 @@ function ManualBlocoPassoVisual({
     ? <ManualPedidoTabelaAlertasLista />
     : null
 
-  const espacoEntreItensGaleriaPassoPx = passoAcademyIsolado
+  const espacoEntreItensGaleriaPassoPx = layoutEtapaGuia
     ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
     : MANUAL_ESPACO_ENTRE_PASSOS_PX
 
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
-    passoAcademyIsolado ? (
+    layoutEtapaGuia ? (
       <>
         {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
           <div
@@ -4003,9 +4073,9 @@ function ManualBlocoPassoVisual({
     <div
       style={{ marginTop: passo.galeriaTelasAposTabela?.length
         ? espacoEntreItensGaleriaPassoPx
-        : (passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
+        : (layoutEtapaGuia ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
     >
-      {passoAcademyIsolado ? (
+      {layoutEtapaGuia ? (
         <div
           className={classePassoCorpoAcademy(passo, true)}
           style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
@@ -4351,8 +4421,8 @@ function ManualBlocoPassoVisual({
     return (
       <div
         id={ancoraPassoId}
-        className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
-        style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
+        className={layoutEtapaGuia ? 'uni-player-aula__bloco-passo' : undefined}
+        style={layoutEtapaGuia ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
         {blocoInfograficoMapaPedidoAcademy}
         {passoAcademyIsolado ? (
@@ -4481,8 +4551,8 @@ function ManualBlocoPassoVisual({
     return (
       <div
         id={ancoraPassoId}
-        className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
-        style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
+        className={layoutEtapaGuia ? 'uni-player-aula__bloco-passo' : undefined}
+        style={layoutEtapaGuia ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
         {blocoInfograficoMapaPedidoAcademy}
         {blocoTexto}
@@ -4681,12 +4751,15 @@ export function ManualSecaoFluxo({
   numeroSecaoFluxo,
   modo = 'completo',
   passoNum,
+  layoutGuiaAcademy = false,
 }: {
   fluxo: DocFluxo
   numeroSecaoFluxo: number
   /** Academy: fatia intro, um passo ou rodapé em vez do fluxo inteiro em acordeão. */
   modo?: ModoSecaoFluxoAcademy
   passoNum?: number
+  /** Academy PlayerAula — ritmo SSOT (`manual-tipografia.ts`) sem ocultar H2 dos passos. */
+  layoutGuiaAcademy?: boolean
 }) {
   const prefixoPasso = fluxo.prefixoPassosVisuais
   const ancoraPassosPrefix = fluxo.ancoraPassosPrefix
@@ -4887,6 +4960,7 @@ export function ManualSecaoFluxo({
               <ManualBlocoPassoVisual
                 {...propsPasso(passo)}
                 ocultarRotuloPasso={fluxo.modoCenarios}
+                layoutGuiaAcademy={layoutGuiaAcademy}
               />
             </div>
             <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
@@ -4933,6 +5007,7 @@ export function ManualSecaoFluxo({
           {...propsPasso(passo)}
           ocultarRotuloPasso
           ocultarTituloPasso
+          layoutGuiaAcademy
         />
         <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
       </>
@@ -5318,7 +5393,9 @@ export function ManualGaleriaComparacaoIntro({
         />
       ) : null}
       {tela.paragrafoDepois ? (
-        <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
+        <div style={{ marginTop: MANUAL_ESPACO_IMAGEM_FRASE_PX, textAlign: 'left' }}>
+          <ManualParagrafo texto={tela.paragrafoDepois} marginBottom={0} />
+        </div>
       ) : null}
     </div>
     )
@@ -5808,7 +5885,7 @@ export function ManualGaleriaComparacaoIntro({
           <div
             key={chaveGaleriaComparacaoTela(tela, idxTela)}
             style={{
-              marginTop: espacoAcimaTelaGaleriaGuiaPx(tela, idxTela),
+              marginTop: espacoAcimaTelaGaleriaGuiaPx(tela, idxTela > 0 ? telas[idxTela - 1] : undefined, idxTela),
               width: '100%',
               minWidth: 0,
             }}

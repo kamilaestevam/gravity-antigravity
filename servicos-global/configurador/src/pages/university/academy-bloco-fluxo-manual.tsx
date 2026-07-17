@@ -26,6 +26,7 @@ export function AcademyBlocoFluxoManual({
           numeroSecaoFluxo={numeroSecaoFluxo}
           modo={modo}
           passoNum={passoNum}
+          layoutGuiaAcademy
         />
       </ManualSubtopicosProvider>
     </div>

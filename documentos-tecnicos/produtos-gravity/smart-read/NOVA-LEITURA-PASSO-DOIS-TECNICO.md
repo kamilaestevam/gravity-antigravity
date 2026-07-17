@@ -63,10 +63,11 @@ Corpo (grid lateral + principal):
 | Visualizar documento | Expandir card → ícone olho por tipo → blob/preview do documento identificado |
 | Tempo de leitura | Cronômetro `HH : MM : SS`; acumula em `tempo_processo_total_ms` e persiste no progresso |
 | Recursos reduzidos | `calcularSavingNovaLeituraSmartRead` — base manual − tempo de leitura; link **Base de cálculo →** abre modal metodologia (z-index acima do wizard) |
-| Tempo reduzido acumulado | Infográfico workspace (`useSavingAcumuladoWorkspaceSmartRead`); recarrega ao abrir metodologia |
-| Pipeline IA | Três etapas simuladas no client: Primeira (~6s), Segunda (~12s), Terceira (~16s) até API marcar completo |
+| Tempo reduzido acumulado | Infográfico workspace (`useSavingAcumuladoWorkspaceSmartRead` — **1 chamada** a `GET /leituras/agregado-workspace`, 100% Postgres); visível já durante a análise; rodapé «Histórico do workspace · desde DD/MM/AAAA» |
+| Pipeline (progresso honesto — TASK-000424) | 1. **Envio dos arquivos** = progresso REAL de upload (eventos XHR byte a byte); 2. **Análise dos documentos** = ESTIMATIVA calibrada pela mediana histórica do workspace (`tempo_mediano_analise_ms`, fallback 30s/arquivo), teto 95%, pill «Estimativa»; 3. **Consolidação dos resultados** = fração REAL de arquivos completos. SSOT: `calcular-progresso-etapas-analise-nova-leitura-smart-read.ts` |
+| Erro com motivo real | `LeituraSchema.mensagem_erro` carrega o `errorMessage` do DATI (leitura e arquivo); polling `FAILED` exibe o motivo traduzido pelo classificador e loga o texto bruto no console |
 | Globo | Anel SVG proporcional à média das três barras; 100% quando todas as etapas completas |
-| SLA UX | Progresso client-side completa em ~16s; testes EMT validam execução total ≤ **75s** |
+| SLA UX | Barras refletem o tempo real do DATI (~30s/arquivo); testes EMT validam execução total ≤ **75s** |
 | Voltar | Retorna ao passo 1 (arquivos preservados) |
 | Continuar | Avança para passo 3 «Conferência» quando análise finalizada (exige ao menos **um** arquivo `completo`) |
 | Cancelar | Fecha modal; persiste progresso incl. `tempo_processo_total_ms` quando aplicável |
@@ -102,7 +103,7 @@ Ambiente: `http://localhost:8000/smart_read/insights` + sidecar Smart Docs `8033
 | **05** | Tempo de leitura | Card com timer `HH : MM : SS` incrementando | `05-timer-selecao.png` / `05-timer-resultado.png` |
 | **06** | Recursos reduzidos | Card com valor numérico + link Base de cálculo | `06-recursos-selecao.png` / `06-recursos-resultado.png` |
 | **07** | Tempo acumulado | Infográfico Documentos + Saving do workspace | `07-acumulado-selecao.png` / `07-acumulado-resultado.png` |
-| **08** | Três análises | Primeira, Segunda e Terceira com pill «Completo» | `08-analises-selecao.png` / `08-analises-resultado.png` |
+| **08** | Pipeline honesto | Envio, Análise e Consolidação com pill «Completo» ao concluir; durante a análise, barra do motor exibe pill «Estimativa» | `08-analises-selecao.png` / `08-analises-resultado.png` |
 | **09** | Globo 100% | Três barras em 100%; anel do cérebro fechado | `09-globo-selecao.png` / `09-globo-resultado.png` |
 | **10** | SLA 75 segundos | Fluxo completo do passo 2 em ≤ 75s | `10-sla-selecao.png` / `10-sla-resultado.png` |
 

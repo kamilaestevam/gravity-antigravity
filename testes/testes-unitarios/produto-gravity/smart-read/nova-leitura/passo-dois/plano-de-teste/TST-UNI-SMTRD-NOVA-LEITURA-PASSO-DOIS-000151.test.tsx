@@ -134,8 +134,8 @@ describe('TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151', () => {
     })
   })
 
-  describe('ETAPA 8 — Três análises completas (U08)', () => {
-    it('U08: pipeline marca Primeira, Segunda e Terceira análise como Completo', () => {
+  describe('ETAPA 8 — Pipeline honesto (U08)', () => {
+    it('U08: pipeline marca Envio, Análise e Consolidação como Completo ao concluir', () => {
       render(
         <DashboardAnaliseNovaLeituraSmartRead
           arquivos={[criarArquivoLocalCompletoPassoDois()]}
@@ -145,23 +145,33 @@ describe('TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151', () => {
         />,
       )
       expect(screen.getAllByText('Completo')).toHaveLength(3)
-      expect(screen.getByText('Primeira análise')).toBeInTheDocument()
-      expect(screen.getByText('Segunda análise')).toBeInTheDocument()
-      expect(screen.getByText('Terceira análise')).toBeInTheDocument()
+      expect(screen.getByText('Envio dos arquivos')).toBeInTheDocument()
+      expect(screen.getByText('Análise dos documentos')).toBeInTheDocument()
+      expect(screen.getByText('Consolidação dos resultados')).toBeInTheDocument()
     })
 
-    it('U08b: em 18s sem análise completa não exibe pill Completo', () => {
+    it('U08b: durante a análise, só o envio real conclui e a barra do motor é rotulada Estimativa', () => {
       render(
         <DashboardAnaliseNovaLeituraSmartRead
-          arquivos={[criarArquivoLocalAnalisandoPassoDois()]}
+          arquivos={[
+            {
+              ...criarArquivoLocalAnalisandoPassoDois(),
+              progresso_envio: 100,
+              inicio_analise_ms: Date.now() - 18_000,
+            },
+          ]}
           analiseCompleta={false}
           processamentoComErro={false}
           inicioAnalise={Date.now() - 18_000}
           tempoAnaliseSegundos={18}
         />,
       )
-      expect(screen.queryByText('Completo')).not.toBeInTheDocument()
-      expect(screen.queryByText('100%')).not.toBeInTheDocument()
+      // Envio (bytes entregues) é conclusão real — único pill Completo permitido.
+      expect(screen.getAllByText('Completo')).toHaveLength(1)
+      // Barra do motor DATI é estimativa calibrada e se declara como tal.
+      expect(screen.getByText('Estimativa')).toBeInTheDocument()
+      // Consolidação ainda não concluiu — análise incompleta não exibe três 100%.
+      expect(screen.getAllByText('100%')).toHaveLength(1)
     })
   })
 

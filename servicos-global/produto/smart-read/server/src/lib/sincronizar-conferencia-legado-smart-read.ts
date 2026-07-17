@@ -9,7 +9,10 @@ import type { Leitura } from '../schemas/leitura-smart-read.js'
 import type { ItemFinalResultLegadoSchema } from '../schemas/exportacao-leitura-smart-read.js'
 import type { z } from 'zod'
 import { obterLeituraLegado, atualizarResultadoArquivoLegado } from './cliente-legado-smart-read.js'
-import { montarFinalResultArquivoParaLegado } from './montar-final-result-legado-smart-read.js'
+import {
+  montarFinalResultArquivoParaLegado,
+  garantirFileTypeLegado,
+} from './montar-final-result-legado-smart-read.js'
 
 type ItemFinalResultLegado = z.infer<typeof ItemFinalResultLegadoSchema>
 
@@ -22,7 +25,7 @@ type ItemExtracaoLegado = {
 function montarFinalResultFallbackLegado(itensLegado: ItemExtracaoLegado[]): ItemFinalResultLegado[] {
   return itensLegado.map((item, indice) => ({
     id: item.id ?? indice + 1,
-    fileType: item.fileType,
+    fileType: garantirFileTypeLegado([item.fileType], indice),
     data: item.data ?? {},
   }))
 }

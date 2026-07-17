@@ -34,6 +34,17 @@ function resolverItemLegadoPareado(
   return undefined
 }
 
+export function garantirFileTypeLegado(
+  candidatos: Array<string | null | undefined>,
+  indice: number,
+): string {
+  for (const candidato of candidatos) {
+    const tipo = candidato?.trim()
+    if (tipo) return tipo
+  }
+  return `Documento ${indice + 1}`
+}
+
 export function montarFinalResultArquivoParaLegado(params: {
   itensLegado: ItemExtracaoLegado[]
   arquivoGravity: Leitura['arquivos'][number]
@@ -43,7 +54,7 @@ export function montarFinalResultArquivoParaLegado(params: {
   if (extracaoGravity.length === 0) {
     return itensLegado.map((item, indice) => ({
       id: item.id ?? indice + 1,
-      fileType: item.fileType,
+      fileType: garantirFileTypeLegado([item.fileType], indice),
       data: item.data ?? {},
     }))
   }
@@ -55,7 +66,7 @@ export function montarFinalResultArquivoParaLegado(params: {
     const referencia = itemLegado ?? baseLegado[indice]
     return {
       id: referencia?.id ?? indice + 1,
-      fileType: itemGravity.tipo_documento ?? referencia?.fileType ?? undefined,
+      fileType: garantirFileTypeLegado([itemGravity.tipo_documento, referencia?.fileType], indice),
       data: itemGravity.dados,
     }
   })

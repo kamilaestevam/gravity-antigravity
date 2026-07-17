@@ -1980,6 +1980,44 @@
   flex-shrink: 0;
 }
 
+.sr-wizard-metricas--resultado {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.sr-wizard-metrica-card--performance-resultado {
+  min-width: 0;
+}
+
+.sr-res-perf-grid .tg-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sr-res-perf-grid .tg-trigger .sr-res-perf-bloco {
+  height: 100%;
+  cursor: help;
+}
+
+.tg-card .cg-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.tg-card .cg-tooltip__row span {
+  flex: 1;
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.75rem;
+}
+
+.tg-card .cg-tooltip__row strong {
+  font-weight: 700;
+  color: var(--ws-text, #f1f5f9);
+  font-size: 0.8125rem;
+}
+
 .sr-wizard-resultado-layout > .sr-wizard-resultado-painel {
   flex: 1;
   min-height: 0;

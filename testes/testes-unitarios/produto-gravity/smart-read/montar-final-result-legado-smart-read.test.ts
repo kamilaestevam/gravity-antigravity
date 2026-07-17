@@ -47,4 +47,24 @@ describe('montarFinalResultArquivoParaLegado', () => {
       }),
     ).toBe(true)
   })
+
+  it('preenche fileType quando tipo_documento e legado estao vazios', () => {
+    const finalResult = montarFinalResultArquivoParaLegado({
+      itensLegado: [{ id: 1, data: { foo: 'bar' } }],
+      arquivoGravity: {
+        id_arquivo: 'arq-1',
+        nome_arquivo: 'invoice.pdf',
+        status_arquivo: 'COMPLETED',
+        resultado_extracao: [
+          {
+            tipo_documento: null,
+            dados: { foo: 'bar' },
+            dados_original: { foo: 'baz' },
+          },
+        ],
+      },
+    })
+
+    expect(finalResult[0]?.fileType).toBe('Documento 1')
+  })
 })

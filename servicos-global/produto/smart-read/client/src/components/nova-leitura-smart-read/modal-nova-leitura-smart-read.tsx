@@ -308,6 +308,7 @@ export function ModalNovaLeituraSmartRead({
     payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead
     manterWizard: boolean
   } | null>(null)
+  const controladorEnvioRef = useRef<AbortController | null>(null)
 
   const resolverTempoProcessoTotalMsAtual = useCallback((): number => {
     return tempoPersistidoMsRef.current + (Date.now() - inicioSessaoRef.current)
@@ -317,6 +318,7 @@ export function ModalNovaLeituraSmartRead({
     ativo.current = true
     return () => {
       ativo.current = false
+      controladorEnvioRef.current?.abort()
       if (salvarProgressoEdicaoTimeoutRef.current) {
         clearTimeout(salvarProgressoEdicaoTimeoutRef.current)
       }
@@ -483,6 +485,10 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
       idLeituraRetomarAnteriorRef.current = null
+      // Aborta uploads pendentes: um POST abandonado (30-90s no DATI real)
+      // seguraria a conexão e entalaria o envio da próxima tentativa.
+      controladorEnvioRef.current?.abort()
+      controladorEnvioRef.current = null
     }
     abertoAnteriorRef.current = aberto
   }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura, passo])
@@ -986,15 +992,26 @@ export function ModalNovaLeituraSmartRead({
 
     setPasso(2)
 
+    controladorEnvioRef.current?.abort()
+    const controlador = new AbortController()
+    controladorEnvioRef.current = controlador
 
-
-    const pendencias = arquivos.map(async (item) => {
-
+    for (const item of arquivos) {
       atualizarArquivo(item.id_arquivo_local, { status_arquivo_local: 'enviando' })
+    }
+
+    // POSTs em SÉRIE, polling em paralelo: o upload real via DATI leva 30-90s e
+    // dois multipart simultâneos no mesmo destino podem entalar o proxy
+    // (reproduzido no proxy do Vite em dev: o segundo POST nunca responde).
+    const pollings: Promise<void>[] = []
+
+    for (const item of arquivos) {
+
+      if (controlador.signal.aborted) break
 
       try {
 
-        const criada = await smartReadApi.enviarLeitura(item.arquivo)
+        const criada = await smartReadApi.enviarLeitura(item.arquivo, { signal: controlador.signal })
 
         atualizarArquivo(item.id_arquivo_local, {
           status_arquivo_local: 'analisando',
@@ -1012,9 +1029,18 @@ export function ModalNovaLeituraSmartRead({
           )
         }
 
-        await pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
+        pollings.push(
+          pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo).catch((excecao) => {
+            atualizarArquivo(item.id_arquivo_local, {
+              status_arquivo_local: 'erro',
+              mensagem_erro: mensagemDeExcecao(excecao, 'Falha ao enviar arquivo'),
+            })
+          }),
+        )
 
       } catch (excecao) {
+
+        if (controlador.signal.aborted) break
 
         atualizarArquivo(item.id_arquivo_local, {
 
@@ -1026,11 +1052,11 @@ export function ModalNovaLeituraSmartRead({
 
       }
 
-    })
+    }
 
 
 
-    await Promise.all(pendencias)
+    await Promise.all(pollings)
 
     if (!ativo.current) return
 

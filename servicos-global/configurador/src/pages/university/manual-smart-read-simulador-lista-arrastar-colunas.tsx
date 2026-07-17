@@ -1,4 +1,5 @@
 import { ListaSimuladorPedido } from '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/lista-simulador-pedido'
+import { ConfigSimuladorPedidoProvider } from '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/estado-config-simulador-pedido'
 import '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/lista-simulador-pedido.css'
 import '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/pedido/pedido-simulator.css'
 import { PERFIS_EMPRESA_SIMULADOR } from '../../../../../nucleo-global/Telas-manual-marketing/produtos-gravity/smart-doc/dados-cliente-maduro-simulador-smart-doc'
@@ -21,10 +22,12 @@ export function ManualSmartReadSimuladorListaArrastarColunas({
         id="sim-smart-read-lista-arrastar-colunas"
         className="uni-player-aula__figura sim-smart-read-lista-arrastar-demo"
       >
-        <ListaSimuladorPedido
-          empresasSelecionadas={EMPRESAS_DEMO_LISTA_ARRASTAR}
-          modoDemonstracaoArrastarColunas
-        />
+        <ConfigSimuladorPedidoProvider>
+          <ListaSimuladorPedido
+            empresasSelecionadas={EMPRESAS_DEMO_LISTA_ARRASTAR}
+            modoDemonstracaoArrastarColunas
+          />
+        </ConfigSimuladorPedidoProvider>
       </div>
     </div>
   )

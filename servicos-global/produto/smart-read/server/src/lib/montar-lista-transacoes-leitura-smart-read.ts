@@ -17,6 +17,7 @@ import {
 } from './snapshot-leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
 import { normalizarLeitura, type OrigemLeitura, type TransacaoLeitura } from '../schemas/leitura-smart-read.js'
+import { transacaoLeituraEhOrfaSmartRead } from '../../../shared/transacao-leitura-orfa-smart-read.js'
 
 export type ParametrosListaLeituras = {
   companyId: string
@@ -220,6 +221,7 @@ export async function montarListaTransacoesLeituraSmartRead(
   )
   transacoes = filtrarPorTermo(transacoes, params.termo_busca)
   transacoes = filtrarPorOrigem(transacoes, params.origem_leitura)
+  transacoes = transacoes.filter((item) => !transacaoLeituraEhOrfaSmartRead(item))
 
   const totalFiltrado = transacoes.length
   const total =

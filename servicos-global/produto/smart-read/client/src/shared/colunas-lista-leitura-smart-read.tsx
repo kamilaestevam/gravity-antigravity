@@ -406,6 +406,11 @@ export function formatarValorExportColunaLeituraSmartRead(
     case 'saving_total_brl':
       return formatarSavingValorLeitura(item.saving_total_brl)
     default:
+      if (key.startsWith('custom-')) {
+        const valores = (item as Record<string, unknown>)._colunas_personalizadas as
+          Record<string, string> | undefined
+        return valores?.[key]?.trim() ?? ''
+      }
       return ''
   }
 }

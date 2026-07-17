@@ -3186,8 +3186,8 @@ body.light-theme .cw-xml-viewer {
   box-sizing: border-box;
 }
 
-/* Passo Academy após passo anterior (H2 fantasma do sumário entre os dois). */
-.uni-ritmo-r3 > .uni-player-aula__bloco--visual + .uni-player-aula__bloco--subtitulo + .uni-player-aula__bloco--visual {
+/* Passo Academy após passo anterior — só quando o H2 intermediário é visível no corpo. */
+.uni-ritmo-r3 > .uni-player-aula__bloco--visual + .uni-player-aula__bloco--subtitulo:not(.uni-player-aula__bloco--subtitulo-fantasma) + .uni-player-aula__bloco--visual {
   margin-top: 32px;
 }
 

@@ -3,58 +3,80 @@
  *
  * Paridade de layout 1:1 com a Configurações do Pedido (modelo oficial):
  *  ├── Tabs de visualização (Insights | Lista) no topo
- *  ├── Sidebar com grupo VISUALIZAÇÕES (Card, Visão Geral, Tabelas, Colunas)
+ *  ├── Sidebar com grupo VISUALIZAÇÕES (Card, Tabelas, Colunas)
  *  └── Conteúdo exibe SOMENTE a categoria ativa, com:
- *       • Card        → período de comparação + preview + ATIVOS + DISPONÍVEIS
- *       • Visão Geral → gráficos exibidos (toggle)
- *       • Tabelas     → linhas por página, densidade, status visíveis
- *       • Colunas     → colunas exibidas + ordem (drag)
+ *       • Card    → período de comparação + preview + ATIVOS + DISPONÍVEIS
+ *       • Tabelas → linhas por página, densidade + footer Salvar
+ *       • Colunas → colunas exibidas + ordem (drag) + modal Nova Coluna + footer Salvar
  *
- * Todas as abas persistem em localStorage com estado pending vs baseline e
- * footer Salvar / Restaurar padrão (paridade Pedido):
- *  • Card → use-preferencias-cards-smart-read
- *  • Visão Geral / Tabelas / Colunas → use-preferencias-visualizacao-smart-read
+ * Persistência em localStorage até API de preferências por workspace (Onda 3).
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import {
-  SquaresFour, ChartPieSlice, Table, Columns,
+  SquaresFour, Table, Columns,
+  FileText, CheckCircle, ArrowsClockwise, Warning, Gauge, ListBullets, Files,
   Plus, Eye, EyeSlash, DotsSixVertical, X, PencilSimple, Trash,
-  ChartLineUp, ChartDonut, Timer, ChartBar, ChartPie, Files, CurrencyDollar, UsersThree,
   type Icon,
 } from '@phosphor-icons/react'
+import { useShellStore } from '@gravity/shell'
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
-import { useShellStore } from '@gravity/shell'
-import {
-  CARDS_CATALOGO_SMART_READ,
-  PREFERENCIAS_CARDS_PADRAO_SMART_READ,
-  usePreferenciasCardsSmartRead,
-  type CardPreferenciaSmartRead,
-} from '../../shared/use-preferencias-cards-smart-read'
-import {
-  GRAFICOS_CATALOGO_INSIGHTS_SMART_READ,
-  LINHAS_PAGINA_OPCOES_SMART_READ,
-  PREFERENCIAS_VISUALIZACAO_PADRAO_SMART_READ,
-  gerarIdColunaPersonalizadaSmartRead,
-  usePreferenciasVisualizacaoSmartRead,
-  type ColunaPersonalizadaSmartRead,
-  type DensidadeTabelaSmartRead,
-  type LinhasPaginaSmartRead,
-} from '../../shared/use-preferencias-visualizacao-smart-read'
 import { SmartReadVisualizacaoTabs } from '../../components/SmartReadVisualizacaoTabs'
+import {
+  ModalNovaColunaSmartRead,
+  rotuloTipoColunaSmartRead,
+  type ColunaPersonalizadaSmartRead,
+  type TipoColunaSmartRead,
+  type VisibilidadeColunaSmartRead,
+} from '../../components/ModalNovaColunaSmartRead'
+import {
+  filtrarColunasPersonalizadasVisiveis,
+  resolverRolesPermitidasNovaColunaSmartRead,
+  rotuloVisibilidadeColunaSmartRead,
+} from '../../shared/filtro-visibilidade-colunas-personalizadas-smart-read'
+import {
+  CARDS_PADRAO_CONFIG_SMART_READ,
+  PERIODO_PADRAO_CONFIG_SMART_READ,
+  TABELA_PADRAO_CONFIG_SMART_READ,
+  carregarConfiguracoesSmartRead,
+  montarSnapshotConfiguracoesSmartRead,
+  salvarConfiguracoesSmartRead,
+  type TabelaConfigSmartRead,
+} from '../../shared/persistencia-configuracoes-smart-read'
 import '../../components/SmartReadVisualizacaoTabs.css'
 import './configuracoes-smart-read.css'
 
-type CategoriaId = 'card' | 'visao-geral' | 'tabelas' | 'colunas'
+type CategoriaId = 'card' | 'tabelas' | 'colunas'
 
-// ─── Metadados visuais dos 3 cards reais (catálogo em use-preferencias-cards) ───
-const CARD_UI_META: Record<string, { icone: Icon; cor: string }> = {
-  leituras_realizadas: { icone: ChartLineUp, cor: '#818cf8' },
-  performance_acertos: { icone: ChartDonut, cor: '#34d399' },
-  recursos_reduzidos:  { icone: Timer,      cor: '#34d399' },
+type TabelaConfig = TabelaConfigSmartRead
+
+const TABELA_PADRAO: TabelaConfig = TABELA_PADRAO_CONFIG_SMART_READ
+
+// ─── Catálogo de cards de leitura ─────────────────────────────────────────────
+interface CardDef {
+  id: string
+  nome: string
+  icone: Icon
+  cor: string
+  origem: 'Leitura' | 'Documento'
+  agg: 'Contagem' | 'Taxa'
 }
+
+const CARDS_CATALOGO: CardDef[] = [
+  { id: 'total_leituras',   nome: 'Total de Leituras',   icone: FileText,        cor: '#818cf8', origem: 'Leitura',   agg: 'Contagem' },
+  { id: 'concluidas',       nome: 'Concluídas',          icone: CheckCircle,     cor: '#34d399', origem: 'Leitura',   agg: 'Contagem' },
+  { id: 'processando',      nome: 'Em Processamento',    icone: ArrowsClockwise, cor: '#60a5fa', origem: 'Leitura',   agg: 'Contagem' },
+  { id: 'falhas',           nome: 'Falhas',              icone: Warning,         cor: '#f87171', origem: 'Leitura',   agg: 'Contagem' },
+  { id: 'taxa_sucesso',     nome: 'Taxa de Sucesso',     icone: Gauge,           cor: '#34d399', origem: 'Leitura',   agg: 'Taxa' },
+  { id: 'campos_extraidos', nome: 'Campos Extraídos',    icone: ListBullets,     cor: '#fbbf24', origem: 'Leitura',   agg: 'Contagem' },
+  { id: 'documentos',       nome: 'Documentos',          icone: Files,           cor: '#a78bfa', origem: 'Documento', agg: 'Contagem' },
+]
+
+const ATIVOS_PADRAO: CardPref[] = CARDS_PADRAO_CONFIG_SMART_READ.map((c) => ({ ...c }))
+
+interface CardPref { id: string; visible: boolean }
 
 const PERIODOS = [
   { id: '7d',   label: '7 dias' },
@@ -64,147 +86,212 @@ const PERIODOS = [
   { id: 'tudo', label: 'Tudo' },
 ]
 
-// ─── Metadados visuais dos gráficos do Insights (catálogo em use-preferencias) ─
-const GRAFICO_UI_META: Record<string, { icone: Icon; cor: string }> = {
-  evolucao_diaria:      { icone: ChartBar,       cor: '#3b82f6' },
-  campos_acertos:       { icone: ChartPie,       cor: '#34d399' },
-  tipos_documento:      { icone: Files,          cor: '#818cf8' },
-  economia_estimada:    { icone: CurrencyDollar, cor: '#f59e0b' },
-  rankings_fornecedor:  { icone: UsersThree,     cor: '#f59e0b' },
-}
+const PERIODO_PADRAO = PERIODO_PADRAO_CONFIG_SMART_READ
 
-const DENSIDADE_OPCOES: { id: DensidadeTabelaSmartRead; label: string }[] = [
-  { id: 'compacto', label: 'Compacto' },
-  { id: 'confortavel', label: 'Confortável' },
-]
+const LINHAS_OPCOES = ['10', '25', '50', '100']
+const DENSIDADE_OPCOES = [{ id: 'compacto', label: 'Compacto' }, { id: 'confortavel', label: 'Confortável' }]
 
 const SIDEBAR: { id: CategoriaId; label: string; icone: Icon }[] = [
-  { id: 'card',        label: 'Card',        icone: SquaresFour },
-  { id: 'visao-geral', label: 'Visão Geral', icone: ChartPieSlice },
-  { id: 'tabelas',     label: 'Tabelas',     icone: Table },
-  { id: 'colunas',     label: 'Colunas',     icone: Columns },
+  { id: 'card',    label: 'Card',    icone: SquaresFour },
+  { id: 'tabelas', label: 'Tabelas', icone: Table },
+  { id: 'colunas', label: 'Colunas', icone: Columns },
 ]
 
-export default function ConfiguracoesSmartRead() {
-  const [categoria, setCategoria] = useState<CategoriaId>('card')
-  const addNotification = useShellStore((s) => s.addNotification)
+function colunasPersonalizadasEquivalentes(
+  a: ColunaPersonalizadaSmartRead,
+  b: ColunaPersonalizadaSmartRead,
+): boolean {
+  return (
+    a.id === b.id
+    && a.visible === b.visible
+    && a.nome === b.nome
+    && a.tipo === b.tipo
+    && (a.descricao ?? '') === (b.descricao ?? '')
+    && (a.visibilidade ?? 'todos') === (b.visibilidade ?? 'todos')
+    && (a.obrigatorio ?? false) === (b.obrigatorio ?? false)
+    && (a.id_usuario_criador ?? '') === (b.id_usuario_criador ?? '')
+    && JSON.stringify(a.roles_permitidas ?? []) === JSON.stringify(b.roles_permitidas ?? [])
+    && JSON.stringify(a.opcoes ?? []) === JSON.stringify(b.opcoes ?? [])
+  )
+}
 
-  const { prefs: prefsSalvas, persistir } = usePreferenciasCardsSmartRead()
-  const [pendingCardsPrefs, setPendingCardsPrefs] = useState<CardPreferenciaSmartRead[]>(prefsSalvas.cards)
-  const [pendingPeriodoCards, setPendingPeriodoCards] = useState(prefsSalvas.periodo)
-  const [cardsPrefsBaseline, setCardsPrefsBaseline] = useState<CardPreferenciaSmartRead[]>(prefsSalvas.cards)
-  const [periodoCardsBaseline, setPeriodoCardsBaseline] = useState(prefsSalvas.periodo)
+export default function ConfiguracoesSmartRead() {
+  const addNotification = useShellStore((s) => s.addNotification)
+  const idUsuario = useShellStore((s) => s.currentUser.id ?? '')
+  const tipoUsuario = useShellStore((s) => s.currentUser.tipoUsuario)
+  const configInicial = useMemo(() => carregarConfiguracoesSmartRead(), [])
+  const [categoria, setCategoria] = useState<CategoriaId>('card')
+
+  // Card — pending vs salvo (paridade Pedido › Cards)
+  const [periodo, setPeriodo] = useState(configInicial.periodo)
+  const [periodoSalvo, setPeriodoSalvo] = useState(configInicial.periodo)
+  const [cards, setCards] = useState<CardPref[]>(configInicial.cards)
+  const [cardsSalvos, setCardsSalvos] = useState<CardPref[]>(configInicial.cards)
   const [arrastandoCard, setArrastandoCard] = useState<string | null>(null)
 
-  useEffect(() => {
-    setPendingCardsPrefs(prefsSalvas.cards)
-    setCardsPrefsBaseline(prefsSalvas.cards)
-    setPendingPeriodoCards(prefsSalvas.periodo)
-    setPeriodoCardsBaseline(prefsSalvas.periodo)
-  }, [prefsSalvas])
+  const cardsDirty =
+    JSON.stringify(cards) !== JSON.stringify(cardsSalvos) || periodo !== periodoSalvo
 
-  const cardsConfigDirty =
-    JSON.stringify(pendingCardsPrefs) !== JSON.stringify(cardsPrefsBaseline)
-    || pendingPeriodoCards !== periodoCardsBaseline
+  // Tabelas — pending vs salvo (paridade Pedido › Tabela)
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>(configInicial.tabela)
+  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfig>(configInicial.tabela)
+  const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
 
-  const salvarCardsConfig = useCallback(() => {
-    persistir({ cards: pendingCardsPrefs, periodo: pendingPeriodoCards })
-    setCardsPrefsBaseline(pendingCardsPrefs)
-    setPeriodoCardsBaseline(pendingPeriodoCards)
-    addNotification({ type: 'success', message: 'Preferências de cards salvas.' })
-  }, [pendingCardsPrefs, pendingPeriodoCards, persistir, addNotification])
-
-  const restaurarCardsPadrao = useCallback(() => {
-    setPendingCardsPrefs(PREFERENCIAS_CARDS_PADRAO_SMART_READ.cards)
-    setPendingPeriodoCards(PREFERENCIAS_CARDS_PADRAO_SMART_READ.periodo)
-  }, [])
-
-  // ── Visão Geral / Tabelas / Colunas — persistidas em localStorage ───────────
-  const { prefs: visualizacaoSalva, persistirParcial } = usePreferenciasVisualizacaoSmartRead()
-
-  // Visão Geral (gráficos do Insights)
-  const [pendingGraficosOcultos, setPendingGraficosOcultos] = useState<string[]>(visualizacaoSalva.graficos_ocultos)
-  const [graficosOcultosBaseline, setGraficosOcultosBaseline] = useState<string[]>(visualizacaoSalva.graficos_ocultos)
-
-  // Tabelas (lista de leituras)
-  const [pendingLinhasPagina, setPendingLinhasPagina] = useState<LinhasPaginaSmartRead>(visualizacaoSalva.linhas_pagina)
-  const [pendingDensidade, setPendingDensidade] = useState<DensidadeTabelaSmartRead>(visualizacaoSalva.densidade)
-  const [tabelasBaseline, setTabelasBaseline] = useState({
-    linhas: visualizacaoSalva.linhas_pagina,
-    densidade: visualizacaoSalva.densidade,
-  })
-
-  // Colunas Personalizadas (lista de leituras)
-  const [pendingColunas, setPendingColunas] = useState<ColunaPersonalizadaSmartRead[]>(visualizacaoSalva.colunas_personalizadas)
-  const [colunasBaseline, setColunasBaseline] = useState<ColunaPersonalizadaSmartRead[]>(visualizacaoSalva.colunas_personalizadas)
+  // Colunas Personalizadas — pending vs salvo + modal (paridade Pedido › Personalizadas)
+  const [pendingColunas, setPendingColunas] = useState<ColunaPersonalizadaSmartRead[]>(configInicial.colunas)
+  const [colunasSalvas, setColunasSalvas] = useState<ColunaPersonalizadaSmartRead[]>(configInicial.colunas)
   const [arrastandoColuna, setArrastandoColuna] = useState<string | null>(null)
-  const [editandoColunaId, setEditandoColunaId] = useState<string | null>(null)
+  const [criandoColuna, setCriandoColuna] = useState(false)
+  const [editandoColuna, setEditandoColuna] = useState<ColunaPersonalizadaSmartRead | null>(null)
+  const seqColuna = useRef(configInicial.seqColuna)
 
-  useEffect(() => {
-    setPendingGraficosOcultos(visualizacaoSalva.graficos_ocultos)
-    setGraficosOcultosBaseline(visualizacaoSalva.graficos_ocultos)
-    setPendingLinhasPagina(visualizacaoSalva.linhas_pagina)
-    setPendingDensidade(visualizacaoSalva.densidade)
-    setTabelasBaseline({ linhas: visualizacaoSalva.linhas_pagina, densidade: visualizacaoSalva.densidade })
-    setPendingColunas(visualizacaoSalva.colunas_personalizadas)
-    setColunasBaseline(visualizacaoSalva.colunas_personalizadas)
-  }, [visualizacaoSalva])
+  const gravarSnapshot = useCallback((params: {
+    periodoAtual?: string
+    cardsAtuais?: CardPref[]
+    tabelaAtual?: TabelaConfig
+    colunasAtuais?: ColunaPersonalizadaSmartRead[]
+  }) => {
+    salvarConfiguracoesSmartRead(
+      montarSnapshotConfiguracoesSmartRead({
+        periodo: params.periodoAtual ?? periodo,
+        cards: params.cardsAtuais ?? cards,
+        tabela: params.tabelaAtual ?? tabelaConfig,
+        colunas: params.colunasAtuais ?? pendingColunas,
+        seqColuna: seqColuna.current,
+      }),
+    )
+  }, [periodo, cards, tabelaConfig, pendingColunas])
 
-  // Visão Geral — dirty / salvar / restaurar
-  const graficosDirty =
-    JSON.stringify([...pendingGraficosOcultos].sort()) !== JSON.stringify([...graficosOcultosBaseline].sort())
+  const colunasDirty = useMemo(() => {
+    if (pendingColunas.length !== colunasSalvas.length) return true
+    return pendingColunas.some((col, i) => {
+      const orig = colunasSalvas[i]
+      return !orig || !colunasPersonalizadasEquivalentes(col, orig)
+    })
+  }, [pendingColunas, colunasSalvas])
 
-  const salvarVisaoGeral = useCallback(() => {
-    persistirParcial({ graficos_ocultos: pendingGraficosOcultos })
-    setGraficosOcultosBaseline(pendingGraficosOcultos)
-    addNotification({ type: 'success', message: 'Preferências da Visão Geral salvas.' })
-  }, [pendingGraficosOcultos, persistirParcial, addNotification])
+  const colunasVisiveisConfig = useMemo(
+    () => filtrarColunasPersonalizadasVisiveis(pendingColunas, {
+      id_usuario: idUsuario,
+      tipo_usuario: tipoUsuario,
+    }),
+    [pendingColunas, idUsuario, tipoUsuario],
+  )
 
-  const restaurarVisaoGeralPadrao = useCallback(() => {
-    setPendingGraficosOcultos(PREFERENCIAS_VISUALIZACAO_PADRAO_SMART_READ.graficos_ocultos)
-  }, [])
-
-  // Tabelas — dirty / salvar / restaurar
-  const tabelasDirty =
-    pendingLinhasPagina !== tabelasBaseline.linhas || pendingDensidade !== tabelasBaseline.densidade
-
-  const salvarTabelas = useCallback(() => {
-    persistirParcial({ linhas_pagina: pendingLinhasPagina, densidade: pendingDensidade })
-    setTabelasBaseline({ linhas: pendingLinhasPagina, densidade: pendingDensidade })
+  function salvarTabelaConfig() {
+    setTabelaConfigSalva({ ...tabelaConfig })
+    gravarSnapshot({ tabelaAtual: tabelaConfig })
     addNotification({ type: 'success', message: 'Preferências de tabela salvas.' })
-  }, [pendingLinhasPagina, pendingDensidade, persistirParcial, addNotification])
-
-  const restaurarTabelasPadrao = useCallback(() => {
-    setPendingLinhasPagina(PREFERENCIAS_VISUALIZACAO_PADRAO_SMART_READ.linhas_pagina)
-    setPendingDensidade(PREFERENCIAS_VISUALIZACAO_PADRAO_SMART_READ.densidade)
-  }, [])
-
-  // Colunas — dirty / salvar / restaurar
-  const colunasDirty = JSON.stringify(pendingColunas) !== JSON.stringify(colunasBaseline)
-
-  const salvarColunas = useCallback(() => {
-    persistirParcial({ colunas_personalizadas: pendingColunas })
-    setColunasBaseline(pendingColunas)
-    setEditandoColunaId(null)
-    addNotification({ type: 'success', message: 'Colunas personalizadas salvas.' })
-  }, [pendingColunas, persistirParcial, addNotification])
-
-  const restaurarColunasPadrao = useCallback(() => {
-    setPendingColunas(PREFERENCIAS_VISUALIZACAO_PADRAO_SMART_READ.colunas_personalizadas)
-    setEditandoColunaId(null)
-  }, [])
-
-  function criarColuna() {
-    const id = gerarIdColunaPersonalizadaSmartRead()
-    setPendingColunas((prev) => [...prev, { id, nome: 'Nova coluna', visible: true }])
-    setEditandoColunaId(id)
   }
 
-  const periodoLabel = PERIODOS.find((p) => p.id === pendingPeriodoCards)?.label ?? pendingPeriodoCards
+  function restaurarTabelaConfig() {
+    setTabelaConfig({ ...TABELA_PADRAO })
+  }
+
+  function salvarCardsConfig() {
+    setCardsSalvos([...cards])
+    setPeriodoSalvo(periodo)
+    gravarSnapshot({ periodoAtual: periodo, cardsAtuais: cards })
+    addNotification({ type: 'success', message: 'Preferências de cards salvas.' })
+  }
+
+  function restaurarCardsPadrao() {
+    setCards(ATIVOS_PADRAO.map((c) => ({ ...c })))
+    setPeriodo(PERIODO_PADRAO)
+  }
+
+  function handleColunaCriadaViaModal(dados: {
+    nome: string
+    tipo: TipoColunaSmartRead
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartRead
+    obrigatorio: boolean
+    opcoes?: string[]
+  }) {
+    const id = `custom-${seqColuna.current++}`
+    const rolesPermitidas = resolverRolesPermitidasNovaColunaSmartRead({
+      visibilidade: dados.visibilidade,
+      tipo_usuario: tipoUsuario,
+    })
+    const nova: ColunaPersonalizadaSmartRead = {
+      id,
+      nome: dados.nome,
+      tipo: dados.tipo,
+      visible: true,
+      visibilidade: dados.visibilidade,
+      obrigatorio: dados.obrigatorio,
+      ...(dados.visibilidade === 'privado' && idUsuario
+        ? { id_usuario_criador: idUsuario }
+        : {}),
+      ...(dados.visibilidade === 'roles' && rolesPermitidas?.length
+        ? { roles_permitidas: rolesPermitidas }
+        : {}),
+      ...(dados.opcoes?.length ? { opcoes: [...dados.opcoes] } : {}),
+      ...(dados.descricao ? { descricao: dados.descricao } : {}),
+    }
+    setPendingColunas((prev) => [...prev, nova])
+    setCriandoColuna(false)
+  }
+
+  function handleColunaEditadaSalva(dados: {
+    nome: string
+    tipo: TipoColunaSmartRead
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartRead
+    obrigatorio: boolean
+    opcoes?: string[]
+  }) {
+    if (!editandoColuna) return
+    const rolesPermitidas = resolverRolesPermitidasNovaColunaSmartRead({
+      visibilidade: dados.visibilidade,
+      tipo_usuario: tipoUsuario,
+      rolesExistentes: editandoColuna.roles_permitidas,
+    })
+    const tipoFinal = editandoColuna.tipo
+    setPendingColunas((prev) =>
+      prev.map((c) =>
+        c.id === editandoColuna.id
+          ? {
+              ...c,
+              nome: dados.nome,
+              visibilidade: dados.visibilidade,
+              obrigatorio: dados.obrigatorio,
+              ...(dados.visibilidade === 'privado'
+                ? { id_usuario_criador: c.id_usuario_criador ?? idUsuario }
+                : { id_usuario_criador: undefined }),
+              ...(dados.visibilidade === 'roles' && rolesPermitidas?.length
+                ? { roles_permitidas: rolesPermitidas }
+                : { roles_permitidas: undefined }),
+              ...((tipoFinal === 'select' || editandoColuna.tipo === 'tipo_documento') && dados.opcoes?.length
+                ? { opcoes: [...dados.opcoes] }
+                : { opcoes: undefined }),
+              ...(dados.descricao ? { descricao: dados.descricao } : { descricao: undefined }),
+            }
+          : c,
+      ),
+    )
+    setEditandoColuna(null)
+  }
+
+  function salvarColunas() {
+    setColunasSalvas([...pendingColunas])
+    gravarSnapshot({ colunasAtuais: pendingColunas })
+    addNotification({ type: 'success', message: 'Colunas personalizadas salvas.' })
+  }
+
+  function cancelarOrdemColunas() {
+    setPendingColunas([...colunasSalvas])
+  }
+
+  function atualizarColunas(next: ColunaPersonalizadaSmartRead[]) {
+    setPendingColunas(next)
+  }
+
+  const periodoLabel = PERIODOS.find((p) => p.id === periodo)?.label ?? periodo
 
   const cardsDisponiveis = useMemo(
-    () => CARDS_CATALOGO_SMART_READ.filter((def) => !pendingCardsPrefs.some((c) => c.id === def.id)),
-    [pendingCardsPrefs],
+    () => CARDS_CATALOGO.filter((def) => !cards.some((c) => c.id === def.id)),
+    [cards],
   )
 
   function reordenar<T extends { id: string }>(lista: T[], arrastandoId: string, alvoId: string): T[] {
@@ -266,7 +353,7 @@ export default function ConfiguracoesSmartRead() {
                       disabled={cardsDisponiveis.length === 0}
                       onClick={() => {
                         const proximo = cardsDisponiveis[0]
-                        if (proximo) setPendingCardsPrefs((prev) => [...prev, { id: proximo.id, visible: true }])
+                        if (proximo) setCards((prev) => [...prev, { id: proximo.id, visible: true }])
                       }}
                     >
                       <Plus size={13} weight="bold" />
@@ -283,8 +370,8 @@ export default function ConfiguracoesSmartRead() {
                       <button
                         key={p.id}
                         type="button"
-                        className={`cfg-periodo-pill${pendingPeriodoCards === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                        onClick={() => setPendingPeriodoCards(p.id)}
+                        className={`cfg-periodo-pill${periodo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                        onClick={() => setPeriodo(p.id)}
                       >
                         {p.label}
                       </button>
@@ -293,29 +380,28 @@ export default function ConfiguracoesSmartRead() {
                 </div>
 
                 {/* Preview */}
-                {pendingCardsPrefs.length > 0 && (
+                {cards.length > 0 && (
                   <div className="cfg-cards-preview-wrap">
                     <p className="cfg-cards-preview-label">
                       <SquaresFour size={12} weight="fill" /> Preview — como ficará na tela
                     </p>
                     <div className="cfg-cards-preview-grid">
-                      {pendingCardsPrefs.map((pref, i) => {
-                        const def = CARDS_CATALOGO_SMART_READ.find((c) => c.id === pref.id)
-                        const meta = def ? CARD_UI_META[def.id] : undefined
-                        if (!def || !meta) return null
-                        const Icone = meta.icone
+                      {cards.map((pref, i) => {
+                        const def = CARDS_CATALOGO.find((c) => c.id === pref.id)
+                        if (!def) return null
+                        const Icone = def.icone
                         return (
                           <div
                             key={pref.id}
                             className={`cfg-kpi-preview-card${!pref.visible ? ' cfg-kpi-preview-card--oculto' : ''}`}
-                            style={{ borderTopColor: meta.cor }}
+                            style={{ borderTopColor: def.cor }}
                           >
                             <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
-                            <span className="cfg-kpi-preview-card__icon" style={{ color: meta.cor }}>
+                            <span className="cfg-kpi-preview-card__icon" style={{ color: def.cor }}>
                               <Icone weight="duotone" size={18} />
                             </span>
-                            <div className="cfg-kpi-preview-card__line" style={{ background: meta.cor }} />
-                            <p className="cfg-kpi-preview-card__label">{def.titulo}</p>
+                            <div className="cfg-kpi-preview-card__line" style={{ background: def.cor }} />
+                            <p className="cfg-kpi-preview-card__label">{def.nome}</p>
                           </div>
                         )
                       })}
@@ -324,40 +410,40 @@ export default function ConfiguracoesSmartRead() {
                 )}
 
                 {/* Ativos */}
-                <ConfiguracaoSecaoGlobal label="Ativos" count={`${pendingCardsPrefs.length} cards`} />
-                {pendingCardsPrefs.length === 0 ? (
+                <ConfiguracaoSecaoGlobal label="Ativos" count={`${cards.length} cards`} />
+                {cards.length === 0 ? (
                   <p className="cfg-empty">Nenhum card ativo. Adicione um card abaixo.</p>
                 ) : (
                   <div className="cfg-cards-lista">
-                    {pendingCardsPrefs.map((pref) => {
-                      const def = CARDS_CATALOGO_SMART_READ.find((c) => c.id === pref.id)
-                      const meta = def ? CARD_UI_META[def.id] : undefined
-                      if (!def || !meta) return null
-                      const Icone = meta.icone
+                    {cards.map((pref) => {
+                      const def = CARDS_CATALOGO.find((c) => c.id === pref.id)
+                      if (!def) return null
+                      const Icone = def.icone
                       return (
                         <div
                           key={pref.id}
                           className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}${arrastandoCard === pref.id ? ' cfg-card-row--arrastando' : ''}`}
                           draggable
                           onDragStart={() => setArrastandoCard(pref.id)}
-                          onDragEnter={() => { if (arrastandoCard) setPendingCardsPrefs((prev) => reordenar(prev, arrastandoCard, pref.id)) }}
+                          onDragEnter={() => { if (arrastandoCard) setCards((prev) => reordenar(prev, arrastandoCard, pref.id)) }}
                           onDragOver={(e) => e.preventDefault()}
                           onDragEnd={() => setArrastandoCard(null)}
                         >
                           <span className="cfg-drag-handle"><DotsSixVertical size={16} weight="bold" /></span>
                           <div className="cfg-card-row__info">
-                            <span className="cfg-card-row__icone" style={{ color: meta.cor }}>
+                            <span className="cfg-card-row__icone" style={{ color: def.cor }}>
                               <Icone weight="duotone" size={18} />
                             </span>
                             <div>
-                              <p className="cfg-card-row__nome">{def.titulo}</p>
-                              <p className="cfg-card-row__desc">{def.descricao} · {periodoLabel}</p>
+                              <p className="cfg-card-row__nome">{def.nome}</p>
+                              <p className="cfg-card-row__desc">{def.agg} · {def.origem} · {periodoLabel}</p>
                             </div>
                           </div>
+                          <span className={`cfg-origem-badge cfg-origem-badge--${def.origem.toLowerCase()}`}>{def.origem}</span>
                           <button
                             type="button"
                             className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
-                            onClick={() => setPendingCardsPrefs((prev) => prev.map((c) => (c.id === pref.id ? { ...c, visible: !c.visible } : c)))}
+                            onClick={() => setCards((prev) => prev.map((c) => (c.id === pref.id ? { ...c, visible: !c.visible } : c)))}
                             aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
                           >
                             {pref.visible ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
@@ -365,7 +451,7 @@ export default function ConfiguracoesSmartRead() {
                           <button
                             type="button"
                             className="cfg-remove-btn"
-                            onClick={() => setPendingCardsPrefs((prev) => prev.filter((c) => c.id !== pref.id))}
+                            onClick={() => setCards((prev) => prev.filter((c) => c.id !== pref.id))}
                             aria-label="Remover card"
                           >
                             <X size={13} weight="bold" />
@@ -383,25 +469,25 @@ export default function ConfiguracoesSmartRead() {
                 ) : (
                   <div className="cfg-cards-lista">
                     {cardsDisponiveis.map((def) => {
-                      const meta = CARD_UI_META[def.id]
-                      if (!meta) return null
-                      const Icone = meta.icone
+                      const Icone = def.icone
                       return (
                         <div key={def.id} className="cfg-card-row cfg-card-row--disponivel">
                           <span className="cfg-drag-handle cfg-drag-handle--ghost"><DotsSixVertical size={16} weight="bold" /></span>
                           <div className="cfg-card-row__info">
-                            <span className="cfg-card-row__icone" style={{ color: meta.cor }}>
+                            <span className="cfg-card-row__icone" style={{ color: def.cor }}>
                               <Icone weight="duotone" size={18} />
                             </span>
                             <div>
-                              <p className="cfg-card-row__nome">{def.titulo}</p>
-                              <p className="cfg-card-row__desc">{def.descricao}</p>
+                              <p className="cfg-card-row__nome">{def.nome}</p>
+                              <p className="cfg-card-row__desc">{def.agg} · {def.origem}</p>
                             </div>
                           </div>
+                          <span className={`cfg-origem-badge cfg-origem-badge--${def.origem.toLowerCase()}`}>{def.origem}</span>
+                          <span className="cfg-agg-badge">{def.agg}</span>
                           <button
                             type="button"
                             className="cfg-add-btn"
-                            onClick={() => setPendingCardsPrefs((prev) => [...prev, { id: def.id, visible: true }])}
+                            onClick={() => setCards((prev) => [...prev, { id: def.id, visible: true }])}
                             aria-label="Adicionar card"
                           >
                             <Plus size={15} weight="bold" />
@@ -414,77 +500,14 @@ export default function ConfiguracoesSmartRead() {
 
                 <div className="cfg-secao__footer">
                   <BotaoCancelar
-                    dirty={cardsConfigDirty}
+                    dirty={cardsDirty}
                     rotulo="Restaurar padrão"
                     onClick={restaurarCardsPadrao}
                   />
                   <BotaoSalvar
-                    dirty={cardsConfigDirty}
+                    dirty={cardsDirty}
                     rotulo="Salvar"
                     onClick={salvarCardsConfig}
-                  />
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* ════════════ VISÃO GERAL ════════════ */}
-          {categoria === 'visao-geral' && (
-            <div className="cfg-cards-wrapper">
-              <section className="cfg-secao">
-                <div className="cfg-secao__header">
-                  <div>
-                    <h2 className="cfg-secao__titulo">Visão Geral</h2>
-                    <p className="cfg-secao__desc">Gráficos exibidos no painel de Insights · olho para ocultar.</p>
-                  </div>
-                </div>
-
-                <ConfiguracaoSecaoGlobal
-                  label="Gráficos"
-                  count={`${GRAFICOS_CATALOGO_INSIGHTS_SMART_READ.length - pendingGraficosOcultos.length} de ${GRAFICOS_CATALOGO_INSIGHTS_SMART_READ.length}`}
-                />
-                <div className="cfg-cards-lista">
-                  {GRAFICOS_CATALOGO_INSIGHTS_SMART_READ.map((g) => {
-                    const meta = GRAFICO_UI_META[g.id]
-                    if (!meta) return null
-                    const Icone = meta.icone
-                    const visivel = !pendingGraficosOcultos.includes(g.id)
-                    return (
-                      <div key={g.id} className={`cfg-card-row${!visivel ? ' cfg-card-row--oculto' : ''}`}>
-                        <div className="cfg-card-row__info">
-                          <span className="cfg-card-row__icone" style={{ color: meta.cor }}>
-                            <Icone weight="duotone" size={18} />
-                          </span>
-                          <div>
-                            <p className="cfg-card-row__nome">{g.titulo}</p>
-                            <p className="cfg-card-row__desc">{g.descricao}</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className={`cfg-eye-btn${visivel ? ' cfg-eye-btn--on' : ''}`}
-                          onClick={() => setPendingGraficosOcultos((prev) => (
-                            prev.includes(g.id) ? prev.filter((id) => id !== g.id) : [...prev, g.id]
-                          ))}
-                          aria-label={visivel ? 'Ocultar gráfico' : 'Exibir gráfico'}
-                        >
-                          {visivel ? <Eye size={15} weight="bold" /> : <EyeSlash size={15} weight="bold" />}
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-
-                <div className="cfg-secao__footer">
-                  <BotaoCancelar
-                    dirty={graficosDirty}
-                    rotulo="Restaurar padrão"
-                    onClick={restaurarVisaoGeralPadrao}
-                  />
-                  <BotaoSalvar
-                    dirty={graficosDirty}
-                    rotulo="Salvar"
-                    onClick={salvarVisaoGeral}
                   />
                 </div>
               </section>
@@ -505,12 +528,12 @@ export default function ConfiguracoesSmartRead() {
                 <ConfiguracaoSecaoGlobal label="Linhas por página" />
                 <div className="cfg-periodo-row">
                   <div className="cfg-periodo-pills">
-                    {LINHAS_PAGINA_OPCOES_SMART_READ.map((n) => (
+                    {LINHAS_OPCOES.map((n) => (
                       <button
                         key={n}
                         type="button"
-                        className={`cfg-periodo-pill${pendingLinhasPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
-                        onClick={() => setPendingLinhasPagina(n)}
+                        className={`cfg-periodo-pill${tabelaConfig.linhasPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                        onClick={() => setTabelaConfig((prev) => ({ ...prev, linhasPagina: n }))}
                       >
                         {n}
                       </button>
@@ -525,8 +548,8 @@ export default function ConfiguracoesSmartRead() {
                       <button
                         key={d.id}
                         type="button"
-                        className={`cfg-periodo-pill${pendingDensidade === d.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                        onClick={() => setPendingDensidade(d.id)}
+                        className={`cfg-periodo-pill${tabelaConfig.densidade === d.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                        onClick={() => setTabelaConfig((prev) => ({ ...prev, densidade: d.id }))}
                       >
                         {d.label}
                       </button>
@@ -536,14 +559,14 @@ export default function ConfiguracoesSmartRead() {
 
                 <div className="cfg-secao__footer">
                   <BotaoCancelar
-                    dirty={tabelasDirty}
+                    dirty={tabelaDirty}
                     rotulo="Restaurar padrão"
-                    onClick={restaurarTabelasPadrao}
+                    onClick={restaurarTabelaConfig}
                   />
                   <BotaoSalvar
-                    dirty={tabelasDirty}
+                    dirty={tabelaDirty}
                     rotulo="Salvar"
-                    onClick={salvarTabelas}
+                    onClick={salvarTabelaConfig}
                   />
                 </div>
               </section>
@@ -565,16 +588,23 @@ export default function ConfiguracoesSmartRead() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <ConfiguracaoSecaoGlobal
                     label="Ativas"
-                    count={pendingColunas.length}
+                    count={colunasVisiveisConfig.length}
                     hint="Arraste para reordenar · lápis para editar · olho para ocultar"
                   />
-                  <BotaoGlobal variante="primario" onClick={criarColuna}>
+                  <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
                     <Plus size={16} weight="bold" />
                     Criar Coluna
                   </BotaoGlobal>
                 </div>
 
-                {pendingColunas.length === 0 ? (
+                {criandoColuna && (
+                  <ModalNovaColunaSmartRead
+                    onFechar={() => setCriandoColuna(false)}
+                    onSalvo={handleColunaCriadaViaModal}
+                  />
+                )}
+
+                {colunasVisiveisConfig.length === 0 ? (
                   <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     gap: '0.5rem', padding: '1.5rem', textAlign: 'center',
@@ -586,76 +616,65 @@ export default function ConfiguracoesSmartRead() {
                       Nenhuma coluna criada ainda
                     </p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
-                      Use o botão "Criar Coluna" para criar a primeira.
+                      Use o botão &quot;Criar Coluna&quot; para criar a primeira.
                     </p>
                   </div>
                 ) : (
                   <div className="cfg-kanban-campo-lista">
-                    {pendingColunas.map((col) => {
-                      const editando = editandoColunaId === col.id
-                      return (
-                        <div
-                          key={col.id}
-                          className={`cfg-kanban-campo-row${!col.visible ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}${arrastandoColuna === col.id ? ' cfg-kanban-campo-row--arrastando' : ''}`}
-                          draggable={!editando}
-                          onDragStart={() => setArrastandoColuna(col.id)}
-                          onDragEnter={() => { if (arrastandoColuna) setPendingColunas((prev) => reordenar(prev, arrastandoColuna, col.id)) }}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDragEnd={() => setArrastandoColuna(null)}
-                        >
-                          <span className="cfg-drag-handle"><DotsSixVertical size={15} weight="bold" /></span>
-                          <div className="cfg-kanban-campo-row__info">
-                            {editando ? (
-                              <input
-                                type="text"
-                                className="cfg-coluna-nome-input"
-                                value={col.nome}
-                                autoFocus
-                                maxLength={50}
-                                onChange={(e) => setPendingColunas((prev) => prev.map((c) => (c.id === col.id ? { ...c, nome: e.target.value } : c)))}
-                                onBlur={() => setEditandoColunaId(null)}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditandoColunaId(null) }}
-                              />
-                            ) : (
-                              <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
-                            )}
-                            <span className="cfg-kanban-campo-row__tipo">Personalizada</span>
-                          </div>
-                          <button
-                            type="button"
-                            className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`}
-                            onClick={() => setEditandoColunaId(editando ? null : col.id)}
-                            aria-label={`Renomear coluna ${col.nome}`}
-                          >
-                            <PencilSimple size={14} weight="duotone" />
-                          </button>
-                          <button
-                            type="button"
-                            className="cfg-kanban-campo-btn"
-                            onClick={() => setPendingColunas((prev) => prev.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)))}
-                            aria-label={col.visible ? `Ocultar coluna ${col.nome}` : `Exibir coluna ${col.nome}`}
-                          >
-                            {col.visible ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
-                          </button>
-                          <button
-                            type="button"
-                            className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove"
-                            onClick={() => setPendingColunas((prev) => prev.filter((c) => c.id !== col.id))}
-                            aria-label={`Excluir coluna ${col.nome}`}
-                          >
-                            <Trash size={14} weight="bold" />
-                          </button>
+                    {colunasVisiveisConfig.map((col) => (
+                      <div
+                        key={col.id}
+                        className={`cfg-kanban-campo-row${!col.visible ? ' cfg-kanban-campo-row--oculto' : ''}${arrastandoColuna === col.id ? ' cfg-kanban-campo-row--arrastando' : ''}`}
+                        draggable
+                        onDragStart={() => setArrastandoColuna(col.id)}
+                        onDragEnter={() => { if (arrastandoColuna) atualizarColunas(reordenar(pendingColunas, arrastandoColuna, col.id)) }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDragEnd={() => setArrastandoColuna(null)}
+                      >
+                        <span className="cfg-drag-handle"><DotsSixVertical size={15} weight="bold" /></span>
+                        <div className="cfg-kanban-campo-row__info">
+                          <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
+                          <span className="cfg-kanban-campo-row__tipo">
+                            {rotuloTipoColunaSmartRead(col.tipo)}
+                            {' · '}
+                            {rotuloVisibilidadeColunaSmartRead(col.visibilidade)}
+                            {col.obrigatorio ? ' · Obrigatório' : ''}
+                          </span>
                         </div>
-                      )
-                    })}
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn"
+                          onClick={() => setEditandoColuna(col)}
+                          aria-label={`Editar coluna ${col.nome}`}
+                        >
+                          <PencilSimple size={14} weight="duotone" />
+                        </button>
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn"
+                          onClick={() => atualizarColunas(pendingColunas.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)))}
+                          aria-label={col.visible ? `Ocultar coluna ${col.nome}` : `Exibir coluna ${col.nome}`}
+                        >
+                          {col.visible ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
+                        </button>
+                        <button
+                          type="button"
+                          className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove"
+                          onClick={() => atualizarColunas(pendingColunas.filter((c) => c.id !== col.id))}
+                          aria-label={`Excluir coluna ${col.nome}`}
+                        >
+                          <Trash size={14} weight="bold" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
 
-                <div className="cfg-secao__footer">
+                <div className="cfg-secao__footer" style={{ marginTop: colunasVisiveisConfig.length > 0 ? '0.75rem' : undefined }}>
                   <BotaoCancelar
                     dirty={colunasDirty}
-                    rotulo="Restaurar padrão"
-                    onClick={restaurarColunasPadrao}
+                    rotulo="Descartar"
+                    onClick={cancelarOrdemColunas}
                   />
                   <BotaoSalvar
                     dirty={colunasDirty}
@@ -664,6 +683,14 @@ export default function ConfiguracoesSmartRead() {
                   />
                 </div>
               </section>
+
+              {editandoColuna && (
+                <ModalNovaColunaSmartRead
+                  colunaEdicao={editandoColuna}
+                  onFechar={() => setEditandoColuna(null)}
+                  onSalvo={handleColunaEditadaSalva}
+                />
+              )}
             </div>
           )}
 

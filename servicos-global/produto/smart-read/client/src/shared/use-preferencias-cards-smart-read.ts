@@ -1,153 +1,67 @@
 /**
- * use-preferencias-cards-smart-read.ts — preferências de KPI cards (localStorage)
- * Fonte única para Configurações › Card e ListaLeituraCardsSmartRead.
+ * use-preferencias-cards-smart-read.ts — preferências de KPI cards (Lista / Insights)
+ * Fonte: Configurações › Cards (`persistencia-configuracoes-smart-read`).
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  CARDS_CATALOGO_KPI_SMART_READ,
+  CARDS_PADRAO_KPI_SMART_READ,
+  carregarPreferenciasCardsLegadoSmartRead,
+  definicaoCardKpiSmartRead,
+  normalizarPreferenciasCardsKpi,
+  type CardDefinicaoKpiSmartRead,
+  type CardPreferenciaKpiSmartRead,
+} from './catalogo-cards-kpi-smart-read'
+import {
+  SYNC_EVENT_CONFIGURACOES_SMART_READ,
+  carregarConfiguracoesSmartRead,
+} from './persistencia-configuracoes-smart-read'
 
-export type CardDefinicaoSmartRead = {
-  id: string
-  titulo: string
-  descricao: string
-}
+export type CardDefinicaoSmartRead = CardDefinicaoKpiSmartRead
+export type CardPreferenciaSmartRead = CardPreferenciaKpiSmartRead
 
-export type CardPreferenciaSmartRead = {
-  id: string
-  visible: boolean
-}
+export const CARDS_CATALOGO_SMART_READ = CARDS_CATALOGO_KPI_SMART_READ
+export const CARDS_PADRAO_SMART_READ = CARDS_PADRAO_KPI_SMART_READ.map((c) => c.id)
 
-export type PreferenciasCardsSmartRead = {
-  cards: CardPreferenciaSmartRead[]
-  periodo: string
-}
-
-export const CARDS_CATALOGO_SMART_READ: CardDefinicaoSmartRead[] = [
-  {
-    id: 'leituras_realizadas',
-    titulo: 'Leituras realizadas',
-    descricao: 'Total de envios de leitura no período selecionado',
-  },
-  {
-    id: 'performance_acertos',
-    titulo: 'Performance de acertos',
-    descricao: 'Média de acertos das leituras concluídas',
-  },
-  {
-    id: 'recursos_reduzidos',
-    titulo: 'Recursos reduzidos',
-    descricao: 'Saving total (digitação + erros) das leituras visíveis — mesma base do Insights',
-  },
-]
-
-export const CARDS_PADRAO_SMART_READ = CARDS_CATALOGO_SMART_READ.map((c) => c.id)
-export const PERIODO_CARDS_PADRAO_SMART_READ = '30d'
-
-const STORAGE_KEY = 'smart-read:config:cards-v1'
-const STORAGE_KEY_LEGADO = 'smart-read:configuracoes:cards-v1'
-export const SYNC_EVENT_CARDS_SMART_READ = 'smart-read:cards-updated'
-
-const DEFAULT_CARDS: CardPreferenciaSmartRead[] = CARDS_PADRAO_SMART_READ.map((id) => ({
-  id,
-  visible: true,
-}))
-
-export const PREFERENCIAS_CARDS_PADRAO_SMART_READ: PreferenciasCardsSmartRead = {
-  cards: DEFAULT_CARDS,
-  periodo: PERIODO_CARDS_PADRAO_SMART_READ,
-}
-
-function normalizarCards(prefs: CardPreferenciaSmartRead[]): CardPreferenciaSmartRead[] {
-  const idsValidos = new Set(CARDS_PADRAO_SMART_READ)
-  const filtradas = prefs.filter((p) => idsValidos.has(p.id) && typeof p.visible === 'boolean')
-  const idsPresentes = new Set(filtradas.map((p) => p.id))
-  const faltantes = CARDS_PADRAO_SMART_READ.filter((id) => !idsPresentes.has(id)).map((id) => ({
-    id,
-    visible: true,
-  }))
-  return [...filtradas, ...faltantes]
-}
-
-function parseStorage(raw: string): PreferenciasCardsSmartRead | null {
-  const parsed = JSON.parse(raw) as unknown
-  if (Array.isArray(parsed)) {
-    return {
-      cards: normalizarCards(parsed as CardPreferenciaSmartRead[]),
-      periodo: PERIODO_CARDS_PADRAO_SMART_READ,
-    }
+function carregar(): CardPreferenciaKpiSmartRead[] {
+  const cfg = carregarConfiguracoesSmartRead()
+  if (cfg.cards.length > 0) {
+    return normalizarPreferenciasCardsKpi(cfg.cards, CARDS_PADRAO_KPI_SMART_READ)
   }
-  if (!parsed || typeof parsed !== 'object') return null
-  const obj = parsed as Partial<PreferenciasCardsSmartRead>
-  if (!Array.isArray(obj.cards)) return null
-  return {
-    cards: normalizarCards(obj.cards),
-    periodo: typeof obj.periodo === 'string' ? obj.periodo : PERIODO_CARDS_PADRAO_SMART_READ,
-  }
-}
-
-function migrarStorageLegado(): PreferenciasCardsSmartRead | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_LEGADO)
-    if (!raw) return null
-    const legado = parseStorage(raw)
-    if (!legado) return null
-    salvarPreferenciasCardsSmartRead(legado)
-    localStorage.removeItem(STORAGE_KEY_LEGADO)
-    return legado
-  } catch {
-    return null
-  }
-}
-
-export function carregarPreferenciasCardsSmartRead(): PreferenciasCardsSmartRead {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) {
-      const migrado = migrarStorageLegado()
-      return migrado ?? PREFERENCIAS_CARDS_PADRAO_SMART_READ
-    }
-    const parsed = parseStorage(raw)
-    return parsed ?? PREFERENCIAS_CARDS_PADRAO_SMART_READ
-  } catch {
-    return PREFERENCIAS_CARDS_PADRAO_SMART_READ
-  }
-}
-
-export function salvarPreferenciasCardsSmartRead(next: PreferenciasCardsSmartRead): void {
-  const payload: PreferenciasCardsSmartRead = {
-    cards: normalizarCards(next.cards),
-    periodo: next.periodo,
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-  window.dispatchEvent(new CustomEvent(SYNC_EVENT_CARDS_SMART_READ))
+  const legado = carregarPreferenciasCardsLegadoSmartRead()
+  if (legado) return legado
+  return CARDS_PADRAO_KPI_SMART_READ.map((c) => ({ ...c }))
 }
 
 export function usePreferenciasCardsSmartRead() {
-  const [prefs, setPrefs] = useState(carregarPreferenciasCardsSmartRead)
+  const [prefs, setPrefs] = useState(carregar)
 
   useEffect(() => {
     function sync() {
-      setPrefs(carregarPreferenciasCardsSmartRead())
+      setPrefs(carregar())
     }
-    window.addEventListener(SYNC_EVENT_CARDS_SMART_READ, sync)
+    window.addEventListener(SYNC_EVENT_CONFIGURACOES_SMART_READ, sync)
     window.addEventListener('storage', sync)
     return () => {
-      window.removeEventListener(SYNC_EVENT_CARDS_SMART_READ, sync)
+      window.removeEventListener(SYNC_EVENT_CONFIGURACOES_SMART_READ, sync)
       window.removeEventListener('storage', sync)
     }
   }, [])
 
-  const persistir = useCallback((next: PreferenciasCardsSmartRead) => {
-    salvarPreferenciasCardsSmartRead(next)
-    setPrefs(carregarPreferenciasCardsSmartRead())
+  const persistir = useCallback((next: CardPreferenciaKpiSmartRead[]) => {
+    setPrefs(next)
+    // Escrita direta descontinuada — Configurações é a fonte da verdade.
+    window.dispatchEvent(new CustomEvent(SYNC_EVENT_CONFIGURACOES_SMART_READ))
   }, [])
 
   const visiveis = useMemo(
     () =>
-      prefs.cards
+      prefs
         .filter((p) => p.visible)
-        .map((p) => CARDS_CATALOGO_SMART_READ.find((c) => c.id === p.id))
-        .filter((c): c is CardDefinicaoSmartRead => Boolean(c)),
-    [prefs.cards],
+        .map((p) => definicaoCardKpiSmartRead(p.id))
+        .filter((c): c is CardDefinicaoKpiSmartRead => Boolean(c)),
+    [prefs],
   )
 
   return { prefs, visiveis, persistir }

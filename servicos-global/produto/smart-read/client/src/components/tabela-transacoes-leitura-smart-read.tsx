@@ -31,7 +31,9 @@ import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-
 import {
   COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
   criarColunasListaLeituraSmartRead,
+  criarColunasPersonalizadasListaSmartRead,
   criarMapaColunasDocumentoLeitura,
+  criarMapaFilhoColunasPersonalizadasSmartRead,
   formatarValorExportColunaLeituraSmartRead,
 } from '../shared/colunas-lista-leitura-smart-read'
 import {
@@ -52,10 +54,13 @@ import {
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import {
+  PREFIXO_COLUNA_PERSONALIZADA_SMART_READ,
+  chaveColunaPersonalizadaSmartRead,
+  usePreferenciasVisualizacaoSmartRead,
+} from '../shared/use-preferencias-visualizacao-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
-
-const ITENS_POR_PAGINA = 50
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -277,14 +282,58 @@ export function TabelaTransacoesLeituraSmartRead({
     [abrirLeituraExistente, montarHintRetomarLista, transacoes],
   )
 
+  // Configurações › Tabelas (linhas/densidade) e › Colunas (personalizadas)
+  const { prefs: visualizacao } = usePreferenciasVisualizacaoSmartRead()
+  const colunasPersonalizadas = visualizacao.colunas_personalizadas
+
   const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
-    [abrirLeituraDaTransacao],
+    () => [
+      ...criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
+      ...criarColunasPersonalizadasListaSmartRead(colunasPersonalizadas),
+    ],
+    [abrirLeituraDaTransacao, colunasPersonalizadas],
   )
   const mapaColunasFilho = useMemo(
-    () => criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
-    [abrirLeituraDoDocumento],
+    () => ({
+      ...criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
+      ...criarMapaFilhoColunasPersonalizadasSmartRead(colunasPersonalizadas),
+    }),
+    [abrirLeituraDoDocumento, colunasPersonalizadas],
   )
+
+  const colunasPadrao = useMemo(
+    () => [
+      ...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
+      ...colunasPersonalizadas.filter((c) => c.visible).map(chaveColunaPersonalizadaSmartRead),
+    ],
+    [colunasPersonalizadas],
+  )
+
+  // Painel com colunas persistidas: injeta colunas personalizadas novas e
+  // remove as excluídas/ocultadas na Configurações (padrão Pedido —
+  // colunas_manuais_conhecidas evita re-exibir o que o usuário ocultou na tabela).
+  useEffect(() => {
+    const chavesVisiveis = colunasPersonalizadas
+      .filter((c) => c.visible)
+      .map(chaveColunaPersonalizadaSmartRead)
+    const ativas = new Set(chavesVisiveis)
+
+    setPreferencias((prev) => {
+      if (!prev?.colunas_visiveis?.length) return prev
+      const salvas = new Set(prev.colunas_visiveis)
+      const conhecidas = new Set(prev.colunas_manuais_conhecidas ?? [])
+      const novas = chavesVisiveis.filter((k) => !salvas.has(k) && !conhecidas.has(k))
+      const filtradas = prev.colunas_visiveis.filter(
+        (k) => !k.startsWith(PREFIXO_COLUNA_PERSONALIZADA_SMART_READ) || ativas.has(k),
+      )
+      if (novas.length === 0 && filtradas.length === prev.colunas_visiveis.length) return prev
+      return {
+        ...prev,
+        colunas_visiveis: [...filtradas, ...novas],
+        colunas_manuais_conhecidas: Array.from(new Set([...conhecidas, ...chavesVisiveis])),
+      }
+    })
+  }, [colunasPersonalizadas])
 
   const transacoesFiltradas = useMemo(
     () => filtrarTransacoesListaSmartRead(transacoes, filtrosAtivosLista),
@@ -360,13 +409,13 @@ export function TabelaTransacoesLeituraSmartRead({
     () => montarAcoesExportacaoListaSmartRead({
       colunas,
       preferencias,
-      colunasPadrao: [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ],
+      colunasPadrao,
       dados: transacoesFiltradas,
       formatValorExport: formatarValorExportColunaLeituraSmartRead,
       nomeArquivo: 'smart-read-leituras',
       titulo: `Lista ${tituloPainel} — ${NOME_PRODUTO_EXIBICAO}`,
     }),
-    [colunas, preferencias, transacoesFiltradas, tituloPainel],
+    [colunas, colunasPadrao, preferencias, transacoesFiltradas, tituloPainel],
   )
 
   const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
@@ -521,7 +570,9 @@ export function TabelaTransacoesLeituraSmartRead({
     : undefined
 
   return (
-    <section className="sr-painel sr-painel--tabela">
+    <section
+      className={`sr-painel sr-painel--tabela${visualizacao.densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}
+    >
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
@@ -576,7 +627,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
-        itensPorPagina={ITENS_POR_PAGINA}
+        itensPorPagina={visualizacao.linhas_pagina}
         totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
@@ -590,7 +641,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filtrosAtivosKeys={filtrosAtivosKeys}
         preferencias={preferencias}
         onSalvarPreferencias={handleSalvarPreferencias}
-        colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
+        colunasPadrao={colunasPadrao}
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
         ariaLabel={`Lista de ${tituloPainel} ${NOME_PRODUTO_EXIBICAO}`}

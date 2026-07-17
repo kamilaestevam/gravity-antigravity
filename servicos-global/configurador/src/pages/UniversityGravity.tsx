@@ -14,7 +14,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import {
   Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info,
@@ -40,7 +40,6 @@ import { slugManualGuiaGravityValido } from '../../shared/guia-gravity/catalogo-
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
-import { UniBotaoVoltarPadrao } from './university/uni-botao-voltar-padrao'
 import { STATE_NAVEGACAO_CAMADA_GUIA } from './university/guia-academy-link'
 import {
   universityManuaisDocsVisiveis,
@@ -2035,12 +2034,11 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
   const xp = somarXpGuiaGravity(etapas.filter(e => e.feita).map(e => e.xp))
   const gp = calcularGpGuiaGravity(xp)
   const xpMeta = obterXpMaxTrilha(trilha.fases, mapaXp)
-  const pctXp = xpMeta > 0 ? Math.round((xp / xpMeta) * 100) : 0
 
   return (
     <div>
-      {/* Título + progresso do módulo (XP do capítulo — ritmo global só no dashboard) */}
-      <div className="uni-jornada-modulo-cabecalho">
+      {/* Título do capítulo — barra de ritmo global fica uma vez no topo do produto */}
+      <div className="uni-jornada-modulo-cabecalho uni-jornada-modulo-cabecalho--sem-barra">
         <div className="uni-jornada-modulo-cabecalho__titulo">
           <div className="uni-jornada-modulo-cabecalho__titulo-esquerda">
             <div
@@ -2055,7 +2053,6 @@ function JornadaModulo({ produtoSlug, trilha, aulasConcluidas, onAbrirFase, exib
             {formatarXpGuiaGravity(xp)}/{formatarXpGuiaGravity(xpMeta)} XP
           </div>
         </div>
-        <BarraProgresso pct={pctXp} altura={8} />
       </div>
 
       {/* Caminho (+ sidebar opcional) */}
@@ -2098,7 +2095,6 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   capituloAtivo: number
   onSelecionarCapitulo: (idx: number) => void
 }) {
-  const { t } = useTranslation()
   const mapaXp = montarMapaXpAulas(produtoSlug, trilhas.flatMap(tr => tr.fases))
   let feitasTotal = 0
   let aulasTotal = 0
@@ -2125,8 +2121,6 @@ function JornadaMultiCapitulos({ produtoSlug, trilhas, aulasConcluidas, onAbrirF
   return (
     <div>
       <div className="uni-academy-capitulos-wrap">
-        <div className="uni-academy-capitulos__titulo">{t('university.capitulos.titulo')}</div>
-        <p className="uni-academy-capitulos__sub">{t('university.capitulos.subtitulo')}</p>
         <SeletorCapitulosAcademy
           produtoSlug={produtoSlug}
           trilhas={trilhas}
@@ -2176,8 +2170,6 @@ export function UniversityGravity() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const [searchParams] = useSearchParams()
-  const origemAcademy = searchParams.get('origem')
   const { user } = useUser()
   const { signOut } = useClerk()
   const { getToken } = useAuth()
@@ -2271,6 +2263,11 @@ export function UniversityGravity() {
 
   const manuaisLidos = dadosJornada?.manuais_lidos.length ?? 0
   const manuaisTotal = dadosJornada?.manuais_total ?? 8
+
+  const { ritmo: ritmoJornadaGlobal } = useMemo(
+    () => calcularRitmoGlobalContratados(produtosContratados, aulasConcluidas, dataInicioJornada),
+    [produtosContratados, aulasConcluidas, dataInicioJornada],
+  )
 
   useEffect(() => {
     if (secao !== 'docs' || !docsProdutoSlug) return
@@ -2609,15 +2606,6 @@ export function UniversityGravity() {
         {!(secao === 'academy' && faseAulaSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }} data-manual-scroll-root>
 
-          {secao === 'docs' && origemAcademy && (
-            <div className="uni-docs-voltar-academy">
-              <UniBotaoVoltarPadrao
-                label={t('university.aula.voltar_onboarding')}
-                onClick={() => navigate(origemAcademy)}
-              />
-            </div>
-          )}
-
           {/* ── Cabeçalho (padrão MenuTopoGlobal: Insights) ── */}
           <div style={UNI_ESTILO_PAGE_HEADER}>
             <span style={{
@@ -2743,10 +2731,19 @@ export function UniversityGravity() {
           {/* ══ VIEW: produto específico — Jornada do Módulo (gamificada) ══ */}
           {secao === 'academy' && trilhasAtivas && trilhaAtiva && produtoSlug && (
             <>
-              <div style={{ marginBottom: 16 }}>
-                <UniBotaoVoltarPadrao
-                  label={t('university.aula.voltar_onboarding')}
-                  onClick={() => navigate('/university-gravity/academy')}
+              <div className="uni-academy-produto-ritmo">
+                <div className="uni-academy-produto-ritmo__cabecalho">
+                  <div className="uni-academy-produto-ritmo__titulo-linha">
+                    <span className="uni-academy-produto-ritmo__rotulo">
+                      {t('university.dashboard.ritmo.jornada_rotulo')}
+                    </span>
+                    <DashboardInfoRitmoGuiaGravity ritmo={ritmoJornadaGlobal} />
+                  </div>
+                </div>
+                <BarraProgressoComRitmo
+                  pctReal={ritmoJornadaGlobal.pctRealMinutos}
+                  ritmo={ritmoJornadaGlobal}
+                  altura={8}
                 />
               </div>
               {trilhasAtivas.length > 1 ? (

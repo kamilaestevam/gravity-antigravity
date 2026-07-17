@@ -35,6 +35,7 @@ export function TooltipGlobal({
   posicaoPreferida = 'auto',
   alinhamentoHorizontal = 'centro',
   cursorBloqueado,
+  silenciarIconeAuxiliar = false,
 }: TooltipProps) {
   const [show, setShow] = useState(false)
   const [bloqueado, setBloqueado] = useState(tooltipsGlobaisDesabilitados)
@@ -226,7 +227,7 @@ export function TooltipGlobal({
         onKeyDown={onKeyDown}
         className={cursorBloqueado ? 'tg-trigger tg-trigger--bloqueado' : 'tg-trigger'}
         style={cursorBloqueado ? { cursor: 'not-allowed' } : undefined}
-        data-tg-mute={!descricao}
+        data-tg-mute={!descricao || silenciarIconeAuxiliar}
         aria-describedby={show ? tooltipId : undefined}
       >
         {children}

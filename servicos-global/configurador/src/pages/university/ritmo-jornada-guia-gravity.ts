@@ -227,6 +227,26 @@ export function calcularPosicoesTimelineRitmo(ritmo: MetricasRitmoJornada): {
   return { diaPlanoTotal, diaProgresso, diaMetaHoje, pctProgresso, pctMeta }
 }
 
+/** Resumo do pin — prazo total, dias decorridos da jornada e leitura restante no plano. */
+export function calcularResumoPinTimelineRitmo(
+  ritmo: MetricasRitmoJornada,
+  timeline: ReturnType<typeof calcularPosicoesTimelineRitmo>,
+): {
+  prazoEstimadoDias: number
+  diasJornada: number
+  faltamDias: number
+} {
+  const faltamDias = Math.max(
+    0,
+    Math.round((timeline.diaPlanoTotal - timeline.diaProgresso) * 10) / 10,
+  )
+  return {
+    prazoEstimadoDias: timeline.diaPlanoTotal,
+    diasJornada: ritmo.diasDecorridos,
+    faltamDias,
+  }
+}
+
 /** Preview dev — `?demoRitmo=atrasado|adiantado` na URL (somente UI local). */
 export function aplicarDemoRitmoGuiaGravity(
   ritmo: MetricasRitmoJornada,
@@ -270,4 +290,57 @@ export function minutosConcluidosModulo(
     if (!f.slug || !aulaGuiaEstaConcluida(f.slug, aulasConcluidas)) return soma
     return soma + parseDuracaoAcademy(f.duracao)
   }, 0)
+}
+
+export type ClasseLegendaStatusRitmo = 'is-adiantado' | 'is-atrasado' | 'is-no-ritmo' | 'is-aguardando'
+
+export interface LegendaStatusRitmo {
+  texto: string
+  classe: ClasseLegendaStatusRitmo
+}
+
+export function ritmoAguardandoModulosAnteriores(
+  ritmo: MetricasRitmoJornada,
+  demoModo: 'atrasado' | 'adiantado' | null,
+): boolean {
+  return Boolean(
+    ritmo.minutosEsperadosHoje === 0
+    && ritmo.pctIdeal === 0
+    && ritmo.minutosTotais > 0
+    && demoModo !== 'atrasado'
+    && demoModo !== 'adiantado',
+  )
+}
+
+export function calcularLegendaStatusRitmo(
+  ritmo: MetricasRitmoJornada,
+  aguardandoModulo: boolean,
+  traduzir: (chave: string, params?: Record<string, unknown>) => string,
+): LegendaStatusRitmo {
+  if (aguardandoModulo) {
+    return {
+      texto: traduzir('university.dashboard.ritmo.delta_aguardando_anteriores'),
+      classe: 'is-aguardando',
+    }
+  }
+  if (ritmo.deltaDias > 0) {
+    return {
+      texto: traduzir('university.dashboard.ritmo.advanced', { dias: ritmo.deltaDias }),
+      classe: 'is-adiantado',
+    }
+  }
+  if (ritmo.deltaDias < 0) {
+    return {
+      texto: traduzir('university.dashboard.ritmo.behind', { dias: Math.abs(ritmo.deltaDias) }),
+      classe: 'is-atrasado',
+    }
+  }
+  return {
+    texto: traduzir('university.dashboard.ritmo.on_track'),
+    classe: 'is-no-ritmo',
+  }
+}
+
+export function fmtDiaTimelineRitmo(valor: number): string {
+  return Number.isInteger(valor) ? String(valor) : valor.toFixed(1)
 }

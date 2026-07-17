@@ -46,6 +46,28 @@ export function leituraTemConferenciaGravity(leitura: Leitura): boolean {
   )
 }
 
+function statusLeituraTerminal(status: Leitura['status_leitura'] | null | undefined): boolean {
+  return status === 'COMPLETED' || status === 'FAILED'
+}
+
+/**
+ * Status nunca regride no merge: snapshot/progresso é gravado durante a
+ * análise (PATCH do passo 2) com PROCESSING congelado — quando o DATI conclui,
+ * esse status velho não pode rebaixar o COMPLETED/FAILED fresco do legado,
+ * senão o polling do wizard nunca vê a análise terminar (leitura de 8s
+ * "durando" minutos até o timeout — regressão 16/07).
+ */
+export function mesclarStatusLeituraSmartRead(
+  statusBase: Leitura['status_leitura'],
+  statusConferencia: Leitura['status_leitura'] | null | undefined,
+): Leitura['status_leitura'] {
+  if (!statusConferencia) return statusBase
+  if (statusLeituraTerminal(statusBase) && !statusLeituraTerminal(statusConferencia)) {
+    return statusBase
+  }
+  return statusConferencia
+}
+
 export function mesclarLeituraComConferenciaGravity(
   base: Leitura,
   conferencia: Leitura | null | undefined,
@@ -60,7 +82,7 @@ export function mesclarLeituraComConferenciaGravity(
       ...conferencia,
       id_leitura: base.id_leitura || conferencia.id_leitura,
       nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
-      status_leitura: conferencia.status_leitura ?? base.status_leitura,
+      status_leitura: mesclarStatusLeituraSmartRead(base.status_leitura, conferencia.status_leitura),
       total_arquivos: Math.max(base.total_arquivos, conferencia.total_arquivos, conferencia.arquivos.length),
       arquivos_processados: Math.max(
         base.arquivos_processados,
@@ -75,7 +97,7 @@ export function mesclarLeituraComConferenciaGravity(
   return {
     ...base,
     nome_leitura: conferencia.nome_leitura ?? base.nome_leitura,
-    status_leitura: conferencia.status_leitura ?? base.status_leitura,
+    status_leitura: mesclarStatusLeituraSmartRead(base.status_leitura, conferencia.status_leitura),
     arquivos: base.arquivos.map((arquivoBase) => {
       const arquivoConferencia = arquivosConferencia.get(arquivoBase.id_arquivo)
       if (!arquivoConferencia?.resultado_extracao?.length) {

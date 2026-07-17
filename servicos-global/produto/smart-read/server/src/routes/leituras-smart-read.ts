@@ -159,6 +159,13 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
 })
 
 router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  // Se o navegador desistir (fechou o wizard, timeout, F5), cancela a chamada ao
+  // DATI: um upload fantasma seguraria o legado por minutos e entalaria os
+  // próximos envios da mesma company.
+  const controladorClienteDesistiu = new AbortController()
+  res.on('close', () => {
+    if (!res.writableEnded) controladorClienteDesistiu.abort()
+  })
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
     const idUsuario = idUsuarioDaRequisicao(req)
@@ -168,13 +175,18 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     }
 
     const companyId = await resolverCompanyLegado(idOrganizacao)
-    const idLeitura = await criarLeituraLegado(companyId)
+    const idLeitura = await criarLeituraLegado(companyId, controladorClienteDesistiu.signal)
     const nomeArquivo = corrigirEncodingNomeArquivoSmartRead(req.file.originalname) ?? req.file.originalname
-    const idArquivo = await enviarArquivoLegado(companyId, idLeitura, {
-      buffer: req.file.buffer,
-      nome: nomeArquivo,
-      mimeType: req.file.mimetype,
-    })
+    const idArquivo = await enviarArquivoLegado(
+      companyId,
+      idLeitura,
+      {
+        buffer: req.file.buffer,
+        nome: nomeArquivo,
+        mimeType: req.file.mimetype,
+      },
+      controladorClienteDesistiu.signal,
+    )
 
     if (req.prisma) {
       try {

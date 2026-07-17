@@ -6,9 +6,9 @@
  * POST /bids-frete-internacional/exclusoes/preview     Preview de BIDs (todas as filhas precisam ser excluíveis)
  * POST /bids-frete-internacional/exclusoes/confirmar   Exclui BIDs permitidos + cotações filhas
  *
- * Regra aprovada pelo dono (2026-06-11): exclusão definitiva apenas para cotações em
- * RASCUNHO ou que nunca foram enviadas a fornecedor e não têm propostas recebidas.
- * Demais casos devem ser cancelados (não excluídos) — preview lista os bloqueados.
+ * Regra (atualizada 2026-07-16): exclusão definitiva bloqueada apenas para cotações
+ * com status APROVADA. Demais status podem ser excluídos permanentemente.
+ * Cotações em andamento devem ser canceladas quando aplicável — preview lista as aprovadas.
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -25,7 +25,7 @@ const ExclusoesBidFreteInternacionalSchema = z.object({
   ids: z.array(z.string().min(1)).min(1).max(100),
 })
 
-export type MotivoBloqueioExclusao = 'COM_PROPOSTAS' | 'ENVIADA_FORNECEDOR'
+export type MotivoBloqueioExclusao = 'APROVADA'
 
 interface CotacaoParaExclusao {
   id_cotacao_bid_frete_internacional: string
@@ -36,8 +36,7 @@ interface CotacaoParaExclusao {
 }
 
 /**
- * Cotação excluível: RASCUNHO sempre; fora de RASCUNHO somente se nunca foi
- * enviada (sem disparos) e não recebeu propostas.
+ * Cotação excluível: qualquer status exceto APROVADA.
  * Exportada para teste unitário.
  */
 export function motivoBloqueioExclusaoCotacao(cotacao: {
@@ -45,9 +44,7 @@ export function motivoBloqueioExclusaoCotacao(cotacao: {
   total_propostas: number
   total_disparos: number
 }): MotivoBloqueioExclusao | null {
-  if (cotacao.total_propostas > 0) return 'COM_PROPOSTAS'
-  if (cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO') return null
-  if (cotacao.total_disparos > 0) return 'ENVIADA_FORNECEDOR'
+  if (cotacao.status_cotacao_bid_frete_internacional === 'APROVADA') return 'APROVADA'
   return null
 }
 

@@ -14,8 +14,6 @@ import {
 } from '@phosphor-icons/react'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 import {
-  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
-  MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_GRADE_GALERIA_PX,
   MANUAL_TITULO_INFOGRAFICO_ESTILO,
 } from './manual-tipografia'
@@ -137,7 +135,7 @@ const BLOCOS_UX10: BlocoInsightBidFrete[] = [
 
 const GRID_UX10_COLUNAS = 'repeat(3, minmax(0, 1fr))'
 
-function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
+function CardBlocoInsightBidFrete({ bloco, compacto = true }: { bloco: BlocoInsightBidFrete; compacto?: boolean }) {
   const Icone = bloco.icone
   return (
     <div
@@ -147,7 +145,7 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
         background: bloco.fundo,
         border: `1px solid ${bloco.borda}`,
         boxSizing: 'border-box',
-        height: '100%',
+        height: compacto ? '100%' : undefined,
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
@@ -176,12 +174,34 @@ function CardBlocoInsightBidFrete({ bloco }: { bloco: BlocoInsightBidFrete }) {
           {bloco.rotulo}
         </p>
       </div>
-      <p style={{ margin: 0, fontSize: '.73rem', lineHeight: 1.45, color: CORPO_70, flex: 1 }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: '.73rem',
+          lineHeight: 1.45,
+          color: CORPO_70,
+          flex: compacto ? 1 : undefined,
+          ...(compacto
+            ? {
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }
+            : {}),
+        }}
+      >
         <ManualInfograficoRichText texto={bloco.descricao} />
       </p>
     </div>
   )
 }
+
+export function blocoInsightBidFretePorNum(num: number): BlocoInsightBidFrete | undefined {
+  return BLOCOS_UX10.find(bloco => bloco.num === num)
+}
+
+export { CardBlocoInsightBidFrete }
 
 export function ManualInfograficoBidFreteInsights() {
   return (
@@ -197,22 +217,8 @@ export function ManualInfograficoBidFreteInsights() {
       <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Mapa de métricas
       </p>
-      <p style={{ margin: 0, fontSize: '.82rem', fontWeight: 700, color: '#e2e8f0' }}>
-        Visão detalhada dos indicadores da tela Insights
-      </p>
-      <p
-        style={{
-          margin: `${MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX}px 0 0`,
-          fontSize: '.72rem',
-          lineHeight: 1.5,
-          color: CORPO_70,
-        }}
-      >
-        <ManualInfograficoRichText texto="Consulte cada indicador abaixo e avance nos subtópicos para **tooltips**, **mapa** e **Controle de Exibição do Mapa**." />
-      </p>
       <div
         style={{
-          marginTop: MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
           display: 'grid',
           gridTemplateColumns: GRID_UX10_COLUNAS,
           gap: MANUAL_ESPACO_GRADE_GALERIA_PX,

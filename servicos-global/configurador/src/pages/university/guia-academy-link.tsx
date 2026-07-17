@@ -1,10 +1,14 @@
-import React, { createContext, useCallback, useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 import { useLocation, useNavigate, type NavigateFunction } from 'react-router-dom'
 import {
   produtoSlugDePathnameAcademy,
   resolverHrefManualParaAcademy,
   type RetornoGuiaAcademy,
 } from './academy-link-guia'
+import {
+  GuiaAcademyNavigationContext,
+  type GuiaAcademyNavigationValue,
+} from './guia-academy-navigation-context'
 
 const LINK_STYLE: React.CSSProperties = {
   color: '#818cf8',
@@ -54,13 +58,6 @@ export function navegarComRetornoGuia(
   const retorno = montarRetornoGuiaAcademy(location.pathname, location.hash)
   navigate(destino, { state: { retornoGuia: retorno } })
 }
-
-interface GuiaAcademyNavigationValue {
-  produtoSlug: string
-  navegarLinkInterno: (href: string) => void
-}
-
-export const GuiaAcademyNavigationContext = createContext<GuiaAcademyNavigationValue | null>(null)
 
 export function useGuiaAcademyNavigation(): GuiaAcademyNavigationValue | null {
   return useContext(GuiaAcademyNavigationContext)
@@ -172,3 +169,4 @@ export function voltarNoGuiaAcademy(
 }
 
 export { produtoSlugDePathnameAcademy }
+export { GuiaAcademyNavigationContext } from './guia-academy-navigation-context'

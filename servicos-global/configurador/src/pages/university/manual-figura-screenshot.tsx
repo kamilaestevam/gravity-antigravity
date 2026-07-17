@@ -14,7 +14,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 /** Acima do MenuLateralGlobal / shell University (evita sidebar por cima do Ampliar). */
 export const Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA = 200000
 
-const MANUAL_SCREENSHOT_CACHE_KEY = '245'
+const MANUAL_SCREENSHOT_CACHE_KEY = '249'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'

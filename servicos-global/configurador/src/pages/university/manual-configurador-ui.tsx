@@ -73,8 +73,14 @@ import {
   CardBlocoInsightPedido,
   ManualInfograficoPedidoInsights,
 } from './manual-pedido-infografico-insights'
-import { ManualInfograficoBidFreteInsights } from './manual-bid-frete-infografico-insights'
+import {
+  blocoInsightBidFretePorNum,
+  CardBlocoInsightBidFrete,
+  ManualInfograficoBidFreteInsights,
+} from './manual-bid-frete-infografico-insights'
 import { ManualInfograficoPedidoListaCustomizacao } from './manual-pedido-infografico-lista-customizacao'
+import { ManualInfograficoBidFreteListaCustomizacao } from './manual-bid-frete-infografico-lista-customizacao'
+import { ManualBidFreteSimuladorListaArrastarColunas } from './manual-bid-frete-simulador-lista-arrastar-colunas'
 import { ManualInfograficoPedidoConfigColunasPersonalizadas } from './manual-pedido-infografico-config-colunas-personalizadas'
 import {
   ManualInfograficoBidFreteMapa,
@@ -124,6 +130,7 @@ import {
 import { ManualPedidoSimuladorFiltrosMapa } from './manual-pedido-simulador-filtros-mapa'
 import { ManualInfograficoPedidoCatalogoColunasLista } from './manual-pedido-infografico-catalogo-colunas-lista'
 import { ManualPedidoTabelaCatalogoColunasLista, ManualPedidoTabelaCatalogoColunasEdicaoMassa } from './manual-pedido-accordion-colunas-lista'
+import { ManualBidFreteTabelaCatalogoColunasLista } from './manual-bid-frete-tabela-colunas-lista'
 import { ManualInfograficoPedidoListaAlertas } from './manual-pedido-infografico-lista-alertas'
 import { ManualInfograficoPedidoListaImportarFormas } from './manual-pedido-infografico-lista-importar-formas'
 import { ManualInfograficoPedidoListaTransferirFluxo } from './manual-pedido-infografico-lista-transferir-fluxo'
@@ -1553,7 +1560,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '245'
+const MANUAL_SCREENSHOT_CACHE_KEY = '249'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -2166,6 +2173,7 @@ export function chaveTelasGaleriaComparacao(telas: DocGaleriaComparacaoTela[]): 
     if (tela.imagem) return tela.imagem
     if (tela.simuladorSmartReadCardAnaliseArquivo) return 'sim-card-analise'
     if (tela.simuladorSmartReadListaArrastarColunas) return 'sim-lista-arrastar'
+    if (tela.simuladorBidFreteListaArrastarColunas) return 'sim-bid-frete-lista-arrastar'
     return `fig-${indice}-${(tela.paragrafoAntes ?? tela.legenda).slice(0, 32)}`
   }).join('|')
 }
@@ -2174,6 +2182,7 @@ function chaveGaleriaComparacaoTela(tela: DocGaleriaComparacaoTela, indice: numb
   if (tela.imagem) return tela.imagem
   if (tela.simuladorSmartReadCardAnaliseArquivo) return `sim-card-analise-${indice}`
   if (tela.simuladorSmartReadListaArrastarColunas) return `sim-lista-arrastar-${indice}`
+  if (tela.simuladorBidFreteListaArrastarColunas) return `sim-bid-frete-lista-arrastar-${indice}`
   return `fig-${indice}-${(tela.paragrafoAntes ?? tela.legenda).slice(0, 32)}`
 }
 
@@ -2181,6 +2190,7 @@ function telaComparacaoUsaFiguraAlternativa(tela: DocGaleriaComparacaoTela): boo
   return Boolean(
     tela.simuladorSmartReadCardAnaliseArquivo
     || tela.simuladorSmartReadListaArrastarColunas
+    || tela.simuladorBidFreteListaArrastarColunas
     || !tela.imagem,
   )
 }
@@ -2213,6 +2223,9 @@ function ManualGaleriaTelaFiguraPrincipal({
         fraseDemonstracaoAnimada={tela.fraseDemonstracaoAnimada}
       />
     )
+  }
+  if (tela.simuladorBidFreteListaArrastarColunas) {
+    return <ManualBidFreteSimuladorListaArrastarColunas />
   }
   if (tela.imagem) {
     return (
@@ -3451,6 +3464,10 @@ function ManualBlocoPassoVisual({
           && (passo.catalogoColunasPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoTabelaCatalogoColunasLista />
           ) : null}
+          {passo.mostrarCatalogoColunasBidFreteLista
+          && (passo.catalogoColunasBidFreteAposParagrafo ?? 0) === i ? (
+            <ManualBidFreteTabelaCatalogoColunasLista />
+          ) : null}
           {passo.mostrarCatalogoHistoricoPedido
           && (passo.catalogoHistoricoPedidoAposParagrafo ?? 0) === i ? (
             <ManualPedidoCatalogoHistoricoEventos />
@@ -3506,6 +3523,7 @@ function ManualBlocoPassoVisual({
                   layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
                   layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
                   layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
+                  layoutCardInsightGradeBidFrete={galeria.layoutCardInsightGradeBidFrete}
                   layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
                   calloutApos={galeria.calloutApos}
                   emAcordeaoSubtopico={emAcordeaoSubtopico}
@@ -3713,6 +3731,7 @@ function ManualBlocoPassoVisual({
                 layoutPrimeiroPrintLarguraTotal={galeria.layoutPrimeiroPrintLarguraTotal}
                 layoutPrimeirosPrintsLarguraTotal={galeria.layoutPrimeirosPrintsLarguraTotal}
               layoutCardInsightGradePedido={galeria.layoutCardInsightGradePedido}
+              layoutCardInsightGradeBidFrete={galeria.layoutCardInsightGradeBidFrete}
               layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
               mostrarChipsTransferirTresTipos={galeria.mostrarChipsTransferirTresTipos}
               chipTransferirTituloEtapa={galeria.chipTransferirTituloEtapa}
@@ -3906,6 +3925,8 @@ function ManualBlocoPassoVisual({
         margemSuperiorPx={passoAcademyIsolado ? 0 : 20}
       />
     )
+    : passo.mostrarInfograficoBidFreteListaCustomizacao
+      ? <ManualInfograficoBidFreteListaCustomizacao />
     : passo.mostrarInfograficoPedidoListaCustomizacao
       ? (
         <ManualInfograficoPedidoListaCustomizacao
@@ -5058,6 +5079,7 @@ export function ManualGaleriaComparacaoIntro({
   mostrarIndicadoresMoverDashboardPedido,
   mostrarCardsKanbanCabecalhoPedido,
   layoutCardInsightGradePedido,
+  layoutCardInsightGradeBidFrete,
   layoutCardInsightGradeSmartDocs,
   espacoSuperiorEtapa = false,
   espacoInferiorAposEtapaPx,
@@ -5134,6 +5156,8 @@ export function ManualGaleriaComparacaoIntro({
   mostrarCardsKanbanCabecalhoPedido?: boolean
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita por widget da grade. */
   layoutCardInsightGradePedido?: boolean
+  /** Manual BID Frete § Insights — card UX10 à esquerda + print à direita por widget da grade. */
+  layoutCardInsightGradeBidFrete?: boolean
   /** Manual Smart Docs § Insights — card numerado à esquerda + print à direita por widget da grade. */
   layoutCardInsightGradeSmartDocs?: boolean
   espacoSuperiorEtapa?: boolean
@@ -5624,6 +5648,38 @@ export function ManualGaleriaComparacaoIntro({
               >
                 <div style={{ minWidth: 0 }}>
                   {bloco ? <CardBlocoInsightPedido bloco={bloco} compacto={false} /> : null}
+                </div>
+                <div style={{ minWidth: 0, display: 'flex', justifyContent: 'flex-end' }}>
+                  <ManualFiguraScreenshot
+                    src={tela.imagem}
+                    alt={bloco?.rotulo ?? tela.legenda}
+                    ampliarInferiorDireito={ampliarInferiorDireito}
+                    larguraMaxima={tela.larguraMaxima}
+                    alturaMaxima={tela.alturaMaxima}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : layoutCardInsightGradeBidFrete ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PASSOS_PX }}>
+          {telas.map((tela) => {
+            const bloco = tela.cardInsightGradeBidFrete != null
+              ? blocoInsightBidFretePorNum(tela.cardInsightGradeBidFrete)
+              : undefined
+            return (
+              <div
+                key={tela.imagem}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 360px) minmax(0, 1fr)',
+                  gap: 20,
+                  alignItems: 'start',
+                }}
+              >
+                <div style={{ minWidth: 0 }}>
+                  {bloco ? <CardBlocoInsightBidFrete bloco={bloco} compacto={false} /> : null}
                 </div>
                 <div style={{ minWidth: 0, display: 'flex', justifyContent: 'flex-end' }}>
                   <ManualFiguraScreenshot

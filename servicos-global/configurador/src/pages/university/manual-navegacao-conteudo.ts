@@ -72,17 +72,21 @@ export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_MENU_USUARIO =
 export const SCREENSHOT_NAVEGACAO_ACESSO_CONFIGURADOR_OPCAO_MENU =
   '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 
-/** Exemplos cross-product — prints do Pedido ilustram o padrão GTV compartilhado. */
-export const SCREENSHOT_NAVEGACAO_LISTA_EXEMPLO =
+/** Exemplos cross-product — listas GTV em Configurador e Produtos Gravity. */
+export const SCREENSHOT_NAVEGACAO_LISTA_CONFIGURADOR =
+  '/university/screenshots/configurador-usuarios-tela.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_PEDIDO =
   '/university/screenshots/pedido-lista.png'
-export const SCREENSHOT_NAVEGACAO_LISTA_COLUNAS =
-  '/university/screenshots/pedido-lista-colunas-customizar.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_BID_FRETE =
+  '/university/screenshots/bid-frete-int-lista.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_SMART_DOCS =
+  '/university/screenshots/smart-docs-lista.png'
+export const SCREENSHOT_NAVEGACAO_LISTA_ARRASTAR =
+  '/university/screenshots/pedido-lista-colunas-arrastar.png'
 export const SCREENSHOT_NAVEGACAO_LISTA_FILTROS =
   '/university/screenshots/pedido-lista-filtro-aplicado-2.png'
 export const SCREENSHOT_NAVEGACAO_LISTA_EXPORTAR =
   '/university/screenshots/pedido-lista-exportar-seta.png'
-export const SCREENSHOT_NAVEGACAO_LISTA_SELECAO =
-  '/university/screenshots/pedido-lista-excluir-setas.png'
 
 /** Checklist para o dono — nomes dos arquivos PNG esperados em `public/university/screenshots/`. */
 export const NAVEGACAO_PRINTS_CHECKLIST = [
@@ -217,15 +221,49 @@ export interface ItemMenuUsuarioManual {
 }
 
 /** SSOT — demais opções do menu do avatar (infográfico Configuração §03). */
-export type FuncionalidadeListaPlataformaSlug =
-  | 'visualizacoes'
-  | 'paineis'
-  | 'busca'
-  | 'colunas'
-  | 'filtro-coluna'
-  | 'exportar'
-  | 'selecao'
-  | 'localizar'
+export type LocalListaPlataformaSlug = 'configurador' | 'pedido' | 'bid-frete' | 'smart-docs'
+
+export interface LocalListaPlataformaManual {
+  ordem: number
+  slug: LocalListaPlataformaSlug
+  titulo: string
+  resumo: string
+  imagem: string
+}
+
+/** SSOT — módulos onde a lista GTV aparece (infográfico Navegação). */
+export const LOCAIS_LISTA_PLATAFORMA_MANUAL: LocalListaPlataformaManual[] = [
+  {
+    ordem: 1,
+    slug: 'configurador',
+    titulo: 'Configurador',
+    resumo: 'Usuários, Workspaces, Fornecedores, Assinaturas e demais abas de gestão.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_CONFIGURADOR,
+  },
+  {
+    ordem: 2,
+    slug: 'pedido',
+    titulo: 'Pedido',
+    resumo: 'Pedidos e itens do workspace na aba **Lista** do produto.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_PEDIDO,
+  },
+  {
+    ordem: 3,
+    slug: 'bid-frete',
+    titulo: 'BID Frete',
+    resumo: 'Cotações e operação logística em tabela.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_BID_FRETE,
+  },
+  {
+    ordem: 4,
+    slug: 'smart-docs',
+    titulo: 'Smart Docs',
+    resumo: 'Leituras e documentos analisados pela IA.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_SMART_DOCS,
+  },
+]
+
+export type FuncionalidadeListaPlataformaSlug = 'localizar' | 'arrastar' | 'filtros' | 'exportar'
 
 export interface FuncionalidadeListaPlataformaManual {
   ordem: number
@@ -234,75 +272,43 @@ export interface FuncionalidadeListaPlataformaManual {
   resumo: string
   detalhe?: string
   dica?: string
-  /** Miniatura à direita — exemplos reutilizam prints do padrão GTV. */
+  /** Miniatura à direita — Pedido ilustra o gesto comum GTV. */
   imagem?: string
 }
 
-/** SSOT — funcionalidades comuns das listas operacionais (infográfico Navegação). */
+/** SSOT — gestos comuns em qualquer lista da plataforma (infográfico Navegação). */
 export const FUNCIONALIDADES_LISTA_PLATAFORMA_MANUAL: FuncionalidadeListaPlataformaManual[] = [
   {
     ordem: 1,
-    slug: 'visualizacoes',
-    titulo: 'Pills de visualização',
-    resumo: 'Alterne entre **Insights**, **Lista**, **Dashboard** e **Kanban** sem trocar de produto — o escopo de workspaces permanece o mesmo.',
-    detalhe: 'Disponível nos Produtos Gravity que expõem mais de uma visão (Pedido, Smart Docs, BID Frete…).',
-    imagem: SCREENSHOT_NAVEGACAO_LISTA_EXEMPLO,
+    slug: 'localizar',
+    titulo: 'Localizar',
+    resumo: 'No **menu superior**, a lupa **Localizar** busca e filtra **listas, registros e campos visíveis** na tela aberta. Vale no Configurador, nos produtos e na Store.',
+    detalhe: 'Terceiro atalho à direita após **Hub**. Use **Esc** ou **×** para fechar sem sair da página.',
+    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
   },
   {
     ordem: 2,
-    slug: 'paineis',
-    titulo: 'Painéis salvos',
-    resumo: 'A faixa acima da tabela guarda **layouts**, **filtros** e **colunas** por usuário — cada aba é um recorte reutilizável.',
-    detalhe: 'Troque de painel para alternar entre visões como *_Em andamento + FOB_* ou *_Consolidado + Exportação_* sem remontar filtros.',
-    imagem: SCREENSHOT_NAVEGACAO_LISTA_EXEMPLO,
+    slug: 'arrastar',
+    titulo: 'Arrastar colunas',
+    resumo: 'No menu **Colunas**, **arraste** os campos para definir a **ordem** na tabela. O mesmo gesto no Pedido, Smart Docs, BID Frete e Configurador.',
+    detalhe: 'Também dá para **exibir** e **ocultar** colunas no mesmo painel. A preferência fica **salva por usuário**.',
+    imagem: SCREENSHOT_NAVEGACAO_LISTA_ARRASTAR,
   },
   {
     ordem: 3,
-    slug: 'busca',
-    titulo: 'Busca na barra',
-    resumo: 'Campo de busca na **toolbar esquerda** da lista — filtra linhas visíveis na página atual.',
-    detalhe: 'Complementa o **Localizar** do menu superior: a busca da barra age só sobre a tabela aberta; o Localizar varre a tela inteira.',
-    imagem: SCREENSHOT_NAVEGACAO_LISTA_EXEMPLO,
-  },
-  {
-    ordem: 4,
-    slug: 'colunas',
-    titulo: 'Colunas',
-    resumo: 'Menu **Colunas** na toolbar direita: **exiba**, **oculte** e **reordene** campos nativos (e customizados, quando o produto permitir).',
-    detalhe: 'Preferências ficam salvas no **painel ativo** e são **por usuário** — não alteram a visualização dos colegas.',
-    imagem: SCREENSHOT_NAVEGACAO_LISTA_COLUNAS,
-  },
-  {
-    ordem: 5,
-    slug: 'filtro-coluna',
-    titulo: 'Filtro por coluna',
+    slug: 'filtros',
+    titulo: 'Filtros',
     resumo: 'Ícone de **funil** no cabeçalho de cada coluna: ordenar, filtrar por texto, marcar valores ou intervalo numérico.',
     detalhe: 'Filtros ativos viram **chips** na barra da tabela. Combine quantos quiser; use *_Limpar todos_* para resetar.',
     imagem: SCREENSHOT_NAVEGACAO_LISTA_FILTROS,
   },
   {
-    ordem: 6,
+    ordem: 4,
     slug: 'exportar',
     titulo: 'Exportar',
-    resumo: 'Baixa o **recorte atual** — respeita filtros, colunas visíveis e página da lista virtual.',
-    detalhe: 'Formatos típicos: **Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**, conforme o produto.',
+    resumo: 'Menu **Exportar** na toolbar: baixa o **recorte atual** (filtros + colunas visíveis + página da lista).',
+    detalhe: 'Formatos típicos: **Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**, conforme o módulo.',
     imagem: SCREENSHOT_NAVEGACAO_LISTA_EXPORTAR,
-  },
-  {
-    ordem: 7,
-    slug: 'selecao',
-    titulo: 'Seleção e ações em lote',
-    resumo: 'Marque linhas pelo **checkbox** à esquerda e use a barra de ações do produto (excluir, transferir, consolidar…).',
-    detalhe: 'As ações disponíveis variam por produto — Pedido, Smart Docs e BID Frete expõem conjuntos diferentes na mesma posição da toolbar.',
-    imagem: SCREENSHOT_NAVEGACAO_LISTA_SELECAO,
-  },
-  {
-    ordem: 8,
-    slug: 'localizar',
-    titulo: 'Localizar (menu superior)',
-    resumo: 'Atalho global na faixa do topo — busca e filtra **listas, registros e campos visíveis** na tela atual.',
-    detalhe: 'Terceiro ícone à direita após Hub. Use **Esc** ou **×** para fechar sem sair da página.',
-    imagem: SCREENSHOT_NAVEGACAO_MENU_SUPERIOR_LOCALIZAR,
   },
 ]
 
@@ -582,7 +588,7 @@ export const DOC_NAVEGACAO_SECAO: DocSecao = {
       titulo: 'Funcionalidades das listas',
       tituloSumario: 'Funcionalidades das listas',
       paragrafos: [
-        'Nos **Produtos Gravity**, a aba **Lista** (e telas equivalentes em tabela) compartilha a mesma **barra de ferramentas** entre Pedido, Smart Docs, BID Frete e demais módulos operacionais. Os prints abaixo usam o **Pedido** como referência visual — o padrão é o mesmo em todos.',
+        'A **lista** (tabela virtual compartilhada da plataforma) aparece em **diversos módulos**: **Configurador**, **Pedido**, **BID Frete**, **Smart Docs** e outros. Os dados mudam, mas quatro gestos se repetem em todos: **Localizar**, **arrastar colunas**, **filtros** e **Exportar**.',
       ],
       mostrarInfograficoFuncionalidadesLista: true,
       passosVisuais: [],

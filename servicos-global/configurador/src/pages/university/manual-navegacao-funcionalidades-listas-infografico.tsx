@@ -1,20 +1,25 @@
 import React from 'react'
 import {
-  SquaresFour,
-  Rows,
   MagnifyingGlass,
-  Columns,
   Funnel,
   Export,
-  CheckSquare,
+  DotsSixVertical,
+  Gear,
+  Package,
+  Boat,
+  FileText,
   type Icon,
 } from '@phosphor-icons/react'
 import {
   FUNCIONALIDADES_LISTA_PLATAFORMA_MANUAL,
+  LOCAIS_LISTA_PLATAFORMA_MANUAL,
   type FuncionalidadeListaPlataformaSlug,
+  type LocalListaPlataformaSlug,
 } from './manual-navegacao-conteudo'
 import { ManualFiguraScreenshot } from './manual-figura-screenshot'
+import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 import {
+  MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX,
   MANUAL_ESPACO_GRADE_GALERIA_PX,
   MANUAL_GRID_TEXTO_IMAGEM,
   MANUAL_TITULO_INFOGRAFICO_ESTILO,
@@ -22,39 +27,51 @@ import {
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
-type MetaFuncionalidade = {
-  icone: Icon
-  cor: string
-  borda: string
-  fundo: string
-}
+type MetaLocal = { icone: Icon; cor: string; borda: string; fundo: string }
 
-const META_FUNCIONALIDADES: Record<FuncionalidadeListaPlataformaSlug, MetaFuncionalidade> = {
-  visualizacoes: {
-    icone: SquaresFour,
+const META_LOCAIS: Record<LocalListaPlataformaSlug, MetaLocal> = {
+  configurador: {
+    icone: Gear,
+    cor: '#fbbf24',
+    borda: 'rgba(251,191,36,.28)',
+    fundo: 'rgba(251,191,36,.08)',
+  },
+  pedido: {
+    icone: Package,
     cor: '#818cf8',
     borda: 'rgba(129,140,248,.32)',
     fundo: 'rgba(99,102,241,.1)',
   },
-  paineis: {
-    icone: Rows,
+  'bid-frete': {
+    icone: Boat,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.28)',
     fundo: 'rgba(52,211,153,.08)',
   },
-  busca: {
+  'smart-docs': {
+    icone: FileText,
+    cor: '#60a5fa',
+    borda: 'rgba(96,165,250,.32)',
+    fundo: 'rgba(59,130,246,.1)',
+  },
+}
+
+type MetaFuncionalidade = { icone: Icon; cor: string; borda: string; fundo: string }
+
+const META_FUNCIONALIDADES: Record<FuncionalidadeListaPlataformaSlug, MetaFuncionalidade> = {
+  localizar: {
     icone: MagnifyingGlass,
     cor: '#94a3b8',
     borda: 'rgba(148,163,184,.28)',
     fundo: 'rgba(148,163,184,.08)',
   },
-  colunas: {
-    icone: Columns,
+  arrastar: {
+    icone: DotsSixVertical,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
     fundo: 'rgba(59,130,246,.1)',
   },
-  'filtro-coluna': {
+  filtros: {
     icone: Funnel,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.28)',
@@ -65,18 +82,6 @@ const META_FUNCIONALIDADES: Record<FuncionalidadeListaPlataformaSlug, MetaFuncio
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
     fundo: 'rgba(139,92,246,.1)',
-  },
-  selecao: {
-    icone: CheckSquare,
-    cor: '#f87171',
-    borda: 'rgba(248,113,113,.28)',
-    fundo: 'rgba(248,113,113,.08)',
-  },
-  localizar: {
-    icone: MagnifyingGlass,
-    cor: '#94a3b8',
-    borda: 'rgba(148,163,184,.28)',
-    fundo: 'rgba(148,163,184,.08)',
   },
 }
 
@@ -111,6 +116,43 @@ function MiniaturaFuncionalidade({ src, alt }: { src?: string; alt: string }) {
   )
 }
 
+function CardLocalLista({ item }: { item: (typeof LOCAIS_LISTA_PLATAFORMA_MANUAL)[number] }) {
+  const meta = META_LOCAIS[item.slug]
+  const Icone = meta.icone
+
+  return (
+    <article style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      padding: '14px 14px 12px',
+      borderRadius: 12,
+      background: 'rgba(8,12,24,.28)',
+      border: `1px solid ${meta.borda}`,
+      height: '100%',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          flexShrink: 0, width: 36, height: 36, borderRadius: 10,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          background: meta.fundo, border: `1px solid ${meta.borda}`,
+        }}>
+          <Icone size={18} weight="duotone" color={meta.cor} />
+        </div>
+        <h4 style={{ margin: 0, fontSize: '.86rem', fontWeight: 700, color: '#f1f5f9', lineHeight: 1.35 }}>
+          {item.titulo}
+        </h4>
+      </div>
+      <p style={{ margin: 0, fontSize: '.74rem', lineHeight: 1.55, color: CORPO_70 }}>
+        <ManualInfograficoRichText texto={item.resumo} />
+      </p>
+      <div style={{ marginTop: 'auto' }}>
+        <ManualFiguraScreenshot src={item.imagem} alt={item.titulo} larguraTotal ampliarInferiorDireito />
+      </div>
+    </article>
+  )
+}
+
 function LinhaFuncionalidadeLista({ item }: { item: (typeof FUNCIONALIDADES_LISTA_PLATAFORMA_MANUAL)[number] }) {
   const meta = META_FUNCIONALIDADES[item.slug]
   const Icone = meta.icone
@@ -133,7 +175,7 @@ function LinhaFuncionalidadeLista({ item }: { item: (typeof FUNCIONALIDADES_LIST
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             background: meta.fundo, border: `1px solid ${meta.borda}`,
           }}>
-            <Icone size={20} weight={item.slug === 'busca' || item.slug === 'localizar' ? 'bold' : 'duotone'} color={meta.cor} />
+            <Icone size={20} weight={item.slug === 'localizar' ? 'bold' : 'duotone'} color={meta.cor} />
           </div>
           <div style={{ minWidth: 0, flex: 1, paddingTop: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px 10px', marginBottom: 8 }}>
@@ -148,7 +190,7 @@ function LinhaFuncionalidadeLista({ item }: { item: (typeof FUNCIONALIDADES_LIST
               </h4>
             </div>
             <p style={{ margin: 0, fontSize: '.82rem', lineHeight: 1.6, color: '#e2e8f0', fontWeight: 600 }}>
-              {item.resumo}
+              <ManualInfograficoRichText texto={item.resumo} />
             </p>
           </div>
         </div>
@@ -157,16 +199,7 @@ function LinhaFuncionalidadeLista({ item }: { item: (typeof FUNCIONALIDADES_LIST
             margin: 0, fontSize: '.78rem', lineHeight: 1.6, color: CORPO_70,
             paddingLeft: 60,
           }}>
-            {item.detalhe}
-          </p>
-        )}
-        {item.dica && (
-          <p style={{
-            margin: 0, marginLeft: 60, padding: '10px 12px', borderRadius: 9,
-            fontSize: '.74rem', lineHeight: 1.55, color: '#fbbf24',
-            background: 'rgba(251,191,36,.06)', border: '1px solid rgba(251,191,36,.16)',
-          }}>
-            {item.dica}
+            <ManualInfograficoRichText texto={item.detalhe} />
           </p>
         )}
       </div>
@@ -177,7 +210,7 @@ function LinhaFuncionalidadeLista({ item }: { item: (typeof FUNCIONALIDADES_LIST
   )
 }
 
-/** Funcionalidades comuns das listas operacionais (manual Navegação). */
+/** Onde a lista aparece + gestos comuns GTV (manual Navegação). */
 export function ManualInfograficoFuncionalidadesLista() {
   return (
     <div style={{
@@ -187,7 +220,22 @@ export function ManualInfograficoFuncionalidadesLista() {
       padding: '16px 18px 18px',
     }}>
       <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
-        Padrão compartilhado — toolbar e gestos das listas
+        Onde a lista aparece na plataforma
+      </p>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: 12,
+        marginBottom: MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX,
+      }}>
+        {LOCAIS_LISTA_PLATAFORMA_MANUAL.map(item => (
+          <CardLocalLista key={item.slug} item={item} />
+        ))}
+      </div>
+
+      <p style={{ ...MANUAL_TITULO_INFOGRAFICO_ESTILO, marginTop: 0 }}>
+        O que sempre é igual: Localizar, arrastar, filtros e Exportar
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

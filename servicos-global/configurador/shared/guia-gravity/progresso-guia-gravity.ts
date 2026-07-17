@@ -1,23 +1,23 @@
-import { montarMapaXpAulas, obterXpAula } from './pesos-academy-guia-gravity.js'
+import { montarMapaXpAulas, obterXpAula, somarXpGuiaGravity } from './pesos-academy-guia-gravity.js'
 import { SLUGS_AULA_POR_PRODUTO_GUIA } from './slugs-aula-por-produto.js'
 
 export const MINUTOS_RITMO_IDEAL_DIA = 15
 
 export function calcularXpMaximoCatalogo(): number {
-  let total = 0
+  const valores: number[] = []
   for (const [produto, slugs] of Object.entries(SLUGS_AULA_POR_PRODUTO_GUIA)) {
     const mapa = montarMapaXpAulas(produto, slugs.map(slug => ({ slug })))
     for (const slug of slugs) {
-      total += mapa.get(slug) ?? obterXpAula(produto, slug)
+      valores.push(mapa.get(slug) ?? obterXpAula(produto, slug))
     }
   }
-  return total
+  return somarXpGuiaGravity(valores)
 }
 
 export function calcularXpTotalConclusoes(
   conclusoes: ReadonlyArray<{ slug_aula_guia_gravity: string; xp_conquistado_aula_guia_gravity: number }>,
 ): number {
-  return conclusoes.reduce((soma, c) => soma + Number(c.xp_conquistado_aula_guia_gravity), 0)
+  return somarXpGuiaGravity(conclusoes.map(c => Number(c.xp_conquistado_aula_guia_gravity)))
 }
 
 export function calcularXpPorProduto(

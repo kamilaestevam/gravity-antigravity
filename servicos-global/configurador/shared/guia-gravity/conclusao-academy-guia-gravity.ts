@@ -27,7 +27,6 @@ export const SLUGS_LEGADOS_AULA_CONCLUIDA_GUIA: Partial<Record<string, readonly 
     'menu-superior',
     'menu-lateral',
   ],
-  'acesso-gravity-university': ['navegacao-gravity-university'],
   'bid-frete-entendendo': ['bid-frete-visao-geral'],
   'bid-frete-tipos-cotacao': ['bid-frete-acesso'],
 }

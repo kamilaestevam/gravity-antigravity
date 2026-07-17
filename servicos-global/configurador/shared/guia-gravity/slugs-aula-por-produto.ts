@@ -10,7 +10,7 @@ export const SLUGS_AULA_POR_PRODUTO_GUIA: Readonly<Record<string, readonly strin
   login: ['meu-primeiro-acesso', 'entrar-email-senha', 'recuperar-senha'],
   navegacao: [
     'menus-plataforma',
-    'acesso-gravity-university',
+    'funcionalidades-listas',
   ],
   admin: [
     'admin-visao-geral',

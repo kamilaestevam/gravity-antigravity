@@ -107,7 +107,8 @@ Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
 | **Tempo** | Cronômetro acumula em `tempo_processo_total_ms`; persistido no progresso da leitura |
 | **Progresso honesto** | Barras: Envio (real, XHR) · Análise (estimativa por mediana, pill «Estimativa») · Consolidação (real). SSOT `calcular-progresso-etapas-analise-nova-leitura-smart-read.ts` (TASK-000424) |
 | **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia); acumulado via `GET /leituras/agregado-workspace` (Postgres, 1 chamada, guarda anti-sobreposição) |
-| **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — só após análise finalizada) |
+| **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — após `processamentoFinalizado`; loading + anti double-click; sync extração até 15s antes do `PATCH` passo 3 — PR #829) |
+| **Tokens sidebar** | Informativo pós-OCR; prefetch riscos não bloqueia Continuar |
 | **Documentos** | Chips/lista expandível no card; visualizar por tipo abre nova aba |
 | **SLA testes** | Barras refletem tempo real do DATI (~30s/arquivo); EMT valida execução total ≤ 75s |
 
@@ -143,7 +144,7 @@ Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `0001
 | **Campo data** | Exibição **DD/MM/AAAA**; edição = input fino + ícone; calendário via **portal** (`CampoCalendarioGlobal` `modoUnico`); persistência **ISO `yyyy-mm-dd`** |
 | **SSOT data** | `data-campo-conferencia-leitura-smart-read.ts` + `campo-linha-conferencia-nova-leitura-smart-read.tsx` |
 | **Cores barra** | [padrao-dt-row-status-campos.md](../../../documentos-tecnicos/ux/design-system/padrao-dt-row-status-campos.md) |
-| **Tokens IA (sidebar)** | Discreto no rodapé lateral a partir do passo 2; `usageMetadata` Gemini real (QA, riscos, classificação fiscal); DATI passo 1–2 fora; migration `20260626220000` |
+| **Tokens IA (sidebar)** | Discreto no rodapé lateral a partir do passo 2; `usageMetadata` Gemini real (QA, riscos, classificação fiscal); DATI passo 1–2 fora; OCR → «—»; prefetch riscos passo 2 não bloqueia Continuar (PR #829); migration `20260626220000` |
 | **Doc completo §7–12** | Conferência tripla, stores sessionStorage, modal checklist — ver doc técnico |
 
 ---

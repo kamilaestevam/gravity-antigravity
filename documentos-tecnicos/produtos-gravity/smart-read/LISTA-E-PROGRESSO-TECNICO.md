@@ -141,6 +141,7 @@ Handlers: `solicitarRemoverArquivo` → `confirmarRemoverArquivo` em `modal-nova
 | Upload (passo 1) | Vínculo workspace em `progresso_leitura_smart_read` (hoje sem `status_fluxo`; alvo §14: stub `IA_ANALISANDO`, passo 2) |
 | Análise concluída (passo 2) | Sim — `PATCH` automático (alvo §14: derivar `status_fluxo_progresso_leitura_smart_read`) |
 | Continuar / Voltar passo | Sim — atualiza `passo_atual` (alvo §14: espelhar `status_fluxo` no progresso) |
+| **Continuar passo 2 → 3** | Exige `montarEstadoProgressoLeituraSmartRead` com extração util (`leituraTemExtracaoUtilRetomarSmartRead`). Race UI 100% × estado local: sync `GET /leituras/:id` até 15s + toast se falhar (PR #829). Guard anti double-click no botão |
 | Concluir passo 4 | Sim — sessão no progresso (alvo §14: `fluxo_finalizado: true` → `FINALIZADO` no progresso e snapshot) |
 | Renomear (qualquer passo) | Sim no estado local; `PATCH` imediato se passo ≥ 2 e análise concluída |
 | Excluir arquivo (passo 1) | Sim — `PATCH` se `passoSalvoRef ≥ 2` e ainda há arquivos; `limparEstado` se lista ficar vazia (ver §3) |
@@ -149,7 +150,7 @@ Handlers: `solicitarRemoverArquivo` → `confirmarRemoverArquivo` em `modal-nova
 **Primário:** `PATCH` → tabela `progresso_leitura_smart_read` (Railway, `SMART_READ_DATABASE_URL`).  
 **Fallback:** `localStorage` chave `smart-read:leitura:{id}` se API indisponível.
 
-Arquivos: `client/src/shared/persistencia-leitura-smart-read.ts`, `server/src/routes/progresso-leitura-smart-read.ts`.
+Arquivos: `client/src/shared/persistencia-leitura-smart-read.ts`, `client/src/shared/montar-estado-progresso-leitura-smart-read.ts`, `server/src/routes/progresso-leitura-smart-read.ts`.
 
 ---
 

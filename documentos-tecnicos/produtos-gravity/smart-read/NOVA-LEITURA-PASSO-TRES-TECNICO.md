@@ -75,18 +75,20 @@ Contadores clicáveis: **Verificados** (azul, total) · **Preenchidos** (verde) 
 
 ## 6. Contador discreto de tokens IA (sidebar)
 
-> **Task:** TASK-000357 · Persistência: [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §3.1
+> **Task:** TASK-000357 · Persistência: [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §3.1 · **Passo 2 (prefetch):** PR #829
 
 | Aspecto | Regra |
 |---------|-------|
 | **Onde** | Rodapé da sidebar (`painel-lateral-arquivos-nova-leitura-smart-read.tsx`), acima de Voltar/Continuar |
 | **Quando** | Visível a partir do **passo 2** (`exibirContadorTokens={passo >= 2}`) |
 | **Componente** | `contador-tokens-discreto-nova-leitura-smart-read.tsx` |
-| **Hook** | `use-contador-tokens-leitura-smart-read.ts` → `GET /leituras/tokens/:id_leitura` |
-| **Exibição** | Sempre mostra o total (inclui `0 tokens IA`); formatação `formatarTokensDiscretoLeituraSmartRead` |
-| **Atualização** | Após QA ou Análise de Riscos via `onTokensAtualizados` / `uso_llm_leitura` na resposta; senão recarrega do GET |
+| **Hook** | `use-contador-tokens-leitura-smart-read.ts` — **zero HTTP** enquanto OCR não concluiu (`redeLiberada: analiseCompleta`); depois `GET /leituras/tokens/:id_leitura` |
+| **Durante OCR** | Valor «—» + rótulo «aguardando extração do documento» |
+| **Após OCR** | «tokens nesta sessão»; prefetch de riscos em background **não bloqueia** Continuar nem exibe «contando tokens» com zero — tokens sobem quando `onTokensAtualizados` ou `recarregar()` após LLM |
+| **Exibição** | Formatação `formatarTokensDiscretoLeituraSmartRead`; animação só quando `iaAtiva` (abas passo 3: QA, riscos) |
+| **Atualização** | Payload LLM (`uso_llm_leitura`) ou reconciliação ociosa ao encerrar IA |
 
-**Fonte dos números:** `usageMetadata` do Gemini (`promptTokenCount`, `candidatesTokenCount`) — não inclui extração DATI do passo 2. Abas que disparam LLM: **Análise de Riscos** e **Consultor Inteligente** (Rafa); **Conferência de Campos** sozinha mantém 0 até outra aba rodar.
+**Fonte dos números:** `usageMetadata` do Gemini (`promptTokenCount`, `candidatesTokenCount`) — não inclui extração DATI do passo 2. Abas que disparam LLM: **Análise de Riscos** e **Consultor Inteligente** (Rafa); **Conferência de Campos** sozinha mantém 0 até outra aba rodar. Prefetch de riscos no passo 2 (`dispararAnaliseRiscosBackgroundSmartRead`) alimenta o contador sem acionar estado «IA ativa» na sidebar.
 
 ---
 

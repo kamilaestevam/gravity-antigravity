@@ -147,13 +147,18 @@ async function chamarLegadoSemCorpo(
   }
 }
 
-async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIMEOUT_MS): Promise<unknown> {
+async function chamarLegado(
+  caminho: string,
+  init: RequestInit,
+  timeoutMs = TIMEOUT_MS,
+  sinal?: AbortSignal,
+): Promise<unknown> {
   const { urlBase } = configuracaoLegado()
   let resposta: globalThis.Response
   try {
     resposta = await fetch(`${urlBase}${BASE_PATH}${caminho}`, {
       ...init,
-      signal: AbortSignal.timeout(timeoutMs),
+      signal: sinal ? AbortSignal.any([sinal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs),
     })
   } catch (erro) {
     throw new AppError(
@@ -173,15 +178,20 @@ async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIME
   return resposta.json()
 }
 
-export async function criarLeituraLegado(companyId: string): Promise<string> {
+export async function criarLeituraLegado(companyId: string, sinal?: AbortSignal): Promise<string> {
   if (deveUsarMockLegadoSmartRead()) {
     registrarUsoMockLegado()
     return criarLeituraMockLegado()
   }
-  const corpo = await chamarLegado('', {
-    method: 'POST',
-    headers: { ...cabecalhosBase(companyId), 'x-smart-read-project-id': 'gravity' },
-  })
+  const corpo = await chamarLegado(
+    '',
+    {
+      method: 'POST',
+      headers: { ...cabecalhosBase(companyId), 'x-smart-read-project-id': 'gravity' },
+    },
+    TIMEOUT_MS,
+    sinal,
+  )
   return CriarLeituraLegadoRespostaSchema.parse(corpo)._id
 }
 
@@ -189,6 +199,7 @@ export async function enviarArquivoLegado(
   companyId: string,
   idLeitura: string,
   arquivo: { buffer: Buffer; nome: string; mimeType: string },
+  sinal?: AbortSignal,
 ): Promise<string | null> {
   if (deveUsarMockLegadoSmartRead()) {
     registrarUsoMockLegado()
@@ -212,6 +223,7 @@ export async function enviarArquivoLegado(
       body: formulario,
     },
     TIMEOUT_UPLOAD_MS,
+    sinal,
   )
   return EnviarArquivoLegadoRespostaSchema.parse(corpo).fileReferenceId ?? null
 }

@@ -3346,8 +3346,10 @@ function ManualBlocoPassoVisual({
             ? 0
             : emAcordeaoSubtopico
               ? MANUAL_ESPACO_ANTES_INFOGRAFICO_ACORDEAO_PX
-              : MANUAL_ESPACO_ENTRE_PASSOS_PX,
-          marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX,
+              : passoAcademyIsolado
+                ? MANUAL_ESPACO_PARAGRAFO_PX
+                : MANUAL_ESPACO_ENTRE_PASSOS_PX,
+          marginBottom: passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
         }}>
           <ManualInfograficoBidFreteCotacaoAvulsaFormas />
         </div>

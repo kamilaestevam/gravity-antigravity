@@ -210,7 +210,7 @@ export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
           <strong style={{ color: '#cbd5e1' }}> Planilha</strong>,{' '}
           <strong style={{ color: '#cbd5e1' }}>API</strong> e{' '}
           <strong style={{ color: '#cbd5e1' }}>Smart Docs</strong> aparecem no menu com badge{' '}
-          <strong style={{ color: '#cbd5e1' }}>Em breve</strong> — use os subtópicos deste capítulo quando
+          <strong style={{ color: '#cbd5e1' }}>Em breve</strong> — use os subtópicos a seguir quando
           estiverem disponíveis.
         </p>
       </div>

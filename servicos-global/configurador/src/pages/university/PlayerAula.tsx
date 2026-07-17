@@ -253,6 +253,19 @@ function calcularEspacoSuperiorBlocoGuia(
   if (classificacao === 'passo' && blocoAnterior?.tipo === 'infografico') {
     return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
   }
+  // Fim de fluxo_manual → H2 de seção irmã (ex.: Tipos → Nova cotação na aula unificada)
+  if (
+    bloco.tipo === 'heading'
+    && Number(bloco.dados.nivel ?? 1) === 2
+    && !bloco.dados.ocultarNoCorpo
+    && blocoAnterior?.tipo === 'fluxo_manual'
+  ) {
+    const modoAnterior = String(blocoAnterior.dados.modo ?? 'completo')
+    if (modoAnterior === 'passo' || modoAnterior === 'completo' || modoAnterior === 'intro') {
+      return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    }
+  }
+
   // Callout / visual / texto → título de fluxo (H2/H3), ex.: «Acessar organização», «Convidar usuário»
   if (classificacao === 'subtitulo' && blocoAnterior) {
     return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX

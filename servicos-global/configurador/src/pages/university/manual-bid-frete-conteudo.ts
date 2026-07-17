@@ -824,6 +824,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       tituloSumario: 'Tipos de cotação',
       prefixoPassosVisuais: 'Tipos de cotação',
       ancoraPassosPrefix: 'tipos-cotacao',
+      mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**.',
         'O detalhamento de cada uma delas está no subtópico a seguir, **Nova cotação**.',
@@ -832,6 +833,8 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         {
           titulo: 'Cotação de frete internacional — Tipos',
           ocultarRotuloPasso: true,
+          ocultarTituloPasso: true,
+          ocultarNoSumario: true,
           mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
           paragrafos: [],
         },

@@ -43,7 +43,7 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR: GaleriaNovaCotacao[] = [
         printsApos: [
           {
             imagem: S('insight_nova_cotacao_tela_2'),
-            paragrafoAntesPrint: '**02.** Escolha **Manual** em **Cotação avulsa**',
+            paragrafoAntesPrint: '**02.** Escolha **Manual** em **Cotação avulsa** ou **BID**',
           },
         ],
       },

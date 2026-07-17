@@ -262,7 +262,9 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
   const blocos: BlocoConteudoAcademy[] = []
   const fluxoRender = fluxoComPassosSubtituloAcademy(fluxo, nivelTituloFluxo)
 
-  blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: nivelTituloFluxo } })
+  if (!fluxo.ocultarTituloFluxoAcademy) {
+    blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: nivelTituloFluxo } })
+  }
   const tituloIntro = fluxo.tituloTopicoAcademy?.trim()
   if (tituloIntro) {
     blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })

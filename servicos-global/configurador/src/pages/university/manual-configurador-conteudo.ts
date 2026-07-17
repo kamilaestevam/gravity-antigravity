@@ -633,6 +633,8 @@ export interface DocFluxo {
   mostrarMapaSubtopicosPassos?: boolean
   /** Academy — H2 do bloco introdutório (paridade `tituloTopico` da seção; ex.: «Mapa de métricas»). */
   tituloTopicoAcademy?: string
+  /** Academy — omite o H2 do fluxo no Player (conteúdo segue nos passos; ex.: «Nova cotação» unificada). */
+  ocultarTituloFluxoAcademy?: boolean
   /** Mini-stepper das etapas do wizard (ex.: Anexar · Análise · Conferência · Resultado). */
   wizardEtapas?: DocWizardEtapa[]
   passosVisuais: DocPassoVisual[]

@@ -34,7 +34,7 @@ export const LOGIN_AULA_SLUGS = [
 ] as const
 
 /** Durações de leitura (PlayerAula) — regra §10 MANUAL-GRAVITY-ONBOARDING.md / skill manual-gravity-onboarding */
-const LOGIN_DURACOES = ['3m', '3m', '2m'] as const
+const LOGIN_DURACOES = ['8m', '6m', '5m'] as const
 
 const SECAO_TELA_ACESSO = DOC_LOGIN_SECOES[0]
 const SECAO_CRIAR_CONTA = DOC_LOGIN_SECOES[1]

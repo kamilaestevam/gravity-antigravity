@@ -861,6 +861,15 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
+      titulo: 'Cotação de frete internacional — O que é',
+      tituloSumario: 'O que é',
+      paragrafos: [
+        'A **cotação de frete internacional** é o processo de **solicitar**, **receber** e **comparar** propostas de transportadoras e agentes de carga para uma operação de comércio exterior — do embarque à entrega, com rotas, modais, Incoterms e custos detalhados.',
+        'No **BID Frete**, esse fluxo começa com a **criação da solicitação** (**Cotação avulsa** ou **BID**), segue com o **envio aos fornecedores**, a **análise das propostas** no **Painel da Cotação** e culmina no **fechamento** do frete escolhido.',
+        'Neste capítulo você encontra os **tipos** de solicitação, as **formas de incluir** uma nova cotação e o **cockpit** para acompanhar cada pedido até a decisão.',
+      ],
+    },
+    {
       titulo: 'Cotação de frete internacional — Tipos',
       tituloSumario: 'Tipos de cotação',
       prefixoPassosVisuais: 'Tipos de cotação',
@@ -868,7 +877,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
         'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**.',
-        'O detalhamento de cada uma delas está no subtópico a seguir, **Nova cotação**.',
+        'O detalhamento de cada forma está nos **tópicos a seguir**.',
       ],
       passosVisuais: renumerarPassos([
         {
@@ -887,10 +896,12 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       prefixoPassosVisuais: 'Nova cotação',
       ancoraPassosPrefix: 'nova-cotacao',
       mostrarMapaSubtopicosPassos: true,
+      ocultarTituloFluxoAcademy: true,
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Visão geral da Nova cotação',
-          tituloCurto: 'Visão geral',
+          titulo: 'Locais para iniciar nova cotação',
+          tituloCurto: 'Locais para iniciar nova cotação',
+          ocultarNoSumario: true,
           paragrafos: [
             'No **BID Frete**, toda solicitação tem início nos botões {{botao:novo-bid-frete}}.',
           ],

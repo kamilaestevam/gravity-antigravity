@@ -2,8 +2,7 @@ import React from 'react'
 import { ArrowsLeftRight, FileText, Stack, type Icon } from '@phosphor-icons/react'
 import { ManualInfograficoRichText } from './manual-infografico-rich-text'
 import {
-  MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX,
-  MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+  MANUAL_TITULO_INFOGRAFICO_ESTILO,
 } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
@@ -115,14 +114,7 @@ export function ManualInfograficoBidFreteCotacaoAvulsaVsBid() {
         boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
       }}
     >
-      <p style={{
-        margin: `0 0 ${MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX}px`,
-        fontSize: '.62rem',
-        fontWeight: 800,
-        letterSpacing: '.1em',
-        textTransform: 'uppercase',
-        color: '#818cf8',
-      }}>
+      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Cotação avulsa × BID
       </p>
 
@@ -147,15 +139,6 @@ export function ManualInfograficoBidFreteCotacaoAvulsaVsBid() {
         </div>
         <CardComparacao coluna={COLUNAS[1]} />
       </div>
-
-      <p style={{
-        margin: `${MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX}px 0 0`,
-        fontSize: '.68rem',
-        lineHeight: 1.5,
-        color: CORPO_70,
-      }}>
-        <ManualInfograficoRichText texto="No menu **+ Nova**, escolha **Cotação avulsa** para uma solicitação isolada ou **BID** para agrupar várias cotações." />
-      </p>
     </div>
   )
 }

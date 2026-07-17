@@ -3020,13 +3020,10 @@ function telasGaleriaSemParagrafoNoRotulo<T extends { paragrafoAntes?: string }>
 
 /** Guia coluna única — ritmo entre telas da galeria (`manual-tipografia.ts`). */
 function espacoAcimaTelaGaleriaGuiaPx(
-  telaAtual: DocGaleriaComparacaoTela,
+  _telaAtual: DocGaleriaComparacaoTela,
   indiceTela: number,
 ): number {
   if (indiceTela === 0) return 0
-  if (telaAtual.paragrafoAntes?.trim() || telaAtual.calloutAntes) {
-    return MANUAL_ESPACO_IMAGEM_FRASE_PX
-  }
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
 
@@ -4702,15 +4699,20 @@ export function ManualSecaoFluxo({
 
   const introFluxo = (
     <>
-      {fluxo.paragrafos?.map((p, i) => (
-        <div key={i}>
+      {fluxo.paragrafos?.map((p, i) => {
+        const espacoAposParagrafo = manualMargemParagrafoAntesCallout(
+          i,
+          fluxo.paragrafos?.length ?? 0,
+          fluxo.calloutAposParagrafo?.indice,
+        )
+        return (
+        <div
+          key={i}
+          style={espacoAposParagrafo > 0 ? { paddingBottom: espacoAposParagrafo } : undefined}
+        >
           <ManualParagrafo
             texto={p}
-            marginBottom={manualMargemParagrafoAntesCallout(
-              i,
-              fluxo.paragrafos?.length ?? 0,
-              fluxo.calloutAposParagrafo?.indice,
-            )}
+            marginBottom={0}
           />
           {fluxo.calloutAposParagrafo?.indice === i && (() => {
             const margens = manualMargemCalloutAposParagrafo(
@@ -4738,7 +4740,8 @@ export function ManualSecaoFluxo({
             </div>
           ))}
         </div>
-      ))}
+        )
+      })}
       {fluxo.callout && !fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
       )}
@@ -6024,12 +6027,13 @@ function ManualBlocoCenarioAcesso({
   /** Vão fim de imagem → próximo texto (SSOT `MANUAL_ESPACO_IMAGEM_FRASE_PX`). */
   espacoImagemTextoPx?: number
 }) {
-  const espacoAntesPrintPx = espacoAntesPrintPxProp ?? (
+  const espacoLegendaAntesFiguraPx = espacoAntesPrintPxProp ?? (
     emAcordeaoSubtopico
       ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
       : MANUAL_ESPACO_PARAGRAFO_PX
   )
-  const espacoEntrePrintsPx = espacoImagemTextoPx ?? espacoAntesPrintPxProp ?? MANUAL_ESPACO_ENTRE_PASSOS_PX
+  /** Fim de screenshot → próxima instrução (PASSO NN): 32px — SSOT Guia, não `MANUAL_ESPACO_IMAGEM_FRASE_PX`. */
+  const espacoEntrePassosSequenciaisPx = MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   const temPrint = Boolean(imagem || (printsApos?.length ?? 0) > 0)
   const espacoAposBlocoPx = espacoAposBlocoPxProp ?? (
     temPrint ? MANUAL_ESPACO_ENTRE_PASSOS_PX : MANUAL_ESPACO_PARAGRAFO_PX
@@ -6038,13 +6042,13 @@ function ManualBlocoCenarioAcesso({
   const renderPrint = (
     src: string,
     legenda?: string,
-    marginTop = espacoAntesPrintPx,
+    marginTop = 0,
   ) => (
     <div key={src} style={{ marginTop }}>
       {legenda ? (
         <ManualGaleriaLegendaPrintPasso
           texto={legenda}
-          margemAbaixo={espacoAntesPrintPx}
+          margemAbaixo={espacoLegendaAntesFiguraPx}
           modoTituloSubtopico={modoTituloSubtopico}
           semAlturaMinima
         />
@@ -6067,7 +6071,7 @@ function ManualBlocoCenarioAcesso({
         padding: '2px 0 0 18px',
         borderLeft: '3px solid rgba(99,102,241,.45)',
         minWidth: 0,
-        marginBottom: temPrint ? espacoAntesPrintPx : 0,
+        marginBottom: temPrint ? espacoLegendaAntesFiguraPx : 0,
       }}>
         <div style={{
           display: 'flex',
@@ -6099,7 +6103,7 @@ function ManualBlocoCenarioAcesso({
       {printsApos?.map((print, idx) => renderPrint(
         print.imagem,
         print.paragrafoAntesPrint,
-        imagem || idx > 0 ? espacoEntrePrintsPx : 0,
+        imagem || idx > 0 ? espacoEntrePassosSequenciaisPx : 0,
       ))}
     </div>
   )

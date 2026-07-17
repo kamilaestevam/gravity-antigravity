@@ -10,6 +10,9 @@ import {
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_PARAGRAFO_PX } from './manual-tipografia'
 
+/** Vão ícone ↔ rótulo na legenda de escopo (Nova cotação — §4.01). */
+const LEGENDA_ESCOPO_GAP_ICONE_TEXTO_PX = 16
+
 export type ManualBidFreteEscopoOperacaoId = 'importacao' | 'exportacao'
 export type ManualBidFreteEscopoModalId = 'maritimo' | 'aereo' | 'rodoviario'
 
@@ -296,7 +299,8 @@ function ManualBidFreteLegendaEscopoLinha<T extends string>({
     <div style={{
       display: 'grid',
       gridTemplateColumns: '26px minmax(88px, 120px) minmax(0, 1fr)',
-      gap: '8px 10px',
+      columnGap: LEGENDA_ESCOPO_GAP_ICONE_TEXTO_PX,
+      rowGap: 8,
       alignItems: 'center',
     }}>
       <ManualBidFreteLegendaEscopoIconePreview icone={icone} ativo />

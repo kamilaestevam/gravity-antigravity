@@ -47,16 +47,23 @@ const LIMIAR_ACIMA = 92
 export function TooltipGraficoInsightsSmartRead({
   ancora,
   conteudo,
+  posicaoPreferida = 'auto',
 }: {
   ancora: AncoraTooltipInsightsSmartRead
   conteudo: ConteudoTooltipInsightsSmartRead
+  posicaoPreferida?: 'auto' | 'abaixo' | 'acima'
 }) {
   const larguraViewport = typeof window !== 'undefined' ? window.innerWidth : 1200
   const left = Math.min(
     Math.max(ancora.cx, MARGEM_HORIZONTAL),
     Math.max(MARGEM_HORIZONTAL, larguraViewport - MARGEM_HORIZONTAL),
   )
-  const acima = ancora.yTopo > LIMIAR_ACIMA
+  const acima =
+    posicaoPreferida === 'acima'
+      ? true
+      : posicaoPreferida === 'abaixo'
+        ? false
+        : ancora.yTopo > LIMIAR_ACIMA
 
   return createPortal(
     <div

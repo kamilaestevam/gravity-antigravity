@@ -52,6 +52,7 @@ type PassoBordaLateralGuia = {
   rotuloPasso?: string
   rotuloPassoAposGaleriaComparacao?: boolean
   estiloTituloWizard?: boolean
+  omitirBordaLateralRotuloAcademy?: boolean
 }
 
 /** SSOT — passo usa borda lateral indigo (rótulo ou «Passo NN», nunca H2 wizard). */
@@ -59,6 +60,7 @@ export function passoUsaBordaLateralGuia(
   passo: PassoBordaLateralGuia,
   opts?: { forcarRotulo?: boolean; exibirRotuloNumerado?: boolean },
 ): boolean {
+  if (passo.omitirBordaLateralRotuloAcademy) return false
   if (opts?.forcarRotulo) return true
   if (passo.rotuloPasso?.trim() && !passo.rotuloPassoAposGaleriaComparacao) return true
   if (opts?.exibirRotuloNumerado && !passo.estiloTituloWizard) return true

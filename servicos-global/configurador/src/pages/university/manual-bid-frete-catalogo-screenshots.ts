@@ -51,8 +51,12 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'cotacao_bid_1': '/university/screenshots/bid-frete-int-cotacao-bid-1.png',
   'cotacao_bid_modal_selec': '/university/screenshots/bid-frete-int-cotacao-bid-modal-selec.png',
   'cotacao_bid_modal': '/university/screenshots/bid-frete-int-cotacao-bid-modal.png',
+  'dashboard': '/university/screenshots/bid-frete-int-dashboard.png',
   'destino_1': '/university/screenshots/bid-frete-int-destino-1.png',
   'destino_2': '/university/screenshots/bid-frete-int-destino-2.png',
+  'exportar_': '/university/screenshots/bid-frete-int-exportar-.png',
+  'exportar_1': '/university/screenshots/bid-frete-int-exportar-1.png',
+  'exportar_2': '/university/screenshots/bid-frete-int-exportar-2.png',
   'insight_1': '/university/screenshots/bid-frete-int-insight-1.png',
   'insight_2': '/university/screenshots/bid-frete-int-insight-2.png',
   'insight_3': '/university/screenshots/bid-frete-int-insight-3.png',
@@ -100,6 +104,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'insight_visão_mapa_restaurar': '/university/screenshots/bid-frete-int-insight-visão-mapa-restaurar.png',
   'insight_visao_mapa': '/university/screenshots/bid-frete-int-insight-visao-mapa.png',
   'insight_visão_mapa': '/university/screenshots/bid-frete-int-insight-visão-mapa.png',
+  'kanban': '/university/screenshots/bid-frete-int-kanban.png',
   'lista_cotacao_nova_1': '/university/screenshots/bid-frete-int-lista-cotacao-nova-1.png',
   'lista_cotacao_nova_2': '/university/screenshots/bid-frete-int-lista-cotacao-nova-2.png',
   'lista_cotacao_nova_cotacao_avulsa_': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-.png',
@@ -182,6 +187,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual-processo-cotacao-solicitacao.png',
   'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual-processo-cotacao.png',
   'lista_cotacao_nova_cotacao_avulsa_manual': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual.png',
+  'lista_editar': '/university/screenshots/bid-frete-int-lista-editar.png',
   'lista_localizar': '/university/screenshots/bid-frete-int-lista-localizar.png',
   'lista_paineis_editar_1': '/university/screenshots/bid-frete-int-lista-paineis-editar-1.png',
   'lista_paineis_editar_2': '/university/screenshots/bid-frete-int-lista-paineis-editar-2.png',
@@ -199,6 +205,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'manual_origem_porto_origem_pais': '/university/screenshots/bid-frete-int-manual-origem-porto-origem-pais.png',
   'manual_origem_porto_origem_preferencias': '/university/screenshots/bid-frete-int-manual-origem-porto-origem-preferencias.png',
   'manual_origem_porto_origem': '/university/screenshots/bid-frete-int-manual-origem-porto-origem.png',
+  'modal_coluna': '/university/screenshots/bid-frete-int-modal-coluna.png',
   'modal_operaca': '/university/screenshots/bid-frete-int-modal-operaca.png',
   'origem_': '/university/screenshots/bid-frete-int-origem-.png',
   'origem_1': '/university/screenshots/bid-frete-int-origem-1.png',
@@ -293,8 +300,12 @@ export const SCREENSHOT_BID_FRETE_INT_COTACAO_AVULSA = screenshotBidFreteInt('co
 export const SCREENSHOT_BID_FRETE_INT_COTACAO_BID_1 = screenshotBidFreteInt('cotacao_bid_1')
 export const SCREENSHOT_BID_FRETE_INT_COTACAO_BID_MODAL_SELEC = screenshotBidFreteInt('cotacao_bid_modal_selec')
 export const SCREENSHOT_BID_FRETE_INT_COTACAO_BID_MODAL = screenshotBidFreteInt('cotacao_bid_modal')
+export const SCREENSHOT_BID_FRETE_INT_DASHBOARD = screenshotBidFreteInt('dashboard')
 export const SCREENSHOT_BID_FRETE_INT_DESTINO_1 = screenshotBidFreteInt('destino_1')
 export const SCREENSHOT_BID_FRETE_INT_DESTINO_2 = screenshotBidFreteInt('destino_2')
+export const SCREENSHOT_BID_FRETE_INT_EXPORTAR_ = screenshotBidFreteInt('exportar_')
+export const SCREENSHOT_BID_FRETE_INT_EXPORTAR_1 = screenshotBidFreteInt('exportar_1')
+export const SCREENSHOT_BID_FRETE_INT_EXPORTAR_2 = screenshotBidFreteInt('exportar_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_1 = screenshotBidFreteInt('insight_1')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_2 = screenshotBidFreteInt('insight_2')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_3 = screenshotBidFreteInt('insight_3')
@@ -342,6 +353,7 @@ export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_MAPA_RESTAURAR = screenshotB
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA_RESTAURAR = screenshotBidFreteInt('insight_visão_mapa_restaurar')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_MAPA = screenshotBidFreteInt('insight_visao_mapa')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA = screenshotBidFreteInt('insight_visão_mapa')
+export const SCREENSHOT_BID_FRETE_INT_KANBAN = screenshotBidFreteInt('kanban')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_1 = screenshotBidFreteInt('lista_cotacao_nova_1')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_2 = screenshotBidFreteInt('lista_cotacao_nova_2')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_ = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_')
@@ -424,6 +436,7 @@ export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_P
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_PROCESSO_COTACAO_SOLICITACAO = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_PROCESSO_COTACAO = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_EDITAR = screenshotBidFreteInt('lista_editar')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_LOCALIZAR = screenshotBidFreteInt('lista_localizar')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_PAINEIS_EDITAR_1 = screenshotBidFreteInt('lista_paineis_editar_1')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_PAINEIS_EDITAR_2 = screenshotBidFreteInt('lista_paineis_editar_2')
@@ -441,6 +454,7 @@ export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_DADOS_PAIS_CIDA
 export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_PAIS = screenshotBidFreteInt('manual_origem_porto_origem_pais')
 export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM_PREFERENCIAS = screenshotBidFreteInt('manual_origem_porto_origem_preferencias')
 export const SCREENSHOT_BID_FRETE_INT_MANUAL_ORIGEM_PORTO_ORIGEM = screenshotBidFreteInt('manual_origem_porto_origem')
+export const SCREENSHOT_BID_FRETE_INT_MODAL_COLUNA = screenshotBidFreteInt('modal_coluna')
 export const SCREENSHOT_BID_FRETE_INT_MODAL_OPERACA = screenshotBidFreteInt('modal_operaca')
 export const SCREENSHOT_BID_FRETE_INT_ORIGEM_ = screenshotBidFreteInt('origem_')
 export const SCREENSHOT_BID_FRETE_INT_ORIGEM_1 = screenshotBidFreteInt('origem_1')

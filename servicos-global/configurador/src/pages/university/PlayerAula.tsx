@@ -1180,7 +1180,8 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           />
 
           <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {!(titulosSumario.length === 1
+            {!aula.ocultarCabecalhoNavSumario
+              && !(titulosSumario.length === 1
               && titulosSumario[0]!.texto.trim().toLocaleLowerCase('pt-BR') === aula.titulo.trim().toLocaleLowerCase('pt-BR')) && (
                 <div style={{
                   padding: '10px 10px 6px',

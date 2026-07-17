@@ -618,7 +618,7 @@ export default function DetalheCotacao() {
 
   const abaConteudoExpandido = tab === 'respostas' || tab === 'bids' || tab === 'dados_gerais'
   const exibirComparativoHero = cotacao.status_cotacao_bid_frete_internacional === 'AGUARDANDO_APROVACAO'
-  const exibirExcluirHero = cotacao.status_cotacao_bid_frete_internacional === 'RASCUNHO'
+  const exibirExcluirHero = cotacao.status_cotacao_bid_frete_internacional !== 'APROVADA'
   const exibirAcoesHero = exibirComparativoHero || exibirExcluirHero
 
   return (

@@ -3,7 +3,7 @@ import { renumerarPassos } from './manual-configurador-conteudo'
 import { screenshotBidFreteInt as S } from './manual-bid-frete-catalogo-screenshots'
 
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/docs/bid-frete#doc-sec-11|Configurações}}'
+  '{{link:/university-gravity/academy/bid-frete/bid-frete-configuracoes|Configurações}}'
 const LINK_GRAVITY_STORE = '{{link:/university-gravity/docs/store|Gravity Store}}'
 const TEXTO_VALOR_TAXA_VARIAVEL =
   `**podendo variar** (consulte ${LINK_GRAVITY_STORE} e ${LINK_MANUAL_BID_FRETE_CONFIGURACOES})`

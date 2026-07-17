@@ -14,6 +14,47 @@ import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
 
 const S = screenshotBidFreteInt
 
+/** §4.02 — wizard manual da cotação avulsa (simulador Modal e Operação). */
+const PASSO_COTACAO_AVULSA_MANUAL = {
+  titulo: 'Cotação manual',
+  tituloCurto: 'Cotação manual',
+  paragrafos: [
+    'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
+    'O fornecedor irá receber o pedido de cotação via **email**.',
+    'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
+  ],
+  galeriaComparacaoAposParagrafo: [
+    ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+    {
+      indice: 1,
+      colunas: 1,
+      telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
+    },
+    {
+      indice: 2,
+      colunas: 2,
+      colunasGradeTemplate: '2fr 1fr',
+      telas: [
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
+        },
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_1'),
+          preencherCelulaGrade: true,
+          alturaMaxima: 240,
+        },
+      ],
+      calloutApos: {
+        tipo: 'dica',
+        texto:
+          'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
+      },
+    },
+  ],
+} as const
+
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
   '{{link:/university-gravity/academy/bid-frete/bid-frete-configuracoes|Configurações}}'
@@ -865,48 +906,16 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           paragrafos: [
             'A **Cotação avulsa** é uma solicitação **única**, um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
           ],
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: S('lista_cotacao_avulsa'),
+              legenda: 'Lista — cotação avulsa na grade',
+            },
+          ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
           passosFilhos: [
-            {
-              titulo: 'Cotação manual',
-              tituloCurto: 'Cotação manual',
-              paragrafos: [
-                'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
-                'O fornecedor irá receber o pedido de cotação via **email**.',
-                'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
-              ],
-              galeriaComparacaoAposParagrafo: [
-                ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
-                {
-                  indice: 1,
-                  colunas: 1,
-                  telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
-                },
-                {
-                  indice: 2,
-                  colunas: 2,
-                  colunasGradeTemplate: '2fr 1fr',
-                  telas: [
-                    {
-                      legenda: '',
-                      imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
-                    },
-                    {
-                      legenda: '',
-                      imagem: S('solicitacao_aviso_envio_usuario_1'),
-                      preencherCelulaGrade: true,
-                      alturaMaxima: 240,
-                    },
-                  ],
-                  calloutApos: {
-                    tipo: 'dica',
-                    texto:
-                      'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
-                  },
-                },
-              ],
-            },
             {
               titulo: 'Cotação via planilha',
               tituloCurto: 'Via planilha',
@@ -933,11 +942,19 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
             },
           ],
         },
+        PASSO_COTACAO_AVULSA_MANUAL,
         {
           titulo: 'BID',
           tituloCurto: 'BID',
           paragrafos: [
             'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única**, um frete, uma rota, um pedido isolado aos fornecedores.',
+          ],
+          figurasAposParagrafo: [
+            {
+              indice: 0,
+              imagem: S('lista_cotacao_bid'),
+              legenda: 'Lista — BID na grade',
+            },
           ],
           mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
@@ -995,20 +1012,22 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
         },
       ],
       mostrarInfograficoBidFretePainelCotacao: true,
-      figurasAposInfografico: [
-        {
-          paragrafoAntes:
-            'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
-          imagem: S('painel_cotacao_divisao'),
-          legenda: 'Painel da Cotação — menu superior, insights e abas do cockpit',
-        },
-      ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Acesso ao Painel da cotação',
-          tituloCurto: 'Acesso ao Painel da cotação',
+          titulo: 'Visão geral do painel de cotação',
+          tituloCurto: 'Visão geral do painel de cotação',
           paragrafos: [
-            'O **Painel da Cotação** pode ser acessado de **três formas**: pelo **mapa** de **Insights**, pelo **tooltip** dos KPIs ou pela **Lista** de cotações.',
+            'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
+          ],
+          imagem: S('painel_cotacao_divisao'),
+          imagemAbaixoTexto: true,
+          legendaAposImagem: 'Painel da Cotação — menu superior, insights e abas do cockpit',
+        },
+        {
+          titulo: 'Acesso ao painel de cotação e os acessos via lista e via insights',
+          tituloCurto: 'Acesso ao painel de cotação e os acessos via lista e via insights',
+          paragrafos: [
+            'O **Painel da Cotação** pode ser acessado pela **Lista** de cotações ou pelos atalhos de **Insights** — mapa e **KPIs** levam ao mesmo cockpit da solicitação.',
           ],
           galeriaComparacaoAposParagrafo: [...GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO],
         },

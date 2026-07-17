@@ -10,6 +10,7 @@ import type {
   DocPassoVisual as DocPassoConfigurador,
   DocSecao as DocSecaoConfigurador,
 } from './manual-configurador-conteudo'
+import { achatarPassosVisuais } from './manual-configurador-conteudo'
 import type { IdInfograficoAcademy } from './academy-infograficos'
 
 export type TipoBlocoAcademy =
@@ -189,6 +190,35 @@ function tituloPassoAcademy(passo: DocPassoConfigurador): string {
   return passo.tituloCurto?.trim() || passo.titulo
 }
 
+/** Com H1 + H2 de fluxo (aula multi-fluxo), passos viram subtítulo no corpo — ex.: «Visão geral» sob «Nova cotação». */
+function passoDeveSerSubtituloAcademy(passo: DocPassoConfigurador, nivelTituloFluxo: number): boolean {
+  if (nivelTituloFluxo < 2) return false
+  if (passo.rotuloPasso?.trim()) return false
+  if (passo.estiloTituloWizard) return false
+  if (passo.ocultarNoSumario && passo.ocultarTituloPasso) return false
+  return true
+}
+
+function fluxoComPassosSubtituloAcademy(fluxo: DocFluxo, nivelTituloFluxo: number): DocFluxo {
+  if (nivelTituloFluxo < 2 || !fluxo.passosVisuais?.length) return fluxo
+
+  function augmentPasso(passo: DocPassoConfigurador): DocPassoConfigurador {
+    const base = passoDeveSerSubtituloAcademy(passo, nivelTituloFluxo)
+      ? { ...passo, rotuloPasso: tituloPassoAcademy(passo) }
+      : passo
+    if (!base.passosFilhos?.length) return base
+    return {
+      ...base,
+      passosFilhos: base.passosFilhos.map(augmentPasso),
+    }
+  }
+
+  return {
+    ...fluxo,
+    passosVisuais: fluxo.passosVisuais.map(augmentPasso),
+  }
+}
+
 function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
   return Boolean(
     fluxo.mostrarCatalogoHistoricoCompleto
@@ -230,6 +260,7 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
   nivelTituloFluxo = 1,
 ): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
+  const fluxoRender = fluxoComPassosSubtituloAcademy(fluxo, nivelTituloFluxo)
 
   blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: nivelTituloFluxo } })
   const tituloIntro = fluxo.tituloTopicoAcademy?.trim()
@@ -240,14 +271,14 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
     blocos.push({
       tipo: 'fluxo_manual',
       dados: {
-        payload: JSON.stringify(fluxo),
+        payload: JSON.stringify(fluxoRender),
         numeroSecaoFluxo,
         modo: 'intro',
       },
     })
   }
 
-  for (const passo of fluxo.passosVisuais ?? []) {
+  for (const passo of achatarPassosVisuais(fluxoRender.passosVisuais ?? [])) {
     // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
     const tituloPasso = tituloPassoAcademy(passo)
     blocos.push({
@@ -264,7 +295,7 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
     blocos.push({
       tipo: 'fluxo_manual',
       dados: {
-        payload: JSON.stringify(fluxo),
+        payload: JSON.stringify(fluxoRender),
         numeroSecaoFluxo,
         modo: 'passo',
         passoNum: passo.num,
@@ -276,7 +307,7 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
     blocos.push({
       tipo: 'fluxo_manual',
       dados: {
-        payload: JSON.stringify(fluxo),
+        payload: JSON.stringify(fluxoRender),
         numeroSecaoFluxo,
         modo: 'rodape',
       },

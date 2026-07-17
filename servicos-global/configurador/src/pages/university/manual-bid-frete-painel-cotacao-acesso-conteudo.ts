@@ -1,42 +1,29 @@
 import { screenshotBidFreteInt as S } from './manual-bid-frete-catalogo-screenshots'
 
-/** §7.01 — três formas de abrir o Painel da Cotação. */
+/** §7.01 — acesso ao Painel da Cotação via Lista e Insights. */
 export const GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO = [
   {
     indice: 0,
-    textoAcimaEstiloCorpo: true,
-    cenariosAcesso: [
-      {
-        titulo: 'Via mapa',
-        chipAcessoPainelCotacao: 'mapa',
-        texto:
-          'No mapa de **Insights**, selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} para abrir o painel na rota destacada.',
-        imagem: S('painel_cotacao_acesso_1'),
-      },
-      {
-        titulo: 'Via tooltip',
-        chipAcessoPainelCotacao: 'tooltip',
-        texto:
-          'Passe o mouse sobre um **KPI** na aba **Insights** e clique no **link** da cotação no tooltip para abrir o **Painel da Cotação**.',
-        imagem: S('painel_cotacao_acesso_2'),
-      },
-      {
-        titulo: 'Via Lista',
-        chipAcessoPainelCotacao: 'lista',
-        texto:
-          'Na aba **Lista**, clique no ícone {{icone:abrir-cotacao-lista-bid-frete}} na linha da cotação — ou use o botão {{botao:ir-para-cotacao-bid-frete}} após criar uma nova solicitação.',
-        imagem: S('lista'),
-      },
-    ],
+    colunas: 1,
     telas: [
       {
-        legenda: '',
-        imagem: S('painel_cotacao_1'),
+        legenda: 'Via Lista',
+        imagem: S('lista_cotacao_painel_acesso_via_lista'),
         paragrafoAntes:
-          'Os **três** levam ao mesmo destino: o **Painel da Cotação**.',
+          'Na aba **Lista**, clique no ícone {{icone:abrir-cotacao-lista-bid-frete}} na linha da cotação — ou use o botão {{botao:ir-para-cotacao-bid-frete}} após criar uma nova solicitação.',
+      },
+      {
+        legenda: 'Via Insights',
+        imagem: S('lista_cotacao_painel_acesso_via_insight'),
+        paragrafoAntes:
+          'Em **Insights**, selecione uma **rota** ou pin{{icone:pin-mapa-bid-frete}} no **mapa** para abrir o painel na rota destacada.',
+      },
+      {
+        legenda: '',
+        imagem: S('lista_cotacao_painel_acesso_via_insight_1'),
+        paragrafoAntes:
+          'Passe o mouse sobre um **KPI** e clique no **link** da cotação no tooltip — os dois caminhos levam ao mesmo **Painel da Cotação**.',
       },
     ],
-    colunas: 1,
-    espacoInferiorAposEtapaPx: 22,
   },
 ] as const

@@ -4915,7 +4915,9 @@ export function ManualSecaoFluxo({
   if (modo === 'intro') return introFluxo
 
   if (modo === 'passo') {
-    const passo = fluxo.passosVisuais?.find(p => p.num === passoNum)
+    const passo = passoNum != null
+      ? encontrarPassoPorNum(fluxo.passosVisuais ?? [], passoNum)
+      : undefined
     if (!passo) return null
     return (
       <>

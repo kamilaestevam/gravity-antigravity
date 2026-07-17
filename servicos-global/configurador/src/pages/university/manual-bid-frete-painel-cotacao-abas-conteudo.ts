@@ -6,8 +6,8 @@ type PassoSemNumero = Omit<DocPassoVisual, 'num' | 'rotuloSecao' | 'numPai' | 'p
 /** §7.02–7.07 — abas do Painel da Cotação (cockpit da cotação). */
 export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
-    titulo: 'Visão geral do painel de cotação',
-    tituloCurto: 'Visão geral do painel de cotação',
+    titulo: 'Visão geral do painel de cotação — cockpit',
+    tituloCurto: 'Visão geral — cockpit',
     paragrafos: [
       'A aba **Visão geral** é o cockpit da cotação: reúne **cabeçalho**, **prazo para resposta**, **métricas de competição**, **linha do tempo**, o **Painel de Insights Inteligente** e os cards de **Detalhes gerais**, **Rota** e **Detalhes da carga**.',
     ],

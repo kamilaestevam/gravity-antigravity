@@ -456,15 +456,21 @@ export function AcademyBlocoPassoVisual({
               </p>
             )}
             {figurasAposParagrafoPasso(passo, i).map((fig) => (
-              <ManualFiguraScreenshot
-                key={fig.imagem}
-                src={fig.imagem}
-                alt={fig.legenda ?? passo.titulo}
-                larguraMaxima={fig.larguraMaxima}
-                larguraTotal={fig.larguraMaxima == null}
-                className="uni-player-aula__figura"
-                semSombraExterna
-              />
+              <React.Fragment key={fig.imagem}>
+                <ManualFiguraScreenshot
+                  src={fig.imagem}
+                  alt={fig.legenda ?? passo.titulo}
+                  larguraMaxima={fig.larguraMaxima}
+                  larguraTotal={fig.larguraMaxima == null}
+                  className="uni-player-aula__figura"
+                  semSombraExterna
+                />
+                {(Array.isArray(fig.calloutApos) ? fig.calloutApos : fig.calloutApos ? [fig.calloutApos] : []).map((callout, idx) => (
+                  <div key={idx} className="uni-player-aula__passo-callouts" style={idx > 0 ? { marginTop: 8 } : undefined}>
+                    <CalloutPasso callout={callout} />
+                  </div>
+                ))}
+              </React.Fragment>
             ))}
           </div>
         ))}

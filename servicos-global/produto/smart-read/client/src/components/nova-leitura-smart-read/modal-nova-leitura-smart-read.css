@@ -2005,15 +2005,6 @@
   height: 100%;
 }
 
-.sr-res-perf-bloco-info {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.55rem;
-  color: var(--text-muted, #94a3b8);
-  opacity: 0.85;
-  pointer-events: none;
-}
-
 /* Tooltip Insights (passo Resultado) — espelha sr-insights-tt */
 .sr-insights-tt {
   position: absolute;

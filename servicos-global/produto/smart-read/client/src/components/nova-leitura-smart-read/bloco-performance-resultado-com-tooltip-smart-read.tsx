@@ -3,7 +3,6 @@
  */
 
 import { type ReactElement } from 'react'
-import { Info } from '@phosphor-icons/react'
 import {
   TooltipGraficoInsightsSmartRead,
   useHoverTooltipInsightsSmartRead,
@@ -141,15 +140,13 @@ export function BlocoPerformanceResultadoComTooltip({ tipo, metricas, children }
         onBlur={aoSair}
       >
         {children}
-        <Info
-          size={14}
-          weight="duotone"
-          className="sr-res-perf-bloco-info"
-          aria-hidden
-        />
       </div>
       {estado && (
-        <TooltipGraficoInsightsSmartRead ancora={estado.ancora} conteudo={estado.dados} />
+        <TooltipGraficoInsightsSmartRead
+          ancora={estado.ancora}
+          conteudo={estado.dados}
+          posicaoPreferida="abaixo"
+        />
       )}
     </>
   )

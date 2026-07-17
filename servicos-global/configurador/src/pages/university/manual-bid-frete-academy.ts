@@ -71,19 +71,19 @@ export const AULAS_BID_FRETE: AulaDemo[] = [
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[3],
-    FLUXOS[4]?.tituloSumario ?? 'Tipos de cotação',
+    FLUXOS[4]?.tituloSumario ?? 'Cotação de frete internacional — Tipos',
     '8m',
     [4],
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[4],
-    FLUXOS[5]?.tituloSumario ?? 'Nova cotação',
+    FLUXOS[5]?.tituloSumario ?? 'Cotação de frete internacional — Nova',
     '32m',
     [5],
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[5],
-    FLUXOS[6]?.tituloSumario ?? 'Painel da cotação',
+    FLUXOS[6]?.tituloSumario ?? 'Cotação de frete internacional — Painel',
     '12m',
     [6],
   ),

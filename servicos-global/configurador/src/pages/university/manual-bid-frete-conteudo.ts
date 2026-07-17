@@ -820,17 +820,17 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Tipos de cotação',
-      tituloSumario: 'Tipos de cotação',
-      prefixoPassosVisuais: 'Tipos de cotação',
+      titulo: 'Cotação de frete internacional — Tipos',
+      tituloSumario: 'Cotação de frete internacional — Tipos',
+      prefixoPassosVisuais: 'Cotação de frete internacional — Tipos',
       ancoraPassosPrefix: 'tipos-cotacao',
       paragrafos: [
         'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**.',
-        'O detalhamento de cada uma delas está no capítulo a seguir, **Nova cotação**.',
+        'O detalhamento de cada uma delas está no capítulo a seguir, **Cotação de frete internacional — Nova**.',
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Tipos de cotação',
+          titulo: 'Cotação de frete internacional — Tipos',
           ocultarRotuloPasso: true,
           mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
           paragrafos: [],
@@ -838,9 +838,9 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Nova cotação',
-      tituloSumario: 'Nova cotação',
-      prefixoPassosVisuais: 'Nova cotação',
+      titulo: 'Cotação de frete internacional — Nova',
+      tituloSumario: 'Cotação de frete internacional — Nova',
+      prefixoPassosVisuais: 'Cotação de frete internacional — Nova',
       ancoraPassosPrefix: 'nova-cotacao',
       mostrarMapaSubtopicosPassos: true,
       passosVisuais: renumerarPassos([
@@ -976,9 +976,9 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ]),
     },
     {
-      titulo: 'Painel da cotação',
-      tituloSumario: 'Painel da cotação',
-      prefixoPassosVisuais: 'Painel da cotação',
+      titulo: 'Cotação de frete internacional — Painel',
+      tituloSumario: 'Cotação de frete internacional — Painel',
+      prefixoPassosVisuais: 'Cotação de frete internacional — Painel',
       ancoraPassosPrefix: 'painel-cotacao',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [

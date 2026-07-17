@@ -1,5 +1,6 @@
 /**
- * SessionStorage — prefill Nova Cotação BID Frete a partir do Smart Docs.
+ * Prefill Nova Cotação BID Frete a partir do Smart Docs.
+ * Usa localStorage (handoff entre abas/noopener) com espelho em sessionStorage.
  */
 import {
   CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ,
@@ -12,25 +13,52 @@ import type {
   PassoInicialPrefillSmartReadCotacaoBidFrete,
 } from '../../../shared/conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
 
+function gravarBruto(bruto: string): void {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ, bruto)
+  }
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.setItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ, bruto)
+  }
+}
+
+function lerBruto(): string | null {
+  if (typeof sessionStorage !== 'undefined') {
+    const daSessao = sessionStorage.getItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+    if (daSessao) return daSessao
+  }
+  if (typeof localStorage !== 'undefined') {
+    return localStorage.getItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+  }
+  return null
+}
+
+function limparBruto(): void {
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.removeItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+  }
+}
+
 export function salvarPrefillCotacaoBidFreteSmartRead(pacote: PacotePrefillCotacaoBidFreteSmartRead): void {
-  if (typeof sessionStorage === 'undefined') return
-  sessionStorage.setItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ, JSON.stringify(pacote))
+  gravarBruto(JSON.stringify(pacote))
 }
 
 export function carregarPrefillCotacaoBidFreteSmartRead(): PacotePrefillCotacaoBidFreteSmartRead | null {
-  if (typeof sessionStorage === 'undefined') return null
-  const bruto = sessionStorage.getItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+  const bruto = lerBruto()
   if (!bruto) return null
   try {
     return PacotePrefillCotacaoBidFreteSmartReadSchema.parse(JSON.parse(bruto))
-  } catch {
+  } catch (erro) {
+    console.warn('[smart-read] prefill BID Frete inválido no storage', erro)
     return null
   }
 }
 
 export function limparPrefillCotacaoBidFreteSmartRead(): void {
-  if (typeof sessionStorage === 'undefined') return
-  sessionStorage.removeItem(CHAVE_SESSION_PREFILL_COTACAO_BID_FRETE_SMART_READ)
+  limparBruto()
 }
 
 export function montarPacotePrefillCotacaoBidFreteSmartRead(params: {

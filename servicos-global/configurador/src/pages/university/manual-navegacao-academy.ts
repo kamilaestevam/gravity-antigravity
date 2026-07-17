@@ -126,7 +126,7 @@ export const AULAS_NAVEGACAO: AulaDemo[] = [
 
     'Funcionalidades das listas',
 
-    '28m',
+    '20m',
 
     [7],
 

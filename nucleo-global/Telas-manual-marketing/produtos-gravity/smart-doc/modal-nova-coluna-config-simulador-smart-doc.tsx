@@ -11,9 +11,7 @@ import {
   Eye,
   Hash,
   ListBullets,
-  MathOperations,
   Percent,
-  Tag,
   TextAlignLeft,
   TextT,
 } from '@phosphor-icons/react'
@@ -29,14 +27,21 @@ export type TipoColunaSmartDocSimulador =
   | 'percentual'
   | 'select'
   | 'checkbox'
-  | 'tipo_documento'
-  | 'formula'
+
+type TipoColunaSmartDocSimuladorLegado = 'tipo_documento' | 'formula'
+
+export type VisibilidadeColunaSmartDocSimulador = 'todos' | 'roles' | 'privado'
 
 export interface ColunaPersonalizadaSmartDocSimulador {
   id: string
   nome: string
-  tipo: TipoColunaSmartDocSimulador
+  tipo: TipoColunaSmartDocSimulador | TipoColunaSmartDocSimuladorLegado
   visible: boolean
+  descricao?: string
+  visibilidade?: VisibilidadeColunaSmartDocSimulador
+  roles_permitidas?: string[]
+  obrigatorio?: boolean
+  id_usuario_criador?: string
 }
 
 const TIPOS_COLUNA: Array<{ id: TipoColunaSmartDocSimulador; icone: ReactNode; label: string }> = [
@@ -46,15 +51,20 @@ const TIPOS_COLUNA: Array<{ id: TipoColunaSmartDocSimulador; icone: ReactNode; l
   { id: 'percentual', label: 'Percentual', icone: <Percent size={16} weight="duotone" /> },
   { id: 'select', label: 'Lista', icone: <ListBullets size={16} weight="duotone" /> },
   { id: 'checkbox', label: 'Checkbox', icone: <CheckSquare size={16} weight="duotone" /> },
-  { id: 'tipo_documento', label: 'Tipo documento', icone: <Tag size={16} weight="duotone" /> },
-  { id: 'formula', label: 'Fórmula', icone: <MathOperations size={16} weight="duotone" /> },
 ]
 
-export function rotuloTipoColunaSmartDocSimulador(tipo: TipoColunaSmartDocSimulador): string {
-  return TIPOS_COLUNA.find((t) => t.id === tipo)?.label ?? tipo
+const ROTULOS_TIPO_LEGADO: Record<TipoColunaSmartDocSimuladorLegado, string> = {
+  tipo_documento: 'Tipo documento',
+  formula: 'Fórmula',
 }
 
-type VisibilidadeColuna = 'todos' | 'roles' | 'privado'
+export function rotuloTipoColunaSmartDocSimulador(
+  tipo: TipoColunaSmartDocSimulador | TipoColunaSmartDocSimuladorLegado,
+): string {
+  return TIPOS_COLUNA.find((t) => t.id === tipo)?.label
+    ?? ROTULOS_TIPO_LEGADO[tipo as TipoColunaSmartDocSimuladorLegado]
+    ?? tipo
+}
 
 const ICONE_LABEL = { size: 13, weight: 'fill' as const }
 
@@ -108,23 +118,39 @@ export function ModalNovaColunaConfigSimuladorSmartDoc({
 }: {
   colunaEdicao?: ColunaPersonalizadaSmartDocSimulador
   onFechar: () => void
-  onSalvo: (dados: { nome: string; tipo: TipoColunaSmartDocSimulador }) => void
+  onSalvo: (dados: {
+    nome: string
+    tipo: TipoColunaSmartDocSimulador
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartDocSimulador
+    obrigatorio: boolean
+  }) => void
 }) {
   const editando = Boolean(colunaEdicao)
   const [nome, setNome] = useState(colunaEdicao?.nome ?? '')
-  const [tipo, setTipo] = useState<TipoColunaSmartDocSimulador>(colunaEdicao?.tipo ?? 'texto')
-  const [visibilidade, setVisibilidade] = useState<VisibilidadeColuna>('todos')
-  const [descricao, setDescricao] = useState('')
-  const [obrigatorio, setObrigatorio] = useState(false)
+  const [tipo, setTipo] = useState<TipoColunaSmartDocSimulador>(
+    colunaEdicao?.tipo && TIPOS_COLUNA.some((t) => t.id === colunaEdicao.tipo)
+      ? (colunaEdicao.tipo as TipoColunaSmartDocSimulador)
+      : 'texto',
+  )
+  const [visibilidade, setVisibilidade] = useState<VisibilidadeColunaSmartDocSimulador>(
+    colunaEdicao?.visibilidade ?? 'todos',
+  )
+  const [descricao, setDescricao] = useState(colunaEdicao?.descricao ?? '')
+  const [obrigatorio, setObrigatorio] = useState(colunaEdicao?.obrigatorio ?? false)
   const [erroNome, setErroNome] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
 
   useEffect(() => {
     setNome(colunaEdicao?.nome ?? '')
-    setTipo(colunaEdicao?.tipo ?? 'texto')
-    setVisibilidade('todos')
-    setDescricao('')
-    setObrigatorio(false)
+    setTipo(
+      colunaEdicao?.tipo && TIPOS_COLUNA.some((t) => t.id === colunaEdicao.tipo)
+        ? (colunaEdicao.tipo as TipoColunaSmartDocSimulador)
+        : 'texto',
+    )
+    setVisibilidade(colunaEdicao?.visibilidade ?? 'todos')
+    setDescricao(colunaEdicao?.descricao ?? '')
+    setObrigatorio(colunaEdicao?.obrigatorio ?? false)
     setErroNome(null)
   }, [colunaEdicao])
 
@@ -136,12 +162,18 @@ export function ModalNovaColunaConfigSimuladorSmartDoc({
     }
     setSalvando(true)
     try {
-      onSalvo({ nome: nomeTrim, tipo })
+      onSalvo({
+        nome: nomeTrim,
+        tipo: editando && colunaEdicao ? colunaEdicao.tipo : tipo,
+        descricao: descricao.trim() || undefined,
+        visibilidade,
+        obrigatorio,
+      })
       onFechar()
     } finally {
       setSalvando(false)
     }
-  }, [nome, tipo, onSalvo, onFechar])
+  }, [nome, tipo, descricao, visibilidade, obrigatorio, editando, colunaEdicao, onSalvo, onFechar])
 
   return (
     <ModalFormularioAbasGlobal
@@ -217,17 +249,6 @@ export function ModalNovaColunaConfigSimuladorSmartDoc({
                 )}
               </div>
 
-              {tipo === 'formula' && (
-                <div className="mnc-campo">
-                  <LabelSecao icone={<MathOperations {...ICONE_LABEL} />} obrigatorio>
-                    Fórmula
-                  </LabelSecao>
-                  <div className="mnc-tokens">
-                    <span className="mnc-tokens__placeholder">Clique nos campos abaixo para montar a fórmula</span>
-                  </div>
-                </div>
-              )}
-
               <div className="mnc-campo">
                 <LabelSecao icone={<Eye {...ICONE_LABEL} />} obrigatorio>
                   Visibilidade
@@ -241,7 +262,7 @@ export function ModalNovaColunaConfigSimuladorSmartDoc({
                     { valor: 'privado', rotulo: 'Somente eu' },
                   ]}
                   valor={visibilidade}
-                  aoMudarValor={(v) => v != null && setVisibilidade(v as VisibilidadeColuna)}
+                  aoMudarValor={(v) => v != null && setVisibilidade(v as VisibilidadeColunaSmartDocSimulador)}
                 />
               </div>
 
@@ -262,17 +283,15 @@ export function ModalNovaColunaConfigSimuladorSmartDoc({
                 />
               </div>
 
-              {tipo !== 'formula' && (
-                <div className="mnc-campo mnc-campo--toggle-row">
-                  <div>
-                    <LabelSecao icone={<Asterisk {...ICONE_LABEL} />}>
-                      Obrigatório
-                    </LabelSecao>
-                    <p className="mnc-hint">Exige preenchimento na tabela de leituras</p>
-                  </div>
-                  <Toggle id="mnc-sds-obrigatorio" checked={obrigatorio} onChange={setObrigatorio} />
+              <div className="mnc-campo mnc-campo--toggle-row">
+                <div>
+                  <LabelSecao icone={<Asterisk {...ICONE_LABEL} />}>
+                    Obrigatório
+                  </LabelSecao>
+                  <p className="mnc-hint">Exige preenchimento na tabela de leituras</p>
                 </div>
-              )}
+                <Toggle id="mnc-sds-obrigatorio" checked={obrigatorio} onChange={setObrigatorio} />
+              </div>
             </div>
           ),
         },

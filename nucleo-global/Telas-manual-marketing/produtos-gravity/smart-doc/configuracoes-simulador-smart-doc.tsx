@@ -32,6 +32,7 @@ import {
   rotuloTipoColunaSmartDocSimulador,
   type ColunaPersonalizadaSmartDocSimulador,
   type TipoColunaSmartDocSimulador,
+  type VisibilidadeColunaSmartDocSimulador,
 } from './modal-nova-coluna-config-simulador-smart-doc'
 import './configuracoes-simulador-smart-doc.css'
 
@@ -63,13 +64,7 @@ const CARDS_CATALOGO: CardDef[] = [
   { id: 'documentos', nome: 'Documentos', icone: Files, cor: '#a78bfa', origem: 'Documento', agg: 'Contagem' },
 ]
 
-const ATIVOS_PADRAO: CardPref[] = [
-  { id: 'total_leituras', visible: true },
-  { id: 'concluidas', visible: true },
-  { id: 'processando', visible: true },
-  { id: 'falhas', visible: false },
-  { id: 'taxa_sucesso', visible: true },
-]
+const ATIVOS_PADRAO: CardPref[] = CARDS_CATALOGO.map((c) => ({ id: c.id, visible: true }))
 
 interface CardPref {
   id: string
@@ -83,6 +78,8 @@ const PERIODOS = [
   { id: '1a', label: '1 ano' },
   { id: 'tudo', label: 'Tudo' },
 ]
+
+const PERIODO_PADRAO = '30d'
 
 const LINHAS_OPCOES = ['10', '25', '50', '100']
 const DENSIDADE_OPCOES = [
@@ -110,8 +107,10 @@ function reordenar<T extends { id: string }>(lista: T[], arrastandoId: string, a
 export function ConfiguracoesSimuladorSmartDoc() {
   const [categoria, setCategoria] = useState<CategoriaId>('card')
   const [toastSalvo, setToastSalvo] = useState<string | null>(null)
-  const [periodo, setPeriodo] = useState('30d')
+  const [periodo, setPeriodo] = useState(PERIODO_PADRAO)
+  const [periodoSalvo, setPeriodoSalvo] = useState(PERIODO_PADRAO)
   const [cards, setCards] = useState<CardPref[]>(ATIVOS_PADRAO)
+  const [cardsSalvos, setCardsSalvos] = useState<CardPref[]>(ATIVOS_PADRAO)
   const [arrastandoCard, setArrastandoCard] = useState<string | null>(null)
   const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>(TABELA_PADRAO)
   const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfig>(TABELA_PADRAO)
@@ -123,6 +122,9 @@ export function ConfiguracoesSimuladorSmartDoc() {
   const seqColuna = useRef(1)
 
   const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
+
+  const cardsDirty =
+    JSON.stringify(cards) !== JSON.stringify(cardsSalvos) || periodo !== periodoSalvo
 
   const colunasDirty = useMemo(() => {
     if (pendingColunas.length !== colunasSalvas.length) return true
@@ -146,16 +148,68 @@ export function ConfiguracoesSimuladorSmartDoc() {
     setTabelaConfig({ ...TABELA_PADRAO })
   }
 
-  function handleColunaCriadaViaModal(dados: { nome: string; tipo: TipoColunaSmartDocSimulador }) {
+  function salvarCardsConfig() {
+    setCardsSalvos([...cards])
+    setPeriodoSalvo(periodo)
+    notificarSalvo('Preferências de cards salvas.')
+  }
+
+  function restaurarCardsPadrao() {
+    setCards(ATIVOS_PADRAO.map((c) => ({ ...c })))
+    setPeriodo(PERIODO_PADRAO)
+  }
+
+  function handleColunaCriadaViaModal(dados: {
+    nome: string
+    tipo: TipoColunaSmartDocSimulador
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartDocSimulador
+    obrigatorio: boolean
+  }) {
     const id = `custom-${seqColuna.current++}`
-    setPendingColunas((prev) => [...prev, { id, nome: dados.nome, tipo: dados.tipo, visible: true }])
+    setPendingColunas((prev) => [
+      ...prev,
+      {
+        id,
+        nome: dados.nome,
+        tipo: dados.tipo,
+        visible: true,
+        visibilidade: dados.visibilidade,
+        obrigatorio: dados.obrigatorio,
+        ...(dados.visibilidade === 'privado' ? { id_usuario_criador: 'simulador-demo' } : {}),
+        ...(dados.visibilidade === 'roles' ? { roles_permitidas: ['PADRAO'] } : {}),
+        ...(dados.descricao ? { descricao: dados.descricao } : {}),
+      },
+    ])
     setCriandoColuna(false)
   }
 
-  function handleColunaEditadaSalva(dados: { nome: string; tipo: TipoColunaSmartDocSimulador }) {
+  function handleColunaEditadaSalva(dados: {
+    nome: string
+    tipo: TipoColunaSmartDocSimulador
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartDocSimulador
+    obrigatorio: boolean
+  }) {
     if (!editandoColuna) return
     setPendingColunas((prev) =>
-      prev.map((c) => (c.id === editandoColuna.id ? { ...c, nome: dados.nome } : c)),
+      prev.map((c) =>
+        c.id === editandoColuna.id
+          ? {
+              ...c,
+              nome: dados.nome,
+              visibilidade: dados.visibilidade,
+              obrigatorio: dados.obrigatorio,
+              ...(dados.visibilidade === 'privado'
+                ? { id_usuario_criador: c.id_usuario_criador ?? 'simulador-demo' }
+                : { id_usuario_criador: undefined }),
+              ...(dados.visibilidade === 'roles'
+                ? { roles_permitidas: c.roles_permitidas ?? ['PADRAO'] }
+                : { roles_permitidas: undefined }),
+              ...(dados.descricao ? { descricao: dados.descricao } : { descricao: undefined }),
+            }
+          : c,
+      ),
     )
     setEditandoColuna(null)
   }
@@ -380,6 +434,11 @@ export function ConfiguracoesSimuladorSmartDoc() {
                     })}
                   </div>
                 )}
+
+                <div className="cfg-secao__footer">
+                  <BotaoCancelar dirty={cardsDirty} rotulo="Restaurar padrão" onClick={restaurarCardsPadrao} />
+                  <BotaoSalvar dirty={cardsDirty} rotulo="Salvar" onClick={salvarCardsConfig} />
+                </div>
               </section>
             </div>
           )}

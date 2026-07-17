@@ -9,11 +9,10 @@
  *       • Tabelas → linhas por página, densidade + footer Salvar
  *       • Colunas → colunas exibidas + ordem (drag) + modal Nova Coluna + footer Salvar
  *
- * Estado é local (Smart Read ainda não tem backend de preferências) — sem
- * persistência falsa (Mandamentos 05/08). Reorder via drag-and-drop nativo.
+ * Persistência em localStorage até API de preferências por workspace (Onda 3).
  */
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import {
   SquaresFour, Table, Columns,
   FileText, CheckCircle, ArrowsClockwise, Warning, Gauge, ListBullets, Files,
@@ -30,18 +29,30 @@ import {
   rotuloTipoColunaSmartRead,
   type ColunaPersonalizadaSmartRead,
   type TipoColunaSmartRead,
+  type VisibilidadeColunaSmartRead,
 } from '../../components/ModalNovaColunaSmartRead'
+import {
+  filtrarColunasPersonalizadasVisiveis,
+  resolverRolesPermitidasNovaColunaSmartRead,
+  rotuloVisibilidadeColunaSmartRead,
+} from '../../shared/filtro-visibilidade-colunas-personalizadas-smart-read'
+import {
+  CARDS_PADRAO_CONFIG_SMART_READ,
+  PERIODO_PADRAO_CONFIG_SMART_READ,
+  TABELA_PADRAO_CONFIG_SMART_READ,
+  carregarConfiguracoesSmartRead,
+  montarSnapshotConfiguracoesSmartRead,
+  salvarConfiguracoesSmartRead,
+  type TabelaConfigSmartRead,
+} from '../../shared/persistencia-configuracoes-smart-read'
 import '../../components/SmartReadVisualizacaoTabs.css'
 import './configuracoes-smart-read.css'
 
 type CategoriaId = 'card' | 'tabelas' | 'colunas'
 
-interface TabelaConfig {
-  linhasPagina: string
-  densidade: string
-}
+type TabelaConfig = TabelaConfigSmartRead
 
-const TABELA_PADRAO: TabelaConfig = { linhasPagina: '25', densidade: 'confortavel' }
+const TABELA_PADRAO: TabelaConfig = TABELA_PADRAO_CONFIG_SMART_READ
 
 // ─── Catálogo de cards de leitura ─────────────────────────────────────────────
 interface CardDef {
@@ -63,13 +74,7 @@ const CARDS_CATALOGO: CardDef[] = [
   { id: 'documentos',       nome: 'Documentos',          icone: Files,           cor: '#a78bfa', origem: 'Documento', agg: 'Contagem' },
 ]
 
-const ATIVOS_PADRAO: CardPref[] = [
-  { id: 'total_leituras', visible: true },
-  { id: 'concluidas',     visible: true },
-  { id: 'processando',    visible: true },
-  { id: 'falhas',         visible: false },
-  { id: 'taxa_sucesso',   visible: true },
-]
+const ATIVOS_PADRAO: CardPref[] = CARDS_PADRAO_CONFIG_SMART_READ.map((c) => ({ ...c }))
 
 interface CardPref { id: string; visible: boolean }
 
@@ -81,6 +86,8 @@ const PERIODOS = [
   { id: 'tudo', label: 'Tudo' },
 ]
 
+const PERIODO_PADRAO = PERIODO_PADRAO_CONFIG_SMART_READ
+
 const LINHAS_OPCOES = ['10', '25', '50', '100']
 const DENSIDADE_OPCOES = [{ id: 'compacto', label: 'Compacto' }, { id: 'confortavel', label: 'Confortável' }]
 
@@ -90,38 +97,90 @@ const SIDEBAR: { id: CategoriaId; label: string; icone: Icon }[] = [
   { id: 'colunas', label: 'Colunas', icone: Columns },
 ]
 
+function colunasPersonalizadasEquivalentes(
+  a: ColunaPersonalizadaSmartRead,
+  b: ColunaPersonalizadaSmartRead,
+): boolean {
+  return (
+    a.id === b.id
+    && a.visible === b.visible
+    && a.nome === b.nome
+    && a.tipo === b.tipo
+    && (a.descricao ?? '') === (b.descricao ?? '')
+    && (a.visibilidade ?? 'todos') === (b.visibilidade ?? 'todos')
+    && (a.obrigatorio ?? false) === (b.obrigatorio ?? false)
+    && (a.id_usuario_criador ?? '') === (b.id_usuario_criador ?? '')
+    && JSON.stringify(a.roles_permitidas ?? []) === JSON.stringify(b.roles_permitidas ?? [])
+    && JSON.stringify(a.opcoes ?? []) === JSON.stringify(b.opcoes ?? [])
+  )
+}
+
 export default function ConfiguracoesSmartRead() {
   const addNotification = useShellStore((s) => s.addNotification)
+  const idUsuario = useShellStore((s) => s.currentUser.id ?? '')
+  const tipoUsuario = useShellStore((s) => s.currentUser.tipoUsuario)
+  const configInicial = useMemo(() => carregarConfiguracoesSmartRead(), [])
   const [categoria, setCategoria] = useState<CategoriaId>('card')
 
-  // Card
-  const [periodo, setPeriodo] = useState('30d')
-  const [cards, setCards] = useState<CardPref[]>(ATIVOS_PADRAO)
+  // Card — pending vs salvo (paridade Pedido › Cards)
+  const [periodo, setPeriodo] = useState(configInicial.periodo)
+  const [periodoSalvo, setPeriodoSalvo] = useState(configInicial.periodo)
+  const [cards, setCards] = useState<CardPref[]>(configInicial.cards)
+  const [cardsSalvos, setCardsSalvos] = useState<CardPref[]>(configInicial.cards)
   const [arrastandoCard, setArrastandoCard] = useState<string | null>(null)
 
+  const cardsDirty =
+    JSON.stringify(cards) !== JSON.stringify(cardsSalvos) || periodo !== periodoSalvo
+
   // Tabelas — pending vs salvo (paridade Pedido › Tabela)
-  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>(TABELA_PADRAO)
-  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfig>(TABELA_PADRAO)
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>(configInicial.tabela)
+  const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfig>(configInicial.tabela)
   const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
 
   // Colunas Personalizadas — pending vs salvo + modal (paridade Pedido › Personalizadas)
-  const [pendingColunas, setPendingColunas] = useState<ColunaPersonalizadaSmartRead[]>([])
-  const [colunasSalvas, setColunasSalvas] = useState<ColunaPersonalizadaSmartRead[]>([])
+  const [pendingColunas, setPendingColunas] = useState<ColunaPersonalizadaSmartRead[]>(configInicial.colunas)
+  const [colunasSalvas, setColunasSalvas] = useState<ColunaPersonalizadaSmartRead[]>(configInicial.colunas)
   const [arrastandoColuna, setArrastandoColuna] = useState<string | null>(null)
   const [criandoColuna, setCriandoColuna] = useState(false)
   const [editandoColuna, setEditandoColuna] = useState<ColunaPersonalizadaSmartRead | null>(null)
-  const seqColuna = useRef(1)
+  const seqColuna = useRef(configInicial.seqColuna)
+
+  const gravarSnapshot = useCallback((params: {
+    periodoAtual?: string
+    cardsAtuais?: CardPref[]
+    tabelaAtual?: TabelaConfig
+    colunasAtuais?: ColunaPersonalizadaSmartRead[]
+  }) => {
+    salvarConfiguracoesSmartRead(
+      montarSnapshotConfiguracoesSmartRead({
+        periodo: params.periodoAtual ?? periodo,
+        cards: params.cardsAtuais ?? cards,
+        tabela: params.tabelaAtual ?? tabelaConfig,
+        colunas: params.colunasAtuais ?? pendingColunas,
+        seqColuna: seqColuna.current,
+      }),
+    )
+  }, [periodo, cards, tabelaConfig, pendingColunas])
 
   const colunasDirty = useMemo(() => {
     if (pendingColunas.length !== colunasSalvas.length) return true
     return pendingColunas.some((col, i) => {
       const orig = colunasSalvas[i]
-      return !orig || orig.id !== col.id || orig.visible !== col.visible || orig.nome !== col.nome || orig.tipo !== col.tipo
+      return !orig || !colunasPersonalizadasEquivalentes(col, orig)
     })
   }, [pendingColunas, colunasSalvas])
 
+  const colunasVisiveisConfig = useMemo(
+    () => filtrarColunasPersonalizadasVisiveis(pendingColunas, {
+      id_usuario: idUsuario,
+      tipo_usuario: tipoUsuario,
+    }),
+    [pendingColunas, idUsuario, tipoUsuario],
+  )
+
   function salvarTabelaConfig() {
     setTabelaConfigSalva({ ...tabelaConfig })
+    gravarSnapshot({ tabelaAtual: tabelaConfig })
     addNotification({ type: 'success', message: 'Preferências de tabela salvas.' })
   }
 
@@ -129,27 +188,103 @@ export default function ConfiguracoesSmartRead() {
     setTabelaConfig({ ...TABELA_PADRAO })
   }
 
-  function handleColunaCriadaViaModal(dados: { nome: string; tipo: TipoColunaSmartRead }) {
+  function salvarCardsConfig() {
+    setCardsSalvos([...cards])
+    setPeriodoSalvo(periodo)
+    gravarSnapshot({ periodoAtual: periodo, cardsAtuais: cards })
+    addNotification({ type: 'success', message: 'Preferências de cards salvas.' })
+  }
+
+  function restaurarCardsPadrao() {
+    setCards(ATIVOS_PADRAO.map((c) => ({ ...c })))
+    setPeriodo(PERIODO_PADRAO)
+  }
+
+  function handleColunaCriadaViaModal(dados: {
+    nome: string
+    tipo: TipoColunaSmartRead
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartRead
+    obrigatorio: boolean
+    opcoes?: string[]
+  }) {
     const id = `custom-${seqColuna.current++}`
-    setPendingColunas((prev) => [...prev, { id, nome: dados.nome, tipo: dados.tipo, visible: true }])
+    const rolesPermitidas = resolverRolesPermitidasNovaColunaSmartRead({
+      visibilidade: dados.visibilidade,
+      tipo_usuario: tipoUsuario,
+    })
+    const nova: ColunaPersonalizadaSmartRead = {
+      id,
+      nome: dados.nome,
+      tipo: dados.tipo,
+      visible: true,
+      visibilidade: dados.visibilidade,
+      obrigatorio: dados.obrigatorio,
+      ...(dados.visibilidade === 'privado' && idUsuario
+        ? { id_usuario_criador: idUsuario }
+        : {}),
+      ...(dados.visibilidade === 'roles' && rolesPermitidas?.length
+        ? { roles_permitidas: rolesPermitidas }
+        : {}),
+      ...(dados.opcoes?.length ? { opcoes: [...dados.opcoes] } : {}),
+      ...(dados.descricao ? { descricao: dados.descricao } : {}),
+    }
+    setPendingColunas((prev) => [...prev, nova])
     setCriandoColuna(false)
   }
 
-  function handleColunaEditadaSalva(dados: { nome: string; tipo: TipoColunaSmartRead }) {
+  function handleColunaEditadaSalva(dados: {
+    nome: string
+    tipo: TipoColunaSmartRead
+    descricao?: string
+    visibilidade: VisibilidadeColunaSmartRead
+    obrigatorio: boolean
+    opcoes?: string[]
+  }) {
     if (!editandoColuna) return
+    const rolesPermitidas = resolverRolesPermitidasNovaColunaSmartRead({
+      visibilidade: dados.visibilidade,
+      tipo_usuario: tipoUsuario,
+      rolesExistentes: editandoColuna.roles_permitidas,
+    })
+    const tipoFinal = editandoColuna.tipo
     setPendingColunas((prev) =>
-      prev.map((c) => (c.id === editandoColuna.id ? { ...c, nome: dados.nome } : c)),
+      prev.map((c) =>
+        c.id === editandoColuna.id
+          ? {
+              ...c,
+              nome: dados.nome,
+              visibilidade: dados.visibilidade,
+              obrigatorio: dados.obrigatorio,
+              ...(dados.visibilidade === 'privado'
+                ? { id_usuario_criador: c.id_usuario_criador ?? idUsuario }
+                : { id_usuario_criador: undefined }),
+              ...(dados.visibilidade === 'roles' && rolesPermitidas?.length
+                ? { roles_permitidas: rolesPermitidas }
+                : { roles_permitidas: undefined }),
+              ...((tipoFinal === 'select' || editandoColuna.tipo === 'tipo_documento') && dados.opcoes?.length
+                ? { opcoes: [...dados.opcoes] }
+                : { opcoes: undefined }),
+              ...(dados.descricao ? { descricao: dados.descricao } : { descricao: undefined }),
+            }
+          : c,
+      ),
     )
     setEditandoColuna(null)
   }
 
   function salvarColunas() {
     setColunasSalvas([...pendingColunas])
+    gravarSnapshot({ colunasAtuais: pendingColunas })
     addNotification({ type: 'success', message: 'Colunas personalizadas salvas.' })
   }
 
   function cancelarOrdemColunas() {
     setPendingColunas([...colunasSalvas])
+  }
+
+  function atualizarColunas(next: ColunaPersonalizadaSmartRead[]) {
+    setPendingColunas(next)
   }
 
   const periodoLabel = PERIODOS.find((p) => p.id === periodo)?.label ?? periodo
@@ -362,6 +497,19 @@ export default function ConfiguracoesSmartRead() {
                     })}
                   </div>
                 )}
+
+                <div className="cfg-secao__footer">
+                  <BotaoCancelar
+                    dirty={cardsDirty}
+                    rotulo="Restaurar padrão"
+                    onClick={restaurarCardsPadrao}
+                  />
+                  <BotaoSalvar
+                    dirty={cardsDirty}
+                    rotulo="Salvar"
+                    onClick={salvarCardsConfig}
+                  />
+                </div>
               </section>
             </div>
           )}
@@ -440,7 +588,7 @@ export default function ConfiguracoesSmartRead() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <ConfiguracaoSecaoGlobal
                     label="Ativas"
-                    count={pendingColunas.length}
+                    count={colunasVisiveisConfig.length}
                     hint="Arraste para reordenar · lápis para editar · olho para ocultar"
                   />
                   <BotaoGlobal variante="primario" onClick={() => setCriandoColuna(true)}>
@@ -456,7 +604,7 @@ export default function ConfiguracoesSmartRead() {
                   />
                 )}
 
-                {pendingColunas.length === 0 ? (
+                {colunasVisiveisConfig.length === 0 ? (
                   <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     gap: '0.5rem', padding: '1.5rem', textAlign: 'center',
@@ -473,20 +621,25 @@ export default function ConfiguracoesSmartRead() {
                   </div>
                 ) : (
                   <div className="cfg-kanban-campo-lista">
-                    {pendingColunas.map((col) => (
+                    {colunasVisiveisConfig.map((col) => (
                       <div
                         key={col.id}
                         className={`cfg-kanban-campo-row${!col.visible ? ' cfg-kanban-campo-row--oculto' : ''}${arrastandoColuna === col.id ? ' cfg-kanban-campo-row--arrastando' : ''}`}
                         draggable
                         onDragStart={() => setArrastandoColuna(col.id)}
-                        onDragEnter={() => { if (arrastandoColuna) setPendingColunas((prev) => reordenar(prev, arrastandoColuna, col.id)) }}
+                        onDragEnter={() => { if (arrastandoColuna) atualizarColunas(reordenar(pendingColunas, arrastandoColuna, col.id)) }}
                         onDragOver={(e) => e.preventDefault()}
                         onDragEnd={() => setArrastandoColuna(null)}
                       >
                         <span className="cfg-drag-handle"><DotsSixVertical size={15} weight="bold" /></span>
                         <div className="cfg-kanban-campo-row__info">
                           <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
-                          <span className="cfg-kanban-campo-row__tipo">{rotuloTipoColunaSmartRead(col.tipo)}</span>
+                          <span className="cfg-kanban-campo-row__tipo">
+                            {rotuloTipoColunaSmartRead(col.tipo)}
+                            {' · '}
+                            {rotuloVisibilidadeColunaSmartRead(col.visibilidade)}
+                            {col.obrigatorio ? ' · Obrigatório' : ''}
+                          </span>
                         </div>
                         <button
                           type="button"
@@ -499,7 +652,7 @@ export default function ConfiguracoesSmartRead() {
                         <button
                           type="button"
                           className="cfg-kanban-campo-btn"
-                          onClick={() => setPendingColunas((prev) => prev.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)))}
+                          onClick={() => atualizarColunas(pendingColunas.map((c) => (c.id === col.id ? { ...c, visible: !c.visible } : c)))}
                           aria-label={col.visible ? `Ocultar coluna ${col.nome}` : `Exibir coluna ${col.nome}`}
                         >
                           {col.visible ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
@@ -507,7 +660,7 @@ export default function ConfiguracoesSmartRead() {
                         <button
                           type="button"
                           className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove"
-                          onClick={() => setPendingColunas((prev) => prev.filter((c) => c.id !== col.id))}
+                          onClick={() => atualizarColunas(pendingColunas.filter((c) => c.id !== col.id))}
                           aria-label={`Excluir coluna ${col.nome}`}
                         >
                           <Trash size={14} weight="bold" />
@@ -517,7 +670,7 @@ export default function ConfiguracoesSmartRead() {
                   </div>
                 )}
 
-                <div className="cfg-secao__footer" style={{ marginTop: pendingColunas.length > 0 ? '0.75rem' : undefined }}>
+                <div className="cfg-secao__footer" style={{ marginTop: colunasVisiveisConfig.length > 0 ? '0.75rem' : undefined }}>
                   <BotaoCancelar
                     dirty={colunasDirty}
                     rotulo="Descartar"

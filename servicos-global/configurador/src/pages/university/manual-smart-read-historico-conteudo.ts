@@ -1,6 +1,7 @@
 /**
  * Manual Smart Docs §08 Histórico — paridade com Pedido §09 e Configurador › Histórico.
- * SSOT prints: Drive `2. Smart Docs/tela_smart_read_historico_N.png` → `smart-docs-historico-N.png`
+ * SSOT prints: Drive `2. Smart Docs/tela_smart_docs_historico.png` → `smart-docs-historico-1.png`;
+ * historico-2/3: simulador (Playwright) até existirem no Drive.
  */
 import type { DocColunaTabela, DocPassoVisual } from './manual-configurador-conteudo'
 
@@ -104,20 +105,5 @@ export const PASSOS_MANUAL_SMART_READ_HISTORICO: DocPassoVisual[] = renumerarPas
       tipo: 'aviso',
       texto: 'A exportação reflete o recorte atual (filtros + página).',
     },
-  },
-  {
-    titulo: 'Paginação',
-    tituloCurto: 'Paginação',
-    paragrafos: [
-      'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela.',
-    ],
-  },
-  {
-    titulo: 'O que o Histórico registra',
-    tituloCurto: 'Eventos',
-    paragrafos: [
-      'O Histórico do **Smart Docs** grava mutações relevantes: **Nova Leitura**, alterações na **Conferência**, exclusão de leituras, operações via **API** e ajustes que salvam no servidor.',
-      'Consultas puras (abrir Lista, filtrar sem salvar painel, expandir linhas) **não** geram linha de auditoria.',
-    ],
   },
 ])

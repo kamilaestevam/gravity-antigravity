@@ -24,6 +24,27 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
     ],
     imagem: S('configuracoes_tabela'),
     imagemAbaixoTexto: true,
+    galeriaComparacaoAposImagem: [
+      {
+        tituloEtapa: 'Cards de Insights',
+        textoIntro: 'Gerencie **KPIs** do cockpit: período, inclusão e desativação de cards.',
+        colunas: 4,
+        textoAcimaEstiloCorpo: true,
+        ampliarInferiorDireito: true,
+        telas: [
+          fig('configuracoes_cards_periodo_de_comparacao', '**01.** Período de **comparação**'),
+          fig('configuracoes_cards_incluir', '**02.** **Incluir** card'),
+          fig('configuracoes_cards_incluir_2', '**03.** Incluir card: detalhe'),
+          fig('configuracoes_cards_desativar_1', '**04.** **Desativar** card: passo 1'),
+        ],
+      },
+      {
+        colunas: 1,
+        textoAcimaEstiloCorpo: true,
+        ampliarInferiorDireito: true,
+        telas: [fig('configuracoes_cards_desativar_2', '**05.** Desativar card: confirmação')],
+      },
+    ],
   },
   {
     titulo: 'Status e preferências',
@@ -68,29 +89,6 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           fig('configuracoes_colunas_formato_datas', '**Formato de datas**'),
           fig('configuracoes_colunas_formato_personalizadas', '**Colunas personalizadas**'),
         ],
-      },
-    ],
-  },
-  {
-    titulo: 'Cards de Insights',
-    paragrafos: ['Gerencie **KPIs** do cockpit: período, inclusão e desativação de cards.'],
-    galeriaComparacaoAposParagrafo: [
-      {
-        indice: 0,
-        colunas: 4,
-        textoAcimaEstiloCorpo: true,
-        telas: [
-          fig('configuracoes_cards_periodo_de_comparacao', '**01.** Período de **comparação**'),
-          fig('configuracoes_cards_incluir', '**02.** **Incluir** card'),
-          fig('configuracoes_cards_incluir_2', '**03.** Incluir card: detalhe'),
-          fig('configuracoes_cards_desativar_1', '**04.** **Desativar** card: passo 1'),
-        ],
-      },
-      {
-        indice: 0,
-        colunas: 1,
-        textoAcimaEstiloCorpo: true,
-        telas: [fig('configuracoes_cards_desativar_2', '**05.** Desativar card: confirmação')],
       },
     ],
   },

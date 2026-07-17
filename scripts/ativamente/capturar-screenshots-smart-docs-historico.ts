@@ -14,12 +14,11 @@ async function main() {
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1440, height: 920 } })
 
-  await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' })
-  await page.locator('.stack-layer-smart-read').click()
+  await page.goto(`${baseUrl}/dev/captura-smart-docs-historico`, { waitUntil: 'networkidle' })
   await page.locator('.sds-root').waitFor({ state: 'visible', timeout: 30_000 })
-  await page.screenshot({
+  await page.waitForTimeout(600)
+  await page.locator('.sds-root').screenshot({
     path: path.join(destino, 'smart-docs-historico-1.png'),
-    fullPage: false,
   })
 
   await page.goto(`${baseUrl}/dev/captura-smart-docs-historico`, { waitUntil: 'networkidle' })

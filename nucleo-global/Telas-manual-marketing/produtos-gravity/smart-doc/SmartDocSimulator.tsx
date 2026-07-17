@@ -48,6 +48,7 @@ import {
 import './smart-doc-simulator.css'
 import { NovaLeituraSimuladorSmartDoc } from './nova-leitura-simulador-smart-doc'
 import { ConfiguracoesSimuladorSmartDoc } from './configuracoes-simulador-smart-doc'
+import { HistoricoSimuladorSmartRead } from './historico-simulador-smart-read'
 import { ListaSimuladorSmartDoc } from './lista-simulador-smart-doc'
 import { TutorialOpcionalSimuladorSmartDoc } from './tutorial-opcional-simulador-smart-doc'
 import {
@@ -141,7 +142,13 @@ function LinkBaseCalculoSimulador() {
   )
 }
 
-export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: () => void }) {
+export function SmartDocSimulator({
+  onFecharSimulador,
+  sidebarInicial = 'insights',
+}: {
+  onFecharSimulador?: () => void
+  sidebarInicial?: 'insights' | 'historico' | 'config'
+}) {
   const [abaAtiva, setAbaAtiva] = useState<AbaVisualizacao>('insights')
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoPreset>(30)
   const [tipoParticipante, setTipoParticipante] = useState<TipoParticipante>('exportador')
@@ -154,7 +161,7 @@ export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: (
   )
   const [meuEspacoAberto, setMeuEspacoAberto] = useState(false)
   const [meuEspacoItemAtivo, setMeuEspacoItemAtivo] = useState<string | null>(null)
-  const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>('insights')
+  const [sidebarAtivo, setSidebarAtivo] = useState<'insights' | 'historico' | 'config'>(sidebarInicial)
   const [modalNovoAberto, setModalNovoAberto] = useState(false)
   const [despedidaShellAberta, setDespedidaShellAberta] = useState(false)
   const [destinoNovaLeitura, setDestinoNovaLeitura] = useState<DestinoDespedidaSimulador | null>(null)
@@ -1004,6 +1011,8 @@ export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: (
                 <span className="sds-mtg-page-icon" aria-hidden="true">
                   {sidebarAtivo === 'config' ? (
                     <Gear size={22} weight="duotone" />
+                  ) : sidebarAtivo === 'historico' ? (
+                    <Clock size={22} weight="duotone" />
                   ) : abaAtiva === 'insights' ? (
                     <FileText size={22} weight="duotone" />
                   ) : (
@@ -1011,7 +1020,13 @@ export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: (
                   )}
                 </span>
                 <span className="sds-mtg-page-title">
-                  {sidebarAtivo === 'config' ? 'Configurações' : abaAtiva === 'insights' ? 'Insights' : 'Lista'}
+                  {sidebarAtivo === 'config'
+                    ? 'Configurações'
+                    : sidebarAtivo === 'historico'
+                      ? 'Histórico'
+                      : abaAtiva === 'insights'
+                        ? 'Insights'
+                        : 'Lista'}
                 </span>
               </div>
             </div>
@@ -1139,16 +1154,10 @@ export function SmartDocSimulator({ onFecharSimulador }: { onFecharSimulador?: (
               {MEU_ESPACO_ITENS.find((i) => i.id === meuEspacoItemAtivo)?.label} — módulo em breve no tenant (simulação).
             </div>
           )}
-          {sidebarAtivo === 'historico' && abaAtiva === 'insights' && !meuEspacoItemAtivo && (
-            <div
-              style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 8, fontSize: 11, color: '#94a3b8' }}
-              data-sds-tutorial-alvo="shell-banner-historico"
-            >
-              Histórico — {rotuloEmpresaEscopo.nome} · últimos 30 dias (simulação).
-            </div>
-          )}
           {sidebarAtivo === 'config' ? (
             <ConfiguracoesSimuladorSmartDoc />
+          ) : sidebarAtivo === 'historico' ? (
+            <HistoricoSimuladorSmartRead />
           ) : abaAtiva === 'insights' ? (
             renderInsights()
           ) : (

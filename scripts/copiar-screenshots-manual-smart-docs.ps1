@@ -118,6 +118,9 @@ $mapa = @{
   'tela_smart_read_configuracoes_colunas_personalizadas' = 'smart-docs-configuracoes-colunas-personalizadas.png'
   'tela_smart_read_configuracoes_criar_coluna_1' = 'smart-docs-configuracoes-criar-coluna-1.png'
   'tela_smart_read_configuracoes_criar_coluna_2' = 'smart-docs-configuracoes-criar-coluna-2.png'
+  'tela_smart_read_historico_1' = 'smart-docs-historico-1.png'
+  'tela_smart_read_historico_2' = 'smart-docs-historico-2.png'
+  'tela_smart_read_historico_3' = 'smart-docs-historico-3.png'
 }
 
 $copiados = 0

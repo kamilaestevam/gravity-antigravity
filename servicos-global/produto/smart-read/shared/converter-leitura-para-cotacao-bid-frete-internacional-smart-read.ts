@@ -374,14 +374,17 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
         'shipper.country',
       ])
       if (paisOrigem) {
-        prefill.origem_pais_cotacao_bid_frete_internacional = paisOrigem.slice(0, 2).toUpperCase()
-        registrarCampo(detalheCampos, {
-          caminho_origem: `${prefixo}.document.originCountry`,
-          campo_destino: 'origem_pais_cotacao_bid_frete_internacional',
-          valor_origem: paisOrigem,
-          valor_destino: prefill.origem_pais_cotacao_bid_frete_internacional,
-          status_mapeamento: 'mapeado',
-        })
+        const isoOrigem = normalizarCodigoPaisIso2Prefill(paisOrigem)
+        if (isoOrigem) {
+          prefill.origem_pais_cotacao_bid_frete_internacional = isoOrigem
+          registrarCampo(detalheCampos, {
+            caminho_origem: `${prefixo}.document.originCountry`,
+            campo_destino: 'origem_pais_cotacao_bid_frete_internacional',
+            valor_origem: paisOrigem,
+            valor_destino: isoOrigem,
+            status_mapeamento: 'mapeado',
+          })
+        }
       }
 
       const enderecoOrigem = valorCampo(dados, [
@@ -508,7 +511,7 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
     textoOperacao,
     paisOrigem: prefill.origem_pais_cotacao_bid_frete_internacional ?? null,
     paisDestino: prefill.destino_pais_cotacao_bid_frete_internacional
-      ?? paisDestinoInferencia?.slice(0, 2).toUpperCase()
+      ?? normalizarCodigoPaisIso2Prefill(paisDestinoInferencia)
       ?? null,
   })
   prefill.tipo_operacao_cotacao_bid_frete_internacional = operacaoInferida ?? 'IMPORTACAO'
@@ -522,7 +525,10 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
   })
 
   if (paisDestinoInferencia && !prefill.destino_pais_cotacao_bid_frete_internacional) {
-    prefill.destino_pais_cotacao_bid_frete_internacional = paisDestinoInferencia.slice(0, 2).toUpperCase()
+    const isoDestino = normalizarCodigoPaisIso2Prefill(paisDestinoInferencia)
+    if (isoDestino) {
+      prefill.destino_pais_cotacao_bid_frete_internacional = isoDestino
+    }
   }
 
   const paisOrigemIso = normalizarCodigoPaisIso2Prefill(

@@ -3154,6 +3154,7 @@ body.light-theme .cw-xml-viewer {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  align-items: center;
   position: relative;
   isolation: isolate;
 }
@@ -3163,8 +3164,8 @@ body.light-theme .cw-xml-viewer {
   z-index: 1;
   width: 100%;
   max-width: 980px;
-  margin: 0;
-  padding: 2rem 2.5rem 4rem 1.5rem;
+  margin: 0 auto;
+  padding: 2rem 2.5rem 4rem;
   box-sizing: border-box;
   flex: 1;
   color: var(--ws-text, #f1f5f9);
@@ -3281,21 +3282,12 @@ body.light-theme .cw-xml-viewer {
   margin: 0;
 }
 
-/* Subtítulo com várias etapas (texto + screenshot): 12px dentro da etapa, 32px entre etapas. */
+/* Subtítulo com várias etapas: 12px dentro da etapa; margem entre etapas vem do TS (SSOT). */
 .uni-player-aula__passo-etapa {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin: 0;
-}
-
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
-  margin-top: 32px;
-}
-
-/* Parágrafo + galeria dentro do corpo do passo (Academy): 32px entre etapas (12px gap do corpo + 20px). */
-.uni-player-aula__passo-corpo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
-  margin-top: 20px;
 }
 
 .uni-player-aula__passo-etapa > .uni-player-aula__figura {
@@ -3417,7 +3409,7 @@ body.light-theme .cw-xml-viewer {
 .uni-player-aula__passo-galeria {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 12px;
   margin: 0;
   width: 100%;
 }
@@ -3427,9 +3419,9 @@ body.light-theme .cw-xml-viewer {
   margin-top: 32px;
 }
 
-/* Última etapa da galeria → callout de fechamento */
+/* Última etapa da galeria → callout de fechamento (mesmo passo). */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-callouts {
-  margin-top: 32px;
+  margin-top: 12px;
 }
 
 .uni-player-aula__passo-galeria > .uni-player-aula__passo-galeria-item + .uni-player-aula__passo-galeria-item {

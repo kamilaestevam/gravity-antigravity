@@ -1560,7 +1560,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '250'
+const MANUAL_SCREENSHOT_CACHE_KEY = '261'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3020,7 +3020,7 @@ function telasGaleriaSemParagrafoNoRotulo<T extends { paragrafoAntes?: string }>
   return [{ ...primeira, paragrafoAntes: undefined }, ...telas.slice(1)]
 }
 
-/** Guia coluna única — ritmo entre telas da galeria (`manual-tipografia.ts`). */
+/** Guia coluna única — fim do print → próxima instrução na mesma galeria: 12px (`MANUAL_ESPACO_IMAGEM_FRASE_PX`). */
 function espacoAcimaTelaGaleriaGuiaPx(
   telaAtual: DocGaleriaComparacaoTela,
   indiceTela: number,
@@ -3035,19 +3035,19 @@ function espacoAcimaTelaGaleriaGuiaPx(
 function ManualBlocoRotuloGaleriaPasso({
   galeria,
   passo,
-  passoAcademyIsolado,
+  layoutEtapaGuia,
   marginTopPx = 0,
 }: {
   galeria: GaleriaComparacaoPassoBloco
   passo: DocPassoVisual
-  passoAcademyIsolado: boolean
+  layoutEtapaGuia: boolean
   marginTopPx?: number
 }) {
   const rotulo = galeria.rotuloPasso?.trim()
   const textoCorpo = textoCorpoRotuloGaleriaPasso(galeria)
   if (!rotulo) return null
 
-  if (passoAcademyIsolado) {
+  if (layoutEtapaGuia) {
     return (
       <div
         className={classePassoCorpoAcademy(passo, true)}
@@ -3109,10 +3109,20 @@ function ManualGaleriaComparacaoAposImagemAcademy({
   )
 }
 
+function margemSuperiorEtapaGuiaPx(passo: DocPassoVisual, indiceParagrafo: number): number | undefined {
+  if (indiceParagrafo <= 0) return undefined
+  const galeriasAnteriores = galeriaComparacaoAposParagrafoPasso(passo, indiceParagrafo - 1)
+  const anteriorTerminouComGaleria = galeriasAnteriores.some((g) => g.telas.length > 0)
+  return anteriorTerminouComGaleria
+    ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    : MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
+}
+
 function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
   ocultarTituloPasso: ocultarTituloPassoProp = false,
+  layoutGuiaAcademy = false,
   emAcordeaoSubtopico = false,
   emGradeCenarios = false,
   cenarioParte = 'completo',
@@ -3123,6 +3133,7 @@ function ManualBlocoPassoVisual({
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
   ocultarTituloPasso?: boolean
+  layoutGuiaAcademy?: boolean
   emAcordeaoSubtopico?: boolean
   emGradeCenarios?: boolean
   /** Com grade lado a lado + imagens alinhadas: `texto` ou `figuras` em linhas separadas. */
@@ -3134,6 +3145,7 @@ function ManualBlocoPassoVisual({
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso || passo.estiloTituloWizard === true || emAcordeaoSubtopico
   const ocultarTituloPasso = passo.ocultarTituloPasso || ocultarTituloPassoProp
   const passoAcademyIsolado = ocultarRotuloPasso && ocultarTituloPasso
+  const layoutEtapaGuia = passoAcademyIsolado || layoutGuiaAcademy
   const exibirRotuloPassoNoCorpo = Boolean(
     passo.rotuloPasso?.trim()
     && !passo.estiloTituloWizard
@@ -3152,7 +3164,7 @@ function ManualBlocoPassoVisual({
     passo.mostrarInfograficoBidFreteCotacaoAvulsaFormas
     && (passo.paragrafos?.length ?? 0) > 0,
   )
-  const blocoBase: React.CSSProperties = emAcordeaoSubtopico || passoAcademyIsolado
+  const blocoBase: React.CSSProperties = emAcordeaoSubtopico || layoutEtapaGuia
     ? { paddingTop: 0, marginTop: 0 }
     : emGradeCenarios
     ? { paddingTop: 0, marginTop: cenarioParte === 'figuras' ? 0 : 18 }
@@ -3368,7 +3380,7 @@ function ManualBlocoPassoVisual({
             passo.paragrafos?.length ?? 0,
           )
           const margemInferiorCalloutAntesGaleria = galeriasAposParagrafo.length > 0
-            ? (passoAcademyIsolado && galeriasAposParagrafo.some((g) => g.textoAcimaEstiloCorpo)
+            ? (layoutEtapaGuia && galeriasAposParagrafo.some((g) => g.textoAcimaEstiloCorpo)
                 ? MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX
                 : MANUAL_ESPACO_PARAGRAFO_PX)
             : margens.marginBottom
@@ -3384,16 +3396,23 @@ function ManualBlocoPassoVisual({
             />
           )
         })() : null
-        const margemAposParagrafoAcademyGaleria = passoAcademyIsolado && galeriasAposParagrafo.length > 0
+        const margemAposParagrafoAcademyGaleria = layoutEtapaGuia && galeriasAposParagrafo.length > 0
           ? 0
           : null
         const calloutAntesGaleriaNoIndice = passo.calloutAposParagrafo?.indice === i
+        const margemSuperiorEtapa = layoutEtapaGuia
+          ? margemSuperiorEtapaGuiaPx(passo, i)
+          : (i > 0 ? MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX : undefined)
 
         return (
         <div
           key={i}
-          className={passoAcademyIsolado ? 'uni-player-aula__passo-etapa' : undefined}
-          style={!passoAcademyIsolado && i > 0 ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX } : undefined}
+          className={layoutEtapaGuia ? 'uni-player-aula__passo-etapa' : undefined}
+          style={!layoutEtapaGuia && margemSuperiorEtapa !== undefined
+            ? { marginTop: margemSuperiorEtapa }
+            : (layoutEtapaGuia && margemSuperiorEtapa !== undefined
+              ? { marginTop: margemSuperiorEtapa }
+              : undefined)}
         >
           {calloutAntesParagrafoCaminhosImportacao ? calloutBloco : null}
           {passo.mostrarCaminhosImportacaoPlanilhaPedidoLista
@@ -3659,20 +3678,20 @@ function ManualBlocoPassoVisual({
             return (
               <>
                 {galeriasParagrafo.map((galeria, idxGaleria) => {
-            const margemSuperiorEntreGaleriasAcademyPx = passoAcademyIsolado && idxGaleria > 0
+            const margemSuperiorEntreGaleriasAcademyPx = layoutEtapaGuia && idxGaleria > 0
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
               : 0
             const rotuloGaleriaAposParagrafo = Boolean(
-              passoAcademyIsolado && galeria.rotuloPasso?.trim() && idxGaleria === 0,
+              layoutEtapaGuia && galeria.rotuloPasso?.trim() && idxGaleria === 0,
             )
             const margemSuperiorRotuloGaleriaAcademyPx = rotuloGaleriaAposParagrafo
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
               : margemSuperiorEntreGaleriasAcademyPx
-            const margemSuperiorGaleriaAcademyPx = passoAcademyIsolado && idxGaleria === 0 && !calloutAntesGaleriaNoIndice
+            const margemSuperiorGaleriaAcademyPx = layoutEtapaGuia && idxGaleria === 0 && !calloutAntesGaleriaNoIndice
               ? 0
-              : passoAcademyIsolado && idxGaleria > 0 && !galeria.rotuloPasso?.trim()
+              : layoutEtapaGuia && idxGaleria > 0 && !galeria.rotuloPasso?.trim()
                 ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-                : passoAcademyIsolado
+                : layoutEtapaGuia
                   ? 0
                   : undefined
             return (
@@ -3680,10 +3699,10 @@ function ManualBlocoPassoVisual({
               <ManualBlocoRotuloGaleriaPasso
                 galeria={galeria}
                 passo={passo}
-                passoAcademyIsolado={passoAcademyIsolado}
+                layoutEtapaGuia={layoutEtapaGuia}
                 marginTopPx={margemSuperiorRotuloGaleriaAcademyPx}
               />
-              <div className={passoAcademyIsolado ? 'uni-player-aula__passo-galeria' : undefined}>
+              <div className={layoutEtapaGuia ? 'uni-player-aula__passo-galeria' : undefined}>
               <ManualGaleriaComparacaoIntro
                 telas={telasGaleriaSemParagrafoNoRotulo(galeria, galeria.telas)}
                 ampliarInferiorDireito={galeria.ampliarInferiorDireito}
@@ -3695,7 +3714,7 @@ function ManualBlocoPassoVisual({
                 legendaPasso={galeria.legendaPasso}
                 pilaresImportarFormas={galeria.pilaresImportarFormas}
                 tituloEtapa={galeria.tituloEtapa}
-                textoIntro={passoAcademyIsolado && galeria.rotuloPasso?.trim() ? undefined : galeria.textoIntro}
+                textoIntro={layoutEtapaGuia && galeria.rotuloPasso?.trim() ? undefined : galeria.textoIntro}
                 cenariosAcesso={galeria.cenariosAcesso}
                 textoAoLado={galeria.textoAoLado}
                 infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
@@ -3747,7 +3766,7 @@ function ManualBlocoPassoVisual({
               mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={espacoSuperiorAntesTituloEtapaGaleria(galeriasParagrafo, idxGaleria, galeria)}
-              espacoInferiorAposEtapaPx={passoAcademyIsolado ? 0 : galeria.espacoInferiorAposEtapaPx}
+              espacoInferiorAposEtapaPx={layoutEtapaGuia ? 0 : galeria.espacoInferiorAposEtapaPx}
               margemSuperiorPx={margemSuperiorGaleriaAcademyPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
               />
@@ -3969,12 +3988,12 @@ function ManualBlocoPassoVisual({
     ? <ManualPedidoTabelaAlertasLista />
     : null
 
-  const espacoEntreItensGaleriaPassoPx = passoAcademyIsolado
+  const espacoEntreItensGaleriaPassoPx = layoutEtapaGuia
     ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
     : MANUAL_ESPACO_ENTRE_PASSOS_PX
 
   const galeriaAposTabela = passo.galeriaTelasAposTabela?.length ? (
-    passoAcademyIsolado ? (
+    layoutEtapaGuia ? (
       <>
         {passo.galeriaTelasAposTabela.map((tela, indiceGaleria) => (
           <div
@@ -4003,9 +4022,9 @@ function ManualBlocoPassoVisual({
     <div
       style={{ marginTop: passo.galeriaTelasAposTabela?.length
         ? espacoEntreItensGaleriaPassoPx
-        : (passoAcademyIsolado ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
+        : (layoutEtapaGuia ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX) }}
     >
-      {passoAcademyIsolado ? (
+      {layoutEtapaGuia ? (
         <div
           className={classePassoCorpoAcademy(passo, true)}
           style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
@@ -4351,8 +4370,8 @@ function ManualBlocoPassoVisual({
     return (
       <div
         id={ancoraPassoId}
-        className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
-        style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
+        className={layoutEtapaGuia ? 'uni-player-aula__bloco-passo' : undefined}
+        style={layoutEtapaGuia ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
         {blocoInfograficoMapaPedidoAcademy}
         {passoAcademyIsolado ? (
@@ -4481,8 +4500,8 @@ function ManualBlocoPassoVisual({
     return (
       <div
         id={ancoraPassoId}
-        className={passoAcademyIsolado ? 'uni-player-aula__bloco-passo' : undefined}
-        style={passoAcademyIsolado ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
+        className={layoutEtapaGuia ? 'uni-player-aula__bloco-passo' : undefined}
+        style={layoutEtapaGuia ? { margin: 0, padding: 0 } : estiloBlocoRaiz}
       >
         {blocoInfograficoMapaPedidoAcademy}
         {blocoTexto}
@@ -4681,12 +4700,15 @@ export function ManualSecaoFluxo({
   numeroSecaoFluxo,
   modo = 'completo',
   passoNum,
+  layoutGuiaAcademy = false,
 }: {
   fluxo: DocFluxo
   numeroSecaoFluxo: number
   /** Academy: fatia intro, um passo ou rodapé em vez do fluxo inteiro em acordeão. */
   modo?: ModoSecaoFluxoAcademy
   passoNum?: number
+  /** Academy PlayerAula — ritmo SSOT (`manual-tipografia.ts`) sem ocultar H2 dos passos. */
+  layoutGuiaAcademy?: boolean
 }) {
   const prefixoPasso = fluxo.prefixoPassosVisuais
   const ancoraPassosPrefix = fluxo.ancoraPassosPrefix
@@ -4887,6 +4909,7 @@ export function ManualSecaoFluxo({
               <ManualBlocoPassoVisual
                 {...propsPasso(passo)}
                 ocultarRotuloPasso={fluxo.modoCenarios}
+                layoutGuiaAcademy={layoutGuiaAcademy}
               />
             </div>
             <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
@@ -4933,6 +4956,7 @@ export function ManualSecaoFluxo({
           {...propsPasso(passo)}
           ocultarRotuloPasso
           ocultarTituloPasso
+          layoutGuiaAcademy
         />
         <ManualInfograficoPermissoesUsuarioEmbutido fluxo={fluxo} aposPassoNum={passo.num} />
       </>

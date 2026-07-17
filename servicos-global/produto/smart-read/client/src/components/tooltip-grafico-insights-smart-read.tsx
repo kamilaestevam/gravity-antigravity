@@ -16,6 +16,8 @@ export type SegmentoBarraTooltipInsightsSmartRead = {
 export type ConteudoTooltipInsightsSmartRead = {
   titulo: string
   subtitulo?: string
+  explicacao?: string
+  categorias?: Array<{ rotulo: string; texto: string; cor?: string }>
   total?: ReactNode
   totalRotulo?: string
   barra?: SegmentoBarraTooltipInsightsSmartRead[]
@@ -69,6 +71,10 @@ export function TooltipGraficoInsightsSmartRead({
         )}
       </div>
 
+      {conteudo.explicacao != null && (
+        <p className="sr-insights-tt__explicacao">{conteudo.explicacao}</p>
+      )}
+
       {conteudo.total != null && (
         <div className="sr-insights-tt__total">
           <strong>{conteudo.total}</strong>
@@ -95,6 +101,23 @@ export function TooltipGraficoInsightsSmartRead({
           </strong>
         </div>
       ))}
+
+      {conteudo.categorias != null && conteudo.categorias.length > 0 && (
+        <div className="sr-insights-tt__categorias">
+          <p className="sr-insights-tt__categorias-titulo">Como classificamos</p>
+          {conteudo.categorias.map((item) => (
+            <div className="sr-insights-tt__categoria" key={item.rotulo}>
+              <span className="sr-insights-tt__categoria-rotulo">
+                {item.cor != null && (
+                  <i style={{ background: item.cor }} aria-hidden />
+                )}
+                {item.rotulo}
+              </span>
+              <span className="sr-insights-tt__categoria-texto">{item.texto}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>,
     document.body,
   )

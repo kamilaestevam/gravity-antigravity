@@ -1,175 +1,106 @@
 /**
-
  * Guia Gravity — módulo Navegação (Academy).
-
  * SSOT: manual-navegacao-conteudo.ts (paridade com /docs/navegacao).
-
  */
 
-
-
 import type { AulaDemo } from './manual-login-academy'
-
 import { blocosDeSecaoConfiguradorAcademy, type CuradoriaSecaoAcademy } from './academy-blocos-manual'
-
 import { DOC_NAVEGACAO_SECAO } from './manual-navegacao-conteudo'
-
-
 
 const FLUXOS = DOC_NAVEGACAO_SECAO.fluxos ?? []
 
-
-
 type OpcoesAulaNavegacao = Pick<
-
   CuradoriaSecaoAcademy,
-
   'incluirIntroSecao' | 'tituloIntroAcademy' | 'titulosFluxoAcademy'
-
->
-
-
-
-function aulaNavegacao(
-
-  slug: string,
-
-  titulo: string,
-
-  duracao: string,
-
-  fluxoIndices: number[],
-
-  opcoes?: OpcoesAulaNavegacao,
-
-): AulaDemo {
-
-  const blocos = blocosDeSecaoConfiguradorAcademy(DOC_NAVEGACAO_SECAO, {
-
-    incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
-
-    incluirImagemSecao: false,
-
-    fluxoIndices,
-
-    tituloIntroAcademy: opcoes?.tituloIntroAcademy,
-
-    titulosFluxoAcademy: opcoes?.titulosFluxoAcademy,
-
-  })
-
-  return {
-
-    slug,
-
-    titulo,
-
-    duracao,
-
-    blocos: blocos as AulaDemo['blocos'],
-
-    manualSecao: DOC_NAVEGACAO_SECAO.num,
-
-  }
-
+> & {
+  /** H1 no topo (`.uni-player-aula__titulo-guia`) sem intro completa da seção — paridade Hub aula 2. */
+  cabecalhoH1?: boolean
 }
 
-
+function aulaNavegacao(
+  slug: string,
+  titulo: string,
+  duracao: string,
+  fluxoIndices: number[],
+  opcoes?: OpcoesAulaNavegacao,
+): AulaDemo {
+  const tituloCabecalho = opcoes?.tituloIntroAcademy ?? titulo
+  const blocos = blocosDeSecaoConfiguradorAcademy(DOC_NAVEGACAO_SECAO, {
+    incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
+    incluirImagemSecao: false,
+    fluxoIndices,
+    tituloIntroAcademy: opcoes?.tituloIntroAcademy,
+    titulosFluxoAcademy: opcoes?.titulosFluxoAcademy,
+  })
+  if (opcoes?.cabecalhoH1 && !opcoes.incluirIntroSecao) {
+    blocos.unshift({ tipo: 'heading', dados: { text: tituloCabecalho, nivel: 1 } })
+    const idxDuplicata = blocos.findIndex(
+      (bloco, i) => i > 0
+        && bloco.tipo === 'heading'
+        && Number(bloco.dados.nivel ?? 1) >= 2
+        && String(bloco.dados.text).trim().toLocaleLowerCase('pt-BR')
+          === tituloCabecalho.trim().toLocaleLowerCase('pt-BR'),
+    )
+    if (idxDuplicata > 0) blocos.splice(idxDuplicata, 1)
+  }
+  return {
+    slug,
+    titulo,
+    duracao,
+    blocos: blocos as AulaDemo['blocos'],
+    manualSecao: DOC_NAVEGACAO_SECAO.num,
+  }
+}
 
 export const NAVEGACAO_AULA_SLUGS = [
-
   'menus-plataforma',
-
   'funcionalidades-listas',
-
 ] as const
 
-
-
 export const AULAS_NAVEGACAO: AulaDemo[] = [
-
   aulaNavegacao(
-
     NAVEGACAO_AULA_SLUGS[0],
-
     'Menus da plataforma',
-
     '53m',
-
     [0, 1, 2, 3, 4],
-
     {
-
       incluirIntroSecao: true,
-
       tituloIntroAcademy: 'Menus da plataforma',
-
       titulosFluxoAcademy: {
-
         1: 'Produtos contratados',
-
         2: 'Troca de produtos',
-
         3: 'Troca de workspaces',
-
         4: 'Configuração',
-
       },
-
     },
-
   ),
-
   aulaNavegacao(
-
     NAVEGACAO_AULA_SLUGS[1],
-
     'Funcionalidades das listas',
-
     '20m',
-
     [7],
-
+    {
+      cabecalhoH1: true,
+      tituloIntroAcademy: 'Funcionalidades das listas',
+    },
   ),
-
 ]
 
-
-
 export const NAVEGACAO_FASES_TRILHA = AULAS_NAVEGACAO.map(a => ({
-
   slug: a.slug,
-
   nome: a.titulo,
-
   duracao: a.duracao,
-
 }))
-
-
 
 const DURACAO_TOTAL_MIN = AULAS_NAVEGACAO.reduce((s, a) => s + parseInt(a.duracao, 10), 0)
 
-
-
 export const NAVEGACAO_TRILHA = {
-
   slug: 'navegacao',
-
   tag: '#38bdf8',
-
   emoji: '🧭',
-
   nome: 'Guia Navegação',
-
   modulos: AULAS_NAVEGACAO.length,
-
   duracao: `${DURACAO_TOTAL_MIN}m`,
-
   prog: 0,
-
   fases: NAVEGACAO_FASES_TRILHA.map(f => ({ ...f, concluida: false })),
-
 }
-
-

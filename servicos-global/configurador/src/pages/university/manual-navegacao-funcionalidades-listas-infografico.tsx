@@ -235,7 +235,7 @@ export function ManualInfograficoFuncionalidadesLista() {
       </div>
 
       <p style={{ ...MANUAL_TITULO_INFOGRAFICO_ESTILO, marginTop: 0 }}>
-        O que sempre é igual — Localizar, arrastar, filtros e Exportar
+        O que sempre é igual: Localizar, arrastar, filtros e Exportar
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

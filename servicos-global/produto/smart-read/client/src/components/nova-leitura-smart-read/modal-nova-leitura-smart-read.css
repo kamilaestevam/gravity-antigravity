@@ -2298,7 +2298,8 @@
   background: #f59e0b;
 }
 
-.sr-res-perf-bloco--ajuste .sr-res-perf-bloco-quantidade {
+.sr-res-perf-bloco--ajuste .sr-res-perf-bloco-numero,
+.sr-res-perf-bloco--ajuste .sr-res-perf-bloco-pct {
   color: #fbbf24;
 }
 
@@ -2354,9 +2355,27 @@
 }
 
 .sr-res-perf-bloco-quantidade {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  line-height: 1.1;
+}
+
+.sr-res-perf-bloco-numero {
   font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.1;
+}
+
+.sr-res-perf-bloco-sep {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  opacity: 0.85;
+}
+
+.sr-res-perf-bloco-pct {
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
 .sr-res-perf-bloco-rotulo {
@@ -2377,12 +2396,14 @@
   opacity: 0.85;
 }
 
-.sr-res-perf-bloco--ok .sr-res-perf-bloco-quantidade,
+.sr-res-perf-bloco--ok .sr-res-perf-bloco-numero,
+.sr-res-perf-bloco--ok .sr-res-perf-bloco-pct,
 .sr-res-perf-bloco--ok .sr-res-perf-bloco-icone {
   color: #34d399;
 }
 
-.sr-res-perf-bloco--alt .sr-res-perf-bloco-quantidade,
+.sr-res-perf-bloco--alt .sr-res-perf-bloco-numero,
+.sr-res-perf-bloco--alt .sr-res-perf-bloco-pct,
 .sr-res-perf-bloco--alt .sr-res-perf-bloco-icone {
   color: #f87171;
 }

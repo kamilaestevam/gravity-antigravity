@@ -25,10 +25,18 @@ export const SLUGS_LEGADOS_AULA_CONCLUIDA_GUIA: Partial<Record<string, readonly 
   'acesso-gravity-university': ['navegacao-gravity-university'],
   'bid-frete-entendendo': ['bid-frete-visao-geral'],
   'bid-frete-tipos-cotacao': ['bid-frete-acesso'],
+  'bid-frete-cotacao-frete-internacional': [
+    'bid-frete-tipos-cotacao',
+    'bid-frete-nova-cotacao',
+    'bid-frete-painel-cotacao',
+  ],
 }
 
 /** Unificação de várias aulas — exige todos os slugs legados, não apenas um. */
-export const SLUGS_LEGADOS_EXIGEM_TODAS_GUIA: ReadonlySet<string> = new Set(['menu-lateral'])
+export const SLUGS_LEGADOS_EXIGEM_TODAS_GUIA: ReadonlySet<string> = new Set([
+  'menu-lateral',
+  'bid-frete-cotacao-frete-internacional',
+])
 
 function legadoContaComoConclusao(
   slugAtual: string,

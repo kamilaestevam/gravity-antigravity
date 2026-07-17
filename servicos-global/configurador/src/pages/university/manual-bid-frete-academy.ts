@@ -43,9 +43,7 @@ export const BID_FRETE_AULA_SLUGS = [
   'bid-frete-entendendo',
   'bid-frete-insights',
   'bid-frete-lista',
-  'bid-frete-tipos-cotacao',
-  'bid-frete-nova-cotacao',
-  'bid-frete-painel-cotacao',
+  'bid-frete-cotacao-frete-internacional',
   'bid-frete-configuracoes',
 ] as const
 
@@ -71,24 +69,12 @@ export const AULAS_BID_FRETE: AulaDemo[] = [
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[3],
-    FLUXOS[4]?.tituloSumario ?? 'Cotação de frete internacional — Tipos',
-    '8m',
-    [4],
+    'Cotação de frete internacional',
+    '52m',
+    [4, 5, 6],
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[4],
-    FLUXOS[5]?.tituloSumario ?? 'Cotação de frete internacional — Nova',
-    '32m',
-    [5],
-  ),
-  aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[5],
-    FLUXOS[6]?.tituloSumario ?? 'Cotação de frete internacional — Painel',
-    '12m',
-    [6],
-  ),
-  aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[6],
     FLUXOS[9]?.tituloSumario ?? 'Configurações',
     '14m',
     [9],

@@ -253,6 +253,19 @@ function fluxoTemConteudoIntroAcademy(fluxo: DocFluxo): boolean {
   return flagsInfograficoIntro.some((flag) => Boolean(fluxo[flag]))
 }
 
+/** H2 de seção no sumário/corpo sem bloco `fluxo_manual` vazio (ex.: «Nova cotação» entre exemplos e formas). */
+function passoSomenteTituloSecaoAcademy(passo: DocPassoConfigurador): boolean {
+  if (passo.estiloTituloWizard !== true) return false
+  if ((passo.paragrafos?.length ?? 0) > 0) return false
+  if (passo.imagem) return false
+  if ((passo.figurasAposParagrafo?.length ?? 0) > 0) return false
+  if ((passo.galeriaComparacaoAposParagrafo?.length ?? 0) > 0) return false
+  if ((passo.galeriaComparacao?.length ?? 0) > 0) return false
+  if ((passo.galeriaTelas?.length ?? 0) > 0) return false
+  if (passo.mostrarInfograficoBidFreteCotacaoAvulsaFormas) return false
+  return true
+}
+
 /** Academy: paridade Pedido Gravity — H1 + tópico intro (H2) + subtópicos como H2 no menu. */
 function blocosDeFluxoAcademySubtopicosComoTitulos(
   fluxo: DocFluxo,
@@ -282,27 +295,32 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
 
   for (const passo of achatarPassosVisuais(fluxoRender.passosVisuais ?? [])) {
     // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
+    const passoSomenteInfograficoOculto = passo.ocultarNoSumario && passo.ocultarTituloPasso
     const tituloPasso = tituloPassoAcademy(passo)
-    blocos.push({
-      tipo: 'heading',
-      dados: {
-        text: tituloPasso,
-        nivel: 2,
-        // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
-        ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
-        ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
-        ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
-      },
-    })
-    blocos.push({
-      tipo: 'fluxo_manual',
-      dados: {
-        payload: JSON.stringify(fluxoRender),
-        numeroSecaoFluxo,
-        modo: 'passo',
-        passoNum: passo.num,
-      },
-    })
+    if (!passoSomenteInfograficoOculto) {
+      blocos.push({
+        tipo: 'heading',
+        dados: {
+          text: tituloPasso,
+          nivel: 2,
+          // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
+          ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
+          ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
+          ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
+        },
+      })
+    }
+    if (!passoSomenteTituloSecaoAcademy(passo)) {
+      blocos.push({
+        tipo: 'fluxo_manual',
+        dados: {
+          payload: JSON.stringify(fluxoRender),
+          numeroSecaoFluxo,
+          modo: 'passo',
+          passoNum: passo.num,
+        },
+      })
+    }
   }
 
   if (fluxoTemRodapeAcademy(fluxo)) {

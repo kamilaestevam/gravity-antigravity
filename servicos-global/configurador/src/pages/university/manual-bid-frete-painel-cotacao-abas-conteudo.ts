@@ -8,11 +8,15 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Visão geral do painel de cotação — cockpit',
     tituloCurto: 'Visão geral — cockpit',
-    paragrafos: [
-      'A aba **Visão geral** é o cockpit da cotação: reúne **cabeçalho**, **prazo para resposta**, **métricas de competição**, **linha do tempo**, o **Painel de Insights Inteligente** e os cards de **Detalhes gerais**, **Rota** e **Detalhes da carga**.',
-    ],
+    ocultarNoSumario: true,
+    paragrafos: [],
     mostrarInfograficoBidFreteAbasPainelCotacao: true,
     galeriaTelasAposTabela: [
+      {
+        paragrafoAntes:
+          'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
+        imagem: S('painel_cotacao_divisao'),
+      },
       {
         legenda: 'Visão geral',
         pilaresAbasPainelCotacaoBidFrete: ['01'],
@@ -42,6 +46,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Dados gerais',
     tituloCurto: 'Dados gerais',
+    ocultarNoSumario: true,
     paragrafos: [
       'Na aba **Dados gerais**, **alguns campos da cotação podem ser editados** — ajuste **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e demais identificadores da solicitação.',
       'Use este espaço para corrigir o escopo da cotação **antes de reenviar** aos fornecedores ou para revisar o que já foi publicado na **Solicitação de Cotação**.',
@@ -56,6 +61,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Solicitação de cotação',
     tituloCurto: 'Solicitação de cotação',
+    ocultarNoSumario: true,
     paragrafos: [
       'Nesse local é possível acompanhar todas as solicitações de cotacões enviadas, para quem, como, status, link da resposta, data de envio e data da resposta.',
     ],
@@ -113,6 +119,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Propostas e aprovação de cotação',
     tituloCurto: 'Propostas e aprovação de cotação',
+    ocultarNoSumario: true,
     paragrafos: [
       'Neste local encontra-se todas as propostas detalhadas respondidas pelos fornecedores.',
     ],
@@ -245,6 +252,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Comentários',
     tituloCurto: 'Comentários',
+    ocultarNoSumario: true,
     paragrafos: [
       'A aba **Comentários** reunirá o histórico de observações internas e trocas com fornecedores sobre a cotação.',
     ],
@@ -253,6 +261,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
   {
     titulo: 'Documentos',
     tituloCurto: 'Documentos',
+    ocultarNoSumario: true,
     paragrafos: [
       'A aba **Documentos** centralizará anexos comerciais, packing lists e demais arquivos vinculados à negociação.',
     ],

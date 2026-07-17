@@ -205,14 +205,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as CardPeriodoCodigo)) {
       setPeriodoCards(cardsTopo.periodo as CardPeriodoCodigo)
     }
-    if (cardsTopo.ids_visiveis.length > 0) {
-      const visiveisSet = new Set(cardsTopo.ids_visiveis)
-      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
-      if (algumIdValido) {
-        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
-      }
-    }
-  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+  }, [setPeriodoCards])
 
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,

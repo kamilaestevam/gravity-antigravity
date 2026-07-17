@@ -74,14 +74,14 @@ export const AULAS_BID_FRETE: AulaDemo[] = [
     BID_FRETE_AULA_SLUGS[3],
     'Cotação de frete internacional',
     '52m',
-    [4, 5, 6, 7],
+    [4, 5, 6, 7, 8],
     { cabecalhoH1: true },
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[4],
-    FLUXOS[10]?.tituloSumario ?? 'Configurações',
+    FLUXOS[11]?.tituloSumario ?? 'Configurações',
     '14m',
-    [10],
+    [11],
   ),
 ]
 

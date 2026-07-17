@@ -17,7 +17,6 @@ import {
   MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
-  MANUAL_ESPACO_FRASE_IMAGEM_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
 } from './manual-tipografia'
@@ -118,7 +117,7 @@ function calcularEspacoSuperiorBlocoGuia(
     return 0
   }
 
-  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Riscos → Fornecedor).
+  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Cotação manual → BID manual).
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'

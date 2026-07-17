@@ -26,6 +26,47 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
     imagemAbaixoTexto: true,
   },
   {
+    titulo: 'CARD',
+    paragrafos: [
+      'Na aba **Cards**, escolha o **período de comparação**, inclua indicadores em **Ativos** e remova os que não devem aparecer — o **preview** mostra como ficará em **Insights** e **Lista** antes de **Salvar**.',
+    ],
+    galeriaComparacaoAposParagrafo: [
+      {
+        indice: 0,
+        colunas: 1,
+        textoAcimaEstiloCorpo: true,
+        telas: [
+          fig(
+            'configuracoes_cards_periodo_de_comparacao',
+            'Abra **Configurações → Cards** e escolha o **período de comparação** (7 dias, 30 dias, 6 meses, 1 ano ou Tudo).',
+          ),
+          fig(
+            'configuracoes_cards_incluir',
+            'Em **Disponíveis para adicionar**, clique em **+** no card que deseja incluir em **Ativos**.',
+          ),
+          fig(
+            'configuracoes_cards_incluir_2',
+            'O indicador incluído aparece em **Ativos** e entra no **preview** do cockpit.',
+          ),
+          fig(
+            'configuracoes_cards_desativar_1',
+            'Em **Ativos**, clique em **×** no card que deseja remover da lista.',
+          ),
+          fig(
+            'configuracoes_cards_desativar_2',
+            'Clique em **Salvar** e confirme a remoção para atualizar **Insights** e **Lista**.',
+          ),
+        ],
+      },
+    ],
+  },
+  {
+    titulo: 'Tabela',
+    paragrafos: [
+      'Em **Tabela**, defina **linhas por página** padrão da **Lista** virtual do BID Frete.',
+    ],
+  },
+  {
     titulo: 'Status e preferências',
     paragrafos: ['Defina **rótulos** dos status e **preferências gerais** do produto.'],
     galeriaComparacaoAposParagrafo: [
@@ -68,29 +109,6 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           fig('configuracoes_colunas_formato_datas', '**Formato de datas**'),
           fig('configuracoes_colunas_formato_personalizadas', '**Colunas personalizadas**'),
         ],
-      },
-    ],
-  },
-  {
-    titulo: 'Cards de Insights',
-    paragrafos: ['Gerencie **KPIs** do cockpit: período, inclusão e desativação de cards.'],
-    galeriaComparacaoAposParagrafo: [
-      {
-        indice: 0,
-        colunas: 4,
-        textoAcimaEstiloCorpo: true,
-        telas: [
-          fig('configuracoes_cards_periodo_de_comparacao', '**01.** Período de **comparação**'),
-          fig('configuracoes_cards_incluir', '**02.** **Incluir** card'),
-          fig('configuracoes_cards_incluir_2', '**03.** Incluir card — detalhe'),
-          fig('configuracoes_cards_desativar_1', '**04.** **Desativar** card — passo 1'),
-        ],
-      },
-      {
-        indice: 0,
-        colunas: 1,
-        textoAcimaEstiloCorpo: true,
-        telas: [fig('configuracoes_cards_desativar_2', '**05.** Desativar card — confirmação')],
       },
     ],
   },

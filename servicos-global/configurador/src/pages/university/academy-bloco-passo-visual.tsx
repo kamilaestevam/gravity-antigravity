@@ -64,7 +64,7 @@ function AcademyGaleriaComparacaoPasso({
       className="uni-player-aula__passo-galeria"
       style={
         idxGaleria > 0
-          ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }
+          ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }
           : undefined
       }
     >
@@ -88,6 +88,8 @@ function AcademyGaleriaComparacaoPasso({
         textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
         layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
         calloutApos={galeria.calloutApos}
+        margemSuperiorPx={0}
+        espacoInferiorAposEtapaPx={0}
       />
     </div>
   )

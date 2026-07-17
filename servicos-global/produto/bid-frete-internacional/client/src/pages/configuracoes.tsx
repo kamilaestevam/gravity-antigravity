@@ -59,6 +59,7 @@ import {
   CARD_PERIODOS as PERIODOS,
   DEFAULT_CARD_PREFERENCIAS,
   CARDS_CATALOGO,
+  garantirCardsAtivosVisiveis,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
   type CardDefinicao,
@@ -876,9 +877,11 @@ export default function Configuracoes() {
   )
 
   const salvarCardsConfig = useCallback(() => {
-    persistirCards(pendingCardsPrefs)
+    const normalizado = garantirCardsAtivosVisiveis(pendingCardsPrefs)
+    persistirCards(normalizado)
     persistirPeriodoCards(pendingPeriodoCards)
-    setCardsPrefsBaseline(pendingCardsPrefs)
+    setPendingCardsPrefs(normalizado)
+    setCardsPrefsBaseline(normalizado)
     setPeriodoCardsBaseline(pendingPeriodoCards)
     addNotification({ type: 'success', message: t('bidfrete.config.cards.msg_salvo') })
   }, [pendingCardsPrefs, pendingPeriodoCards, persistirCards, persistirPeriodoCards, addNotification, t])
@@ -1625,7 +1628,7 @@ export default function Configuracoes() {
                           def={def}
                           periodoAtivo={pendingPeriodoCards}
                           onToggle={() => setPendingCardsPrefs(prev =>
-                            prev.map(p => (p.id === pref.id ? { ...p, visible: !p.visible } : p)),
+                            prev.map(p => (p.id === pref.id ? { ...p, visible: true } : p)),
                           )}
                           onRemover={() => setPendingCardsPrefs(prev => prev.filter(p => p.id !== pref.id))}
                         />
@@ -1646,8 +1649,12 @@ export default function Configuracoes() {
                     def={def}
                     periodoAtivo={pendingPeriodoCards}
                     onAdicionar={() => {
-                      if (pendingCardsPrefs.some(p => p.id === def.id)) return
-                      setPendingCardsPrefs(prev => [...prev, { id: def.id, visible: true }])
+                      setPendingCardsPrefs(prev => {
+                        if (prev.some(p => p.id === def.id)) {
+                          return prev.map(p => (p.id === def.id ? { ...p, visible: true } : p))
+                        }
+                        return [...prev, { id: def.id, visible: true }]
+                      })
                     }}
                   />
                 ))}

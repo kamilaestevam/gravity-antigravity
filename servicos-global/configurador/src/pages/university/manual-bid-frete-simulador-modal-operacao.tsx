@@ -328,7 +328,11 @@ function usuarioPreenchendoSimuladorNovaCotacao({
 }
 
 /** Manual BID Frete §4.02.01 — wizard unificado (Modal → Origem → Carga) com guia preservado. */
-export function ManualBidFreteSimuladorModalOperacao() {
+export function ManualBidFreteSimuladorModalOperacao({
+  margemSuperiorPx = MANUAL_ESPACO_PARAGRAFO_PX,
+}: {
+  margemSuperiorPx?: number
+} = {}) {
   const [passoAtual, setPassoAtual] = useState(1)
   const [estado, setEstado] = useState<EstadoSimulador>(criarEstadoModalInicial)
   const [estadoLocais, setEstadoLocais] = useState<EstadoOrigemDestino>(criarEstadoLocaisInicial)
@@ -527,14 +531,16 @@ export function ManualBidFreteSimuladorModalOperacao() {
   const demoConviteAtiva = !cotacaoCriadaSimulacao && !usuarioPreenchendo
 
   return (
-    <div id="sim-bid-frete-modal-operacao" style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+    <div id="sim-bid-frete-modal-operacao" style={{ marginTop: margemSuperiorPx }}>
       <FaixaDemoInterativaBidFrete
         mensagem={
           affordancePassoModal === 'tipo_operacao'
-            ? 'Demo interativa — comece escolhendo o tipo de operação'
-            : 'Demo interativa — preencha os campos; o guia à direita registra cada escolha'
+            ? 'Demo interativa — clique em Importação ou Exportação e avance passo a passo pelo wizard'
+            : 'Demo interativa — clique nos campos à esquerda, use Próximo e acompanhe no Guia ao vivo cada passo até Criar Cotação'
         }
         visivel={demoConviteAtiva}
+        convitePeriodico={demoConviteAtiva}
+        intervaloConviteSegundos={5}
       />
       <style>{NC_ESTILOS_SIMULADOR_MODAL_OPERACAO}</style>
       <style>{NC_ESTILOS_SIMULADOR_ORIGEM_DESTINO}</style>
@@ -852,6 +858,7 @@ export function ManualBidFreteSimuladorModalOperacao() {
           }}
           onSelecionarCampo={(id) => setFoco((prev) => (prev === id ? null : id))}
           conviteInterativo={demoConviteAtiva}
+          textoConviteVazio="Clique na tela simulada à esquerda para começar: cada escolha fica registrada aqui enquanto você avança passo a passo pelo wizard. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai."
         />
       </div>
     </div>

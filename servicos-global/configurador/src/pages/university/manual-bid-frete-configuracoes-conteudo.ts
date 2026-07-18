@@ -12,6 +12,11 @@ function fig(sufixoDrive: string, paragrafoAntes: string) {
   return { legenda: '', imagem: S(sufixoDrive), paragrafoAntes }
 }
 
+const CALLOUT_SALVAR_CONFIGURACOES = {
+  tipo: 'dica' as const,
+  texto: 'É obrigatório salvar as modificações clicando em {{botao:salvar-configuracoes}}',
+}
+
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
@@ -20,7 +25,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
   {
     titulo: 'Visão geral das Configurações',
     paragrafos: [
-      'No menu lateral do **BID Frete Internacional**, **Configurações** concentra preferências do workspace: **status**, **numeração**, **taxa de câmbio**, **colunas** da lista, **cards** de Insights, **Kanban** e demais abas administrativas.',
+      'No menu lateral do **BID Frete Internacional**, **Configurações** concentra preferências do workspace: **status**, **taxa de câmbio**, **colunas** da lista, **cards** de Insights, **Kanban** e demais abas administrativas.',
     ],
     imagem: S('configuracoes_tabela'),
     imagemAbaixoTexto: true,
@@ -272,31 +277,136 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
     ],
   },
   {
-    titulo: 'Status e preferências',
-    paragrafos: ['Defina **rótulos** dos status e **preferências gerais** do produto.'],
+    titulo: 'Status de cotação',
+    tituloCurto: 'Status',
+    paragrafos: [
+      '**Status de Cotação** lista todos os status do workspace.',
+    ],
     galeriaComparacaoAposParagrafo: [
       {
         indice: 0,
-        colunas: 2,
+        colunas: 1,
         textoAcimaEstiloCorpo: true,
         telas: [
-          fig('configuracoes_status', '**Status** — fluxo e rótulos na Lista/Kanban'),
-          fig('configuracoes_preferencia', '**Preferências** — comportamentos padrão'),
+          {
+            legenda: '',
+            imagem: S('status_1'),
+            paragrafoAntes: 'Lista de status',
+            calloutDepois: {
+              tipo: 'dica',
+              texto:
+                '**Arraste** para reordenar (reflete no Kanban). Status de **sistema** são fixos — sem editar ou excluir.',
+            },
+          },
+          {
+            legenda: '',
+            imagem: S('status_4'),
+            paragrafoAntes:
+              'Informe o **nome** do novo status, clique **+ Adicionar à lista** e, em seguida, **Salvar** no rodapé para gravar.',
+            calloutDepois: {
+              tipo: 'dica',
+              texto:
+                'É obrigatório clicar em {{botao:salvar-configuracoes}} — sem **Salvar**, o status novo não é persistido no workspace.',
+            },
+          },
+          {
+            legenda: '',
+            imagem: S('status_5'),
+            paragrafoAntes:
+              'Após **Salvar**, o **novo status** aparece no **painel de seleção de status** da **Lista**.',
+          },
+          {
+            legenda: '',
+            imagem: S('status_6'),
+            paragrafoAntes:
+              '**Editar** status customizado **na Lista** — abra o seletor **STATUS** da cotação, escolha o **novo status** e clique **Confirmar**.',
+          },
         ],
       },
     ],
+    callout: CALLOUT_SALVAR_CONFIGURACOES,
   },
   {
-    titulo: 'Numeração e taxa de câmbio',
-    paragrafos: ['Configure **sequência de numeração** e **taxas de câmbio** de referência.'],
+    titulo: 'Preferências',
+    paragrafos: [
+      'Em **Preferências**, defina padrões da organização para novas cotações — **autorização do fornecedor** editar proposta e **cópias de e-mail** transacionais para você.',
+    ],
     galeriaComparacaoAposParagrafo: [
       {
         indice: 0,
-        colunas: 2,
+        colunas: 1,
+        rotuloPasso: 'Autorização para fornecedor atualizar cotação',
+        textoAcimaEstiloCorpo: true,
+        textoIntro:
+          'O **padrão do workspace** define se o fornecedor pode alterar dados da proposta **até a validade**. Com o toggle **desligado** (padrão), o fornecedor **não edita** após o envio; no wizard **Nova cotação**, a escolha **Sim/Não** por cotação continua **obrigatória**.',
+        telas: [
+          {
+            legenda: '',
+            imagem: S('preferencia_alterar_cotacao_1'),
+            paragrafoAntes:
+              'Abra **Configurações → Preferências** e ligue ou desligue **O fornecedor pode alterar dados da cotação até a validade**.',
+          },
+          {
+            legenda: '',
+            imagem: S('preferencia_alterar_cotacao_2'),
+            paragrafoAntes:
+              'A seleção em **Configurações** irá preencher esse campo como **padrão** em todas as cotações.',
+          },
+          {
+            legenda: '',
+            imagem: S('preferencia_alterar_cotacao_3'),
+            paragrafoAntes:
+              'Com permissão ativa, o fornecedor edita a proposta no **portal de resposta** enquanto o **prazo de resposta** estiver aberto.',
+          },
+        ],
+      },
+      {
+        indice: 0,
+        colunas: 1,
+        rotuloPasso: 'Configuração de e-mails',
+        textoAcimaEstiloCorpo: true,
+        textoIntro:
+          'Em **E-mails para você**, ative cópias transacionais no **seu e-mail** cadastrado na organização. São **três tipos** independentes — ligue só o que precisa acompanhar.',
+        telas: [
+          {
+            legenda: '',
+            imagem: S('preferencia_email_cotacao_1'),
+            paragrafoAntes:
+              '**Envio da solicitação** — confirmação quando a cotação é disparada aos fornecedores. **Resposta do fornecedor** — aviso ao enviar ou atualizar proposta. **Confirmação do vencedor** — quando o ganhador aceita após aprovação.',
+          },
+          {
+            legenda: '',
+            imagem: S('preferencia_email_cotacao_2'),
+            paragrafoAntes:
+              'Com **Resposta do fornecedor** ligado, chega e-mail **Nova resposta** (primeiro envio) ou **Proposta atualizada** (alteração) quando o fornecedor envia ou altera a proposta na cotação.',
+          },
+          {
+            legenda: '',
+            imagem: S('preferencia_email_cotacao_4'),
+            paragrafoAntes:
+              'Com **Confirmação do fornecedor vencedor** ligado, chega e-mail **Aceite confirmado** quando o ganhador confirma **Recebi e estou de acordo**.',
+          },
+        ],
+      },
+    ],
+    callout: CALLOUT_SALVAR_CONFIGURACOES,
+  },
+  {
+    titulo: 'Taxa de Câmbio',
+    tituloCurto: 'Taxa de câmbio',
+    paragrafos: [
+      'Em **Configurações → Taxa de Câmbio**, você controla a cotação das **principais moedas do mundo** em **quatro boletins diários** (PTAX) e a **projeção do dólar futuro** (BACEN Focus).',
+    ],
+    galeriaComparacaoAposParagrafo: [
+      {
+        indice: 0,
+        colunas: 1,
         textoAcimaEstiloCorpo: true,
         telas: [
-          fig('configuracoes_numeracao', '**Numeração** — prefixo e próximo número'),
-          fig('configuracoes_taxa_cambio', '**Taxa de câmbio** — moedas e cotações'),
+          {
+            legenda: '',
+            imagem: S('preferencia_taxa_cambio'),
+          },
         ],
       },
     ],

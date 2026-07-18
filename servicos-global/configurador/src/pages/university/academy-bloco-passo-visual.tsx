@@ -262,6 +262,24 @@ function CalloutPasso({ callout }: { callout: { tipo: string; texto: string } })
  * Passo visual — ritmo Guia (`/modelo-espacamento-guia`): 12px no corpo e entre partes
  * (rótulo↔título↔parágrafos↔screenshot↔callout). Margem externa do bloco vem do PlayerAula.
  */
+function AcademyPassoParagrafosComCallouts({ passo }: { passo: DocPassoVisual }) {
+  if (!passo.paragrafos?.length) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }}>
+      {passo.paragrafos.map((p, i) => (
+        <React.Fragment key={i}>
+          <p style={{ ...ESTILO_CORPO, margin: 0 }}>
+            <AcademyTextoRich texto={p} />
+          </p>
+          {passo.calloutAposParagrafo?.indice === i ? (
+            <CalloutPasso callout={passo.calloutAposParagrafo.callout} />
+          ) : null}
+        </React.Fragment>
+      ))}
+    </div>
+  )
+}
+
 export function AcademyBlocoPassoVisual({
   passo,
   primeiro: _primeiro,
@@ -342,13 +360,7 @@ export function AcademyBlocoPassoVisual({
         <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
       ) : null}
       {temParagrafos ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }}>
-          {passo.paragrafos!.map((p, i) => (
-            <p key={i} style={{ ...ESTILO_CORPO, margin: 0 }}>
-              <AcademyTextoRich texto={p} />
-            </p>
-          ))}
-        </div>
+        <AcademyPassoParagrafosComCallouts passo={passo} />
       ) : null}
     </>
   )
@@ -511,13 +523,7 @@ export function AcademyBlocoPassoVisual({
             <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
           ) : null}
           {temParagrafos ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX }}>
-              {passo.paragrafos!.map((p, i) => (
-                <p key={i} style={{ ...ESTILO_CORPO, margin: 0 }}>
-                  <AcademyTextoRich texto={p} />
-                </p>
-              ))}
-            </div>
+            <AcademyPassoParagrafosComCallouts passo={passo} />
           ) : null}
           {passo.linkCapitulo && (
             <p style={{ margin: 0 }}>

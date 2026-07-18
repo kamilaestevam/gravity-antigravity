@@ -21,6 +21,7 @@ import {
   type OrigemRegistroAlteracaoProposta,
 } from '../lib/registrar-alteracao-proposta-bid-frete-internacional.js'
 import { enviarEmailAlteracaoPropostaBidFreteInternacional } from './enviar-email-alteracao-proposta-bid-frete-internacional.js'
+import { enviarEmailRespostaFornecedorCompradorBidFreteInternacional } from './enviar-emails-comprador-bid-frete-internacional.js'
 import { lerPreferenciasNotificacaoBidFreteInternacional } from '../lib/ler-preferencias-notificacao-bid-frete-internacional.js'
 
 export interface DadosPropostaDisparo {
@@ -135,6 +136,10 @@ export async function enviarPropostaDisparoBidFreteInternacional(
           modalidade_cotacao_bid_frete_internacional: true,
           incluir_armazenagem_cotacao_bid_frete_internacional: true,
           modal_cotacao_bid_frete_internacional: true,
+          origem_nome_cotacao_bid_frete_internacional: true,
+          origem_pais_cotacao_bid_frete_internacional: true,
+          destino_nome_cotacao_bid_frete_internacional: true,
+          destino_pais_cotacao_bid_frete_internacional: true,
           porto_origem_cotacao_bid_frete_internacional: true,
           porto_destino_cotacao_bid_frete_internacional: true,
           aeroporto_origem_cotacao_bid_frete_internacional: true,
@@ -345,6 +350,12 @@ async function posSalvarPropostaComRastreabilidade(
       id_usuario: string
       numero_cotacao_bid_frete_internacional: string
       status_cotacao_bid_frete_internacional?: string | null
+      modal_cotacao_bid_frete_internacional?: string | null
+      modalidade_cotacao_bid_frete_internacional?: string | null
+      origem_nome_cotacao_bid_frete_internacional?: string | null
+      origem_pais_cotacao_bid_frete_internacional?: string | null
+      destino_nome_cotacao_bid_frete_internacional?: string | null
+      destino_pais_cotacao_bid_frete_internacional?: string | null
     } | null
   },
   ctx: {
@@ -387,6 +398,37 @@ async function posSalvarPropostaComRastreabilidade(
       tipo: ctx.modo === 'editar' ? 'atualizar' : 'criar',
       moeda: registro.snapshot_depois.moeda_proposta_bid_frete_internacional,
       alteracoes: registro.alteracoes,
+    })
+  }
+
+  if (cotacao) {
+    const totalRespondidos = await (prisma as any).disparoCotacaoBidFreteInternacional.count({
+      where: {
+        id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional,
+        status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
+      },
+    })
+    const diasTransito = Number(ctx.propostaDepois.dias_transito_proposta_bid_frete_internacional ?? 0)
+
+    await enviarEmailRespostaFornecedorCompradorBidFreteInternacional(prisma, {
+      id_organizacao: disparo.id_organizacao,
+      id_usuario: cotacao.id_usuario,
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+      parametros: {
+        numeroCotacao: cotacao.numero_cotacao_bid_frete_internacional,
+        nomeFornecedor: fornecedorNome,
+        tipo: ctx.modo === 'editar' ? 'atualizar' : 'criar',
+        moeda: registro.snapshot_depois.moeda_proposta_bid_frete_internacional,
+        valorTotal: ctx.valorTotal,
+        diasTransito: Number.isFinite(diasTransito) ? diasTransito : 0,
+        modal: cotacao.modal_cotacao_bid_frete_internacional ?? '',
+        modalidade: cotacao.modalidade_cotacao_bid_frete_internacional,
+        origemNome: cotacao.origem_nome_cotacao_bid_frete_internacional ?? '',
+        origemPais: cotacao.origem_pais_cotacao_bid_frete_internacional ?? '',
+        destinoNome: cotacao.destino_nome_cotacao_bid_frete_internacional ?? '',
+        destinoPais: cotacao.destino_pais_cotacao_bid_frete_internacional ?? '',
+        quantidadePropostasRecebidas: totalRespondidos,
+      },
     })
   }
 

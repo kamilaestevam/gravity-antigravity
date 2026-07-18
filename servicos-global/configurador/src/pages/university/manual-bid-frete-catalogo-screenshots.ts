@@ -51,7 +51,22 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'configuracoes_kanban': '/university/screenshots/bid-frete-int-configuracoes-kanban.png',
   'configuracoes_numeracao': '/university/screenshots/bid-frete-int-configuracoes-numeracao.png',
   'configuracoes_preferencia': '/university/screenshots/bid-frete-int-configuracoes-preferencia.png',
+  'preferencia_alterar_cotacao_1': '/university/screenshots/bid-frete-int-preferencia-alterar-cotacao-1.png',
+  'preferencia_alterar_cotacao_2': '/university/screenshots/bid-frete-int-preferencia-alterar-cotacao-2.png',
+  'preferencia_alterar_cotacao_3': '/university/screenshots/bid-frete-int-preferencia-alterar-cotacao-3.png',
+  'preferencia_email_cotacao_1': '/university/screenshots/bid-frete-int-preferencia-email-cotacao-1.png',
+  'preferencia_email_cotacao_2': '/university/screenshots/bid-frete-int-preferencia-email-cotacao-2.png',
+  'preferencia_email_cotacao_3': '/university/screenshots/bid-frete-int-preferencia-email-cotacao-3.png',
+  'preferencia_email_cotacao_4': '/university/screenshots/bid-frete-int-preferencia-email-cotacao-4.png',
+  'preferencia_email_cotacao_4b': '/university/screenshots/bid-frete-int-preferencia-email-cotacao-4b.png',
+  'preferencia_taxa_cambio': '/university/screenshots/bid-frete-int-preferencia-taxa-cambio.png',
   'configuracoes_status': '/university/screenshots/bid-frete-int-configuracoes-status.png',
+  'status_1': '/university/screenshots/bid-frete-int-status-1.png',
+  'status_2': '/university/screenshots/bid-frete-int-status-2.png',
+  'status_3': '/university/screenshots/bid-frete-int-status-3.png',
+  'status_4': '/university/screenshots/bid-frete-int-status-4.png',
+  'status_5': '/university/screenshots/bid-frete-int-status-5.png',
+  'status_6': '/university/screenshots/bid-frete-int-status-6.png',
   'configuracoes_tabela_1': '/university/screenshots/bid-frete-int-configuracoes-tabela-1.png',
   'configuracoes_tabela_2': '/university/screenshots/bid-frete-int-configuracoes-tabela-2.png',
   'configuracoes_tabela': '/university/screenshots/bid-frete-int-configuracoes-tabela.png',
@@ -325,7 +340,22 @@ export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_TELA = screenshotBidF
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN = screenshotBidFreteInt('configuracoes_kanban')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_NUMERACAO = screenshotBidFreteInt('configuracoes_numeracao')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PREFERENCIA = screenshotBidFreteInt('configuracoes_preferencia')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_ALTERAR_COTACAO_1 = screenshotBidFreteInt('preferencia_alterar_cotacao_1')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_ALTERAR_COTACAO_2 = screenshotBidFreteInt('preferencia_alterar_cotacao_2')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_ALTERAR_COTACAO_3 = screenshotBidFreteInt('preferencia_alterar_cotacao_3')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_1 = screenshotBidFreteInt('preferencia_email_cotacao_1')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_2 = screenshotBidFreteInt('preferencia_email_cotacao_2')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_3 = screenshotBidFreteInt('preferencia_email_cotacao_3')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_4 = screenshotBidFreteInt('preferencia_email_cotacao_4')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_4B = screenshotBidFreteInt('preferencia_email_cotacao_4b')
+export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_TAXA_CAMBIO = screenshotBidFreteInt('preferencia_taxa_cambio')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_STATUS = screenshotBidFreteInt('configuracoes_status')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_1 = screenshotBidFreteInt('status_1')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_2 = screenshotBidFreteInt('status_2')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_3 = screenshotBidFreteInt('status_3')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_4 = screenshotBidFreteInt('status_4')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_5 = screenshotBidFreteInt('status_5')
+export const SCREENSHOT_BID_FRETE_INT_STATUS_6 = screenshotBidFreteInt('status_6')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA_1 = screenshotBidFreteInt('configuracoes_tabela_1')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA_2 = screenshotBidFreteInt('configuracoes_tabela_2')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA = screenshotBidFreteInt('configuracoes_tabela')

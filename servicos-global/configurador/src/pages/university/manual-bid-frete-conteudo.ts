@@ -1081,7 +1081,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ancoraPassosPrefix: 'configuracoes',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'No menu lateral, **Configurações** reúne status, numeração, taxa de câmbio, colunas, cards de Insights e Kanban.',
+        'No menu lateral, **Configurações** reúne status, taxa de câmbio, colunas, cards de Insights e Kanban.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_CONFIGURACOES,
     },

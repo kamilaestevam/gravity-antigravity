@@ -356,7 +356,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
             legenda: '',
             imagem: S('preferencia_alterar_cotacao_3'),
             paragrafoAntes:
-              'Com permissão ativa, o fornecedor edita a proposta no **portal de resposta** enquanto o **prazo de resposta** estiver aberto.',
+              'Com permissão ativa, o fornecedor edita a proposta (tela abaixo do fornecedor) enquanto o prazo de resposta estiver aberto.',
           },
         ],
       },

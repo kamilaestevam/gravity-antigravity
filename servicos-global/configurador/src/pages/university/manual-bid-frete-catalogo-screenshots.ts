@@ -30,16 +30,30 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'configuracoes_cards_incluir_2': '/university/screenshots/bid-frete-int-configuracoes-cards-incluir-2.png',
   'configuracoes_cards_incluir': '/university/screenshots/bid-frete-int-configuracoes-cards-incluir.png',
   'configuracoes_cards_periodo_de_comparacao': '/university/screenshots/bid-frete-int-configuracoes-cards-periodo-de-comparacao.png',
+  'configuracoes_casas_decimais_1': '/university/screenshots/bid-frete-int-configuracoes-casas-decimais-1.png',
+  'configuracoes_casas_decimais': '/university/screenshots/bid-frete-int-configuracoes-casas-decimais.png',
+  'configuracoes_formato_data': '/university/screenshots/bid-frete-int-configuracoes-formato-data.png',
+  'configuracoes_personalizada_1': '/university/screenshots/bid-frete-int-configuracoes-personalizada-1.png',
+  'configuracoes_personalizada_2': '/university/screenshots/bid-frete-int-configuracoes-personalizada-2.png',
+  'configuracoes_personalizada_3': '/university/screenshots/bid-frete-int-configuracoes-personalizada-3.png',
+  'configuracoes_personalizada_4': '/university/screenshots/bid-frete-int-configuracoes-personalizada-4.png',
+  'configuracoes_personalizada_5': '/university/screenshots/bid-frete-int-configuracoes-personalizada-5.png',
+  'configuracoes_personalizada_6': '/university/screenshots/bid-frete-int-configuracoes-personalizada-6.png',
   'configuracoes_colunas_casas_decimais': '/university/screenshots/bid-frete-int-configuracoes-colunas-casas-decimais.png',
   'configuracoes_colunas_formato_datas': '/university/screenshots/bid-frete-int-configuracoes-colunas-formato-datas.png',
   'configuracoes_colunas_formato_personalizadas': '/university/screenshots/bid-frete-int-configuracoes-colunas-formato-personalizadas.png',
   'configuracoes_kanban_card_1': '/university/screenshots/bid-frete-int-configuracoes-kanban-card-1.png',
   'configuracoes_kanban_card_2': '/university/screenshots/bid-frete-int-configuracoes-kanban-card-2.png',
+  'configuracoes_kanban_1': '/university/screenshots/bid-frete-int-configuracoes-kanban-1.png',
+  'configuracoes_kanban_2': '/university/screenshots/bid-frete-int-configuracoes-kanban-2.png',
+  'configuracoes_kanban_3': '/university/screenshots/bid-frete-int-configuracoes-kanban-3.png',
   'configuracoes_kanban_tela': '/university/screenshots/bid-frete-int-configuracoes-kanban-tela.png',
   'configuracoes_kanban': '/university/screenshots/bid-frete-int-configuracoes-kanban.png',
   'configuracoes_numeracao': '/university/screenshots/bid-frete-int-configuracoes-numeracao.png',
   'configuracoes_preferencia': '/university/screenshots/bid-frete-int-configuracoes-preferencia.png',
   'configuracoes_status': '/university/screenshots/bid-frete-int-configuracoes-status.png',
+  'configuracoes_tabela_1': '/university/screenshots/bid-frete-int-configuracoes-tabela-1.png',
+  'configuracoes_tabela_2': '/university/screenshots/bid-frete-int-configuracoes-tabela-2.png',
   'configuracoes_tabela': '/university/screenshots/bid-frete-int-configuracoes-tabela.png',
   'configuracoes_taxa_cambio': '/university/screenshots/bid-frete-int-configuracoes-taxa-cambio.png',
   'confirmacao_criacao_cotacao_detalhamento': '/university/screenshots/bid-frete-int-confirmacao-criacao-cotacao-detalhamento.png',
@@ -107,9 +121,6 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'kanban': '/university/screenshots/bid-frete-int-kanban.png',
   'lista_cotacao_avulsa': '/university/screenshots/bid-frete-int-lista-cotacao-avulsa.png',
   'lista_cotacao_bid': '/university/screenshots/bid-frete-int-lista-cotacao-bid.png',
-  'lista_cotacao_painel_acesso_via_insight_1': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-insight-1.png',
-  'lista_cotacao_painel_acesso_via_insight': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-insight.png',
-  'lista_cotacao_painel_acesso_via_lista': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-lista.png',
   'lista_cotacao_nova_1': '/university/screenshots/bid-frete-int-lista-cotacao-nova-1.png',
   'lista_cotacao_nova_2': '/university/screenshots/bid-frete-int-lista-cotacao-nova-2.png',
   'lista_cotacao_nova_cotacao_avulsa_': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-.png',
@@ -192,7 +203,16 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual-processo-cotacao-solicitacao.png',
   'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual-processo-cotacao.png',
   'lista_cotacao_nova_cotacao_avulsa_manual': '/university/screenshots/bid-frete-int-lista-cotacao-nova-cotacao-avulsa-manual.png',
+  'lista_cotacao_painel_acesso_via_insight_1': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-insight-1.png',
+  'lista_cotacao_painel_acesso_via_insight': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-insight.png',
+  'lista_cotacao_painel_acesso_via_lista': '/university/screenshots/bid-frete-int-lista-cotacao-painel-acesso-via-lista.png',
   'lista_editar': '/university/screenshots/bid-frete-int-lista-editar.png',
+  'lista_excluir_1': '/university/screenshots/bid-frete-int-lista-excluir-1.png',
+  'lista_excluir_2': '/university/screenshots/bid-frete-int-lista-excluir-2.png',
+  'lista_filtro_1': '/university/screenshots/bid-frete-int-lista-filtro-1.png',
+  'lista_filtro_2': '/university/screenshots/bid-frete-int-lista-filtro-2.png',
+  'lista_filtro_3': '/university/screenshots/bid-frete-int-lista-filtro-3.png',
+  'lista_filtro_4': '/university/screenshots/bid-frete-int-lista-filtro-4.png',
   'lista_localizar': '/university/screenshots/bid-frete-int-lista-localizar.png',
   'lista_paineis_editar_1': '/university/screenshots/bid-frete-int-lista-paineis-editar-1.png',
   'lista_paineis_editar_2': '/university/screenshots/bid-frete-int-lista-paineis-editar-2.png',
@@ -284,16 +304,30 @@ export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CARDS_DESATIVAR_2 = screensh
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CARDS_INCLUIR_2 = screenshotBidFreteInt('configuracoes_cards_incluir_2')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CARDS_INCLUIR = screenshotBidFreteInt('configuracoes_cards_incluir')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CARDS_PERIODO_DE_COMPARACAO = screenshotBidFreteInt('configuracoes_cards_periodo_de_comparacao')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CASAS_DECIMAIS_1 = screenshotBidFreteInt('configuracoes_casas_decimais_1')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_CASAS_DECIMAIS = screenshotBidFreteInt('configuracoes_casas_decimais')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_FORMATO_DATA = screenshotBidFreteInt('configuracoes_formato_data')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_1 = screenshotBidFreteInt('configuracoes_personalizada_1')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_2 = screenshotBidFreteInt('configuracoes_personalizada_2')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_3 = screenshotBidFreteInt('configuracoes_personalizada_3')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_4 = screenshotBidFreteInt('configuracoes_personalizada_4')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_5 = screenshotBidFreteInt('configuracoes_personalizada_5')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PERSONALIZADA_6 = screenshotBidFreteInt('configuracoes_personalizada_6')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_COLUNAS_CASAS_DECIMAIS = screenshotBidFreteInt('configuracoes_colunas_casas_decimais')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_COLUNAS_FORMATO_DATAS = screenshotBidFreteInt('configuracoes_colunas_formato_datas')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_COLUNAS_FORMATO_PERSONALIZADAS = screenshotBidFreteInt('configuracoes_colunas_formato_personalizadas')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_CARD_1 = screenshotBidFreteInt('configuracoes_kanban_card_1')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_CARD_2 = screenshotBidFreteInt('configuracoes_kanban_card_2')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_1 = screenshotBidFreteInt('configuracoes_kanban_1')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_2 = screenshotBidFreteInt('configuracoes_kanban_2')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_3 = screenshotBidFreteInt('configuracoes_kanban_3')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN_TELA = screenshotBidFreteInt('configuracoes_kanban_tela')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_KANBAN = screenshotBidFreteInt('configuracoes_kanban')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_NUMERACAO = screenshotBidFreteInt('configuracoes_numeracao')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_PREFERENCIA = screenshotBidFreteInt('configuracoes_preferencia')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_STATUS = screenshotBidFreteInt('configuracoes_status')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA_1 = screenshotBidFreteInt('configuracoes_tabela_1')
+export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA_2 = screenshotBidFreteInt('configuracoes_tabela_2')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TABELA = screenshotBidFreteInt('configuracoes_tabela')
 export const SCREENSHOT_BID_FRETE_INT_CONFIGURACOES_TAXA_CAMBIO = screenshotBidFreteInt('configuracoes_taxa_cambio')
 export const SCREENSHOT_BID_FRETE_INT_CONFIRMACAO_CRIACAO_COTACAO_DETALHAMENTO = screenshotBidFreteInt('confirmacao_criacao_cotacao_detalhamento')
@@ -359,6 +393,8 @@ export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA_RESTAURAR = screenshotB
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VISAO_MAPA = screenshotBidFreteInt('insight_visao_mapa')
 export const SCREENSHOT_BID_FRETE_INT_INSIGHT_VIS_O_MAPA = screenshotBidFreteInt('insight_visão_mapa')
 export const SCREENSHOT_BID_FRETE_INT_KANBAN = screenshotBidFreteInt('kanban')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_AVULSA = screenshotBidFreteInt('lista_cotacao_avulsa')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_BID = screenshotBidFreteInt('lista_cotacao_bid')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_1 = screenshotBidFreteInt('lista_cotacao_nova_1')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_2 = screenshotBidFreteInt('lista_cotacao_nova_2')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_ = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_')
@@ -441,7 +477,16 @@ export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_P
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_PROCESSO_COTACAO_SOLICITACAO = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao_solicitacao')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL_PROCESSO_COTACAO = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_NOVA_COTACAO_AVULSA_MANUAL = screenshotBidFreteInt('lista_cotacao_nova_cotacao_avulsa_manual')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_PAINEL_ACESSO_VIA_INSIGHT_1 = screenshotBidFreteInt('lista_cotacao_painel_acesso_via_insight_1')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_PAINEL_ACESSO_VIA_INSIGHT = screenshotBidFreteInt('lista_cotacao_painel_acesso_via_insight')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_COTACAO_PAINEL_ACESSO_VIA_LISTA = screenshotBidFreteInt('lista_cotacao_painel_acesso_via_lista')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_EDITAR = screenshotBidFreteInt('lista_editar')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_EXCLUIR_1 = screenshotBidFreteInt('lista_excluir_1')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_EXCLUIR_2 = screenshotBidFreteInt('lista_excluir_2')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_FILTRO_1 = screenshotBidFreteInt('lista_filtro_1')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_FILTRO_2 = screenshotBidFreteInt('lista_filtro_2')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_FILTRO_3 = screenshotBidFreteInt('lista_filtro_3')
+export const SCREENSHOT_BID_FRETE_INT_LISTA_FILTRO_4 = screenshotBidFreteInt('lista_filtro_4')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_LOCALIZAR = screenshotBidFreteInt('lista_localizar')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_PAINEIS_EDITAR_1 = screenshotBidFreteInt('lista_paineis_editar_1')
 export const SCREENSHOT_BID_FRETE_INT_LISTA_PAINEIS_EDITAR_2 = screenshotBidFreteInt('lista_paineis_editar_2')

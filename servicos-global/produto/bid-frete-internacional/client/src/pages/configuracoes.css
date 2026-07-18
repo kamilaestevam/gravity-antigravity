@@ -2338,6 +2338,108 @@ body.light-theme .cfg-formula-chip:hover {
   margin-bottom: 0.6rem;
 }
 
+.cfg-tabela-antecedencia-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.cfg-tabela-antecedencia-linha__rotulo {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+}
+
+.cfg-tabela-antecedencia-linha__campo {
+  width: 11rem;
+  flex-shrink: 0;
+}
+
+.cfg-tabela-antecedencia-linha__hint {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-muted, #94a3b8);
+}
+
+.cfg-tabela-regras-badge {
+  margin: 0 0 1.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.cfg-tabela-regras-badge__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  margin-bottom: 0.75rem;
+}
+
+.cfg-tabela-regras-badge__lista dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.cfg-tabela-regras-badge__gatilho-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.cfg-tabela-regras-badge__campo-rotulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+}
+
+.cfg-tabela-regras-badge__campo-nome {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 5px;
+  background: rgba(129, 140, 248, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  color: #e0e7ff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.cfg-tabela-regras-badge__gatilho-texto {
+  margin: 0;
+}
+
+.cfg-tabela-regras-badge__lista {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cfg-tabela-regras-badge__lista dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.2rem;
+}
+
 .cfg-kanban-campos-lista {
   display: flex;
   flex-direction: column;

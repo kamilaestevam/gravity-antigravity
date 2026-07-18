@@ -3,6 +3,14 @@
  * SSOT — espelha o layout acordado em produção (:8000).
  */
 
+/** Colunas de proposta — visíveis por padrão na linha da cotação (proposta aprovada/vencedora). */
+export const CHAVES_COLUNAS_PROPOSTA_LISTA: readonly string[] = [
+  'valor_frete_proposta_bid_frete_internacional',
+  'taxas_origem_proposta_bid_frete_internacional',
+  'taxas_destino_proposta_bid_frete_internacional',
+  'valor_total_proposta_bid_frete_internacional',
+]
+
 /** Colunas ocultas por padrão (aba "Ocultas" no seletor — após as exibidas). */
 export const CHAVES_COLUNAS_OCULTAS_PADRAO_LISTA: readonly string[] = [
   'id_cotacao_bid_frete_internacional',
@@ -10,7 +18,7 @@ export const CHAVES_COLUNAS_OCULTAS_PADRAO_LISTA: readonly string[] = [
   'id_usuario',
 ]
 
-/** 41 colunas exibidas por padrão — ordem exata do seletor "Todas". */
+/** 45 colunas exibidas por padrão — ordem exata do seletor "Todas". */
 export const CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA: readonly string[] = [
   'numero_cotacao_bid_frete_internacional',
   'status_cotacao_bid_frete_internacional',
@@ -30,6 +38,10 @@ export const CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA: readonly string[] = [
   'descricao_mercadoria_cotacao_bid_frete_internacional',
   'moeda_meta_cotacao_bid_frete_internacional',
   'valor_meta_cotacao_bid_frete_internacional',
+  'valor_frete_proposta_bid_frete_internacional',
+  'taxas_origem_proposta_bid_frete_internacional',
+  'taxas_destino_proposta_bid_frete_internacional',
+  'valor_total_proposta_bid_frete_internacional',
   'visibilidade_cotacao_bid_frete_internacional',
   'anonima_cotacao_bid_frete_internacional',
   'data_limite_resposta_cotacao_bid_frete_internacional',
@@ -55,7 +67,7 @@ export const CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA: readonly string[] = [
   'motivo_reprovacao_cotacao_bid_frete_internacional',
 ]
 
-/** Ordem completa do catálogo (44) — exibidas + ocultas. */
+/** Ordem completa do catálogo (45 exibidas + 3 ocultas técnicas). */
 export const ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL: readonly string[] = [
   ...CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
   ...CHAVES_COLUNAS_OCULTAS_PADRAO_LISTA,
@@ -72,6 +84,7 @@ export function normalizarColunasVisiveisListaBidFrete(
   colunasPadraoVisiveis: readonly string[] = CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
 ): string[] {
   const catalogoSet = new Set(chavesCatalogo)
+  const customPreservadas = colunasVisiveis.filter(k => !catalogoSet.has(k))
   const validas = colunasVisiveis
     .filter(k => catalogoSet.has(k))
     .filter(k => k !== 'id_cotacao_bid_frete_internacional')
@@ -94,6 +107,12 @@ export function normalizarColunasVisiveisListaBidFrete(
   }
   for (const key of validas) {
     if (!usadas.has(key)) ordenadas.push(key)
+  }
+  for (const key of customPreservadas) {
+    if (!usadas.has(key)) {
+      ordenadas.push(key)
+      usadas.add(key)
+    }
   }
   return ordenadas
 }

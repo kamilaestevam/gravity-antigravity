@@ -3383,6 +3383,11 @@ body.light-theme .cw-xml-viewer {
   margin-top: 32px;
 }
 
+/* Galeria → próxima galeria (ex.: Colunas Kanban → Card): 32px — SSOT entre subtítulos. */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria {
+  margin-top: 32px;
+}
+
 .uni-player-aula__passo-corpo > * {
   margin: 0 !important;
 }

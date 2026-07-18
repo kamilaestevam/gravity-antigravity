@@ -75,7 +75,7 @@ import { filtrarCotacoesPorPeriodoCards } from '../../shared/lista-bid-frete-car
 import { useCardPreferencesBidFrete, CARD_PERIODOS, type CardPeriodoCodigo } from '../../shared/use-card-preferences'
 import {
   carregarTabelaConfigBidFrete,
-  HORAS_LIMITE_DESTAQUE_EXPIRACAO,
+  obterLimiteDestaqueExpiracaoHoras,
   SYNC_EVENT_TABELA_BID_FRETE,
 } from '../../shared/tabela-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../../shared/formato-data-bid-frete'
@@ -558,10 +558,10 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
 
   const classNameLinha = useCallback((linha: Cotacao) => {
     if (!tabelaConfig.destacarAtrasados) return undefined
-    return cotacaoPrestesAExpirar(linha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+    return cotacaoPrestesAExpirar(linha, obterLimiteDestaqueExpiracaoHoras(tabelaConfig))
       ? 'gtv-linha--expira-prestes'
       : undefined
-  }, [tabelaConfig.destacarAtrasados])
+  }, [tabelaConfig.destacarAtrasados, tabelaConfig.limiteDestaqueExpiracaoValor, tabelaConfig.limiteDestaqueExpiracaoUnidade])
 
   const acoes = useMemo(() => [
     {

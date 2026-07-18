@@ -2,14 +2,16 @@
  * Preferências de colunas da Lista BID Frete — localStorage + migração de ordem canônica (v6).
  */
 import type { GTPreferencias } from '@nucleo/tabela-virtual-global'
+import type { ColunaUsuarioBidFreteLista } from './filtros-coluna-lista-bid-frete-internacional'
 import {
+  CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
   normalizarColunasVisiveisListaBidFrete,
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
   ordemColunasVisiveisDivergeDaCanonica,
 } from './ordem-colunas-lista-bid-frete-internacional'
 
 /** Incrementar quando ordem/visibilidade padrão mudar — força realinhamento das prefs salvas. */
-export const VERSAO_COLUNAS_LISTA_BID_FRETE = 6
+export const VERSAO_COLUNAS_LISTA_BID_FRETE = 9
 
 export const STORAGE_COLUNAS_VERSAO_BID_FRETE = 'bid-frete-internacional:config:tabela_colunas_versao'
 export const STORAGE_PREFS_TABELA_BID_FRETE = 'bid-frete-internacional:config:tabela_preferencias'
@@ -122,4 +124,45 @@ export function migrarOrdemColunasPainelListaBidFrete(
   const normalizadas = normalizarColunasVisiveisListaBidFrete(colunasVisiveis, chavesCatalogo)
   marcarPainelOrdemColunasMigradoComStorage(storagePainelOrdemColunas, idPainel)
   return normalizadas
+}
+
+function chavesColunasManuaisListaBidFrete(
+  colunas: readonly ColunaUsuarioBidFreteLista[],
+): string[] {
+  return colunas
+    .filter(c => c.ativo !== false && (c.escopo === 'pedido' || c.escopo === 'ambos' || !c.escopo))
+    .map(c => c.chave)
+}
+
+/** Novas colunas personalizadas entram selecionadas; ocultações manuais não são revertidas. */
+export function mesclarColunasManuaisNasPreferenciasListaBidFrete(
+  colunasPersonalizadas: readonly ColunaUsuarioBidFreteLista[],
+  prev: GTPreferencias | undefined,
+  colunasPadraoVisiveis: readonly string[] = CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
+): GTPreferencias | undefined {
+  const activeCustomKeys = chavesColunasManuaisListaBidFrete(colunasPersonalizadas)
+  if (activeCustomKeys.length === 0) return prev
+
+  const savedVisible = prev?.colunas_visiveis?.length
+    ? prev.colunas_visiveis
+    : [...colunasPadraoVisiveis]
+
+  const savedSet = new Set(savedVisible)
+  const conhecidasAntigas = new Set(prev?.colunas_manuais_conhecidas ?? [])
+  const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
+  const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
+
+  if (
+    novas.length === 0
+    && conhecidasNovas.length === (prev?.colunas_manuais_conhecidas?.length ?? 0)
+  ) {
+    return prev
+  }
+
+  return {
+    ...(prev ?? {}),
+    colunas_visiveis: novas.length > 0 ? [...savedVisible, ...novas] : savedVisible,
+    colunas_manuais_conhecidas: conhecidasNovas,
+    ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+  }
 }

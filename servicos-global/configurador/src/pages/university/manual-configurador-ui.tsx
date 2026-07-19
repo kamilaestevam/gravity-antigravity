@@ -3099,14 +3099,36 @@ function espacoAcimaTelaGaleriaGuiaPx(
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
 
-/** Vão padrão entre screenshot anterior e `rotuloPasso` da próxima sub-seção na galeria. */
-function margemSuperiorRotuloSubsecaoGaleriaPx(
-  idxGaleria: number,
-  galeria: { rotuloPasso?: string },
+/** Vão padrão entre `calloutApos` da galeria anterior e `rotuloPasso` da próxima sub-seção. */
+export function margemInferiorCalloutAposAntesRotuloPassoPx(
+  galeria: { calloutApos?: DocCalloutManual | DocCalloutManual[] },
+  proximaGaleria?: { rotuloPasso?: string },
 ): number {
-  return idxGaleria > 0 && galeria.rotuloPasso?.trim()
+  return galeria.calloutApos && proximaGaleria?.rotuloPasso?.trim()
     ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
     : 0
+}
+
+/** Vão padrão entre screenshot anterior e `rotuloPasso` (quando a anterior não termina em DICA). */
+export function margemSuperiorRotuloSubsecaoGaleriaPx(
+  idxGaleria: number,
+  galeria: { rotuloPasso?: string },
+  galeriaAnterior?: { calloutApos?: DocCalloutManual | DocCalloutManual[] },
+): number {
+  if (idxGaleria === 0 || !galeria.rotuloPasso?.trim()) return 0
+  if (galeriaAnterior?.calloutApos) return 0
+  return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+}
+
+/** Academy — wrapper `passo-galeria` quando o vão não vem do `calloutApos` anterior. */
+export function margemSuperiorGaleriaAcademyAntesSubsecaoPx(
+  idxGaleria: number,
+  galeria: { rotuloPasso?: string },
+  galeriaAnterior?: { calloutApos?: DocCalloutManual | DocCalloutManual[] },
+): number | undefined {
+  if (idxGaleria === 0) return undefined
+  if (galeriaAnterior?.calloutApos && galeria.rotuloPasso?.trim()) return undefined
+  return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
 
 function ManualBlocoRotuloGaleriaPasso({
@@ -3788,7 +3810,15 @@ function ManualBlocoPassoVisual({
             const margemSuperiorRotuloGaleriaAcademyPx = rotuloGaleriaAposParagrafo
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
               : 0
-            const margemSuperiorRotuloSubsecaoPx = margemSuperiorRotuloSubsecaoGaleriaPx(idxGaleria, galeria)
+            const margemSuperiorRotuloSubsecaoPx = margemSuperiorRotuloSubsecaoGaleriaPx(
+              idxGaleria,
+              galeria,
+              idxGaleria > 0 ? galeriasParagrafo[idxGaleria - 1] : undefined,
+            )
+            const calloutAposMarginBottomPx = margemInferiorCalloutAposAntesRotuloPassoPx(
+              galeria,
+              galeriasParagrafo[idxGaleria + 1],
+            )
             const margemSuperiorRotuloGaleriaPx = margemSuperiorRotuloSubsecaoPx > 0
               ? margemSuperiorRotuloSubsecaoPx
               : margemSuperiorRotuloGaleriaAcademyPx
@@ -3872,6 +3902,7 @@ function ManualBlocoPassoVisual({
               mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
               chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
               calloutApos={galeria.calloutApos}
+              calloutAposMarginBottomPx={calloutAposMarginBottomPx}
               mostrarIndicadoresMoverDashboardPedido={galeria.mostrarIndicadoresMoverDashboardPedido}
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={ritmoGaleria.espacoSuperiorEtapa}
@@ -5211,6 +5242,7 @@ export function ManualGaleriaComparacaoIntro({
   mostrarChipsBidFreteTipoCarga,
   chipBidFreteTipoCarga,
   calloutApos,
+  calloutAposMarginBottomPx,
   mostrarIndicadoresMoverDashboardPedido,
   mostrarCardsKanbanCabecalhoPedido,
   layoutCardInsightGradePedido,
@@ -5287,6 +5319,8 @@ export function ManualGaleriaComparacaoIntro({
   mostrarChipsBidFreteTipoCarga?: boolean
   chipBidFreteTipoCarga?: 'fcl' | 'lcl' | 'air_lcl_rodo'
   calloutApos?: DocCalloutManual | DocCalloutManual[]
+  /** Vão após DICA quando a próxima galeria abre com `rotuloPasso`. */
+  calloutAposMarginBottomPx?: number
   mostrarIndicadoresMoverDashboardPedido?: boolean
   mostrarCardsKanbanCabecalhoPedido?: boolean
   /** Manual Pedido § Insights — card UX10 à esquerda + print à direita por widget da grade. */
@@ -6070,7 +6104,9 @@ export function ManualGaleriaComparacaoIntro({
             key={callout.texto.slice(0, 32)}
             callout={callout}
             marginTop={idx === 0 ? MANUAL_ESPACO_IMAGEM_FRASE_PX : MANUAL_ESPACO_PARAGRAFO_PX}
-            marginBottom={0}
+            marginBottom={idx === (Array.isArray(calloutApos) ? calloutApos.length : 1) - 1
+              ? (calloutAposMarginBottomPx ?? 0)
+              : 0}
           />
         ))
       ) : null}

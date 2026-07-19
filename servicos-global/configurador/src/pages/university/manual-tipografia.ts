@@ -133,7 +133,8 @@ export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 6
  * REGRA ÚNICA — vão (margem medida) entre uma frase introdutória e a imagem/figura
  * que ela apresenta. Fonte da verdade para todo par «frase → print/infográfico».
  * Não usar valores ad hoc; sempre referenciar esta constante.
- * Vale também para **DICA/callout → imagem** na mesma galeria (coluna única).
+ * Vale também para **DICA/callout → imagem** na mesma galeria (coluna única)
+ * e para **DICA/callout → subtítulo `rotuloPasso`** da próxima sub-seção.
  */
 export const MANUAL_ESPACO_FRASE_IMAGEM_PX = 4
 

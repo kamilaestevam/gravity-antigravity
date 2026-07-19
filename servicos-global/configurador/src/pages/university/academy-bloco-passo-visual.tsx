@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom'
 import { Eye, EyeSlash, Lightbulb, Warning } from '@phosphor-icons/react'
 import type { DocPassoVisual } from './manual-configurador-conteudo'
 import { ManualFiguraScreenshot } from './manual-figura-screenshot'
-import { ManualGaleriaComparacaoIntro, ManualGaleriaTelasBloco, ManualTagSecaoImportante, chaveTelasGaleriaComparacao } from './manual-configurador-ui'
+import {
+  ManualGaleriaComparacaoIntro,
+  ManualGaleriaTelasBloco,
+  ManualTagSecaoImportante,
+  chaveTelasGaleriaComparacao,
+  margemInferiorCalloutAposAntesRotuloPassoPx,
+  margemSuperiorGaleriaAcademyAntesSubsecaoPx,
+} from './manual-configurador-ui'
 import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tabela'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { AcademyLinkGuia } from './guia-academy-link'
@@ -15,7 +22,6 @@ import {
 } from './manual-infografico-rich-text'
 import {
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
-  MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
   classePassoCorpoAcademy,
@@ -36,11 +42,13 @@ function AcademyGaleriaRotuloPasso({ rotuloPasso }: { rotuloPasso?: string }) {
 
 function AcademyGaleriaComparacaoPasso({
   galeria,
+  galerias,
   idxGaleria,
   indiceParagrafo,
   semParagrafo = false,
 }: {
   galeria: NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>[number]
+  galerias: NonNullable<DocPassoVisual['galeriaComparacaoAposParagrafo']>
   idxGaleria: number
   indiceParagrafo?: number
   semParagrafo?: boolean
@@ -58,13 +66,23 @@ function AcademyGaleriaComparacaoPasso({
   const telas = rotulo && galeria.textoAcimaEstiloCorpo && !textoIntro && galeria.telas[0]?.paragrafoAntes?.trim()
     ? [{ ...galeria.telas[0], paragrafoAntes: undefined }, ...galeria.telas.slice(1)]
     : galeria.telas
+  const galeriaAnterior = idxGaleria > 0 ? galerias[idxGaleria - 1] : undefined
+  const margemSuperiorGaleriaPx = margemSuperiorGaleriaAcademyAntesSubsecaoPx(
+    idxGaleria,
+    galeria,
+    galeriaAnterior,
+  )
+  const calloutAposMarginBottomPx = margemInferiorCalloutAposAntesRotuloPassoPx(
+    galeria,
+    galerias[idxGaleria + 1],
+  )
   return (
     <div
       key={`${prefixoChave}-${chaveTelas}`}
       className="uni-player-aula__passo-galeria"
       style={
-        idxGaleria > 0
-          ? { marginTop: MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX }
+        margemSuperiorGaleriaPx != null
+          ? { marginTop: margemSuperiorGaleriaPx }
           : undefined
       }
     >
@@ -88,6 +106,7 @@ function AcademyGaleriaComparacaoPasso({
         textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
         layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
         calloutApos={galeria.calloutApos}
+        calloutAposMarginBottomPx={calloutAposMarginBottomPx}
         margemSuperiorPx={0}
         espacoInferiorAposEtapaPx={0}
       />
@@ -535,24 +554,30 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {(passo.paragrafos?.length ?? 0) > 0
-        ? passo.paragrafos!.flatMap((_, i) =>
-            galeriaComparacaoAposParagrafoPasso(passo, i).map((galeria, idxGaleria) => (
+        ? passo.paragrafos!.flatMap((_, i) => {
+            const galerias = galeriaComparacaoAposParagrafoPasso(passo, i)
+            return galerias.map((galeria, idxGaleria) => (
               <AcademyGaleriaComparacaoPasso
                 key={`galeria-par-${i}-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
                 galeria={galeria}
+                galerias={galerias}
                 idxGaleria={idxGaleria}
                 indiceParagrafo={i}
               />
             ))
-          )
-        : galeriaComparacaoAposParagrafoPasso(passo, 0).map((galeria, idxGaleria) => (
+          })
+        : (() => {
+            const galerias = galeriaComparacaoAposParagrafoPasso(passo, 0)
+            return galerias.map((galeria, idxGaleria) => (
           <AcademyGaleriaComparacaoPasso
             key={`galeria-sem-par-${idxGaleria}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
             galeria={galeria}
+            galerias={galerias}
             idxGaleria={idxGaleria}
             semParagrafo
           />
-        ))}
+            ))
+          })()}
       {passo.imagem ? (
         <ManualFiguraScreenshot
           src={passo.imagem}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Manual BID Frete §11 Configurações — todas as telas do Drive.
  */
 import type { DocPassoVisual } from './manual-configurador-conteudo'
@@ -77,7 +77,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         textoAcimaEstiloCorpo: true,
         telas: [
           fig(
-            'tela_principal_configuracoes',
+            'configuracoes_tabela_atualizada',
             'Abra **Configurações → Tabela**. Defina **linhas por página** e ligue **Destacar cotações prestes a expirar**.',
           ),
           fig(

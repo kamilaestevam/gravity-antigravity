@@ -71,6 +71,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'configuracoes_tabela_1': '/university/screenshots/bid-frete-int-configuracoes-tabela-1.png',
   'configuracoes_tabela_2': '/university/screenshots/bid-frete-int-configuracoes-tabela-2.png',
   'configuracoes_tabela': '/university/screenshots/bid-frete-int-configuracoes-tabela.png',
+  'configuracoes_tabela_atualizada': '/university/screenshots/bid-frete-int-configuracoes-tabela-atualizada.png',
   'configuracoes_taxa_cambio': '/university/screenshots/bid-frete-int-configuracoes-taxa-cambio.png',
   'tela_principal_configuracoes': '/university/screenshots/bid-frete-int-tela-principal-configuracoes.png',
   'confirmacao_criacao_cotacao_detalhamento': '/university/screenshots/bid-frete-int-confirmacao-criacao-cotacao-detalhamento.png',

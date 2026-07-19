@@ -76,10 +76,15 @@ function AcademyGaleriaComparacaoPasso({
     galeria,
     galerias[idxGaleria + 1],
   )
+  const galeriaAposCalloutSubsecao = margemSuperiorGaleriaPx === 0
   return (
     <div
       key={`${prefixoChave}-${chaveTelas}`}
-      className="uni-player-aula__passo-galeria"
+      className={
+        galeriaAposCalloutSubsecao
+          ? 'uni-player-aula__passo-galeria uni-player-aula__passo-galeria--apos-callout'
+          : 'uni-player-aula__passo-galeria'
+      }
       style={
         margemSuperiorGaleriaPx != null
           ? { marginTop: margemSuperiorGaleriaPx }

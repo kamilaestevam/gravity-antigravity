@@ -3127,7 +3127,7 @@ export function margemSuperiorGaleriaAcademyAntesSubsecaoPx(
   galeriaAnterior?: { calloutApos?: DocCalloutManual | DocCalloutManual[] },
 ): number | undefined {
   if (idxGaleria === 0) return undefined
-  if (galeriaAnterior?.calloutApos && galeria.rotuloPasso?.trim()) return undefined
+  if (galeriaAnterior?.calloutApos && galeria.rotuloPasso?.trim()) return 0
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
 
@@ -3976,6 +3976,10 @@ function ManualBlocoPassoVisual({
               galeria,
               passoAcademyIsolado,
             )
+            const calloutAposMarginBottomPx = margemInferiorCalloutAposAntesRotuloPassoPx(
+              galeria,
+              galeriasSemParagrafo[idxGaleria + 1],
+            )
             return (
             <ManualGaleriaComparacaoIntro
               key={`galeria-sem-par-${idxGaleria}-${galeria.infograficoBidFreteNovaCotacaoResultadoEsperado ? 'res' : ''}-${chaveTelasGaleriaComparacao(galeria.telas)}`}
@@ -4017,6 +4021,7 @@ function ManualBlocoPassoVisual({
               mostrarChipsBidFreteTipoCarga={galeria.mostrarChipsBidFreteTipoCarga}
               chipBidFreteTipoCarga={galeria.chipBidFreteTipoCarga}
               calloutApos={galeria.calloutApos}
+              calloutAposMarginBottomPx={calloutAposMarginBottomPx}
               espacoSuperiorEtapa={ritmoGaleria.espacoSuperiorEtapa}
               espacoInferiorAposEtapaPx={ritmoGaleria.espacoInferiorAposEtapaPx}
               margemSuperiorPx={ritmoGaleria.margemSuperiorPx}

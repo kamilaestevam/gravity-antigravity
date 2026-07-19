@@ -3399,6 +3399,11 @@ body.light-theme .cw-xml-viewer {
   margin-top: 32px;
 }
 
+/* DICA (`calloutApos`) já aplica o vão — evita somar 32px no wrapper seguinte */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria.uni-player-aula__passo-galeria--apos-callout {
+  margin-top: 0;
+}
+
 /* Infográfico UX10 → galeria de passo (ex.: Refinar mapa → 01 Tipo de Operação): 32px */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-galeria {
   margin-top: 32px;

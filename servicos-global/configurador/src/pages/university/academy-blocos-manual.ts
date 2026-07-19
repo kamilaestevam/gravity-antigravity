@@ -10,6 +10,7 @@ import type {
   DocPassoVisual as DocPassoConfigurador,
   DocSecao as DocSecaoConfigurador,
 } from './manual-configurador-conteudo'
+import { achatarPassosVisuais } from './manual-configurador-conteudo'
 import type { IdInfograficoAcademy } from './academy-infograficos'
 import { normalizarTravessaoTextoGuia } from './manual-tipografia'
 
@@ -192,6 +193,35 @@ function tituloPassoAcademy(passo: DocPassoConfigurador): string {
   return passo.tituloCurto?.trim() || passo.titulo
 }
 
+/** Com H1 + H2 de fluxo (aula multi-fluxo), passos viram subtítulo no corpo — ex.: «Visão geral» sob «Nova cotação». */
+function passoDeveSerSubtituloAcademy(passo: DocPassoConfigurador, nivelTituloFluxo: number): boolean {
+  if (nivelTituloFluxo < 2) return false
+  if (passo.rotuloPasso?.trim()) return false
+  if (passo.estiloTituloWizard) return false
+  if (passo.ocultarNoSumario && passo.ocultarTituloPasso) return false
+  return true
+}
+
+function fluxoComPassosSubtituloAcademy(fluxo: DocFluxo, nivelTituloFluxo: number): DocFluxo {
+  if (nivelTituloFluxo < 2 || !fluxo.passosVisuais?.length) return fluxo
+
+  function augmentPasso(passo: DocPassoConfigurador): DocPassoConfigurador {
+    const base = passoDeveSerSubtituloAcademy(passo, nivelTituloFluxo)
+      ? { ...passo, rotuloPasso: tituloPassoAcademy(passo) }
+      : passo
+    if (!base.passosFilhos?.length) return base
+    return {
+      ...base,
+      passosFilhos: base.passosFilhos.map(augmentPasso),
+    }
+  }
+
+  return {
+    ...fluxo,
+    passosVisuais: fluxo.passosVisuais.map(augmentPasso),
+  }
+}
+
 function fluxoTemRodapeAcademy(fluxo: DocFluxo): boolean {
   return Boolean(
     fluxo.mostrarCatalogoHistoricoCompleto
@@ -227,14 +257,31 @@ function fluxoTemConteudoIntroAcademy(fluxo: DocFluxo): boolean {
   return flagsInfograficoIntro.some((flag) => Boolean(fluxo[flag]))
 }
 
+/** H2 de seção no sumário/corpo sem bloco `fluxo_manual` vazio (ex.: «Nova cotação» entre exemplos e formas). */
+function passoSomenteTituloSecaoAcademy(passo: DocPassoConfigurador): boolean {
+  if (passo.estiloTituloWizard !== true) return false
+  if ((passo.paragrafos?.length ?? 0) > 0) return false
+  if (passo.imagem) return false
+  if ((passo.figurasAposParagrafo?.length ?? 0) > 0) return false
+  if ((passo.galeriaComparacaoAposParagrafo?.length ?? 0) > 0) return false
+  if ((passo.galeriaComparacao?.length ?? 0) > 0) return false
+  if ((passo.galeriaTelas?.length ?? 0) > 0) return false
+  if (passo.mostrarInfograficoBidFreteCotacaoAvulsaFormas) return false
+  return true
+}
+
 /** Academy: paridade Pedido Gravity — H1 + tópico intro (H2) + subtópicos como H2 no menu. */
 function blocosDeFluxoAcademySubtopicosComoTitulos(
   fluxo: DocFluxo,
   numeroSecaoFluxo: number,
+  nivelTituloFluxo = 1,
 ): BlocoConteudoAcademy[] {
   const blocos: BlocoConteudoAcademy[] = []
+  const fluxoRender = fluxoComPassosSubtituloAcademy(fluxo, nivelTituloFluxo)
 
-  blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: 1 } })
+  if (!fluxo.ocultarTituloFluxoAcademy) {
+    blocos.push({ tipo: 'heading', dados: { text: tituloFluxoAcademy(fluxo), nivel: nivelTituloFluxo } })
+  }
   const tituloIntro = fluxo.tituloTopicoAcademy?.trim()
   if (tituloIntro) {
     blocos.push({ tipo: 'heading', dados: { text: tituloIntro, nivel: 2 } })
@@ -243,43 +290,48 @@ function blocosDeFluxoAcademySubtopicosComoTitulos(
     blocos.push({
       tipo: 'fluxo_manual',
       dados: {
-        payload: JSON.stringify(fluxo),
+        payload: JSON.stringify(fluxoRender),
         numeroSecaoFluxo,
         modo: 'intro',
       },
     })
   }
 
-  for (const passo of fluxo.passosVisuais ?? []) {
+  for (const passo of achatarPassosVisuais(fluxoRender.passosVisuais ?? [])) {
     // H2 com `tituloCurto` ancora o menu; com `rotuloPasso`, o H2 fica só no sumário (corpo usa o rótulo).
+    const passoSomenteInfograficoOculto = passo.ocultarNoSumario && passo.ocultarTituloPasso
     const tituloPasso = tituloPassoAcademy(passo)
-    blocos.push({
-      tipo: 'heading',
-      dados: {
-        text: tituloPasso,
-        nivel: 2,
-        // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
-        ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
-        ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
-        ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
-      },
-    })
-    blocos.push({
-      tipo: 'fluxo_manual',
-      dados: {
-        payload: JSON.stringify(fluxo),
-        numeroSecaoFluxo,
-        modo: 'passo',
-        passoNum: passo.num,
-      },
-    })
+    if (!passoSomenteInfograficoOculto) {
+      blocos.push({
+        tipo: 'heading',
+        dados: {
+          text: tituloPasso,
+          nivel: 2,
+          // Título wizard (ex.: «Análise», «Conferência») — H2 visível no corpo; subtítulo usa `rotuloPasso`.
+          ...(passo.rotuloPasso?.trim() && !passo.estiloTituloWizard ? { ocultarNoCorpo: 1 } : {}),
+          ...(passo.estiloTituloWizard && passo.etapaWizard != null ? { etapaWizard: passo.etapaWizard } : {}),
+          ...(passo.ocultarNoSumario ? { ocultarNoSumario: 1 } : {}),
+        },
+      })
+    }
+    if (!passoSomenteTituloSecaoAcademy(passo)) {
+      blocos.push({
+        tipo: 'fluxo_manual',
+        dados: {
+          payload: JSON.stringify(fluxoRender),
+          numeroSecaoFluxo,
+          modo: 'passo',
+          passoNum: passo.num,
+        },
+      })
+    }
   }
 
   if (fluxoTemRodapeAcademy(fluxo)) {
     blocos.push({
       tipo: 'fluxo_manual',
       dados: {
-        payload: JSON.stringify(fluxo),
+        payload: JSON.stringify(fluxoRender),
         numeroSecaoFluxo,
         modo: 'rodape',
       },
@@ -524,6 +576,7 @@ export function blocosDeSecaoConfiguradorAcademy(
 
   const fluxos = secao.fluxos ?? []
   const indices = curadoria.fluxoIndices ?? fluxos.map((_, i) => i)
+  const nivelTituloFluxo = indices.length > 1 ? 2 : 1
   const tituloTopicoNorm = secao.tituloTopico?.trim().toLocaleLowerCase('pt-BR') ?? ''
   for (const idx of indices) {
     const fluxo = fluxos[idx]
@@ -532,13 +585,13 @@ export function blocosDeSecaoConfiguradorAcademy(
     const omitirTitulo = Boolean(tituloTopicoNorm && tituloFluxoNorm === tituloTopicoNorm)
     if (curadoria.fluxoComoManualCompleto) {
       if (fluxo.mostrarMapaSubtopicosPassos && fluxo.ancoraPassosPrefix) {
-        blocos.push(...blocosDeFluxoAcademySubtopicosComoTitulos(fluxo, idx + 2))
+        blocos.push(...blocosDeFluxoAcademySubtopicosComoTitulos(fluxo, idx + 2, nivelTituloFluxo))
         continue
       }
       if (!omitirTitulo) {
         blocos.push({
           tipo: 'heading',
-          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: 2 },
+          dados: { text: tituloFluxoCuradoAcademy(fluxo, idx, curadoria), nivel: nivelTituloFluxo },
         })
       }
       blocos.push({

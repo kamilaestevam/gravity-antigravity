@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PlayerAula — Reader de aula da Gravity University.
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
  */

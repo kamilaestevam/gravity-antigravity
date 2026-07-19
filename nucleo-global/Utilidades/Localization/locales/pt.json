@@ -2952,10 +2952,19 @@
       },
       "tabela": {
         "descricao": "Configure paginação e destaque visual na listagem de cotações.",
+        "antecedencia_aviso": "Antecedência do aviso",
+        "antecedencia_aviso_desc": "Escolha quanto tempo antes da expiração a Lista deve destacar a linha.",
         "destacar_expirar": "Destacar cotações prestes a expirar",
-        "destacar_expirar_desc": "Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.",
         "linhas_por_pagina": "Linhas por página padrão",
         "preferencias": "Preferências de exibição",
+        "regras_campo_usado": "Campo usado",
+        "regras_gatilho": "Gatilho",
+        "regras_gatilho_desc": "Destaca a linha quando esse prazo ainda não venceu e o tempo restante até o vencimento é menor ou igual à antecedência escolhida acima.",
+        "regras_resultado": "Resultado esperado",
+        "regras_resultado_desc": "A Lista aplica uma borda avermelhada sutil à esquerda da linha. Em grupos BID, a linha pai destaca se qualquer filha estiver no intervalo. Clique em Salvar para aplicar na Lista aberta.",
+        "regras_status": "Status",
+        "regras_status_desc": "Não destaca EXPIRADA, CANCELADA, APROVADA ou REPROVADA. Só entra no destaque se {{campo}} estiver preenchido.",
+        "regras_titulo": "Como funciona o destaque",
         "titulo": "Preferências da Tabela"
       }
     },
@@ -4542,7 +4551,11 @@
       "moedaMeta": "Moeda meta",
       "fornecedorVencedor": "Fornecedor vencedor",
       "ganhoEstimado": "Ganho estimado",
-      "ganhoPercentual": "Ganho (%)"
+      "ganhoPercentual": "Ganho (%)",
+      "freteBaseProposta": "Frete base",
+      "taxasOrigemProposta": "Taxas de Origem",
+      "taxasDestinoProposta": "Taxas de Destino",
+      "valorFreteTotalProposta": "Valor do Frete Total"
     },
     "visao_geral": {
       "em_construcao": "Visão Geral — Em construção"

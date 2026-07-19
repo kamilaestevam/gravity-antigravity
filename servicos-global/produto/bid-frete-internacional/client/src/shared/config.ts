@@ -62,8 +62,7 @@ export const PRODUCT_CONFIG = {
       ],
     },
 
-    // ── BID Frete Internacional ─────────────────────────────────────────────────
-    { id: 'section-bid-frete',                          label: 'Bid Frete Internacional', sectionDivider: true },
+    // ── Produto ───────────────────────────────────────────────────────────────
     { id: rotaBidFreteInternacional('fornecedores'),   label: 'Fornecedores',   icon: 'buildings',       source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────

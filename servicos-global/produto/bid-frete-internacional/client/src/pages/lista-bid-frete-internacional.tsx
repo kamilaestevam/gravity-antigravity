@@ -90,7 +90,7 @@ import { calcularStatsListaBidFrete } from '../shared/lista-bid-frete-kpi-metric
 import { calcularMetricasCotacoesAcimaMeta } from '../shared/lista-bid-frete-meta-metrics'
 import {
   carregarTabelaConfigBidFrete,
-  HORAS_LIMITE_DESTAQUE_EXPIRACAO,
+  obterLimiteDestaqueExpiracaoHoras,
   SYNC_EVENT_TABELA_BID_FRETE,
 } from '../shared/tabela-config-bid-frete'
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
@@ -177,6 +177,7 @@ import {
 } from '../shared/valores-colunas-usuario-bid-frete-internacional'
 import {
   lerPreferenciasTabelaListaBidFrete,
+  mesclarColunasManuaisNasPreferenciasListaBidFrete,
   migrarPreferenciasColunasListaBidFreteSeNecessario,
 } from '../shared/preferencias-colunas-lista-bid-frete-internacional'
 
@@ -455,19 +456,19 @@ export default function Cotacoes() {
 
   const classNameLinhaPai = useCallback((linha: LinhaPaiLista) => {
     if (!tabelaConfig.destacarAtrasados) return undefined
-    return linhaPaiPrestesAExpirar(linha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+    return linhaPaiPrestesAExpirar(linha, obterLimiteDestaqueExpiracaoHoras(tabelaConfig))
       ? 'gtv-linha--expira-prestes'
       : undefined
-  }, [tabelaConfig.destacarAtrasados])
+  }, [tabelaConfig.destacarAtrasados, tabelaConfig.limiteDestaqueExpiracaoValor, tabelaConfig.limiteDestaqueExpiracaoUnidade])
 
   const classNameLinhaFilho = useCallback((filha: LinhaFilhaLista) => {
     // Propostas não são selecionáveis — classe oculta o checkbox da linha (CSS abaixo)
     if (isLinhaProposta(filha)) return 'bf-linha-filha-proposta'
     if (!tabelaConfig.destacarAtrasados) return undefined
-    return cotacaoPrestesAExpirar(filha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+    return cotacaoPrestesAExpirar(filha, obterLimiteDestaqueExpiracaoHoras(tabelaConfig))
       ? 'gtv-linha--expira-prestes'
       : undefined
-  }, [tabelaConfig.destacarAtrasados])
+  }, [tabelaConfig.destacarAtrasados, tabelaConfig.limiteDestaqueExpiracaoValor, tabelaConfig.limiteDestaqueExpiracaoUnidade])
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -602,6 +603,19 @@ export default function Cotacoes() {
   const [colunasPersonalizadas, setColunasPersonalizadas] = useState<ColunaUsuarioBidFreteLista[]>(
     () => lerColunasPersonalizadasListaBidFrete(),
   )
+  const colunasPersonalizadasRef = useRef(colunasPersonalizadas)
+  colunasPersonalizadasRef.current = colunasPersonalizadas
+
+  const mesclarColunasManuaisNasPreferencias = useCallback(() => {
+    setPreferencias(prev => {
+      const merged = mesclarColunasManuaisNasPreferenciasListaBidFrete(
+        colunasPersonalizadasRef.current,
+        prev,
+        COLUNAS_PADRAO_VISIVEIS,
+      )
+      return merged ?? prev
+    })
+  }, [])
 
   useEffect(() => {
     const sync = () => setColunasPersonalizadas(lerColunasPersonalizadasListaBidFrete())
@@ -614,19 +628,8 @@ export default function Cotacoes() {
   }, [])
 
   useEffect(() => {
-    const chavesNovas = colunasPersonalizadas
-      .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos' || !c.escopo)
-      .map(c => c.chave)
-    if (!chavesNovas.length) return
-    setPreferencias(prev => {
-      if (!prev?.colunas_visiveis?.length) return prev
-      const visiveis = prev.colunas_visiveis
-      const set = new Set(visiveis)
-      const novas = chavesNovas.filter(k => !set.has(k))
-      if (!novas.length) return prev
-      return { ...prev, colunas_visiveis: [...visiveis, ...novas] }
-    })
-  }, [colunasPersonalizadas])
+    mesclarColunasManuaisNasPreferencias()
+  }, [colunasPersonalizadas, mesclarColunasManuaisNasPreferencias])
 
   const {
     paineis: paineisLista,
@@ -655,14 +658,7 @@ export default function Cotacoes() {
     if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as CardPeriodoCodigo)) {
       setPeriodoCards(cardsTopo.periodo as CardPeriodoCodigo)
     }
-    if (cardsTopo.ids_visiveis.length > 0) {
-      const visiveisSet = new Set(cardsTopo.ids_visiveis)
-      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
-      if (algumIdValido) {
-        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
-      }
-    }
-  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+  }, [setPeriodoCards])
 
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
@@ -674,8 +670,11 @@ export default function Cotacoes() {
     setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
+      if (colunasPersonalizadasRef.current.length > 0) {
+        mesclarColunasManuaisNasPreferencias()
+      }
     },
-  }), [aplicarCardsTopoDoPainel])
+  }), [aplicarCardsTopoDoPainel, mesclarColunasManuaisNasPreferencias])
 
   useEffect(() => {
     if (!painelListaAtual || carregandoPaineisLista) return

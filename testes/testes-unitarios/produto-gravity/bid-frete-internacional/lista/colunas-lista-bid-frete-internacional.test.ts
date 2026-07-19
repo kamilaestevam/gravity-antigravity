@@ -78,12 +78,35 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('numero_cotacao_bid_frete_internacional')
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_organizacao')
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_workspace')
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toHaveLength(41)
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toHaveLength(45)
   })
 
-  it('CHAVES_COLUNAS_COTACAO segue ordem canônica da lista (41 exibidas + 3 ocultas)', () => {
+  it('CHAVES_COLUNAS_COTACAO segue ordem canônica da lista (45 exibidas + 3 ocultas técnicas)', () => {
     expect(CHAVES_COLUNAS_COTACAO).toEqual(ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL)
+    expect(CHAVES_COLUNAS_COTACAO).toHaveLength(48)
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toEqual(CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA)
+  })
+
+  it('colunas de frete e taxas da proposta aparecem por padrão após Valor meta', () => {
+    const keys = CHAVES_COLUNAS_PADRAO_VISIVEIS
+    expect(keys).toContain('valor_frete_proposta_bid_frete_internacional')
+    expect(keys).toContain('taxas_origem_proposta_bid_frete_internacional')
+    expect(keys).toContain('taxas_destino_proposta_bid_frete_internacional')
+    expect(keys).toContain('valor_total_proposta_bid_frete_internacional')
+    expect(keys.indexOf('valor_meta_cotacao_bid_frete_internacional')).toBeLessThan(
+      keys.indexOf('valor_frete_proposta_bid_frete_internacional'),
+    )
+    expect(keys.indexOf('taxas_destino_proposta_bid_frete_internacional')).toBeLessThan(
+      keys.indexOf('valor_total_proposta_bid_frete_internacional'),
+    )
+  })
+
+  it('rótulos das colunas monetárias da proposta na lista', () => {
+    const colunas = buildColunasCotacoes(null)
+    expect(colunas.find(c => c.key === 'valor_frete_proposta_bid_frete_internacional')?.label).toBe('Frete base')
+    expect(colunas.find(c => c.key === 'taxas_origem_proposta_bid_frete_internacional')?.label).toBe('Taxas de Origem')
+    expect(colunas.find(c => c.key === 'taxas_destino_proposta_bid_frete_internacional')?.label).toBe('Taxas de Destino')
+    expect(colunas.find(c => c.key === 'valor_total_proposta_bid_frete_internacional')?.label).toBe('Valor do Frete Total')
   })
 
   it('ordem padrão visível: Status e Operação após Nº da cotação; Porto destino antes de origem', () => {

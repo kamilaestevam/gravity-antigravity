@@ -5,6 +5,7 @@
 import type { DocSecao } from './manual-configurador-conteudo'
 import {
   type ConfiguradorManualSlug,
+  encontrarPassoPorNum,
   resolverConfiguradorManualSlug,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
@@ -122,10 +123,8 @@ const PRODUTOS_MANUAL: ProdutoManualDef[] = [
       { slug: BID_FRETE_AULA_SLUGS[0], incluirIntroSecao: true, fluxoIndices: [0, 1] },
       { slug: BID_FRETE_AULA_SLUGS[1], fluxoIndices: [2] },
       { slug: BID_FRETE_AULA_SLUGS[2], fluxoIndices: [3] },
-      { slug: BID_FRETE_AULA_SLUGS[3], fluxoIndices: [4] },
-      { slug: BID_FRETE_AULA_SLUGS[4], fluxoIndices: [5] },
-      { slug: BID_FRETE_AULA_SLUGS[5], fluxoIndices: [6] },
-      { slug: BID_FRETE_AULA_SLUGS[6], fluxoIndices: [9] },
+      { slug: BID_FRETE_AULA_SLUGS[3], fluxoIndices: [4, 5, 6, 7, 8] },
+      { slug: BID_FRETE_AULA_SLUGS[4], fluxoIndices: [11] },
     ],
   },
   {
@@ -192,7 +191,7 @@ function hashDeManualPasso(secao: DocSecao, hashPart: string): string | null {
   const passoNum = Number(match[2])
   const fluxo = secao.fluxos?.find(f => f.ancoraPassosPrefix === prefix)
   if (!fluxo) return null
-  const passo = fluxo.passosVisuais?.find(p => p.num === passoNum)
+  const passo = encontrarPassoPorNum(fluxo.passosVisuais ?? [], passoNum)
   if (passo) {
     const tituloPasso = passo.tituloCurto?.trim() || passo.titulo
     return `#${idAncoraTituloGuia(tituloPasso)}`

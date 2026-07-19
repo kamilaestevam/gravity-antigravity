@@ -870,12 +870,20 @@
         }
       },
       "tabela": {
-        "descricao": "Configure paginação e destaque visual na listgem de quotes.",
-        "destacar_expirar": "Destacar quotes prestes a expirar",
-        "destacar_expirar_desc": "Aplica borda sutil avermelhada a quotes com menos de 2 horas restantes para expiração.",
-        "linhas_por_pagina": "Linhas por página padrão",
-        "preferencias": "Preferências de exibição",
-        "titulo": "Preferências da Tabela"
+        "descricao": "Configure pagination and visual highlight in the quote list.",
+        "antecedencia_aviso": "Warning lead time",
+        "antecedencia_aviso_desc": "Choose how long before expiration the List should highlight the row.",
+        "destacar_expirar": "Highlight quotes about to expire",
+        "linhas_por_pagina": "Default rows per page",
+        "preferencias": "Display preferences",
+        "regras_gatilho": "Trigger",
+        "regras_gatilho_desc": "A quote is highlighted when it has not expired yet and the time remaining until {{campo}} is within the lead time selected above.",
+        "regras_resultado": "Expected result",
+        "regras_resultado_desc": "The List applies a subtle reddish border on the left of the row. In BID groups, the parent row highlights if any child is in range. Click Save to apply to an open List.",
+        "regras_status": "Status",
+        "regras_status_desc": "Does not highlight quotes with status EXPIRED, CANCELLED, APPROVED, or REJECTED. Requires {{campo}} to be filled.",
+        "regras_titulo": "How highlighting works",
+        "titulo": "Table preferences"
       }
     },
     "tabela": {
@@ -2215,7 +2223,11 @@
       "moedaMeta": "Target currency",
       "fornecedorVencedor": "Winning supplier",
       "ganhoEstimado": "Estimated savings",
-      "ganhoPercentual": "Savings (%)"
+      "ganhoPercentual": "Savings (%)",
+      "freteBaseProposta": "Freight base",
+      "taxasOrigemProposta": "Origin Charges",
+      "taxasDestinoProposta": "Destination Charges",
+      "valorFreteTotalProposta": "Total Freight Value"
     },
     "visao_geral": {
       "em_construcao": "Overview — Under construction"

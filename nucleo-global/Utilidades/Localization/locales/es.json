@@ -2885,7 +2885,11 @@
       "moedaMeta": "Moneda meta",
       "fornecedorVencedor": "Proveedor ganador",
       "ganhoEstimado": "Ahorro estimado",
-      "ganhoPercentual": "Ahorro (%)"
+      "ganhoPercentual": "Ahorro (%)",
+      "freteBaseProposta": "Flete base",
+      "taxasOrigemProposta": "Tasas de origen",
+      "taxasDestinoProposta": "Tasas de destino",
+      "valorFreteTotalProposta": "Valor del flete total"
     },
     "visao_geral": {
       "em_construcao": "Visión General — En construcción"
@@ -3038,12 +3042,20 @@
         }
       },
       "tabela": {
-        "descricao": "Configure paginação e destaque visual na listagem de cotizaciones.",
+        "descricao": "Configure paginação y destaque visual en la listagem de cotizaciones.",
+        "antecedencia_aviso": "Antelación del aviso",
+        "antecedencia_aviso_desc": "Elija cuánto tiempo antes del vencimiento la Lista debe resaltar la fila.",
         "destacar_expirar": "Destacar cotizaciones prestes a expirar",
-        "destacar_expirar_desc": "Aplica borda sutil avermelhada a cotizaciones com menos de 2 horas restantes para expiração.",
-        "linhas_por_pagina": "Linhas por página padrão",
-        "preferencias": "Preferências de exibição",
-        "titulo": "Preferências da Tabela"
+        "linhas_por_pagina": "Filas por página predeterminadas",
+        "preferencias": "Preferencias de visualización",
+        "regras_gatilho": "Disparador",
+        "regras_gatilho_desc": "La cotización entra en destaque cuando aún no venció y el tiempo restante hasta {{campo}} está dentro de la antelación elegida arriba.",
+        "regras_resultado": "Resultado esperado",
+        "regras_resultado_desc": "La Lista aplica un borde rojizo sutil a la izquierda de la fila. En grupos BID, la fila padre destaca si alguna hija está en el intervalo. Haga clic en Guardar para aplicar en la Lista abierta.",
+        "regras_status": "Estado",
+        "regras_status_desc": "No destaca cotizaciones con estado EXPIRADA, CANCELADA, APROBADA o REPROVADA. Exige {{campo}} completado.",
+        "regras_titulo": "Cómo funciona el destaque",
+        "titulo": "Preferencias de la tabla"
       }
     },
     "disparo": {

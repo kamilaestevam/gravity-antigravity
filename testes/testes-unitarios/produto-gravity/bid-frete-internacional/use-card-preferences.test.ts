@@ -4,6 +4,7 @@ import {
   DEFAULT_CARD_PREFERENCIAS,
   carregarPreferenciasCardsBidFrete,
   carregarPeriodoCardsBidFrete,
+  garantirCardsAtivosVisiveis,
   listarCardsCatalogo,
   registrarCardCustomizado,
   salvarPreferenciasCardsBidFrete,
@@ -59,8 +60,21 @@ describe('use-card-preferences (BID Frete Internacional)', () => {
     salvarPreferenciasCardsBidFrete(custom)
     salvarPeriodoCardsBidFrete('7d')
 
-    expect(carregarPreferenciasCardsBidFrete()).toEqual(custom)
+    expect(carregarPreferenciasCardsBidFrete()).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: true },
+    ])
     expect(carregarPeriodoCardsBidFrete()).toBe('7d')
+  })
+
+  it('garantirCardsAtivosVisiveis força visible true em ATIVOS', () => {
+    expect(garantirCardsAtivosVisiveis([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: false },
+    ])).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: true },
+    ])
   })
 
   it('migra conjunto legado de 6 cards para o padrão de 3', () => {

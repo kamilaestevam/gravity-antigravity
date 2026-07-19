@@ -1,4 +1,4 @@
-import type { DocSecao } from './manual-configurador-conteudo'
+﻿import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO } from './manual-bid-frete-pagamento-taxa-gravity-fechamento-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
@@ -7,6 +7,8 @@ import {
   GALERIAS_BID_FRETE_BID_MANUAL,
   GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
   GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL,
+  GALERIA_BID_FRETE_COMO_ACESSAR_VIA_INSIGHT,
+  GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
 import { GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO } from './manual-bid-frete-painel-cotacao-acesso-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS } from './manual-bid-frete-painel-cotacao-abas-conteudo'
@@ -14,9 +16,53 @@ import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
 
 const S = screenshotBidFreteInt
 
+/** §4.02 — wizard manual da cotação avulsa (simulador Modal e Operação). */
+const PASSO_COTACAO_AVULSA_MANUAL = {
+  titulo: 'Cotação manual',
+  tituloCurto: 'Cotação manual',
+  ocultarNoSumario: true,
+  rotuloPasso: 'Cotação avulsa - Manual',
+  paragrafos: [
+    'Clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Manual**.',
+    'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
+    'O fornecedor irá receber o pedido de cotação via **email**.',
+    'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
+  ],
+  galeriaComparacaoAposParagrafo: [
+    ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+    {
+      indice: 1,
+      colunas: 1,
+      telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
+    },
+    {
+      indice: 2,
+      colunas: 2,
+      colunasGradeTemplate: '2fr 1fr',
+      telas: [
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
+        },
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_1'),
+          preencherCelulaGrade: true,
+          alturaMaxima: 240,
+        },
+      ],
+      calloutApos: {
+        tipo: 'dica',
+        texto:
+          'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
+      },
+    },
+  ],
+} as const
+
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
 const LINK_MANUAL_BID_FRETE_CONFIGURACOES =
-  '{{link:/university-gravity/docs/bid-frete#doc-sec-11|Configurações}}'
+  '{{link:/university-gravity/academy/bid-frete/bid-frete-configuracoes|Configurações}}'
 
 export const DOC_BID_FRETE_SUBTITULO =
   'Cotações de frete internacional: Insights, nova cotação manual, Painel da Cotação, Lista e comparativo de propostas'
@@ -153,7 +199,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   legenda: '',
                   imagem: S('insight_tooltip_1_tela'),
                   paragrafoAntes:
-                    '**Painel da Cotação** aberto pelo link do tooltip: ambiente para autorizar a operação.',
+                    '**Painel da Cotação** aberto pelo link do tooltip — ambiente para autorizar a operação.',
                 },
                 {
                   legenda: '',
@@ -165,7 +211,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                   legenda: '',
                   imagem: S('insight_tooltip_2_tela'),
                   paragrafoAntes:
-                    '**Painel da Cotação** aberto pelo link do tooltip: analise propostas, status e histórico da cotação.',
+                    '**Painel da Cotação** aberto pelo link do tooltip — analise propostas, status e histórico da cotação.',
                 },
                 {
                   legenda: '',
@@ -621,7 +667,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** campos de **cotação**; **marque** de volta para **exibir**.',
               calloutDepois: {
                 tipo: 'dica',
-                texto: 'A tabela atualiza na hora: só permanecem visíveis as colunas marcadas.',
+                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
               },
             },
             {
@@ -633,7 +679,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
               calloutDepois: {
                 tipo: 'dica',
                 texto:
-                  'Feche o menu ou clique fora quando terminar: as alterações ficam no painel ativo.',
+                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
               },
             },
             {
@@ -668,7 +714,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           calloutAposGaleriaTabela: {
             tipo: 'dica',
             texto:
-              'Preferências de coluna, ordem e painel são **por usuário**: cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
+              'Preferências de coluna, ordem e painel são **por usuário** — cada pessoa salva o próprio layout sem afetar os colegas do workspace.',
           },
         },
         {
@@ -693,7 +739,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   tipo: 'dica',
                   texto:
-                    'Campos **técnicos** bloqueados: **ID** e **Última atualização** (automática). **Origem** e **Destino** são rótulos derivados: edite **porto/aeroporto** conforme o **Modal** ou endereço/país/zipcode.',
+                    'Campos **técnicos** bloqueados: **ID** e **Última atualização** (automática). **Origem** e **Destino** são rótulos derivados — edite **porto/aeroporto** conforme o **Modal** ou endereço/país/zipcode.',
                 },
               ],
             },
@@ -707,7 +753,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           rotuloPasso: 'Filtro das colunas',
           paragrafos: [
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
-            'Você pode **combinar** quantos filtros quiser na mesma tela: **Status** + **Modal** + **datas**, por exemplo: e o recorte fica cada vez mais específico. Salve o conjunto no **painel** ativo (veja **Painéis** acima) e reutilize depois.',
+            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Modal** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Salve o conjunto no **painel** ativo (veja **Painéis** acima) e reutilize depois.',
           ],
           galeriaComparacaoAposParagrafo: [
             {
@@ -736,7 +782,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo**: ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Aguardando resposta + Marítimo**, **Aprovadas + Exportação**).',
+              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Aguardando resposta + Marítimo**, **Aprovadas + Exportação**).',
           },
         },
         {
@@ -761,13 +807,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
                 {
                   legenda: '02 · Preview no modal',
                   imagem: S('lista_excluir_2'),
-                  paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme**: ação irreversível',
+                  paragrafoAntes: '**Revise** o preview (permitidos e bloqueados) e **confirme** — ação irreversível',
                 },
               ],
               calloutApos: {
                 tipo: 'dica',
                 texto:
-                  'Após **aprovar** uma cotação, ela **não pode ser excluída** permanentemente: aparece como **bloqueada** no preview do modal.',
+                  'Após **aprovar** uma cotação, ela **não pode ser excluída** permanentemente — aparece como **bloqueada** no preview do modal.',
               },
             },
           ],
@@ -782,7 +828,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           tituloCurto: 'Exportar',
           rotuloPasso: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual: respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
             'No modal, escolha um dos **formatos** permitidos abaixo:',
           ],
           mostrarFormatosExportacaoPedidoLista: true,
@@ -814,169 +860,171 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela: só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
+              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
           },
         },
       ]),
     },
     {
-      titulo: 'Tipos de cotação',
-      tituloSumario: 'Tipos de cotação',
-      prefixoPassosVisuais: 'Tipos de cotação',
-      ancoraPassosPrefix: 'tipos-cotacao',
+      titulo: 'Cotação de frete internacional — O que é',
+      tituloSumario: 'O que é',
       paragrafos: [
-        'A plataforma oferece quatro formas distintas para incluir uma nova cotação: preenchimento **Manual**, importação via **planilha**, integração por **API** ou leitura inteligente via **Smart Docs**.',
-        'O detalhamento de cada uma delas está no capítulo a seguir, **Nova cotação**.',
+        'A **cotação de frete internacional** é o processo de **solicitar**, **receber**, **comparar e fechar** propostas de agentes de carga.',
+      ],
+    },
+    {
+      titulo: 'Cotação de frete internacional — Como acessar',
+      tituloSumario: 'Como acessar',
+      prefixoPassosVisuais: 'Como acessar',
+      ancoraPassosPrefix: 'como-acessar-cotacao',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'No **BID Frete**, toda solicitação tem início nos botões {{botao:novo-bid-frete}} — pela aba **Insights** ou pela **Lista**.',
       ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Tipos de cotação',
+          titulo: 'Via Insight',
+          tituloCurto: 'Via Insight',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Clique no botão **+ novo** na aba **Insights** e siga até **Buscar Frete**.',
+          ],
+          galeriaComparacaoAposParagrafo: GALERIA_BID_FRETE_COMO_ACESSAR_VIA_INSIGHT,
+        },
+        {
+          titulo: 'Via Lista',
+          tituloCurto: 'Via Lista',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Clique no botão **+ novo** na **Lista**, escolha **Nova cotação** e depois **Manual** em **Cotação avulsa** ou **BID**.',
+          ],
+          galeriaComparacaoAposParagrafo: GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
+        },
+      ]),
+    },
+    {
+      titulo: 'Cotação de frete internacional — Tipos',
+      tituloSumario: 'Tipos de cotação',
+      prefixoPassosVisuais: 'Tipos de cotação',
+      ancoraPassosPrefix: 'tipos-cotacao',
+      mostrarMapaSubtopicosPassos: true,
+      paragrafos: [
+        'No **BID Frete**, toda nova solicitação é classificada em **dois tipos**: **Cotação avulsa** (uma operação isolada) ou **BID** (conjunto de cotações em um único pacote).',
+      ],
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Cotação de frete internacional — Tipos',
           ocultarRotuloPasso: true,
-          mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
+          ocultarTituloPasso: true,
+          ocultarNoSumario: true,
+          mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
           paragrafos: [],
         },
       ]),
     },
     {
-      titulo: 'Nova cotação',
+      titulo: 'Cotação de frete internacional — Nova',
       tituloSumario: 'Nova cotação',
       prefixoPassosVisuais: 'Nova cotação',
       ancoraPassosPrefix: 'nova-cotacao',
       mostrarMapaSubtopicosPassos: true,
+      ocultarTituloFluxoAcademy: true,
       passosVisuais: renumerarPassos([
-        {
-          titulo: 'Visão geral da Nova cotação',
-          tituloCurto: 'Visão geral',
-          paragrafos: [
-            'No **BID Frete**, toda solicitação tem início nos botões {{botao:novo-bid-frete}}.',
-          ],
-          mostrarLegendaEscopoIconesBidFrete: true,
-          bidFreteNovaCotacaoEscopoAposGaleriaParagrafo: 0,
-          textoAntesLegendaEscopoIconesBidFrete:
-            'A **legenda de ícones de escopo** explica os símbolos que aparecem neste capítulo.',
-          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL,
-        },
         {
           titulo: 'Cotação avulsa',
           tituloCurto: 'Cotação avulsa',
+          ocultarNoSumario: true,
+          ocultarRotuloPasso: true,
+          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
-            'A **Cotação avulsa** é uma solicitação **única**: um frete, uma rota, um pedido aos fornecedores. O **BID**, por outro lado, agrupa **várias cotações** em um único pacote para negociar o conjunto.',
+            'Exemplo de **cotação avulsa**, ou **cotação spot**, na **Lista** — uma solicitação, um frete, uma rota.',
           ],
-          mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
-          bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
-          passosFilhos: [
+          figurasAposParagrafo: [
             {
-              titulo: 'Cotação manual',
-              tituloCurto: 'Cotação manual',
-              paragrafos: [
-                'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
-                'O fornecedor irá receber o pedido de cotação via **email**.',
-                'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
-              ],
-              galeriaComparacaoAposParagrafo: [
-                ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
-                {
-                  indice: 1,
-                  colunas: 1,
-                  telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
-                },
-                {
-                  indice: 2,
-                  colunas: 2,
-                  colunasGradeTemplate: '2fr 1fr',
-                  telas: [
-                    {
-                      legenda: '',
-                      imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
-                    },
-                    {
-                      legenda: '',
-                      imagem: S('solicitacao_aviso_envio_usuario_1'),
-                      preencherCelulaGrade: true,
-                      alturaMaxima: 240,
-                    },
-                  ],
-                  calloutApos: {
-                    tipo: 'dica',
-                    texto:
-                      'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
-                  },
-                },
-              ],
-            },
-            {
-              titulo: 'Cotação via planilha',
-              tituloCurto: 'Via planilha',
-              paragrafos: [
-                'Importe **Excel**, **CSV** ou **XML** para gerar a cotação avulsa. Recurso **em breve** no produto.',
-              ],
-              badgeEmDesenvolvimento: true,
-            },
-            {
-              titulo: 'Cotação via Smart Docs',
-              tituloCurto: 'Via Smart Docs',
-              paragrafos: [
-                'A **IA** extrai dados do documento comercial e pré-preenche a cotação. Recurso **em breve**.',
-              ],
-              badgeEmDesenvolvimento: true,
-            },
-            {
-              titulo: 'Cotação por API',
-              tituloCurto: 'Por API',
-              paragrafos: [
-                'Integre via **API Cockpit** ou **ERP** para criar cotações avulsas. Recurso **em breve**.',
-              ],
-              badgeEmDesenvolvimento: true,
+              indice: 0,
+              imagem: S('lista_cotacao_avulsa'),
+              legenda: 'Lista — cotação avulsa (spot) destacada na grade',
             },
           ],
         },
         {
           titulo: 'BID',
           tituloCurto: 'BID',
+          ocultarNoSumario: true,
+          ocultarRotuloPasso: true,
+          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
-            'O **BID** agrupa **várias cotações** em um único pacote para negociar o conjunto com os fornecedores. A **Cotação avulsa**, por outro lado, é uma solicitação **única**: um frete, uma rota, um pedido isolado aos fornecedores.',
+            'Exemplo de **BID** — **várias cotações** vinculadas a um único **BID**. Usado em negociações de **médio** e **longo prazo** com fornecedores.',
           ],
-          mostrarInfograficoBidFreteCotacaoAvulsaVsBid: true,
-          bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo: 0,
-          passosFilhos: [
+          figurasAposParagrafo: [
             {
-              titulo: 'BID manual',
-              tituloCurto: 'BID manual',
-              paragrafos: [
-                'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **BID**.',
-              ],
-              galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_BID_MANUAL,
-            },
-            {
-              titulo: 'BID via planilha',
-              tituloCurto: 'Via planilha',
-              paragrafos: [
-                'Importe **Excel**, **CSV** ou **XML** para gerar o **BID**. Recurso **em breve** no produto.',
-              ],
-              badgeEmDesenvolvimento: true,
-            },
-            {
-              titulo: 'BID via Smart Docs',
-              tituloCurto: 'Via Smart Docs',
-              paragrafos: [
-                'A **IA** extrai dados do documento comercial e pré-preenche o **BID**. Recurso **em breve**.',
-              ],
-              badgeEmDesenvolvimento: true,
-            },
-            {
-              titulo: 'BID por API',
-              tituloCurto: 'Por API',
-              paragrafos: [
-                'Integre via **API Cockpit** ou **ERP** para criar **BIDs**. Recurso **em breve**.',
-              ],
-              badgeEmDesenvolvimento: true,
+              indice: 0,
+              imagem: S('lista_cotacao_bid'),
+              legenda: 'Lista — BID com cotações vinculadas destacado na grade',
             },
           ],
+        },
+        {
+          titulo: 'Nova cotação',
+          tituloCurto: 'Nova cotação',
+          estiloTituloWizard: true,
+          paragrafos: [
+            'É possível criar cotações na plataforma de **quatro formas**: **Manual**, **Smart Docs**, **planilha** e **API**.',
+          ],
+          mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
+        },
+        PASSO_COTACAO_AVULSA_MANUAL,
+        {
+          titulo: 'Cotação avulsa via Smart Docs',
+          tituloCurto: 'Via Smart Docs',
+          ocultarNoSumario: true,
+          rotuloPasso: 'Cotação avulsa - Via Smart Doc',
+          paragrafos: [
+            'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**. Recurso **em breve** no produto.',
+          ],
+          badgeEmDesenvolvimento: true,
+        },
+        {
+          titulo: 'BID manual',
+          tituloCurto: 'BID manual',
+          ocultarNoSumario: true,
+          rotuloPasso: 'BID',
+          paragrafos: [
+            'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **BID**.',
+          ],
+          galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_BID_MANUAL,
+        },
+        {
+          titulo: 'BID via planilha',
+          tituloCurto: 'Via planilha',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Importe **Excel**, **CSV** ou **XML** para gerar o **BID**. Recurso **em breve** no produto.',
+          ],
+          badgeEmDesenvolvimento: true,
+        },
+        {
+          titulo: 'BID via Smart Docs',
+          tituloCurto: 'Via Smart Docs',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'A **IA** extrai dados do documento comercial e pré-preenche o **BID**. Recurso **em breve**.',
+          ],
+          badgeEmDesenvolvimento: true,
+        },
+        {
+          titulo: 'BID por API',
+          tituloCurto: 'Por API',
+          ocultarNoSumario: true,
+          paragrafos: [
+            'Integre via **API Cockpit** ou **ERP** para criar **BIDs**. Recurso **em breve**.',
+          ],
+          badgeEmDesenvolvimento: true,
         },
       ]),
     },
     {
-      titulo: 'Painel da cotação',
+      titulo: 'Cotação de frete internacional — Painel',
       tituloSumario: 'Painel da cotação',
       prefixoPassosVisuais: 'Painel da cotação',
       ancoraPassosPrefix: 'painel-cotacao',
@@ -991,21 +1039,13 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           legenda: 'Painel da Cotação',
         },
       ],
-      mostrarInfograficoBidFretePainelCotacao: true,
-      figurasAposInfografico: [
-        {
-          paragrafoAntes:
-            'O **Painel** é dividido em **três** partes: **menu superior**, **painel de insights** e acessos a **Visão geral**, **Dados gerais**, **Solicitação de Cotação**, **Propostas**, **Comentários** e **Documentos**.',
-          imagem: S('painel_cotacao_divisao'),
-          legenda: 'Painel da Cotação: menu superior, insights e abas do cockpit',
-        },
-      ],
       passosVisuais: renumerarPassos([
         {
-          titulo: 'Acesso ao Painel da cotação',
-          tituloCurto: 'Acesso ao Painel da cotação',
+          titulo: 'Acesso ao painel de cotação e os acessos via lista e via insights',
+          tituloCurto: 'Acesso ao painel de cotação e os acessos via lista e via insights',
+          ocultarNoSumario: true,
           paragrafos: [
-            'O **Painel da Cotação** pode ser acessado de **três formas**: pelo **mapa** de **Insights**, pelo **tooltip** dos KPIs ou pela **Lista** de cotações.',
+            'O **Painel da Cotação** pode ser acessado pela **Lista** de cotações ou pelos atalhos de **Insights** — mapa e **KPIs** levam ao mesmo cockpit da solicitação.',
           ],
           galeriaComparacaoAposParagrafo: [...GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO],
         },
@@ -1019,7 +1059,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ancoraPassosPrefix: 'pagamento-taxa-gravity-fechamento',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee, **podendo variar**: consulte **Gravity Store** e **Configurações**) é registrada conforme o **pagador** definido em **Configurações**: **comprador** (**Contratante Gravity**) ou **fornecedor**.',
+        'Após o **fechamento** do frete na plataforma, a **Taxa de Fechamento** da Gravity (success fee, **podendo variar** — consulte **Gravity Store** e **Configurações**) é registrada conforme o **pagador** definido em **Configurações** — **comprador** (**Contratante Gravity**) ou **fornecedor**.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO,
     },
@@ -1041,7 +1081,7 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
       ancoraPassosPrefix: 'configuracoes',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'No menu lateral, **Configurações** reúne status, numeração, taxa de câmbio, colunas, cards de Insights e Kanban.',
+        'No menu lateral, **Configurações** reúne status, taxa de câmbio, colunas, cards de Insights e Kanban.',
       ],
       passosVisuais: PASSOS_MANUAL_BID_FRETE_CONFIGURACOES,
     },

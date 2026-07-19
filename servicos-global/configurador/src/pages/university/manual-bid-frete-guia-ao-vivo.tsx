@@ -455,7 +455,12 @@ type ManualBidFreteGuiaAoVivoProps<Id extends string> = {
   onSelecionarCampo?: (id: Id) => void
   /** Anima o estado vazio enquanto a demo aguarda o primeiro clique. */
   conviteInterativo?: boolean
+  /** Sobrescreve o texto do estado vazio (antes do primeiro clique). */
+  textoConviteVazio?: string
 }
+
+const TEXTO_CONVITE_VAZIO_GUIA_AO_VIVO_PADRAO =
+  'Selecione uma opção na tela ao lado: cada escolha fica registrada aqui. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai. Clique em um card já preenchido se quiser revisar os detalhes.'
 
 /** Painel sticky «Guia ao vivo» — escolhas visíveis + explicação do campo em foco. */
 export function ManualBidFreteGuiaAoVivo<Id extends string>({
@@ -465,6 +470,7 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
   textoContextual,
   contextoSimulador,
   conviteInterativo = false,
+  textoConviteVazio = TEXTO_CONVITE_VAZIO_GUIA_AO_VIVO_PADRAO,
 }: ManualBidFreteGuiaAoVivoProps<Id>) {
   const totalCampos = campos.length
   const progresso = totalCampos > 0 ? Math.min(selecoes.length / totalCampos, 1) : 0
@@ -561,7 +567,7 @@ export function ManualBidFreteGuiaAoVivo<Id extends string>({
             <CursorClick size={24} weight="duotone" color="var(--ws-accent, var(--color-primary, #818cf8))" aria-hidden />
           </span>
           <p className="sim-guia-convite-vazio__texto">
-            Selecione uma opção na tela ao lado: cada escolha fica registrada aqui. Ao entrar em um campo, o card expande; ao passar para o próximo, contrai. Clique em um card já preenchido se quiser revisar os detalhes.
+            {textoConviteVazio}
           </p>
         </div>
       )}

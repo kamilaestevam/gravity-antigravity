@@ -1,4 +1,4 @@
-/* workspace.css — Design System Gravity para área /workspace
+﻿/* workspace.css — Design System Gravity para área /workspace
    Tokens base (index.html): --color-bg, --color-surface, --color-surface-2,
    --color-border, --color-primary, --color-text, --color-text-muted,
    --color-success, --color-warning, --color-danger, --radius, --font
@@ -3291,6 +3291,15 @@ body.light-theme .cw-xml-viewer {
   flex-direction: column;
   gap: 12px;
   margin: 0;
+}
+
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
+  margin-top: 32px;
+}
+
+/* Parágrafo + galeria dentro do corpo do passo (Academy): 32px entre etapas (12px gap + 20px = SSOT). */
+.uni-player-aula__passo-corpo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
+  margin-top: 20px;
 }
 
 .uni-player-aula__passo-etapa > .uni-player-aula__figura {

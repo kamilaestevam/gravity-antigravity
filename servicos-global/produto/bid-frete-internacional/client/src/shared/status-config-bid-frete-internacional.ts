@@ -41,13 +41,21 @@ export const STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL: StatusCotacao
   { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
   { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
   { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, gerenciado_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, gerenciado_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, gerenciado_sistema: false },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, gerenciado_sistema: false },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, gerenciado_sistema: false },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, gerenciado_sistema: false },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, gerenciado_sistema: false },
+  { id: 'cotacao_alterada', nome: 'COTACAO_ALTERADA', rotulo: 'Cotação alterada', cor: '#f97316', ordem: 4, gerenciado_sistema: true },
+  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 5, gerenciado_sistema: true },
+  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 6, gerenciado_sistema: false },
+  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 7, gerenciado_sistema: false },
+  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 8, gerenciado_sistema: false },
+  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 9, gerenciado_sistema: false },
+  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 10, gerenciado_sistema: false },
 ]
+
+/** Colunas Kanban fixas — paridade Pedido (`is_sistema` no card de colunas). */
+export function ehColunaKanbanFixaBidFreteInternacional(
+  status: Pick<StatusCotacaoConfigBidFreteInternacional, 'gerenciado_sistema'>,
+): boolean {
+  return status.gerenciado_sistema === true
+}
 
 function migrarItemStatusCotacaoConfigLegado(item: unknown): unknown {
   if (!item || typeof item !== 'object') return item

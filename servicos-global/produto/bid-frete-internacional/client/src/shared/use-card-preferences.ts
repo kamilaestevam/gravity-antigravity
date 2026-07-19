@@ -140,7 +140,11 @@ export function carregarPreferenciasCardsBidFrete(escopo: EscopoCardsBidFrete = 
     const salvas = JSON.parse(raw) as CardPreferencia[]
     if (!Array.isArray(salvas)) return DEFAULT_CARD_PREFERENCIAS
     const validas = salvas.filter(p => p && typeof p.id === 'string' && cardExiste(p.id, escopo))
-    return validas.length > 0 ? validas : DEFAULT_CARD_PREFERENCIAS
+    const normalizadas = garantirCardsAtivosVisiveis(validas.length > 0 ? validas : DEFAULT_CARD_PREFERENCIAS)
+    if (validas.length > 0 && normalizadas.some((p, i) => p.visible !== validas[i]?.visible)) {
+      salvarPreferenciasCardsBidFrete(normalizadas, escopo)
+    }
+    return normalizadas.length > 0 ? normalizadas : DEFAULT_CARD_PREFERENCIAS
   } catch {
     return DEFAULT_CARD_PREFERENCIAS
   }
@@ -167,6 +171,11 @@ export function salvarPeriodoCardsBidFrete(periodo: CardPeriodoCodigo, escopo: E
   window.dispatchEvent(new CustomEvent(syncEvent))
 }
 
+/** Card em ATIVOS deve aparecer na Lista — normaliza prefs corrompidas por snapshot antigo do painel. */
+export function garantirCardsAtivosVisiveis(prefs: CardPreferencia[]): CardPreferencia[] {
+  return prefs.map(p => (p.visible ? p : { ...p, visible: true }))
+}
+
 export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operacional') {
   const chaves = chavesCardsEscopo(escopo)
   const [prefs, setPrefs] = useState<CardPreferencia[]>(() => carregarPreferenciasCardsBidFrete(escopo))
@@ -188,8 +197,9 @@ export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operac
   }, [escopo, chaves.syncEvent])
 
   const persistir = useCallback((next: CardPreferencia[]) => {
-    setPrefs(next)
-    salvarPreferenciasCardsBidFrete(next, escopo)
+    const normalizado = garantirCardsAtivosVisiveis(next)
+    setPrefs(normalizado)
+    salvarPreferenciasCardsBidFrete(normalizado, escopo)
   }, [escopo])
 
   const setPeriodo = useCallback((next: CardPeriodoCodigo) => {
@@ -199,7 +209,13 @@ export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operac
 
   const adicionar = useCallback((id: string) => {
     setPrefs(prev => {
-      if (prev.some(p => p.id === id)) return prev
+      const existente = prev.find(p => p.id === id)
+      if (existente) {
+        if (existente.visible) return prev
+        const next = prev.map(p => (p.id === id ? { ...p, visible: true } : p))
+        salvarPreferenciasCardsBidFrete(next, escopo)
+        return next
+      }
       const next = [...prev, { id, visible: true }]
       salvarPreferenciasCardsBidFrete(next, escopo)
       return next
@@ -235,7 +251,7 @@ export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operac
   return {
     prefs,
     catalogo,
-    visiveis: prefs.filter(p => p.visible),
+    visiveis: prefs,
     disponiveis: catalogo.filter(c => !prefs.some(p => p.id === c.id)),
     periodo,
     persistir,

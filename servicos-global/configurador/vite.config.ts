@@ -283,6 +283,20 @@ export default defineConfig(({ command }) => {
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      // Simula Custo (Estimativa Custo) — backend próprio na porta 8020.
+      '/api/v1/simula-custo': {
+        target: 'http://localhost:8020',
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
       '/api/v1/pedidos': {
         target: 'http://localhost:8030',
         changeOrigin: true,

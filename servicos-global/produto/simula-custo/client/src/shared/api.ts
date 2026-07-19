@@ -1,170 +1,199 @@
 /**
- * api.ts — Funções de chamada da API do SimulaCusto
- * Skill: antigravity-criar-produto (Passo 1 — shared/api.ts)
+ * api.ts — Client REST do Estimativa Custo (base /api/v1/simula-custo).
+ * Mandamento 06: toda resposta é validada com Zod antes do uso.
+ * Contexto (org/workspace/usuário) vem do Shell store via setApiContext.
  */
+import {
+  RespostaEstimativaCustoSchema,
+  RespostaDetalheEstimativaCustoSchema,
+  RespostaListaEstimativasCustoSchema,
+  KpisEstimativaCustoSchema,
+  KpisDashboardEstimativaCustoSchema,
+  RecentesEstimativaCustoSchema,
+  ConfigStatusEstimativaCustoSchema,
+  RespostaSimulacaoEstimativaCustoSchema,
+  BuscaNcmEstimativaCustoSchema,
+  ValidarNcmEstimativaCustoSchema,
+  UfsEstimativaCustoSchema,
+  type EstimativaCusto,
+  type EstimativaCustoDetalhe,
+  type RespostaListaEstimativasCusto,
+  type KpisEstimativaCusto,
+  type KpisDashboardEstimativaCusto,
+  type EstimativaCustoRecente,
+  type ConfigStatusEstimativaCusto,
+  type ResultadoSimulacaoEstimativaCusto,
+  type ValidarNcmEstimativaCusto,
+  type UfEstimativaCusto,
+  type EntradaEstimativaCusto,
+  type EntradaSimulacaoEstimativaCusto,
+  type StatusEstimativaCusto,
+} from './schemas-estimativa-custo'
 
-import type {
-  SimulacaoInput,
-  ResultadoFiscal,
-  SimulaCustoEstimativa,
-  EstimativasKpis,
-  SimulaCustoEstimativaStatus,
-  NcmItem,
-  UfItem,
-} from './types'
+const API_BASE = '/api/v1/simula-custo'
 
-const API_BASE = '/api/v1'
-
-// Contexto da organização — setado pelo App.tsx ao montar, lido do Shell store
+// ─── Contexto da organização (setado pelo App.tsx a partir do Shell store) ────
 let _idOrganizacao = ''
 let _idUsuario = ''
+let _idWorkspace = ''
 
-/** Chamado pelo App.tsx para injetar o contexto da organização no módulo de API */
-export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string }) {
+export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string; idWorkspace?: string }) {
   _idOrganizacao = ctx.idOrganizacao
   _idUsuario = ctx.idUsuario
+  if (ctx.idWorkspace !== undefined) _idWorkspace = ctx.idWorkspace
 }
 
-const headers = (): Record<string, string> => {
+function resolverIdWorkspace(): string {
+  if (_idWorkspace) return _idWorkspace
+  try { return sessionStorage.getItem('gravity_company_id') ?? '' } catch { return '' }
+}
+
+function headers(): Record<string, string> {
   const h: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_CHAVE_INTERNA_SERVICO ?? 'dev-key',
   }
   if (_idOrganizacao) h['x-id-organizacao'] = _idOrganizacao
   if (_idUsuario) h['x-id-usuario'] = _idUsuario
+  const ws = resolverIdWorkspace()
+  if (ws) h['x-id-workspace'] = ws
   return h
 }
 
-// ─── Simulação ─────────────────────────────────────────────────────────────────
-
-export async function postSimulacao(input: SimulacaoInput): Promise<ResultadoFiscal> {
-  const res = await fetch(`${API_BASE}/simula-custo`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify(input),
-  })
+async function requisitar(path: string, init?: RequestInit): Promise<unknown> {
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers: headers() })
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status} na simulação`)
+    const corpo = await res.json().catch(() => ({} as Record<string, unknown>))
+    const mensagem = typeof (corpo as { error?: unknown }).error === 'string'
+      ? (corpo as { error: string }).error
+      : `Erro ${res.status}`
+    throw new Error(mensagem)
   }
-  const json = await res.json()
-  return { ...json.data, source: json.source, ptaxUtilizada: json.data.ptaxUtilizada ?? 0 }
-}
-
-// ─── Master Data ──────────────────────────────────────────────────────────────
-
-export async function searchNcm(query: string): Promise<NcmItem[]> {
-  if (query.length < 3) return []
-  const res = await fetch(`${API_BASE}/simula-custo/ncm/buscar?q=${encodeURIComponent(query)}`)
-  if (!res.ok) return []
   return res.json()
 }
 
-export async function getUfs(): Promise<UfItem[]> {
-  const res = await fetch(`${API_BASE}/simula-custo/unidades-federativas`)
-  if (!res.ok) return []
-  return res.json()
-}
+// ─── Estimativas CRUD ─────────────────────────────────────────────────────────
 
-// getPaises() removido — fonte única é Cadastros (/api/v1/cadastros/paises).
-// Para usar a lista de países no simula-custo, importe do shell hook
-// usePaises() ou faça fetch direto desse endpoint.
-
-// ─── Estimativas CRUD ────────────────────────────────────────────────────────
-
-export interface EstimativasListParams {
-  status?: SimulaCustoEstimativaStatus
+export interface ParametrosListaEstimativasCusto {
   busca?: string
+  status?: StatusEstimativaCusto
   pagina?: number
   limite?: number
+  ordenar_por?: string
+  direcao?: 'asc' | 'desc'
 }
 
-export interface EstimativasListResponse {
-  data: SimulaCustoEstimativa[]
-  total: number
-  pagina: number
-  limite: number
-}
-
-export async function getEstimativas(params: EstimativasListParams = {}): Promise<EstimativasListResponse> {
+export async function listarEstimativasCusto(params: ParametrosListaEstimativasCusto = {}): Promise<RespostaListaEstimativasCusto> {
   const query = new URLSearchParams()
-  if (params.status) query.set('status', params.status)
   if (params.busca) query.set('busca', params.busca)
+  if (params.status) query.set('status', params.status)
   if (params.pagina) query.set('pagina', String(params.pagina))
   if (params.limite) query.set('limite', String(params.limite))
+  if (params.ordenar_por) query.set('ordenar_por', params.ordenar_por)
+  if (params.direcao) query.set('direcao', params.direcao)
 
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas?${query}`, {
-    headers: headers(),
-  })
-  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar estimativas`)
-  return res.json()
+  const raw = await requisitar(`/estimativas-custo?${query}`)
+  return RespostaListaEstimativasCustoSchema.parse(raw)
 }
 
-export async function getEstimativa(id: string): Promise<SimulaCustoEstimativa> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}`, {
-    headers: headers(),
-  })
-  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar estimativa`)
-  return res.json()
+export async function obterEstimativaCusto(idEstimativaCusto: string): Promise<EstimativaCustoDetalhe> {
+  const raw = await requisitar(`/estimativas-custo/${idEstimativaCusto}`)
+  return RespostaDetalheEstimativaCustoSchema.parse(raw).estimativa_custo
 }
 
-export async function criarEstimativa(input: SimulacaoInput): Promise<SimulaCustoEstimativa> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify(input),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status} ao criar estimativa`)
-  }
-  return res.json()
+export async function criarEstimativaCusto(entrada: EntradaEstimativaCusto): Promise<EstimativaCusto> {
+  const raw = await requisitar('/estimativas-custo', { method: 'POST', body: JSON.stringify(entrada) })
+  return RespostaEstimativaCustoSchema.parse(raw).estimativa_custo
 }
 
-export async function atualizarEstimativa(id: string, input: Partial<SimulacaoInput>): Promise<SimulaCustoEstimativa> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}`, {
+export async function atualizarEstimativaCusto(
+  idEstimativaCusto: string,
+  entrada: Partial<EntradaEstimativaCusto>
+): Promise<EstimativaCusto> {
+  const raw = await requisitar(`/estimativas-custo/${idEstimativaCusto}`, { method: 'PUT', body: JSON.stringify(entrada) })
+  return RespostaEstimativaCustoSchema.parse(raw).estimativa_custo
+}
+
+export async function atualizarStatusEstimativaCusto(
+  idEstimativaCusto: string,
+  status: StatusEstimativaCusto
+): Promise<EstimativaCusto> {
+  const raw = await requisitar(`/estimativas-custo/${idEstimativaCusto}/status`, {
     method: 'PATCH',
-    headers: headers(),
-    body: JSON.stringify(input),
+    body: JSON.stringify({ status_estimativa_custo: status }),
   })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status} ao atualizar estimativa`)
-  }
-  return res.json()
+  return RespostaEstimativaCustoSchema.parse(raw).estimativa_custo
 }
 
-export async function atualizarStatusEstimativa(id: string, status: SimulaCustoEstimativaStatus): Promise<SimulaCustoEstimativa> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}/status`, {
-    method: 'PATCH',
-    headers: headers(),
-    body: JSON.stringify({ status }),
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status} ao atualizar status`)
-  }
-  return res.json()
+export async function duplicarEstimativaCusto(idEstimativaCusto: string): Promise<EstimativaCusto> {
+  const raw = await requisitar(`/estimativas-custo/${idEstimativaCusto}/duplicar`, { method: 'POST' })
+  return RespostaEstimativaCustoSchema.parse(raw).estimativa_custo
 }
 
-export async function duplicarEstimativa(id: string): Promise<SimulaCustoEstimativa> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}/duplicar`, {
+export async function excluirEstimativaCusto(idEstimativaCusto: string): Promise<void> {
+  await requisitar(`/estimativas-custo/${idEstimativaCusto}`, { method: 'DELETE' })
+}
+
+// ─── KPIs ─────────────────────────────────────────────────────────────────────
+
+export async function obterKpisEstimativaCusto(): Promise<KpisEstimativaCusto> {
+  const raw = await requisitar('/estimativas-custo/kpis')
+  return KpisEstimativaCustoSchema.parse(raw)
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+export async function obterKpisDashboardEstimativaCusto(): Promise<KpisDashboardEstimativaCusto> {
+  const raw = await requisitar('/dashboard/kpis')
+  return KpisDashboardEstimativaCustoSchema.parse(raw).kpis
+}
+
+export async function obterRecentesEstimativaCusto(): Promise<EstimativaCustoRecente[]> {
+  const raw = await requisitar('/dashboard/recentes')
+  return RecentesEstimativaCustoSchema.parse(raw).recentes
+}
+
+export async function obterWidgetsDashboardEstimativaCusto(
+  metricas: string[],
+  periodo = '30d'
+): Promise<Record<string, unknown>> {
+  const raw = await requisitar('/dashboard/widgets', {
     method: 'POST',
-    headers: headers(),
+    body: JSON.stringify({ metricas, filtros: { periodo } }),
   })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message ?? `Erro ${res.status} ao duplicar estimativa`)
-  }
-  return res.json()
+  return raw as Record<string, unknown>
 }
 
-// ─── KPIs ────────────────────────────────────────────────────────────────────
+// ─── Config status (colunas do Kanban) ───────────────────────────────────────
 
-export async function getEstimativasKpis(): Promise<EstimativasKpis> {
-  const res = await fetch(`${API_BASE}/simula-custo/estimativas/kpis`, {
-    headers: headers(),
-  })
-  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar KPIs`)
-  return res.json()
+export async function obterConfigStatusEstimativaCusto(): Promise<ConfigStatusEstimativaCusto[]> {
+  const raw = await requisitar('/config-status-estimativa-custo')
+  return ConfigStatusEstimativaCustoSchema.parse(raw).status_estimativa_custo
+}
+
+// ─── Simulação ────────────────────────────────────────────────────────────────
+
+export async function simularEstimativaCusto(
+  entrada: EntradaSimulacaoEstimativaCusto
+): Promise<ResultadoSimulacaoEstimativaCusto> {
+  const raw = await requisitar('/simular', { method: 'POST', body: JSON.stringify(entrada) })
+  return RespostaSimulacaoEstimativaCustoSchema.parse(raw)
+}
+
+// ─── Master data ──────────────────────────────────────────────────────────────
+
+export async function buscarNcmEstimativaCusto(q: string): Promise<Array<{ codigo: string; descricao: string }>> {
+  if (q.length < 2) return []
+  const raw = await requisitar(`/ncm/buscar?q=${encodeURIComponent(q)}`)
+  return BuscaNcmEstimativaCustoSchema.parse(raw).itens
+}
+
+export async function validarNcmEstimativaCusto(codigo: string): Promise<ValidarNcmEstimativaCusto> {
+  const raw = await requisitar(`/ncm/${encodeURIComponent(codigo)}/validar`)
+  return ValidarNcmEstimativaCustoSchema.parse(raw)
+}
+
+export async function listarUfsEstimativaCusto(): Promise<UfEstimativaCusto[]> {
+  const raw = await requisitar('/unidades-federativas')
+  return UfsEstimativaCustoSchema.parse(raw)
 }

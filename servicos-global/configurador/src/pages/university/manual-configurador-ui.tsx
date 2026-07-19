@@ -3077,7 +3077,13 @@ function espacoAcimaTelaGaleriaGuiaPx(
   if (telaAtual.paragrafoAntes?.trim() || telaAtual.calloutAntes) {
     return MANUAL_ESPACO_IMAGEM_FRASE_PX
   }
-  if (telaAnterior?.paragrafoDepois?.trim() || telaAnterior?.calloutDepois) {
+  const printSemIntro = Boolean(
+    telaAtual.imagem && !telaAtual.paragrafoAntes?.trim() && !telaAtual.calloutAntes,
+  )
+  if (
+    printSemIntro
+    && (telaAnterior?.paragrafoDepois?.trim() || telaAnterior?.calloutDepois || telaAnterior?.calloutAntes)
+  ) {
     return MANUAL_ESPACO_FRASE_IMAGEM_PX
   }
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
@@ -5343,7 +5349,11 @@ export function ManualGaleriaComparacaoIntro({
     >
       {tela.calloutAntes ? (
         <div style={alinharCalloutsNaGrade ? { flex: '1 1 0', marginBottom: 10 } : undefined}>
-          <ManualCalloutBloco callout={tela.calloutAntes} marginTop={0} marginBottom={alinharCalloutsNaGrade ? 0 : 10} />
+          <ManualCalloutBloco
+            callout={tela.calloutAntes}
+            marginTop={0}
+            marginBottom={alinharCalloutsNaGrade ? 0 : (tela.imagem ? 10 : 0)}
+          />
         </div>
       ) : tela.chipConsolidarExemplo && tela.paragrafoAntes ? (
         <ManualGaleriaLegendaConsolidarExemplo

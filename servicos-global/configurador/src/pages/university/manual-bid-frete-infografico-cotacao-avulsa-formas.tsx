@@ -59,13 +59,13 @@ const FORMAS: FormaCotacaoAvulsa[] = [
   {
     num: '04',
     rotulo: 'Via Smart Docs',
-    descricao: 'A **IA** extrai dados do documento comercial e pré-preenche a cotação.',
+    descricao: 'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**.',
     icone: Sparkle,
-    cor: '#94a3b8',
-    borda: 'rgba(148,163,184,.28)',
-    fundo: 'rgba(148,163,184,.06)',
-    disponivel: false,
-    detalhe: 'Em breve no produto',
+    cor: '#a78bfa',
+    borda: 'rgba(167,139,250,.35)',
+    fundo: 'rgba(167,139,250,.08)',
+    disponivel: true,
+    detalhe: 'Nova Leitura + revisão antes do wizard',
   },
 ]
 
@@ -206,10 +206,10 @@ export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
       }}>
         <CheckCircle size={16} weight="duotone" color="#34d399" aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
         <p style={{ margin: 0 }}>
-          <strong style={{ color: '#cbd5e1' }}>Manual</strong> abre o wizard na tela.
-          <strong style={{ color: '#cbd5e1' }}> Planilha</strong>,{' '}
-          <strong style={{ color: '#cbd5e1' }}>API</strong> e{' '}
-          <strong style={{ color: '#cbd5e1' }}>Smart Docs</strong> aparecem no menu com badge{' '}
+          <strong style={{ color: '#cbd5e1' }}>Manual</strong> e{' '}
+          <strong style={{ color: '#cbd5e1' }}>Smart Docs</strong> abrem fluxos completos na tela.
+          <strong style={{ color: '#cbd5e1' }}> Planilha</strong> e{' '}
+          <strong style={{ color: '#cbd5e1' }}>API</strong> aparecem no menu com badge{' '}
           <strong style={{ color: '#cbd5e1' }}>Em breve</strong>: use os subtópicos deste capítulo quando
           estiverem disponíveis.
         </p>

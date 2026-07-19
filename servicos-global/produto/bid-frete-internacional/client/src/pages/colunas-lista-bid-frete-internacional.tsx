@@ -4,7 +4,7 @@ import type { GTColuna, GTMapaColunasFilho, GTValorMoeda } from '@nucleo/tabela-
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { Anchor, AirplaneTilt, ArrowSquareOut, Truck } from '@phosphor-icons/react'
 import { rotaDetalheCotacaoBidFreteInternacional } from '../shared/rotas-bid-frete-internacional'
-import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
+import type { Cotacao, PropostaBidFreteInternacional, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
 import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
 import {
@@ -35,6 +35,7 @@ import {
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
 } from '../shared/ordem-colunas-lista-bid-frete-internacional'
 import { traduzirLabelColunaListaBidFrete } from '../shared/traduzir-coluna-lista-bid-frete-internacional'
+import { propostaExibicaoListaCotacao } from '../shared/proposta-exibicao-lista-bid-frete-internacional'
 import {
   opcoesAnonimaListaBidFrete,
   opcoesModalidadeListaBidFrete,
@@ -243,6 +244,60 @@ function renderCelulaValorMoeda(
       {temValor ? fmtQuantidade(num, casas) : '—'}
     </span>
   )
+}
+
+/** Campos monetários da proposta — preenchidos só nas linhas filhas expandidas. */
+const CHAVES_COLUNAS_PROPOSTA_MONETARIAS = new Set([
+  'valor_frete_proposta_bid_frete_internacional',
+  'taxas_origem_proposta_bid_frete_internacional',
+  'taxas_destino_proposta_bid_frete_internacional',
+  'valor_total_proposta_bid_frete_internacional',
+])
+
+type CampoMonetarioPropostaLista =
+  | 'valor_frete_proposta_bid_frete_internacional'
+  | 'taxas_origem_proposta_bid_frete_internacional'
+  | 'taxas_destino_proposta_bid_frete_internacional'
+  | 'valor_total_proposta_bid_frete_internacional'
+
+function renderCelulaPropostaMonetaria(
+  proposta: PropostaBidFreteInternacional,
+  campo: CampoMonetarioPropostaLista,
+  casas: number,
+): React.ReactNode {
+  const valor = proposta[campo]
+  if (valor == null || Number.isNaN(Number(valor))) return '—'
+  return renderCelulaValorMoeda(
+    Number(valor),
+    proposta.moeda_proposta_bid_frete_internacional,
+    casas,
+  )
+}
+
+function criarColunaPropostaMonetaria(
+  key: CampoMonetarioPropostaLista,
+  label: string,
+  padraoCasas: number,
+): GTColuna<Cotacao> {
+  return {
+    key,
+    label,
+    tipo: 'numero',
+    casasDecimais: padraoCasas,
+    render: (_val: unknown, item: Cotacao) => {
+      const proposta = propostaExibicaoListaCotacao(item)
+      if (!proposta) return '—'
+      return renderCelulaPropostaMonetaria(proposta, key, getCasas(key, padraoCasas))
+    },
+    findDisplay: (item: Cotacao) => {
+      const proposta = propostaExibicaoListaCotacao(item)
+      if (!proposta) return ''
+      const valor = proposta[key]
+      if (valor == null || Number.isNaN(Number(valor))) return ''
+      const moeda = proposta.moeda_proposta_bid_frete_internacional ?? 'USD'
+      return `${moeda} ${fmtQuantidade(Number(valor), getCasas(key, padraoCasas))}`
+    },
+  }
 }
 
 /** Moeda de exibição/edição de valores monetários da cotação (paridade valor meta / aprovado). */
@@ -685,6 +740,17 @@ export function formatValorExportColuna(
       const slug = String(val ?? '')
       return slug ? (LABEL_PRODUTO_GRAVITY[slug] ?? slug) : ''
     }
+    case 'valor_frete_proposta_bid_frete_internacional':
+    case 'taxas_origem_proposta_bid_frete_internacional':
+    case 'taxas_destino_proposta_bid_frete_internacional':
+    case 'valor_total_proposta_bid_frete_internacional': {
+      const proposta = propostaExibicaoListaCotacao(row)
+      if (!proposta) return ''
+      const valor = proposta[key as keyof PropostaBidFreteInternacional]
+      if (valor == null || Number.isNaN(Number(valor))) return ''
+      const moeda = proposta.moeda_proposta_bid_frete_internacional ?? 'USD'
+      return `${moeda} ${fmtQuantidade(Number(valor), getCasas(key, 2))}`
+    }
     default:
       break
   }
@@ -1044,6 +1110,26 @@ function buildColunasCotacoesBase(
         </span>
       ),
     },
+    criarColunaPropostaMonetaria(
+      'valor_frete_proposta_bid_frete_internacional',
+      'Frete base',
+      2,
+    ),
+    criarColunaPropostaMonetaria(
+      'taxas_origem_proposta_bid_frete_internacional',
+      'Taxas de Origem',
+      2,
+    ),
+    criarColunaPropostaMonetaria(
+      'taxas_destino_proposta_bid_frete_internacional',
+      'Taxas de Destino',
+      2,
+    ),
+    criarColunaPropostaMonetaria(
+      'valor_total_proposta_bid_frete_internacional',
+      'Valor do Frete Total',
+      2,
+    ),
   ]
 
   return colunas.map((col) => {
@@ -1089,7 +1175,8 @@ function buildColunasCotacoesBaseOrdenadas(
 }
 
 function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao> {
-  if (col.oculta) return col
+  const key = String(col.key ?? '')
+  if (col.oculta || CHAVES_COLUNAS_PROPOSTA_MONETARIAS.has(key)) return col
   return { ...col, filtravel: true }
 }
 
@@ -1124,6 +1211,9 @@ export function buildColunasPaiListaDeColunasCotacao(
     tooltipBloqueado: (item: LinhaPaiLista) =>
       isLinhaBidGrupo(item) ? tooltipBid : undefined,
     render: (val: unknown, item: LinhaPaiLista) => {
+      if (CHAVES_COLUNAS_PROPOSTA_MONETARIAS.has(String(col.key)) && isLinhaBidGrupo(item)) {
+        return '—'
+      }
       if (col.key === 'numero_cotacao_bid_frete_internacional' && isLinhaBidGrupo(item)) {
         return (
           <span style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
@@ -1215,6 +1305,14 @@ export function buildMapaColunasFilhoDeColunas(
         : {}),
       render: (filha) => {
         if (isLinhaProposta(filha)) {
+          if (CHAVES_COLUNAS_PROPOSTA_MONETARIAS.has(key)) {
+            const casas = col.casasDecimais ?? getCasasDecimaisBidFrete()[key] ?? 2
+            return renderCelulaPropostaMonetaria(
+              filha,
+              key as CampoMonetarioPropostaLista,
+              casas,
+            )
+          }
           const val = (filha as Record<string, unknown>)[key]
           if (val == null || val === '') return '—'
           if (typeof val === 'object') return '—'

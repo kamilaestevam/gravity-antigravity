@@ -4,7 +4,9 @@ import {
   DEFAULT_CARD_PREFERENCIAS,
   carregarPreferenciasCardsBidFrete,
   carregarPeriodoCardsBidFrete,
+  garantirCardsAtivosVisiveis,
   listarCardsCatalogo,
+  mesclarVisibilidadeCardsComTopoPainel,
   registrarCardCustomizado,
   salvarPreferenciasCardsBidFrete,
   salvarPeriodoCardsBidFrete,
@@ -59,8 +61,21 @@ describe('use-card-preferences (BID Frete Internacional)', () => {
     salvarPreferenciasCardsBidFrete(custom)
     salvarPeriodoCardsBidFrete('7d')
 
-    expect(carregarPreferenciasCardsBidFrete()).toEqual(custom)
+    expect(carregarPreferenciasCardsBidFrete()).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: true },
+    ])
     expect(carregarPeriodoCardsBidFrete()).toBe('7d')
+  })
+
+  it('garantirCardsAtivosVisiveis força visible true em ATIVOS', () => {
+    expect(garantirCardsAtivosVisiveis([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: false },
+    ])).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'saving_total', visible: true },
+    ])
   })
 
   it('migra conjunto legado de 6 cards para o padrão de 3', () => {
@@ -107,5 +122,42 @@ describe('use-card-preferences (BID Frete Internacional)', () => {
     const catalogo = listarCardsCatalogo()
     expect(catalogo.some(c => c.id === 'card_teste')).toBe(true)
     expect(JSON.parse(lsStore[CUSTOM_CATALOG_KEY] ?? '[]')).toHaveLength(1)
+  })
+
+  it('mescla cards_topo do painel sem ocultar cards recém-adicionados em ATIVOS', () => {
+    const prefs = [
+      { id: 'total_cotacoes', visible: true },
+      { id: 'valor_total_frete', visible: true },
+      { id: 'saving_total', visible: true },
+    ]
+    const painelAntigo = ['total_cotacoes', 'valor_total_frete']
+
+    expect(mesclarVisibilidadeCardsComTopoPainel(prefs, painelAntigo)).toEqual(prefs)
+  })
+
+  it('mescla cards_topo do painel mantendo ocultação explícita do usuário', () => {
+    const prefs = [
+      { id: 'total_cotacoes', visible: true },
+      { id: 'valor_total_frete', visible: false },
+      { id: 'saving_total', visible: true },
+    ]
+
+    expect(mesclarVisibilidadeCardsComTopoPainel(prefs, ['total_cotacoes'])).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'valor_total_frete', visible: false },
+      { id: 'saving_total', visible: true },
+    ])
+  })
+
+  it('mescla cards_topo do painel reexibe cards marcados no snapshot', () => {
+    const prefs = [
+      { id: 'total_cotacoes', visible: false },
+      { id: 'valor_total_frete', visible: false },
+    ]
+
+    expect(mesclarVisibilidadeCardsComTopoPainel(prefs, ['total_cotacoes'])).toEqual([
+      { id: 'total_cotacoes', visible: true },
+      { id: 'valor_total_frete', visible: false },
+    ])
   })
 })

@@ -7,6 +7,10 @@ import type { AeroportoCadastro, PortoCadastro } from './cadastrosApi'
 export const CAMPOS_NAO_EDITAVEIS_COTACAO = new Set([
   'id_cotacao_bid_frete_internacional',
   'data_atualizacao_cotacao_bid_frete_internacional',
+  'valor_frete_proposta_bid_frete_internacional',
+  'taxas_origem_proposta_bid_frete_internacional',
+  'taxas_destino_proposta_bid_frete_internacional',
+  'valor_total_proposta_bid_frete_internacional',
 ])
 
 export const CAMPOS_DATA_COTACAO = new Set([

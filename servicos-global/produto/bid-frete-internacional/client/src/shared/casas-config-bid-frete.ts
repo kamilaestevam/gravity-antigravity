@@ -11,7 +11,7 @@ export interface ColunaNumericaNativaBidFrete {
 export const COLUNAS_NUMERICAS_BID_FRETE: ColunaNumericaNativaBidFrete[] = [
   {
     campo: 'valor_frete_proposta_bid_frete_internacional',
-    label: 'Valor do Frete',
+    label: 'Frete base',
     categoria: 'Frete',
     padrao: 2,
   },
@@ -24,6 +24,12 @@ export const COLUNAS_NUMERICAS_BID_FRETE: ColunaNumericaNativaBidFrete[] = [
   {
     campo: 'taxas_destino_proposta_bid_frete_internacional',
     label: 'Taxas de Destino',
+    categoria: 'Frete',
+    padrao: 2,
+  },
+  {
+    campo: 'valor_total_proposta_bid_frete_internacional',
+    label: 'Valor do Frete Total',
     categoria: 'Frete',
     padrao: 2,
   },

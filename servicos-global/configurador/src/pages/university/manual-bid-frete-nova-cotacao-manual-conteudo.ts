@@ -301,6 +301,7 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_ENVIO: GaleriaNovaCotacao[] = [
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
   grade({
     colunas: 1,
+    espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
     telas: [
       fig(
         'confirmacao_modal',
@@ -309,14 +310,18 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
     ],
   }),
   grade({
-    tituloEtapa: 'Conferir na Lista após o envio',
-    textoIntro:
-      'Ao concluir o wizard, confira o aviso de **cotação gerada**, a nova linha na **Lista** e o status **solicitação enviada** aos fornecedores.',
     colunas: 1,
-    telas: [fig('confirmacao_lista', '')],
+    espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+    telas: [
+      fig(
+        'confirmacao_lista',
+        'Confira o aviso de **cotação gerada**, a nova linha na **Lista** e o status **solicitação enviada** aos fornecedores.',
+      ),
+    ],
   }),
   grade({
     colunas: 1,
+    espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
     telas: [
       fig(
         'lista_cotacao_nova_cotacao_avulsa_manual_processo_cotacao',
@@ -326,50 +331,99 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
   }),
 ]
 
+const CENARIO_ACESSO_VIA_INSIGHT = GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR[0]?.cenariosAcesso?.find(
+  (c) => c.titulo === 'Via Insight',
+)
+const CENARIO_ACESSO_VIA_LISTA = GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR[0]?.cenariosAcesso?.find(
+  (c) => c.titulo === 'Via Lista',
+)
+
+const GRADE_COMO_ACESSAR_BASE = {
+  indice: 0,
+  colunas: 1,
+  textoAcimaEstiloCorpo: true,
+  espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+  iconesEscopoBidFrete: { preset: 'universal' as const },
+  telas: [] as ReturnType<typeof fig>[],
+}
+
+/** Guia §Como acessar — legenda sem chip «Passo NN» (só texto). */
+function legendaComoAcessarSemChipPasso(texto?: string): string | undefined {
+  if (!texto) return texto
+  return texto.replace(/^\*\*\d{2}\.\*\*\s+/, '')
+}
+
+/** §4 — abrir nova cotação pela aba Insights. */
+export const GALERIA_BID_FRETE_COMO_ACESSAR_VIA_INSIGHT: GaleriaNovaCotacao[] = CENARIO_ACESSO_VIA_INSIGHT
+  ? [{
+    ...GRADE_COMO_ACESSAR_BASE,
+    cenariosAcesso: [{ ...CENARIO_ACESSO_VIA_INSIGHT, titulo: '', texto: '' }],
+  }]
+  : []
+
+/** §4 — abrir nova cotação pela Lista. */
+export const GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA: GaleriaNovaCotacao[] = CENARIO_ACESSO_VIA_LISTA
+  ? [{
+    ...GRADE_COMO_ACESSAR_BASE,
+    cenariosAcesso: [{
+      ...CENARIO_ACESSO_VIA_LISTA,
+      titulo: '',
+      texto: '',
+      paragrafoAntesPrint: legendaComoAcessarSemChipPasso(CENARIO_ACESSO_VIA_LISTA.paragrafoAntesPrint),
+      printsApos: CENARIO_ACESSO_VIA_LISTA.printsApos?.map((print) => ({
+        ...print,
+        paragrafoAntesPrint: legendaComoAcessarSemChipPasso(print.paragrafoAntesPrint),
+      })),
+    }],
+  }]
+  : []
+
 /** §4.01 — abrir nova cotação (Via Insight / Via Lista) até escolher Manual. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_VISAO_GERAL: GaleriaNovaCotacao[] = [
   ...GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR,
 ]
 
-const FLUXO_INICIO_AO_FIM_CABECALHO = {
-  tituloEtapa: 'Iniciando o fluxo manual',
-  textoIntro:
-    'Para acessar a tela principal, clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Manual**.',
-  chipBidFreteFormaManual: true,
-  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
-  colunas: 1,
-}
+const TEXTO_LEGENDA_PRINT_MODAL_OPERACAO =
+  'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte.'
 
-/** §4.02.01 — 1º tópico: acesso pelo menu (+ Novo → Cotação Avulsa → Manual). */
-export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM: GaleriaNovaCotacao = grade({
-  ...FLUXO_INICIO_AO_FIM_CABECALHO,
-  telas: [fig('lista_cotacao_nova_cotacao_avulsa_manual', '')],
-})
+const TEXTO_ANTES_SIMULADOR_MODAL_OPERACAO =
+  'Aqui o usuário pode clicar em **Próximo** no simulador e ver a explicação exata de cada etapa.'
 
-/** §4.02.01 — 2º tópico: passo Modal e Operação (wizard + infográfico de campos). */
+/** §4.02.01 — Lista → Modal e Operação (wizard + simulador), galeria única (ritmo 12px/4px). */
 export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNovaCotacao = grade({
   tituloEtapa: 'Modal e Operação',
-  textoIntro:
-    'Esta tela é o primeiro passo do formulário, definindo o número da cotação, o tipo de operação e o modal de transporte. Logo abaixo, cada campo será explicado via simulador de cotação a seguir.',
   chipBidFreteFormaManual: true,
   colunas: 1,
-  telas: [fig('cotacao_avulsa', '')],
+  espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+  telas: [
+    fig('lista_cotacao_nova_cotacao_avulsa_manual', ''),
+    {
+      legenda: '',
+      imagem: S('cotacao_avulsa'),
+      paragrafoAntes: TEXTO_LEGENDA_PRINT_MODAL_OPERACAO,
+      paragrafoDepois: TEXTO_ANTES_SIMULADOR_MODAL_OPERACAO,
+    },
+  ],
   simuladorBidFreteModalOperacao: true,
+  telasAposSimuladorBidFreteModalOperacao: [
+    fig(
+      'confirmacao_modal',
+      'Após o último passo será exibido a mensagem de confirmação e envio dos emails.',
+    ),
+  ],
 })
 
 /** §4.02.01 — wizard manual: início, Modal e Operação e resultado. */
 export const GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD: GaleriaNovaCotacao[] = [
-  GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM,
   GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP,
-  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO,
+  ...GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO.slice(1),
 ]
 
 const FLUXO_BID_MANUAL_CABECALHO = {
-  tituloEtapa: 'Iniciando o fluxo manual',
+  tituloEtapa: 'Construindo o BID',
   textoIntro:
     'Para acessar a tela principal, clique primeiro no botão **+ Novo**, direcione para o menu **BID** e finalize clicando na opção **Manual**.',
   chipBidFreteBid: true,
-  iconesEscopoBidFrete: { preset: 'inicio-comum' as const },
   colunas: 1,
 }
 
@@ -392,7 +446,6 @@ export const GALERIAS_BID_FRETE_BID_MANUAL: GaleriaNovaCotacao[] = [
       fig('cotacao_bid_modal', ''),
       fig('cotacao_bid_modal_selec', 'Selecione as **cotações existentes** que compõem o pacote e avance para criar o **BID**.'),
     ],
-    infograficoBidFreteBidPacoteCotacoes: true,
   }),
 ]
 

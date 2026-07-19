@@ -119,8 +119,8 @@ function calcularEspacoSuperiorBlocoGuia(
     return 0
   }
 
-  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Adicionar card → Visão Geral).
-  // 12px — o rótulo roxo do próximo passo encosta na DICA anterior; 32px duplicava com CSS e abria faixa vazia.
+  // Passo Academy após outro passo, com H2 fantasma do sumário no meio (ex.: Manual → Via Smart Doc).
+  // 32px — SSOT fim de passo → próximo passo; H2 fantasma não soma margem extra no CSS (`.subtitulo-fantasma`).
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -128,7 +128,7 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
     && blocoAnterior !== anteriorEfetivo
   ) {
-    return MANUAL_ESPACO_PARAGRAFO_PX
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {

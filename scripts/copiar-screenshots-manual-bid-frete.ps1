@@ -97,6 +97,7 @@ $aliasesManual = @{
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_1.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-1.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_2.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-2.png'
   'tela_bid_frete_painel_cotacao_propostas_detalhamento_aprovado_email_3.png' = 'bid-frete-int-painel-cotacao-propostas-detalhamento-aprovado-email-3.png'
+  'tela_bid_frete_int_configuracoes_casas_decimais.png' = 'bid-frete-int-configuracoes-colunas-casas-decimais.png'
   'tela_bid_frete_lista_filtro_1.png' = 'bid-frete-int-lista-filtro-1.png'
   'tela_bid_frete_lista_filtro_2.png' = 'bid-frete-int-lista-filtro-2.png'
   'tela_bid_frete_lista_filtro_3.png' = 'bid-frete-int-lista-filtro-3.png'
@@ -112,3 +113,11 @@ foreach ($nomeDrive in $aliasesManual.Keys) {
 }
 
 Write-Host "Copiados $copiados prints para $destino (pulados: $pulados)"
+
+# Espelha no worktree guia-bid-frete (Academy dev :8003) quando existir.
+$destinoEspelho = Join-Path $PSScriptRoot '..\..\guia-bid-frete\servicos-global\configurador\public\university\screenshots'
+if (Test-Path (Split-Path $destinoEspelho -Parent)) {
+  New-Item -ItemType Directory -Force -Path $destinoEspelho | Out-Null
+  Copy-Item -Path (Join-Path $destino 'bid-frete-int-*.png') -Destination $destinoEspelho -Force
+  Write-Host "Espelhados bid-frete-int-*.png em $destinoEspelho"
+}

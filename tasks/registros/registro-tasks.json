@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 425,
+  "proximo_numero": 426,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000425",
+      "ordinal": 147,
+      "titulo_canonico": "OUTROS-SIMULA-CUSTO-AUD-LEVANTAMENTO-PRONTO",
+      "titulo_exibicao": "TASK-000425 | [Simula Custo] | AUD — Levantar tudo que está pronto (branch e worktree simula-custo)",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SIMULA-CUSTO",
+      "visualizacao": null,
+      "tipo_entrega": "AUD",
+      "resumo": "LEVANTAMENTO-PRONTO",
+      "data_criacao": "2026-07-19T00:38:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000425.json"
+    },
     {
       "referencia": "TASK-000424",
       "ordinal": 146,

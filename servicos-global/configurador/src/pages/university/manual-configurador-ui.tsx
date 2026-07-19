@@ -3077,6 +3077,10 @@ function espacoAcimaTelaGaleriaGuiaPx(
   if (telaAtual.paragrafoAntes?.trim() || telaAtual.calloutAntes) {
     return MANUAL_ESPACO_IMAGEM_FRASE_PX
   }
+  // Tela só com dica (calloutDepois, sem print): encadeia na anterior com ritmo de parágrafo
+  if (!telaAtual.imagem && telaAtual.calloutDepois) {
+    return MANUAL_ESPACO_PARAGRAFO_PX
+  }
   const printSemIntro = Boolean(
     telaAtual.imagem && !telaAtual.paragrafoAntes?.trim() && !telaAtual.calloutAntes,
   )

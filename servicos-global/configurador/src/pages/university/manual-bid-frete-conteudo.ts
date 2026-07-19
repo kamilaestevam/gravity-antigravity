@@ -1,4 +1,4 @@
-﻿import type { DocSecao } from './manual-configurador-conteudo'
+import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO } from './manual-bid-frete-pagamento-taxa-gravity-fechamento-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'

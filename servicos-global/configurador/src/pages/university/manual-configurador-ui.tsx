@@ -1558,7 +1558,7 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
 }
 
 /** Bump ao adicionar PNGs novos — evita cache de HTML (SPA fallback) quando o arquivo ainda não existia. */
-const MANUAL_SCREENSHOT_CACHE_KEY = '281'
+const MANUAL_SCREENSHOT_CACHE_KEY = '283'
 
 function urlScreenshotManual(src: string): string {
   const sep = src.includes('?') ? '&' : '?'
@@ -3069,10 +3069,17 @@ function telasGaleriaSemParagrafoNoRotulo<T extends { paragrafoAntes?: string }>
 
 /** Guia coluna única — ritmo entre telas da galeria (`manual-tipografia.ts`). */
 function espacoAcimaTelaGaleriaGuiaPx(
-  _telaAtual: DocGaleriaComparacaoTela,
+  telaAtual: DocGaleriaComparacaoTela,
+  telaAnterior: DocGaleriaComparacaoTela | undefined,
   indiceTela: number,
 ): number {
   if (indiceTela === 0) return 0
+  if (telaAtual.paragrafoAntes?.trim() || telaAtual.calloutAntes) {
+    return MANUAL_ESPACO_IMAGEM_FRASE_PX
+  }
+  if (telaAnterior?.paragrafoDepois?.trim() || telaAnterior?.calloutDepois) {
+    return MANUAL_ESPACO_FRASE_IMAGEM_PX
+  }
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
 }
 
@@ -5907,7 +5914,7 @@ export function ManualGaleriaComparacaoIntro({
           <div
             key={chaveGaleriaComparacaoTela(tela, idxTela)}
             style={{
-              marginTop: espacoAcimaTelaGaleriaGuiaPx(tela, idxTela),
+              marginTop: espacoAcimaTelaGaleriaGuiaPx(tela, idxTela > 0 ? telas[idxTela - 1] : undefined, idxTela),
               width: '100%',
               minWidth: 0,
             }}

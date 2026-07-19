@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Manual BID Frete §11 Configurações — todas as telas do Drive.
  */
 import type { DocPassoVisual } from './manual-configurador-conteudo'
@@ -23,17 +23,17 @@ function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
 
 export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerarPassos([
   {
-    titulo: 'Visão geral das Configurações',
+    titulo: 'O que é',
     paragrafos: [
       'No menu lateral do **BID Frete Internacional**, **Configurações** concentra preferências do workspace: **status**, **taxa de câmbio**, **colunas** da lista, **cards** de Insights, **Kanban** e demais abas administrativas.',
     ],
-    imagem: S('configuracoes_tabela'),
+    imagem: S('tela_principal_configuracoes'),
     imagemAbaixoTexto: true,
   },
   {
     titulo: 'CARD',
     paragrafos: [
-      'Na aba **Cards**, escolha o **período de comparação**, inclua indicadores em **Ativos** e remova os que não devem aparecer — o **preview** mostra como ficará em **Insights** e **Lista** antes de **Salvar**.',
+      'Na aba **Cards**, escolha o **período de comparação**, inclua indicadores que serão exibidos no tipo da **Lista**.',
     ],
     galeriaComparacaoAposParagrafo: [
       {
@@ -77,17 +77,24 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         textoAcimaEstiloCorpo: true,
         telas: [
           fig(
-            'configuracoes_tabela',
+            'tela_principal_configuracoes',
             'Abra **Configurações → Tabela**. Defina **linhas por página** e ligue **Destacar cotações prestes a expirar**.',
           ),
           fig(
             'configuracoes_tabela_1',
-            'É possível deixar cotações que estão prestes a vencer **destacadas**. Para isso, selecione o **prazo** que deseja — de **1 hora** a **24 horas** ou de **1 dia** a **100 dias**. O badge **Como funciona o destaque** resume **gatilho**, **status elegíveis** e **resultado esperado** na Lista.',
+            'É possível deixar cotações que estão prestes a vencer **destacadas**. Para isso, selecione o **prazo** que deseja — de **1 hora** a **24 horas** ou de **1 dia** a **100 dias**.',
           ),
-          fig(
-            'configuracoes_tabela_2',
-            'Na **Lista**, a linha recebe **borda avermelhada** à esquerda quando o **Prazo para resposta** está dentro da antecedência configurada.',
-          ),
+          {
+            legenda: '',
+            imagem: S('configuracoes_tabela_2'),
+            paragrafoAntes:
+              'Na **Lista**, a linha recebe **borda avermelhada** à esquerda quando o **Prazo para resposta** está dentro da antecedência configurada.',
+            calloutDepois: {
+              tipo: 'dica',
+              texto:
+                'A base do destaque é o campo **Prazo para resposta**: só entra no aviso se estiver preenchido, o prazo **ainda não venceu** e o tempo restante for **menor ou igual** à antecedência. **Não** destaca **Expirada**, **Cancelada**, **Aprovada** ou **Reprovada** — nos demais status, a borda aparece na **Lista**.',
+            },
+          },
         ],
         calloutApos: {
           tipo: 'dica',
@@ -109,22 +116,17 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         rotuloPasso: 'Casas Decimais',
         textoAcimaEstiloCorpo: true,
         telas: [
-          fig(
-            'configuracoes_casas_decimais_1',
-            'Abra **Configurações → Colunas → Casas Decimais**. Use **−** e **+** (ou digite) para definir as casas de cada coluna — **Frete base**, **Taxas de Origem**, **Taxas de Destino**, **Valor do Frete Total** e demais campos numéricos.',
-          ),
-        ],
-        calloutApos: {
-          tipo: 'dica',
-          texto:
-            'Clique em **Salvar**: as casas decimais respectivas passam a valer na **Lista** para cada coluna ajustada.',
-        },
-      },
-      {
-        indice: 0,
-        colunas: 1,
-        textoAcimaEstiloCorpo: true,
-        telas: [
+          {
+            legenda: '',
+            imagem: S('configuracoes_casas_decimais_1'),
+            paragrafoAntes:
+              'Abra **Configurações → Colunas → Casas Decimais**. Use **−** e **+** (ou digite) para definir as casas de cada coluna — **Frete base**, **Taxas de Origem**, **Taxas de Destino**, **Valor do Frete Total** e demais campos numéricos.',
+            calloutDepois: {
+              tipo: 'dica',
+              texto:
+                'Clique em **Salvar**: as casas decimais respectivas passam a valer na **Lista** para cada coluna ajustada.',
+            },
+          },
           fig(
             'configuracoes_casas_decimais',
             'Na **Lista**, as colunas **Frete base**, **Taxas de Origem**, **Taxas de Destino** e **Valor do Frete Total** exibem os valores com as casas decimais definidas em **Configurações**.',
@@ -175,7 +177,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
             calloutDepois: {
               tipo: 'dica',
               texto:
-                'Crie colunas personalizadas nos formatos **Texto**, **Número**, **Lista**, **Data**, **Percentual**, **Checkbox**, **Tipo de documento** e **Fórmula** — escolha o **tipo** no modal **Nova Coluna**.',
+                'Crie colunas personalizadas nos formatos **Texto**, **Número**, **Lista**, **Data**, **Percentual**, **Checkbox**, **Tipo de documento** e **Fórmula**.',
             },
           },
           {
@@ -196,7 +198,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           ),
           fig(
             'configuracoes_personalizada_6',
-            '**05.** No seletor **Colunas → Manuais**, a coluna nova já vem **marcada** (exibida por padrão).',
+            'No seletor **Colunas → Manuais**, a coluna nova já vem **marcada** (exibida por padrão).',
           ),
         ],
         calloutApos: {
@@ -219,19 +221,14 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         rotuloPasso: 'Colunas Kanban',
         textoAcimaEstiloCorpo: true,
         textoIntro:
-          'Em **Configurações → Kanban → Colunas**, escolha quais **status** aparecem no board. O **preview** no topo mostra a ordem das colunas visíveis. Em **Ativos**, as colunas de **sistema** (badge **sistema** e **cadeado**) ficam **sempre** no Kanban — não dá para ocultá-las.',
+          'Em **Configurações → Kanban → Colunas**, escolha quais **status** aparecem no board.',
         telas: [
-          {
-            legenda: '',
-            paragrafoAntes:
-              'As **demais** colunas são opcionais: use o **olho** ou **×** para retirar do board (o status vai para **Disponíveis para adicionar**); clique **+** para incluir de novo. Novos status de **Status Cotação** entram na lista automaticamente. Clique **Salvar** no rodapé para aplicar no workspace.',
-          },
           fig('configuracoes_kanban_1', ''),
         ],
         calloutApos: {
           tipo: 'dica',
           texto:
-            'Para **criar novos status**, acesse **Status Cotação** no menu lateral — eles passam a aparecer em **Disponíveis para adicionar** ou em **Ativos**, conforme a configuração.',
+            'As **demais** colunas são opcionais: use o **olho** ou **×** para retirar do board (o status vai para **Disponíveis para adicionar**); clique **+** para incluir de novo. Novos status de **Status Cotação** entram na lista automaticamente.',
         },
       },
       {
@@ -382,9 +379,22 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           },
           {
             legenda: '',
-            imagem: S('preferencia_email_cotacao_4'),
+            imagem: S('preferencia_email_cotacao_4b'),
             paragrafoAntes:
               'Com **Confirmação do fornecedor vencedor** ligado, chega e-mail **Aceite confirmado** quando o ganhador confirma **Recebi e estou de acordo**.',
+          },
+        ],
+      },
+      {
+        indice: 0,
+        colunas: 1,
+        textoAcimaEstiloCorpo: true,
+        telas: [
+          {
+            legenda: '',
+            imagem: S('email_comprador_aviso_resposta_cotacao'),
+            paragrafoAntes:
+              'Assim que o **fornecedor responder** à cotação, o aviso é enviado por **e-mail**.',
           },
         ],
       },

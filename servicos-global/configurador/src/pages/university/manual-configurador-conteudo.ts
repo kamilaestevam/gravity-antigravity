@@ -248,6 +248,10 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsListaCustomizacao?: boolean
   /** Manual Smart Docs §05 — infográfico dos painéis (abas) da Lista. */
   mostrarInfograficoSmartDocsListaPaineis?: boolean
+  /** Manual Smart Docs §05 — infográfico dos 6 formatos de exportação da Lista. */
+  mostrarInfograficoSmartDocsListaExportarFormatos?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico de exportação (padrão: 1). */
+  infograficoSmartDocsListaExportarFormatosAposParagrafo?: number
   /** Manual Smart Docs § Nova Leitura — mapa das abas e do comparativo do passo Conferência. */
   mostrarInfograficoSmartDocsConferencia?: boolean
   /** Índice do parágrafo após o qual inserir o infográfico Conferência (padrão: 0). */
@@ -260,6 +264,18 @@ export interface DocPassoVisual {
   mostrarInfograficoSmartDocsEditarCamposMetrica?: boolean
   /** Índice do parágrafo após o qual inserir o infográfico de métrica (padrão: 1). */
   infograficoSmartDocsEditarCamposMetricaAposParagrafo?: number
+  /** Manual Smart Docs § Nova Leitura Resultado — acerto, ajuste e erro no painel Performance. */
+  mostrarInfograficoSmartDocsPerformanceResultado?: boolean
+  /** Parágrafo cujo bloco de galeria precede o infográfico (padrão: 0). */
+  infograficoSmartDocsPerformanceResultadoAposGaleriaParagrafo?: number
+  /** Índice da galeria nesse parágrafo (padrão: 0). */
+  infograficoSmartDocsPerformanceResultadoAposGaleriaIndice?: number
+  /** Manual Smart Docs § Nova Leitura Resultado — integração automática entrada/saída. */
+  mostrarInfograficoSmartDocsResultadoIntegracaoAutomatica?: boolean
+  /** Parágrafo cujo bloco de galeria precede o infográfico (padrão: 2). */
+  infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaParagrafo?: number
+  /** Índice da galeria nesse parágrafo (padrão: 2). */
+  infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaIndice?: number
   /** Manual Smart Docs § Lista — mapa do status de fluxo do wizard (coluna Status). */
   mostrarInfograficoSmartDocsStatusFluxo?: boolean
   /** Índice do parágrafo após o qual inserir o infográfico Status (padrão: 1). */
@@ -645,6 +661,8 @@ export interface DocFluxo {
   mostrarMapaSubtopicosPassos?: boolean
   /** Academy — H2 do bloco introdutório (paridade `tituloTopico` da seção; ex.: «Mapa de métricas»). */
   tituloTopicoAcademy?: string
+  /** Academy — omite o H2 do fluxo no Player (conteúdo segue nos passos; ex.: «Nova cotação» unificada). */
+  ocultarTituloFluxoAcademy?: boolean
   /** Mini-stepper das etapas do wizard (ex.: Anexar · Análise · Conferência · Resultado). */
   wizardEtapas?: DocWizardEtapa[]
   passosVisuais: DocPassoVisual[]

@@ -3429,6 +3429,16 @@ body.light-theme .cw-xml-viewer {
   margin: 0;
 }
 
+/* Infográfico UX10 → etapas da galeria (passo a passo após mapa de seção) */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-galeria {
+  margin-top: 32px;
+}
+
+/* Última etapa da galeria → callout de fechamento (mesmo passo). */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-callouts {
+  margin-top: 12px;
+}
+
 .uni-player-aula__passo-galeria > .uni-player-aula__passo-galeria-item + .uni-player-aula__passo-galeria-item {
   margin-top: 0;
 }

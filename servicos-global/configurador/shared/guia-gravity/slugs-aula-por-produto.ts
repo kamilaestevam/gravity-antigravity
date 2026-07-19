@@ -47,9 +47,7 @@ export const SLUGS_AULA_POR_PRODUTO_GUIA: Readonly<Record<string, readonly strin
     'bid-frete-entendendo',
     'bid-frete-insights',
     'bid-frete-lista',
-    'bid-frete-tipos-cotacao',
-    'bid-frete-nova-cotacao',
-    'bid-frete-painel-cotacao',
+    'bid-frete-cotacao-frete-internacional',
     'bid-frete-configuracoes',
   ],
   'smart-read': [

@@ -10,6 +10,9 @@ import {
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { MANUAL_ESPACO_ENTRE_PASSOS_PX, MANUAL_ESPACO_PARAGRAFO_PX } from './manual-tipografia'
 
+/** Vão ícone ↔ rótulo na legenda de escopo (Nova cotação — §4.01). */
+const LEGENDA_ESCOPO_GAP_ICONE_TEXTO_PX = 16
+
 export type ManualBidFreteEscopoOperacaoId = 'importacao' | 'exportacao'
 export type ManualBidFreteEscopoModalId = 'maritimo' | 'aereo' | 'rodoviario'
 
@@ -296,7 +299,8 @@ function ManualBidFreteLegendaEscopoLinha<T extends string>({
     <div style={{
       display: 'grid',
       gridTemplateColumns: '26px minmax(88px, 120px) minmax(0, 1fr)',
-      gap: '8px 10px',
+      columnGap: LEGENDA_ESCOPO_GAP_ICONE_TEXTO_PX,
+      rowGap: 8,
       alignItems: 'center',
     }}>
       <ManualBidFreteLegendaEscopoIconePreview icone={icone} ativo />
@@ -320,7 +324,12 @@ function ManualBidFreteLegendaEscopoLinha<T extends string>({
 }
 
 /** Legenda fixa dos ícones de escopo — exibir uma vez no início do capítulo Nova cotação. */
-export function ManualBidFreteInfograficoLegendaEscopoIcones() {
+export function ManualBidFreteInfograficoLegendaEscopoIcones({
+  semMargemInferior = false,
+}: {
+  /** Academy: ritmo externo vem do PlayerAula (32px) — sem margin-bottom interno. */
+  semMargemInferior?: boolean
+}) {
   return (
     <div
       role="region"
@@ -330,7 +339,7 @@ export function ManualBidFreteInfograficoLegendaEscopoIcones() {
         border: '1px solid rgba(129,140,248,.18)',
         borderRadius: 14,
         padding: '16px 18px 14px',
-        marginBottom: MANUAL_ESPACO_ENTRE_PASSOS_PX,
+        marginBottom: semMargemInferior ? 0 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
         boxShadow: '0 8px 28px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.03)',
       }}
     >

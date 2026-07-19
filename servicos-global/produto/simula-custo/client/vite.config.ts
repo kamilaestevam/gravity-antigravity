@@ -45,6 +45,11 @@ export default defineConfig({
       allow: [monorepoRoot],
     },
     proxy: {
+      // Cadastros (NCM universal) — paridade bid-frete-internacional/client
+      '/api/v1/cadastros': {
+        target: 'http://localhost:8031',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://localhost:8020',
         changeOrigin: true,

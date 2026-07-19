@@ -22,13 +22,16 @@ function aulaBidFrete(
   titulo: string,
   duracao: string,
   fluxoIndices: number[],
-  opcoes?: { incluirIntroSecao?: boolean; ocultarCabecalhoNavSumario?: boolean },
+  opcoes?: { incluirIntroSecao?: boolean; ocultarCabecalhoNavSumario?: boolean; cabecalhoH1?: boolean },
 ): AulaDemo {
   const blocos = blocosDeSecaoConfiguradorAcademy(DOC_BID_FRETE_SECAO, {
     ...OPCOES_BID_FRETE,
     incluirIntroSecao: opcoes?.incluirIntroSecao ?? false,
     fluxoIndices,
   })
+  if (opcoes?.cabecalhoH1 && !opcoes.incluirIntroSecao) {
+    blocos.unshift({ tipo: 'heading', dados: { text: titulo, nivel: 1 } })
+  }
   return {
     slug,
     titulo,
@@ -43,9 +46,7 @@ export const BID_FRETE_AULA_SLUGS = [
   'bid-frete-entendendo',
   'bid-frete-insights',
   'bid-frete-lista',
-  'bid-frete-tipos-cotacao',
-  'bid-frete-nova-cotacao',
-  'bid-frete-painel-cotacao',
+  'bid-frete-cotacao-frete-internacional',
   'bid-frete-configuracoes',
 ] as const
 
@@ -71,27 +72,16 @@ export const AULAS_BID_FRETE: AulaDemo[] = [
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[3],
-    FLUXOS[4]?.tituloSumario ?? 'Tipos de cotação',
-    '8m',
-    [4],
+    'Cotação de frete internacional',
+    '52m',
+    [4, 5, 6, 7, 8],
+    { cabecalhoH1: true },
   ),
   aulaBidFrete(
     BID_FRETE_AULA_SLUGS[4],
-    FLUXOS[5]?.tituloSumario ?? 'Nova cotação',
-    '32m',
-    [5],
-  ),
-  aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[5],
-    FLUXOS[6]?.tituloSumario ?? 'Painel da cotação',
-    '12m',
-    [6],
-  ),
-  aulaBidFrete(
-    BID_FRETE_AULA_SLUGS[6],
-    FLUXOS[9]?.tituloSumario ?? 'Configurações',
+    FLUXOS[11]?.tituloSumario ?? 'Configurações',
     '14m',
-    [9],
+    [11],
   ),
 ]
 

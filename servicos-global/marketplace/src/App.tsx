@@ -7,6 +7,7 @@ import { ProdutoDetalhe } from './pages/produto/ProdutoDetalhe'
 import { Precos } from './pages/Precos'
 import { Trial } from './pages/Trial'
 import { Checkout } from './pages/Checkout'
+import DevCapturaHistoricoSmartDocs from './pages/DevCapturaHistoricoSmartDocs'
 import { ComingSoon } from './pages/ComingSoon'
 import { isLancado } from './launch'
 
@@ -39,6 +40,7 @@ export function App() {
           <Route path="/precos" element={<Precos />} />
           <Route path="/trial" element={<Trial />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/dev/captura-smart-docs-historico" element={<DevCapturaHistoricoSmartDocs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

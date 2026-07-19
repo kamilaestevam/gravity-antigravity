@@ -261,6 +261,12 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConf
       }
 
       return { assinatura, configuracao, workspaces_habilitados: workspacesAtivos.length }
+    }, {
+      // Orgs com muitos workspaces (16+ em dev) estouram o timeout default de
+      // 5s do Prisma no loop de upserts — a transação fecha e a query seguinte
+      // falha com "Transaction not found" (TASK-000425).
+      timeout: 60_000,
+      maxWait: 10_000,
     })
 
     // PORTÃO 3 auto-sync (CP6) — propaga chaves para Standards/Fornecedores

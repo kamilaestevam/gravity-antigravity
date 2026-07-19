@@ -2,7 +2,7 @@
  * Tela de match — arrastar documentos entre cotações; criar/excluir grupos.
  */
 import { useCallback, useMemo, useState } from 'react'
-import { ArrowsLeftRight, DotsSixVertical, Plus, Trash, Sparkle } from '@phosphor-icons/react'
+import { ArrowsLeftRight, HandGrabbing, Plus, Trash, Sparkle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { LeituraParaConversaoCotacaoBidFrete } from '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
 import {
@@ -123,6 +123,8 @@ export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
                       key={id}
                       className={`sr-prefill-bid-match-item${idArrastando === id ? ' sr-prefill-bid-match-item--arrastando' : ''}`}
                       draggable
+                      title="Arrastar para outra cotação"
+                      aria-label={`Arrastar ${doc.rotulo}`}
                       onDragStart={(e) => {
                         e.dataTransfer.setData(TIPO_DRAG, id)
                         e.dataTransfer.effectAllowed = 'move'
@@ -133,7 +135,12 @@ export function TelaMatchDocumentosPrefillCotacaoBidFreteSmartRead({
                         setIdGrupoSobre(null)
                       }}
                     >
-                      <DotsSixVertical className="sr-prefill-bid-match-handle" size={16} weight="bold" aria-hidden />
+                      <HandGrabbing
+                        className="sr-prefill-bid-match-handle"
+                        size={18}
+                        weight="fill"
+                        aria-hidden
+                      />
                       <div className="sr-prefill-bid-match-item-texto">
                         <div className="sr-prefill-bid-match-item-titulo">{doc.rotulo}</div>
                         <div className="sr-prefill-bid-match-item-resumo">{doc.resumo}</div>

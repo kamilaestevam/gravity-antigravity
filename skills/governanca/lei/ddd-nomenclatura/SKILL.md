@@ -223,6 +223,7 @@ Quando a operação de negócio do projeto é majoritariamente PT-BR e o conceit
 |---|---|---|---|
 | `UsuarioTipo` | `SUPER_ADMIN`, `ADMIN`, `MASTER`, `PADRAO`, `FORNECEDOR` | implícito (legado pré-skill) | "PADRAO"/"FORNECEDOR" são termos PT-BR sem equivalente direto e curto em inglês |
 | `StatusUsuario` (persistido + CONVIDADO derivado) | `ATIVO`, `INATIVO` (banco) + `CONVIDADO` (runtime) | dono 2026-05-12 | Consistência com `UsuarioTipo` (mesma família Usuario). Persistido em `Usuario.status_usuario` desde migration `20260512_status_usuario`. CONVIDADO continua derivado de `id_clerk_usuario.startsWith('pending_')` |
+| Enums do Estimativa Custo (`TipoOperacaoEstimativaCusto`, `DetalheOperacaoEstimativaCusto`, `StatusEstimativaCusto`, `TipoCobrancaEstimativaCusto`, `TipoDocumentoEstimativaCusto`) | `IMPORTACAO`, `EXPORTACAO`, `DIRETA`, `CONTA_ORDEM`, `ENCOMENDA`, `COMERCIAL_EXPORTADORA`, `EM_CRIACAO`, `CRIADA`, `ARQUIVADA`, `PROCESSO`, `CONTAINER`, `CAIXA`, `PEDIDO_COMPRA`, `PEDIDO_VENDA`, `PROFORMA`, `OUTRO` etc. | dono 2026-07-18 (TASK-000425) | Termos COMEX de operação brasileira ("conta e ordem", "encomenda", "proforma") sem equivalente curto em inglês; consistência interna do produto simula-custo. `TipoTributoEstimativaCusto` (`II`, `IPI`, `PIS`, `COFINS`, `ICMS`) são siglas fiscais BR, não tradução |
 
 **Regra para futuras exceções:** sempre que um novo enum cair nesse padrão (PT-BR), registrar nesta tabela com data + motivo. Próximo agente DDD não deve "corrigir" sem checar.
 

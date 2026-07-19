@@ -147,7 +147,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         telas: [
           fig(
             'configuracoes_formato_data',
-            'Abra **Configurações → Colunas → Formato de Data**. Escolha o padrão de exibição — **DD/MM/AAAA**, **MM/DD/AAAA**, **AAAA-MM-DD** e demais formatos — para datas na **Lista**, inputs de edição e exportações.',
+            'Abra **Configurações → Colunas → Formato de Data**.',
           ),
         ],
         calloutApos: {

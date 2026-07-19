@@ -17,6 +17,7 @@ import {
 } from './snapshot-leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
 import { normalizarLeitura, type OrigemLeitura, type TransacaoLeitura } from '../schemas/leitura-smart-read.js'
+import { transacaoLeituraEhOrfaSmartRead } from '../../../shared/transacao-leitura-orfa-smart-read.js'
 
 export type ParametrosListaLeituras = {
   companyId: string
@@ -172,6 +173,30 @@ async function listarViaProgressoGravity(
   }
 }
 
+/**
+ * Transações do workspace exclusivamente via Gravity DB (snapshot + progresso) —
+ * zero chamadas ao legado DATI. Alimenta GET /leituras/agregado-workspace
+ * (saving acumulado, mediana de análise) sem a paginação da listagem legada.
+ */
+export async function listarTransacoesGravityWorkspaceSmartRead(
+  prisma: PrismaClient | undefined,
+  idWorkspace: string,
+): Promise<TransacaoLeitura[]> {
+  if (!idWorkspace) return []
+
+  const viaProgresso = await listarViaProgressoGravity(prisma, idWorkspace)
+  const viaSnapshot = await listarViaSnapshotGravity(prisma, idWorkspace)
+
+  const mapa = new Map<string, TransacaoLeitura>()
+  for (const item of [...viaSnapshot, ...viaProgresso]) {
+    inserirTransacaoNoMapa(mapa, item)
+  }
+
+  return [...mapa.values()]
+    .filter((item) => !transacaoLeituraEhOrfaSmartRead(item))
+    .sort((a, b) => (b.data_envio ?? '').localeCompare(a.data_envio ?? ''))
+}
+
 export async function montarListaTransacoesLeituraSmartRead(
   params: ParametrosListaLeituras,
 ): Promise<{ transacoes: TransacaoLeitura[]; total: number }> {
@@ -220,6 +245,7 @@ export async function montarListaTransacoesLeituraSmartRead(
   )
   transacoes = filtrarPorTermo(transacoes, params.termo_busca)
   transacoes = filtrarPorOrigem(transacoes, params.origem_leitura)
+  transacoes = transacoes.filter((item) => !transacaoLeituraEhOrfaSmartRead(item))
 
   const totalFiltrado = transacoes.length
   const total =

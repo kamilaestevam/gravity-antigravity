@@ -25,13 +25,11 @@ import { useShellStore } from '@gravity/shell'
 import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 
 import {
-
   criarArquivoLocalNovaLeitura,
-
   criarArquivosLocaisDeLeitura,
   arquivoLocalTemBlobVisualizavel,
   consolidarLeituraDeArquivosLocais,
-
+  aplicarLeituraApiNosArquivosLocais,
   todosArquivosAnaliseCompleta,
   algumArquivoEmAnalise,
   todosArquivosProcessamentoFinalizado,
@@ -49,7 +47,11 @@ import {
   persistirProgressoLeituraUrgenteSmartRead,
   type EstadoSalvoLeitura,
 } from '../../shared/persistencia-leitura-smart-read'
-import { montarEstadoProgressoLeituraSmartRead } from '../../shared/montar-estado-progresso-leitura-smart-read'
+import {
+  diagnosticarEstadoProgressoLeituraSmartRead,
+  montarEstadoProgressoLeituraSmartRead,
+  type MotivoEstadoProgressoNaoMontavelSmartRead,
+} from '../../shared/montar-estado-progresso-leitura-smart-read'
 import type { Leitura } from '../../shared/schemas'
 import { resolverPassoRetomarLeituraSmartRead } from '../../../../shared/resolver-passo-retomar-leitura-smart-read.js'
 import {
@@ -68,6 +70,7 @@ import {
 import {
   carregarBlobArquivoLeituraSmartRead,
   removerBlobArquivoLeituraSmartRead,
+  resolverArquivoOriginalLeituraSmartRead,
   salvarBlobArquivoLeituraSmartRead,
 } from '../../shared/persistencia-blob-arquivo-leitura-smart-read'
 import {
@@ -101,17 +104,78 @@ import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arqui
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
+import type { PayloadContinuarPrefillCotacaoBidFreteSmartRead } from './painel-revisao-prefill-cotacao-bid-frete-smart-read'
+import { buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional } from '../../shared/navegacao-cotacao-bid-frete-smart-read'
+import {
+  montarPacotePrefillCotacaoBidFreteSmartRead,
+  salvarPrefillCotacaoBidFreteSmartRead,
+} from '../../shared/persistencia-prefill-cotacao-bid-frete-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../../shared/hint-retomar-leitura-lista-smart-read.js'
 
 import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
 
 const GabiChat = lazy(() => import('@plataforma/gabi/src/Gabi'))
-
+const PainelRevisaoPrefillCotacaoBidFreteSmartRead = lazy(
+  () =>
+    import('./painel-revisao-prefill-cotacao-bid-frete-smart-read')
+      .then((mod) => ({
+        default: mod.PainelRevisaoPrefillCotacaoBidFreteSmartRead,
+      }))
+      .catch((erro) => {
+        console.error('[smart-read] falha ao carregar painel prefill BID Frete', erro)
+        return {
+          default: function PainelPrefillIndisponivel() {
+            return (
+              <p className="sr-prefill-bid-revisao-aviso" role="alert">
+                Não foi possível carregar a revisão para cotação. Recarregue a página ou abra
+                novamente pelo BID Frete → Smart Docs.
+              </p>
+            )
+          },
+        }
+      }),
+)
 
 
 const INTERVALO_POLLING_MS = 2000
 
 const LIMITE_POLLING_MS = 5 * 60 * 1000
+
+const LIMITE_SINCRONIZAR_EXTRACAO_CONTINUAR_MS = 15_000
+
+function mensagemNotificacaoEstadoProgressoNaoMontavel(
+  motivo: MotivoEstadoProgressoNaoMontavelSmartRead,
+): { title: string; message: string } {
+  switch (motivo) {
+    case 'sem_extracao':
+      return {
+        title: 'Análise ainda sincronizando',
+        message:
+          'Os dados extraídos ainda não chegaram ao navegador. Aguarde alguns segundos e toque em Continuar novamente.',
+      }
+    case 'analise_incompleta':
+      return {
+        title: 'Análise em andamento',
+        message: 'Aguarde todos os arquivos concluírem a análise antes de continuar.',
+      }
+    case 'sem_arquivos':
+      return {
+        title: 'Nenhum arquivo para conferir',
+        message: 'Envie ao menos um arquivo válido antes de avançar.',
+      }
+    case 'sem_id_leitura':
+      return {
+        title: 'Leitura não iniciada',
+        message: 'A leitura ainda não foi criada. Volte ao passo anterior e envie os arquivos.',
+      }
+    default:
+      return {
+        title: 'Não foi possível avançar',
+        message: 'O progresso não pôde ser salvo. Tente novamente em instantes.',
+      }
+  }
+}
 
 
 
@@ -143,12 +207,21 @@ type Props = {
   /** Passo vindo da Lista (status_fluxo) — placeholder até hidratar progresso. */
   passoRetomarLista?: number | null
 
+  /** Metadados da linha da Lista (nome/total) para placeholders na retomada. */
+  hintRetomarLista?: HintRetomarLeituraListaSmartRead | null
+
   onFechar: () => void
 
   onConcluido?: () => void
 
   /** Quando true (redirect do Pedido), dispara criação de pedido ao concluir passo 4. */
   origemPedido?: boolean
+
+  /** Quando true (redirect do BID Frete), revisão DE/PARA e abre Nova Cotação no passo Fornecedores. */
+  origemBidFrete?: boolean
+
+  /** BID vinculado quando o fluxo veio de Novo → BID → Smart Docs. */
+  idBidOrigem?: string | null
 
 }
 
@@ -174,13 +247,20 @@ export function ModalNovaLeituraSmartRead({
 
   passoRetomarLista = null,
 
+  hintRetomarLista = null,
+
   onFechar,
 
   onConcluido,
 
   origemPedido = false,
 
+  origemBidFrete = false,
+
+  idBidOrigem = null,
+
 }: Props) {
+  void hintRetomarLista
 
   const addNotification = useShellStore((s) => s.addNotification)
 
@@ -215,6 +295,13 @@ export function ModalNovaLeituraSmartRead({
   const riscosIniciadosRef = useRef<Set<string>>(new Set())
 
   const [enviando, setEnviando] = useState(false)
+  const [salvandoPasso, setSalvandoPasso] = useState(false)
+  const [redirecionandoCotacao, setRedirecionandoCotacao] = useState(false)
+
+  const leituraConsolidada = useMemo(
+    () => consolidarLeituraDeArquivosLocais(arquivos),
+    [arquivos],
+  )
 
   const extracaoEmAndamento = useMemo(
     () => passo >= 2 && !analiseCompleta && (enviando || algumArquivoEmAnalise(arquivos)),
@@ -255,6 +342,12 @@ export function ModalNovaLeituraSmartRead({
   const salvarProgressoRef = useRef<(passoAlvo?: number) => Promise<boolean>>(async () => false)
   const salvarProgressoEdicaoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const estadoFlushRef = useRef<{ idLeitura: string; estado: EstadoSalvoLeitura } | null>(null)
+  const prefillContinuarRef = useRef<{
+    payload: PayloadContinuarPrefillCotacaoBidFreteSmartRead
+    manterWizard: boolean
+  } | null>(null)
+  const controladorEnvioRef = useRef<AbortController | null>(null)
+  const continuandoPassoRef = useRef(false)
 
   const resolverTempoProcessoTotalMsAtual = useCallback((): number => {
     return tempoPersistidoMsRef.current + (Date.now() - inicioSessaoRef.current)
@@ -264,6 +357,7 @@ export function ModalNovaLeituraSmartRead({
     ativo.current = true
     return () => {
       ativo.current = false
+      controladorEnvioRef.current?.abort()
       if (salvarProgressoEdicaoTimeoutRef.current) {
         clearTimeout(salvarProgressoEdicaoTimeoutRef.current)
       }
@@ -430,6 +524,10 @@ export function ModalNovaLeituraSmartRead({
       setChaveSessaoTokens(null)
       riscosIniciadosRef.current.clear()
       idLeituraRetomarAnteriorRef.current = null
+      // Aborta uploads pendentes: um POST abandonado (30-90s no DATI real)
+      // seguraria a conexão e entalaria o envio da próxima tentativa.
+      controladorEnvioRef.current?.abort()
+      controladorEnvioRef.current = null
     }
     abertoAnteriorRef.current = aberto
   }, [aberto, arquivosIniciais, idLeituraExistente, iniciarRetomarLeitura, passo])
@@ -535,10 +633,12 @@ export function ModalNovaLeituraSmartRead({
     dispararAnaliseRiscosBackgroundSmartRead({
       arquivos: completos,
       idLeituraLegado: id,
-      onInicio: () => contadorIaRef.current.marcarIaAtiva(),
       onTokensAtualizados: (resumo, chamada) =>
         contadorIaRef.current.aplicarAtualizacaoTokens(resumo, chamada),
-      onConcluido: () => contadorIaRef.current.marcarIaInativa(),
+      onConcluido: () => {
+        contadorIaRef.current.marcarIaInativa()
+        void contadorIaRef.current.recarregar()
+      },
       onErro: () => contadorIaRef.current.marcarIaInativa(),
     })
   }, [analiseCompleta, passo, idLeituraAtual, arquivos])
@@ -564,22 +664,44 @@ export function ModalNovaLeituraSmartRead({
 
 
   const salvarProgressoAtual = useCallback(
-    async (passoAlvo: number = passo, nomeOverride?: string): Promise<boolean> => {
-      if (passoSalvoRef.current >= 3 && passoAlvo < passoSalvoRef.current) return false
+    async (
+      passoAlvo: number = passo,
+      nomeOverride?: string,
+      opcoes?: {
+        permitirRegressaoPasso?: boolean
+        arquivosOverride?: ArquivoLocalNovaLeitura[]
+        silencioso?: boolean
+      },
+    ): Promise<boolean> => {
+      if (
+        !opcoes?.permitirRegressaoPasso &&
+        passoSalvoRef.current >= 3 &&
+        passoAlvo < passoSalvoRef.current
+      ) {
+        return false
+      }
+      const arquivosEfetivos = opcoes?.arquivosOverride ?? arquivos
       const nomeEfetivo = (nomeOverride ?? nomeLeitura).trim() || nomeLeitura
-      const estado = montarEstadoProgressoLeituraSmartRead({
-        arquivos,
+      const paramsMontagem = {
+        arquivos: arquivosEfetivos,
         passo: passoAlvo,
         nomeLeitura: nomeEfetivo,
         idLeituraExistente,
         tempoProcessoTotalMs: resolverTempoProcessoTotalMsAtual(),
-      })
+      }
+      const motivoFalha = diagnosticarEstadoProgressoLeituraSmartRead(paramsMontagem)
+      const estado = motivoFalha ? null : montarEstadoProgressoLeituraSmartRead(paramsMontagem)
       if (!estado) {
         console.warn('[smart-read][persist] estado não montável para gravar', {
           passoAlvo,
-          arquivos: arquivos.length,
-          analiseCompleta: todosArquivosAnaliseCompleta(arquivos),
+          arquivos: arquivosEfetivos.length,
+          analiseCompleta: todosArquivosAnaliseCompleta(arquivosEfetivos),
+          motivoFalha,
         })
+        if (!opcoes?.silencioso && motivoFalha) {
+          const aviso = mensagemNotificacaoEstadoProgressoNaoMontavel(motivoFalha)
+          addNotification({ type: 'warning', title: aviso.title, message: aviso.message })
+        }
         return false
       }
       const idLeitura = estado.leitura.id_leitura
@@ -588,12 +710,14 @@ export function ModalNovaLeituraSmartRead({
       }
       const gravou = await persistirProgressoLeituraSmartRead(idLeitura, estado)
       if (!gravou) {
-        addNotification({
-          type: 'error',
-          title: 'Progresso não salvo',
-          message:
-            'Não foi possível gravar o progresso no servidor. Verifique a conexão e tente novamente antes de sair.',
-        })
+        if (!opcoes?.silencioso) {
+          addNotification({
+            type: 'error',
+            title: 'Progresso não salvo',
+            message:
+              'Não foi possível gravar o progresso no servidor. Verifique a conexão e tente novamente antes de sair.',
+          })
+        }
         return false
       }
       estadoFlushRef.current = { idLeitura, estado }
@@ -656,7 +780,13 @@ export function ModalNovaLeituraSmartRead({
         prev.map((item) => {
           if (item.id_arquivo_local !== id) return item
           if (pollAtualizacaoArquivoEquivalente(item, patch)) return item
-          return { ...item, ...patch }
+          const proximo = { ...item, ...patch }
+          // Carimba o início da análise na transição para 'analisando' (inclui
+          // retomada via polling) — base da barra de estimativa do passo 2.
+          if (proximo.status_arquivo_local === 'analisando' && proximo.inicio_analise_ms == null) {
+            proximo.inicio_analise_ms = Date.now()
+          }
+          return proximo
         }),
 
       )
@@ -878,10 +1008,20 @@ export function ModalNovaLeituraSmartRead({
         if (leitura.status_leitura === 'FAILED') {
           contadorIaRef.current.marcarIaInativa()
 
+          // Motivo real do DATI (contrato mensagem_erro) — o classificador do card
+          // traduz para linguagem humana; o texto bruto fica no console p/ suporte.
+          const mensagemReal = leitura.mensagem_erro?.trim()
+          if (mensagemReal) {
+            console.warn('[smart-read][polling] leitura FAILED no DATI', {
+              idLeitura,
+              mensagem_erro: mensagemReal,
+            })
+          }
+
           atualizarArquivo(idArquivoLocal, {
             status_arquivo_local: 'erro',
             leitura,
-            mensagem_erro: 'Falha no processamento',
+            mensagem_erro: mensagemReal || 'Falha no processamento',
           })
 
           return
@@ -933,20 +1073,44 @@ export function ModalNovaLeituraSmartRead({
 
     setPasso(2)
 
+    controladorEnvioRef.current?.abort()
+    const controlador = new AbortController()
+    controladorEnvioRef.current = controlador
 
+    for (const item of arquivos) {
+      atualizarArquivo(item.id_arquivo_local, {
+        status_arquivo_local: 'enviando',
+        progresso_envio: 0,
+      })
+    }
 
-    const pendencias = arquivos.map(async (item) => {
+    // POSTs em SÉRIE, polling em paralelo: o upload real via DATI leva 30-90s e
+    // dois multipart simultâneos no mesmo destino podem entalar o proxy
+    // (reproduzido no proxy do Vite em dev: o segundo POST nunca responde).
+    const pollings: Promise<void>[] = []
 
-      atualizarArquivo(item.id_arquivo_local, { status_arquivo_local: 'enviando' })
+    for (const item of arquivos) {
+
+      if (controlador.signal.aborted) break
 
       try {
 
-        const criada = await smartReadApi.enviarLeitura(item.arquivo)
+        const criada = await smartReadApi.enviarLeitura(item.arquivo, {
+          signal: controlador.signal,
+          // Barra «Envio dos arquivos» do passo 2 — progresso real byte a byte.
+          aoProgredirEnvio: (fracao) => {
+            atualizarArquivo(item.id_arquivo_local, {
+              progresso_envio: Math.round(fracao * 100),
+            })
+          },
+        })
 
         atualizarArquivo(item.id_arquivo_local, {
           status_arquivo_local: 'analisando',
           id_leitura: criada.id_leitura,
           id_arquivo: criada.id_arquivo,
+          progresso_envio: 100,
+          inicio_analise_ms: Date.now(),
         })
 
         registrarArquivoSessaoLeituraSmartRead(criada.id_leitura, item.arquivo, criada.id_arquivo)
@@ -959,9 +1123,18 @@ export function ModalNovaLeituraSmartRead({
           )
         }
 
-        await pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo)
+        pollings.push(
+          pollingArquivo(item.id_arquivo_local, criada.id_leitura, item.arquivo).catch((excecao) => {
+            atualizarArquivo(item.id_arquivo_local, {
+              status_arquivo_local: 'erro',
+              mensagem_erro: mensagemDeExcecao(excecao, 'Falha ao enviar arquivo'),
+            })
+          }),
+        )
 
       } catch (excecao) {
+
+        if (controlador.signal.aborted) break
 
         atualizarArquivo(item.id_arquivo_local, {
 
@@ -973,11 +1146,11 @@ export function ModalNovaLeituraSmartRead({
 
       }
 
-    })
+    }
 
 
 
-    await Promise.all(pendencias)
+    await Promise.all(pollings)
 
     if (!ativo.current) return
 
@@ -1000,16 +1173,122 @@ export function ModalNovaLeituraSmartRead({
     if (passo <= 1) return
     const anterior = passo - 1
     setPasso(anterior)
-    if (anterior >= 2) void salvarProgressoAtual(anterior)
+    if (anterior >= 2) {
+      void salvarProgressoAtual(anterior, undefined, { permitirRegressaoPasso: true, silencioso: true })
+    }
   }
 
+  const sincronizarExtracaoAntesContinuar = useCallback(async (): Promise<ArquivoLocalNovaLeitura[] | null> => {
+    const id = idLeituraAtual
+    if (!id) return null
 
+    const inicio = Date.now()
+    let arquivosAtualizados = arquivos
+
+    while (ativo.current && Date.now() - inicio <= LIMITE_SINCRONIZAR_EXTRACAO_CONTINUAR_MS) {
+      const motivo = diagnosticarEstadoProgressoLeituraSmartRead({
+        arquivos: arquivosAtualizados,
+        passo: 3,
+        nomeLeitura,
+        idLeituraExistente,
+      })
+      if (!motivo) {
+        return arquivosAtualizados
+      }
+      if (motivo !== 'sem_extracao') {
+        return null
+      }
+
+      try {
+        const leituraApi = await smartReadApi.obterLeitura(id)
+        arquivosAtualizados = aplicarLeituraApiNosArquivosLocais(arquivosAtualizados, leituraApi)
+        if (leituraTemExtracaoUtilRetomarSmartRead(consolidarLeituraDeArquivosLocais(arquivosAtualizados))) {
+          setArquivos(arquivosAtualizados)
+          return arquivosAtualizados
+        }
+        if (leituraApi.status_leitura === 'FAILED') return null
+      } catch (erro) {
+        if (import.meta.env.DEV) {
+          console.warn('[smart-read][continuar] obterLeitura ao sincronizar extração', erro)
+        }
+      }
+
+      await new Promise((resolver) => setTimeout(resolver, INTERVALO_POLLING_MS))
+    }
+
+    return null
+  }, [arquivos, idLeituraAtual, idLeituraExistente, nomeLeitura])
 
   async function handleContinuarPasso() {
-
+    if (continuandoPassoRef.current) return
     if (passo === 2 && !processamentoFinalizado) return
 
+    continuandoPassoRef.current = true
+    setSalvandoPasso(true)
+    try {
     if (passo >= 4) {
+
+      if (origemBidFrete && idLeituraAtual && leituraConsolidada) {
+        // Sem payload do painel = clique no Continuar da lateral (pular match/revisão) — bloqueado.
+        if (!prefillContinuarRef.current) {
+          addNotification({
+            type: 'warning',
+            title: 'Revise a cotação',
+            message: 'Use Revisar cotação e complete os campos antes de abrir a Nova Cotação no BID.',
+          })
+          return
+        }
+        try {
+          setRedirecionandoCotacao(true)
+          const pacoteRef = prefillContinuarRef.current
+          const payload = pacoteRef?.payload ?? await (async () => {
+            const { converterLeituraParaCotacaoBidFreteInternacional } = await import(
+              '../../../../shared/converter-leitura-para-cotacao-bid-frete-internacional-smart-read.js'
+            )
+            const conversao = converterLeituraParaCotacaoBidFreteInternacional(leituraConsolidada)
+            return {
+              prefill: conversao.prefill,
+              detalhe_mapeamento: conversao.detalhe_mapeamento,
+              campos_faltantes: conversao.campos_faltantes,
+              passo_inicial_tipo: conversao.passo_inicial_tipo,
+              iniciar_no_passo_fornecedores: conversao.iniciar_no_passo_fornecedores,
+            }
+          })()
+          const manterWizard = pacoteRef?.manterWizard === true
+          salvarPrefillCotacaoBidFreteSmartRead(
+            montarPacotePrefillCotacaoBidFreteSmartRead({
+              idLeitura: idLeituraAtual,
+              idBid: idBidOrigem,
+              prefill: payload.prefill,
+              detalheMapeamento: payload.detalhe_mapeamento,
+              passoInicialTipo: payload.passo_inicial_tipo,
+              iniciarNoPassoFornecedores: payload.iniciar_no_passo_fornecedores,
+            }),
+          )
+          prefillContinuarRef.current = null
+          const url = buildUrlNovaCotacaoPrefillSmartReadBidFreteInternacional(
+            idLeituraAtual,
+            idBidOrigem,
+          )
+          if (manterWizard) {
+            // Sem noopener: nova aba herda sessionStorage; prefill também vai em localStorage.
+            window.open(url, '_blank')
+            setRedirecionandoCotacao(false)
+            return
+          }
+          onConcluido?.()
+          await handleFechar()
+          window.location.assign(url)
+          return
+        } catch (erro) {
+          setRedirecionandoCotacao(false)
+          addNotification({
+            type: 'error',
+            title: 'Falha ao preparar cotação',
+            message: mensagemDeExcecao(erro, 'Nao foi possivel abrir a nova cotacao a partir da leitura.'),
+          })
+        }
+      }
 
       if (origemPedido && idLeituraAtual) {
         try {
@@ -1042,23 +1321,44 @@ export function ModalNovaLeituraSmartRead({
     }
 
     const proximo = passo + 1
-    const gravou = await salvarProgressoAtual(proximo)
+    let arquivosParaSalvar = arquivos
+
+    if (passo === 2 && proximo === 3) {
+      const motivoInicial = diagnosticarEstadoProgressoLeituraSmartRead({
+        arquivos,
+        passo: 3,
+        nomeLeitura,
+        idLeituraExistente,
+      })
+      if (motivoInicial === 'sem_extracao') {
+        const sincronizados = await sincronizarExtracaoAntesContinuar()
+        if (sincronizados) {
+          arquivosParaSalvar = sincronizados
+        }
+      }
+    }
+
+    const gravou = await salvarProgressoAtual(proximo, undefined, {
+      arquivosOverride: arquivosParaSalvar,
+    })
     if (!gravou) return
     setPasso(proximo)
+    } finally {
+      continuandoPassoRef.current = false
+      setSalvandoPasso(false)
+    }
 
   }
 
 
 
   const podeContinuar =
-
-    passo === 2 ? processamentoFinalizado :
-
+    !salvandoPasso &&
+    (passo === 2 ? processamentoFinalizado :
     passo === 3 ? arquivos.some((a) => a.status_arquivo_local === 'completo') :
-
-    passo === 4 ? true :
-
-    false
+    // BID Frete: avanço só via Revisar cotação / Continuar do painel (não pular o match).
+    passo === 4 ? !origemBidFrete :
+    false)
 
 
 
@@ -1151,6 +1451,7 @@ export function ModalNovaLeituraSmartRead({
           enviando={enviando}
 
           podeContinuar={podeContinuar}
+          salvandoPasso={salvandoPasso}
 
           onConfirmarNome={(nome) => {
             setNomeLeitura(nome)
@@ -1231,12 +1532,32 @@ export function ModalNovaLeituraSmartRead({
           </div>
         )}
 
-        {passo === 4 && (
-          <AreaResultadoNovaLeituraSmartRead
-            arquivos={arquivos}
-            tempoTotalMs={tempoTotalMs || resolverTempoProcessoTotalMsAtual()}
-          />
-        )}
+        {passo === 4 && origemBidFrete && leituraConsolidada ? (
+          <div className="sr-prefill-bid-passo4-coluna">
+            <Suspense fallback={<div className="sr-prefill-bid-carregando">Carregando revisão…</div>}>
+              <PainelRevisaoPrefillCotacaoBidFreteSmartRead
+                leitura={leituraConsolidada}
+                onContinuar={(payload, opcoes) => {
+                  prefillContinuarRef.current = {
+                    payload,
+                    manterWizard: opcoes?.manter_wizard_aberto === true,
+                  }
+                  void handleContinuarPasso()
+                }}
+                continuando={redirecionandoCotacao}
+              />
+            </Suspense>
+          </div>
+        ) : passo === 4 ? (
+          hidratandoRetomar || recuperandoExtracaoRetomar ? (
+            <p className="sr-conf-vazio">Carregando leitura…</p>
+          ) : (
+            <AreaResultadoNovaLeituraSmartRead
+              arquivos={arquivos}
+              tempoTotalMs={tempoTotalMs || resolverTempoProcessoTotalMsAtual()}
+            />
+          )
+        ) : null}
 
       </div>
 

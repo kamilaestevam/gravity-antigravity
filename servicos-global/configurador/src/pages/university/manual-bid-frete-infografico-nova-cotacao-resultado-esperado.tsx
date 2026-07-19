@@ -116,7 +116,7 @@ export function ManualInfograficoBidFreteNovaCotacaoResultadoEsperado() {
         color: '#e2e8f0',
         lineHeight: 1.4,
       }}>
-        Após confirmar o envio — o que conferir na Lista
+        Após confirmar o envio: o que conferir na Lista
       </p>
       <p style={{
         margin: '0 0 12px',
@@ -124,7 +124,7 @@ export function ManualInfograficoBidFreteNovaCotacaoResultadoEsperado() {
         lineHeight: 1.45,
         color: CORPO_70,
       }}>
-        <ManualInfograficoRichText texto="Exemplo ilustrativo — substitua pelo **número da cotação** e **status** reais do seu workspace." />
+        <ManualInfograficoRichText texto="Exemplo ilustrativo: substitua pelo **número da cotação** e **status** reais do seu workspace." />
       </p>
 
       <div style={{
@@ -162,7 +162,7 @@ export function ManualInfograficoBidFreteNovaCotacaoResultadoEsperado() {
           </div>
         </PainelResumo>
         <PainelResumo
-          titulo="Lista — linha da cotação"
+          titulo="Lista: linha da cotação"
           cor="#6ee7b7"
           borda="rgba(52,211,153,.32)"
           fundo="rgba(52,211,153,.08)"

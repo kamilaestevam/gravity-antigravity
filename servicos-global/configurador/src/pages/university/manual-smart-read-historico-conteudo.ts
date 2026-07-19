@@ -1,6 +1,7 @@
 /**
  * Manual Smart Docs §08 Histórico — paridade com Pedido §09 e Configurador › Histórico.
- * SSOT prints: Drive `2. Smart Docs/tela_smart_read_historico_N.png` → `smart-docs-historico-N.png`
+ * SSOT prints: Drive `2. Smart Docs/tela_smart_docs_historico.png` → `smart-docs-historico-1.png`;
+ * historico-2/3: simulador (Playwright) até existirem no Drive.
  */
 import type { DocColunaTabela, DocPassoVisual } from './manual-configurador-conteudo'
 
@@ -17,15 +18,15 @@ const SMART_READ_HISTORICO_COLUNAS: DocColunaTabela[] = [
   {
     coluna: 'Data/Hora',
     descricao: 'Momento em que o evento foi gravado (fuso da organização).',
-    detalhes: ['Ordenação decrescente — o mais recente no topo'],
+    detalhes: ['Ordenação decrescente: o mais recente no topo'],
   },
   {
     coluna: 'Ação',
-    descricao: 'O que aconteceu — ex.: **Criou**, **Atualizou**, **Excluiu**.',
+    descricao: 'O que aconteceu: ex.: **Criou**, **Atualizou**, **Excluiu**.',
   },
   {
     coluna: 'Local',
-    descricao: 'Módulo e recurso — ex.: **Smart Docs | Leitura**, **Smart Docs | Lista**.',
+    descricao: 'Módulo e recurso: ex.: **Smart Docs | Leitura**, **Smart Docs | Lista**.',
   },
   {
     coluna: 'Usuário',
@@ -33,7 +34,7 @@ const SMART_READ_HISTORICO_COLUNAS: DocColunaTabela[] = [
   },
   {
     coluna: 'Detalhes',
-    descricao: 'Resumo do que mudou — nome da leitura, status, campos alterados na conferência, etc.',
+    descricao: 'Resumo do que mudou: nome da leitura, status, campos alterados na conferência, etc.',
   },
 ]
 
@@ -66,14 +67,14 @@ export const PASSOS_MANUAL_SMART_READ_HISTORICO: DocPassoVisual[] = renumerarPas
     callout: {
       tipo: 'dica',
       texto:
-        '**Configurador › Histórico** — convites, permissões e segurança da conta. **Histórico do Smart Docs** — leituras, conferência, exclusão e demais mutações do produto.',
+        '**Configurador › Histórico**: convites, permissões e segurança da conta. **Histórico do Smart Docs**: leituras, conferência, exclusão e demais mutações do produto.',
     },
   },
   {
     titulo: 'Entender as colunas',
     tituloCurto: 'Colunas',
     paragrafos: [
-      'Cada linha é um evento gravado quando uma ação **persiste no servidor** — nova leitura, alteração na conferência, exclusão, etc.',
+      'Cada linha é um evento gravado quando uma ação **persiste no servidor**: nova leitura, alteração na conferência, exclusão, etc.',
     ],
     imagem: SCREENSHOT_SMART_DOCS_HISTORICO_TABELA,
     imagemAbaixoTexto: true,
@@ -104,20 +105,5 @@ export const PASSOS_MANUAL_SMART_READ_HISTORICO: DocPassoVisual[] = renumerarPas
       tipo: 'aviso',
       texto: 'A exportação reflete o recorte atual (filtros + página).',
     },
-  },
-  {
-    titulo: 'Paginação',
-    tituloCurto: 'Paginação',
-    paragrafos: [
-      'A listagem carrega **25 eventos por página**. Use **Anterior** e **Próxima** na base da tela.',
-    ],
-  },
-  {
-    titulo: 'O que o Histórico registra',
-    tituloCurto: 'Eventos',
-    paragrafos: [
-      'O Histórico do **Smart Docs** grava mutações relevantes: **Nova Leitura**, alterações na **Conferência**, exclusão de leituras, operações via **API** e ajustes que salvam no servidor.',
-      'Consultas puras (abrir Lista, filtrar sem salvar painel, expandir linhas) **não** geram linha de auditoria.',
-    ],
   },
 ])

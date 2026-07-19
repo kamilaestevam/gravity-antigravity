@@ -62,7 +62,7 @@ export const CATALOGO_STATUS_PADRAO_PEDIDO: StatusPedidoManual[] = [
     eh_sistema: true,
     gatilho: '**Automático** com **Qtd. atual** zerada ou ao **Consolidar** pedidos.',
     comeca: 'Pedido encerrado ou origens fundidas em novo pedido.',
-    termina: 'Estado **terminal** — sem novas movimentações.',
+    termina: 'Estado **terminal**: sem novas movimentações.',
   },
   {
     slug: 'cancelado',
@@ -71,7 +71,7 @@ export const CATALOGO_STATUS_PADRAO_PEDIDO: StatusPedidoManual[] = [
     eh_sistema: true,
     gatilho: '**Manual** na **Lista**; importação reverte só em **Rascunho**.',
     comeca: 'Pedido anulado pelo workspace.',
-    termina: 'Estado **terminal** — permanece no histórico.',
+    termina: 'Estado **terminal**: permanece no histórico.',
   },
 ]
 

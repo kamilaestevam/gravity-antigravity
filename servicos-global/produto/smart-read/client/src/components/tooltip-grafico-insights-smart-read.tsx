@@ -16,6 +16,8 @@ export type SegmentoBarraTooltipInsightsSmartRead = {
 export type ConteudoTooltipInsightsSmartRead = {
   titulo: string
   subtitulo?: string
+  explicacao?: string
+  categorias?: Array<{ rotulo: string; texto: string; cor?: string }>
   total?: ReactNode
   totalRotulo?: string
   barra?: SegmentoBarraTooltipInsightsSmartRead[]
@@ -45,16 +47,23 @@ const LIMIAR_ACIMA = 92
 export function TooltipGraficoInsightsSmartRead({
   ancora,
   conteudo,
+  posicaoPreferida = 'auto',
 }: {
   ancora: AncoraTooltipInsightsSmartRead
   conteudo: ConteudoTooltipInsightsSmartRead
+  posicaoPreferida?: 'auto' | 'abaixo' | 'acima'
 }) {
   const larguraViewport = typeof window !== 'undefined' ? window.innerWidth : 1200
   const left = Math.min(
     Math.max(ancora.cx, MARGEM_HORIZONTAL),
     Math.max(MARGEM_HORIZONTAL, larguraViewport - MARGEM_HORIZONTAL),
   )
-  const acima = ancora.yTopo > LIMIAR_ACIMA
+  const acima =
+    posicaoPreferida === 'acima'
+      ? true
+      : posicaoPreferida === 'abaixo'
+        ? false
+        : ancora.yTopo > LIMIAR_ACIMA
 
   return createPortal(
     <div
@@ -68,6 +77,10 @@ export function TooltipGraficoInsightsSmartRead({
           <span className="sr-insights-tt__sub">{conteudo.subtitulo}</span>
         )}
       </div>
+
+      {conteudo.explicacao != null && (
+        <p className="sr-insights-tt__explicacao">{conteudo.explicacao}</p>
+      )}
 
       {conteudo.total != null && (
         <div className="sr-insights-tt__total">
@@ -95,6 +108,23 @@ export function TooltipGraficoInsightsSmartRead({
           </strong>
         </div>
       ))}
+
+      {conteudo.categorias != null && conteudo.categorias.length > 0 && (
+        <div className="sr-insights-tt__categorias">
+          <p className="sr-insights-tt__categorias-titulo">Como classificamos</p>
+          {conteudo.categorias.map((item) => (
+            <div className="sr-insights-tt__categoria" key={item.rotulo}>
+              <span className="sr-insights-tt__categoria-rotulo">
+                {item.cor != null && (
+                  <i style={{ background: item.cor }} aria-hidden />
+                )}
+                {item.rotulo}
+              </span>
+              <span className="sr-insights-tt__categoria-texto">{item.texto}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>,
     document.body,
   )

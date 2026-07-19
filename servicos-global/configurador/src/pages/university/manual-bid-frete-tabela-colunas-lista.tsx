@@ -19,7 +19,7 @@ export function ManualBidFreteTabelaCatalogoColunasLista() {
       marginTop={12}
       mostrarEdicaoSimples
       prefixoNivelGrupo="Cotação"
-      rodape={`${TOTAL_COLUNAS_PADRAO_LISTA_BID_FRETE} colunas abrem no painel Padrão. Em BIDs agrupados, edite na linha filha — a linha pai do pacote e as linhas de proposta do fornecedor não aceitam edição inline. Colunas personalizadas criadas em Configurações são editáveis exceto quando o tipo é fórmula.`}
+      rodape={`${TOTAL_COLUNAS_PADRAO_LISTA_BID_FRETE} colunas abrem no painel Padrão. Em BIDs agrupados, edite na linha filha: a linha pai do pacote e as linhas de proposta do fornecedor não aceitam edição inline. Colunas personalizadas criadas em Configurações são editáveis exceto quando o tipo é fórmula.`}
     />
   )
 }

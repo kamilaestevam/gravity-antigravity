@@ -224,7 +224,7 @@ export const DOC_API_COCKPIT_SECAO: DocSecao = {
         callout: {
           tipo: 'aviso',
           texto:
-            '**Em construção:** cadastro, secret e botão **Testar** já funcionam. Os eventos automáticos de negócio (`pedido.criado`, `cotacao.aprovada`, etc.) ainda **não disparam sozinhos** quando algo acontece na plataforma — use **Testar** para validar sua URL; para integrar de fato, use **Token + API**.',
+            '**Em construção:** cadastro, secret e botão **Testar** já funcionam. Os eventos automáticos de negócio (`pedido.criado`, `cotacao.aprovada`, etc.) ainda **não disparam sozinhos** quando algo acontece na plataforma: use **Testar** para validar sua URL; para integrar de fato, use **Token + API**.',
         },
       },
       mostrarInfograficoApiCockpitWebhookVsApi: true,

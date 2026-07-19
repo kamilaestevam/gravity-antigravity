@@ -18,7 +18,15 @@ import {
   obterLeituraLegado,
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
-import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import {
+  listarTransacoesGravityWorkspaceSmartRead,
+  montarListaTransacoesLeituraSmartRead,
+} from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import { calcularSavingAgregadoTransacoesSmartRead } from '../../../shared/calcular-saving-agregado-transacoes-smart-read.js'
+import {
+  calcularMedianaTempoAnaliseMsSmartRead,
+  resolverDataInicioHistoricoSmartRead,
+} from '../../../shared/agregar-historico-workspace-leitura-smart-read.js'
 import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
 import { tentarRecuperarVinculoLeituraWorkspaceSmartRead } from '../lib/assegurar-vinculo-leitura-workspace-smart-read.js'
 import {
@@ -37,14 +45,17 @@ import {
   leituraTemConferenciaGravity,
   mesclarLeituraComConferenciaGravity,
 } from '../lib/mesclar-leitura-conferencia-gravity-smart-read.js'
+import { leituraTemExtracaoUtilRetomarSmartRead } from '../../../shared/leitura-sem-extracao-retomar-smart-read.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
+  AgregadoWorkspaceLeituraRespostaSchema,
   CriarLeituraRespostaSchema,
   LeituraSchema,
   ListarTransacoesRespostaSchema,
   MetricaLeituraRespostaSchema,
   OrigemLeituraEnum,
   normalizarLeitura,
+  type AgregadoWorkspaceLeituraResposta,
 } from '../schemas/leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import { CriarPedidoDeLeituraSmartReadRequestSchema } from '../../../shared/conversao-leitura-pedido-smart-read-schema.js'
@@ -131,6 +142,68 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
   }
 })
 
+/**
+ * Cache in-memory do agregado (TTL curto): absorve o polling do wizard e as
+ * recargas da Lista sem repetir a consulta no Postgres a cada requisição.
+ */
+const TTL_CACHE_AGREGADO_MS = 30_000
+const cacheAgregadoWorkspace = new Map<string, { expiraEm: number; resposta: AgregadoWorkspaceLeituraResposta }>()
+
+function lerCacheAgregadoWorkspace(chave: string): AgregadoWorkspaceLeituraResposta | null {
+  const entrada = cacheAgregadoWorkspace.get(chave)
+  if (!entrada) return null
+  if (Date.now() > entrada.expiraEm) {
+    cacheAgregadoWorkspace.delete(chave)
+    return null
+  }
+  return entrada.resposta
+}
+
+function gravarCacheAgregadoWorkspace(chave: string, resposta: AgregadoWorkspaceLeituraResposta): void {
+  if (cacheAgregadoWorkspace.size > 500) cacheAgregadoWorkspace.clear()
+  cacheAgregadoWorkspace.set(chave, { expiraEm: Date.now() + TTL_CACHE_AGREGADO_MS, resposta })
+}
+
+// Saving acumulado + mediana de análise do workspace, 100% Postgres Gravity.
+// Substitui a paginação da listagem DATI que o client fazia a cada 30s
+// (tempestade que saturava conexões e estrangulava o upload do wizard).
+router.get('/agregado-workspace', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  try {
+    const idOrganizacao = organizacaoDaRequisicao(req)
+    idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+
+    const chaveCache = `organizacao:${idOrganizacao}:workspace:${idWorkspace}:agregado-leituras`
+    const emCache = lerCacheAgregadoWorkspace(chaveCache)
+    if (emCache) {
+      res.json(emCache)
+      return
+    }
+
+    const transacoes = await listarTransacoesGravityWorkspaceSmartRead(req.prisma, idWorkspace)
+    const agregado = calcularSavingAgregadoTransacoesSmartRead(transacoes)
+
+    const resposta = AgregadoWorkspaceLeituraRespostaSchema.parse({
+      transacoes,
+      total_documentos: agregado.totalDocumentos,
+      saving_total_minutos: agregado.minutos,
+      saving_total_brl: agregado.brl,
+      leituras_com_saving: agregado.leiturasComSaving,
+      data_inicio_historico: resolverDataInicioHistoricoSmartRead(
+        transacoes.map((item) => item.data_envio),
+      ),
+      tempo_mediano_analise_ms: calcularMedianaTempoAnaliseMsSmartRead(
+        transacoes.map((item) => item.tempo_processo_total_ms),
+      ),
+    })
+
+    gravarCacheAgregadoWorkspace(chaveCache, resposta)
+    res.json(resposta)
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
@@ -158,6 +231,32 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
 })
 
 router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+  // Se o navegador desistir antes do upload concluir, cancela o DATI e remove a leitura
+  // criada sem arquivo — evita órfãs (inclusive do retry silencioso em falha de rede).
+  const controladorClienteDesistiu = new AbortController()
+  let idLeituraCriado: string | null = null
+  let companyIdLegado: string | null = null
+  let uploadArquivoConcluido = false
+
+  async function limparLeituraOrfaSeNecessario(motivo: string): Promise<void> {
+    if (uploadArquivoConcluido || !idLeituraCriado || !companyIdLegado) return
+    try {
+      await excluirLeituraLegado(companyIdLegado, idLeituraCriado)
+    } catch (erro) {
+      console.warn('[smart-read][upload] falha ao limpar leitura orfa apos desistencia do cliente', {
+        idLeitura: idLeituraCriado,
+        motivo,
+        erro: erro instanceof Error ? erro.message : erro,
+      })
+    }
+  }
+
+  res.on('close', () => {
+    if (res.writableEnded) return
+    controladorClienteDesistiu.abort()
+    void limparLeituraOrfaSeNecessario('cliente_desconectou')
+  })
+
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
     const idUsuario = idUsuarioDaRequisicao(req)
@@ -166,14 +265,20 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
       throw new AppError('Arquivo obrigatorio (campo multipart "arquivo")', 400, 'ARQUIVO_AUSENTE')
     }
 
-    const companyId = await resolverCompanyLegado(idOrganizacao)
-    const idLeitura = await criarLeituraLegado(companyId)
+    companyIdLegado = await resolverCompanyLegado(idOrganizacao)
+    idLeituraCriado = await criarLeituraLegado(companyIdLegado, controladorClienteDesistiu.signal)
     const nomeArquivo = corrigirEncodingNomeArquivoSmartRead(req.file.originalname) ?? req.file.originalname
-    const idArquivo = await enviarArquivoLegado(companyId, idLeitura, {
-      buffer: req.file.buffer,
-      nome: nomeArquivo,
-      mimeType: req.file.mimetype,
-    })
+    const idArquivo = await enviarArquivoLegado(
+      companyIdLegado,
+      idLeituraCriado,
+      {
+        buffer: req.file.buffer,
+        nome: nomeArquivo,
+        mimeType: req.file.mimetype,
+      },
+      controladorClienteDesistiu.signal,
+    )
+    uploadArquivoConcluido = true
 
     if (req.prisma) {
       try {
@@ -182,11 +287,11 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
           idOrganizacao,
           idUsuario,
           idWorkspace,
-          idLeitura,
+          idLeitura: idLeituraCriado,
         })
       } catch (erro) {
         console.error('[smart-read][vinculo] POST criou leitura no legado mas vínculo Postgres falhou — GET heal-on-read', {
-          idLeitura,
+          idLeitura: idLeituraCriado,
           idWorkspace,
           erro,
         })
@@ -194,12 +299,13 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     }
 
     const resposta = CriarLeituraRespostaSchema.parse({
-      id_leitura: idLeitura,
+      id_leitura: idLeituraCriado,
       id_arquivo: idArquivo,
       status_leitura: 'PROCESSING',
     })
     res.status(202).json(resposta)
   } catch (err) {
+    await limparLeituraOrfaSeNecessario('erro_no_upload')
     next(err)
   }
 })
@@ -296,7 +402,10 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
             idUsuario,
             idWorkspace,
           )
-          if (doProgresso) {
+          // Só mescla progresso com extração real (conferência do usuário).
+          // O placeholder de vínculo (status PROCESSING, zero arquivos) rebaixava
+          // o COMPLETED do legado e o polling nunca concluía (regressão do #802).
+          if (doProgresso && leituraTemExtracaoUtilRetomarSmartRead(doProgresso)) {
             leitura = mesclarLeituraComConferenciaGravity(leitura, doProgresso)
           }
         }

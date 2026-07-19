@@ -10,9 +10,26 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 424,
+  "proximo_numero": 425,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
+    {
+      "referencia": "TASK-000424",
+      "ordinal": 146,
+      "titulo_canonico": "SMTRD-LISTA-MEL-SAVING-POSTGRES-ERRO-PROGRESSO",
+      "titulo_exibicao": "TASK-000424 | [Smart Docs] Lista+Wizard | MEL — Saving via Postgres, guarda de listagem, contrato mensagem_erro e progresso honesto",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "LISTA-WIZARD",
+      "tipo_entrega": "MEL",
+      "data_criacao": "2026-07-17T21:30:00.000Z",
+      "arquivo_ficha": null,
+      "resumo": null,
+      "visualizacao": null,
+      "tokens_estimados_total": null,
+      "data_encerramento": null,
+      "tempo_liquido_horas": null
+    },
     {
       "referencia": "TASK-000423",
       "ordinal": 145,

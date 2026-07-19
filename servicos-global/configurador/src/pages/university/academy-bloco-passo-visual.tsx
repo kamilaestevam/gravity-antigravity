@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { Link } from 'react-router-dom'
 import { Eye, EyeSlash, Lightbulb, Warning } from '@phosphor-icons/react'
 import type { DocPassoVisual } from './manual-configurador-conteudo'

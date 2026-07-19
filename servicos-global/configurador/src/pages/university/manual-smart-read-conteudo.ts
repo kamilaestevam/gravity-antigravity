@@ -25,7 +25,12 @@ const LINK_MANUAL_API_COCKPIT = '{{link:/university-gravity/docs/api-cockpit|API
  * - tela_smart_docs_tela_insight_tooltip_1 → smart-docs-insights-tooltip-1.png (Evolução diária — tooltip)
  * - tela_smart_docs_tela_insight_tooltip_2 → smart-docs-insights-tooltip-2.png (Campos corretos × errados — tooltip)
  * - tela_smart_docs_status → smart-docs-status.png
- * - tela_smart_docs_passo_4_tela → smart-docs-nova-leitura-passo-4.png
+ * - tela_smart_resultado_4 → smart-docs-nova-leitura-passo-4.png
+ * - tela_smart_resultado_5 → smart-docs-nova-leitura-passo-4-performance.png
+ * - tela_smart_resultado_6 → smart-docs-nova-leitura-passo-4-tempo-total.png
+ * - tela_smart_resultado_7 → smart-docs-nova-leitura-passo-4-download-pacote.png
+ * - tela_smart_resultado_1 → smart-docs-nova-leitura-passo-4-selecao.png
+ * - tela_smart_resultado_2 → smart-docs-nova-leitura-passo-4-arquivos-baixados.png
  */
 const SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL = '/university/screenshots/smart-docs-tela-principal.png'
 const SCREENSHOT_SMART_DOCS_ACESSO_HUB = '/university/screenshots/smart-docs-acesso-hub.png'
@@ -155,6 +160,16 @@ const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_3_CONSULTOR_INTELIGENTE =
   '/university/screenshots/smart-docs-nova-leitura-passo-3-consultor-inteligente.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4 =
   '/university/screenshots/smart-docs-nova-leitura-passo-4.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_SELECAO =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-selecao.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_PERFORMANCE =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-performance.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_TEMPO_TOTAL =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-tempo-total.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_DOWNLOAD_PACOTE =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-download-pacote.png'
+const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ARQUIVOS_BAIXADOS =
+  '/university/screenshots/smart-docs-nova-leitura-passo-4-arquivos-baixados.png'
 const SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ALTERADO_ERRO_METRICA =
   '/university/screenshots/smart-docs-nova-leitura-passo-4-alterado-erro-metrica.png'
 function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
@@ -162,7 +177,7 @@ function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
 }
 
 export const DOC_SMART_READ_SUBTITULO =
-  'Leitura inteligente, gestão de documentos e riscos no COMEX — Insights, Lista e Nova Leitura'
+  'Leitura inteligente, gestão de documentos e riscos no COMEX: Insights, Lista e Nova Leitura'
 
 export const DOC_SMART_READ_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.1' },
@@ -182,7 +197,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
     {
       indice: 0,
       imagem: SCREENSHOT_SMART_DOCS_TELA_PRINCIPAL,
-      legenda: 'Tela principal do Smart Docs — Insights',
+      legenda: 'Tela principal do Smart Docs: Insights',
     },
   ],
   mostrarInfograficoSmartDocsOQueE: true,
@@ -205,7 +220,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagemAbaixoTexto: true,
         },
         {
-          titulo: 'Menu lateral — acesso rápido',
+          titulo: 'Menu lateral: acesso rápido',
           paragrafos: [
             'Quando tiver em outro **Produto Gravity** do mesmo **workspace**, abra o **seletor de produtos** no topo do menu lateral e escolha **Smart Docs**.',
           ],
@@ -369,13 +384,13 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Detalhamento das colunas',
           paragrafos: [
             'O menu **Colunas** oferece **260 campos nativos** (**15** na linha mãe da leitura + **245** na linha filha do documento). **15** já vêm ligados no painel **Padrão**; o restante você exibe quando precisar.',
-            'Abaixo, o catálogo completo com **edição** e **descrição** — referência antes de customizar a tabela.',
+            'Abaixo, o catálogo completo com **edição** e **descrição**: referência antes de customizar a tabela.',
           ],
           mostrarCatalogoColunasListaSmartRead: true,
           calloutAposTabelaColunasPadrao: {
             tipo: 'dica',
             texto:
-              'Todas as colunas acima vêm do **catálogo fixo** da plataforma. **15** já aparecem no painel **Padrão**; as demais você liga no menu **Colunas**. A cada leitura, o que muda é **quais** campos a IA preencheu — os vazios ficam **—** na Lista.',
+              'Todas as colunas acima vêm do **catálogo fixo** da plataforma. **15** já aparecem no painel **Padrão**; as demais você liga no menu **Colunas**. A cada leitura, o que muda é **quais** campos a IA preencheu: os vazios ficam *(vazio)* na Lista.',
           },
         },
         {
@@ -383,9 +398,9 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Expandir',
           paragrafos: [
             'Clique na **seta** à esquerda da linha para expandir.',
-            'A **linha mãe** é a leitura (ex.: Leitura 477). As **linhas filhas** são cada documento extraído nessa leitura — ex.: 3 Invoices + 1 Packing List + 1 BL = **5 linhas filhas**.',
+            'A **linha mãe** é a leitura (ex.: Leitura 477). As **linhas filhas** são cada documento extraído nessa leitura: ex.: 3 Invoices + 1 Packing List + 1 BL = **5 linhas filhas**.',
             'Na **primeira coluna** do cabeçalho da tabela, clique na **seta** ao lado do checkbox para **expandir** ou **recolher** todas as leituras visíveis na página de uma vez.',
-            'Com todas expandidas, cada leitura mostra suas linhas filhas — o mesmo efeito de abrir linha a linha, em massa.',
+            'Com todas expandidas, cada leitura mostra suas linhas filhas: o mesmo efeito de abrir linha a linha, em massa.',
           ],
           figurasAposParagrafo: [
             {
@@ -433,7 +448,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 'Abra **Colunas** na barra da tabela. **Desmarque** para **ocultar** métricas da leitura ou campos do catálogo; **marque** de volta para **exibir**.',
               calloutDepois: {
                 tipo: 'dica',
-                texto: 'A tabela atualiza na hora — só permanecem visíveis as colunas marcadas.',
+                texto: 'A tabela atualiza na hora: só permanecem visíveis as colunas marcadas.',
               },
             },
             {
@@ -441,20 +456,20 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               pilaresCustomizacao: ['03'],
               simuladorSmartReadListaArrastarColunas: true,
               fraseDemonstracaoAnimada:
-                '**Tela animada** — acompanhe a mão rearrastando os **cabeçalhos** da tabela para definir a ordem das colunas. O ciclo se repete automaticamente; você só observa, sem precisar clicar.',
+                '**Tela animada**: acompanhe a mão rearrastando os **cabeçalhos** da tabela para definir a ordem das colunas. O ciclo se repete automaticamente; você só observa, sem precisar clicar.',
               paragrafoAntes:
                 'No mesmo menu, **arraste** os itens para definir a **ordem** das colunas na tabela.',
               calloutDepois: {
                 tipo: 'dica',
                 texto:
-                  'Feche o menu ou clique fora quando terminar — as alterações ficam no painel ativo.',
+                  'Feche o menu ou clique fora quando terminar: as alterações ficam no painel ativo.',
               },
             },
           ],
           calloutAposGaleriaTabela: {
             tipo: 'dica',
             texto:
-              'Você pode ir além e **criar colunas** próprias — **texto**, **número**, **data**, **fórmula** e outros tipos — para deixar a Lista ainda mais customizada. O processo completo está em ' +
+              'Você pode ir além e **criar colunas** próprias: **texto**, **número**, **data**, **fórmula** e outros tipos: para deixar a Lista ainda mais customizada. O processo completo está em ' +
               LINK_MANUAL_SMART_READ_CONFIGURACOES +
               '.',
           },
@@ -466,7 +481,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             'Diferente da **Lista** do ' +
               LINK_MANUAL_PEDIDO_LISTA +
               ', a **Lista** do Smart Docs é **somente para visualização**: você **consulta** leituras e documentos extraídos, mas **não edita** células **in place** na tabela.',
-            'Ao passar o mouse sobre uma célula de dado, o cursor exibe **bloqueio** — círculo vermelho com traço diagonal. Para **corrigir** valores, abra a leitura pelo **Nome da leitura** e use a etapa **Conferência**.',
+            'Ao passar o mouse sobre uma célula de dado, o cursor exibe **bloqueio**: círculo vermelho com traço diagonal. Para **corrigir** valores, abra a leitura pelo **Nome da leitura** e use a etapa **Conferência**.',
           ],
           mostrarIndicadorCursorVisualizacao: true,
           indicadorCursorVisualizacaoAposParagrafo: 1,
@@ -475,7 +490,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
             callout: {
               tipo: 'dica',
               texto:
-                'Para **corrigir** dados extraídos, clique no **Nome da leitura** (link) e use o fluxo de **Conferência** — a edição não ocorre diretamente na Lista.',
+                'Para **corrigir** dados extraídos, clique no **Nome da leitura** (link) e use o fluxo de **Conferência**: a edição não ocorre diretamente na Lista.',
             },
           },
         },
@@ -483,15 +498,15 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           titulo: 'Filtro das colunas',
           tituloCurto: 'Filtro das colunas',
           paragrafos: [
-            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior — não substitui nenhum dos dois.',
+            'O **filtro de coluna** refina o que aparece na tabela **dentro** do escopo já definido pelo **seletor de workspaces** (menu lateral) e pela **busca** da barra superior: não substitui nenhum dos dois.',
             'Cada coluna expõe um **ícone de funil** no **cabeçalho**. Clique para abrir o popover: **ordenar** (crescente/decrescente), **filtrar por texto**, **marcar valores** (listas e pills) ou **intervalo numérico** (mín./máx.), conforme o tipo da coluna.',
             'Filtros ativos viram **chips** na barra da tabela, no formato *_Nome da coluna: valor_*. Passe o mouse para ver a lista completa quando houver muitos valores; **clique no chip** para reeditar; use **×** no chip para remover **só aquele** filtro. Com dois ou mais filtros, aparece *_Limpar todos_*.',
-            'Você pode **combinar** quantos filtros quiser na mesma tela — **Status** + **Tipo de documento** + **datas**, por exemplo — e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo e reutilize depois.',
+            'Você pode **combinar** quantos filtros quiser na mesma tela: **Status** + **Tipo de documento** + **datas**, por exemplo: e o recorte fica cada vez mais específico. Essas **combinações** são o que transformam um painel genérico em uma visão de qualidade: salve o recorte no **painel** ativo e reutilize depois.',
           ],
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+              'Os filtros ficam **salvos no painel ativo**: ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
           },
         },
         {
@@ -499,7 +514,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           tituloCurto: 'Excluir',
           paragrafos: [
             'Selecione a linha e use **Excluir** na barra de ações.',
-            'O modal confirma a remoção: *_Excluir 1 leitura selecionada?_* — a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
+            'O modal confirma a remoção: *_Excluir 1 leitura selecionada?_*: a ação remove a leitura e os documentos processados no Smart Docs e **não pode ser desfeita**.',
           ],
           figurasAposParagrafo: [
             {
@@ -515,21 +530,22 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           ],
           callout: {
             tipo: 'dica',
-            texto: 'Para **excluir mais de uma leitura**, marque as linhas desejadas pelo **checkbox** à esquerda e use **Excluir** — o modal confirma a quantidade selecionada.',
+            texto: 'Para **excluir mais de uma leitura**, marque as linhas desejadas pelo **checkbox** à esquerda e use **Excluir**: o modal confirma a quantidade selecionada.',
           },
         },
         {
           titulo: 'Exportar',
           tituloCurto: 'Exportar',
           paragrafos: [
-            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual — respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
-            'No modal, escolha um dos **formatos** permitidos abaixo:',
+            'Na barra da tabela, abra o menu **Exportar** para baixar o recorte atual: respeita **filtros**, **colunas visíveis** e **página** da lista virtual, no mesmo padrão dos demais produtos Gravity.',
+            'No modal, escolha um dos **formatos** abaixo. Todos usam o **mesmo recorte** da tela — só muda a extensão do arquivo.',
+            'Na sequência: **download**, **arquivos** extraídos, resumo dos **seis formatos** e **planilha** aberta.',
           ],
-          mostrarFormatosExportacaoPedidoLista: true,
-          formatosExportacaoPedidoAposParagrafo: 1,
+          mostrarInfograficoSmartDocsListaExportarFormatos: true,
+          infograficoSmartDocsListaExportarFormatosAposParagrafo: 2,
           galeriaComparacaoAposParagrafo: [
             {
-              indice: 1,
+              indice: 0,
               colunas: 1,
               textoAcimaEstiloCorpo: true,
               ampliarInferiorDireito: true,
@@ -544,11 +560,33 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_MODAL,
                   paragrafoAntes: '**Escolha** o formato no modal',
                 },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD,
                   paragrafoAntes: '**Download** imediato na sua máquina',
                 },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ARQUIVOS_BAIXADOS,
+                  paragrafoAntes:
+                    'Ex.: **arquivos** extraídos do pacote — PDF, JSON, TXT e **Excel** (.xlsx) por documento',
+                },
+              ],
+            },
+            {
+              indice: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA,
@@ -560,7 +598,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Todos os formatos (**Excel**, **CSV**, **TXT**, **XML**, **JSON** e **PDF**) usam o **mesmo recorte** da tela — só muda a extensão do arquivo. Não é necessário aguardar processamento adicional.',
+              'Não é necessário aguardar processamento adicional: o arquivo reflete exatamente o que você vê na **Lista** no momento da exportação.',
           },
         },
         {
@@ -579,7 +617,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_SETA,
                   paragrafoAntes:
-                    'A **faixa de painéis** fica abaixo da barra da tabela — troque de aba para restaurar o recorte salvo (**filtros**, **colunas** e **ordem**)',
+                    'A **faixa de painéis** fica abaixo da barra da tabela: troque de aba para restaurar o recorte salvo (**filtros**, **colunas** e **ordem**)',
                 },
               ],
             },
@@ -606,13 +644,13 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDAR,
-                  paragrafoAntes: '**03.** Confirme — o **nome** precisa ser **único** entre seus painéis',
+                  paragrafoAntes: '**03.** Confirme: o **nome** precisa ser **único** entre seus painéis',
                 },
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_LISTA_PAINEIS_NOVO_NOME_VALIDADO,
                   paragrafoAntes:
-                    '**04.** Nova aba criada — personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
+                    '**04.** Nova aba criada: personalize **filtros** e **colunas** (salva automaticamente no painel ativo)',
                 },
               ],
             },
@@ -620,7 +658,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           callout: {
             tipo: 'dica',
             texto:
-              'Os filtros ficam **salvos no painel ativo** — ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
+              'Os filtros ficam **salvos no painel ativo**: ao trocar de aba, cada painel traz seu próprio conjunto de chips. Monte recortes diferentes em painéis distintos (ex.: **Concluída + Invoice**, **Em análise + Bill of Lading**).',
           },
         },
         {
@@ -629,14 +667,14 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           imagem: SCREENSHOT_SMART_DOCS_LISTA_TRANSACOES_API,
           imagemAbaixoTexto: true,
           paragrafos: [
-            'A aba **Transações API** destaca leituras criadas pela **integração entre a Gravity e sistemas externos** — **ERP**, **sistemas de comércio exterior** e outros conectados via ' +
+            'A aba **Transações API** destaca leituras criadas pela **integração entre a Gravity e sistemas externos**: **ERP**, **sistemas de comércio exterior** e outros conectados via ' +
               LINK_MANUAL_API_COCKPIT +
               ' (`origem_leitura: API`). É o recorte ideal para reconciliar envios automáticos com o que foi feito na interface, na aba **Visão geral**.',
           ],
           calloutAposImagem: {
             tipo: 'dica',
             texto:
-              'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API — ausência de linhas aqui não significa falha da Lista inteira.',
+              'Lista vazia? Confira se a integração está ativa, se o token do API Cockpit aponta para o **workspace** correto e se já houve envio com origem API: ausência de linhas aqui não significa falha da Lista inteira.',
           },
           paragrafosAposImagem: [
             'Para **enviar um documento** do **Sistema Externo** e **receber a leitura de volta**, existem **três camadas**: **Sistema Externo** (ERP, COMEX…), **fronteira Gravity** (**API Cockpit** + token) e **Smart Docs** (IA + extração). O mapa abaixo usa um **PDF de Pedido de Compra** como exemplo.',
@@ -644,7 +682,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
               LINK_MANUAL_API_COCKPIT +
               ', o admin gera um token com **permissão de escrita** e **workspace** correto; o **Sistema Externo** faz **POST** do documento e recebe o **id da leitura**.',
             'Na **Camada C**, a **IA classifica** o arquivo e **extrai os campos** (nº pedido, itens, valores…). Para o **retorno**, o **Sistema Externo** consulta a **API** (GET) **ou** recebe um **Webhook** e então busca os dados completos com o mesmo token.',
-            '**Webhook sozinho não substitui token** — ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
+            '**Webhook sozinho não substitui token**: ele só **notifica** o Sistema Externo. A aba **Transações API** acima é a **vitrine** para conferir se os envios via API chegaram ao workspace.',
           ],
           mostrarInfograficoListaLeituraSmartReadIntegracaoApiCockpit: true,
         },
@@ -705,7 +743,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           titulo: 'Status do Smart Docs',
           tituloCurto: 'Status',
           paragrafos: [
-            'Cada leitura exibe uma **pill de Status** na coluna homônima da **Lista** — ela indica em qual **etapa do wizard** você parou (Anexar → Análise → Conferência → Resultado), distinto do processamento interno da IA.',
+            'Cada leitura exibe uma **pill de Status** na coluna homônima da **Lista**: ela indica em qual **etapa do wizard** você parou (Anexar → Análise → Conferência → Resultado), distinto do processamento interno da IA.',
             'O fluxo **começa** em **Anexar arquivo** ao clicar **+ Novo** e **termina** em **Resultado das leituras** quando você conclui o passo 4. Cada transição tem um **gatilho** (botão do wizard ou evento de erro).',
           ],
           mostrarInfograficoSmartDocsStatusFluxo: true,
@@ -1183,8 +1221,17 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
           estiloTituloWizard: true,
           paragrafos: [
             'No **Resultado**, a leitura concluída fica disponível na **Lista** e alimenta as métricas de **Insights**.',
-            'O painel resume **performance de acertos**, **tempo total** da leitura e os documentos extraídos — use **Baixar pacote docs**, **Baixar selecionados** ou **Baixar todos** para exportar.',
+            'Na **Lista**, o menu **Exportar** também permite baixar o recorte em outros formatos. Veja abaixo exemplos de **download** e **arquivos** extraídos.',
+            'Em seguida, o resumo dos **seis formatos** da Lista e a **planilha** aberta.',
           ],
+          mostrarInfograficoSmartDocsPerformanceResultado: true,
+          infograficoSmartDocsPerformanceResultadoAposGaleriaParagrafo: 0,
+          infograficoSmartDocsPerformanceResultadoAposGaleriaIndice: 0,
+          mostrarInfograficoSmartDocsListaExportarFormatos: true,
+          infograficoSmartDocsListaExportarFormatosAposParagrafo: 2,
+          mostrarInfograficoSmartDocsResultadoIntegracaoAutomatica: true,
+          infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaParagrafo: 2,
+          infograficoSmartDocsResultadoIntegracaoAutomaticaAposGaleriaIndice: 2,
           galeriaComparacaoAposParagrafo: [
             {
               indice: 0,
@@ -1195,6 +1242,66 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
                 {
                   legenda: '',
                   imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4,
+                  paragrafoDepois:
+                    'O painel **Performance de acertos** classifica os campos conferidos em **Dados validados** (acertos), **Ajustes de forma** (formatação ou equivalência, sem mudar o valor comercial) e **Corrigidos (IA)** (erros substituídos na conferência). A barra colorida resume a proporção de cada faixa.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_PERFORMANCE,
+                  calloutDepois: {
+                    tipo: 'dica',
+                    texto:
+                      'Passe o mouse sobre **cada bloco** do painel para abrir o **tooltip** com o detalhamento da categoria e os percentuais.',
+                  },
+                },
+              ],
+            },
+            {
+              indice: 1,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_TEMPO_TOTAL,
+                  paragrafoAntes:
+                    'O card **Tempo total da leitura** exibe em **HH : MM : SS** quanto durou a análise desta leitura — abaixo do relógio, a contagem de **documentos** e **campos** processados.',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_DOWNLOAD_PACOTE,
+                  paragrafoAntes:
+                    'Na seção **Resultado das leituras**, baixe o **pacote ZIP** (formato DATI) de cada documento com **Baixar pacote docs**, ou use **Baixar selecionados** / **Baixar todos** na barra inferior.',
+                  calloutDepois: {
+                    tipo: 'dica',
+                    texto:
+                      'Vários documentos na mesma leitura? Marque **Selecionar todos** e depois **Baixar selecionados** ou **Baixar todos** para exportar de uma vez.',
+                  },
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_DOWNLOAD,
+                  paragrafoAntes: '**Download** imediato na sua máquina',
+                },
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_4_ARQUIVOS_BAIXADOS,
+                  paragrafoAntes:
+                    'Ex.: **arquivos** extraídos do pacote — PDF, JSON, TXT e **Excel** (.xlsx) por documento',
+                },
+              ],
+            },
+            {
+              indice: 2,
+              colunas: 1,
+              textoAcimaEstiloCorpo: true,
+              ampliarInferiorDireito: true,
+              telas: [
+                {
+                  legenda: '',
+                  imagem: SCREENSHOT_SMART_DOCS_LISTA_EXPORTAR_PLANILHA,
+                  paragrafoAntes: 'Ex.: **Excel** (.xlsx) aberto na planilha',
                 },
               ],
             },
@@ -1217,7 +1324,7 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
       ancoraPassosPrefix: 'historico',
       mostrarMapaSubtopicosPassos: true,
       paragrafos: [
-        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Smart Docs** — filtrada automaticamente para o workspace ativo.',
+        'Pelo menu lateral inferior, **Histórico** abre a trilha de auditoria **só do Smart Docs**: filtrada automaticamente para o workspace ativo.',
         'O histórico registra **mudanças que salvam no servidor**. Navegar, filtrar ou exportar a tabela **não** gera nova linha.',
       ],
       callout: {
@@ -1225,40 +1332,6 @@ export const DOC_SMART_READ_SECAO: DocSecao = {
         texto: 'O acesso exige permissão **historico:ver** no workspace.',
       },
       passosVisuais: PASSOS_MANUAL_SMART_READ_HISTORICO,
-    },
-    {
-      titulo: 'Requisitos técnicos',
-      tituloSumario: 'Requisitos técnicos',
-      paragrafos: [
-        'Informações de **limites da plataforma** e **consumo de API** — úteis para operação, integrações e suporte quando a interface exibe **Muitas requisicoes**.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Limite de requisições (produção)',
-          paragrafos: [
-            'O backend do Smart Docs aplica **até 100 chamadas HTTP por minuto** por **organização** em produção — proteção contra abuso e picos que sobrecarregam o serviço.',
-            'Esse limite conta **requisições**, não **documentos**: uma única consulta à **Lista** pode trazer **dezenas de leituras** e, em cada linha, **vários arquivos** (Invoice, BL, Packing etc.) dentro da mesma resposta.',
-          ],
-          callout: {
-            tipo: 'aviso',
-            texto: 'Se aparecer a faixa vermelha **Muitas requisicoes**, aguarde cerca de **1 minuto**, feche abas duplicadas do Smart Docs e recarregue — o contador da organização reinicia a cada minuto.',
-          },
-        },
-        {
-          titulo: 'O que a Lista busca ao abrir',
-          paragrafos: [
-            'Ao abrir a aba **Lista**, o produto dispara **4 consultas** em sequência rápida: listagem paginada (até **50** leituras por página), métrica de leituras realizadas, histórico para o card **Recursos reduzidos** (páginas de **100** leituras) e **painéis** salvos.',
-            'Com a aba aberta, o card de saving **atualiza a cada 30 segundos** — isso também consome o limite por minuto.',
-          ],
-        },
-        {
-          titulo: 'Upload — Nova Leitura',
-          paragrafos: [
-            'No passo **Anexar**, cada arquivo enviado gera **1 requisição de upload**. Formatos: **PDF, JPG/JPEG, PNG, XML, CSV, XLS/XLSX**. Tamanho máximo: **50 MB por arquivo**.',
-            'Vários anexos na mesma leitura são permitidos; documentos distintos dentro do **mesmo PDF** são separados na extração — sem multiplicar uploads.',
-          ],
-        },
-      ]),
     },
   ],
 }

@@ -313,6 +313,12 @@ export default defineConfig(({ command }) => {
       '/api/v1/smart-read': {
         target: 'http://localhost:8033',
         changeOrigin: true,
+        // Upload real via DATI segura o POST por 30-90s. Sem estas opções o
+        // http-proxy reusa socket keep-alive que o BFF já fechou (race de 5s do
+        // Node) e o segundo POST multipart trava para sempre em "Enviando".
+        agent: false,
+        timeout: 600_000,
+        proxyTimeout: 600_000,
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')

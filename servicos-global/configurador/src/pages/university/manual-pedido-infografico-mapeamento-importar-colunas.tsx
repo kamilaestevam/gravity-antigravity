@@ -32,7 +32,7 @@ const PILARES: PilarMapeamento[] = [
   {
     num: 'B',
     rotulo: 'Valor extraído',
-    descricao: 'Amostra da **primeira linha de dados** — valide antes de confirmar.',
+    descricao: 'Amostra da **primeira linha de dados**: valide antes de confirmar.',
     icone: TextAa,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',

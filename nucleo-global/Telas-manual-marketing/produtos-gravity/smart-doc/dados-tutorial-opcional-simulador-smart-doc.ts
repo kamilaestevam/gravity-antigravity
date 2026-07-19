@@ -104,14 +104,13 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
   config: {
     id: 'config',
     titulo: 'Configurações',
-    resumo: 'Personalize cards, gráficos de Insights, tabela e colunas da lista de leituras.',
+    resumo: 'Personalize cards, tabela e colunas da lista de leituras.',
     explorar: [
-      { titulo: '1. Menu Visualizações', descricao: 'Card, Visão Geral, Tabelas e Colunas — cada seção configura um aspecto da tela', idAlvo: 'sdoc-config-sidebar' },
+      { titulo: '1. Menu Visualizações', descricao: 'Card, Tabelas e Colunas — cada seção configura um aspecto da tela', idAlvo: 'sdoc-config-sidebar' },
       { titulo: '2. Meus Cards', descricao: 'Período, preview ao vivo, ativos e disponíveis — arraste e use o olho para ocultar', idAlvo: 'sdoc-config-cards' },
-      { titulo: '3. Visão Geral', descricao: 'Escolha quais gráficos aparecem no painel de Insights', idAlvo: 'sdoc-config-visao-geral' },
-      { titulo: '4. Tabelas', descricao: 'Linhas por página e densidade da grade de leituras', idAlvo: 'sdoc-config-tabelas' },
-      { titulo: '5. Colunas', descricao: 'Crie colunas personalizadas com renomear, ocultar e excluir', idAlvo: 'sdoc-config-colunas' },
-      { titulo: '6. Abas do produto', descricao: 'Insights e Lista continuam acessíveis na barra superior', idAlvo: 'shell-aba-insights' },
+      { titulo: '3. Tabelas', descricao: 'Linhas por página e densidade da grade de leituras', idAlvo: 'sdoc-config-tabelas' },
+      { titulo: '4. Colunas', descricao: 'Crie colunas personalizadas com renomear, ocultar e excluir', idAlvo: 'sdoc-config-colunas' },
+      { titulo: '5. Abas do produto', descricao: 'Insights e Lista continuam acessíveis na barra superior', idAlvo: 'shell-aba-insights' },
     ],
     avancar: {
       acao: 'Retomar demo',

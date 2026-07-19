@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PlayerAula — Reader de aula da Gravity University.
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
  */
@@ -17,8 +17,10 @@ import {
   MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX,
+  MANUAL_ESPACO_FRASE_IMAGEM_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
+  normalizarTravessaoTextoGuia,
 } from './manual-tipografia'
 import { AcademyInfografico, AcademyOrigemDados } from './academy-infograficos'
 import { ManualGabiExemplosConversa } from './manual-gabi-exemplo-conversa'
@@ -117,7 +119,8 @@ function calcularEspacoSuperiorBlocoGuia(
     return 0
   }
 
-  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Cotação manual → BID manual).
+  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Adicionar card → Visão Geral).
+  // 12px — o rótulo roxo do próximo passo encosta na DICA anterior; 32px duplicava com CSS e abria faixa vazia.
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -125,7 +128,7 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
     && blocoAnterior !== anteriorEfetivo
   ) {
-    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    return MANUAL_ESPACO_PARAGRAFO_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
@@ -175,12 +178,6 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(bloco.dados.modo ?? 'completo') === 'passo'
   ) {
     if (blocoAnterior.dados.ocultarNoCorpo) {
-      if (
-        anteriorEfetivo?.tipo === 'fluxo_manual'
-        && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
-      ) {
-        return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-      }
       return MANUAL_ESPACO_PARAGRAFO_PX
     }
     return MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX
@@ -252,19 +249,6 @@ function calcularEspacoSuperiorBlocoGuia(
   if (classificacao === 'passo' && blocoAnterior?.tipo === 'infografico') {
     return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
   }
-  // Fim de fluxo_manual → H2 de seção irmã (ex.: Tipos → Nova cotação na aula unificada)
-  if (
-    bloco.tipo === 'heading'
-    && Number(bloco.dados.nivel ?? 1) === 2
-    && !bloco.dados.ocultarNoCorpo
-    && blocoAnterior?.tipo === 'fluxo_manual'
-  ) {
-    const modoAnterior = String(blocoAnterior.dados.modo ?? 'completo')
-    if (modoAnterior === 'passo' || modoAnterior === 'completo' || modoAnterior === 'intro') {
-      return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
-    }
-  }
-
   // Callout / visual / texto → título de fluxo (H2/H3), ex.: «Acessar organização», «Convidar usuário»
   if (classificacao === 'subtitulo' && blocoAnterior) {
     return MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX
@@ -309,13 +293,14 @@ const LINK_RICH: React.CSSProperties = {
 }
 
 function AcademyTextoRich({ texto }: { texto: string }) {
+  const textoNorm = normalizarTravessaoTextoGuia(texto)
   const partes: React.ReactNode[] = []
   const re = /(\*\*([^*]+)\*\*|\{\{link:([^|]+)\|([^}]+)\}\}|\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|\{\{icone:([a-z0-9-]+)\}\}|https:\/\/[^\s.,;:!?)\]}]+)/g
   let ultimo = 0
   let match: RegExpExecArray | null
   let ki = 0
-  while ((match = re.exec(texto)) !== null) {
-    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+  while ((match = re.exec(textoNorm)) !== null) {
+    if (match.index > ultimo) partes.push(textoNorm.slice(ultimo, match.index))
     if (match[2] !== undefined) {
       partes.push(<strong key={`b-${ki++}`} style={{ fontWeight: 700 }}>{match[2]}</strong>)
     } else if (match[3] !== undefined && match[4] !== undefined) {
@@ -347,7 +332,7 @@ function AcademyTextoRich({ texto }: { texto: string }) {
     }
     ultimo = re.lastIndex
   }
-  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  if (ultimo < textoNorm.length) partes.push(textoNorm.slice(ultimo))
   return <>{partes}</>
 }
 
@@ -1272,10 +1257,13 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 const blocoComAncora = idAncora && (bloco.tipo === 'heading' || bloco.tipo === 'passo_visual')
                   ? { ...bloco, dados: { ...bloco.dados, idAncora } }
                   : bloco
+                const classeFantasmaSumario = bloco.tipo === 'heading' && bloco.dados.ocultarNoCorpo
+                  ? ' uni-player-aula__bloco--subtitulo-fantasma'
+                  : ''
                 return (
                   <div
                     key={idx}
-                    className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}`}
+                    className={`uni-player-aula__bloco uni-player-aula__bloco--${classificarBlocoGuia(bloco)}${classeFantasmaSumario}`}
                     style={estiloBlocoGuia(bloco, idx, aula.blocos)}
                   >
                     <BlocoRenderer bloco={blocoComAncora} />

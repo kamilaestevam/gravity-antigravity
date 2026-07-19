@@ -86,6 +86,12 @@ export {
   montarMapaXpAulas,
   obterXpAula,
   pesoParaXp,
+  arredondarXpGuiaGravity,
+  somarXpGuiaGravity,
+  formatarXpGuiaGravity,
+  calcularGpGuiaGravity,
+  obterXpMaxTrilha,
+  obterXpMaxProduto,
   PESO_AULA_GUAI,
   PESO_MODULO_GUAI,
 } from './guia-gravity/pesos-academy-guia-gravity.js'

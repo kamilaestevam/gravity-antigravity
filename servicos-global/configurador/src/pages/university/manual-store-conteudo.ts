@@ -3,7 +3,7 @@ import type { DocFluxo, DocGaleriaTela, DocPassoVisual, DocSecao } from './manua
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
 const LINK_MANUAL_HUB = '{{link:/university-gravity/docs/hub|Hub}}'
-const LINK_MANUAL_HUB_ACESSO_STORE = '{{link:/university-gravity/docs/hub#doc-sec-4|acessar a Gravity Store pelo Hub}}'
+const LINK_MANUAL_HUB_ACESSO_STORE = '{{link:/university-gravity/docs/hub#doc-sec-5|acessar a Gravity Store pelo Hub}}'
 const LINK_MANUAL_ASSINATURAS = '{{link:/university-gravity/docs/configurador/assinaturas|Assinaturas}}'
 const LINK_MANUAL_ASSINATURAS_CANCELAR =
   '{{link:/university-gravity/docs/configurador/assinaturas#doc-sec-6|Cancelar assinatura}}'
@@ -51,7 +51,7 @@ const FLUXO_ACESSO_GRAVITY_STORE_GUIA: DocFluxo = {
         {
           indice: 4,
           imagem: SCREENSHOT_STORE_ACESSO_ATALHO,
-          legenda: 'Menu do usuário — Ir para Gravity Store',
+          legenda: 'Menu do usuário: Ir para Gravity Store',
         },
       ],
     },

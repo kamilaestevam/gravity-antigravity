@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Conclusão de aulas Academy — normalização de slugs legados (front + back).
  * SSOT para desbloqueio linear, certificados e ritmo.
  */

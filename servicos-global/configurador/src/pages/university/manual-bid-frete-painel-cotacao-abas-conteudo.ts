@@ -48,7 +48,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS: PassoSemNumero[] = [
     tituloCurto: 'Dados gerais',
     ocultarNoSumario: true,
     paragrafos: [
-      'Na aba **Dados gerais**, **alguns campos da cotação podem ser editados** — ajuste **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e demais identificadores da solicitação.',
+      'Na aba **Dados gerais**, **alguns campos da cotação podem ser editados**: ajuste **tipo de operação**, **modal**, **incoterm**, **visibilidade**, **datas** e demais identificadores da solicitação.',
       'Use este espaço para corrigir o escopo da cotação **antes de reenviar** aos fornecedores ou para revisar o que já foi publicado na **Solicitação de Cotação**.',
     ],
     galeriaTelasAposTabela: [

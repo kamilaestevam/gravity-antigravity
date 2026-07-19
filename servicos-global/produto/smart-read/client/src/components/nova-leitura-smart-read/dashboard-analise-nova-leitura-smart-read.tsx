@@ -41,6 +41,12 @@ function formatarTempo(totalSegundos: number): string {
   return [horas, minutos, segundos].map((n) => String(n).padStart(2, '0')).join(' : ')
 }
 
+function formatarDataHistorico(dataIso: string): string {
+  const data = new Date(dataIso)
+  if (Number.isNaN(data.getTime())) return ''
+  return data.toLocaleDateString('pt-BR')
+}
+
 export function DashboardAnaliseNovaLeituraSmartRead({
   arquivos,
   analiseCompleta,
@@ -50,8 +56,11 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 }: Props) {
   const [agora, setAgora] = useState(Date.now())
   const progressoMaximoRef = useRef<[number, number, number]>([0, 0, 0])
-  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(analiseCompleta, {
+  // Sempre habilitado: 1 chamada barata ao agregado Postgres — traz o histórico
+  // já durante a análise e a mediana que calibra a barra de estimativa.
+  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(true, {
     intervaloRecargaMs: 0,
+    gatilhoRecarga: analiseCompleta,
   })
 
   useEffect(() => {
@@ -71,7 +80,9 @@ export function DashboardAnaliseNovaLeituraSmartRead({
   }, [agora, inicioAnalise, tempoAnaliseSegundos])
   const etapas = useMemo(() => {
     const brutas = calcularProgressoEtapasAnaliseNovaLeituraSmartRead(
-      elapsedSegundos,
+      arquivos,
+      agora,
+      savingAcumulado.tempoMedianoAnaliseMs,
       analiseCompleta,
       processamentoComErro,
     )
@@ -79,15 +90,22 @@ export function DashboardAnaliseNovaLeituraSmartRead({
       return brutas
     }
 
+    // Barras nunca regridem visualmente dentro da mesma análise.
     const [max1, max2, max3] = progressoMaximoRef.current
     const maximos = [max1, max2, max3]
     const mescladas = brutas.map((etapa, indice) => {
       const progresso = Math.max(maximos[indice] ?? 0, etapa.progresso)
-      return {
-        ...etapa,
-        progresso,
-        status: progresso > 0 ? ('andamento' as const) : ('pendente' as const),
-      }
+      // Envio a 100% é conclusão REAL (bytes entregues) — pill Completo.
+      // Consolidação segura em andamento até a análise completa confirmar.
+      const status =
+        progresso >= 100
+          ? etapa.id === 3
+            ? ('andamento' as const)
+            : ('completo' as const)
+          : progresso > 0
+            ? ('andamento' as const)
+            : ('pendente' as const)
+      return { ...etapa, progresso, status }
     })
     progressoMaximoRef.current = [
       mescladas[0]?.progresso ?? 0,
@@ -95,7 +113,7 @@ export function DashboardAnaliseNovaLeituraSmartRead({
       mescladas[2]?.progresso ?? 0,
     ]
     return mescladas
-  }, [elapsedSegundos, analiseCompleta, processamentoComErro])
+  }, [arquivos, agora, savingAcumulado.tempoMedianoAnaliseMs, analiseCompleta, processamentoComErro])
 
   const progressoGeral = Math.round(
     etapas.reduce((acc, etapa) => acc + etapa.progresso, 0) / etapas.length,
@@ -225,7 +243,12 @@ export function DashboardAnaliseNovaLeituraSmartRead({
                 </span>
                 <span className="sr-wizard-acumulados-rotulo">Saving</span>
               </div>
-              <p className="sr-wizard-acumulados-rodape">Histórico do workspace</p>
+              <p className="sr-wizard-acumulados-rodape">
+                Histórico do workspace
+                {savingAcumulado.dataInicioHistorico
+                  ? ` · desde ${formatarDataHistorico(savingAcumulado.dataInicioHistorico)}`
+                  : ''}
+              </p>
             </div>
           </article>
         </div>
@@ -265,8 +288,16 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 }
 
 function EtapaPipeline({ etapa }: { etapa: EtapaAnalise }) {
+  // Barra de análise é calibrada por mediana histórica — o pill diz «Estimativa»
+  // em vez de fingir progresso medido (contagem honesta, TASK-000424).
   const rotuloStatus =
-    etapa.status === 'completo' ? 'Completo' : etapa.status === 'andamento' ? 'Em andamento' : 'Aguardando'
+    etapa.status === 'completo'
+      ? 'Completo'
+      : etapa.status === 'andamento'
+        ? etapa.estimativa
+          ? 'Estimativa'
+          : 'Em andamento'
+        : 'Aguardando'
 
   return (
     <div className={`sr-wizard-etapa-pipeline sr-wizard-etapa-pipeline--${etapa.status}`}>

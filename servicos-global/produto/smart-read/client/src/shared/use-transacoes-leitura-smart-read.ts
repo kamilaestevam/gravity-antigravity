@@ -23,6 +23,8 @@ export function filtrarTransacoesPorSegmento(
 export function useTransacoesLeituraSmartRead(
   segmento: SegmentoListaLeitura = 'envios',
   habilitado = true,
+  /** Linhas por página — Configurações › Tabelas (API aceita 1..100). */
+  limite = 50,
 ) {
   const [transacoes, setTransacoes] = useState<TransacaoLeitura[]>([])
   const [total, setTotal] = useState(0)
@@ -37,7 +39,7 @@ export function useTransacoesLeituraSmartRead(
 
   useEffect(() => {
     setPagina(1)
-  }, [segmento])
+  }, [segmento, limite])
 
   const carregar = useCallback(async () => {
     if (!habilitado) return
@@ -45,22 +47,17 @@ export function useTransacoesLeituraSmartRead(
     setErro(null)
 
     try {
-      const [lista, metrica] = await Promise.all([
-        smartReadApi.listarTransacoes({
-          pagina,
-          limite: 50,
-          termo_busca: termoAplicado || undefined,
-          origem_leitura: origemLeitura,
-        }),
-        segmento === 'envios'
-          ? smartReadApi.obterMetricaLeitura('readings').catch(() => null)
-          : Promise.resolve(null),
-      ])
+      // Métrica de leituras = total da própria listagem — a chamada dedicada a
+      // /metricas/readings refazia a listagem DATI inteira no BFF (carga dobrada).
+      const lista = await smartReadApi.listarTransacoes({
+        pagina,
+        limite,
+        termo_busca: termoAplicado || undefined,
+        origem_leitura: origemLeitura,
+      })
       setTransacoes(lista.transacoes)
       setTotal(lista.paginacao.total)
-      setMetricaLeituras(
-        segmento === 'envios' ? (metrica?.valor ?? lista.paginacao.total) : lista.paginacao.total,
-      )
+      setMetricaLeituras(lista.paginacao.total)
     } catch (exc) {
       setErro(mensagemDeExcecao(exc, 'Falha ao carregar leituras'))
       setTransacoes([])
@@ -69,7 +66,7 @@ export function useTransacoesLeituraSmartRead(
     } finally {
       setCarregando(false)
     }
-  }, [pagina, termoAplicado, origemLeitura, segmento, habilitado])
+  }, [pagina, limite, termoAplicado, origemLeitura, segmento, habilitado])
 
   useEffect(() => {
     if (!habilitado) {

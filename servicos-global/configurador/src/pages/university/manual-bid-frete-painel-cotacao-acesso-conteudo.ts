@@ -1,4 +1,4 @@
-import { screenshotBidFreteInt as S } from './manual-bid-frete-catalogo-screenshots'
+﻿import { screenshotBidFreteInt as S } from './manual-bid-frete-catalogo-screenshots'
 
 /** §7.01 — acesso ao Painel da Cotação via Lista e Insights. */
 export const GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO = [

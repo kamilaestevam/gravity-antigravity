@@ -92,7 +92,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
   tituloCurto: 'Novo pedido e item',
   paragrafos: [
     'Na **Lista**, o botão **+ Novo** abre **Novo pedido** ou **Novo item**. Cada opção oferece **quatro caminhos** para incluir registros no workspace (cards no topo desta seção). O passo a passo de cada via está nas galerias abaixo.',
-    'Além de **Novo pedido**, use **Novo item** para incluir linhas em pedidos já existentes sem abrir um PO novo. Pedidos criados por qualquer via nascem em **rascunho** — revise na Lista e altere o status para **Aberto** quando estiver pronto.',
+    'Além de **Novo pedido**, use **Novo item** para incluir linhas em pedidos já existentes sem abrir um PO novo. Pedidos criados por qualquer via nascem em **rascunho**: revise na Lista e altere o status para **Aberto** quando estiver pronto.',
   ],
   mostrarInfograficoPedidoListaImportarFormas: true,
   galeriaComparacaoAposParagrafo: [
@@ -124,7 +124,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
       indice: 1,
       legendaPasso: '01 · Importar via planilha',
       pilaresImportarFormas: ['01'],
-      tituloEtapa: '**01 — Importar via planilha (upload):**',
+      tituloEtapa: '**01: Importar via planilha (upload):**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
@@ -137,7 +137,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_TEMPLATE,
-          paragrafoAntes: '**05.** Modal **Importar Pedidos** — **Baixar template** oficial (.xlsx)',
+          paragrafoAntes: '**05.** Modal **Importar Pedidos**: **Baixar template** oficial (.xlsx)',
         },
         {
           legenda: '',
@@ -147,13 +147,13 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_ANALISANDO,
-          paragrafoAntes: '**07.** **Em breve** — análise de planilha ou PDF do fornecedor',
+          paragrafoAntes: '**07.** **Em breve**: análise de planilha ou PDF do fornecedor',
         },
       ],
     },
     {
       indice: 1,
-      tituloEtapa: '**01 — Importar via planilha (mapeamento):**',
+      tituloEtapa: '**01: Importar via planilha (mapeamento):**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
@@ -169,7 +169,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
           imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_MAPEAMENTO,
           calloutAntes: {
             tipo: 'dica',
-            texto: 'Cada linha liga uma **coluna do arquivo** a um **campo Gravity** — ajuste no dropdown se a IA errar.',
+            texto: 'Cada linha liga uma **coluna do arquivo** a um **campo Gravity**: ajuste no dropdown se a IA errar.',
           },
         },
         {
@@ -194,14 +194,14 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
           imagem: SCREENSHOT_PEDIDO_LISTA_IMPORTAR_VER_DOCUMENTO,
           calloutAntes: {
             tipo: 'dica',
-            texto: '**Ver documento** exibe o arquivo original ao lado da tabela — confira o PDF ou a planilha sem sair do modal.',
+            texto: '**Ver documento** exibe o arquivo original ao lado da tabela: confira o PDF ou a planilha sem sair do modal.',
           },
         },
       ],
     },
     {
       indice: 1,
-      tituloEtapa: '**01 — Importar via planilha (preview e resultado):**',
+      tituloEtapa: '**01: Importar via planilha (preview e resultado):**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
@@ -222,7 +222,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
           calloutAntes: {
             tipo: 'dica',
             texto:
-              'Pedido **já existente** no workspace? O card exibe aviso de **duplicata** — escolha **Sobrescrever**, **Criar novo** ou **Pular**.',
+              'Pedido **já existente** no workspace? O card exibe aviso de **duplicata**: escolha **Sobrescrever**, **Criar novo** ou **Pular**.',
           },
         },
         {
@@ -249,12 +249,12 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
       indice: 1,
       legendaPasso: '02 · Importar via API',
       pilaresImportarFormas: ['02'],
-      tituloEtapa: '**02 — Importar via API:**',
+      tituloEtapa: '**02: Importar via API:**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
       textoIntro:
-        'No modal de **Novo pedido**, escolha **Importação via API**. A integração usa tokens do **API Cockpit** — crie um token com escopo de Pedido e use-o no ERP ou no conector.',
+        'No modal de **Novo pedido**, escolha **Importação via API**. A integração usa tokens do **API Cockpit**: crie um token com escopo de Pedido e use-o no ERP ou no conector.',
       telas: [
         {
           legenda: '',
@@ -289,7 +289,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_API_COCKPIT_TOKENS_GERAR_OK,
-          paragrafoAntes: '**07.** Copie o token — ele dispara pedidos via API',
+          paragrafoAntes: '**07.** Copie o token: ele dispara pedidos via API',
         },
       ],
     },
@@ -297,7 +297,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
       indice: 1,
       legendaPasso: '03 · Importar via Smart Docs',
       pilaresImportarFormas: ['03'],
-      tituloEtapa: '**03 — Importar via Smart Docs:**',
+      tituloEtapa: '**03: Importar via Smart Docs:**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
@@ -317,7 +317,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_GERAL,
-          paragrafoAntes: '**03.** Passo 1 — visão geral do wizard',
+          paragrafoAntes: '**03.** Passo 1: visão geral do wizard',
         },
         {
           legenda: '',
@@ -332,7 +332,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_SMART_DOCS_NOVA_LEITURA_PASSO_1_ANEXADO,
-          paragrafoAntes: '**06.** Documento **anexado** — prossiga para extração',
+          paragrafoAntes: '**06.** Documento **anexado**: prossiga para extração',
         },
       ],
     },
@@ -340,7 +340,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
       indice: 1,
       legendaPasso: '04 · Criar manual',
       pilaresImportarFormas: ['04'],
-      tituloEtapa: '**04 — Criar manual (Novo pedido):**',
+      tituloEtapa: '**04: Criar manual (Novo pedido):**',
       colunas: 1,
       textoAcimaEstiloCorpo: true,
       espacoTextoFiguraPx: 12,
@@ -355,7 +355,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_PEDIDO_LISTA_NOVO_PEDIDO_MANUAL_PASSO_1,
-          paragrafoAntes: '**02.** Passo 1 — cabeçalho do pedido',
+          paragrafoAntes: '**02.** Passo 1: cabeçalho do pedido',
         },
         {
           legenda: '',
@@ -380,7 +380,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_PEDIDO_LISTA_NOVO_PEDIDO_MANUAL_PASSO_2_ITENS,
-          paragrafoAntes: '**07.** Passo 2 — **itens** do pedido',
+          paragrafoAntes: '**07.** Passo 2: **itens** do pedido',
         },
         {
           legenda: '',
@@ -426,7 +426,7 @@ export const PASSO_MANUAL_PEDIDO_LISTA_NOVO_PEDIDO: PassoSemNumero = {
         {
           legenda: '',
           imagem: SCREENSHOT_PEDIDO_LISTA_NOVO_ITEM_MANUAL_PASSO_1,
-          paragrafoAntes: '**03.** Escolha **Manual** — selecione o pedido destino',
+          paragrafoAntes: '**03.** Escolha **Manual**: selecione o pedido destino',
         },
         {
           legenda: '',

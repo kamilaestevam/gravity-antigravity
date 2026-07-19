@@ -49,7 +49,7 @@ export const FLUXO_ACESSO_GRAVITY_STORE: DocFluxo = {
           texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha *_Ir para Gravity Store_*.',
         },
         imagem: SCREENSHOT_HUB_MENU_USUARIO_STORE,
-        legenda: 'Menu do usuário — Ir para Gravity Store',
+        legenda: 'Menu do usuário: Ir para Gravity Store',
       },
     },
   ]),
@@ -240,7 +240,7 @@ export const DOC_HUB_SECAO: DocSecao = {
       titulo: 'Gabi Insights',
       tituloSumario: 'Gabi Insights',
       paragrafos: [
-        'O painel **Gabi Insights** (canto inferior direito do Hub) resume **alertas e dicas** dos **Produtos Gravity contratados** — o que merece atenção agora, sem abrir cada dashboard.',
+        'O painel **Gabi Insights** (canto inferior direito do Hub) resume **alertas e dicas** dos **Produtos Gravity contratados**: o que merece atenção agora, sem abrir cada dashboard.',
       ],
       callout: {
         tipo: 'dica',

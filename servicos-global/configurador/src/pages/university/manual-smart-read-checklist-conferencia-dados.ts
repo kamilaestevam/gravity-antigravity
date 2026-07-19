@@ -145,7 +145,7 @@ function rotuloMotor(motor: string): string {
 
 function documentosDaRegra(tipoDocumento: string, motor: string): string {
   if (motor === 'cross_doc' || motor === 'cross_doc_rag') {
-    return `${tipoDocumento} — cruza com outros documentos da mesma leitura`
+    return `${tipoDocumento}: cruza com outros documentos da mesma leitura`
   }
   return tipoDocumento
 }
@@ -167,7 +167,7 @@ function mapearRegra(
 ): LinhaChecklistManual {
   return {
     ordem,
-    oQueE: `**${regra.item}** — ${regra.tooltip_conferencia}`,
+    oQueE: `**${regra.item}**: ${regra.tooltip_conferencia}`,
     comoFeito: rotuloMotor(regra.motor),
     baseLegal: regra.base_normativa?.trim() || '—',
     resultadosPossiveis: RESULTADOS_CHECKLIST_MANUAL,

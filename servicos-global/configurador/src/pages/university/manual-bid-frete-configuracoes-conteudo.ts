@@ -86,7 +86,6 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           ),
           {
             legenda: '',
-            imagem: S('configuracoes_tabela_2'),
             paragrafoAntes:
               'Na **Lista**, a linha recebe **borda avermelhada** à esquerda quando o **Prazo para resposta** está dentro da antecedência configurada.',
             calloutDepois: {
@@ -95,12 +94,19 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
                 'A base do destaque é o campo **Prazo para resposta**: só entra no aviso se estiver preenchido, o prazo **ainda não venceu** e o tempo restante for **menor ou igual** à antecedência. **Não** destaca **Expirada**, **Cancelada**, **Aprovada** ou **Reprovada** — nos demais status, a borda aparece na **Lista**.',
             },
           },
+          {
+            legenda: '',
+            calloutAntes: {
+              tipo: 'dica',
+              texto:
+                'Clique em **Salvar** para aplicar na **Lista** aberta. Padrão: **2 horas** de antecedência.',
+            },
+          },
+          {
+            legenda: '',
+            imagem: S('configuracoes_tabela_2'),
+          },
         ],
-        calloutApos: {
-          tipo: 'dica',
-          texto:
-            'Clique em **Salvar** para aplicar na **Lista** aberta. Padrão: **2 horas** de antecedência.',
-        },
       },
     ],
   },

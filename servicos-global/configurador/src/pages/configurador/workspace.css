@@ -1,4 +1,4 @@
-/* workspace.css — Design System Gravity para área /workspace
+﻿/* workspace.css — Design System Gravity para área /workspace
    Tokens base (index.html): --color-bg, --color-surface, --color-surface-2,
    --color-border, --color-primary, --color-text, --color-text-muted,
    --color-success, --color-warning, --color-danger, --radius, --font
@@ -3391,6 +3391,11 @@ body.light-theme .cw-xml-viewer {
 /* Subtítulo do passo → infográfico UX10: 32px */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria--secao-visual,
 .uni-player-aula__bloco-passo > * + .uni-player-aula__passo-galeria--secao-visual {
+  margin-top: 32px;
+}
+
+/* Screenshot / galeria anterior → subtítulo da próxima sub-seção (rotuloPasso): 32px */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria {
   margin-top: 32px;
 }
 

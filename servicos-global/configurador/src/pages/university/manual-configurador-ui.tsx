@@ -2654,6 +2654,7 @@ function espacoSuperiorAntesTituloEtapaGaleria(
 function ritmoEntreGaleriasComparacaoPasso(
   galerias: Array<{
     tituloEtapa?: string
+    rotuloPasso?: string
     chipTransferirTituloEtapa?: string
     espacoInferiorAposEtapaPx?: number
     simuladorBidFreteModalOperacao?: boolean
@@ -2661,6 +2662,7 @@ function ritmoEntreGaleriasComparacaoPasso(
   indice: number,
   galeria: {
     tituloEtapa?: string
+    rotuloPasso?: string
     chipTransferirTituloEtapa?: string
     espacoInferiorAposEtapaPx?: number
     simuladorBidFreteModalOperacao?: boolean
@@ -2675,7 +2677,11 @@ function ritmoEntreGaleriasComparacaoPasso(
     ? false
     : espacoSuperiorAntesTituloEtapaGaleria(galerias, indice, galeria)
 
-  const quebraEtapa = Boolean(galeria.tituloEtapa?.trim() || galeria.chipTransferirTituloEtapa)
+  const quebraEtapa = Boolean(
+    galeria.tituloEtapa?.trim()
+    || galeria.rotuloPasso?.trim()
+    || galeria.chipTransferirTituloEtapa,
+  )
 
   let margemSuperiorPx: number | undefined
   if (indice > 0 && !passoAcademyIsolado) {
@@ -3091,6 +3097,16 @@ function espacoAcimaTelaGaleriaGuiaPx(
     return MANUAL_ESPACO_FRASE_IMAGEM_PX
   }
   return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+}
+
+/** Vão padrão entre screenshot anterior e `rotuloPasso` da próxima sub-seção na galeria. */
+function margemSuperiorRotuloSubsecaoGaleriaPx(
+  idxGaleria: number,
+  galeria: { rotuloPasso?: string },
+): number {
+  return idxGaleria > 0 && galeria.rotuloPasso?.trim()
+    ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
+    : 0
 }
 
 function ManualBlocoRotuloGaleriaPasso({
@@ -3772,19 +3788,28 @@ function ManualBlocoPassoVisual({
             const margemSuperiorRotuloGaleriaAcademyPx = rotuloGaleriaAposParagrafo
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX
               : 0
+            const margemSuperiorRotuloSubsecaoPx = margemSuperiorRotuloSubsecaoGaleriaPx(idxGaleria, galeria)
+            const margemSuperiorRotuloGaleriaPx = margemSuperiorRotuloSubsecaoPx > 0
+              ? margemSuperiorRotuloSubsecaoPx
+              : margemSuperiorRotuloGaleriaAcademyPx
             const margemSuperiorPrimeiraGaleriaComTituloPx = idxGaleria === 0 && galeria.tituloEtapa?.trim()
               ? MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
               : undefined
             const margemSuperiorGaleriaAcademyPx = passoAcademyIsolado
               ? 0
               : (margemSuperiorPrimeiraGaleriaComTituloPx ?? ritmoGaleria.margemSuperiorPx)
+            const margemSuperiorIntroGaleriaPx = passoAcademyIsolado
+              ? margemSuperiorGaleriaAcademyPx
+              : (margemSuperiorRotuloSubsecaoPx > 0
+                  ? undefined
+                  : (margemSuperiorPrimeiraGaleriaComTituloPx ?? ritmoGaleria.margemSuperiorPx))
             return (
             <React.Fragment key={`galeria-${idxGaleria}-${galeria.infograficoTransferirResultadoEsperado ?? ''}-${galeria.infograficoConsolidarPasso2Regras ? 'c2' : ''}-${galeria.infograficoConsolidarResultadoEsperado ? 'cr' : ''}-${chaveTelasGaleriaComparacao(galeria.telas)}`}>
               <ManualBlocoRotuloGaleriaPasso
                 galeria={galeria}
                 passo={passo}
                 passoAcademyIsolado={passoAcademyIsolado}
-                marginTopPx={margemSuperiorRotuloGaleriaAcademyPx}
+                marginTopPx={margemSuperiorRotuloGaleriaPx}
               />
               <div className={passoAcademyIsolado ? 'uni-player-aula__passo-galeria' : undefined}>
               <ManualGaleriaComparacaoIntro
@@ -3851,7 +3876,7 @@ function ManualBlocoPassoVisual({
               mostrarCardsKanbanCabecalhoPedido={galeria.mostrarCardsKanbanCabecalhoPedido}
               espacoSuperiorEtapa={ritmoGaleria.espacoSuperiorEtapa}
               espacoInferiorAposEtapaPx={ritmoGaleria.espacoInferiorAposEtapaPx}
-              margemSuperiorPx={passoAcademyIsolado ? margemSuperiorGaleriaAcademyPx : ritmoGaleria.margemSuperiorPx}
+              margemSuperiorPx={margemSuperiorIntroGaleriaPx}
               emAcordeaoSubtopico={emAcordeaoSubtopico}
               />
               </div>

@@ -4006,12 +4006,14 @@ function ManualBlocoPassoVisual({
               ampliarInferiorDireito={galeria.ampliarInferiorDireito}
               colunas={galeria.colunas}
               textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+              espacoTextoFiguraPx={galeria.espacoTextoFiguraPx}
               legendaPasso={galeria.legendaPasso}
               pilaresImportarFormas={galeria.pilaresImportarFormas}
               tituloEtapa={galeria.tituloEtapa}
               textoIntro={galeria.textoIntro}
               cenariosAcesso={galeria.cenariosAcesso}
               textoAoLado={galeria.textoAoLado}
+              ritmoAcademyPassoIsolado={passoAcademyIsolado}
               infograficoMapeamentoImportarColunas={galeria.infograficoMapeamentoImportarColunas}
               infograficoTransferirResultadoEsperado={galeria.infograficoTransferirResultadoEsperado}
               infograficoBidFreteNovaCotacaoResultadoEsperado={galeria.infograficoBidFreteNovaCotacaoResultadoEsperado}

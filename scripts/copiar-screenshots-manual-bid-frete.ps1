@@ -111,6 +111,7 @@ $aliasesManual = @{
   'tela_bid_frete_lista_cotacao_painel_acesso_via_insight_1.png' = 'bid-frete-int-lista-cotacao-painel-acesso-via-insight-1.png'
   'tela_bid_frete_int_acesso_via_lista_manual .png' = 'bid-frete-int-acesso-via-lista-manual.png'
   'tela_bid_frete_int_acesso_via_lista_manual.png' = 'bid-frete-int-acesso-via-lista-manual.png'
+  'tela_bid_frete_email_fornecedor_04.png' = 'bid-frete-int-email-fornecedor-04.png'
 }
 foreach ($nomeDrive in $aliasesManual.Keys) {
   $caminhoDrive = Join-Path $origem $nomeDrive

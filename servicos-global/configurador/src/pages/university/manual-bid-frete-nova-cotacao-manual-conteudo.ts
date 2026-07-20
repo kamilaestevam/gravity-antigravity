@@ -329,6 +329,16 @@ export const GALERIAS_BID_FRETE_NOVA_COTACAO_RESULTADO: GaleriaNovaCotacao[] = [
       ),
     ],
   }),
+  grade({
+    colunas: 1,
+    espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+    telas: [
+      fig(
+        'painel_cotacao_solicitacao_cotacao',
+        'Acompanhe todos os **emails** enviados, visualizados e respondidos, acesse o **link do fornecedor**, **data de envio** e **data de resposta**.',
+      ),
+    ],
+  }),
 ]
 
 const CENARIO_ACESSO_VIA_INSIGHT = GALERIAS_BID_FRETE_NOVA_COTACAO_ABRIR[0]?.cenariosAcesso?.find(
@@ -391,12 +401,9 @@ const TEXTO_ANTES_SIMULADOR_MODAL_OPERACAO =
 
 /** §4.02.01 — Lista → Modal e Operação (wizard + simulador), galeria única (ritmo 12px/4px). */
 export const GALERIA_BID_FRETE_NOVA_COTACAO_FLUXO_INICIO_AO_FIM_RECAP: GaleriaNovaCotacao = grade({
-  tituloEtapa: 'Modal e Operação',
-  chipBidFreteFormaManual: true,
   colunas: 1,
   espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
   telas: [
-    fig('lista_cotacao_nova_cotacao_avulsa_manual', ''),
     {
       legenda: '',
       imagem: S('cotacao_avulsa'),

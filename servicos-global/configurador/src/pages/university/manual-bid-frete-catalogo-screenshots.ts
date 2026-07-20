@@ -294,6 +294,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'preferencia_taxa_cambio': '/university/screenshots/bid-frete-int-preferencia-taxa-cambio.png',
   'resposta_fornecedor_1': '/university/screenshots/bid-frete-int-resposta-fornecedor-1.png',
   'resposta_fornecedor_2': '/university/screenshots/bid-frete-int-resposta-fornecedor-2.png',
+  'email_fornecedor_04': '/university/screenshots/bid-frete-int-email-fornecedor-04.png',
   'solicitacao_aviso_envio_usuario_1': '/university/screenshots/bid-frete-int-solicitacao-aviso-envio-usuario-1.png',
   'solicitacao_aviso_envio_usuario_configuracoes': '/university/screenshots/bid-frete-int-solicitacao-aviso-envio-usuario-configuracoes.png',
   'solicitacao_email_fornecedor': '/university/screenshots/bid-frete-int-solicitacao-email-fornecedor.png',
@@ -599,6 +600,7 @@ export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_EMAIL_COTACAO_4B = screenshotB
 export const SCREENSHOT_BID_FRETE_INT_PREFERENCIA_TAXA_CAMBIO = screenshotBidFreteInt('preferencia_taxa_cambio')
 export const SCREENSHOT_BID_FRETE_INT_RESPOSTA_FORNECEDOR_1 = screenshotBidFreteInt('resposta_fornecedor_1')
 export const SCREENSHOT_BID_FRETE_INT_RESPOSTA_FORNECEDOR_2 = screenshotBidFreteInt('resposta_fornecedor_2')
+export const SCREENSHOT_BID_FRETE_INT_EMAIL_FORNECEDOR_04 = screenshotBidFreteInt('email_fornecedor_04')
 export const SCREENSHOT_BID_FRETE_INT_SOLICITACAO_AVISO_ENVIO_USUARIO_1 = screenshotBidFreteInt('solicitacao_aviso_envio_usuario_1')
 export const SCREENSHOT_BID_FRETE_INT_SOLICITACAO_AVISO_ENVIO_USUARIO_CONFIGURACOES = screenshotBidFreteInt('solicitacao_aviso_envio_usuario_configuracoes')
 export const SCREENSHOT_BID_FRETE_INT_SOLICITACAO_EMAIL_FORNECEDOR = screenshotBidFreteInt('solicitacao_email_fornecedor')

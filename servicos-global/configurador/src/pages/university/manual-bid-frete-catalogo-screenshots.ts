@@ -22,6 +22,7 @@ export const MAPA_SCREENSHOTS_BID_FRETE_INT: Record<string, string> = {
   'aceite_fornecedor_frete_vencido_4': '/university/screenshots/bid-frete-int-aceite-fornecedor-frete-vencido-4.png',
   'acesso_aguardando_confirmacao_aprovacao_ok_fornecedor_01': '/university/screenshots/bid-frete-int-acesso-aguardando-confirmacao-aprovacao-ok-fornecedor-01.png',
   'acesso_via_hub': '/university/screenshots/bid-frete-int-acesso-via-hub.png',
+  'acesso_via_lista_manual': '/university/screenshots/bid-frete-int-acesso-via-lista-manual.png',
   'acesso_via_menu_lateral': '/university/screenshots/bid-frete-int-acesso-via-menu-lateral.png',
   'cargo_incoterm_1': '/university/screenshots/bid-frete-int-cargo-incoterm-1.png',
   'cargo_incoterm_2': '/university/screenshots/bid-frete-int-cargo-incoterm-2.png',
@@ -325,6 +326,7 @@ export const SCREENSHOT_BID_FRETE_INT_ACEITE_FORNECEDOR_FRETE_VENCIDO_2 = screen
 export const SCREENSHOT_BID_FRETE_INT_ACEITE_FORNECEDOR_FRETE_VENCIDO_3 = screenshotBidFreteInt('aceite_fornecedor_frete_vencido_3')
 export const SCREENSHOT_BID_FRETE_INT_ACEITE_FORNECEDOR_FRETE_VENCIDO_4 = screenshotBidFreteInt('aceite_fornecedor_frete_vencido_4')
 export const SCREENSHOT_BID_FRETE_INT_ACESSO_AGUARDANDO_CONFIRMACAO_APROVACAO_OK_FORNECEDOR_01 = screenshotBidFreteInt('acesso_aguardando_confirmacao_aprovacao_ok_fornecedor_01')
+export const SCREENSHOT_BID_FRETE_INT_ACESSO_VIA_LISTA_MANUAL = screenshotBidFreteInt('acesso_via_lista_manual')
 export const SCREENSHOT_BID_FRETE_INT_ACESSO_VIA_HUB = screenshotBidFreteInt('acesso_via_hub')
 export const SCREENSHOT_BID_FRETE_INT_ACESSO_VIA_MENU_LATERAL = screenshotBidFreteInt('acesso_via_menu_lateral')
 export const SCREENSHOT_BID_FRETE_INT_CARGO_INCOTERM_1 = screenshotBidFreteInt('cargo_incoterm_1')

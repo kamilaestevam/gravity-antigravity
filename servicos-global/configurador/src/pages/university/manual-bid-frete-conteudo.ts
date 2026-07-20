@@ -39,7 +39,7 @@ const PASSO_COTACAO_AVULSA_MANUAL = {
       espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
       telas: [{
         legenda: '',
-        imagem: S('solicitacao_email_fornecedor'),
+        imagem: S('acesso_via_lista_manual'),
         paragrafoDepois:
           'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
       }],

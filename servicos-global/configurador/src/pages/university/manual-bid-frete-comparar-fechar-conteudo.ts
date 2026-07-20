@@ -25,6 +25,22 @@ export const TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR =
 export const TEXTO_BID_FRETE_VARIOS_FORNECEDORES_COMPARE_CARDS =
   'Quando **vários fornecedores** responderem, compare os cards lado a lado e abra **Ver detalhamento completo** de cada proposta.'
 
+/** Transição pós-análise → sequência de aprovação (uma frase, uma tela). */
+export const TEXTO_BID_FRETE_DECISAO_APROVAR_COTACAO =
+  'Com a **decisão tomada**, é hora de **aprovar a cotação**.'
+
+/** Transição pós-aprovação → aceite do fornecedor (uma frase, uma tela). */
+export const TEXTO_BID_FRETE_FORNECEDOR_CONFIRMACAO_ACEITE_FINAL =
+  'O **fornecedor** irá receber a **confirmação** e o **aceite final**.'
+
+/** Transição pós-aceite do ganhador → aviso aos demais colocados (uma frase, uma tela). */
+export const TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS =
+  'Os outros colocados são avisados o lugar que ficaram, mas claro **sem ser revelado o frete dos concorrentes**.'
+
+/** Transição pós-aceite → painel atualizado (uma frase, uma tela). */
+export const TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR =
+  'Assim que o **fornecedor** confirma e aceita que é o **vencedor**, o **Painel** é **atualizado**.'
+
 /** Prints 1–5 — comparar propostas (uma frase + uma tela). Reutilizado no fim dos passos 5/6 e no passo 7. */
 export const TELAS_ANALISE_FORNECEDOR_COMPARAR: { sufixo: string; paragrafoAntes: string }[] = [
   {
@@ -54,12 +70,16 @@ export const TELAS_ANALISE_FORNECEDOR_COMPARAR: { sufixo: string; paragrafoAntes
 ]
 
 export function telasGaleriaAnaliseFornecedorComparar(): DocGaleriaComparacaoTela[] {
-  return TELAS_ANALISE_FORNECEDOR_COMPARAR.map(({ sufixo, paragrafoAntes }) =>
-    telaCompararFechar(sufixo, paragrafoAntes),
-  )
+  return TELAS_ANALISE_FORNECEDOR_COMPARAR.map(({ sufixo, paragrafoAntes }, idx, arr) => {
+    const tela = telaCompararFechar(sufixo, paragrafoAntes)
+    if (idx === arr.length - 1) {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_DECISAO_APROVAR_COTACAO }
+    }
+    return tela
+  })
 }
 
-const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[] = [
+const TELAS_APROVACAO_COTACAO: { sufixo: string; paragrafoAntes: string }[] = [
   { sufixo: 'aprovacao_1', paragrafoAntes: 'Clique em **Aprovar** na proposta escolhida.' },
   {
     sufixo: 'aprovacao_2',
@@ -81,6 +101,19 @@ const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[]
     paragrafoAntes:
       'O **Painel da Cotação** passa a **Aguard. fornecedor** até o ganhador aceitar no **email**.',
   },
+]
+
+export function telasGaleriaAprovacaoCotacao(): DocGaleriaComparacaoTela[] {
+  return TELAS_APROVACAO_COTACAO.map(({ sufixo, paragrafoAntes }, idx, arr) => {
+    const tela = telaCompararFechar(sufixo, paragrafoAntes)
+    if (idx === arr.length - 1) {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_FORNECEDOR_CONFIRMACAO_ACEITE_FINAL }
+    }
+    return tela
+  })
+}
+
+const TELAS_APROVADO_FORNECEDOR_COTACAO: { sufixo: string; paragrafoAntes: string }[] = [
   {
     sufixo: 'aprovado_fornecedor_1',
     paragrafoAntes:
@@ -96,6 +129,19 @@ const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[]
     paragrafoAntes:
       'Na página pública, o fornecedor marca **Li e aceito o contrato de fechamento** e clica em **Recebi e estou de acordo**.',
   },
+]
+
+export function telasGaleriaAprovadoFornecedorCotacao(): DocGaleriaComparacaoTela[] {
+  return TELAS_APROVADO_FORNECEDOR_COTACAO.map(({ sufixo, paragrafoAntes }, idx, arr) => {
+    const tela = telaCompararFechar(sufixo, paragrafoAntes)
+    if (idx === arr.length - 1) {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS }
+    }
+    return tela
+  })
+}
+
+const TELAS_OUTROS_COLOCADOS_FORNECEDOR_COTACAO: { sufixo: string; paragrafoAntes: string }[] = [
   {
     sufixo: 'aprovado_fornecedor_segundo_lugar',
     paragrafoAntes:
@@ -106,11 +152,37 @@ const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[]
     paragrafoAntes:
       'Quem ficou em **3º lugar** recebe o **Resultado da cotação** com a posição no ranking.',
   },
+]
+
+export function telasGaleriaOutrosColocadosFornecedorCotacao(): DocGaleriaComparacaoTela[] {
+  return TELAS_OUTROS_COLOCADOS_FORNECEDOR_COTACAO.map(({ sufixo, paragrafoAntes }, idx, arr) => {
+    const tela = telaCompararFechar(sufixo, paragrafoAntes)
+    if (idx === arr.length - 1) {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR }
+    }
+    return tela
+  })
+}
+
+const TELAS_APROVADO_FINAL_COTACAO: { sufixo: string; paragrafoAntes: string }[] = [
   {
     sufixo: 'aprovado_final',
     paragrafoAntes:
       'Após o aceite, o status avança para **Aprovada** e o painel exibe **Aprovação recebida**.',
   },
+]
+
+export function telasGaleriaAprovadoFinalCotacao(): DocGaleriaComparacaoTela[] {
+  return TELAS_APROVADO_FINAL_COTACAO.map(({ sufixo, paragrafoAntes }) =>
+    telaCompararFechar(sufixo, paragrafoAntes),
+  )
+}
+
+const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[] = [
+  ...TELAS_APROVACAO_COTACAO,
+  ...TELAS_APROVADO_FORNECEDOR_COTACAO,
+  ...TELAS_OUTROS_COLOCADOS_FORNECEDOR_COTACAO,
+  ...TELAS_APROVADO_FINAL_COTACAO,
 ]
 
 function telaCompararFechar(sufixo: string, paragrafoAntes: string): DocGaleriaComparacaoTela {
@@ -125,7 +197,22 @@ const TELAS_COMPARAR_FECHAR = [
 /** §4.02 — galeria única (16 telas) para render contínuo no Academy e /docs. */
 export const GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO: GaleriaCompararFechar = {
   ...GRADE_COMPARAR_FECHAR,
-  telas: TELAS_COMPARAR_FECHAR.map(({ sufixo, paragrafoAntes }) => telaCompararFechar(sufixo, paragrafoAntes)),
+  telas: TELAS_COMPARAR_FECHAR.map(({ sufixo, paragrafoAntes }) => {
+    const tela = telaCompararFechar(sufixo, paragrafoAntes)
+    if (sufixo === 'analise_fornecedor_5') {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_DECISAO_APROVAR_COTACAO }
+    }
+    if (sufixo === 'aprovacao_5') {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_FORNECEDOR_CONFIRMACAO_ACEITE_FINAL }
+    }
+    if (sufixo === 'aprovado_fornecedor_3') {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS }
+    }
+    if (sufixo === 'aprovado_fornecedor_terceiro_lugar') {
+      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR }
+    }
+    return tela
+  }),
 }
 
 /** Compat — consumidores que esperam array de galerias isoladas. */

@@ -11,7 +11,7 @@ import {
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
 import { GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC, GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO } from './manual-bid-frete-nova-cotacao-smart-doc-conteudo'
-import { PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO, TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS, TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR, telasGaleriaAnaliseFornecedorComparar } from './manual-bid-frete-comparar-fechar-conteudo'
+import { PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO, TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS, TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR, telasGaleriaAnaliseFornecedorComparar, telasGaleriaAprovacaoCotacao, telasGaleriaAprovadoFinalCotacao, telasGaleriaAprovadoFornecedorCotacao, telasGaleriaOutrosColocadosFornecedorCotacao } from './manual-bid-frete-comparar-fechar-conteudo'
 import { GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO } from './manual-bid-frete-painel-cotacao-acesso-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS } from './manual-bid-frete-painel-cotacao-abas-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
@@ -31,7 +31,7 @@ const TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR =
 const TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL =
   'O formulário é alterado conforme o **modal**; no **aéreo** é possível incluir **valor total** e **valor por kg**.'
 
-/** Respostas + transição + analise 1–5 — uma frase por tela (Manual e Smart Doc). */
+/** Respostas + comparar + aprovar — uma frase por tela (Manual e Smart Doc). */
 const GALERIA_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS = {
   indice: 0,
   colunas: 1,
@@ -67,6 +67,10 @@ const GALERIA_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS = {
       paragrafoDepois: TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR,
     },
     ...telasGaleriaAnaliseFornecedorComparar(),
+    ...telasGaleriaAprovacaoCotacao(),
+    ...telasGaleriaAprovadoFornecedorCotacao(),
+    ...telasGaleriaOutrosColocadosFornecedorCotacao(),
+    ...telasGaleriaAprovadoFinalCotacao(),
   ],
 } as const
 

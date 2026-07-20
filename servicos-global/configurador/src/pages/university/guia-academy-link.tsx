@@ -22,6 +22,96 @@ function scrollGuiaAtual(): number {
   return contentEl?.scrollTop ?? window.scrollY
 }
 
+/** Tira foco do botão Concluída/Próxima — o browser senão faz scrollIntoView no rodapé da aula seguinte. */
+export function soltarFocoGuia() {
+  const ativo = document.activeElement
+  if (ativo instanceof HTMLElement && ativo !== document.body) {
+    ativo.blur()
+  }
+}
+
+/** Topo do reader Academy (`.uni-player-aula__content`) — troca de aula / marcar concluída. */
+export function scrollGuiaTopo(behavior: ScrollBehavior = 'auto') {
+  soltarFocoGuia()
+  const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
+  if (contentEl) {
+    // scrollTop direto evita scroll anchoring / smooth residual deixarem offset > 0
+    contentEl.scrollTop = 0
+    if (typeof contentEl.scrollTo === 'function') {
+      contentEl.scrollTo({ top: 0, behavior: 'auto' })
+    }
+  }
+  // Zera ancestrais scrolláveis (shell / main) que às vezes herdam o offset
+  let ancestral: HTMLElement | null = contentEl?.parentElement ?? null
+  while (ancestral) {
+    if (ancestral.scrollTop > 0) ancestral.scrollTop = 0
+    ancestral = ancestral.parentElement
+  }
+  if (typeof window.scrollTo === 'function') {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  void behavior
+}
+
+/**
+ * Mantém o content no topo por alguns ms — cobre foco residual e layout tardio
+ * que empurravam a aula seguinte para o meio da página.
+ */
+export function travarScrollGuiaTopo(duracaoMs = 400): () => void {
+  soltarFocoGuia()
+  scrollGuiaTopo('auto')
+  const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
+  if (!contentEl) return () => {}
+
+  const forcarTopo = () => {
+    if (contentEl.scrollTop !== 0) contentEl.scrollTop = 0
+  }
+  const onScroll = () => forcarTopo()
+  contentEl.addEventListener('scroll', onScroll, { passive: true })
+
+  const timers = [0, 16, 32, 80, 160, 280, duracaoMs].map((ms) =>
+    window.setTimeout(() => {
+      soltarFocoGuia()
+      forcarTopo()
+    }, ms),
+  )
+  const fim = window.setTimeout(() => {
+    contentEl.removeEventListener('scroll', onScroll)
+  }, duracaoMs + 20)
+
+  return () => {
+    for (const id of timers) window.clearTimeout(id)
+    window.clearTimeout(fim)
+    contentEl.removeEventListener('scroll', onScroll)
+  }
+}
+
+/** Posição Y do alvo dentro do content scrollável (não usa offsetTop — quebra com wrappers). */
+export function offsetScrollGuiaContent(el: HTMLElement, contentEl: HTMLElement, margem = 8): number {
+  const top =
+    el.getBoundingClientRect().top
+    - contentEl.getBoundingClientRect().top
+    + contentEl.scrollTop
+    - margem
+  return Math.max(0, top)
+}
+
+/** Scroll só no painel de tópicos — não usa scrollIntoView (ele move ancestrais e “rouba” o topo do content). */
+export function scrollSumarioGuiaNaVista(idSecao: string) {
+  const btn = document.querySelector<HTMLElement>(`[data-sumario-id="${CSS.escape(idSecao)}"]`)
+  const nav = btn?.closest<HTMLElement>('.uni-player-aula__nav')
+  if (!btn || !nav) return
+  const btnTop = btn.offsetTop
+  const btnBottom = btnTop + btn.offsetHeight
+  const viewTop = nav.scrollTop
+  const viewBottom = viewTop + nav.clientHeight
+  if (btnTop >= viewTop && btnBottom <= viewBottom) return
+  const alvo = Math.max(0, btnTop - nav.clientHeight / 2 + btn.offsetHeight / 2)
+  nav.scrollTo({ top: alvo, behavior: 'smooth' })
+}
+
 export function restaurarScrollGuia(scrollY: number) {
   const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
   if (contentEl) {

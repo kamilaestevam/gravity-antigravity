@@ -28,6 +28,8 @@
 | Hook contador (observador passivo) | `client/src/shared/use-contador-tokens-leitura-smart-read.ts` |
 | Análise de riscos pós-OCR | `client/src/shared/disparar-analise-riscos-background-smart-read.ts` |
 | Animação tokens em tempo real | `client/src/shared/use-valor-tokens-animado-smart-read.ts` |
+| Montagem estado persistível (passo 2–4) | `client/src/shared/montar-estado-progresso-leitura-smart-read.ts` |
+| Sync leitura API → arquivos locais | `client/src/shared/tipo-arquivo-nova-leitura-smart-read.ts` (`aplicarLeituraApiNosArquivosLocais`) |
 
 **Entrada no passo 2:** botão **Enviar** do passo 1 dispara upload + polling; modal avança para «Análise do arquivo». Retomar leitura `PROCESSING` abre direto no passo 2.
 
@@ -47,7 +49,7 @@ Corpo (grid lateral + principal):
 | **Principal** | Três cards métricos (Tempo de leitura · Recursos reduzidos · Tempo reduzido acumulado) + painel pipeline (3 análises + globo/cérebro com anel de progresso) |
 | **Sidebar** | Nome editável · cards por arquivo · status «Analisando…» / «Análise completa» · chips ou lista expandida de documentos · rodapé **Cancelar** + **Voltar** + **Continuar** |
 
-> **Nomenclatura botão avançar (passo 2):** rótulo **Continuar** (não «Enviar»). **Continuar** só habilita quando `processamentoFinalizado` (polling concluiu ou erro tratado).
+> **Nomenclatura botão avançar (passo 2):** rótulo **Continuar** (não «Enviar»). **Continuar** só habilita quando `processamentoFinalizado` (polling concluiu ou erro tratado). Durante o save, o botão exibe loading e ignora cliques repetidos (`salvandoPasso` + `continuandoPassoRef` — PR #829).
 
 ---
 
@@ -68,8 +70,9 @@ Corpo (grid lateral + principal):
 | Erro com motivo real | `LeituraSchema.mensagem_erro` carrega o `errorMessage` do DATI (leitura e arquivo); polling `FAILED` exibe o motivo traduzido pelo classificador e loga o texto bruto no console |
 | Globo | Anel SVG proporcional à média das três barras; 100% quando todas as etapas completas |
 | SLA UX | Barras refletem o tempo real do DATI (~30s/arquivo); testes EMT validam execução total ≤ **75s** |
-| Voltar | Retorna ao passo 1 (arquivos preservados) |
-| Continuar | Avança para passo 3 «Conferência» quando análise finalizada (exige ao menos **um** arquivo `completo`) |
+| Voltar | Retorna ao passo 1 (arquivos preservados); `PATCH` passo anterior com `permitirRegressaoPasso` |
+| Continuar | `PATCH` passo 3 + avanço UI quando `montarEstadoProgressoLeituraSmartRead` monta estado válido (exige `resultado_extracao` util — SSOT `leituraTemExtracaoUtilRetomarSmartRead`). Se barras 100% mas extração ainda não chegou ao React, sincroniza via `GET /leituras/:id` por até **15s** antes de falhar; toast «Análise ainda sincronizando» em vez de falha silenciosa (PR #829) |
+| Uso de IA (sidebar) | Informativo — **não bloqueia** Continuar. Prefetch de riscos pós-OCR atualiza tokens via `onTokensAtualizados` sem acionar «contando tokens» com zero; OCR em andamento exibe «—» + «aguardando extração do documento» |
 | Cancelar | Fecha modal; persiste progresso incl. `tempo_processo_total_ms` quando aplicável |
 | Erro parcial | Polling pode concluir com mix de arquivos `completo` + `erro`; usuário segue para Conferência só com os que analisaram |
 
@@ -106,6 +109,7 @@ Ambiente: `http://localhost:8000/smart_read/insights` + sidecar Smart Docs `8033
 | **08** | Pipeline honesto | Envio, Análise e Consolidação com pill «Completo» ao concluir; durante a análise, barra do motor exibe pill «Estimativa» | `08-analises-selecao.png` / `08-analises-resultado.png` |
 | **09** | Globo 100% | Três barras em 100%; anel do cérebro fechado | `09-globo-selecao.png` / `09-globo-resultado.png` |
 | **10** | SLA 75 segundos | Fluxo completo do passo 2 em ≤ 75s | `10-sla-selecao.png` / `10-sla-resultado.png` |
+| **11** | Continuar → passo 3 | Um clique avança para Conferência; cliques repetidos não travam; se extração atrasar, toast de sincronização (não falha silenciosa) | `11-continuar-selecao.png` / `11-continuar-resultado.png` |
 
 **Fora de escopo deste doc:** conferência campo a campo (passo 3) e resultado final (passo 4).
 
@@ -118,6 +122,7 @@ Pastas espelhadas em `testes/testes-{unitarios|funcionais|e2e|cross-organizacao|
 | Tipo | ID | Escopo passo 2 |
 |------|-----|----------------|
 | UNI | TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151 | dashboard, cards, saving, pipeline, SLA |
+| UNI | `montar-estado-progresso-leitura-smart-read.test.ts` | diagnóstico passo 3 sem extração; montagem com extração util (PR #829) |
 | FUN | TST-FUN-SMTRD-NOVA-LEITURA-PASSO-DOIS-000152 | `GET /leituras/:id` polling PROCESSING→COMPLETED |
 | CRO | TST-CRO-SMTRD-NOVA-LEITURA-PASSO-DOIS-000153 | isolamento workspace no polling |
 | E2E | TST-E2E-SMTRD-NOVA-LEITURA-PASSO-DOIS-000154 | Playwright fluxo UI passo 2 |

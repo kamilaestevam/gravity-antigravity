@@ -3,7 +3,7 @@
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
  */
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -34,7 +34,20 @@ import type { DocFluxo, DocTopicoImagemLateral } from './manual-configurador-con
 import { ManualGaleriaComparacaoIntro, ManualTagPassoWizard, ManualTopicosImagemLateral } from './manual-configurador-ui'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
 import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
-import { GuiaAcademyNavigationProvider, AcademyLinkGuia, lerRetornoGuiaAcademy, restaurarScrollGuia, voltarNoGuiaAcademy } from './guia-academy-link'
+import {
+  GuiaAcademyNavigationProvider,
+  AcademyLinkGuia,
+  consumirProximaAulaNoTopoGuia,
+  lerRetornoGuiaAcademy,
+  marcarProximaAulaNoTopoGuia,
+  offsetScrollGuiaContent,
+  restaurarScrollGuia,
+  scrollGuiaTopo,
+  scrollSumarioGuiaNaVista,
+  soltarFocoGuia,
+  travarScrollGuiaTopo,
+  voltarNoGuiaAcademy,
+} from './guia-academy-link'
 
 const UNI_COR = '#818cf8'
 const CONTENT_TEXT = 'var(--ws-text, #f1f5f9)'
@@ -119,8 +132,8 @@ function calcularEspacoSuperiorBlocoGuia(
     return 0
   }
 
-  // Passo Academy após outro passo visível, com H2 fantasma do sumário no meio (ex.: Adicionar card → Visão Geral).
-  // 12px — o rótulo roxo do próximo passo encosta na DICA anterior; 32px duplicava com CSS e abria faixa vazia.
+  // Passo Academy após outro passo, com H2 fantasma do sumário no meio (ex.: Manual → Via Smart Doc).
+  // 32px — SSOT fim de passo → próximo passo; H2 fantasma não soma margem extra no CSS (`.subtitulo-fantasma`).
   if (
     bloco.tipo === 'fluxo_manual'
     && String(bloco.dados.modo ?? 'completo') === 'passo'
@@ -128,7 +141,7 @@ function calcularEspacoSuperiorBlocoGuia(
     && String(anteriorEfetivo.dados.modo ?? 'completo') === 'passo'
     && blocoAnterior !== anteriorEfetivo
   ) {
-    return MANUAL_ESPACO_PARAGRAFO_PX
+    return MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX
   }
 
   if (bloco.tipo === 'texto' && blocoAnterior?.tipo === 'texto') {
@@ -1059,14 +1072,21 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   }, [aula.blocos, aula.titulo])
 
   const [idSecaoAtiva, setIdSecaoAtiva] = useState<string | null>(titulosSumario[0]?.id ?? null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  /** Evita o observer “corrigir” seção no meio enquanto travamos o topo pós-navegação. */
+  const ignorarObserverRef = useRef(false)
 
   useEffect(() => {
     setIdSecaoAtiva(titulosSumario[0]?.id ?? null)
   }, [faseSlug, titulosSumario])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const forcarTopo = consumirProximaAulaNoTopoGuia()
     const scrollRestaurar = (location.state as { restaurarScrollGuia?: number } | null)?.restaurarScrollGuia
-    if (typeof scrollRestaurar === 'number' && scrollRestaurar >= 0) {
+
+    // Troca de aula (concluir/próxima) tem prioridade sobre restaurar scroll de link interno.
+    if (!forcarTopo && typeof scrollRestaurar === 'number' && scrollRestaurar >= 0) {
+      ignorarObserverRef.current = false
       const timer = window.setTimeout(() => {
         restaurarScrollGuia(scrollRestaurar)
       }, 120)
@@ -1074,21 +1094,39 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     }
 
     const hash = location.hash.replace(/^#/, '')
-    if (!hash) return
-    const timer = window.setTimeout(() => {
-      const el = document.getElementById(hash)
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        setIdSecaoAtiva(hash)
-      }
-    }, 120)
-    return () => window.clearTimeout(timer)
-  }, [faseSlug, location.pathname, location.hash, location.state])
+    if (!forcarTopo && hash) {
+      ignorarObserverRef.current = false
+      const timer = window.setTimeout(() => {
+        const el = document.getElementById(hash)
+        if (el) {
+          const contentEl = contentRef.current
+            ?? document.querySelector<HTMLElement>('.uni-player-aula__content')
+          if (contentEl) {
+            contentEl.scrollTop = offsetScrollGuiaContent(el, contentEl)
+          }
+          setIdSecaoAtiva(hash)
+        }
+      }, 120)
+      return () => window.clearTimeout(timer)
+    }
+
+    // Concluir / anterior / próxima: blur + trava longa (aulas com muitos prints).
+    ignorarObserverRef.current = true
+    setIdSecaoAtiva(titulosSumario[0]?.id ?? null)
+    if (contentRef.current) contentRef.current.scrollTop = 0
+    const liberarTrava = travarScrollGuiaTopo(2000)
+    const liberarObserver = window.setTimeout(() => {
+      ignorarObserverRef.current = false
+    }, 2100)
+    return () => {
+      liberarTrava()
+      window.clearTimeout(liberarObserver)
+    }
+  }, [faseSlug, location.pathname, location.hash, location.state, titulosSumario])
 
   useEffect(() => {
     if (!idSecaoAtiva) return
-    const btn = document.querySelector<HTMLElement>(`[data-sumario-id="${CSS.escape(idSecaoAtiva)}"]`)
-    btn?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    scrollSumarioGuiaNaVista(idSecaoAtiva)
   }, [idSecaoAtiva])
 
   useEffect(() => {
@@ -1096,9 +1134,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
     const ids = titulosSumario.map((t) => t.id)
     const visiveis = new Map<string, number>()
+    const root = contentRef.current
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (ignorarObserverRef.current) return
         for (const entry of entries) {
           const id = entry.target.id
           if (!id) continue
@@ -1133,7 +1173,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
         setIdSecaoAtiva(melhorId)
       },
       {
-        root: null,
+        root,
         rootMargin: '-80px 0px -55% 0px',
         threshold: [0, 0.1, 0.25, 0.5, 1],
       },
@@ -1151,13 +1191,27 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
       window.clearTimeout(timer)
       observer.disconnect()
     }
-  }, [titulosSumario, aula.blocos])
+  }, [titulosSumario, aula.blocos, faseSlug])
 
-  const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
+  const navParaFase = (slug: string) => {
+    soltarFocoGuia()
+    marcarProximaAulaNoTopoGuia()
+    scrollGuiaTopo('auto')
+    navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, {
+      replace: false,
+      preventScrollReset: true,
+      state: { forcarTopoGuia: true },
+    })
+  }
 
   const irParaTitulo = (id: string) => {
     setIdSecaoAtiva(id)
     const el = document.getElementById(id)
+    const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
+    if (el && contentEl) {
+      contentEl.scrollTo({ top: offsetScrollGuiaContent(el, contentEl), behavior: 'smooth' })
+      return
+    }
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -1235,8 +1289,8 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           </div>
         </nav>
 
-        {/* ── Área de conteúdo ── */}
-        <div className="uni-player-aula__content">
+        {/* ── Área de conteúdo (key=fase remonta e zera scroll ao trocar aula) ── */}
+        <div className="uni-player-aula__content" key={faseSlug} ref={contentRef}>
           <div className="uni-player-aula__article">
 
             {/* Breadcrumb + blocos — ritmo centralizado em `calcularEspacoSuperiorBlocoGuia`. */}
@@ -1286,7 +1340,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <button
                 type="button"
                 className="uni-player-aula__footer-btn"
-                onClick={() => anterior && navParaFase(anterior.slug)}
+                onClick={(e) => {
+                  e.currentTarget.blur()
+                  soltarFocoGuia()
+                  if (anterior) navParaFase(anterior.slug)
+                }}
                 disabled={!anterior}
               >
                 <ArrowLeft size={15} />
@@ -1297,7 +1355,12 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <button
                 type="button"
                 className={`uni-player-aula__footer-btn--primary${jaConcluida ? ' is-concluida' : ''}`}
-                onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
+                onClick={(e) => {
+                  e.currentTarget.blur()
+                  soltarFocoGuia()
+                  onMarcarConcluida(faseSlug)
+                  if (proxima) navParaFase(proxima.slug)
+                }}
               >
                 <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
                 {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
@@ -1307,7 +1370,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               <button
                 type="button"
                 className="uni-player-aula__footer-btn uni-player-aula__footer-btn--next"
-                onClick={() => proxima && navParaFase(proxima.slug)}
+                onClick={(e) => {
+                  e.currentTarget.blur()
+                  soltarFocoGuia()
+                  if (proxima) navParaFase(proxima.slug)
+                }}
                 disabled={!proxima}
               >
                 <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>

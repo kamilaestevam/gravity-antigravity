@@ -176,6 +176,22 @@ export function garantirCardsAtivosVisiveis(prefs: CardPreferencia[]): CardPrefe
   return prefs.map(p => (p.visible ? p : { ...p, visible: true }))
 }
 
+/**
+ * @deprecated Painel da Lista não altera mais visibilidade global — mantido para testes de regressão.
+ */
+export function mesclarVisibilidadeCardsComTopoPainel(
+  prefs: CardPreferencia[],
+  idsVisiveisPainel: string[],
+): CardPreferencia[] {
+  if (idsVisiveisPainel.length === 0) return prefs
+  const visiveisSet = new Set(idsVisiveisPainel)
+  if (!prefs.some(p => visiveisSet.has(p.id))) return prefs
+  return prefs.map(p => ({
+    ...p,
+    visible: visiveisSet.has(p.id) ? true : p.visible,
+  }))
+}
+
 export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operacional') {
   const chaves = chavesCardsEscopo(escopo)
   const [prefs, setPrefs] = useState<CardPreferencia[]>(() => carregarPreferenciasCardsBidFrete(escopo))

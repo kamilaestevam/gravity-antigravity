@@ -2339,7 +2339,7 @@ export default function Cotacoes() {
       )}
 
       <style>{`
-        /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */
+        /* Destaque: cotação dentro da antecedência configurada (Configurações → Tabela) — bid-frete-page-shell.css */
 
         /* ── Expandir/Recolher todos (paridade Lista de Pedidos) ── */
         .bf-btn-expandir-todos {

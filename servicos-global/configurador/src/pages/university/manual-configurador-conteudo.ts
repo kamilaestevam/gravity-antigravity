@@ -149,6 +149,8 @@ export interface DocPassoVisual {
     textoAposInfograficoBidFreteModalOperacaoCampos?: string
     /** Manual BID Frete §4.02.01 — réplica interativa do passo Modal e Operação (após DICAS). */
     simuladorBidFreteModalOperacao?: boolean
+    /** Manual BID Frete §4.02.01 — print(s) após simulador Modal e Operação (ritmo 12px, mesma galeria). */
+    telasAposSimuladorBidFreteModalOperacao?: DocGaleriaComparacaoTela[]
     /** Manual BID Frete §4.02.01 — cards dos campos do passo Origem e Destino (após o print). */
     infograficoBidFreteOrigemDestinoCampos?: boolean
     /** Manual BID Frete §4.02.01 — print(s) após infográfico Origem e Destino, antes das DICAS. */
@@ -336,6 +338,10 @@ export interface DocPassoVisual {
   mostrarInfograficoBidFreteCotacaoAvulsaFormas?: boolean
   /** Manual BID Frete §6.02 — comparação cotação avulsa (única) × BID (pacote). */
   mostrarInfograficoBidFreteCotacaoAvulsaVsBid?: boolean
+  /** Manual BID Frete §6.03.01 — mapa UX 10: BID como pacote de cotações existentes. */
+  mostrarInfograficoBidFreteBidPacoteCotacoes?: boolean
+  /** Índice do parágrafo após o qual inserir o infográfico BID pacote (padrão: 0). */
+  bidFreteBidPacoteInfograficoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o infográfico avulsa × BID (padrão: 0). */
   bidFreteCotacaoAvulsaVsBidInfograficoAposParagrafo?: number
   /** Índice do parágrafo após o qual inserir o mapa Cotação avulsa (padrão: 0). */

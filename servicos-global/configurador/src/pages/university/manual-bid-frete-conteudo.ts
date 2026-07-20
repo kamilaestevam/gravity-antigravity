@@ -1,4 +1,4 @@
-﻿import type { DocSecao } from './manual-configurador-conteudo'
+import type { DocSecao } from './manual-configurador-conteudo'
 import { renumerarPassos } from './manual-configurador-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO } from './manual-bid-frete-pagamento-taxa-gravity-fechamento-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_CONFIGURACOES } from './manual-bid-frete-configuracoes-conteudo'
@@ -10,35 +10,115 @@ import {
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_INSIGHT,
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
+import { GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC, GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO } from './manual-bid-frete-nova-cotacao-smart-doc-conteudo'
+import { PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO, TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS, TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR, galeriasCotacaoAvulsaPosEnvioFornecedor } from './manual-bid-frete-comparar-fechar-conteudo'
 import { GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO } from './manual-bid-frete-painel-cotacao-acesso-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS } from './manual-bid-frete-painel-cotacao-abas-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
+import { MANUAL_ESPACO_FRASE_IMAGEM_PX } from './manual-tipografia'
 
 const S = screenshotBidFreteInt
+
+const TEXTO_COTACAO_AVULSA_AVISO_CONFIGURACOES =
+  'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.'
+
+const TEXTO_FORNECEDORES_RECEBEM_COTACAO_EMAIL =
+  '**Fornecedores** recebem via **email** as **cotações** e respondem em **minutos**.'
+
+const TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR =
+  'Assim que o fornecedor responde, o **Painel da Cotação** é atualizado.'
+
+const TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL =
+  'O formulário é alterado conforme o **modal**; no **aéreo** é possível incluir **valor total** e **valor por kg**.'
+
+const TELAS_RESPOSTAS_FORNECEDOR_INICIAIS = [
+  {
+    legenda: '',
+    imagem: S('resposta_fornecedor_1'),
+    paragrafoAntes: TEXTO_FORNECEDORES_RECEBEM_COTACAO_EMAIL,
+  },
+  {
+    legenda: '',
+    imagem: S('resposta_fornecedor_2'),
+    calloutDepois: {
+      tipo: 'dica' as const,
+      texto: TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL,
+    },
+  },
+  {
+    legenda: '',
+    imagem: S('email_fornecedor_04'),
+    paragrafoAntes: TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR,
+  },
+  {
+    legenda: '',
+    imagem: S('painel_cotacao_solicitacao_cotacao'),
+    paragrafoAntes: TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS,
+  },
+  {
+    legenda: '',
+    imagem: S('email_comprador_fornecedor_respondeu_cotacao'),
+    paragrafoDepois: TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR,
+  },
+]
+
+const GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS = galeriasCotacaoAvulsaPosEnvioFornecedor(
+  TELAS_RESPOSTAS_FORNECEDOR_INICIAIS,
+)
+
+/** Wizard manual — última galeria (aba Solicitação) + frase Configurações, sem galeria isolada. */
+function galeriasWizardManualComPainelSolicitacaoConfig() {
+  const wizard = GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD
+  return wizard.map((galeria, idx, arr) => {
+    if (idx !== arr.length - 1) return galeria
+    const tela = galeria.telas[0]!
+    return {
+      ...galeria,
+      telas: [{
+        ...tela,
+        paragrafoDepois: TEXTO_COTACAO_AVULSA_AVISO_CONFIGURACOES,
+      }],
+    }
+  })
+}
+
+/** Smart Doc — último print do Painel + frase de Configurações (ritmo SSOT imagem→texto). */
+const GALERIA_COTACAO_AVULSA_SMART_DOC_RESULTADO_CONFIG = {
+  ...GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO,
+  telas: [
+    ...GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO.telas.slice(0, -1),
+    {
+      ...GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO.telas.at(-1)!,
+      paragrafoDepois: TEXTO_COTACAO_AVULSA_AVISO_CONFIGURACOES,
+    },
+  ],
+} as const
 
 /** §4.02 — wizard manual da cotação avulsa (simulador Modal e Operação). */
 const PASSO_COTACAO_AVULSA_MANUAL = {
   titulo: 'Cotação manual',
   tituloCurto: 'Cotação manual',
-  ocultarNoSumario: true,
-  rotuloPasso: 'Cotação avulsa - Manual',
+  estiloTituloWizard: true,
   paragrafos: [
     'Clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Manual**.',
-    'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
-    'O fornecedor irá receber o pedido de cotação via **email**.',
-    'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
   ],
   galeriaComparacaoAposParagrafo: [
-    ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
     {
-      indice: 1,
+      indice: 0,
       colunas: 1,
-      telas: [{ legenda: '', imagem: S('solicitacao_email_fornecedor') }],
+      textoAcimaEstiloCorpo: true,
+      espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+      telas: [{
+        legenda: '',
+        imagem: S('acesso_via_lista_manual'),
+      }],
     },
+    ...galeriasWizardManualComPainelSolicitacaoConfig(),
     {
-      indice: 2,
+      indice: 0,
       colunas: 2,
       colunasGradeTemplate: '2fr 1fr',
+      espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
       telas: [
         {
           legenda: '',
@@ -57,6 +137,45 @@ const PASSO_COTACAO_AVULSA_MANUAL = {
           'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
       },
     },
+    ...GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
+  ],
+} as const
+
+/** §4.02.02 — wizard Smart Docs da cotação avulsa (17 prints). */
+const PASSO_COTACAO_AVULSA_SMART_DOC = {
+  titulo: 'Cotação via Smart Doc',
+  tituloCurto: 'Cotação via Smart Doc',
+  estiloTituloWizard: true,
+  paragrafos: [
+    'Clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Smart Docs**.',
+  ],
+  galeriaComparacaoAposParagrafo: [
+    ...GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC.slice(0, -1),
+    GALERIA_COTACAO_AVULSA_SMART_DOC_RESULTADO_CONFIG,
+    {
+      indice: 0,
+      colunas: 2,
+      colunasGradeTemplate: '2fr 1fr',
+      espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+      telas: [
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
+        },
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_1'),
+          preencherCelulaGrade: true,
+          alturaMaxima: 240,
+        },
+      ],
+      calloutApos: {
+        tipo: 'dica',
+        texto:
+          'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
+      },
+    },
+    ...GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
   ],
 } as const
 
@@ -495,7 +614,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Indicadores da grade',
           tituloCurto: 'Indicadores da grade',
           rotuloPasso: 'Indicadores da grade',
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Abaixo do bloco **mapa + Rankings**, a grade reúne **oito widgets**: alertas, funil, evolução mensal, **câmbio PTAX** e gráficos de composição. Cada card resume o escopo do workspace; clique para abrir detalhes na **Lista** quando disponível.',
           ],
@@ -934,8 +1052,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Cotação avulsa',
           tituloCurto: 'Cotação avulsa',
           ocultarNoSumario: true,
-          ocultarRotuloPasso: true,
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Exemplo de **cotação avulsa**, ou **cotação spot**, na **Lista** — uma solicitação, um frete, uma rota.',
           ],
@@ -951,8 +1067,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'BID',
           tituloCurto: 'BID',
           ocultarNoSumario: true,
-          ocultarRotuloPasso: true,
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Exemplo de **BID** — **várias cotações** vinculadas a um único **BID**. Usado em negociações de **médio** e **longo prazo** com fornecedores.',
           ],
@@ -974,52 +1088,17 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
         },
         PASSO_COTACAO_AVULSA_MANUAL,
+        PASSO_COTACAO_AVULSA_SMART_DOC,
+        PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO,
         {
-          titulo: 'Cotação avulsa via Smart Docs',
-          tituloCurto: 'Via Smart Docs',
-          ocultarNoSumario: true,
-          rotuloPasso: 'Cotação avulsa - Via Smart Doc',
+          titulo: 'BID',
+          tituloCurto: 'BID',
+          estiloTituloWizard: true,
           paragrafos: [
-            'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**. Recurso **em breve** no produto.',
+            'O **BID** nada mais é do que um conjunto de **cotações**; logo, o primeiro passo é sempre **criar cotação** e depois **consolidar** todas.',
           ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID manual',
-          tituloCurto: 'BID manual',
-          ocultarNoSumario: true,
-          rotuloPasso: 'BID',
-          paragrafos: [
-            'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **BID**.',
-          ],
+          mostrarInfograficoBidFreteBidPacoteCotacoes: true,
           galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_BID_MANUAL,
-        },
-        {
-          titulo: 'BID via planilha',
-          tituloCurto: 'Via planilha',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'Importe **Excel**, **CSV** ou **XML** para gerar o **BID**. Recurso **em breve** no produto.',
-          ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID via Smart Docs',
-          tituloCurto: 'Via Smart Docs',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'A **IA** extrai dados do documento comercial e pré-preenche o **BID**. Recurso **em breve**.',
-          ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID por API',
-          tituloCurto: 'Por API',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'Integre via **API Cockpit** ou **ERP** para criar **BIDs**. Recurso **em breve**.',
-          ],
-          badgeEmDesenvolvimento: true,
         },
       ]),
     },

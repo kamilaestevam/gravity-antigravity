@@ -6,6 +6,8 @@
  * - linha roxa → 1º parágrafo: 18px (`MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX`)
  * - parágrafo / intro → primeiro passo / blocos padrão: 12px
  * - fim de um passo (tela) → próximo passo: 32px (`MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX`)
+ * - galeria consecutiva no **mesmo subcapítulo** (sem novo `tituloEtapa`): 12px (gap do bloco)
+ * - galeria → nova sub-seção nomeada (`tituloEtapa` / `rotuloPasso`): 32px (gap 12 + extra 20)
  * - bloco anterior → título de fluxo H2/H3: 32px (`MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX`)
  * - rótulo do infográfico ↔ primeiro card: 18px (`MANUAL_ESPACO_APOS_TITULO_INFOGRAFICO_GUIA_PX`)
  * - screenshot ↔ infográfico (mapa mental): 32px (`MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX`)
@@ -24,6 +26,13 @@ export const MANUAL_ESPACO_APOS_LINHA_TITULO_GUIA_PX = 18
 
 /** Guia Gravity — fim de um passo (screenshot) ↔ início do próximo passo. */
 export const MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX = 32
+
+/**
+ * Guia Gravity — incremento sobre o gap 12px do `.uni-player-aula__bloco-passo`
+ * para totalizar 32px entre sub-seções (galeria ↔ galeria, print ↔ rótulo).
+ */
+export const MANUAL_ESPACO_EXTRA_SUBSECAO_GUIA_PX =
+  MANUAL_ESPACO_ENTRE_PASSOS_GUIA_PX - MANUAL_ESPACO_PARAGRAFO_PX
 
 /** Guia Gravity — callout / visual / texto ↔ título de fluxo (H2/H3, não passo). */
 export const MANUAL_ESPACO_ANTES_TITULO_FLUXO_GUIA_PX = 32
@@ -55,6 +64,8 @@ type PassoBordaLateralGuia = {
   omitirBordaLateralRotuloAcademy?: boolean
 }
 
+export type { PassoBordaLateralGuia }
+
 /** SSOT — passo usa borda lateral indigo (rótulo ou «Passo NN», nunca H2 wizard). */
 export function passoUsaBordaLateralGuia(
   passo: PassoBordaLateralGuia,
@@ -81,10 +92,8 @@ export function classePassoCorpoAcademy(
  * Guia Gravity — título de bloco dentro de um fluxo (ex.: H2 «Tokens» → `rotuloPasso` «Cards do token»).
  * Use `rotuloPasso` no passo visual em vez de «Passo NN» quando o bloco é um assunto nomeado
  * (tela, cards, etapa temática), não uma sequência operacional numerada.
- * Layout: rótulo roxo maiúsculo + parágrafos com borda lateral indigo (`.uni-player-aula__passo-corpo`)
- * — screenshot/galeria abaixo em `.uni-player-aula__passo-galeria`, alinhados à esquerda do passo.
- * A borda lateral vale só no bloco de **Passo NN** ou **subtítulo** (`rotuloPasso`); instruções
- * operacionais seguintes na mesma seção (ex.: etapas de «Novo token») ficam em texto simples, sem borda.
+ * Layout: rótulo roxo maiúsculo com borda lateral indigo **só no rótulo** (`.uni-player-aula__passo-corpo--rotulo`
+ * via `ManualAcademyBlocoRotuloComBorda`); parágrafos e screenshot/galeria abaixo **sem** borda.
  * Passos com H2 no sumário (`estiloTituloWizard`, ex.: «Análise») **não** usam borda.
  *
  * Abas principais (ex.: **Cards**, **Tabela**) são **H2 de fluxo** no corpo — não usam `rotuloPasso`.
@@ -133,6 +142,7 @@ export const MANUAL_ESPACO_ANTES_IMAGEM_ACORDEAO_PX = 6
  * REGRA ÚNICA — vão (margem medida) entre uma frase introdutória e a imagem/figura
  * que ela apresenta. Fonte da verdade para todo par «frase → print/infográfico».
  * Não usar valores ad hoc; sempre referenciar esta constante.
+ * Vale também para **DICA/callout → imagem** na mesma galeria (coluna única).
  */
 export const MANUAL_ESPACO_FRASE_IMAGEM_PX = 4
 

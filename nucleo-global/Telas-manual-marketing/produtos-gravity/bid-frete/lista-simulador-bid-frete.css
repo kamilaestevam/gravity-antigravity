@@ -1,0 +1,485 @@
+/* lista-simulador-bid-frete.css — Lista de cotações do simulador BID Frete.
+ * A base estrutural (painéis, status bar, toolbar, filtros, paginação) vem de
+ * lista-simulador-pedido.css + tabela-virtual.css; aqui ficam o tema azul do
+ * BID Frete e o estilo das células. */
+
+.bfs-lista {
+  --pds-accent: #60a5fa;
+  --pds-accent-hover: #3b82f6;
+  --gtv-accent: #60a5fa;
+  --gtv-link: #60a5fa;
+  --accent: #3b82f6;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+
+  padding: 1rem 1.25rem 0.75rem;
+  gap: 0.75rem;
+}
+
+/* Filtro de coluna e drop indicator no azul BID */
+.bfs-lista .gtv-filtro-btn:hover,
+.bfs-lista .gtv-filtro-btn--ativo {
+  color: #60a5fa;
+}
+
+.bfs-lista .pds-lista-th-col--drop-before::before,
+.bfs-lista .pds-lista-th-col--drop-after::after {
+  background: #60a5fa;
+}
+
+/* ── Botões de ação (demo) ───────────────────────────────── */
+
+.bfs-lista-toolbar__acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.bfs-lista-btn-primario,
+.bfs-lista-btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 8px;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: not-allowed;
+  border: none;
+}
+
+.bfs-lista-btn-primario {
+  background: var(--color-primary, #6366f1);
+  color: #ffffff;
+  opacity: 0.85;
+}
+
+.bfs-lista-btn-secundario {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  opacity: 0.85;
+}
+
+/* ── Expandir todos + ações em lote (Duplicar / Excluir) ──── */
+
+.bfs-lista-btn-expandir-todos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.bfs-lista-btn-expandir-todos:hover {
+  color: #f1f5f9;
+  border-color: rgba(96, 165, 250, 0.5);
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.bfs-lista-btn-acao-lote {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.bfs-lista-btn-acao-lote:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bfs-lista-btn-acao-lote:not(:disabled):hover {
+  color: #f1f5f9;
+  border-color: rgba(96, 165, 250, 0.5);
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.bfs-lista-btn-acao-lote--perigo {
+  color: #f87171;
+}
+
+.bfs-lista-btn-acao-lote--perigo:not(:disabled):hover {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* ── Tabela ──────────────────────────────────────────────── */
+
+.bfs-lista-tabela-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  /* Sólido — o wash rgba(255,255,255,0.015) virava #222c3e sob thead sticky
+     (bug de border-collapse) e destoava do gtv-th real (#1e293b). */
+  background: #1e293b;
+}
+
+.bfs-lista-tabela {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.74rem;
+  color: #e2e8f0;
+  min-width: 1120px;
+}
+
+/* Paridade TabelaVirtualGlobal (.gtv-th): fundo --bg-base e texto --text-primary */
+.bfs-lista-tabela thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #1e293b;
+}
+
+.bfs-lista-tabela th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #f1f5f9;
+  background-color: #1e293b;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.12);
+  white-space: nowrap;
+}
+
+.bfs-lista-th-check,
+.bfs-lista-td-check {
+  width: 34px;
+  min-width: 34px;
+  text-align: center !important;
+  padding-right: 0.2rem !important;
+}
+
+/* Checkbox — mesmo visual do gtv-checkbox do simulador Pedido */
+.bfs-lista-tabela .gtv-checkbox {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+}
+
+.bfs-lista-tabela .gtv-checkbox:checked {
+  background: #60a5fa;
+  border-color: #60a5fa;
+}
+
+.bfs-lista-tabela .gtv-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 0.5px;
+  width: 4px;
+  height: 8px;
+  border: solid #04070f;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.bfs-lista-tabela td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.bfs-lista-tabela tbody tr {
+  transition: background 0.15s;
+}
+
+.bfs-lista-tabela tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bfs-lista-linha--sel {
+  background: rgba(96, 165, 250, 0.07);
+}
+
+.bfs-lista-linha--clicavel {
+  cursor: pointer;
+}
+
+.bfs-lista-linha--clicavel:hover {
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.bfs-lista-linha--focada {
+  background: rgba(96, 165, 250, 0.1) !important;
+  outline: 1px solid rgba(96, 165, 250, 0.45);
+  outline-offset: -1px;
+}
+
+.bfs-lista-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+th.bfs-lista-num .pds-lista-th-col-label {
+  justify-content: flex-end;
+}
+
+.bfs-lista-numero-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bfs-lista-numero {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Paridade .bf-lista-numero-cotacao-abrir do produto real */
+.bfs-lista-link-detalhe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: #60a5fa;
+  cursor: pointer;
+}
+
+.bfs-lista-link-detalhe:hover {
+  background: rgba(96, 165, 250, 0.12);
+  color: #93c5fd;
+}
+
+/* ── Hierarquia BID (pai) → cotações (filhas) ─────────────── */
+
+.bfs-lista-linha-bid {
+  background: rgba(96, 165, 250, 0.04);
+}
+
+.bfs-lista-linha-bid td {
+  border-bottom-color: rgba(96, 165, 250, 0.14);
+}
+
+.bfs-lista-caret-bid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bfs-lista-caret-bid:hover {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.6);
+}
+
+.bfs-lista-numero-bid-grupo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.bfs-lista-numero-bid-grupo small {
+  font-size: 0.62rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Linha filha — indentação com conector, como na tabela hierárquica real */
+.bfs-lista-linha-filha {
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.bfs-lista-linha-filha td:nth-child(2) {
+  padding-left: 2rem;
+  position: relative;
+}
+
+.bfs-lista-linha-filha td:nth-child(2)::before {
+  content: '';
+  position: absolute;
+  left: 0.95rem;
+  top: 0;
+  bottom: 50%;
+  width: 0.65rem;
+  border-left: 1px solid rgba(96, 165, 250, 0.35);
+  border-bottom: 1px solid rgba(96, 165, 250, 0.35);
+  border-bottom-left-radius: 6px;
+}
+
+.bfs-lista-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--pill-cor, #94a3b8);
+  background: color-mix(in srgb, var(--pill-cor, #94a3b8) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pill-cor, #94a3b8) 32%, transparent);
+}
+
+.bfs-lista-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-weight: 600;
+}
+
+.bfs-lista-porto {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32rem;
+}
+
+.bfs-lista-porto small {
+  color: #64748b;
+  font-size: 0.64rem;
+  letter-spacing: 0.03em;
+}
+
+.bfs-lista-carga {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.bfs-lista-carga small {
+  color: #94a3b8;
+  font-size: 0.66rem;
+}
+
+.bfs-lista-propostas {
+  font-weight: 700;
+  cursor: default;
+}
+
+.bfs-lista-lance {
+  font-weight: 700;
+  color: #ffffff;
+  cursor: default;
+}
+
+.bfs-lista-savings {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 700;
+}
+
+.bfs-lista-vazio {
+  color: #475569;
+}
+
+.bfs-lista-vazia {
+  text-align: center;
+  color: #94a3b8;
+  padding: 2rem 0 !important;
+}
+
+/* Toast de ações em lote — paridade visual com .shell-toast */
+.bfs-toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10050;
+  pointer-events: none;
+}
+
+.bfs-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  min-width: 280px;
+  max-width: 400px;
+  pointer-events: all;
+  animation: bfs-toast-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes bfs-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bfs-toast--success { border-left: 3px solid #22c55e; }
+.bfs-toast--error { border-left: 3px solid #ef4444; }
+
+.bfs-toast__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.bfs-toast__icon--success { color: #22c55e; }
+.bfs-toast__icon--error { color: #ef4444; }
+
+.bfs-toast__message {
+  flex: 1;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #f1f5f9;
+  line-height: 1.5;
+}
+
+.bfs-toast__close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.bfs-toast__close:hover {
+  color: #f1f5f9;
+}

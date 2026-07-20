@@ -1,0 +1,60 @@
+/* kanban-simulador-bid-frete.css — cards do kanban de cotações
+ * (a base do board e da toolbar vem de kanban-simulador-pedido.css) */
+
+.bfs-kanban-card__rota {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0.35rem 0 0.3rem;
+}
+
+.bfs-kanban-card__rota-seta {
+  color: #64748b;
+}
+
+.bfs-kanban-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.bfs-kanban-card__modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.bfs-kanban-card__propostas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.bfs-kanban-card__footer {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bfs-kanban-card__sem-lance {
+  font-size: 0.64rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.bfs-kanban-card__prazo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.64rem;
+  color: #94a3b8;
+}

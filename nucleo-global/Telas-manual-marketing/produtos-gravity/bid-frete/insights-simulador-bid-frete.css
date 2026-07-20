@@ -1,0 +1,135 @@
+/* insights-simulador-bid-frete.css — complementos da tela Insights do
+ * simulador BID Frete (a base visual vem de insights-simulador-pedido.css). */
+
+.bfs-insights-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.bfs-insights-card-header .pds-insights-card__titulo {
+  margin: 0;
+}
+
+.bfs-insights-card-header__icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Mapa em largura total (sem coluna de Alertas/Funil, como no real) */
+.bfs-insights-globe-row--cheia {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Rankings Globais (esquerda) + Alertas/Funil (direita), abaixo do mapa */
+.bfs-insights-rankings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.bfs-insights-rankings-row__coluna-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.bfs-insights-rankings-row__coluna-direita .pds-funil-painel {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .bfs-insights-rankings-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Tooltips dos KPIs — paridade com o produto real ─────────────── */
+
+.cg-card__tooltip--portal:has(.bfs-kpi-tooltip-insights) {
+  width: min(380px, 92vw);
+}
+
+.bfs-kpi-tooltip-insights__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 0.35rem;
+}
+
+.bfs-kpi-tooltip-insights__head,
+.bfs-kpi-tooltip-insights__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.bfs-kpi-tooltip-insights__head {
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bfs-kpi-tooltip-insights__link {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: #60a5fa;
+  word-break: break-word;
+}
+
+.bfs-kpi-tooltip-insights__row span:nth-child(2) {
+  color: #cbd5e1;
+}
+
+.bfs-kpi-tooltip-insights__mais {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.bfs-insights-ptax-lista li {
+  cursor: default;
+}
+
+.bfs-insights-ptax-valor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bfs-insights-ptax-variacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bfs-insights-savings-valor {
+  color: #34d399;
+}
+
+.bfs-insights-taxa__donut {
+  background:
+    radial-gradient(closest-side, #0b1220 78%, transparent 79% 100%),
+    conic-gradient(#34d399 0% 87%, #f87171 87% 100%);
+}

@@ -1,0 +1,9 @@
+/* dashboard-simulador-bid-frete.css — Dashboard do simulador BID Frete.
+ * Reusa a base visual do dashboard do simulador do Pedido (que importa os
+ * estilos reais de PedidosDashboard/toolbar) e aplica o acento do produto. */
+
+@import '../pedido/dashboard-simulador-pedido.css';
+
+.bfs-dashboard-simulador {
+  --accent: #60a5fa;
+}

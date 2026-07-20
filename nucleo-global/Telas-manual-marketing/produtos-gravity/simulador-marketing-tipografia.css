@@ -320,6 +320,29 @@
   height: 10px !important;
 }
 
+/* BID Frete — painel cotação: rótulos pequenos (métricas hero, divisor insights, abas) */
+.interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .pcs-hero-metrica-rotulo,
+.interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .pcs-hero-metrica-rotulo-linha,
+.interactive-simulator-shell .pds-root .pcs-root .pcs-insights-divisor span,
+.interactive-simulator-shell .pds-root .pcs-root .pcs-tabs .dc-cockpit-tab {
+  font-size: 9px !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+}
+
+.interactive-simulator-shell .pds-root .pcs-root .pcs-tabs .dc-cockpit-tab .cfg-badge-breve {
+  font-size: 8px !important;
+  font-weight: 600 !important;
+}
+
+/* BID Frete — métricas hero: valores (neutraliza regra global 12px) */
+.interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .dc-competicao-seg-val {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
 .interactive-simulator-shell .pds-root .pds-lista-filtros-consolidados .fc-limpar-todos {
   font-size: 9.5px !important;
 }

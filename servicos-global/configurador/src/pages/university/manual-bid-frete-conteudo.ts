@@ -11,7 +11,7 @@ import {
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
 import { GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC, GALERIA_BID_FRETE_NOVA_COTACAO_SMART_DOC_RESULTADO } from './manual-bid-frete-nova-cotacao-smart-doc-conteudo'
-import { PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO, TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS, TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR, telasGaleriaAnaliseFornecedorComparar, telasGaleriaAprovacaoCotacao, telasGaleriaAprovadoFinalCotacao, telasGaleriaAprovadoFornecedorCotacao, telasGaleriaOutrosColocadosFornecedorCotacao } from './manual-bid-frete-comparar-fechar-conteudo'
+import { PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO, TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS, TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR, galeriasCotacaoAvulsaPosEnvioFornecedor } from './manual-bid-frete-comparar-fechar-conteudo'
 import { GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO } from './manual-bid-frete-painel-cotacao-acesso-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS } from './manual-bid-frete-painel-cotacao-abas-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
@@ -31,48 +31,40 @@ const TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR =
 const TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL =
   'O formulário é alterado conforme o **modal**; no **aéreo** é possível incluir **valor total** e **valor por kg**.'
 
-/** Respostas + comparar + aprovar — uma frase por tela (Manual e Smart Doc). */
-const GALERIA_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS = {
-  indice: 0,
-  colunas: 1,
-  textoAcimaEstiloCorpo: true,
-  espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
-  telas: [
-    {
-      legenda: '',
-      imagem: S('resposta_fornecedor_1'),
-      paragrafoAntes: TEXTO_FORNECEDORES_RECEBEM_COTACAO_EMAIL,
+const TELAS_RESPOSTAS_FORNECEDOR_INICIAIS = [
+  {
+    legenda: '',
+    imagem: S('resposta_fornecedor_1'),
+    paragrafoAntes: TEXTO_FORNECEDORES_RECEBEM_COTACAO_EMAIL,
+  },
+  {
+    legenda: '',
+    imagem: S('resposta_fornecedor_2'),
+    calloutDepois: {
+      tipo: 'dica' as const,
+      texto: TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL,
     },
-    {
-      legenda: '',
-      imagem: S('resposta_fornecedor_2'),
-      calloutDepois: {
-        tipo: 'dica',
-        texto: TEXTO_DICA_FORMULARIO_RESPOSTA_FORNECEDOR_MODAL,
-      },
-    },
-    {
-      legenda: '',
-      imagem: S('email_fornecedor_04'),
-      paragrafoAntes: TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR,
-    },
-    {
-      legenda: '',
-      imagem: S('painel_cotacao_solicitacao_cotacao'),
-      paragrafoAntes: TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS,
-    },
-    {
-      legenda: '',
-      imagem: S('email_comprador_fornecedor_respondeu_cotacao'),
-      paragrafoDepois: TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR,
-    },
-    ...telasGaleriaAnaliseFornecedorComparar(),
-    ...telasGaleriaAprovacaoCotacao(),
-    ...telasGaleriaAprovadoFornecedorCotacao(),
-    ...telasGaleriaOutrosColocadosFornecedorCotacao(),
-    ...telasGaleriaAprovadoFinalCotacao(),
-  ],
-} as const
+  },
+  {
+    legenda: '',
+    imagem: S('email_fornecedor_04'),
+    paragrafoAntes: TEXTO_PAINEL_ATUALIZADO_RESPOSTA_FORNECEDOR,
+  },
+  {
+    legenda: '',
+    imagem: S('painel_cotacao_solicitacao_cotacao'),
+    paragrafoAntes: TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS,
+  },
+  {
+    legenda: '',
+    imagem: S('email_comprador_fornecedor_respondeu_cotacao'),
+    paragrafoDepois: TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR,
+  },
+]
+
+const GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS = galeriasCotacaoAvulsaPosEnvioFornecedor(
+  TELAS_RESPOSTAS_FORNECEDOR_INICIAIS,
+)
 
 /** Wizard manual — última galeria (aba Solicitação) + frase Configurações, sem galeria isolada. */
 function galeriasWizardManualComPainelSolicitacaoConfig() {
@@ -145,7 +137,7 @@ const PASSO_COTACAO_AVULSA_MANUAL = {
           'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
       },
     },
-    GALERIA_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
+    ...GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
   ],
 } as const
 
@@ -183,7 +175,7 @@ const PASSO_COTACAO_AVULSA_SMART_DOC = {
           'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
       },
     },
-    GALERIA_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
+    ...GALERIAS_COTACAO_AVULSA_FORNECEDOR_RESPOSTAS,
   ],
 } as const
 

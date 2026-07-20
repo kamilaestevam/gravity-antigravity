@@ -2,34 +2,57 @@ import { describe, expect, it } from 'vitest'
 import { DOC_BID_FRETE_SECAO } from './manual-bid-frete-conteudo'
 import {
   GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO,
+  GALERIAS_BID_FRETE_COMPARAR_FECHAR_COTACAO,
   PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO,
-  TEXTO_BID_FRETE_COMPARAR_COTACOES_RESPONDIDAS,
   TEXTO_BID_FRETE_DECISAO_APROVAR_COTACAO,
   TEXTO_BID_FRETE_FORNECEDOR_CONFIRMACAO_ACEITE_FINAL,
-  TEXTO_BID_FRETE_HORA_COMPARAR_E_FECHAR,
   TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS,
   TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR,
+  TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR,
+  TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO,
+  TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS,
+  TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS,
+  TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO,
+  TITULO_ETAPA_BID_FRETE_RESPOSTAS_FORNECEDOR,
 } from './manual-bid-frete-comparar-fechar-conteudo'
 
+const TITULOS_ETAPA_POS_ENVIO = [
+  TITULO_ETAPA_BID_FRETE_RESPOSTAS_FORNECEDOR,
+  TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS,
+  TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO,
+  TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR,
+  TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS,
+  TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO,
+] as const
+
 describe('manual BID Frete — comparar e respostas fornecedor', () => {
-  it('Comparar e fechar usa galeria única com 16 telas', () => {
-    expect(PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO.galeriaComparacaoAposParagrafo).toHaveLength(1)
+  it('Comparar e fechar usa 5 blocos temáticos com 16 telas', () => {
+    expect(PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO.galeriaComparacaoAposParagrafo).toHaveLength(5)
+    expect(GALERIAS_BID_FRETE_COMPARAR_FECHAR_COTACAO.map((g) => g.tituloEtapa)).toEqual([
+      TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS,
+      TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO,
+      TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR,
+      TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS,
+      TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO,
+    ])
     expect(GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO.telas).toHaveLength(16)
     expect(GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO.telas[0]?.imagem).toContain('analise-fornecedor-1')
   })
 
-  it('Manual e Smart Doc — respostas até painel aprovado final na mesma galeria', () => {
+  it('Manual e Smart Doc — pós-envio em 6 blocos temáticos (21 telas)', () => {
     const fluxo = DOC_BID_FRETE_SECAO.fluxos!.find((f) => f.ancoraPassosPrefix === 'nova-cotacao')
     const passos = fluxo?.passosVisuais ?? []
     for (const tituloCurto of ['Cotação manual', 'Cotação via Smart Doc'] as const) {
       const passo = passos.find((p) => p.tituloCurto === tituloCurto)
       expect(passo, tituloCurto).toBeDefined()
       const galerias = passo!.galeriaComparacaoAposParagrafo ?? []
-      const respostas = galerias.find((g) =>
-        g.telas.some((t) => t.imagem?.includes('email-comprador-fornecedor-respondeu-cotacao')),
-      )
-      expect(respostas, `${tituloCurto} galeria respostas`).toBeDefined()
-      const telas = respostas!.telas
+      const idxRespostas = galerias.findIndex((g) => g.tituloEtapa === TITULO_ETAPA_BID_FRETE_RESPOSTAS_FORNECEDOR)
+      expect(idxRespostas, `${tituloCurto} bloco respostas`).toBeGreaterThanOrEqual(0)
+
+      const blocosPosEnvio = galerias.slice(idxRespostas)
+      expect(blocosPosEnvio.map((g) => g.tituloEtapa)).toEqual([...TITULOS_ETAPA_POS_ENVIO])
+
+      const telas = blocosPosEnvio.flatMap((g) => g.telas)
       expect(telas).toHaveLength(21)
 
       const aprovacao5 = telas.find((t) => t.imagem?.includes('aprovacao-5'))

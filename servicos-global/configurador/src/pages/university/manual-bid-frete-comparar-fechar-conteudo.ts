@@ -41,6 +41,14 @@ export const TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS =
 export const TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR =
   'Assim que o **fornecedor** confirma e aceita que é o **vencedor**, o **Painel** é **atualizado**.'
 
+/** Subtítulos (`tituloEtapa`) — galeria pós-envio (Manual, Smart Doc e Comparar e fechar). */
+export const TITULO_ETAPA_BID_FRETE_RESPOSTAS_FORNECEDOR = 'Respostas do fornecedor'
+export const TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS = 'Comparar propostas'
+export const TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO = 'Aprovar cotação'
+export const TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR = 'Aceite do vencedor'
+export const TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS = 'Demais colocados'
+export const TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO = 'Painel atualizado'
+
 /** Prints 1–5 — comparar propostas (uma frase + uma tela). Reutilizado no fim dos passos 5/6 e no passo 7. */
 export const TELAS_ANALISE_FORNECEDOR_COMPARAR: { sufixo: string; paragrafoAntes: string }[] = [
   {
@@ -178,47 +186,45 @@ export function telasGaleriaAprovadoFinalCotacao(): DocGaleriaComparacaoTela[] {
   )
 }
 
-const TELAS_APROVACAO_E_FECHAMENTO: { sufixo: string; paragrafoAntes: string }[] = [
-  ...TELAS_APROVACAO_COTACAO,
-  ...TELAS_APROVADO_FORNECEDOR_COTACAO,
-  ...TELAS_OUTROS_COLOCADOS_FORNECEDOR_COTACAO,
-  ...TELAS_APROVADO_FINAL_COTACAO,
-]
-
 function telaCompararFechar(sufixo: string, paragrafoAntes: string): DocGaleriaComparacaoTela {
   return { legenda: '', imagem: S(sufixo), paragrafoAntes }
 }
 
-const TELAS_COMPARAR_FECHAR = [
-  ...TELAS_ANALISE_FORNECEDOR_COMPARAR,
-  ...TELAS_APROVACAO_E_FECHAMENTO,
-]
-
-/** §4.02 — galeria única (16 telas) para render contínuo no Academy e /docs. */
-export const GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO: GaleriaCompararFechar = {
-  ...GRADE_COMPARAR_FECHAR,
-  telas: TELAS_COMPARAR_FECHAR.map(({ sufixo, paragrafoAntes }) => {
-    const tela = telaCompararFechar(sufixo, paragrafoAntes)
-    if (sufixo === 'analise_fornecedor_5') {
-      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_DECISAO_APROVAR_COTACAO }
-    }
-    if (sufixo === 'aprovacao_5') {
-      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_FORNECEDOR_CONFIRMACAO_ACEITE_FINAL }
-    }
-    if (sufixo === 'aprovado_fornecedor_3') {
-      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_OUTROS_COLOCADOS_AVISADOS }
-    }
-    if (sufixo === 'aprovado_fornecedor_terceiro_lugar') {
-      return { ...tela, paragrafoDepois: TEXTO_BID_FRETE_PAINEL_ATUALIZADO_ACEITE_VENCEDOR }
-    }
-    return tela
-  }),
+function galeriaComTituloEtapa(
+  tituloEtapa: string,
+  telas: DocGaleriaComparacaoTela[],
+): GaleriaCompararFechar {
+  return { ...GRADE_COMPARAR_FECHAR, tituloEtapa, telas }
 }
 
-/** Compat — consumidores que esperam array de galerias isoladas. */
+/** §4.02 — blocos temáticos pós-envio (21 telas, mesma ordem — Manual e Smart Doc). */
+export function galeriasCotacaoAvulsaPosEnvioFornecedor(
+  telasRespostasFornecedor: DocGaleriaComparacaoTela[],
+): GaleriaCompararFechar[] {
+  return [
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_RESPOSTAS_FORNECEDOR, telasRespostasFornecedor),
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS, telasGaleriaAnaliseFornecedorComparar()),
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO, telasGaleriaAprovacaoCotacao()),
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR, telasGaleriaAprovadoFornecedorCotacao()),
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS, telasGaleriaOutrosColocadosFornecedorCotacao()),
+    galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO, telasGaleriaAprovadoFinalCotacao()),
+  ]
+}
+
+/** §4.02 — 5 blocos temáticos (16 telas) para Comparar e fechar no Academy e /docs. */
 export const GALERIAS_BID_FRETE_COMPARAR_FECHAR_COTACAO: GaleriaCompararFechar[] = [
-  GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO,
+  galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_COMPARAR_PROPOSTAS, telasGaleriaAnaliseFornecedorComparar()),
+  galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_APROVAR_COTACAO, telasGaleriaAprovacaoCotacao()),
+  galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_ACEITE_VENCEDOR, telasGaleriaAprovadoFornecedorCotacao()),
+  galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_DEMAIS_COLOCADOS, telasGaleriaOutrosColocadosFornecedorCotacao()),
+  galeriaComTituloEtapa(TITULO_ETAPA_BID_FRETE_PAINEL_ATUALIZADO, telasGaleriaAprovadoFinalCotacao()),
 ]
+
+/** Compat — telas achatadas (testes e consumidores legados). */
+export const GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO: GaleriaCompararFechar = {
+  ...GRADE_COMPARAR_FECHAR,
+  telas: GALERIAS_BID_FRETE_COMPARAR_FECHAR_COTACAO.flatMap((g) => g.telas),
+}
 
 /** §4.02.03 — passo próprio no sumário Academy (após Manual ou Smart Doc). */
 export const PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO: DocPassoVisual = {
@@ -226,5 +232,5 @@ export const PASSO_BID_FRETE_COMPARAR_FECHAR_COTACAO: DocPassoVisual = {
   tituloCurto: 'Comparar e fechar',
   estiloTituloWizard: true,
   paragrafos: [],
-  galeriaComparacaoAposParagrafo: [GALERIA_BID_FRETE_COMPARAR_FECHAR_COTACAO],
+  galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_COMPARAR_FECHAR_COTACAO,
 }

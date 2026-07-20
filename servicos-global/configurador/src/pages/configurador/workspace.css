@@ -3278,10 +3278,11 @@ body.light-theme .cw-xml-viewer {
   display: none !important;
 }
 
+/* SSOT Guia — ritmo interno do passo: 12px entre rótulo, texto, galeria e prints (`MANUAL_ESPACO_PARAGRAFO_PX`). */
 .uni-player-aula__bloco-passo {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 12px;
   margin: 0;
 }
 
@@ -3293,8 +3294,9 @@ body.light-theme .cw-xml-viewer {
   margin: 0;
 }
 
+/* Etapa ↔ etapa no mesmo passo: 32px = gap 12px + 20px */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-etapa + .uni-player-aula__passo-etapa {
-  margin-top: 32px;
+  margin-top: 20px;
 }
 
 /* Parágrafo + galeria dentro do corpo do passo (Academy): 32px entre etapas (12px gap + 20px = SSOT). */
@@ -3311,6 +3313,16 @@ body.light-theme .cw-xml-viewer {
   margin-top: 0;
 }
 
+/* Nova sub-seção nomeada dentro da etapa: 32px = gap 12 + 20 */
+.uni-player-aula__passo-etapa > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria--subsecao:not(.uni-player-aula__passo-galeria--apos-callout) {
+  margin-top: 20px;
+}
+
+/* DICA (`calloutApos`) já aplica 32px — cancela o gap 12px da etapa */
+.uni-player-aula__passo-etapa > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria.uni-player-aula__passo-galeria--apos-callout {
+  margin-top: -12px;
+}
+
 .uni-player-aula__passo-corpo {
   display: flex;
   flex-direction: column;
@@ -3319,10 +3331,12 @@ body.light-theme .cw-xml-viewer {
   padding: 0;
 }
 
-/* Borda lateral indigo — só subtítulos (`rotuloPasso`), não passos com H2 no sumário. */
+/* Borda lateral indigo — só no rótulo/subtítulo (`--rotulo`), não estica com parágrafos ou prints. */
 .uni-player-aula__passo-corpo--rotulo {
   padding: 0 0 0 18px;
   border-left: 3px solid rgba(99, 102, 241, 0.45);
+  flex: 0 0 auto;
+  align-self: stretch;
 }
 
 /* Guia — seção crítica (`destaqueRotuloPassoGuia`): brilho indigo, só onde o conteúdo marcar. */
@@ -3350,20 +3364,20 @@ body.light-theme .cw-xml-viewer {
   text-shadow: 0 0 20px rgba(129, 140, 248, 0.55);
 }
 
-/* Corpo do passo após bloco anterior no mesmo passo */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo {
-  margin-top: 12px;
+/* Filhos do passo — gap 12px do bloco; sem margin-top ad hoc */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-painel,
+.uni-player-aula__bloco-passo > .uni-player-aula__figura,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-callouts {
+  margin-top: 0;
   margin-left: 0;
 }
 
-/* Infográfico UX10 → texto do passo: 32px (Guia — screenshot ↔ infográfico) */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-corpo {
-  margin-top: 32px;
-}
-
-/* Infográfico UX10 → etapa do passo (texto + screenshots): 32px */
+/* Infográfico UX10 → texto / etapa do passo: 32px */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-corpo,
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-etapa {
-  margin-top: 32px;
+  margin-top: 20px;
 }
 
 .uni-player-aula__passo-etapa > .uni-player-aula__passo-corpo,
@@ -3372,46 +3386,17 @@ body.light-theme .cw-xml-viewer {
   margin-top: 0;
 }
 
-/* Primeiro bloco do passo não empilha margin-top extra */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria:first-child,
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo:first-child,
-.uni-player-aula__bloco-passo > .uni-player-aula__figura:first-child {
-  margin-top: 0;
-}
-
-/* Painel / screenshot / galeria / dica — 12px entre si; alinhados à esquerda do passo. */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-painel,
-.uni-player-aula__bloco-passo > .uni-player-aula__figura,
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria,
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-callouts {
-  margin-top: 12px;
-  margin-left: 0;
-}
-
-/* Subtítulo do passo → infográfico UX10: 32px */
+/* Nova sub-seção nomeada (`tituloEtapa` / `rotuloPasso`) após galeria anterior: 32px = gap 12 + 20 */
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria--secao-visual,
-.uni-player-aula__bloco-passo > * + .uni-player-aula__passo-galeria--secao-visual {
-  margin-top: 32px;
-}
-
-/* Screenshot / galeria anterior → subtítulo da próxima sub-seção (rotuloPasso): 32px */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria {
-  margin-top: 32px;
-}
-
-/* DICA (`calloutApos`) já aplica o vão — evita somar 32px no wrapper seguinte */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria.uni-player-aula__passo-galeria--apos-callout {
-  margin-top: 0;
-}
-
-/* Infográfico UX10 → galeria de passo (ex.: Refinar mapa → 01 Tipo de Operação): 32px */
+.uni-player-aula__bloco-passo > * + .uni-player-aula__passo-galeria--secao-visual,
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria--subsecao:not(.uni-player-aula__passo-galeria--apos-callout),
 .uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria--secao-visual + .uni-player-aula__passo-galeria {
-  margin-top: 32px;
+  margin-top: 20px;
 }
 
-/* Texto do passo → galeria de prints: 12px (sub-seção no mesmo passo). */
-.uni-player-aula__bloco-passo > .uni-player-aula__passo-corpo + .uni-player-aula__passo-galeria {
-  margin-top: 12px;
+/* DICA (`calloutApos`) já aplica 32px — cancela o gap 12px do bloco */
+.uni-player-aula__bloco-passo > .uni-player-aula__passo-galeria + .uni-player-aula__passo-galeria.uni-player-aula__passo-galeria--apos-callout {
+  margin-top: -12px;
 }
 
 .uni-player-aula__passo-corpo > * {
@@ -3434,6 +3419,14 @@ body.light-theme .cw-xml-viewer {
   gap: 12px;
   margin: 0;
   width: 100%;
+}
+
+/* Rótulo separado do corpo — ritmo 12px entre subtítulo e parágrafos */
+.uni-player-aula__passo-grupo-cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
 }
 
 /* Infográfico UX10 → etapas da galeria (passo a passo após mapa de seção) */

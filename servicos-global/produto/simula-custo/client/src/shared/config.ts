@@ -8,6 +8,8 @@
  * Ícones: nomes Phosphor Icons em kebab-case.
  */
 
+import { rotaSimulaCusto } from './rotas-estimativa-custo'
+
 export interface NavigationItem {
   id:            string
   label:         string
@@ -18,6 +20,8 @@ export interface NavigationItem {
   badge?:        string
   badgeVariant?: 'accent' | 'muted'
   children?:     NavigationItem[]
+  /** Se true, o item abre em nova aba (link externo cross-aplicação) */
+  external?:     boolean
 }
 
 export const PRODUCT_CONFIG = {
@@ -51,22 +55,17 @@ export const PRODUCT_CONFIG = {
     {
       id: 'meu-espaco', label: 'Meu Espaço', icon: 'user-circle', source: 'tenant' as const,
       children: [
-        { id: 'meu-espaco/atividades', label: 'Minhas Atividades', icon: 'check-circle',  source: 'tenant'  as const },
-        { id: 'meu-espaco/email',      label: 'Email',             icon: 'envelope',       source: 'tenant'  as const },
-        { id: 'meu-espaco/whatsapp',   label: 'WhatsApp',          icon: 'chat-circle',    source: 'tenant'  as const },
+        { id: '/hub', label: 'Minhas Atividades', icon: 'check-circle', source: 'tenant' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' as const },
+        { id: '/hub', label: 'Email',             icon: 'envelope',     source: 'tenant' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' as const },
+        { id: '/hub', label: 'WhatsApp',          icon: 'chat-circle',  source: 'tenant' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' as const },
       ],
     },
 
-    // ── Estimativas ─────────────────────────────────────────────────────────
-    { id: 'section-estimativas', label: 'Estimativas', sectionDivider: true },
-    { id: 'dashboard',     label: 'Dashboard',    icon: 'chart-pie-slice', source: 'product' as const },
-    { id: 'estimativas',   label: 'Lista',         icon: 'list-bullets',   source: 'product' as const },
-    { id: 'kanban',        label: 'Kanban',         icon: 'kanban',         source: 'product' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
-
     // ── Serviços ─────────────────────────────────────────────────────────────
-    { id: 'relatorios',    label: 'Relatórios',    icon: 'file-text',      source: 'product' as const },
-    { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  as const },
-    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',       source: 'product' as const },
+    // Insights/Lista/Dashboard/Kanban navegam pelas pills no topo da página
+    // (EstimativaCustoVisualizacaoTabs) — paridade Bid Frete Internacional.
+    { id: '/workspace/historico-organizacao?id_produto_historico_log=simula-custo', label: 'Histórico', icon: 'clock-counter-clockwise', source: 'tenant' as const, external: true },
+    { id: rotaSimulaCusto('configuracoes'), label: 'Configurações', icon: 'gear-six',        source: 'product' as const },
 
   ] satisfies NavigationItem[],
 

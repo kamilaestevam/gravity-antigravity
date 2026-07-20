@@ -7,9 +7,10 @@ import {
   ManualGaleriaComparacaoIntro,
   ManualGaleriaTelasBloco,
   ManualTagSecaoImportante,
+  ManualAcademyBlocoRotuloComBorda,
   chaveTelasGaleriaComparacao,
   margemInferiorCalloutAposAntesRotuloPassoPx,
-  margemSuperiorGaleriaAcademyAntesSubsecaoPx,
+  galeriaAbreSubsecaoMesmoPasso,
 } from './manual-configurador-ui'
 import { ManualInfograficoColunasTabela } from './manual-infografico-colunas-tabela'
 import { ManualPainelRequisitosCadastro } from './manual-login-painel-requisitos'
@@ -24,8 +25,47 @@ import {
   MANUAL_ESPACO_ENTRE_PARAGRAFOS_GUIA_PX,
   MANUAL_ESPACO_PARAGRAFO_PX,
   MANUAL_GUIA_CORPO_TIPOGRAFIA,
-  classePassoCorpoAcademy,
 } from './manual-tipografia'
+
+const CLASSE_CORPO_PASSO_PLAIN = 'uni-player-aula__passo-corpo'
+
+function AcademyPassoGrupoCabecalho({ children }: { children: React.ReactNode }) {
+  return <div className="uni-player-aula__passo-grupo-cabecalho">{children}</div>
+}
+
+function badgesRotuloPassoAcademy(passo: DocPassoVisual) {
+  return (
+    <>
+      {passo.tagEmConstrucao ? (
+        <span className="ws-badge ws-badge-warning">Em construção</span>
+      ) : null}
+      {passo.tagSecaoImportante ? (
+        <ManualTagSecaoImportante />
+      ) : null}
+      {passo.tagEmBreve ? (
+        <span className="ws-badge ws-badge-warning">Em breve</span>
+      ) : null}
+    </>
+  )
+}
+
+function AcademyPassoRotuloComBorda({
+  passo,
+  semRotulo,
+}: {
+  passo: DocPassoVisual
+  semRotulo: boolean
+}) {
+  if (semRotulo) return null
+  const rotulo = passo.rotuloPasso?.trim() ?? `Passo ${String(passo.num).padStart(2, '0')}`
+  return (
+    <ManualAcademyBlocoRotuloComBorda
+      passo={passo}
+      rotulo={rotulo}
+      badges={badgesRotuloPassoAcademy(passo)}
+    />
+  )
+}
 
 function AcademyGaleriaRotuloPasso({ rotuloPasso }: { rotuloPasso?: string }) {
   const rotulo = rotuloPasso?.trim()
@@ -67,53 +107,45 @@ function AcademyGaleriaComparacaoPasso({
     ? [{ ...galeria.telas[0], paragrafoAntes: undefined }, ...galeria.telas.slice(1)]
     : galeria.telas
   const galeriaAnterior = idxGaleria > 0 ? galerias[idxGaleria - 1] : undefined
-  const margemSuperiorGaleriaPx = margemSuperiorGaleriaAcademyAntesSubsecaoPx(
-    idxGaleria,
-    galeria,
-    galeriaAnterior,
-  )
   const calloutAposMarginBottomPx = margemInferiorCalloutAposAntesRotuloPassoPx(
     galeria,
     galerias[idxGaleria + 1],
   )
-  const galeriaAposCalloutSubsecao = margemSuperiorGaleriaPx === 0
+  const galeriaAbreSubsecao = idxGaleria > 0 && galeriaAbreSubsecaoMesmoPasso(galeria)
+  const galeriaAposCalloutSubsecao = idxGaleria > 0
+    && Boolean(galeriaAnterior?.calloutApos && galeriaAbreSubsecaoMesmoPasso(galeria))
   return (
     <div
       key={`${prefixoChave}-${chaveTelas}`}
-      className={
-        galeriaAposCalloutSubsecao
-          ? 'uni-player-aula__passo-galeria uni-player-aula__passo-galeria--apos-callout'
-          : 'uni-player-aula__passo-galeria'
-      }
-      style={
-        margemSuperiorGaleriaPx != null
-          ? { marginTop: margemSuperiorGaleriaPx }
-          : undefined
-      }
+      className={[
+        'uni-player-aula__passo-galeria',
+        galeriaAposCalloutSubsecao ? 'uni-player-aula__passo-galeria--apos-callout' : '',
+        galeriaAbreSubsecao && !galeriaAposCalloutSubsecao ? 'uni-player-aula__passo-galeria--subsecao' : '',
+      ].filter(Boolean).join(' ')}
     >
       {rotulo ? (
-        <div
-          className={classePassoCorpoAcademy({}, true)}
-          style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}
-        >
-          <AcademyGaleriaRotuloPasso rotuloPasso={rotulo} />
+        <>
+          <ManualAcademyBlocoRotuloComBorda passo={{}} rotulo={rotulo} />
           {textoCorpo ? (
             <p style={{ ...ESTILO_CORPO, margin: 0 }}>
               <AcademyTextoRich texto={textoCorpo} />
             </p>
           ) : null}
-        </div>
+        </>
       ) : null}
       <ManualGaleriaComparacaoIntro
         telas={telas}
         ampliarInferiorDireito={galeria.ampliarInferiorDireito}
         colunas={galeria.colunas}
         textoAcimaEstiloCorpo={galeria.textoAcimaEstiloCorpo}
+        espacoTextoFiguraPx={galeria.espacoTextoFiguraPx}
         layoutCardInsightGradeSmartDocs={galeria.layoutCardInsightGradeSmartDocs}
         calloutApos={galeria.calloutApos}
         calloutAposMarginBottomPx={calloutAposMarginBottomPx}
         margemSuperiorPx={0}
         espacoInferiorAposEtapaPx={0}
+        ritmoAcademyPassoIsolado
+        cenariosAcesso={galeria.cenariosAcesso}
       />
     </div>
   )
@@ -355,7 +387,6 @@ export function AcademyBlocoPassoVisual({
     : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
   const semRotulo = passo.ocultarRotuloPasso === true || passo.estiloTituloWizard === true || emGradeCenarios
   const semTitulo = passo.ocultarTituloPasso === true
-  const classeCorpoPasso = classePassoCorpoAcademy(passo, !semRotulo)
   const temCabecalho = !semRotulo || !semTitulo
   const temParagrafos = (passo.paragrafos?.length ?? 0) > 0
   const temSequenciaTextoFigura = temParagrafos
@@ -376,17 +407,17 @@ export function AcademyBlocoPassoVisual({
   ) : null
 
   const corpoTextoPasso = (
-    <>
-      {!semRotulo ? (
-        <AcademyPassoRotuloLinha passo={passo} />
-      ) : null}
-      {!semTitulo ? (
-        <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
-      ) : null}
-      {temParagrafos ? (
-        <AcademyPassoParagrafosComCallouts passo={passo} />
-      ) : null}
-    </>
+    <AcademyPassoGrupoCabecalho>
+      <AcademyPassoRotuloComBorda passo={passo} semRotulo={semRotulo} />
+      <div className={CLASSE_CORPO_PASSO_PLAIN}>
+        {!semTitulo ? (
+          <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+        ) : null}
+        {temParagrafos ? (
+          <AcademyPassoParagrafosComCallouts passo={passo} />
+        ) : null}
+      </div>
+    </AcademyPassoGrupoCabecalho>
   )
 
   if (cenarioParte === 'texto') {
@@ -441,7 +472,7 @@ export function AcademyBlocoPassoVisual({
             <CalloutPasso callout={passo.calloutAntes} />
           </div>
         ) : null}
-        <div className={classeCorpoPasso}>
+        <div className={CLASSE_CORPO_PASSO_PLAIN}>
           {corpoPasso}
         </div>
         {!passo.calloutAoLadoTexto ? blocoCalloutsFinal : null}
@@ -477,17 +508,17 @@ export function AcademyBlocoPassoVisual({
         {passo.paragrafos!.map((p, i) => (
           <div key={i} className="uni-player-aula__passo-etapa">
             {i === 0 ? (
-              <div className={classeCorpoPasso}>
-                {!semRotulo ? (
-                  <AcademyPassoRotuloLinha passo={passo} />
-                ) : null}
-                {!semTitulo ? (
-                  <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
-                ) : null}
-                <p style={{ ...ESTILO_CORPO, margin: 0 }}>
-                  <AcademyTextoRich texto={p} />
-                </p>
-              </div>
+              <AcademyPassoGrupoCabecalho>
+                <AcademyPassoRotuloComBorda passo={passo} semRotulo={semRotulo} />
+                <div className={CLASSE_CORPO_PASSO_PLAIN}>
+                  {!semTitulo ? (
+                    <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+                  ) : null}
+                  <p style={{ ...ESTILO_CORPO, margin: 0 }}>
+                    <AcademyTextoRich texto={p} />
+                  </p>
+                </div>
+              </AcademyPassoGrupoCabecalho>
             ) : (
               <p className="uni-player-aula__passo-texto-continuacao" style={{ ...ESTILO_CORPO, margin: 0 }}>
                 <AcademyTextoRich texto={p} />
@@ -539,24 +570,24 @@ export function AcademyBlocoPassoVisual({
         </div>
       ) : null}
       {temCorpoTexto ? (
-        <div className={classeCorpoPasso}>
-          {!semRotulo ? (
-            <AcademyPassoRotuloLinha passo={passo} />
-          ) : null}
-          {!semTitulo ? (
-            <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
-          ) : null}
-          {temParagrafos ? (
-            <AcademyPassoParagrafosComCallouts passo={passo} />
-          ) : null}
-          {passo.linkCapitulo && (
-            <p style={{ margin: 0 }}>
-              <Link to={passo.linkCapitulo.href} style={LINK_STYLE}>
-                {passo.linkCapitulo.texto}
-              </Link>
-            </p>
-          )}
-        </div>
+        <AcademyPassoGrupoCabecalho>
+          <AcademyPassoRotuloComBorda passo={passo} semRotulo={semRotulo} />
+          <div className={CLASSE_CORPO_PASSO_PLAIN}>
+            {!semTitulo ? (
+              <p style={ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+            ) : null}
+            {temParagrafos ? (
+              <AcademyPassoParagrafosComCallouts passo={passo} />
+            ) : null}
+            {passo.linkCapitulo && (
+              <p style={{ margin: 0 }}>
+                <Link to={passo.linkCapitulo.href} style={LINK_STYLE}>
+                  {passo.linkCapitulo.texto}
+                </Link>
+              </p>
+            )}
+          </div>
+        </AcademyPassoGrupoCabecalho>
       ) : null}
       {(passo.paragrafos?.length ?? 0) > 0
         ? passo.paragrafos!.flatMap((_, i) => {

@@ -1,22 +1,32 @@
-import React, { lazy, Suspense, useEffect } from 'react'
+/**
+ * App.tsx — Raiz da SPA Estimativa Custo (simula-custo)
+ *
+ * Montado pelo Configurador sob /simula-custo/* (rotas-convencao.md).
+ * Navegação lateral usa caminhos absolutos via rotaSimulaCusto —
+ * links relativos duplicavam segmentos na URL (TASK-000425).
+ */
+import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useShellStore } from '@gravity/shell'
+import { useTranslation } from 'react-i18next'
+import { useShellStore, useMeSync, ToastContainer } from '@gravity/shell'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import {
   useLocalizadorHistory,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
-import { PRODUCT_CONFIG } from './shared/config'
+import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { setApiContext } from './shared/api'
+import { rotaSimulaCusto } from './shared/rotas-estimativa-custo'
+import { traduzirPageMetaTopoEstimativaCusto } from './shared/page-meta-topo-estimativa-custo'
+import { ConteudoCarregandoEstimativaCusto } from './shared/pagina-carregando-estimativa-custo'
+import { EstimativaCustoVisualizacaoLayout } from './components/EstimativaCustoVisualizacaoLayout'
+import { EstimativaCustoMultiView } from './components/EstimativaCustoMultiView'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 
 import {
   Calculator,
-  Upload,
-  ChartBar,
   ChartPieSlice,
   CheckCircle,
-  FileText,
   Clock,
   Sparkle,
   Envelope,
@@ -28,30 +38,24 @@ import {
 } from '@phosphor-icons/react'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
-const EstimativasDashboard = lazy(() => import('./pages/estimativas/EstimativasDashboard'))
-const EstimativasImportar  = lazy(() => import('./pages/importar/EstimativasImportar'))
-const Configuracoes        = lazy(() => import('./pages/Configuracoes'))
+// Insights/Lista/Dashboard/Kanban montam dentro do EstimativaCustoMultiView
+// (keep-alive — paridade BidFreteMultiView).
+const Configuracoes = lazy(() => import('./pages/configuracoes-estimativa-custo'))
+const Formulario    = lazy(() => import('./pages/formulario-estimativa-custo'))
 
-import Dashboard from './pages/dashboard/Dashboard'
-import EstimativaFormulario from './pages/estimativas/EstimativaFormulario'
-import RelatoriosPage from './pages/relatorios/Relatorios'
-import { Dashboard as GlobalDashboard } from '@plataforma/dashboard/src/Dashboard'
+const estimativaCustoVisualizacoesElement = <EstimativaCustoMultiView />
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('simula-custo')
 const PRODUCT_ID    = 'simula-custo'
 const PRODUCT_NAME  = 'SimulaCusto'
-const PRODUCT_COLOR = PRODUTO.color   // usado nos ECOSYSTEM_NODES
+const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
   'calculator':              <Calculator    weight="duotone" size={20} />,
-  'upload':                  <Upload        weight="duotone" size={20} />,
-  'bar-chart':               <ChartBar      weight="duotone" size={20} />,
   'chart-pie-slice':         <ChartPieSlice weight="duotone" size={20} />,
   'check-circle':            <CheckCircle   weight="duotone" size={20} />,
-  'file-text':               <FileText      weight="duotone" size={20} />,
   'clock-counter-clockwise': <Clock         weight="duotone" size={20} />,
-  'clock':                   <Clock         weight="duotone" size={20} />,
   'sparkle':                 <Sparkle       weight="duotone" size={20} />,
   'envelope':                <Envelope      weight="duotone" size={20} />,
   'chat-circle':             <ChatCircle    weight="duotone" size={20} />,
@@ -61,81 +65,85 @@ const iconMap: Record<string, React.ReactNode> = {
   'user-circle':             <UserCircle    weight="duotone" size={20} />,
 }
 
-function mapNavigation(items: typeof PRODUCT_CONFIG.navigation): ReturnType<typeof mapNavigation> {
-  return (items as readonly any[]).map((item) => ({
-    to:       item.children ? undefined : item.id,
-    label:    item.label,
-    icon:     iconMap[item.icon] ?? <CheckCircle weight="duotone" size={20} />,
-    children: item.children ? mapNavigation(item.children as any) : undefined,
-  }))
+type NavItemShell = {
+  id?: string
+  to?: string
+  label: string
+  icon: React.ReactNode
+  disabled?: boolean
+  badge?: string
+  badgeVariant?: 'accent' | 'muted'
+  external?: boolean
+  sectionDivider?: boolean
+  children?: NavItemShell[]
 }
 
-const LoadingFallback = () => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    color: 'var(--text-muted)',
-    fontSize: '0.875rem',
-  }}>
-    Carregando módulo…
-  </div>
-)
+function mapNavItem(item: NavigationItem): NavItemShell {
+  if (item.sectionDivider) {
+    return { label: item.label, sectionDivider: true, icon: null }
+  }
+  return {
+    id:           item.id,
+    to:           item.children ? undefined : item.id,
+    label:        item.label,
+    icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
+    disabled:     item.disabled,
+    badge:        item.badge,
+    badgeVariant: item.badgeVariant,
+    external:     item.external,
+    children:     item.children?.map(mapNavItem),
+  }
+}
+
+const LoadingFallback = () => <ConteudoCarregandoEstimativaCusto />
 
 // ── Labels de rota ────────────────────────────────────────────────────────────
 const ROUTE_LABELS: Record<string, string> = {
+  'insights':      'Insights',
+  'lista':         'Lista',
   'dashboard':     'Dashboard',
+  'kanban':        'Kanban',
   'estimativas':   'Estimativas',
   'nova':          'Nova Estimativa',
-  'importar':      'Importar',
-  'relatorios':    'Relatórios',
-  'historico':     'Histórico',
-  'kanban':        'Kanban',
   'configuracoes': 'Configurações',
 }
 
 // ── Nós do ecossistema para o Localizador ─────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'hub',          label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'hub',          status: 'accessible' },
+  { id: 'hub',          label: 'Gravity',      sublabel: 'workspace',      color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,     label: PRODUCT_NAME,  sublabel: 'fiscal · NCM',   color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: 'fiscal · NCM',   color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
 export default function App() {
+  useMeSync()
+  const { t } = useTranslation()
   const location = useLocation()
   const {
     currentUser,
-    setCurrentUser,
     tooltipsDisabled,
     toggleTooltips,
     toggleTheme,
     currentTheme,
     clearCurrentUser,
   } = useShellStore()
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const workspacesStore  = useShellStore(s => s.workspaces)
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
-    if (currentUser.idOrganizacao) {
-      setApiContext({ idOrganizacao: currentUser.idOrganizacao, idUsuario: currentUser.id })
-    }
-  }, [currentUser.idOrganizacao, currentUser.id])
-
-  useEffect(() => {
-    if (!currentUser.name) {
-      setCurrentUser({
-        id: 'user-demo',
-        name: 'Daniel Silva',
-        email: 'dmmltda@gmail.com',
-        idOrganizacao: 'organizacao-1',
-        nomeOrganizacao: 'Gravity Soluções',
+    if (currentUser.id && currentUser.idOrganizacao) {
+      setApiContext({
+        idOrganizacao: currentUser.idOrganizacao,
+        idUsuario: currentUser.id,
+        idWorkspace: idWorkspaceAtivo ?? undefined,
       })
     }
-  }, [currentUser, setCurrentUser])
+  }, [currentUser.idOrganizacao, currentUser.id, idWorkspaceAtivo])
 
   useEffect(() => {
-    const seg = location.pathname.split('/').filter(Boolean).pop() ?? 'dashboard'
+    const seg = location.pathname.split('/').filter(Boolean).pop() ?? 'insights'
     const pageLabel = ROUTE_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1)
     addEntry({
       productId:    PRODUCT_ID,
@@ -149,32 +157,40 @@ export default function App() {
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : '??'
+    : currentUser.email?.[0]?.toUpperCase() ?? '?'
 
-  const navItems = mapNavigation(PRODUCT_CONFIG.navigation as any)
+  const navItems = PRODUCT_CONFIG.navigation.map(item => mapNavItem(item as NavigationItem))
 
-  const routeSegment = location.pathname.split('/').filter(Boolean).pop() ?? 'dashboard'
-  const pageLabel = ROUTE_LABELS[routeSegment] ?? routeSegment.charAt(0).toUpperCase() + routeSegment.slice(1)
+  const pageMeta = useMemo(
+    () => traduzirPageMetaTopoEstimativaCusto(location.pathname, t),
+    [location.pathname, t],
+  )
+
+  const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
+  const nomeWorkspaceAtivo =
+    wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
   return (
     <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
-      tenantName={currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'}
+      tenantName={nomeWorkspaceAtivo}
       tenantPlan={currentUser.nomeOrganizacao ?? ''}
-      navItems={navItems}
+      navItems={navItems as never}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       localizador={{
-        workspaceName:    currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa',
-        currentPageLabel: pageLabel,
+        workspaceName:       nomeWorkspaceAtivo,
+        currentPageLabel:    pageMeta.label,
+        currentPageIcon:     pageMeta.icone,
+        currentPageSubtitle: pageMeta.subtitulo,
         history,
         nodes: ECOSYSTEM_NODES,
         onNavigate: (node) => {
-          if (node.type === 'gravity')           window.location.href = '/hub'
+          if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
+          else if (node.type === 'produto')      window.location.href = `/${node.id}`
         },
       }}
       usuario={{
@@ -189,23 +205,23 @@ export default function App() {
         onSignOut:             () => { clearCurrentUser(); window.location.href = '/' },
       }}
     >
+      <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard"                  element={<Dashboard />} />
-          <Route path="estimativas"                element={<EstimativasDashboard />} />
-          <Route path="estimativas/nova"           element={<EstimativaFormulario />} />
-          <Route path="estimativas/:id_estimativa" element={<EstimativaFormulario />} />
-          <Route path="importar"                   element={<EstimativasImportar />} />
-          <Route path="relatorios"       element={<RelatoriosPage />} />
-          <Route path="configuracoes"    element={<Configuracoes />} />
-          <Route path="kanban"           element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />
-          <Route path="meu-espaco"       element={<GlobalDashboard />} />
-          <Route path="meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
-          <Route path="meu-espaco/email"      element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />
-          <Route path="meu-espaco/whatsapp"   element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Whatsapp (Tenant)</div>} />
-          <Route path="historico"        element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Histórico (Tenant)</div>} />
-          <Route path="*"                element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
+          <Route element={<EstimativaCustoVisualizacaoLayout />}>
+            <Route path="insights"      element={estimativaCustoVisualizacoesElement} />
+            <Route path="lista"         element={estimativaCustoVisualizacoesElement} />
+            <Route path="dashboard"     element={estimativaCustoVisualizacoesElement} />
+            <Route path="kanban"        element={estimativaCustoVisualizacoesElement} />
+            <Route path="configuracoes" element={<Configuracoes />} />
+          </Route>
+          <Route path="estimativas/nova"                  element={<Formulario />} />
+          <Route path="estimativas/:id_estimativa_custo"  element={<Formulario />} />
+          {/* Redirects legado */}
+          <Route path="estimativas"   element={<Navigate to={rotaSimulaCusto('lista')} replace />} />
+          <Route path="visao-geral"   element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
+          <Route path="*"             element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

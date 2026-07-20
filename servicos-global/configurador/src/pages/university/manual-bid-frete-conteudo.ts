@@ -10,26 +10,86 @@ import {
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_INSIGHT,
   GALERIA_BID_FRETE_COMO_ACESSAR_VIA_LISTA,
 } from './manual-bid-frete-nova-cotacao-manual-conteudo'
+import { GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC } from './manual-bid-frete-nova-cotacao-smart-doc-conteudo'
 import { GALERIAS_BID_FRETE_PAINEL_COTACAO_ACESSO } from './manual-bid-frete-painel-cotacao-acesso-conteudo'
 import { PASSOS_MANUAL_BID_FRETE_PAINEL_COTACAO_ABAS } from './manual-bid-frete-painel-cotacao-abas-conteudo'
 import { screenshotBidFreteInt } from './manual-bid-frete-catalogo-screenshots'
+import { MANUAL_ESPACO_FRASE_IMAGEM_PX } from './manual-tipografia'
 
 const S = screenshotBidFreteInt
 
+const LINK_MANUAL_BID_FRETE_COTACAO_AVULSA_SMART_DOC =
+  '{{link:/university-gravity/docs/bid-frete#manual-passo-nova-cotacao-5|Cotação avulsa - Via Smart Doc}}'
+
 /** §4.02 — wizard manual da cotação avulsa (simulador Modal e Operação). */
 const PASSO_COTACAO_AVULSA_MANUAL = {
-  titulo: 'Cotação manual',
-  tituloCurto: 'Cotação manual',
-  ocultarNoSumario: true,
-  rotuloPasso: 'Cotação avulsa - Manual',
+  titulo: 'Cotação avulsa - Manual',
+  tituloCurto: 'Cotação avulsa - Manual',
+  estiloTituloWizard: true,
   paragrafos: [
     'Clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Manual**.',
-    'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
     'O fornecedor irá receber o pedido de cotação via **email**.',
     'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
   ],
   galeriaComparacaoAposParagrafo: [
+    {
+      indice: 0,
+      colunas: 1,
+      textoAcimaEstiloCorpo: true,
+      espacoTextoFiguraPx: MANUAL_ESPACO_FRASE_IMAGEM_PX,
+      telas: [{
+        legenda: '',
+        imagem: S('solicitacao_email_fornecedor'),
+        paragrafoDepois:
+          'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **Cotação avulsa**.',
+      }],
+    },
     ...GALERIAS_BID_FRETE_NOVA_COTACAO_MANUAL_WIZARD,
+    {
+      indice: 2,
+      colunas: 2,
+      colunasGradeTemplate: '2fr 1fr',
+      telas: [
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_configuracoes'),
+        },
+        {
+          legenda: '',
+          imagem: S('solicitacao_aviso_envio_usuario_1'),
+          preencherCelulaGrade: true,
+          alturaMaxima: 240,
+        },
+      ],
+      calloutApos: {
+        tipo: 'dica',
+        texto:
+          'O usuário pode receber por **email** a cotação, como na imagem à **direita** acima.',
+      },
+    },
+  ],
+  callouts: [
+    {
+      tipo: 'dica',
+      texto:
+        `Quer saber o detalhamento do **Smart Doc**, clique em ${LINK_MANUAL_BID_FRETE_COTACAO_AVULSA_SMART_DOC}.`,
+    },
+  ],
+} as const
+
+/** §4.02.02 — wizard Smart Docs da cotação avulsa (17 prints). */
+const PASSO_COTACAO_AVULSA_SMART_DOC = {
+  titulo: 'Cotação avulsa - Via Smart Doc',
+  tituloCurto: 'Cotação avulsa - Via Smart Doc',
+  estiloTituloWizard: true,
+  paragrafos: [
+    'Clique primeiro no botão **+ Novo**, direcione para o menu **Cotação Avulsa** e finalize clicando na opção **Smart Docs**.',
+    'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**.',
+    'O fornecedor irá receber o pedido de cotação via **email**.',
+    'Caso o usuário queira receber aviso via **email**, basta habilitar a função em **Configurações**.',
+  ],
+  galeriaComparacaoAposParagrafo: [
+    ...GALERIAS_BID_FRETE_NOVA_COTACAO_SMART_DOC,
     {
       indice: 1,
       colunas: 1,
@@ -495,7 +555,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Indicadores da grade',
           tituloCurto: 'Indicadores da grade',
           rotuloPasso: 'Indicadores da grade',
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Abaixo do bloco **mapa + Rankings**, a grade reúne **oito widgets**: alertas, funil, evolução mensal, **câmbio PTAX** e gráficos de composição. Cada card resume o escopo do workspace; clique para abrir detalhes na **Lista** quando disponível.',
           ],
@@ -934,8 +993,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'Cotação avulsa',
           tituloCurto: 'Cotação avulsa',
           ocultarNoSumario: true,
-          ocultarRotuloPasso: true,
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Exemplo de **cotação avulsa**, ou **cotação spot**, na **Lista** — uma solicitação, um frete, uma rota.',
           ],
@@ -951,8 +1008,6 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           titulo: 'BID',
           tituloCurto: 'BID',
           ocultarNoSumario: true,
-          ocultarRotuloPasso: true,
-          omitirBordaLateralRotuloAcademy: true,
           paragrafos: [
             'Exemplo de **BID** — **várias cotações** vinculadas a um único **BID**. Usado em negociações de **médio** e **longo prazo** com fornecedores.',
           ],
@@ -974,52 +1029,16 @@ export const DOC_BID_FRETE_SECAO: DocSecao = {
           mostrarInfograficoBidFreteCotacaoAvulsaFormas: true,
         },
         PASSO_COTACAO_AVULSA_MANUAL,
+        PASSO_COTACAO_AVULSA_SMART_DOC,
         {
-          titulo: 'Cotação avulsa via Smart Docs',
-          tituloCurto: 'Via Smart Docs',
-          ocultarNoSumario: true,
-          rotuloPasso: 'Cotação avulsa - Via Smart Doc',
+          titulo: 'BID',
+          tituloCurto: 'BID',
+          estiloTituloWizard: true,
           paragrafos: [
-            'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**. Recurso **em breve** no produto.',
+            'O **BID** nada mais é do que um conjunto de **cotações**; logo, o primeiro passo é sempre **criar cotação** e depois **consolidar** todas.',
           ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID manual',
-          tituloCurto: 'BID manual',
-          ocultarNoSumario: true,
-          rotuloPasso: 'BID',
-          paragrafos: [
-            'Neste subtópico, detalhamos exclusivamente o fluxo de criação através da opção **Manual** em **BID**.',
-          ],
+          mostrarInfograficoBidFreteBidPacoteCotacoes: true,
           galeriaComparacaoAposParagrafo: GALERIAS_BID_FRETE_BID_MANUAL,
-        },
-        {
-          titulo: 'BID via planilha',
-          tituloCurto: 'Via planilha',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'Importe **Excel**, **CSV** ou **XML** para gerar o **BID**. Recurso **em breve** no produto.',
-          ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID via Smart Docs',
-          tituloCurto: 'Via Smart Docs',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'A **IA** extrai dados do documento comercial e pré-preenche o **BID**. Recurso **em breve**.',
-          ],
-          badgeEmDesenvolvimento: true,
-        },
-        {
-          titulo: 'BID por API',
-          tituloCurto: 'Por API',
-          ocultarNoSumario: true,
-          paragrafos: [
-            'Integre via **API Cockpit** ou **ERP** para criar **BIDs**. Recurso **em breve**.',
-          ],
-          badgeEmDesenvolvimento: true,
         },
       ]),
     },

@@ -267,6 +267,7 @@ function passoSomenteTituloSecaoAcademy(passo: DocPassoConfigurador): boolean {
   if ((passo.galeriaComparacao?.length ?? 0) > 0) return false
   if ((passo.galeriaTelas?.length ?? 0) > 0) return false
   if (passo.mostrarInfograficoBidFreteCotacaoAvulsaFormas) return false
+  if (passo.mostrarInfograficoBidFreteBidPacoteCotacoes) return false
   return true
 }
 

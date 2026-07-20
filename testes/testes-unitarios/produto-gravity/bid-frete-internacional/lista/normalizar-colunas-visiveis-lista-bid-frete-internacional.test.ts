@@ -6,6 +6,7 @@ import {
   ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
 } from '../../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/ordem-colunas-lista-bid-frete-internacional'
 import {
+  mesclarColunasManuaisNasPreferenciasListaBidFrete,
   migrarOrdemColunasPainelListaBidFrete,
   migrarPreferenciasColunasListaBidFreteSeNecessario,
   STORAGE_COLUNAS_VERSAO_BID_FRETE,
@@ -67,6 +68,62 @@ describe('normalizarColunasVisiveisListaBidFrete', () => {
     const catalogo = [...ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL, custom]
     const normalizadas = normalizarColunasVisiveisListaBidFrete(salvas, catalogo)
     expect(normalizadas.at(-1)).toBe(custom)
+  })
+
+  it('colunas custom fora do catálogo SSOT permanecem visíveis ao normalizar', () => {
+    const custom = 'nova_coluna_texto'
+    const salvas = [
+      'numero_cotacao_bid_frete_internacional',
+      'status_cotacao_bid_frete_internacional',
+      'tipo_operacao_cotacao_bid_frete_internacional',
+      custom,
+    ]
+    const normalizadas = normalizarColunasVisiveisListaBidFrete(salvas)
+    expect(normalizadas).toContain(custom)
+    expect(normalizadas.at(-1)).toBe(custom)
+  })
+})
+
+describe('mesclarColunasManuaisNasPreferenciasListaBidFrete', () => {
+  it('seleciona automaticamente coluna manual nova', () => {
+    const merged = mesclarColunasManuaisNasPreferenciasListaBidFrete(
+      [{
+        id: 'col_1',
+        chave: 'nova_coluna_texto',
+        nome: 'Nova coluna texto',
+        tipo: 'texto',
+        escopo: 'pedido',
+        ativo: true,
+      }],
+      {
+        colunas_visiveis: [
+          'numero_cotacao_bid_frete_internacional',
+          'status_cotacao_bid_frete_internacional',
+        ],
+      },
+    )
+    expect(merged?.colunas_visiveis).toContain('nova_coluna_texto')
+    expect(merged?.colunas_manuais_conhecidas).toContain('nova_coluna_texto')
+  })
+
+  it('não reexibe coluna manual que o usuário ocultou', () => {
+    const prev = {
+      colunas_visiveis: ['numero_cotacao_bid_frete_internacional'],
+      colunas_manuais_conhecidas: ['nova_coluna_texto'],
+    }
+    const merged = mesclarColunasManuaisNasPreferenciasListaBidFrete(
+      [{
+        id: 'col_1',
+        chave: 'nova_coluna_texto',
+        nome: 'Nova coluna texto',
+        tipo: 'texto',
+        escopo: 'pedido',
+        ativo: true,
+      }],
+      prev,
+    )
+    expect(merged).toBe(prev)
+    expect(merged?.colunas_visiveis).not.toContain('nova_coluna_texto')
   })
 })
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Manual BID Frete §11 Configurações — todas as telas do Drive.
  */
 import type { DocPassoVisual } from './manual-configurador-conteudo'
@@ -31,7 +31,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
     imagemAbaixoTexto: true,
   },
   {
-    titulo: 'CARD',
+    titulo: 'Card',
     paragrafos: [
       'Na aba **Cards**, escolha o **período de comparação**, inclua indicadores que serão exibidos no tipo da **Lista**.',
     ],
@@ -240,7 +240,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
       {
         indice: 0,
         colunas: 1,
-        rotuloPasso: 'Card',
+        rotuloPasso: 'Card Kanban',
         textoAcimaEstiloCorpo: true,
         textoIntro:
           'Defina quais **campos** aparecem em cada cartão de cotação. O **número da cotação** e o **tipo de operação** são **fixos** no topo do card.',
@@ -261,7 +261,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
       {
         indice: 0,
         colunas: 1,
-        rotuloPasso: 'Modal',
+        rotuloPasso: 'Modal Kanban',
         textoAcimaEstiloCorpo: true,
         textoIntro:
           'Configure o **modal rápido** ao clicar um cartão — abas **Cotação**, **Rota**, **Datas** e **Lembrete**.',
@@ -374,20 +374,39 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           {
             legenda: '',
             imagem: S('preferencia_email_cotacao_1'),
-            paragrafoAntes:
-              '**Envio da solicitação** — confirmação quando a cotação é disparada aos fornecedores. **Resposta do fornecedor** — aviso ao enviar ou atualizar proposta. **Confirmação do vencedor** — quando o ganhador aceita após aprovação.',
           },
+          {
+            legenda: '',
+            imagem: S('solicitacao_aviso_envio_usuario_1'),
+            paragrafoAntes:
+              '**E-mail da solicitação da cotação**\n\nCaso a opção esteja habilitada, sempre que uma **nova cotação** for criada, será enviado **e-mail**.',
+          },
+        ],
+      },
+      {
+        indice: 0,
+        colunas: 1,
+        textoAcimaEstiloCorpo: true,
+        telas: [
           {
             legenda: '',
             imagem: S('preferencia_email_cotacao_2'),
             paragrafoAntes:
-              'Com **Resposta do fornecedor** ligado, chega e-mail **Nova resposta** (primeiro envio) ou **Proposta atualizada** (alteração) quando o fornecedor envia ou altera a proposta na cotação.',
+              '**E-mail da resposta do fornecedor**\n\nAssim que o **fornecedor responder** à cotação através do **link** (tela de resposta do fornecedor abaixo)',
           },
           {
             legenda: '',
             imagem: S('preferencia_email_cotacao_4b'),
             paragrafoAntes:
-              'Com **Confirmação do fornecedor vencedor** ligado, chega e-mail **Aceite confirmado** quando o ganhador confirma **Recebi e estou de acordo**.',
+              'Com **Resposta do fornecedor** ligado, chega e-mail **Nova resposta** (primeiro envio) ou **Proposta atualizada** (alteração) quando o fornecedor envia ou altera a proposta na cotação.',
+            paragrafoDepois:
+              '**E-mail da confirmação do fornecedor vencedor**\n\nAssim que a cotação é **aprovada**, o fornecedor recebe o **e-mail de aprovação** e precisa confirmar que está de acordo.',
+          },
+          {
+            legenda: '',
+            imagem: S('preferencia_email_cotacao_3'),
+            paragrafoAntes:
+              'Com **Confirmação do fornecedor vencedor** ligado, chega e-mail **Aceite confirmado** no seu e-mail.',
           },
         ],
       },
@@ -405,7 +424,11 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
         ],
       },
     ],
-    callout: CALLOUT_SALVAR_CONFIGURACOES,
+    callout: {
+      tipo: 'dica' as const,
+      texto:
+        'O fornecedor precisa confirmar que **irá manter os valores**, que **irá aceitar a aprovação** e assinar o contrato **Li e aceito**.',
+    },
   },
   {
     titulo: 'Taxa de Câmbio',

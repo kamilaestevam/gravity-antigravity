@@ -1,12 +1,12 @@
-﻿import React from 'react'
+import React from 'react'
 import {
   ArrowsLeftRight,
+  CheckCircle,
   PencilSimple,
   Sparkle,
   UploadSimple,
   type Icon,
 } from '@phosphor-icons/react'
-import { MANUAL_TITULO_INFOGRAFICO_ESTILO } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -19,48 +19,53 @@ type FormaCotacaoAvulsa = {
   borda: string
   fundo: string
   disponivel: boolean
+  detalhe: string
 }
 
 const FORMAS: FormaCotacaoAvulsa[] = [
   {
     num: '01',
     rotulo: 'Manual',
-    descricao: 'Preencher o **formulário** passo a passo no assistente.',
+    descricao: 'Preencher o **formulário** passo a passo no assistente: **disponível hoje**.',
     icone: PencilSimple,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.35)',
     fundo: 'rgba(52,211,153,.08)',
     disponivel: true,
+    detalhe: 'Wizard com fluxo único até o modal',
   },
   {
     num: '02',
     rotulo: 'Via planilha',
-    descricao: 'Importe **Excel**, **CSV** ou **XML** para gerar a cotação em lote.',
+    descricao: 'Importar **Excel**, **CSV** ou **XML** para gerar a cotação.',
     icone: UploadSimple,
-    cor: '#60a5fa',
-    borda: 'rgba(96,165,250,.32)',
-    fundo: 'rgba(96,165,250,.08)',
+    cor: '#94a3b8',
+    borda: 'rgba(148,163,184,.28)',
+    fundo: 'rgba(148,163,184,.06)',
     disponivel: false,
+    detalhe: 'Em breve no produto',
   },
   {
     num: '03',
-    rotulo: 'Via Smart Docs',
-    descricao: 'A **IA** extrai dados do documento comercial e pré-preenche a cotação.',
-    icone: Sparkle,
-    cor: '#a78bfa',
-    borda: 'rgba(167,139,250,.32)',
-    fundo: 'rgba(139,92,246,.08)',
-    disponivel: true,
-  },
-  {
-    num: '04',
     rotulo: 'Por API',
-    descricao: 'Integre via **API Cockpit** ou **ERP** para criar cotações sem abrir a tela.',
+    descricao: 'Integrar via **API Cockpit** ou **ERP** para criar cotações avulsas.',
     icone: ArrowsLeftRight,
     cor: '#94a3b8',
     borda: 'rgba(148,163,184,.28)',
     fundo: 'rgba(148,163,184,.06)',
     disponivel: false,
+    detalhe: 'Em breve no produto',
+  },
+  {
+    num: '04',
+    rotulo: 'Via Smart Docs',
+    descricao: 'A **IA** extrai dados do documento comercial e pré-preenche a **cotação avulsa**.',
+    icone: Sparkle,
+    cor: '#a78bfa',
+    borda: 'rgba(167,139,250,.35)',
+    fundo: 'rgba(167,139,250,.08)',
+    disponivel: true,
+    detalhe: 'Nova Leitura + revisão antes do wizard',
   },
 ]
 
@@ -72,24 +77,8 @@ function renderizarNegrito(texto: string) {
   )
 }
 
-function badgeStatusForma(disponivel: boolean): React.CSSProperties {
-  if (disponivel) {
-    return {
-      color: '#6ee7b7',
-      background: 'rgba(52,211,153,.12)',
-      border: '1px solid rgba(52,211,153,.28)',
-    }
-  }
-  return {
-    color: '#fbbf24',
-    background: 'rgba(251,191,36,.1)',
-    border: '1px solid rgba(251,191,36,.32)',
-  }
-}
-
 function CardForma({ forma }: { forma: FormaCotacaoAvulsa }) {
   const Icone = forma.icone
-  const badgeStatus = badgeStatusForma(forma.disponivel)
   return (
     <div style={{
       borderRadius: 12,
@@ -100,6 +89,7 @@ function CardForma({ forma }: { forma: FormaCotacaoAvulsa }) {
       display: 'flex',
       flexDirection: 'column',
       gap: 10,
+      opacity: forma.disponivel ? 1 : 0.88,
     }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
         <div style={{
@@ -145,9 +135,11 @@ function CardForma({ forma }: { forma: FormaCotacaoAvulsa }) {
               fontWeight: 800,
               letterSpacing: '.04em',
               textTransform: 'uppercase',
+              color: forma.disponivel ? '#6ee7b7' : '#64748b',
+              background: forma.disponivel ? 'rgba(52,211,153,.12)' : 'rgba(148,163,184,.1)',
+              border: `1px solid ${forma.disponivel ? 'rgba(52,211,153,.28)' : 'rgba(148,163,184,.18)'}`,
               borderRadius: 999,
               padding: '2px 8px',
-              ...badgeStatus,
             }}>
               {forma.disponivel ? 'Disponível' : 'Em breve'}
             </span>
@@ -162,16 +154,25 @@ function CardForma({ forma }: { forma: FormaCotacaoAvulsa }) {
           </p>
         </div>
       </div>
+      <p style={{
+        margin: 0,
+        fontSize: '.62rem',
+        lineHeight: 1.4,
+        color: '#64748b',
+        paddingLeft: 48,
+      }}>
+        {forma.detalhe}
+      </p>
     </div>
   )
 }
 
-/** Manual BID Frete § Nova cotação — mapa das quatro formas de criar cotação. */
+/** Manual BID Frete §4.02 — mapa das quatro formas de criar cotação avulsa. */
 export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
   return (
     <div
       role="group"
-      aria-label="Quatro formas de criar cotação — Manual, planilha, Smart Docs e API"
+      aria-label="Formas de criar cotação avulsa: Manual, planilha, API e Smart Docs"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(56,189,248,.05) 100%)',
         border: '1px solid rgba(148,163,184,.18)',
@@ -180,18 +181,38 @@ export function ManualInfograficoBidFreteCotacaoAvulsaFormas() {
         boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
       }}
     >
-      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
-        Quatro formas de criar cotação
-      </p>
-
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 12,
+        marginBottom: 14,
       }}>
         {FORMAS.map((forma) => (
           <CardForma key={forma.num} forma={forma} />
         ))}
+      </div>
+
+      <div style={{
+        borderRadius: 10,
+        padding: '10px 12px',
+        background: 'rgba(8,12,24,.25)',
+        border: '1px solid rgba(148,163,184,.12)',
+        fontSize: '.68rem',
+        lineHeight: 1.5,
+        color: CORPO_70,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 8,
+      }}>
+        <CheckCircle size={16} weight="duotone" color="#34d399" aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
+        <p style={{ margin: 0 }}>
+          <strong style={{ color: '#cbd5e1' }}>Manual</strong> e{' '}
+          <strong style={{ color: '#cbd5e1' }}>Smart Docs</strong> abrem fluxos completos na tela.
+          <strong style={{ color: '#cbd5e1' }}> Planilha</strong> e{' '}
+          <strong style={{ color: '#cbd5e1' }}>API</strong> aparecem no menu com badge{' '}
+          <strong style={{ color: '#cbd5e1' }}>Em breve</strong>: use os subtópicos deste capítulo quando
+          estiverem disponíveis.
+        </p>
       </div>
     </div>
   )

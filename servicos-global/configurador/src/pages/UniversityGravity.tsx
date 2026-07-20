@@ -2591,6 +2591,7 @@ export function UniversityGravity() {
           return (
             <div style={{ flex: 1, overflow: 'hidden' }}>
               <PlayerAula
+                key={faseAulaSlug}
                 produtoSlug={produtoSlug}
                 faseSlug={faseAulaSlug}
                 aula={aula}

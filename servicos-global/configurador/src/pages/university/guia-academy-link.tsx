@@ -55,36 +55,80 @@ export function scrollGuiaTopo(behavior: ScrollBehavior = 'auto') {
   void behavior
 }
 
+const CHAVE_FORCAR_TOPO_GUIA = 'gravity-university-forcar-topo-aula'
+
+/** Marca a próxima montagem de aula para abrir no topo (sobrevive a troca de rota). */
+export function marcarProximaAulaNoTopoGuia() {
+  try {
+    sessionStorage.setItem(CHAVE_FORCAR_TOPO_GUIA, '1')
+  } catch {
+    /* private mode */
+  }
+}
+
+export function consumirProximaAulaNoTopoGuia(): boolean {
+  try {
+    if (sessionStorage.getItem(CHAVE_FORCAR_TOPO_GUIA) !== '1') return false
+    sessionStorage.removeItem(CHAVE_FORCAR_TOPO_GUIA)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /**
- * Mantém o content no topo por alguns ms — cobre foco residual e layout tardio
+ * Mantém o content no topo por alguns ms — cobre foco residual, imagens e layout tardio
  * que empurravam a aula seguinte para o meio da página.
  */
-export function travarScrollGuiaTopo(duracaoMs = 400): () => void {
+export function travarScrollGuiaTopo(duracaoMs = 2000): () => void {
   soltarFocoGuia()
   scrollGuiaTopo('auto')
-  const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
-  if (!contentEl) return () => {}
 
   const forcarTopo = () => {
-    if (contentEl.scrollTop !== 0) contentEl.scrollTop = 0
+    scrollGuiaTopo('auto')
+    const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
+    if (contentEl && contentEl.scrollTop !== 0) contentEl.scrollTop = 0
   }
-  const onScroll = () => forcarTopo()
-  contentEl.addEventListener('scroll', onScroll, { passive: true })
+  forcarTopo()
 
-  const timers = [0, 16, 32, 80, 160, 280, duracaoMs].map((ms) =>
+  const contentEl = document.querySelector<HTMLElement>('.uni-player-aula__content')
+  const onScroll = () => forcarTopo()
+  contentEl?.addEventListener('scroll', onScroll, { passive: true })
+
+  // Imagens da aula seguinte carregam depois e o browser “reancora” o scroll
+  const onImg = () => forcarTopo()
+  contentEl?.querySelectorAll('img').forEach((img) => {
+    if (!img.complete) img.addEventListener('load', onImg, { once: true })
+  })
+  const mo = contentEl
+    ? new MutationObserver(() => {
+        contentEl.querySelectorAll('img').forEach((img) => {
+          if (!img.complete) img.addEventListener('load', onImg, { once: true })
+        })
+        forcarTopo()
+      })
+    : null
+  if (contentEl && mo) {
+    mo.observe(contentEl, { childList: true, subtree: true })
+  }
+
+  const ticks = [0, 16, 32, 80, 160, 280, 500, 900, 1400, duracaoMs]
+  const timers = ticks.map((ms) =>
     window.setTimeout(() => {
       soltarFocoGuia()
       forcarTopo()
     }, ms),
   )
   const fim = window.setTimeout(() => {
-    contentEl.removeEventListener('scroll', onScroll)
-  }, duracaoMs + 20)
+    contentEl?.removeEventListener('scroll', onScroll)
+    mo?.disconnect()
+  }, duracaoMs + 40)
 
   return () => {
     for (const id of timers) window.clearTimeout(id)
     window.clearTimeout(fim)
-    contentEl.removeEventListener('scroll', onScroll)
+    contentEl?.removeEventListener('scroll', onScroll)
+    mo?.disconnect()
   }
 }
 

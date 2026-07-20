@@ -3,6 +3,8 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  consumirProximaAulaNoTopoGuia,
+  marcarProximaAulaNoTopoGuia,
   scrollGuiaTopo,
   soltarFocoGuia,
   travarScrollGuiaTopo,
@@ -64,5 +66,12 @@ describe('scrollGuiaTopo — Academy Gravity University', () => {
 
     liberar()
     vi.useRealTimers()
+  })
+
+  it('marcar/consumirProximaAulaNoTopoGuia usa sessionStorage', () => {
+    sessionStorage.clear()
+    marcarProximaAulaNoTopoGuia()
+    expect(consumirProximaAulaNoTopoGuia()).toBe(true)
+    expect(consumirProximaAulaNoTopoGuia()).toBe(false)
   })
 })

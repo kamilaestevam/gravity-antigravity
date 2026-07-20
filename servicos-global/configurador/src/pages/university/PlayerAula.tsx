@@ -37,7 +37,9 @@ import { UniBotaoVoltarPadrao } from './uni-botao-voltar-padrao'
 import {
   GuiaAcademyNavigationProvider,
   AcademyLinkGuia,
+  consumirProximaAulaNoTopoGuia,
   lerRetornoGuiaAcademy,
+  marcarProximaAulaNoTopoGuia,
   offsetScrollGuiaContent,
   restaurarScrollGuia,
   scrollGuiaTopo,
@@ -1079,8 +1081,11 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
   }, [faseSlug, titulosSumario])
 
   useLayoutEffect(() => {
+    const forcarTopo = consumirProximaAulaNoTopoGuia()
     const scrollRestaurar = (location.state as { restaurarScrollGuia?: number } | null)?.restaurarScrollGuia
-    if (typeof scrollRestaurar === 'number' && scrollRestaurar >= 0) {
+
+    // Troca de aula (concluir/próxima) tem prioridade sobre restaurar scroll de link interno.
+    if (!forcarTopo && typeof scrollRestaurar === 'number' && scrollRestaurar >= 0) {
       ignorarObserverRef.current = false
       const timer = window.setTimeout(() => {
         restaurarScrollGuia(scrollRestaurar)
@@ -1089,7 +1094,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
     }
 
     const hash = location.hash.replace(/^#/, '')
-    if (hash) {
+    if (!forcarTopo && hash) {
       ignorarObserverRef.current = false
       const timer = window.setTimeout(() => {
         const el = document.getElementById(hash)
@@ -1105,18 +1110,19 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
       return () => window.clearTimeout(timer)
     }
 
-    // Concluir / anterior / próxima: blur + trava no topo (foco no rodapé levava ao meio).
+    // Concluir / anterior / próxima: blur + trava longa (aulas com muitos prints).
     ignorarObserverRef.current = true
-    const liberarTrava = travarScrollGuiaTopo(480)
+    setIdSecaoAtiva(titulosSumario[0]?.id ?? null)
     if (contentRef.current) contentRef.current.scrollTop = 0
+    const liberarTrava = travarScrollGuiaTopo(2000)
     const liberarObserver = window.setTimeout(() => {
       ignorarObserverRef.current = false
-    }, 500)
+    }, 2100)
     return () => {
       liberarTrava()
       window.clearTimeout(liberarObserver)
     }
-  }, [faseSlug, location.pathname, location.hash, location.state])
+  }, [faseSlug, location.pathname, location.hash, location.state, titulosSumario])
 
   useEffect(() => {
     if (!idSecaoAtiva) return
@@ -1189,8 +1195,13 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
   const navParaFase = (slug: string) => {
     soltarFocoGuia()
+    marcarProximaAulaNoTopoGuia()
     scrollGuiaTopo('auto')
-    navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, { preventScrollReset: true })
+    navigate(`/university-gravity/academy/${produtoSlug}/${slug}`, {
+      replace: false,
+      preventScrollReset: true,
+      state: { forcarTopoGuia: true },
+    })
   }
 
   const irParaTitulo = (id: string) => {

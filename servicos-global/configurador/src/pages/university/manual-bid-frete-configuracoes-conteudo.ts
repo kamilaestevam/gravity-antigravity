@@ -396,7 +396,7 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
           },
           {
             legenda: '',
-            imagem: S('preferencia_email_cotacao_4b'),
+            imagem: S('preferencia_email_cotacao_4'),
             paragrafoAntes:
               'Com **Resposta do fornecedor** ligado, chega e-mail **Nova resposta** (primeiro envio) ou **Proposta atualizada** (alteração) quando o fornecedor envia ou altera a proposta na cotação.',
             paragrafoDepois:
@@ -407,19 +407,6 @@ export const PASSOS_MANUAL_BID_FRETE_CONFIGURACOES: DocPassoVisual[] = renumerar
             imagem: S('preferencia_email_cotacao_3'),
             paragrafoAntes:
               'Com **Confirmação do fornecedor vencedor** ligado, chega e-mail **Aceite confirmado** no seu e-mail.',
-          },
-        ],
-      },
-      {
-        indice: 0,
-        colunas: 1,
-        textoAcimaEstiloCorpo: true,
-        telas: [
-          {
-            legenda: '',
-            imagem: S('email_comprador_aviso_resposta_cotacao'),
-            paragrafoAntes:
-              'Assim que o **fornecedor responder** à cotação, o aviso é enviado por **e-mail**.',
           },
         ],
       },

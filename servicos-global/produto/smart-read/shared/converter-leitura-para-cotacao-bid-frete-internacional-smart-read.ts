@@ -16,6 +16,10 @@ import type {
   DetalheMapeamentoSmartReadCotacaoBidFrete,
   PrefillFormularioCotacaoBidFreteSmartRead,
 } from './conversao-leitura-cotacao-bid-frete-smart-read-schema.js'
+import {
+  normalizarCodigoPaisIso2Prefill,
+  sugerirHubLogisticoPorPaisPrefillBidFrete,
+} from './sugerir-hub-logistico-por-pais-prefill-bid-frete.js'
 
 export type LeituraParaConversaoCotacaoBidFrete = {
   id_leitura: string
@@ -362,14 +366,57 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
         })
       }
 
-      const paisOrigem = valorCampo(dados, ['document.originCountry', 'originCountry', 'exporter.country'])
+      const paisOrigem = valorCampo(dados, [
+        'document.originCountry',
+        'originCountry',
+        'exporter.country',
+        'seller.country',
+        'shipper.country',
+      ])
       if (paisOrigem) {
-        prefill.origem_pais_cotacao_bid_frete_internacional = paisOrigem.slice(0, 2).toUpperCase()
+        const isoOrigem = normalizarCodigoPaisIso2Prefill(paisOrigem)
+        if (isoOrigem) {
+          prefill.origem_pais_cotacao_bid_frete_internacional = isoOrigem
+          registrarCampo(detalheCampos, {
+            caminho_origem: `${prefixo}.document.originCountry`,
+            campo_destino: 'origem_pais_cotacao_bid_frete_internacional',
+            valor_origem: paisOrigem,
+            valor_destino: isoOrigem,
+            status_mapeamento: 'mapeado',
+          })
+        }
+      }
+
+      const enderecoOrigem = valorCampo(dados, [
+        'exporter.address',
+        'seller.address',
+        'shipper.address',
+        'exporter.fullAddress',
+      ])
+      if (enderecoOrigem) {
+        prefill.endereco_origem_cotacao_bid_frete_internacional = enderecoOrigem.slice(0, 300)
         registrarCampo(detalheCampos, {
-          caminho_origem: `${prefixo}.document.originCountry`,
-          campo_destino: 'origem_pais_cotacao_bid_frete_internacional',
-          valor_origem: paisOrigem,
-          valor_destino: prefill.origem_pais_cotacao_bid_frete_internacional,
+          caminho_origem: `${prefixo}.exporter.address`,
+          campo_destino: 'endereco_origem_cotacao_bid_frete_internacional',
+          valor_origem: enderecoOrigem,
+          valor_destino: prefill.endereco_origem_cotacao_bid_frete_internacional,
+          status_mapeamento: 'mapeado',
+        })
+      }
+
+      const enderecoDestino = valorCampo(dados, [
+        'importer.address',
+        'consignee.address',
+        'buyer.address',
+        'importer.fullAddress',
+      ])
+      if (enderecoDestino) {
+        prefill.endereco_destino_cotacao_bid_frete_internacional = enderecoDestino.slice(0, 300)
+        registrarCampo(detalheCampos, {
+          caminho_origem: `${prefixo}.importer.address`,
+          campo_destino: 'endereco_destino_cotacao_bid_frete_internacional',
+          valor_origem: enderecoDestino,
+          valor_destino: prefill.endereco_destino_cotacao_bid_frete_internacional,
           status_mapeamento: 'mapeado',
         })
       }
@@ -464,7 +511,7 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
     textoOperacao,
     paisOrigem: prefill.origem_pais_cotacao_bid_frete_internacional ?? null,
     paisDestino: prefill.destino_pais_cotacao_bid_frete_internacional
-      ?? paisDestinoInferencia?.slice(0, 2).toUpperCase()
+      ?? normalizarCodigoPaisIso2Prefill(paisDestinoInferencia)
       ?? null,
   })
   prefill.tipo_operacao_cotacao_bid_frete_internacional = operacaoInferida ?? 'IMPORTACAO'
@@ -478,7 +525,69 @@ export function converterLeituraParaCotacaoBidFreteInternacional(
   })
 
   if (paisDestinoInferencia && !prefill.destino_pais_cotacao_bid_frete_internacional) {
-    prefill.destino_pais_cotacao_bid_frete_internacional = paisDestinoInferencia.slice(0, 2).toUpperCase()
+    const isoDestino = normalizarCodigoPaisIso2Prefill(paisDestinoInferencia)
+    if (isoDestino) {
+      prefill.destino_pais_cotacao_bid_frete_internacional = isoDestino
+    }
+  }
+
+  const paisOrigemIso = normalizarCodigoPaisIso2Prefill(
+    prefill.origem_pais_cotacao_bid_frete_internacional,
+  )
+  const paisDestinoIso = normalizarCodigoPaisIso2Prefill(
+    prefill.destino_pais_cotacao_bid_frete_internacional
+      ?? paisDestinoInferencia,
+  )
+  const modalEfetivo = prefill.modal_cotacao_bid_frete_internacional
+  const hubOrigem = sugerirHubLogisticoPorPaisPrefillBidFrete(paisOrigemIso)
+  const hubDestino = sugerirHubLogisticoPorPaisPrefillBidFrete(paisDestinoIso)
+
+  if (modalEfetivo === 'AEREO') {
+    if (!prefill.aeroporto_origem_cotacao_bid_frete_internacional && hubOrigem?.aeroporto_iata) {
+      prefill.aeroporto_origem_cotacao_bid_frete_internacional = hubOrigem.aeroporto_iata
+      registrarCampo(detalheCampos, {
+        caminho_origem: 'exporter.country→hub',
+        campo_destino: 'aeroporto_origem_cotacao_bid_frete_internacional',
+        valor_origem: paisOrigemIso,
+        valor_destino: hubOrigem.aeroporto_iata,
+        status_mapeamento: 'sugerido',
+        motivo: `hub_${hubOrigem.nome_hub}`,
+      })
+    }
+    if (!prefill.aeroporto_destino_cotacao_bid_frete_internacional && hubDestino?.aeroporto_iata) {
+      prefill.aeroporto_destino_cotacao_bid_frete_internacional = hubDestino.aeroporto_iata
+      registrarCampo(detalheCampos, {
+        caminho_origem: 'importer.country→hub',
+        campo_destino: 'aeroporto_destino_cotacao_bid_frete_internacional',
+        valor_origem: paisDestinoIso,
+        valor_destino: hubDestino.aeroporto_iata,
+        status_mapeamento: 'sugerido',
+        motivo: `hub_${hubDestino.nome_hub}`,
+      })
+    }
+  } else if (modalEfetivo !== 'RODOVIARIO') {
+    if (!prefill.porto_origem_cotacao_bid_frete_internacional && hubOrigem?.porto_unlocode) {
+      prefill.porto_origem_cotacao_bid_frete_internacional = hubOrigem.porto_unlocode
+      registrarCampo(detalheCampos, {
+        caminho_origem: 'exporter.country→hub',
+        campo_destino: 'porto_origem_cotacao_bid_frete_internacional',
+        valor_origem: paisOrigemIso,
+        valor_destino: hubOrigem.porto_unlocode,
+        status_mapeamento: 'sugerido',
+        motivo: `hub_${hubOrigem.nome_hub}`,
+      })
+    }
+    if (!prefill.porto_destino_cotacao_bid_frete_internacional && hubDestino?.porto_unlocode) {
+      prefill.porto_destino_cotacao_bid_frete_internacional = hubDestino.porto_unlocode
+      registrarCampo(detalheCampos, {
+        caminho_origem: 'importer.country→hub',
+        campo_destino: 'porto_destino_cotacao_bid_frete_internacional',
+        valor_origem: paisDestinoIso,
+        valor_destino: hubDestino.porto_unlocode,
+        status_mapeamento: 'sugerido',
+        motivo: `hub_${hubDestino.nome_hub}`,
+      })
+    }
   }
 
   if (containers.length > 0) {

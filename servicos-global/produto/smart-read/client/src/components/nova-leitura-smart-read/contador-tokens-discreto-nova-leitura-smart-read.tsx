@@ -37,13 +37,14 @@ export function ContadorTokensDiscretoNovaLeituraSmartRead({
 
   const aguardandoExtracao = extracaoEmAndamento
   const contandoIaNossa = iaAtiva && !extracaoEmAndamento && tokensSessao === 0
-  const painelAtivo = aguardandoExtracao || iaAtiva || tokensSessao > 0
 
   const rotuloSessao = aguardandoExtracao
     ? 'aguardando extração do documento'
     : contandoIaNossa
-      ? 'contando tokens da análise'
+      ? 'contabilizando tokens'
       : 'tokens nesta sessão'
+
+  const painelAtivo = aguardandoExtracao || iaAtiva || tokensSessao > 0
 
   const valorSessaoExibido = aguardandoExtracao
     ? '—'

@@ -16,7 +16,7 @@ const FORMATOS_IMPORTACAO: FormatoImportacao[] = [
     rotulo: 'Excel',
     extensao: '.xlsx',
     icone: <FileXls size={26} weight="duotone" style={{ color: '#34d399' }} aria-hidden />,
-    descricao: 'Planilha moderna — múltiplas abas suportadas',
+    descricao: 'Planilha moderna: múltiplas abas suportadas',
   },
   {
     rotulo: 'Excel',
@@ -52,7 +52,7 @@ const FORMATOS_IMPORTACAO: FormatoImportacao[] = [
     rotulo: 'PDF',
     extensao: '.pdf',
     icone: <FilePdf size={26} weight="duotone" style={{ color: '#f87171' }} aria-hidden />,
-    descricao: 'Invoice com texto selecionável — extração via Gemini 2.5 Flash',
+    descricao: 'Invoice com texto selecionável: extração via Gemini 2.5 Flash',
   },
 ]
 

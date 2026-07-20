@@ -34,9 +34,13 @@ import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
+import { SecaoKanbanColunasBidFrete } from './configuracoes/SecaoKanbanColunasBidFrete'
 import {
   carregarTabelaConfigBidFrete,
+  codificarLimiteDestaqueExpiracao,
+  decodificarLimiteDestaqueExpiracao,
   DEFAULT_TABELA_CONFIG_BID_FRETE,
+  montarGruposSelectLimiteDestaqueExpiracao,
   salvarTabelaConfigBidFrete,
   type TabelaConfigBidFrete,
 } from '../shared/tabela-config-bid-frete'
@@ -59,6 +63,7 @@ import {
   CARD_PERIODOS as PERIODOS,
   DEFAULT_CARD_PREFERENCIAS,
   CARDS_CATALOGO,
+  garantirCardsAtivosVisiveis,
   registrarCardCustomizado,
   useCardPreferencesBidFrete,
   type CardDefinicao,
@@ -89,7 +94,9 @@ import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-pr
 import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+  ehColunaKanbanFixaBidFreteInternacional,
   migrarArrayStatusCotacaoConfigLegado,
+  STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
 } from '../shared/status-config-bid-frete-internacional'
 import {
   STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE,
@@ -608,18 +615,7 @@ function ehStatusCotacaoSistema(status: Pick<PedidoStatusConfig, 'nome' | 'geren
   return status.gerenciado_sistema || NOMES_STATUS_COTACAO_SISTEMA.has(status.nome)
 }
 
-const STATUS_COTACAO_PADRAO: PedidoStatusConfig[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, gerenciado_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, gerenciado_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, gerenciado_sistema: true },
-  { id: 'cotacao_alterada', nome: 'COTACAO_ALTERADA', rotulo: 'Cotação alterada', cor: '#f97316', ordem: 4, gerenciado_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 5, gerenciado_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 6, gerenciado_sistema: true },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 7, gerenciado_sistema: true },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 8, gerenciado_sistema: true },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 9, gerenciado_sistema: true },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 10, gerenciado_sistema: true },
-]
+const STATUS_COTACAO_PADRAO: PedidoStatusConfig[] = STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL
 
 function StatusSortavel({
   status,
@@ -876,9 +872,11 @@ export default function Configuracoes() {
   )
 
   const salvarCardsConfig = useCallback(() => {
-    persistirCards(pendingCardsPrefs)
+    const normalizado = garantirCardsAtivosVisiveis(pendingCardsPrefs)
+    persistirCards(normalizado)
     persistirPeriodoCards(pendingPeriodoCards)
-    setCardsPrefsBaseline(pendingCardsPrefs)
+    setPendingCardsPrefs(normalizado)
+    setCardsPrefsBaseline(normalizado)
     setPeriodoCardsBaseline(pendingPeriodoCards)
     addNotification({ type: 'success', message: t('bidfrete.config.cards.msg_salvo') })
   }, [pendingCardsPrefs, pendingPeriodoCards, persistirCards, persistirPeriodoCards, addNotification, t])
@@ -891,6 +889,18 @@ export default function Configuracoes() {
   const [tabelaConfig, setTabelaConfig] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
   const [tabelaConfigSalva, setTabelaConfigSalva] = useState<TabelaConfigBidFrete>(() => carregarTabelaConfigBidFrete())
   const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
+  const gruposSelectLimiteDestaqueExpiracao = useMemo(
+    () => montarGruposSelectLimiteDestaqueExpiracao(),
+    [],
+  )
+  const codigoLimiteDestaqueExpiracao = codificarLimiteDestaqueExpiracao(
+    tabelaConfig.limiteDestaqueExpiracaoValor,
+    tabelaConfig.limiteDestaqueExpiracaoUnidade,
+  )
+  const rotuloCampoPrazoResposta = t(
+    'bidfrete.detalhe_cotacao.prazo_resposta_label',
+    'Prazo para resposta',
+  )
 
   const salvarTabelaConfig = useCallback(() => {
     salvarTabelaConfigBidFrete(tabelaConfig)
@@ -986,7 +996,7 @@ export default function Configuracoes() {
       const mesclado = STATUS_COTACAO_PADRAO.map(padrao => {
         const existente = porNome.get(padrao.nome)
         if (!existente) return padrao
-        return { ...existente, gerenciado_sistema: true }
+        return { ...existente, gerenciado_sistema: padrao.gerenciado_sistema }
       })
       const customizados = prev.filter(s => !NOMES_STATUS_COTACAO_SISTEMA.has(s.nome))
       const resultado = [...mesclado, ...customizados].map((s, idx) => ({ ...s, ordem: idx + 1 }))
@@ -1186,7 +1196,14 @@ export default function Configuracoes() {
 
   // ─── Kanban Specific States ──────────────────────────────────────────────────
 
-  const [kanbanColunasOcultas, setKanbanColunasOcultas] = useConfigState<string[]>('kanban-colunas-ocultas', [])
+  const [
+    kanbanColunasOcultas,
+    setKanbanColunasOcultas,
+    ,
+    salvarKanbanColunasOcultas,
+    resetKanbanColunasOcultas,
+    kanbanColunasDirty,
+  ] = useConfigState<string[]>('kanban-colunas-ocultas', [])
   const [
     kanbanCardConfig,
     setKanbanCardConfig,
@@ -1200,10 +1217,10 @@ export default function Configuracoes() {
   )
 
   useEffect(() => {
-    const idsSistema = new Set(statusList.filter(s => ehStatusCotacaoSistema(s)).map(s => s.id))
-    if (idsSistema.size === 0) return
+    const idsFixos = new Set(statusList.filter(s => ehColunaKanbanFixaBidFreteInternacional(s)).map(s => s.id))
+    if (idsFixos.size === 0) return
     setKanbanColunasOcultas(prev => {
-      const filtrado = prev.filter(id => !idsSistema.has(id))
+      const filtrado = prev.filter(id => !idsFixos.has(id))
       return filtrado.length === prev.length ? prev : filtrado
     })
   }, [statusList, setKanbanColunasOcultas])
@@ -1279,10 +1296,10 @@ export default function Configuracoes() {
     if (idCriado && tipoColunaUsaCasasDecimais(payload.tipo)) {
       setPendingCasas(prev => ({ ...prev, [idCriado]: PADRAO_CASAS_COLUNA_PERSONALIZADA }))
     }
-    salvarColunasPersonalizadasConfig(colunas)
+    setColunasPersonalizadas(colunas)
     setCriandoColuna(false)
     setEditandoColuna(null)
-  }, [colunasPersonalizadas, salvarColunasPersonalizadasConfig])
+  }, [colunasPersonalizadas, setColunasPersonalizadas])
 
   const excluirColunaPersonalizadaConfirmada = useCallback(async () => {
     const id = confirmarExcluirColunaId
@@ -1328,6 +1345,23 @@ export default function Configuracoes() {
     salvarKanbanCardConfig()
     notificarKanbanConfigBidFreteAtualizado()
   }, [salvarKanbanCardConfig])
+
+  const kanbanColunasToggle = useCallback((id: string) => {
+    const alvo = statusList.find(s => s.id === id)
+    if (alvo && ehColunaKanbanFixaBidFreteInternacional(alvo)) return
+    setKanbanColunasOcultas(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
+    )
+  }, [statusList, setKanbanColunasOcultas])
+
+  const kanbanColunasSalvar = useCallback(() => {
+    salvarKanbanColunasOcultas()
+    notificarKanbanConfigBidFreteAtualizado()
+  }, [salvarKanbanColunasOcultas])
+
+  const kanbanColunasDescartar = useCallback(() => {
+    resetKanbanColunasOcultas()
+  }, [resetKanbanColunasOcultas])
 
   const [abaAtivaModal, setAbaAtivaModal] = useState<KanbanModalAbaBidFrete>('cotacao')
   const [
@@ -1456,7 +1490,16 @@ export default function Configuracoes() {
   }, [setStatusList])
 
   const adicionarStatus = useCallback(() => {
-    if (!statusNovoLabel.trim()) return
+    if (!statusNovoLabel.trim()) {
+      addNotification({
+        type: 'error',
+        message: t(
+          'bidfrete.config.status.erro_nome_obrigatorio',
+          'Informe o nome do status antes de salvar.',
+        ),
+      })
+      return
+    }
     const ordem = statusList.length + 1
     const nome = statusNovoLabel.trim().toUpperCase().replace(/\s+/g, '_')
     const newId = `status_${Date.now()}`
@@ -1471,7 +1514,7 @@ export default function Configuracoes() {
     setStatusNovoLabel('')
     setStatusNovoCor('#818cf8')
     setStatusCriando(false)
-  }, [statusNovoLabel, statusNovoCor, statusList.length, setStatusList])
+  }, [statusNovoLabel, statusNovoCor, statusList.length, setStatusList, addNotification, t])
 
   const restaurarStatusPadrao = useCallback(() => {
     setStatusList(STATUS_COTACAO_PADRAO.map(s => ({ ...s })))
@@ -1480,6 +1523,84 @@ export default function Configuracoes() {
     setStatusNovoLabel('')
     setStatusNovoCor('#818cf8')
   }, [setStatusList])
+
+  const statusEdicaoPendente =
+    (statusCriando && statusNovoLabel.trim().length > 0)
+    || (editandoStatusId !== null && editStatusLabel.trim().length > 0)
+
+  const statusConfigDirtyCompleto = statusConfigDirty || statusEdicaoPendente
+
+  const persistirStatusConfig = useCallback(() => {
+    let listaAtualizada = statusList
+
+    if (editandoStatusId) {
+      if (!editStatusLabel.trim()) {
+        addNotification({
+          type: 'error',
+          message: t(
+            'bidfrete.config.status.erro_nome_obrigatorio',
+            'Informe o nome do status antes de salvar.',
+          ),
+        })
+        return
+      }
+      listaAtualizada = listaAtualizada.map(s => (
+        s.id === editandoStatusId
+          ? { ...s, rotulo: editStatusLabel.trim(), cor: editStatusCor }
+          : s
+      ))
+      setEditandoStatusId(null)
+      setEditStatusLabel('')
+      setEditStatusCor('#818cf8')
+    }
+
+    if (statusCriando) {
+      if (!statusNovoLabel.trim()) {
+        addNotification({
+          type: 'error',
+          message: t(
+            'bidfrete.config.status.erro_nome_obrigatorio',
+            'Informe o nome do status antes de salvar.',
+          ),
+        })
+        return
+      }
+      const ordem = listaAtualizada.length + 1
+      const nome = statusNovoLabel.trim().toUpperCase().replace(/\s+/g, '_')
+      const newId = `status_${Date.now()}`
+      listaAtualizada = [...listaAtualizada, {
+        id: newId,
+        nome,
+        rotulo: statusNovoLabel.trim(),
+        cor: statusNovoCor,
+        ordem,
+        gerenciado_sistema: false,
+      }]
+      setStatusCriando(false)
+      setStatusNovoLabel('')
+      setStatusNovoCor('#818cf8')
+    }
+
+    const houveAlteracaoLista = JSON.stringify(listaAtualizada) !== JSON.stringify(statusList)
+    if (houveAlteracaoLista) {
+      setStatusList(listaAtualizada)
+      salvarStatusConfig(listaAtualizada)
+      return
+    }
+    salvarStatusConfig()
+  }, [
+    statusList,
+    editandoStatusId,
+    editStatusLabel,
+    editStatusCor,
+    statusCriando,
+    statusNovoLabel,
+    statusNovoCor,
+    setStatusList,
+    salvarStatusConfig,
+    addNotification,
+    t,
+  ])
 
   return (
     <div className="cfg-page ws-fade-up">
@@ -1625,7 +1746,7 @@ export default function Configuracoes() {
                           def={def}
                           periodoAtivo={pendingPeriodoCards}
                           onToggle={() => setPendingCardsPrefs(prev =>
-                            prev.map(p => (p.id === pref.id ? { ...p, visible: !p.visible } : p)),
+                            prev.map(p => (p.id === pref.id ? { ...p, visible: true } : p)),
                           )}
                           onRemover={() => setPendingCardsPrefs(prev => prev.filter(p => p.id !== pref.id))}
                         />
@@ -1646,8 +1767,12 @@ export default function Configuracoes() {
                     def={def}
                     periodoAtivo={pendingPeriodoCards}
                     onAdicionar={() => {
-                      if (pendingCardsPrefs.some(p => p.id === def.id)) return
-                      setPendingCardsPrefs(prev => [...prev, { id: def.id, visible: true }])
+                      setPendingCardsPrefs(prev => {
+                        if (prev.some(p => p.id === def.id)) {
+                          return prev.map(p => (p.id === def.id ? { ...p, visible: true } : p))
+                        }
+                        return [...prev, { id: def.id, visible: true }]
+                      })
                     }}
                   />
                 ))}
@@ -1707,14 +1832,92 @@ export default function Configuracoes() {
                 <ToggleRow
                   id="tab-destaque"
                   label={t('bidfrete.config.tabela.destacar_expirar', 'Destacar cotações prestes a expirar')}
-                  desc={t(
-                    'bidfrete.config.tabela.destacar_expirar_desc',
-                    'Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.',
-                  )}
                   checked={tabelaConfig.destacarAtrasados}
                   onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
                 />
               </div>
+
+              {tabelaConfig.destacarAtrasados ? (
+                <>
+                  <div className="cfg-tabela-antecedencia-linha">
+                    <span className="cfg-tabela-antecedencia-linha__rotulo">
+                      {t('bidfrete.config.tabela.antecedencia_aviso', 'Antecedência do aviso')}
+                    </span>
+                    <div className="cfg-tabela-antecedencia-linha__campo">
+                      <SelectGlobal
+                        buscavel
+                        aria-label={t('bidfrete.config.tabela.antecedencia_aviso', 'Antecedência do aviso')}
+                        grupos={gruposSelectLimiteDestaqueExpiracao}
+                        valor={codigoLimiteDestaqueExpiracao}
+                        aoMudarValor={v => {
+                          const parsed = decodificarLimiteDestaqueExpiracao(String(v ?? ''))
+                          if (!parsed) return
+                          setTabelaConfig(prev => ({
+                            ...prev,
+                            limiteDestaqueExpiracaoValor: parsed.limiteDestaqueExpiracaoValor,
+                            limiteDestaqueExpiracaoUnidade: parsed.limiteDestaqueExpiracaoUnidade,
+                          }))
+                        }}
+                      />
+                    </div>
+                    <p className="cfg-tabela-antecedencia-linha__hint">
+                      {t(
+                        'bidfrete.config.tabela.antecedencia_aviso_desc',
+                        'Escolha quanto tempo antes da expiração a Lista deve destacar a linha.',
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="cfg-tabela-regras-badge" role="note">
+                    <div className="cfg-tabela-regras-badge__header">
+                      <Info size={16} weight="duotone" />
+                      <span>{t('bidfrete.config.tabela.regras_titulo', 'Como funciona o destaque')}</span>
+                    </div>
+                    <dl className="cfg-tabela-regras-badge__lista">
+                      <div>
+                        <dt>{t('bidfrete.config.tabela.regras_gatilho', 'Gatilho')}</dt>
+                        <dd>
+                          <div className="cfg-tabela-regras-badge__gatilho-linha">
+                            <span className="cfg-tabela-regras-badge__campo-rotulo">
+                              {t('bidfrete.config.tabela.regras_campo_usado', 'Campo usado')}
+                            </span>
+                            <strong className="cfg-tabela-regras-badge__campo-nome">
+                              {rotuloCampoPrazoResposta}
+                            </strong>
+                          </div>
+                          <p className="cfg-tabela-regras-badge__gatilho-texto">
+                            {t(
+                              'bidfrete.config.tabela.regras_gatilho_desc',
+                              'Destaca a linha quando esse prazo ainda não venceu e o tempo restante até o vencimento é menor ou igual à antecedência escolhida acima.',
+                            )}
+                          </p>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{t('bidfrete.config.tabela.regras_status', 'Status')}</dt>
+                        <dd>
+                          <p className="cfg-tabela-regras-badge__gatilho-texto">
+                            {t(
+                              'bidfrete.config.tabela.regras_status_desc',
+                              'Não destaca EXPIRADA, CANCELADA, APROVADA ou REPROVADA. Só entra no destaque se {{campo}} estiver preenchido.',
+                              { campo: rotuloCampoPrazoResposta },
+                            )}
+                          </p>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{t('bidfrete.config.tabela.regras_resultado', 'Resultado esperado')}</dt>
+                        <dd>
+                          {t(
+                            'bidfrete.config.tabela.regras_resultado_desc',
+                            'A Lista aplica uma borda avermelhada sutil à esquerda da linha. Em grupos BID, a linha pai destaca se qualquer filha estiver no intervalo. Clique em Salvar para aplicar na Lista aberta.',
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </>
+              ) : null}
 
               <div className="cfg-secao__footer">
                 <BotaoCancelar
@@ -1965,7 +2168,7 @@ export default function Configuracoes() {
                   />
                   <BotaoSalvar
                     dirty={colunasPersonalizadasDirty}
-                    rotulo={t('pedido.config.colunas.personalizadas.btn_salvar_ordem', 'Salvar ordem')}
+                    rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
                     onClick={() => salvarColunasPersonalizadasConfig()}
                   />
                 </div>
@@ -1979,41 +2182,15 @@ export default function Configuracoes() {
 
         {/* ── CATEGORIA: KANBAN COLUNAS ── */}
         {categoria === 'kanban-colunas' && (
-          <section className="cfg-secao">
-            <div className="cfg-secao__header">
-              <div>
-                <h2 className="cfg-secao__titulo">
-                  {t('bidfrete.configuracoes.kanban_colunas_titulo', 'Colunas do Kanban')}
-                </h2>
-                <p className="cfg-secao__desc">
-                  {t('bidfrete.configuracoes.kanban_colunas_desc', 'Configure quais colunas de status devem aparecer no seu Kanban de BID de Frete.')}
-                </p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {statusList.map(s => (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', background: '#334155', borderRadius: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: s.cor }} />
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>{s.rotulo}</span>
-                  </div>
-                  <TooltipGlobal descricao={ehStatusCotacaoSistema(s) ? t('bidfrete.config.status.tooltip_sistema', 'Status padrão do sistema — não pode ser editado, excluído ou ocultado') : kanbanColunasOcultas.includes(s.id) ? t('bidfrete.configuracoes.exibir_kanban', 'Exibir no Kanban') : t('bidfrete.configuracoes.ocultar_kanban', 'Ocultar do Kanban')}>
-                    <button
-                      type="button"
-                      className={`cfg-eye-btn ${!kanbanColunasOcultas.includes(s.id) ? 'cfg-eye-btn--on' : ''}`}
-                      disabled={ehStatusCotacaoSistema(s)}
-                      onClick={() => {
-                        if (ehStatusCotacaoSistema(s)) return
-                        setKanbanColunasOcultas(prev => prev.includes(s.id) ? prev.filter(x => x !== s.id) : [...prev, s.id])
-                      }}
-                    >
-                      {kanbanColunasOcultas.includes(s.id) ? <EyeSlash size={14} /> : <Eye size={14} />}
-                    </button>
-                  </TooltipGlobal>
-                </div>
-              ))}
-            </div>
-          </section>
+          <SecaoKanbanColunasBidFrete
+            statusConfig={statusList}
+            colunasOcultas={kanbanColunasOcultas}
+            dirty={kanbanColunasDirty}
+            ehSistema={ehColunaKanbanFixaBidFreteInternacional}
+            onToggle={kanbanColunasToggle}
+            onSalvar={kanbanColunasSalvar}
+            onDescartar={kanbanColunasDescartar}
+          />
         )}
 
         {/* ── CATEGORIA: KANBAN CARD (paridade Pedido) ── */}
@@ -2391,8 +2568,8 @@ export default function Configuracoes() {
                   </div>
                   <div className="cfg-tpl-form__actions">
                     <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={adicionarStatus}>
-                      <FloppyDisk size={13} weight="bold" />
-                      {t('bidfrete.config.acao.salvar', 'Salvar')}
+                      <Plus size={13} weight="bold" />
+                      {t('bidfrete.config.status.adicionar_lista', 'Adicionar à lista')}
                     </button>
                     <button
                       type="button"
@@ -2407,14 +2584,14 @@ export default function Configuracoes() {
 
               <div className="cfg-secao__footer">
                 <BotaoCancelar
-                  dirty={statusConfigDirty}
+                  dirty={statusConfigDirtyCompleto}
                   rotulo={t('bidfrete.config.acao.restaurar_padrao', 'Restaurar padrão')}
                   onClick={restaurarStatusPadrao}
                 />
                 <BotaoSalvar
-                  dirty={statusConfigDirty}
+                  dirty={statusConfigDirtyCompleto}
                   rotulo={t('bidfrete.config.acao.salvar', 'Salvar')}
-                  onClick={salvarStatusConfig}
+                  onClick={persistirStatusConfig}
                 />
               </div>
             </section>

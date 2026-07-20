@@ -16,7 +16,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO: DocPasso
     paragrafos: [
       'A Gravity possui uma **Taxa de Fechamento** (success fee) por frete fechado na plataforma, ' +
         TEXTO_VALOR_TAXA_VARIAVEL +
-        '. Ela só é devida após o **Fechamento** confirmado — participar da cotação, enviar proposta ou ser aprovado **não** gera cobrança automática por si só.',
+        '. Ela só é devida após o **Fechamento** confirmado: participar da cotação, enviar proposta ou ser aprovado **não** gera cobrança automática por si só.',
       'A taxa pode ser paga pelo **comprador** (**Contratante Gravity**) ou pelo **fornecedor**. **Por padrão**, a responsabilidade é do **comprador**; o usuário **master** altera essa regra em ' +
         LINK_MANUAL_BID_FRETE_CONFIGURACOES +
         ' → **Preferências** → **Empresa que deve pagar a taxa de fechamento da plataforma Gravity**.',
@@ -24,12 +24,12 @@ export const PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO: DocPasso
     ],
     imagem: S('taxa_quem_paga_1'),
     imagemAbaixoTexto: true,
-    legendaAposImagem: 'Preferências — quem paga a taxa',
+    legendaAposImagem: 'Preferências: quem paga a taxa',
     legendaAposImagemAlinhamento: 'left',
     galeriaComparacaoAposImagem: [
       {
         textoIntro:
-          '**Exemplo — taxa paga pelo fornecedor.** No **e-mail de solicitação de cotação** enviado ao fornecedor, o resumo exibe **Taxa de fechamento paga por: Fornecedor** e um aviso em destaque com o **valor da taxa** em caso de fechamento (ilustrativo no print; ' +
+          '**Exemplo: taxa paga pelo fornecedor.** No **e-mail de solicitação de cotação** enviado ao fornecedor, o resumo exibe **Taxa de fechamento paga por: Fornecedor** e um aviso em destaque com o **valor da taxa** em caso de fechamento (ilustrativo no print; ' +
           TEXTO_VALOR_TAXA_VARIAVEL +
           ').',
         colunas: 1,
@@ -48,7 +48,7 @@ export const PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO: DocPasso
         calloutApos: {
           tipo: 'dica',
           texto:
-            'Se o pagador for o **Contratante Gravity** (comprador), o campo passa a **Contratante Gravity** e o aviso informa que o fornecedor **não será cobrado** por essa taxa — a organização compradora arca com o success fee.',
+            'Se o pagador for o **Contratante Gravity** (comprador), o campo passa a **Contratante Gravity** e o aviso informa que o fornecedor **não será cobrado** por essa taxa: a organização compradora arca com o success fee.',
         },
       },
       {
@@ -58,14 +58,14 @@ export const PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO: DocPasso
           {
             legenda: '',
             paragrafoAntes:
-              'Antes de enviar a proposta, o fornecedor deve ler o **Termo de Ciência de Envio de Proposta**. O subtítulo do documento reflete quem paga a taxa e o **valor vigente** — neste exemplo, **Taxa de fechamento paga pelo Fornecedor** com valor em USD.',
+              'Antes de enviar a proposta, o fornecedor deve ler o **Termo de Ciência de Envio de Proposta**. O subtítulo do documento reflete quem paga a taxa e o **valor vigente**: neste exemplo, **Taxa de fechamento paga pelo Fornecedor** com valor em USD.',
             imagem: S('taxa_quem_paga_4'),
           },
           {
             legenda: '',
             imagem: S('taxa_quem_paga_6'),
             paragrafoAntes:
-              'No **Contrato de Prestação de Serviços de Fechamento na Plataforma**, aceito na confirmação **Recebi e estou de acordo**, as cláusulas de cobrança também seguem o pagador definido — boleto mensal do fornecedor ou faturamento ao **Contratante Gravity**.',
+              'No **Contrato de Prestação de Serviços de Fechamento na Plataforma**, aceito na confirmação **Recebi e estou de acordo**, as cláusulas de cobrança também seguem o pagador definido: boleto mensal do fornecedor ou faturamento ao **Contratante Gravity**.',
           },
         ],
         calloutApos: {
@@ -81,14 +81,14 @@ export const PASSOS_MANUAL_BID_FRETE_PAGAMENTO_TAXA_GRAVITY_FECHAMENTO: DocPasso
           {
             legenda: '',
             paragrafoAntes:
-              'Quando a proposta é **aprovada**, o fornecedor ganhador recebe e-mail com o resumo e, novamente, o **aviso sobre a taxa de fechamento** — coerente com quem foi definido como pagador.',
+              'Quando a proposta é **aprovada**, o fornecedor ganhador recebe e-mail com o resumo e, novamente, o **aviso sobre a taxa de fechamento**: coerente com quem foi definido como pagador.',
             imagem: S('taxa_quem_paga_5'),
           },
           {
             legenda: '',
             imagem: S('taxa_quem_paga_7'),
             paragrafoAntes:
-              'Na página pública **Confirmar recebimento da aprovação**, o fornecedor marca **Li e aceito o contrato de fechamento** e confirma com **Recebi e estou de acordo**. O box **Taxa de fechamento** indica o valor e quem paga — neste exemplo, **pela sua empresa** (fornecedor).',
+              'Na página pública **Confirmar recebimento da aprovação**, o fornecedor marca **Li e aceito o contrato de fechamento** e confirma com **Recebi e estou de acordo**. O box **Taxa de fechamento** indica o valor e quem paga: neste exemplo, **pela sua empresa** (fornecedor).',
           },
         ],
         calloutApos: [

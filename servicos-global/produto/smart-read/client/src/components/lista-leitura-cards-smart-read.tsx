@@ -3,7 +3,16 @@
  */
 
 import React from 'react'
-import { ChartLineUp, Timer, ChartDonut } from '@phosphor-icons/react'
+import {
+  ChartLineUp,
+  Timer,
+  CheckCircle,
+  ArrowsClockwise,
+  Warning,
+  Gauge,
+  ListBullets,
+  Files,
+} from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   formatarPercentualLeitura,
@@ -24,13 +33,22 @@ import {
   type CardDefinicaoSmartRead,
 } from '../shared/use-preferencias-cards-smart-read'
 import { LinkMetodologiaSavingInsightsSmartRead } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
-import { ehStatusFluxoConcluidaKpi } from '../../../shared/status-fluxo-leitura-smart-read'
+import {
+  ehStatusFluxoConcluidaKpi,
+  type StatusFluxoLeitura,
+} from '../../../shared/status-fluxo-leitura-smart-read'
 
 type Props = {
   transacoes: TransacaoLeitura[]
   totalLeituras: number | null
   carregando?: boolean
 }
+
+const STATUS_PROCESSANDO = new Set<StatusFluxoLeitura>([
+  'ANEXAR_ARQUIVO',
+  'ANALISE_ARQUIVO',
+  'CONFERENCIA',
+])
 
 function calcularMediaAcertos(transacoes: TransacaoLeitura[]): number | null {
   const valores = transacoes
@@ -79,14 +97,15 @@ function renderCard(
   props: Props,
 ): React.ReactNode {
   const { transacoes, totalLeituras, carregando } = props
+  const titulo = card.titulo.toUpperCase()
 
-  if (card.id === 'leituras_realizadas') {
+  if (card.id === 'total_leituras' || card.id === 'leituras_realizadas') {
     const valor = carregando ? '…' : (totalLeituras ?? transacoes.length)
     const concluidas = transacoes.filter((t) => ehStatusFluxoConcluidaKpi(t.status_fluxo_leitura)).length
     return (
       <CardBasicoGlobal
         key={card.id}
-        titulo={card.titulo.toUpperCase()}
+        titulo={titulo}
         icone={<ChartLineUp weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
         valor={valor}
         subtexto={`${concluidas} concluída(s) nesta página`}
@@ -106,12 +125,107 @@ function renderCard(
     )
   }
 
+  if (card.id === 'concluidas') {
+    const valor = carregando ? '…' : transacoes.filter((t) => ehStatusFluxoConcluidaKpi(t.status_fluxo_leitura)).length
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+        valor={valor}
+        variante="sucesso"
+        subtexto="Resultado publicado nesta página"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
+  if (card.id === 'processando') {
+    const valor = carregando
+      ? '…'
+      : transacoes.filter((t) => STATUS_PROCESSANDO.has(t.status_fluxo_leitura)).length
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<ArrowsClockwise weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+        valor={valor}
+        subtexto="Em andamento nesta página"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
+  if (card.id === 'falhas') {
+    const valor = carregando
+      ? '…'
+      : transacoes.filter((t) => t.status_fluxo_leitura === 'FALHOU').length
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
+        valor={valor}
+        variante="alerta"
+        subtexto="Falhas nesta página"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
+  if (card.id === 'taxa_sucesso' || card.id === 'performance_acertos') {
+    const media = calcularMediaAcertos(transacoes)
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<Gauge weight="duotone" size={16} style={{ color: '#34d399' }} />}
+        valor={carregando ? '…' : formatarPercentualLeitura(media)}
+        variante="sucesso"
+        subtexto="Média das leituras visíveis"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
+  if (card.id === 'campos_extraidos') {
+    const valor = carregando
+      ? '…'
+      : transacoes.reduce((acc, t) => acc + t.total_campos_extraidos, 0)
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<ListBullets weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+        valor={valor}
+        subtexto="Soma nesta página"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
+  if (card.id === 'documentos') {
+    const valor = carregando
+      ? '…'
+      : transacoes.reduce((acc, t) => acc + t.total_documentos, 0)
+    return (
+      <CardBasicoGlobal
+        key={card.id}
+        titulo={titulo}
+        icone={<Files weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
+        valor={valor}
+        subtexto="Soma nesta página"
+        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+      />
+    )
+  }
+
   if (card.id === 'recursos_reduzidos') {
     const saving = calcularSavingAgregado(transacoes)
     return (
       <CardBasicoGlobal
         key={card.id}
-        titulo={card.titulo.toUpperCase()}
+        titulo={titulo}
         icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
         valor={carregando ? '…' : formatarSavingHorasLeitura(saving.minutos)}
         variante="sucesso"
@@ -143,21 +257,6 @@ function renderCard(
             </p>
           </>
         }
-      />
-    )
-  }
-
-  if (card.id === 'performance_acertos') {
-    const media = calcularMediaAcertos(transacoes)
-    return (
-      <CardBasicoGlobal
-        key={card.id}
-        titulo={card.titulo.toUpperCase()}
-        icone={<ChartDonut weight="duotone" size={16} style={{ color: '#34d399' }} />}
-        valor={carregando ? '…' : formatarPercentualLeitura(media)}
-        variante="sucesso"
-        subtexto="Média das leituras visíveis"
-        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
       />
     )
   }

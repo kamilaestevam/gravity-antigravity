@@ -43,7 +43,7 @@ const GRUPO_ACOES_DEDICADAS: GrupoCatalogoHistoricoPedido = {
   id: 'acoes-dedicadas',
   titulo: 'Ações dedicadas do Pedido',
   descricao:
-    'Operações especiais gravadas com verbo próprio — além da captura automática da API, quando aplicável.',
+    'Operações especiais gravadas com verbo próprio: além da captura automática da API, quando aplicável.',
   eventos: [
     evt('DUPLICAR', 'Lista › Duplicar', 'Confirmar duplicação de pedido ou itens selecionados.', 'Pode gerar também **Atualizou/Criou** na captura automática.'),
     evt('TRANSFERIR', 'Lista › Transferir', 'Confirmar transferência de quantidades entre workspaces.'),
@@ -58,13 +58,13 @@ const GRUPO_ACOES_DEDICADAS: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_LISTA_PEDIDO_ITENS: GrupoCatalogoHistoricoPedido = {
   id: 'lista-pedido-itens',
-  titulo: 'Lista — pedido e itens',
+  titulo: 'Lista: pedido e itens',
   descricao: 'CRUD principal e edição in place na tabela ou drawer.',
   eventos: [
     evt('CRIAR', 'Lista', 'Criar **Novo pedido** (manual, API Cockpit ou fluxo pós-importação).'),
     evt('ATUALIZAR', 'Lista', 'Salvar pedido no **drawer** ou formulário completo.'),
     evt('ATUALIZAR', 'Lista', 'Editar **célula in place** de campo do pedido (Enter ou Salvar).'),
-    evt('ATUALIZAR', 'Lista · Kanban', 'Alterar **status** do pedido (patch de status — lista, Kanban ou lote).'),
+    evt('ATUALIZAR', 'Lista · Kanban', 'Alterar **status** do pedido (patch de status: lista, Kanban ou lote).'),
     evt('EXCLUIR', 'Lista', 'Excluir pedido via rota DELETE (quando usada).'),
     evt('CRIAR', 'Lista', 'Adicionar **item** a um pedido.'),
     evt('ATUALIZAR', 'Lista', 'Salvar **item** no drawer ou formulário.'),
@@ -77,7 +77,7 @@ const GRUPO_LISTA_PEDIDO_ITENS: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_LISTA_OPERACOES: GrupoCatalogoHistoricoPedido = {
   id: 'lista-operacoes',
-  titulo: 'Lista — operações em lote e fluxos',
+  titulo: 'Lista: operações em lote e fluxos',
   descricao: 'Modais com preview + confirmar; previews também geram linha (captura automática).',
   eventos: [
     evt('CRIAR', 'Lista › Duplicar', 'Executar **preview** da duplicação.'),
@@ -92,21 +92,21 @@ const GRUPO_LISTA_OPERACOES: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_LISTA_IMPORT_EXPORT: GrupoCatalogoHistoricoPedido = {
   id: 'lista-import-export',
-  titulo: 'Lista — importação e exportação',
+  titulo: 'Lista: importação e exportação',
   eventos: [
-    evt('CRIAR', 'Lista › Importar', '**Smart Import** — analisar planilha enviada.'),
-    evt('CRIAR', 'Lista › Importar', '**Smart Import** — confirmar importação após mapeamento.'),
-    evt('CRIAR', 'Lista › Importar', '**Smart Import** — salvar **mapeamento** de colunas para reutilizar.'),
-    evt('CRIAR', 'Lista › Importar', '**Smart Import** — **reverter** uma importação concluída.'),
-    evt('CRIAR', 'Lista › Importar', 'Importação legada — enviar planilha (**importar**).'),
-    evt('CRIAR', 'Lista › Importar', 'Importação legada — **confirmar** gravação.'),
+    evt('CRIAR', 'Lista › Importar', '**Smart Import**: analisar planilha enviada.'),
+    evt('CRIAR', 'Lista › Importar', '**Smart Import**: confirmar importação após mapeamento.'),
+    evt('CRIAR', 'Lista › Importar', '**Smart Import**: salvar **mapeamento** de colunas para reutilizar.'),
+    evt('CRIAR', 'Lista › Importar', '**Smart Import**: **reverter** uma importação concluída.'),
+    evt('CRIAR', 'Lista › Importar', 'Importação legada: enviar planilha (**importar**).'),
+    evt('CRIAR', 'Lista › Importar', 'Importação legada: **confirmar** gravação.'),
     evt('CRIAR', 'Lista › Exportar', 'Gerar **exportação** da seleção ou recorte filtrado.'),
   ],
 }
 
 const GRUPO_LISTA_PERSONALIZACAO: GrupoCatalogoHistoricoPedido = {
   id: 'lista-personalizacao',
-  titulo: 'Lista — painéis, colunas e preferências',
+  titulo: 'Lista: painéis, colunas e preferências',
   eventos: [
     evt('CRIAR', 'Lista › Painéis', 'Criar **painel** (aba) com filtros e layout salvos.'),
     evt('ATUALIZAR', 'Lista › Painéis', 'Renomear ou editar painel ativo.'),
@@ -124,7 +124,7 @@ const GRUPO_LISTA_PERSONALIZACAO: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_LISTA_ANEXOS: GrupoCatalogoHistoricoPedido = {
   id: 'lista-anexos',
-  titulo: 'Lista — anexos',
+  titulo: 'Lista: anexos',
   eventos: [
     evt('CRIAR', 'Lista › Anexos', 'Enviar **anexo** a um pedido.'),
     evt('EXCLUIR', 'Lista › Anexos', 'Remover anexo do pedido.'),
@@ -133,7 +133,7 @@ const GRUPO_LISTA_ANEXOS: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_LISTA_GERAR_DOCUMENTO: GrupoCatalogoHistoricoPedido = {
   id: 'lista-gerar-documento',
-  titulo: 'Lista — gerar documento',
+  titulo: 'Lista: gerar documento',
   eventos: [
     evt('CRIAR', 'Lista › Gerar documento', 'Gerar **PDF** a partir de template (opção **salvar como anexo**).'),
     evt('CRIAR', 'Lista › Gerar documento', 'Gerar **documento comercial** por tipo e idioma (PI, CI, etc.).'),
@@ -190,7 +190,7 @@ const GRUPO_CONFIGURACOES: GrupoCatalogoHistoricoPedido = {
 
 const GRUPO_AUXILIAR: GrupoCatalogoHistoricoPedido = {
   id: 'auxiliar',
-  titulo: 'Captura automática — rotas auxiliares',
+  titulo: 'Captura automática: rotas auxiliares',
   descricao: 'Mutations que respondem com JSON e entram no histórico, embora não alterem pedidos diretamente.',
   eventos: [
     evt('CRIAR', 'Lista', 'Pergunta ao **Gabi** em tooltip de ajuda de campo (proxy ajuda-campo).'),
@@ -219,7 +219,7 @@ const GRUPO_NAO_REGISTRA: GrupoCatalogoHistoricoPedido = {
       acao: '—',
       rotulo: 'Não registra',
       tela: 'Lista',
-      quando: 'Telemetria **eventos-comportamento** (personalização Gabi — resposta 204, fora do audit plugin).',
+      quando: 'Telemetria **eventos-comportamento** (personalização Gabi: resposta 204, fora do audit plugin).',
     },
     {
       acao: '—',

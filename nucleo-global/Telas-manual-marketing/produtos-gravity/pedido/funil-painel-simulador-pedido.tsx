@@ -16,7 +16,7 @@ export function FunilPainelSimuladorPedido({ funil }: Props) {
   const maxCount = Math.max(...funil.map((item) => item.count), 1)
 
   return (
-    <section className="pds-funil-painel pds-insights-card pds-insights-card--com-tooltip" aria-label="Funil de pedidos">
+    <section className="pds-funil-painel pds-insights-card pds-insights-card--com-tooltip" aria-label="Funil de pedidos" data-sds-tutorial-alvo="pedido-insights-funil">
       <div className="pds-funil-painel__header">
         <span className="pds-funil-painel__icone" aria-hidden>
           <Funnel size={14} weight="duotone" style={{ color: '#818cf8' }} />

@@ -1,10 +1,16 @@
-﻿# Copia prints do Drive para public/university/screenshots/pedido-*.png
-# Fonte: ...\6. Produtos Gravity\1. Pedido
+# Copia prints do Drive para public/university/screenshots/pedido-*.png
+# Fonte: ...\7. Produtos Gravity\1. Pedido (fallback: 6. Produtos Gravity)
 
 $ErrorActionPreference = 'Stop'
 
 $candidatosOrigem = @(
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido',
+  "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido",
+  "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\7. Produtos Gravity\1. Pedido",
+  'G:\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido',
   'G:\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido',
+  "$env:USERPROFILE\Google Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido",
+  "$env:USERPROFILE\Meu Drive\4. Gravity\9. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido",
   "$env:USERPROFILE\Google Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido",
   "$env:USERPROFILE\Meu Drive\4. Gravity\1. Manual e Onboarding\1. Imagens para manual e onboarding\6. Produtos Gravity\1. Pedido"
 )
@@ -34,6 +40,7 @@ $mapa = @{
   'tela_pedido_visao_lista_gerar_documento_2' = 'pedido-lista-gerar-documento-2.png'
   'tela_pedido_configuracoes_criar_coluna' = 'pedido-configuracoes-criar-coluna.png'
   'tela_pedido_configuracoes_seta' = 'pedido-configuracoes-seta.png'
+  'tela_pedido_configuracoes_acesso' = 'pedido-configuracoes-acesso.png'
   'tela_pedido_configuracoes_criar_coluna_modal' = 'pedido-configuracoes-criar-coluna-modal.png'
   'tela_pedido_lista_edicao_selecionar_salvo' = 'pedido-lista-edicao-selecionar-salvo.png'
   'tela_pedido_lista_edicao_selecionar_salvar' = 'pedido-lista-edicao-selecionar-salvar.png'
@@ -70,6 +77,24 @@ $mapa = @{
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_3_modal_expandido_editando' = 'pedido-lista-importar-sobrescrever-diff.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_passo_4' = 'pedido-lista-importar-resultado.png'
   'tela_pedido_lista_novo_pedido_modal_importacao_tela_final' = 'pedido-lista-importar-erros-csv.png'
+  # §5.12 Novo pedido — manual e novo item
+  'tela_pedido_lista_novo_pedido_manual_seta' = 'pedido-lista-novo-pedido-manual-seta.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_1' = 'pedido-lista-novo-pedido-manual-passo-1.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_2' = 'pedido-lista-novo-pedido-manual-passo-1-requisitos.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_importacao_selecionar_exportador_nova_seta' = 'pedido-lista-novo-pedido-manual-exportador-nova-seta.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_importacao_selecionar_exportador_nova_modal' = 'pedido-lista-novo-pedido-manual-exportador-nova-modal.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_importacao_selecionar_exportador' = 'pedido-lista-novo-pedido-manual-exportador-select.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_3' = 'pedido-lista-novo-pedido-manual-passo-2-itens.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_3_ncm_1' = 'pedido-lista-novo-pedido-manual-passo-2-ncm-1.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_3_ncm_2' = 'pedido-lista-novo-pedido-manual-passo-2-ncm-2.png'
+  'tela_pedido_lista_novo_pedido_manual_modal_4' = 'pedido-lista-novo-pedido-manual-passo-2-criar.png'
+  'tela_pedido_lista_novo_pedido_manual_tela_salva' = 'pedido-lista-novo-pedido-manual-salvo-lista.png'
+  'tela_pedido_lista_novo_item_seta' = 'pedido-lista-novo-item-seta.png'
+  'tela_pedido_lista_novo_item_modal' = 'pedido-lista-novo-item-modal-opcoes.png'
+  'tela_pedido_lista_novo_item_modal_1' = 'pedido-lista-novo-item-manual-passo-1.png'
+  'tela_pedido_lista_novo_item_modal_1_adicionar_item' = 'pedido-lista-novo-item-manual-adicionar.png'
+  'tela_pedido_lista_novo_item_modal_1_adicionado_1' = 'pedido-lista-novo-item-manual-item-1.png'
+  'tela_pedido_lista_novo_item_modal_1_adicionado_2' = 'pedido-lista-novo-item-manual-itens-salvos.png'
   'tela_pedido_visao_lista_paineis_seta' = 'pedido-lista-paineis-seta.png'
   'tela_pedido_visao_lista_paineis_novo_seta' = 'pedido-lista-paineis-novo-seta.png'
   'tela_pedido_visao_lista_paineis_novo_nome_seta' = 'pedido-lista-paineis-novo-nome-seta.png'
@@ -262,7 +287,8 @@ $mapa = @{
 # Mesma origem Drive -> dois destinos (lembrar + reverter reutilizam print proximo)
 $copiasExtrasImportar = @(
   @{ base = 'tela_pedido_lista_novo_pedido_modal_importacao_passo_2_completo'; dest = 'pedido-lista-importar-lembrar.png' },
-  @{ base = 'tela_pedido_lista_novo_pedido_modal_importacao_tela_final'; dest = 'pedido-lista-importar-reverter.png' }
+  @{ base = 'tela_pedido_lista_novo_pedido_modal_importacao_tela_final'; dest = 'pedido-lista-importar-reverter.png' },
+  @{ base = 'tela_pedido_lista_novo_pedido_modal'; dest = 'pedido-lista-novo-pedido-modal-opcoes.png' }
 )
 
 function Copiar-PrintManual {

@@ -8,6 +8,7 @@ import {
   X,
   Check,
 } from '@phosphor-icons/react'
+import { MANUAL_TITULO_INFOGRAFICO_ESTILO } from './manual-tipografia'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -73,10 +74,7 @@ export function ManualInfograficoMenuLateral() {
       borderRadius: 14,
       padding: '16px 18px 18px',
     }}>
-      <p style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-        color: 'var(--ws-muted,#94a3b8)', margin: '0 0 14px',
-      }}>
+      <p style={MANUAL_TITULO_INFOGRAFICO_ESTILO}>
         Onde existe menu lateral?
       </p>
 
@@ -91,14 +89,14 @@ export function ManualInfograficoMenuLateral() {
           fontSize: '.72rem',
           fontWeight: 600,
         }}>
-          Menu superior — presente em quase todas as telas autenticadas
+          Menu superior: presente em quase todas as telas autenticadas
         </div>
 
         <ArrowDown size={14} weight="bold" color="#64748b" />
 
         <BlocoMenu
           titulo="Antes de abrir um produto"
-          itens={['Hub — tela principal', 'Gravity Store — catálogo de contratação']}
+          itens={['Hub: tela principal', 'Gravity Store: catálogo de contratação']}
           icone={SquaresFour}
           cor="#94a3b8"
           borda="rgba(148,163,184,.25)"
@@ -140,7 +138,7 @@ export function ManualInfograficoMenuLateral() {
           titulo="Configurador da organização"
           itens={[
             'Área de gestão (Organização, Usuários, Workspaces…)',
-            'Acesso pelo menu do usuário — não passa pelo Hub de produtos',
+            'Acesso pelo menu do usuário: não passa pelo Hub de produtos',
           ]}
           icone={Gear}
           cor="#fbbf24"
@@ -158,7 +156,7 @@ export function ManualInfograficoMenuLateral() {
         }}>
           A <strong style={{ color: '#e2e8f0' }}>Gravity Store</strong>{' '}
           <ShoppingBag size={11} weight="duotone" style={{ verticalAlign: '-2px', color: '#fbbf24' }} />{' '}
-          também usa só o menu superior — não confunda com o menu de um produto já aberto.
+          também usa só o menu superior: não confunda com o menu de um produto já aberto.
         </p>
       </div>
     </div>

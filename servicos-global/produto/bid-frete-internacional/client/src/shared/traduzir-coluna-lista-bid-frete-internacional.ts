@@ -41,6 +41,10 @@ const CHAVE_I18N_COLUNA_LISTA: Record<string, string> = {
   id_fornecedor_vencedor_cotacao_bid_frete_internacional: 'fornecedorVencedor',
   ganho_valor_cotacao_bid_frete_internacional: 'ganhoEstimado',
   ganho_percentual_cotacao_bid_frete_internacional: 'ganhoPercentual',
+  valor_frete_proposta_bid_frete_internacional: 'freteBaseProposta',
+  taxas_origem_proposta_bid_frete_internacional: 'taxasOrigemProposta',
+  taxas_destino_proposta_bid_frete_internacional: 'taxasDestinoProposta',
+  valor_total_proposta_bid_frete_internacional: 'valorFreteTotalProposta',
 }
 
 /** Campo Prisma → chave em `bidfrete.colunas_datas_motivos`. */

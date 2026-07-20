@@ -9,6 +9,11 @@ export function dateToIso(d: Date): string {
 
 export function isoToBR(iso: unknown): string {
   if (!iso || typeof iso !== 'string') return ''
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim())
+  if (dateOnly) {
+    const [, y, m, d] = dateOnly
+    return `${d}/${m}/${y}`
+  }
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleDateString('pt-BR')

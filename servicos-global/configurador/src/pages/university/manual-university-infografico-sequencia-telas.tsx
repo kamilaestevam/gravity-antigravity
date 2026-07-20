@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { ArrowsOut, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import type { TelaSequenciaInfografico } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
 import { IMAGEM_PREVIEW_PADRAO_INFOGRAFICO } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
+import { Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA } from './manual-figura-screenshot'
 
 /** Sincronizar com `MANUAL_SCREENSHOT_CACHE_KEY` em manual-configurador-ui.tsx */
 const CACHE_SCREENSHOT = '147'
@@ -180,12 +181,12 @@ function ModalSequenciaTelas({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Sequência de telas — ${tela.titulo}`}
+      aria-label={`Sequência de telas: ${tela.titulo}`}
       onClick={onFechar}
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 10000,
+        zIndex: Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -333,7 +334,7 @@ export function ManualInfograficoMiniaturaSequenciaTelas({
           }
         }}
         aria-label={`${rotulo}: abrir sequência de ${telas.length} telas`}
-        title={`Ampliar — ${telas.length} telas`}
+        title={`Ampliar: ${telas.length} telas`}
         style={{
           margin: 0,
           width: MINI_LARGURA,

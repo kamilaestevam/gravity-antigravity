@@ -77,16 +77,21 @@ export function ModalDuplicarListaSimuladorPedido({ aberto, selecao, onFechar, o
             <X size={14} weight="bold" aria-hidden />
           </button>
         </div>
-        <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.5 }}>
+        <p
+          style={{ margin: '0 0 1rem', fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.5 }}
+          data-sds-tutorial-alvo="pedido-duplicar-resumo"
+        >
           {descricao}
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
           <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={fechar}>
             Cancelar
           </BotaoGlobal>
+          <span data-sds-tutorial-alvo="pedido-duplicar-confirmar" style={{ display: 'inline-flex' }}>
           <BotaoGlobal variante="primario" tamanho="pequeno" icone={<Copy size={14} weight="duotone" />} onClick={onConfirmar}>
             Duplicar
           </BotaoGlobal>
+          </span>
         </div>
       </div>
     </div>,

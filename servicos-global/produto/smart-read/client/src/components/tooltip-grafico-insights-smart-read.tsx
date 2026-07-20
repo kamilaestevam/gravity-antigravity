@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 export type LinhaTooltipInsightsSmartRead = {
   cor: string
@@ -15,6 +16,8 @@ export type SegmentoBarraTooltipInsightsSmartRead = {
 export type ConteudoTooltipInsightsSmartRead = {
   titulo: string
   subtitulo?: string
+  explicacao?: string
+  categorias?: Array<{ rotulo: string; texto: string; cor?: string }>
   total?: ReactNode
   totalRotulo?: string
   barra?: SegmentoBarraTooltipInsightsSmartRead[]
@@ -22,10 +25,12 @@ export type ConteudoTooltipInsightsSmartRead = {
 }
 
 export type AncoraTooltipInsightsSmartRead = {
-  /** x (centro do alvo) relativo ao conteúdo do container, já incluindo scroll horizontal */
+  /** Centro horizontal do alvo (coordenada da viewport) */
   cx: number
-  /** y do topo do alvo relativo ao topo visível do container */
+  /** Topo do alvo (coordenada da viewport) */
   yTopo: number
+  /** Base do alvo (coordenada da viewport) */
+  yBase: number
 }
 
 const MARGEM_HORIZONTAL = 96
@@ -36,33 +41,34 @@ const LIMIAR_ACIMA = 92
  * Posicionamento adaptativo: aparece acima do alvo quando há espaço, senão abaixo,
  * e fica preso (clamp) às bordas do container para nunca vazar.
  *
- * O componente deve ser renderizado dentro de um elemento `position: relative`
- * (normalmente o mesmo que o `containerRef`, ou um ancestral comum).
+ * Renderizado via portal em `document.body` com `position: fixed` para não ser
+ * cortado por `overflow: hidden` nos cards do dashboard.
  */
 export function TooltipGraficoInsightsSmartRead({
   ancora,
   conteudo,
-  containerRef,
+  posicaoPreferida = 'auto',
 }: {
   ancora: AncoraTooltipInsightsSmartRead
   conteudo: ConteudoTooltipInsightsSmartRead
-  containerRef: RefObject<HTMLElement | null>
+  posicaoPreferida?: 'auto' | 'abaixo' | 'acima'
 }) {
-  const container = containerRef.current
-  const scrollLeft = container?.scrollLeft ?? 0
-  const clientW = container?.clientWidth ?? 240
-
-  const leftBruto = ancora.cx - scrollLeft
+  const larguraViewport = typeof window !== 'undefined' ? window.innerWidth : 1200
   const left = Math.min(
-    Math.max(leftBruto, MARGEM_HORIZONTAL),
-    Math.max(MARGEM_HORIZONTAL, clientW - MARGEM_HORIZONTAL),
+    Math.max(ancora.cx, MARGEM_HORIZONTAL),
+    Math.max(MARGEM_HORIZONTAL, larguraViewport - MARGEM_HORIZONTAL),
   )
-  const acima = ancora.yTopo > LIMIAR_ACIMA
+  const acima =
+    posicaoPreferida === 'acima'
+      ? true
+      : posicaoPreferida === 'abaixo'
+        ? false
+        : ancora.yTopo > LIMIAR_ACIMA
 
-  return (
+  return createPortal(
     <div
-      className={`sr-insights-tt${acima ? '' : ' sr-insights-tt--abaixo'}`}
-      style={{ left, top: acima ? ancora.yTopo - 10 : ancora.yTopo + 14 }}
+      className={`sr-insights-tt sr-insights-tt--portal${acima ? '' : ' sr-insights-tt--abaixo'}`}
+      style={{ left, top: acima ? ancora.yTopo - 10 : ancora.yBase + 14 }}
       role="tooltip"
     >
       <div className="sr-insights-tt__topo">
@@ -71,6 +77,10 @@ export function TooltipGraficoInsightsSmartRead({
           <span className="sr-insights-tt__sub">{conteudo.subtitulo}</span>
         )}
       </div>
+
+      {conteudo.explicacao != null && (
+        <p className="sr-insights-tt__explicacao">{conteudo.explicacao}</p>
+      )}
 
       {conteudo.total != null && (
         <div className="sr-insights-tt__total">
@@ -98,7 +108,25 @@ export function TooltipGraficoInsightsSmartRead({
           </strong>
         </div>
       ))}
-    </div>
+
+      {conteudo.categorias != null && conteudo.categorias.length > 0 && (
+        <div className="sr-insights-tt__categorias">
+          <p className="sr-insights-tt__categorias-titulo">Como classificamos</p>
+          {conteudo.categorias.map((item) => (
+            <div className="sr-insights-tt__categoria" key={item.rotulo}>
+              <span className="sr-insights-tt__categoria-rotulo">
+                {item.cor != null && (
+                  <i style={{ background: item.cor }} aria-hidden />
+                )}
+                {item.rotulo}
+              </span>
+              <span className="sr-insights-tt__categoria-texto">{item.texto}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>,
+    document.body,
   )
 }
 
@@ -115,13 +143,15 @@ export function useHoverTooltipInsightsSmartRead<T>() {
   } | null>(null)
 
   function aoEntrar(evento: { currentTarget: Element }, dados: T) {
-    const container = containerRef.current
-    if (!container) return
     const alvo = evento.currentTarget.getBoundingClientRect()
-    const base = container.getBoundingClientRect()
-    const cx = alvo.left + alvo.width / 2 - base.left + container.scrollLeft
-    const yTopo = alvo.top - base.top
-    setEstado({ ancora: { cx, yTopo }, dados })
+    setEstado({
+      ancora: {
+        cx: alvo.left + alvo.width / 2,
+        yTopo: alvo.top,
+        yBase: alvo.bottom,
+      },
+      dados,
+    })
   }
 
   function aoSair() {

@@ -20,7 +20,7 @@ export const PASSOS_MANUAL_BID_FRETE_VISAO_FORNECEDOR: DocPassoVisual[] = renume
     tituloCurto: 'Como acessar',
     paragrafos: [
       'O fornecedor acessa com a **conta Clerk** vinculada ao cadastro `fornecedor_bid_frete_internacional`. A URL base é **' + URL_VISAO_FORNECEDOR_BID_FRETE + '**.',
-      'O menu lateral exibe **Cotações pendentes**, **Minhas propostas**, **Tabelas de valor**, **Meu desempenho** e **Configurações** — navegação exclusiva desta visão.',
+      'O menu lateral exibe **Cotações pendentes**, **Minhas propostas**, **Tabelas de valor**, **Meu desempenho** e **Configurações**: navegação exclusiva desta visão.',
       'Convites por e-mail podem incluir **link com token** para responder sem login; esse fluxo é detalhado em **Resposta pública**.',
     ],
     badgeEmDesenvolvimento: true,

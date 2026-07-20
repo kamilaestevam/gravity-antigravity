@@ -1,0 +1,55 @@
+.pds-historico {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 0 2px 8px;
+}
+
+.pds-historico-banner {
+  padding: 8px 12px;
+  background: rgba(99, 102, 241, 0.08);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.pds-historico-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pds-historico-kpis .cg-card {
+  min-height: 88px;
+}
+
+.pds-historico-kpis .cg-card__value {
+  font-size: 2.125rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.pds-historico-kpis .cg-card__label {
+  font-size: 0.75rem;
+}
+
+.pds-historico-tabela {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pds-historico-tabela .tg-root {
+  flex: 1;
+  min-height: 280px;
+}
+
+@media (max-width: 1100px) {
+  .pds-historico-kpis {
+    grid-template-columns: 1fr;
+  }
+}

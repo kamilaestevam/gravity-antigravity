@@ -32,6 +32,12 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 /** Regex canônico de schema válido: tenant_ + (CUID | UUID). */
 export const SCHEMA_NAME_REGEX = /^tenant_([a-z][a-z0-9]{22,24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
 
+/**
+ * Schemas legados de smoke/local (ex.: organizacao_smoketest).
+ * Apenas [a-z0-9_] após o prefixo — defense-in-depth para SET LOCAL.
+ */
+export const SCHEMA_NAME_ORGANIZACAO_SMOKE_REGEX = /^organizacao_[a-z][a-z0-9_]{2,48}$/;
+
 function isValidOrganizacaoId(id: string): boolean {
   return CUID_REGEX.test(id) || UUID_REGEX.test(id);
 }
@@ -67,5 +73,8 @@ export function buildSchemaName(idOrganizacao: string): string {
  * Valida um nomeSchema já construído (uso em logs, métricas, validação cruzada).
  */
 export function isValidSchemaName(nomeSchema: string): boolean {
-  return typeof nomeSchema === 'string' && SCHEMA_NAME_REGEX.test(nomeSchema);
+  return (
+    typeof nomeSchema === 'string' &&
+    (SCHEMA_NAME_REGEX.test(nomeSchema) || SCHEMA_NAME_ORGANIZACAO_SMOKE_REGEX.test(nomeSchema))
+  );
 }

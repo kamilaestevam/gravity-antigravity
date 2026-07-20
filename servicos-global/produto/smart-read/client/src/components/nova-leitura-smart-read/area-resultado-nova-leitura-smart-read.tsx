@@ -14,20 +14,22 @@ import {
   TrendUp,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BlocoPerformanceResultadoComTooltip } from './bloco-performance-resultado-com-tooltip-smart-read'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   extrairDadosArquivoLocal,
   extrairDocumentosArquivoLocal,
+  resolverArquivoApiLeitura,
 } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import {
   calcularEstatisticasConferencia,
   extrairSecoesConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
+import { compararCamposEdicaoLeituraSmartRead } from '../../shared/comparar-campos-edicao-leitura-smart-read'
 import { executarDownloadExportacaoLeituraSmartRead } from '../../shared/executar-download-exportacao-leitura-smart-read'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
-  camposEditados: number
   tempoTotalMs: number
 }
 
@@ -42,11 +44,23 @@ function sanitizarNomeArquivo(nome: string): string {
   return nome.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'leitura'
 }
 
+function QuantidadeComPercentual({ quantidade, percentual }: { quantidade: number; percentual: number }) {
+  return (
+    <span className="sr-res-perf-bloco-quantidade">
+      <span className="sr-res-perf-bloco-numero">{quantidade}</span>
+      <span className="sr-res-perf-bloco-sep" aria-hidden>
+        /
+      </span>
+      <span className="sr-res-perf-bloco-pct">{percentual}%</span>
+    </span>
+  )
+}
+
 function resolverIdLeitura(arquivos: ArquivoLocalNovaLeitura[]): string | null {
   return arquivos.find((item) => item.leitura?.id_leitura)?.leitura?.id_leitura ?? null
 }
 
-export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, tempoTotalMs }: Props) {
+export function AreaResultadoNovaLeituraSmartRead({ arquivos, tempoTotalMs }: Props) {
   const arquivosCompletos = useMemo(
     () => arquivos.filter((item) => item.status_arquivo_local === 'completo' && item.leitura),
     [arquivos],
@@ -62,22 +76,53 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
     let total = 0
     let preenchidos = 0
     let documentos = 0
+    let validados = 0
+    let ajustesForma = 0
+    let corrigidos = 0
+    let comparados = 0
+
     for (const item of arquivosCompletos) {
       const docs = extrairDocumentosArquivoLocal(item)
       documentos += docs.length
+      const arquivoApi = resolverArquivoApiLeitura(item)
       for (const doc of docs) {
         const secoes = extrairSecoesConferenciaLeitura(extrairDadosArquivoLocal(item, doc.indice) ?? {})
         const e = calcularEstatisticasConferencia(secoes)
         total += e.total
         preenchidos += e.preenchidos
+
+        const extracao = arquivoApi?.resultado_extracao?.[doc.indice]
+        if (!extracao?.dados) continue
+        const comparacao = compararCamposEdicaoLeituraSmartRead(
+          extracao.dados_original,
+          extracao.dados,
+        )
+        comparados += comparacao.total
+        validados += comparacao.campos.filter((campo) => campo.classificacao === 'validado').length
+        ajustesForma += comparacao.ajustes_forma
+        corrigidos += comparacao.errados
       }
     }
-    const alterados = Math.min(camposEditados, preenchidos)
-    const pctAlterados = preenchidos ? Math.round((alterados / preenchidos) * 100) : 0
-    const pctValidados = preenchidos ? 100 - pctAlterados : 0
+
+    const base = comparados > 0 ? comparados : preenchidos
+    const pctValidados = base ? Math.round((validados / base) * 100) : 0
+    const pctAjustes = base ? Math.round((ajustesForma / base) * 100) : 0
+    const pctCorrigidos = base ? Math.round((corrigidos / base) * 100) : 0
     const segundos = Math.floor(tempoTotalMs / 1000)
-    return { total, preenchidos, documentos, pctAlterados, pctValidados, segundos }
-  }, [arquivosCompletos, camposEditados, tempoTotalMs])
+    return {
+      total,
+      preenchidos,
+      documentos,
+      comparados: base,
+      validados,
+      ajustesForma,
+      corrigidos,
+      pctValidados,
+      pctAjustes,
+      pctCorrigidos,
+      segundos,
+    }
+  }, [arquivosCompletos, tempoTotalMs])
 
   function alternarSelecao(id: string) {
     setSelecionados((prev) => {
@@ -110,7 +155,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
         nomeArquivoZip: nomeZip,
       })
     } catch (erro) {
-      const mensagem = erro instanceof Error ? erro.message : 'Falha ao baixar pacote DATI'
+      const mensagem = erro instanceof Error ? erro.message : 'Falha ao baixar pacote docs'
       setErroDownload(mensagem)
     } finally {
       setBaixando(false)
@@ -143,24 +188,76 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
   return (
     <div className="sr-wizard-principal sr-wizard-principal--resultado">
       <div className="sr-wizard-resultado-layout">
-        <div className="sr-wizard-metricas">
-          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+        <div className="sr-wizard-metricas sr-wizard-metricas--resultado">
+          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie sr-wizard-metrica-card--performance-resultado">
             <header>
               <CheckCircle size={18} weight="duotone" />
               <span>Performance de acertos</span>
             </header>
             <div className="sr-wizard-metrica-valores">
-              <div className="sr-res-perf">
-                <div className="sr-res-perf-linha sr-res-perf-linha--ok">
-                  <strong>{metricas.pctValidados}%</strong>
-                  <span>Dados validados</span>
-                  <TrendUp size={14} weight="bold" />
+              <div className="sr-res-perf-infografico" aria-label="Distribuição de campos preenchidos">
+                <div className="sr-res-perf-barra">
+                  <span
+                    className="sr-res-perf-barra-validados"
+                    style={{ width: `${metricas.pctValidados}%` }}
+                    title={`${metricas.validados} validados`}
+                  />
+                  <span
+                    className="sr-res-perf-barra-ajustes"
+                    style={{ width: `${metricas.pctAjustes}%` }}
+                    title={`${metricas.ajustesForma} ajustes de forma`}
+                  />
+                  <span
+                    className="sr-res-perf-barra-corrigidos"
+                    style={{ width: `${metricas.pctCorrigidos}%` }}
+                    title={`${metricas.corrigidos} corrigidos`}
+                  />
                 </div>
-                <div className="sr-res-perf-linha sr-res-perf-linha--alt">
-                  <strong>{metricas.pctAlterados}%</strong>
-                  <span>Dados alterados</span>
-                  <TrendDown size={14} weight="bold" />
+                <div className="sr-res-perf-legenda">
+                  <span className="sr-res-perf-legenda-item sr-res-perf-legenda-item--ok">
+                    <i aria-hidden />
+                    Validados
+                  </span>
+                  <span className="sr-res-perf-legenda-item sr-res-perf-legenda-item--ajuste">
+                    <i aria-hidden />
+                    Ajustes de forma
+                  </span>
+                  <span className="sr-res-perf-legenda-item sr-res-perf-legenda-item--alt">
+                    <i aria-hidden />
+                    Corrigidos
+                  </span>
                 </div>
+              </div>
+              <div className="sr-res-perf-grid sr-res-perf-grid--tres">
+                <BlocoPerformanceResultadoComTooltip tipo="validados" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--ok">
+                    <QuantidadeComPercentual quantidade={metricas.validados} percentual={metricas.pctValidados} />
+                    <span className="sr-res-perf-bloco-rotulo">Dados validados</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.validados} de {metricas.comparados} campos
+                    </span>
+                    <TrendUp size={16} weight="bold" className="sr-res-perf-bloco-icone" />
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="ajuste" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--ajuste">
+                    <QuantidadeComPercentual quantidade={metricas.ajustesForma} percentual={metricas.pctAjustes} />
+                    <span className="sr-res-perf-bloco-rotulo">Ajustes de forma</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.ajustesForma} de {metricas.comparados} campos
+                    </span>
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
+                <BlocoPerformanceResultadoComTooltip tipo="corrigidos" metricas={metricas}>
+                  <div className="sr-res-perf-bloco sr-res-perf-bloco--alt">
+                    <QuantidadeComPercentual quantidade={metricas.corrigidos} percentual={metricas.pctCorrigidos} />
+                    <span className="sr-res-perf-bloco-rotulo">Corrigidos (IA)</span>
+                    <span className="sr-res-perf-bloco-detalhe">
+                      {metricas.corrigidos} de {metricas.comparados} campos
+                    </span>
+                    <TrendDown size={16} weight="bold" className="sr-res-perf-bloco-icone" />
+                  </div>
+                </BlocoPerformanceResultadoComTooltip>
               </div>
             </div>
           </article>
@@ -228,7 +325,7 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                     </div>
                     {renderBotaoDownload(
                       [item],
-                      'Baixar pacote DATI',
+                      'Baixar pacote docs',
                       'primario',
                       `${sanitizarNomeArquivo(item.arquivo.name)}-dati.zip`,
                     )}

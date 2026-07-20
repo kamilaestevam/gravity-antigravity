@@ -87,6 +87,45 @@ export function calcularEstadoCapitulo(
   return lidos.has(idSecaoManual(secaoNum)) ? 'lido' : 'nao_lido'
 }
 
+/** Prefixo de âncora dos passos do manual Login (seção N → `login-N`). */
+export function ancoraPassosLogin(secaoNum: number): string {
+  return `login-${secaoNum}`
+}
+
+/** IDs rastreáveis do manual Login (capítulos sem passos + passos visuais). */
+export function montarIdsRastreaveisLeituraLogin(
+  secoes: Array<{ num: number; passosVisuais?: { num: number }[] }>,
+): string[] {
+  const ids: string[] = []
+  for (const s of secoes) {
+    const passos = s.passosVisuais ?? []
+    if (passos.length > 0) {
+      ids.push(...passos.map(p => idPassoManual(ancoraPassosLogin(s.num), p.num)))
+    } else {
+      ids.push(idSecaoManual(s.num))
+    }
+  }
+  return ids
+}
+
+/** Mapa seção → fluxo (passos) para progresso de leitura do manual Login. */
+export function montarFluxoPorSecaoLogin(
+  secoes: Array<{ num: number; titulo: string; passosVisuais?: DocPassoVisual[] }>,
+): Map<number, DocFluxo> {
+  const map = new Map<number, DocFluxo>()
+  for (const s of secoes) {
+    if (s.passosVisuais?.length) {
+      map.set(s.num, {
+        titulo: s.titulo,
+        paragrafos: [],
+        passosVisuais: s.passosVisuais,
+        ancoraPassosPrefix: ancoraPassosLogin(s.num),
+      })
+    }
+  }
+  return map
+}
+
 /** Itens rastreáveis (capítulos sem filhos + subcapítulos). */
 export function montarIdsRastreaveisLeituraManual(secao: DocSecao): string[] {
   const ids: string[] = [idSecaoManual(1)]

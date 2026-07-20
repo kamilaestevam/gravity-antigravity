@@ -1,6 +1,7 @@
 /**
  * Ao retomar: API (legado+snapshot) é fonte fresca; progresso salvo complementa se tiver mais extração.
  */
+import { escolherLeituraRetomarComConferenciaSmartRead } from './escolher-leitura-retomar-com-conferencia-smart-read.js'
 import {
   riquezaLeituraRetomarSmartRead,
   type LeituraExtracaoRetomarSmartRead,
@@ -41,8 +42,5 @@ export function escolherLeituraEfetivaRetomarSmartRead<T extends LeituraRetomarS
   leituraApi: T | null | undefined,
   leituraSalva: T | null | undefined,
 ): T | null {
-  if (!leituraApi && !leituraSalva) return null
-  if (!leituraApi) return leituraSalva ?? null
-  if (!leituraSalva) return leituraApi
-  return mesclarLeiturasRetomarSmartRead(leituraApi, leituraSalva)
+  return escolherLeituraRetomarComConferenciaSmartRead(leituraApi, leituraSalva)
 }

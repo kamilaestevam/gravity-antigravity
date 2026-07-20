@@ -4,6 +4,7 @@
 
 import type { Leitura, StatusLeitura } from './schemas'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import { passoInicialLeituraSmartRead as passoInicialLeituraSmartReadShared } from '../../../shared/resolver-passo-retomar-leitura-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
@@ -28,6 +29,10 @@ export type ArquivoLocalNovaLeitura = {
   leitura: Leitura | null
   mensagem_erro: string | null
   expandido: boolean
+  /** Progresso REAL de upload (0–100, eventos XHR) — barra «Envio» do passo 2. */
+  progresso_envio?: number | null
+  /** Momento em que a análise DATI começou — base da barra de estimativa. */
+  inicio_analise_ms?: number | null
 }
 
 export const LIMITE_DOCUMENTOS_NOVA_LEITURA = 100
@@ -47,6 +52,8 @@ export function criarArquivoLocalNovaLeitura(arquivo: File): ArquivoLocalNovaLei
     leitura: null,
     mensagem_erro: null,
     expandido: false,
+    progresso_envio: null,
+    inicio_analise_ms: null,
   }
 }
 
@@ -70,19 +77,81 @@ function statusArquivoLocalDeStatusLeitura(status: StatusLeitura): StatusArquivo
  * um File vazio apenas para preservar o nome — os dados extraídos vêm de `leitura`.
  */
 export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
-  return leitura.arquivos.map((arquivo) => ({
-    id_arquivo_local: crypto.randomUUID(),
-    arquivo: new File(
-      [],
-      corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo) ?? arquivo.nome_arquivo ?? 'documento',
-    ),
-    status_arquivo_local: statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo),
-    id_leitura: leitura.id_leitura,
-    id_arquivo: arquivo.id_arquivo,
-    leitura,
-    mensagem_erro: null,
-    expandido: true,
-  }))
+  return leitura.arquivos.map((arquivo) => {
+    const statusLocal = statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo)
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File(
+        [],
+        corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo) ?? arquivo.nome_arquivo ?? 'documento',
+      ),
+      status_arquivo_local: statusLocal,
+      id_leitura: leitura.id_leitura,
+      id_arquivo: arquivo.id_arquivo,
+      leitura,
+      mensagem_erro:
+        arquivo.status_arquivo === 'FAILED'
+          ? arquivo.mensagem_erro ?? leitura.mensagem_erro ?? 'Falha no processamento'
+          : null,
+      expandido: true,
+      // Retomada: o upload já aconteceu em sessão anterior — envio conta como 100%.
+      progresso_envio: 100,
+      // Início real desconhecido na retomada — estimativa conta a partir de agora.
+      inicio_analise_ms: statusLocal === 'analisando' ? Date.now() : null,
+    }
+  })
+}
+
+/**
+ * Retomar leitura: usa `arquivos` da API quando existem; senão placeholders a partir de
+ * `total_arquivos` (lista/legado podem expor contagem sem detalhe de arquivo ainda).
+ */
+export function criarArquivosLocaisRetomarDeLeitura(
+  leitura: Leitura,
+  hint?: HintRetomarLeituraListaSmartRead | null,
+): ArquivoLocalNovaLeitura[] {
+  const total = Math.max(leitura.total_arquivos ?? 0, hint?.total_arquivos ?? 0)
+  const leituraEfetiva =
+    total > (leitura.total_arquivos ?? 0) ? { ...leitura, total_arquivos: total } : leitura
+
+  if (leituraEfetiva.arquivos.length > 0) {
+    return criarArquivosLocaisDeLeitura(leituraEfetiva)
+  }
+
+  // Leitura em andamento sem detalhe de arquivos (legado/lista podem vir com total 0):
+  // um placeholder permite o polling retomar em vez de tela vazia "Arquivos enviados 0".
+  const emAndamento =
+    leituraEfetiva.status_leitura === 'PROCESSING' || leituraEfetiva.status_leitura === 'PENDING'
+  const totalEfetivo = total > 0 ? total : emAndamento ? 1 : 0
+  if (totalEfetivo <= 0) return []
+
+  const nomeLista =
+    corrigirEncodingNomeArquivoSmartRead(hint?.nome_arquivo) ?? hint?.nome_arquivo?.trim() ?? null
+  const nomeDaLeitura =
+    corrigirEncodingNomeArquivoSmartRead(leituraEfetiva.nome_leitura) ??
+    leituraEfetiva.nome_leitura?.trim() ??
+    null
+  const nomeBase = nomeLista || nomeDaLeitura || 'documento'
+  const statusLocal = statusArquivoLocalDeStatusLeitura(leituraEfetiva.status_leitura)
+
+  return Array.from({ length: totalEfetivo }, (_, indice) => {
+    const nomeArquivo = totalEfetivo === 1 ? nomeBase : `${nomeBase}-${indice + 1}`
+    return {
+      id_arquivo_local: crypto.randomUUID(),
+      arquivo: new File([], nomeArquivo),
+      status_arquivo_local: statusLocal,
+      id_leitura: leituraEfetiva.id_leitura,
+      id_arquivo: null,
+      leitura: leituraEfetiva,
+      mensagem_erro:
+        leituraEfetiva.status_leitura === 'FAILED'
+          ? leituraEfetiva.mensagem_erro ?? 'Falha no processamento'
+          : null,
+      expandido: true,
+      progresso_envio: 100,
+      inicio_analise_ms: statusLocal === 'analisando' ? Date.now() : null,
+    }
+  })
 }
 
 /**
@@ -149,6 +218,40 @@ export function montarLeituraMinimaProcessamentoDeArquivosLocais(
   }
 }
 
+/** Atualiza cada item local com a leitura mais recente da API (ex.: antes de avançar ao passo 3). */
+export function aplicarLeituraApiNosArquivosLocais(
+  itens: ArquivoLocalNovaLeitura[],
+  leitura: Leitura,
+): ArquivoLocalNovaLeitura[] {
+  return itens.map((item) => {
+    const arquivoApi =
+      (item.id_arquivo
+        ? leitura.arquivos.find((arq) => arq.id_arquivo === item.id_arquivo)
+        : null) ??
+      leitura.arquivos.find((arq) => arq.nome_arquivo === item.arquivo.name) ??
+      (leitura.arquivos.length === 1 ? leitura.arquivos[0] : null)
+
+    const statusLocal: StatusArquivoLocalNovaLeitura =
+      leitura.status_leitura === 'COMPLETED'
+        ? 'completo'
+        : leitura.status_leitura === 'FAILED'
+          ? 'erro'
+          : item.status_arquivo_local
+
+    return {
+      ...item,
+      leitura,
+      id_arquivo: arquivoApi?.id_arquivo ?? item.id_arquivo,
+      status_arquivo_local: statusLocal,
+      mensagem_erro:
+        statusLocal === 'erro'
+          ? leitura.mensagem_erro?.trim() || item.mensagem_erro || 'Falha no processamento'
+          : item.mensagem_erro,
+      expandido: statusLocal === 'completo' ? true : item.expandido,
+    }
+  })
+}
+
 export function resolverArquivoApiLeitura(
   item: ArquivoLocalNovaLeitura,
 ): Leitura['arquivos'][number] | null {
@@ -198,6 +301,8 @@ export function pollAtualizacaoArquivoEquivalente(
   if (statusNovo !== atual.status_arquivo_local) return false
   if (patch.mensagem_erro !== undefined && patch.mensagem_erro !== atual.mensagem_erro) return false
   if (patch.expandido !== undefined && patch.expandido !== atual.expandido) return false
+  if (patch.progresso_envio !== undefined && patch.progresso_envio !== atual.progresso_envio) return false
+  if (patch.inicio_analise_ms !== undefined && patch.inicio_analise_ms !== atual.inicio_analise_ms) return false
   if (!patch.leitura) return true
 
   if (atual.leitura?.status_leitura !== patch.leitura.status_leitura) return false

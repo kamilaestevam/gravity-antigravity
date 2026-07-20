@@ -283,6 +283,20 @@ export default defineConfig(({ command }) => {
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      // Simula Custo (Estimativa Custo) — backend próprio na porta 8020.
+      '/api/v1/simula-custo': {
+        target: 'http://localhost:8020',
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
       '/api/v1/pedidos': {
         target: 'http://localhost:8030',
         changeOrigin: true,
@@ -313,6 +327,12 @@ export default defineConfig(({ command }) => {
       '/api/v1/smart-read': {
         target: 'http://localhost:8033',
         changeOrigin: true,
+        // Upload real via DATI segura o POST por 30-90s. Sem estas opções o
+        // http-proxy reusa socket keep-alive que o BFF já fechou (race de 5s do
+        // Node) e o segundo POST multipart trava para sempre em "Enviando".
+        agent: false,
+        timeout: 600_000,
+        proxyTimeout: 600_000,
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')

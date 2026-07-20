@@ -4,7 +4,16 @@
  */
 
 import { AULAS_LOGIN } from './manual-login-academy'
+import { AULAS_BEM_VINDO } from './manual-bem-vindo-academy'
 import { CONFIGURADOR_TRILHAS, AULAS_CONFIGURADOR } from './manual-configurador-academy'
+import { AULAS_GABI } from './manual-gabi-academy'
+import { AULAS_HUB } from './manual-hub-academy'
+import { AULAS_STORE } from './manual-store-academy'
+import { AULAS_NAVEGACAO } from './manual-navegacao-academy'
+import { AULAS_BID_FRETE } from './manual-bid-frete-academy'
+import { AULAS_PEDIDO } from './manual-pedido-academy'
+import { AULAS_SMART_READ } from './manual-smart-read-academy'
+import { AULAS_ADMIN } from './manual-admin-academy'
 
 export type { AulaDemo } from './manual-login-academy'
 
@@ -20,6 +29,16 @@ export type TipoBloco =
   | 'timeline'
   | 'destaque_escuro'
   | 'infografico'
+  | 'origem_dados'
+  | 'lista_legenda'
+  | 'requisitos_cadastro'
+  | 'passo_visual'
+  | 'catalogo_historico'
+  | 'gabi_conversas'
+  | 'topicos_imagem_lateral'
+  | 'cenarios_grade'
+  | 'fluxo_manual'
+  | 'galeria_comparacao'
 
 export interface BlocoConteudo {
   tipo: TipoBloco
@@ -27,8 +46,17 @@ export interface BlocoConteudo {
 }
 
 export const CONTEUDO_DEMO: Record<string, import('./manual-login-academy').AulaDemo[]> = {
+  'bem-vindo': AULAS_BEM_VINDO,
   login: AULAS_LOGIN,
   configurador: AULAS_CONFIGURADOR,
+  gabi: AULAS_GABI,
+  hub: AULAS_HUB,
+  store: AULAS_STORE,
+  navegacao: AULAS_NAVEGACAO,
+  'bid-frete': AULAS_BID_FRETE,
+  pedido: AULAS_PEDIDO,
+  'smart-read': AULAS_SMART_READ,
+  admin: AULAS_ADMIN,
 }
 
 export function getAulaDemo(produto: string, faseSlug: string) {

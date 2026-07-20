@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { AcademyLinkGuia } from './guia-academy-link'
 import {
   SquaresFour,
   ShoppingBag,
@@ -220,7 +220,7 @@ function IconeToolbarMini({ slug }: { slug: string }) {
 function CardZona({ no }: { no: NoMapa }) {
   const Icone = no.icone
   const titulo = no.href
-    ? <Link to={no.href} style={{ ...LINK, fontWeight: 700, fontSize: '.88rem' }}>{no.titulo}</Link>
+    ? <AcademyLinkGuia href={no.href} rotulo={no.titulo} />
     : <span style={{ fontWeight: 700, fontSize: '.88rem', color: '#f1f5f9' }}>{no.titulo}</span>
 
   return (
@@ -339,7 +339,7 @@ export function ManualInfograficoMapaNavegacaoGravity() {
           textTransform: 'uppercase',
           color: 'var(--ws-muted,#94a3b8)',
         }}>
-          Mapa de navegação — plataforma Gravity
+          Mapa de navegação: plataforma Gravity
         </p>
         <span style={{
           marginLeft: 'auto',
@@ -351,7 +351,7 @@ export function ManualInfograficoMapaNavegacaoGravity() {
         </span>
       </div>
 
-      {/* Menu superior — faixa transversal */}
+      {/* Menu superior: faixa transversal */}
       <div style={{
         borderRadius: 12,
         padding: '12px 14px',
@@ -367,7 +367,7 @@ export function ManualInfograficoMapaNavegacaoGravity() {
           textTransform: 'uppercase',
           color: '#c7d2fe',
         }}>
-          Menu superior — presente em todas as telas autenticadas
+          Menu superior: presente em todas as telas autenticadas
         </p>
         <div style={{
           display: 'flex',
@@ -398,7 +398,7 @@ export function ManualInfograficoMapaNavegacaoGravity() {
           ))}
         </div>
         <p style={{ margin: '10px 0 0', fontSize: '.66rem', color: CORPO_70, lineHeight: 1.45 }}>
-          Mesma ordem no Hub, produtos, Store, Configurador e University — retorno ao Hub, busca, manuais, notificações, idioma e conta.
+          Mesma ordem no Hub, produtos, Store, Configurador e University: retorno ao Hub, busca, manuais, notificações, idioma e conta.
         </p>
       </div>
 

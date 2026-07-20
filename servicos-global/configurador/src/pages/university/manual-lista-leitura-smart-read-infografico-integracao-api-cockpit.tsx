@@ -1,16 +1,12 @@
 import React, { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA } from './manual-figura-screenshot'
 import { ManualInfograficoMiniaturaSequenciaTelas } from './manual-university-infografico-sequencia-telas'
 import { TELAS_INFOGRAFICO_INTEGRACAO_API_COCKPIT } from './manual-lista-leitura-smart-read-infografico-integracao-api-cockpit-telas'
-import { Link } from 'react-router-dom'
+import { AcademyLinkGuia } from './guia-academy-link'
 import { ArrowsLeftRight, GearSix, GitBranch, MapPin, Sparkle, Target, UploadSimple } from '@phosphor-icons/react'
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
-const LINK_STYLE: React.CSSProperties = {
-  color: '#818cf8',
-  textDecoration: 'underline',
-  textUnderlineOffset: 2,
-}
 
 const L = {
   cockpit: '{{link:/university-gravity/docs/api-cockpit|Configurador · API Cockpit}}',
@@ -126,7 +122,7 @@ const CAIXAS: CaixaFluxo[] = [
     faixa: 0,
     linha: 2,
     texto: '**Publicar** endpoint HTTPS',
-    onde: 'Servidor do **Sistema Externo** — middleware, API gateway ou iPaaS',
+    onde: 'Servidor do **Sistema Externo**: middleware, API gateway ou iPaaS',
     como: 'Publique a **URL** do seu endpoint · responda **2xx** · o **secret** virá após o cadastro (A2)',
   },
   {
@@ -135,15 +131,15 @@ const CAIXAS: CaixaFluxo[] = [
     linha: 2,
     texto: '**Configurar** endpoint Webhook',
     onde: `${L.webhooks} → **+ Novo Webhook**`,
-    como: 'Cadastre a **URL HTTPS** · o Cockpit gera o **secret** — guarde-o e valide **`X-Gravity-Signature`**',
+    como: 'Cadastre a **URL HTTPS** · o Cockpit gera o **secret**: guarde-o e valide **`X-Gravity-Signature`**',
   },
   {
     id: 'pdf',
     faixa: 0,
     linha: 3,
     texto: 'ERP emite o **documento do Pedido #4521**',
-    onde: 'No **Sistema Externo** — exportação do pedido (ERP/COMEX)',
-    como: 'Use o documento que **já emite hoje** — **PDF, imagem ou planilha** (até 50 MB)',
+    onde: 'No **Sistema Externo**: exportação do pedido (ERP/COMEX)',
+    como: 'Use o documento que **já emite hoje**: **PDF, imagem ou planilha** (até 50 MB)',
   },
   {
     id: 'post',
@@ -175,7 +171,7 @@ const CAIXAS: CaixaFluxo[] = [
     linha: 5,
     texto: 'Recebe **id da leitura**',
     onde: 'Resposta JSON da API Smart Docs',
-    como: 'Campo **`id_leitura`** — use nas consultas **GET** e no webhook',
+    como: 'Campo **`id_leitura`**: use nas consultas **GET** e no webhook',
   },
   {
     id: 'ia',
@@ -247,7 +243,7 @@ const CAIXAS: CaixaFluxo[] = [
     faixa: 0,
     linha: 11,
     texto: 'Atualiza **pedido / COMEX**',
-    onde: '**Sistema Externo** — ERP/processo de destino',
+    onde: '**Sistema Externo**: ERP/processo de destino',
     como: 'Persiste o resultado no pedido ou fluxo COMEX',
   },
 ]
@@ -573,9 +569,7 @@ function ManualInfograficoRichText({ texto }: { texto: string }) {
     }
     if (match[2] && match[3]) {
       partes.push(
-        <Link key={k++} to={match[2]} style={LINK_STYLE}>
-          {match[3]}
-        </Link>,
+        <AcademyLinkGuia key={k++} href={match[2]} rotulo={match[3]} />,
       )
     } else if (match[4]) {
       partes.push(
@@ -740,7 +734,7 @@ const VARIANTES_SAP: Array<{ sigla: string; nome: string; corpo: string }> = [
   {
     sigla: 'S/4C',
     nome: 'S/4HANA Cloud (public)',
-    corpo: 'Não há ABAP clássico nem SM59 — a integração sai **obrigatoriamente pelo CPI/BTP**: configure o **Output Management** do pedido para disparar o iFlow, que faz o POST multipart no Smart Docs. Extensões só via **Side-by-Side (BTP)** ou **Key User Extensions**.',
+    corpo: 'Não há ABAP clássico nem SM59: a integração sai **obrigatoriamente pelo CPI/BTP**: configure o **Output Management** do pedido para disparar o iFlow, que faz o POST multipart no Smart Docs. Extensões só via **Side-by-Side (BTP)** ou **Key User Extensions**.',
   },
 ]
 
@@ -751,7 +745,7 @@ const PASSOS_FLUXO_SAP: Array<{ titulo: string; corpo: string }> = [
   },
   {
     titulo: 'Identifique sua versão e monte a saída do pedido',
-    corpo: 'Veja o quadro acima (**ECC**, **S/4 on-premise** ou **S/4HANA Cloud**) — o gatilho é sempre o mesmo evento: **liberação/exportação do pedido de compra** gera o **documento que você já emite hoje** (PDF Adobe Forms/SmartForms — também aceito em imagem ou planilha) e dispara a chamada.',
+    corpo: 'Veja o quadro acima (**ECC**, **S/4 on-premise** ou **S/4HANA Cloud**): o gatilho é sempre o mesmo evento: **liberação/exportação do pedido de compra** gera o **documento que você já emite hoje** (PDF Adobe Forms/SmartForms: também aceito em imagem ou planilha) e dispara a chamada.',
   },
   {
     titulo: 'Monte a chamada HTTP',
@@ -759,7 +753,7 @@ const PASSOS_FLUXO_SAP: Array<{ titulo: string; corpo: string }> = [
   },
   {
     titulo: 'Persista o retorno',
-    corpo: 'A resposta traz o **`id_leitura`** — grave numa tabela **Z** (ex.: `ZSDOCS_LEITURA`: nº do pedido, id_leitura, status, timestamp). No S/4HANA Cloud, use um **Custom Business Object** (Key User) ou persistência no BTP.',
+    corpo: 'A resposta traz o **`id_leitura`**: grave numa tabela **Z** (ex.: `ZSDOCS_LEITURA`: nº do pedido, id_leitura, status, timestamp). No S/4HANA Cloud, use um **Custom Business Object** (Key User) ou persistência no BTP.',
   },
   {
     titulo: 'Receba o resultado',
@@ -767,7 +761,7 @@ const PASSOS_FLUXO_SAP: Array<{ titulo: string; corpo: string }> = [
   },
   {
     titulo: 'Atualize o pedido no SAP',
-    corpo: 'Grave os **campos extraídos** (nº do pedido, itens, valores, datas…) de volta no fluxo **MM/COMEX** — via BAPI (`BAPI_PO_CHANGE`), API OData padrão (S/4) ou processo custom. Audite as chamadas em **API Cockpit → Consumo**.',
+    corpo: 'Grave os **campos extraídos** (nº do pedido, itens, valores, datas…) de volta no fluxo **MM/COMEX**: via BAPI (`BAPI_PO_CHANGE`), API OData padrão (S/4) ou processo custom. Audite as chamadas em **API Cockpit → Consumo**.',
   },
 ]
 
@@ -818,7 +812,7 @@ function MiniCardFluxoSap() {
         }}>
           SAP
         </span>
-        Tenho SAP — ver fluxo
+        Tenho SAP: ver fluxo
       </button>
       {aberto ? createPortal(
         <div
@@ -829,7 +823,7 @@ function MiniCardFluxoSap() {
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 9999,
+            zIndex: Z_INDEX_MANUAL_AMPLIAR_TELA_CHEIA,
             background: 'rgba(2,6,16,.78)',
             backdropFilter: 'blur(3px)',
             display: 'flex',
@@ -866,7 +860,7 @@ function MiniCardFluxoSap() {
                   SAP
                 </span>
                 <p style={{ margin: 0, fontSize: '.92rem', fontWeight: 800, color: '#f1f5f9' }}>
-                  Tenho SAP — como integrar ao Smart Docs
+                  Tenho SAP: como integrar ao Smart Docs
                 </p>
               </div>
               <button
@@ -888,7 +882,7 @@ function MiniCardFluxoSap() {
               </button>
             </div>
             <p style={{ margin: '0 0 12px', fontSize: '.72rem', lineHeight: 1.5, color: CORPO_70 }}>
-              Passo a passo do lado SAP para enviar documentos ao Smart Docs e receber os campos extraídos — o passo 1 (token) e o bloco A1/A2 (webhook) são os mesmos do infográfico. O fluxo REST é <strong style={{ color: '#cbd5e1' }}>igual para todo SAP</strong>; o que muda por versão é a ferramenta que monta a saída:
+              Passo a passo do lado SAP para enviar documentos ao Smart Docs e receber os campos extraídos: o passo 1 (token) e o bloco A1/A2 (webhook) são os mesmos do infográfico. O fluxo REST é <strong style={{ color: '#cbd5e1' }}>igual para todo SAP</strong>; o que muda por versão é a ferramenta que monta a saída:
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
               {VARIANTES_SAP.map((v) => (
@@ -1209,7 +1203,7 @@ export function ManualInfograficoListaLeituraSmartReadIntegracaoApiCockpit() {
   return (
     <div
       role="group"
-      aria-label="Swimlane — integração API e Webhook Smart Docs"
+      aria-label="Swimlane: integração API e Webhook Smart Docs"
       style={{
         background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(52,211,153,.05) 100%)',
         border: '1px solid rgba(148,163,184,.18)',

@@ -51,3 +51,48 @@ export {
   type TipoUsuarioComGranular,
   type PermissaoGranular,
 } from './permissoes-canonicas.js'
+export {
+  guiaGravityJornadaResponseSchema,
+  guiaGravityRankingResponseSchema,
+  concluirAulaGuiaGravityBodySchema,
+  concluirAulaGuiaGravityResponseSchema,
+  verificarCertificadoGuiaGravityResponseSchema,
+  type GuiaGravityJornadaResponse,
+  type GuiaGravityRankingResponse,
+  type VerificarCertificadoGuiaGravityResponse,
+} from './guia-gravity/guia-gravity-jornada-schema.js'
+export {
+  TOTAL_MANUAIS_GUIA_GRAVITY,
+  SLUGS_MANUAL_GUIA_GRAVITY,
+  slugManualGuiaGravityValido,
+  type SlugManualGuiaGravity,
+} from './guia-gravity/catalogo-manuais-guia-gravity.js'
+export { calcularDiasOfensivaGuiaGravity } from './guia-gravity/ofensiva-guia-gravity.js'
+export {
+  PRODUTOS_GUIA_PLATAFORMA,
+  assinaturaAtivaParaJornada,
+  montarProdutosJornadaContratados,
+  produtoCompradoNaOrganizacao,
+  type ProdutoGuiaPlataforma,
+} from './guia-gravity/produtos-jornada-guia-gravity.js'
+export {
+  tipoCertificadoFrontParaPrisma,
+  tipoCertificadoPrismaParaFront,
+  TIPOS_CERTIFICADO_GUIA_GRAVITY,
+  type TipoCertificadoGuiaGravity,
+} from './guia-gravity/certificado-guia-gravity.js'
+export { SLUGS_AULA_POR_PRODUTO_GUIA, SLUGS_MODULO_BASICO_GUIA } from './guia-gravity/slugs-aula-por-produto.js'
+export {
+  montarMapaXpAulas,
+  obterXpAula,
+  pesoParaXp,
+  arredondarXpGuiaGravity,
+  somarXpGuiaGravity,
+  formatarXpGuiaGravity,
+  calcularGpGuiaGravity,
+  obterXpMaxTrilha,
+  obterXpMaxProduto,
+  PESO_AULA_GUAI,
+  PESO_MODULO_GUAI,
+} from './guia-gravity/pesos-academy-guia-gravity.js'
+export { calcularNivelGuiaGravity, XP_POR_NIVEL_GUIA_GRAVITY } from './guia-gravity/niveis-guia-gravity.js'

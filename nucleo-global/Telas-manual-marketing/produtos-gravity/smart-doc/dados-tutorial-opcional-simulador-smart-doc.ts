@@ -2,6 +2,8 @@
  * dados-tutorial-opcional-simulador-smart-doc.ts — mapa de cliques por tela (demo landing)
  */
 
+import type { PosicaoPreferencialTutorial } from './tutorial-opcional-simulador-smart-doc'
+
 export type ItemTutorialOpcional = {
   titulo: string
   descricao: string
@@ -50,27 +52,31 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
   lista: {
     id: 'lista',
     titulo: 'Lista de leituras',
-    resumo: 'Histórico operacional — cada linha representa uma leitura processada.',
+    resumo: 'Histórico operacional — paridade Smart Read com KPIs, painéis, status e tabela hierárquica.',
     explorar: [
-      { titulo: 'Tabela de leituras', descricao: 'Veja status, documentos e datas de cada operação', idAlvo: 'lista-tabela' },
-      { titulo: 'Pills de status', descricao: 'Conferido e Em processamento indicam o estágio de cada leitura', idAlvo: 'lista-status' },
+      { titulo: 'Cards de KPI', descricao: 'Total, média de acertos e saving agregado do escopo filtrado', idAlvo: 'lista-kpis' },
+      { titulo: 'Segmentos', descricao: 'Alterne Visão geral e Transações API', idAlvo: 'lista-segmentos' },
+      { titulo: 'Painéis e status', descricao: 'Filtre por painel salvo e por status da leitura', idAlvo: 'lista-status-pills' },
+      { titulo: 'Tabela de leituras', descricao: 'Colunas, filtros, exportação e expansão leitura → documentos', idAlvo: 'lista-tabela' },
+      { titulo: 'Seletor de colunas', descricao: '245+ campos do catálogo — Todas, Exibidas, Ocultas e busca por nome', idAlvo: 'lista-colunas' },
+      { titulo: 'Pills de status', descricao: 'Pendente, Processando, Concluída e Falhou — mesmo contrato do produto real', idAlvo: 'lista-status' },
       { titulo: 'Abas Insights / Lista', descricao: 'Volte aos gráficos pela aba Insights', idAlvo: 'shell-aba-insights' },
     ],
     avancar: {
       acao: 'Ver detalhe',
-      titulo: 'Clique em uma linha',
-      descricao: 'Expanda uma leitura para ver métricas e atalho Ver no Insights',
+      titulo: 'Expanda uma leitura',
+      descricao: 'Abra os documentos filhos e clique no nome para retomar a leitura',
       idAlvo: 'lista-linha',
     },
   },
   'lista-detalhe': {
     id: 'lista-detalhe',
-    titulo: 'Detalhe da leitura',
-    resumo: 'Painel expandido com métricas da leitura selecionada.',
+    titulo: 'Documentos da leitura',
+    resumo: 'Segunda camada da lista — cada documento extraído dentro da leitura.',
     explorar: [
-      { titulo: 'Métricas da leitura', descricao: 'Campos extraídos, conferidos e contexto do workspace', idAlvo: 'lista-detalhe-metricas' },
-      { titulo: 'Ver no Insights', descricao: 'Atalho que leva de volta ao painel de gráficos', idAlvo: 'lista-detalhe-insights' },
-      { titulo: 'Recolher linha', descricao: 'Clique novamente na linha para fechar o detalhe', idAlvo: 'lista-linha' },
+      { titulo: 'Linhas-filhas', descricao: 'Documentos com tipo, número e status próprios', idAlvo: 'lista-documento-filho' },
+      { titulo: 'Ver no Insights', descricao: 'Atalho na barra de ações para voltar aos gráficos', idAlvo: 'lista-detalhe-insights' },
+      { titulo: 'Recolher', descricao: 'Use expandir/recolher na linha pai ou no botão da barra', idAlvo: 'lista-expandir-todos' },
     ],
     avancar: {
       acao: 'Nova demonstração',
@@ -98,10 +104,13 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
   config: {
     id: 'config',
     titulo: 'Configurações',
-    resumo: 'Preferências de colunas e leitura — módulo simulado para o tenant completo.',
+    resumo: 'Personalize cards, tabela e colunas da lista de leituras.',
     explorar: [
-      { titulo: 'Banner de simulação', descricao: 'Indica que colunas e preferências serão configuráveis no produto real', idAlvo: 'shell-banner-config' },
-      { titulo: 'Área principal', descricao: 'A aba ativa (Insights ou Lista) permanece acessível abaixo', idAlvo: 'shell-conteudo' },
+      { titulo: '1. Menu Visualizações', descricao: 'Card, Tabelas e Colunas — cada seção configura um aspecto da tela', idAlvo: 'sdoc-config-sidebar' },
+      { titulo: '2. Meus Cards', descricao: 'Período, preview ao vivo, ativos e disponíveis — arraste e use o olho para ocultar', idAlvo: 'sdoc-config-cards' },
+      { titulo: '3. Tabelas', descricao: 'Linhas por página e densidade da grade de leituras', idAlvo: 'sdoc-config-tabelas' },
+      { titulo: '4. Colunas', descricao: 'Crie colunas personalizadas com renomear, ocultar e excluir', idAlvo: 'sdoc-config-colunas' },
+      { titulo: '5. Abas do produto', descricao: 'Insights e Lista continuam acessíveis na barra superior', idAlvo: 'shell-aba-insights' },
     ],
     avancar: {
       acao: 'Retomar demo',
@@ -209,7 +218,7 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
   'nova-leitura-4': {
     id: 'nova-leitura-4',
     titulo: 'Resultado das leituras',
-    resumo: 'Pacote final pronto — exporte no formato DATI como no Smart Docs de produção.',
+    resumo: 'Pacote final pronto — exporte no formato do Smart Docs como no produto real.',
     explorar: [
       { titulo: 'Métricas finais', descricao: 'Confira acertos, tempo total e performance da leitura', idAlvo: 'nl-resultado-metricas' },
       { titulo: 'Seleção em lote', descricao: 'Marque arquivos individuais para download parcial', idAlvo: 'nl-resultado-selecao' },
@@ -218,9 +227,9 @@ export const TELAS_TUTORIAL_OPCIONAL: Record<string, TelaTutorialOpcional> = {
     ],
     avancar: {
       acao: 'Passo 4 de 4',
-      titulo: 'Baixar pacote DATI',
-      descricao: 'Clique Baixar em cada arquivo — o ZIP segue o padrão {arquivo}-dati.zip',
-      idAlvo: 'nl-baixar-dati',
+      titulo: 'Baixar pacote docs',
+      descricao: 'Clique Baixar em cada arquivo — o ZIP segue o padrão {arquivo}-docs.zip',
+      idAlvo: 'nl-baixar-docs',
     },
   },
   'preview-documento': {
@@ -304,6 +313,29 @@ export type EstadoShellTutorialSimulador = {
   meuEspacoItemAtivo: string | null
   modalNovoAberto: boolean
   linhaListaExpandida: string | null
+}
+
+/** Shell — + Novo aberto libera o canto direito do toolbar */
+export function resolverPosicaoPreferencialTutorialShellSimulador(
+  novoDropdownAberto: boolean,
+): PosicaoPreferencialTutorial {
+  return novoDropdownAberto ? 'inferior-esquerda' : 'inferior-direita'
+}
+
+export type EstadoPosicaoTutorialNovaLeituraSimulador = {
+  idTela: string
+  passo: number
+  totalArquivos: number
+  previewAberto: boolean
+}
+
+/**
+ * Wizard Nova Leitura — canto inferior direito: libera dropzone, fechar (topo) e CTAs da lateral esquerda.
+ */
+export function resolverPosicaoPreferencialTutorialNovaLeituraSimulador(
+  _estado: EstadoPosicaoTutorialNovaLeituraSimulador,
+): PosicaoPreferencialTutorial {
+  return 'inferior-direita'
 }
 
 export function resolverIdTelaShellSimulador(estado: EstadoShellTutorialSimulador): string | null {

@@ -12,6 +12,10 @@ import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
+  limparOrigemProdutoFluxoSmartRead,
+  resolverOrigemProdutoFluxoSmartRead,
+} from '../shared/origem-produto-fluxo-smart-read'
+import {
   FiltroChips,
   FiltroPopoverColuna,
   TabelaVirtualGlobal,
@@ -35,6 +39,21 @@ import {
   formatarValorExportColunaLeituraSmartRead,
 } from '../shared/colunas-lista-leitura-smart-read'
 import {
+  criarColunasPersonalizadasListaLeituraSmartRead,
+  criarMapaColunasPersonalizadasDocumentoLeitura,
+  ehColunaPersonalizadaListaLeituraSmartRead,
+  mesclarColunasPersonalizadasNasPreferenciasLista,
+  valorColunaPersonalizadaSalvoEhVazio,
+} from '../shared/colunas-personalizadas-lista-smart-read'
+import { useColunasPersonalizadasSmartRead } from '../shared/use-colunas-personalizadas-smart-read'
+import type { TipoColunaSmartRead } from '../components/ModalNovaColunaSmartRead'
+import {
+  enriquecerComColunasPersonalizadas,
+  enriquecerListaComColunasPersonalizadas,
+  salvarValorColunaPersonalizadaLeitura,
+} from '../shared/persistencia-valores-colunas-personalizadas-smart-read'
+import { normalizarDataSomenteDiaLeitura } from '../shared/formatacao-leitura-smart-read'
+import {
   filtrarTransacoesListaSmartRead,
   valoresUnicosColunaTransacao,
 } from '../shared/filtrar-transacoes-lista-smart-read'
@@ -44,16 +63,42 @@ import {
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
+import { resolverPassoRetomarDaListaSmartRead } from '../../../shared/resolver-passo-retomar-da-lista-smart-read'
+import type { HintRetomarLeituraListaSmartRead } from '../../../shared/hint-retomar-leitura-lista-smart-read'
 import {
   useListaPainelSmartRead,
   type AplicarConfigListaPainelCallbacks,
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import { useConfiguracaoTabelaSmartRead } from '../shared/use-configuracao-tabela-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
 
-const ITENS_POR_PAGINA = 50
+type TransacaoLeituraLista = TransacaoLeitura & {
+  _colunas_personalizadas: Record<string, string>
+}
+
+type DocumentoLeituraListaEnriquecido = DocumentoLeituraLista & {
+  _colunas_personalizadas: Record<string, string>
+}
+
+function normalizarValorSalvoColunaPersonalizada(
+  valor: unknown,
+  tipo?: TipoColunaSmartRead,
+): string {
+  if (valor == null) return ''
+  if (tipo === 'checkbox') {
+    if (valor === true || valor === 'true') return 'true'
+    if (valor === false || valor === 'false') return 'false'
+  }
+  if (tipo === 'numero' || tipo === 'percentual') {
+    const num = Number(valor)
+    return Number.isFinite(num) ? String(num) : ''
+  }
+  if (tipo === 'data') return normalizarDataSomenteDiaLeitura(valor)
+  return String(valor).trim()
+}
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -74,6 +119,9 @@ type Props = {
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
   if (col.tipo === 'numero') return 'numero'
   if (col.key === 'status_fluxo_leitura') return 'enum'
+  if (typeof col.key === 'string' && ehColunaPersonalizadaListaLeituraSmartRead(col.key)) {
+    return col.tipo === 'numero' ? 'numero' : 'texto'
+  }
   return 'texto'
 }
 
@@ -92,6 +140,7 @@ export function TabelaTransacoesLeituraSmartRead({
   onSegmentoChange,
 }: Props) {
   const { t } = useTranslation()
+  const { linhasPagina, densidade } = useConfiguracaoTabelaSmartRead()
   const addNotification = useShellStore((s) => s.addNotification)
   const tabelaRef = useRef<GTVirtualHandle>(null)
   const painelAplicadoRef = useRef<string | null>(null)
@@ -110,6 +159,17 @@ export function TabelaTransacoesLeituraSmartRead({
     trocarPainel,
   } = useListaPainelSmartRead()
 
+  const { colunasAtivas: colunasPersonalizadasAtivas } = useColunasPersonalizadasSmartRead()
+  const filhosPorIdRef = useRef<Map<string, DocumentoLeituraListaEnriquecido>>(new Map())
+
+  const [transacoesLista, setTransacoesLista] = useState<TransacaoLeituraLista[]>(() =>
+    enriquecerListaComColunasPersonalizadas(transacoes),
+  )
+
+  useEffect(() => {
+    setTransacoesLista(enriquecerListaComColunasPersonalizadas(transacoes))
+  }, [transacoes])
+
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
   const [filtrosAtivosLista, setFiltrosAtivosLista] = useState<FiltrosAtivosMap>({})
   const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
@@ -122,9 +182,10 @@ export function TabelaTransacoesLeituraSmartRead({
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
   const [passoRetomarLista, setPassoRetomarLista] = useState<number | null>(null)
+  const [hintRetomarLista, setHintRetomarLista] = useState<HintRetomarLeituraListaSmartRead | null>(null)
   const [temExpandido, setTemExpandido] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const origemProduto = searchParams.get('origem')
+  const origemProduto = resolverOrigemProdutoFluxoSmartRead(searchParams.get('origem'))
   const origemPedido = origemProduto === 'pedido'
   const origemBidFrete = origemProduto === 'bid-frete-internacional'
   const idBidOrigem = searchParams.get('id_bid')
@@ -138,6 +199,15 @@ export function TabelaTransacoesLeituraSmartRead({
     setModalNovaLeituraAberto(true)
     const next = new URLSearchParams(searchParams)
     next.delete('acao')
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  const limparOrigemFluxoDaUrl = useCallback(() => {
+    limparOrigemProdutoFluxoSmartRead()
+    if (!searchParams.get('origem') && !searchParams.get('id_bid')) return
+    const next = new URLSearchParams(searchParams)
+    next.delete('origem')
+    next.delete('id_bid')
     setSearchParams(next, { replace: true })
   }, [searchParams, setSearchParams])
 
@@ -219,6 +289,13 @@ export function TabelaTransacoesLeituraSmartRead({
   }, [painelAtual, carregandoPaineis, aplicarConfigDoPainel, listaPainelCallbacks])
 
   useEffect(() => {
+    if (colunasPersonalizadasAtivas.length === 0) return
+    setPreferencias((prev) =>
+      mesclarColunasPersonalizadasNasPreferenciasLista(colunasPersonalizadasAtivas, prev),
+    )
+  }, [colunasPersonalizadasAtivas, painelAtualId])
+
+  useEffect(() => {
     if (!painelAtualId || carregandoPaineis) return
     persistirPainelAtual(montarEstadoPainel())
   }, [painelAtualId, carregandoPaineis, montarEstadoPainel, persistirPainelAtual, filtrosAtivosLista, termoBusca])
@@ -226,38 +303,151 @@ export function TabelaTransacoesLeituraSmartRead({
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
-  const abrirLeituraExistente = useCallback((idLeitura: string, passoAtual: number | null = null) => {
-    setArquivosNovaLeitura([])
-    setIdLeituraExistente(idLeitura)
-    setPassoRetomarLista(passoAtual)
-    setModalNovaLeituraAberto(true)
-  }, [])
+  const montarHintRetomarLista = useCallback(
+    (item: TransacaoLeitura): HintRetomarLeituraListaSmartRead => ({
+      nome_arquivo: item.nome_arquivo,
+      nome_leitura: item.nome_leitura,
+      total_arquivos: item.total_arquivos,
+      status_leitura: item.status_leitura,
+      status_fluxo_leitura: item.status_fluxo_leitura,
+      passo_retomar: resolverPassoRetomarDaListaSmartRead(item),
+    }),
+    [],
+  )
+
+  const abrirLeituraExistente = useCallback(
+    (
+      idLeitura: string,
+      passoAtual: number | null = null,
+      hint: HintRetomarLeituraListaSmartRead | null = null,
+    ) => {
+      setArquivosNovaLeitura([])
+      setIdLeituraExistente(idLeitura)
+      setPassoRetomarLista(passoAtual)
+      setHintRetomarLista(hint)
+      setModalNovaLeituraAberto(true)
+    },
+    [],
+  )
 
   const abrirLeituraDaTransacao = useCallback(
-    (item: TransacaoLeitura) => abrirLeituraExistente(item.id_leitura, item.passo_atual_leitura),
-    [abrirLeituraExistente],
+    (item: TransacaoLeitura) => {
+      const hint = montarHintRetomarLista(item)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
+    },
+    [abrirLeituraExistente, montarHintRetomarLista],
   )
 
   const abrirLeituraDoDocumento = useCallback(
     (item: DocumentoLeituraLista) => {
       const pai = transacoes.find((t) => t.id_leitura === item.id_leitura)
-      abrirLeituraExistente(item.id_leitura, pai?.passo_atual_leitura ?? null)
+      if (!pai) {
+        abrirLeituraExistente(item.id_leitura, 2, null)
+        return
+      }
+      const hint = montarHintRetomarLista(pai)
+      abrirLeituraExistente(item.id_leitura, hint.passo_retomar ?? null, hint)
     },
-    [abrirLeituraExistente, transacoes],
+    [abrirLeituraExistente, montarHintRetomarLista, transacoes],
   )
 
   const colunas = useMemo(
-    () => criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
-    [abrirLeituraDaTransacao],
+    () => [
+      ...criarColunasListaLeituraSmartRead(abrirLeituraDaTransacao),
+      ...criarColunasPersonalizadasListaLeituraSmartRead(colunasPersonalizadasAtivas),
+    ],
+    [abrirLeituraDaTransacao, colunasPersonalizadasAtivas],
   )
   const mapaColunasFilho = useMemo(
-    () => criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
-    [abrirLeituraDoDocumento],
+    () => ({
+      ...criarMapaColunasDocumentoLeitura(abrirLeituraDoDocumento),
+      ...criarMapaColunasPersonalizadasDocumentoLeitura(colunasPersonalizadasAtivas),
+    }),
+    [abrirLeituraDoDocumento, colunasPersonalizadasAtivas],
   )
 
   const transacoesFiltradas = useMemo(
-    () => filtrarTransacoesListaSmartRead(transacoes, filtrosAtivosLista),
-    [transacoes, filtrosAtivosLista],
+    () => filtrarTransacoesListaSmartRead(transacoesLista, filtrosAtivosLista),
+    [transacoesLista, filtrosAtivosLista],
+  )
+
+  const handleEditarColunaPersonalizada = useCallback(
+    async (id: string, campo: string, valor: unknown): Promise<TransacaoLeituraLista> => {
+      if (!ehColunaPersonalizadaListaLeituraSmartRead(campo)) {
+        throw new Error('Coluna não editável.')
+      }
+      const item = transacoesLista.find((t) => t.id_leitura === id)
+      if (!item) throw new Error('Leitura não encontrada.')
+      const colDef = colunasPersonalizadasAtivas.find((c) => c.id === campo)
+      const valorNormalizado = normalizarValorSalvoColunaPersonalizada(valor, colDef?.tipo)
+      if (colDef?.obrigatorio && valorColunaPersonalizadaSalvoEhVazio(valorNormalizado, colDef.tipo)) {
+        throw new Error(`O campo "${colDef.nome}" é obrigatório.`)
+      }
+      const colunasAtualizadas = salvarValorColunaPersonalizadaLeitura(
+        id,
+        campo,
+        valorNormalizado,
+      )
+      const atualizado: TransacaoLeituraLista = {
+        ...item,
+        _colunas_personalizadas: colunasAtualizadas,
+      }
+      setTransacoesLista((prev) =>
+        prev.map((t) => (t.id_leitura === id ? atualizado : t)),
+      )
+      return atualizado
+    },
+    [transacoesLista, colunasPersonalizadasAtivas],
+  )
+
+  const handleEditarFilhoColunaPersonalizada = useCallback(
+    async (id: string, campo: string, valor: unknown): Promise<DocumentoLeituraListaEnriquecido> => {
+      if (!ehColunaPersonalizadaListaLeituraSmartRead(campo)) {
+        throw new Error('Coluna não editável.')
+      }
+      const filho = filhosPorIdRef.current.get(id)
+      if (!filho) throw new Error('Documento não encontrado.')
+      const colDef = colunasPersonalizadasAtivas.find((c) => c.id === campo)
+      const valorNormalizado = normalizarValorSalvoColunaPersonalizada(valor, colDef?.tipo)
+      if (colDef?.obrigatorio && valorColunaPersonalizadaSalvoEhVazio(valorNormalizado, colDef.tipo)) {
+        throw new Error(`O campo "${colDef.nome}" é obrigatório.`)
+      }
+      const colunasAtualizadas = salvarValorColunaPersonalizadaLeitura(
+        filho.id_leitura,
+        campo,
+        valorNormalizado,
+      )
+      const atualizado: DocumentoLeituraListaEnriquecido = {
+        ...filho,
+        _colunas_personalizadas: colunasAtualizadas,
+      }
+      filhosPorIdRef.current.set(id, atualizado)
+      setTransacoesLista((prev) =>
+        prev.map((t) =>
+          t.id_leitura === filho.id_leitura
+            ? { ...t, _colunas_personalizadas: colunasAtualizadas }
+            : t,
+        ),
+      )
+      return atualizado
+    },
+    [colunasPersonalizadasAtivas],
+  )
+
+  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
+    const detalhe = await smartReadApi.obterLeitura(leitura.id_leitura)
+    const documentos = enriquecerListaComColunasPersonalizadas(
+      montarDocumentosLeituraLista(detalhe),
+    )
+    for (const doc of documentos) {
+      filhosPorIdRef.current.set(doc.id_documento_leitura, doc)
+    }
+    return documentos
+  }, [])
+
+  const chavesColunasPersonalizadasEditaveis = useMemo(
+    () => colunasPersonalizadasAtivas.map((c) => c.id),
+    [colunasPersonalizadasAtivas],
   )
 
   const totalArquivosRodape = useMemo(
@@ -337,11 +527,6 @@ export function TabelaTransacoesLeituraSmartRead({
     }),
     [colunas, preferencias, transacoesFiltradas, tituloPainel],
   )
-
-  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
-    const detalhe = await smartReadApi.obterLeitura(leitura.id_leitura)
-    return montarDocumentosLeituraLista(detalhe)
-  }, [])
 
   const handleConfirmarExclusao = useCallback(async () => {
     if (leiturasSelecionadas.length === 0) return
@@ -490,7 +675,7 @@ export function TabelaTransacoesLeituraSmartRead({
     : undefined
 
   return (
-    <section className="sr-painel sr-painel--tabela">
+    <section className={`sr-painel sr-painel--tabela${densidade === 'compacto' ? ' sr-painel--compacto' : ''}`}>
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
@@ -545,7 +730,7 @@ export function TabelaTransacoesLeituraSmartRead({
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}
-        itensPorPagina={ITENS_POR_PAGINA}
+        itensPorPagina={linhasPagina}
         totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
         totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
@@ -557,6 +742,9 @@ export function TabelaTransacoesLeituraSmartRead({
         onBuscar={onBuscar}
         onFiltroColuna={onFiltroColuna}
         filtrosAtivosKeys={filtrosAtivosKeys}
+        onEditar={handleEditarColunaPersonalizada}
+        onEditarFilho={handleEditarFilhoColunaPersonalizada}
+        camposEditaveisFilhos={chavesColunasPersonalizadasEditaveis}
         preferencias={preferencias}
         onSalvarPreferencias={handleSalvarPreferencias}
         colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
@@ -582,6 +770,7 @@ export function TabelaTransacoesLeituraSmartRead({
         arquivosIniciais={arquivosNovaLeitura}
         idLeituraExistente={idLeituraExistente}
         passoRetomarLista={passoRetomarLista}
+        hintRetomarLista={hintRetomarLista}
         origemPedido={origemPedido}
         origemBidFrete={origemBidFrete}
         idBidOrigem={idBidOrigem}
@@ -590,9 +779,14 @@ export function TabelaTransacoesLeituraSmartRead({
           setArquivosNovaLeitura([])
           setIdLeituraExistente(null)
           setPassoRetomarLista(null)
+          setHintRetomarLista(null)
+          limparOrigemFluxoDaUrl()
           void onRecarregar()
         }}
-        onConcluido={() => void onRecarregar()}
+        onConcluido={() => {
+          limparOrigemFluxoDaUrl()
+          void onRecarregar()
+        }}
       />
 
       <ModalConfirmarExcluirGlobal

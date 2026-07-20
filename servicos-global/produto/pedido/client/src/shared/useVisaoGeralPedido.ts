@@ -96,6 +96,8 @@ export interface VisaoGeralPedido {
   maiorPedido: { numero: string; valor: number; moeda: string } | null
   mapa: VisaoGeralMapaData
   pedidos: Pedido[]
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>
+  nomesWorkspacePorId: ReadonlyMap<string, string>
 }
 
 export function filtrarPedidosAlertaVisaoGeral(
@@ -227,6 +229,8 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       maiorPedido: null,
       mapa: buildVisaoGeralMapa([], nomesWorkspacePorId, fornecedoresPorId),
       pedidos: [],
+      fornecedoresPorId,
+      nomesWorkspacePorId,
     }
 
     if (usarAgregadoServidor && agregadoServidor) {
@@ -250,6 +254,8 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
         maiorPedido: agregadoServidor.maiorPedido,
         mapa,
         pedidos,
+        fornecedoresPorId,
+        nomesWorkspacePorId,
       }
     }
 
@@ -391,6 +397,8 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       maiorPedido,
       mapa,
       pedidos,
+      fornecedoresPorId,
+      nomesWorkspacePorId,
     }
   }, [
     pedidos,

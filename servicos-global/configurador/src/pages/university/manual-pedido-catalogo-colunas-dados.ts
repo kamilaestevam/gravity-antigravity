@@ -57,7 +57,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "edicaoMassaPedido": "Sim",
         "edicaoMassaItem": "Não",
         "soma": "—",
-        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens"
+        "espelha": "Itens bloqueados: alteração apenas pelo pedido · Replica em todos os itens"
       },
       {
         "ordem": 3,
@@ -70,7 +70,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "edicaoMassaPedido": "Não",
         "edicaoMassaItem": "Não",
         "soma": "—",
-        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Importador"
+        "espelha": "Itens bloqueados: alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Importador"
       },
       {
         "ordem": 4,
@@ -114,7 +114,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 7,
         "coluna": "Descrição Item",
-        "descricao": "Descrição do produto — visível apenas nos itens expandidos",
+        "descricao": "Descrição do produto: visível apenas nos itens expandidos",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -246,7 +246,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "edicaoMassaPedido": "Sim",
         "edicaoMassaItem": "Sim",
         "soma": "—",
-        "espelha": "Itens bloqueados — alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Workspace"
+        "espelha": "Itens bloqueados: alteração apenas pelo pedido · Replica em todos os itens · Espelhado com o Workspace"
       },
       {
         "ordem": 103,
@@ -641,7 +641,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 133,
         "coluna": "TIN do OPE",
-        "descricao": "Tax Identification Number — identificador fiscal do OPE no país de origem",
+        "descricao": "Tax Identification Number: identificador fiscal do OPE no país de origem",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Não",
@@ -805,7 +805,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "edicaoItem": "Sim",
         "edicaoMassaPedido": "Não",
         "edicaoMassaItem": "Não",
-        "soma": "Total do Pedido — soma total dos itens na mesma moeda · Valor Total do Item = Valor unitário do item x Qtd inicial do item",
+        "soma": "Total do Pedido: soma total dos itens na mesma moeda · Valor Total do Item = Valor unitário do item x Qtd inicial do item",
         "espelha": "—"
       },
       {
@@ -824,7 +824,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 204,
         "coluna": "Valor Unitário do Item",
-        "descricao": "Valor unitário do item — visível apenas em itens expandidos.",
+        "descricao": "Valor unitário do item: visível apenas em itens expandidos.",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Não",
@@ -849,7 +849,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 206,
-        "coluna": "Condição de Pagamento do Pedido/Item — Comercial",
+        "coluna": "Condição de Pagamento do Pedido/Item: Comercial",
         "descricao": "Campo nativo do pedido.",
         "fixa": false,
         "formatacao": "Texto",
@@ -862,7 +862,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 207,
-        "coluna": "Condição de Pagamento do Pedido/Item — Siscomex",
+        "coluna": "Condição de Pagamento do Pedido/Item: Siscomex",
         "descricao": "Código oficial de modalidade de pagamento para LI/DI no Portal Único.",
         "fixa": false,
         "formatacao": "Texto",
@@ -883,7 +883,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 301,
         "coluna": "Porto de Origem",
-        "descricao": "Porto ou local de embarque (cadastros.porto — UN/LOCODE)",
+        "descricao": "Porto ou local de embarque (cadastros.porto: UN/LOCODE)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -896,7 +896,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 302,
         "coluna": "Porto de Destino",
-        "descricao": "Porto ou local de desembarque (cadastros.porto — UN/LOCODE)",
+        "descricao": "Porto ou local de desembarque (cadastros.porto: UN/LOCODE)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -909,7 +909,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 303,
         "coluna": "País de Origem",
-        "descricao": "País de origem rodoviária (cadastros.pais — ISO alpha-2)",
+        "descricao": "País de origem rodoviária (cadastros.pais: ISO alpha-2)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -922,7 +922,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 304,
         "coluna": "País de Destino",
-        "descricao": "País de destino rodoviário (cadastros.pais — ISO alpha-2)",
+        "descricao": "País de destino rodoviário (cadastros.pais: ISO alpha-2)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -935,7 +935,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 305,
         "coluna": "Aeroporto de Origem",
-        "descricao": "Aeroporto de embarque (cadastros.aeroporto — IATA ou UN/LOCODE)",
+        "descricao": "Aeroporto de embarque (cadastros.aeroporto: IATA ou UN/LOCODE)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -948,7 +948,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 306,
         "coluna": "Aeroporto de Destino",
-        "descricao": "Aeroporto de desembarque (cadastros.aeroporto — IATA ou UN/LOCODE)",
+        "descricao": "Aeroporto de desembarque (cadastros.aeroporto: IATA ou UN/LOCODE)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Sim",
@@ -1085,7 +1085,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 502,
-        "coluna": "Data Prevista — Pedido Pronto",
+        "coluna": "Data Prevista: Pedido Pronto",
         "descricao": "Data prevista para o pedido estar pronto para embarque",
         "fixa": false,
         "formatacao": "Data",
@@ -1098,7 +1098,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 503,
-        "coluna": "Data Confirmada — Pedido Pronto",
+        "coluna": "Data Confirmada: Pedido Pronto",
         "descricao": "Data confirmada para o pedido estar pronto",
         "fixa": false,
         "formatacao": "Data",
@@ -1111,7 +1111,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 504,
-        "coluna": "Data Meta — Pedido Pronto",
+        "coluna": "Data Meta: Pedido Pronto",
         "descricao": "Data meta definida pelo importador",
         "fixa": false,
         "formatacao": "Data",
@@ -1124,7 +1124,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 505,
-        "coluna": "Data Prevista — Inspeção",
+        "coluna": "Data Prevista: Inspeção",
         "descricao": "Data prevista para inspeção pré-embarque (PSI/ISF)",
         "fixa": false,
         "formatacao": "Data",
@@ -1137,7 +1137,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 506,
-        "coluna": "Data Confirmada — Inspeção",
+        "coluna": "Data Confirmada: Inspeção",
         "descricao": "Data confirmada para inspeção pré-embarque",
         "fixa": false,
         "formatacao": "Data",
@@ -1150,7 +1150,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 507,
-        "coluna": "Data Meta — Inspeção",
+        "coluna": "Data Meta: Inspeção",
         "descricao": "Data meta para a inspeção do pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1163,7 +1163,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 508,
-        "coluna": "Data Prevista — Coleta",
+        "coluna": "Data Prevista: Coleta",
         "descricao": "Data prevista para coleta da mercadoria",
         "fixa": false,
         "formatacao": "Data",
@@ -1176,7 +1176,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 509,
-        "coluna": "Data Confirmada — Coleta",
+        "coluna": "Data Confirmada: Coleta",
         "descricao": "Data confirmada para coleta da mercadoria",
         "fixa": false,
         "formatacao": "Data",
@@ -1189,7 +1189,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 510,
-        "coluna": "Data Meta — Coleta",
+        "coluna": "Data Meta: Coleta",
         "descricao": "Data meta para a coleta do pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1228,7 +1228,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 513,
-        "coluna": "Data Prevista — Recebimento Draft Pedido",
+        "coluna": "Data Prevista: Recebimento Draft Pedido",
         "descricao": "Data prevista para recebimento do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1241,7 +1241,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 514,
-        "coluna": "Data Confirmada — Recebimento Draft Pedido",
+        "coluna": "Data Confirmada: Recebimento Draft Pedido",
         "descricao": "Data confirmada para recebimento do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1254,7 +1254,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 515,
-        "coluna": "Data Meta — Recebimento Draft Pedido",
+        "coluna": "Data Meta: Recebimento Draft Pedido",
         "descricao": "Data meta para recebimento do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1267,7 +1267,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 516,
-        "coluna": "Data Prevista — Aprovação Draft Pedido",
+        "coluna": "Data Prevista: Aprovação Draft Pedido",
         "descricao": "Data prevista para aprovação do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1280,7 +1280,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 517,
-        "coluna": "Data Confirmada — Aprovação Draft Pedido",
+        "coluna": "Data Confirmada: Aprovação Draft Pedido",
         "descricao": "Data confirmada para aprovação do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1293,7 +1293,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 518,
-        "coluna": "Data Meta — Aprovação Draft Pedido",
+        "coluna": "Data Meta: Aprovação Draft Pedido",
         "descricao": "Data meta para aprovação do draft (rascunho) do Pedido",
         "fixa": false,
         "formatacao": "Data",
@@ -1345,7 +1345,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 522,
-        "coluna": "Data Prevista — Recebimento Draft Proforma",
+        "coluna": "Data Prevista: Recebimento Draft Proforma",
         "descricao": "Data prevista para recebimento do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1358,7 +1358,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 523,
-        "coluna": "Data Confirmada — Recebimento Draft Proforma",
+        "coluna": "Data Confirmada: Recebimento Draft Proforma",
         "descricao": "Data confirmada para recebimento do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1371,7 +1371,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 524,
-        "coluna": "Data Meta — Recebimento Draft Proforma",
+        "coluna": "Data Meta: Recebimento Draft Proforma",
         "descricao": "Data meta para recebimento do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1384,7 +1384,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 525,
-        "coluna": "Data Prevista — Aprovação Draft Proforma",
+        "coluna": "Data Prevista: Aprovação Draft Proforma",
         "descricao": "Data prevista para aprovação do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1397,7 +1397,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 526,
-        "coluna": "Data Confirmada — Aprovação Draft Proforma",
+        "coluna": "Data Confirmada: Aprovação Draft Proforma",
         "descricao": "Data confirmada para aprovação do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1410,7 +1410,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 527,
-        "coluna": "Data Meta — Aprovação Draft Proforma",
+        "coluna": "Data Meta: Aprovação Draft Proforma",
         "descricao": "Data meta para aprovação do draft (rascunho) da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1423,7 +1423,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 528,
-        "coluna": "Data Prevista — Envio Original Proforma",
+        "coluna": "Data Prevista: Envio Original Proforma",
         "descricao": "Data prevista para envio do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1436,7 +1436,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 529,
-        "coluna": "Data Confirmada — Envio Original Proforma",
+        "coluna": "Data Confirmada: Envio Original Proforma",
         "descricao": "Data confirmada para envio do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1449,7 +1449,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 530,
-        "coluna": "Data Meta — Envio Original Proforma",
+        "coluna": "Data Meta: Envio Original Proforma",
         "descricao": "Data meta para envio do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1462,7 +1462,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 531,
-        "coluna": "Data Prevista — Recebimento Original Proforma",
+        "coluna": "Data Prevista: Recebimento Original Proforma",
         "descricao": "Data prevista para recebimento do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1475,7 +1475,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 532,
-        "coluna": "Data Confirmada — Recebimento Original Proforma",
+        "coluna": "Data Confirmada: Recebimento Original Proforma",
         "descricao": "Data confirmada para recebimento do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1488,7 +1488,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 533,
-        "coluna": "Data Meta — Recebimento Original Proforma",
+        "coluna": "Data Meta: Recebimento Original Proforma",
         "descricao": "Data meta para recebimento do original da Proforma",
         "fixa": false,
         "formatacao": "Data",
@@ -1501,7 +1501,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 534,
-        "coluna": "Data Prevista — Recebimento Draft Invoice",
+        "coluna": "Data Prevista: Recebimento Draft Invoice",
         "descricao": "Data prevista para recebimento do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1514,7 +1514,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 535,
-        "coluna": "Data Confirmada — Recebimento Draft Invoice",
+        "coluna": "Data Confirmada: Recebimento Draft Invoice",
         "descricao": "Data confirmada para recebimento do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1527,7 +1527,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 536,
-        "coluna": "Data Meta — Recebimento Draft Invoice",
+        "coluna": "Data Meta: Recebimento Draft Invoice",
         "descricao": "Data meta para recebimento do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1540,7 +1540,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 537,
-        "coluna": "Data Prevista — Aprovação Draft Invoice",
+        "coluna": "Data Prevista: Aprovação Draft Invoice",
         "descricao": "Data prevista para aprovação do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1553,7 +1553,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 538,
-        "coluna": "Data Confirmada — Aprovação Draft Invoice",
+        "coluna": "Data Confirmada: Aprovação Draft Invoice",
         "descricao": "Data confirmada para aprovação do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1566,7 +1566,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 539,
-        "coluna": "Data Meta — Aprovação Draft Invoice",
+        "coluna": "Data Meta: Aprovação Draft Invoice",
         "descricao": "Data meta para aprovação do draft (rascunho) da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1579,7 +1579,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 540,
-        "coluna": "Data Prevista — Envio Original Invoice",
+        "coluna": "Data Prevista: Envio Original Invoice",
         "descricao": "Data prevista para envio do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1592,7 +1592,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 541,
-        "coluna": "Data Confirmada — Envio Original Invoice",
+        "coluna": "Data Confirmada: Envio Original Invoice",
         "descricao": "Data confirmada para envio do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1605,7 +1605,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 542,
-        "coluna": "Data Meta — Envio Original Invoice",
+        "coluna": "Data Meta: Envio Original Invoice",
         "descricao": "Data meta para envio do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1618,7 +1618,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 543,
-        "coluna": "Data Prevista — Recebimento Original Invoice",
+        "coluna": "Data Prevista: Recebimento Original Invoice",
         "descricao": "Data prevista para recebimento do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1631,7 +1631,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 544,
-        "coluna": "Data Confirmada — Recebimento Original Invoice",
+        "coluna": "Data Confirmada: Recebimento Original Invoice",
         "descricao": "Data confirmada para recebimento do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1644,7 +1644,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 545,
-        "coluna": "Data Meta — Recebimento Original Invoice",
+        "coluna": "Data Meta: Recebimento Original Invoice",
         "descricao": "Data meta para recebimento do original da Invoice",
         "fixa": false,
         "formatacao": "Data",
@@ -1919,7 +1919,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 102,
         "coluna": "Qtd. Inicial do Item no Pedido",
-        "descricao": "Quantidade original do item — valor imutável",
+        "descricao": "Quantidade original do item: valor imutável",
         "fixa": false,
         "formatacao": "Número",
         "edicaoPedido": "Não",
@@ -1971,7 +1971,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 106,
         "coluna": "Quantidade Cancelada do Item no Pedido",
-        "descricao": "Total permanentemente cancelado — subtrai do saldo inicial",
+        "descricao": "Total permanentemente cancelado: subtrai do saldo inicial",
         "fixa": false,
         "formatacao": "Número",
         "edicaoPedido": "Não",
@@ -2004,7 +2004,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
         "edicaoItem": "Não",
         "edicaoMassaPedido": "Não",
         "edicaoMassaItem": "Sim",
-        "soma": "Total do Pedido — soma total dos itens na mesma moeda",
+        "soma": "Total do Pedido: soma total dos itens na mesma moeda",
         "espelha": "—"
       },
       {
@@ -2022,7 +2022,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 110,
-        "coluna": "Cond. Pagamento — Comercial",
+        "coluna": "Cond. Pagamento: Comercial",
         "descricao": "Condição de pagamento negociada para o item (texto livre)",
         "fixa": false,
         "formatacao": "Texto",
@@ -2035,7 +2035,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       },
       {
         "ordem": 111,
-        "coluna": "Condição de Pagamento do Pedido/Item — Siscomex",
+        "coluna": "Condição de Pagamento do Pedido/Item: Siscomex",
         "descricao": "Código oficial de modalidade de pagamento para LI/DI",
         "fixa": false,
         "formatacao": "Texto",
@@ -2732,7 +2732,7 @@ export const GRUPOS_CATALOGO_COLUNAS_PEDIDO: ManualPedidoGrupoCatalogoColunas[] 
       {
         "ordem": 352,
         "coluna": "Método Valoração - DUIMP",
-        "descricao": "Método de valoração aduaneira utilizado na DUIMP (ex: Método 1 — Valor de Transação)",
+        "descricao": "Método de valoração aduaneira utilizado na DUIMP (ex: Método 1: Valor de Transação)",
         "fixa": false,
         "formatacao": "Texto",
         "edicaoPedido": "Não",

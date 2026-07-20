@@ -18,6 +18,7 @@ import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-
 import { patchDeveMarcarCotacaoAlterada } from '../../../shared/status-cotacao-alterada-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
+import { PROPOSTA_SELECT_LISTA_BID_FRETE_INTERNACIONAL } from '../shared/proposta-select-lista-bid-frete-internacional.js'
 import { filtrarHistoricoTermometro } from '../../../shared/filtro-historico-termometro-bid-frete-internacional.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
@@ -616,7 +617,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
             },
           },
           disparos_cotacao: { select: { id_disparo_cotacao_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, status_disparo_cotacao_bid_frete_internacional: true } },
-          propostas: { select: { id_proposta_bid_frete_internacional: true, id_fornecedor_bid_frete_internacional: true, valor_total_proposta_bid_frete_internacional: true, dias_transito_proposta_bid_frete_internacional: true, status_proposta_bid_frete_internacional: true, classificacao_valor_proposta_bid_frete_internacional: true, classificacao_transito_proposta_bid_frete_internacional: true } },
+          propostas: { select: PROPOSTA_SELECT_LISTA_BID_FRETE_INTERNACIONAL },
         },
       }),
       (req.prisma as any).cotacaoBidFreteInternacional.count({ where }),
@@ -932,13 +933,13 @@ router.patch('/:id/status', async (req: Request, res: Response, next: NextFuncti
   }
 })
 
-// --- DELETE /:id — Excluir rascunho ---
+// --- DELETE /:id — Excluir cotação (exceto aprovada) ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
-    if (existing.status_cotacao_bid_frete_internacional !== 'RASCUNHO') {
-      throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
+    if (existing.status_cotacao_bid_frete_internacional === 'APROVADA') {
+      throw new AppError('So e possivel excluir cotacoes que nao estejam aprovadas', 400, 'INVALID_STATUS')
     }
 
     await (req.prisma as any).cotacaoBidFreteInternacional.delete({ where: { id_cotacao_bid_frete_internacional: req.params.id } })

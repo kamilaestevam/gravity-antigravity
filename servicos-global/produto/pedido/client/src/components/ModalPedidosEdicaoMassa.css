@@ -45,6 +45,25 @@
   background-color: #2563eb;
 }
 
+.modal-edicao-massa__nivel-ajuda {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.modal-edicao-massa__nivel-ajuda strong {
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+.modal-edicao-massa__campos-ajuda {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
 /* Seção */
 .modal-edicao-massa__secao {
   display: flex;

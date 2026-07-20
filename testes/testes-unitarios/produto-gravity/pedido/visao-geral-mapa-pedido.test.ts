@@ -176,4 +176,68 @@ describe('buildVisaoGeralMapa', () => {
     expect(pinBr?.totalAReceber).toBeGreaterThan(0)
     expect(mapa.modaisGlobo.find(m => m.key === 'exportacao')?.count).toBe(1)
   })
+
+  it('expõe cards de pedido no detalhe da localização para o modal do mapa', () => {
+    const mapa = buildVisaoGeralMapa(
+      [
+        pedidoBase({
+          id: 'p-sz-1',
+          numero_pedido: 'PO-SZ-001',
+          pais_exportador: null,
+          cidade_exportador: null,
+          nome_exportador: null,
+          pais_fabricante: 'China',
+          cidade_fabricante: 'Shenzhen',
+          nome_fabricante: 'Shenzhen Mfg',
+          valor_total_pedido: 100_000,
+        }),
+        pedidoBase({
+          id: 'p-sz-2',
+          numero_pedido: 'PO-SZ-002',
+          pais_exportador: null,
+          cidade_exportador: null,
+          nome_exportador: null,
+          pais_fabricante: 'China',
+          cidade_fabricante: 'Shenzhen',
+          nome_fabricante: 'Shenzhen Mfg 2',
+          valor_total_pedido: 50_000,
+        }),
+      ],
+      new Map([['ws-1', 'ABC Importador']]),
+    )
+
+    const origemShenzhen = mapa.topOrigens.find(o => o.name.toLowerCase().includes('shenzhen'))
+    expect(origemShenzhen?.locKey).toBeTruthy()
+
+    const detalhe = mapa.detalhesPorLocKey[origemShenzhen!.locKey]
+    expect(detalhe).toBeDefined()
+    expect(detalhe.pedidosCards.length).toBe(2)
+    expect(detalhe.pedidosCards[0].numero_pedido).toBe('PO-SZ-001')
+    expect(detalhe.pedidosCards[0].valorTotal).toBe(100_000)
+    expect(detalhe.pedidosCards[0].nome_workspace).toBe('ABC Importador')
+    expect(detalhe.pedidosCards[0].origemLabel.toLowerCase()).toContain('shenzhen')
+  })
+
+  it('agrega valor e fluxo cambial no pin de destino de exportação (roxos)', () => {
+    const mapa = buildVisaoGeralMapa([
+      pedidoBase({
+        tipo_operacao: 'exportacao',
+        nome_importador: 'CDE',
+        valor_total_pedido: 0,
+        valor_total_cambio_pedido: 18_500,
+        moeda_cambio_pedido: 'USD',
+        local_de_destino: 'AL',
+        pais_exportador: null,
+        cidade_exportador: null,
+      }),
+    ])
+
+    const pinDestinoExport = mapa.pins.find(
+      p => p.tipoOperacao === 'exportacao' && p.papel === 'destino',
+    )
+    expect(pinDestinoExport).toBeDefined()
+    expect(pinDestinoExport!.valorTotal).toBe(18_500)
+    expect(pinDestinoExport!.totalAReceber).toBe(18_500)
+    expect(pinDestinoExport!.pctVolume).toBeGreaterThan(0)
+  })
 })

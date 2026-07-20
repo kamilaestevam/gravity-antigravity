@@ -10,7 +10,7 @@ import {
 
 const CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
-type PilarFormaImportar = {
+type PilarFormaCriar = {
   num: string
   rotulo: string
   descricao: string
@@ -18,48 +18,53 @@ type PilarFormaImportar = {
   cor: string
   borda: string
   fundo: string
+  disponivel: boolean
 }
 
-const PILARES: PilarFormaImportar[] = [
+const PILARES: PilarFormaCriar[] = [
   {
     num: '01',
     rotulo: 'Importar via planilha',
     descricao:
-      '**Smart Import** — template `.xlsx` oficial (**disponível**) ou planilha do fornecedor (**em breve**). Upload, mapeamento, **preview** e confirmação.',
+      '**Smart Import**: template `.xlsx` oficial (**disponível**) ou planilha do fornecedor (**em breve**). Upload, mapeamento, **preview** e confirmação.',
     icone: UploadSimple,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
     fundo: 'rgba(52,211,153,.08)',
+    disponivel: true,
   },
   {
     num: '02',
     rotulo: 'Importar via API',
     descricao:
-      'Integração via **API Cockpit** ou **ERP** — tokens, webhooks e conectores disparam pedidos e itens sem planilha.',
+      'Integração via **API Cockpit** ou **ERP**: tokens, webhooks e conectores disparam pedidos e itens sem planilha.',
     icone: ArrowsLeftRight,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.32)',
     fundo: 'rgba(96,165,250,.08)',
+    disponivel: true,
   },
   {
     num: '03',
-    rotulo: 'Importar via Smart Read',
+    rotulo: 'Importar via Smart Docs',
     descricao:
-      'Leitura assistida por **IA** em PDFs e imagens — extração documental sem montar planilha. **Em breve** no menu **Novo**.',
+      'Leitura assistida por **IA** em PDFs e imagens: extração documental sem montar planilha. Acesso pelo menu **Novo** do Pedido.',
     icone: Sparkle,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
     fundo: 'rgba(139,92,246,.08)',
+    disponivel: true,
   },
   {
     num: '04',
-    rotulo: 'Importar Manual',
+    rotulo: 'Criar manual',
     descricao:
       'Wizard em **dois passos**: cabeçalho do pedido e **itens** um a um. Melhor para POs avulsos ou ajustes pontuais.',
     icone: PencilSimple,
     cor: '#fbbf24',
     borda: 'rgba(251,191,36,.32)',
     fundo: 'rgba(245,158,11,.1)',
+    disponivel: true,
   },
 ]
 
@@ -71,7 +76,7 @@ function renderizarNegrito(texto: string) {
   )
 }
 
-function CardPilar({ pilar }: { pilar: PilarFormaImportar }) {
+function CardPilar({ pilar }: { pilar: PilarFormaCriar }) {
   const Icone = pilar.icone
   return (
     <div style={{
@@ -97,16 +102,32 @@ function CardPilar({ pilar }: { pilar: PilarFormaImportar }) {
       }}>
         <Icone size={18} weight="duotone" color={pilar.cor} aria-hidden />
       </div>
-      <div style={{ minWidth: 0 }}>
-        <p style={{
-          margin: 0,
-          fontSize: '.68rem',
-          fontWeight: 800,
-          letterSpacing: '.06em',
-          color: pilar.cor,
-        }}>
-          {pilar.num}
-        </p>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+          <p style={{
+            margin: 0,
+            fontSize: '.68rem',
+            fontWeight: 800,
+            letterSpacing: '.06em',
+            color: pilar.cor,
+          }}>
+            {pilar.num}
+          </p>
+          <span style={{
+            fontSize: '.56rem',
+            fontWeight: 800,
+            letterSpacing: '.06em',
+            textTransform: 'uppercase',
+            color: '#6ee7b7',
+            background: 'rgba(52,211,153,.12)',
+            border: '1px solid rgba(52,211,153,.35)',
+            borderRadius: 999,
+            padding: '2px 7px',
+            flexShrink: 0,
+          }}>
+            Disponível
+          </span>
+        </div>
         <p style={{
           margin: '4px 0 0',
           fontSize: '.78rem',
@@ -129,7 +150,7 @@ function CardPilar({ pilar }: { pilar: PilarFormaImportar }) {
   )
 }
 
-/** Manual Pedido §05 — mapa das 4 formas de criar via Novo (paridade visual com §05 Customizar) */
+/** Manual Pedido §5.12 — mapa das 4 formas de criar via + Novo na Lista */
 export function ManualInfograficoPedidoListaImportarFormas() {
   return (
     <div
@@ -191,7 +212,7 @@ export function ManualInfograficoPedidoListaImportarFormas() {
           }}>
             No menu <strong style={{ color: '#cbd5e1' }}>Novo</strong>, escolha{' '}
             <strong style={{ color: '#cbd5e1' }}>Novo pedido</strong> ou{' '}
-            <strong style={{ color: '#cbd5e1' }}>Novo item</strong> — cada opção abre uma das vias abaixo.
+            <strong style={{ color: '#cbd5e1' }}>Novo item</strong>. O passo a passo de cada via está logo abaixo.
           </p>
         </div>
       </div>
@@ -200,7 +221,7 @@ export function ManualInfograficoPedidoListaImportarFormas() {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 12,
-        alignItems: 'start',
+        alignItems: 'stretch',
         marginBottom: 14,
       }}>
         {PILARES.map((pilar) => (
@@ -217,11 +238,8 @@ export function ManualInfograficoPedidoListaImportarFormas() {
         lineHeight: 1.5,
         color: CORPO_70,
       }}>
-        <p style={{ margin: 0, fontWeight: 800, color: '#a5b4fc', fontSize: '.72rem', lineHeight: 1.4 }}>
-          Importar via planilha + Importar via API + Importar via Smart Read + Importar Manual = inclusão completa no workspace
-        </p>
-        <p style={{ margin: '6px 0 0' }}>
-          Abaixo, o passo a passo do caminho <strong style={{ color: '#cbd5e1' }}>template oficial</strong> (homologado). Prints do caminho <strong style={{ color: '#cbd5e1' }}>planilha do usuário</strong> estão marcados <strong style={{ color: '#cbd5e1' }}>Em breve</strong>.
+        <p style={{ margin: 0 }}>
+          Pedidos criados por qualquer via nascem em <strong style={{ color: '#cbd5e1' }}>rascunho</strong>. Revise na Lista e altere o status para <strong style={{ color: '#cbd5e1' }}>Aberto</strong> quando estiver pronto para operação.
         </p>
       </div>
     </div>

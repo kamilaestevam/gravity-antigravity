@@ -142,7 +142,7 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     num: '02',
     rotulo: 'Fornecedor pode alterar proposta',
     paragrafoGuia:
-      'Enquanto o prazo estiver aberto. Padrão da organização: **Não** — escolha obrigatória nesta cotação.',
+      'Enquanto o prazo estiver aberto. Padrão da organização: **Não**: escolha obrigatória nesta cotação.',
     icone: NotePencil,
     cor: '#38bdf8',
     borda: 'rgba(56,189,248,.35)',
@@ -161,8 +161,8 @@ export const CAMPOS_VISIBILIDADE_BID_FRETE: CampoGuiaAoVivo<CampoVisibilidadeId>
     borda: 'rgba(167,139,250,.35)',
     fundo: 'rgba(139,92,246,.1)',
     descricaoPontos: [
-      'Direcionada — escolher fornecedores e canais de disparo',
-      'Aberta — todos os fornecedores que aceitam cotação aberta',
+      'Direcionada: escolher fornecedores e canais de disparo',
+      'Aberta: todos os fornecedores que aceitam cotação aberta',
     ],
     obrigatorio: true,
     ...APLICAVEL_TODOS_CONTEXTO,
@@ -508,7 +508,7 @@ export function ConteudoPassoVisibilidadeSimulador({
             Prazo para respostas
           </SimuladorNcSectionTitle>
           <p className="nc-cargo-subsecao-hint">
-            Obrigatório — define até quando os fornecedores podem enviar ou alterar propostas.
+            Obrigatório: define até quando os fornecedores podem enviar ou alterar propostas.
           </p>
           <div className="nc-prazo-data-hora">
             <SimuladorNcField
@@ -566,7 +566,7 @@ export function ConteudoPassoVisibilidadeSimulador({
             Fornecedor pode alterar proposta
           </SimuladorNcSectionTitle>
           <p className="nc-cargo-subsecao-hint">
-            Enquanto o prazo estiver aberto. Padrão da organização: Não — escolha obrigatória nesta cotação.
+            Enquanto o prazo estiver aberto. Padrão da organização: Não: escolha obrigatória nesta cotação.
           </p>
           <SimuladorNcField
             label="Permitir edição da proposta"
@@ -599,7 +599,7 @@ export function ConteudoPassoVisibilidadeSimulador({
                 aoInteragir('tipo_visibilidade')
               }}
               icon={<Users weight="duotone" size={20} />}
-              label="Direcionada — Escolher fornecedores"
+              label="Direcionada: Escolher fornecedores"
               description="Após criar a cotação, você poderá selecionar os fornecedores e os canais de disparo."
             />
             <SimuladorNcOptionButton
@@ -610,7 +610,7 @@ export function ConteudoPassoVisibilidadeSimulador({
                 aoDesligarCampo('fornecedores')
               }}
               icon={<Users weight="duotone" size={20} />}
-              label="Aberta — Todos os fornecedores"
+              label="Aberta: Todos os fornecedores"
               description="Todos os fornecedores cadastrados que aceitam cotação aberta receberão a solicitação."
             />
           </div>
@@ -709,7 +709,7 @@ export function ConteudoPassoVisibilidadeSimulador({
           ) : (
             <p className="nc-cargo-subsecao-hint" style={{ marginTop: '0.75rem' }}>
               Preview: nesta cotação aberta, todos os fornecedores elegíveis da rede receberiam o disparo
-              (simulação do manual — sem lista editável).
+              (simulação do manual: sem lista editável).
             </p>
           )}
         </section>

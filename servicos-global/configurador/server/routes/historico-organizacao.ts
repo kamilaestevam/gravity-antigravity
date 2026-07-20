@@ -19,6 +19,7 @@ import {
   isErroPrismaSchemaOrganizacao,
   isErroTabelaHistoricoAusente,
 } from '../lib/consultar-historico-log.js'
+import { resolverNomeAtorHistoricoParaExibicao } from '../lib/enriquecer-nome-ator-historico-log.js'
 
 export const historicoOrganizacaoRouter = Router()
 
@@ -95,30 +96,48 @@ historicoOrganizacaoRouter.get(
         bypassPermissao: bypass,
       })
 
-      const idsAtorUsuario = Array.from(new Set(
-        resultado.logs
-          .filter((l) => l.tipo_ator_historico_log === 'USUARIO')
-          .map((l) => l.id_ator_historico_log)
-          .filter((v) => v.length > 0),
+      const idsAtor = Array.from(new Set(
+        resultado.logs.flatMap((l) => {
+          const ids: string[] = []
+          if (l.id_ator_historico_log) ids.push(l.id_ator_historico_log)
+          const nome = l.nome_ator_historico_log?.trim()
+          if (nome && nome !== l.id_ator_historico_log) ids.push(nome)
+          return ids
+        }),
       ))
 
-      let mapaEmail = new Map<string, string>()
-      if (idsAtorUsuario.length > 0) {
+      let mapaUsuario = new Map<string, { email_usuario: string; nome_usuario: string }>()
+      if (idsAtor.length > 0) {
         try {
           const usuarios = await prisma.usuario.findMany({
-            where: { id_usuario: { in: idsAtorUsuario } },
-            select: { id_usuario: true, email_usuario: true },
+            where: {
+              OR: [
+                { id_usuario: { in: idsAtor } },
+                { id_clerk_usuario: { in: idsAtor } },
+              ],
+            },
+            select: { id_usuario: true, id_clerk_usuario: true, email_usuario: true, nome_usuario: true },
           })
-          mapaEmail = new Map(usuarios.map((u) => [u.id_usuario, u.email_usuario]))
+          for (const u of usuarios) {
+            const dados = { email_usuario: u.email_usuario, nome_usuario: u.nome_usuario }
+            mapaUsuario.set(u.id_usuario, dados)
+            if (u.id_clerk_usuario) mapaUsuario.set(u.id_clerk_usuario, dados)
+          }
         } catch (lookupErr) {
-          log.warn('Falha ao enriquecer logs com email_ator_historico_log', { lookupErr })
+          log.warn('Falha ao enriquecer logs com dados do usuário ator', { lookupErr })
         }
       }
 
-      const logsEnriquecidos = resultado.logs.map((l) => ({
-        ...l,
-        email_ator_historico_log: mapaEmail.get(l.id_ator_historico_log) ?? null,
-      }))
+      const logsEnriquecidos = resultado.logs.map((l) => {
+        const nomeGravado = l.nome_ator_historico_log?.trim()
+        const usuarioAtor = mapaUsuario.get(l.id_ator_historico_log)
+          ?? (nomeGravado ? mapaUsuario.get(nomeGravado) : undefined)
+        return {
+          ...l,
+          nome_ator_historico_log: resolverNomeAtorHistoricoParaExibicao(l, usuarioAtor),
+          email_ator_historico_log: usuarioAtor?.email_usuario ?? null,
+        }
+      })
 
       res.json({
         page,

@@ -34,7 +34,7 @@ const PILARES: PilarCustomizacao[] = [
   {
     num: '02',
     rotulo: 'Exibir coluna nativa',
-    descricao: 'Marque de volta colunas padrão ou do catálogo de documentos — a lista atualiza na hora.',
+    descricao: 'Marque de volta colunas padrão ou do catálogo de documentos: a lista atualiza na hora.',
     icone: Eye,
     cor: '#34d399',
     borda: 'rgba(52,211,153,.32)',
@@ -52,7 +52,7 @@ const PILARES: PilarCustomizacao[] = [
   {
     num: '04',
     rotulo: 'Criar coluna customizada',
-    descricao: 'Monte campos próprios além do catálogo — o fluxo completo está em **Configurações**.',
+    descricao: 'Monte campos próprios além do catálogo: o fluxo completo está em **Configurações**.',
     icone: PlusCircle,
     cor: '#a78bfa',
     borda: 'rgba(167,139,250,.32)',
@@ -128,14 +128,18 @@ function CardPilar({ pilar }: { pilar: PilarCustomizacao }) {
 }
 
 /** Manual Smart Docs §05 — mapa da customização da Lista */
-export function ManualInfograficoSmartDocsListaCustomizacao() {
+export function ManualInfograficoSmartDocsListaCustomizacao({
+  margemSuperiorPx = 20,
+}: {
+  margemSuperiorPx?: number
+}) {
   return (
     <div style={{
       background: 'linear-gradient(165deg, rgba(99,102,241,.09) 0%, rgba(148,163,184,.04) 42%, rgba(52,211,153,.05) 100%)',
       border: '1px solid rgba(148,163,184,.18)',
       borderRadius: 14,
       padding: '18px 18px 16px',
-      marginTop: 20,
+      marginTop: margemSuperiorPx,
       boxShadow: '0 10px 36px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.04)',
     }}>
       <div style={{
@@ -184,14 +188,14 @@ export function ManualInfograficoSmartDocsListaCustomizacao() {
             color: CORPO_70,
             whiteSpace: 'nowrap',
           }}>
-            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal — nativas, catálogo ou campos próprios.
+            Quatro ações no menu <strong style={{ color: '#cbd5e1' }}>Colunas</strong> montam a visualização ideal: nativas, catálogo ou campos próprios.
           </p>
         </div>
       </div>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
         gap: 12,
         marginBottom: 14,
       }}>

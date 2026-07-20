@@ -16,7 +16,6 @@ import { AutenticacaoPage } from './pages/AutenticacaoPage'
 import { CadastroContinuarPage } from './pages/CadastroContinuarPage'
 import { SsoCallbackPage } from './pages/SsoCallbackPage'
 import { RecuperarSenhaRedefinirPage } from './pages/RecuperarSenhaRedefinirPage'
-
 // Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
 const E2ENotificacoesHarness = import.meta.env.DEV
   ? React.lazy(() => import('./pages/E2ENotificacoesHarness').then(m => ({ default: m.E2ENotificacoesHarness })))
@@ -322,6 +321,13 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+/** Legado: URLs com underscore (`/university_gravity`) → rota canônica com hífen. */
+function RedirectUniversityGravityUnderscore() {
+  const location = useLocation()
+  const destino = `${location.pathname.replace('/university_gravity', '/university-gravity')}${location.search}${location.hash}`
+  return <Navigate to={destino} replace />
+}
+
 /** Monitor de saúde dos servidores de dev — dispara toast quando algum cai ou volta */
 function ServerHealthMonitor() {
   useServerHealth()
@@ -406,6 +412,8 @@ export default function App() {
         {/* Área autenticada */}
         <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
+        <Route path="/university_gravity" element={<RedirectUniversityGravityUnderscore />} />
+        <Route path="/university_gravity/*" element={<RedirectUniversityGravityUnderscore />} />
         <Route path="/university-gravity/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><UniversityGravity /></React.Suspense></ProtectedRoute>} />
         {/* TODO(preview-temp, 2026-07-11): rota só para conferência visual manual — remover após validar. */}
         <Route path="/__preview-jornada-temp" element={<React.Suspense fallback={<ProductLoading />}><PreviewJornadaTemp /></React.Suspense>} />

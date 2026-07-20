@@ -2,6 +2,7 @@ import React from 'react'
 import {
   Anchor,
   ArrowCounterClockwise,
+  ArrowRight,
   ArrowSquareOut,
   CaretDown,
   Eye,
@@ -9,12 +10,39 @@ import {
   Globe,
   MapTrifold,
   Minus,
+  Package,
   Pause,
   Play,
   Plus,
   type Icon,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { BotaoSalvar } from '@nucleo/botoes-salvar-global'
+
+/** Pin importação do mapa Insights Pedido — paridade `bfd-map-pin__dot` laranja. */
+export function ManualInfograficoPinMapaPedidoInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Pin do mapa"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'text-bottom',
+        marginLeft: 3,
+        marginRight: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 18,
+        height: 18,
+        borderRadius: '50%',
+        backgroundColor: '#f59e0b',
+        boxShadow: '0 0 8px rgba(245, 158, 11, 0.6)',
+      }}
+    >
+      <Package size={11} weight="bold" color="#000000" aria-hidden />
+    </span>
+  )
+}
 
 /** Pin marítimo do mapa Insights — paridade `bfd-map-pin__dot`. */
 export function ManualInfograficoPinMapaBidFreteInline() {
@@ -90,6 +118,34 @@ export function ManualIconeGloboMapaBidFreteInlineCompact() {
   )
 }
 
+const ICONES_CONTROLE_MAPA_PEDIDO: Record<string, { icone: Icon; ariaLabel: string; trilhosOcultos?: boolean }> = {
+  'globo-mapa-pedido': { icone: Globe, ariaLabel: 'Controle Globo do mapa' },
+  'mapa-plano-pedido': { icone: MapTrifold, ariaLabel: 'Controle Mapa plano' },
+  'zoom-in-pedido': { icone: Plus, ariaLabel: 'Controle Zoom in' },
+  'zoom-out-pedido': { icone: Minus, ariaLabel: 'Controle Zoom out' },
+  'restaurar-mapa-pedido': { icone: ArrowCounterClockwise, ariaLabel: 'Controle Restaurar mapa' },
+  'ocultar-trilhos-pedido': { icone: Eye, ariaLabel: 'Controle Ocultar trilhos' },
+  'exibir-trilhos-pedido': { icone: EyeSlash, ariaLabel: 'Controle Exibir trilhos', trilhosOcultos: true },
+  'pausar-globo-pedido': { icone: Pause, ariaLabel: 'Controle Pausar rotação do globo' },
+  'iniciar-globo-pedido': { icone: Play, ariaLabel: 'Controle Iniciar rotação do globo' },
+}
+
+export function isIconeControleMapaPedido(slug: string): slug is keyof typeof ICONES_CONTROLE_MAPA_PEDIDO {
+  return slug in ICONES_CONTROLE_MAPA_PEDIDO
+}
+
+export function ManualInfograficoIconeControleMapaPedidoInline({ slug }: { slug: string }) {
+  const config = ICONES_CONTROLE_MAPA_PEDIDO[slug]
+  if (!config) return null
+  return (
+    <ManualIconeControleMapaBidFreteInlineCompact
+      icone={config.icone}
+      ariaLabel={config.ariaLabel}
+      rotasOcultas={config.trilhosOcultos}
+    />
+  )
+}
+
 const ICONES_CONTROLE_MAPA_BID_FRETE: Record<string, { icone: Icon; ariaLabel: string; rotasOcultas?: boolean }> = {
   'globo-mapa-bid-frete': { icone: Globe, ariaLabel: 'Controle Globo do mapa' },
   'mapa-plano-bid-frete': { icone: MapTrifold, ariaLabel: 'Controle Mapa plano' },
@@ -122,13 +178,48 @@ function ManualInfograficoIconeInline({ slug }: { slug: string }) {
   if (slug === 'pin-mapa-bid-frete') {
     return <ManualInfograficoPinMapaBidFreteInline />
   }
+  if (slug === 'pin-mapa-pedido') {
+    return <ManualInfograficoPinMapaPedidoInline />
+  }
   if (slug === 'abrir-cotacao-lista-bid-frete') {
     return <ManualInfograficoIconeAbrirCotacaoListaBidFreteInline />
+  }
+  if (isIconeControleMapaPedido(slug)) {
+    return <ManualInfograficoIconeControleMapaPedidoInline slug={slug} />
   }
   if (isIconeControleMapaBidFrete(slug)) {
     return <ManualInfograficoIconeControleMapaBidFreteInline slug={slug} />
   }
   return <>{`{{icone:${slug}}}`}</>
+}
+
+/** Botão «Abrir PO-xxx» no modal do mapa — paridade `bfd-pedido-card-btn-abrir`. */
+export function ManualInfograficoBotaoAbrirPedidoListaPedidoInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Abrir pedido na Lista"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -6,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+      }}
+    >
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="pequeno"
+        icone={<ArrowRight size={12} weight="bold" />}
+        tabIndex={-1}
+        aria-hidden
+        style={{ pointerEvents: 'none', cursor: 'default', whiteSpace: 'nowrap' }}
+      >
+        Abrir PO-12345
+      </BotaoGlobal>
+    </span>
+  )
 }
 
 /** Botão primário «Ir para cotação» — paridade modal de confirmação pós-wizard. */
@@ -192,7 +283,7 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
         display: 'inline-flex',
         verticalAlign: 'middle',
         marginLeft: 3,
-        /* scale(0.8) mantém a caixa de layout larga — margem negativa aproxima o "." */
+        /* scale(0.8) mantém a caixa de layout larga: margem negativa aproxima o "." */
         marginRight: -14,
         transform: 'scale(0.8)',
         transformOrigin: 'left center',
@@ -213,12 +304,39 @@ export function ManualInfograficoBotaoNovoBidFreteInline() {
   )
 }
 
+/** Botão **Salvar** das Configurações — paridade `@nucleo/botoes-salvar-global` › `BotaoSalvar`. */
+export function ManualInfograficoBotaoSalvarConfiguracoesInline() {
+  return (
+    <span
+      role="img"
+      aria-label="Salvar"
+      style={{
+        display: 'inline-flex',
+        verticalAlign: 'middle',
+        marginLeft: 3,
+        marginRight: -8,
+        transform: 'scale(0.82)',
+        transformOrigin: 'left center',
+        pointerEvents: 'none',
+      }}
+    >
+      <BotaoSalvar dirty rotulo="Salvar" />
+    </span>
+  )
+}
+
 export function ManualInfograficoBotaoInline({ slug }: { slug: string }) {
   if (slug === 'novo-bid-frete') {
     return <ManualInfograficoBotaoNovoBidFreteInline />
   }
   if (slug === 'ir-para-cotacao-bid-frete') {
     return <ManualInfograficoBotaoIrParaCotacaoBidFreteInline />
+  }
+  if (slug === 'abrir-pedido-lista-pedido') {
+    return <ManualInfograficoBotaoAbrirPedidoListaPedidoInline />
+  }
+  if (slug === 'salvar-configuracoes') {
+    return <ManualInfograficoBotaoSalvarConfiguracoesInline />
   }
   return <>{`{{botao:${slug}}}`}</>
 }

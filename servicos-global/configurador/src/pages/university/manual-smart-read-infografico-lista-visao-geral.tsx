@@ -73,7 +73,7 @@ const ZONAS: ZonaLista[] = [
     itens: [
       {
         rotulo: 'Visão geral',
-        descricao: 'Todas as leituras do workspace — interface e consolidado.',
+        descricao: 'Todas as leituras do workspace: interface e consolidado.',
         icone: Table,
         capitulos: [{ num: 1, rotulo: 'Visão geral' }],
         imagem: IMG.listaVisaoGeral,
@@ -81,7 +81,7 @@ const ZONAS: ZonaLista[] = [
       },
       {
         rotulo: 'Transações (API)',
-        descricao: 'Só leituras com origem API — reconciliar integrações.',
+        descricao: 'Só leituras com origem API: reconciliar integrações.',
         icone: CloudArrowUp,
         capitulos: [{ num: 10, rotulo: 'API' }],
         imagem: IMG.transacoesApi,
@@ -437,7 +437,7 @@ export function ManualInfograficoSmartDocsListaVisaoGeral() {
           color: '#f1f5f9',
           lineHeight: 1.35,
         }}>
-          Quatro camadas — do topo à grade
+          Quatro camadas: do topo à grade
         </p>
         <p style={{
           margin: '8px 0 0',

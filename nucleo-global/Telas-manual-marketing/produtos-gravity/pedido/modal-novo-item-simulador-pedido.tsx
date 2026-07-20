@@ -56,7 +56,7 @@ export function ModalNovoItemSimuladorPedido({ aberto, linhas, onFechar, onSalvo
         </div>
 
         <div className="pds-mnp-form">
-          <div className="pds-mnp-campo">
+          <div className="pds-mnp-campo" data-sds-tutorial-alvo="pedido-novo-item-pedido">
             <SelectGlobal
               label="Pedido *"
               opcoes={opcoesPedidos}
@@ -66,7 +66,7 @@ export function ModalNovoItemSimuladorPedido({ aberto, linhas, onFechar, onSalvo
               buscavel
             />
           </div>
-          <div className="pds-mnp-campo">
+          <div className="pds-mnp-campo" data-sds-tutorial-alvo="pedido-novo-item-part-number">
             <label className="pds-mnp-label" htmlFor="pds-item-pn">Part Number</label>
             <input
               id="pds-item-pn"
@@ -76,7 +76,7 @@ export function ModalNovoItemSimuladorPedido({ aberto, linhas, onFechar, onSalvo
               placeholder="SKU / PN"
             />
           </div>
-          <div className="pds-mnp-campo">
+          <div className="pds-mnp-campo" data-sds-tutorial-alvo="pedido-novo-item-descricao">
             <label className="pds-mnp-label" htmlFor="pds-item-desc">Descrição</label>
             <input
               id="pds-item-desc"
@@ -91,6 +91,7 @@ export function ModalNovoItemSimuladorPedido({ aberto, linhas, onFechar, onSalvo
           <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={fechar}>
             Cancelar
           </BotaoGlobal>
+          <span data-sds-tutorial-alvo="pedido-novo-item-salvar" style={{ display: 'inline-flex' }}>
           <BotaoGlobal
             variante="primario"
             tamanho="pequeno"
@@ -103,6 +104,7 @@ export function ModalNovoItemSimuladorPedido({ aberto, linhas, onFechar, onSalvo
           >
             Adicionar item
           </BotaoGlobal>
+          </span>
         </div>
       </div>
     </div>,

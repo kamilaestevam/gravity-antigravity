@@ -613,19 +613,81 @@
 }
 
 /* Divisor de seção com margem superior para espaçar grupos */
-.mlg-nav-section-label {
+.mlg-nav-section-wrap {
+  padding: 0 12px;
   margin-top: 1rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.15));
+  margin-bottom: 0.125rem;
 }
 
-/* Submenu: títulos longos em uma linha (ex.: Gravity University) */
+.mlg-nav-section-title-texto {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ws-text, #f1f5f9) 68%, var(--ws-muted, #94a3b8));
+  text-transform: none;
+  letter-spacing: 0.02em;
+  margin: 0 0 3px;
+  line-height: 1.35;
+  white-space: normal;
+  padding: 0;
+}
+
+.mlg-nav-section-label {
+  margin: 0;
+}
+
+.mlg-nav-section-subtitle {
+  font-size: 0.625rem;
+  color: var(--ws-muted, #64748b);
+  opacity: 0.58;
+  margin: 2px 0 6px;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+.mlg-nav-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.mlg-nav-section-icon {
+  margin-top: 1px;
+  color: color-mix(in srgb, var(--ws-text, #f1f5f9) 55%, var(--ws-muted, #94a3b8));
+  opacity: 0.9;
+}
+
+.mlg-nav-section-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mlg-nav-section-text .mlg-nav-section-subtitle {
+  margin-bottom: 0;
+}
+
+/* Submenu: seções alinhadas à margem dos itens (mesmo recuo horizontal) */
+.mlg-submenu .mlg-nav-section-wrap {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.mlg-submenu .mlg-nav-section-title-texto {
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  padding: 0;
+}
+
+.mlg-submenu .mlg-nav-section-subtitle {
+  padding: 0;
+}
+
 .mlg-submenu .mlg-nav-section-label {
   white-space: nowrap;
   font-size: 0.5625rem;
   letter-spacing: 0.035em;
-  padding-left: 0.5rem;
-  padding-right: 0.25rem;
+  padding: 0;
 }
 
 /* Separador vertical (usado no modo collapsed) */

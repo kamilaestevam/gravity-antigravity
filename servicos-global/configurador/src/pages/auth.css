@@ -50,8 +50,16 @@
   overflow-y: auto;
   justify-content: flex-start;
   align-items: center;
-  padding: 2rem 4rem 3rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 4rem) 3rem;
   -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+
+/* Mantem o formulario legivel em monitores largos e impede que as margens
+   laterais esmaguem os campos em notebooks menores. */
+.auth-root--cadastro > .login-global-panel > * {
+  width: min(100%, 30rem);
+  box-sizing: border-box;
 }
 
 /* ---- Left Panel — Branding ---- */
@@ -61,11 +69,26 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 4rem 6rem;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6.5vw, 6rem);
   position: relative;
-  overflow: hidden;
-  /* Opaco: sem isto o painel deixa ver o que estiver atrás (ex.: shell University). */
-  background: var(--bg-dark);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(129, 140, 248, 0.55) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.auth-brand::-webkit-scrollbar {
+  width: 6px;
+}
+
+.auth-brand::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.auth-brand::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.55);
+  border-radius: 9999px;
 }
 
 /* Dynamic Gradient Orbs */
@@ -141,7 +164,7 @@
 }
 
 .auth-headline {
-  font-size: 3.5rem;
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.04em;
@@ -248,32 +271,79 @@
 
 /* Responsivo */
 @media (max-width: 1100px) {
-  .auth-headline { font-size: 2.75rem; }
-  .auth-brand { padding: 4rem 3rem; }
+  .auth-brand {
+    flex-basis: 50%;
+    width: 50%;
+    padding-inline: 3rem;
+  }
+
+  .login-global-panel {
+    flex-basis: 50%;
+    width: 50%;
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
+  }
+}
+
+/* Notebooks e janelas largas com pouca altura: o conteudo institucional
+   ultrapassa o viewport e precisa comecar no topo para ficar todo acessivel. */
+@media (min-width: 901px) and (max-height: 850px) {
+  .auth-brand {
+    justify-content: flex-start;
+    padding-block: 2.5rem;
+  }
+
+  .auth-logo {
+    margin-bottom: 2rem;
+  }
+
+  .auth-subheadline {
+    margin-bottom: 2.5rem;
+  }
 }
 
 @media (max-width: 900px) {
   .auth-root {
     flex-direction: column;
-    height: auto;
-    max-height: none;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(129, 140, 248, 0.55) transparent;
+  }
+
+  .auth-root::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .auth-root::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .auth-root::-webkit-scrollbar-thumb {
+    background: rgba(129, 140, 248, 0.55);
+    border-radius: 9999px;
+  }
+
+  .auth-root > .login-global-panel {
+    width: 100%;
+    flex: none;
+    padding: 1.5rem clamp(1.25rem, 5vw, 2rem) 3rem;
   }
 
   .auth-root--cadastro > .login-global-panel {
-    width: 100%;
-    flex: none;
     overflow-y: visible;
-    padding: 2rem 1.5rem 3rem;
   }
 
   .auth-brand {
     width: 100%;
     flex: none;
-    padding: 3rem 2rem 1rem;
+    padding: 2rem clamp(1.25rem, 5vw, 2rem) 1rem;
     align-items: center;
     text-align: center;
   }
@@ -285,7 +355,7 @@
   }
 
   .auth-subheadline {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .auth-features {
@@ -293,6 +363,50 @@
   }
 
   .auth-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-logo .logo-global__text {
+    font-size: 1.35rem;
+  }
+
+  .auth-headline {
+    font-size: clamp(2rem, 10vw, 2.5rem);
+    margin-bottom: 1rem;
+  }
+
+  .auth-subheadline {
+    font-size: 0.9375rem;
+  }
+
+  .auth-root--cadastro > .login-global-panel {
+    padding-top: 1.25rem;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+
+  .auth-root--cadastro .login-global-header,
+  .auth-root--cadastro .login-global-footer {
+    margin-block: 0 1.5rem;
+  }
+}
+
+/* Em telas baixas o painel de marca nao deve competir com o formulario. */
+@media (max-width: 900px) and (max-height: 700px) {
+  .auth-brand {
+    padding-top: 1.25rem;
+  }
+
+  .auth-logo {
+    margin-bottom: 1rem;
+  }
+
+  .auth-subheadline {
     display: none;
   }
 }

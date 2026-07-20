@@ -353,6 +353,17 @@ th.bfs-lista-num .pds-lista-th-col-label {
   border: 1px solid color-mix(in srgb, var(--pill-cor, #94a3b8) 32%, transparent);
 }
 
+/* Coluna Status — centralizada (cabeçalho + pills) */
+.bfs-lista-tabela th.bfs-lista-col-status,
+.bfs-lista-tabela td.bfs-lista-col-status {
+  text-align: center;
+}
+
+.bfs-lista-tabela th.bfs-lista-col-status .pds-lista-th-col-label {
+  display: inline-flex;
+  justify-content: center;
+}
+
 .bfs-lista-modal {
   display: inline-flex;
   align-items: center;

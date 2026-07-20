@@ -320,27 +320,181 @@
   height: 10px !important;
 }
 
-/* BID Frete — painel cotação: rótulos pequenos (métricas hero, divisor insights, abas) */
-.interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .pcs-hero-metrica-rotulo,
-.interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .pcs-hero-metrica-rotulo-linha,
-.interactive-simulator-shell .pds-root .pcs-root .pcs-insights-divisor span,
-.interactive-simulator-shell .pds-root .pcs-root .pcs-tabs .dc-cockpit-tab {
-  font-size: 9px !important;
+/* BID Frete — painel cotação: escala tipográfica no shell marketing */
+.interactive-simulator-shell .pds-root .pcs-root {
+  --bfs-pcs-rotulo: 9px;
+  --bfs-pcs-micro: 8px;
+  --bfs-pcs-corpo: 10px;
+  --bfs-pcs-secao: 11px;
+}
+
+/* Rótulos pequenos (9px) */
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-hero-metricas .pcs-hero-metrica-rotulo,
+  .pcs-hero-metricas .pcs-hero-metrica-rotulo-linha,
+  .pcs-timeline-label,
+  .pcs-timeline-data-tag,
+  .pcs-insights-divisor span,
+  .pcs-insight-card-titulo,
+  .pcs-insight-metrica-label,
+  .pcs-insight-filtros,
+  .pcs-insight-termometro-faixa,
+  .pcs-termometro-preco-rotulo,
+  .pcs-termometro-sub,
+  .pcs-termometro-savings,
+  .pcs-termometro-contexto,
+  .pcs-termometro-filtros-secao-titulo,
+  .pcs-termometro-filtros-botao-rotulo,
+  .pcs-termometro-filtros-opcao,
+  .pcs-termometro-filtros-incoterm-chip,
+  .pcs-termometro-chart-tooltip-mes,
+  .pcs-termometro-chip-label,
+  .pcs-propostas-ordenar-label,
+  .pcs-propostas-ordenar-chip,
+  .pcs-proposta-eixos-titulo,
+  .pcs-proposta-eixo small,
+  .pcs-info-label,
+  .pcs-rota-tag,
+  .pcs-rota-codigo,
+  .pcs-dado-card-label,
+  .pcs-disparos-tabela th,
+  .pcs-disparos-status,
+  .pcs-resposta-lider,
+  .pcs-tabs .dc-cockpit-tab
+) {
+  font-size: var(--bfs-pcs-rotulo) !important;
   letter-spacing: 0.04em !important;
   font-weight: 700 !important;
   line-height: 1.15 !important;
 }
 
-.interactive-simulator-shell .pds-root .pcs-root .pcs-tabs .dc-cockpit-tab .cfg-badge-breve {
-  font-size: 8px !important;
-  font-weight: 600 !important;
+/* Micro (8px) */
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-dado-badge,
+  .pcs-tabs .dc-cockpit-tab .cfg-badge-breve,
+  .pcs-metrica-badge,
+  .pcs-prazo-chip-label
+) {
+  font-size: var(--bfs-pcs-micro) !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
 }
 
-/* BID Frete — métricas hero: valores (neutraliza regra global 12px) */
+/* Corpo / valores (10px) */
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-info-value,
+  .pcs-dado-card-valor,
+  .pcs-card-titulo,
+  .pcs-dados-secao-progresso,
+  .pcs-disparos-tabela td,
+  .pcs-disparos-busca,
+  .pcs-disparos-exportar,
+  .pcs-disparos-link,
+  .pcs-disparos-data,
+  .pcs-disparos-mudo,
+  .pcs-disparos-fornecedor,
+  .pcs-disparos-rodape,
+  .pcs-termometro-chip,
+  .pcs-termometro-chip-lista,
+  .pcs-insight-vazio,
+  .pcs-insight-vazio span,
+  .pcs-insight-vazio small,
+  .pcs-insight-preenchido strong,
+  .pcs-insight-preenchido--compacto small,
+  .pcs-insight-saving,
+  .pcs-insight-ranking-nome,
+  .pcs-insight-ranking-valor,
+  .pcs-insight-metrica strong,
+  .pcs-insight-fornecedor-nome,
+  .pcs-proposta-eixo strong,
+  .pcs-proposta-rank,
+  .pcs-proposta-card-topo strong,
+  .pcs-resposta-card-topo strong,
+  .pcs-resposta-metricas span:last-child,
+  .pcs-insights-banner-corpo p,
+  .pcs-insights-banner-corpo li,
+  .pcs-insights-banner-nota,
+  .pcs-rota-flag-chip,
+  .pcs-mercadoria-texto,
+  .pcs-respostas-vazio,
+  .pcs-btn-enviar-fornecedores,
+  .pcs-btn-aprovar,
+  .pcs-btn-aprovar--foot,
+  .pcs-termometro-chip-valor,
+  .pcs-termometro-chart-tooltip-valor,
+  .pcs-termometro-filtros-botao
+) {
+  font-size: var(--bfs-pcs-corpo) !important;
+  line-height: 1.35 !important;
+}
+
+/* Títulos de seção (11px) */
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-dados-secao-titulo,
+  .pcs-insights-banner-corpo strong,
+  .pcs-rota-cidade
+) {
+  font-size: var(--bfs-pcs-secao) !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+
+/* Destaques numéricos — preserva hierarquia */
 .interactive-simulator-shell .pds-root .pcs-root .pcs-hero-metricas .dc-competicao-seg-val {
   font-size: 17px !important;
   font-weight: 800 !important;
   line-height: 1 !important;
+}
+
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-insight-valor-hero,
+  .pcs-proposta-valor,
+  .pcs-resposta-metricas span:first-child
+) {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+}
+
+.interactive-simulator-shell .pds-root .pcs-root :is(
+  .pcs-insight-valor,
+  .pcs-termometro-valor
+) {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+}
+
+.interactive-simulator-shell .pds-root .pcs-root .pcs-termometro-valor--secundario {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* Termômetro histórico — rótulos dos eixos Y/X no SVG */
+.interactive-simulator-shell .pds-root .pcs-root .pcs-termometro-chart text {
+  font-size: var(--bfs-pcs-rotulo) !important;
+  font-weight: 600 !important;
+}
+
+/* Timeline — tags de data nas etapas concluídas (verde, paridade cockpit) */
+.interactive-simulator-shell .pds-root .pcs-root .pcs-timeline-etapa--concluida .pcs-timeline-data-tag {
+  color: #34d399 !important;
+  background: rgba(52, 211, 153, 0.1) !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+}
+
+/* Header do simulador BID Frete (painel aberto) */
+.interactive-simulator-shell .pds-root.bfs-root .sds-mtg-page-title .bfs-header-status-pill {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.15 !important;
+  padding: 0.1rem 0.45rem !important;
+}
+
+.interactive-simulator-shell .pds-root.bfs-root .pds-mtg-page-subtitulo {
+  font-size: var(--bfs-pcs-corpo) !important;
+  line-height: 1.35 !important;
 }
 
 .interactive-simulator-shell .pds-root .pds-lista-filtros-consolidados .fc-limpar-todos {

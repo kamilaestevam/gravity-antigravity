@@ -292,6 +292,20 @@ const COTACOES_POR_EMPRESA: Record<string, CotacaoSimuladorBidFrete[]> = {
       propostasRecebidas: 3, fornecedoresConvidados: 7, status: 'EM_COTACAO',
       dataCriacao: '2026-07-12', dataLimiteResposta: '2026-07-23', transitTimeDias: 33,
     }),
+    cotacao('importador-ltda', 4, {
+      numero: 'COT-20260705-5046', operacao: 'IMPORTACAO', modal: 'MARITIMO', modalidade: 'LCL',
+      origem: 'USMIA', destino: 'BRITJ', incoterm: 'FOB', equipamento: '4,8 m³ · 980 kg',
+      valorMetaUsd: 2100, melhorLanceUsd: null, fornecedorLider: null,
+      propostasRecebidas: 1, fornecedoresConvidados: 4, status: 'EM_COTACAO',
+      dataCriacao: '2026-07-05', dataLimiteResposta: '2026-07-16', transitTimeDias: null,
+    }),
+    cotacao('importador-ltda', 5, {
+      numero: 'COT-20260716-9820', operacao: 'IMPORTACAO', modal: 'MARITIMO', modalidade: 'LCL',
+      origem: 'USMIA', destino: 'BRSSZ', incoterm: 'FOB', equipamento: '5,1 m³ · 1.050 kg',
+      valorMetaUsd: 1480, melhorLanceUsd: null, fornecedorLider: null,
+      propostasRecebidas: 1, fornecedoresConvidados: 5, status: 'EM_COTACAO',
+      dataCriacao: '2026-07-16', dataLimiteResposta: '2026-07-27', transitTimeDias: null,
+    }),
   ],
   'exportador-ltda': [
     cotacao('exportador-ltda', 1, {
@@ -824,4 +838,125 @@ export function montarContextoRefinarMapaBidFrete(empresas: PerfilEmpresaSimulad
   }
 
   return { mapaBase, metadados, opcoes }
+}
+
+// ─── Rotas ativas por terminal (modal do mapa — paridade produto real) ───────
+
+export type RotaDetalheSimuladorBidFrete = {
+  fromPort: string
+  fromFlag: string
+  toPort: string
+  toFlag: string
+  mode: ModalSimuladorBidFrete
+  quantidadeCotacoes: number
+  melhorPrecoUsd: number | null
+  savingPct: number
+  transitTimeDias: number | null
+  marketTransitTimeDias: number | null
+  numeroCotacao: string | null
+  cotacao: CotacaoSimuladorBidFrete | null
+}
+
+export function formatarTerminalMapaBidFreteSimulador(porto: PortoSimuladorBidFrete): string {
+  return `${porto.pais} ${porto.cidade} (${porto.codigo})`
+}
+
+function formatarTerminalPinMapaBidFrete(pin: PinMapaSimuladorPedido): string {
+  return formatarTerminalMapaBidFreteSimulador({
+    codigo: pin.portCode,
+    cidade: pin.label,
+    pais: pin.country,
+    flag: pin.flag,
+    lat: pin.geoLat,
+    lng: pin.geoLng,
+  })
+}
+
+function escolherMelhorCotacaoRotaBidFrete(
+  grupo: CotacaoSimuladorBidFrete[],
+): CotacaoSimuladorBidFrete | null {
+  const comLance = grupo.filter((c) => c.melhorLanceUsd != null)
+  if (comLance.length === 0) return null
+  return comLance.reduce<CotacaoSimuladorBidFrete | null>((acc, c) => {
+    if (!acc) return c
+    if (c.status === 'AGUARDANDO_APROVACAO' && acc.status !== 'AGUARDANDO_APROVACAO') return c
+    if (acc.status === 'AGUARDANDO_APROVACAO' && c.status !== 'AGUARDANDO_APROVACAO') return acc
+    if ((c.melhorLanceUsd ?? 0) < (acc.melhorLanceUsd ?? 0)) return c
+    return acc
+  }, null)
+}
+
+export function montarRotasDetalhePorPinoBidFrete(
+  empresas: PerfilEmpresaSimulador[],
+): Record<number, RotaDetalheSimuladorBidFrete[]> {
+  const cotacoes = listarCotacoesEmpresasSimuladorBidFrete(empresas)
+  const mapa = montarMapaBidFreteEmpresasSimulador(empresas)
+  const pinPorCodigo = new Map(mapa.pins.map((p) => [p.portCode, p]))
+  const gruposPorPin = new Map<
+    string,
+    { pinAtual: PinMapaSimuladorPedido; outroPin: PinMapaSimuladorPedido; cotacoes: CotacaoSimuladorBidFrete[] }
+  >()
+
+  for (const c of cotacoes) {
+    const fromPin = pinPorCodigo.get(c.origem.codigo)
+    const toPin = pinPorCodigo.get(c.destino.codigo)
+    if (!fromPin || !toPin) continue
+
+    for (const [pinAtual, outroPin] of [
+      [fromPin, toPin] as const,
+      [toPin, fromPin] as const,
+    ]) {
+      const chave = `${pinAtual.id}|${outroPin.id}|${c.modal}`
+      const atual = gruposPorPin.get(chave)
+      if (atual) {
+        if (!atual.cotacoes.some((item) => item.numero === c.numero)) {
+          atual.cotacoes.push(c)
+        }
+      } else {
+        gruposPorPin.set(chave, { pinAtual, outroPin, cotacoes: [c] })
+      }
+    }
+  }
+
+  const resultado: Record<number, RotaDetalheSimuladorBidFrete[]> = {}
+
+  for (const { pinAtual, outroPin, cotacoes: grupo } of gruposPorPin.values()) {
+    const melhor = escolherMelhorCotacaoRotaBidFrete(grupo)
+    const referencia = melhor ?? grupo[0]
+    const saving = melhor ? savingsCotacaoSimuladorBidFrete(melhor) : null
+    const savingPct =
+      saving != null && melhor && melhor.valorMetaUsd > 0
+        ? Math.round((saving / melhor.valorMetaUsd) * 100)
+        : 0
+
+    const transits = grupo.map((item) => item.transitTimeDias).filter((t): t is number => t != null)
+    const marketTransit =
+      transits.length > 0
+        ? Math.round(transits.reduce((a, b) => a + b, 0) / transits.length)
+        : null
+
+    const rota: RotaDetalheSimuladorBidFrete = {
+      fromPort: formatarTerminalPinMapaBidFrete(pinAtual),
+      fromFlag: pinAtual.flag,
+      toPort: formatarTerminalPinMapaBidFrete(outroPin),
+      toFlag: outroPin.flag,
+      mode: referencia.modal,
+      quantidadeCotacoes: grupo.length,
+      melhorPrecoUsd: melhor?.melhorLanceUsd ?? null,
+      savingPct,
+      transitTimeDias: melhor?.transitTimeDias ?? referencia.transitTimeDias,
+      marketTransitTimeDias: marketTransit,
+      numeroCotacao: melhor?.numero ?? referencia.numero,
+      cotacao: melhor ?? referencia,
+    }
+
+    if (!resultado[pinAtual.id]) resultado[pinAtual.id] = []
+    resultado[pinAtual.id].push(rota)
+  }
+
+  for (const pinId of Object.keys(resultado)) {
+    resultado[Number(pinId)].sort((a, b) => a.toPort.localeCompare(b.toPort, 'pt-BR'))
+  }
+
+  return resultado
 }

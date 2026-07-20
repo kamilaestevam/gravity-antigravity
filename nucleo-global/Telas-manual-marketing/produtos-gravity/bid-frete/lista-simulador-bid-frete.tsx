@@ -85,6 +85,12 @@ type Props = {
 
 type ColunaListaBidFrete = { id: string; label: string; numerica?: boolean }
 
+function classeCelulaColunaLista(col: ColunaListaBidFrete): string | undefined {
+  if (col.numerica) return 'bfs-lista-num'
+  if (col.id === 'status') return 'bfs-lista-col-status'
+  return undefined
+}
+
 const COLUNAS_INICIAIS_BID: ColunaListaBidFrete[] = [
   { id: 'numero', label: 'Nº Cotação' },
   { id: 'status', label: 'Status' },
@@ -1157,9 +1163,10 @@ export function ListaSimuladorBidFrete({
                       key={col.id}
                       title={col.label}
                       draggable
+                      data-pds-coluna-id={col.id}
                       className={[
                         'pds-lista-th-col',
-                        col.numerica ? 'bfs-lista-num' : '',
+                        classeCelulaColunaLista(col) ?? '',
                         arrastando ? 'pds-lista-th-col--arrastando' : '',
                         classeDropColuna(col.id),
                       ].filter(Boolean).join(' ')}
@@ -1212,7 +1219,7 @@ export function ListaSimuladorBidFrete({
                           />
                         </td>
                         {colunas.map((col) => (
-                          <td key={col.id} className={col.numerica ? 'bfs-lista-num' : undefined}>
+                          <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                             {renderCelulaBid(col.id, bid)}
                           </td>
                         ))}
@@ -1239,7 +1246,7 @@ export function ListaSimuladorBidFrete({
                             />
                           </td>
                           {colunas.map((col) => (
-                            <td key={col.id} className={col.numerica ? 'bfs-lista-num' : undefined}>
+                            <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                               {renderCelula(col.id, c)}
                             </td>
                           ))}
@@ -1270,7 +1277,7 @@ export function ListaSimuladorBidFrete({
                       />
                     </td>
                     {colunas.map((col) => (
-                      <td key={col.id} className={col.numerica ? 'bfs-lista-num' : undefined}>
+                      <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                         {renderCelula(col.id, c)}
                       </td>
                     ))}

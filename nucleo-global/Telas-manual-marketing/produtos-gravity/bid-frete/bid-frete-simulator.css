@@ -65,3 +65,8 @@
   flex-wrap: wrap;
   gap: 0.25rem;
 }
+
+/* Painel da cotação — bloco título (voltar + ícone + título + subtítulo) */
+.bfs-root .sds-mtg-page-header.bfs-header-painel-cotacao {
+  transform: translateY(10px);
+}

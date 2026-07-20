@@ -34,6 +34,8 @@ type Props = {
   filtros: FiltrosRefinarMapaSimuladorPedido
   onFiltrosChange: (filtros: FiltrosRefinarMapaSimuladorPedido) => void
   variantePainel?: 'card' | 'tela-cheia'
+  rotuloExportadores?: string
+  rotuloImportadores?: string
 }
 
 function clonarFiltros(filtros: FiltrosRefinarMapaSimuladorPedido): FiltrosRefinarMapaSimuladorPedido {
@@ -121,6 +123,8 @@ export function RefinarMapaSimuladorPedido({
   filtros,
   onFiltrosChange,
   variantePainel = 'card',
+  rotuloExportadores = 'Exportadores',
+  rotuloImportadores = 'Importadores',
 }: Props) {
   const [expandido, setExpandido] = useState(true)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<SecaoRefinarMapaSimuladorPedido>>(
@@ -269,7 +273,7 @@ export function RefinarMapaSimuladorPedido({
           <button
             type="button"
             className={`pds-map-refinar-rail__btn${exportadorAtivos < opcoes.exportadores.length ? ' is-active' : ''}`}
-            title="Exportadores"
+            title={rotuloExportadores}
             onClick={() => expandirComSecao('exportadores')}
           >
             <Factory size={18} weight="duotone" />
@@ -277,7 +281,7 @@ export function RefinarMapaSimuladorPedido({
           <button
             type="button"
             className={`pds-map-refinar-rail__btn${importadorAtivos < opcoes.importadores.length ? ' is-active' : ''}`}
-            title="Importadores"
+            title={rotuloImportadores}
             onClick={() => expandirComSecao('importadores')}
           >
             <Buildings size={18} weight="duotone" />
@@ -515,7 +519,7 @@ export function RefinarMapaSimuladorPedido({
 
             <SecaoRefinarMapa
               id="exportadores"
-              titulo="Exportadores"
+              titulo={rotuloExportadores}
               icone={<Factory size={16} weight="duotone" />}
               ativos={exportadorAtivos}
               total={opcoes.exportadores.length}
@@ -543,7 +547,7 @@ export function RefinarMapaSimuladorPedido({
 
             <SecaoRefinarMapa
               id="importadores"
-              titulo="Importadores"
+              titulo={rotuloImportadores}
               icone={<Buildings size={16} weight="duotone" />}
               ativos={importadorAtivos}
               total={opcoes.importadores.length}

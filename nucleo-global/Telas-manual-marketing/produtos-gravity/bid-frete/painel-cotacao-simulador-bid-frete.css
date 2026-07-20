@@ -282,6 +282,7 @@
   background: rgba(71, 85, 105, 0.4);
   overflow: hidden;
   margin-bottom: 0.42rem;
+  transform: translateY(8px);
 }
 
 .pcs-timeline-track-fill {
@@ -303,7 +304,8 @@
   align-items: flex-end;
   gap: 0.08rem;
   width: 100%;
-  margin-top: 1px;
+  margin-top: 3.5px;
+  transform: translateY(6px);
 }
 
 .pcs-timeline-etapa {
@@ -1461,6 +1463,25 @@
   padding: 0.35rem 0.65rem;
   font-size: 0.68rem;
   white-space: nowrap;
+  transform: translateY(3px);
+}
+
+.pcs-btn-aprovar--ativo {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.pcs-btn-aprovar--ativo:hover {
+  background: rgba(52, 211, 153, 0.22);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+
+.pcs-faixa-aprovada-demo .dc-smart-faixa-aprovada-tag-pendente {
+  transform: translateY(3px);
+}
+
+.pcs-faixa-tag-pendente-tooltip {
+  cursor: help;
 }
 
 .pcs-btn-aprovar--card {
@@ -1486,7 +1507,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.7rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .pcs-card {
@@ -1507,6 +1528,11 @@
 
 .pcs-card--rota {
   border-top-color: #22d3ee;
+}
+
+.pcs-card--rota .pcs-rota-visual {
+  flex: 1;
+  min-height: 0;
 }
 
 .pcs-card--carga {
@@ -1571,6 +1597,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
   padding: 0.7rem 0.5rem;
   border-radius: 10px;

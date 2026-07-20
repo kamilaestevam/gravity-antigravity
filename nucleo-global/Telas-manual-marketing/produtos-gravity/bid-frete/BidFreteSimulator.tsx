@@ -126,6 +126,8 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
   const [modalNovaCotacaoAberto, setModalNovaCotacaoAberto] = useState(false)
   const [cotacoesCriadas, setCotacoesCriadas] = useState<CotacaoSimuladorBidFrete[]>([])
   const [painelCotacao, setPainelCotacao] = useState<DadosPainelCotacaoSimulador | null>(null)
+  /** Aba em que o usuário estava antes de abrir o painel da cotação. */
+  const [abaRetornoPainel, setAbaRetornoPainel] = useState<AbaVisualizacao>('insights')
   /** Painéis das cotações criadas na demo, por número — link de acesso na Lista. */
   const [paineisCriados, setPaineisCriados] = useState<Record<string, DadosPainelCotacaoSimulador>>({})
 
@@ -157,11 +159,16 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
     ? STATUS_SIMULADOR_BID_FRETE[painelCotacao.cotacao.status]
     : null
 
-  function voltarDoPainelParaLista() {
+  function voltarDoPainel() {
     const numero = painelCotacao?.cotacao.numero ?? null
+    const destino = abaRetornoPainel
     setPainelCotacao(null)
-    setCotacaoFocoLista(numero)
-    setAbaAtiva('lista')
+    if (destino === 'lista') {
+      setCotacaoFocoLista(numero)
+    } else {
+      setCotacaoFocoLista(null)
+    }
+    setAbaAtiva(destino)
   }
 
   function alternarEmpresaEscopo(id: IdEmpresa) {
@@ -172,6 +179,24 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
       }
       return [...atual, id]
     })
+  }
+
+  function abrirPainelCotacaoDemo(
+    cotacao: CotacaoSimuladorBidFrete,
+    retorno: AbaVisualizacao = abaAtiva,
+  ) {
+    setAbaRetornoPainel(retorno)
+    const criado = paineisCriados[cotacao.numero]
+    const demo = montarPainelDemoCotacaoSimulador(cotacao)
+    const dados = criado
+      ? {
+          ...demo,
+          ...criado,
+          cotacao,
+          fornecedoresConvidados: demo.fornecedoresConvidados,
+        }
+      : demo
+    setPainelCotacao(dados)
   }
 
   return (
@@ -220,13 +245,19 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
           <div className="sds-main-header">
             <header className="sds-mtg-header" role="banner">
               <div className="sds-mtg-left">
-                <div className="sds-mtg-page-header">
+                <div className={`sds-mtg-page-header${painelCotacao ? ' bfs-header-painel-cotacao' : ''}`}>
                   {painelCotacao ? (
                     <button
                       type="button"
                       className="bfs-header-voltar"
-                      onClick={voltarDoPainelParaLista}
-                      aria-label="Voltar à Lista"
+                      onClick={voltarDoPainel}
+                      aria-label={
+                        abaRetornoPainel === 'lista'
+                          ? 'Voltar à Lista'
+                          : abaRetornoPainel === 'insights'
+                            ? 'Voltar aos Insights'
+                            : `Voltar ao ${ABAS.find((item) => item.aba === abaRetornoPainel)?.label ?? 'início'}`
+                      }
                     >
                       <CaretLeft size={15} weight="bold" />
                     </button>
@@ -343,9 +374,23 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
               <PainelCotacaoSimuladorBidFrete
                 key={painelCotacao.cotacao.numero}
                 dados={painelCotacao}
+                onAtualizarDados={(dadosAtualizados) => {
+                  setPainelCotacao(dadosAtualizados)
+                  setPaineisCriados((atual) => ({
+                    ...atual,
+                    [dadosAtualizados.cotacao.numero]: dadosAtualizados,
+                  }))
+                }}
+                onAposAprovacao={() => {
+                  setPainelCotacao(null)
+                  setAbaAtiva('insights')
+                }}
               />
             ) : abaAtiva === 'insights' ? (
-              <InsightsSimuladorBidFrete empresasSelecionadas={empresasSelecionadas} />
+              <InsightsSimuladorBidFrete
+                empresasSelecionadas={empresasSelecionadas}
+                onAbrirPainelCotacao={(cotacao) => abrirPainelCotacaoDemo(cotacao, 'insights')}
+              />
             ) : abaAtiva === 'lista' ? (
               <ListaSimuladorBidFrete
                 empresasSelecionadas={empresasSelecionadas}
@@ -353,19 +398,7 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
                 onConsumirFoco={() => setCotacaoFocoLista(null)}
                 cotacoesCriadas={cotacoesCriadas}
                 onAbrirNovaCotacaoManual={() => setModalNovaCotacaoAberto(true)}
-                onAbrirPainelCotacao={(cotacao) => {
-                  const criado = paineisCriados[cotacao.numero]
-                  const demo = montarPainelDemoCotacaoSimulador(cotacao)
-                  const dados = criado
-                    ? {
-                        ...demo,
-                        ...criado,
-                        cotacao,
-                        fornecedoresConvidados: demo.fornecedoresConvidados,
-                      }
-                    : demo
-                  setPainelCotacao(dados)
-                }}
+                onAbrirPainelCotacao={(cotacao) => abrirPainelCotacaoDemo(cotacao, 'lista')}
               />
             ) : abaAtiva === 'dashboard' ? (
               <DashboardSimuladorBidFrete empresasSelecionadas={empresasSelecionadas} />
@@ -392,7 +425,10 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
           setCotacaoFocoLista(numeroCotacao)
           setAbaAtiva('lista')
         }}
-        onAbrirPainelCotacao={(dados) => setPainelCotacao(dados)}
+        onAbrirPainelCotacao={(dados) => {
+          setAbaRetornoPainel(abaAtiva)
+          setPainelCotacao(dados)
+        }}
         onRegistrarPainelCotacao={(dados) => {
           setPaineisCriados((atual) => ({ ...atual, [dados.cotacao.numero]: dados }))
         }}

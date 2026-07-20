@@ -4,7 +4,7 @@
  * global de cotações, alertas, funil, gráficos e câmbio do dia.
  */
 
-import { useMemo, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { CurrencyDollar, Envelope, Timer, TrendDown, TrendUp, Trophy, Warning } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '../../../Layout/card-global/src/index'
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
@@ -26,6 +26,7 @@ import {
   formatarUsdSimuladorBidFrete,
   listarCotacoesEmpresasSimuladorBidFrete,
   montarContextoRefinarMapaBidFrete,
+  montarRotasDetalhePorPinoBidFrete,
   TITULO_KPI_AGUARDANDO_APROVACAO_BID_FRETE,
   TITULO_KPI_AGUARDANDO_RESPOSTA_BID_FRETE,
   TITULO_KPI_TEMPO_MEDIO_RESPOSTA_BID_FRETE,
@@ -34,9 +35,11 @@ import {
 } from './dados-simulador-bid-frete'
 import '../pedido/insights-simulador-pedido.css'
 import './insights-simulador-bid-frete.css'
+import { ModalRotasAtivasSimuladorBidFrete } from './modal-rotas-ativas-simulador-bid-frete'
 
 type Props = {
   empresasSelecionadas: PerfilEmpresaSimulador[]
+  onAbrirPainelCotacao?: (cotacao: CotacaoSimuladorBidFrete) => void
 }
 
 function contagemModalTooltip(cotacoes: CotacaoSimuladorBidFrete[], modal: string): number {
@@ -142,7 +145,12 @@ function TooltipKpiCotacoes({ resumo, cotacoes, rotuloColunaData }: {
   )
 }
 
-export function InsightsSimuladorBidFrete({ empresasSelecionadas }: Props) {
+export function InsightsSimuladorBidFrete({
+  empresasSelecionadas,
+  onAbrirPainelCotacao,
+}: Props) {
+  const [pinSelecionadoId, setPinSelecionadoId] = useState<number | null>(null)
+
   const insights = useMemo(
     () => agregarInsightsBidFreteEmpresasSimulador(empresasSelecionadas),
     [empresasSelecionadas],
@@ -151,6 +159,14 @@ export function InsightsSimuladorBidFrete({ empresasSelecionadas }: Props) {
     () => montarContextoRefinarMapaBidFrete(empresasSelecionadas),
     [empresasSelecionadas],
   )
+  const rotasPorPino = useMemo(
+    () => montarRotasDetalhePorPinoBidFrete(empresasSelecionadas),
+    [empresasSelecionadas],
+  )
+  const pinSelecionado = useMemo(() => {
+    if (pinSelecionadoId == null) return null
+    return contextoMapa.mapaBase.pins.find((pin) => pin.id === pinSelecionadoId) ?? null
+  }, [contextoMapa.mapaBase.pins, pinSelecionadoId])
 
   // Rankings globais por terminal (origens/destinos) e por modal — como no real
   const rankings = useMemo(() => {
@@ -289,8 +305,20 @@ export function InsightsSimuladorBidFrete({ empresasSelecionadas }: Props) {
           }}
           rotuloExportadoresRefinar="Fornecedores"
           rotuloImportadoresRefinar="Workspaces"
+          onPinClick={setPinSelecionadoId}
         />
       </div>
+
+      <ModalRotasAtivasSimuladorBidFrete
+        aberto={pinSelecionado != null}
+        pin={pinSelecionado}
+        rotas={pinSelecionadoId != null ? rotasPorPino[pinSelecionadoId] ?? [] : []}
+        onFechar={() => setPinSelecionadoId(null)}
+        onAbrirCotacao={(cotacao) => {
+          setPinSelecionadoId(null)
+          onAbrirPainelCotacao?.(cotacao)
+        }}
+      />
 
       {/* Rankings Globais + Alertas / Funil — abaixo do mapa, como no real */}
       <div className="bfs-insights-rankings-row">

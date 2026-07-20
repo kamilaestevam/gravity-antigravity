@@ -1,0 +1,306 @@
+/* Modal Rotas Ativas — paridade bid-frete-visao-geral-mapa.css */
+
+.dialogo-cotacao-resumida-bid-frete-internacional-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 18, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: bfsModalRotasFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 1rem;
+}
+
+@keyframes bfsModalRotasFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-card {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: bfsModalRotasSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bfsModalRotasSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-flag-large {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-subtitle {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-top: 0.15rem;
+  display: block;
+  font-weight: 500;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.bfs-modal-rotas__vazio {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.bfd-route-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex-shrink: 0;
+}
+
+.bfd-route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bfd-route-ports {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bfd-route-port-flag {
+  font-size: 1.15rem;
+}
+
+.bfd-route-port-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bfd-route-arrow-icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.bfd-route-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bfd-route-badge--maritimo {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.bfd-route-badge--aereo {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.bfd-route-svg-container {
+  margin: 0.25rem 0;
+  width: 100%;
+  height: 30px;
+}
+
+.bfd-route-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.bfd-route-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.bfd-route-stat-label {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bfd-route-stat-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bfs-modal-rotas__benchmark-indisponivel {
+  margin: 0;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.bfs-modal-rotas__benchmark {
+  margin-top: 0.25rem;
+}
+
+.bfs-modal-rotas__benchmark-titulo {
+  display: block;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  margin-bottom: 0.35rem;
+}
+
+.bfs-modal-rotas__benchmark-barra {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bfs-modal-rotas__benchmark-barra > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.bfs-modal-rotas__benchmark-legenda {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  color: #cbd5e1;
+}
+
+.bfs-modal-rotas__benchmark-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.62rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.bfs-modal-rotas__rodape-cotacao {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: 0.5rem;
+  gap: 0.5rem;
+}
+
+.bfs-modal-rotas__btn-abrir {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.02em;
+  border: 1px solid;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(11, 15, 28, 0.5);
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-close-action {
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialogo-cotacao-resumida-bid-frete-internacional-close-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}

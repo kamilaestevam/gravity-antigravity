@@ -60,6 +60,10 @@ import {
 import '@produto/bid-frete-internacional/client/src/pages/cotacao-detalhe-cockpit.css'
 import './painel-cotacao-simulador-bid-frete.css'
 import {
+  ModalAprovarSimuladorBidFrete,
+  type PropostaAprovacaoSimulador,
+} from './modal-aprovar-simulador-bid-frete'
+import {
   SparkBarrasComparativo,
 } from '@produto/bid-frete-internacional/client/src/shared/graficos-insights-cotacao-bid-frete-internacional'
 import {
@@ -90,6 +94,10 @@ export type DadosPainelCotacaoSimulador = {
   tipoContainer: string
   prazoHora: string
   fornecedoresConvidados: { id: string; nome: string }[]
+  /** Preenchido após aprovação na demo */
+  fornecedorAprovado?: string
+  dataAprovacaoIso?: string
+  aguardandoAceiteFornecedor?: boolean
 }
 
 type AbaPainel = 'visao_geral' | 'dados_gerais' | 'disparos' | 'respostas'
@@ -200,8 +208,36 @@ const INDICE_ETAPA_POR_STATUS: Record<CotacaoSimuladorBidFrete['status'], number
   ENVIADA_FORNECEDORES: 1,
   EM_COTACAO: 2,
   AGUARDANDO_APROVACAO: 3,
-  APROVADA: 5,
+  APROVADA: 4,
   REPROVADA: 3,
+}
+
+function resolverIndiceEtapaTimeline(
+  cotacao: CotacaoSimuladorBidFrete,
+  aguardandoAceiteFornecedor: boolean,
+): number {
+  if (cotacao.status === 'APROVADA') {
+    return aguardandoAceiteFornecedor ? 4 : 5
+  }
+  return INDICE_ETAPA_POR_STATUS[cotacao.status] ?? 1
+}
+
+function resolverLabelEtapaTimeline(
+  indice: number,
+  labelPadrao: string,
+  cotacao: CotacaoSimuladorBidFrete,
+  indiceAtual: number,
+  aguardandoAceiteFornecedor: boolean,
+): string {
+  if (
+    indice === 4
+    && cotacao.status === 'APROVADA'
+    && indiceAtual === 4
+    && aguardandoAceiteFornecedor
+  ) {
+    return 'Aguard. fornecedor'
+  }
+  return labelPadrao
 }
 
 function resolverRecusasDemo(cotacao: CotacaoSimuladorBidFrete): number {
@@ -300,6 +336,15 @@ function formatarDataCurta(iso: string): string {
   return `${dia}/${mes}/${ano}`
 }
 
+function resolverDataTagEtapaFluxoDemo(
+  concluida: boolean,
+  atual: boolean,
+  dataCriacaoTag: string,
+): string | null {
+  if (concluida || atual) return dataCriacaoTag
+  return null
+}
+
 function formatarDataHora(iso: string): string {
   const d = new Date(iso)
   const data = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -389,26 +434,141 @@ function BotaoDemoDesativado({
   )
 }
 
+function BotaoAprovar({
+  className,
+  onClick,
+  children,
+}: {
+  className: string
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button type="button" className={`pcs-btn-aprovar pcs-btn-aprovar--ativo ${className}`} onClick={onClick}>
+      {children}
+    </button>
+  )
+}
+
 // ─── Componente ───────────────────────────────────────────────────────────────
+
+function FaixaAprovadaPainelDemo({
+  cotacao,
+  fornecedor,
+  dataAprovacaoIso,
+  aguardandoAceiteFornecedor,
+}: {
+  cotacao: CotacaoSimuladorBidFrete
+  fornecedor: string
+  dataAprovacaoIso?: string
+  aguardandoAceiteFornecedor: boolean
+}) {
+  const valor = cotacao.melhorLanceUsd != null ? formatarUsdSimuladorBidFrete(cotacao.melhorLanceUsd) : '—'
+  const dataAprovacao = dataAprovacaoIso ? formatarDataCurta(dataAprovacaoIso) : '—'
+
+  return (
+    <div className="dc-smart-faixa-aprovada pcs-faixa-aprovada-demo" role="status">
+      <div className="dc-smart-faixa-aprovada-cabecalho">
+        <CheckCircle weight="fill" size={20} className="dc-smart-faixa-aprovada-icone" aria-hidden />
+        <div className="dc-smart-faixa-aprovada-cabecalho-texto">
+          <div className="dc-smart-faixa-aprovada-titulo-linha">
+            <span className="dc-smart-faixa-aprovada-titulo">Aprovada</span>
+            {aguardandoAceiteFornecedor ? (
+              <TooltipGlobal
+                titulo="Aguardando fornecedor concordar"
+                descricao="Assim que o fornecedor aprovar, a cotação fica aprovada sem essa etiqueta"
+                posicaoPreferida="abaixo"
+              >
+                <span className="dc-smart-faixa-aprovada-tag-pendente pcs-faixa-tag-pendente-tooltip">
+                  Aguardando fornecedor concordar
+                </span>
+              </TooltipGlobal>
+            ) : null}
+          </div>
+          {aguardandoAceiteFornecedor ? (
+            <span className="dc-smart-faixa-aprovada-subtitulo">
+              {fornecedor} ainda precisa aceitar a aprovação no e-mail.
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <dl className="dc-smart-faixa-aprovada-grid">
+        <div className="dc-smart-faixa-aprovada-item dc-smart-faixa-aprovada-item--destaque">
+          <dt className="dc-smart-faixa-aprovada-label">Valor aprovado</dt>
+          <dd className="dc-smart-faixa-aprovada-valor">{valor}</dd>
+        </div>
+        <div className="dc-smart-faixa-aprovada-item">
+          <dt className="dc-smart-faixa-aprovada-label">Data da aprovação</dt>
+          <dd className="dc-smart-faixa-aprovada-valor">{dataAprovacao}</dd>
+        </div>
+        <div className="dc-smart-faixa-aprovada-item">
+          <dt className="dc-smart-faixa-aprovada-label">Ganhador</dt>
+          <dd className="dc-smart-faixa-aprovada-valor">{fornecedor}</dd>
+        </div>
+        <div className="dc-smart-faixa-aprovada-item">
+          <dt className="dc-smart-faixa-aprovada-label">Quem aprovou</dt>
+          <dd className="dc-smart-faixa-aprovada-valor">Demo Gravity</dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
 
 export function PainelCotacaoSimuladorBidFrete({
   dados,
+  onAtualizarDados,
+  onAposAprovacao,
 }: {
   dados: DadosPainelCotacaoSimulador
+  onAtualizarDados?: (dados: DadosPainelCotacaoSimulador) => void
+  onAposAprovacao?: () => void
 }) {
   const { cotacao } = dados
   const [aba, setAba] = useState<AbaPainel>('visao_geral')
+  const [modalAprovarAberto, setModalAprovarAberto] = useState(false)
+  const [propostaAprovar, setPropostaAprovar] = useState<PropostaAprovacaoSimulador | null>(null)
   const convidados = dados.fornecedoresConvidados
   const dataCriacaoTag = formatarDataCurta(cotacao.dataCriacao)
+  const dataAprovacaoTag = dados.dataAprovacaoIso ? formatarDataCurta(dados.dataAprovacaoIso) : dataCriacaoTag
   const dataEnvio = formatarDataHora(dados.criadaEmIso)
-  const indiceEtapaAtual = INDICE_ETAPA_POR_STATUS[cotacao.status] ?? 1
+  const aguardandoAceiteFornecedor = dados.aguardandoAceiteFornecedor ?? cotacao.status === 'APROVADA'
+  const indiceEtapaAtual = resolverIndiceEtapaTimeline(cotacao, aguardandoAceiteFornecedor)
   const ehRascunho = cotacao.status === 'RASCUNHO'
   const ehReprovada = cotacao.status === 'REPROVADA'
+  const ehAprovada = cotacao.status === 'APROVADA'
   const ehAguardandoAprovacao = cotacao.status === 'AGUARDANDO_APROVACAO'
   const recusas = resolverRecusasDemo(cotacao)
   const banner = resolverBannerInsights(cotacao, convidados.length)
   const exibirAcoesHero = ehRascunho
   const qtdDisparos = ehRascunho ? 0 : Math.max(convidados.length, cotacao.fornecedoresConvidados)
+  const savingUsd = savingsCotacaoSimuladorBidFrete(cotacao)
+  const savingPct =
+    savingUsd != null && cotacao.valorMetaUsd > 0
+      ? (savingUsd / cotacao.valorMetaUsd) * 100
+      : null
+
+  const abrirModalAprovar = useCallback((proposta: PropostaAprovacaoSimulador) => {
+    setPropostaAprovar(proposta)
+    setModalAprovarAberto(true)
+  }, [])
+
+  const confirmarAprovacaoDemo = useCallback(() => {
+    if (!propostaAprovar) return
+    const agora = new Date().toISOString()
+    const dadosAtualizados: DadosPainelCotacaoSimulador = {
+      ...dados,
+      cotacao: {
+        ...cotacao,
+        status: 'APROVADA',
+        fornecedorLider: propostaAprovar.fornecedor,
+        melhorLanceUsd: propostaAprovar.valorUsd,
+      },
+      fornecedorAprovado: propostaAprovar.fornecedor,
+      dataAprovacaoIso: agora,
+      aguardandoAceiteFornecedor: true,
+    }
+    onAtualizarDados?.(dadosAtualizados)
+  }, [cotacao, dados, onAtualizarDados, propostaAprovar])
 
   return (
     <div className="pcs-root">
@@ -449,6 +609,7 @@ export function PainelCotacaoSimuladorBidFrete({
             'pcs-hero-card pcs-hero-timeline',
             ehReprovada ? 'pcs-hero-timeline--reprovada' : '',
             ehAguardandoAprovacao ? 'pcs-hero-timeline--aprovacao' : '',
+            ehAprovada ? 'pcs-hero-timeline--aprovada' : '',
           ].filter(Boolean).join(' ')}
           aria-label="Status"
         >
@@ -462,6 +623,11 @@ export function PainelCotacaoSimuladorBidFrete({
             {ETAPAS_FLUXO.map((etapa, i) => {
               const concluida = i < indiceEtapaAtual
               const atual = i === indiceEtapaAtual
+              const dataTag = resolverDataTagEtapaFluxoDemo(
+                concluida,
+                atual,
+                ehAprovada && i === 3 ? dataAprovacaoTag : dataCriacaoTag,
+              )
               return (
                 <div
                   key={etapa.label}
@@ -474,13 +640,23 @@ export function PainelCotacaoSimuladorBidFrete({
                     atual && !ehReprovada && !ehAguardandoAprovacao ? 'pcs-timeline-etapa--atual' : '',
                   ].filter(Boolean).join(' ')}
                 >
-                  <span className="pcs-timeline-node" aria-hidden>{etapa.icone}</span>
-                  <span className="pcs-timeline-label">
-                    {ehReprovada && atual ? 'Reprovada' : etapa.label}
+                  <span className="pcs-timeline-node" aria-hidden>
+                    {concluida ? <CheckCircle weight="fill" size={14} /> : etapa.icone}
                   </span>
-                  {atual && (
-                    <span className="pcs-timeline-data-tag">{dataCriacaoTag}</span>
-                  )}
+                  <span className="pcs-timeline-label">
+                    {ehReprovada && atual
+                      ? 'Reprovada'
+                      : resolverLabelEtapaTimeline(
+                          i,
+                          etapa.label,
+                          cotacao,
+                          indiceEtapaAtual,
+                          aguardandoAceiteFornecedor,
+                        )}
+                  </span>
+                  {dataTag ? (
+                    <span className="pcs-timeline-data-tag">{dataTag}</span>
+                  ) : null}
                 </div>
               )
             })}
@@ -504,6 +680,14 @@ export function PainelCotacaoSimuladorBidFrete({
       <div className="pcs-insights-divisor" aria-hidden>
         <span>Painel de Insights Inteligente</span>
       </div>
+      {ehAprovada ? (
+        <FaixaAprovadaPainelDemo
+          cotacao={cotacao}
+          fornecedor={dados.fornecedorAprovado ?? cotacao.fornecedorLider ?? '—'}
+          dataAprovacaoIso={dados.dataAprovacaoIso}
+          aguardandoAceiteFornecedor={aguardandoAceiteFornecedor}
+        />
+      ) : null}
       {banner ? (
         <div className={banner.classe} role="status">
         <span className="pcs-insights-banner-icone" aria-hidden>
@@ -528,7 +712,11 @@ export function PainelCotacaoSimuladorBidFrete({
         </div>
       </div>
       ) : null}
-      <InsightsGridPainel cotacao={cotacao} convidados={convidados} />
+      <InsightsGridPainel
+        cotacao={cotacao}
+        convidados={convidados}
+        onAprovar={ehAguardandoAprovacao ? abrirModalAprovar : undefined}
+      />
 
       {/* ── Abas do cockpit ── */}
       <nav className="dc-cockpit-tabs pcs-tabs" aria-label="Abas">
@@ -574,8 +762,27 @@ export function PainelCotacaoSimuladorBidFrete({
       {aba === 'dados_gerais' && <AbaDadosGerais dados={dados} dataEnvio={dataEnvio} />}
       {aba === 'disparos' && <AbaSolicitacaoCotacao dados={dados} dataEnvio={dataEnvio} />}
       {aba === 'respostas' && (
-        <AbaRespostasPainel cotacao={cotacao} convidados={convidados} />
+        <AbaRespostasPainel
+          cotacao={cotacao}
+          convidados={convidados}
+          onAprovar={ehAguardandoAprovacao ? abrirModalAprovar : undefined}
+        />
       )}
+
+      <ModalAprovarSimuladorBidFrete
+        aberto={modalAprovarAberto}
+        proposta={propostaAprovar}
+        savingUsd={savingUsd}
+        savingPct={savingPct}
+        onFechar={() => {
+          setModalAprovarAberto(false)
+          setPropostaAprovar(null)
+        }}
+        onConfirmar={() => {
+          confirmarAprovacaoDemo()
+          onAposAprovacao?.()
+        }}
+      />
     </div>
   )
 }
@@ -591,6 +798,16 @@ type PropostaDemoPainel = {
   colocacaoFrete: string
   colocacaoTransit: string
   colocacaoEscala: string
+}
+
+function propostaParaAprovacao(proposta: PropostaDemoPainel): PropostaAprovacaoSimulador {
+  return {
+    fornecedor: proposta.fornecedor,
+    valorUsd: proposta.valorUsd,
+    transitDias: proposta.transitDias,
+    freeTimeDias: proposta.freeTimeDias,
+    escala: proposta.escala,
+  }
 }
 
 type DisparoDemoPainel = {
@@ -1483,9 +1700,11 @@ function CelulaMetricaSparkDemo({
 function InsightsGridPainel({
   cotacao,
   convidados,
+  onAprovar,
 }: {
   cotacao: CotacaoSimuladorBidFrete
   convidados: { id: string; nome: string }[]
+  onAprovar?: (proposta: PropostaAprovacaoSimulador) => void
 }) {
   const { t } = useTranslation()
   const temRespostas = cotacao.propostasRecebidas > 0
@@ -1582,15 +1801,14 @@ function InsightsGridPainel({
               <span className="pcs-insight-fornecedor-nome" title={melhor.fornecedor}>
                 {melhor.fornecedor.length > 24 ? `${melhor.fornecedor.slice(0, 22)}…` : melhor.fornecedor}
               </span>
-              {cotacao.status === 'AGUARDANDO_APROVACAO' ? (
-                <BotaoDemoDesativado
-                  titulo="Aprovar proposta"
-                  descricao="Confirma o fornecedor vencedor — recurso do tenant completo"
+              {cotacao.status === 'AGUARDANDO_APROVACAO' && melhor && onAprovar ? (
+                <BotaoAprovar
                   className="pcs-btn-aprovar pcs-btn-aprovar--foot"
+                  onClick={() => onAprovar(propostaParaAprovacao(melhor))}
                 >
                   <CheckCircle weight="bold" size={14} />
                   Aprovar
-                </BotaoDemoDesativado>
+                </BotaoAprovar>
               ) : null}
             </footer>
           </>
@@ -1641,9 +1859,11 @@ function InsightsGridPainel({
 function AbaRespostasPainel({
   cotacao,
   convidados,
+  onAprovar,
 }: {
   cotacao: CotacaoSimuladorBidFrete
   convidados: { id: string; nome: string }[]
+  onAprovar?: (proposta: PropostaAprovacaoSimulador) => void
 }) {
   const propostas = montarPropostasDemo(cotacao, convidados)
   const exibirComparativo = propostas.length > 0 && cotacaoExibeComparativoPropostas(cotacao.status)
@@ -1706,15 +1926,14 @@ function AbaRespostasPainel({
                   <strong>—</strong>
                 </div>
               </div>
-              {cotacao.status === 'AGUARDANDO_APROVACAO' ? (
-                <BotaoDemoDesativado
-                  titulo="Aprovar proposta"
-                  descricao="Confirma este fornecedor — recurso do tenant completo"
+              {cotacao.status === 'AGUARDANDO_APROVACAO' && onAprovar ? (
+                <BotaoAprovar
                   className="pcs-btn-aprovar pcs-btn-aprovar--card"
+                  onClick={() => onAprovar(propostaParaAprovacao(p))}
                 >
                   <SealCheck weight="duotone" size={16} />
                   Aprovar
-                </BotaoDemoDesativado>
+                </BotaoAprovar>
               ) : null}
             </article>
           ))}

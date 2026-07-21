@@ -25,6 +25,7 @@ import {
 } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { formatarErroSalvarPermissaoUsuario } from '../../utils/formatar-erro-salvar-permissao-usuario.js'
+import { formatarErroSalvarWorkspacesUsuario } from '../../utils/formatar-erro-salvar-workspaces-usuario.js'
 import { ModalEditarUsuario } from '../configurador/ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import {
@@ -486,8 +487,8 @@ export function UsuariosAdmin() {
         message: `Acessos de "${usuario.nome_usuario}" atualizados.`,
       })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao salvar alterações.'
-      addNotification({ type: 'error', message: msg })
+      const fmt = formatarErroSalvarWorkspacesUsuario(err)
+      addNotification({ type: 'error', message: fmt.toast })
     } finally {
       setSalvandoEdicoes((prev) => { const n = new Set(prev); n.delete(usuario.id_usuario); return n })
     }
@@ -1256,10 +1257,24 @@ export function UsuariosAdmin() {
               await usuariosApi.alterarTipoUsuario(uEditado.id_usuario, novoTipo)
             }
 
-            // 2) Persiste vínculos de workspace — só p/ PADRAO/FORNECEDOR (Mand. 04
-            //    LIMBO: MASTER/SAdmin/ADMIN não passam por UsuarioWorkspace).
-            if (ehVinculavel && workspaceIds.length > 0) {
-              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+            // 2) Persiste vínculos de workspace — só quando a lista mudou.
+            //    Paridade com Usuarios.tsx: evitar PUT /workspaces em todo "Salvar"
+            //    da aba Permissões (403 em vínculo inativo/órfão abortava o save
+            //    de permissões com toast genérico).
+            const vinculosAnteriores = original?.vinculos_workspace.map((v) => v.id_workspace) ?? []
+            const workspacesMudaram =
+              ehVinculavel
+              && (
+                workspaceIds.length !== vinculosAnteriores.length
+                || workspaceIds.some((id) => !vinculosAnteriores.includes(id))
+                || vinculosAnteriores.some((id) => !workspaceIds.includes(id))
+              )
+            if (workspacesMudaram) {
+              try {
+                await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+              } catch (errWs) {
+                throw new Error(formatarErroSalvarWorkspacesUsuario(errWs).modal)
+              }
             }
 
             // 3) Persiste permissões granulares — uma chamada por (workspace, produto)

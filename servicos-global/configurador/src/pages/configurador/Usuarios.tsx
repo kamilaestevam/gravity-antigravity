@@ -23,6 +23,7 @@ import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import { extractCatchError } from '../../utils/extract-api-error'
 import { formatarErroSalvarPermissaoUsuario } from '../../utils/formatar-erro-salvar-permissao-usuario.js'
+import { formatarErroSalvarWorkspacesUsuario } from '../../utils/formatar-erro-salvar-workspaces-usuario.js'
 import {
   usuariosApi,
   workspaceApi,
@@ -1529,7 +1530,11 @@ export function Usuarios() {
                 || vinculosAnteriores.some((id) => !workspaceIds.includes(id))
               )
             if (workspacesMudaram) {
-              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+              try {
+                await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+              } catch (errWs) {
+                throw new Error(formatarErroSalvarWorkspacesUsuario(errWs).modal)
+              }
             }
 
             // 3. Persiste permissões granulares — uma chamada por (workspace, produto)
